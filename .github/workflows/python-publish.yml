@@ -1,0 +1,91 @@
+name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  id-token: write
+
+jobs:
+  build-n-publish:
+    if: startsWith(github.ref, 'refs/tags/')
+
+    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+    - name: Install pypa/build
+      run: >-
+        python -m
+        pip install
+        build
+        --user
+    - name: Set preferred device to CPU
+      run: >-
+        sed -i'' -e 's/\_\_preferred_device\_\_[ ]*=[ ]*\"[A-Za-z0-9]*\"/__preferred_device__ = "CPU"/g' anylabeling/app_info.py
+    - name: Build a binary wheel and a source tarball
+      run: >-
+        python -m
+        build
+        --sdist
+        --wheel
+        --outdir dist/
+        .
+    - name: Publish distribution 📦 to Test PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.5
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository-url: https://test.pypi.org/legacy/
+        skip_existing: true
+    - name: Publish distribution 📦 to PyPI
+      if: startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@v1.8.5
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        skip_existing: true
+
+  build-n-publish-gpu:
+    if: startsWith(github.ref, 'refs/tags/')
+
+    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+    - name: Install pypa/build
+      run: >-
+        python -m
+        pip install
+        build
+        --user
+    - name: Set preferred device to GPU
+      run: >-
+        sed -i'' -e 's/\_\_preferred_device\_\_[ ]*=[ ]*\"[A-Za-z0-9]*\"/__preferred_device__ = "GPU"/g' anylabeling/app_info.py
+    - name: Build a binary wheel and a source tarball
+      run: >-
+        python -m
+        build
+        --wheel
+        --outdir dist/
+        .
+    - name: Publish distribution 📦 to Test PyPI
+      uses: pypa/gh-action-pypi-publish@v1.8.5
+      with:
+        password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        repository-url: https://test.pypi.org/legacy/
+        skip_existing: true
+    - name: Publish distribution 📦 to PyPI
+      if: startsWith(github.ref, 'refs/tags')
+      uses: pypa/gh-action-pypi-publish@v1.8.5
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}
+        skip_existing: true

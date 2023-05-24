@@ -1,0 +1,6 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors: "CVHub"
+title: "Advanced Auto Labeling Solution with Added Features"
+url: "https://github.com/CVHub520/X-AnyLabeling"
+license: GPL-3

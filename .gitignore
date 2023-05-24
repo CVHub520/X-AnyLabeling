@@ -1,0 +1,12 @@
+.DS_Store
+__pycache__
+*.pyc
+*.egg-info
+anylabeling/data
+/data
+/dist
+/build
+/wheels_dist
+*_ui.py
+anylabeling/app_info.py-*
+zipped_models/*

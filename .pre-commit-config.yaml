@@ -1,0 +1,59 @@
+# pre-commit run --all-files
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: check-added-large-files
+        args: ['--maxkb=8096']
+    -   id: check-case-conflict
+    -   id: check-executables-have-shebangs
+    -   id: check-merge-conflict
+    -   id: check-shebang-scripts-are-executable
+    -   id: check-symlinks
+    -   id: check-yaml
+    -   id: debug-statements
+        exclude: tests/
+    -   id: destroyed-symlinks
+    -   id: end-of-file-fixer
+        exclude: tests/test_changes/
+        files: \.(py|sh|rst|yml|yaml)$
+    -   id: mixed-line-ending
+    -   id: trailing-whitespace
+        files: \.(py|sh|rst|yml|yaml)$
+-   repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+    -   id: black
+        exclude: tests/|anylabeling/resources/resources.py
+-   repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+    -   id: black
+        exclude: tests/|anylabeling/resources/resources.py
+        args: [--check]
+-   repo: https://github.com/PyCQA/flake8
+    rev: 6.0.0
+    hooks:
+    -   id: flake8
+        additional_dependencies: [
+            'flake8-blind-except',
+            'flake8-docstrings',
+            'flake8-bugbear',
+            'flake8-comprehensions',
+            'flake8-docstrings',
+            'flake8-implicit-str-concat',
+            'pydocstyle>=5.0.0',
+        ]
+        exclude: anylabeling/resources/resources.py
+-   repo: https://github.com/rstcheck/rstcheck
+    rev: v6.1.2
+    hooks:
+    -   id: rstcheck
+        args: [
+            --report-level=warning,
+        ]
+-   repo: https://github.com/codespell-project/codespell
+    rev: v2.2.4
+    hooks:
+    -   id: codespell
+        files: \.(py|sh|rst|yml|yaml)$

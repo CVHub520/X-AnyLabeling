@@ -1,0 +1,8 @@
+type: segment_anything
+name: segment_anything_vit_h_quant-r20230520
+display_name: Segment Anything (ViT-H Quant)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/segment_anything_vit_h_encoder_quant.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/segment_anything_vit_h_decoder_quant.onnx
+input_size: 1024
+max_width: 1024
+max_height: 682
