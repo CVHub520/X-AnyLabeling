@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="X-AnyLabeling" style="width: 128px; max-width: 100%; height: auto;" src="E:\workspace\anylabeling\anylabeling\resources\images\logo.png"/>
+  <img alt="X-AnyLabeling" style="width: 128px; max-width: 100%; height: auto;" src="https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/logo.png"/>
   <h1 align="center"> 💫 X-AnyLabeling 💫</h1>
   <p align="center">Effortless data labeling with AI support from <b>Segment Anything</b> and other awesome models!</p>
   <p align="center"><b>X-AnyLabeling: Advanced Auto Labeling Solution with Added Features</b></p>
