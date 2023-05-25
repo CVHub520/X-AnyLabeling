@@ -99,6 +99,8 @@ pip install -r requirements-dev.txt
 
 - Build:
 
+Note: Please replace the 'pathex' in the anylabeling.spec file according to the local conda environment before running.
+
 ```bash
 bash build_executable.sh
 ```
