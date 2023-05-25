@@ -33,7 +33,7 @@
 
 ### 1. Download and run executable
 
-- Download and run newest version from [Releases](xxx).
+- Download and run newest version from [Releases](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.1.1).
 - For MacOS:
   - After installing, go to Applications folder
   - Right click on the app and select Open
@@ -41,33 +41,7 @@
 
 ### 2. Install from Pypi
 
-- Requirements: Python >= 3.8, <= 3.10.
-- Recommended: [Miniconda/Anaconda](https://docs.conda.io/en/latest/miniconda.html).
-
-- Create environment:
-
-```bash
-conda create -n x-anylabeling python=3.8
-conda activate x-anylabeling
-```
-
-- **(For macOS only)** Install PyQt5 using Conda:
-
-```bash
-conda install -c conda-forge pyqt==5.15.7
-```
-
-- Install anylabeling:
-
-```bash
-pip install x-anylabeling # or pip install anylabeling-gpu for GPU support
-```
-
-- Start labeling:
-
-```bash
-anylabeling
-```
+Not ready yet, coming soon...
 
 ## II. Development
 
