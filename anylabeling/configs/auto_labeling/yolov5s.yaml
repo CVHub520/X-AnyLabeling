@@ -4,7 +4,7 @@ display_name: YOLOv5s Ultralytics
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
 input_width: 640
 input_height: 640
-score_threshold: 0.5
+stride: 32
 nms_threshold: 0.45
 confidence_threshold: 0.45
 classes:

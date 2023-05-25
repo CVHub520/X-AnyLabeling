@@ -2,6 +2,7 @@ import argparse
 import codecs
 import logging
 import os
+
 import sys
 sys.path.append('.')
 

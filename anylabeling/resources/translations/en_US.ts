@@ -846,17 +846,17 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov7.py" line="34"/>
+        <location filename="../../services/auto_labeling/yolov7.py" line="37"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov7.py" line="44"/>
+        <location filename="../../services/auto_labeling/yolov7.py" line="47"/>
         <source>Could not download or initialize YOLOv7 model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolovx.py" line="36"/>
+        <location filename="../../services/auto_labeling/yolox.py" line="36"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -881,7 +881,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov5.py" line="34"/>
+        <location filename="../../services/auto_labeling/yolov5.py" line="37"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
@@ -921,7 +921,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov5.py" line="44"/>
+        <location filename="../../services/auto_labeling/yolov5.py" line="47"/>
         <source>Could not download or initialize YOLOv5 model.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -7,8 +7,8 @@ det_input_width: 640
 det_input_height: 640
 cls_input_width: 224
 cls_input_height: 224
-det_score_threshold: 0.5
 cls_score_threshold: 0.5
+stride: 32
 nms_threshold: 0.45
 confidence_threshold: 0.45
 det_classes:

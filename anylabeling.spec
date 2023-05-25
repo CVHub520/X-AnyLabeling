@@ -7,7 +7,7 @@ sys.setrecursionlimit(5000)  # required on Windows
 
 a = Analysis(
     ['anylabeling/app.py'],
-    pathex=['anylabeling'],
+    pathex=['anylabeling','D:\\software\\miniconda3\\envs\\x-anylabeling\\lib\\site-packages'],
     binaries=[],
     datas=[
        ('anylabeling/configs/auto_labeling/*.yaml', 'anylabeling/configs/auto_labeling'),
@@ -26,7 +26,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name='anylabeling',
+    name='x-anylabeling',
     debug=False,
     strip=False,
     upx=False,
@@ -36,7 +36,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='AnyLabeling.app',
+    name='X-AnyLabeling.app',
     icon='anylabeling/resources/images/icon.icns',
     bundle_identifier=None,
     info_plist={'NSHighResolutionCapable': 'True'},

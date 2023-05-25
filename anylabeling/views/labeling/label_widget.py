@@ -1228,7 +1228,7 @@ class LabelingWidget(LabelDialog):
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
     def documentation(self):
-        url = "https://anylabeling.com/"  # NOQA
+        url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/"  # NOQA
         webbrowser.open(url)
 
     def contact(self):

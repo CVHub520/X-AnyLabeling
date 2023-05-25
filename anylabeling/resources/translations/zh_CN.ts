@@ -846,12 +846,12 @@ Polygons</source>
         <translation>无法下载或初始化YOLOv6模型。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov7.py" line="34"/>
+        <location filename="../../services/auto_labeling/yolov7.py" line="37"/>
         <source>Rectangle</source>
         <translation>矩形</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov7.py" line="44"/>
+        <location filename="../../services/auto_labeling/yolov7.py" line="47"/>
         <source>Could not download or initialize YOLOv7 model.</source>
         <translation>无法下载或初始化YOLOv7模型。</translation>
     </message>
@@ -881,7 +881,7 @@ Polygons</source>
         <translation>无法下载或初始化ResNet50模型。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov5.py" line="34"/>
+        <location filename="../../services/auto_labeling/yolov5.py" line="37"/>
         <source>Rectangle</source>
         <translation>矩形</translation>
     </message>
@@ -931,7 +931,7 @@ Polygons</source>
         <translation type="obsolete">无法下载或初始化Segment Anything的解码器。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov5.py" line="44"/>
+        <location filename="../../services/auto_labeling/yolov5.py" line="47"/>
         <source>Could not download or initialize YOLOv5 model.</source>
         <translation>无法下载或初始化YOLOv5模型。</translation>
     </message>
