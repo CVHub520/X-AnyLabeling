@@ -5,6 +5,12 @@
   <p align="center"><b>X-AnyLabeling: Advanced Auto Labeling Solution with Added Features</b></p>
 </p>
 
+<div align="center">
+
+English | [简体中文](README_zh-CN.md)
+
+</div>
+
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
 
@@ -20,7 +26,7 @@
 - [x] Image annotation for polygon, rectangle, circle, line and point.
 - [x] Auto-labeling with YOLOv5 and Segment Anything.
 - [x] Text detection, recognition and KIE (Key Information Extraction) labeling.
-- [x] Multiple languages availables: English, Vietnamese, Chinese.
+- [x] Multiple languages availables: English, Chinese.
 
 **Highlight:**
 
