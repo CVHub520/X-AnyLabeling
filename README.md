@@ -93,3 +93,20 @@ bash build_executable.sh
 - Labeling UI built with ideas and components from [LabelImg](https://github.com/heartexlabs/labelImg), [LabelMe](https://github.com/wkentaro/labelme), [Anylabeling](https://github.com/vietanhdev/anylabeling).
 - Auto-labeling with [Segment Anything Models](https://segment-anything.com/).
 - Auto-labeling with [YOLOv5](https://github.com/ultralytics/yolov5), [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX).
+
+
+## Contact 👋
+
+Welcome to CVHub, a loving, fun, and informative platform for sharing computer vision expertise. We provide original, multidisciplinary, and in-depth interpretations of cutting-edge AI research papers, along with mature industrial-grade application solutions. We offer a one-stop service for academia, technology, and career needs.
+
+
+| Platform | Account |
+| --- | --- |
+| Wechat 💬 | cv_huber |
+| Zhihu  🧠 | [CVHub](https://www.zhihu.com/people/cvhub-40) |
+| CSDN   📚 | [CVHub](https://blog.csdn.net/CVHub?spm=1010.2135.3001.5343) |
+| Github 🐱 | [CVHub](https://github.com/CVHub520) |
+
+If you have any questions or encounter any issues while using this project, please scan the QR code below and add me as a friend on WeChat with the note "X-AnyLabeling". I'll be happy to assist you!
+
+![](https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/Wechat.jpg)

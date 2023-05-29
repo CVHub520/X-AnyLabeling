@@ -95,3 +95,22 @@ bash build_executable.sh
 - 标注用户界面的构建借鉴了LabelImg、LabelMe和Anylabeling的思想和组件。
 - 使用Segment Anything Models进行自动标注。
 - 使用YOLOv5、YOLOv6、YOLOv7、YOLOv8和YOLOX进行自动标注。
+
+
+## 联系我们 👋
+
+欢迎关注 CVHub，一个有爱、有趣、有料的计算机视觉专业知识分享平台，每日为您提供原创、多领域、有深度的前沿AI科技论文解读及成熟的工业级应用解决方案，学术 | 技术 | 就业一站式服务！
+
+
+| Platform | Account |
+| --- | --- |
+| Wechat 💬 | cv_huber |
+| Zhihu  🧠 | [CVHub](https://www.zhihu.com/people/cvhub-40) |
+| CSDN   📚 | [CVHub](https://blog.csdn.net/CVHub?spm=1010.2135.3001.5343) |
+| Github 🐱 | [CVHub](https://github.com/CVHub520) |
+
+
+如果您在使用本项目的过程中有任何的疑问或碰到什么问题，请及时扫描以下二维码，备注“X-Anylabeing”添加微信好友！
+
+
+![](https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/Wechat.jpg)
