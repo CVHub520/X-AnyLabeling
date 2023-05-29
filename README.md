@@ -40,10 +40,13 @@ English | [简体中文](README_zh-CN.md)
 ### 1. Download and run executable
 
 - Download and run newest version from [Releases](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.1.1).
+
 - For MacOS:
   - After installing, go to Applications folder
   - Right click on the app and select Open
   - From the second time, you can open the app normally using Launchpad
+
+Note: At present, we exclusively offer a graphical user interface (GUI) executable program designed specifically for the Windows operating system. For users on other operating systems, we provide instructions in [Step Ⅲ](#build) to compile the program independently.
 
 ### 2. Install from Pypi
 
@@ -69,7 +72,7 @@ pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
 python anylabeling/app.py
 ```
 
-## III. Build executable
+## III. Build executable <span id="build">Build</span>
 
 - Install PyInstaller:
 

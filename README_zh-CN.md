@@ -41,10 +41,13 @@
 ### 1. 下载和运行可执行文件
 
 - 从[Releases](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.1.1)下载并运行最新版本。
+
 - 对于MacOS：
   - 安装完成后，转到Applications文件夹。
   - 右键单击应用程序并选择打开。
   - 从第二次开始，您可以使用Launchpad正常打开应用程序。
+
+注意：目前我们仅为Windows操作系统提供带有图形用户界面（GUI）的可执行程序。对于其他操作系统的用户，您可以按照[步骤Ⅲ](#build)的说明自行编译程序。
 
 ### 2. 从Pypi安装
 
@@ -71,7 +74,7 @@ pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
 python anylabeling/app.py
 ```
 
-## III. 构建可执行文件
+## III. 构建可执行文件 <span id="build">编译</span>
 
 - 安装PyInstaller：
 
