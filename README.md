@@ -90,7 +90,7 @@ bash build_executable.sh
 
 ## IV. References
 
-- Labeling UI built with ideas and components from [LabelImg](https://github.com/heartexlabs/labelImg), [LabelMe](https://github.com/wkentaro/labelme), [Anylabeling](https://github.com/vietanhdev/anylabeling).
+- This project is built upon [Anylabeling](https://github.com/vietanhdev/anylabeling) and extends it with a variety of additional features. We would like to express our sincere gratitude to @[vietanhdev](https://github.com/vietanhdev) for open-sourcing such an awesome tool.
 - Auto-labeling with [Segment Anything Models](https://segment-anything.com/).
 - Auto-labeling with [YOLOv5](https://github.com/ultralytics/yolov5), [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX).
 

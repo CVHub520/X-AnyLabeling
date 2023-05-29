@@ -92,9 +92,10 @@ bash build_executable.sh
 
 ## IV. 参考资料
 
-- 标注用户界面的构建借鉴了LabelImg、LabelMe和Anylabeling的思想和组件。
-- 使用Segment Anything Models进行自动标注。
-- 使用YOLOv5、YOLOv6、YOLOv7、YOLOv8和YOLOX进行自动标注。
+- 本项目继承自 [Anylabeling](https://github.com/vietanhdev/anylabeling) 并在此基础上扩展了丰富的功能，非常感谢 @[vietanhdev](https://github.com/vietanhdev) 开源如此出色的工具。
+- 使用 [Segment Anything Models](https://segment-anything.com/) 进行自动标注。
+- 使用 [YOLOv5](https://github.com/ultralytics/yolov5)、[YOLOv6](https://github.com/meituan/YOLOv6)、[YOLOv7](https://github.com/WongKinYiu/yolov7)、[YOLOv8](https://github.com/ultralytics/ultralytics)和 [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX) 进行自动标注。
+
 
 
 ## 联系我们 👋
