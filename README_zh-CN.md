@@ -36,7 +36,7 @@
 
 - [x] 基于检测的细粒度分类。
 - [x] 提供人脸检测和关键点检测。
-- [x] 提供先进的检测器，包括YOLOv6、YOLOv7、YOLOv8和DETR系列。
+- [x] 提供先进的检测器，包括YOLOX、YOLOv6、YOLOv7、YOLOv8和DETR系列。
 - [x] 支持转换成标准的COCO-JSON、VOC-XML以及YOLOv5-TXT文件格式。
 
 **🚀 新特性：**
@@ -104,7 +104,7 @@ bash build_executable.sh
 
 - 本项目继承自 [Anylabeling](https://github.com/vietanhdev/anylabeling) 并在此基础上扩展了丰富的功能，非常感谢 @[vietanhdev](https://github.com/vietanhdev) 开源如此出色的工具。
 - 支持 [MMPreTrain](https://github.com/open-mmlab/mmpretrain), [PaddleClas](https://github.com/PaddlePaddle/PaddleClas), [timm](https://github.com/huggingface/pytorch-image-models) 等主流框架。
-- 使用 [YOLOv5](https://github.com/ultralytics/yolov5)、[YOLOv6](https://github.com/meituan/YOLOv6)、[YOLOv7](https://github.com/WongKinYiu/yolov7)、[YOLOv8](https://github.com/ultralytics/ultralytics)和 [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX), [Segment Anything Models](https://segment-anything.com/) 进行自动标注。
+- 使用 [YOLOv5](https://github.com/ultralytics/yolov5)、[YOLOv6](https://github.com/meituan/YOLOv6)、[YOLOv7](https://github.com/WongKinYiu/yolov7)、[YOLOv8](https://github.com/ultralytics/ultralytics)、[YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)、[YOLO-NAS](https://github.com/Deci-AI/super-gradients)和[Segment Anything Models](https://segment-anything.com/) 进行自动标注。
 
 
 ## 联系我们 👋
