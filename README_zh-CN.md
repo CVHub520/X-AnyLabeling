@@ -7,6 +7,9 @@
 
 <div align="center">
 
+
+[中文文档](https://mp.weixin.qq.com/s/Fi7i4kw0n_QsA7AgmtP-JQ)
+
 简体中文 | [English](README.md)
 
 </div>
@@ -35,6 +38,10 @@
 - [x] 提供人脸检测和关键点检测。
 - [x] 提供先进的检测器，包括YOLOv6、YOLOv7、YOLOv8和DETR系列。
 - [x] 支持转换成标准的COCO-JSON、VOC-XML以及YOLOv5-TXT文件格式。
+
+**🚀 新特性：**
+
+- [x] 支持 YOLO-NAS [2023-06-15]
 
 ## I. 安装和运行
 

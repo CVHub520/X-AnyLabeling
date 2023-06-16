@@ -16,7 +16,7 @@ English | [简体中文](README_zh-CN.md)
 
 **Auto Labeling with Segment Anything**
 
-<a href="https://b23.tv/AcwX0Gx">
+<a href="https://www.bilibili.com/video/BV1AV4y1U7h3/?spm_id_from=333.999.0.0&vd_source=938654fc70710bf1d11daa4b779d2418">
   <img style="width: 800px; margin-left: auto; margin-right: auto; display: block;" alt="AnyLabeling-SegmentAnything" src="https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/demo.gif"/>
 </a>
 
@@ -34,6 +34,10 @@ English | [简体中文](README_zh-CN.md)
 - [x] Offer face detection with keypoint detection.
 - [x] Provide advanced detectors, including YOLOv6, YOLOv7, YOLOv8, and DETR series.
 - [x] Enables seamless conversion to industry-standard formats such as COCO-JSON, VOC-XML, and YOLOv5-TXT.
+
+**🚀 New:**
+
+- [x] Support YOLO-NAS [2023-06-15]
 
 ## I. Install and run
 
