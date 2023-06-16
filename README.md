@@ -94,7 +94,6 @@ bash build_executable.sh
 
 - Check the outputs in: `dist/`.
 
-
 ## IV. References
 
 - This project is built upon [Anylabeling](https://github.com/vietanhdev/anylabeling) and extends it with a variety of additional features. We would like to express our sincere gratitude to @[vietanhdev](https://github.com/vietanhdev) for open-sourcing such an awesome tool.
