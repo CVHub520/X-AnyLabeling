@@ -861,8 +861,18 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolox.py" line="41"/>
+        <location filename="../../services/auto_labeling/yolox.py" line="46"/>
         <source>Could not download or initialize YOLOX model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/yolo_nas.py" line="208"/>
+        <source>Rectangle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/yolo_nas.py" line="219"/>
+        <source>Could not download or initialize YOLO_NAS model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -881,7 +891,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov5.py" line="37"/>
+        <location filename="../../services/auto_labeling/yolov5.py" line="36"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>

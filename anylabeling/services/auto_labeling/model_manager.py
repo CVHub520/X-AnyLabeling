@@ -164,7 +164,18 @@ class ModelManager(QObject):
             or "display_name" not in model_config
             or "name" not in model_config
             or model_config["type"]
-            not in ["segment_anything", "yolov5", "yolov6", "yolov7", "yolov8", "yolox", "yolov5_cls", "yolov6_face", "rtdetr"]
+            not in [
+                "segment_anything", 
+                "yolov5", 
+                "yolov6", 
+                "yolov7", 
+                "yolov8", 
+                "yolox", 
+                "yolov5_cls", 
+                "yolov6_face", 
+                "rtdetr", 
+                "yolo_nas",
+            ]
         ):
             self.new_model_status.emit(
                 self.tr(
@@ -358,6 +369,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOX(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolo_nas":
+            from .yolo_nas import YOLO_NAS
+
+            try:
+                model_config["model"] = YOLO_NAS(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

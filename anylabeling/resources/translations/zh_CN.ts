@@ -866,6 +866,16 @@ Polygons</source>
         <translation>无法下载或初始化YOLOX模型。</translation>
     </message>
     <message>
+        <location filename="../../services/auto_labeling/yolo_nas.py" line="208"/>
+        <source>Rectangle</source>
+        <translation>矩形</translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/yolo_nas.py" line="219"/>
+        <source>Could not download or initialize YOLO_NAS model.</source>
+        <translation>无法下载或初始化YOLO_NAS模型。</translation>
+    </message>
+    <message>
         <location filename="../../services/auto_labeling/yolov5_cls.py" line="41"/>
         <source>Rectangle</source>
         <translation>矩形</translation>
