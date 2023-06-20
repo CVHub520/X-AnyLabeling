@@ -1,6 +1,6 @@
 type: yolo_nas
 name: yolo_nas_s-r20230615
-display_name: YOLO-NAS-S (Deci-AI)
+display_name: YOLO-NAS-S Deci-AI
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolo_nas_s.onnx
 input_width: 640
 input_height: 640

@@ -1,9 +1,10 @@
-type: yolo_nas
-name: yolo_nas_l-r20230615
-display_name: YOLO-NAS-L Deci-AI
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolo_nas_l.onnx
+type: yolov8_seg
+name: yolov8l-seg-r20230620
+display_name: YOLOv8l-Seg Ultralytics
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8l-seg.onnx
 input_width: 640
 input_height: 640
+num_masks: 32
 score_threshold: 0.5
 nms_threshold: 0.45
 classes:

@@ -169,7 +169,8 @@ class ModelManager(QObject):
                 "yolov5", 
                 "yolov6", 
                 "yolov7", 
-                "yolov8", 
+                "yolov8",
+                "yolov8_seg",
                 "yolox", 
                 "yolov5_cls", 
                 "yolov6_face", 
@@ -347,6 +348,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv8(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov8_seg":
+            from .yolov8_seg import YOLOv8_Seg
+
+            try:
+                model_config["model"] = YOLOv8_Seg(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

@@ -1,0 +1,68 @@
+# Query: line_color
+# Including: ./workspace/X-AnyLabeling
+# ContextLines: 1
+
+23 个结果 - 4 文件
+
+workspace/X-AnyLabeling/anylabeling/configs/anylabeling_config.yaml:
+  28    # drawing
+  29:   line_color: [0, 255, 0, 128]
+  30    fill_color: [220, 220, 220, 150]
+
+  32    # selecting / hovering
+  33:   select_line_color: [255, 255, 255, 255]
+  34    select_fill_color: [0, 255, 0, 155]
+
+workspace/X-AnyLabeling/anylabeling/services/auto_labeling/segment_anything.py:
+  305                  shape.fill_color = "#000000"
+  306:                 shape.line_color = "#000000"
+  307                  shape.line_width = 1
+
+  338              shape.fill_color = "#000000"
+  339:             shape.line_color = "#000000"
+  340              shape.line_width = 1
+
+workspace/X-AnyLabeling/anylabeling/views/labeling/label_widget.py:
+    85          # set default shape colors
+    86:         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
+    87          Shape.fill_color = QtGui.QColor(*self._config["shape"]["fill_color"])
+    88:         Shape.select_line_color = QtGui.QColor(
+    89:             *self._config["shape"]["select_line_color"]
+    90          )
+
+  1502          r, g, b = self._get_rgb_by_label(shape.label)
+  1503:         shape.line_color = QtGui.QColor(r, g, b)
+  1504          shape.vertex_fill_color = QtGui.QColor(r, g, b)
+
+  1506          shape.fill_color = QtGui.QColor(r, g, b, 128)
+  1507:         shape.select_line_color = QtGui.QColor(255, 255, 255)
+  1508          shape.select_fill_color = QtGui.QColor(r, g, b, 155)
+
+workspace/X-AnyLabeling/anylabeling/views/labeling/shape.py:
+   11  
+   12: DEFAULT_LINE_COLOR = QtGui.QColor(0, 255, 0, 128)  # bf hovering
+   13  DEFAULT_FILL_COLOR = QtGui.QColor(100, 100, 100, 100)  # hovering
+   14: DEFAULT_SELECT_LINE_COLOR = QtGui.QColor(255, 255, 255)  # selected
+   15  DEFAULT_SELECT_FILL_COLOR = QtGui.QColor(0, 255, 0, 155)  # selected
+
+   35      # The following class variables influence the drawing of all shape objects.
+   36:     line_color = DEFAULT_LINE_COLOR
+   37      fill_color = DEFAULT_FILL_COLOR
+   38:     select_line_color = DEFAULT_SELECT_LINE_COLOR
+   39      select_fill_color = DEFAULT_SELECT_FILL_COLOR
+
+   49          text="",
+   50:         line_color=None,
+   51          shape_type=None,
+
+   75  
+   76:         if line_color is not None:
+   77:             # Override the class line_color attribute
+   78              # with an object attribute. Currently this
+   79              # is used for drawing the pending line a different color.
+   80:             self.line_color = line_color
+   81  
+
+  151              color = (
+  152:                 self.select_line_color if self.selected else self.line_color
+  153              )
