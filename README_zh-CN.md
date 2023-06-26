@@ -95,7 +95,7 @@ pip install -r requirements-dev.txt
 请注意，在运行之前，请根据本地conda环境在anylabeling.spec文件中替换'pathex'。
 
 ```bash
-bash build_executable.sh
+bash scripts/build_executable.sh
 ```
 
 - 移步至目录 `dist/` 下检查输出。

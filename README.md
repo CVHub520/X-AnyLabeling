@@ -90,7 +90,7 @@ pip install -r requirements-dev.txt
 Note: Please replace the 'pathex' in the anylabeling.spec file according to the local conda environment before running.
 
 ```bash
-bash build_executable.sh
+bash scripts/build_executable.sh
 ```
 
 - Check the outputs in: `dist/`.

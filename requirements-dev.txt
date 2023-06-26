@@ -1,3 +1,4 @@
 -r requirements.txt
 build
 twine
+pyinstaller

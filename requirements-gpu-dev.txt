@@ -1,3 +1,4 @@
 -r requirements-gpu.txt
 build
 twine
+pyinstaller
