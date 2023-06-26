@@ -1,0 +1,78 @@
+{
+  "version": "0.3.0",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "giraffe",
+      "text": "",
+      "points": [
+        [
+          321.22033898305085,
+          291.7966101694915
+        ],
+        [
+          894.1016949152541,
+          1481.6271186440679
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "giraffe",
+      "text": "",
+      "points": [
+        [
+          1441.5593220338983,
+          298.57627118644064
+        ],
+        [
+          2500.8813559322034,
+          1440.949152542373
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "car",
+      "text": "",
+      "points": [
+        [
+          895.7966101694915,
+          927.3898305084746
+        ],
+        [
+          1563.5932203389832,
+          1447.7288135593221
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "car",
+      "text": "",
+      "points": [
+        [
+          1304.271186440678,
+          1027.3898305084747
+        ],
+        [
+          1794.1016949152543,
+          1429.084745762712
+        ]
+      ],
+      "group_id": null,
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "Giraffes_at_west_midlands_safari_park.jpg",
+  "imageData": null,
+  "imageHeight": 1548,
+  "imageWidth": 2656
+}
