@@ -44,7 +44,7 @@ English | [简体中文](README_zh-CN.md)
 
 ### 1. Download and run executable
 
-- Download and run newest version from [Releases](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.1.1).
+- Download and run newest version from [Google Drive](https://drive.google.com/drive/folders/1Yu_yiL0K80RliakZ4d2ermUx-Zz-i6tT?usp=sharing).
 
 - For MacOS:
   - After installing, go to Applications folder
