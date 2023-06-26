@@ -921,6 +921,11 @@ Polygons</source>
         <translation>无法下载或初始化YOLOv8模型。</translation>
     </message>
     <message>
+        <location filename="../../services/auto_labeling/yolov8_seg.py" line="36"/>
+        <source>Could not download or initialize YOLOv8-Seg model.</source>
+        <translation>无法下载或初始化YOLOv8-Seg模型。</translation>
+    </message>
+    <message>
         <location filename="../../services/auto_labeling/model.py" line="51"/>
         <source>Config file not found: {model_config}</source>
         <translation>找不到配置文件：{model_config}</translation>

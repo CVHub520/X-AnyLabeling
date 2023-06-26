@@ -38,6 +38,7 @@ English | [简体中文](README_zh-CN.md)
 **🚀 New:**
 
 - [x] Support YOLO-NAS [2023-06-15]
+- [x] Support YOLOv8-Segmentation [2023-06-20]
 
 ## I. Install and run
 
@@ -93,7 +94,6 @@ bash build_executable.sh
 ```
 
 - Check the outputs in: `dist/`.
-
 
 ## IV. References
 
