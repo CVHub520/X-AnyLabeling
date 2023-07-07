@@ -1,7 +1,15 @@
+import os
+
+# Temporary fix for: bus error
+# Source: https://stackoverflow.com/questions/73072612/
+# why-does-np-linalg-solve-raise-bus-error-when-running-on-its-own-thread-mac-m1
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+
 import argparse
 import codecs
 import logging
-import os
 
 import sys
 sys.path.append('.')
