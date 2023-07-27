@@ -270,7 +270,6 @@ class LabelConverter:
     def coco_to_custom(self, input_file, output_path, image_path):
 
         img_dic = {}
-        print(image_path)
         for file in os.listdir(image_path):
             img_dic[file] = file
 
@@ -289,7 +288,6 @@ class LabelConverter:
 
         # map image_id to info
         for dic_info in data["images"]:
-            #print(img_dic)
             total_info[dic_info["id"]] = {
                 "imageWidth": dic_info["width"],
                 "imageHeight": dic_info["height"],
