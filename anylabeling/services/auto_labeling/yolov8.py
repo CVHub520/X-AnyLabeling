@@ -3,6 +3,7 @@ import os
 
 import cv2
 import numpy as np
+import onnxruntime as ort
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
 
@@ -47,32 +48,39 @@ class YOLOv8(Model):
                 )
             )
 
-        self.net = cv2.dnn.readNet(model_abs_path)
+        self.sess_opts = ort.SessionOptions()
+        if "OMP_NUM_THREADS" in os.environ:
+            self.sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
+        self.providers = ['CPUExecutionProvider']
         if __preferred_device__ == "GPU":
-            self.net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
-            self.net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
+            self.providers = ['CUDAExecutionProvider']
+
+        self.net = ort.InferenceSession(
+                        model_abs_path, 
+                        providers=self.providers,
+                        sess_options=self.sess_opts,
+                    )
         self.classes = self.config["classes"]
 
     def pre_process(self, input_image, net):
         """
         Pre-process the input image before feeding it to the network.
         """
-        # Create a 4D blob from a frame.
-        blob = cv2.dnn.blobFromImage(
-            input_image,
-            1 / 255,
-            (self.config["input_width"], self.config["input_height"]),
-            [0, 0, 0],
-            1,
-            crop=False,
-        )
+        # Resized
+        input_img = cv2.resize(input_image, (640, 640))
 
-        # Sets the input to the network.
-        net.setInput(blob)
+        # Norm
+        input_img = input_img / 255.0
 
-        # Runs the forward with blob.
-        outputs = net.forward()
-        outputs = np.array([cv2.transpose(outputs[0])])
+        # Transposed
+        input_img = input_img.transpose(2, 0, 1)
+        
+        # Processed
+        blob = input_img[np.newaxis, :, :, :].astype(np.float32)
+
+        inputs = net.get_inputs()[0].name
+        outputs = net.run(None, {inputs: blob})[0]
+        outputs = np.transpose(outputs, (0, 2, 1))
 
         return outputs
 
