@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import time
+import shutil
 
 from PIL import Image
 from tqdm import tqdm
@@ -361,7 +362,7 @@ def main():
     if args.mode == "custom2voc":
         file_list = os.listdir(args.src_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-            os.makedirs(args.dst_path, exist_ok=False)
+            os.makedirs(args.dst_path, exist_ok=True)
             src_file = os.path.join(args.src_path, file_name)
             dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.xml')
             converter.custom_to_voc2017(src_file, dst_file)
@@ -374,7 +375,7 @@ def main():
     elif args.mode == "custom2yolo":
         file_list = os.listdir(args.src_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-            os.makedirs(args.dst_path, exist_ok=False)
+            os.makedirs(args.dst_path, exist_ok=True)
             src_file = os.path.join(args.src_path, file_name)
             dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.txt')
             converter.custom_to_yolov5(src_file, dst_file)
@@ -390,7 +391,7 @@ def main():
             img_file = os.path.join(args.img_path, img_dic[os.path.splitext(file_name)[0]])
             converter.yolov5_to_custom(src_file, dst_file, img_file)
     elif args.mode == "custom2coco":
-        os.makedirs(args.dst_path, exist_ok=False)
+        os.makedirs(args.dst_path, exist_ok=True)
         converter.custom_to_coco(args.src_path, args.dst_path)
     elif args.mode == "coco2custom":
         os.makedirs(args.dst_path, exist_ok=True)
