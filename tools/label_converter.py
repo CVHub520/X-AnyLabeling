@@ -42,6 +42,8 @@ class LabelConverter:
         if classes_file:
             with open(classes_file, 'r') as f:
                 self.classes = f.read().splitlines()
+        else:
+            self.classes = []
 
     def custom_to_voc2017(self, input_file, output_dir):
         with open(input_file, 'r') as f:
@@ -269,11 +271,14 @@ class LabelConverter:
 
         img_dic = {}
         for file in os.listdir(image_path):
-            prefix = file.split('.')[0]
-            img_dic[prefix] = file
+            img_dic[file] = file
 
         with open(input_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
+            
+        if not self.classes:
+            for cat in data["categories"]:
+                self.classes.append(cat["name"])
 
         total_info, label_info = {}, {}
 
