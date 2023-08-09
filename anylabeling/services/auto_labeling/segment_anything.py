@@ -1,10 +1,9 @@
 import logging
 import os
-from copy import deepcopy
+import traceback
 
 import cv2
 import numpy as np
-import onnxruntime
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QCoreApplication
@@ -16,6 +15,7 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .lru_cache import LRUCache
 from .model import Model
 from .types import AutoLabelingResult
+from .sam_onnx import SegmentAnythingONNX
 
 
 class SegmentAnything(Model):
@@ -78,23 +78,8 @@ class SegmentAnything(Model):
             )
 
         # Load models
-        providers = onnxruntime.get_available_providers()
-
-        # Pop TensorRT Runtime due to crashing issues
-        # TODO: Add back when TensorRT backend is stable
-        providers = [p for p in providers if p != "TensorrtExecutionProvider"]
-
-        if providers:
-            logging.info(
-                "Available providers for ONNXRuntime: %s", ", ".join(providers)
-            )
-        else:
-            logging.warning("No available providers for ONNXRuntime")
-        self.encoder_session = onnxruntime.InferenceSession(
-            encoder_model_abs_path, providers=providers
-        )
-        self.decoder_session = onnxruntime.InferenceSession(
-            decoder_model_abs_path, providers=providers
+        self.model = SegmentAnythingONNX(
+            encoder_model_abs_path, decoder_model_abs_path
         )
 
         # Mark for auto labeling
@@ -115,150 +100,16 @@ class SegmentAnything(Model):
         """Set auto labeling marks"""
         self.marks = marks
 
-    def get_input_points(self, resized_ratio):
-        """Get input points"""
-        points = []
-        labels = []
-        for mark in self.marks:
-            if mark["type"] == "point":
-                points.append(mark["data"])
-                labels.append(mark["label"])
-            elif mark["type"] == "rectangle":
-                points.append([mark["data"][0], mark["data"][1]])  # top left
-                points.append([mark["data"][2], mark["data"][3]])  # top right
-                labels.append(2)
-                labels.append(3)
-        points, labels = np.array(points), np.array(labels)
-
-        # Resize points based on scales
-        points[:, 0] = points[:, 0] * resized_ratio[0]
-        points[:, 1] = points[:, 1] * resized_ratio[1]
-        return points, labels
-
-    def pre_process(self, image):
-        # Resize by max width and max height
-        # In the original code, the image is resized to long side 1024
-        # However, there is a positional deviation when the image does not
-        # have the same aspect ratio as in the exported ONNX model (2250x1500)
-        # => Resize by max width and max height
-        max_width = self.max_width
-        max_height = self.max_height
-        original_size = image.shape[:2]
-        h, w = image.shape[:2]
-        if w > max_width:
-            h = int(h * max_width / w)
-            w = max_width
-        if h > max_height:
-            w = int(w * max_height / h)
-            h = max_height
-        image = cv2.resize(image, (w, h))
-        resized_ratio = (
-            w / original_size[1],
-            h / original_size[0],
-        )
-
-        # Pad to have size at least max_width x max_height
-        h, w = image.shape[:2]
-        padh = max_height - h
-        padw = max_width - w
-        image = np.pad(image, ((0, padh), (0, padw), (0, 0)), mode="constant")
-        size_after_apply_max_width_height = image.shape[:2]
-
-        # Normalize
-        pixel_mean = np.array([123.675, 116.28, 103.53]).reshape(1, 1, -1)
-        pixel_std = np.array([58.395, 57.12, 57.375]).reshape(1, 1, -1)
-        x = (image - pixel_mean) / pixel_std
-
-        # Padding to square
-        h, w = x.shape[:2]
-        padh = self.input_size - h
-        padw = self.input_size - w
-        x = np.pad(x, ((0, padh), (0, padw), (0, 0)), mode="constant")
-        x = x.astype(np.float32)
-
-        # Transpose
-        x = x.transpose(2, 0, 1)[None, :, :, :]
-
-        encoder_inputs = {
-            "x": x,
-        }
-        return encoder_inputs, resized_ratio, size_after_apply_max_width_height
-
-    def run_encoder(self, encoder_inputs):
-        output = self.encoder_session.run(None, encoder_inputs)
-        image_embedding = output[0]
-        return image_embedding
-
-    @staticmethod
-    def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int):
-        """
-        Compute the output size given input size and target long side length.
-        """
-        scale = long_side_length * 1.0 / max(oldh, oldw)
-        newh, neww = oldh * scale, oldw * scale
-        neww = int(neww + 0.5)
-        newh = int(newh + 0.5)
-        return (newh, neww)
-
-    def apply_coords(
-        self, coords: np.ndarray, original_size, target_length
-    ) -> np.ndarray:
-        """
-        Expects a numpy array of length 2 in the final dimension. Requires the
-        original image size in (H, W) format.
-        """
-        old_h, old_w = original_size
-        new_h, new_w = SegmentAnything.get_preprocess_shape(
-            original_size[0], original_size[1], target_length
-        )
-        coords = deepcopy(coords).astype(float)
-        coords[..., 0] = coords[..., 0] * (new_w / old_w)
-        coords[..., 1] = coords[..., 1] * (new_h / old_h)
-        return coords
-
-    def run_decoder(
-        self, image_embedding, resized_ratio, size_after_apply_max_width_height
-    ):
-        input_points, input_labels = self.get_input_points(resized_ratio)
-
-        # Add a batch index, concatenate a padding point, and transform.
-        onnx_coord = np.concatenate(
-            [input_points, np.array([[0.0, 0.0]])], axis=0
-        )[None, :, :]
-        onnx_label = np.concatenate([input_labels, np.array([-1])], axis=0)[
-            None, :
-        ].astype(np.float32)
-        onnx_coord = self.apply_coords(
-            onnx_coord, size_after_apply_max_width_height, self.input_size
-        ).astype(np.float32)
-
-        # Create an empty mask input and an indicator for no mask.
-        onnx_mask_input = np.zeros((1, 1, 256, 256), dtype=np.float32)
-        onnx_has_mask_input = np.zeros(1, dtype=np.float32)
-
-        decoder_inputs = {
-            "image_embeddings": image_embedding,
-            "point_coords": onnx_coord,
-            "point_labels": onnx_label,
-            "mask_input": onnx_mask_input,
-            "has_mask_input": onnx_has_mask_input,
-            "orig_im_size": np.array(
-                size_after_apply_max_width_height, dtype=np.float32
-            ),
-        }
-        masks, _, _ = self.decoder_session.run(None, decoder_inputs)
-        masks = masks[0, 0, :, :]  # Only get 1 mask
-        masks = masks > 0.0
-        masks = masks.reshape(size_after_apply_max_width_height)
-        return masks
-
-    def post_process(self, masks, resized_ratio):
+    def post_process(self, masks):
         """
         Post process masks
         """
         # Find contours
+        masks[masks > 0.0] = 255
+        masks[masks <= 0.0] = 0
+        masks = masks.astype(np.uint8)
         contours, _ = cv2.findContours(
-            masks.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+            masks, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
         )
 
         # Refine contours
@@ -268,6 +119,16 @@ class SegmentAnything(Model):
             epsilon = 0.001 * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
             approx_contours.append(approx)
+
+        # Remove too big contours ( >90% of image size)
+        if len(approx_contours) > 1:
+            image_size = masks.shape[0] * masks.shape[1]
+            areas = [cv2.contourArea(contour) for contour in approx_contours]
+            filtered_approx_contours = [
+                contour
+                for contour, area in zip(approx_contours, areas)
+                if area < image_size * 0.9
+            ]
 
         # Remove small contours (area < 20% of average area)
         if len(approx_contours) > 1:
@@ -287,8 +148,8 @@ class SegmentAnything(Model):
             for approx in approx_contours:
                 # Scale points
                 points = approx.reshape(-1, 2)
-                points[:, 0] = points[:, 0] / resized_ratio[0]
-                points[:, 1] = points[:, 1] / resized_ratio[1]
+                points[:, 0] = points[:, 0]
+                points[:, 1] = points[:, 1]
                 points = points.tolist()
                 if len(points) < 3:
                     continue
@@ -316,8 +177,8 @@ class SegmentAnything(Model):
             for approx in approx_contours:
                 # Scale points
                 points = approx.reshape(-1, 2)
-                points[:, 0] = points[:, 0] / resized_ratio[0]
-                points[:, 1] = points[:, 1] / resized_ratio[1]
+                points[:, 0] = points[:, 0]
+                points[:, 1] = points[:, 1]
                 points = points.tolist()
                 if len(points) < 3:
                     continue
@@ -356,40 +217,28 @@ class SegmentAnything(Model):
             # Use cached image embedding if possible
             cached_data = self.image_embedding_cache.get(filename)
             if cached_data is not None:
-                (
-                    resized_ratio,
-                    size_after_apply_max_width_height,
-                    image_embedding,
-                ) = cached_data
+                image_embedding = cached_data
             else:
                 cv_image = qt_img_to_rgb_cv_img(image, filename)
-                (
-                    encoder_inputs,
-                    resized_ratio,
-                    size_after_apply_max_width_height,
-                ) = self.pre_process(cv_image)
                 if self.stop_inference:
                     return AutoLabelingResult([], replace=False)
-                image_embedding = self.run_encoder(encoder_inputs)
+                image_embedding = self.model.encode(cv_image)
                 self.image_embedding_cache.put(
                     filename,
-                    (
-                        resized_ratio,
-                        size_after_apply_max_width_height,
-                        image_embedding,
-                    ),
+                    image_embedding,
                 )
             if self.stop_inference:
                 return AutoLabelingResult([], replace=False)
-            masks = self.run_decoder(
-                image_embedding,
-                resized_ratio,
-                size_after_apply_max_width_height,
-            )
-            shapes = self.post_process(masks, resized_ratio)
+            masks = self.model.predict_masks(image_embedding, self.marks)
+            if len(masks.shape) == 4:
+                masks = masks[0][0]
+            else:
+                masks = masks[0]
+            shapes = self.post_process(masks)
         except Exception as e:  # noqa
             logging.warning("Could not inference model")
             logging.warning(e)
+            traceback.print_exc()
             return AutoLabelingResult([], replace=False)
 
         result = AutoLabelingResult(shapes, replace=False)
@@ -399,11 +248,6 @@ class SegmentAnything(Model):
         self.stop_inference = True
         if self.pre_inference_thread:
             self.pre_inference_thread.quit()
-            self.pre_inference_thread.wait()
-        if self.encoder_session:
-            self.encoder_session = None
-        if self.decoder_session:
-            self.decoder_session = None
 
     def preload_worker(self, files):
         """
@@ -419,19 +263,10 @@ class SegmentAnything(Model):
             if self.stop_inference:
                 return
             cv_image = qt_img_to_rgb_cv_img(image)
-            (
-                encoder_inputs,
-                resized_ratio,
-                size_after_apply_max_width_height,
-            ) = self.pre_process(cv_image)
-            image_embedding = self.run_encoder(encoder_inputs)
+            image_embedding = self.model.encode(cv_image)
             self.image_embedding_cache.put(
                 filename,
-                (
-                    resized_ratio,
-                    size_after_apply_max_width_height,
-                    image_embedding,
-                ),
+                image_embedding,
             )
 
     def on_next_files_changed(self, next_files):
