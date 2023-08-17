@@ -3,11 +3,9 @@
 
 import sys
 
-sys.setrecursionlimit(5000)  # required on Windows
-
 a = Analysis(
     ['anylabeling/app.py'],
-    pathex=['anylabeling','D:\\software\\miniconda3\\envs\\x-anylabeling\\lib\\site-packages'],
+    pathex=['anylabeling'],
     binaries=[],
     datas=[
        ('anylabeling/configs/auto_labeling/*.yaml', 'anylabeling/configs/auto_labeling'),
@@ -26,7 +24,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name='x-anylabeling',
+    name='X-Anylabeling-Linux-CPU',
     debug=False,
     strip=False,
     upx=False,
