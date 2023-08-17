@@ -35,13 +35,14 @@
 
 - [x] 基于检测的细粒度分类。
 - [x] 提供人脸检测和关键点检测。
-- [x] 提供先进的检测器，包括YOLOX、YOLOv6、YOLOv7、YOLOv8和DETR系列。
-- [x] 支持转换成标准的COCO-JSON、VOC-XML以及YOLOv5-TXT文件格式。
+- [x] 提供先进的检测器，包括YOLOX、YOLOv6、YOLOv7、YOLOv8 和 DETR 系列。
+- [x] 支持转换成标准的COCO-JSON、VOC-XML 以及 YOLOv5-TXT 文件格式。
 
 **🚀 新特性：**
 
 - [x] 支持 YOLO-NAS [2023-06-15]
 - [x] 支持 YOLOv8-Segmentation [2023-06-20]
+- [x] 支持 MobileSAM, MedSAM 以及 LVM-Med [2023-08-10]
 
 ## I. 安装和运行
 
@@ -109,18 +110,7 @@ bash scripts/build_executable.sh
 
 ## 联系我们 👋
 
-欢迎关注 CVHub，一个有爱、有趣、有料的计算机视觉专业知识分享平台，每日为您提供原创、多领域、有深度的前沿AI科技论文解读及成熟的工业级应用解决方案，学术 | 技术 | 就业一站式服务！
-
-
-| Platform | Account |
-| --- | --- |
-| Wechat 💬 | cv_huber |
-| Zhihu  🧠 | [CVHub](https://www.zhihu.com/people/cvhub-40) |
-| CSDN   📚 | [CVHub](https://blog.csdn.net/CVHub?spm=1010.2135.3001.5343) |
-| Github 🐱 | [CVHub](https://github.com/CVHub520) |
-
-
-如果您在使用本项目的过程中有任何的疑问或碰到什么问题，请及时扫描以下二维码，备注“X-Anylabeing”添加微信好友！
+如果您在使用本项目的过程中有任何的疑问或碰到什么问题，请及时扫描以下二维码，备注“X-Anylabeing”添加微信好友，我们将给予力所能及的帮助！
 
 
 ![](https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/Wechat.jpg)
