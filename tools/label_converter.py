@@ -2,14 +2,19 @@ import argparse
 import json
 import os
 import time
-import shutil
 
 from PIL import Image
 from tqdm import tqdm
 from datetime import date
 
+import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
+
+import sys
+sys.path.append('.')
+from anylabeling.app_info import __version__
+
 
 #======================================================================= Usage ========================================================================#
 #                                                                                                                                                      #
@@ -17,13 +22,13 @@ import xml.etree.ElementTree as ET
 # python tools/label_converter.py --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2voc                                      #                             
 #                                                                                                                                                      #
 #-------------------------------------------------------------------- voc2custom  ---------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode custom2voc                                      #
+# python tools/label_converter.py --src_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode voc2custom                                      #
 #                                                                                                                                                      #
 #-------------------------------------------------------------------- custom2yolo  --------------------------------------------------------------------#
 # python tools/label_converter.py --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2yolo                                     #                             
 #                                                                                                                                                      #
 #-------------------------------------------------------------------- yolo2custom  --------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx_folder --img_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode custom2voc                #
+# python tools/label_converter.py --src_path xxx_folder --img_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode yolo2custom               #
 #                                                                                                                                                      #
 #-------------------------------------------------------------------- custom2coco  --------------------------------------------------------------------#
 # python tools/label_converter.py --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2coco                                     #                             
@@ -34,10 +39,10 @@ import xml.etree.ElementTree as ET
 #======================================================================= Usage ========================================================================#
 
 
-VERSION = "0.2.23"
+VERSION = __version__
 
-class LabelConverter:
 
+class BaseLabelConverter:
     def __init__(self, classes_file):
 
         if classes_file:
@@ -45,6 +50,24 @@ class LabelConverter:
                 self.classes = f.read().splitlines()
         else:
             self.classes = []
+
+    def reset(self):
+        self.custom_data = dict(
+            version=VERSION,
+            flags={},
+            shapes=[],
+            imagePath="",
+            imageData=None,
+            imageHeight=-1,
+            imageWidth=-1
+        )
+
+    def get_image_size(self, image_file):
+        with Image.open(image_file) as img:
+            width, height = img.size
+            return width, height
+
+class RectLabelConverter(BaseLabelConverter):
 
     def custom_to_voc2017(self, input_file, output_dir):
         with open(input_file, 'r') as f:
@@ -190,7 +213,7 @@ class LabelConverter:
         coco_data = {
             "info": {
                 "year": 2023,
-                "version": "1.0",
+                "version": VERSION,
                 "description": "COCO Label Conversion",
                 "contributor": "CVHub",
                 "url": "https://github.com/CVHub520/X-AnyLabeling",
@@ -328,36 +351,79 @@ class LabelConverter:
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def reset(self):
-        self.custom_data = dict(
-            version=VERSION,
-            flags={},
-            shapes=[],
-            imagePath="",
-            imageData=None,
-            imageHeight=-1,
-            imageWidth=-1
-        )
+class PolyLabelConvert(BaseLabelConverter):
 
-    def get_image_size(self, image_file):
-        with Image.open(image_file) as img:
-            width, height = img.size
-            return width, height
+    def custom_to_yolov5(self, input_file, output_file):
+        with open(input_file, 'r') as f:
+            data = json.load(f)
+
+        image_width = data['imageWidth']
+        image_height = data['imageHeight']
+        image_size = np.array([[image_width, image_height]])
+
+        with open(output_file, 'w') as f:
+            for shape in data['shapes']:
+                label = shape['label']
+                points = np.array(shape['points'])
+                class_index = self.classes.index(label)
+                norm_points = points / image_size
+                f.write(f"{class_index} " + " ".join([" ".join([str(cell[0]), str(cell[1])]) for cell in norm_points.tolist()]) + "\n")
+
+    def yolov5_to_custom(self, input_file, output_file, image_file):
+        self.reset()
+
+        with open(input_file, 'r') as f:
+            lines = f.readlines()
+
+        image_width, image_height = self.get_image_size(image_file)
+        image_size = np.array([image_width, image_height], np.float64)
+
+        for line in lines:
+            line = line.strip().split(' ')
+            class_index = int(line[0])
+            label = self.classes[class_index]
+            masks = line[1:]
+            shape = {
+                "label": label,
+                "text": None,
+                "points": [],
+                "group_id": None,
+                "shape_type": "rectangle",
+                "flags": {}
+            }
+            for x, y in zip(masks[0::2], masks[1::2]):
+                point = [np.float64(x), np.float64(y)]
+                point = np.array(point, np.float64) * image_size
+                shape['points'].append(point.tolist())
+            self.custom_data['shapes'].append(shape)
+
+        self.custom_data['imagePath'] = os.path.basename(image_file)
+        self.custom_data['imageHeight'] = image_height
+        self.custom_data['imageWidth'] = image_width
+
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
 def main():
     parser = argparse.ArgumentParser(description='Label Converter')
+    parser.add_argument('--task', default='rectangle', choices=['rectangle', 'polygon'], help='Choose the type of task to perform')
     parser.add_argument('--src_path', help='Path to input directory')
     parser.add_argument('--dst_path', help='Path to output directory')
     parser.add_argument('--img_path', help='Path to image directory')
-    parser.add_argument('--classes', default=None, help='Path to classes.txt file')
-    parser.add_argument('--mode', 
+    parser.add_argument('--classes', default=None, help='Path to classes.txt file, where each line represent a specific class')
+    parser.add_argument('--mode', help='Choose the conversion mode what you need',
                         choices=['custom2voc', 'voc2custom', 'custom2yolo', 'yolo2custom', 'custom2coco', 'coco2custom'])
     args = parser.parse_args()
 
-    converter = LabelConverter(args.classes)
-    
-    print(f"Starting conversion to {args.mode} format...")
+    print(f"Starting conversion to {args.mode} format of {args.task}...")
     start_time = time.time()
+
+    if args.task == 'rectangle':
+        converter = RectLabelConverter(args.classes)
+    elif args.task == 'polygon':
+        converter = PolyLabelConvert(args.classes)
+        valid_modes = ['custom2yolo', 'yolo2custom']
+        assert args.mode in valid_modes, f"Polygon tasks are only supported in {valid_modes} now!"
 
     if args.mode == "custom2voc":
         file_list = os.listdir(args.src_path)
@@ -374,8 +440,8 @@ def main():
             converter.voc2017_to_custom(src_file, dst_file)
     elif args.mode == "custom2yolo":
         file_list = os.listdir(args.src_path)
+        os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-            os.makedirs(args.dst_path, exist_ok=True)
             src_file = os.path.join(args.src_path, file_name)
             dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.txt')
             converter.custom_to_yolov5(src_file, dst_file)
@@ -398,7 +464,7 @@ def main():
         converter.coco_to_custom(args.src_path, args.dst_path, args.img_path)
 
     end_time = time.time()
-    print(f"Conversion completed: {args.dst_path}")
+    print(f"Conversion completed successfully: {args.dst_path}")
     print(f"Conversion time: {end_time - start_time:.2f} seconds")
 
 if __name__ == '__main__':
