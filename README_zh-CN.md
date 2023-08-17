@@ -48,7 +48,7 @@
 
 ### 1. 下载和运行可执行文件
 
-- 从[百度网盘(提取码: xnqx)](https://pan.baidu.com/s/12nETv3CTTcitGFfnWmcefA)下载并运行最新版本。
+- 从[百度网盘(提取码: bkdj)](https://pan.baidu.com/s/1cJeRE2wdiYDy05pb5_JqYQ?pwd=bkdj)下载并运行最新版本。
 
 - 对于MacOS：
   - 安装完成后，转到Applications文件夹。
