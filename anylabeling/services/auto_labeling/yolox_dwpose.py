@@ -194,7 +194,7 @@ class YOLOX_DWPose(Model):
                 if kpt_score <= self.kpt_thr:
                     continue
                 point_shape = Shape(label=str(i), shape_type="point", flags={})
-                point_shape.add_point(QtCore.QPointF(int(kpt_point[0]), int(kpt_point[1])))
+                point_shape.add_point(QtCore.QPointF(kpt_point[0], kpt_point[1]))
                 shapes.append(point_shape)
 
         result = AutoLabelingResult(shapes, replace=True)
