@@ -43,6 +43,7 @@
 - [x] 支持 YOLO-NAS [2023-06-15]
 - [x] 支持 YOLOv8-Segmentation [2023-06-20]
 - [x] 支持 MobileSAM, MedSAM 以及 LVM-Med [2023-08-10]
+- [x] 支持 DWPose [2023-08-20]
 
 ## I. 安装和运行
 

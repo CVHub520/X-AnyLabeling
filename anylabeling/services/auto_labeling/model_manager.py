@@ -176,6 +176,7 @@ class ModelManager(QObject):
                 "yolov6_face", 
                 "rtdetr", 
                 "yolo_nas",
+                "yolox_dwpose",
             ]
         ):
             self.new_model_status.emit(
@@ -505,6 +506,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv6Face(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolox_dwpose":
+            from .yolox_dwpose import YOLOX_DWPose
+
+            try:
+                model_config["model"] = YOLOX_DWPose(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

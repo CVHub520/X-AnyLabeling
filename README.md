@@ -40,6 +40,7 @@ English | [简体中文](README_zh-CN.md)
 - [x] Support YOLO-NAS [2023-06-15]
 - [x] Support YOLOv8-Segmentation [2023-06-20]
 - [x] Support MobileSAM, MedSAM and LVM-Med [2023-08-10]
+- [x] Support DWPose [2023-08-20]
 
 ## I. Install and run
 
