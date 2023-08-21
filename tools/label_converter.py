@@ -427,8 +427,8 @@ def main():
 
     if args.mode == "custom2voc":
         file_list = os.listdir(args.src_path)
+        os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-            os.makedirs(args.dst_path, exist_ok=True)
             src_file = os.path.join(args.src_path, file_name)
             dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.xml')
             converter.custom_to_voc2017(src_file, dst_file)
