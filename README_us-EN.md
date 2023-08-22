@@ -22,7 +22,7 @@ English | [简体中文](README_zh-CN.md)
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<a href="https://b23.tv/AcwX0Gx">
+<a href="https://www.bilibili.com/video/BV1AV4y1U7h3/?spm_id_from=333.999.0.0">
   <img style="width: 800px; margin-left: auto; margin-right: auto; display: block;" alt="AnyLabeling-SegmentAnything" src="https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/demo.gif"/>
 </a>
 <p style="text-align: center; margin-top: 10px;">Easily perform automatic labeling with Segment Anything</p>
