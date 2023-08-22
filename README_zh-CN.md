@@ -67,7 +67,7 @@
 
 ### 1.1 可执行文件
 
-- 从[百度网盘(提取码: bkdj)](https://pan.baidu.com/s/1cJeRE2wdiYDy05pb5_JqYQ?pwd=bkdj)下载并运行最新`GUI`版本。
+- 从[百度网盘(提取码: bkdj)](https://pan.baidu.com/s/1cJeRE2wdiYDy05pb5_JqYQ?pwd=bkdj)下载并运行`GUI`版本直接运行。
 
 注意：
 - 对于MacOS：
@@ -119,9 +119,9 @@ bash scripts/build_executable.sh
 
 - 移步至目录 `dist/` 下检查输出。
 
-## 三、标签转换
+## 三、其它
 
-请参考[帮助文档](./docs/Q&A.md)中**标签转换**章节。
+更多功能与问题反馈请参考[帮助文档](./docs/Q&A.md)。
 
 
 ## 👋联系我们
