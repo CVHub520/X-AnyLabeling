@@ -13,9 +13,6 @@
 
 <div align="center">
 
-
-[Documentation](./docs/Q&A.md)
-
 English | [简体中文](README_zh-CN.md)
 
 </div>
@@ -86,7 +83,7 @@ Note:
 pip install -r requirements.txt
 ```
 
-> If you need to use GPU inference, install the corresponding requirements-gpu.txt file and download the appropriate version of onnxruntime-gpu based on your local CUDA and CuDNN versions. For more details, refer to the [Documentation](./docs/Q&A.md).
+> If you need to use GPU inference, install the corresponding requirements-gpu.txt file and download the appropriate version of onnxruntime-gpu based on your local CUDA and CuDNN versions. For more details, refer to the [FQA](./docs/Q&A.md).
 
 - Generate resources:
 
@@ -111,17 +108,13 @@ pip install -r requirements-dev.txt
 
 - Build:
 
-Note that before running, replace 'pathex' in the anylabeling.spec file with your local conda environment.
-
-```
-bash scripts/build_executable.sh
-```
+Please refer to the [FQA](./docs/Q&A.md).
 
 - Check the output in the `dist/` directory.
 
 ### 3. Additional Information
 
-For more features and feedback, please refer to the [Documentation](./docs/Q&A.md).
+For more features and feedback, please refer to the [FQA](./docs/Q&A.md).
 
 ## License
 

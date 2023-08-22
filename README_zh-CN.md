@@ -102,7 +102,7 @@ python anylabeling/app.py
 
 ## 二、<span id="build">打包编译</span>
 
-- 安装PyInstaller：
+- 安装 `PyInstaller`：
 
 ```bash
 pip install -r requirements-dev.txt
@@ -111,11 +111,7 @@ pip install -r requirements-dev.txt
 
 - 构建：
 
-请注意，在运行之前，请根据本地conda环境在anylabeling.spec文件中替换'pathex'。
-
-```bash
-bash scripts/build_executable.sh
-```
+请参考[帮助文档](./docs/Q&A.md)中的**工具使用**章节。
 
 - 移步至目录 `dist/` 下检查输出。
 
