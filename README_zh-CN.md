@@ -47,18 +47,18 @@
         - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): 皮肤镜病灶分割模型；
         - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): 结直肠息肉分割模型；
 - Object Detection
-    - [YOLOv5](https://github.com/ultralytics/yolov5)-v7.0 分支: COCO 通用目标检测模型；
-    - [YOLOv6](https://github.com/meituan/YOLOv6)-v4.0 分支：COCO 通用目标检测模型；
-    - [YOLOv7](https://github.com/WongKinYiu/yolov7)-main 分支：COCO 通用目标检测模型；
-    - [YOLOv8](https://github.com/ultralytics/ultralytics)-main 分支：COCO 通用目标检测模型；
-    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)-v0.3.0 分支：COCO 通用目标检测模型；
-    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)-v3.2.0 分支：COCO 通用目标检测模型；
-    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)-develop 分支：COCO 通用目标检测模型；
+    - [YOLOv5](https://github.com/ultralytics/yolov5)
+    - [YOLOv6](https://github.com/meituan/YOLOv6)
+    - [YOLOv7](https://github.com/WongKinYiu/yolov7)
+    - [YOLOv8](https://github.com/ultralytics/ultralytics)
+    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
+    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
+    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
 - Image Segmentation
-    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)-main 分支：COCO 通用图像分割模型；
+    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)
 - Pose Estimation
-    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)-yolov6-face 分支：人脸关键点检测模型；
-    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)-main 分支: 全身人体姿态估计模型；
+    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)：人脸关键点检测模型；
+    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main): 全身人体姿态估计模型；
 - Union Model
     - YOLOv5-ResNet：检测+分类级联模型；
 

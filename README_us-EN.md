@@ -47,18 +47,18 @@ English | [简体中文](README_zh-CN.md)
         - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): Dermatoscopic lesion segmentation model;
         - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): Colon polyp segmentation model;
 - Object Detection
-    - [YOLOv5](https://github.com/ultralytics/yolov5)-v7.0 branch: Universal object detection model for COCO;
-    - [YOLOv6](https://github.com/meituan/YOLOv6)-v4.0 branch: Universal object detection model for COCO;
-    - [YOLOv7](https://github.com/WongKinYiu/yolov7)-main branch: Universal object detection model for COCO;
-    - [YOLOv8](https://github.com/ultralytics/ultralytics)-main branch: Universal object detection model for COCO;
-    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)-v0.3.0 branch: Universal object detection model for COCO;
-    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)-v3.2.0 branch: Universal object detection model for COCO;
-    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)-develop branch: Universal object detection model for COCO;
+    - [YOLOv5](https://github.com/ultralytics/yolov5)
+    - [YOLOv6](https://github.com/meituan/YOLOv6)
+    - [YOLOv7](https://github.com/WongKinYiu/yolov7)
+    - [YOLOv8](https://github.com/ultralytics/ultralytics)
+    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
+    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
+    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
 - Image Segmentation
-    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)-main branch: Universal image segmentation model for COCO;
+    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)
 - Pose Estimation
-    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)-yolov6-face branch: Face keypoint detection model;
-    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)-main branch: Full-body human pose estimation model;
+    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)
+    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)
 - Union Model
     - YOLOv5-ResNet: Cascade model for detection and classification;
 
