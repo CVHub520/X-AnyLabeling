@@ -16,7 +16,7 @@
 
 [帮助文档](./docs/Q&A.md)
 
-简体中文 | [English](README.md)
+简体中文 | [English](README_us-EN.md)
 
 </div>
 
@@ -123,6 +123,22 @@ bash scripts/build_executable.sh
 
 更多功能与问题反馈请参考[帮助文档](./docs/Q&A.md)。
 
+## 许可证
+
+本项目采用 [GPL-3.0 开源许可证](./LICENSE)。
+
+## 引用
+
+如果在你的研究中有使用到此项目，请参考以下格式引用它：
+
+```
+@misc{X-AnyLabeling,
+title={Advanced Auto Labeling Solution with Added Features},
+author={CVHub},
+howpublished = {\url{https://github.com/CVHub520/X-AnyLabeling}},
+year={2023}
+}
+```
 
 ## 👋联系我们
 
