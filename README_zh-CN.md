@@ -1,14 +1,20 @@
 <p align="center">
   <img alt="X-AnyLabeling" style="width: 128px; max-width: 100%; height: auto;" src="https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/logo.png"/>
   <h1 align="center"> 💫 X-AnyLabeling 💫</h1>
-  <p align="center">轻松进行数据标注，借助<b>Segment Anything</b>和其他强大的模型提供AI支持！</p>
-  <p align="center"><b>X-AnyLabeling：具备增强功能的高级自动标注解决方案</b></p>
+  <p align="center"><b>X-AnyLabeling：一款多 SOTA 模型集成的高级自动标注工具！</b></p>
+</p>
+
+<p align="center">
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-LGPL%20v3-blue.svg"></a>
+    <a href=""><img src="https://img.shields.io/badge/python-3.7+-aff.svg"></a>
+    <a href=""><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
+    <a href="https://github.com/CVHub520/X-AnyLabeling/stargazers"><img src="https://img.shields.io/github/stars/CVHub520/X-AnyLabeling?color=ccf"></a>
 </p>
 
 <div align="center">
 
 
-[中文文档](https://mp.weixin.qq.com/s/Fi7i4kw0n_QsA7AgmtP-JQ)
+[帮助文档](./docs/Q&A.md)
 
 简体中文 | [English](README.md)
 
@@ -16,60 +22,71 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-
-**使用Segment Anything进行自动标注**
-
 <a href="https://b23.tv/AcwX0Gx">
   <img style="width: 800px; margin-left: auto; margin-right: auto; display: block;" alt="AnyLabeling-SegmentAnything" src="https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/demo.gif"/>
 </a>
+<p style="text-align: center; margin-top: 10px;">使用 Segment Anything 轻松进行自动标注</p>
 
 
-**功能特点：**
+**😀基础特性：**
 
-- [x] 支持多边形、矩形、圆形、直线和点的图像标注。
-- [x] 借助YOLOv5和Segment Anything进行自动标注。
-- [x] 文本检测、识别和KIE（关键信息提取）标注。
-- [x] 支持多种语言：英语、中文。
+- [x] 支持 `SAM`、`YOLO`、`DETR` 等多个主流模型。
+- [x] 支持分类、检测、分割、人脸、姿态估计等多种视觉任务。
+- [x] 支持 `PaddlePadlle`、`OpenMMLab`、`timm` 等多个主流框架。
+- [x] 支持一键运行转换成标准的 `COCO-JSON`、`VOC-XML` 以及 `YOLOv5-TXT` 文件格式。
+- [x] 支持多边形、矩形、圆形、直线和点的图像标注以及文本检测、识别和KIE（关键信息提取）标注。
 
-**亮点：**
+**🔥亮点功能：**
 
-- [x] 基于检测的细粒度分类。
-- [x] 提供人脸检测和关键点检测。
-- [x] 提供先进的检测器，包括YOLOX、YOLOv6、YOLOv7、YOLOv8 和 DETR 系列。
-- [x] 支持转换成标准的COCO-JSON、VOC-XML 以及 YOLOv5-TXT 文件格式。
+- Segment Anything Model
+    - [SAM](https://arxiv.org/abs/2304.02643): 通用自然图像分割一切模型；
+    - [MobileSAM](https://arxiv.org/abs/2306.14289): 快速版 `SAM`；
+    - [MedSAM](https://arxiv.org/abs/2304.12306): 通用医学图像分割一切模型；
+    - [LVMSAM](https://arxiv.org/abs/2306.11925)
+        - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): 超声乳腺癌分割模型；
+        - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): 皮肤镜病灶分割模型；
+        - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): 结直肠息肉分割模型；
+- Object Detection
+    - [YOLOv5](https://github.com/ultralytics/yolov5)-v7.0 分支: COCO 通用目标检测模型；
+    - [YOLOv6](https://github.com/meituan/YOLOv6)-v4.0 分支：COCO 通用目标检测模型；
+    - [YOLOv7](https://github.com/WongKinYiu/yolov7)-main 分支：COCO 通用目标检测模型；
+    - [YOLOv8](https://github.com/ultralytics/ultralytics)-main 分支：COCO 通用目标检测模型；
+    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)-v0.3.0 分支：COCO 通用目标检测模型；
+    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)-v3.2.0 分支：COCO 通用目标检测模型；
+    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)-develop 分支：COCO 通用目标检测模型；
+- Image Segmentation
+    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)-main 分支：COCO 通用图像分割模型；
+- Pose Estimation
+    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)-yolov6-face 分支：人脸关键点检测模型；
+    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)-main 分支: 全身人体姿态估计模型；
+- Union Model
+    - YOLOv5-ResNet：检测+分类级联模型；
 
-**🚀 新特性：**
 
-- [x] 支持 YOLO-NAS [2023-06-15]
-- [x] 支持 YOLOv8-Segmentation [2023-06-20]
-- [x] 支持 MobileSAM, MedSAM 以及 LVM-Med [2023-08-10]
-- [x] 支持 DWPose [2023-08-20]
+## 一、安装和运行
 
-## I. 安装和运行
+### 1.1 可执行文件
 
-### 1. 下载和运行可执行文件
+- 从[百度网盘(提取码: bkdj)](https://pan.baidu.com/s/1cJeRE2wdiYDy05pb5_JqYQ?pwd=bkdj)下载并运行最新`GUI`版本。
 
-- 从[百度网盘(提取码: bkdj)](https://pan.baidu.com/s/1cJeRE2wdiYDy05pb5_JqYQ?pwd=bkdj)下载并运行最新版本。
-
+注意：
 - 对于MacOS：
-  - 安装完成后，转到Applications文件夹。
+  -  安装完成后，转到Applications文件夹。
   - 右键单击应用程序并选择打开。
   - 从第二次开始，您可以使用Launchpad正常打开应用程序。
 
-注意：目前我们仅为Windows操作系统提供带有图形用户界面（GUI）的可执行程序。对于其他操作系统的用户，您可以按照[步骤Ⅲ](#build)的说明自行编译程序。
-
-### 2. 从Pypi安装
-
-暂未准备好，即将推出...
+- 目前我们仅为`Windows`和`Linux`系统提供带有图形用户界面（GUI）的可执行程序。对于其他操作系统的用户，您可以按照[步骤二](#build)的说明自行编译程序。
 
 
-## II. 开发
+### 1.2 源码运行
 
-- 安装依赖包
+- 安装基础依赖库
 
 ```bash
 pip install -r requirements.txt
 ```
+
+> 如果需要使用 GPU 推理，请根据需要安装对应的 `requirements-gpu.txt` 文件，并根据本机 `CUDA` 和 `CuDNN` 版本下载对应的 `onnxruntime-gpu` 版本，具体可参考[帮助文档](./docs/Q&A.md)。
 
 - 生成资源：
 
@@ -83,12 +100,13 @@ pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
 python anylabeling/app.py
 ```
 
-## III. 构建可执行文件 <span id="build">编译</span>
+## 二、<span id="build">打包编译</span>
 
 - 安装PyInstaller：
 
 ```bash
 pip install -r requirements-dev.txt
+# pip install -r requirements-gpu-dev.txt
 ```
 
 - 构建：
@@ -101,17 +119,11 @@ bash scripts/build_executable.sh
 
 - 移步至目录 `dist/` 下检查输出。
 
+## 三、标签转换
 
-## IV. 参考资料
-
-- 本项目继承自 [Anylabeling](https://github.com/vietanhdev/anylabeling) 并在此基础上扩展了丰富的功能，非常感谢 @[vietanhdev](https://github.com/vietanhdev) 开源如此出色的工具。
-- 支持 [MMPreTrain](https://github.com/open-mmlab/mmpretrain), [PaddleClas](https://github.com/PaddlePaddle/PaddleClas), [timm](https://github.com/huggingface/pytorch-image-models) 等主流框架。
-- 使用 [YOLOv5](https://github.com/ultralytics/yolov5)、[YOLOv6](https://github.com/meituan/YOLOv6)、[YOLOv7](https://github.com/WongKinYiu/yolov7)、[YOLOv8](https://github.com/ultralytics/ultralytics)、[YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)、[YOLO-NAS](https://github.com/Deci-AI/super-gradients)和[Segment Anything Models](https://segment-anything.com/) 进行自动标注。
+请参考[帮助文档](./docs/Q&A.md)中**标签转换**章节。
 
 
-## 联系我们 👋
+## 👋联系我们
 
-如果您在使用本项目的过程中有任何的疑问或碰到什么问题，请及时扫描以下二维码，备注“X-Anylabeing”添加微信好友，我们将给予力所能及的帮助！
-
-
-![](https://github.com/CVHub520/Resources/blob/main/X-Anylabeling/Wechat.jpg)
+如果您在使用本项目的过程中有任何的疑问或碰到什么问题，请搜索微信号：`cv_huber`，备注 `X-Anylabeing+简要问题描述` 添加微信好友，我们将给予力所能及的帮助！
