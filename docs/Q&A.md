@@ -71,6 +71,22 @@ A: 考虑到当前标注工具框架的兼容性，为了更好的扩展和维�
 1. 目前 `--task` 支持的任务有 ['rectangle', 'polygon'] 即矩形框和多边形框两种，其中多边形框任务只提供 `yolo` 和 `custom` 之间的互相转换，方便大家训练检测和分割任务。至于其它的任务，如关键点等，可以参考下脚本自行修改适配下。</br>
 2. 此处 `--classes` 参数指定的  `*.txt` 文件是用户预定义的类别文件，每一行代表一个类别，类别编号按从上到下的顺序编排，可参考 `assets` 目录下的 `classes.txt`。</br>
 
+Q: **语义分割任务如何将输出的标签文件转换为 \*.png 格式输出？**</br>
+A: 针对工具本身自定义(`custom`)的格式，我们可以使用工程目录下的 `tools/polygon_mask_conversion.py` 脚本轻松转换，以下是参考的转换指令：
+
+```bash
+python tools/polygon_mask_conversion.py --img_path xxx_folder --mask_path xxx_folder --mode poly2mask
+
+# [option] 如果标签和图像不在同一目录下，请使用以下命令：
+python tools/polygon_mask_conversion.py --img_path xxx_folder --mask_path xxx_folder --json_path xxx_folder --mode poly2mask
+```
+
+同样地，也支持将掩码图一键转换为自定义格式导入 `X-AnyLabeling` 中进行修正，输出的 `*.json` 文件默认保存至 'img_path' 目录：
+
+```bash
+python tools/polygon_mask_conversion.py --img_path xxx_folder --mask_path xxx_folder --mode mask2poly
+```
+
 ## 工具使用
 
 Q: **如何修改自定义快捷键？**
