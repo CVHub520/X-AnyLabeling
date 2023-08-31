@@ -28,14 +28,15 @@ A: 截至目前，`X-AnyLabeling` 适配了以下模型：</br>
     - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)-v0.3.0 分支：COCO 通用目标检测模型；
     - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)-v3.2.0 分支：COCO 通用目标检测模型；
     - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)-develop 分支：COCO 通用目标检测模型；
-- Image Segmentation
+    - Image Segmentation
     - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)-main 分支：COCO 通用图像分割模型；
 - Pose Estimation
     - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)-yolov6-face 分支：人脸关键点检测模型；
     - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)-main 分支: 全身人体姿态估计模型；
 - Union Model
     - YOLOv5-ResNet：检测+分类级联模型；
-
+- Lane Detection
+    - [CLRNet](https://github.com/Turoad/CLRNet)：车道线检测模型（CVPR 2022）
 
 ## 标签转换
 

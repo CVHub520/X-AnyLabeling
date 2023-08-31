@@ -177,6 +177,7 @@ class ModelManager(QObject):
                 "rtdetr", 
                 "yolo_nas",
                 "yolox_dwpose",
+                "clrnet",
             ]
         ):
             self.new_model_status.emit(
@@ -528,6 +529,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOX_DWPose(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "clrnet":
+            from .clrnet import CLRNet
+
+            try:
+                model_config["model"] = CLRNet(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

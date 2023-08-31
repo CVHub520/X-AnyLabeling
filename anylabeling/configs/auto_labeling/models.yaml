@@ -88,3 +88,5 @@
   config_file: ":/rtdetr_r50.yaml"
 - model_name: "yolox_l_dwpose_ucoco-r20230820"
   config_file: ":/yolox_l_dwpose_ucoco.yaml"
+- model_name: "clrnet_tusimple_r18-r20230901"
+  config_file: ":/clrnet_tusimple_r18.yaml"

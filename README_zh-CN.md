@@ -39,28 +39,30 @@
 **🔥亮点功能：**
 
 - Segment Anything Model
-    - [SAM](https://arxiv.org/abs/2304.02643): 通用自然图像分割一切模型；
-    - [MobileSAM](https://arxiv.org/abs/2306.14289): 快速版 `SAM`；
-    - [MedSAM](https://arxiv.org/abs/2304.12306): 通用医学图像分割一切模型；
-    - [LVMSAM](https://arxiv.org/abs/2306.11925)
-        - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): 超声乳腺癌分割模型；
-        - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): 皮肤镜病灶分割模型；
-        - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): 结直肠息肉分割模型；
+  - [SAM](https://arxiv.org/abs/2304.02643): 通用自然图像分割一切模型；
+  - [MobileSAM](https://arxiv.org/abs/2306.14289): 快速版 `SAM`；
+  - [MedSAM](https://arxiv.org/abs/2304.12306): 通用医学图像分割一切模型；
+  - [LVMSAM](https://arxiv.org/abs/2306.11925)
+      - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): 超声乳腺癌分割模型；
+      - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): 皮肤镜病灶分割模型；
+      - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): 结直肠息肉分割模型；
 - Object Detection
-    - [YOLOv5](https://github.com/ultralytics/yolov5)
-    - [YOLOv6](https://github.com/meituan/YOLOv6)
-    - [YOLOv7](https://github.com/WongKinYiu/yolov7)
-    - [YOLOv8](https://github.com/ultralytics/ultralytics)
-    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
-    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
-    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
+  - [YOLOv5](https://github.com/ultralytics/yolov5)
+  - [YOLOv6](https://github.com/meituan/YOLOv6)
+  - [YOLOv7](https://github.com/WongKinYiu/yolov7)
+  - [YOLOv8](https://github.com/ultralytics/ultralytics)
+  - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
+  - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
+  - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
 - Image Segmentation
-    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)
+  - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)
 - Pose Estimation
-    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)：人脸关键点检测模型；
-    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main): 全身人体姿态估计模型；
+  - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)：人脸关键点检测模型；
+  - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main): 全身人体姿态估计模型；
 - Union Model
-    - YOLOv5-ResNet：检测+分类级联模型；
+  - YOLOv5-ResNet：检测+分类级联模型；
+- Lane Detection
+  - [CLRNet](https://github.com/Turoad/CLRNet) 
 
 
 ## 一、安装和运行

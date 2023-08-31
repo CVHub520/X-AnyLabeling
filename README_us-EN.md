@@ -36,29 +36,30 @@ English | [简体中文](README_zh-CN.md)
 **🔥Highlighted Features:**
 
 - Segment Anything Model
-    - [SAM](https://arxiv.org/abs/2304.02643): Universal model for natural image segmentation;
-    - [MobileSAM](https://arxiv.org/abs/2306.14289): Faster version of `SAM`;
-    - [MedSAM](https://arxiv.org/abs/2304.12306): Universal model for medical image segmentation;
-    - [LVMSAM](https://arxiv.org/abs/2306.11925)
-        - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): Ultrasound breast cancer segmentation model;
-        - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): Dermatoscopic lesion segmentation model;
-        - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): Colon polyp segmentation model;
+  - [SAM](https://arxiv.org/abs/2304.02643): Universal model for natural image segmentation;
+  - [MobileSAM](https://arxiv.org/abs/2306.14289): Faster version of `SAM`;
+  - [MedSAM](https://arxiv.org/abs/2304.12306): Universal model for medical image segmentation;
+  - [LVMSAM](https://arxiv.org/abs/2306.11925)
+    - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): Ultrasound breast cancer segmentation model;
+    - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): Dermatoscopic lesion segmentation model;
+    - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): Colon polyp segmentation model;
 - Object Detection
-    - [YOLOv5](https://github.com/ultralytics/yolov5)
-    - [YOLOv6](https://github.com/meituan/YOLOv6)
-    - [YOLOv7](https://github.com/WongKinYiu/yolov7)
-    - [YOLOv8](https://github.com/ultralytics/ultralytics)
-    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
-    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
-    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
+  - [YOLOv5](https://github.com/ultralytics/yolov5)
+  - [YOLOv6](https://github.com/meituan/YOLOv6)
+  - [YOLOv7](https://github.com/WongKinYiu/yolov7)
+  - [YOLOv8](https://github.com/ultralytics/ultralytics)
+  - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
+  - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
+  - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
 - Image Segmentation
-    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)
+  - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)
 - Pose Estimation
-    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)
-    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)
+  - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)
+  - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)
 - Union Model
-    - YOLOv5-ResNet: Cascade model for detection and classification;
-
+  - YOLOv5-ResNet: Cascade model for detection and classification;
+- Lane Detection
+  - [CLRNet](https://github.com/Turoad/CLRNet) 
 
 ## 1. Installation and Usage
 
