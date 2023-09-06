@@ -1,0 +1,6 @@
+type: sam_med2d
+name: sam-med2d_vit_b-r20230901
+display_name: SAM-Med2D-256x (ViT-Base)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam-med2d_b.encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam-med2d_b.decoder.onnx
+input_size: 256

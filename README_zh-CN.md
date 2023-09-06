@@ -14,7 +14,7 @@
 <div align="center">
 
 
-[帮助文档](./docs/Q&A.md)
+👉[帮助文档](./docs/Q&A.md)👈
 
 简体中文 | [English](README_us-EN.md)
 
@@ -41,6 +41,7 @@
 - Segment Anything Model
   - [SAM](https://arxiv.org/abs/2304.02643): 通用自然图像分割一切模型；
   - [MobileSAM](https://arxiv.org/abs/2306.14289): 快速版 `SAM`；
+  - [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D): 2D医学图像分割一切模型（🤗推荐）;
   - [MedSAM](https://arxiv.org/abs/2304.12306): 通用医学图像分割一切模型；
   - [LVMSAM](https://arxiv.org/abs/2306.11925)
       - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): 超声乳腺癌分割模型；
@@ -69,7 +70,7 @@
 
 ### 1.1 可执行文件
 
-- 从[百度网盘(提取码: bkdj)](https://pan.baidu.com/s/1cJeRE2wdiYDy05pb5_JqYQ?pwd=bkdj)下载并运行`GUI`版本直接运行。
+- 从[百度网盘(提取码: cn0c)](https://pan.baidu.com/s/1HeEoVc-_DI5EuSU3MipqJQ?pwd=cn0c)下载并运行`GUI`版本直接运行。
 
 注意：
 - 对于MacOS：

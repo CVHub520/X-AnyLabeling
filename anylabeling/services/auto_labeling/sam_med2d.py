@@ -4,6 +4,8 @@ import traceback
 
 import cv2
 import numpy as np
+import onnxruntime as ort
+from copy import deepcopy
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QCoreApplication
@@ -15,11 +17,156 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .lru_cache import LRUCache
 from .model import Model
 from .types import AutoLabelingResult
-from .sam_onnx import SegmentAnythingONNX
 
+class SegmentAnythingONNX:
 
-class SegmentAnything(Model):
-    """Segmentation model using SegmentAnything"""
+    def __init__(self, encoder_model_path, decoder_model_path) -> None:
+        # Basic hyp-parameters
+        self.pixel_mean = np.array([123.675, 116.28, 103.53])
+        self.pixel_std = np.array([58.395, 57.12, 57.375])
+
+        # Load models
+        providers = ort.get_available_providers()
+
+        # Pop TensorRT Runtime due to crashing issues
+        # TODO: Add back when TensorRT backend is stable
+        providers = [p for p in providers if p != "TensorrtExecutionProvider"]
+
+        if providers:
+            logging.info(
+                "Available providers for ONNXRuntime: %s", ", ".join(providers)
+            )
+        else:
+            logging.warning("No available providers for ONNXRuntime")
+
+        self.encoder_session = ort.InferenceSession(encoder_model_path, providers=providers)
+        self.decoder_session = ort.InferenceSession(decoder_model_path, providers=providers)
+
+        self.encoder_input_name = self.encoder_session.get_inputs()[0].name
+        self.encoder_input_shape = self.encoder_session.get_inputs()[0].shape
+        self.encoder_input_size = self.encoder_input_shape[-2:]
+
+    def run_encoder(self, encoder_inputs):
+        """Run encoder"""
+        output = self.encoder_session.run(None, encoder_inputs)
+        image_embedding = output[0]
+        return image_embedding
+
+    def transform(self, input_image: np.ndarray) -> np.ndarray:
+        """image transform
+
+        This function can convert the input image to the required input format for vit.
+
+        Args:
+            input_image (np.ndarray): input image, the image type should be RGB.
+
+        Returns:
+            np.ndarray: transformed image.
+        """
+        # Normalization
+        input_image = (input_image - self.pixel_mean) / self.pixel_std
+
+        # Resize
+        input_image = cv2.resize(input_image, self.encoder_input_size, cv2.INTER_NEAREST)
+
+        # HWC -> CHW
+        input_image = input_image.transpose((2, 0, 1))
+
+        # CHW -> NCHW
+        input_image = np.expand_dims(input_image, 0).astype(np.float32)
+
+        return input_image
+
+    def encode(self, cv_image):
+        """
+        Calculate embedding and metadata for a single image.
+        """
+        original_size = cv_image.shape[:2]
+        encoder_inputs = {
+            self.encoder_input_name: self.transform(cv_image),
+        }
+
+        image_embedding = self.run_encoder(encoder_inputs)
+        return {
+            "image_embedding": image_embedding,
+            "original_size": original_size,
+        }
+
+    def get_input_points(self, prompt):
+        """Get input points"""
+        points = []
+        labels = []
+        for mark in prompt:
+            if mark["type"] == "point":
+                points.append(mark["data"])
+                labels.append(mark["label"])
+            elif mark["type"] == "rectangle":
+                points.append([mark["data"][0], mark["data"][1]])  # top left
+                points.append([mark["data"][2], mark["data"][3]])  # bottom right
+                labels.append(2)
+                labels.append(3)
+        points, labels = np.array(points).astype(np.float32), np.array(labels).astype(np.float32)
+        return points, labels
+
+    def apply_coords(self, coords, original_size, new_size):
+        old_h, old_w = original_size
+        new_h, new_w = new_size
+        coords = deepcopy(coords).astype(float)
+        coords[..., 0] = coords[..., 0] * (new_w / old_w)
+        coords[..., 1] = coords[..., 1] * (new_h / old_h)
+        return coords
+
+    def run_decoder(self, image_embedding, original_size, prompt):
+        """Run decoder"""
+        point_coords, point_labels = self.get_input_points(prompt)
+
+        if point_coords is None or point_labels is None:
+            raise ValueError("Unable to segment, please input at least one box or point.")
+
+        h, w = self.encoder_input_size
+        if image_embedding.shape != (1, 256, int(h/16), int(w/16)):
+            raise ValueError("Got wrong embedding shape!")
+        
+        has_mask_input = np.zeros(1, dtype=np.float32)
+        mask_input = np.zeros((1, 1, int(h/4), int(w/4)), dtype=np.float32)
+
+        if point_coords is not None:
+            if isinstance(point_coords, list):
+                point_coords = np.array(point_coords, dtype=np.float32)
+            if isinstance(point_labels, list):
+                point_labels = np.array(point_labels, dtype=np.float32)
+
+        if point_coords is not None:
+            point_coords = self.apply_coords(point_coords, original_size, self.encoder_input_size).astype(np.float32)
+            point_coords = np.expand_dims(point_coords, axis=0)
+            point_labels = np.expand_dims(point_labels, axis=0)
+
+        assert point_coords.shape[0] == 1 and point_coords.shape[-1] == 2
+        assert point_labels.shape[0] == 1
+        input_dict = {"image_embeddings": image_embedding,
+                      "point_coords": point_coords,
+                      "point_labels": point_labels,
+                      "mask_input": mask_input,
+                      "has_mask_input": has_mask_input,
+                      "orig_im_size": np.array(original_size, dtype=np.float32)}
+        masks, _, _ = self.decoder_session.run(None, input_dict)
+
+        return masks
+
+    def predict_masks(self, embedding, prompt):
+        """
+        Predict masks for a single image.
+        """
+        masks = self.run_decoder(
+            embedding["image_embedding"],
+            embedding["original_size"],
+            prompt,
+        )
+
+        return masks
+
+class SAM_Med2D(Model):
+    """Segmentation model using SAM_Med2D"""
 
     class Meta:
         required_config_names = [
@@ -48,8 +195,6 @@ class SegmentAnything(Model):
         # Run the parent class's init method
         super().__init__(config_path, on_message)
         self.input_size = self.config["input_size"]
-        self.max_width = self.config["max_width"]
-        self.max_height = self.config["max_height"]
 
         # Get encoder and decoder model paths
         encoder_model_abs_path = self.get_model_abs_path(
@@ -209,7 +354,7 @@ class SegmentAnything(Model):
         """
         Predict shapes from image
         """
-        print(f"image={image}, self.marks={self.marks}")
+
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
         

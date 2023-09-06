@@ -29,7 +29,7 @@ for model in model_list:
     model_config = yaml.load(
         open(model_config_path + config_file, "r"), Loader=yaml.FullLoader
     )
-    if model_config["type"] == "segment_anything":
+    if model_config["type"] in ["segment_anything", "sam_med2d"]:
         download_links.append(model_config["encoder_model_path"])
         download_links.append(model_config["decoder_model_path"])
     else:
@@ -40,7 +40,7 @@ for model in model_list:
 
     # Save model config
     # Rewrite model's urls
-    if model_config["type"] == "segment_anything":
+    if model_config["type"] in ["segment_anything", "sam_med2d"]:
         model_config["encoder_model_path"] = get_filename_from_url(
             model_config["encoder_model_path"]
         )

@@ -38,6 +38,7 @@ English | [简体中文](README_zh-CN.md)
 - Segment Anything Model
   - [SAM](https://arxiv.org/abs/2304.02643): Universal model for natural image segmentation;
   - [MobileSAM](https://arxiv.org/abs/2306.14289): Faster version of `SAM`;
+  - [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D): 2D Universal model for medical image segmentation (🤗); 
   - [MedSAM](https://arxiv.org/abs/2304.12306): Universal model for medical image segmentation;
   - [LVMSAM](https://arxiv.org/abs/2306.11925)
     - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): Ultrasound breast cancer segmentation model;
@@ -65,7 +66,7 @@ English | [简体中文](README_zh-CN.md)
 
 ### 1.1 Executable
 
-- Download and run the `GUI` version directly from [Baidu Cloud (Access Code: bkdj)](https://pan.baidu.com/s/1cJeRE2wdiYDy05pb5_JqYQ?pwd=bkdj).
+- Download and run the `GUI` version directly from [Release tag-v0.2.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.1).
 
 Note:
 - For MacOS:
