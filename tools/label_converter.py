@@ -15,30 +15,6 @@ import sys
 sys.path.append('.')
 from anylabeling.app_info import __version__
 
-
-#======================================================================= Usage ========================================================================#
-#                                                                                                                                                      #
-#-------------------------------------------------------------------- custom2voc  ---------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2voc                                      #                             
-#                                                                                                                                                      #
-#-------------------------------------------------------------------- voc2custom  ---------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode voc2custom                                      #
-#                                                                                                                                                      #
-#-------------------------------------------------------------------- custom2yolo  --------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2yolo                                     #                             
-#                                                                                                                                                      #
-#-------------------------------------------------------------------- yolo2custom  --------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx_folder --img_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode yolo2custom               #
-#                                                                                                                                                      #
-#-------------------------------------------------------------------- custom2coco  --------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2coco                                     #                             
-#                                                                                                                                                      #
-#-------------------------------------------------------------------- coco2custom  --------------------------------------------------------------------#
-# python tools/label_converter.py --src_path xxx.json --dst_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode coco2custom                 #                             
-#                                                                                                                                                      #
-#======================================================================= Usage ========================================================================#
-
-
 VERSION = __version__
 
 
@@ -46,10 +22,11 @@ class BaseLabelConverter:
     def __init__(self, classes_file):
 
         if classes_file:
-            with open(classes_file, 'r') as f:
+            with open(classes_file, 'r', encoding='utf-8') as f:
                 self.classes = f.read().splitlines()
         else:
             self.classes = []
+        print(f"import classes is: {self.classes}")
 
     def reset(self):
         self.custom_data = dict(
@@ -70,7 +47,7 @@ class BaseLabelConverter:
 class RectLabelConverter(BaseLabelConverter):
 
     def custom_to_voc2017(self, input_file, output_dir):
-        with open(input_file, 'r') as f:
+        with open(input_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         image_path = data['imagePath']
@@ -148,13 +125,13 @@ class RectLabelConverter(BaseLabelConverter):
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def custom_to_yolov5(self, input_file, output_file):
-        with open(input_file, 'r') as f:
+        with open(input_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         image_width = data['imageWidth']
         image_height = data['imageHeight']
 
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             for shape in data['shapes']:
                 label = shape['label']
                 points = shape['points']
@@ -171,7 +148,7 @@ class RectLabelConverter(BaseLabelConverter):
     def yolov5_to_custom(self, input_file, output_file, image_file):
         self.reset()
 
-        with open(input_file, 'r') as f:
+        with open(input_file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         image_width, image_height = self.get_image_size(image_file)
@@ -243,11 +220,11 @@ class RectLabelConverter(BaseLabelConverter):
 
         file_list = os.listdir(input_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-
+            if not file_name.endswith('.json'): continue
             image_id += 1
 
             input_file = os.path.join(input_path, file_name)
-            with open(input_file, 'r') as f:
+            with open(input_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
             image_path = data['imagePath']
@@ -354,14 +331,14 @@ class RectLabelConverter(BaseLabelConverter):
 class PolyLabelConvert(BaseLabelConverter):
 
     def custom_to_yolov5(self, input_file, output_file):
-        with open(input_file, 'r') as f:
+        with open(input_file, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
         image_width = data['imageWidth']
         image_height = data['imageHeight']
         image_size = np.array([[image_width, image_height]])
 
-        with open(output_file, 'w') as f:
+        with open(output_file, 'w', encoding='utf-8') as f:
             for shape in data['shapes']:
                 label = shape['label']
                 points = np.array(shape['points'])
@@ -372,7 +349,7 @@ class PolyLabelConvert(BaseLabelConverter):
     def yolov5_to_custom(self, input_file, output_file, image_file):
         self.reset()
 
-        with open(input_file, 'r') as f:
+        with open(input_file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         image_width, image_height = self.get_image_size(image_file)
@@ -429,6 +406,7 @@ def main():
         file_list = os.listdir(args.src_path)
         os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
+            if not file_name.endswith('.json'): continue
             src_file = os.path.join(args.src_path, file_name)
             dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.xml')
             converter.custom_to_voc2017(src_file, dst_file)
@@ -442,6 +420,7 @@ def main():
         file_list = os.listdir(args.src_path)
         os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
+            if not file_name.endswith('.json'): continue
             src_file = os.path.join(args.src_path, file_name)
             dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.txt')
             converter.custom_to_yolov5(src_file, dst_file)
