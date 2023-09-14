@@ -60,11 +60,14 @@
 - Pose Estimation
   - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)：人脸关键点检测模型；
   - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main): 全身人体姿态估计模型；
-- Union Model
+- Union Task
   - YOLOv5-ResNet：检测+分类级联模型；
 - Lane Detection
   - [CLRNet](https://github.com/Turoad/CLRNet) 
+- OCR
+  - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR)
 
+更多详情，请点击[模型列表](./docs/models_list.md)（持续更新中）
 
 ## 一、安装和运行
 

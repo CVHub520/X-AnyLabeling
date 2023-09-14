@@ -9,34 +9,8 @@
 Q: **`X-AnyLabeling` 目前支持哪些标注样式？**</br>
 A: 当前支持**多边形**、**矩形**、**圆形**、**直线**和**点**。</br>
 
-Q: **`X-AnyLabeling` 目前提供哪些 AI 开放能力？**</br>
-A: 截至目前，`X-AnyLabeling` 适配了以下模型：</br>
-
-- Segment Anything Model
-    - [SAM](https://arxiv.org/abs/2304.02643): 通用自然图像分割一切模型；
-    - [MobileSAM](https://arxiv.org/abs/2306.14289): 快速版 `SAM`；
-    - [MedSAM](https://arxiv.org/abs/2304.12306): 通用医学图像分割一切模型；
-    - [LVMSAM](https://arxiv.org/abs/2306.11925)
-        - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): 超声乳腺癌分割模型；
-        - [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic): 皮肤镜病灶分割模型；
-        - [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir): 结直肠息肉分割模型；
-- Object Detection
-    - [YOLOv5](https://github.com/ultralytics/yolov5)-v7.0 分支: COCO 通用目标检测模型；
-    - [YOLOv6](https://github.com/meituan/YOLOv6)-v4.0 分支：COCO 通用目标检测模型；
-    - [YOLOv7](https://github.com/WongKinYiu/yolov7)-main 分支：COCO 通用目标检测模型；
-    - [YOLOv8](https://github.com/ultralytics/ultralytics)-main 分支：COCO 通用目标检测模型；
-    - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)-v0.3.0 分支：COCO 通用目标检测模型；
-    - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)-v3.2.0 分支：COCO 通用目标检测模型；
-    - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)-develop 分支：COCO 通用目标检测模型；
-    - Image Segmentation
-    - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)-main 分支：COCO 通用图像分割模型；
-- Pose Estimation
-    - [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)-yolov6-face 分支：人脸关键点检测模型；
-    - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)-main 分支: 全身人体姿态估计模型；
-- Union Model
-    - YOLOv5-ResNet：检测+分类级联模型；
-- Lane Detection
-    - [CLRNet](https://github.com/Turoad/CLRNet)：车道线检测模型（CVPR 2022）
+Q: **`X-AnyLabeling` 目前提供哪些基础模型？**</br>
+A: 详情可移步至 [models_list](./models_list.md) 文档查看。
 
 ## 标签转换
 
@@ -124,8 +98,19 @@ A: 可参考以下步骤实施：
 
 Q: **如何支持自定义模型？**</br>
 A: 自定义模型分为两种：</br>
-- 对于已适配模型（详情前移步至上述`功能支持`章节），可参考此[文章](https://mp.weixin.qq.com/s/Fi7i4kw0n_QsA7AgmtP-JQ)进行操作；</br>
-- 对于未适配模型，可以参考以下四个步骤自行适配：
+- 对于已适配模型（详情请移步至 [models_list](./models_list.md) 文档查看），这里以 `Segment Anything (ViT-Base)` 可参考以下操作：
+    - 首先，下载对应的[编码器](https://pan.baidu.com/s/1ILcJ_ct1gAv21IS5fQ-Mbw?pwd=kpz2)和[解码器](https://pan.baidu.com/s/1eBxU5F33GCyzFMs1EJAb-g?pwd=e73e)放置到指定目录下：
+    ```bash
+    #Windows
+    C:\Users\xxx\anylabeling_data\models\segment_anything_vit_b-r20230810
+
+    #Linux
+    /home/xxx/anylabeling_data/models/segment_anything_vit_b-r20230810
+    ```
+    - 其次，运行程序，选择 `Segment Anything (ViT-Base)` 后会自动加载，完成后即可使用。
+> 注意，这里 `segment_anything_vit_b-r20230810` 需对应 `config.yaml` 文件中的 `name` 字段。
+
+- 对于未适配模型，如果想增加新功能，可参考以下四个步骤自行适配：
     - [X-AnyLabeling/anylabeling/configs/auto_labeling](../anylabeling/configs/auto_labeling): 定义配置文件；
     - [X-AnyLabeling/anylabeling/configs/auto_labeling/models.yaml](../anylabeling/configs/auto_labeling/models.yaml): 添加配置文件；
     - [X-AnyLabeling/anylabeling/services/auto_labeling](../anylabeling/services/auto_labeling)：模型推理逻辑实现；

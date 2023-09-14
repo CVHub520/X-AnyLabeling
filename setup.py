@@ -53,6 +53,10 @@ def get_install_requires():
         'PyQt5>=5.15.7; platform_system != "Darwin"',
         "onnx==1.13.1",
         "qimage2ndarray==1.10.0",
+        "tqdm",
+        "scipy",
+        "shapely",
+        "pyclipper",
     ]
 
     # Add onnxruntime-gpu if GPU is preferred
