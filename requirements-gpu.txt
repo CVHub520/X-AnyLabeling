@@ -7,3 +7,5 @@ PyYAML==6.0
 onnx==1.13.1
 onnxruntime-gpu==1.14.1
 qimage2ndarray==1.10.0
+shapely
+pyclipper

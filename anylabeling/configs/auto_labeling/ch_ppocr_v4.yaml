@@ -1,0 +1,7 @@
+type: ppocr_v4
+name: ch_ppocr_v4-r20230915
+display_name: ch_PP-OCRv4 (PaddleOCR)
+det_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.2/ch_PP-OCRv4_det_infer.onnx
+rec_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.2/ch_PP-OCRv4_rec_infer.onnx
+cls_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.2/ch_ppocr_mobile_v2.0_cls_infer.onnx
+use_angle_cls: True
