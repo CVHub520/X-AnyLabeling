@@ -73,7 +73,7 @@
 
 ### 1.1 可执行文件
 
-- 从[百度网盘(提取码: cn0c)](https://pan.baidu.com/s/1HeEoVc-_DI5EuSU3MipqJQ?pwd=cn0c)下载并运行`GUI`版本直接运行。
+- 从[百度网盘(提取码: 0awa)](https://pan.baidu.com/s/1uGRd2jRRxN9n3saM83IIEQ?pwd=0awa)下载并运行`GUI`版本直接运行。
 
 注意：
 - 对于MacOS：
