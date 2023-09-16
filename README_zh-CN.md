@@ -123,7 +123,7 @@ pip install -r requirements-dev.txt
 
 ## 三、其它
 
-更多功能与问题反馈请参考[帮助文档](./docs/Q&A.md)。
+加载自定义模型等更多功能与问题反馈请参考[帮助文档](./docs/Q&A.md)。
 
 ## 许可证
 
