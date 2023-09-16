@@ -97,24 +97,7 @@ A: 可参考以下步骤实施：
 > 2. 第一次进行 AI 推理也需要时间，请耐心等待，因此后台任务会运行以缓存`SAM`模型的“编码器”，在接下来的图像中自动分割模型需要时间会缩短。</br>
 
 Q: **如何支持自定义模型？**</br>
-A: 自定义模型分为两种：</br>
-- 对于已适配模型（详情请移步至 [models_list](./models_list.md) 文档查看），这里以 `Segment Anything (ViT-Base)` 可参考以下操作：
-    - 首先，下载对应的[编码器](https://pan.baidu.com/s/1ILcJ_ct1gAv21IS5fQ-Mbw?pwd=kpz2)和[解码器](https://pan.baidu.com/s/1eBxU5F33GCyzFMs1EJAb-g?pwd=e73e)放置到指定目录下：
-    ```bash
-    #Windows
-    C:\Users\xxx\anylabeling_data\models\segment_anything_vit_b-r20230810
-
-    #Linux
-    /home/xxx/anylabeling_data/models/segment_anything_vit_b-r20230810
-    ```
-    - 其次，运行程序，选择 `Segment Anything (ViT-Base)` 后会自动加载，完成后即可使用。
-> 注意，这里 `segment_anything_vit_b-r20230810` 需对应 `config.yaml` 文件中的 `name` 字段。
-
-- 对于未适配模型，如果想增加新功能，可参考以下四个步骤自行适配：
-    - [X-AnyLabeling/anylabeling/configs/auto_labeling](../anylabeling/configs/auto_labeling): 定义配置文件；
-    - [X-AnyLabeling/anylabeling/configs/auto_labeling/models.yaml](../anylabeling/configs/auto_labeling/models.yaml): 添加配置文件；
-    - [X-AnyLabeling/anylabeling/services/auto_labeling](../anylabeling/services/auto_labeling)：模型推理逻辑实现；
-    - [X-AnyLabeling/anylabeling/services/auto_labeling/model_manager.py](../anylabeling/services/auto_labeling/model_manager.py)：添加到模型管理。
+A: 请参考 [custom_model.md](./custom_model.md) 文档。
 
 Q: **如何编译打包成可执行文件？**</br>
 A：可参考以下打包指令：</br>
