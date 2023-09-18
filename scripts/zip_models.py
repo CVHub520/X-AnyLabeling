@@ -32,6 +32,17 @@ for model in model_list:
     if model_config["type"] in ["segment_anything", "sam_med2d"]:
         download_links.append(model_config["encoder_model_path"])
         download_links.append(model_config["decoder_model_path"])
+    elif model_config["type"] in ["yolov5_sam"]:
+        download_links.append(model_config["encoder_model_path"])
+        download_links.append(model_config["decoder_model_path"])
+        download_links.append(model_config["model_path"])
+    elif model_config["type"] in ["yolov5_cls"]:
+        download_links.append(model_config["det_model_path"])
+        download_links.append(model_config["cls_model_path"])
+    elif model_config["type"] in ["ppocr_v4"]:
+        download_links.append(model_config["det_model_path"])
+        download_links.append(model_config["rec_model_path"])
+        download_links.append(model_config["cls_model_path"])
     else:
         download_links.append(model_config["model_path"])
 
@@ -46,6 +57,33 @@ for model in model_list:
         )
         model_config["decoder_model_path"] = get_filename_from_url(
             model_config["decoder_model_path"]
+        )
+    elif model_config["type"] in ["yolov5_sam"]:
+        model_config["encoder_model_path"] = get_filename_from_url(
+            model_config["encoder_model_path"]
+        )
+        model_config["decoder_model_path"] = get_filename_from_url(
+            model_config["decoder_model_path"]
+        )
+        model_config["model_path"] = get_filename_from_url(
+            model_config["model_path"]
+        )
+    elif model_config["type"] in ["yolov5_cls"]:
+        model_config["det_model_path"] = get_filename_from_url(
+            model_config["det_model_path"]
+        )
+        model_config["cls_model_path"] = get_filename_from_url(
+            model_config["cls_model_path"]
+        )
+    elif model_config["type"] in ["ppocr_v4"]:
+        model_config["det_model_path"] = get_filename_from_url(
+            model_config["det_model_path"]
+        )
+        model_config["rec_model_path"] = get_filename_from_url(
+            model_config["rec_model_path"]
+        )
+        model_config["cls_model_path"] = get_filename_from_url(
+            model_config["cls_model_path"]
         )
     else:
         model_config["model_path"] = get_filename_from_url(

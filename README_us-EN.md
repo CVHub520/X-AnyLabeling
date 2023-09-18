@@ -59,6 +59,7 @@ English | [简体中文](README_zh-CN.md)
   - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)
 - Union Model
   - YOLOv5-ResNet: Cascade model for detection and classification;
+  - YOLOv5-SAM
 - Lane Detection
   - [CLRNet](https://github.com/Turoad/CLRNet) 
 - OCR

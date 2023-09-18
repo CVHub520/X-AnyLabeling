@@ -62,6 +62,7 @@
   - [DWPose](https://github.com/IDEA-Research/DWPose/tree/main): 全身人体姿态估计模型；
 - Union Task
   - YOLOv5-ResNet：检测+分类级联模型；
+  - YOLOv5-SAM
 - Lane Detection
   - [CLRNet](https://github.com/Turoad/CLRNet) 
 - OCR
@@ -73,7 +74,7 @@
 
 ### 1.1 可执行文件
 
-- 从[百度网盘(提取码: 0awa)](https://pan.baidu.com/s/1uGRd2jRRxN9n3saM83IIEQ?pwd=0awa)下载并运行`GUI`版本直接运行。
+- 从[百度网盘(提取码: mt3q)](https://pan.baidu.com/s/1T12CaXcjMCAw5DK6w2qydA?pwd=mt3q)下载并运行`GUI`版本直接运行。
 
 注意：
 - 对于MacOS：
