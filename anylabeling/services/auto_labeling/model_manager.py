@@ -82,7 +82,7 @@ class ModelManager(QObject):
                     model_config = yaml.safe_load(f)
                     model_config["config_file"] = config_file
             else:  # Config file is in local file system
-                with open(config_file, "r") as f:
+                with open(config_file, "r", encoding="utf-8") as f:
                     model_config = yaml.safe_load(f)
                     model_config["config_file"] = os.path.normpath(
                         os.path.abspath(config_file)
