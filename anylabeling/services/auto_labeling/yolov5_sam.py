@@ -1,6 +1,5 @@
 import logging
 import os
-import traceback
 
 import cv2
 import math
@@ -8,15 +7,12 @@ import numpy as np
 import onnxruntime as ort
 from copy import deepcopy
 from PyQt5 import QtCore
-from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
-from anylabeling.utils import GenericWorker
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 
-from .lru_cache import LRUCache
 from .model import Model
 from .types import AutoLabelingResult
 
@@ -200,6 +196,7 @@ class SegmentAnythingONNX:
 
         return masks
 
+
 class YOLOv5SegmentAnything(Model):
     """Segmentation model using YOLOv5 by SegmentAnything"""
 
@@ -208,10 +205,11 @@ class YOLOv5SegmentAnything(Model):
             "type",
             "name",
             "display_name",
-            "cache_size",
             "target_size",
             "max_width",
             "max_height",
+            "encoder_model_path",
+            "decoder_model_path",
             "model_path",
             "input_width",
             "input_height",
@@ -219,10 +217,9 @@ class YOLOv5SegmentAnything(Model):
             "nms_threshold",
             "confidence_threshold",
             "classes",
-            "encoder_model_path",
-            "decoder_model_path",
         ]
         widgets = [
+            "button_run",
             "output_label",
             "output_select_combobox",
             "button_add_point",
@@ -268,7 +265,6 @@ class YOLOv5SegmentAnything(Model):
             [self.config["input_width"], self.config["input_height"]], 
             s=self.config["stride"]
         )
-        self.runned_flag = False
 
         """Segment Anything Model"""
         # Get encoder and decoder model paths
@@ -300,22 +296,19 @@ class YOLOv5SegmentAnything(Model):
         # Load models
         self.target_size = self.config["target_size"]
         self.input_size = (self.config["max_height"], self.config["max_width"])
-        encoder_session = ort.InferenceSession(encoder_model_abs_path, providers=providers, sess_options=sess_opts)
-        decoder_session = ort.InferenceSession(decoder_model_abs_path, providers=providers, sess_options=sess_opts)
-        self.model = SegmentAnythingONNX(encoder_session, decoder_session, self.target_size, self.input_size)
+        self.encoder_session = ort.InferenceSession(
+            encoder_model_abs_path, providers=providers, sess_options=sess_opts
+        )
+        self.decoder_session = ort.InferenceSession(
+            decoder_model_abs_path, providers=providers, sess_options=sess_opts
+        )
+        self.model = SegmentAnythingONNX(
+            self.encoder_session, self.decoder_session, self.target_size, self.input_size
+        )
 
         # Mark for auto labeling: [points, rectangles]
         self.marks = []
-
-        # Cache for image embedding
-        self.cache_size = self.config["cache_size"]
-        self.preloaded_size = self.cache_size - 3
-        self.image_embedding_cache = LRUCache(self.cache_size)
-
-        # Pre-inference worker
-        self.pre_inference_thread = None
-        self.pre_inference_worker = None
-        self.stop_inference = False
+        self.image_embed_cache = {}
 
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
@@ -430,58 +423,41 @@ class YOLOv5SegmentAnything(Model):
         """
         Predict shapes from image
         """
+        if image is None:
+            return []
 
-        if image is None or not self.marks:
-            return AutoLabelingResult([], replace=False)
-
-        shapes = []
         try:
-            # Use cached image embedding if possible
-            cached_data = self.image_embedding_cache.get(filename)
-            if cached_data is not None:
-                image_embedding = cached_data
-            else:
-                cv_image = qt_img_to_rgb_cv_img(image, filename)
-                if self.stop_inference:
-                    return AutoLabelingResult([], replace=False)
-                image_embedding = self.model.encode(cv_image)
-                self.image_embedding_cache.put(
-                    filename,
-                    image_embedding,
-                )
-            if self.stop_inference:
-                return AutoLabelingResult([], replace=False)
-            
-            if not self.runned_flag:
-                processed_img, detections = self.yolo_pre_process(cv_image, self.net)
-                prompts, labels = self.yolo_post_process(cv_image, processed_img, detections)
-                for prompt, label in zip(prompts, labels):
-                    masks = self.model.predict_masks(image_embedding, prompt, transform_prompt=False)
-                    if len(masks.shape) == 4:
-                        masks = masks[0][0]
-                    else:
-                        masks = masks[0]
-                    results = self.post_process(masks, label=label)
-                    shapes.append(results)
-                result = AutoLabelingResult(shapes, replace=True)
-                self.runned_flag = True  # Run only once
-                shapes = []
-                return result
-
-            masks = self.model.predict_masks(image_embedding, self.marks)
+            cv_image = qt_img_to_rgb_cv_img(image, filename)
+        except Exception as e:  # noqa
+            logging.warning("Could not inference model")
+            logging.warning(e)
+            return []
+        
+        if filename not in self.image_embed_cache:
+            image_embedding = self.model.encode(cv_image)
+            processed_img, detections = self.yolo_pre_process(cv_image, self.net)
+            prompts, labels = self.yolo_post_process(cv_image, processed_img, detections)
+            shapes = []
+            for prompt, label in zip(prompts, labels):
+                masks = self.model.predict_masks(image_embedding, prompt, transform_prompt=False)
+                if len(masks.shape) == 4:
+                    masks = masks[0][0]
+                else:
+                    masks = masks[0]
+                results = self.post_process(masks, label=label)
+                shapes.append(results)
+            result = AutoLabelingResult(shapes, replace=True)
+            self.image_embed_cache[filename] = image_embedding
+            return result
+        else:
+            masks = self.model.predict_masks(self.image_embed_cache[filename], self.marks)
             if len(masks.shape) == 4:
                 masks = masks[0][0]
             else:
                 masks = masks[0]
             shapes = self.post_process(masks)
-        except Exception as e:  # noqa
-            logging.warning("Could not inference model")
-            logging.warning(e)
-            traceback.print_exc()
-            return AutoLabelingResult([], replace=False)
-
-        result = AutoLabelingResult(shapes, replace=False)
-        return result
+            result = AutoLabelingResult(shapes, replace=False)
+            return result
 
     def yolo_pre_process(self, input_image, net):
         """
@@ -698,51 +674,7 @@ class YOLOv5SegmentAnything(Model):
         keep = np.array(keep)  
         return keep
 
-    def unload(self):  
-        self.stop_inference = True
-        if self.pre_inference_thread:
-            self.pre_inference_thread.quit()
+    def unload(self):
         del self.net
-
-    def preload_worker(self, files):
-        """
-        Preload next files, run inference and cache results
-        """
-        files = files[: self.preloaded_size]
-        for filename in files:
-            if self.image_embedding_cache.find(filename):
-                continue
-            image = self.load_image_from_filename(filename)
-            if image is None:
-                continue
-            if self.stop_inference:
-                return
-            cv_image = qt_img_to_rgb_cv_img(image)
-            image_embedding = self.model.encode(cv_image)
-            self.image_embedding_cache.put(
-                filename,
-                image_embedding,
-            )
-
-    def on_next_files_changed(self, next_files):
-        """
-        Handle next files changed. This function can preload next files
-        and run inference to save time for user.
-        """
-        if (
-            self.pre_inference_thread is None
-            or not self.pre_inference_thread.isRunning()
-        ):
-            self.pre_inference_thread = QThread()
-            self.pre_inference_worker = GenericWorker(
-                self.preload_worker, next_files
-            )
-            self.pre_inference_worker.finished.connect(
-                self.pre_inference_thread.quit
-            )
-            self.pre_inference_worker.moveToThread(self.pre_inference_thread)
-            self.pre_inference_thread.started.connect(
-                self.pre_inference_worker.run
-            )
-            self.pre_inference_thread.start()
-
+        del self.encoder_session
+        del self.decoder_session
