@@ -209,7 +209,6 @@ class SegmentAnything(Model):
         """
         Predict shapes from image
         """
-        print(f"image={image}, self.marks={self.marks}")
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
         
