@@ -453,6 +453,7 @@ class YOLOv5SegmentAnything(Model):
                 return AutoLabelingResult([], replace=False)
             
             if not self.runned_flag:
+                cv_image = qt_img_to_rgb_cv_img(image, filename)
                 processed_img, detections = self.yolo_pre_process(cv_image, self.net)
                 prompts, labels = self.yolo_post_process(cv_image, processed_img, detections)
                 for prompt, label in zip(prompts, labels):
