@@ -1,5 +1,7 @@
 - model_name: "ch_ppocr_v4-r20230915"
   config_file: ":/ch_ppocr_v4.yaml"
+- model_name: "yolov5s_mobile_sam_vit_h-r20230920"
+  config_file: ":/yolov5s_mobile_sam_vit_h.yaml"
 - model_name: "sam_med2d_vit_b-r20230901"
   config_file: ":/sam_med2d_vit_b.yaml"
 - model_name: "segment_anything_vit_b_quant-r20230810"

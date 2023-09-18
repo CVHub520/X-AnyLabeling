@@ -179,7 +179,8 @@ class ModelManager(QObject):
                 "yolo_nas",
                 "yolox_dwpose",
                 "clrnet",
-                "ppocr_v4"
+                "ppocr_v4",
+                "yolov5_sam",
             ]
         ):
             self.new_model_status.emit(
@@ -435,6 +436,30 @@ class ModelManager(QObject):
                     )
                 )
                 return
+        elif model_config["type"] == "yolov5_sam":
+            from .yolov5_sam import YOLOv5SegmentAnything
+
+            try:
+                model_config["model"] = YOLOv5SegmentAnything(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+            except Exception as e:  # noqa
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "segment_anything":
             from .segment_anything import SegmentAnything
 
@@ -625,9 +650,14 @@ class ModelManager(QObject):
         """Set auto labeling marks
         (For example, for segment_anything model, it is the marks for)
         """
+        marks_model_list = [
+            "segment_anything", 
+            "sam_med2d", 
+            "yolov5_sam",
+        ]
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in ["segment_anything", "sam_med2d"]
+            or self.loaded_model_config["type"] not in marks_model_list
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_marks(marks)
@@ -714,7 +744,7 @@ class ModelManager(QObject):
             return
 
         # Currently only segment_anything-like model supports this feature
-        if self.loaded_model_config["type"] not in ["segment_anything", "sam_med2d"]:
+        if self.loaded_model_config["type"] not in ["segment_anything", "sam_med2d", "yolov5_sam"]:
             return
 
         self.loaded_model_config["model"].on_next_files_changed(next_files)
