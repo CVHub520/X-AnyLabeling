@@ -181,6 +181,7 @@ class ModelManager(QObject):
                 "clrnet",
                 "ppocr_v4",
                 "yolov5_sam",
+                "efficientvit_sam",
             ]
         ):
             self.new_model_status.emit(
@@ -484,6 +485,30 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "efficientvit_sam":
+            from .efficientvit_sam import EfficientViT_SAM
+
+            try:
+                model_config["model"] = EfficientViT_SAM(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+            except Exception as e:  # noqa
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "sam_med2d":
             from .sam_med2d import SAM_Med2D
 
@@ -654,6 +679,7 @@ class ModelManager(QObject):
             "segment_anything", 
             "sam_med2d", 
             "yolov5_sam",
+            "efficientvit_sam",
         ]
         if (
             self.loaded_model_config is None
@@ -744,7 +770,7 @@ class ModelManager(QObject):
             return
 
         # Currently only segment_anything-like model supports this feature
-        if self.loaded_model_config["type"] not in ["segment_anything", "sam_med2d", "yolov5_sam"]:
+        if self.loaded_model_config["type"] not in ["segment_anything", "sam_med2d", "yolov5_sam", "efficientvit_sam"]:
             return
 
         self.loaded_model_config["model"].on_next_files_changed(next_files)

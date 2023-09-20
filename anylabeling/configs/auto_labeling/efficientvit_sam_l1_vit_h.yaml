@@ -1,0 +1,6 @@
+type: efficientvit_sam
+name: efficientvit_sam_l1_vit_h-r20230920
+display_name: EfficientViT-SAM-l1 (ViT-Huge)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l1_vit_h.encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l1_vit_h.decoder.onnx
+target_size: 1024
