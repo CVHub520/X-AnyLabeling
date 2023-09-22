@@ -144,3 +144,18 @@ A: 由于当前模型权重暂存在 `github` 上，下载前请先开启科学�
 
 Q: **能正常加载模型，但推理没结果？**</br>
 A: 请先下载源码，在终端运行，查看具体的报错信息再尝试解决，如解决不了可在 [issue](https://github.com/CVHub520/X-AnyLabeling/issues) 提交反馈。
+
+Q: **Linux 环境下 GUI 界面中文显示乱码？**</br>
+A: 这是由于当前系统环境缺乏中文字体，可以参考以下步骤配置。
+
+```
+cd /usr/share/fonts
+sudo mkdir myfonts
+cd myfonts
+sudo cp /mnt/c/Windows/Fonts/simsun.ttc .
+sudo mkfontscale
+sudo mkfontdir
+sudo fc-cache -fv
+```
+
+> 注：此处 `/mnt/c/Windows/Fonts/simsun.ttc` 为新宋体文件，大家可以将自己喜欢的支持中文的 *.ttc 文件拷贝到 `myfonts` 目录下即可。
