@@ -75,7 +75,8 @@ canvas:
 
 shortcuts:
   close: Ctrl+W
-  open: Ctrl+O
+  open: Ctrl+I
+  open_video: Ctrl+O
   open_dir: Ctrl+U
   quit: Ctrl+Q
   save: Ctrl+S

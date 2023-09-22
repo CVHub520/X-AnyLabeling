@@ -3,6 +3,7 @@ import html
 import math
 import os
 import os.path as osp
+import cv2
 import re
 import webbrowser
 
@@ -18,6 +19,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWhatsThis,
     QMessageBox,
+    QProgressDialog
 )
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
@@ -256,6 +258,13 @@ class LabelingWidget(LabelDialog):
             shortcuts["open"],
             "open",
             self.tr("Open image or label file"),
+        )
+        openvideo = action(
+            self.tr("&Open Video"),
+            self.open_video_file,
+            shortcuts["open_video"],
+            "open",
+            self.tr("Open video file"),
         )
         opendir = action(
             self.tr("&Open Dir"),
@@ -740,7 +749,7 @@ class LabelingWidget(LabelDialog):
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
-            file_menu_actions=(open_, opendir, save, save_as, close),
+            file_menu_actions=(open_, openvideo, opendir, save, save_as, close),
             tool=(),
             # XXX: need to add some actions here to activate the shortcut
             editMenu=(
@@ -811,6 +820,7 @@ class LabelingWidget(LabelDialog):
                 open_next_image,
                 open_prev_image,
                 opendir,
+                openvideo,
                 self.menus.recent_files,
                 save,
                 save_as,
@@ -2420,6 +2430,66 @@ class LabelingWidget(LabelDialog):
     def move_shape(self):
         self.canvas.end_move(copy=False)
         self.set_dirty()
+
+    def extract_frames_from_video(self, target_video_path):
+        # Get the directory of the target file
+        video_dir = osp.dirname(target_video_path)
+
+        # Create a folder in the current directory with the current video file_name
+        folder_name = osp.splitext(osp.basename(target_video_path))[0]
+        output_dir = osp.join(video_dir, folder_name)
+
+        if osp.exists(output_dir):
+            return output_dir
+        os.makedirs(output_dir)
+
+        # Decode the video and save frames to the created folder 
+        video_capture = cv2.VideoCapture(target_video_path)
+        total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        progress_dialog = QProgressDialog(
+            self.tr("Extracting frames. Please wait..."), 
+            self.tr("Cancel"), 
+            0, 
+            total_frames
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle("Frame Extraction Progress")
+
+        frame_count = 0
+        while True:
+            ret, frame = video_capture.read()
+            if not ret:
+                break
+            frame_filename = osp.join(output_dir, f'frame_{frame_count:04d}.jpg')
+            cv2.imwrite(frame_filename, frame)
+
+            frame_count += 1
+            progress_dialog.setValue(frame_count)
+            if progress_dialog.wasCanceled():
+                break
+
+        video_capture.release()
+        progress_dialog.close()
+
+        # Return the path of the created folder
+        return output_dir
+
+    def open_video_file(self, _value=False):
+        if not self.may_continue():
+            return
+        default_open_video_path = osp.dirname(str(self.filename)) if self.filename else "."
+        supportedVideoFormats = "*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv"        
+        target_video_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, 
+            self.tr("%s - Open Video file") % __appname__,
+            default_open_video_path, 
+            supportedVideoFormats,
+        )
+        target_video_path = str(target_video_path)
+        if osp.exists(target_video_path):
+            target_dir_path = self.extract_frames_from_video(target_video_path)
+            self.import_image_folder(target_dir_path)
 
     def open_folder_dialog(self, _value=False, dirpath=None):
         if not self.may_continue():
