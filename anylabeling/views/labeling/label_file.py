@@ -1,3 +1,4 @@
+import os
 import base64
 import contextlib
 import io
@@ -9,6 +10,7 @@ import PIL.Image
 from ...app_info import __version__
 from . import utils
 from .logger import logger
+from .label_converter import LabelConverter
 
 PIL.Image.MAX_IMAGE_PIXELS = None
 
@@ -157,6 +159,8 @@ class LabelFile:
         image_data=None,
         other_data=None,
         flags=None,
+        output_format='defalut',
+        classes_file=None,
     ):
         if image_data is not None:
             image_data = base64.b64encode(image_data).decode("utf-8")
@@ -184,9 +188,45 @@ class LabelFile:
             with io_open(filename, "w") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             self.filename = filename
+            _ = self.save_other_mode(data, output_format, classes_file)
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
 
     @staticmethod
     def is_label_file(filename):
         return osp.splitext(filename)[1].lower() == LabelFile.suffix
+
+    def save_other_mode(self, data, mode, classes_file=None):
+        target_formats = ["polygon", "rectangle"]
+        shape_type = self.get_shape_type(data, target_formats)
+        if mode == "default" or not shape_type:
+            return False
+
+        root_path, file_name = osp.split(self.filename)
+        if mode == "yolo":
+            save_path = root_path + '/labels'
+            dst_file = save_path + '/' + osp.splitext(file_name)[0]+'.txt'
+        elif mode == "voc":
+            save_path = root_path + '/Annotations'
+            dst_file = save_path + '/' + osp.splitext(file_name)[0]+'.xml'
+        os.makedirs(save_path, exist_ok=True)
+
+        converter = LabelConverter(classes_file=classes_file)
+        if mode == "yolo" and shape_type == "rectangle":
+            converter.custom_to_yolo_rectangle(data, dst_file)
+            return True
+        elif mode == "yolo" and shape_type == "polygon":
+            converter.custom_to_yolo_polygon(data, dst_file)
+            return True
+        elif mode == "voc" and shape_type == "rectangle":
+            converter.custom_to_voc_rectangle(data, dst_file)
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def get_shape_type(data, target_formats):
+        for d in data["shapes"]:
+            if d["shape_type"] in target_formats:
+                return d["shape_type"]
+        return ""

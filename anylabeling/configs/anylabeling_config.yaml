@@ -11,6 +11,7 @@ show_cross_line: true
 show_groups: true
 show_texts: true
 logger_level: info
+save_mode: default
 
 flags: null
 label_flags: null

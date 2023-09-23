@@ -78,6 +78,7 @@ class LabelingWidget(LabelDialog):
         self.image_data = None
         self.label_file = None
         self.other_data = {}
+        self.classes = None
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -653,6 +654,32 @@ class LabelingWidget(LabelDialog):
             enabled=self._config["language"] != "zh_CN",
         )
 
+        # Save mode
+        select_default_format = action(
+            "Default",
+            functools.partial(self.set_output_format, "default"),
+            icon="format_createml",
+            checkable=True,
+            checked=self._config["save_mode"] == "default",
+            enabled=self._config["save_mode"] != "default",
+        )
+        select_yolo_format = action(
+            "YOLO",
+            functools.partial(self.set_output_format, "yolo"),
+            icon="format_yolo",
+            checkable=True,
+            checked=self._config["save_mode"] == "yolo",
+            enabled=self._config["save_mode"] != "yolo",
+        )
+        select_voc_format = action(
+            "PascalVOC",
+            functools.partial(self.set_output_format, "voc"),
+            icon="format_voc",
+            checkable=True,
+            checked=self._config["save_mode"] == "voc",
+            enabled=self._config["save_mode"] != "voc",
+        )
+
         # Group zoom controls into a list for easier toggling.
         zoom_actions = (
             self.zoom_widget,
@@ -735,6 +762,9 @@ class LabelingWidget(LabelDialog):
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
+            select_default_format=select_default_format,
+            select_yolo_format=select_yolo_format,
+            select_voc_format=select_voc_format,
             zoom=zoom,
             zoom_in=zoom_in,
             zoom_out=zoom_out,
@@ -808,6 +838,7 @@ class LabelingWidget(LabelDialog):
             edit=self.menu(self.tr("&Edit")),
             view=self.menu(self.tr("&View")),
             language=self.menu(self.tr("&Language")),
+            mode=self.menu(self.tr("&Format")),
             help=self.menu(self.tr("&Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open &Recent")),
             label_list=label_menu,
@@ -844,6 +875,14 @@ class LabelingWidget(LabelDialog):
             (
                 select_lang_en,
                 select_lang_zh,
+            ),
+        )
+        utils.add_actions(
+            self.menus.mode,
+            (
+                select_default_format,
+                select_yolo_format,
+                select_voc_format,
             ),
         )
         utils.add_actions(
@@ -1086,6 +1125,53 @@ class LabelingWidget(LabelDialog):
         )
         msg_box.exec_()
         self.parent.parent.close()
+
+    def set_output_format(self, mode):
+        if self._config["save_mode"] == mode:
+            return
+        
+        self._config["save_mode"] = mode
+        confirm_flag = True
+        if mode == "yolo":
+            filter = "YOLO Class Files (*.txt);;All Files (*)"
+            self.classes, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self, 
+                self.tr("Select a yolo classes file"),
+                '', 
+                filter,
+            )
+            if not self.classes:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific file."),
+                    QtWidgets.QMessageBox.Ok
+                )
+                confirm_flag = False
+                self._config["save_mode"] = 'default'
+
+        # TODO: Support more regular format.
+
+        # Show dialog to restart application
+        if confirm_flag and self._config["save_mode"] != 'default':
+            msg_box = QMessageBox()
+            msg_box.setText(
+                self.tr("The output format '%s' will be saved.") % mode
+            )
+            msg_box.exec_()
+
+        if self._config["save_mode"] == "default":
+            self.actions.select_default_format.setEnabled(False)
+            self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_voc_format.setEnabled(True)
+        elif self._config["save_mode"] == "yolo":
+            self.actions.select_default_format.setEnabled(True)
+            self.actions.select_yolo_format.setEnabled(False)
+            self.actions.select_voc_format.setEnabled(True)
+        elif self._config["save_mode"] == "voc":
+            self.actions.select_default_format.setEnabled(True)
+            self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_voc_format.setEnabled(False)
 
     def get_labeling_instruction(self):
         text_mode = self.tr("Mode:")
@@ -1647,6 +1733,8 @@ class LabelingWidget(LabelDialog):
                 image_width=self.image.width(),
                 other_data=self.other_data,
                 flags=flags,
+                output_format=self._config["save_mode"],
+                classes_file=self.classes,
             )
             self.label_file = label_file
             items = self.file_list_widget.findItems(
