@@ -114,7 +114,7 @@ shortcuts:
   group_selected_shapes: G
   ungroup_selected_shapes: U
 
-  auto_label: Ctrt+A
+  auto_label: Ctrl+A
 
 
 # Auto labeling
