@@ -124,7 +124,7 @@ class YOLOv5_ByteTrack(Model):
 
         shapes = []
         for xyxy, id, class_id in zip(bboxes_xyxy, ids, class_ids):
-            rectangle_shape = Shape(label=self.classes[int(class_id)]+str(id), shape_type="rectangle", flags={})
+            rectangle_shape = Shape(label=self.classes[int(class_id)], shape_type="rectangle", group_id=id, flags={})
             rectangle_shape.add_point(QtCore.QPointF(int(xyxy[0]), int(xyxy[1])))
             rectangle_shape.add_point(QtCore.QPointF(int(xyxy[2]), int(xyxy[3])))
             shapes.append(rectangle_shape)

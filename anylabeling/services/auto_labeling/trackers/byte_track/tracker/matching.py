@@ -98,7 +98,7 @@ def ious(atlbrs, btlbrs):
     ious = np.zeros((len(atlbrs), len(btlbrs)), dtype=np.float64)
     if ious.size == 0:
         return ious
-    ious = merge_matches(
+    ious = numpy_bbox_iou(
         np.ascontiguousarray(atlbrs, dtype=np.float64),
         np.ascontiguousarray(btlbrs, dtype=np.float64)
     )
