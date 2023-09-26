@@ -115,6 +115,7 @@ shortcuts:
   ungroup_selected_shapes: U
 
   auto_label: Ctrl+A
+  auto_run: Ctrl+M
 
 
 # Auto labeling

@@ -306,7 +306,15 @@ class LabelingWidget(LabelDialog):
             self.tr("Save labels to a different file"),
             enabled=False,
         )
-
+        run_all_images = action(
+            self.tr("&Auto Run"),
+            self.run_all_images,
+            shortcuts["auto_run"],
+            "format_createml",
+            self.tr("Auto run all images at once"),
+            checkable=True,
+            enabled=True,
+        )
         delete_file = action(
             self.tr("&Delete File"),
             self.delete_file,
@@ -747,6 +755,7 @@ class LabelingWidget(LabelDialog):
             delete_file=delete_file,
             toggle_keep_prev_mode=toggle_keep_prev_mode,
             toggle_auto_use_last_label_mode=toggle_auto_use_last_label_mode,
+            run_all_images=run_all_images,
             delete=delete,
             edit=edit,
             duplicate=duplicate,
@@ -794,6 +803,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 toggle_keep_prev_mode,
                 toggle_auto_use_last_label_mode,
+                run_all_images,
             ),
             # menu shown at right click
             menu=(
@@ -950,6 +960,7 @@ class LabelingWidget(LabelDialog):
             zoom,
             fit_width,
             toggle_auto_labeling_widget,
+            run_all_images,
         )
 
         layout = QHBoxLayout()
@@ -2482,6 +2493,40 @@ class LabelingWidget(LabelDialog):
             "auto_use_last_label"
         ]
         save_config(self._config)
+
+    def run_all_images(self):
+        if len(self.image_list) <= 0:
+            return
+        
+        if self.auto_labeling_widget.model_manager.loaded_model_config is None:
+            self.auto_labeling_widget.model_manager.new_model_status.emit(
+                self.tr("Model is not loaded. Choose a mode to continue.")
+            )
+            return
+
+        reply = QMessageBox.question(
+            self, 
+            self.tr("Confirmation"),
+            self.tr("Do you want to process all images?"), 
+            QMessageBox.Yes | QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            self.image_index = 0
+            self.process_next_image()
+
+    def process_next_image(self):
+        if self.image_index < len(self.image_list):
+            filename = self.image_list[self.image_index]
+            self.filename = filename
+            self.load_file(self.filename)
+            self.auto_labeling_widget.model_manager.predict_shapes(self.image, self.filename)
+
+            delay_ms = 20
+            QtCore.QTimer.singleShot(delay_ms, self.process_next_image)
+
+            self.image_index += 1
+        else:
+            pass
 
     def remove_selected_point(self):
         self.canvas.remove_selected_point()
