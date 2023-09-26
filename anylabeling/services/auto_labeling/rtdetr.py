@@ -42,7 +42,7 @@ class RTDETR(Model):
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLOv5 model."
+                    "Model", "Could not download or initialize RTDETR model."
                 )
             )
 
