@@ -425,10 +425,32 @@ def main():
             dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.txt')
             converter.custom_to_yolov5(src_file, dst_file)
     elif args.mode == "yolo2custom":
+        #######################################################################################################################################################################
+        # img_dic = {}
+        # for file in os.listdir(args.img_path):
+        #     prefix = file.split('.')[0]
+        #     img_dic[prefix] = file
+        
+        '''
+        上述代码在获得img_dic时，当文件名包含多个'.'的时候，有一定几率导致前缀获取错误，如出现了以下值：
+            img_dic[20230806170052-20230807203052_13-00.00.01.502-00.00.06]为'20230806170052-20230807203052_13-00.00.01.502-00.00.06.856_000168_CheTouHou.jpg'
+        该错误会导致报错：
+            Traceback(most recent call last): File "tools/label_converter.py", line 481, in < module > main()File
+            "tools/label_converter.py", line 467, in main
+            img_file = os.path.join(args.img_path, img_dic[os.path.splitext(file_name)[0]])
+            KeyError: '20230806170052-20230807203052_13-00.00.01.502-00.00.06.856_000000_CheTouHou'
+        故做出如下修改 2023年9月27日 fusang1337
+        '''
+        img_suffixes = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff']
         img_dic = {}
         for file in os.listdir(args.img_path):
-            prefix = file.split('.')[0]
-            img_dic[prefix] = file
+            # 如果文件的后缀是常见的图片后缀之一
+            if any(file.endswith(suffix) for suffix in img_suffixes):
+                # 把文件名（不包括后缀）作为键，完整的文件名作为值
+                prefix = file.rsplit('.', 1)[0]
+                img_dic[prefix] = file
+        #######################################################################################################################################################################
+        
         file_list = os.listdir(args.src_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
             src_file = os.path.join(args.src_path, file_name)
