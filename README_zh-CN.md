@@ -79,7 +79,7 @@
 
 ### 1.1 可执行文件
 
-- 从[百度网盘(提取码: qymq)](https://pan.baidu.com/s/1QNtEKYEfu_L_GP4OSRd4dQ?pwd=qymq)下载并运行`GUI`版本直接运行。
+- 从[百度网盘(提取码: h5pl)](https://pan.baidu.com/s/1WPMGV4INKtQGs1nCJZ6Iwg?pwd=h5pl)下载并运行`GUI`版本直接运行。
 
 注意：
 - 对于MacOS：
