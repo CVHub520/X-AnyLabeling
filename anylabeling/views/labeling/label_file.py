@@ -203,13 +203,18 @@ class LabelFile:
             return False
 
         root_path, file_name = osp.split(self.filename)
+        base_name = osp.splitext(file_name)[0]
+
         if mode == "yolo":
             save_path = root_path + '/labels'
-            dst_file = save_path + '/' + osp.splitext(file_name)[0]+'.txt'
+            dst_file = save_path + '/' + base_name+'.txt'
+            os.makedirs(save_path, exist_ok=True)
         elif mode == "voc":
             save_path = root_path + '/Annotations'
-            dst_file = save_path + '/' + osp.splitext(file_name)[0]+'.xml'
-        os.makedirs(save_path, exist_ok=True)
+            dst_file = save_path + '/' + base_name+'.xml'
+            os.makedirs(save_path, exist_ok=True)
+        elif mode == "mot":
+            dst_file = root_path + '/' + base_name.rsplit("_", 1)[0]+'.csv'
 
         converter = LabelConverter(classes_file=classes_file)
         if mode == "yolo" and shape_type == "rectangle":
@@ -220,6 +225,9 @@ class LabelFile:
             return True
         elif mode == "voc" and shape_type == "rectangle":
             converter.custom_to_voc_rectangle(data, dst_file)
+            return True
+        elif mode == "mot" and shape_type == "rectangle":
+            converter.custom_to_mot_rectangle(data, dst_file, base_name)
             return True
         else:
             return False

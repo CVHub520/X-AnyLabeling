@@ -30,10 +30,12 @@
 
 **😀基础特性：**
 
+- [x] 支持图像、视频一键导入功能。
+- [x] 支持单帧预测及一键运行所有图片。
 - [x] 支持 `SAM`、`YOLO`、`DETR` 等多个主流模型。
 - [x] 支持分类、检测、分割、人脸、姿态估计等多种视觉任务。
 - [x] 支持 `PaddlePadlle`、`OpenMMLab`、`timm` 等多个主流框架。
-- [x] 支持一键运行转换成标准的 `COCO-JSON`、`VOC-XML` 以及 `YOLOv5-TXT` 文件格式。
+- [x] 支持`COCO-JSON`、`VOC-XML`、`YOLOv5-TXT`、`MOT-CSV`导出格式。
 - [x] 支持多边形、矩形、圆形、直线和点的图像标注以及文本检测、识别和KIE（关键信息提取）标注。
 
 **🔥亮点功能：**
@@ -68,6 +70,8 @@
   - [CLRNet](https://github.com/Turoad/CLRNet) 
 - OCR
   - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR)
+- MOT
+  - [ByteTrack](https://github.com/ifzhang/ByteTrack)
 
 更多详情，请点击[模型列表](./docs/models_list.md)（持续更新中）
 

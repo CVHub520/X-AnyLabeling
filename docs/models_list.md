@@ -96,6 +96,12 @@
 | yolov8n-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8n_seg.yaml](../anylabeling/configs/auto_labeling/yolov8n_seg.yaml)  | 13.18MB  | [baidu](https://pan.baidu.com/s/1WQmN0yKBnm3PKgXTBFyQ-A?pwd=194i) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n-seg.onnx) |
 
 
+### Multi-Object-Tracking
+
+|Name|Description|Configuration|Size|Link|
+| --- | --- | --- | --- | --- |
+| yolov5m.onnx | [YOLOv5m-ByteTrack](https://github.com/ifzhang/ByteTrack)  | [yolov5m_bytetrack.yaml](../anylabeling/configs/auto_labeling/yolov5m_bytetrack.yaml)  | 81.19MB  | [baidu](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
+
 ### Union Task
 
 |Name|Description|Configuration|Size|Link|

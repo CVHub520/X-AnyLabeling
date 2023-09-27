@@ -1,4 +1,5 @@
 import os
+import csv
 import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -11,6 +12,45 @@ class LabelConverter:
         if classes_file:
             with open(classes_file, 'r', encoding='utf-8') as f:
                 self.classes = f.read().splitlines()
+
+    def custom_to_mot_rectangle(self, data, output_file, base_name):
+        
+        frame_id = int(base_name.split('_')[-1][:6])
+        mot_data = []
+        for shape in data['shapes']:
+            track_id = int(shape['group_id']) if shape['group_id'] else -1
+            class_id = self.classes.index(shape['label'])
+            points = shape['points']
+            xmin = points[0][0]
+            ymin = points[0][1]
+            xmax = points[1][0]
+            ymax = points[1][1]
+            data = [frame_id, track_id, xmin, ymin, xmax - xmin, ymax - ymin, 0, class_id, 1]
+            mot_data.append(data)
+        
+        # Check if output_file exists
+        if os.path.isfile(output_file):
+            # Read existing CSV file and update data
+            with open(output_file, 'r', newline='') as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+                existing_data = [row for row in reader]
+
+            # Check if frame_id exists in existing_data
+            frame_ids = set(int(row[0]) for row in existing_data)
+            if frame_id in frame_ids:
+                # Remove existing data with the same frame_id
+                updated_data = [row for row in existing_data if int(row[0]) != frame_id]
+                # Insert new mot_data
+                updated_data.extend(mot_data)
+            else:
+                updated_data = existing_data + mot_data
+        else:
+            updated_data = mot_data
+
+        # Save updated_data to output_file
+        with open(output_file, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerows(updated_data)
 
     def custom_to_voc_rectangle(self, data, output_dir):
         image_path = data['imagePath']

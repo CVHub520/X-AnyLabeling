@@ -26,11 +26,12 @@ English | [简体中文](README_zh-CN.md)
 
 
 **😀Basic Features:**
-
+- [x] Support one-click import for images and videos.
+- [x] Support single-frame prediction and one-click execution for all images.
 - [x] Support for multiple state-of-the-art models such as `SAM`, `YOLO`, `DETR`, etc.
 - [x] Support for various visual tasks like classification, detection, segmentation, face recognition, pose estimation, etc.
 - [x] Support for popular frameworks including `PaddlePadlle`, `OpenMMLab`, `timm`, etc.
-- [x] One-click conversion to standard `COCO-JSON`, `VOC-XML`, and `YOLOv5-TXT` file formats.
+- [x] One-click conversion to standard `COCO-JSON`, `VOC-XML`, `YOLOv5-TXT` and `MOT-CSV` file formats.
 - [x] Support for annotating images with polygons, rectangles, circles, lines, and points, as well as text detection, recognition, and KIE (Key Information Extraction) annotation.
 
 **🔥Highlighted Features:**
@@ -65,6 +66,8 @@ English | [简体中文](README_zh-CN.md)
   - [CLRNet](https://github.com/Turoad/CLRNet) 
 - OCR
   - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR)
+- MOT
+  - [ByteTrack](https://github.com/ifzhang/ByteTrack)
 
 For more details, please click [Model List](./docs/models_list.md) (constantly updated).
 

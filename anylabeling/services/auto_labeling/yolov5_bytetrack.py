@@ -31,6 +31,7 @@ class YOLOv5_ByteTrack(Model):
             "stride",
             "nms_threshold",
             "confidence_threshold",
+            "filter_classes",
             "classes",
         ]
         widgets = ["button_run"]
@@ -65,6 +66,7 @@ class YOLOv5_ByteTrack(Model):
                     )
 
         self.classes = self.config["classes"]
+        self.filter_classes = self.config.get("filter_classes", [])
 
         try:
             self.input_shape = tuple(self.net.get_inputs()[0].shape[2:])
@@ -100,6 +102,17 @@ class YOLOv5_ByteTrack(Model):
         det = self.non_max_suppression(outputs)[0]
         if len(det):
             det[:, :4] = self.rescale(img_processed.shape[2:], det[:, :4], img_src.shape).round()
+
+        if self.filter_classes:
+            filter_class_idx = []
+            for filter_class_name in self.filter_classes:
+                if filter_class_name in self.classes:
+                    filter_class_idx.append(self.classes.index(filter_class_name))
+                else:
+                    logging.warning(f"class {filter_class_name} not found in model classes list.")
+                    break
+            det = det[np.in1d(det[:, 5].astype(int), filter_class_idx)]
+
         bboxes_xyxy, ids, _, class_ids = self.tracker.track(det, self.image_shape)
         return bboxes_xyxy, ids, class_ids
 

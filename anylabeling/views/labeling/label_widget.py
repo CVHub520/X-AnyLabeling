@@ -687,6 +687,14 @@ class LabelingWidget(LabelDialog):
             checked=self._config["save_mode"] == "voc",
             enabled=self._config["save_mode"] != "voc",
         )
+        select_mot_format = action(
+            "MOT",
+            functools.partial(self.set_output_format, "mot"),
+            icon=None,
+            checkable=True,
+            checked=self._config["save_mode"] == "mot",
+            enabled=self._config["save_mode"] != "mot",
+        )
 
         # Group zoom controls into a list for easier toggling.
         zoom_actions = (
@@ -774,6 +782,7 @@ class LabelingWidget(LabelDialog):
             select_default_format=select_default_format,
             select_yolo_format=select_yolo_format,
             select_voc_format=select_voc_format,
+            select_mot_format=select_mot_format,
             zoom=zoom,
             zoom_in=zoom_in,
             zoom_out=zoom_out,
@@ -893,6 +902,7 @@ class LabelingWidget(LabelDialog):
                 select_default_format,
                 select_yolo_format,
                 select_voc_format,
+                select_mot_format,
             ),
         )
         utils.add_actions(
@@ -1143,11 +1153,11 @@ class LabelingWidget(LabelDialog):
         
         self._config["save_mode"] = mode
         confirm_flag = True
-        if mode == "yolo":
-            filter = "YOLO Class Files (*.txt);;All Files (*)"
+        if mode in ["yolo", "mot"]:
+            filter = "Classes Files (*.txt);;All Files (*)"
             self.classes, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self, 
-                self.tr("Select a yolo classes file"),
+                self.tr("Select a specific classes file"),
                 '', 
                 filter,
             )
@@ -1155,7 +1165,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.warning(
                     self,
                     self.tr("Warning"),
-                    self.tr("Please select a specific file."),
+                    self.tr("Please select a specific classes file!"),
                     QtWidgets.QMessageBox.Ok
                 )
                 confirm_flag = False
@@ -1175,14 +1185,22 @@ class LabelingWidget(LabelDialog):
             self.actions.select_default_format.setEnabled(False)
             self.actions.select_yolo_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "yolo":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(False)
             self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "voc":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(False)
+            self.actions.select_mot_format.setEnabled(True)
+        elif self._config["save_mode"] == "mot":
+            self.actions.select_default_format.setEnabled(True)
+            self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_mot_format.setEnabled(False)
 
     def get_labeling_instruction(self):
         text_mode = self.tr("Mode:")
@@ -2590,11 +2608,12 @@ class LabelingWidget(LabelDialog):
         progress_dialog.setWindowTitle("Frame Extraction Progress")
 
         frame_count = 0
+        base_name = osp.splitext(osp.basename(target_video_path))[0]
         while True:
             ret, frame = video_capture.read()
             if not ret:
                 break
-            frame_filename = osp.join(output_dir, f'frame_{frame_count:04d}.jpg')
+            frame_filename = osp.join(output_dir, f'{base_name}_{frame_count:06d}.jpg')
             cv2.imwrite(frame_filename, frame)
 
             frame_count += 1
