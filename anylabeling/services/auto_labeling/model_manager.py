@@ -151,7 +151,7 @@ class ModelManager(QObject):
 
         # Check config file content
         model_config = {}
-        with open(config_file, "r") as f:
+        with open(config_file, "r", encoding='utf-8') as f:
             model_config = yaml.safe_load(f)
             model_config["config_file"] = os.path.abspath(config_file)
         if not model_config:
