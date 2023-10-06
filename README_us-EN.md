@@ -38,7 +38,7 @@ English | [简体中文](README_zh-CN.md)
 
 - Segment Anything Model
   - [SAM](https://arxiv.org/abs/2304.02643): Universal model for natural image segmentation;
-  - [EfficientViT](https://github.com/CVHub520/efficientvit/tree/main): Efficient high-resolution vision (ICCV 2023)🆕;
+  - [EfficientViT](https://github.com/CVHub520/efficientvit/tree/main): Efficient high-resolution vision (ICCV 2023);
   - [MobileSAM](https://arxiv.org/abs/2306.14289): Faster version of `SAM`;
   - [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D): 2D Universal model for medical image segmentation (Recommend)🤗; 
   - [MedSAM](https://arxiv.org/abs/2304.12306): Universal model for medical image segmentation;
@@ -53,6 +53,8 @@ English | [简体中文](README_zh-CN.md)
   - [YOLOv8](https://github.com/ultralytics/ultralytics)
   - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
   - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
+  - [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)
+  - [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)🆕
   - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
 - Image Segmentation
   - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)

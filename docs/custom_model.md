@@ -81,3 +81,66 @@ classes:
 - [X-AnyLabeling/anylabeling/services/auto_labeling/model_manager.py](../anylabeling/services/auto_labeling/model_manager.py)：添加到模型管理。
 
 > 注：这部分需要少量的代码编程功底，如果遇到困难可直接在 [issue](https://github.com/CVHub520/X-AnyLabeling/issues) 区提交，尽量补充详细的上下文信息。
+
+## 三、其它模型部署教程
+
+> 此章节仅提供从 `pt` 转 `onnx` 格式的步骤，剩余操作请参考上述教程。
+
+- [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)
+
+> 论文：Efficient object detectors including Gold-YOLO</br>
+> 单位：huawei-noah</br>
+> 发表：NeurIPS23</br>
+
+```bash
+git clone https://github.com/huawei-noah/Efficient-Computing.git
+cd Detection/Gold-YOLO
+python deploy/ONNX/export_onnx.py --weights Gold_n_dist.pt --simplify --ort
+                                            Gold_s_pre_dist.pt                     
+                                            Gold_m_pre_dist.pt
+                                            Gold_l_pre_dist.pt
+```
+
+- [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)
+
+`DAMO-YOLO` is a fast and accurate object detection method, which is developed by TinyML Team from Alibaba DAMO Data Analytics and Intelligence Lab. And it achieves a higher performance than state-of-the-art YOLO series. DAMO-YOLO is extend from YOLO but with some new techs, including Neural Architecture Search (NAS) backbones, efficient Reparameterized Generalized-FPN (RepGFPN), a lightweight head with AlignedOTA label assignment, and distillation enhancement. For more details, please refer to our Arxiv Report. Moreover, here you can find not only powerful models, but also highly efficient training strategies and complete tools from training to deployment.
+
+> 论文：DAMO-YOLO: A Report on Real-Time Object Detection Design</br>
+> 单位：Alibaba Group</br>
+> 发表：Arxiv22</br>
+
+```bash
+git clone https://github.com/tinyvision/DAMO-YOLO.git
+cd DAMO-YOLO
+python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tinynasL25_S.pth --batch_size 1 --img_size 640
+```
+
+- [SAM](https://github.com/vietanhdev/samexporter)
+
+The Segment Anything Model (`SAM`) produces high quality object masks from input prompts such as points or boxes, and it can be used to generate masks for all objects in an image. It has been trained on a dataset of 11 million images and 1.1 billion masks, and has strong zero-shot performance on a variety of segmentation tasks.
+
+> 论文：Segment Anything</br>
+> 单位：Meta AI Research, FAIR</br>
+> 发表：ICCV23</br>
+
+参考此[步骤](https://github.com/vietanhdev/samexporter#sam-exporter).
+
+- [Efficient-SAM](https://github.com/CVHub520/efficientvit)
+
+`EfficientViT` is a new family of vision models for efficient high-resolution dense prediction. The core building block of EfficientViT is a new lightweight multi-scale linear attention module that achieves global receptive field and multi-scale learning with only hardware-efficient operations.
+
+> 论文：EfficientViT: Multi-Scale Linear Attention for High-Resolution Dense Prediction</br>
+> 单位：MIT</br>
+> 发表：ICCV23</br>
+
+参考此[步骤](https://github.com/CVHub520/efficientvit#benchmarking-with-onnxruntime).
+
+- [SAM-Med2D](https://github.com/CVHub520/SAM-Med2D)
+
+`SAM-Med2D` is a specialized model developed to address the challenge of applying state-of-the-art image segmentation techniques to medical images.
+
+> 论文：SAM-Med2D</br>
+> 单位：OpenGVLab</br>
+> 发表：Arxiv23</br>
+
+参考此[步骤](https://github.com/CVHub520/SAM-Med2D#-deploy).

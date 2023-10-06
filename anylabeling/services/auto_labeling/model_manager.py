@@ -183,6 +183,7 @@ class ModelManager(QObject):
                 "yolov5_sam",
                 "efficientvit_sam",
                 "yolov5_bytetrack",
+                "damo_yolo",
             ]
         ):
             self.new_model_status.emit(
@@ -421,6 +422,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLO_NAS(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "damo_yolo":
+            from .damo_yolo import DAMO_YOLO
+
+            try:
+                model_config["model"] = DAMO_YOLO(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

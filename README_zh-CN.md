@@ -44,7 +44,7 @@
   - [SAM](https://arxiv.org/abs/2304.02643): 通用自然图像分割一切模型；
   - [MobileSAM](https://arxiv.org/abs/2306.14289): 快速版 `SAM`；
   - [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D): 2D 医学图像分割一切模型（推荐）🤗;
-  - [EfficientViT-SAM](https://github.com/CVHub520/efficientvit/tree/main): 高效语义分割模型 (ICCV 2023) 🆕;
+  - [EfficientViT-SAM](https://github.com/CVHub520/efficientvit/tree/main): 高效语义分割模型 (ICCV 2023);
   - [MedSAM](https://arxiv.org/abs/2304.12306): 通用医学图像分割一切模型；
   - [LVMSAM](https://arxiv.org/abs/2306.11925)
       - [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid): 超声乳腺癌分割模型；
@@ -57,6 +57,8 @@
   - [YOLOv8](https://github.com/ultralytics/ultralytics)
   - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
   - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
+  - [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)
+  - [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)🆕
   - [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md)
 - Image Segmentation
   - [YOLOv8-seg](https://github.com/ultralytics/ultralytics)
