@@ -427,7 +427,7 @@ def main():
     elif args.mode == "yolo2custom":
         img_dic = {}
         for file in os.listdir(args.img_path):
-            prefix = file.split('.')[0]
+            prefix = file.rsplit('.', 1)[0]
             img_dic[prefix] = file
         file_list = os.listdir(args.src_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
