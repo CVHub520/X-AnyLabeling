@@ -50,7 +50,7 @@ English | [简体中文](README_zh-CN.md)
   - [YOLOv5](https://github.com/ultralytics/yolov5)
   - [YOLOv6](https://github.com/meituan/YOLOv6)
   - [YOLOv7](https://github.com/WongKinYiu/yolov7)
-  - [YOLOv8](https://github.com/ultralytics/ultralytics)
+  - [YOLOv8](https://github.com/ultralytics/ultralytics) with [SAHI](https://github.com/obss/sahi)🆕
   - [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)
   - [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master)
   - [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)

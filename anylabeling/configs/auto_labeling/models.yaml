@@ -64,6 +64,8 @@
   config_file: ":/yolov6lite_s_face.yaml"
 - model_name: "yolov7-r20230520"
   config_file: ":/yolov7.yaml"
+- model_name: "yolov8s_sahi-r20231008"
+  config_file: ":/yolov8s_sahi.yaml"
 - model_name: "yolov8n-r20230520"
   config_file: ":/yolov8n.yaml"
 - model_name: "yolov8s-r20230520"
