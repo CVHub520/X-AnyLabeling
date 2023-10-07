@@ -1,9 +1,7 @@
 import logging
 import os
-
 import cv2
 import numpy as np
-import onnxruntime as ort
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
 
@@ -12,6 +10,7 @@ from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
+from .engines.build_onnx_engine import OnnxBaseModel
 
 
 class YOLOX(Model):
@@ -45,27 +44,15 @@ class YOLOX(Model):
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLOv6 model."
+                    "Model", "Could not download or initialize YOLOX model."
                 )
             )
-
-        self.sess_opts = ort.SessionOptions()
-        if "OMP_NUM_THREADS" in os.environ:
-            self.sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
-        self.providers = ['CPUExecutionProvider']
-        if __preferred_device__ == "GPU":
-            self.providers = ['CUDAExecutionProvider']
-
-        self.net = ort.InferenceSession(
-                        model_abs_path, 
-                        providers=self.providers,
-                        sess_options=self.sess_opts,
-                    )
+        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.p6 = self.config["p6"]
         self.classes = self.config["classes"]
         self.input_size = (self.config["input_height"], self.config["input_width"])
 
-    def pre_process(self, img, net, swap=(2, 0, 1)):
+    def preprocess(self, img, swap=(2, 0, 1)):
         """
         Pre-process the input RGB image before feeding it to the network.
         """
@@ -74,23 +61,20 @@ class YOLOX(Model):
         else:
             padded_img = np.ones(self.input_size, dtype=np.uint8) * 114
 
-        r = min(self.input_size[0] / img.shape[0], self.input_size[1] / img.shape[1])
+        ratio_hw = min(self.input_size[0] / img.shape[0], self.input_size[1] / img.shape[1])
         resized_img = cv2.resize(
             img,
-            (int(img.shape[1] * r), int(img.shape[0] * r)),
+            (int(img.shape[1] * ratio_hw), int(img.shape[0] * ratio_hw)),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
-        padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
+        padded_img[: int(img.shape[0] * ratio_hw), : int(img.shape[1] * ratio_hw)] = resized_img
 
         padded_img = padded_img.transpose(swap)
         padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
 
-        ort_inputs = {net.get_inputs()[0].name: padded_img[None, :, :, :]}
-        outputs = net.run(None, ort_inputs)
+        return padded_img[None, :, :, :], ratio_hw
 
-        return r, outputs
-
-    def post_process(self, outputs):
+    def postprocess(self, outputs):
         """
         Post-process the network's output, to get the bounding boxes, key-points and
         their confidence scores.
@@ -133,9 +117,10 @@ class YOLOX(Model):
             logging.warning(e)
             return []
 
-        ratio, outputs = self.pre_process(image, self.net)
-        predictions = self.post_process(outputs[0])[0]
-        results = self.rescale(predictions, ratio)
+        blob, ratio_hw = self.preprocess(image)
+        outputs = self.net.get_ort_inference(blob)
+        predictions = self.postprocess(outputs)[0]
+        results = self.rescale(predictions, ratio_hw)
 
         shapes = []
         final_boxes, final_scores, final_cls_inds = results[:, :4], results[:, 4], results[:, 5]
