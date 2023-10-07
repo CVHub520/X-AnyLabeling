@@ -182,7 +182,7 @@ class ModelManager(QObject):
                 "ppocr_v4",
                 "yolov5_sam",
                 "efficientvit_sam",
-                "yolov5_bytetrack",
+                "yolov5_track",
                 "damo_yolo",
                 "yolov8_sahi",
             ]
@@ -712,11 +712,11 @@ class ModelManager(QObject):
                     )
                 )
                 return
-        elif model_config["type"] == "yolov5_bytetrack":
-            from .yolov5_bytetrack import YOLOv5_ByteTrack
+        elif model_config["type"] == "yolov5_track":
+            from .yolov5_track import YOLOv5_Tracker
 
             try:
-                model_config["model"] = YOLOv5_ByteTrack(
+                model_config["model"] = YOLOv5_Tracker(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

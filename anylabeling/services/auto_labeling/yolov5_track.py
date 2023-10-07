@@ -1,10 +1,7 @@
 import logging
 import os
-
 import cv2
-import math
 import numpy as np
-import onnxruntime as ort
 from numpy import array
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -16,19 +13,19 @@ from .model import Model
 from .types import AutoLabelingResult
 from .utils.points_conversion import xywh2xyxy
 from .trackers.byte_track.bytetracker import ByteTrack
+from .trackers.oc_sort.ocsort import OcSort
+from .engines.build_onnx_engine import OnnxBaseModel
 
-
-class YOLOv5_ByteTrack(Model):
-    """MOT model using YOLOv5_ByteTrack"""
+class YOLOv5_Tracker(Model):
+    """MOT model using YOLOv5_Tracker"""
     class Meta:
         required_config_names = [
             "type",
             "name",
             "display_name",
             "model_path",
-            "input_width",
-            "input_height",
             "stride",
+            "tracker",
             "nms_threshold",
             "confidence_threshold",
             "filter_classes",
@@ -52,47 +49,36 @@ class YOLOv5_ByteTrack(Model):
                 )
             )
 
-        self.sess_opts = ort.SessionOptions()
-        if "OMP_NUM_THREADS" in os.environ:
-            self.sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
-        self.providers = ['CPUExecutionProvider']
-        if __preferred_device__ == "GPU":
-            self.providers = ['CUDAExecutionProvider']
-
-        self.net = ort.InferenceSession(
-                        model_abs_path, 
-                        providers=self.providers,
-                        sess_options=self.sess_opts,
-                    )
-
+        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.classes = self.config["classes"]
         self.filter_classes = self.config.get("filter_classes", [])
 
-        try:
-            self.input_shape = tuple(self.net.get_inputs()[0].shape[2:])
-        except AttributeError as e:
-            self.input_shape = (self.config["input_height"], self.config["input_width"])
+        _, _, h, w = self.net.get_input_shape()
+        self.input_shape = (h, w)
 
-        self.img_size = self.check_img_size(
-            [self.input_shape[1],  self.input_shape[0]], 
-            s=self.config["stride"]
-        )
-        self.tracker = ByteTrack(self.input_shape)
+        if self.config["tracker"] == "ocsort":
+            self.tracker = OcSort(self.input_shape)
+        elif self.config["tracker"] == "bytetrack":
+            self.tracker = ByteTrack(self.input_shape)
+        else:
+            raise NotImplementedError(
+                QCoreApplication.translate(
+                    "Model", "Not implemented tracker method."
+                )
+            )
 
-    def pre_process(self, input_image, net):
+    def pre_process(self, input_image):
         """
         Pre-process the input RGB image before feeding it to the network.
         """
-        image = self.letterbox(input_image, self.img_size, stride=self.config['stride'])[0]
+        image = self.letterbox(input_image, self.input_shape, stride=self.config['stride'])[0]
         image = image.transpose((2, 0, 1)) # HWC to CHW
         image = np.ascontiguousarray(image).astype('float32')
         image /= 255  # 0 - 255 to 0.0 - 1.0
         if len(image.shape) == 3:
             image = image[None]
-        inputs = net.get_inputs()[0].name
-        outputs = net.run(None, {inputs: image})[0]
 
-        return image, outputs
+        return image
 
     def post_process(self, img_src, img_processed, outputs):
         """
@@ -132,35 +118,19 @@ class YOLOv5_ByteTrack(Model):
             return []
 
         self.image_shape = image.shape[:2][::-1]
-        processed_img, detections = self.pre_process(image, self.net)
-        bboxes_xyxy, ids, class_ids = self.post_process(image, processed_img, detections)
+        blob = self.pre_process(image)
+        detections = self.net.get_ort_inference(blob)
+        bboxes_xyxy, ids, class_ids = self.post_process(image, blob, detections)
 
         shapes = []
         for xyxy, id, class_id in zip(bboxes_xyxy, ids, class_ids):
-            rectangle_shape = Shape(label=self.classes[int(class_id)], shape_type="rectangle", group_id=id, flags={})
+            rectangle_shape = Shape(label=self.classes[int(class_id)], shape_type="rectangle", group_id=int(id), flags={})
             rectangle_shape.add_point(QtCore.QPointF(int(xyxy[0]), int(xyxy[1])))
             rectangle_shape.add_point(QtCore.QPointF(int(xyxy[2]), int(xyxy[3])))
             shapes.append(rectangle_shape)
         
         result = AutoLabelingResult(shapes, replace=True)
         return result
-
-    def check_img_size(self, img_size, s=32, floor=0):
-        """Make sure image size is a multiple of stride s in each dimension, and return a new shape list of image."""
-        if isinstance(img_size, int):  # integer i.e. img_size=640
-            new_size = max(self.make_divisible(img_size, int(s)), floor)
-        elif isinstance(img_size, list):  # list i.e. img_size=[640, 480]
-            new_size = [max(self.make_divisible(x, int(s)), floor) for x in img_size]
-        else:
-            raise Exception(f"Unsupported type of img_size: {type(img_size)}")
-
-        if new_size != img_size:
-            print(f'WARNING: --img-size {img_size} must be multiple of max stride {s}, updating to {new_size}')
-        return new_size if isinstance(img_size,list) else [new_size]*2
-
-    def make_divisible(self, x, divisor):
-        # Upward revision the value x to make it evenly divisible by the divisor.
-        return math.ceil(x / divisor) * divisor
 
     @staticmethod
     def letterbox(im, new_shape=(640, 640), color=(114, 114, 114), auto=False, scaleup=True, stride=32, return_int=False):

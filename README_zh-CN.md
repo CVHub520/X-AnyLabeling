@@ -74,6 +74,7 @@
   - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR)
 - MOT
   - [ByteTrack](https://github.com/ifzhang/ByteTrack)
+  - [OC_Sort](https://github.com/noahcao/OC_SORT) (CVPR 2023)🆕
 
 更多详情，请点击[模型列表](./docs/models_list.md)（持续更新中）
 

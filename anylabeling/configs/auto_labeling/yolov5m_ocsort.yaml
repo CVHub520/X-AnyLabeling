@@ -1,8 +1,8 @@
 type: yolov5_track
-name: yolov5m_bytetrack-r20231008
-display_name: YOLOv5m-Bytetrack
+name: yolov5m_ocsort-r20231008
+display_name: YOLOv5m-OCSort
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx
-tracker: bytetrack
+tracker: ocsort
 stride: 32
 nms_threshold: 0.25
 confidence_threshold: 0.45

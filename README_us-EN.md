@@ -70,6 +70,7 @@ English | [简体中文](README_zh-CN.md)
   - [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR)
 - MOT
   - [ByteTrack](https://github.com/ifzhang/ByteTrack)
+  - [OC_Sort](https://github.com/noahcao/OC_SORT) (CVPR 2023)🆕
 
 For more details, please click [Model List](./docs/models_list.md) (constantly updated).
 
