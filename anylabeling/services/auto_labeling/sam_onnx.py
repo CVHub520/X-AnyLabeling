@@ -20,12 +20,6 @@ class SegmentAnythingONNX:
         # TODO: Add back when TensorRT backend is stable
         providers = [p for p in providers if p != "TensorrtExecutionProvider"]
 
-        if providers:
-            logging.info(
-                "Available providers for ONNXRuntime: %s", ", ".join(providers)
-            )
-        else:
-            logging.warning("No available providers for ONNXRuntime")
         self.encoder_session = onnxruntime.InferenceSession(
             encoder_model_path, providers=providers
         )

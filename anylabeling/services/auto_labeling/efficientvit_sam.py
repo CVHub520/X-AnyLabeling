@@ -37,13 +37,6 @@ class SamEncoder:
         # TODO: Add back when TensorRT backend is stable
         providers = [p for p in providers if p != "TensorrtExecutionProvider"]
 
-        if providers:
-            logging.info(
-                "Available providers for ONNXRuntime: %s", ", ".join(providers)
-            )
-        else:
-            logging.warning("No available providers for ONNXRuntime")
-
         self.session = ort.InferenceSession(model_path, providers=providers)
 
         self.input_name = self.session.get_inputs()[0].name
@@ -87,13 +80,6 @@ class SamDecoder:
         # Pop TensorRT Runtime due to crashing issues
         # TODO: Add back when TensorRT backend is stable
         providers = [p for p in providers if p != "TensorrtExecutionProvider"]
-
-        if providers:
-            logging.info(
-                "Available providers for ONNXRuntime: %s", ", ".join(providers)
-            )
-        else:
-            logging.warning("No available providers for ONNXRuntime")
 
         self.target_size = target_size
         self.session = ort.InferenceSession(model_path, providers=providers)
