@@ -121,7 +121,7 @@ class PPOCRv4(Model):
             rec_image_shape="3, 48, 320",
             rec_batch_num=6,
             max_text_length=25,
-            rec_char_dict_path='anylabeling/services/auto_labeling/ppocr_utils/ppocr_keys_v1.txt',
+            rec_char_dict_path='anylabeling/services/auto_labeling/utils/ppocr_utils/ppocr_keys_v1.txt',
             use_space_char=True,
             drop_score=0.5,
             # params for e2e
