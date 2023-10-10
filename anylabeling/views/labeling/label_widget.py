@@ -2539,7 +2539,7 @@ class LabelingWidget(LabelDialog):
             self.load_file(self.filename)
             self.auto_labeling_widget.model_manager.predict_shapes(self.image, self.filename)
 
-            delay_ms = 20
+            delay_ms = 1
             QtCore.QTimer.singleShot(delay_ms, self.process_next_image)
 
             self.image_index += 1
