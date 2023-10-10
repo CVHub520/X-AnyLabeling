@@ -4,17 +4,17 @@
 <context>
     <name>AutoLabelingWidget</name>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="104"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="106"/>
         <source>No Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="105"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="107"/>
         <source>...Load Custom Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="109"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="111"/>
         <source>(User) </source>
         <translation type="unfinished"></translation>
     </message>
@@ -911,7 +911,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov5_bytetrack.py" line="49"/>
+        <location filename="../../services/auto_labeling/yolov5_cls.py" line="52"/>
         <source>Could not download or initialize YOLOv5 model.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -941,7 +941,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/yolov8.py" line="45"/>
+        <location filename="../../services/auto_labeling/yolov8_sahi.py" line="45"/>
         <source>Could not download or initialize YOLOv8 model.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -980,6 +980,26 @@ Polygons</source>
         <source>Could not download or initialize RTDETR model.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../services/auto_labeling/damo_yolo.py" line="42"/>
+        <source>Could not download or initialize DAMO_YOLO model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/yolov5_track.py" line="64"/>
+        <source>Not implemented tracker method.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/clrnet.py" line="39"/>
+        <source>Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/yolox.py" line="45"/>
+        <source>Could not download or initialize YOLOX model.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ModelManager</name>
@@ -989,37 +1009,37 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="245"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="247"/>
         <source>No model selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="261"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="263"/>
         <source>Loading model: {model_name}. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="752"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="798"/>
         <source>Model is not loaded. Choose a mode to continue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="738"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="784"/>
         <source>Error in model prediction. Please check the model.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="741"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="787"/>
         <source>Finished inferencing AI model. Check the result.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="756"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="802"/>
         <source>Inferencing AI model. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="766"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="812"/>
         <source>Another model is being executed. Please wait for it to finish.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1034,17 +1054,17 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="188"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="190"/>
         <source>Error in loading custom model: Invalid config file format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="255"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="257"/>
         <source>Error in loading model: Invalid model name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="678"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="724"/>
         <source>Error in loading model: {error_message}</source>
         <translation type="unfinished"></translation>
     </message>
