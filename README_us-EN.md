@@ -55,7 +55,7 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Oct. 2023:
-  - Release version [0.3.0]((https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0)).
+  - Release version [0.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0).
   - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
   - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
