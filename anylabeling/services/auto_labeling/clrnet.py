@@ -36,9 +36,9 @@ class CLRNet(Model):
         ]
         widgets = ["button_run"]
         output_modes = {
-            "point": QCoreApplication.translate("Model", "Point"),
+            "line": QCoreApplication.translate("Model", "Line"),
         }
-        default_output_mode = "point"
+        default_output_mode = "line"
 
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
@@ -165,11 +165,12 @@ class CLRNet(Model):
         shapes = []
         for i, info in enumerate(infos):
             label = "lane" + str(i+1)
-            for point in info["points"]:
-                shape = Shape(label=label, shape_type="point", flags={})
-                shape.add_point(QtCore.QPointF(point[0], point[1]))
-                shapes.append(shape)
-
+            shape = Shape(label=label, shape_type="line", flags={})
+            start_point, end_point = info["points"][0], info["points"][-1]
+            shape = Shape(label=label, shape_type="line", flags={})
+            shape.add_point(QtCore.QPointF(start_point[0], start_point[1]))
+            shape.add_point(QtCore.QPointF(end_point[0], end_point[1]))
+            shapes.append(shape)
         result = AutoLabelingResult(shapes, replace=True)
 
         return result
