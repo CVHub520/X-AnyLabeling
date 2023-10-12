@@ -636,12 +636,12 @@ class Canvas(
             return False  # No need to move
         o1 = pos + self.offsets[0]
         if self.out_off_pixmap(o1):
-            pos -= QtCore.QPoint(min(0, o1.x()), min(0, o1.y()))
+            pos -= QtCore.QPoint(min(0, int(o1.x())), min(0, int(o1.y())))
         o2 = pos + self.offsets[1]
         if self.out_off_pixmap(o2):
             pos += QtCore.QPoint(
-                min(0, self.pixmap.width() - o2.x()),
-                min(0, self.pixmap.height() - o2.y()),
+                min(0, int(self.pixmap.width() - o2.x())),
+                min(0, int(self.pixmap.height() - o2.y())),
             )
         # XXX: The next line tracks the new position of the cursor
         # relative to the shape, but also results in making it
@@ -735,7 +735,7 @@ class Canvas(
         if self.is_loading:
             # Draw a semi-transparent rectangle
             p.setPen(Qt.NoPen)
-            p.setBrush(QtGui.QColor(0, 0, 0, 100))
+            p.setBrush(QtGui.QColor(0, 0, 0, 20))
             p.drawRect(self.pixmap.rect())
 
             # Draw a spinning wheel
@@ -1034,13 +1034,17 @@ class Canvas(
         _, i, (x, y) = min(self.intersecting_edges((x1, y1), (x2, y2), points))
         x3, y3 = points[i]
         x4, y4 = points[(i + 1) % 4]
+        x1, y1 = int(x1), int(y1)
+        x2, y2 = int(x2), int(y2)
+        x3, y3 = int(x3), int(y3)
+        x4, y4 = int(x4), int(y4)
         if (x, y) == (x1, y1):
             # Handle cases where previous point is on one of the edges.
             if x3 == x4:
                 return QtCore.QPoint(x3, min(max(0, y2), max(y3, y4)))
             # y3 == y4
             return QtCore.QPoint(min(max(0, x2), max(x3, x4)), y3)
-        return QtCore.QPoint(x, y)
+        return QtCore.QPoint(int(x), int(y))
 
     def intersecting_edges(self, point1, point2, points):
         """Find intersecting edges.
