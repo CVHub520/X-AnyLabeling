@@ -125,7 +125,7 @@ For more details, please refer to [models_list](./docs/models_list.md).
 
 ### 🔜Quick Start
 
-Download and run the `GUI` version directly from [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0) or [Baidu Disk](https://pan.baidu.com/s/1jcxQxhocLanKJFZBIIMfjA?pwd=xl7x).
+Download and run the `GUI` version directly from [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.4.0) or [Baidu Disk](https://pan.baidu.com/s/1Rn_YHJUZetuSzfanSvSynQ?pwd=snqt).
 
 Note:
 - For MacOS:

@@ -25,9 +25,9 @@
   <p style="text-align: center; margin-top: 10px;">
     <span style="background-image: linear-gradient(to right, #ff0000, #ff6600, #ffcc00, #00ccff, #6600ff);
  transparent;">X-AnyLabeling</span>: 
-    <span style="color: yellow;">更好</span>, 
-    <span style="color: orange;">更快</span>, 
-    <span style="color: lightblue;">更强</span>
+    <span style="color: yellow;">更快</span>, 
+    <span style="color: orange;">更强</span>, 
+    <span style="color: lightblue;">更好玩</span>
   </p>
 </div>
 
@@ -132,7 +132,7 @@ GroundingDINO
 
 ### 🔜快速开始
 
-直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0) 或 [百度网盘](https://pan.baidu.com/s/1jcxQxhocLanKJFZBIIMfjA?pwd=xl7x) 下载并运行 `GUI` 版本。
+直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0) 或 [百度网盘](https://pan.baidu.com/s/1Rn_YHJUZetuSzfanSvSynQ?pwd=snqt) 下载并运行 `GUI` 版本。
 
 注意事项：
 - 对于 MacOS：

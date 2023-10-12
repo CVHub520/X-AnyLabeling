@@ -30,7 +30,7 @@ from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
 
 class Model(QObject):
     BASE_DOWNLOAD_URL = (
-        "https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0"
+        "https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.4.0"
     )
 
     class Meta(QObject):

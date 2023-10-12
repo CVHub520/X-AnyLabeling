@@ -54,6 +54,7 @@ def get_install_requires():
         "onnx==1.13.1",
         "qimage2ndarray==1.10.0",
         "lap==0.4.0",
+        "transformers==4.32.0",
         "tqdm",
         "scipy",
         "shapely",
