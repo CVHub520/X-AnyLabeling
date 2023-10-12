@@ -107,6 +107,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QLineEdit" name="edit_text">
+       <property name="text">
+        <string></string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="button_add_point">
        <property name="text">
         <string>+Point</string>

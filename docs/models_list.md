@@ -1,5 +1,13 @@
 ## 🛠️ `X-AnyLabeling` Model Zoo
 
+### Visual-Language LLM
+
+|Name|Description|Configuration|Size|Link|
+| --- | --- | --- | --- | --- |
+| groundingdino_swint_ogc.onnx | [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)  | [groundingdino_swint_ogc.yaml](../anylabeling/configs/auto_labeling/groundingdino_swint_ogc.yaml)  | 660.38MB  | [baidu](https://pan.baidu.com/s/1Bd0oRhTWFR8OsxU5BoRRqw?pwd=m2cl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.4.0/groundingdino_swint_ogc.onnx) |
+| groundingdino_swinb_cogcoor.onnx | [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)  | [groundingdino_swinb_cogcoor.yaml](../anylabeling/configs/auto_labeling/groundingdino_swinb_cogcoor.yaml)  | 917.61MB  | [baidu](https://pan.baidu.com/s/1wcQhGUmMtb3nZE8PUAAWPA?pwd=dmwo) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.4.0/groundingdino_swinb_cogcoor.onnx) |
+
+
 ### Lane Detection
 
 |Name|Description|Configuration|Size|Link|

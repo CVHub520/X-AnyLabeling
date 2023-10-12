@@ -185,6 +185,7 @@ class ModelManager(QObject):
                 "yolov5_track",
                 "damo_yolo",
                 "yolov8_sahi",
+                "grounding_dino",
             ]
         ):
             self.new_model_status.emit(
@@ -484,6 +485,28 @@ class ModelManager(QObject):
                     )
                 )
                 return
+        elif model_config["type"] == "grounding_dino":
+            from .grounding_dino import Grounding_DINO
+
+            try:
+                model_config["model"] = Grounding_DINO(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
         elif model_config["type"] == "yolov5_sam":
             from .yolov5_sam import YOLOv5SegmentAnything
 
@@ -763,7 +786,7 @@ class ModelManager(QObject):
             self.loaded_model_config["model"].unload()
             self.loaded_model_config = None
 
-    def predict_shapes(self, image, filename=None):
+    def predict_shapes(self, image, filename=None, text_prompt=None):
         """Predict shapes.
         NOTE: This function is blocking. The model can take a long time to
         predict. So it is recommended to use predict_shapes_threading instead.
@@ -775,9 +798,14 @@ class ModelManager(QObject):
             self.prediction_finished.emit()
             return
         try:
-            auto_labeling_result = self.loaded_model_config[
-                "model"
-            ].predict_shapes(image, filename)
+            if text_prompt is None:
+                auto_labeling_result = self.loaded_model_config[
+                    "model"
+                ].predict_shapes(image, filename)
+            else:
+                auto_labeling_result = self.loaded_model_config[
+                    "model"
+                ].predict_shapes(image, filename, text_prompt)
             self.new_auto_labeling_result.emit(auto_labeling_result)
         except Exception as e:  # noqa
             print(f"Error in predict_shapes: {e}")
@@ -790,7 +818,7 @@ class ModelManager(QObject):
         self.prediction_finished.emit()
 
     @pyqtSlot()
-    def predict_shapes_threading(self, image, filename=None):
+    def predict_shapes_threading(self, image, filename=None, text_prompt=None):
         """Predict shapes.
         This function starts a thread to run the prediction.
         """
@@ -819,9 +847,14 @@ class ModelManager(QObject):
                 return
 
             self.model_execution_thread = QThread()
-            self.model_execution_worker = GenericWorker(
-                self.predict_shapes, image, filename
-            )
+            if text_prompt is None:
+                self.model_execution_worker = GenericWorker(
+                    self.predict_shapes, image, filename
+                )
+            else:
+                self.model_execution_worker = GenericWorker(
+                    self.predict_shapes, image, filename, text_prompt
+                )
             self.model_execution_worker.finished.connect(
                 self.model_execution_thread.quit
             )

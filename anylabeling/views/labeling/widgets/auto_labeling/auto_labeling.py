@@ -59,6 +59,8 @@ class AutoLabelingWidget(QWidget):
         # Auto labeling buttons
         self.button_run.setShortcut("I")
         self.button_run.clicked.connect(self.run_prediction)
+        self.edit_text.setPlaceholderText("Enter text prompt here and press Enter to confirm.")
+        self.edit_text.returnPressed.connect(self.run_vl_prediction)
         self.button_add_point.setShortcut("+")
         self.button_add_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
@@ -171,6 +173,13 @@ class AutoLabelingWidget(QWidget):
                 self.parent.image, self.parent.filename
             )
 
+    def run_vl_prediction(self):
+        """Run visual-language prediction"""
+        if self.parent.filename is not None and self.edit_text:
+            self.model_manager.predict_shapes_threading(
+                self.parent.image, self.parent.filename, self.edit_text.text()
+            )
+
     def unload_and_hide(self):
         """Unload model and hide widget"""
         self.model_select_combobox.setCurrentIndex(0)
@@ -260,6 +269,7 @@ class AutoLabelingWidget(QWidget):
             "output_label",
             "output_select_combobox",
             "button_run",
+            "edit_text",
             "button_add_point",
             "button_remove_point",
             "button_add_rect",

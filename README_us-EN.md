@@ -18,19 +18,17 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<div style="text-align: center;">
-  <a href="https://www.bilibili.com/video/BV1AV4y1U7h3/?spm_id_from=333.999.0.0">
-    <img style="width: fit; margin-left: auto; margin-right: auto; display: block;" alt="AnyLabeling-SegmentAnything" src="https://user-images.githubusercontent.com/72010077/273759618-31a716ed-3366-4fad-b564-20d99f7ab2e4.gif"/>
-  </a>
-  <p style="text-align: center; margin-top: 10px;">
-    <span style="background-image: linear-gradient(to right, #ff0000, #ff6600, #ffcc00, #00ccff, #6600ff);
- transparent;">X-AnyLabeling</span>: 
-    <span style="color: yellow;">Better</span>, 
-    <span style="color: orange;">Faster</span>, 
-    <span style="color: lightblue;">Stronger</span>
-  </p>
+<div align=center>
+<img src="https://user-images.githubusercontent.com/72010077/273759618-31a716ed-3366-4fad-b564-20d99f7ab2e4.gif"/>
+X-Anylabeling: Better, Faster, Stronger
 </div>
 
+</br>
+
+<div align=center>
+<img src="https://user-images.githubusercontent.com/72010077/274632730-bfbca9c6-ecb9-4dd2-b6d1-35523aac2322.gif"/>
+GroundingDINO
+</div>
 
 ## 📄 Table of Contents
 
@@ -55,7 +53,8 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Oct. 2023:
-  - Release version [0.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0).
+  - Release version [0.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.4.0).
+  - 🔥🔥🔥SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
   - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
   - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).

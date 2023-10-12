@@ -22,7 +22,9 @@ class OnnxBaseModel():
     def get_ort_inference(self, blob, inputs=None, extract=True, squeeze=False):
         if inputs is None:
             inputs = self.get_input_name()
-        outs = self.ort_session.run(None, {inputs: blob})
+            outs = self.ort_session.run(None, {inputs: blob})
+        else:
+            outs = self.ort_session.run(None, inputs)
         if extract:
             outs = outs[0]
         if squeeze:
