@@ -91,10 +91,10 @@ class Grounding_DINO(Model):
 
         inputs = {}
         inputs["img"] = image
-        inputs["input_ids"] = np.array(tokenized["input_ids"])
+        inputs["input_ids"] = np.array(tokenized["input_ids"], dtype=np.int64)
         inputs["attention_mask"] = np.array(tokenized["attention_mask"], dtype=bool)
-        inputs["token_type_ids"] = np.array(tokenized["token_type_ids"])
-        inputs["position_ids"] = np.array(position_ids)
+        inputs["token_type_ids"] = np.array(tokenized["token_type_ids"], dtype=np.int64)
+        inputs["position_ids"] = np.array(position_ids, dtype=np.int64)
         inputs["text_token_mask"] = np.array(text_self_attention_masks, dtype=bool)
 
         return image, inputs, captions[0]
@@ -151,7 +151,7 @@ class Grounding_DINO(Model):
         boxes = self.rescale_boxes(boxes_filt, img_h, img_w)
         for box in boxes:
             x1, y1, x2, y2 = box
-            shape = Shape(label=text_prompt, shape_type="rectangle", flags={})
+            shape = Shape(label=str(text_prompt), shape_type="rectangle", flags={})
             shape.add_point(QtCore.QPointF(x1, y1))
             shape.add_point(QtCore.QPointF(x2, y2))
             shapes.append(shape)
