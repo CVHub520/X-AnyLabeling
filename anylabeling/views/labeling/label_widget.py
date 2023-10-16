@@ -254,17 +254,17 @@ class LabelingWidget(LabelDialog):
         action = functools.partial(utils.new_action, self)
         shortcuts = self._config["shortcuts"]
         open_ = action(
-            self.tr("&Open"),
+            self.tr("&Open File"),
             self.open_file,
             shortcuts["open"],
-            "open",
+            "file",
             self.tr("Open image or label file"),
         )
         openvideo = action(
             self.tr("&Open Video"),
             self.open_video_file,
             shortcuts["open_video"],
-            "open",
+            "video",
             self.tr("Open video file"),
         )
         opendir = action(
@@ -302,7 +302,7 @@ class LabelingWidget(LabelDialog):
             self.tr("&Save As"),
             self.save_file_as,
             shortcuts["save_as"],
-            "save",
+            "save-as",
             self.tr("Save labels to a different file"),
             enabled=False,
         )
@@ -310,10 +310,10 @@ class LabelingWidget(LabelDialog):
             self.tr("&Auto Run"),
             self.run_all_images,
             shortcuts["auto_run"],
-            "format_createml",
+            "auto-run",
             self.tr("Auto run all images at once"),
             checkable=True,
-            enabled=True,
+            enabled=False,
         )
         delete_file = action(
             self.tr("&Delete File"),
@@ -395,6 +395,14 @@ class LabelingWidget(LabelDialog):
             shortcuts["create_rectangle"],
             "rectangle",
             self.tr("Start drawing rectangles"),
+            enabled=False,
+        )
+        create_rotation_mode = action(
+            self.tr("Create Rotation"),
+            lambda: self.toggle_draw_mode(False, create_mode="rotation"),
+            shortcuts["create_rotation"],
+            "rotation",
+            self.tr("Start drawing rotations"),
             enabled=False,
         )
         create_cirle_mode = action(
@@ -537,7 +545,7 @@ class LabelingWidget(LabelDialog):
         contact = action(
             self.tr("&Contact me"),
             self.contact,
-            icon="help",
+            icon="contact",
             tip=self.tr("Show contact page"),
         )
 
@@ -666,7 +674,7 @@ class LabelingWidget(LabelDialog):
         select_default_format = action(
             "Default",
             functools.partial(self.set_output_format, "default"),
-            icon="format_createml",
+            icon="format_default",
             checkable=True,
             checked=self._config["save_mode"] == "default",
             enabled=self._config["save_mode"] != "default",
@@ -687,10 +695,18 @@ class LabelingWidget(LabelDialog):
             checked=self._config["save_mode"] == "voc",
             enabled=self._config["save_mode"] != "voc",
         )
+        select_obb_format = action(
+            "YOLO_OBB",
+            functools.partial(self.set_output_format, "obb"),
+            icon="format_obb",
+            checkable=True,
+            checked=self._config["save_mode"] == "obb",
+            enabled=self._config["save_mode"] != "obb",
+        )
         select_mot_format = action(
             "MOT",
             functools.partial(self.set_output_format, "mot"),
-            icon=None,
+            icon="format_mot",
             checkable=True,
             checked=self._config["save_mode"] == "mot",
             enabled=self._config["save_mode"] != "mot",
@@ -775,6 +791,7 @@ class LabelingWidget(LabelDialog):
             create_mode=create_mode,
             edit_mode=edit_mode,
             create_rectangle_mode=create_rectangle_mode,
+            create_rotation_mode=create_rotation_mode,
             create_cirle_mode=create_cirle_mode,
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
@@ -782,6 +799,7 @@ class LabelingWidget(LabelDialog):
             select_default_format=select_default_format,
             select_yolo_format=select_yolo_format,
             select_voc_format=select_voc_format,
+            select_obb_format=select_obb_format,
             select_mot_format=select_mot_format,
             zoom=zoom,
             zoom_in=zoom_in,
@@ -818,6 +836,7 @@ class LabelingWidget(LabelDialog):
             menu=(
                 create_mode,
                 create_rectangle_mode,
+                create_rotation_mode,
                 create_cirle_mode,
                 create_line_mode,
                 create_point_mode,
@@ -836,6 +855,7 @@ class LabelingWidget(LabelDialog):
                 close,
                 create_mode,
                 create_rectangle_mode,
+                create_rotation_mode,
                 create_cirle_mode,
                 create_line_mode,
                 create_point_mode,
@@ -902,6 +922,7 @@ class LabelingWidget(LabelDialog):
                 select_default_format,
                 select_yolo_format,
                 select_voc_format,
+                select_obb_format,
                 select_mot_format,
             ),
         )
@@ -959,6 +980,7 @@ class LabelingWidget(LabelDialog):
             None,
             create_mode,
             self.actions.create_rectangle_mode,
+            self.actions.create_rotation_mode,
             self.actions.create_cirle_mode,
             self.actions.create_line_mode,
             self.actions.create_point_mode,
@@ -1185,21 +1207,31 @@ class LabelingWidget(LabelDialog):
             self.actions.select_default_format.setEnabled(False)
             self.actions.select_yolo_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_obb_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "yolo":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(False)
             self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_obb_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "voc":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(False)
+            self.actions.select_obb_format.setEnabled(True)
+            self.actions.select_mot_format.setEnabled(True)
+        elif self._config["save_mode"] == "obb":
+            self.actions.select_default_format.setEnabled(True)
+            self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_obb_format.setEnabled(False)
             self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "mot":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_obb_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(False)
 
     def get_labeling_instruction(self):
@@ -1264,6 +1296,7 @@ class LabelingWidget(LabelDialog):
         actions = (
             self.actions.create_mode,
             self.actions.create_rectangle_mode,
+            self.actions.create_rotation_mode,
             self.actions.create_cirle_mode,
             self.actions.create_line_mode,
             self.actions.create_point_mode,
@@ -1295,6 +1328,7 @@ class LabelingWidget(LabelDialog):
         self.actions.save.setEnabled(False)
         self.actions.create_mode.setEnabled(True)
         self.actions.create_rectangle_mode.setEnabled(True)
+        self.actions.create_rotation_mode.setEnabled(True)
         self.actions.create_cirle_mode.setEnabled(True)
         self.actions.create_line_mode.setEnabled(True)
         self.actions.create_point_mode.setEnabled(True)
@@ -1353,11 +1387,11 @@ class LabelingWidget(LabelDialog):
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
     def documentation(self):
-        url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/"  # NOQA
+        url = "https://space.bilibili.com/3493129615313789/channel/collectiondetail?sid=1792823"  # NOQA
         webbrowser.open(url)
 
     def contact(self):
-        url = "https://www.zhihu.com/people/cvhub-40/"  # NOQA
+        url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/"  # NOQA
         webbrowser.open(url)
 
     def toggle_drawing_sensitive(self, drawing=True):
@@ -1389,6 +1423,7 @@ class LabelingWidget(LabelDialog):
         if edit:
             self.actions.create_mode.setEnabled(True)
             self.actions.create_rectangle_mode.setEnabled(True)
+            self.actions.create_rotation_mode.setEnabled(True)
             self.actions.create_cirle_mode.setEnabled(True)
             self.actions.create_line_mode.setEnabled(True)
             self.actions.create_point_mode.setEnabled(True)
@@ -1397,6 +1432,7 @@ class LabelingWidget(LabelDialog):
             if create_mode == "polygon":
                 self.actions.create_mode.setEnabled(False)
                 self.actions.create_rectangle_mode.setEnabled(True)
+                self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_cirle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
@@ -1404,6 +1440,7 @@ class LabelingWidget(LabelDialog):
             elif create_mode == "rectangle":
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(False)
+                self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_cirle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
@@ -1411,6 +1448,7 @@ class LabelingWidget(LabelDialog):
             elif create_mode == "line":
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
+                self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_cirle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(False)
                 self.actions.create_point_mode.setEnabled(True)
@@ -1418,6 +1456,7 @@ class LabelingWidget(LabelDialog):
             elif create_mode == "point":
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
+                self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_cirle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(False)
@@ -1425,6 +1464,7 @@ class LabelingWidget(LabelDialog):
             elif create_mode == "circle":
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
+                self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_cirle_mode.setEnabled(False)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
@@ -1432,10 +1472,19 @@ class LabelingWidget(LabelDialog):
             elif create_mode == "linestrip":
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
+                self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_cirle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
                 self.actions.create_line_strip_mode.setEnabled(False)
+            elif create_mode == "rotation":
+                self.actions.create_mode.setEnabled(True)
+                self.actions.create_rectangle_mode.setEnabled(True)
+                self.actions.create_rotation_mode.setEnabled(False)
+                self.actions.create_cirle_mode.setEnabled(True)
+                self.actions.create_line_mode.setEnabled(True)
+                self.actions.create_point_mode.setEnabled(True)
+                self.actions.create_line_strip_mode.setEnabled(True)
             else:
                 raise ValueError(f"Unsupported create_mode: {create_mode}")
         self.actions.edit_mode.setEnabled(not edit)
@@ -2753,8 +2802,10 @@ class LabelingWidget(LabelDialog):
         """Toggle auto labeling widget visibility."""
         if self.auto_labeling_widget.isVisible():
             self.auto_labeling_widget.hide()
+            self.actions.run_all_images.setEnabled(False)
         else:
             self.auto_labeling_widget.show()
+            self.actions.run_all_images.setEnabled(True)
 
     @pyqtSlot()
     def new_shapes_from_auto_labeling(self, auto_labeling_result):

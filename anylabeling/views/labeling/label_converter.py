@@ -92,6 +92,21 @@ class LabelConverter:
         with open(output_dir, 'w') as f:
             f.write(formatted_xml)
 
+    def custom_to_yolo_obb(self, data, output_file):
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for shape in data['shapes']:
+                label = shape['label']
+                points = shape['points']
+                x0 = points[0][0]
+                y0 = points[0][1]
+                x1 = points[1][0]
+                y1 = points[1][1]
+                x2 = points[2][0]
+                y2 = points[2][1]
+                x3 = points[3][0]
+                y3 = points[3][1]
+                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n")
+
     def custom_to_yolo_rectangle(self, data, output_file):
         image_width = data['imageWidth']
         image_height = data['imageHeight']

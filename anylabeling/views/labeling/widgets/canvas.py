@@ -1,5 +1,7 @@
 """This module defines Canvas widget - the core component for drawing image labels"""
 import imgviz
+import math
+from copy import deepcopy
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QWheelEvent
@@ -16,6 +18,8 @@ CURSOR_MOVE = QtCore.Qt.ClosedHandCursor
 CURSOR_GRAB = QtCore.Qt.OpenHandCursor
 
 MOVE_SPEED = 5.0
+LARGE_ROTATION_INCREMENT = 0.1
+SMALL_ROTATION_INCREMENT = 0.01
 
 LABEL_COLORMAP = imgviz.label_colormap()
 
@@ -36,7 +40,7 @@ class Canvas(
 
     CREATE, EDIT = 0, 1
 
-    # polygon, rectangle, line, or point
+    # polygon, rectangle, rotation, line, or point
     _create_mode = "polygon"
 
     _fill_drawing = False
@@ -130,7 +134,7 @@ class Canvas(
 
     @property
     def create_mode(self):
-        """Create mode for canvas - Modes: polygon, rectangle, circle,..."""
+        """Create mode for canvas - Modes: polygon, rectangle, rotation, circle,..."""
         return self._create_mode
 
     @create_mode.setter
@@ -139,6 +143,7 @@ class Canvas(
         if value not in [
             "polygon",
             "rectangle",
+            "rotation",
             "circle",
             "line",
             "point",
@@ -278,7 +283,7 @@ class Canvas(
             self.override_cursor(CURSOR_DRAW)
             if not self.current:
                 return
-
+            color = QtGui.QColor(0, 0, 255)
             if self.out_off_pixmap(pos):
                 # Don't allow the user to draw outside the pixmap.
                 # Project the point to the pixmap's edges.
@@ -294,12 +299,24 @@ class Canvas(
                 pos = self.current[0]
                 self.override_cursor(CURSOR_POINT)
                 self.current.highlight_vertex(0, Shape.NEAR_VERTEX)
+            elif (
+                self.create_mode == "rotation"
+                and len(self.current) > 0
+                and self.close_enough(pos, self.current[0])
+            ):
+                pos = self.current[0]
+                color = self.current.line_color
+                self.override_cursor(CURSOR_POINT)
+                self.current.highlight_vertex(0, Shape.NEAR_VERTEX)
             if self.create_mode in ["polygon", "linestrip"]:
                 self.line[0] = self.current[-1]
                 self.line[1] = pos
             elif self.create_mode == "rectangle":
                 self.line.points = [self.current[0], pos]
                 self.line.close()
+            elif self.create_mode == "rotation":
+                self.line[1] = pos
+                self.line.line_color = color
             elif self.create_mode == "circle":
                 self.line.points = [self.current[0], pos]
                 self.line.shape_type = "circle"
@@ -438,6 +455,20 @@ class Canvas(
                         assert len(self.current.points) == 1
                         self.current.points = self.line.points
                         self.finalise()
+                    elif self.create_mode == "rotation":
+                        initPos = self.current[0]
+                        minX = initPos.x()
+                        minY = initPos.y()
+                        targetPos = self.line[1]
+                        maxX = targetPos.x()
+                        maxY = targetPos.y()
+                        self.current.add_point(QtCore.QPointF(maxX, minY))
+                        self.current.add_point(targetPos)
+                        self.current.add_point(QtCore.QPointF(minX, maxY))
+                        self.current.add_point(initPos)
+                        self.line[0] = self.current[-1]
+                        if self.current.is_closed():
+                            self.finalise()
                     elif self.create_mode == "linestrip":
                         self.current.add_point(self.line[1])
                         self.line[0] = self.current[-1]
@@ -581,6 +612,22 @@ class Canvas(
         if self.selected_vertex():  # A vertex is marked for selection.
             index, shape = self.h_vertex, self.h_hape
             shape.highlight_vertex(index, shape.MOVE_VERTEX)
+
+            if shape._shape_type == "rotation":
+                self.set_hiding()
+                if shape not in self.selected_shapes:
+                    if multiple_selection_mode:
+                        self.selection_changed.emit(
+                            self.selected_shapes + [shape]
+                        )
+                    else:
+                        self.selection_changed.emit([shape])
+                    self.h_shape_is_selected = False
+                else:
+                    self.h_shape_is_selected = True
+                self.calculate_offsets(point)
+                return
+
         else:
             for shape in reversed(self.shapes):
                 if self.is_visible(shape) and shape.contains_point(point):
@@ -622,13 +669,64 @@ class Canvas(
         y2 = bottom - point.y()
         self.offsets = QtCore.QPointF(x1, y1), QtCore.QPointF(x2, y2)
 
+    def get_adjoint_points(self, theta, p3, p1, index):
+        a1 = math.tan(theta)
+        if (a1 == 0):
+            if index % 2 == 0:
+                p2 = QtCore.QPointF(p3.x(), p1.y())
+                p4 = QtCore.QPointF(p1.x(), p3.y())
+            else:            
+                p4 = QtCore.QPointF(p3.x(), p1.y())
+                p2 = QtCore.QPointF(p1.x(), p3.y())
+        else:
+            a3 = a1
+            a2 = -1 / a1
+            a4 = -1 / a1
+            b1 = p1.y() - a1 * p1.x()
+            b2 = p1.y() - a2 * p1.x()
+            b3 = p3.y() - a1 * p3.x()
+            b4 = p3.y() - a2 * p3.x()
+
+            if index % 2 == 0:
+                p2 = self.get_cross_point(a1, b1, a4, b4)
+                p4 = self.get_cross_point(a2, b2, a3, b3)
+            else:            
+                p4 = self.get_cross_point(a1, b1, a4, b4)
+                p2 = self.get_cross_point(a2, b2, a3, b3)
+
+        return p2, p3, p4
+
+    @staticmethod
+    def get_cross_point(a1, b1, a2, b2):
+        x = (b2 - b1) / (a1 - a2)
+        y = (a1 * b2 - a2 * b1) / (a1 - a2)
+        return QtCore.QPointF(x,y)
+
     def bounded_move_vertex(self, pos):
         """Move a vertex. Adjust position to be bounded by pixmap border"""
         index, shape = self.h_vertex, self.h_hape
         point = shape[index]
         if self.out_off_pixmap(pos):
             pos = self.intersection_point(point, pos)
-        shape.move_vertex_by(index, pos - point)
+
+        if shape._shape_type != "rotation":
+            shape.move_vertex_by(index, pos - point)
+        else:
+            sindex = (index + 2) % 4
+            # Get the other 3 points after transformed
+            p2, p3, p4 = self.get_adjoint_points(shape.direction, shape[sindex], pos, index)
+            if self.out_off_pixmap(p2) or \
+                self.out_off_pixmap(p3) or \
+                self.out_off_pixmap(p4):
+                return  # No need to move if one pixal out of map
+
+            # Move 4 pixal one by one 
+            shape.move_vertex_by(index, pos - point)
+            lindex = (index + 1) % 4
+            rindex = (index + 3) % 4
+            shape[lindex] = p2
+            shape[rindex] = p4
+            shape.close()
 
     def bounded_move_shapes(self, shapes, pos):
         """Move shapes. Adjust position to be bounded by pixmap border"""
@@ -655,6 +753,38 @@ class Canvas(
             self.prev_point = pos
             return True
         return False
+
+    def rotate_point(self, p, center, theta):
+        order = p - center
+        cosTheta = math.cos(theta)
+        sinTheta = math.sin(theta)
+        pResx = cosTheta * order.x() + sinTheta * order.y()
+        pResy = -sinTheta * order.x() + cosTheta * order.y()
+        pRes = QtCore.QPointF(center.x() + pResx, center.y() + pResy)
+        return pRes
+
+    def bounded_rotate_shapes(self, i, shape, theta):
+        """Rotate shapes. Adjust position to be bounded by pixmap border"""
+        new_shape = deepcopy(shape)
+        if len(shape.points) == 2:
+            new_shape.points[0] = shape.points[0]
+            new_shape.points[1] = QtCore.QPointF(
+                (shape.points[0].x()+shape.points[1].x()) / 2, shape.points[0].y()
+            )
+            new_shape.points.append(shape.points[1])
+            new_shape.points.append(QtCore.QPointF(
+                shape.points[1].x(), (shape.points[0].y()+shape.points[1].y()) / 2
+            ))
+        center = (new_shape.points[0] + new_shape.points[2]) / 2
+        for j, p in enumerate(new_shape.points):
+            pos = self.rotate_point(p, center, theta)
+            if self.out_off_pixmap(pos):
+                return False  # No need to rotate
+            new_shape.points[j] = pos
+            new_shape.direction = (new_shape.direction - theta) % (2 * math.pi)
+        self.selected_shapes[i].points = new_shape.points
+        self.selected_shapes[i].direction = new_shape.direction
+        return True
 
     def deselect_shape(self):
         """Deselect all shapes"""
@@ -724,6 +854,7 @@ class Canvas(
         p.begin(self)
         p.setRenderHint(QtGui.QPainter.Antialiasing)
         p.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
+        p.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
 
         p.scale(self.scale, self.scale)
         p.translate(self.offset_to_center())
@@ -837,6 +968,19 @@ class Canvas(
             drawing_shape.add_point(self.line[1])
             drawing_shape.fill = True
             drawing_shape.paint(p)
+        if (
+            self.fill_drawing()
+            and self.create_mode == "rotation"
+            and self.current is not None
+            and len(self.current.points) >= 1
+        ):
+            leftTop = self.line[0]
+            rightBottom = self.line[1]
+            rectWidth = rightBottom.x() - leftTop.x()
+            rectHeight = rightBottom.y() - leftTop.y()
+            color = QtGui.QColor(0, 255, 0)
+            p.setPen(color)
+            p.drawRect(leftTop.x(), leftTop.y(), rectWidth, rectHeight)
 
         # Draw texts
         if self.show_texts:
@@ -1113,6 +1257,16 @@ class Canvas(
             self.repaint()
             self.moving_shape = True
 
+    def rotate_by_keyboard(self, theta):
+        """Rotate selected shapes by an theta (using keyboard)"""
+        if self.selected_shapes:
+            for i, shape in enumerate(self.selected_shapes):
+                if shape._shape_type == 'rotation':
+                    self.bounded_rotate_shapes(
+                        i, shape, theta
+                    )
+                    self.repaint()
+
     # QT Overload
     def keyPressEvent(self, ev):
         """Key press event"""
@@ -1136,6 +1290,14 @@ class Canvas(
                 self.move_by_keyboard(QtCore.QPointF(-MOVE_SPEED, 0.0))
             elif key == QtCore.Qt.Key_Right:
                 self.move_by_keyboard(QtCore.QPointF(MOVE_SPEED, 0.0))
+            elif key == QtCore.Qt.Key_Z:
+                self.rotate_by_keyboard(LARGE_ROTATION_INCREMENT)
+            elif key == QtCore.Qt.Key_X:
+                self.rotate_by_keyboard(SMALL_ROTATION_INCREMENT)
+            elif key == QtCore.Qt.Key_C:
+                self.rotate_by_keyboard(-SMALL_ROTATION_INCREMENT)
+            elif key == QtCore.Qt.Key_V:
+                self.rotate_by_keyboard(-LARGE_ROTATION_INCREMENT)
 
     # QT Overload
     def keyReleaseEvent(self, ev):
@@ -1175,7 +1337,7 @@ class Canvas(
         self.current.set_open()
         if self.create_mode in ["polygon", "linestrip"]:
             self.line.points = [self.current[-1], self.current[0]]
-        elif self.create_mode in ["rectangle", "line", "circle"]:
+        elif self.create_mode in ["rectangle", "line", "circle", "rotation"]:
             self.current.points = self.current.points[0:1]
         elif self.create_mode == "point":
             self.current = None

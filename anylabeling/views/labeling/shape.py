@@ -62,6 +62,9 @@ class Shape:
         self.flags = flags
         self.other_data = {}
 
+        # Rotation setting
+        self.direction = 0
+
         self._highlight_index = None
         self._highlight_mode = self.NEAR_VERTEX
         self._highlight_settings = {
@@ -79,11 +82,9 @@ class Shape:
             # is used for drawing the pending line a different color.
             self.line_color = line_color
 
-        self.shape_type = shape_type
-
     @property
     def shape_type(self):
-        """Get shape type (polygon, rectangle, point, line, ...)"""
+        """Get shape type (polygon, rectangle, rotation, point, line, ...)"""
         return self._shape_type
 
     @shape_type.setter
@@ -94,6 +95,7 @@ class Shape:
         if value not in [
             "polygon",
             "rectangle",
+            "rotation",
             "point",
             "line",
             "circle",
@@ -167,6 +169,16 @@ class Shape:
                 if self.selected:
                     for i in range(len(self.points)):
                         self.draw_vertex(vrtx_path, i)
+            elif self.shape_type == "rotation":
+                assert len(self.points) in [1, 2, 4]
+                if len(self.points) == 4:
+                    line_path.moveTo(self.points[0])
+                    for i, p in enumerate(self.points):
+                        line_path.lineTo(p)
+                        if self.selected:
+                            self.draw_vertex(vrtx_path, i)
+                    if self.is_closed() or self.label is not None:
+                        line_path.lineTo(self.points[0])
             elif self.shape_type == "circle":
                 assert len(self.points) in [1, 2]
                 if len(self.points) == 2:

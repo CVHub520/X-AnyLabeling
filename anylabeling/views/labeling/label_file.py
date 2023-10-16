@@ -197,7 +197,7 @@ class LabelFile:
         return osp.splitext(filename)[1].lower() == LabelFile.suffix
 
     def save_other_mode(self, data, mode, classes_file=None):
-        target_formats = ["polygon", "rectangle"]
+        target_formats = ["polygon", "rectangle", "rotation"]
         shape_type = self.get_shape_type(data, target_formats)
         if mode == "default" or not shape_type:
             return False
@@ -213,6 +213,10 @@ class LabelFile:
             save_path = root_path + '/Annotations'
             dst_file = save_path + '/' + base_name+'.xml'
             os.makedirs(save_path, exist_ok=True)
+        elif mode == "obb":
+            save_path = root_path + '/labelTxt'
+            dst_file = save_path + '/' + base_name+'.txt'
+            os.makedirs(save_path, exist_ok=True)
         elif mode == "mot":
             dst_file = root_path + '/' + base_name.rsplit("_", 1)[0]+'.csv'
 
@@ -225,6 +229,9 @@ class LabelFile:
             return True
         elif mode == "voc" and shape_type == "rectangle":
             converter.custom_to_voc_rectangle(data, dst_file)
+            return True
+        elif mode == "obb" and shape_type == "rotation":
+            converter.custom_to_yolo_obb(data, dst_file)
             return True
         elif mode == "mot" and shape_type == "rectangle":
             converter.custom_to_mot_rectangle(data, dst_file, base_name)

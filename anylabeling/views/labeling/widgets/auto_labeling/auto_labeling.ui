@@ -90,6 +90,11 @@
          <string>rectangle</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>rotation</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
