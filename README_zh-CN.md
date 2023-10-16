@@ -62,7 +62,9 @@ GroundingDINO
 
 - Oct. 2023:
   - Release version [0.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.4.0).
-  - 🔥🔥🔥SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
+  - 🚀🚀🚀 Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
+  - 🆕🆕🆕 Add a new feature for rotation box.
+  - 🔥🔥🔥 SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
   - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
   - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
@@ -225,39 +227,45 @@ bash scripts/build_executable.sh linux-gpu
 
 <summary>点击展开/关闭</summary>
 
-| 快捷键   | 功能                 |
-| ---------| -------------------- |
-| d        | 打开下一个文件         |
-| a        | 打开上一个文件         |
-| p        | 创建多边形             |
-| r        | 创建矩形               |
-| +        | SAM 模式下的 `+point`  |
-| -        | SAM 模式下的 `-point`  |
-| g        | 组合选定的形状         |
-| u        | 取消组合选定的形状     |
-| Ctrl + q | 退出应用程序           |
-| Ctrl + i | 打开图像文件           |
-| Ctrl + o | 打开视频文件           |
-| Ctrl + u | 从目录加载所有图像     |
-| Ctrl + e | 编辑标签             |
-| Ctrl + j | 编辑多边形           |
-| Ctrl + d | 复制多边形           |
-| Ctrl + p | 切换保留上一模式     |
-| Ctrl + y | 切换自动使用上一标签 |
-| Ctrl + m | 批量处理任务         |
-| Ctrl + a | 启用自动注释功能     |
-| Ctrl + s | 保存当前信息         |
-| Ctrl + Shift + s | 更改输出目录   |
-| Ctrl + - | 缩小                   |
-| Ctrl + 0 | 缩放至原始大小         |
-| [Ctrl++, Ctrl+=] | 放大             |
-| Ctrl + f | 适合窗口             |
-| Ctrl + Shift + f | 适合宽度       |
-| Ctrl + z | 撤销上一操作         |
-| Delete   | 删除多边形             |
-| Ctrl + Delete | 删除文件       |
-| Backspace | 移除选定点           |
-| ↑→↓←     | 使用键盘箭头移动选定对象 |
+| 快捷键         | 功能                                  |
+|-----------------|---------------------------------------|
+| d               | 打开下一个文件                        |
+| a               | 打开上一个文件                        |
+| p               | 创建多边形                            |
+| o               | 创建旋转                              |
+| r               | 创建矩形                              |
+| i               | 运行模型                              |
+| r               | 创建矩形                              |
+| +               | SAM 模式下的 "+point"                 |
+| -               | SAM 模式下的 "-point"                 |
+| g               | 组合选定的形状                       |
+| u               | 取消组合选定的形状                   |
+| Ctrl + q        | 退出                                  |
+| Ctrl + i        | 打开图像文件                          |
+| Ctrl + o        | 打开视频文件                          |
+| Ctrl + u        | 从目录加载所有图像                    |
+| Ctrl + e        | 编辑标签                             |
+| Ctrl + j        | 编辑多边形                           |
+| Ctrl + d        | 复制多边形                           |
+| Ctrl + p        | 切换保留先前模式                     |
+| Ctrl + y        | 切换自动使用上一标签                 |
+| Ctrl + m        | 批处理任务                           |
+| Ctrl + a        | 启用自动标注                         |
+| Ctrl + s        | 保存当前信息                         |
+| Ctrl + Shift + s | 更改输出目录                        |
+| Ctrl -          | 缩小                                  |
+| Ctrl + 0        | 缩放到原始大小                        |
+| [Ctrl++, Ctrl+=] | 放大                              |
+| Ctrl + f        | 适应窗口大小                         |
+| Ctrl + Shift + f | 适应宽度                           |
+| Ctrl + z        | 撤销上次操作                         |
+| Ctrl + Delete   | 删除文件                              |
+| Delete          | 删除多边形                            |
+| Esc             | 取消选定的对象                        |
+| Backspace       | 移除选定点                            |
+| ↑→↓←           | 键盘箭头移动选定对象                  |
+| zxcv            | 旋转选定的矩形框的键盘操作            |
+
 
 </details>
 

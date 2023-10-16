@@ -1,0 +1,23 @@
+type: yolov5_obb
+name: yolov5s_obb_csl_dotav10-r20231024
+display_name: YOLOv5s_obb (DOTA-v1.0)
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.5.0/yolov5s_obb_csl_dotav10.onnx
+stride: 64
+nms_threshold: 0.2
+confidence_threshold: 0.25
+classes:
+  - plane
+  - baseball-diamond
+  - bridge
+  - ground-track-field
+  - small-vehicle
+  - large-vehicle
+  - ship
+  - tennis-court
+  - basketball-court
+  - storage-tank
+  - soccer-ball-field
+  - roundabout
+  - harbor
+  - swimming-pool
+  - helicopter

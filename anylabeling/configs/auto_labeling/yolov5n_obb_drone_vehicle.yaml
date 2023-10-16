@@ -1,0 +1,10 @@
+type: yolov5_obb
+name: yolov5n_obb_drone_vehicle-r20231024
+display_name: YOLOv5n_obb (DroneVehicle)
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.5.0/yolov5n_obb_drone_vehicle.onnx
+stride: 64
+nms_threshold: 0.2
+confidence_threshold: 0.25
+classes:
+  - vehicle
+  - None

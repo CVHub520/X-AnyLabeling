@@ -186,6 +186,7 @@ class ModelManager(QObject):
                 "damo_yolo",
                 "yolov8_sahi",
                 "grounding_dino",
+                "yolov5_obb",
             ]
         ):
             self.new_model_status.emit(
@@ -531,6 +532,28 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "yolov5_obb":
+            from .yolov5_obb import YOLOv5OBB
+
+            try:
+                model_config["model"] = YOLOv5OBB(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
         elif model_config["type"] == "segment_anything":
             from .segment_anything import SegmentAnything
 

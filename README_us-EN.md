@@ -54,7 +54,9 @@ GroundingDINO
 
 - Oct. 2023:
   - Release version [0.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.4.0).
-  - 🔥🔥🔥SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
+  - 🚀🚀🚀 Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
+  - 🆕🆕🆕 Add a new feature for rotation box.
+  - 🔥🔥🔥 SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
   - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
   - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
@@ -218,39 +220,45 @@ bash scripts/build_executable.sh linux-gpu
 
 <summary>Click to Expand/Collapse</summary>
 
-| Shortcut | Function         |
-| ---------| ------------     |
-| d | Open next file          |
-| a | Open previous file      |
-| p | Create polygon          |
-| r | Create rectangle        |
-| + | `+point` of SAM mode    |
-| - | `-point` of SAM mode    |
-| g | Group selected shapes   |
-| u | Ungroup selected shapes |
-| Ctrl + q | Quit             |
-| Ctrl + i | Open image file  |
-| Ctrl + o | Open video file  |
-| Ctrl + u | Load all the images from a directory |
-| Ctrl + e | Edit label |
-| Ctrl + j | Edit polygon |
-| Ctrl + d | Duplicate polygon |
-| Ctrl + p | Toggle keep previous mode |
-| Ctrl + y | Toggle auto use last label|
-| Ctrl + m | Batch processing of tasks |
-| Ctrl + a | Enable automatic annotation functionality |
-| Ctrl + s | Save current information |
-| Ctrl + Shift + s | Change output directory |
-| Ctrl+- | Zoom out |
-| Ctrl+0 | Zoom to Original |
-| [Ctrl++, Ctrl+=] | Zoom in |
-| Ctrl + f | Fit window |
-| Ctrl + Shift + f | Fit width |
-| Ctrl + z | Undo the last operation |
-| Delete | Delete polygon |
-| Ctrl + Delete | Delete file |
-| Backspace | Remove selected point |
-| ↑→↓← | Keyboard arrows to move selected object |
+| Shortcut          | Function                                |
+|-------------------|-----------------------------------------|
+| d                 | Open next file                          |
+| a                 | Open previous file                      |
+| p                 | Create polygon                          |
+| o                 | Create rotation                         |
+| r                 | Create rectangle                        |
+| i                 | Run model                               |
+| r                 | Create rectangle                        |
+| +                 | `+point` of SAM mode                    |
+| -                 | `-point` of SAM mode                    |
+| g                 | Group selected shapes                   |
+| u                 | Ungroup selected shapes                 |
+| Ctrl + q          | Quit                                    |
+| Ctrl + i          | Open image file                         |
+| Ctrl + o          | Open video file                         |
+| Ctrl + u          | Load all images from a directory        |
+| Ctrl + e          | Edit label                              |
+| Ctrl + j          | Edit polygon                            |
+| Ctrl + d          | Duplicate polygon                       |
+| Ctrl + p          | Toggle keep previous mode               |
+| Ctrl + y          | Toggle auto use last label              |
+| Ctrl + m          | Batch processing of tasks               |
+| Ctrl + a          | Enable auto annotation                  |
+| Ctrl + s          | Save current information                |
+| Ctrl + Shift + s  | Change output directory                 |
+| Ctrl -            | Zoom out                                |
+| Ctrl + 0          | Zoom to Original                        |
+| [Ctrl++, Ctrl+=]  | Zoom in                                 |
+| Ctrl + f          | Fit window                              |
+| Ctrl + Shift + f  | Fit width                               |
+| Ctrl + z          | Undo the last operation                 |
+| Ctrl + Delete     | Delete file                             |
+| Delete            | Delete polygon                          |
+| Esc               | Cancel the selected object              |
+| Backspace         | Remove selected point                   |
+| ↑→↓←              | Keyboard arrows to move selected object |
+| zxcv              | Keyboard to rotate selected rect box    |
+
 
 </details>
 

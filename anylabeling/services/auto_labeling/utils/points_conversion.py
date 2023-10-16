@@ -44,3 +44,28 @@ def xyxy_to_tlwh(bbox_xyxy):
         tlwh_obj = [top, left, w, h]
         tlwh_bboxs.append(tlwh_obj)
     return tlwh_bboxs
+
+
+def rbox2poly(obboxes):
+    """
+    Trans rbox format to poly format.
+    Args:
+        rboxes (array/tensor): (num_gts, [cx cy l s θ]) θ∈[-pi/2, pi/2)
+
+    Returns:
+        polys (array/tensor): (num_gts, [x1 y1 x2 y2 x3 y3 x4 y4]) 
+    """
+    center, w, h, theta = np.split(obboxes, (2, 3, 4), axis=-1)
+    Cos, Sin = np.cos(theta), np.sin(theta)
+    vector1 = np.concatenate(
+        [w/2 * Cos, -w/2 * Sin], axis=-1)
+    vector2 = np.concatenate(
+        [-h/2 * Sin, -h/2 * Cos], axis=-1)
+
+    point1 = center + vector1 + vector2
+    point2 = center + vector1 - vector2
+    point3 = center - vector1 - vector2
+    point4 = center - vector1 + vector2
+    order = obboxes.shape[:-1]
+    return np.concatenate(
+        [point1, point2, point3, point4], axis=-1).reshape(*order, 8)
