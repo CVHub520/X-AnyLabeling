@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
+        <file>images/auto-run.png</file>
         <file>images/minus.png</file>
         <file>images/plus.png</file>
         <file>images/cancel.png</file>
@@ -13,20 +14,19 @@
         <file>images/circle.png</file>
         <file>images/cn.png</file>
         <file>images/color.png</file>
+        <file>images/contact.png</file>
         <file>images/copy.png</file>
         <file>images/delete.png</file>
         <file>images/done.png</file>
-        <file>images/expert.png</file>
-        <file>images/expert1.png</file>
-        <file>images/expert2.png</file>
         <file>images/eye.png</file>
-        <file>images/feBlend-icon.png</file>
         <file>images/file.png</file>
         <file>images/fit-width.png</file>
         <file>images/fit-window.png</file>
         <file>images/fit.png</file>
-        <file>images/format_createml.png</file>
+        <file>images/format_default.png</file>
+        <file>images/format_mot.png</file>
         <file>images/format_voc.png</file>
+        <file>images/format_obb.png</file>
         <file>images/format_yolo.png</file>
         <file>images/help.png</file>
         <file>images/icon.icns</file>
@@ -44,6 +44,7 @@
         <file>images/quit.png</file>
         <file>images/rectangle.png</file>
         <file>images/resetall.png</file>
+        <file>images/rotation.png</file>
         <file>images/save-as.png</file>
         <file>images/scissors.png</file>
         <file>images/undo-cross.png</file>
@@ -51,7 +52,7 @@
         <file>images/upload_brain.png</file>
         <file>images/us.png</file>
         <file>images/verify.png</file>
-        <file>images/vn.png</file>
+        <file>images/video.png</file>
         <file>images/zoom-in.png</file>
         <file>images/zoom-out.png</file>
         <file>images/zoom.png</file>
