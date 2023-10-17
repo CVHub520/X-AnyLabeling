@@ -36,7 +36,13 @@ A: 考虑到当前标注工具框架的兼容性，为了更好的扩展和维�
 #                                                                                                                                                      
 #-------------------------------------------------------------------- coco2custom  --------------------------------------------------------------------#
 # python tools/label_converter.py --task xxx --src_path xxx.json --dst_pat xxx_folder --img_path xxx_folder --classes xxx.txt --mode coco2custom                     
-#                                                                                                                                                      
+#
+#-------------------------------------------------------------------- custom2dota  --------------------------------------------------------------------#
+# python tools/label_converter.py --task rotation --src_path dota_image_folder --dst_path save_folder --mode custom2dota
+#     
+#-------------------------------------------------------------------- dota2custom  --------------------------------------------------------------------#
+# python tools/label_converter.py --task rotation --src_path dota_label_folder --img_path dota_image_folder --mode dota2custom
+#                                                                               
 #======================================================================= Usage ========================================================================#
 ```
 
