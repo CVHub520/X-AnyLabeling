@@ -781,7 +781,7 @@ class Canvas(
             if self.out_off_pixmap(pos):
                 return False  # No need to rotate
             new_shape.points[j] = pos
-            new_shape.direction = (new_shape.direction - theta) % (2 * math.pi)
+        new_shape.direction = (new_shape.direction - theta) % (2 * math.pi)
         self.selected_shapes[i].points = new_shape.points
         self.selected_shapes[i].direction = new_shape.direction
         return True
