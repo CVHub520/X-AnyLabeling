@@ -750,6 +750,7 @@ class Canvas(
         if dp:
             for shape in shapes:
                 shape.move_by(dp)
+                shape.center += (pos - self.prev_point)
             self.prev_point = pos
             return True
         return False
@@ -775,9 +776,9 @@ class Canvas(
             new_shape.points.append(QtCore.QPointF(
                 shape.points[1].x(), (shape.points[0].y()+shape.points[1].y()) / 2
             ))
-        center = (new_shape.points[0] + new_shape.points[2]) / 2
+        # center = (new_shape.points[0] + new_shape.points[2]) / 2
         for j, p in enumerate(new_shape.points):
-            pos = self.rotate_point(p, center, theta)
+            pos = self.rotate_point(p, new_shape.center, theta)
             if self.out_off_pixmap(pos):
                 return False  # No need to rotate
             new_shape.points[j] = pos

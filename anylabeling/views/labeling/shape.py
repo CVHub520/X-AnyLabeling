@@ -15,7 +15,7 @@ DEFAULT_SELECT_LINE_COLOR = QtGui.QColor(255, 255, 255)  # selected
 DEFAULT_SELECT_FILL_COLOR = QtGui.QColor(0, 255, 0, 155)  # selected
 DEFAULT_VERTEX_FILL_COLOR = QtGui.QColor(0, 255, 0, 255)  # hovering
 DEFAULT_HVERTEX_FILL_COLOR = QtGui.QColor(255, 255, 255, 255)  # hovering
-
+DEFAULT_CENTER_FILL_COLOR = QtGui.QColor(255, 153, 0, 255) # center of rotation
 
 class Shape:
     """Shape data type"""
@@ -39,6 +39,7 @@ class Shape:
     select_fill_color = DEFAULT_SELECT_FILL_COLOR
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
     hvertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
+    center_fill_color = DEFAULT_CENTER_FILL_COLOR
     point_type = P_ROUND
     point_size = 4
     scale = 1.5
@@ -64,6 +65,7 @@ class Shape:
 
         # Rotation setting
         self.direction = 0
+        self.center = None
 
         self._highlight_index = None
         self._highlight_mode = self.NEAR_VERTEX
@@ -106,6 +108,9 @@ class Shape:
 
     def close(self):
         """Close the shape"""
+        cx = (self.points[0].x() + self.points[2].x()) / 2
+        cy = (self.points[0].y() + self.points[2].y()) / 2
+        self.center = QtCore.QPointF(cx, cy)
         self._closed = True
 
     def add_point(self, point):
@@ -221,6 +226,13 @@ class Shape:
                     else self.fill_color
                 )
                 painter.fillPath(line_path, color)
+
+            if self.shape_type == "rotation" and self.center is not None:
+                center_path = QtGui.QPainterPath()
+                d = self.point_size / self.scale
+                center_path.addRect(self.center.x() - d / 2, self.center.y() - d / 2, d, d)
+                painter.drawPath(center_path)
+                painter.fillPath(center_path, self.center_fill_color)
 
     def draw_vertex(self, path, i):
         """Draw a vertex"""
