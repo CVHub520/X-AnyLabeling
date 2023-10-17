@@ -19,7 +19,7 @@ VERSION = __version__
 
 
 class BaseLabelConverter:
-    def __init__(self, classes_file):
+    def __init__(self, classes_file=None):
 
         if classes_file:
             with open(classes_file, 'r', encoding='utf-8') as f:
@@ -381,15 +381,66 @@ class PolyLabelConvert(BaseLabelConverter):
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
+class RotateLabelConverter(BaseLabelConverter):
+
+    def custom_to_dota(self, data, output_file):
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for shape in data['shapes']:
+                label = shape['label']
+                points = shape['points']
+                x0 = points[0][0]
+                y0 = points[0][1]
+                x1 = points[1][0]
+                y1 = points[1][1]
+                x2 = points[2][0]
+                y2 = points[2][1]
+                x3 = points[3][0]
+                y3 = points[3][1]
+                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n")
+
+    def dota_to_custom(self, input_file, output_file, image_file):
+        self.reset()
+
+        with open(input_file, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+        image_width, image_height = self.get_image_size(image_file)
+
+        for line in lines:
+            line = line.strip().split(' ')
+            x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in line[:8]]
+            shape = {
+                "label": line[8],
+                "text": None,
+                "points": [
+                    [x0, y0],
+                    [x1, y1],
+                    [x2, y2],
+                    [x3, y3]
+                ],
+                "group_id": None,
+                "shape_type": "rotation",
+                "flags": {}
+            }
+            self.custom_data['shapes'].append(shape)
+
+        self.custom_data['imagePath'] = os.path.basename(image_file)
+        self.custom_data['imageHeight'] = image_height
+        self.custom_data['imageWidth'] = image_width
+
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
 def main():
     parser = argparse.ArgumentParser(description='Label Converter')
-    parser.add_argument('--task', default='rectangle', choices=['rectangle', 'polygon'], help='Choose the type of task to perform')
+    parser.add_argument('--task', default='rectangle', choices=['rectangle', 'polygon', 'rotation'], help='Choose the type of task to perform')
     parser.add_argument('--src_path', help='Path to input directory')
     parser.add_argument('--dst_path', help='Path to output directory')
     parser.add_argument('--img_path', help='Path to image directory')
     parser.add_argument('--classes', default=None, help='Path to classes.txt file, where each line represent a specific class')
     parser.add_argument('--mode', help='Choose the conversion mode what you need',
-                        choices=['custom2voc', 'voc2custom', 'custom2yolo', 'yolo2custom', 'custom2coco', 'coco2custom'])
+                        choices=['custom2voc', 'voc2custom', 'custom2yolo', 'yolo2custom', 'custom2coco', 'coco2custom', 
+                                 'custom2dota', 'dota2custom'])
     args = parser.parse_args()
 
     print(f"Starting conversion to {args.mode} format of {args.task}...")
@@ -401,6 +452,10 @@ def main():
         converter = PolyLabelConvert(args.classes)
         valid_modes = ['custom2yolo', 'yolo2custom']
         assert args.mode in valid_modes, f"Polygon tasks are only supported in {valid_modes} now!"
+    elif args.task == "rotation":
+        converter = RotateLabelConverter()
+        valid_modes = ['custom2dota', 'dota2custom']
+        assert args.mode in valid_modes, f"Rotation tasks are only supported in {valid_modes} now!"
 
     if args.mode == "custom2voc":
         file_list = os.listdir(args.src_path)
@@ -441,6 +496,25 @@ def main():
     elif args.mode == "coco2custom":
         os.makedirs(args.dst_path, exist_ok=True)
         converter.coco_to_custom(args.src_path, args.dst_path, args.img_path)
+    elif args.mode == "custom2dota":
+        file_list = os.listdir(args.src_path)
+        os.makedirs(args.dst_path, exist_ok=True)
+        for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
+            if not file_name.endswith('.json'): continue
+            src_file = os.path.join(args.src_path, file_name)
+            dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.txt')
+            converter.custom_to_dota(src_file, dst_file)
+    elif args.mode == "dota2custom":
+        img_dic = {}
+        for file in os.listdir(args.img_path):
+            prefix = file.rsplit('.', 1)[0]
+            img_dic[prefix] = file
+        file_list = os.listdir(args.src_path)
+        for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
+            src_file = os.path.join(args.src_path, file_name)
+            dst_file = os.path.join(args.img_path, os.path.splitext(file_name)[0]+'.json')
+            img_file = os.path.join(args.img_path, img_dic[os.path.splitext(file_name)[0]])
+            converter.dota_to_custom(src_file, dst_file, img_file)
 
     end_time = time.time()
     print(f"Conversion completed successfully: {args.dst_path}")
