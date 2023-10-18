@@ -53,6 +53,7 @@
 | Gold_l_pre_dist.onnx | [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)-COCO  | [gold_yolo_l.yaml](../anylabeling/configs/auto_labeling/gold_yolo_l.yaml) | 286.79MB | [baidu](https://pan.baidu.com/s/1ySxB3R18oWuIdYzKRLrflg?pwd=1wlk) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/Gold_l_pre_dist.onnx) |
 
 - 旋转目标检测
+
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
 | yolov5n_obb_drone_vehicle.onnx | [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb)-DroneVehicle | [yolov5n_obb_drone_vehicle.yaml](../anylabeling/configs/auto_labeling/yolov5n_obb_drone_vehicle.yaml)  | 8.39MB  | [baidu](https://pan.baidu.com/s/1eKKqAVMpFHwkZEj0OQsb6A?pwd=s0xf) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.5.0/yolov5n_obb_drone_vehicle.onnx) |
@@ -60,12 +61,15 @@
 | yolov5m_obb_csl_dotav15.onnx | [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb)-DOTA-v1.5 | [yolov5m_obb_csl_dotav15.yaml](../anylabeling/configs/auto_labeling/yolov5m_obb_csl_dotav15.yaml)  | 83.59MB  | [baidu](https://pan.baidu.com/s/1upX5OtjjD3hmlmPbZo7IXQ?pwd=vk6x) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.5.0/yolov5m_obb_csl_dotav15.onnx) |
 | yolov5m_obb_csl_dotav20.onnx | [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb)-DOTA-v2.0 | [yolov5m_obb_csl_dotav20.yaml](../anylabeling/configs/auto_labeling/yolov5m_obb_csl_dotav20.yaml)  | 83.62MB  | [baidu](https://pan.baidu.com/s/1IXo65WLAcxHYkz9bQgzhNQ?pwd=7r7b) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.5.0/yolov5m_obb_csl_dotav20.onnx) |
 
+
 ### OCR
+
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
 | ch_PP-OCRv4_det_infer.onnx | 超轻量模型，支持中英文、多语种文本[检测模型](https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_det_infer.tar)  | [ch_ppocr_v4.yaml](../anylabeling/configs/auto_labeling/ch_ppocr_v4.yaml)  | 4.53MB  | [baidu](https://pan.baidu.com/s/1EhZkTfWha1K7R2axBXvn0Q?pwd=wd9h) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.2/ch_PP-OCRv4_det_infer.onnx)  |
 | ch_PP-OCRv4_rec_infer.onnx | 超轻量模型，支持中英文、数字[识别模型](https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar) | [ch_ppocr_v4.yaml](../anylabeling/configs/auto_labeling/ch_ppocr_v4.yaml) | 10.33MB  | [baidu](https://pan.baidu.com/s/16GDxeyNf8w_-y4Pi6Zyqnw?pwd=76ry) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.2/ch_PP-OCRv4_rec_infer.onnx)  |
 | ch_ppocr_mobile_v2.0_cls_infer.onnx | 原始[分类器模型](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar)，对检测到的文本行文字角度分类 | [ch_ppocr_v4.yaml](../anylabeling/configs/auto_labeling/ch_ppocr_v4.yaml) | 569KB  | [baidu](https://pan.baidu.com/s/1Lhka9fHHxYwvrN55ue8UtQ?pwd=t0se) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.2/ch_ppocr_mobile_v2.0_cls_infer.onnx) |
+
 
 ### Segment-Anything-Model
 
