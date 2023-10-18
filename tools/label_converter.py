@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import os.path as osp
 import time
 
 from PIL import Image
@@ -44,6 +45,80 @@ class BaseLabelConverter:
             width, height = img.size
             return width, height
 
+    def get_minimal_enclosing_rectangle(self, poly):
+        assert len(poly) == 8, \
+            "Input rectangle must contain exactly 8 values."
+        
+        x_coords = [poly[i] for i in range(0, 8, 2)]
+        y_coords = [poly[i] for i in range(1, 8, 2)]
+
+        min_x = min(x_coords)
+        max_x = max(x_coords)
+        min_y = min(y_coords)
+        max_y = max(y_coords)
+
+        x = min_x
+        y = min_y
+        width = max_x - min_x
+        height = max_y - min_y
+
+        return [x, y, width, height]
+
+    def get_poly_area(self, poly):
+        # Ensure that poly contains exactly 8 values
+        assert len(poly) == 8, \
+            "Input polygon must contain exactly 8 values."
+
+        # Extract x and y coordinates
+        x_coords = [poly[i] for i in range(0, 8, 2)]
+        y_coords = [poly[i] for i in range(1, 8, 2)]
+
+        # Calculate the area using the Shoelace formula
+        area = 0.5 * abs(
+            sum(
+                x_coords[i] * y_coords[i + 1] - x_coords[i + 1] * y_coords[i]
+                for i in range(3)
+            ) + x_coords[3] * y_coords[0] - x_coords[0] * y_coords[3]
+        )
+
+        return area
+
+    def get_coco_data(self):
+        coco_data = {
+            "info": {
+                "year": 2023,
+                "version": VERSION,
+                "description": "COCO Label Conversion",
+                "contributor": "CVHub",
+                "url": "https://github.com/CVHub520/X-AnyLabeling",
+                "date_created": str(date.today())
+            },
+            "licenses": [
+                {
+                    "id": 1,
+                    "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+                    "name": "GNU GENERAL PUBLIC LICENSE Version 3"
+                }
+            ],
+            "categories": [],
+            "images": [],
+            "annotations": []
+        }
+        return coco_data
+
+    def ensure_output_path(self, output_path, ext=None):
+        if osp.isfile(output_path):
+            # Check if the file has the expected extension
+            if not output_path.lower().endswith(ext.lower()):
+                raise ValueError(
+                    f"The specified file '{output_path}' \
+                        does not have the expected '{ext}' extension."
+                )
+        else:
+            # Check if the folder exists, and create it if it doesn't
+            if not osp.exists(output_path):
+                os.makedirs(output_path, exist_ok=True)
+
 class RectLabelConverter(BaseLabelConverter):
 
     def custom_to_voc2017(self, input_file, output_dir):
@@ -55,8 +130,8 @@ class RectLabelConverter(BaseLabelConverter):
         image_height = data['imageHeight']
 
         root = ET.Element('annotation')
-        ET.SubElement(root, 'folder').text = os.path.dirname(output_dir)
-        ET.SubElement(root, 'filename').text = os.path.basename(image_path)
+        ET.SubElement(root, 'folder').text = osp.dirname(output_dir)
+        ET.SubElement(root, 'filename').text = osp.basename(image_path)
         size = ET.SubElement(root, 'size')
         ET.SubElement(size, 'width').text = str(image_width)
         ET.SubElement(size, 'height').text = str(image_height)
@@ -179,7 +254,7 @@ class RectLabelConverter(BaseLabelConverter):
 
             self.custom_data['shapes'].append(shape)
 
-        self.custom_data['imagePath'] = os.path.basename(image_file)
+        self.custom_data['imagePath'] = osp.basename(image_file)
         self.custom_data['imageHeight'] = image_height
         self.custom_data['imageWidth'] = image_width
 
@@ -187,26 +262,7 @@ class RectLabelConverter(BaseLabelConverter):
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def custom_to_coco(self, input_path, output_path):
-        coco_data = {
-            "info": {
-                "year": 2023,
-                "version": VERSION,
-                "description": "COCO Label Conversion",
-                "contributor": "CVHub",
-                "url": "https://github.com/CVHub520/X-AnyLabeling",
-                "date_created": str(date.today())
-            },
-            "licenses": [
-                {
-                    "id": 1,
-                    "url": "https://www.gnu.org/licenses/gpl-3.0.html",
-                    "name": "GNU GENERAL PUBLIC LICENSE Version 3"
-                }
-            ],
-            "categories": [],
-            "images": [],
-            "annotations": []
-        }
+        coco_data = self.get_coco_data()
 
         for i, class_name in enumerate(self.classes):
             coco_data['categories'].append({
@@ -223,12 +279,12 @@ class RectLabelConverter(BaseLabelConverter):
             if not file_name.endswith('.json'): continue
             image_id += 1
 
-            input_file = os.path.join(input_path, file_name)
+            input_file = osp.join(input_path, file_name)
             with open(input_file, 'r', encoding='utf-8') as f:
                 data = json.load(f)
 
             image_path = data['imagePath']
-            image_name = os.path.splitext(os.path.basename(image_path))[0]
+            image_name = osp.splitext(osp.basename(image_path))[0]
 
             coco_data['images'].append({
                 "id": image_id,
@@ -264,7 +320,7 @@ class RectLabelConverter(BaseLabelConverter):
 
                 coco_data['annotations'].append(annotation)
 
-        output_file = os.path.join(output_path, "x_anylabeling_coco.json")
+        output_file = osp.join(output_path, "x_anylabeling_coco.json")
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(coco_data, f, indent=4, ensure_ascii=False)
 
@@ -324,7 +380,7 @@ class RectLabelConverter(BaseLabelConverter):
             self.custom_data["imageHeight"] = dic_info["imageHeight"]
             self.custom_data["imageWidth"] = dic_info["imageWidth"]
 
-            output_file = os.path.join(output_path, os.path.splitext(dic_info["imagePath"])[0]+".json")
+            output_file = osp.join(output_path, osp.splitext(dic_info["imagePath"])[0]+".json")
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
@@ -374,7 +430,7 @@ class PolyLabelConvert(BaseLabelConverter):
                 shape['points'].append(point.tolist())
             self.custom_data['shapes'].append(shape)
 
-        self.custom_data['imagePath'] = os.path.basename(image_file)
+        self.custom_data['imagePath'] = osp.basename(image_file)
         self.custom_data['imageHeight'] = image_height
         self.custom_data['imageWidth'] = image_width
 
@@ -425,12 +481,146 @@ class RotateLabelConverter(BaseLabelConverter):
             }
             self.custom_data['shapes'].append(shape)
 
-        self.custom_data['imagePath'] = os.path.basename(image_file)
+        self.custom_data['imagePath'] = osp.basename(image_file)
         self.custom_data['imageHeight'] = image_height
         self.custom_data['imageWidth'] = image_width
 
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def dota_to_dcoco(self, input_path, output_path, image_path):
+        self.ensure_output_path(output_path, 'json')
+        coco_data = self.get_coco_data()
+
+        for i, class_name in enumerate(self.classes):
+            coco_data['categories'].append({
+                "id": i+1,
+                "name": class_name,
+                "supercategory": ""
+            })
+
+        image_id = 0
+        annotation_id = 0
+
+        file_list = os.listdir(image_path)
+        for image_file in tqdm(
+            file_list, desc='Converting files', unit='file', colour='green'
+        ):
+            label_file = osp.join(input_path, osp.splitext(image_file)[0]+'.txt')
+
+            image_width, image_height = self.get_image_size(
+                osp.join(image_path, image_file)
+            )
+            
+            image_id += 1
+
+            coco_data['images'].append({
+                "id": image_id,
+                "file_name": image_file,
+                "width": image_width,
+                "height": image_height,
+                "license": 0,
+                "flickr_url": "",
+                "coco_url": "",
+                "date_captured": ""
+            })
+
+            with open(label_file, 'r', encoding='utf-8') as f:
+                lines = f.readlines()
+            
+            for line in lines:
+                line = line.strip().split(' ')
+                *poly, label, _ = line
+                poly = list(map(float, poly))
+                area = self.get_poly_area(poly)
+                rect = self.get_minimal_enclosing_rectangle(poly)
+                annotation_id += 1
+                class_id = self.classes.index(label)
+                annotation = {
+                    "id": annotation_id,
+                    "image_id": image_id,
+                    "category_id": class_id+1,
+                    "bbox": rect,
+                    "segmentation": [poly],
+                    "area": area,
+                    "iscrowd": 0
+                }
+
+                coco_data['annotations'].append(annotation)
+
+        if osp.isdir(output_path):
+            output_path = osp.join(output_path, "x_anylabeling_coco.json")
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(coco_data, f, indent=4, ensure_ascii=False) 
+
+    def dcoco_to_dota(self, input_file, output_path):
+        self.ensure_output_path(output_path)
+        with open(input_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        label_info = {}
+        # map category_id to label
+        for dic_info in data["categories"]:
+            label_info[dic_info["id"]] = dic_info["name"]
+
+        name_info = {}
+        # map image_id to file_naame
+        for dic_info in data["images"]:
+            name_info[dic_info["id"]] = dic_info["file_name"]
+
+        total_info = {}
+        for dic_info in data["annotations"]:
+            poly = dic_info["segmentation"][0]
+            image_id = dic_info["image_id"]
+            category_id = dic_info["category_id"]
+            label = label_info[category_id]
+            if image_id not in total_info:
+                total_info[image_id] = [[*poly, label]]
+            else:
+                total_info[image_id].append([*poly, label])
+        
+        for image_id, label_info in total_info.items():
+            label_file = osp.basename(name_info[image_id]) + '.txt'
+            output_file = osp.join(output_path, label_file)
+            with open(output_file, 'w', encoding='utf-8') as f:
+                for info in label_info:
+                    x0, y0, x1, y1, x2, y2, x3, y3, label = info
+                    f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n")  
+
+    def dcoco_to_yolo(self, input_file, output_path):
+        self.ensure_output_path(output_path)
+        with open(input_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        label_info = {}
+        # map category_id to label
+        for dic_info in data["categories"]:
+            label_info[dic_info["id"]] = dic_info["id"] - 1
+
+        name_info = {}
+        # map image_id to file_naame
+        for dic_info in data["images"]:
+            name_info[dic_info["id"]] = dic_info["file_name"]
+
+        total_info = {}
+        for dic_info in data["annotations"]:
+            poly = dic_info["segmentation"][0]
+            image_id = dic_info["image_id"]
+            category_id = dic_info["category_id"]
+            label = label_info[category_id]
+            if image_id not in total_info:
+                total_info[image_id] = [[*poly, label]]
+            else:
+                total_info[image_id].append([*poly, label])
+        
+        for image_id, label_info in total_info.items():
+            label_file = osp.basename(name_info[image_id]) + '.txt'
+            output_file = osp.join(output_path, label_file)
+            with open(output_file, 'w', encoding='utf-8') as f:
+                for info in label_info:
+                    x0, y0, x1, y1, x2, y2, x3, y3, label = info
+                    f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n")  
 
 def main():
     parser = argparse.ArgumentParser(description='Label Converter')
@@ -441,7 +631,7 @@ def main():
     parser.add_argument('--classes', default=None, help='Path to classes.txt file, where each line represent a specific class')
     parser.add_argument('--mode', help='Choose the conversion mode what you need',
                         choices=['custom2voc', 'voc2custom', 'custom2yolo', 'yolo2custom', 'custom2coco', 'coco2custom', 
-                                 'custom2dota', 'dota2custom'])
+                                 'custom2dota', 'dota2custom', 'dota2dcoco', 'dcoco2dota'])
     args = parser.parse_args()
 
     print(f"Starting conversion to {args.mode} format of {args.task}...")
@@ -454,8 +644,8 @@ def main():
         valid_modes = ['custom2yolo', 'yolo2custom']
         assert args.mode in valid_modes, f"Polygon tasks are only supported in {valid_modes} now!"
     elif args.task == "rotation":
-        converter = RotateLabelConverter()
-        valid_modes = ['custom2dota', 'dota2custom']
+        converter = RotateLabelConverter(args.classes)
+        valid_modes = ['custom2dota', 'dota2custom', 'dota2dcoco', 'dcoco2dota']
         assert args.mode in valid_modes, f"Rotation tasks are only supported in {valid_modes} now!"
 
     if args.mode == "custom2voc":
@@ -463,22 +653,22 @@ def main():
         os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
             if not file_name.endswith('.json'): continue
-            src_file = os.path.join(args.src_path, file_name)
-            dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.xml')
+            src_file = osp.join(args.src_path, file_name)
+            dst_file = osp.join(args.dst_path, osp.splitext(file_name)[0]+'.xml')
             converter.custom_to_voc2017(src_file, dst_file)
     elif args.mode == "voc2custom":
         file_list = os.listdir(args.src_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-            src_file = os.path.join(args.src_path, file_name)
-            dst_file = os.path.join(args.img_path, os.path.splitext(file_name)[0]+'.json')
+            src_file = osp.join(args.src_path, file_name)
+            dst_file = osp.join(args.img_path, osp.splitext(file_name)[0]+'.json')
             converter.voc2017_to_custom(src_file, dst_file)
     elif args.mode == "custom2yolo":
         file_list = os.listdir(args.src_path)
         os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
             if not file_name.endswith('.json'): continue
-            src_file = os.path.join(args.src_path, file_name)
-            dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.txt')
+            src_file = osp.join(args.src_path, file_name)
+            dst_file = osp.join(args.dst_path, osp.splitext(file_name)[0]+'.txt')
             converter.custom_to_yolov5(src_file, dst_file)
     elif args.mode == "yolo2custom":
         img_dic = {}
@@ -487,9 +677,9 @@ def main():
             img_dic[prefix] = file
         file_list = os.listdir(args.src_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-            src_file = os.path.join(args.src_path, file_name)
-            dst_file = os.path.join(args.img_path, os.path.splitext(file_name)[0]+'.json')
-            img_file = os.path.join(args.img_path, img_dic[os.path.splitext(file_name)[0]])
+            src_file = osp.join(args.src_path, file_name)
+            dst_file = osp.join(args.img_path, osp.splitext(file_name)[0]+'.json')
+            img_file = osp.join(args.img_path, img_dic[osp.splitext(file_name)[0]])
             converter.yolov5_to_custom(src_file, dst_file, img_file)
     elif args.mode == "custom2coco":
         os.makedirs(args.dst_path, exist_ok=True)
@@ -502,8 +692,8 @@ def main():
         os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
             if not file_name.endswith('.json'): continue
-            src_file = os.path.join(args.src_path, file_name)
-            dst_file = os.path.join(args.dst_path, os.path.splitext(file_name)[0]+'.txt')
+            src_file = osp.join(args.src_path, file_name)
+            dst_file = osp.join(args.dst_path, osp.splitext(file_name)[0]+'.txt')
             converter.custom_to_dota(src_file, dst_file)
     elif args.mode == "dota2custom":
         img_dic = {}
@@ -512,10 +702,14 @@ def main():
             img_dic[prefix] = file
         file_list = os.listdir(args.src_path)
         for file_name in tqdm(file_list, desc='Converting files', unit='file', colour='green'):
-            src_file = os.path.join(args.src_path, file_name)
-            dst_file = os.path.join(args.img_path, os.path.splitext(file_name)[0]+'.json')
-            img_file = os.path.join(args.img_path, img_dic[os.path.splitext(file_name)[0]])
+            src_file = osp.join(args.src_path, file_name)
+            dst_file = osp.join(args.img_path, osp.splitext(file_name)[0]+'.json')
+            img_file = osp.join(args.img_path, img_dic[osp.splitext(file_name)[0]])
             converter.dota_to_custom(src_file, dst_file, img_file)
+    elif args.mode == "dota2dcoco":
+        converter.dota_to_dcoco(args.src_path, args.dst_path, args.img_path)
+    elif args.mode == "dcoco2dota":
+        converter.dcoco_to_dota(args.src_path, args.dst_path)
 
     end_time = time.time()
     print(f"Conversion completed successfully: {args.dst_path}")
