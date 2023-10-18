@@ -33,7 +33,7 @@ classes:
 这里详细解释下每个字段：
 
 - `type`: 网络类型定义，不可更改，目前已适配的网络类型定义可参见 [model_manager.py](../anylabeling/services/auto_labeling/model_manager.py) 文件中的 `load_custom_model()` 函数；
-- `name`: 该字段为当前模型对应的配置文件索引标记，同样不可更改，详情可参见 [models.yaml](../anylabeling/configs/auto_labeling/models.yaml) 文件；
+- `name`: 该字段为当前模型对应的配置文件索引标记，如果是加载用户自定义模型，此字段可忽略，详情可参见 [models.yaml](../anylabeling/configs/auto_labeling/models.yaml) 文件；
 - `display_name`: 即展示到界面上显示的名称，可根据自定义任务自行命名，如 `Fruits (YOLOv5s)`;
 - `model_path`: 即相对于自定义配置文件 `*.yaml` 所对应的模型权重路径，要求是 `*.onnx` 文件格式；
 
