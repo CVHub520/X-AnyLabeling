@@ -113,6 +113,9 @@ class LabelFile:
                 }
                 for s in data["shapes"]
             ]
+            for i, s in enumerate(data["shapes"]):
+                if s.get("shape_type", "polygon") == "rotation":
+                    shapes[i]["direction"] = s.get("direction", 0)
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
 
@@ -231,7 +234,7 @@ class LabelFile:
             converter.custom_to_voc_rectangle(data, dst_file)
             return True
         elif mode == "obb" and shape_type == "rotation":
-            converter.custom_to_yolo_obb(data, dst_file)
+            converter.custom_to_dota(data, dst_file)
             return True
         elif mode == "mot" and shape_type == "rectangle":
             converter.custom_to_mot_rectangle(data, dst_file, base_name)

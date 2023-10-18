@@ -233,6 +233,7 @@ class LabelingWidget(LabelDialog):
 
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.shape_moved.connect(self.set_dirty)
+        self.canvas.shape_rotated.connect(self.set_dirty)
         self.canvas.selection_changed.connect(self.shape_selection_changed)
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
 
@@ -651,6 +652,15 @@ class LabelingWidget(LabelDialog):
             checked=self._config["show_texts"],
             enabled=True,
         )
+        show_degrees = action(
+            self.tr("&Show Degress"),
+            self.enable_show_degrees,
+            tip=self.tr("Show degrees above rotated shapes"),
+            icon=None,
+            checkable=True,
+            checked=self._config["show_degrees"],
+            enabled=True,
+        )
 
         # Languages
         select_lang_en = action(
@@ -812,6 +822,7 @@ class LabelingWidget(LabelDialog):
             show_cross_line=show_cross_line,
             show_groups=show_groups,
             show_texts=show_texts,
+            show_degrees=show_degrees,
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
@@ -950,6 +961,7 @@ class LabelingWidget(LabelDialog):
                 brightness_contrast,
                 show_cross_line,
                 show_texts,
+                show_degrees,
                 show_groups,
                 group_selected_shapes,
                 ungroup_selected_shapes,
@@ -1722,6 +1734,7 @@ class LabelingWidget(LabelDialog):
             shape_type = shape["shape_type"]
             flags = shape["flags"]
             group_id = shape["group_id"]
+            direction = shape.get("direction", 0)
             other_data = shape["other_data"]
 
             if not points:
@@ -1733,6 +1746,7 @@ class LabelingWidget(LabelDialog):
                 text=text,
                 shape_type=shape_type,
                 group_id=group_id,
+                direction=direction,
             )
             for x, y in points:
                 shape.add_point(QtCore.QPointF(x, y))
@@ -1765,16 +1779,19 @@ class LabelingWidget(LabelDialog):
 
         def format_shape(s):
             data = s.other_data.copy()
-            data.update(
-                {
-                    "label": s.label,
-                    "text": s.text,
-                    "points": [(p.x(), p.y()) for p in s.points],
-                    "group_id": s.group_id,
-                    "shape_type": s.shape_type,
-                    "flags": s.flags,
-                }
-            )
+            print(f"s={s.direction} @1781")
+            info = {
+                "label": s.label,
+                "text": s.text,
+                "points": [(p.x(), p.y()) for p in s.points],
+                "group_id": s.group_id,
+                "shape_type": s.shape_type,
+                "flags": s.flags,
+            }
+            if s.shape_type == "rotation":
+                info["direction"] = s.direction
+            data.update(info)
+
             return data
 
         # Get current shapes
@@ -2004,6 +2021,12 @@ class LabelingWidget(LabelDialog):
         self._config["show_texts"] = enabled
         self.actions.show_texts.setChecked(enabled)
         self.canvas.set_show_texts(enabled)
+        save_config(self._config)
+
+    def enable_show_degrees(self, enabled):
+        self._config["show_degrees"] = enabled
+        self.actions.show_degrees.setChecked(enabled)
+        self.canvas.set_show_degrees(enabled)
         save_config(self._config)
 
     def on_new_brightness_contrast(self, qimage):

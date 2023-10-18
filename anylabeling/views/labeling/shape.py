@@ -52,6 +52,7 @@ class Shape:
         shape_type=None,
         flags=None,
         group_id=None,
+        direction=0,
     ):
         self.label = label
         self.text = text
@@ -64,8 +65,9 @@ class Shape:
         self.other_data = {}
 
         # Rotation setting
-        self.direction = 0
+        self.direction = direction
         self.center = None
+        self.show_degrees = True
 
         self._highlight_index = None
         self._highlight_mode = self.NEAR_VERTEX
@@ -108,9 +110,10 @@ class Shape:
 
     def close(self):
         """Close the shape"""
-        cx = (self.points[0].x() + self.points[2].x()) / 2
-        cy = (self.points[0].y() + self.points[2].y()) / 2
-        self.center = QtCore.QPointF(cx, cy)
+        if len(self.points) == 4:
+            cx = (self.points[0].x() + self.points[2].x()) / 2
+            cy = (self.points[0].y() + self.points[2].y()) / 2
+            self.center = QtCore.QPointF(cx, cy)
         self._closed = True
 
     def add_point(self, point):
@@ -227,12 +230,40 @@ class Shape:
                 )
                 painter.fillPath(line_path, color)
 
-            if self.shape_type == "rotation" and self.center is not None:
-                center_path = QtGui.QPainterPath()
+            if self.shape_type == "rotation" \
+                and self.center is not None \
+                and len(self.points) == 4:
                 d = self.point_size / self.scale
-                center_path.addRect(self.center.x() - d / 2, self.center.y() - d / 2, d, d)
-                painter.drawPath(center_path)
-                painter.fillPath(center_path, self.center_fill_color)
+                if self.show_degrees:
+                    degrees = str(int(math.degrees(self.direction))) + '°'
+                    painter.setFont(
+                        QtGui.QFont(
+                            "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
+                        )
+                    )
+                    pen = QtGui.QPen(QtGui.QColor("#FF9900"), 8, QtCore.Qt.SolidLine)
+                    painter.setPen(pen)
+                    fm = QtGui.QFontMetrics(painter.font())
+                    rect = fm.boundingRect(degrees)
+                    painter.fillRect(
+                        rect.x() + self.center.x() - d,
+                        rect.y() + self.center.y() + d,
+                        rect.width(),
+                        rect.height(),
+                        QtGui.QColor("#FF9900"),
+                    )
+                    pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 7, QtCore.Qt.SolidLine)
+                    painter.setPen(pen)
+                    painter.drawText(
+                        self.center.x() - d,
+                        self.center.y() + d,
+                        degrees,
+                    )
+                else:
+                    center_path = QtGui.QPainterPath()
+                    center_path.addRect(self.center.x() - d / 2, self.center.y() - d / 2, d, d)
+                    painter.drawPath(center_path)
+                    painter.fillPath(center_path, self.center_fill_color)
 
     def draw_vertex(self, path, i):
         """Draw a vertex"""

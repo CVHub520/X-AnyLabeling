@@ -92,7 +92,7 @@ class LabelConverter:
         with open(output_dir, 'w') as f:
             f.write(formatted_xml)
 
-    def custom_to_yolo_obb(self, data, output_file):
+    def custom_to_dota(self, data, output_file):
         with open(output_file, 'w', encoding='utf-8') as f:
             for shape in data['shapes']:
                 label = shape['label']

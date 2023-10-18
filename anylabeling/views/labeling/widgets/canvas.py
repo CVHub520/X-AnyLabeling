@@ -34,6 +34,7 @@ class Canvas(
     new_shape = QtCore.pyqtSignal()
     selection_changed = QtCore.pyqtSignal(list)
     shape_moved = QtCore.pyqtSignal()
+    shape_rotated = QtCore.pyqtSignal()
     drawing_polygon = QtCore.pyqtSignal(bool)
     vertex_selected = QtCore.pyqtSignal(bool)
     auto_labeling_marks_updated = QtCore.pyqtSignal(list)
@@ -85,6 +86,7 @@ class Canvas(
         self.h_edge = None
         self.prev_h_edge = None
         self.moving_shape = False
+        self.rotating_shape = False
         self.snapping = True
         self.h_shape_is_selected = False
         self._painter = QtGui.QPainter()
@@ -99,6 +101,7 @@ class Canvas(
         self.show_cross_line = True
         self.show_shape_groups = True
         self.show_texts = True
+        self.show_degrees = True
 
         self.is_loading = False
         self.loading_text = self.tr("Loading...")
@@ -750,7 +753,8 @@ class Canvas(
         if dp:
             for shape in shapes:
                 shape.move_by(dp)
-                shape.center += (pos - self.prev_point)
+                if shape._shape_type == "rotation":
+                    shape.center += (pos - self.prev_point)
             self.prev_point = pos
             return True
         return False
@@ -776,7 +780,6 @@ class Canvas(
             new_shape.points.append(QtCore.QPointF(
                 shape.points[1].x(), (shape.points[0].y()+shape.points[1].y()) / 2
             ))
-        # center = (new_shape.points[0] + new_shape.points[2]) / 2
         for j, p in enumerate(new_shape.points):
             pos = self.rotate_point(p, new_shape.center, theta)
             if self.out_off_pixmap(pos):
@@ -1267,6 +1270,7 @@ class Canvas(
                         i, shape, theta
                     )
                     self.repaint()
+                    self.rotating_shape = True
 
     # QT Overload
     def keyPressEvent(self, ev):
@@ -1308,16 +1312,22 @@ class Canvas(
             if int(modifiers) == 0:
                 self.snapping = True
         elif self.editing():
-            if self.moving_shape and self.selected_shapes:
+            if (self.moving_shape or self.rotating_shape) and self.selected_shapes:
                 index = self.shapes.index(self.selected_shapes[0])
                 if (
                     self.shapes_backups[-1][index].points
                     != self.shapes[index].points
                 ):
                     self.store_shapes()
-                    self.shape_moved.emit()
+                    if self.moving_shape:
+                        self.shape_moved.emit()
+                    if self.rotating_shape:
+                        self.shape_rotated.emit()
 
-                self.moving_shape = False
+                if self.moving_shape:
+                    self.moving_shape = False
+                if self.rotating_shape:
+                    self.rotating_shape = False
 
     def set_last_label(self, text, flags):
         """Set label and flags for last shape"""
@@ -1411,6 +1421,13 @@ class Canvas(
     def set_show_texts(self, enabled):
         """Set showing texts"""
         self.show_texts = enabled
+        self.update()
+
+    def set_show_degrees(self, enabled):
+        """ Set showing degrees"""
+        self.show_degrees = enabled
+        for shape in self.shapes:
+            shape.show_degrees = enabled
         self.update()
 
     def gen_new_group_id(self):

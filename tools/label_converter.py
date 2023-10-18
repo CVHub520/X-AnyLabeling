@@ -419,6 +419,7 @@ class RotateLabelConverter(BaseLabelConverter):
                     [x3, y3]
                 ],
                 "group_id": None,
+                "direction": 0,
                 "shape_type": "rotation",
                 "flags": {}
             }

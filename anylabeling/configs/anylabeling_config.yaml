@@ -10,6 +10,7 @@ auto_use_last_label: false
 show_cross_line: true
 show_groups: true
 show_texts: true
+show_degrees: true
 logger_level: info
 save_mode: default
 
