@@ -2,12 +2,9 @@ type: yolox
 name: yolox_s-r20230520
 display_name: YOLOX Megvii
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolox_s.onnx
-input_width: 640
-input_height: 640
 p6: False
-score_threshold: 0.5
 nms_threshold: 0.45
-confidence_threshold: 0.3
+confidence_threshold: 0.25
 classes:
   - person
   - bicycle

@@ -1,12 +1,10 @@
-type: yolov6
+type: gold_yolo
 name: gold_yolo_l-r20231001
 display_name: Gold-YOLO-L (HuaWei)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/Gold_l_pre_dist.onnx
-input_width: 640
-input_height: 640
 stride: 32
 nms_threshold: 0.45
-confidence_threshold: 0.4
+confidence_threshold: 0.25
 classes:
   - person
   - bicycle

@@ -1,10 +1,13 @@
-type: yolov6
-name: yolov6s6-r20230520
-display_name: YOLOv6s6 MeiTuan
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6s6.onnx
-stride: 64
-nms_threshold: 0.25
-confidence_threshold: 0.4
+type: yolov8_track
+name: yolov8m_ocsort-r20231020
+display_name: YOLOv8m-OCSort
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8m.onnx
+tracker: ocsort
+nms_threshold: 0.45
+confidence_threshold: 0.25
+filter_classes:
+  - person
+  - car
 classes:
   - person
   - bicycle

@@ -1,10 +1,19 @@
 import cv2
+import numpy as np
 
 class Args:
     def __init__(self, **kwargs):
         self.__dict__.update(kwargs)
 
-def letterbox(im, new_shape, color=(114, 114, 114), auto=False, scaleFill=False, scaleup=True, stride=32):
+def letterbox(
+        im, 
+        new_shape, 
+        color=(114, 114, 114), 
+        auto=False, 
+        scaleFill=False, 
+        scaleup=True, 
+        stride=32
+    ):
     """
     Resize and pad image while meeting stride-multiple constraints
     Returns:
@@ -39,5 +48,7 @@ def letterbox(im, new_shape, color=(114, 114, 114), auto=False, scaleFill=False,
         im = cv2.resize(im, new_unpad, interpolation=cv2.INTER_LINEAR)
     top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
     left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
-    im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
+    im = cv2.copyMakeBorder(
+        im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color
+    )
     return im, ratio, (dw, dh)

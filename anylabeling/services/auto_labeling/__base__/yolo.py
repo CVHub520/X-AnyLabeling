@@ -1,7 +1,6 @@
 import logging
 import os
 
-import cv2
 import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -9,33 +8,28 @@ from PyQt5.QtCore import QCoreApplication
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
-from .model import Model
-from .types import AutoLabelingResult
-from .utils import (
+from ..model import Model
+from ..types import AutoLabelingResult
+from ..utils import (
     numpy_nms,
     letterbox,
     xywh2xyxy,
     rescale_box,
 )
-from .engines.build_onnx_engine import OnnxBaseModel
+from ..engines.build_onnx_engine import OnnxBaseModel
 
 
-class YOLOv5_CLS(Model):
-    """Object detection with Classify model using YOLOv5_CLS"""
+class YOLO(Model):
 
     class Meta:
         required_config_names = [
             "type",
             "name",
             "display_name",
-            "det_model_path",
-            "cls_model_path",
-            "cls_score_threshold",
-            "stride",
+            "model_path",
             "nms_threshold",
             "confidence_threshold",
-            "det_classes",
-            "cls_classes",
+            "classes",
         ]
         widgets = ["button_run"]
         output_modes = {
@@ -46,32 +40,25 @@ class YOLOv5_CLS(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-
         model_name = self.config['type']
-        det_model_abs_path = self.get_model_abs_path(self.config, "det_model_path")
-        if not det_model_abs_path or not os.path.isfile(det_model_abs_path):
+        model_abs_path = self.get_model_abs_path(self.config, "model_path")
+        if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
                     "Model", 
                     f"Could not download or initialize {model_name} model."
                 )
             )
-        cls_model_abs_path = self.get_model_abs_path(self.config, "cls_model_path")
-        if not cls_model_abs_path or not os.path.isfile(cls_model_abs_path):
-            raise FileNotFoundError(
-                QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
-                )
-            )
-        self.net = OnnxBaseModel(det_model_abs_path, __preferred_device__)
-        self.classes = self.config["det_classes"]
+        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
+        self.classes = self.config["classes"]
         self.input_shape = self.net.get_input_shape()[-2:]
         self.nms_thres = self.config["nms_threshold"]
         self.conf_thres = self.config["confidence_threshold"]
-        self.stride = self.config["stride"]
+        self.stride = self.config.get("stride", 32)
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
+        self.filter_classes = self.config.get("filter_classes", None)
+
         if self.anchors:
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
@@ -83,12 +70,13 @@ class YOLOv5_CLS(Model):
             self.anchor_grid = np.asarray(
                 self.anchors, dtype=np.float32
             ).reshape(self.nl, -1, 2)
+        if self.filter_classes:
+            self.filter_classes = [
+                i for i, item in enumerate(self.classes) 
+                if item in self.filter_classes
+            ]
 
-        self.cls_net = OnnxBaseModel(cls_model_abs_path, __preferred_device__)
-        self.cls_classes = self.config["cls_classes"]
-        self.cls_input_shape = self.cls_net.get_input_shape()[-2:]
-
-    def det_preprocess(self, input_image):
+    def preprocess(self, input_image):
         """
         Pre-process the input RGB image before feeding it to the network.
         """
@@ -100,7 +88,7 @@ class YOLOv5_CLS(Model):
             image = image[None]
         return image
 
-    def det_postprocess(
+    def postprocess(
             self, 
             prediction, 
             multi_label=False, 
@@ -148,6 +136,10 @@ class YOLOv5_CLS(Model):
                     (box, conf, class_idx[:, None].astype(float)), axis=1
                 )[conf.flatten() > self.conf_thres]
 
+            # Filter by class, only keep boxes whose category is in classes.
+            if self.filter_classes:
+                x = x[(x[:, 5:6] == np.array(self.filter_classes)).any(1)]
+
             # Check shape
             num_box = x.shape[0]  # number of boxes
             if not num_box:  # no boxes kept.
@@ -166,63 +158,6 @@ class YOLOv5_CLS(Model):
 
         return output
 
-    def cls_preprocess(self, input_image, mean=None, std=None):
-        """
-        Pre-processes the input image before feeding it to the network.
-        
-        Args:
-            input_image (numpy.ndarray): The input image to be processed.
-            mean (numpy.ndarray): Mean values for normalization. 
-                If not provided, default values are used.
-            std (numpy.ndarray): Standard deviation values for normalization. 
-                If not provided, default values are used.
-        
-        Returns:
-            numpy.ndarray: The processed input image.
-        """
-        h, w = self.cls_input_shape
-        
-        # Resize the input image
-        input_data = cv2.resize(input_image, (w, h))
-        
-        # Transpose the dimensions of the image
-        input_data = input_data.transpose((2, 0, 1))
-        
-        if not mean:
-            mean = np.array([0.485, 0.456, 0.406])
-        
-        if not std:
-            std = np.array([0.229, 0.224, 0.225])
-        
-        norm_img_data = np.zeros(input_data.shape).astype('float32')
-        
-        # Normalize the image data
-        for channel in range(input_data.shape[0]):
-            norm_img_data[channel, :, :] = (
-                input_data[channel, :, :] / 255 - mean[channel]
-            ) / std[channel]
-        
-        blob = norm_img_data.reshape(1, 3, h, w).astype('float32')
-        
-        return blob
-
-    def cls_postprocess(self, outs, topk=1):
-        """
-        Classification: Post-processes the output of the network.
-
-        Args:
-            outs (list): Output predictions from the network.
-            topk (int): Number of top predictions to consider. Default is 1.
-
-        Returns:
-            str: Predicted label.
-        """
-        res = self._softmax(np.array(outs)).tolist()
-        index = np.argmax(res)
-        label = self.cls_classes[index]
-
-        return label
-
     def predict_shapes(self, image, image_path=None):
         """
         Predict shapes from image
@@ -238,45 +173,22 @@ class YOLOv5_CLS(Model):
             logging.warning(e)
             return []
 
-        blob = self.det_preprocess(image)
+        blob = self.preprocess(image)
         predictions = self.net.get_ort_inference(blob)
-        results = self.det_postprocess(predictions)[0]
+        results = self.postprocess(predictions)[0]
 
         if len(results) == 0: 
             return AutoLabelingResult([], replace=True)
         results[:, :4] = rescale_box(self.input_shape, results[:, :4], image.shape).round()
         shapes = []
-
-        for *xyxy, _, _ in reversed(results):
-            x1, y1, x2, y2 = [int(i) for i in xyxy]
-            img = image[y1: y2, x1: x2]
-
-            blob = self.cls_preprocess(img)
-            predictions = self.cls_net.get_ort_inference(blob, extract=False)
-            label = self.cls_postprocess(predictions)
-
-            shape = Shape(label=label, shape_type="rectangle")
-            shape.add_point(QtCore.QPointF(x1, y1))
-            shape.add_point(QtCore.QPointF(x2, y2))
-            shapes.append(shape)
-
+        for *xyxy, _, cls_id in reversed(results):
+            rectangle_shape = Shape(label=self.classes[int(cls_id)], shape_type="rectangle")
+            rectangle_shape.add_point(QtCore.QPointF(xyxy[0], xyxy[1]))
+            rectangle_shape.add_point(QtCore.QPointF(xyxy[2], xyxy[3]))
+            shapes.append(rectangle_shape)
         result = AutoLabelingResult(shapes, replace=True)
+
         return result
-
-    @staticmethod
-    def _softmax(x):
-        """
-        Applies the softmax function to the input array.
-
-        Args:
-            x (numpy.ndarray): Input array.
-
-        Returns:
-            numpy.ndarray: Output array after applying softmax.
-        """
-        x = x.reshape(-1)
-        e_x = np.exp(x - np.max(x))
-        return e_x / e_x.sum(axis=0)
 
     @staticmethod
     def make_grid(nx=20, ny=20):
@@ -303,4 +215,3 @@ class YOLOv5_CLS(Model):
 
     def unload(self):
         del self.net
-        del self.cls_net

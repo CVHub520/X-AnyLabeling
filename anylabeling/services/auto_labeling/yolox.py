@@ -22,10 +22,7 @@ class YOLOX(Model):
             "name",
             "display_name",
             "model_path",
-            "input_width",
-            "input_height",
             "p6",
-            "score_threshold",
             "nms_threshold",
             "confidence_threshold",
             "classes",
@@ -39,50 +36,59 @@ class YOLOX(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-
+        model_name = self.config['type']
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLOX model."
+                    "Model", 
+                    f"Could not download or initialize {model_name} model."
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.p6 = self.config["p6"]
         self.classes = self.config["classes"]
-        self.input_size = (self.config["input_height"], self.config["input_width"])
+        self.input_shape = self.net.get_input_shape()[-2:]
 
-    def preprocess(self, img, swap=(2, 0, 1)):
+    def preprocess(self, input_image):
         """
         Pre-process the input RGB image before feeding it to the network.
         """
-        if len(img.shape) == 3:
-            padded_img = np.ones((self.input_size[0], self.input_size[1], 3), dtype=np.uint8) * 114
+        if len(input_image.shape) == 3:
+            padded_img = np.ones(
+                (self.input_shape[0], self.input_shape[1], 3), 
+                dtype=np.uint8
+            ) * 114
         else:
-            padded_img = np.ones(self.input_size, dtype=np.uint8) * 114
+            padded_img = np.ones(self.input_shape, dtype=np.uint8) * 114
 
-        ratio_hw = min(self.input_size[0] / img.shape[0], self.input_size[1] / img.shape[1])
+        ratio_hw = min(
+            self.input_shape[0] / input_image.shape[0], 
+            self.input_shape[1] / input_image.shape[1],
+        )
         resized_img = cv2.resize(
-            img,
-            (int(img.shape[1] * ratio_hw), int(img.shape[0] * ratio_hw)),
+            input_image,
+            (int(input_image.shape[1] * ratio_hw), 
+             int(input_image.shape[0] * ratio_hw)),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
-        padded_img[: int(img.shape[0] * ratio_hw), : int(img.shape[1] * ratio_hw)] = resized_img
+        padded_img[
+            :int(input_image.shape[0] * ratio_hw), 
+            :int(input_image.shape[1] * ratio_hw),
+        ] = resized_img
 
-        padded_img = padded_img.transpose(swap)
+        padded_img = padded_img.transpose((2, 0, 1))
         padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
-
         return padded_img[None, :, :, :], ratio_hw
 
     def postprocess(self, outputs):
         """
-        Post-process the network's output, to get the bounding boxes, key-points and
-        their confidence scores.
+        Post-process the network's output.
         """
         grids = []
         expanded_strides = []
         p6 = self.p6
-        img_size = self.input_size
+        img_size = self.input_shape
         strides = [8, 16, 32] if not p6 else [8, 16, 32, 64]
 
         hsizes = [img_size[0] // stride for stride in strides]
@@ -125,10 +131,10 @@ class YOLOX(Model):
         shapes = []
         final_boxes, final_scores, final_cls_inds = results[:, :4], results[:, 4], results[:, 5]
         for box, score, cls_inds in zip(final_boxes, final_scores, final_cls_inds):
-            if score < self.config["score_threshold"]:
+            if score < self.config["confidence_threshold"]:
                 continue
             x1, y1, x2, y2 = box
-            rectangle_shape = Shape(label=self.classes[int(cls_inds)], shape_type="rectangle", flags={})
+            rectangle_shape = Shape(label=self.classes[int(cls_inds)], shape_type="rectangle")
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y2))
             shapes.append(rectangle_shape)
@@ -152,7 +158,9 @@ class YOLOX(Model):
         boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2]/2.
         boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3]/2.
         boxes_xyxy /= ratio
-        dets = self.multiclass_nms_class_agnostic(boxes_xyxy, scores, nms_thr=nms_thr, score_thr=score_thr)
+        dets = self.multiclass_nms_class_agnostic(
+            boxes_xyxy, scores, nms_thr=nms_thr, score_thr=score_thr
+        )
 
         return dets
 
@@ -170,7 +178,12 @@ class YOLOX(Model):
         keep = self.nms(valid_boxes, valid_scores, nms_thr)
         if keep:
             dets = np.concatenate(
-                [valid_boxes[keep], valid_scores[keep, None], valid_cls_inds[keep, None]], 1
+                [
+                    valid_boxes[keep], 
+                    valid_scores[keep, None], 
+                    valid_cls_inds[keep, None],
+                ], 
+                1,
             )
         return dets
 

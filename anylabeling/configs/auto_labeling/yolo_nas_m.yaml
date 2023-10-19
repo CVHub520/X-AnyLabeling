@@ -2,10 +2,8 @@ type: yolo_nas
 name: yolo_nas_m-r20230615
 display_name: YOLO-NAS-M Deci-AI
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolo_nas_m.onnx
-input_width: 640
-input_height: 640
-score_threshold: 0.5
 nms_threshold: 0.45
+confidence_threshold: 0.25
 classes:
   - person
   - bicycle

@@ -187,6 +187,8 @@ class ModelManager(QObject):
                 "yolov8_sahi",
                 "grounding_dino",
                 "yolov5_obb",
+                "gold_yolo",
+                "yolov8_track",
             ]
         ):
             self.new_model_status.emit(
@@ -486,6 +488,28 @@ class ModelManager(QObject):
                     )
                 )
                 return
+        elif model_config["type"] == "gold_yolo":
+            from .gold_yolo import Gold_YOLO
+
+            try:
+                model_config["model"] = Gold_YOLO(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
         elif model_config["type"] == "grounding_dino":
             from .grounding_dino import Grounding_DINO
 
@@ -763,6 +787,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv5_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov8_track":
+            from .yolov8_track import YOLOv8_Tracker
+
+            try:
+                model_config["model"] = YOLOv8_Tracker(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

@@ -3,7 +3,6 @@ import os
 
 import cv2
 import numpy as np
-import onnxruntime as ort
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
 
@@ -12,6 +11,7 @@ from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
+from .engines.build_onnx_engine import OnnxBaseModel
 
 YOLO_NAS_DEFAULT_PROCESSING_STEPS = [
     {"DetLongMaxRescale": None},
@@ -197,9 +197,7 @@ class YOLO_NAS(Model):
             "name",
             "display_name",
             "model_path",
-            "input_width",
-            "input_height",
-            "score_threshold",
+            "confidence_threshold",
             "nms_threshold",
             "classes",
         ]
@@ -212,37 +210,27 @@ class YOLO_NAS(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-
+        model_name = self.config['type']
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLO_NAS model."
+                    "Model", 
+                    f"Could not download or initialize {model_name} model."
                 )
             )
 
-        self.sess_opts = ort.SessionOptions()
-        if "OMP_NUM_THREADS" in os.environ:
-            self.sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
-        self.providers = ['CPUExecutionProvider']
-        if __preferred_device__ == "GPU":
-            self.providers = ['CUDAExecutionProvider']
-
-        self.net = ort.InferenceSession(
-                        model_abs_path, 
-                        providers=self.providers,
-                        sess_options=self.sess_opts,
-                    )
-
+        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
+        _, _, input_height, input_width = self.net.get_input_shape()
         self.pre_process = Preprocessing(
             YOLO_NAS_DEFAULT_PROCESSING_STEPS, 
-            (self.config["input_height"], self.config["input_width"])
+            (input_height, input_width)
         )
 
         self.post_process = Postprocessing(
             YOLO_NAS_DEFAULT_PROCESSING_STEPS,
             self.config["nms_threshold"],
-            self.config["score_threshold"],
+            self.config["confidence_threshold"],
         )
 
     def predict_shapes(self, image, image_path=None):
@@ -260,11 +248,10 @@ class YOLO_NAS(Model):
             logging.warning(e)
             return []
 
-        input_, prep_meta = self.pre_process(image)
-        inputs = self.net.get_inputs()[0].name
-        outputs = self.net.run(None, {inputs: input_})
+        blob, prep_meta = self.pre_process(image)
+        outputs = self.net.get_ort_inference(blob, extract=False)
         boxes, scores, classes = self.post_process(outputs, prep_meta)
-        score_thres = self.config["score_threshold"]
+        score_thres = self.config["confidence_threshold"]
         iou_thres = self.config["nms_threshold"]
         selected = cv2.dnn.NMSBoxes(boxes, scores, score_thres, iou_thres)
 

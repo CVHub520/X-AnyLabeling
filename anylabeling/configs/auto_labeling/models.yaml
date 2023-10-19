@@ -12,6 +12,8 @@
   config_file: ":/yolov5m_bytetrack.yaml"
 - model_name: "yolov5m_ocsort-r20231008"
   config_file: ":/yolov5m_ocsort.yaml"
+- model_name: "yolov8m_ocsort-r20231020"
+  config_file: ":/yolov8m_ocsort.yaml"
 - model_name: "yolov5s_mobile_sam_vit_h-r20230920"
   config_file: ":/yolov5s_mobile_sam_vit_h.yaml"
 - model_name: "sam_med2d_vit_b-r20230901"
