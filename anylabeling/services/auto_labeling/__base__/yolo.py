@@ -138,7 +138,10 @@ class YOLO(Model):
 
             # Filter by class, only keep boxes whose category is in classes.
             if self.filter_classes:
-                x = x[(x[:, 5:6] == np.array(self.filter_classes)).any(1)]
+                fc = [i for i, item in enumerate(self.classes) 
+                      if item in self.filter_classes
+                     ]
+                x = x[(x[:, 5:6] == np.array(fc)).any(1)]
 
             # Check shape
             num_box = x.shape[0]  # number of boxes

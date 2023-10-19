@@ -38,6 +38,41 @@ def rescale_box(input_shape, boxes, image_shape):
     return boxes
 
 
+def rescale_box_and_landmark(input_shape, boxes, lmdks, image_shape):
+    ratio = min(
+        input_shape[0] / image_shape[0], 
+        input_shape[1] / image_shape[1],
+    )
+    padding = (
+        (input_shape[1] - image_shape[1] * ratio) / 2, 
+        (input_shape[0] - image_shape[0] * ratio) / 2,
+    )
+    boxes[:, [0, 2]] -= padding[0]
+    boxes[:, [1, 3]] -= padding[1]
+    boxes[:, :4] /= ratio
+    boxes[:, 0] = np.clip(boxes[:, 0], 0, image_shape[1])  # x1
+    boxes[:, 1] = np.clip(boxes[:, 1], 0, image_shape[0])  # y1
+    boxes[:, 2] = np.clip(boxes[:, 2], 0, image_shape[1])  # x2
+    boxes[:, 3] = np.clip(boxes[:, 3], 0, image_shape[0])  # y2
+    #lmdks 
+    lmdks[:, [0, 2, 4, 6, 8]] -= padding[0]
+    lmdks[:, [1, 3, 5, 7, 9]] -= padding[1]
+    lmdks[:, :10] /= ratio
+    lmdks[:, 0] = np.clip(lmdks[:, 0], 0, image_shape[1])
+    lmdks[:, 1] = np.clip(lmdks[:, 1], 0, image_shape[0])
+    lmdks[:, 2] = np.clip(lmdks[:, 2], 0, image_shape[1])
+    lmdks[:, 3] = np.clip(lmdks[:, 3], 0, image_shape[0])
+    lmdks[:, 4] = np.clip(lmdks[:, 4], 0, image_shape[1])
+    lmdks[:, 5] = np.clip(lmdks[:, 5], 0, image_shape[0])
+    lmdks[:, 6] = np.clip(lmdks[:, 6], 0, image_shape[1])
+    lmdks[:, 7] = np.clip(lmdks[:, 7], 0, image_shape[0])
+    lmdks[:, 8] = np.clip(lmdks[:, 8], 0, image_shape[1])
+    lmdks[:, 9] = np.clip(lmdks[:, 9], 0, image_shape[0])
+
+    return np.round(boxes), np.round(lmdks)
+
+
+
 def numpy_nms(boxes, scores, iou_threshold):
     idxs = scores.argsort()
     keep = []
