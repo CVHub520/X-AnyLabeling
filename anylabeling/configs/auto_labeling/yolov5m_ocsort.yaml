@@ -3,9 +3,8 @@ name: yolov5m_ocsort-r20231008
 display_name: YOLOv5m-OCSort
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx
 tracker: ocsort
-stride: 32
-nms_threshold: 0.25
-confidence_threshold: 0.45
+nms_threshold: 0.45
+confidence_threshold: 0.25
 filter_classes:
   - person
   - car
