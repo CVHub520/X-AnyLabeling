@@ -841,7 +841,6 @@ class LabelingWidget(LabelDialog):
                 None,
                 toggle_keep_prev_mode,
                 toggle_auto_use_last_label_mode,
-                run_all_images,
             ),
             # menu shown at right click
             menu=(
@@ -1779,7 +1778,6 @@ class LabelingWidget(LabelDialog):
 
         def format_shape(s):
             data = s.other_data.copy()
-            print(f"s={s.direction} @1781")
             info = {
                 "label": s.label,
                 "text": s.text,

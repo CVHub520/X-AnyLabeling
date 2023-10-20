@@ -15,7 +15,7 @@ DEFAULT_SELECT_LINE_COLOR = QtGui.QColor(255, 255, 255)  # selected
 DEFAULT_SELECT_FILL_COLOR = QtGui.QColor(0, 255, 0, 155)  # selected
 DEFAULT_VERTEX_FILL_COLOR = QtGui.QColor(0, 255, 0, 255)  # hovering
 DEFAULT_HVERTEX_FILL_COLOR = QtGui.QColor(255, 255, 255, 255)  # hovering
-DEFAULT_CENTER_FILL_COLOR = QtGui.QColor(255, 153, 0, 255) # center of rotation
+DEFAULT_CENTER_FILL_COLOR = QtGui.QColor(255, 153, 0, 255) # hovering
 
 class Shape:
     """Shape data type"""
