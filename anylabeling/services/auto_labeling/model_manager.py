@@ -189,6 +189,7 @@ class ModelManager(QObject):
                 "yolov5_obb",
                 "gold_yolo",
                 "yolov8_track",
+                "yolov8_efficientvit_sam",
             ]
         ):
             self.new_model_status.emit(
@@ -556,6 +557,30 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "yolov8_efficientvit_sam":
+            from .yolov8_efficientvit_sam import YOLOv8_EfficientViT_SAM
+
+            try:
+                model_config["model"] = YOLOv8_EfficientViT_SAM(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+            except Exception as e:  # noqa
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "yolov5_obb":
             from .yolov5_obb import YOLOv5OBB
 
@@ -841,6 +866,7 @@ class ModelManager(QObject):
             "sam_med2d", 
             "yolov5_sam",
             "efficientvit_sam",
+            "yolov8_efficientvit_sam",
         ]
         if (
             self.loaded_model_config is None
@@ -941,7 +967,13 @@ class ModelManager(QObject):
             return
 
         # Currently only segment_anything-like model supports this feature
-        if self.loaded_model_config["type"] not in ["segment_anything", "sam_med2d", "yolov5_sam", "efficientvit_sam"]:
+        if self.loaded_model_config["type"] not in [
+            "segment_anything", 
+            "sam_med2d", 
+            "yolov5_sam", 
+            "efficientvit_sam",
+            "yolov8_efficientvit_sam",
+        ]:
             return
 
         self.loaded_model_config["model"].on_next_files_changed(next_files)

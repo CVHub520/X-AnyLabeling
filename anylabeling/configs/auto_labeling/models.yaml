@@ -16,6 +16,8 @@
   config_file: ":/yolov8m_ocsort.yaml"
 - model_name: "yolov5s_mobile_sam_vit_h-r20230920"
   config_file: ":/yolov5s_mobile_sam_vit_h.yaml"
+- model_name: "yolov8n_efficientvit_sam_l0_vit_h-r20231020"
+  config_file: ":/yolov8n_efficientvit_sam_l0_vit_h.yaml"
 - model_name: "sam_med2d_vit_b-r20230901"
   config_file: ":/sam_med2d_vit_b.yaml"
 - model_name: "segment_anything_vit_b_quant-r20230810"

@@ -32,7 +32,7 @@ for model in model_list:
     if model_config["type"] in ["segment_anything", "sam_med2d", "efficientvit_sam"]:
         download_links.append(model_config["encoder_model_path"])
         download_links.append(model_config["decoder_model_path"])
-    elif model_config["type"] in ["yolov5_sam"]:
+    elif model_config["type"] in ["yolov5_sam", "yolov8_efficientvit_sam"]:
         download_links.append(model_config["encoder_model_path"])
         download_links.append(model_config["decoder_model_path"])
         download_links.append(model_config["model_path"])
@@ -58,7 +58,7 @@ for model in model_list:
         model_config["decoder_model_path"] = get_filename_from_url(
             model_config["decoder_model_path"]
         )
-    elif model_config["type"] in ["yolov5_sam"]:
+    elif model_config["type"] in ["yolov5_sam", "yolov8_efficientvit_sam"]:
         model_config["encoder_model_path"] = get_filename_from_url(
             model_config["encoder_model_path"]
         )
