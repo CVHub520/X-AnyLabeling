@@ -1002,8 +1002,8 @@ class Canvas(
                     fm = QtGui.QFontMetrics(p.font())
                     rect = fm.boundingRect(text)
                     p.fillRect(
-                        rect.x() + bbox.x() - 3,
-                        rect.y() + bbox.y() - 3,
+                        rect.x() + bbox.x(),
+                        rect.y() + bbox.y(),
                         rect.width(),
                         rect.height(),
                         QtGui.QColor("#00FF00"),
