@@ -182,7 +182,10 @@ class YOLO(Model):
         results[:, :4] = rescale_box(self.input_shape, results[:, :4], image.shape).round()
         shapes = []
         for *xyxy, _, cls_id in reversed(results):
-            rectangle_shape = Shape(label=self.classes[int(cls_id)], shape_type="rectangle")
+            rectangle_shape = Shape(
+                label=str(self.classes[int(cls_id)]), 
+                shape_type="rectangle",
+            )
             rectangle_shape.add_point(QtCore.QPointF(xyxy[0], xyxy[1]))
             rectangle_shape.add_point(QtCore.QPointF(xyxy[2], xyxy[3]))
             shapes.append(rectangle_shape)
