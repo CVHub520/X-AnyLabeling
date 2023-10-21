@@ -204,7 +204,7 @@ class YOLOv8_Seg(Model):
 
         blob = self.preprocess(image)
         outputs = self.get_infer_results(blob)
-        boxes, scores, class_ids, mask_pred = self.postprocess(outputs)
+        boxes, _, class_ids, mask_pred = self.postprocess(outputs)
 
         shapes = []
 
@@ -236,7 +236,7 @@ class YOLOv8_Seg(Model):
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
             shape.line_width = 1
-            shape.label = self.classes[class_id]
+            shape.label = str(self.classes[class_id])
             shape.selected = False
             shapes.append(shape)
 

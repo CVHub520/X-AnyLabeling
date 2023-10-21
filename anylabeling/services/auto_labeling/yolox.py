@@ -129,12 +129,14 @@ class YOLOX(Model):
         results = self.rescale(predictions, ratio_hw)
 
         shapes = []
-        final_boxes, final_scores, final_cls_inds = results[:, :4], results[:, 4], results[:, 5]
+        final_boxes, final_scores, final_cls_inds = \
+            results[:, :4], results[:, 4], results[:, 5]
         for box, score, cls_inds in zip(final_boxes, final_scores, final_cls_inds):
             if score < self.config["confidence_threshold"]:
                 continue
             x1, y1, x2, y2 = box
-            rectangle_shape = Shape(label=self.classes[int(cls_inds)], shape_type="rectangle")
+            label = str(self.classes[int(cls_inds)])
+            rectangle_shape = Shape(label=label, shape_type="rectangle")
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y2))
             shapes.append(rectangle_shape)

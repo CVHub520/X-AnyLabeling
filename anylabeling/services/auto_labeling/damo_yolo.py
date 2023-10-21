@@ -93,7 +93,7 @@ class DAMO_YOLO(Model):
                 "ymin": y,
                 "xmax": x + w,
                 "ymax": y + h,
-                "label": self.classes[int(class_ids[i])],
+                "label": str(self.classes[int(class_ids[i])]),
             }
             output_infos.append(output_info)
         

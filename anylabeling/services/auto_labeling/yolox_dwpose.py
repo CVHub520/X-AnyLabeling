@@ -174,16 +174,26 @@ class YOLOX_DWPose(Model):
             isbbox = [ i and j for (i, j) in zip(isscore, iscat)]
             final_boxes = final_boxes[isbbox]
 
-            keypoints, scores = inference_pose(self.pose_net, final_boxes, cv2.cvtColor(image, cv2.COLOR_RGB2BGR), self.pose_input_size)
+            keypoints, scores = inference_pose(
+                self.pose_net, 
+                final_boxes, 
+                cv2.cvtColor(image, cv2.COLOR_RGB2BGR), 
+                self.pose_input_size
+            )
             keypoints, scores = self.pose_rescale(keypoints, scores)
 
         # Output
         shapes = []
-        for box, det_score, cls_inds, kpt_points, kpt_scores in zip(final_boxes, final_scores, final_cls_inds, keypoints, scores):
+        for box, _, cls_inds, kpt_points, kpt_scores in zip(
+            final_boxes, final_scores, final_cls_inds, keypoints, scores
+        ):
 
             if self.draw_det_box:
                 x1, y1, x2, y2 = box
-                rectangle_shape = Shape(label=self.det_classes[int(cls_inds)], shape_type="rectangle", flags={})
+                rectangle_shape = Shape(
+                    label=str(self.det_classes[int(cls_inds)]), 
+                    shape_type="rectangle",
+                )
                 rectangle_shape.add_point(QtCore.QPointF(x1, y1))
                 rectangle_shape.add_point(QtCore.QPointF(x2, y2))
                 shapes.append(rectangle_shape)

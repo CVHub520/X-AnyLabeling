@@ -196,7 +196,7 @@ class YOLOv6Face(Model):
             xyxy, _, cls_id, lmdks = r[:4], r[4], r[5], r[6:]
             x1, y1, x2, y2 = list(map(int, xyxy))
             lmdks = list(map(int, lmdks))
-            label = self.classes[int(cls_id)]
+            label = str(self.classes[int(cls_id)])
             rectangle_shape = Shape(label=label, shape_type="rectangle")
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y2))

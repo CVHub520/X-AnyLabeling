@@ -219,7 +219,7 @@ class YOLOv5_CLS(Model):
         """
         res = self._softmax(np.array(outs)).tolist()
         index = np.argmax(res)
-        label = self.cls_classes[index]
+        label = str(self.cls_classes[index])
 
         return label
 

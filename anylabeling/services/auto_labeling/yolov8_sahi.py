@@ -90,7 +90,7 @@ class YOLOv8_SAHI(Model):
         shapes = []
 
         for out in results.object_prediction_list:
-            shape = Shape(label=out.category.name, shape_type="rectangle", flags={})
+            shape = Shape(label=str(out.category.name), shape_type="rectangle", flags={})
             shape.add_point(QtCore.QPointF(out.bbox.minx, out.bbox.miny))
             shape.add_point(QtCore.QPointF(out.bbox.maxx, out.bbox.maxy))
             shapes.append(shape)

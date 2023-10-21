@@ -129,7 +129,7 @@ class YOLOv5OBB(Model):
 
         shapes = []
         for *poly, _, cls_id in reversed(results):
-            label = self.classes[int(cls_id)]
+            label = str(self.classes[int(cls_id)])
             x0, y0, x1, y1, x2, y2, x3, y3 = poly
             direction = self.calculate_rotation_theta(poly)
             shape = Shape(

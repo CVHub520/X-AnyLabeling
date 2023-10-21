@@ -432,7 +432,7 @@ class YOLOv8_EfficientViT_SAM(YOLOv8):
             ).round()
             shapes = []
             for *xyxy, _, cls_id in reversed(results):
-                label = self.classes[int(cls_id)]
+                label = str(self.classes[int(cls_id)])
                 x1, y1, x2, y2 = xyxy
                 point_coords = np.array([[x1, y1], [x2, y2]], dtype=np.float32)
                 point_labels = np.array([2, 3], dtype=np.float32)

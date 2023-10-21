@@ -129,7 +129,7 @@ class RTDETR(Model):
             y1 = box[1]
             x2 = box[2]
             y2 = box[3]
-            label = self.classes[index]
+            label = str(self.classes[index])
 
             output_box = {
                 "x1": x1,

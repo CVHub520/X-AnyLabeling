@@ -114,7 +114,7 @@ class YOLOv5_Tracker(YOLO):
         for xyxy, id, class_id in zip(bboxes_xyxy, ids, class_ids):
             x0, y0, x1, y1 = [int(i) for i in (xyxy)]
             rectangle_shape = Shape(
-                label=self.classes[int(class_id)],
+                label=str(self.classes[int(class_id)]),
                 shape_type="rectangle", 
                 group_id=int(id)
             )

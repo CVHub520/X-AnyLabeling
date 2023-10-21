@@ -259,7 +259,7 @@ class YOLO_NAS(Model):
         for i in selected:
             box = boxes[i, :].astype(np.int32).flatten()
             x, y, w, h = box[0], box[1], box[2], box[3]
-            label = self.config["classes"][classes[i]]
+            label = str(self.config["classes"][classes[i]])
             shape = Shape(label=label, shape_type="rectangle", flags={})
             shape.add_point(QtCore.QPointF(x, y))
             shape.add_point(QtCore.QPointF(x + w, y + h))

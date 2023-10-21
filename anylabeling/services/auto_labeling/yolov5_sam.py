@@ -225,7 +225,7 @@ class YOLOv5SegmentAnything(YOLO):
             ).round()
             shapes = []
             for *xyxy, _, cls_id in reversed(results):
-                label = self.classes[int(cls_id)]
+                label = str(self.classes[int(cls_id)])
                 x1, y1, x2, y2 = list(map(int, xyxy))
                 box_prompt = [
                     np.array([[x1, y1], [x2, y2]]),
