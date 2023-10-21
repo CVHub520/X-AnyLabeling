@@ -2025,7 +2025,7 @@ class LabelingWidget(LabelDialog):
         self._config["show_degrees"] = enabled
         self.actions.show_degrees.setChecked(enabled)
         self.canvas.set_show_degrees(enabled)
-        save_config(self._config)
+        # save_config(self._config)
 
     def on_new_brightness_contrast(self, qimage):
         self.canvas.load_pixmap(

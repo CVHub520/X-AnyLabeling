@@ -15,7 +15,6 @@ DEFAULT_SELECT_LINE_COLOR = QtGui.QColor(255, 255, 255)  # selected
 DEFAULT_SELECT_FILL_COLOR = QtGui.QColor(0, 255, 0, 155)  # selected
 DEFAULT_VERTEX_FILL_COLOR = QtGui.QColor(0, 255, 0, 255)  # hovering
 DEFAULT_HVERTEX_FILL_COLOR = QtGui.QColor(255, 255, 255, 255)  # hovering
-DEFAULT_CENTER_FILL_COLOR = QtGui.QColor(255, 153, 0, 255) # hovering
 
 class Shape:
     """Shape data type"""
@@ -39,7 +38,6 @@ class Shape:
     select_fill_color = DEFAULT_SELECT_FILL_COLOR
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
     hvertex_fill_color = DEFAULT_HVERTEX_FILL_COLOR
-    center_fill_color = DEFAULT_CENTER_FILL_COLOR
     point_type = P_ROUND
     point_size = 4
     scale = 1.5
@@ -179,6 +177,9 @@ class Shape:
                         self.draw_vertex(vrtx_path, i)
             elif self.shape_type == "rotation":
                 assert len(self.points) in [1, 2, 4]
+                if len(self.points) == 2:
+                    rectangle = self.get_rect_from_line(*self.points)
+                    line_path.addRect(rectangle)
                 if len(self.points) == 4:
                     line_path.moveTo(self.points[0])
                     for i, p in enumerate(self.points):
@@ -229,41 +230,6 @@ class Shape:
                     else self.fill_color
                 )
                 painter.fillPath(line_path, color)
-
-            if self.shape_type == "rotation" \
-                and self.center is not None \
-                and len(self.points) == 4:
-                d = self.point_size / self.scale
-                if self.show_degrees:
-                    degrees = str(int(math.degrees(self.direction))) + '°'
-                    painter.setFont(
-                        QtGui.QFont(
-                            "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
-                        )
-                    )
-                    pen = QtGui.QPen(QtGui.QColor("#FF9900"), 8, QtCore.Qt.SolidLine)
-                    painter.setPen(pen)
-                    fm = QtGui.QFontMetrics(painter.font())
-                    rect = fm.boundingRect(degrees)
-                    painter.fillRect(
-                        rect.x() + self.center.x() - d,
-                        rect.y() + self.center.y() + d,
-                        rect.width(),
-                        rect.height(),
-                        QtGui.QColor("#FF9900"),
-                    )
-                    pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 7, QtCore.Qt.SolidLine)
-                    painter.setPen(pen)
-                    painter.drawText(
-                        self.center.x() - d,
-                        self.center.y() + d,
-                        degrees,
-                    )
-                else:
-                    center_path = QtGui.QPainterPath()
-                    center_path.addRect(self.center.x() - d / 2, self.center.y() - d / 2, d, d)
-                    painter.drawPath(center_path)
-                    painter.fillPath(center_path, self.center_fill_color)
 
     def draw_vertex(self, path, i):
         """Draw a vertex"""

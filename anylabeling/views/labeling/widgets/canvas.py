@@ -101,7 +101,7 @@ class Canvas(
         self.show_cross_line = True
         self.show_shape_groups = True
         self.show_texts = True
-        self.show_degrees = True
+        self.show_shape_degrees = False
 
         self.is_loading = False
         self.loading_text = self.tr("Loading...")
@@ -753,8 +753,6 @@ class Canvas(
         if dp:
             for shape in shapes:
                 shape.move_by(dp)
-                if shape._shape_type == "rotation":
-                    shape.center += (pos - self.prev_point)
             self.prev_point = pos
             return True
         return False
@@ -780,10 +778,15 @@ class Canvas(
             new_shape.points.append(QtCore.QPointF(
                 shape.points[1].x(), (shape.points[0].y()+shape.points[1].y()) / 2
             ))
+        center = QtCore.QPointF(
+            (new_shape.points[0].x() + new_shape.points[2].x()) / 2,
+            (new_shape.points[0].y() + new_shape.points[2].y()) / 2,
+        )
         for j, p in enumerate(new_shape.points):
-            pos = self.rotate_point(p, new_shape.center, theta)
-            if self.out_off_pixmap(pos):
-                return False  # No need to rotate
+            pos = self.rotate_point(p, center, theta)
+            # TODO: Reserved for now
+            # if self.out_off_pixmap(pos):
+            #     return False  # No need to rotate
             new_shape.points[j] = pos
         new_shape.direction = (new_shape.direction - theta) % (2 * math.pi)
         self.selected_shapes[i].points = new_shape.points
@@ -949,12 +952,59 @@ class Canvas(
                 )
                 p.drawRect(wrap_rect)
 
+        # Draw degrees
         for shape in self.shapes:
             if (
                 shape.selected or not self._hide_backround
             ) and self.is_visible(shape):
                 shape.fill = shape.selected or shape == self.h_hape
                 shape.paint(p)
+
+            if (
+                shape._shape_type == "rotation"
+                and len(shape.points) == 4
+            ):
+                d = shape.point_size / shape.scale
+                center = QtCore.QPointF(
+                    (shape.points[0].x() + shape.points[2].x()) / 2,
+                    (shape.points[0].y() + shape.points[2].y()) / 2,
+                )
+                if self.show_shape_degrees:
+                    degrees = str(int(math.degrees(shape.direction))) + '°'
+                    p.setFont(
+                        QtGui.QFont(
+                            "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
+                        )
+                    )
+                    pen = QtGui.QPen(QtGui.QColor("#FF9900"), 8, QtCore.Qt.SolidLine)
+                    p.setPen(pen)
+                    fm = QtGui.QFontMetrics(p.font())
+                    rect = fm.boundingRect(degrees)
+                    p.fillRect(
+                        rect.x() + center.x() - d,
+                        rect.y() + center.y() + d,
+                        rect.width(),
+                        rect.height(),
+                        QtGui.QColor("#FF9900"),
+                    )
+                    pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 7, QtCore.Qt.SolidLine)
+                    p.setPen(pen)
+                    p.drawText(
+                        center.x() - d,
+                        center.y() + d,
+                        degrees,
+                    )
+                else:
+                    cp = QtGui.QPainterPath()
+                    cp.addRect(
+                        center.x() - d / 2,
+                        center.y() - d / 2,
+                        d,
+                        d,
+                    )
+                    p.drawPath(cp)
+                    p.fillPath(cp, QtGui.QColor(255, 153, 0, 255))
+
         if self.current:
             self.current.paint(p)
             self.line.paint(p)
@@ -972,19 +1022,6 @@ class Canvas(
             drawing_shape.add_point(self.line[1])
             drawing_shape.fill = True
             drawing_shape.paint(p)
-        if (
-            self.fill_drawing()
-            and self.create_mode == "rotation"
-            and self.current is not None
-            and len(self.current.points) >= 1
-        ):
-            leftTop = self.line[0]
-            rightBottom = self.line[1]
-            rectWidth = rightBottom.x() - leftTop.x()
-            rectHeight = rightBottom.y() - leftTop.y()
-            color = QtGui.QColor(0, 255, 0)
-            p.setPen(color)
-            p.drawRect(leftTop.x(), leftTop.y(), rectWidth, rectHeight)
 
         # Draw texts
         if self.show_texts:
@@ -1425,9 +1462,7 @@ class Canvas(
 
     def set_show_degrees(self, enabled):
         """ Set showing degrees"""
-        self.show_degrees = enabled
-        for shape in self.shapes:
-            shape.show_degrees = enabled
+        self.show_shape_degrees = enabled
         self.update()
 
     def gen_new_group_id(self):
