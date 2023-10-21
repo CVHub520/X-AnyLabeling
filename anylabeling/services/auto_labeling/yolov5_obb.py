@@ -1,6 +1,7 @@
 import logging
 import os
 import cv2
+import math
 import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -97,13 +98,15 @@ class YOLOv5OBB(Model):
         indices = cv2.dnn.NMSBoxesRotated(
             bboxes, scores, self.conf_thres, self.nms_thres
         )
-        det = np.array(generate_boxes)[indices.flatten()]
-        pred_poly = rbox2poly(det[:, :5])
-        pred_poly = self.scale_polys(pred_poly, old_shape)
-
-        # (n, [poly conf cls])
-        results = np.concatenate((pred_poly, det[:, -2:]), axis=1)
-        return results
+        try:
+            det = np.array(generate_boxes)[indices.flatten()]
+            pred_poly = rbox2poly(det[:, :5])
+            pred_poly = self.scale_polys(pred_poly, old_shape)
+            # (n, [poly conf cls])
+            results = np.concatenate((pred_poly, det[:, -2:]), axis=1)
+            return results
+        except:
+            return []
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -128,7 +131,10 @@ class YOLOv5OBB(Model):
         for *poly, _, cls_id in reversed(results):
             label = self.classes[int(cls_id)]
             x0, y0, x1, y1, x2, y2, x3, y3 = poly
-            shape = Shape(label=label, shape_type="rotation")
+            direction = self.calculate_rotation_theta(poly)
+            shape = Shape(
+                label=label, shape_type="rotation", direction=direction
+            )
             shape.add_point(QtCore.QPointF(x0, y0))
             shape.add_point(QtCore.QPointF(x1, y1))
             shape.add_point(QtCore.QPointF(x2, y2))
@@ -138,6 +144,27 @@ class YOLOv5OBB(Model):
         result = AutoLabelingResult(shapes, replace=True)
         return result
 
+    @staticmethod
+    def calculate_rotation_theta(poly):
+        x1, y1, x2, y2 = poly[:4]
+
+        # Calculate one of the diagonal vectors (after rotation)
+        diagonal_vector_x = x2 - x1
+        diagonal_vector_y = y2 - y1
+
+        # Calculate the rotation angle in radians
+        rotation_angle = math.atan2(
+            diagonal_vector_y, diagonal_vector_x
+        )
+
+        # Convert radians to degrees
+        rotation_angle_degrees = math.degrees(rotation_angle)
+
+        if rotation_angle_degrees < 0:
+            rotation_angle_degrees += 360
+
+        return rotation_angle_degrees / 360 * (2 * math.pi)
+
     def scale_polys(self, polys, old_shape, ratio_pad=None):
         # ratio_pad: [(h_raw, w_raw), (hw_ratios, wh_paddings)]
         # Rescale coords (xyxyxyxy) from new_shape to old_shape
@@ -145,9 +172,13 @@ class YOLOv5OBB(Model):
         # calculate from old_shape
         if ratio_pad is None:  
             # gain  = resized / raw
-            gain = min(new_shape[0] / old_shape[0], new_shape[1] / old_shape[1])
+            gain = min(
+                new_shape[0] / old_shape[0], 
+                new_shape[1] / old_shape[1],
+                )
             # wh padding
-            pad = (new_shape[1] - old_shape[1] * gain) / 2, (new_shape[0] - old_shape[0] * gain) / 2
+            pad = (new_shape[1] - old_shape[1] * gain) / 2, \
+                  (new_shape[0] - old_shape[0] * gain) / 2
         else:
             gain = ratio_pad[0][0]        # h_ratios
             pad = ratio_pad[1]            # wh_paddings
