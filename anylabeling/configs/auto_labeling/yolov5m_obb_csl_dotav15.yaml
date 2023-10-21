@@ -2,7 +2,7 @@ type: yolov5_obb
 name: yolov5m_obb_csl_dotav15-r20231024
 display_name: YOLOv5m_obb (DOTA-v1.5)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.5.0/yolov5m_obb_csl_dotav15.onnx
-stride: 64
+stride: 32
 nms_threshold: 0.2
 confidence_threshold: 0.25
 classes:

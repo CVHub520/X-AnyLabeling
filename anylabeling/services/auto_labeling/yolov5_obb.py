@@ -72,8 +72,8 @@ class YOLOv5OBB(Model):
         """
         nc = outputs.shape[2] - 5 - 180  # number of classes
 
-        conf = outputs[..., 4]
-        outputs = outputs[:][conf >= self.conf_thres]
+        xc = outputs[..., 4] > self.conf_thres
+        outputs = outputs[:][xc]
 
         generate_boxes, bboxes, scores = [], [], []
         for out in outputs:
@@ -87,9 +87,9 @@ class YOLOv5OBB(Model):
 
             theta_scores = out[5+nc:]
             theta_idx = np.argmax(theta_scores)
-            theta_pred = theta_scores[theta_idx] * 180 / np.pi
+            theta_pred = (theta_idx - 90) / 180 * np.pi
 
-            bboxes.append([[cx, cy], [longside, shortside], theta_pred])
+            bboxes.append([[cx, cy], [longside, shortside], max_class_score])
             scores.append(max_class_score)
             generate_boxes.append([
                 cx, cy, longside, shortside, theta_pred, max_class_score, class_idx
