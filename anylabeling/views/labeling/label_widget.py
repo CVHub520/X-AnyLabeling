@@ -697,6 +697,14 @@ class LabelingWidget(LabelDialog):
             checked=self._config["save_mode"] == "yolo",
             enabled=self._config["save_mode"] != "yolo",
         )
+        select_coco_format = action(
+            "COCO",
+            functools.partial(self.set_output_format, "coco"),
+            icon="format_coco",
+            checkable=True,
+            checked=self._config["save_mode"] == "coco",
+            enabled=self._config["save_mode"] != "coco",
+        )
         select_voc_format = action(
             "PascalVOC",
             functools.partial(self.set_output_format, "voc"),
@@ -705,13 +713,13 @@ class LabelingWidget(LabelDialog):
             checked=self._config["save_mode"] == "voc",
             enabled=self._config["save_mode"] != "voc",
         )
-        select_obb_format = action(
-            "YOLO_OBB",
-            functools.partial(self.set_output_format, "obb"),
-            icon="format_obb",
+        select_dota_format = action(
+            "DOTA",
+            functools.partial(self.set_output_format, "dota"),
+            icon="format_dota",
             checkable=True,
-            checked=self._config["save_mode"] == "obb",
-            enabled=self._config["save_mode"] != "obb",
+            checked=self._config["save_mode"] == "dota",
+            enabled=self._config["save_mode"] != "dota",
         )
         select_mot_format = action(
             "MOT",
@@ -808,8 +816,9 @@ class LabelingWidget(LabelDialog):
             create_line_strip_mode=create_line_strip_mode,
             select_default_format=select_default_format,
             select_yolo_format=select_yolo_format,
+            select_coco_format=select_coco_format,
             select_voc_format=select_voc_format,
-            select_obb_format=select_obb_format,
+            select_dota_format=select_dota_format,
             select_mot_format=select_mot_format,
             zoom=zoom,
             zoom_in=zoom_in,
@@ -931,8 +940,9 @@ class LabelingWidget(LabelDialog):
             (
                 select_default_format,
                 select_yolo_format,
+                select_coco_format,
                 select_voc_format,
-                select_obb_format,
+                select_dota_format,
                 select_mot_format,
             ),
         )
@@ -1186,7 +1196,7 @@ class LabelingWidget(LabelDialog):
         
         self._config["save_mode"] = mode
         confirm_flag = True
-        if mode in ["yolo", "mot"]:
+        if mode in ["yolo", "coco", "mot"]:
             filter = "Classes Files (*.txt);;All Files (*)"
             self.classes, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self, 
@@ -1203,8 +1213,37 @@ class LabelingWidget(LabelDialog):
                 )
                 confirm_flag = False
                 self._config["save_mode"] = 'default'
-
-        # TODO: Support more regular format.
+                return
+            else:
+                with open(self.classes, 'r', encoding='utf-8') as f:
+                    classes = f.read().splitlines()
+                    for label in classes:
+                        if not self.unique_label_list.find_items_by_label(label):
+                            item = self.unique_label_list.create_item_from_label(label)
+                            self.unique_label_list.addItem(item)
+                            rgb = self._get_rgb_by_label(label)
+                            self.unique_label_list.set_item_label(item, label, rgb)
+                if self.filename and mode == "coco":
+                    from .label_converter import LabelConverter
+                    formats = [
+                        f"*.{fmt.data().decode()}"
+                        for fmt in QtGui.QImageReader.supportedImageFormats()
+                    ] + [f"*{LabelFile.suffix}"]
+                    if "*.json" in formats:
+                        formats.remove("*.json")
+                    converter = LabelConverter(classes_file=self.classes)
+                    root_path = osp.split(self.filename)[0]
+                    save_path = root_path + '/annotations'
+                    os.makedirs(save_path, exist_ok=True)
+                    dst_file = save_path + '/' + 'instances_default.json'
+                    converter.custom_to_coco(root_path, dst_file, formats)
+                    msg_box = QMessageBox()
+                    msg_box.setText(
+                        self.tr("The COCO format (*.json) label file has been successfully saved!")
+                    )
+                    msg_box.exec_()
+                    confirm_flag = False
+                    self._config["save_mode"] = 'default'
 
         # Show dialog to restart application
         if confirm_flag and self._config["save_mode"] != 'default':
@@ -1217,32 +1256,37 @@ class LabelingWidget(LabelDialog):
         if self._config["save_mode"] == "default":
             self.actions.select_default_format.setEnabled(False)
             self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_coco_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_obb_format.setEnabled(True)
+            self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "yolo":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(False)
+            self.actions.select_coco_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_obb_format.setEnabled(True)
+            self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "voc":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_coco_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(False)
-            self.actions.select_obb_format.setEnabled(True)
+            self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
-        elif self._config["save_mode"] == "obb":
+        elif self._config["save_mode"] == "dota":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_coco_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_obb_format.setEnabled(False)
+            self.actions.select_dota_format.setEnabled(False)
             self.actions.select_mot_format.setEnabled(True)
         elif self._config["save_mode"] == "mot":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_coco_format.setEnabled(True)
             self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_obb_format.setEnabled(True)
+            self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(False)
 
     def get_labeling_instruction(self):

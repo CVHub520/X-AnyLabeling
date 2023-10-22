@@ -212,11 +212,13 @@ class LabelFile:
             save_path = root_path + '/labels'
             dst_file = save_path + '/' + base_name+'.txt'
             os.makedirs(save_path, exist_ok=True)
+        elif mode == "coco":
+            pass
         elif mode == "voc":
             save_path = root_path + '/Annotations'
             dst_file = save_path + '/' + base_name+'.xml'
             os.makedirs(save_path, exist_ok=True)
-        elif mode == "obb":
+        elif mode == "dota":
             save_path = root_path + '/labelTxt'
             dst_file = save_path + '/' + base_name+'.txt'
             os.makedirs(save_path, exist_ok=True)
@@ -230,10 +232,13 @@ class LabelFile:
         elif mode == "yolo" and shape_type == "polygon":
             converter.custom_to_yolo_polygon(data, dst_file)
             return True
+        if mode == "coco" and shape_type in ["rectangle", "polygon"]:
+            pass
+            return True
         elif mode == "voc" and shape_type == "rectangle":
             converter.custom_to_voc_rectangle(data, dst_file)
             return True
-        elif mode == "obb" and shape_type == "rotation":
+        elif mode == "dota" and shape_type == "rotation":
             converter.custom_to_dota(data, dst_file)
             return True
         elif mode == "mot" and shape_type == "rectangle":
