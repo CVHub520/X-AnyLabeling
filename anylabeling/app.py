@@ -18,7 +18,7 @@ import yaml
 from PyQt5 import QtCore, QtWidgets
 
 from anylabeling.app_info import __appname__
-from anylabeling.config import get_config
+from anylabeling.config import get_config, save_config
 from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
@@ -172,6 +172,10 @@ def main():
     loaded_language = translator.load(
         ":/languages/translations/" + language + ".qm"
     )
+
+    # Initialize "save_mode" as "default" in 'config'
+    config["save_mode"] = "default"
+    save_config(config)
 
     # Enable scaling for high dpi screens
     QtWidgets.QApplication.setAttribute(
