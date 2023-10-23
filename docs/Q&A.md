@@ -20,22 +20,25 @@ A: 考虑到当前标注工具框架的兼容性，为了更好的扩展和维�
 #=============================================================================== Usage ================================================================================#
 #
 #---------------------------------------------------------------------------- custom2voc  -----------------------------------------------------------------------------#
-# python tools/label_converter.py --task xxx --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2voc
+# python tools/label_converter.py --task rectangle --src_path custom_folder --dst_path voc_folder --mode custom2voc
 #
 #---------------------------------------------------------------------------- voc2custom  -----------------------------------------------------------------------------#
-# python tools/label_converter.py --task xxx --src_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode voc2custom
+# python tools/label_converter.py --task rectangle --src_path voc_folder --img_path img_folder --mode voc2custom
 #
 #---------------------------------------------------------------------------- custom2yolo  ----------------------------------------------------------------------------#
-# python tools/label_converter.py --task xxx --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2yolo                   
+# python tools/label_converter.py --task rectangle --src_path custom_folder --dst_path yolo_folder --classes xxx.txt --mode custom2yolo
+# python tools/label_converter.py --task polygon --src_path custom_folder --dst_path yolo_folder --classes xxx.txt --mode custom2yolo                 
 #
 #---------------------------------------------------------------------------- yolo2custom  ----------------------------------------------------------------------------#
-# python tools/label_converter.py --task xxx --src_path xxx_folder --img_path xxx_folder --classes xxx.txt --mode yolo2custom
+# python tools/label_converter.py --task rectangle --src_path yolo_folder --img_path img_folder --classes xxx.txt --mode yolo2custom
+# python tools/label_converter.py --task polygon --src_path yolo_folder --img_path img_folder --classes xxx.txt --mode yolo2custom
 #
 #---------------------------------------------------------------------------- custom2coco  ----------------------------------------------------------------------------#
-# python tools/label_converter.py --task xxx --src_path xxx_folder --dst_path xxx_folder --classes xxx.txt --mode custom2coco                      
+# python tools/label_converter.py --task rectangle --src_path custom_folder --dst_path coco_folder --classes xxx.txt --mode custom2coco                      
 #
 #---------------------------------------------------------------------------- coco2custom  ----------------------------------------------------------------------------#
-# python tools/label_converter.py --task xxx --src_path xxx.json --dst_pat xxx_folder --img_path xxx_folder --classes xxx.txt --mode coco2custom                     
+# python tools/label_converter.py --task rectangle --src_path coco.json --img_path img_folder --mode coco2custom
+# python tools/label_converter.py --task polygon --src_path coco.json --img_path img_folder --mode coco2custom
 #
 #---------------------------------------------------------------------------- custom2dota  ----------------------------------------------------------------------------#
 # python tools/label_converter.py --task rotation --src_path dota_image_folder --dst_path save_folder --mode custom2dota

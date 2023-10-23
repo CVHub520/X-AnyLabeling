@@ -320,11 +320,11 @@ class RectLabelConverter(BaseLabelConverter):
 
                 coco_data['annotations'].append(annotation)
 
-        output_file = osp.join(output_path, "x_anylabeling_coco.json")
+        output_file = osp.join(output_path, "instances_default.json")
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(coco_data, f, indent=4, ensure_ascii=False)
 
-    def coco_to_custom(self, input_file, output_path, image_path):
+    def coco_to_custom(self, input_file, image_path):
 
         img_dic = {}
         for file in os.listdir(image_path):
@@ -373,14 +373,19 @@ class RectLabelConverter(BaseLabelConverter):
 
             total_info[dic_info["image_id"]]["shapes"].append(shape_info)
     
-        for dic_info in tqdm(total_info.values(), desc='Converting files', unit='file', colour='green'):
+        for dic_info in tqdm(
+            total_info.values(), desc='Converting files', 
+            unit='file', colour='green'
+        ):
             self.reset()
             self.custom_data["shapes"] = dic_info["shapes"]
             self.custom_data["imagePath"] = dic_info["imagePath"]
             self.custom_data["imageHeight"] = dic_info["imageHeight"]
             self.custom_data["imageWidth"] = dic_info["imageWidth"]
 
-            output_file = osp.join(output_path, osp.splitext(dic_info["imagePath"])[0]+".json")
+            output_file = osp.join(
+                image_path, osp.splitext(dic_info["imagePath"])[0]+".json"
+            )
             with open(output_file, 'w', encoding='utf-8') as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
@@ -400,7 +405,10 @@ class PolyLabelConvert(BaseLabelConverter):
                 points = np.array(shape['points'])
                 class_index = self.classes.index(label)
                 norm_points = points / image_size
-                f.write(f"{class_index} " + " ".join([" ".join([str(cell[0]), str(cell[1])]) for cell in norm_points.tolist()]) + "\n")
+                f.write(f"{class_index} " + " ".join(
+                    [" ".join([str(cell[0]), str(cell[1])]) \
+                     for cell in norm_points.tolist()]) + "\n"
+                )
 
     def yolov5_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -436,6 +444,69 @@ class PolyLabelConvert(BaseLabelConverter):
 
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def coco_to_custom(self, input_file, image_path):
+
+        img_dic = {}
+        for file in os.listdir(image_path):
+            img_dic[file] = file
+
+        with open(input_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            
+        if not self.classes:
+            for cat in data["categories"]:
+                self.classes.append(cat["name"])
+
+        total_info, label_info = {}, {}
+
+        # map category_id to name
+        for dic_info in data["categories"]:
+            label_info[dic_info["id"]] = dic_info["name"]
+
+        # map image_id to info
+        for dic_info in data["images"]:
+            total_info[dic_info["id"]] = {
+                "imageWidth": dic_info["width"],
+                "imageHeight": dic_info["height"],
+                "imagePath": img_dic[dic_info["file_name"]],
+                "shapes": []
+            }
+        
+        for dic_info in data["annotations"]:
+            
+            points = []
+            segmentation = dic_info["segmentation"][0]
+            for i in range(0, len(segmentation), 2):
+                x, y = segmentation[i: i+2]
+                point = [float(x), float(y)]
+                points.append(point)
+
+            shape_info = {
+                "label": self.classes[dic_info["category_id"]-1],
+                "text": None,
+                "points": points,
+                "group_id": None,
+                "shape_type": "polygon",
+                "flags": {}
+            }
+
+            total_info[dic_info["image_id"]]["shapes"].append(shape_info)
+    
+        for dic_info in tqdm(
+            total_info.values(), desc='Converting files', unit='file', colour='green'
+        ):
+            self.reset()
+            self.custom_data["shapes"] = dic_info["shapes"]
+            self.custom_data["imagePath"] = dic_info["imagePath"]
+            self.custom_data["imageHeight"] = dic_info["imageHeight"]
+            self.custom_data["imageWidth"] = dic_info["imageWidth"]
+
+            output_file = osp.join(
+                image_path, osp.splitext(dic_info["imagePath"])[0]+".json"
+            )
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
 class RotateLabelConverter(BaseLabelConverter):
 
@@ -624,14 +695,22 @@ class RotateLabelConverter(BaseLabelConverter):
 
 def main():
     parser = argparse.ArgumentParser(description='Label Converter')
-    parser.add_argument('--task', default='rectangle', choices=['rectangle', 'polygon', 'rotation'], help='Choose the type of task to perform')
+    parser.add_argument('--task', default='rectangle', 
+                        choices=['rectangle', 'polygon', 'rotation'], 
+                        help='Choose the type of task to perform')
     parser.add_argument('--src_path', help='Path to input directory')
     parser.add_argument('--dst_path', help='Path to output directory')
     parser.add_argument('--img_path', help='Path to image directory')
-    parser.add_argument('--classes', default=None, help='Path to classes.txt file, where each line represent a specific class')
+    parser.add_argument('--classes', default=None, 
+                        help='Path to classes.txt file, \
+                            where each line represent a specific class')
     parser.add_argument('--mode', help='Choose the conversion mode what you need',
-                        choices=['custom2voc', 'voc2custom', 'custom2yolo', 'yolo2custom', 'custom2coco', 'coco2custom', 
-                                 'custom2dota', 'dota2custom', 'dota2dcoco', 'dcoco2dota'])
+                        choices=[
+                            'custom2voc', 'voc2custom', 
+                            'custom2yolo', 'yolo2custom', 
+                            'custom2coco', 'coco2custom', 
+                            'custom2dota', 'dota2custom', 
+                            'dota2dcoco', 'dcoco2dota'])
     args = parser.parse_args()
 
     print(f"Starting conversion to {args.mode} format of {args.task}...")
@@ -639,9 +718,15 @@ def main():
 
     if args.task == 'rectangle':
         converter = RectLabelConverter(args.classes)
+        valid_modes = [
+            'custom2voc', 'voc2custom', 
+            'custom2yolo', 'yolo2custom',
+            'custom2coco', 'coco2custom',
+        ]
+        assert args.mode in valid_modes, f"Polygon tasks are only supported in {valid_modes} now!"
     elif args.task == 'polygon':
         converter = PolyLabelConvert(args.classes)
-        valid_modes = ['custom2yolo', 'yolo2custom']
+        valid_modes = ['custom2yolo', 'yolo2custom', 'coco2custom']
         assert args.mode in valid_modes, f"Polygon tasks are only supported in {valid_modes} now!"
     elif args.task == "rotation":
         converter = RotateLabelConverter(args.classes)
@@ -685,8 +770,7 @@ def main():
         os.makedirs(args.dst_path, exist_ok=True)
         converter.custom_to_coco(args.src_path, args.dst_path)
     elif args.mode == "coco2custom":
-        os.makedirs(args.dst_path, exist_ok=True)
-        converter.coco_to_custom(args.src_path, args.dst_path, args.img_path)
+        converter.coco_to_custom(args.src_path, args.img_path)
     elif args.mode == "custom2dota":
         file_list = os.listdir(args.src_path)
         os.makedirs(args.dst_path, exist_ok=True)
