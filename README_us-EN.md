@@ -53,16 +53,16 @@ GroundingDINO
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Oct. 2023:
-  - Release version [0.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.4.0).
   - 🚀🚀🚀 Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
   - 🆕🆕🆕 Add a new feature for rotation box.
   - 🔥🔥🔥 SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
+  - Support **YOLOv5-SAM** and **YOLOv8-EfficientViT_SAM** union task.
   - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
   - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
 - Sep. 2023:
   - Release version [0.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.4).
-  - Release [EfficientViT-SAM](https://github.com/CVHub520/efficientvit/tree/main) (**ICCV'23**), [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D), [MedSAM](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
+  - Release [EfficientViT-SAM](https://github.com/mit-han-lab/efficientvit) (**ICCV'23**), [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D), [MedSAM](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
   - Support [ByteTrack](https://github.com/ifzhang/ByteTrack) (**ECCV'22**) for MOT task.
   - Support [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR) model.
   - Add `video` annotation feature.
@@ -100,12 +100,12 @@ X-Anylabeling is designed to streamline the annotation workflow, allowing you to
 - `CPU` and `GPU` inference support with on-demand selection.
 - Compatibility with multiple SOTA deep-learning algorithms.
 - Single-frame prediction and `one-click` processing for all images.
-- Export options for formats like `COCO-JSON`, `VOC-XML`, `YOLOv5-TXT`, and `MOT-CSV`.
+- Export options for formats like `COCO-JSON`, `VOC-XML`, `YOLOv5-TXT`, `DOTA-TXT` and `MOT-CSV`.
 - Integration with popular frameworks such as [PaddlePaddle](https://www.paddlepaddle.org.cn/), [OpenMMLab](https://openmmlab.com/), [timm](https://github.com/huggingface/pytorch-image-models), and others.
 - Providing comprehensive `help documentation` along with active `developer community support`.
 - Accommodation of various visual tasks such as `detection`, `segmentation`, `face recognition`, and so on.
 - Modular design that empowers users to compile the system according to their specific needs and supports customization and further development.
-- Image annotation capabilities for `polygons`, `rectangles`, `circles`, `lines`, and `points`, as well as `text detection`, `recognition`, and `KIE` annotations.
+- Image annotation capabilities for `polygons`, `rectangles`, `rotation`, `circles`, `lines`, and `points`, as well as `text detection`, `recognition`, and `KIE` annotations.
 
 ### ⛏️Model Zoo
 
@@ -242,7 +242,7 @@ bash scripts/build_executable.sh linux-gpu
 | Ctrl + d          | Duplicate polygon                       |
 | Ctrl + p          | Toggle keep previous mode               |
 | Ctrl + y          | Toggle auto use last label              |
-| Ctrl + m          | Batch processing of tasks               |
+| Ctrl + m          | Run all images at once                  |
 | Ctrl + a          | Enable auto annotation                  |
 | Ctrl + s          | Save current information                |
 | Ctrl + Shift + s  | Change output directory                 |

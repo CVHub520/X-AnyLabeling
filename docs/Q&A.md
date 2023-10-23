@@ -133,9 +133,6 @@ bash scripts/build_executable.sh linux-gpu
 
 ## 问题反馈
 
-Q: **Grounding-DINO系列模型加载失败**
-A: 由于防火墙的原因，可能没有配置科学上网的同学会遇到加载失败的问题。如果是源码运行的用户，可以通过手动加载的方式的将依赖文件下载到对应的缓存目录上，具体可参考官方[文档](https://huggingface.co/docs/transformers/installation#offline-mode)。对于下载可执行文件的用户，`Linux`平台同上；针对`Windows`平台用户，可以将对应的 `models--bert-base-uncased` 压缩包解压后与 `*.exe` 文件放置到同一目录下运行即可。
-
 Q: **初始化加载时下载模型失败如何处理？**</br>
 A: 由于当前模型权重暂存在 `github` 上，下载前请先开启科学上网，否则大概率会因为网络问题下载失败；如果不具备条件的可考虑手动下载方式，将下载好的 `*.onnx` 文件放置到当前系统用户目录下的 `anylabeling_data/models/xxx` 下。</br>
 这里 `xxx` 为对应的模型的名称，具体地可参考 [`X-anylabeling/anylabeling/configs/auto_labeling/models.yaml`](../anylabeling/configs/auto_labeling/models.yaml) 文件中的对应 `model_name` 字段，示例如下：

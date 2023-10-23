@@ -4,7 +4,7 @@ import os
 import cv2
 import numpy as np
 from typing import Dict
-from transformers import AutoTokenizer
+from tokenizers import Tokenizer
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -42,12 +42,13 @@ class Grounding_DINO(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-
+        
+        model_type = self.config["model_type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLOv5 model."
+                    "Model", f"Could not download or initialize {model_type} model."
                 )
             )
 
@@ -61,7 +62,9 @@ class Grounding_DINO(Model):
 
     def preprocess(self, image, text_prompt):
         # Resize the image
-        image = cv2.resize(image, self.target_size, interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(
+            image, self.target_size, interpolation=cv2.INTER_LINEAR
+        )
 
         image = image.astype(np.float32) / 255.0
         mean = np.array([0.485, 0.456, 0.406])
@@ -71,9 +74,14 @@ class Grounding_DINO(Model):
         image = np.expand_dims(image, 0).astype(np.float32)
 
         # encoder texts
-        captions = self.get_caption(text_prompt)
-        tokenized = self.net.tokenizer(captions, padding="longest", return_tensors="np")
-        specical_tokens = self.net.tokenizer.convert_tokens_to_ids(["[CLS]", "[SEP]", ".", "?"])
+        captions = self.get_caption(str(text_prompt))
+        tokenized_raw_results = self.net.tokenizer.encode(captions)
+        tokenized = {
+            "input_ids": np.array([tokenized_raw_results.ids], dtype=np.int64),
+            "token_type_ids": np.array([tokenized_raw_results.type_ids], dtype=np.int64),
+            "attention_mask": np.array([tokenized_raw_results.attention_mask])
+        }
+        specical_tokens = [101, 102, 1012, 1029]
         (
             text_self_attention_masks,
             position_ids,
@@ -88,7 +96,6 @@ class Grounding_DINO(Model):
             tokenized["input_ids"] = tokenized["input_ids"][:, : self.net.max_text_len]
             tokenized["attention_mask"] = tokenized["attention_mask"][:, : self.net.max_text_len]
             tokenized["token_type_ids"] = tokenized["token_type_ids"][:, : self.net.max_text_len]
-
         inputs = {}
         inputs["img"] = image
         inputs["input_ids"] = np.array(tokenized["input_ids"], dtype=np.int64)
@@ -96,8 +103,7 @@ class Grounding_DINO(Model):
         inputs["token_type_ids"] = np.array(tokenized["token_type_ids"], dtype=np.int64)
         inputs["position_ids"] = np.array(position_ids, dtype=np.int64)
         inputs["text_token_mask"] = np.array(text_self_attention_masks, dtype=bool)
-
-        return image, inputs, captions[0]
+        return image, inputs, captions
 
     def postprocess(self, outputs, caption, with_logits=True, token_spans=None):
         logits, boxes = outputs
@@ -112,20 +118,25 @@ class Grounding_DINO(Model):
 
             # get phrase
             tokenlizer = self.net.tokenizer
-            tokenized = tokenlizer(caption)
+            tokenized_raw_results = tokenlizer.encode(caption)
+            tokenized = {
+                "input_ids": np.array(tokenized_raw_results.ids, dtype=np.int64),
+                "token_type_ids": np.array(tokenized_raw_results.type_ids, dtype=np.int64),
+                "attention_mask": np.array(tokenized_raw_results.attention_mask)
+            }
             # build pred
             pred_phrases = []
             for logit in logits_filt:
                 posmap = logit > self.text_threshold
                 pred_phrase = self.get_phrases_from_posmap(posmap, tokenized, tokenlizer)
                 if with_logits:
-                    pred_phrases.append(pred_phrase + f"({str(logit.max())[:4]})")
+                    pred_phrases.append([pred_phrase, logit.max()])
                 else:
-                    pred_phrases.append(pred_phrase)
+                    pred_phrases.append([pred_phrase, 1.0])
         else:
             # TODO: Using token_spans.
             raise NotImplementedError
-        return boxes_filt
+        return boxes_filt, pred_phrases
 
     def predict_shapes(self, image, image_path=None, text_prompt=None):
         """
@@ -144,14 +155,15 @@ class Grounding_DINO(Model):
 
         blob, inputs, caption = self.preprocess(image, text_prompt)
         outputs = self.net.get_ort_inference(blob, inputs=inputs, extract=False)
-        boxes_filt = self.postprocess(outputs, caption)
+        boxes_filt, pred_phrases = self.postprocess(outputs, caption)
 
         shapes = []
         img_h, img_w, _ = image.shape
         boxes = self.rescale_boxes(boxes_filt, img_h, img_w)
-        for box in boxes:
+        for box, label_info in zip(boxes, pred_phrases):
             x1, y1, x2, y2 = box
-            shape = Shape(label=str(text_prompt), shape_type="rectangle", flags={})
+            label, _ = label_info
+            shape = Shape(label=str(label), shape_type="rectangle")
             shape.add_point(QtCore.QPointF(x1, y1))
             shape.add_point(QtCore.QPointF(x2, y2))
             shapes.append(shape)
@@ -283,28 +295,23 @@ class Grounding_DINO(Model):
         caption = caption.strip()
         if not caption.endswith("."):
             caption = caption + "."
-        captions = [caption]
-        return captions
+        return caption
 
     @staticmethod
     def get_tokenlizer(text_encoder_type):
-        if not isinstance(text_encoder_type, str):
-            if hasattr(text_encoder_type, "text_encoder_type"):
-                text_encoder_type = text_encoder_type.text_encoder_type
-            elif text_encoder_type.get("text_encoder_type", False):
-                text_encoder_type = text_encoder_type.get("text_encoder_type")
-            elif os.path.isdir(text_encoder_type) and os.path.exists(text_encoder_type):
-                pass
-            else:
-                raise ValueError(
-                    "Unknown type of text_encoder_type: {}".format(type(text_encoder_type))
-                )
-        tokenizer = AutoTokenizer.from_pretrained(text_encoder_type)
+        current_dir = os.path.dirname(__file__)
+        cfg_name = text_encoder_type.replace('-', '_') + "_tokenizer.json"
+        cfg_file = os.path.join(current_dir, "configs", cfg_name)
+        tokenizer = Tokenizer.from_file(cfg_file)
         return tokenizer
 
     @staticmethod
     def get_phrases_from_posmap(
-        posmap: np.ndarray, tokenized: Dict, tokenizer, left_idx: int = 0, right_idx: int = 255
+        posmap: np.ndarray, 
+        tokenized: Dict, 
+        tokenizer, 
+        left_idx: int = 0, 
+        right_idx: int = 255
     ):
         assert isinstance(posmap, np.ndarray), "posmap must be numpy.ndarray"
         if posmap.ndim == 1:
@@ -317,10 +324,14 @@ class Grounding_DINO(Model):
             raise NotImplementedError("posmap must be 1-dim")
 
     @staticmethod
-    def generate_masks_with_special_tokens_and_transfer_map(tokenized, special_tokens_list):
+    def generate_masks_with_special_tokens_and_transfer_map(
+            tokenized, 
+            special_tokens_list
+        ):
         input_ids = tokenized["input_ids"]
         bs, num_token = input_ids.shape
-        # special_tokens_mask: bs, num_token. 1 for special tokens. 0 for normal tokens
+        # special_tokens_mask: bs, num_token. 
+        # 1 for special tokens. 0 for normal tokens
         special_tokens_mask = np.zeros((bs, num_token), dtype=bool)
         for special_token in special_tokens_list:
             special_tokens_mask |= (input_ids == special_token)
@@ -329,7 +340,9 @@ class Grounding_DINO(Model):
         idxs = np.argwhere(special_tokens_mask)
 
         # generate attention mask and positional ids
-        attention_mask = np.eye(num_token, dtype=bool).reshape(1, num_token, num_token)
+        attention_mask = np.eye(num_token, dtype=bool).reshape(
+            1, num_token, num_token
+        )
         attention_mask = np.tile(attention_mask, (bs, 1, 1))
         position_ids = np.zeros((bs, num_token), dtype=int)
         cate_to_token_mask_list = [[] for _ in range(bs)]
@@ -340,8 +353,11 @@ class Grounding_DINO(Model):
                 attention_mask[row, col, col] = True
                 position_ids[row, col] = 0
             else:
-                attention_mask[row, previous_col + 1: col + 1, previous_col + 1: col + 1] = True
-                position_ids[row, previous_col + 1: col + 1] = np.arange(0, col - previous_col)
+                attention_mask[
+                    row, previous_col + 1: col + 1, previous_col + 1: col + 1
+                ] = True
+                position_ids[row, previous_col + 1: col + 1] = \
+                    np.arange(0, col - previous_col)
                 c2t_maski = np.zeros((num_token), dtype=bool)
                 c2t_maski[previous_col + 1: col] = True
                 cate_to_token_mask_list[row].append(c2t_maski)

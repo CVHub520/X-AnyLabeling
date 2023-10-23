@@ -144,3 +144,12 @@ The Segment Anything Model (`SAM`) produces high quality object masks from input
 > 发表：Arxiv23</br>
 
 参考此[步骤](https://github.com/CVHub520/SAM-Med2D#-deploy).
+
+- [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) is a state-of-the-art (SOTA) zero-shot object detection model that excels in detecting objects beyond the predefined training classes. This unique capability allows the model to adapt to new objects and scenarios, making it highly versatile for real-world applications. It also excels in Referring Expression Comprehension (REC), where it can identify and localize specific objects or regions within an image based on textual descriptions. What sets it apart is its deep understanding of language and visual content, enabling it to associate words or phrases with corresponding visual elements. Moreover, Grounding DINO simplifies object detection by eliminating hand-designed components like Non-Maximum Suppression (NMS), streamlining the model architecture, and enhancing efficiency and performance.
+
+> 论文：Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection.</br>
+> 单位：IDEA-CVR, IDEA-Research</br>
+> 发表：Arxiv23</br>
+
+参考此[教程](../tools/export_grounding_dino_onnx.py).
+

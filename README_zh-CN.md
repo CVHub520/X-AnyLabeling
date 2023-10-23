@@ -61,7 +61,6 @@ GroundingDINO
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - Oct. 2023:
-  - Release version [0.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.4.0).
   - 🚀🚀🚀 Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
   - 🆕🆕🆕 Add a new feature for rotation box.
   - 🔥🔥🔥 SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
@@ -70,7 +69,7 @@ GroundingDINO
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
 - Sep. 2023:
   - Release version [0.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.4).
-  - Release [EfficientViT-SAM](https://github.com/CVHub520/efficientvit/tree/main) (**ICCV'23**), [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D), [MedSAM](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
+  - Release [EfficientViT-SAM](https://github.com/mit-han-lab/efficientvit) (**ICCV'23**), [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D), [MedSAM](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
   - Support [ByteTrack](https://github.com/ifzhang/ByteTrack) (**ECCV'22**) for MOT task.
   - Support [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR) model.
   - Add `video` annotation feature.
@@ -107,12 +106,12 @@ GroundingDINO
 - 支持 `CPU` 和 `GPU` 推理，可按需选择。
 - 兼容多种领先的深度学习算法。
 - 单帧预测和一键处理所有图像。
-- 导出选项，支持格式如 `COCO-JSON`、`VOC-XML`、`YOLOv5-TXT` 和 `MOT-CSV`。
+- 导出选项，支持格式如 `COCO-JSON`、`VOC-XML`、`YOLOv5-TXT`、`DOTA-TXT` 和 `MOT-CSV`。
 - 与流行框架集成，包括 [PaddlePaddle](https://www.paddlepaddle.org.cn/)、[OpenMMLab](https://openmmlab.com/)、[timm](https://github.com/huggingface/pytorch-image-models) 等。
 - 提供全面的 `帮助文档`，并提供积极的 `开发者社区支持`。
 - 支持各种视觉任务，如 `目标检测`、`图像分割`、`人脸识别` 等。
 - 模块化设计，赋予用户根据其具体需求自行编译系统的能力，同时支持自定义和二次开发。
-- 图像标注功能，包括 `多边形`、`矩形`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注。
+- 图像标注功能，包括 `多边形`、`矩形`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注。
 
 ### ⛏️模型库
 
@@ -249,7 +248,7 @@ bash scripts/build_executable.sh linux-gpu
 | Ctrl + d        | 复制多边形                           |
 | Ctrl + p        | 切换保留先前模式                     |
 | Ctrl + y        | 切换自动使用上一标签                 |
-| Ctrl + m        | 批处理任务                           |
+| Ctrl + m        | 一次运行所有图片                           |
 | Ctrl + a        | 启用自动标注                         |
 | Ctrl + s        | 保存当前信息                         |
 | Ctrl + Shift + s | 更改输出目录                        |

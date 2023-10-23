@@ -2,34 +2,19 @@
 # vim: ft=python
 
 import sys
+
 sys.setrecursionlimit(5000)  # required on Windows
-from PyInstaller.utils.hooks import copy_metadata, collect_data_files
-
-data_files = collect_data_files('transformers', include_py_files=True, includes=['**/*.py'])
-specific_files = [
-    ('anylabeling/configs/auto_labeling/*.yaml', 'anylabeling/configs/auto_labeling'),
-    ('anylabeling/configs/*.yaml', 'anylabeling/configs'),
-    ('anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui', 'anylabeling/views/labeling/widgets/auto_labeling')
-]
-
-datas = data_files + specific_files
-datas += copy_metadata('tqdm')
-datas += copy_metadata('regex')
-datas += copy_metadata('numpy')
-datas += copy_metadata('pyyaml')
-datas += copy_metadata('requests')
-datas += copy_metadata('filelock')
-datas += copy_metadata('packaging')
-datas += copy_metadata('tokenizers')
-datas += copy_metadata('safetensors')
-datas += copy_metadata('huggingface-hub')
-datas += copy_metadata('importlib_metadata')
 
 a = Analysis(
     ['anylabeling/app.py'],
     pathex=['anylabeling'],
     binaries=[],
-    datas=datas,
+    datas=[
+        ('anylabeling/configs/auto_labeling/*.yaml', 'anylabeling/configs/auto_labeling'),
+        ('anylabeling/configs/*.yaml', 'anylabeling/configs'),
+        ('anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui', 'anylabeling/views/labeling/widgets/auto_labeling'),
+        ('anylabeling/services/auto_labeling/configs/bert_base_uncased_tokenizer.json', 'anylabeling/services/auto_labeling/configs')
+    ],
     hiddenimports=[],
     hookspath=[],
     runtime_hooks=[],
