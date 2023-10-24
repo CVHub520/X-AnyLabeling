@@ -11,9 +11,11 @@ from tokenizers import Tokenizer
 
 
 '''
+The ONNX Export of the Grounding DINO
+Written by Wei Wang (CVHub)
     Usage:
         1. git clone https://github.com/IDEA-Research/GroundingDINO.git
-        2. cd GroundingDINO
+        2. cd GroundingDINO and pip install -r requirements.txt
         3. export PYTHONPATH=/path/to/your/GroundingDINO
         4. Place the current script in this directory.
         5. Download the corresponding tokenizer.json and place it in this dir.
@@ -456,7 +458,7 @@ def export_onnx(model, output_file, is_quantize):
         assert onnx_version >= (1, 14, 0), \
             f"The onnx version must be large equal than '1.14.0', but got {onnx_version}"
 
-        model_output = osp.splitext(output_file)[0] + '_quan.onnx'
+        model_output = osp.splitext(output_file)[0] + '_quant.onnx'
         print(f"Quantizing model and writing to {output_file}...")
         quantize_dynamic(
             model_input=output_file,

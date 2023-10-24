@@ -1,5 +1,5 @@
 type: grounding_dino
-name: groundingdino_swint_ogc_quant-r20231012
+name: groundingdino_swint_ogc_quant-r20231024
 display_name: GroundingDINO (SwinT-QInt8) IDEA
 model_type: groundingdino_swint_ogc
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swint_ogc_quant.onnx

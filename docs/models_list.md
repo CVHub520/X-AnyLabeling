@@ -4,8 +4,9 @@
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
-| groundingdino_swint_ogc_quant.onnx | [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)  | [groundingdino_swint_ogc_quant.yaml](../anylabeling/configs/auto_labeling/groundingdino_swint_ogc_quant.yaml)  | 171.28MB  | [baidu](https://pan.baidu.com/s/12EZzjR5h7cysDjbIGfNFKQ?pwd=5prg) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swint_ogc_quant.onnx) |
-| groundingdino_swinb_cogcoor_quant.onnx | [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)  | [groundingdino_swinb_cogcoor_quant.yaml](../anylabeling/configs/auto_labeling/groundingdino_swinb_cogcoor_quant.yaml)  | 258.90MB  | [baidu](https://pan.baidu.com/s/1NJ8GEsGYgiOh684dNNgfww?pwd=onj2) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swinb_cogcoor_quant.onnx) |
+| groundingdino_swint_ogc_quant.onnx | [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)  | [groundingdino_swint_ogc_quant.yaml](../anylabeling/configs/auto_labeling/groundingdino_swint_ogc_quant.yaml) | 171.28MB | [baidu](https://pan.baidu.com/s/12EZzjR5h7cysDjbIGfNFKQ?pwd=5prg) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swint_ogc_quant.onnx) |
+| groundingdino_swinb_cogcoor_quant.onnx | [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO)  | [groundingdino_swinb_cogcoor_quant.yaml](../anylabeling/configs/auto_labeling/groundingdino_swinb_cogcoor_quant.yaml) | 258.90MB | [baidu](https://pan.baidu.com/s/1NJ8GEsGYgiOh684dNNgfww?pwd=onj2) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swinb_cogcoor_quant.onnx) |
+| ram_swin_large_14m.onnx | [Recognize Anything](https://github.com/xinyu1205/Tag2Text) | [ram_swin_large_14m.yaml](../anylabeling/configs/auto_labeling/ram_swin_large_14m.yaml) | 865.66MB | [baidu](https://pan.baidu.com/s/1c045hicvPP3pQNaNSOrpQQ?pwd=wnss) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/ram_swin_large_14m.onnx) |
 
 
 ### Lane Detection

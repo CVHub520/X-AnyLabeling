@@ -67,7 +67,16 @@ classes:
 |   |- yolov5s.yaml
 ```
 
-最后，我们打开 `GUI` 界面，点击 `模型图标` 按钮，选择 `...加载自定义模型`（中文版） 或者 `...Load Custom Model`（英文版），然后选择 `yolov5s.yaml` 配置文件即可完成自定义模型加载。
+最后，我们打开 `GUI` 界面，点击 `模型图标` 按钮，选择 `...加载自定义模型`（中文版） 或者 `...Load Custom Model`（英文版），然后选择 `yolov5s.yaml` 配置文件即可完成自定义模型加载。此外，我们同样可以设置 `agnostic`, `filter_classes` 参数。如果你是使用 `yolov5-5.0` 版本的，可以加入 `anchors` 参数，例如：
+
+```YAML
+anchors:
+  - [10,13, 16,30, 33,23]  # P3/8
+  - [30,61, 62,45, 59,119]  # P4/16
+  - [116,90, 156,198, 373,326]  # P5/32
+```
+
+通过上面的简单教程大家也可以看出，其实这与整个 `yolo` 框架是无缝对接的。
 
 > 注：如果按照上述教程加载后提示报错，请参考[帮助文档](./Q&A.md)中的**问题反馈**章节。
 
@@ -145,11 +154,22 @@ The Segment Anything Model (`SAM`) produces high quality object masks from input
 
 参考此[步骤](https://github.com/CVHub520/SAM-Med2D#-deploy).
 
-- [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) is a state-of-the-art (SOTA) zero-shot object detection model that excels in detecting objects beyond the predefined training classes. This unique capability allows the model to adapt to new objects and scenarios, making it highly versatile for real-world applications. It also excels in Referring Expression Comprehension (REC), where it can identify and localize specific objects or regions within an image based on textual descriptions. What sets it apart is its deep understanding of language and visual content, enabling it to associate words or phrases with corresponding visual elements. Moreover, Grounding DINO simplifies object detection by eliminating hand-designed components like Non-Maximum Suppression (NMS), streamlining the model architecture, and enhancing efficiency and performance.
+- [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) 
 
-> 论文：Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection.</br>
+`GroundingDINO` is a state-of-the-art (SOTA) zero-shot object detection model that excels in detecting objects beyond the predefined training classes. This unique capability allows the model to adapt to new objects and scenarios, making it highly versatile for real-world applications. It also excels in Referring Expression Comprehension (REC), where it can identify and localize specific objects or regions within an image based on textual descriptions. What sets it apart is its deep understanding of language and visual content, enabling it to associate words or phrases with corresponding visual elements. Moreover, Grounding DINO simplifies object detection by eliminating hand-designed components like Non-Maximum Suppression (NMS), streamlining the model architecture, and enhancing efficiency and performance.
+
+> 论文：Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection</br>
 > 单位：IDEA-CVR, IDEA-Research</br>
 > 发表：Arxiv23</br>
 
 参考此[教程](../tools/export_grounding_dino_onnx.py).
 
+- [Recognize Anything](https://github.com/xinyu1205/Tag2Text) 
+
+`RAM` is a robust image tagging model known for its exceptional capabilities in image recognition. RAM stands out for its strong and versatile performance, excelling in zero-shot generalization. It offers the advantages of being both cost-effective and reproducible, thanks to its reliance on open-source and annotation-free datasets. RAM's flexibility makes it suitable for a wide range of application scenarios, making it a valuable tool for various image recognition tasks.
+
+> 论文：Recognize Anything: A Strong Image Tagging Model</br>
+> 单位：OPPO Research Institute, IDEA-Research, AI Robotics</br>
+> 发表：Arxiv23</br>
+
+参考此[教程](../tools/export_recognize_anything_model_onnx.py).

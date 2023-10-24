@@ -190,6 +190,7 @@ class ModelManager(QObject):
                 "gold_yolo",
                 "yolov8_track",
                 "yolov8_efficientvit_sam",
+                "ram",
             ]
         ):
             self.new_model_status.emit(
@@ -516,6 +517,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = Grounding_DINO(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "ram":
+            from .ram import RAM
+
+            try:
+                model_config["model"] = RAM(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
