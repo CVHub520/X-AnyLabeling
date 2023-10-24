@@ -54,14 +54,14 @@ def get_install_requires():
         "onnx==1.13.1",
         "qimage2ndarray==1.10.0",
         "lap==0.4.0",
-        "transformers==4.32.0",
         "tqdm",
         "scipy",
         "shapely",
         "pyclipper",
-        "filterpy"
+        "filterpy",
+        "tokenizers",
     ]
-    
+
     # Add onnxruntime-gpu if GPU is preferred
     # otherwise, add onnxruntime.
     # Note: onnxruntime-gpu is not available on macOS

@@ -18,25 +18,32 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<div style="text-align: center;">
-  <a href="https://www.bilibili.com/video/BV1AV4y1U7h3/?spm_id_from=333.999.0.0">
-    <img style="width: fit; margin-left: auto; margin-right: auto; display: block;" alt="AnyLabeling-SegmentAnything" src="https://user-images.githubusercontent.com/72010077/273759618-31a716ed-3366-4fad-b564-20d99f7ab2e4.gif"/>
-  </a>
-  <p style="text-align: center; margin-top: 10px;">
-    <span style="background-image: linear-gradient(to right, #ff0000, #ff6600, #ffcc00, #00ccff, #6600ff);
- transparent;">X-AnyLabeling</span>: 
-    <span style="color: yellow;">更快</span>, 
-    <span style="color: orange;">更强</span>, 
-    <span style="color: lightblue;">更好玩</span>
-  </p>
+<div align=center>
+  <figure>
+    <img src="https://user-images.githubusercontent.com/72010077/277691916-58be8e7d-133c-4df8-9416-d3243fc7a335.gif" alt="Grounding DINO">
+    <figcaption>SOTA Zero-Shot Openset Object Detection Model</figcaption>
+  </figure>
 </div>
 
 </br>
 
 <div align=center>
-<img src="https://user-images.githubusercontent.com/72010077/274632730-bfbca9c6-ecb9-4dd2-b6d1-35523aac2322.gif"/>
-GroundingDINO
+  <figure>
+    <img src="https://user-images.githubusercontent.com/72010077/277692001-b58832b3-4c21-4c6f-9121-02d9daf2b02b.gif" alt="Recognize Anything Model">
+    <figcaption>Strong Image Tagging Model</figcaption>
+  </figure>
 </div>
+
+</br>
+
+<div align=center>
+  <figure>
+    <img src="https://user-images.githubusercontent.com/72010077/277405591-5ebffdcf-83e8-4999-9594-ee4058627d47.gif" alt="Segment Anything Model">
+    <figcaption>Powerful Object Segmentation Anything Model</figcaption>
+  </figure>
+</div>
+
+
 
 ## 📄 目录
 
@@ -61,9 +68,11 @@ GroundingDINO
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - Oct. 2023:
+  - Release the latest version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
   - 🚀🚀🚀 Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
   - 🆕🆕🆕 Add a new feature for rotation box.
   - 🔥🔥🔥 SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
+  - 🙌🙌🙌 SOTA Image Tagging Model - [Recognize Anything](https://github.com/xinyu1205/Tag2Text) is released.
   - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
   - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
@@ -73,7 +82,7 @@ GroundingDINO
   - Support [ByteTrack](https://github.com/ifzhang/ByteTrack) (**ECCV'22**) for MOT task.
   - Support [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR) model.
   - Add `video` annotation feature.
-  - Add `yolo`/`voc`/`mot` export functionality.
+  - Add `yolo`/`coco`/`voc`/`mot`/`dota` export functionality.
   - Add the ability to process all images at once.
 - Aug. 2023:
   - Release version [0.2.0]((https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.0)).
@@ -91,7 +100,7 @@ GroundingDINO
   - Release version [0.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.1.0).
   - Release [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face) for face detection and facial landmark detection.
   - Release [SAM](https://arxiv.org/abs/2304.02643) and it's faster version [MobileSAM](https://arxiv.org/abs/2306.14289).
-  - Release [YOLOv5](https://github.com/ultralytics/yolov5)-v7.0, [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX), 
+  - Release [YOLOv5](https://github.com/ultralytics/yolov5), [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX), 
 
 
 ## 👋 简介 [⏏️](#📄-目录)
@@ -122,6 +131,8 @@ GroundingDINO
 | <img src='https://user-images.githubusercontent.com/72010077/273488633-fc31da5c-dfdd-434e-b5d0-874892807d95.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206095892-934be83a-f869-4a31-8e52-1074184149d1.jpg' height="126px" width="180px"> |  <img src='https://user-images.githubusercontent.com/61035602/206095684-72f42233-c9c7-4bd8-9195-e34859bd08bf.jpg' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206100220-ab01d347-9ff9-4f17-9718-290ec14d4205.gif' height="126px" width="180px"> |
 |  **2D Lane Detection** | **OCR** | **MOT** | **Instance Segmentation** |
 | <img src='https://user-images.githubusercontent.com/72010077/273764641-65f456ed-27ce-4077-8fce-b30db093b988.jpg' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273421210-30d20e08-3b72-4f4d-8976-05b564e13d87.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206111753-836e7827-968e-4c80-92ef-7a78766892fc.gif' height="126px" width="180px"  > | <img src='https://user-images.githubusercontent.com/61035602/206095831-cc439557-1a23-4a99-b6b0-b6f2e97e8c57.jpg' height="126px" width="180px"> |
+|  **Image Tagging** | **Grounding DINO** | **Recognition** | **Rotation** |
+| <img src='https://user-images.githubusercontent.com/72010077/277670825-8797ac7e-e593-45ea-be6a-65c3af17b12b.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277395884-4d500af3-3e4e-4fb3-aace-9a56a09c0595.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277396071-79daec2c-6b0a-4d42-97cf-69fd098b3400.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277395955-aab54ea0-88f5-41af-ab0a-f4158a673f5e.png' height="126px" width="180px"> |
 |  **[SAM](https://segment-anything.com/)** | **BC-SAM** | **Skin-SAM** | **Polyp-SAM** |
 | <img src='https://user-images.githubusercontent.com/72010077/273421331-2c0858b5-0b92-405b-aae6-d061bc25aa3c.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764259-718dce97-d04d-4629-b6d2-95f17670ce2a.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764288-e26767d1-3c44-45cb-a72e-124efb4e8263.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764318-e8b6a197-e733-478e-a210-e4386bafa1e4.png' height="126px" width="180px"> |
 
@@ -133,7 +144,7 @@ GroundingDINO
 
 ### 🔜快速开始
 
-直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0) 或 [百度网盘](https://pan.baidu.com/s/1Rn_YHJUZetuSzfanSvSynQ?pwd=snqt) 下载并运行 `GUI` 版本。
+直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0) 或 [百度网盘](https://pan.baidu.com/s/1CZU67VZte3r4aRZLC4Jzbg?pwd=ffbe) 下载并运行 `GUI` 版本。
 
 注意事项：
 - 对于 MacOS：
@@ -185,10 +196,9 @@ bash scripts/build_executable.sh linux-gpu
 
 <summary>注意：</summary>
 
-1. 在编译之前，请根据适当的 GPU/CPU 版本，在 "anylabeling/app_info.py" 文件中修改 `__preferred_device__` 参数。
-2. 如果您需要编译 GPU 版本，请使用 "pip install -r requirements-gpu-dev.txt" 安装相应的环境。具体来说，要编译 Windows-GPU 版本，请手动修改 "anylabeling-win-gpu.spec" 文件中的 "datas" 列表参数，以包括您本地 onnxruntime-gpu 的相关动态库 (*.dll)。另外，在下载 onnxruntime-gpu 包时，请确保与您的 CUDA 版本兼容。您可以参考官方文档以获取特定的兼容性表格。
+1. 在编译之前，请根据适用的GPU/CPU版本，在 "anylabeling/app_info.py" 文件中修改 `__preferred_device__` 参数。
+2. 如果您需要编译GPU版本，请使用 "pip install -r requirements-gpu*.txt" 安装相应的环境。具体来说，对于编译GPU版本，需要手动修改 "anylabeling-*-gpu.spec" 文件中的 "datas" 列表参数，以包括您本地 onnxruntime-gpu 的相关动态库（*.dll 或 *.so）。此外，在下载 onnxruntime-gpu 包时，请确保与您的CUDA版本兼容。您可以参考官方[文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)以获取特定兼容性表格。
 3. 对于 macOS 版本，您可以参考 "anylabeling-win-*.spec" 脚本进行修改。
-
 </details>
 
 ## 📋 用法 [⏏️](#📄-目录)
@@ -201,7 +211,7 @@ bash scripts/build_executable.sh linux-gpu
 4. 在左侧工具栏上点击 `开始绘制 xxx` 按钮或 `自动标注` 控制以启动标注。
 5. 单击并释放鼠标左键以选择要注释的矩形区域。或者，您可以按 "运行 (i)" 键进行一键处理。
 
-> 注意：标注将保存到您指定的文件夹中，并且您可以参考下面的热键以加快您的工作流程。
+> 注意：标注文件将保存到您指定的文件夹中，并且您可以参考下面的热键以加快您的工作流程。
 
 ### 🚀高级用法
 
@@ -219,6 +229,7 @@ bash scripts/build_executable.sh linux-gpu
 - [帮助文档](./docs/Q&A.md)
 - [模型库](./docs/models_list.md)
 - [加载自定义模型](./docs/custom_model.md)
+- [视频教程]()
 
 ### 🧷快捷键
 
@@ -294,8 +305,9 @@ bash scripts/build_executable.sh linux-gpu
 ```
 @misc{X-AnyLabeling,
   year = {2023},
-  author = {CVHub},
+  author = {Wei Wang},
   publisher = {Github},
+  organization = {CVHub},
   journal = {Github repository},
   title = {Advanced Auto Labeling Solution with Added Features},
   howpublished = {\url{https://github.com/CVHub520/X-AnyLabeling}}
