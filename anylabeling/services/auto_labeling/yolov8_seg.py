@@ -24,8 +24,6 @@ class YOLOv8_Seg(Model):
             "name",
             "display_name",
             "model_path",
-            "input_width",
-            "input_height",
             "num_masks",
             "score_threshold",
             "nms_threshold",
@@ -46,7 +44,7 @@ class YOLOv8_Seg(Model):
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLO_NAS model."
+                    "Model", "Could not download or initialize YOLOv8_Seg model."
                 )
             )
 
@@ -57,17 +55,20 @@ class YOLOv8_Seg(Model):
         if __preferred_device__ == "GPU":
             self.providers = ['CUDAExecutionProvider']
 
+        self.num_masks = self.config["num_masks"]
+        self.iou_threshold = self.config["nms_threshold"]
+        self.conf_threshold = self.config["score_threshold"]
+        self.classes = self.config["classes"]
+        self.input_height = self.config.get("input_height", -1)
+        self.input_width = self.config.get("input_width", -1)
+
         self.net = ort.InferenceSession(
                         model_abs_path, 
                         providers=self.providers,
                         sess_options=self.sess_opts,
                     )
-        self.input_width = self.config["input_width"]
-        self.input_height = self.config["input_height"]
-        self.num_masks = self.config["num_masks"]
-        self.iou_threshold = self.config["nms_threshold"]
-        self.conf_threshold = self.config["score_threshold"]
-        self.classes = self.config["classes"]
+        self.get_input_nodes()
+        self.get_output_nodes()
 
     def preprocess(self, image):
         self.img_height, self.img_width = image.shape[:2]
@@ -88,22 +89,32 @@ class YOLOv8_Seg(Model):
 
     def get_input_nodes(self):
         model_inputs = self.net.get_inputs()
-        self.input_names = [model_inputs[i].name for i in range(len(model_inputs))]
+        self.input_names = [
+            model_inputs[i].name for i in range(len(model_inputs))
+        ]
         self.input_shape = model_inputs[0].shape
-        self.input_height = self.input_shape[2]
-        self.input_width = self.input_shape[3]
+
+        if not isinstance(self.input_shape[0], int):
+            self.input_shape[0] = 1
+        if isinstance(self.input_shape[2], int):
+            self.input_height = self.input_shape[2]
+        else:
+            self.input_shape[2] = self.input_height
+        if isinstance(self.input_shape[3], int):
+            self.input_width = self.input_shape[3]
+        else:
+            self.input_shape[3] = self.input_width
 
     def get_output_nodes(self):
         model_outputs = self.net.get_outputs()
-        self.output_names = [model_outputs[i].name for i in range(len(model_outputs))]
+        self.output_names = [
+            model_outputs[i].name for i in range(len(model_outputs))
+        ]
 
     def get_infer_results(self, blob):
-
-        self.get_input_nodes()
-        self.get_output_nodes()
-
-        outputs = self.net.run(self.output_names, {self.input_names[0]: blob})
-
+        outputs = self.net.run(
+            self.output_names, {self.input_names[0]: blob}
+        )
         return outputs
 
     def get_mask_results(self, boxes, mask_predictions, mask_output):
@@ -115,7 +126,9 @@ class YOLOv8_Seg(Model):
 
         # Calculate the mask maps for each box
         num_mask, mask_height, mask_width = mask_output.shape  # CHW
-        masks = self.numpy_sigmoid(mask_predictions @ mask_output.reshape((num_mask, -1)))
+        masks = self.numpy_sigmoid(
+            mask_predictions @ mask_output.reshape((num_mask, -1))
+        )
         masks = masks.reshape((-1, mask_height, mask_width))
 
         # Downscale the boxes to match the mask size
@@ -124,8 +137,13 @@ class YOLOv8_Seg(Model):
                                    (mask_height, mask_width))
 
         # For every box/mask pair, get the mask map
-        mask_maps = np.zeros((len(scale_boxes), self.img_height, self.img_width))
-        blur_size = (int(self.img_width / mask_width), int(self.img_height / mask_height))
+        mask_maps = np.zeros(
+            (len(scale_boxes), self.img_height, self.img_width)
+        )
+        blur_size = (
+            int(self.img_width / mask_width), 
+            int(self.img_height / mask_height),
+        )
 
         for i in range(len(scale_boxes)):
 
@@ -139,7 +157,9 @@ class YOLOv8_Seg(Model):
             x2 = int(math.ceil(boxes[i][2]))
             y2 = int(math.ceil(boxes[i][3]))
 
-            scale_crop_mask = masks[i][scale_y1:scale_y2, scale_x1:scale_x2]
+            scale_crop_mask = masks[i][
+                scale_y1:scale_y2, scale_x1:scale_x2
+            ]
             crop_mask = cv2.resize(scale_crop_mask,
                               (x2 - x1, y2 - y1),
                               interpolation=cv2.INTER_CUBIC)
@@ -248,10 +268,14 @@ class YOLOv8_Seg(Model):
     def get_largest_polygon(mask, threshold=0.5):
         # Convert the mask image to binary image
         mask = mask.astype(np.uint8)
-        _, binary = cv2.threshold(mask, threshold, 255, cv2.THRESH_BINARY)
+        _, binary = cv2.threshold(
+            mask, threshold, 255, cv2.THRESH_BINARY
+        )
         
         # Find contours
-        contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(
+            binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
         
         # Find the largest contour
         largest_contour = max(contours, key=cv2.contourArea)
@@ -281,9 +305,13 @@ class YOLOv8_Seg(Model):
     def rescale_boxes(boxes, input_shape, image_shape):
 
         # Rescale boxes to original image dimensions
-        input_shape = np.array([input_shape[1], input_shape[0], input_shape[1], input_shape[0]])
+        input_shape = np.array(
+            [input_shape[1], input_shape[0], input_shape[1], input_shape[0]]
+        )
         boxes = np.divide(boxes, input_shape, dtype=np.float32)
-        boxes *= np.array([image_shape[1], image_shape[0], image_shape[1], image_shape[0]])
+        boxes *= np.array(
+            [image_shape[1], image_shape[0], image_shape[1], image_shape[0]]
+        )
 
         return boxes
 
@@ -323,7 +351,9 @@ class YOLOv8_Seg(Model):
             keep_boxes.append(box_id)
 
             # Compute IoU of the picked box with the rest
-            ious = self.compute_iou(boxes[box_id, :], boxes[sorted_indices[1:], :])
+            ious = self.compute_iou(
+                boxes[box_id, :], boxes[sorted_indices[1:], :]
+            )
 
             # Remove boxes with IoU over the threshold
             keep_indices = np.where(ious < iou_threshold)[0]
