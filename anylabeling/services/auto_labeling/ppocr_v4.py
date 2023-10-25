@@ -69,6 +69,7 @@ class PPOCRv4(Model):
         self.rec_net = self.load_model('rec_model_path')
         self.cls_net = self.load_model('cls_model_path')
         self.use_angle_cls = self.config["use_angle_cls"]
+        self.current_dir = os.path.dirname(__file__)
 
     def parse_args(self):
         args = Args(
@@ -121,7 +122,7 @@ class PPOCRv4(Model):
             rec_image_shape="3, 48, 320",
             rec_batch_num=6,
             max_text_length=25,
-            rec_char_dict_path='anylabeling/services/auto_labeling/utils/ppocr_utils/ppocr_keys_v1.txt',
+            rec_char_dict_path=os.path.join(self.current_dir, "configs", "ppocr_keys_v1.txt"),
             use_space_char=True,
             drop_score=0.5,
             # params for e2e
@@ -131,7 +132,7 @@ class PPOCRv4(Model):
             e2e_limit_type='max',
             # PGNet parmas
             e2e_pgnet_score_thresh=0.5,
-            e2e_char_dict_path='ic15_dict.txt',
+            e2e_char_dict_path=os.path.join(self.current_dir, "configs", "ppocr_ic15_dict.txt"),
             e2e_pgnet_valid_set='totaltext',
             e2e_pgnet_mode='fast',
             # params for text classifier

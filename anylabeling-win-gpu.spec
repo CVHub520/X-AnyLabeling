@@ -13,9 +13,8 @@ a = Analysis(
         ('anylabeling/configs/auto_labeling/*.yaml', 'anylabeling/configs/auto_labeling'),
         ('anylabeling/configs/*.yaml', 'anylabeling/configs'),
         ('anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui', 'anylabeling/views/labeling/widgets/auto_labeling'),
-        ('anylabeling/services/auto_labeling/configs/bert_base_uncased_tokenizer.json', 'anylabeling/services/auto_labeling/configs'),
-        ('anylabeling/services/auto_labeling/configs/ram_tag_list_chinese.txt', 'anylabeling/services/auto_labeling/configs'),
-        ('anylabeling/services/auto_labeling/configs/ram_tag_list.txt', 'anylabeling/services/auto_labeling/configs'),
+        ('anylabeling/services/auto_labeling/configs/*.json', 'anylabeling/services/auto_labeling/configs'),
+        ('anylabeling/services/auto_labeling/configs/*.txt', 'anylabeling/services/auto_labeling/configs'),
         ('C:/Users/18102/.conda/envs/x-anylabeling-gpu/Lib/site-packages/onnxruntime/capi/onnxruntime_providers_cuda.dll', 'onnxruntime/capi'),
         ('C:/Users/18102/.conda/envs/x-anylabeling-gpu/Lib/site-packages/onnxruntime/capi/onnxruntime_providers_shared.dll', 'onnxruntime/capi')
     ],
