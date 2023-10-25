@@ -170,11 +170,6 @@ class LabelFile:
             image_height, image_width = self._check_image_height_and_width(
                 image_data, image_height, image_width
             )
-        if shapes is not None \
-            and len(shapes) == 1 \
-            and "task" in shapes[0].get("flags", {}):
-            if shapes[0]["flags"]["task"] == "image_tag":
-                other_data = {"image_text": shapes[0]["text"]}
 
         if other_data is None:
             other_data = {}
