@@ -118,6 +118,7 @@
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
+| yolov5s-seg.onnx | [YOLOv5](https://github.com/ultralytics/yolov5)-COCO | [yolov5s_seg.yaml](../anylabeling/configs/auto_labeling/yolov5s_seg.yaml)  | 29.45MB  | [baidu](https://pan.baidu.com/s/10g0PetDeW7VRm2SS513R3g?pwd=mlav) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov5s-seg.onnx) |
 | yolov8x-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8x_seg.yaml](../anylabeling/configs/auto_labeling/yolov8x_seg.yaml)  | 274.10MB  | [baidu](https://pan.baidu.com/s/1KEzlMVCOi7v96TW7tWSv0A?pwd=jc9h) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8x-seg.onnx) |
 | yolov8l-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8l_seg.yaml](../anylabeling/configs/auto_labeling/yolov8l_seg.yaml)  | 175.59MB  | [baidu](https://pan.baidu.com/s/13URaJg3rqHeA1NfooIvWMQ?pwd=5ygm) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8l-seg.onnx) |
 | yolov8m-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8m_seg.yaml](../anylabeling/configs/auto_labeling/yolov8m_seg.yaml)  | 104.23MB  | [baidu](https://pan.baidu.com/s/1PmKsiatP2YfHtnDCJEnhRw?pwd=bo85) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8m-seg.onnx) |

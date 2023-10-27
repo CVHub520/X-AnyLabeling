@@ -3,24 +3,26 @@ import numpy as np
 from .__base__.yolo_seg import YOLO_Seg
 
 
-class YOLOv8_Seg(YOLO_Seg):
+class YOLOv5_Seg(YOLO_Seg):
 
     def get_box_results(self, bboxes):
 
-        predictions = np.squeeze(bboxes).T
-        num_classes = bboxes.shape[1] - self.num_masks - 4
-        scores = np.max(predictions[:, 4: 4+num_classes], axis=1)
-        predictions = predictions[scores > self.conf_threshold, :]
+        bboxes = np.squeeze(bboxes)
+        num_classes = bboxes.shape[1] - self.num_masks - 5
+        bboxes = bboxes[bboxes[:, 4] > self.conf_threshold]
+        confidences = bboxes[..., [4]] * bboxes[..., 5:]
+        scores = np.max(confidences[:, :num_classes], axis=1)
+        predictions = bboxes[scores > self.conf_threshold]
         scores = scores[scores > self.conf_threshold]
 
         if len(scores) == 0:
             return [], [], [], np.array([])
 
-        box_predictions = predictions[..., :num_classes+4]
-        mask_predictions = predictions[..., num_classes+4:]
+        box_predictions = predictions[..., :num_classes+5]
+        mask_predictions = predictions[..., num_classes+5:]
 
         # Get the class with the highest confidence
-        class_ids = np.argmax(box_predictions[:, 4:], axis=1)
+        class_ids = np.argmax(box_predictions[:, 5:], axis=1)
 
         # Get bounding boxes for each object
         boxes = self.extract_boxes(box_predictions)
