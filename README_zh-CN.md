@@ -67,6 +67,8 @@
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- Nov. 2023:
+  - Support object-level tag with yolov5_ram.
 - Oct. 2023:
   - Release the latest version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
   - 🆕🆕🆕 Add a new feature for rotation box.

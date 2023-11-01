@@ -150,6 +150,5 @@
 | efficientvit_sam_l0_vit_h.encoder.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 117.25MB  | [baidu](https://pan.baidu.com/s/16u8oXZzgTlZPF4szdbHNNg?pwd=dr1t) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l0_vit_h.encoder.onnx) |
 | efficientvit_sam_l0_vit_h.decoder.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 15.63MB  | [baidu](https://pan.baidu.com/s/1w4MFjrXdpI9A3YdESdSeWA?pwd=xjma) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l0_vit_h.decoder.onnx) |
 | yolov8n.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 12.21MB  | [baidu](https://pan.baidu.com/s/1j8Jx4tsL97KlSeNe9aGdVg?pwd=u000) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n.onnx) |
-
-
-
+| yolov5m.onnx | YOLOv5-RAM | [yolov5m_ram.yaml](../anylabeling/configs/auto_labeling/yolov5m_ram.yaml)  | 81.19MB  | [baidu](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
+| ram_swin_large_14m.onnx | YOLOv5-RAM | [yolov5m_ram.yaml](../anylabeling/configs/auto_labeling/yolov5m_ram.yaml) | 865.66MB | [baidu](https://pan.baidu.com/s/1c045hicvPP3pQNaNSOrpQQ?pwd=wnss) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/ram_swin_large_14m.onnx) |

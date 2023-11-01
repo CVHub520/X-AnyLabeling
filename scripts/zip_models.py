@@ -43,6 +43,9 @@ for model in model_list:
         download_links.append(model_config["det_model_path"])
         download_links.append(model_config["rec_model_path"])
         download_links.append(model_config["cls_model_path"])
+    elif model_config["type"] in ["yolov5_ram"]:
+        download_links.append(model_config["model_path"])
+        download_links.append(model_config["tag_model_path"])
     else:
         download_links.append(model_config["model_path"])
 
@@ -74,6 +77,13 @@ for model in model_list:
         )
         model_config["cls_model_path"] = get_filename_from_url(
             model_config["cls_model_path"]
+        )
+    elif model_config["type"] in ["yolov5_ram"]:
+        model_config["det_model_path"] = get_filename_from_url(
+            model_config["model_path"]
+        )
+        model_config["tag_model_path"] = get_filename_from_url(
+            model_config["tag_model_path"]
         )
     elif model_config["type"] in ["ppocr_v4"]:
         model_config["det_model_path"] = get_filename_from_url(

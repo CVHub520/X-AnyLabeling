@@ -66,6 +66,8 @@
   config_file: ":/yolov5m_obb_csl_dotav20.yaml"
 - model_name: "yolov5m_ocsort-r20231008"
   config_file: ":/yolov5m_ocsort.yaml"
+- model_name: "yolov5m_ram-r20231101"
+  config_file: ":/yolov5m_ram.yaml"
 - model_name: "yolov5m-r20230520"
   config_file: ":/yolov5m.yaml"
 - model_name: "yolov5n_obb_drone_vehicle-r20231024"
