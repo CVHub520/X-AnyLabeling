@@ -13,6 +13,7 @@ from .model import Model
 from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
 
+
 class RAM(Model):
     """Image tagging model using Recognize Anything Model (RAM)"""
 
@@ -43,10 +44,24 @@ class RAM(Model):
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
-        self.delete_tag_index = self.config.get("delete_tag_index", [])
-        
+        self.tag_mode = self.config.get("tag_mode", '')  # ['en', 'cn']
+
         # load tag list
         self.tag_list, self.tag_list_chinese = self.load_tag_list()
+        delete_tags = self.config.get("delete_tags", [])
+        filter_tags = self.config.get("filter_tags", [])
+        if delete_tags:
+            self.delete_tag_index = [
+                self.tag_list.tolist().index(label) for label in delete_tags
+            ]
+        elif filter_tags:
+            self.delete_tag_index = [
+                index for index, item in enumerate(self.tag_list) 
+                if item not in filter_tags
+            ]
+        else:
+            self.delete_tag_index = []
+
 
     def preprocess(self, input_image):
         """
@@ -103,7 +118,6 @@ class RAM(Model):
             label="tag",
             text=image_text,
             shape_type="rectangle",
-            flags={"task": "image_tag"},
         )
         h, w = image.shape[:2]
         shape.add_point(QtCore.QPointF(0, 0))
@@ -132,10 +146,13 @@ class RAM(Model):
 
         return tag_list, tag_list_chinese
 
-    @staticmethod
-    def get_results(tags):
+    def get_results(self, tags):
         en_tags, zh_tag = tags
         image_text = en_tags[0] + '\n' + zh_tag[0]
+        if self.tag_mode == 'en':
+            return en_tags[0]
+        elif self.tag_mode == 'zh':
+            return zh_tag[0]
         return image_text
 
     def unload(self):
