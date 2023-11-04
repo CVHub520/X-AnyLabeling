@@ -599,6 +599,22 @@ class LabelingWidget(LabelDialog):
             checked=self._config["keep_prev_scale"],
             enabled=True,
         )
+        keep_prev_brightness = action(
+            self.tr("&Keep Previous Brightness"),
+            self.enable_keep_prev_brightness,
+            tip=self.tr("Keep previous brightness"),
+            checkable=True,
+            checked=self._config["keep_prev_brightness"],
+            enabled=True,
+        )
+        keep_prev_contrast = action(
+            self.tr("&Keep Previous Contrast"),
+            self.enable_keep_prev_contrast,
+            tip=self.tr("Keep previous contrast"),
+            checkable=True,
+            checked=self._config["keep_prev_contrast"],
+            enabled=True,
+        )
         fit_window = action(
             self.tr("&Fit Window"),
             self.set_fit_window,
@@ -825,6 +841,8 @@ class LabelingWidget(LabelDialog):
             zoom_out=zoom_out,
             zoom_org=zoom_org,
             keep_prev_scale=keep_prev_scale,
+            keep_prev_brightness=keep_prev_brightness,
+            keep_prev_contrast=keep_prev_contrast,
             fit_window=fit_window,
             fit_width=fit_width,
             brightness_contrast=brightness_contrast,
@@ -963,6 +981,8 @@ class LabelingWidget(LabelDialog):
                 zoom_out,
                 zoom_org,
                 keep_prev_scale,
+                keep_prev_brightness,
+                keep_prev_contrast,
                 None,
                 fit_window,
                 fit_width,
@@ -2046,6 +2066,14 @@ class LabelingWidget(LabelDialog):
         self._config["keep_prev_scale"] = enabled
         self.actions.keep_prev_scale.setChecked(enabled)
         save_config(self._config)
+
+    def enable_keep_prev_brightness(self, enabled):
+        self._config["keep_prev_brightness"] = enabled
+        self.actions.keep_prev_brightness.setChecked(enabled)
+
+    def enable_keep_prev_contrast(self, enabled):
+        self._config["keep_prev_contrast"] = enabled
+        self.actions.keep_prev_contrast.setChecked(enabled)
 
     def enable_show_cross_line(self, enabled):
         self._config["show_cross_line"] = enabled
