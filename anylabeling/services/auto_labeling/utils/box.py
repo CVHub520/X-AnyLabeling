@@ -18,7 +18,7 @@ def box_iou(box1, box2):
     return iou  # NxM
 
 
-def rescale_box(input_shape, boxes, image_shape):
+def rescale_box(input_shape, boxes, image_shape, kpts=False):
     '''Rescale the output to the original image shape'''
     ratio = min(
         input_shape[0] / image_shape[0], 
@@ -35,6 +35,11 @@ def rescale_box(input_shape, boxes, image_shape):
     boxes[:, 1] = np.clip(boxes[:, 1], 0, image_shape[0])  # y1
     boxes[:, 2] = np.clip(boxes[:, 2], 0, image_shape[1])  # x2
     boxes[:, 3] = np.clip(boxes[:, 3], 0, image_shape[0])  # y2
+    if kpts:
+        num_kpts = boxes.shape[1] // 3
+        for i in range(2, num_kpts + 1):
+            boxes[:, i * 3 - 1] = (boxes[:, i * 3 - 1] - padding[0]) / ratio
+            boxes[:, i * 3]  = (boxes[:, i * 3] -  padding[1]) / ratio
     return boxes
 
 
@@ -71,6 +76,34 @@ def rescale_box_and_landmark(input_shape, boxes, lmdks, image_shape):
 
     return np.round(boxes), np.round(lmdks)
 
+
+def rescale_tlwh(input_shape, boxes, image_shape, kpts=False):
+    '''Rescale the output to the original image shape'''
+    ratio = min(
+        input_shape[0] / image_shape[0], 
+        input_shape[1] / image_shape[1],
+    )
+    padding = (
+        (input_shape[1] - image_shape[1] * ratio) / 2, 
+        (input_shape[0] - image_shape[0] * ratio) / 2,
+    )
+    boxes[:, 0] -= padding[0]
+    boxes[:, 1] -= padding[1]
+    boxes[:, :4] /= ratio
+    boxes[:, 0] = np.clip(boxes[:, 0], 0, image_shape[1])  # x1
+    boxes[:, 1] = np.clip(boxes[:, 1], 0, image_shape[0])  # y1
+    boxes[:, 2] = np.clip(
+        (boxes[:, 0] + boxes[:, 2]), 0, image_shape[1]
+    )  # x2
+    boxes[:, 3] = np.clip(
+        (boxes[:, 1] + boxes[:, 3]), 0, image_shape[0]
+    )  # y2
+    if kpts:
+        num_kpts = boxes.shape[1] // 3
+        for i in range(2, num_kpts + 1):
+            boxes[:, i * 3 - 1] = (boxes[:, i * 3 - 1] - padding[0]) / ratio
+            boxes[:, i * 3]  = (boxes[:, i * 3] -  padding[1]) / ratio
+    return boxes
 
 
 def numpy_nms(boxes, scores, iou_threshold):

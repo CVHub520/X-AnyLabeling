@@ -67,6 +67,7 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Nov. 2023:
+  - Support pose estimation: [YOLOv8-Pose](https://github.com/ultralytics/ultralytics).
   - Support object-level tag with yolov5_ram.
 - Oct. 2023:
   - Release the latest version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).

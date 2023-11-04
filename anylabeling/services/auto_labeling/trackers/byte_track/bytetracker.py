@@ -1,6 +1,6 @@
 from .tracker.byte_tracker import BYTETracker
 import numpy as np
-from ...utils.points_conversion import tlwh_to_xyxy
+from ...utils.points_conversion import tlwh2xyxy
 
 
 class ByteTrack(object):
@@ -51,7 +51,7 @@ class ByteTrack(object):
             track_id = online_target.track_id
             vertical = tlwh[2] / tlwh[3] > self.aspect_ratio_thresh
             if tlwh[2] * tlwh[3] > self.min_box_area and not vertical:
-                online_xyxys.append(tlwh_to_xyxy(tlwh))
+                online_xyxys.append(tlwh2xyxy(tlwh))
                 online_ids.append(track_id)
                 online_scores.append(online_target.score)
         return online_xyxys, online_ids, online_scores

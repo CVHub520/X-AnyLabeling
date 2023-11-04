@@ -193,6 +193,7 @@ class ModelManager(QObject):
                 "ram",
                 "yolov5_seg",
                 "yolov5_ram",
+                "yolov8_pose",
             ]
         ):
             self.new_model_status.emit(
@@ -453,6 +454,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv8_Seg(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov8_pose":
+            from .yolov8_pose import YOLOv8_Pose
+
+            try:
+                model_config["model"] = YOLOv8_Pose(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

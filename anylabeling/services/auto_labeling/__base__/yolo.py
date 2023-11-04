@@ -52,6 +52,8 @@ class YOLO(Model):
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.classes = self.config["classes"]
         self.input_shape = self.net.get_input_shape()[-2:]
+        self.hide_box = self.config.get("hide_box", True)
+        self.keypoints = self.config.get("keypoints", [])
         self.nms_thres = self.config["nms_threshold"]
         self.conf_thres = self.config["confidence_threshold"]
         self.stride = self.config.get("stride", 32)

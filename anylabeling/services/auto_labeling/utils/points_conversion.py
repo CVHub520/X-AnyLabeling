@@ -25,26 +25,20 @@ def xywh2xyxy(x):
     return y
 
 
-def tlwh_to_xyxy(x):
+def tlwh2xyxy(x):
     """" Convert tlwh to xyxy """
-    x1 = x[0]
-    y1 = x[1]
-    x2 = x[2] + x1
-    y2 = x[3] + y1
-    return [x1, y1, x2, y2]
+    y = np.copy(x)
+    y[:, 2] = x[:, 2] + x[:, 0]
+    y[:, 3] = x[:, 3] + x[:, 1]
+    return y
 
 
-def xyxy_to_tlwh(x):
-    tlwh_bboxs = []
-    for i, box in enumerate(x):
-        x1, y1, x2, y2 = [int(i) for i in box]
-        top = x1
-        left = y1
-        w = int(x2 - x1)
-        h = int(y2 - y1)
-        tlwh_obj = [top, left, w, h]
-        tlwh_bboxs.append(tlwh_obj)
-    return tlwh_bboxs
+def xyxy2tlwh(x):
+    """" Convert xyxy to tlwh """
+    y = np.copy(x)
+    y[:, 2] = x[:, 2] - x[:, 0]
+    y[:, 3] = x[:, 3] - x[:, 1]
+    return y
 
 
 def bbox_cxcywh_to_xyxy(x):

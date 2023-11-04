@@ -1,0 +1,27 @@
+type: yolov8_pose
+name: yolov8x-pose-p6-r20231103
+display_name: YOLOv8x-Pose-P6 Ultralytics
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x-pose-p6.onnx
+confidence_threshold: 0.25
+nms_threshold: 0.6
+hide_box: False
+classes:
+  - person
+keypoints:
+  - nose
+  - left_eye
+  - right_eye
+  - left_ear
+  - right_ear
+  - left_shoulder
+  - right_shoulder
+  - left_elbow
+  - right_elbow
+  - left_wrist
+  - right_wrist
+  - left_hip
+  - right_hip
+  - left_knee
+  - right_knee
+  - left_ankle
+  - right_ankle

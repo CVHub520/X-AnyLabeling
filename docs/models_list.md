@@ -133,15 +133,31 @@
 | yolov5m.onnx | [YOLOv5m-ByteTrack](https://github.com/ifzhang/ByteTrack)  | [yolov5m_bytetrack.yaml](../anylabeling/configs/auto_labeling/yolov5m_bytetrack.yaml)  | 81.19MB  | [baidu](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
 | yolov5m.onnx | [YOLOv5m-OCSort](https://github.com/noahcao/OC_SORT)  | [yolov5m_ocsort.yaml](../anylabeling/configs/auto_labeling/yolov5m_ocsort.yaml)  | 81.19MB  | [baidu](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
 
+
+### Keypoint Detection
+
+- Facial Landmark Detection
+
+|Name|Description|Configuration|Size|Link|
+| --- | --- | --- | --- | --- |
+| yolov6lite_l_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_l_face.yaml](../anylabeling/configs/auto_labeling/yolov6lite_l_face.yaml) | 4.16MB | [baidu](https://pan.baidu.com/s/1Ot14duf7GUPMcHHIUY4TSg?pwd=xy1m) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_l_face.onnx) |
+| yolov6lite_m_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_m_face.yaml](../anylabeling/configs/auto_labeling/yolov6lite_m_face.yaml) | 3.00MB | [baidu](https://pan.baidu.com/s/1uL01_pqldSXdFnlDM0OFZg?pwd=n9xl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_m_face.onnx) |
+| yolov6lite_s_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_s_face.yaml](../anylabeling/configs/auto_labeling/yolov6lite_s_face.yaml) | 2.10MB | [baidu](https://pan.baidu.com/s/1nN_b4_WutwhnJYEhyqjDYg?pwd=ig4d) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_s_face.onnx) |
+
+- Pose Estimation
+
+|Name|Description|Configuration|Size|Link|
+| --- | --- | --- | --- | --- |
+| yolov8n-pose.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8n_pose.yaml](../anylabeling/configs/auto_labeling/yolov8n_pose.yaml) | 12.75MB | [baidu](https://pan.baidu.com/s/1nFxtNTuLn9vQJWId-EOAKQ?pwd=37ej) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8n_pose.onnx) |
+| yolov8x-pose-p6.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8x_pose_p6.yaml](../anylabeling/configs/auto_labeling/yolov8x_pose_p6.yaml) | 378.92MB | [baidu](https://pan.baidu.com/s/1VRszCtMnHo2zeshuk93Aew?pwd=xvko) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x_pose_p6.onnx) |
+| dw-ll_ucoco_384.onnx | [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)（2D human whole-body pose estimation） | [yolox_l_dwpose_ucoco.yaml](../anylabeling/configs/auto_labeling/yolox_l_dwpose_ucoco.yaml)  | 128.17MB  | [baidu](https://pan.baidu.com/s/1I6CAFhW2YAowN80yweGVpg?pwd=pzf4) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/dw-ll_ucoco_384.onnx) |
+| yolox_l.onnx | [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)（2D human whole-body pose estimation） | [yolox_l_dwpose_ucoco.yaml](../anylabeling/configs/auto_labeling/yolox_l_dwpose_ucoco.yaml)  | 206.71MB  | [baidu](https://pan.baidu.com/s/1NpFiX1JN-0jIvd38tQIDcQ?pwd=aqk5) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/yolox_l.onnx) |
+
+
 ### Union Task
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
-| yolov6lite_l_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_l_face.yaml](../anylabeling/configs/auto_labeling/yolov6lite_l_face.yaml)  | 4.16MB  | [baidu](https://pan.baidu.com/s/1Ot14duf7GUPMcHHIUY4TSg?pwd=xy1m) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_l_face.onnx) |
-| yolov6lite_m_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_m_face.yaml](../anylabeling/configs/auto_labeling/yolov6lite_m_face.yaml)  | 3.00MB  | [baidu](https://pan.baidu.com/s/1uL01_pqldSXdFnlDM0OFZg?pwd=n9xl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_m_face.onnx) |
-| yolov6lite_s_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_s_face.yaml](../anylabeling/configs/auto_labeling/yolov6lite_s_face.yaml)  | 2.10MB  | [baidu](https://pan.baidu.com/s/1nN_b4_WutwhnJYEhyqjDYg?pwd=ig4d) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_s_face.onnx) |
-| dw-ll_ucoco_384.onnx | [DWPose](https://github.com/IDEA-Research/DWPose/tree/main)（全身人体姿态估计） | [yolox_l_dwpose_ucoco.yaml](../anylabeling/configs/auto_labeling/yolox_l_dwpose_ucoco.yaml)  | 128.17MB  | [baidu](https://pan.baidu.com/s/1I6CAFhW2YAowN80yweGVpg?pwd=pzf4) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/dw-ll_ucoco_384.onnx) |
-| yolox_l.onnx | [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)（全身人体姿态估计） | [yolox_l_dwpose_ucoco.yaml](../anylabeling/configs/auto_labeling/yolox_l_dwpose_ucoco.yaml)  | 206.71MB  | [baidu](https://pan.baidu.com/s/1NpFiX1JN-0jIvd38tQIDcQ?pwd=aqk5) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/yolox_l.onnx) |
 | resnet50.onnx | [ResNet50](https://arxiv.org/abs/1512.03385)-ImageNet（检测+分类级联模型） | [yolov5s_resnet50.yaml](../anylabeling/configs/auto_labeling/yolov5s_resnet50.yaml)  | 97.42MB  | [baidu](https://pan.baidu.com/s/1byapPRVib7rarAMTmoSkKQ?pwd=xllt) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/resnet50.onnx) |
 | yolov5s.onnx | [YOLOv5](https://github.com/ultralytics/yolov5)-COCO（检测+分类级联模型） | [yolov5s_resnet50.yaml](../anylabeling/configs/auto_labeling/yolov5s_resnet50.yaml)  | 27.98MB  | [baidu](https://pan.baidu.com/s/18I8ugM29NKjNlVEsnYYuWA?pwd=z8dl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx) |
 | mobile_sam.encoder.onnx | [MobileSAM](https://arxiv.org/abs/2306.14289) encoder（YOLOv5-SAM） | [yolov5s_mobile_sam_vit_h.yaml](../anylabeling/configs/auto_labeling/yolov5s_mobile_sam_vit_h.yaml)  | 26.85MB  | [baidu](https://pan.baidu.com/s/1knn_NkrRAgfJms6d9FsErg?pwd=xbi6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/mobile_sam.encoder.onnx) |
