@@ -89,7 +89,7 @@ class YOLOv8_Pose(YOLO):
         )
 
         shapes = []
-        for r in reversed(results):
+        for group_id, r in enumerate(reversed(results)):
             xyxy, _, kpts = r[:4], r[4], r[5:]
 
             if not self.hide_box:
@@ -106,7 +106,7 @@ class YOLOv8_Pose(YOLO):
                 x, y, kpt_score = kpts[i: i + 3]
                 if kpt_score > self.conf_thres:
                     label = self.keypoints[int(i//interval)]
-                    point_shape = Shape(label=label, shape_type="point")
+                    point_shape = Shape(label=label, shape_type="point", group_id=group_id)
                     point_shape.add_point(QtCore.QPointF(x, y))
                     shapes.append(point_shape) 
         result = AutoLabelingResult(shapes, replace=True)
