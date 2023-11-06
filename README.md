@@ -67,6 +67,7 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Nov. 2023:
+  - Release the latest version [1.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0).
   - Support pose estimation: [YOLOv8-Pose](https://github.com/ultralytics/ultralytics).
   - Support object-level tag with yolov5_ram.
   - 🆕🆕🆕 Add a new feature enabling batch labeling for arbitrary unknown categories based on Grounding-DINO.
@@ -110,8 +111,9 @@
 
 ## 👋 Brief Introduction [⏏️](#📄-table-of-contents)
 
-`X-AnyLabeling` is an awesome annotation tool built on [LabelImg](https://github.com/HumanSignal/labelImg), [Labelme](https://github.com/wkentaro/labelme) and [Anylabeling](https://github.com/vietanhdev/anylabeling). What sets it apart is that it not only provides a variety of leading-edge SOTA models but also prioritizes practical applications, aiming to create an industrial-grade, feature-rich tool to assist developers in effortlessly achieving automated annotation and data processing for various complex tasks.</br>
-X-Anylabeling is designed to streamline the annotation workflow, allowing you to allocate more time to problem-solving and model optimization, thereby accelerating project progress and achieving outstanding results.
+X-AnyLabeling is an awesome annotation tool built on [LabelImg](https://github.com/HumanSignal/labelImg), [roLabelImg](https://github.com/cgvict/roLabelImg), [Labelme](https://github.com/wkentaro/labelme) and [Anylabeling](https://github.com/vietanhdev/anylabeling), which is not a average annotation tool; it’s a leap forward into the future of automated data annotation. It’s designed to not only simplify the process of annotation but also to integrate cutting-edge AI models for superior results. With a focus on practical applications, X-AnyLabeling strives to provide an industrial-grade, feature-rich tool that will assist developers in automating annotation and data processing for a wide range of complex tasks.
+
+`X-AnyLabeling`` is an exceptional annotation tool that draws inspiration from renowned projects like [LabelImg](https://github.com/HumanSignal/labelImg), [roLabelImg](https://github.com/cgvict/roLabelImg), [Labelme](https://github.com/wkentaro/labelme), and [Anylabeling](https://github.com/vietanhdev/anylabeling). It transcends the realm of ordinary annotation tools, representing a significant stride into the future of automated data annotation. This cutting-edge tool not only simplifies the annotation process but also seamlessly integrates state-of-the-art AI models to deliver superior results. With a strong focus on practical applications, X-AnyLabeling is purpose-built to provide developers with an industrial-grade, feature-rich solution for automating annotation and data processing across a wide range of complex tasks.
 
 ## 🔥 Highlight [⏏️](#📄-table-of-contents)
 
@@ -150,7 +152,7 @@ For more details, please refer to [models_list](./docs/models_list.md).
 
 ### 🔜Quick Start
 
-Download and run the `GUI` version directly from [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0) or [Baidu Disk](https://pan.baidu.com/s/1CZU67VZte3r4aRZLC4Jzbg?pwd=ffbe).
+Download and run the `GUI` version directly from [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0) or [Baidu Disk](https://pan.baidu.com/s/1wzjtXoWh7DRr-YsEgP4Hng?pwd=wlw8).
 
 Note:
 - For MacOS:
@@ -159,6 +161,7 @@ Note:
   - From the second time onwards, you can open the application normally using Launchpad.
 
 - Due to the lack of necessary hardware, the current tool is only available in executable versions for `Windows` and `Linux`. If you require executable programs for other operating systems, e.g., `MacOS`, please refer to the following steps for self-compilation.
+- To obtain more stable performance and feature support, it is strongly recommended to build from source code.
 
 ### 👨🏼‍💻Build from source
 

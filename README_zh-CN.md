@@ -68,6 +68,7 @@
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - Nov. 2023:
+  - Release the latest version [1.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0).
   - Support pose estimation: [YOLOv8-Pose](https://github.com/ultralytics/ultralytics).
   - Support object-level tag with yolov5_ram.
   - 🆕🆕🆕 Add a new feature enabling batch labeling for arbitrary unknown categories based on Grounding-DINO.
@@ -111,7 +112,7 @@
 
 ## 👋 简介 [⏏️](#📄-目录)
 
-`X-AnyLabeling` 是一款基于 [LabelImg](https://github.com/HumanSignal/labelImg)、[Labelme](https://github.com/wkentaro/labelme) 和 [Anylabeling](https://github.com/vietanhdev/anylabeling) 构建的出色的标注工具。它的独特之处在于，它不仅提供了各种领先的SOTA模型，还优先考虑了实际应用，旨在创建一个工业级、功能丰富的工具，以帮助开发人员简化标注工作流程，轻松实现各种复杂任务的自动标注和数据处理。</br>
+`X-AnyLabeling` 是一款出色的标注工具，汲取了[LabelImg](https://github.com/HumanSignal/labelImg)、[roLabelImg](https://github.com/cgvict/roLabelImg)、[Labelme](https://github.com/wkentaro/labelme)以及[Anylabeling](https://github.com/vietanhdev/anylabeling )等知名标注软件的灵感。它代表了自动数据标注的未来重要一步。这一创新工具不仅简化了标注过程，还无缝集成了先进的人工智能模型，以提供卓越的结果。X-AnyLabeling 专注于实际应用，致力于为开发人员提供工业级、功能丰富的解决方案，用于自动进行各种复杂任务的标注和数据处理。
 
 ## 🔥 亮点 [⏏️](#📄-目录)
 
@@ -150,7 +151,7 @@
 
 ### 🔜快速开始
 
-直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.3.0) 或 [百度网盘](https://pan.baidu.com/s/1CZU67VZte3r4aRZLC4Jzbg?pwd=ffbe) 下载并运行 `GUI` 版本。
+直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0) 或 [百度网盘](https://pan.baidu.com/s/1wzjtXoWh7DRr-YsEgP4Hng?pwd=wlw8) 下载并运行 `GUI` 版本。
 
 注意事项：
 - 对于 MacOS：
@@ -159,6 +160,7 @@
   - 从第二次开始，您可以使用 Launchpad 正常打开应用程序。
 
 - 由于当前工具缺乏必要的硬件支持，所以仅提供 `Windows` 和 `Linux` 可执行版本。如果您需要其他操作系统的可执行程序，例如 `MacOS`，请参考以下步骤进行自行编译。
+- 为了获得更稳定的性能和功能支持，强烈建议从源码进行构建。
 
 ### 👨🏼‍💻从源码构建
 
