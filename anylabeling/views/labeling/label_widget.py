@@ -35,6 +35,7 @@ from .widgets import (
     BrightnessContrastDialog,
     Canvas,
     FileDialogPreview,
+    TextInputDialog,
     LabelDialog,
     LabelListWidget,
     LabelListWidgetItem,
@@ -2657,10 +2658,43 @@ class LabelingWidget(LabelDialog):
     def run_all_images(self):
         if len(self.image_list) <= 0:
             return
-        
+
         if self.auto_labeling_widget.model_manager.loaded_model_config is None:
             self.auto_labeling_widget.model_manager.new_model_status.emit(
                 self.tr("Model is not loaded. Choose a mode to continue.")
+            )
+            return
+
+        marks_model_list = [
+            "ram",
+            "yolox",
+            "yolov5",
+            "yolov6",
+            "yolov7",
+            "yolov8",
+            "rtdetr",
+            "clrnet",
+            "yolo_nas",
+            "yolo_seg",
+            "ppocr_v4",
+            "damo_yolo",
+            "gold_yolo",
+            "yolov5_cls",
+            "yolov5_obb",
+            "yolov5_ram",
+            "yolov8_seg",
+            "yolov6_face",
+            "yolov8_pose",
+            "yolov8_sahi",
+            "yolov5_track",
+            "yolov8_track",
+            "yolox_dwpose",
+            "grounding_dino",
+        ]
+
+        if self.auto_labeling_widget.model_manager.loaded_model_config["type"] not in marks_model_list:
+            self.auto_labeling_widget.model_manager.new_model_status.emit(
+                self.tr("Invalid model type, please choose a valid model_type to run.")
             )
             return
 
@@ -2671,22 +2705,41 @@ class LabelingWidget(LabelDialog):
             QMessageBox.Yes | QMessageBox.No
         )
         if reply == QMessageBox.Yes:
-            self.image_index = 0
-            self.process_next_image()
+            self.current_index = self.image_list.index(self.filename)
+            self.image_index = self.current_index
+            self.text_prompt = ''
+            if self.auto_labeling_widget.model_manager.loaded_model_config["type"] in [
+                "grounding_dino"
+            ]:
+                text_input_dialog = TextInputDialog(parent=self)
+                self.text_prompt = text_input_dialog.get_input_text()
+                if self.text_prompt:
+                    self.process_next_image()
+            else:
+                self.process_next_image()
 
     def process_next_image(self):
         if self.image_index < len(self.image_list):
             filename = self.image_list[self.image_index]
             self.filename = filename
             self.load_file(self.filename)
-            self.auto_labeling_widget.model_manager.predict_shapes(self.image, self.filename)
-
+            if self.text_prompt:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename, self.text_prompt
+                )
+            else:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename
+                )
+            self.image_index += 1
             delay_ms = 1
             QtCore.QTimer.singleShot(delay_ms, self.process_next_image)
-
-            self.image_index += 1
         else:
-            pass
+            self.filename = self.image_list[self.current_index]
+            self.load_file(self.filename)
+            del self.text_prompt 
+            del self.image_index
+            del self.current_index
 
     def remove_selected_point(self):
         self.canvas.remove_selected_point()

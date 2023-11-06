@@ -10,6 +10,37 @@ from ..logger import logger
 # - Calculate optimal position so as not to go out of screen area.
 
 
+class TextInputDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Text Input Dialog")
+
+        layout = QtWidgets.QVBoxLayout()
+
+        self.label = QtWidgets.QLabel("Enter the text prompt below:")
+        self.text_input = QtWidgets.QLineEdit()
+
+        self.ok_button = QtWidgets.QPushButton("OK")
+        self.cancel_button = QtWidgets.QPushButton("Cancel")
+
+        self.ok_button.clicked.connect(self.accept)
+        self.cancel_button.clicked.connect(self.reject)
+
+        layout.addWidget(self.label)
+        layout.addWidget(self.text_input)
+        layout.addWidget(self.ok_button)
+        layout.addWidget(self.cancel_button)
+
+        self.setLayout(layout)
+
+    def get_input_text(self):
+        result = self.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            return self.text_input.text()
+        else:
+            return ''
+
+
 class LabelQLineEdit(QtWidgets.QLineEdit):
     def __init__(self) -> None:
         super().__init__()
