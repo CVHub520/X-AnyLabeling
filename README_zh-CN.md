@@ -70,9 +70,10 @@
 - Nov. 2023:
   - Support pose estimation: [YOLOv8-Pose](https://github.com/ultralytics/ultralytics).
   - Support object-level tag with yolov5_ram.
+  - 🆕🆕🆕 Add a new feature enabling batch labeling for arbitrary unknown categories based on Grounding-DINO.
 - Oct. 2023:
   - Release the latest version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
-  - 🆕🆕🆕 Add a new feature for rotation box.
+  - Add a new feature for rotation box.
   - 🚀🚀🚀 Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
   - 🔥🔥🔥 SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
   - 🙌🙌🙌 SOTA Image Tagging Model - [Recognize Anything](https://github.com/xinyu1205/Tag2Text) is released.
