@@ -51,6 +51,7 @@ class Shape:
         flags=None,
         group_id=None,
         direction=0,
+        attributes={},
     ):
         self.label = label
         self.text = text
@@ -61,6 +62,7 @@ class Shape:
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
+        self.attributes = attributes
 
         # Rotation setting
         self.direction = direction

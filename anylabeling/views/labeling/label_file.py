@@ -76,6 +76,7 @@ class LabelFile:
             "group_id",
             "shape_type",
             "flags",
+            "attributes",
         ]
         try:
             with io_open(filename, "r") as f:
@@ -107,6 +108,7 @@ class LabelFile:
                     "shape_type": s.get("shape_type", "polygon"),
                     "flags": s.get("flags", {}),
                     "group_id": s.get("group_id"),
+                    "attributes": s.get("attributes", {}),
                     "other_data": {
                         k: v for k, v in s.items() if k not in shape_keys
                     },
@@ -184,7 +186,7 @@ class LabelFile:
             "imageHeight": image_height,
             "imageWidth": image_width,
         }
-        
+
         for key, value in other_data.items():
             assert key not in data
             data[key] = value

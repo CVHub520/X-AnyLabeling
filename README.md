@@ -67,10 +67,11 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Nov. 2023:
+  - 🆕🆕🆕 Introducing a new multi-label attribute annotation functionality.
   - Release the latest version [1.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0).
   - Support pose estimation: [YOLOv8-Pose](https://github.com/ultralytics/ultralytics).
   - Support object-level tag with yolov5_ram.
-  - 🆕🆕🆕 Add a new feature enabling batch labeling for arbitrary unknown categories based on Grounding-DINO.
+  - Add a new feature enabling batch labeling for arbitrary unknown categories based on Grounding-DINO.
 - Oct. 2023:
   - Release the latest version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
   - Add a new feature for rotation box.

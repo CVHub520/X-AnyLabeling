@@ -1,6 +1,7 @@
 import functools
 import html
 import math
+import json
 import os
 import os.path as osp
 import cv2
@@ -13,13 +14,17 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import (
     QDockWidget,
+    QGridLayout,
     QHBoxLayout,
+    QComboBox,
     QLabel,
     QPlainTextEdit,
     QVBoxLayout,
     QWhatsThis,
+    QWidget,
     QMessageBox,
-    QProgressDialog
+    QProgressDialog,
+    QScrollArea
 )
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
@@ -80,6 +85,8 @@ class LabelingWidget(LabelDialog):
         self.label_file = None
         self.other_data = {}
         self.classes = None
+        self.attributes = {}
+        self.current_category = None
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -223,7 +230,7 @@ class LabelingWidget(LabelDialog):
         )
         self.canvas.zoom_request.connect(self.zoom_request)
 
-        scroll_area = QtWidgets.QScrollArea()
+        scroll_area = QScrollArea()
         scroll_area.setWidget(self.canvas)
         scroll_area.setWidgetResizable(True)
         self.scroll_bars = {
@@ -697,6 +704,15 @@ class LabelingWidget(LabelDialog):
             enabled=self._config["language"] != "zh_CN",
         )
 
+        # Import
+        import_attr_file = action(
+            self.tr("&Import Attributes File"),
+            self.import_attr_file,
+            None,
+            icon=None,
+            tip=self.tr("Import Custom Attributes File")
+        )
+
         # Save mode
         select_default_format = action(
             "Default",
@@ -831,6 +847,7 @@ class LabelingWidget(LabelDialog):
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
+            import_attr_file=import_attr_file,
             select_default_format=select_default_format,
             select_yolo_format=select_yolo_format,
             select_coco_format=select_coco_format,
@@ -915,6 +932,7 @@ class LabelingWidget(LabelDialog):
             edit=self.menu(self.tr("&Edit")),
             view=self.menu(self.tr("&View")),
             language=self.menu(self.tr("&Language")),
+            upload=self.menu(self.tr("&Import")),
             mode=self.menu(self.tr("&Format")),
             help=self.menu(self.tr("&Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open &Recent")),
@@ -952,6 +970,12 @@ class LabelingWidget(LabelDialog):
             (
                 select_lang_en,
                 select_lang_zh,
+            ),
+        )
+        utils.add_actions(
+            self.menus.upload,
+            (
+                import_attr_file,
             ),
         )
         utils.add_actions(
@@ -1090,6 +1114,34 @@ class LabelingWidget(LabelDialog):
 
         right_sidebar_layout = QVBoxLayout()
         right_sidebar_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Shape attributes
+        self.shape_attributes = QLabel("Attributes")
+        self.shape_attributes.setStyleSheet(
+            "QLabel {"
+            "text-align: center;"
+            "padding: 0px;"
+            "font-size: 11px;"
+            "margin-bottom: 5px;"
+            "}"
+        )
+        self.grid_layout = QGridLayout()
+        self.scroll_area = QScrollArea()
+        # Show vertical scrollbar as needed
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        # Disable horizontal scrollbar
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setWidgetResizable(True)
+        # Create a container widget for the grid layout
+        self.grid_layout_container = QWidget()
+        self.grid_layout_container.setLayout(self.grid_layout)
+        self.scroll_area.setWidget(self.grid_layout_container)
+        right_sidebar_layout.addWidget(
+            self.shape_attributes, 0, Qt.AlignCenter
+        )
+        right_sidebar_layout.addWidget(self.scroll_area)
+
+        # Shape text label
         self.shape_text_label = QLabel("Object Text")
         self.shape_text_label.setStyleSheet(
             "QLabel {"
@@ -1635,6 +1687,14 @@ class LabelingWidget(LabelDialog):
                 ),
             )
             return
+        if self.attributes:
+            self.error_message(
+                self.tr("Invalid label"),
+                self.tr("Invalid label '{}' with validation type '{}'").format(
+                    text, list(self.attributes.keys())
+                ),
+            )
+            return
         shape.label = text
         shape.flags = flags
         shape.group_id = group_id
@@ -1686,6 +1746,162 @@ class LabelingWidget(LabelDialog):
             filename = self.image_list[current_index]
             if filename:
                 self.load_file(filename)
+                if self.attributes:
+                    # Reset the value
+                    self.current_category = None
+                    # Clear the history widgets from the QGridLayout to avoid conflict
+                    self.grid_layout = QGridLayout()
+                    self.grid_layout_container = QWidget()
+                    self.grid_layout_container.setLayout(self.grid_layout)
+                    self.scroll_area.setWidget(self.grid_layout_container)
+                    self.scroll_area.setWidgetResizable(True)
+
+    def attribute_selection_changed(self, i, property, combo):
+        # This function is called when the user changes the value in a QComboBox
+        # It updates the shape's attributes and saves them immediately
+        selected_option = combo.currentText()
+        self.canvas.shapes[i].attributes[property] = selected_option
+        self.save_attributes(self.canvas.shapes)
+
+    def update_selected_options(self, new_attributes):
+        if not isinstance(new_attributes, dict):
+            # Handle the case where 'new_attributes' is not a dictionary
+            return
+        for row in range(len(new_attributes)):
+            category_label = None
+            property_combo = None
+            if self.grid_layout.itemAtPosition(row, 0):
+                category_label = self.grid_layout.itemAtPosition(row, 0).widget()
+            if self.grid_layout.itemAtPosition(row, 1):
+                property_combo = self.grid_layout.itemAtPosition(row, 1).widget()
+            if category_label and property_combo:
+                category = category_label.text()
+                if category in new_attributes:
+                    selected_option = new_attributes[category]
+                    index = property_combo.findText(selected_option)
+                    if index >= 0:
+                        property_combo.setCurrentIndex(index)
+        return
+
+    def update_attributes(self, i):
+        current_shape = self.canvas.shapes[i]
+        update_category = current_shape.label
+        update_attribute = current_shape.attributes
+        current_attibute = self.attributes[update_category]
+        selected_options = {}
+        if self.current_category != update_category:
+            self.file_selection_changed_flag = False
+            self.current_category = update_category
+            # Clear the existing widgets from the QGridLayout
+            self.grid_layout = QGridLayout()
+            # Repopulate the QGridLayout with the updated data
+            for row, (property, options) in enumerate(current_attibute.items()):
+                selected_options[property] = options[0]
+                property_label = QLabel(property)
+                property_combo = QComboBox()
+                property_combo.addItems(options)
+                property_combo.currentIndexChanged.connect(
+                    lambda index, property=property, combo=property_combo:
+                    self.attribute_selection_changed(i, property, combo)
+                )
+                self.grid_layout.addWidget(property_label, row, 0)
+                self.grid_layout.addWidget(property_combo, row, 1)
+            # Ensure the scroll_area updates its contents
+            self.grid_layout_container = QWidget()
+            self.grid_layout_container.setLayout(self.grid_layout)
+            self.scroll_area.setWidget(self.grid_layout_container)
+        else:
+            for property, options in current_attibute.items():
+                selected_options[property] = options[0]
+        if update_attribute:
+            self.update_selected_options(update_attribute)
+        else:
+            new_attributes = {}
+            for property, option in selected_options.items():
+                new_attributes[property] = option
+            current_shape.attributes = new_attributes
+            self.canvas.shapes[i] = current_shape
+        # Update the label_file
+        self.save_attributes(self.canvas.shapes)
+        self.scroll_area.setWidgetResizable(True)
+
+    def save_attributes(self, _shapes):
+        filename = osp.splitext(self.image_path)[0] + ".json"
+        if self.output_dir:
+            label_file_without_path = osp.basename(filename)
+            filename = osp.join(self.output_dir, label_file_without_path)
+        label_file = LabelFile()
+
+        def format_shape(s):
+            data = s.other_data.copy()
+            info = {
+                "label": s.label,
+                "text": s.text,
+                "points": [(p.x(), p.y()) for p in s.points],
+                "group_id": s.group_id,
+                "shape_type": s.shape_type,
+                "flags": s.flags,
+                "attributes": s.attributes,
+            }
+            if s.shape_type == "rotation":
+                info["direction"] = s.direction
+            data.update(info)
+
+            return data
+
+        # Get current shapes
+        # Excluding auto labeling special shapes
+        shapes = [
+            format_shape(shape)
+            for shape in _shapes
+            if shape.label
+            not in [
+                AutoLabelingMode.OBJECT,
+                AutoLabelingMode.ADD,
+                AutoLabelingMode.REMOVE,
+            ]
+        ]
+        flags = {}
+        for i in range(self.flag_widget.count()):
+            item = self.flag_widget.item(i)
+            key = item.text()
+            flag = item.checkState() == Qt.Checked
+            flags[key] = flag
+        try:
+            image_path = osp.relpath(self.image_path, osp.dirname(filename))
+            image_data = (
+                self.image_data if self._config["store_data"] else None
+            )
+            if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
+                os.makedirs(osp.dirname(filename))
+            label_file.save(
+                filename=filename,
+                shapes=shapes,
+                image_path=image_path,
+                image_data=image_data,
+                image_height=self.image.height(),
+                image_width=self.image.width(),
+                other_data=self.other_data,
+                flags=flags,
+                output_format=self._config["save_mode"],
+                classes_file=self.classes,
+            )
+            self.label_file = label_file
+            items = self.file_list_widget.findItems(
+                self.image_path, Qt.MatchExactly
+            )
+            if len(items) > 0:
+                if len(items) != 1:
+                    raise RuntimeError("There are duplicate files.")
+                items[0].setCheckState(Qt.Checked)
+            # disable allows next and previous image to proceed
+            # self.filename = filename
+            return True
+        except LabelFileError as e:
+            self.error_message(
+                self.tr("Error saving label data"), self.tr("<b>%s</b>") % e
+            )
+            return False
 
     # React to canvas signals.
     def shape_selection_changed(self, selected_shapes):
@@ -1706,6 +1922,12 @@ class LabelingWidget(LabelDialog):
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected == 1)
         self.set_text_editing(True)
+        if self.attributes:
+            #TODO: For future optimization(add parm to monitor selected_shape status)
+            for i in range(len(self.canvas.shapes)):
+                if self.canvas.shapes[i].selected:
+                    self.update_attributes(i)
+                    break
 
     def add_label(self, shape):
         if shape.group_id is None:
@@ -1798,6 +2020,7 @@ class LabelingWidget(LabelDialog):
             shape_type = shape["shape_type"]
             flags = shape["flags"]
             group_id = shape["group_id"]
+            attributes = shape.get("attributes", {})
             direction = shape.get("direction", 0)
             other_data = shape["other_data"]
 
@@ -1811,6 +2034,7 @@ class LabelingWidget(LabelDialog):
                 shape_type=shape_type,
                 group_id=group_id,
                 direction=direction,
+                attributes=attributes,
             )
             for x, y in points:
                 shape.add_point(QtCore.QPointF(x, y))
@@ -1850,6 +2074,7 @@ class LabelingWidget(LabelDialog):
                 "group_id": s.group_id,
                 "shape_type": s.shape_type,
                 "flags": s.flags,
+                "attributes": s.attributes,
             }
             if s.shape_type == "rotation":
                 info["direction"] = s.direction
@@ -1984,6 +2209,16 @@ class LabelingWidget(LabelDialog):
                 self.tr("Invalid label"),
                 self.tr("Invalid label '{}' with validation type '{}'").format(
                     text, self._config["validate_label"]
+                ),
+            )
+            text = ""
+            return
+
+        if text and self.attributes:
+            self.error_message(
+                self.tr("Invalid label"),
+                self.tr("Invalid label '{}' with validation type '{}'").format(
+                    text, list(self.attributes.keys())
                 ),
             )
             text = ""
@@ -2443,6 +2678,25 @@ class LabelingWidget(LabelDialog):
 
         self._config["keep_prev"] = keep_prev
         save_config(self._config)
+
+    def import_attr_file(self):
+        filter = "Attribute Files (*.json);;All Files (*)"
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, 
+            self.tr("Select a specific attributes file"),
+            '', 
+            filter,
+        )
+        if not file_path:
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Upload failed! Please reselect a specific attributes file!"),
+                QMessageBox.Ok
+            )
+            return
+        with open(file_path, 'r', encoding='utf-8') as f:
+            self.attributes = json.load(f)
 
     def open_file(self, _value=False):
         if not self.may_continue():
@@ -3077,6 +3331,15 @@ class LabelingWidget(LabelDialog):
                 self.tr("Invalid label"),
                 self.tr("Invalid label '{}' with validation type '{}'").format(
                     text, self._config["validate_label"]
+                ),
+            )
+            return
+
+        if self.attributes:
+            self.error_message(
+                self.tr("Invalid label"),
+                self.tr("Invalid label '{}' with validation type '{}'").format(
+                    text, list(self.attributes.keys())
                 ),
             )
             return
