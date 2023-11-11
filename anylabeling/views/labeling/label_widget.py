@@ -2946,6 +2946,7 @@ class LabelingWidget(LabelDialog):
             "yolov8_track",
             "yolox_dwpose",
             "grounding_dino",
+            "pulc_attribute",
         ]
 
         if self.auto_labeling_widget.model_manager.loaded_model_config["type"] not in marks_model_list:

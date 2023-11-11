@@ -1,0 +1,8 @@
+type: pulc_attribute
+name: pulc_vehicle_attr-r20231111
+display_name: Vehicle-Attribute Paddle-PULC
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/pulc_vehicle_attribute.onnx
+classes: vehicle
+attributes:
+  Color: [["yellow", "orange", "green", "gray", "red", "blue", "white", "golden", "brown", "black"], -1]
+  Type: [["sedan", "suv", "van", "hatchback", "mpv", "pickup", "bus", "truck", "estate"], -1]

@@ -1,0 +1,27 @@
+type: pulc_attribute
+name: pulc_person_attr-r20231111
+display_name: Person-Attribute Paddle-PULC
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/pulc_person_attribute.onnx
+classes: person
+attributes:
+  "Hat": [["Yes", "No"], 0.5]
+  "Glasses": [["Yes", "No"], 0.3]
+  "Sleeve": [["ShortSleeve", "LongSleeve"], -1]
+  "UpperStride": [["Yes", "No"], 0.5]
+  "UpperLogo": [["Yes", "No"], 0.5]
+  "UpperPlaid": [["Yes", "No"], 0.5]
+  "UpperSplice": [["Yes", "No"], 0.5]
+  "LowerStripe": [["Yes", "No"], 0.5]
+  "LowerPattern": [["Yes", "No"], 0.5]
+  "LongCoat": [["Yes", "No"], 0.5]
+  "Trousers": [["Yes", "No"], 0.5]
+  "Shorts": [["Yes", "No"], 0.5]
+  "Skirt&Dress": [["Yes", "No"], 0.5]
+  "Shoe": [["Boots", "No boots"], 0.5]
+  "HandBag&Dress": [["Yes", "No"], 0.5]
+  "ShoulderBag&Dress": [["Yes", "No"], 0.5]
+  "Backpack": [["Yes", "No"], 0.5]
+  "HoldObjectsInFront": [["Yes", "No"], 0.6]
+  "Age": [["AgeLess18", "Age18-60", "AgeOver60"], -1]
+  "Gender": [["Female", "Male"], 0.5]
+  "Direction": [["Front", "Side", "Back"], -1]

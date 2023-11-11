@@ -16,9 +16,16 @@
 | clrnet_tusimple_r18.onnx | [CLRNet](https://github.com/Turoad/CLRNet)-Tusimple (CVPR2022)  | [clrnet_tusimple_r18.yaml](../anylabeling/configs/auto_labeling/clrnet_tusimple_r18.yaml)  | 59.04MB  | [baidu](https://pan.baidu.com/s/1Ptzji5x2dRBmJtijTmO4tA?pwd=zzuf) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/clrnet_tusimple_r18.onnx) |
 
 
+### Multi-Label Classification
+
+|Name|Description|Configuration|Size|Link|
+| --- | --- | --- | --- | --- |
+| pulc_person_attribute.onnx | [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_person_attribute_en.md)-PULC | [pulc_person_attribute.yaml](../anylabeling/configs/auto_labeling/pulc_person_attribute.yaml) | 6.59MB | [baidu](https://pan.baidu.com/s/1AyPXvnV6BSe4We0nrA5KYA?pwd=qw96) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/pulc_person_attribute.onnx) |
+| pulc_vehicle_attribute.onnx | [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_vehicle_attribute_en.md)-PULC | [pulc_vehicle_attribute.yaml](../anylabeling/configs/auto_labeling/pulc_vehicle_attribute.yaml) | 6.55MB | [baidu](https://pan.baidu.com/s/1RZqDK7-CKw-vcbscZKgBDw?pwd=3qp0) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/pulc_vehicle_attribute.onnx) |
+
 ### Object Detection
 
-- 通用场景检测
+- Horizontal Bounding Box
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -53,7 +60,7 @@
 | Gold_m_pre_dist.onnx | [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)-COCO  | [gold_yolo_m.yaml](../anylabeling/configs/auto_labeling/gold_yolo_m.yaml) | 169.88MB | [baidu](https://pan.baidu.com/s/1lY5VljoL9pZxadpe9DEUdQ?pwd=ephp) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/Gold_m_pre_dist.onnx) |
 | Gold_l_pre_dist.onnx | [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)-COCO  | [gold_yolo_l.yaml](../anylabeling/configs/auto_labeling/gold_yolo_l.yaml) | 286.79MB | [baidu](https://pan.baidu.com/s/1ySxB3R18oWuIdYzKRLrflg?pwd=1wlk) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/Gold_l_pre_dist.onnx) |
 
-- 旋转目标检测
+- Oriented Bounding Box
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |

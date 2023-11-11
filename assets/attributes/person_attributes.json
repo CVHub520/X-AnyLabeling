@@ -1,0 +1,25 @@
+{
+    "person": {
+        "Hat": ["Yes", "No"],
+        "Glasses": ["Yes", "No"],
+        "Sleeve": ["ShortSleeve", "LongSleeve"],
+        "UpperStride": ["Yes", "No"],
+        "UpperLogo": ["Yes", "No"],
+        "UpperPlaid": ["Yes", "No"],
+        "UpperSplice": ["Yes", "No"],
+        "LowerStripe": ["Yes", "No"],
+        "LowerPattern": ["Yes", "No"],
+        "LongCoat": ["Yes", "No"],
+        "Trousers": ["Yes", "No"],
+        "Shorts": ["Yes", "No"],
+        "Skirt&Dress": ["Yes", "No"],
+        "Shoe": ["Boots", "No boots"],
+        "HandBag&Dress": ["Yes", "No"],
+        "ShoulderBag&Dress": ["Yes", "No"],
+        "Backpack": ["Yes", "No"],
+        "HoldObjectsInFront": ["Yes", "No"],
+        "Age": ["AgeLess18", "Age18-60", "AgeOver60"],
+        "Gender": ["Female", "Male"],
+        "Direction": ["Front", "Side", "Back"]
+    }
+}

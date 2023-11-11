@@ -194,6 +194,7 @@ class ModelManager(QObject):
                 "yolov5_seg",
                 "yolov5_ram",
                 "yolov8_pose",
+                "pulc_attribute",
             ]
         ):
             self.new_model_status.emit(
@@ -608,6 +609,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = RAM(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "pulc_attribute":
+            from .pulc_attribute import PULC_Attribute
+
+            try:
+                model_config["model"] = PULC_Attribute(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

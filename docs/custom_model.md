@@ -173,3 +173,15 @@ The Segment Anything Model (`SAM`) produces high quality object masks from input
 > 发表：Arxiv23</br>
 
 参考此[教程](../tools/export_recognize_anything_model_onnx.py).
+
+- [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md)
+
+This case provides a way for users to quickly build a lightweight, high-precision and practical classification model of person attribute using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in Pedestrian analysis scenarios, pedestrian tracking scenarios, etc.
+
+参考此[教程](../tools/export_pulc_attribute_model_onnx.py).
+
+- [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md)
+
+This case provides a way for users to quickly build a lightweight, high-precision and practical classification model of vehicle attribute using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in Vehicle identification, road monitoring and other scenarios.
+
+参考此[教程](../tools/export_pulc_attribute_model_onnx.py).
