@@ -1369,11 +1369,13 @@ class LabelingWidget(LabelDialog):
         text_next = self.tr("Next:")
         text_rectangle = self.tr("Rectangle:")
         text_polygon = self.tr("Polygon:")
+        text_rotation = self.tr("Rotation:")
         return (
             f"<b>{text_mode}</b> {self.canvas.get_mode()} - <b>{text_shortcuts}</b>"
             f" {text_previous} <b>A</b>, {text_next} <b>D</b>,"
             f" {text_rectangle} <b>R</b>,"
-            f" {text_polygon}: <b>P</b>"
+            f" {text_polygon}: <b>P</b>,"
+            f" {text_rotation}: <b>O</b>"
         )
 
     @pyqtSlot()
