@@ -43,7 +43,12 @@
   </figure>
 </div>
 
-
+<div align=center>
+  <figure>
+    <img src="https://user-images.githubusercontent.com/72010077/282393906-059920cc-0f65-4d2c-9350-941aaa8bbd02.png" alt="PULC PersonAttribute Model">
+    <figcaption>Advanced Multi-Label Classification Model</figcaption>
+  </figure>
+</div>
 
 ## 📄 目录
 
@@ -68,6 +73,7 @@
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - Nov. 2023:
+  - 🤗🤗🤗 Release the latest version [2.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
   - 🔥🔥🔥 Added support for Grounding-SAM, combining [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) with [HQ-SAM](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
   - 🚀🚀🚀 Enhanced support for [HQ-SAM](https://github.com/SysCV/sam-hq) model to achieve high-quality mask predictions.
   - 🙌🙌🙌 Support the [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md) and [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md) model for multi-label classification task.
@@ -155,7 +161,7 @@
 
 ### 🔜快速开始
 
-直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0) 或 [百度网盘](https://pan.baidu.com/s/1wzjtXoWh7DRr-YsEgP4Hng?pwd=wlw8) 下载并运行 `GUI` 版本。
+直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0) 或 [百度网盘](https://pan.baidu.com/s/1qX1Q36EfHEJiTkS7xri3_g?pwd=e5it) 下载并运行 `GUI` 版本。
 
 注意事项：
 - 对于 MacOS：
