@@ -1,0 +1,16 @@
+type: grounding_sam
+name: groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant-r20231111
+display_name: GroundingSAM-SwinB with HQ-SAM-VitL-QInt8
+# Grounding-DINO
+model_type: groundingdino_swinb_cogcoor
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/groundingdino_fuse_attention.onnx
+input_width: 1200
+input_height: 800
+box_threshold: 0.3
+text_threshold: 0.25
+# HQ-SAM
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_l_encoder_quant.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_l_decoder.onnx
+input_size: 1024
+max_width: 1024
+max_height: 682

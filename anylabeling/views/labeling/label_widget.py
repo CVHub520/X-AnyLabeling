@@ -2945,8 +2945,10 @@ class LabelingWidget(LabelDialog):
             "yolov5_track",
             "yolov8_track",
             "yolox_dwpose",
+            "grounding_sam",
             "grounding_dino",
             "pulc_attribute",
+            "yolov8_efficientvit_sam",
         ]
 
         if self.auto_labeling_widget.model_manager.loaded_model_config["type"] not in marks_model_list:
@@ -2966,7 +2968,8 @@ class LabelingWidget(LabelDialog):
             self.image_index = self.current_index
             self.text_prompt = ''
             if self.auto_labeling_widget.model_manager.loaded_model_config["type"] in [
-                "grounding_dino"
+                "grounding_dino",
+                "grounding_sam",
             ]:
                 text_input_dialog = TextInputDialog(parent=self)
                 self.text_prompt = text_input_dialog.get_input_text()

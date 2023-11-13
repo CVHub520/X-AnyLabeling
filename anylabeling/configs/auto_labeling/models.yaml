@@ -24,6 +24,8 @@
   config_file: ":/gold_yolo_s.yaml"
 - model_name: "groundingdino_swinb_cogcoor_quant-r20231024"
   config_file: ":/groundingdino_swinb_cogcoor_quant.yaml"
+- model_name: "groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant-r20231111"
+  config_file: ":/groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml"
 - model_name: "groundingdino_swint_ogc_quant-r20231024"
   config_file: ":/groundingdino_swint_ogc_quant.yaml"
 - model_name: "lvm_sam_ssk_buid_vit_b-r20230810"
