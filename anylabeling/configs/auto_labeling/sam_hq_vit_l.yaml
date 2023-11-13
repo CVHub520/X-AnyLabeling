@@ -1,0 +1,8 @@
+type: sam_hq
+name: sam-hq_vit_l-r20231111
+display_name: SAM-HQ (ViT-Large)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_l_encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_l_decoder.onnx
+input_size: 1024
+max_width: 1024
+max_height: 682

@@ -167,6 +167,7 @@ class ModelManager(QObject):
             not in [
                 "segment_anything",
                 "sam_med2d",
+                "sam_hq",
                 "yolov5", 
                 "yolov6", 
                 "yolov7", 
@@ -790,6 +791,30 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "sam_hq":
+            from .sam_hq import SAM_HQ
+
+            try:
+                model_config["model"] = SAM_HQ(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+            except Exception as e:  # noqa
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "yolov5_cls":
             from .yolov5_cls import YOLOv5_CLS
 
@@ -977,8 +1002,9 @@ class ModelManager(QObject):
         (For example, for segment_anything model, it is the marks for)
         """
         marks_model_list = [
-            "segment_anything", 
-            "sam_med2d", 
+            "segment_anything",
+            "sam_med2d",
+            "sam_hq",
             "yolov5_sam",
             "efficientvit_sam",
             "yolov8_efficientvit_sam",
@@ -1083,9 +1109,10 @@ class ModelManager(QObject):
 
         # Currently only segment_anything-like model supports this feature
         if self.loaded_model_config["type"] not in [
-            "segment_anything", 
-            "sam_med2d", 
-            "yolov5_sam", 
+            "segment_anything",
+            "sam_med2d",
+            "sam_hq",
+            "yolov5_sam",
             "efficientvit_sam",
             "yolov8_efficientvit_sam",
         ]:

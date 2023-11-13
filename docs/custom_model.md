@@ -185,3 +185,13 @@ This case provides a way for users to quickly build a lightweight, high-precisio
 This case provides a way for users to quickly build a lightweight, high-precision and practical classification model of vehicle attribute using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in Vehicle identification, road monitoring and other scenarios.
 
 参考此[教程](../tools/export_pulc_attribute_model_onnx.py).
+
+- [HQ-SAM](https://github.com/SysCV/sam-hq)
+
+The recent Segment Anything Model (SAM) represents a big leap in scaling up segmentation models, allowing for powerful zero-shot capabilities and flexible prompting. Despite being trained with 1.1 billion masks, SAM's mask prediction quality falls short in many cases, particularly when dealing with objects that have intricate structures. We propose HQ-SAM, equipping SAM with the ability to accurately segment any object, while maintaining SAM's original promptable design, efficiency, and zero-shot generalizability. Our careful design reuses and preserves the pre-trained model weights of SAM, while only introducing minimal additional parameters and computation. We design a learnable High-Quality Output Token, which is injected into SAM's mask decoder and is responsible for predicting the high-quality mask. Instead of only applying it on mask-decoder features, we first fuse them with early and final ViT features for improved mask details. To train our introduced learnable parameters, we compose a dataset of 44K fine-grained masks from several sources. HQ-SAM is only trained on the introduced detaset of 44k masks, which takes only 4 hours on 8 GPUs. We show the efficacy of HQ-SAM in a suite of 9 diverse segmentation datasets across different downstream tasks, where 7 out of them are evaluated in a zero-shot transfer protocol.
+
+> 论文：Segment Anything in High Quality</br>
+> 单位：ETH Zurich & HKUST</br>
+> 发表：NeurIPS 2023</br>
+
+参考此[教程](https://github.com/CVHub520/sam-hq).
