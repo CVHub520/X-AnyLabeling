@@ -1689,14 +1689,15 @@ class LabelingWidget(LabelDialog):
                 ),
             )
             return
-        if self.attributes:
-            self.error_message(
-                self.tr("Invalid label"),
-                self.tr("Invalid label '{}' with validation type '{}'").format(
-                    text, list(self.attributes.keys())
-                ),
-            )
-            return
+        if self.attributes and text:
+            if text not in list(self.attributes.keys()):
+                self.error_message(
+                    self.tr("Invalid label"),
+                    self.tr("Invalid label '{}' with validation type '{}'").format(
+                        text, list(self.attributes.keys())
+                    ),
+                )
+                return
         shape.label = text
         shape.flags = flags
         shape.group_id = group_id
@@ -2216,15 +2217,15 @@ class LabelingWidget(LabelDialog):
             text = ""
             return
 
-        if text and self.attributes:
-            self.error_message(
-                self.tr("Invalid label"),
-                self.tr("Invalid label '{}' with validation type '{}'").format(
-                    text, list(self.attributes.keys())
-                ),
-            )
-            text = ""
-            return
+        if self.attributes and text:
+            if text not in list(self.attributes.keys()):
+                self.error_message(
+                    self.tr("Invalid label"),
+                    self.tr("Invalid label '{}' with validation type '{}'").format(
+                        text, list(self.attributes.keys())
+                    ),
+                )
+                return
 
         if text:
             self.label_list.clearSelection()
@@ -3341,14 +3342,15 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        if self.attributes:
-            self.error_message(
-                self.tr("Invalid label"),
-                self.tr("Invalid label '{}' with validation type '{}'").format(
-                    text, list(self.attributes.keys())
-                ),
-            )
-            return
+        if self.attributes and text:
+            if text not in list(self.attributes.keys()):
+                self.error_message(
+                    self.tr("Invalid label"),
+                    self.tr("Invalid label '{}' with validation type '{}'").format(
+                        text, list(self.attributes.keys())
+                    ),
+                )
+                return
 
         # Add to label history
         self.label_dialog.add_label_history(text)
