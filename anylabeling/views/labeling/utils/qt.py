@@ -8,7 +8,7 @@ here = osp.dirname(osp.abspath(__file__))
 
 
 def new_icon(icon):
-    return QtGui.QIcon(osp.join(f":/images/images/{icon}.png"))
+    return QtGui.QIcon(osp.join(f"../X-AnyLabeling/anylabeling/resources/images/{icon}.png"))
 
 
 def new_button(text, icon=None, slot=None):
