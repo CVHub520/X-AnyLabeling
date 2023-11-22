@@ -47,6 +47,7 @@ class DAMO_YOLO(Model):
 
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.classes = self.config["classes"]
+        self.filter_classes = self.config.get("filter_classes", [])
         self.input_shape = self.net.get_input_shape()
         self.input_size = self.input_shape[-2:]
         self.nms_thres = self.config["nms_threshold"]
@@ -77,6 +78,8 @@ class DAMO_YOLO(Model):
             if score < self.conf_thres:
                 continue
             class_id = np.argmax(scores[i, :])
+            if self.filter_classes and self.classes[int(class_id)] not in self.filter_classes:
+                continue
             xmin, ymin, xmax, ymax = bboxes[i, :].astype(np.int32)
             width = xmax - xmin
             height = ymax - ymin
