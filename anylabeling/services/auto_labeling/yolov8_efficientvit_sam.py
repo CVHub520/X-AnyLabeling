@@ -15,9 +15,9 @@ from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 
 from .types import AutoLabelingResult
-from .yolov8 import YOLOv8
-from .utils import rescale_box
+from .__base__.yolo import YOLO
 from .engines.build_onnx_engine import OnnxBaseModel
+
 
 class SamEncoder:
     """Sam encoder model.
@@ -173,7 +173,7 @@ class SamDecoder:
         boxes = self.apply_coords(boxes.reshape(-1, 2, 2), original_size, new_size)
         return boxes.reshape(-1, 4)
 
-class YOLOv8_EfficientViT_SAM(YOLOv8):
+class YOLOv8_EfficientViT_SAM(YOLO):
     """Segmentation model using YOLOv8 by EfficientViT_SAM"""
 
     class Meta:
@@ -185,19 +185,16 @@ class YOLOv8_EfficientViT_SAM(YOLOv8):
             "encoder_model_path",
             "decoder_model_path",
             "model_path",
-            "nms_threshold",
-            "confidence_threshold",
-            "classes",
         ]
         widgets = [
             "button_run",
-            "output_label",
-            "output_select_combobox",
             "button_add_point",
             "button_remove_point",
             "button_add_rect",
             "button_clear",
             "button_finish_object",
+            "output_label",
+            "output_select_combobox",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -210,25 +207,32 @@ class YOLOv8_EfficientViT_SAM(YOLOv8):
         super().__init__(config_path, on_message)
 
         """YOLOv8 Model"""
-        model_name = self.config['type']
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    "Model", f"Could not download or initialize YOLOv8 model."
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
-        self.classes = self.config["classes"]
-        self.input_shape = self.net.get_input_shape()[-2:]
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
-        self.stride = self.config.get("stride", 32)
+        _, _, self.input_height, self.input_width = self.net.get_input_shape()
+        if not isinstance(self.input_width, int):
+            self.input_width = self.config.get("input_width", -1)
+        if not isinstance(self.input_height, int):
+            self.input_height = self.config.get("input_height", -1)
+
+        self.task = "det"
+        self.model_type = self.config['type']
+        self.classes = self.config.get("classes", [])
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
+        self.show_boxes = self.config.get("show_boxes", False)
+        self.strategy = self.config.get("strategy", "largest")
+        self.iou_thres= self.config.get("nms_threshold", 0.45)
+        self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
-
+        self.nc = len(self.classes)
+        self.input_shape = (self.input_height, self.input_width)
         if self.anchors:
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
@@ -424,16 +428,14 @@ class YOLOv8_EfficientViT_SAM(YOLOv8):
 
         if filename not in self.image_embed_cache:
             image_embedding = self.encoder_model(cv_image)
-            blob = self.preprocess(cv_image)
-            predictions = self.net.get_ort_inference(blob)
-            results = self.postprocess(predictions)[0]
-            results[:, :4] = rescale_box(
-                self.input_shape, results[:, :4], cv_image.shape
-            ).round()
+            blob = self.preprocess(cv_image, upsample_mode="letterbox")
+            outputs = self.net.get_ort_inference(blob=blob, extract=False)
+            boxes, _, class_ids, _ = self.postprocess(outputs)
+
             shapes = []
-            for *xyxy, _, cls_id in reversed(results):
-                label = str(self.classes[int(cls_id)])
-                x1, y1, x2, y2 = xyxy
+            for box, class_id in zip(boxes, class_ids):
+                label = str(self.classes[int(class_id)])
+                x1, y1, x2, y2 = list(map(int, box))
                 point_coords = np.array([[x1, y1], [x2, y2]], dtype=np.float32)
                 point_labels = np.array([2, 3], dtype=np.float32)
                 masks = self.decoder_model.run(

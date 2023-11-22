@@ -2,9 +2,8 @@ type: yolov6
 name: yolov6s_mbla-r20230520
 display_name: YOLOv6s_mbla MeiTuan
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6s_mbla.onnx
-stride: 32
-nms_threshold: 0.25
-confidence_threshold: 0.4
+nms_threshold: 0.45
+confidence_threshold: 0.25
 classes:
   - person
   - bicycle

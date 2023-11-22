@@ -12,7 +12,7 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
-from .utils.points_conversion import bbox_cxcywh_to_xyxy
+from .utils.points_conversion import cxywh2xyxy
 
 class RTDETR(Model):
     """Object detection model using RTDETR"""
@@ -101,7 +101,7 @@ class RTDETR(Model):
         if not (np.all((scores > 0) & (scores < 1))):
             scores = 1 / (1 + np.exp(-scores))
 
-        boxes = bbox_cxcywh_to_xyxy(boxes)
+        boxes = cxywh2xyxy(boxes)
         _max = scores.max(-1)
         _mask = _max > self.config['score_threshold']
         boxes, scores = boxes[_mask], scores[_mask]

@@ -2,9 +2,8 @@ type: yolov6
 name: yolov6s6-r20230520
 display_name: YOLOv6s6 MeiTuan
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6s6.onnx
-stride: 64
-nms_threshold: 0.25
-confidence_threshold: 0.4
+nms_threshold: 0.45
+confidence_threshold: 0.25
 classes:
   - person
   - bicycle

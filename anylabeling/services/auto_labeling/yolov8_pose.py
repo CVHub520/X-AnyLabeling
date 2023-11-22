@@ -2,7 +2,6 @@ import logging
 import numpy as np
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
@@ -12,35 +11,13 @@ from .__base__.yolo import YOLO
 from .utils import (
     numpy_nms,
     xywh2xyxy,
-    xyxy2tlwh,
+    xyxy2ltwh,
     rescale_tlwh,
 )
 
 class YOLOv8_Pose(YOLO):
 
-    class Meta:
-        required_config_names = [
-            "type",
-            "name",
-            "display_name",
-            "model_path",
-            "nms_threshold",
-            "confidence_threshold",
-            "classes",
-        ]
-        widgets = ["button_run"]
-        output_modes = {
-            "rectangle": QCoreApplication.translate("Model", "Rectangle"),
-            "point": QCoreApplication.translate("Model", "Point"),
-        }
-        default_output_mode = "rectangle"
-
-    def postprocess(
-            self, 
-            prediction, 
-            max_det=1000,
-        ):
-
+    def postprocess(self, prediction):
         """
         Args:
             prediction: (1, 56, *), where 56 = 4 + 1 + 3 * 17
@@ -48,19 +25,17 @@ class YOLOv8_Pose(YOLO):
                 1 -> box_score
                 3*17 -> (x, y, kpt_score) * 17 keypoints
         """
-        prediction = prediction.transpose((0, 2, 1))[0]
+        prediction = prediction.transpose((0, 2, 1)).squeeze()
         x = prediction[prediction[:, 4] > self.conf_thres]
         if len(x) == 0:
             return []
         x[:, :4] = xywh2xyxy(x[:, :4])
-        keep_idx = numpy_nms(x[:, :4], x[:, 4], self.nms_thres)  # NMS
-        if keep_idx.shape[0] > max_det:  # limit detections
-            keep_idx = keep_idx[:max_det]
+        keep_idx = numpy_nms(x[:, :4], x[:, 4], self.iou_thres)  # NMS
         keep_label = []
         for i in keep_idx:
             keep_label.append(x[i].tolist())
         xyxy = np.array(keep_label)
-        tlwh = xyxy2tlwh(xyxy)
+        tlwh = xyxy2ltwh(xyxy)
         return tlwh
 
     def predict_shapes(self, image, image_path=None):
@@ -92,7 +67,7 @@ class YOLOv8_Pose(YOLO):
         for group_id, r in enumerate(reversed(results)):
             xyxy, _, kpts = r[:4], r[4], r[5:]
 
-            if not self.hide_box:
+            if self.show_boxes:
                 rectangle_shape = Shape(
                     label=str(self.classes[0]), 
                     shape_type="rectangle",
@@ -106,8 +81,12 @@ class YOLOv8_Pose(YOLO):
                 x, y, kpt_score = kpts[i: i + 3]
                 if kpt_score > self.conf_thres:
                     label = self.keypoints[int(i//interval)]
-                    point_shape = Shape(label=label, shape_type="point", group_id=group_id)
+                    point_shape = Shape(
+                        label=label, shape_type="point", group_id=group_id
+                    )
                     point_shape.add_point(QtCore.QPointF(x, y))
-                    shapes.append(point_shape) 
+                    shapes.append(point_shape)
+
         result = AutoLabelingResult(shapes, replace=True)
+
         return result

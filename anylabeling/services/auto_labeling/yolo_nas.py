@@ -166,7 +166,6 @@ class Postprocessing:
 
     def __call__(self, outputs, metadata):
         """Do all preprocessing steps on single output"""
-
         boxes, raw_scores = outputs
         boxes = np.squeeze(boxes, 0)
 
@@ -222,22 +221,22 @@ class YOLO_NAS(Model):
 
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         _, _, input_height, input_width = self.net.get_input_shape()
-        self.pre_process = Preprocessing(
+        self.preprocess = Preprocessing(
             YOLO_NAS_DEFAULT_PROCESSING_STEPS, 
             (input_height, input_width)
         )
-
-        self.post_process = Postprocessing(
+        self.postprocess = Postprocessing(
             YOLO_NAS_DEFAULT_PROCESSING_STEPS,
             self.config["nms_threshold"],
             self.config["confidence_threshold"],
         )
+        self.filter_classes = self.config.get("filter_classes", [])
 
     def predict_shapes(self, image, image_path=None):
         """
         Predict shapes from image
         """
-
+ 
         if image is None:
             return []
 
@@ -248,24 +247,27 @@ class YOLO_NAS(Model):
             logging.warning(e)
             return []
 
-        blob, prep_meta = self.pre_process(image)
+        blob, prep_meta = self.preprocess(image)
         outputs = self.net.get_ort_inference(blob, extract=False)
-        boxes, scores, classes = self.post_process(outputs, prep_meta)
+        boxes, scores, classes = self.postprocess(outputs, prep_meta)
         score_thres = self.config["confidence_threshold"]
         iou_thres = self.config["nms_threshold"]
         selected = cv2.dnn.NMSBoxes(boxes, scores, score_thres, iou_thres)
 
         shapes = []
         for i in selected:
+            label = str(self.config["classes"][classes[i]])
+            if self.filter_classes and label not in self.filter_classes:
+                continue
             box = boxes[i, :].astype(np.int32).flatten()
             x, y, w, h = box[0], box[1], box[2], box[3]
-            label = str(self.config["classes"][classes[i]])
             shape = Shape(label=label, shape_type="rectangle", flags={})
             shape.add_point(QtCore.QPointF(x, y))
             shape.add_point(QtCore.QPointF(x + w, y + h))
             shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)
+
         return result
 
     def unload(self):

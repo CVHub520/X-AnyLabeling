@@ -2,9 +2,8 @@ type: yolov5_seg
 name: yolov5s-seg-r20231027
 display_name: YOLOv5s-Seg Ultralytics
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov5s-seg.onnx
-num_masks: 32
-score_threshold: 0.5
 nms_threshold: 0.45
+confidence_threshold: 0.25
 classes:
   - person
   - bicycle

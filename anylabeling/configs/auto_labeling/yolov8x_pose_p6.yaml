@@ -4,7 +4,6 @@ display_name: YOLOv8x-Pose-P6 Ultralytics
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x-pose-p6.onnx
 confidence_threshold: 0.25
 nms_threshold: 0.6
-hide_box: False
 classes:
   - person
 keypoints:

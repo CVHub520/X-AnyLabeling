@@ -1,81 +1,21 @@
 import logging
-import os
 
 import numpy as np
 from PyQt5 import QtCore
-from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
-from .model import Model
 from .types import AutoLabelingResult
+from .__base__.yolo import YOLO
 from .utils import (
     numpy_nms,
-    letterbox,
     xywh2xyxy,
     rescale_box_and_landmark
 )
 
-from .engines.build_onnx_engine import OnnxBaseModel
 
-
-class YOLOv6Face(Model):
-    """Object detection model using YOLOv6Face v4.0"""
-
-    class Meta:
-        required_config_names = [
-            "type",
-            "name",
-            "display_name",
-            "model_path",
-            "stride",
-            "nms_threshold",
-            "confidence_threshold",
-            "classes",
-            "five_key_points_classes",
-        ]
-        widgets = ["button_run"]
-        output_modes = {
-            "rectangle": QCoreApplication.translate("Model", "Rectangle"),
-            "point": QCoreApplication.translate("Model", "Point"),
-        }
-        default_output_mode = "rectangle"
-
-    def __init__(self, model_config, on_message) -> None:
-        # Run the parent class's init method
-        super().__init__(model_config, on_message)
-        model_name = self.config['type']
-        model_abs_path = self.get_model_abs_path(self.config, "model_path")
-        if not model_abs_path or not os.path.isfile(model_abs_path):
-            raise FileNotFoundError(
-                QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
-                )
-            )
-        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
-        self.classes = self.config["classes"]
-        self.input_shape = self.net.get_input_shape()[-2:]
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
-        self.stride = self.config.get("stride", 32)
-        self.anchors = self.config.get("anchors", None)
-        self.agnostic = self.config.get("agnostic", False)
-        self.filter_classes = self.config.get("filter_classes", None)
-        self.kps_classes = self.config["five_key_points_classes"]
-
-    def preprocess(self, input_image):
-        """
-        Pre-process the input RGB image before feeding it to the network.
-        """
-        image = letterbox(input_image, self.input_shape, stride=self.stride)[0]
-        image = image.transpose((2, 0, 1)) # HWC to CHW
-        image = np.ascontiguousarray(image).astype('float32')
-        image /= 255  # 0 - 255 to 0.0 - 1.0
-        if len(image.shape) == 3:
-            image = image[None]
-        return image
+class YOLOv6Face(YOLO):
 
     def postprocess(
             self, 
@@ -158,7 +98,7 @@ class YOLOv6Face(Model):
             class_offset = x[:, 5:6] * (0 if self.agnostic else max_wh)  # classes
             boxes, scores = x[:, :4] + class_offset, x[:, 4]  # boxes (offset by class), scores
 
-            keep_box_idx = numpy_nms(boxes, scores, self.nms_thres)  # NMS
+            keep_box_idx = numpy_nms(boxes, scores, self.iou_thres)  # NMS
             if keep_box_idx.shape[0] > max_det:  # limit detections
                 keep_box_idx = keep_box_idx[:max_det]
 
@@ -192,7 +132,7 @@ class YOLOv6Face(Model):
         )
 
         shapes = []
-        for r in reversed(results):
+        for i, r in enumerate(reversed(results)):
             xyxy, _, cls_id, lmdks = r[:4], r[4], r[5], r[6:]
             x1, y1, x2, y2 = list(map(int, xyxy))
             lmdks = list(map(int, lmdks))
@@ -200,9 +140,13 @@ class YOLOv6Face(Model):
             rectangle_shape = Shape(label=label, shape_type="rectangle")
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y2))
-            for i in range(0, len(lmdks), 2):
-                x, y = lmdks[i], lmdks[i + 1]
-                point_shape = Shape(label=self.kps_classes[i//2], shape_type="point")
+            for j in range(0, len(lmdks), 2):
+                x, y = lmdks[j], lmdks[j + 1]
+                point_shape = Shape(
+                    label=self.five_key_points_classes[j//2], 
+                    shape_type="point",
+                    group_id=int(i)
+                )
                 point_shape.add_point(QtCore.QPointF(x, y))
                 shapes.append(point_shape)
         result = AutoLabelingResult(shapes, replace=True)

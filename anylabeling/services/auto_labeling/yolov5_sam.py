@@ -13,7 +13,6 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .types import AutoLabelingResult
 from .__base__.yolo import YOLO
 from .__base__.sam import SegmentAnythingONNX
-from .utils import rescale_box
 from .engines.build_onnx_engine import OnnxBaseModel
 
 
@@ -30,21 +29,16 @@ class YOLOv5SegmentAnything(YOLO):
             "max_height",
             "encoder_model_path",
             "decoder_model_path",
-            "model_path",
-            "stride",
-            "nms_threshold",
-            "confidence_threshold",
-            "classes",
         ]
         widgets = [
             "button_run",
-            "output_label",
-            "output_select_combobox",
             "button_add_point",
             "button_remove_point",
             "button_add_rect",
             "button_clear",
             "button_finish_object",
+            "output_label",
+            "output_select_combobox",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -57,25 +51,32 @@ class YOLOv5SegmentAnything(YOLO):
         super().__init__(config_path, on_message)
 
         """YOLOv5 Model"""
-        model_name = self.config['type']
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    "Model", f"Could not download or initialize YOLOv5 model."
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
-        self.classes = self.config["classes"]
-        self.input_shape = self.net.get_input_shape()[-2:]
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
-        self.stride = self.config.get("stride", 32)
+        _, _, self.input_height, self.input_width = self.net.get_input_shape()
+        if not isinstance(self.input_width, int):
+            self.input_width = self.config.get("input_width", -1)
+        if not isinstance(self.input_height, int):
+            self.input_height = self.config.get("input_height", -1)
+
+        self.task = "det"
+        self.model_type = self.config['type']
+        self.classes = self.config.get("classes", [])
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
+        self.show_boxes = self.config.get("show_boxes", False)
+        self.strategy = self.config.get("strategy", "largest")
+        self.iou_thres= self.config.get("nms_threshold", 0.45)
+        self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
-
+        self.nc = len(self.classes)
+        self.input_shape = (self.input_height, self.input_width)
         if self.anchors:
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
@@ -122,8 +123,10 @@ class YOLOv5SegmentAnything(YOLO):
             )
 
         # Load models
+        max_height = self.config["max_height"]
+        max_width = self.config["max_width"]
         self.target_size = self.config["target_size"]
-        self.input_size = (self.config["max_height"], self.config["max_width"])
+        self.input_size = (max_height, max_width)
         self.encoder_session = OnnxBaseModel(encoder_model_abs_path, __preferred_device__)
         self.decoder_session = OnnxBaseModel(decoder_model_abs_path, __preferred_device__)
         self.model = SegmentAnythingONNX(
@@ -217,21 +220,21 @@ class YOLOv5SegmentAnything(YOLO):
             return []
         if filename not in self.image_embed_cache:
             image_embedding = self.model.encode(cv_image)
-            blob = self.preprocess(cv_image)
-            predictions = self.net.get_ort_inference(blob)
-            results = self.postprocess(predictions)[0]
-            results[:, :4] = rescale_box(
-                self.input_shape, results[:, :4], cv_image.shape
-            ).round()
+            blob = self.preprocess(cv_image, upsample_mode="letterbox")
+            outputs = self.net.get_ort_inference(blob=blob, extract=False)
+            boxes, _, class_ids, _ = self.postprocess(outputs)
+
             shapes = []
-            for *xyxy, _, cls_id in reversed(results):
-                label = str(self.classes[int(cls_id)])
-                x1, y1, x2, y2 = list(map(int, xyxy))
+            for box, class_id in zip(boxes, class_ids):
+                label = str(self.classes[int(class_id)])
+                x1, y1, x2, y2 = list(map(int, box))
                 box_prompt = [
                     np.array([[x1, y1], [x2, y2]]),
                     np.array([2, 3]),
                 ]
-                masks = self.model.predict_masks(image_embedding, box_prompt, transform_prompt=False)
+                masks = self.model.predict_masks(
+                    image_embedding, box_prompt, transform_prompt=False
+                )
                 if len(masks.shape) == 4:
                     masks = masks[0][0]
                 else:

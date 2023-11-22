@@ -10,9 +10,6 @@ from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .types import AutoLabelingResult
-from .utils import (
-    rescale_box,
-)
 from .__base__.yolo import YOLO
 from .engines.build_onnx_engine import OnnxBaseModel
 
@@ -32,29 +29,62 @@ class YOLOv5_RAM(YOLO):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-        model_name = self.config['type']
-        det_model_abs_path = self.get_model_abs_path(self.config, "model_path")
+
+        '''Tagging'''
         tag_model_abs_path = self.get_model_abs_path(self.config, "tag_model_path")
-        if (not det_model_abs_path or not os.path.isfile(det_model_abs_path)) or \
-           (not tag_model_abs_path or not os.path.isfile(tag_model_abs_path)):
+        if (not tag_model_abs_path or not os.path.isfile(tag_model_abs_path)):
             raise FileNotFoundError(
                 QCoreApplication.translate(
                     "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    f"Could not download or initialize {self.config['type']} model."
                 )
             )
-        
-        # YOLOv5
-        self.net = OnnxBaseModel(det_model_abs_path, __preferred_device__)
+        self.ram_net = OnnxBaseModel(tag_model_abs_path, __preferred_device__)
+        self.ram_input_shape = self.ram_net.get_input_shape()[-2:]
+        self.tag_mode = self.config.get("tag_mode", '')  # ['en', 'cn']
+        self.tag_list, self.tag_list_chinese = self.load_tag_list()
+        delete_tags = self.config.get("delete_tags", [])
+        filter_tags = self.config.get("filter_tags", [])
+        if delete_tags:
+            self.delete_tag_index = [
+                self.tag_list.tolist().index(label) for label in delete_tags
+            ]
+        elif filter_tags:
+            self.delete_tag_index = [
+                index for index, item in enumerate(self.tag_list) 
+                if item not in filter_tags
+            ]
+        else:
+            self.delete_tag_index = []
+
+        '''Detection'''
+        model_abs_path = self.get_model_abs_path(self.config, "model_path")
+        if not model_abs_path or not os.path.isfile(model_abs_path):
+            raise FileNotFoundError(
+                QCoreApplication.translate(
+                    "Model", f"Could not download or initialize {self.config['type']} model."
+                )
+            )
+        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
+        _, _, self.input_height, self.input_width = self.net.get_input_shape()
+        if not isinstance(self.input_width, int):
+            self.input_width = self.config.get("input_width", -1)
+        if not isinstance(self.input_height, int):
+            self.input_height = self.config.get("input_height", -1)
+
+        self.model_type = self.config['type']
         self.classes = self.config["classes"]
-        self.input_shape = self.net.get_input_shape()[-2:]
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
-        self.stride = self.config.get("stride", 32)
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
+        self.show_boxes = self.config.get("show_boxes", False)
+        self.strategy = self.config.get("strategy", "largest")
+        self.iou_thres= self.config.get("nms_threshold", 0.45)
+        self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
 
+        self.task = "det"
+        self.nc = len(self.classes)
+        self.input_shape = (self.input_height, self.input_width)
         if self.anchors:
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
@@ -71,26 +101,7 @@ class YOLOv5_RAM(YOLO):
                 i for i, item in enumerate(self.classes) 
                 if item in self.filter_classes
             ]
-        
-        # RAM
-        self.ram_net = OnnxBaseModel(tag_model_abs_path, __preferred_device__)
-        self.ram_input_shape = self.ram_net.get_input_shape()[-2:]
-        self.tag_mode = self.config.get("tag_mode", '')  # ['en', 'cn']
-        self.tag_list, self.tag_list_chinese = self.load_tag_list()
-        
-        delete_tags = self.config.get("delete_tags", [])
-        filter_tags = self.config.get("filter_tags", [])
-        if delete_tags:
-            self.delete_tag_index = [
-                self.tag_list.tolist().index(label) for label in delete_tags
-            ]
-        elif filter_tags:
-            self.delete_tag_index = [
-                index for index, item in enumerate(self.tag_list) 
-                if item not in filter_tags
-            ]
-        else:
-            self.delete_tag_index = []
+
 
     def ram_preprocess(self, input_image):
         """
@@ -137,17 +148,11 @@ class YOLOv5_RAM(YOLO):
             logging.warning(e)
             return []
 
-        blob = self.preprocess(image)
-        predictions = self.net.get_ort_inference(blob)
-        results = self.postprocess(predictions)[0]
+        blob = self.preprocess(image, upsample_mode="letterbox")
+        outputs = self.net.get_ort_inference(blob=blob, extract=False)
+        boxes, _, class_ids, _ = self.postprocess(outputs)
 
-        if len(results) == 0: 
-            return AutoLabelingResult([], replace=True)
-        results[:, :4] = rescale_box(
-            self.input_shape, results[:, :4], image.shape
-        ).round()
-
-        results = self.get_attributes(image, results)
+        results = self.get_attributes(image, boxes, class_ids)
 
         shapes = []
         for res in results:
@@ -192,10 +197,11 @@ class YOLOv5_RAM(YOLO):
             return zh_tag[0]
         return image_text
 
-    def get_attributes(self, image, results):
+    def get_attributes(self, image, boxes, class_ids):
         outputs = []
-        for *xyxy, _, cls_id in reversed(results):
-            x1, y1, x2, y2 = list(map(int, xyxy))
+        for box, cls_id in zip(boxes, class_ids):
+            xyxy = list(map(int, box))
+            x1, y1, x2, y2 = xyxy
             img = image[y1: y2, x1: x2]
             blob = self.ram_preprocess(img)
             outs = self.ram_net.get_ort_inference(blob, extract=False)

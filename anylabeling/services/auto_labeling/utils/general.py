@@ -52,3 +52,17 @@ def letterbox(
         im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color
     )
     return im, ratio, (dw, dh)
+
+def softmax(x):
+    """
+    Applies the softmax function to the input array.
+
+    Args:
+        x (numpy.ndarray): Input array.
+
+    Returns:
+        numpy.ndarray: Output array after applying softmax.
+    """
+    x = x.reshape(-1)
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum(axis=0)

@@ -1,12 +1,9 @@
 type: yolov8_seg
 name: yolov8l-seg-r20230620
 display_name: YOLOv8l-Seg Ultralytics
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8l-seg.onnx
-input_width: 640
-input_height: 640
-num_masks: 32
-score_threshold: 0.5
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8l-seg.onnxdf
 nms_threshold: 0.45
+confidence_threshold: 0.25
 classes:
   - person
   - bicycle

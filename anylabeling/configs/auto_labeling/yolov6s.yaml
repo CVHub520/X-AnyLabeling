@@ -2,7 +2,6 @@ type: yolov6
 name: yolov6s-r20230520
 display_name: YOLOv6s MeiTuan
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6s.onnx
-stride: 32
 nms_threshold: 0.45
 confidence_threshold: 0.25
 classes:
