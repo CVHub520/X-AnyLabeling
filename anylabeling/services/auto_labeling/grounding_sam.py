@@ -24,7 +24,6 @@ from .utils.general import Args
 from .engines.build_onnx_engine import OnnxBaseModel
 
 
-
 class SegmentAnythingONNX:
     """Segmentation model using SAM-HQ"""
 
@@ -531,7 +530,8 @@ class GroundingSAM(Model):
                 )
                 if self.stop_inference:
                     return AutoLabelingResult([], replace=False)
-            if image_path not in self.current_image_embedding_cache:
+
+            if text_prompt:
                 blob, inputs, caption = self.preprocess(cv_image, text_prompt, None)
                 outputs = self.net.get_ort_inference(blob, inputs=inputs, extract=False)
                 boxes_filt, pred_phrases = self.postprocess(outputs, caption)
@@ -550,9 +550,7 @@ class GroundingSAM(Model):
                         masks = masks[0]
                     results = self.post_process(masks, label=label)
                     shapes.append(results)
-                result = AutoLabelingResult(shapes, replace=True)
-                self.current_image_embedding_cache[image_path] = image_embedding
-                return result
+                result = AutoLabelingResult(shapes, replace=False)
             else:
                 point_coords, point_labels = self.get_input_points()
                 masks = self.model.predict_masks(image_embedding, point_coords, point_labels)
@@ -562,7 +560,7 @@ class GroundingSAM(Model):
                     masks = masks[0]
                 shapes = self.post_process(masks)
                 result = AutoLabelingResult(shapes, replace=False)
-                return result
+            return result
         except Exception as e:  # noqa
             logging.warning("Could not inference model")
             logging.warning(e)
