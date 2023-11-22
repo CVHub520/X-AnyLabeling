@@ -170,7 +170,7 @@ def main():
     language = config.get("language", QtCore.QLocale.system().name())
     translator = QtCore.QTranslator()
     loaded_language = translator.load(
-        "../X-AnyLabeling/anylabeling/resources/translations/" + language + ".qm"
+        "./anylabeling/resources/translations/" + language + ".qm"
     )
 
     # Initialize "save_mode" as "default" in 'config'
