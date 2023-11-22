@@ -104,6 +104,7 @@ class YOLO(Model):
             "yolov5",
             "yolov6",
             "yolov8",
+            "gold_yolo",
         ]:
             self.task = "det"
         elif self.model_type in ["yolov5_seg", "yolov8_seg"]:
