@@ -132,7 +132,6 @@ class YOLO(Model):
         return blob
 
     def postprocess(self, preds):
-        print(f"{self.model_type} | {self.task}, | {preds}")
         if self.model_type in [
             "yolov5",
             "yolov5_cls",
@@ -162,7 +161,6 @@ class YOLO(Model):
             "yolov8_seg",
             "yolov8_track",
         ]:
-            print(f"shape: {preds[0].shape}")
             p = non_max_suppression_v8(
                 preds[0],
                 task=self.task,
@@ -174,7 +172,6 @@ class YOLO(Model):
                 nc=self.nc,
             )
 
-        print(f"pred: {p}")
         masks = None
         img_shape = (self.img_height, self.img_width)
         if self.task == "seg":
@@ -190,11 +187,7 @@ class YOLO(Model):
         bbox = pred[:, :4]
         conf = pred[:, 4:5]
         clas = pred[:, 5:6]
-        print(f"pred.shape: {pred.shape} | {pred}")
-        print(f"bbox: {bbox}")
-        print(f"conf: {conf}")
-        print(f"clas: {clas}")
-        print(f"masks: {masks}")
+
         return (bbox, masks, clas, conf)
 
     def predict_shapes(self, image, image_path=None):
@@ -212,23 +205,15 @@ class YOLO(Model):
             logging.warning(e)
             return []
 
-        print(f"111")
         blob = self.preprocess(image, upsample_mode="letterbox")
-        print(f"222")
         outputs = self.net.get_ort_inference(blob=blob, extract=False)
-        print(f"333")
         boxes, masks, class_ids, scores = self.postprocess(outputs)
-        print(f"444, im_shape: {self.input_shape}, ori_shape: {image.shape}")
-
         points = [[] for _ in range(len(boxes))]
         if self.task == "seg":
-            print(f"mask_shape:")
-            print(f"{masks[0].shape}")
             points = [
                 scale_coords(self.input_shape, x, image.shape, normalize=False)
                 for x in masks2segments(masks, self.strategy)
             ]
-        print(f"555")
         track_ids = [[] for _ in range(len(boxes))]
         if self.task == "track":
             image_shape = image.shape[:2][::-1]
