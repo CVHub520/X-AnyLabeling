@@ -179,11 +179,16 @@ class PPOCRv4(Model):
         } for i in range(len(dt_boxes))]
 
         shapes = []
-        for res in results:
+        for i, res in enumerate(results):
             text = res['text']
             points = res['points']
             pt1, pt2 = points[0], points[2]
-            shape = Shape(label="text", text=text, shape_type="rectangle", flags={})
+            shape = Shape(
+                label="text",
+                text=text,
+                shape_type="rectangle",
+                group_id=int(i)
+            )
             shape.add_point(QtCore.QPointF(*pt1))
             shape.add_point(QtCore.QPointF(*pt2))
             shapes.append(shape)
