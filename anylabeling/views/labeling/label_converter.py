@@ -168,10 +168,10 @@ class LabelConverter:
             label = shape['label']
             points = shape['points']
 
-            xmin = str(points[0][0])
-            ymin = str(points[0][1])
-            xmax = str(points[1][0])
-            ymax = str(points[1][1])
+            xmin = str(int(points[0][0]))
+            ymin = str(int(points[0][1]))
+            xmax = str(int(points[1][0]))
+            ymax = str(int(points[1][1]))
 
             object_elem = ET.SubElement(root, 'object')
             ET.SubElement(object_elem, 'name').text = label
