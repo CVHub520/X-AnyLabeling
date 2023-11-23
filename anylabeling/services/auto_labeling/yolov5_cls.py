@@ -21,7 +21,6 @@ class YOLOv5_CLS(YOLO):
             "cls_model_path",
             "det_classes",
             "cls_classes",
-            "cls_score_threshold",
         ]
         widgets = ["button_run"]
         output_modes = {
