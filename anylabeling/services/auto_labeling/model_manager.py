@@ -197,6 +197,7 @@ class ModelManager(QObject):
                 "yolov5_ram",
                 "yolov8_pose",
                 "pulc_attribute",
+                "internimage_cls",
             ]
         ):
             self.new_model_status.emit(
@@ -611,6 +612,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = RAM(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "internimage_cls":
+            from .internimage_cls import InternImage_CLS
+
+            try:
+                model_config["model"] = InternImage_CLS(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

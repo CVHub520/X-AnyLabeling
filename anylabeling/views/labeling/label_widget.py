@@ -2976,6 +2976,7 @@ class LabelingWidget(LabelDialog):
             "grounding_sam",
             "grounding_dino",
             "pulc_attribute",
+            "internimage_cls",
             "yolov8_efficientvit_sam",
         ]
 
