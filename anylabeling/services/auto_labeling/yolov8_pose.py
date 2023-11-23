@@ -15,8 +15,8 @@ from .utils import (
     rescale_tlwh,
 )
 
-class YOLOv8_Pose(YOLO):
 
+class YOLOv8_Pose(YOLO):
     def postprocess(self, prediction):
         """
         Args:
@@ -57,7 +57,7 @@ class YOLOv8_Pose(YOLO):
         predictions = self.net.get_ort_inference(blob)
         results = self.postprocess(predictions)
 
-        if len(results) == 0: 
+        if len(results) == 0:
             return AutoLabelingResult([], replace=True)
         results = rescale_tlwh(
             self.input_shape, results, image.shape, kpts=True
@@ -69,7 +69,7 @@ class YOLOv8_Pose(YOLO):
 
             if self.show_boxes:
                 rectangle_shape = Shape(
-                    label=str(self.classes[0]), 
+                    label=str(self.classes[0]),
                     shape_type="rectangle",
                 )
                 rectangle_shape.add_point(QtCore.QPointF(xyxy[0], xyxy[1]))
@@ -78,9 +78,9 @@ class YOLOv8_Pose(YOLO):
 
             interval = 3
             for i in range(0, len(kpts), interval):
-                x, y, kpt_score = kpts[i: i + 3]
+                x, y, kpt_score = kpts[i : i + 3]
                 if kpt_score > self.conf_thres:
-                    label = self.keypoints[int(i//interval)]
+                    label = self.keypoints[int(i // interval)]
                     point_shape = Shape(
                         label=label, shape_type="point", group_id=group_id
                     )

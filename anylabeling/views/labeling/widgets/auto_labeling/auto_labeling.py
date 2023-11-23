@@ -59,7 +59,9 @@ class AutoLabelingWidget(QWidget):
         # Auto labeling buttons
         self.button_run.setShortcut("I")
         self.button_run.clicked.connect(self.run_prediction)
-        self.edit_text.setPlaceholderText("Enter text prompt here and press Enter to confirm.")
+        self.edit_text.setPlaceholderText(
+            "Enter text prompt here and press Enter to confirm."
+        )
         self.edit_text.returnPressed.connect(self.run_vl_prediction)
         self.button_add_point.setShortcut("+")
         self.button_add_point.clicked.connect(

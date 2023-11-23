@@ -6,9 +6,19 @@ from typing import List
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.annotation import BoundingBox, Category, Mask
-from anylabeling.services.auto_labeling.utils.sahi.postprocess.utils import calculate_area, calculate_box_union, calculate_intersection_area
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
+from anylabeling.services.auto_labeling.utils.sahi.annotation import (
+    BoundingBox,
+    Category,
+    Mask,
+)
+from anylabeling.services.auto_labeling.utils.sahi.postprocess.utils import (
+    calculate_area,
+    calculate_box_union,
+    calculate_intersection_area,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
 
 
 class PostprocessPredictions:
@@ -27,11 +37,19 @@ class PostprocessPredictions:
         elif match_metric == "IOS":
             self.calculate_match = self.calculate_bbox_ios
         else:
-            raise ValueError(f"'match_metric' should be one of ['IOU', 'IOS'] but given as {match_metric}")
+            raise ValueError(
+                f"'match_metric' should be one of ['IOU', 'IOS'] but given as {match_metric}"
+            )
 
-    def _has_match(self, pred1: ObjectPrediction, pred2: ObjectPrediction) -> bool:
-        threshold_condition = self.calculate_match(pred1, pred2) > self.match_threshold
-        category_condition = self.has_same_category_id(pred1, pred2) or self.class_agnostic
+    def _has_match(
+        self, pred1: ObjectPrediction, pred2: ObjectPrediction
+    ) -> bool:
+        threshold_condition = (
+            self.calculate_match(pred1, pred2) > self.match_threshold
+        )
+        category_condition = (
+            self.has_same_category_id(pred1, pred2) or self.class_agnostic
+        )
         return threshold_condition and category_condition
 
     @staticmethod
@@ -40,11 +58,15 @@ class PostprocessPredictions:
         return object_prediction.score.value
 
     @staticmethod
-    def has_same_category_id(pred1: ObjectPrediction, pred2: ObjectPrediction) -> bool:
+    def has_same_category_id(
+        pred1: ObjectPrediction, pred2: ObjectPrediction
+    ) -> bool:
         return pred1.category.id == pred2.category.id
 
     @staticmethod
-    def calculate_bbox_iou(pred1: ObjectPrediction, pred2: ObjectPrediction) -> float:
+    def calculate_bbox_iou(
+        pred1: ObjectPrediction, pred2: ObjectPrediction
+    ) -> float:
         """Returns the ratio of intersection area to the union"""
         box1 = np.array(pred1.bbox.to_xyxy())
         box2 = np.array(pred2.bbox.to_xyxy())
@@ -54,7 +76,9 @@ class PostprocessPredictions:
         return intersect / (area1 + area2 - intersect)
 
     @staticmethod
-    def calculate_bbox_ios(pred1: ObjectPrediction, pred2: ObjectPrediction) -> float:
+    def calculate_bbox_ios(
+        pred1: ObjectPrediction, pred2: ObjectPrediction
+    ) -> float:
         """Returns the ratio of intersection area to the smaller box's area"""
         box1 = np.array(pred1.bbox.to_xyxy())
         box2 = np.array(pred2.bbox.to_xyxy())
@@ -73,21 +97,29 @@ class NMSPostprocess(PostprocessPredictions):
         self,
         object_predictions: List[ObjectPrediction],
     ):
-        source_object_predictions: List[ObjectPrediction] = copy.deepcopy(object_predictions)
+        source_object_predictions: List[ObjectPrediction] = copy.deepcopy(
+            object_predictions
+        )
         selected_object_predictions: List[ObjectPrediction] = []
         while len(source_object_predictions) > 0:
             # select object prediction with highest score
-            source_object_predictions.sort(reverse=True, key=self.get_score_func)
+            source_object_predictions.sort(
+                reverse=True, key=self.get_score_func
+            )
             selected_object_prediction = source_object_predictions[0]
             # remove selected prediction from source list
             del source_object_predictions[0]
             # if any element from remaining source prediction list matches, remove it
             new_source_object_predictions: List[ObjectPrediction] = []
             for candidate_object_prediction in source_object_predictions:
-                if self._has_match(selected_object_prediction, candidate_object_prediction):
+                if self._has_match(
+                    selected_object_prediction, candidate_object_prediction
+                ):
                     pass
                 else:
-                    new_source_object_predictions.append(candidate_object_prediction)
+                    new_source_object_predictions.append(
+                        candidate_object_prediction
+                    )
             source_object_predictions = new_source_object_predictions
             # append selected prediction to selected list
             selected_object_predictions.append(selected_object_prediction)
@@ -99,23 +131,36 @@ class UnionMergePostprocess(PostprocessPredictions):
         self,
         object_predictions: List[ObjectPrediction],
     ):
-        source_object_predictions: List[ObjectPrediction] = copy.deepcopy(object_predictions)
+        source_object_predictions: List[ObjectPrediction] = copy.deepcopy(
+            object_predictions
+        )
         selected_object_predictions: List[ObjectPrediction] = []
         while len(source_object_predictions) > 0:
             # select object prediction with highest score
-            source_object_predictions.sort(reverse=True, key=self.get_score_func)
+            source_object_predictions.sort(
+                reverse=True, key=self.get_score_func
+            )
             selected_object_prediction = source_object_predictions[0]
             # remove selected prediction from source list
             del source_object_predictions[0]
             # if any element from remaining source prediction list matches, remove it and merge with selected prediction
             new_source_object_predictions: List[ObjectPrediction] = []
-            for ind, candidate_object_prediction in enumerate(source_object_predictions):
-                if self._has_match(selected_object_prediction, candidate_object_prediction):
-                    selected_object_prediction = self._merge_object_prediction_pair(
-                        selected_object_prediction, candidate_object_prediction
+            for ind, candidate_object_prediction in enumerate(
+                source_object_predictions
+            ):
+                if self._has_match(
+                    selected_object_prediction, candidate_object_prediction
+                ):
+                    selected_object_prediction = (
+                        self._merge_object_prediction_pair(
+                            selected_object_prediction,
+                            candidate_object_prediction,
+                        )
                     )
                 else:
-                    new_source_object_predictions.append(candidate_object_prediction)
+                    new_source_object_predictions.append(
+                        candidate_object_prediction
+                    )
             source_object_predictions = new_source_object_predictions
             # append selected prediction to selected list
             selected_object_predictions.append(selected_object_prediction)
@@ -148,14 +193,18 @@ class UnionMergePostprocess(PostprocessPredictions):
         )
 
     @staticmethod
-    def _get_merged_category(pred1: ObjectPrediction, pred2: ObjectPrediction) -> Category:
+    def _get_merged_category(
+        pred1: ObjectPrediction, pred2: ObjectPrediction
+    ) -> Category:
         if pred1.score.value > pred2.score.value:
             return pred1.category
         else:
             return pred2.category
 
     @staticmethod
-    def _get_merged_bbox(pred1: ObjectPrediction, pred2: ObjectPrediction) -> BoundingBox:
+    def _get_merged_bbox(
+        pred1: ObjectPrediction, pred2: ObjectPrediction
+    ) -> BoundingBox:
         box1: List[int] = pred1.bbox.to_xyxy()
         box2: List[int] = pred2.bbox.to_xyxy()
         bbox = BoundingBox(box=calculate_box_union(box1, box2))
@@ -170,7 +219,9 @@ class UnionMergePostprocess(PostprocessPredictions):
         return max(scores)
 
     @staticmethod
-    def _get_merged_mask(pred1: ObjectPrediction, pred2: ObjectPrediction) -> Mask:
+    def _get_merged_mask(
+        pred1: ObjectPrediction, pred2: ObjectPrediction
+    ) -> Mask:
         mask1 = pred1.mask
         mask2 = pred2.mask
         union_mask = np.logical_or(mask1.bool_mask, mask2.bool_mask)

@@ -211,7 +211,7 @@ class SegmentAnything(Model):
         """
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
-        
+
         shapes = []
         try:
             # Use cached image embedding if possible
@@ -290,4 +290,3 @@ class SegmentAnything(Model):
                 self.pre_inference_worker.run
             )
             self.pre_inference_thread.start()
-

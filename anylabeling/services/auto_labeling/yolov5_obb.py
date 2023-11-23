@@ -15,8 +15,10 @@ from .utils.general import letterbox
 from .utils.points_conversion import rbox2poly
 from .engines.build_onnx_engine import OnnxBaseModel
 
+
 class YOLOv5OBB(Model):
     """Rotation model using YOLOv5OBB"""
+
     class Meta:
         required_config_names = [
             "type",
@@ -42,7 +44,8 @@ class YOLOv5OBB(Model):
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLOv5OBB model."
+                    "Model",
+                    "Could not download or initialize YOLOv5OBB model.",
                 )
             )
 
@@ -59,9 +62,11 @@ class YOLOv5OBB(Model):
         """
         Pre-process the input RGB image before feeding it to the network.
         """
-        img = letterbox(img, self.input_shape, auto=False, stride=self.stride)[0]
+        img = letterbox(img, self.input_shape, auto=False, stride=self.stride)[
+            0
+        ]
         img = img.transpose((2, 0, 1))  # HWC to CHW
-        img = np.ascontiguousarray(img).astype('float32')
+        img = np.ascontiguousarray(img).astype("float32")
         img /= 255  # 0 - 255 to 0.0 - 1.0
         if len(img.shape) == 3:
             img = img[None]  # expand for batch dim
@@ -79,22 +84,30 @@ class YOLOv5OBB(Model):
         generate_boxes, bboxes, scores = [], [], []
         for out in outputs:
             cx, cy, longside, shortside, obj_score = out[:5]
-            class_scores = out[5: 5+nc]
+            class_scores = out[5 : 5 + nc]
             class_idx = np.argmax(class_scores)
 
             max_class_score = class_scores[class_idx] * obj_score
             if max_class_score < self.conf_thres:
                 continue
 
-            theta_scores = out[5+nc:]
+            theta_scores = out[5 + nc :]
             theta_idx = np.argmax(theta_scores)
             theta_pred = (theta_idx - 90) / 180 * np.pi
 
             bboxes.append([[cx, cy], [longside, shortside], max_class_score])
             scores.append(max_class_score)
-            generate_boxes.append([
-                cx, cy, longside, shortside, theta_pred, max_class_score, class_idx
-            ])
+            generate_boxes.append(
+                [
+                    cx,
+                    cy,
+                    longside,
+                    shortside,
+                    theta_pred,
+                    max_class_score,
+                    class_idx,
+                ]
+            )
         indices = cv2.dnn.NMSBoxesRotated(
             bboxes, scores, self.conf_thres, self.nms_thres
         )
@@ -140,7 +153,7 @@ class YOLOv5OBB(Model):
             shape.add_point(QtCore.QPointF(x2, y2))
             shape.add_point(QtCore.QPointF(x3, y3))
             shapes.append(shape)
-        
+
         result = AutoLabelingResult(shapes, replace=True)
         return result
 
@@ -153,9 +166,7 @@ class YOLOv5OBB(Model):
         diagonal_vector_y = y2 - y1
 
         # Calculate the rotation angle in radians
-        rotation_angle = math.atan2(
-            diagonal_vector_y, diagonal_vector_x
-        )
+        rotation_angle = math.atan2(diagonal_vector_y, diagonal_vector_x)
 
         # Convert radians to degrees
         rotation_angle_degrees = math.degrees(rotation_angle)
@@ -170,18 +181,19 @@ class YOLOv5OBB(Model):
         # Rescale coords (xyxyxyxy) from new_shape to old_shape
         new_shape = self.input_shape
         # calculate from old_shape
-        if ratio_pad is None:  
+        if ratio_pad is None:
             # gain  = resized / raw
             gain = min(
-                new_shape[0] / old_shape[0], 
+                new_shape[0] / old_shape[0],
                 new_shape[1] / old_shape[1],
-                )
+            )
             # wh padding
-            pad = (new_shape[1] - old_shape[1] * gain) / 2, \
-                  (new_shape[0] - old_shape[0] * gain) / 2
+            pad = (new_shape[1] - old_shape[1] * gain) / 2, (
+                new_shape[0] - old_shape[0] * gain
+            ) / 2
         else:
-            gain = ratio_pad[0][0]        # h_ratios
-            pad = ratio_pad[1]            # wh_paddings
+            gain = ratio_pad[0][0]  # h_ratios
+            pad = ratio_pad[1]  # wh_paddings
         polys[:, [0, 2, 4, 6]] -= pad[0]  # x padding
         polys[:, [1, 3, 5, 7]] -= pad[1]  # y padding
         # Rescale poly shape to img0_shape

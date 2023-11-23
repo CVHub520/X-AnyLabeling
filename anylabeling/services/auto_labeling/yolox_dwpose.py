@@ -35,7 +35,7 @@ class YOLOX_DWPose(Model):
             "confidence_threshold",
             "kpt_threshold",
             "det_cat_ids",
-            "det_classes"
+            "det_classes",
         ]
         widgets = ["button_run"]
         output_modes = {
@@ -48,14 +48,18 @@ class YOLOX_DWPose(Model):
         # Run the parent class's init method
         super().__init__(model_config, on_message)
 
-        det_model_abs_path = self.get_model_abs_path(self.config, "det_model_path")
+        det_model_abs_path = self.get_model_abs_path(
+            self.config, "det_model_path"
+        )
         if not det_model_abs_path or not os.path.isfile(det_model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
                     "Model", "Could not download or initialize YOLOX-L model."
                 )
             )
-        pose_model_abs_path = self.get_model_abs_path(self.config, "pose_model_path")
+        pose_model_abs_path = self.get_model_abs_path(
+            self.config, "pose_model_path"
+        )
         if not pose_model_abs_path or not os.path.isfile(pose_model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
@@ -68,19 +72,19 @@ class YOLOX_DWPose(Model):
             sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
 
         if __preferred_device__ == "GPU":
-            ox_providers = ['CUDAExecutionProvider']
+            ox_providers = ["CUDAExecutionProvider"]
             backend = cv2.dnn.DNN_BACKEND_CUDA
             cv_providers = cv2.dnn.DNN_TARGET_CUDA
         else:
-            ox_providers = ['CPUExecutionProvider']
+            ox_providers = ["CPUExecutionProvider"]
             backend = cv2.dnn.DNN_BACKEND_OPENCV
             cv_providers = cv2.dnn.DNN_TARGET_CPU
 
         self.det_net = ort.InferenceSession(
-                        det_model_abs_path, 
-                        providers=ox_providers,
-                        sess_options=sess_opts,
-                    )
+            det_model_abs_path,
+            providers=ox_providers,
+            sess_options=sess_opts,
+        )
         self.pose_net = cv2.dnn.readNetFromONNX(pose_model_abs_path)
         self.pose_net.setPreferableBackend(backend)
         self.pose_net.setPreferableTarget(cv_providers)
@@ -90,25 +94,42 @@ class YOLOX_DWPose(Model):
         self.kpt_thr = self.config["kpt_threshold"]
         self.det_cat_ids = self.config["det_cat_ids"]
         self.det_classes = self.config["det_classes"]
-        self.det_input_size = (self.config["det_input_height"], self.config["det_input_width"])
-        self.pose_input_size = (self.config["pose_input_width"], self.config["pose_input_height"])
+        self.det_input_size = (
+            self.config["det_input_height"],
+            self.config["det_input_width"],
+        )
+        self.pose_input_size = (
+            self.config["pose_input_width"],
+            self.config["pose_input_height"],
+        )
 
     def det_pre_process(self, img, net, swap=(2, 0, 1)):
         """
         Pre-process the input RGB image before feeding it to the network.
         """
         if len(img.shape) == 3:
-            padded_img = np.ones((self.det_input_size[0], self.det_input_size[1], 3), dtype=np.uint8) * 114
+            padded_img = (
+                np.ones(
+                    (self.det_input_size[0], self.det_input_size[1], 3),
+                    dtype=np.uint8,
+                )
+                * 114
+            )
         else:
             padded_img = np.ones(self.det_input_size, dtype=np.uint8) * 114
 
-        r = min(self.det_input_size[0] / img.shape[0], self.det_input_size[1] / img.shape[1])
+        r = min(
+            self.det_input_size[0] / img.shape[0],
+            self.det_input_size[1] / img.shape[1],
+        )
         resized_img = cv2.resize(
             img,
             (int(img.shape[1] * r), int(img.shape[0] * r)),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
-        padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = resized_img
+        padded_img[
+            : int(img.shape[0] * r), : int(img.shape[1] * r)
+        ] = resized_img
 
         padded_img = padded_img.transpose(swap)
         padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)
@@ -145,7 +166,7 @@ class YOLOX_DWPose(Model):
         outputs[..., 2:4] = np.exp(outputs[..., 2:4]) * expanded_strides
 
         return outputs
-    
+
     def predict_shapes(self, image, image_path=None):
         """
         Predict shapes from image
@@ -168,17 +189,21 @@ class YOLOX_DWPose(Model):
 
         # Pose Estimation
         if results is not None:
-            final_boxes, final_scores, final_cls_inds = results[:, :4], results[:, 4], results[:, 5]
+            final_boxes, final_scores, final_cls_inds = (
+                results[:, :4],
+                results[:, 4],
+                results[:, 5],
+            )
             isscore = final_scores > self.config["confidence_threshold"]
             iscat = final_cls_inds == self.det_cat_ids
-            isbbox = [ i and j for (i, j) in zip(isscore, iscat)]
+            isbbox = [i and j for (i, j) in zip(isscore, iscat)]
             final_boxes = final_boxes[isbbox]
 
             keypoints, scores = inference_pose(
-                self.pose_net, 
-                final_boxes, 
-                cv2.cvtColor(image, cv2.COLOR_RGB2BGR), 
-                self.pose_input_size
+                self.pose_net,
+                final_boxes,
+                cv2.cvtColor(image, cv2.COLOR_RGB2BGR),
+                self.pose_input_size,
             )
             keypoints, scores = self.pose_rescale(keypoints, scores)
 
@@ -187,11 +212,10 @@ class YOLOX_DWPose(Model):
         for box, _, cls_inds, kpt_points, kpt_scores in zip(
             final_boxes, final_scores, final_cls_inds, keypoints, scores
         ):
-
             if self.draw_det_box:
                 x1, y1, x2, y2 = box
                 rectangle_shape = Shape(
-                    label=str(self.det_classes[int(cls_inds)]), 
+                    label=str(self.det_classes[int(cls_inds)]),
                     shape_type="rectangle",
                 )
                 rectangle_shape.add_point(QtCore.QPointF(x1, y1))
@@ -204,7 +228,9 @@ class YOLOX_DWPose(Model):
                 if kpt_score <= self.kpt_thr:
                     continue
                 point_shape = Shape(label=str(i), shape_type="point", flags={})
-                point_shape.add_point(QtCore.QPointF(kpt_point[0], kpt_point[1]))
+                point_shape.add_point(
+                    QtCore.QPointF(kpt_point[0], kpt_point[1])
+                )
                 shapes.append(point_shape)
 
         result = AutoLabelingResult(shapes, replace=True)
@@ -213,31 +239,25 @@ class YOLOX_DWPose(Model):
 
     def pose_rescale(self, keypoints, scores):
         keypoints_info = np.concatenate(
-            (keypoints, scores[..., None]), axis=-1)
+            (keypoints, scores[..., None]), axis=-1
+        )
         # compute neck joint
         neck = np.mean(keypoints_info[:, [5, 6]], axis=1)
         # neck score when visualizing pred
         neck[:, 2:4] = np.logical_and(
-            keypoints_info[:, 5, 2:4] > 0.3,
-            keypoints_info[:, 6, 2:4] > 0.3).astype(int)
-        new_keypoints_info = np.insert(
-            keypoints_info, 17, neck, axis=1)
-        mmpose_idx = [
-            17, 6, 8, 10, 7, 9, 12, 14, 16, 13, 15, 2, 1, 4, 3
-        ]
-        openpose_idx = [
-            1, 2, 3, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17
-        ]
-        new_keypoints_info[:, openpose_idx] = \
-            new_keypoints_info[:, mmpose_idx]
+            keypoints_info[:, 5, 2:4] > 0.3, keypoints_info[:, 6, 2:4] > 0.3
+        ).astype(int)
+        new_keypoints_info = np.insert(keypoints_info, 17, neck, axis=1)
+        mmpose_idx = [17, 6, 8, 10, 7, 9, 12, 14, 16, 13, 15, 2, 1, 4, 3]
+        openpose_idx = [1, 2, 3, 4, 6, 7, 8, 9, 10, 12, 13, 14, 15, 16, 17]
+        new_keypoints_info[:, openpose_idx] = new_keypoints_info[:, mmpose_idx]
         keypoints_info = new_keypoints_info
 
-        keypoints, scores = keypoints_info[
-            ..., :2], keypoints_info[..., 2]
+        keypoints, scores = keypoints_info[..., :2], keypoints_info[..., 2]
         return keypoints, scores
 
     def det_rescale(self, predictions, ratio):
-        '''Rescale the output to the original image shape'''
+        """Rescale the output to the original image shape"""
 
         nms_thr = self.config["nms_threshold"]
         score_thr = self.config["confidence_threshold"]
@@ -246,12 +266,14 @@ class YOLOX_DWPose(Model):
         scores = predictions[:, 4:5] * predictions[:, 5:]
 
         boxes_xyxy = np.ones_like(boxes)
-        boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2]/2.
-        boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3]/2.
-        boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2]/2.
-        boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3]/2.
+        boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.0
+        boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.0
+        boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.0
+        boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.0
         boxes_xyxy /= ratio
-        dets = self.multiclass_nms_class_agnostic(boxes_xyxy, scores, nms_thr=nms_thr, score_thr=score_thr)
+        dets = self.multiclass_nms_class_agnostic(
+            boxes_xyxy, scores, nms_thr=nms_thr, score_thr=score_thr
+        )
 
         return dets
 
@@ -269,7 +291,12 @@ class YOLOX_DWPose(Model):
         keep = self.nms(valid_boxes, valid_scores, nms_thr)
         if keep:
             dets = np.concatenate(
-                [valid_boxes[keep], valid_scores[keep, None], valid_cls_inds[keep, None]], 1
+                [
+                    valid_boxes[keep],
+                    valid_scores[keep, None],
+                    valid_cls_inds[keep, None],
+                ],
+                1,
             )
         return dets
 

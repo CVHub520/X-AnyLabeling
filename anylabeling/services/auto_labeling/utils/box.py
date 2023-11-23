@@ -14,7 +14,7 @@ def box_iou(box1, box2):
     lt = np.maximum(box1[:, np.newaxis, :2], box2[:, :2])
     rb = np.minimum(box1[:, np.newaxis, 2:], box2[:, 2:])
     wh = rb - lt
-    wh = np.maximum(0, wh) # [N, M, 2]
+    wh = np.maximum(0, wh)  # [N, M, 2]
     inter = wh[:, :, 0] * wh[:, :, 1]
     iou = inter / (area1[:, np.newaxis] + area2 - inter)
     return iou  # NxM
@@ -33,23 +33,23 @@ def numpy_nms(boxes, scores, iou_threshold):
         other_boxes = boxes[idxs]
         ious = box_iou(max_score_box, other_boxes)
         idxs = idxs[ious[0] <= iou_threshold]
-    keep = np.array(keep)  
+    keep = np.array(keep)
     return keep
 
 
 def non_max_suppression_v5(
-        prediction,
-        task="det",
-        conf_thres=0.25,
-        iou_thres=0.45,
-        classes=None,
-        agnostic=False,
-        multi_label=False,
-        labels=(),
-        max_det=300,
-        nc=0,  # number of classes (optional)
-        max_nms=30000,
-        max_wh=7680,
+    prediction,
+    task="det",
+    conf_thres=0.25,
+    iou_thres=0.45,
+    classes=None,
+    agnostic=False,
+    multi_label=False,
+    labels=(),
+    max_det=300,
+    nc=0,  # number of classes (optional)
+    max_nms=30000,
+    max_wh=7680,
 ):
     """
     Perform non-maximum suppression (NMS) on a set of boxes, \
@@ -91,10 +91,14 @@ def non_max_suppression_v5(
     """
 
     # Checks
-    assert 0 <= conf_thres <= 1, f'Invalid Confidence threshold {conf_thres}, \
-        valid values are between 0.0 and 1.0'
-    assert 0 <= iou_thres <= 1, f'Invalid IoU {iou_thres}, \
-        valid values are between 0.0 and 1.0'
+    assert (
+        0 <= conf_thres <= 1
+    ), f"Invalid Confidence threshold {conf_thres}, \
+        valid values are between 0.0 and 1.0"
+    assert (
+        0 <= iou_thres <= 1
+    ), f"Invalid IoU {iou_thres}, \
+        valid values are between 0.0 and 1.0"
     if task == "seg" and nc == 0:
         raise ValueError("The value of nc must be set when the mode is 'seg'.")
     if isinstance(prediction, (list, tuple)):
@@ -116,7 +120,7 @@ def non_max_suppression_v5(
 
     for xi, x in enumerate(prediction):  # image index, image inference
         # Apply constraints
-        # x[((x[:, 2:4] < min_wh) | 
+        # x[((x[:, 2:4] < min_wh) |
         # (x[:, 2:4] > max_wh)).any(1), 4] = 0  # width-height
         x = x[xc[xi]]  # confidence
 
@@ -139,15 +143,16 @@ def non_max_suppression_v5(
 
         if multi_label:
             i, j = np.where(cls > conf_thres)
-            x = np.concatenate((
-                box[i], x[i, 5 + j, None], j[:, None].astype(float), mask[i]
-            ), axis=1)
+            x = np.concatenate(
+                (box[i], x[i, 5 + j, None], j[:, None].astype(float), mask[i]),
+                axis=1,
+            )
         else:  # best class only
             conf = np.max(cls, axis=1, keepdims=True)
             j = np.argmax(cls, axis=1, keepdims=True)
-            x = np.concatenate((
-                box, conf, j.astype(float), mask
-            ), axis=1)[conf.flatten() > conf_thres]
+            x = np.concatenate((box, conf, j.astype(float), mask), axis=1)[
+                conf.flatten() > conf_thres
+            ]
         if classes is not None:
             x = x[(x[:, 5:6] == np.array(classes)).any(1)]
 
@@ -161,12 +166,12 @@ def non_max_suppression_v5(
         boxes, scores = x[:, :4] + c, x[:, 4]
         i = numpy_nms(boxes, scores, iou_thres)
         i = i[:max_det]
-        if merge and (1 < n < 3E3):
+        if merge and (1 < n < 3e3):
             iou = box_iou(boxes[i], boxes) > iou_thres
             weights = iou * scores[None]
-            x[i, :4] = np.dot(
-                weights, x[:, :4]
-            ) / weights.sum(1, keepdims=True)
+            x[i, :4] = np.dot(weights, x[:, :4]) / weights.sum(
+                1, keepdims=True
+            )
             if redundant:
                 i = i[iou.sum(1) > 1]
 
@@ -176,18 +181,18 @@ def non_max_suppression_v5(
 
 
 def non_max_suppression_v8(
-        prediction,
-        task="det",
-        conf_thres=0.25,
-        iou_thres=0.45,
-        classes=None,
-        agnostic=False,
-        multi_label=False,
-        labels=(),
-        max_det=300,
-        nc=0,  # number of classes (optional)
-        max_nms=30000,
-        max_wh=7680,
+    prediction,
+    task="det",
+    conf_thres=0.25,
+    iou_thres=0.45,
+    classes=None,
+    agnostic=False,
+    multi_label=False,
+    labels=(),
+    max_det=300,
+    nc=0,  # number of classes (optional)
+    max_nms=30000,
+    max_wh=7680,
 ):
     """
     Perform non-maximum suppression (NMS) on a set of boxes, \
@@ -229,10 +234,14 @@ def non_max_suppression_v8(
     """
 
     # Checks
-    assert 0 <= conf_thres <= 1, f'Invalid Confidence threshold {conf_thres}, \
-        valid values are between 0.0 and 1.0'
-    assert 0 <= iou_thres <= 1, f'Invalid IoU {iou_thres}, \
-        valid values are between 0.0 and 1.0'
+    assert (
+        0 <= conf_thres <= 1
+    ), f"Invalid Confidence threshold {conf_thres}, \
+        valid values are between 0.0 and 1.0"
+    assert (
+        0 <= iou_thres <= 1
+    ), f"Invalid IoU {iou_thres}, \
+        valid values are between 0.0 and 1.0"
     if task == "seg" and nc == 0:
         raise ValueError("The value of nc must be set when the mode is 'seg'.")
     if isinstance(prediction, (list, tuple)):
@@ -249,13 +258,13 @@ def non_max_suppression_v8(
     merge = False  # use merge-NMS
 
     # shape(1,84,6300) to shape(1,6300,84)
-    prediction = np.transpose(prediction, (0, 2, 1))  
+    prediction = np.transpose(prediction, (0, 2, 1))
     prediction[..., :4] = xywh2xyxy(prediction[..., :4])  # xywh to xyxy
     output = [np.zeros((0, 6 + nm))] * bs
 
     for xi, x in enumerate(prediction):  # image index, image inference
         # Apply constraints
-        # x[((x[:, 2:4] < min_wh) | 
+        # x[((x[:, 2:4] < min_wh) |
         # (x[:, 2:4] > max_wh)).any(1), 4] = 0  # width-height
         x = x[xc[xi]]  # confidence
 
@@ -270,20 +279,21 @@ def non_max_suppression_v8(
             continue
 
         box = x[:, :4]
-        cls = x[:, 4:4 + nc]
-        mask = x[:, 4 + nc:4 + nc + nm]
+        cls = x[:, 4 : 4 + nc]
+        mask = x[:, 4 + nc : 4 + nc + nm]
 
         if multi_label:
             i, j = np.where(cls > conf_thres)
-            x = np.concatenate((
-                box[i], x[i, 4 + j, None], j[:, None].astype(float), mask[i]
-            ), axis=1)
+            x = np.concatenate(
+                (box[i], x[i, 4 + j, None], j[:, None].astype(float), mask[i]),
+                axis=1,
+            )
         else:  # best class only
             conf = np.max(cls, axis=1, keepdims=True)
             j = np.argmax(cls, axis=1, keepdims=True)
-            x = np.concatenate((
-                box, conf, j.astype(float), mask
-            ), axis=1)[conf.flatten() > conf_thres]
+            x = np.concatenate((box, conf, j.astype(float), mask), axis=1)[
+                conf.flatten() > conf_thres
+            ]
         if classes is not None:
             x = x[(x[:, 5:6] == np.array(classes)).any(1)]
 
@@ -297,19 +307,17 @@ def non_max_suppression_v8(
         boxes, scores = x[:, :4] + c, x[:, 4]
         i = numpy_nms(boxes, scores, iou_thres)
         i = i[:max_det]
-        if merge and (1 < n < 3E3):
+        if merge and (1 < n < 3e3):
             iou = box_iou(boxes[i], boxes) > iou_thres
             weights = iou * scores[None]
-            x[i, :4] = np.dot(
-                weights, x[:, :4]
-            ) / weights.sum(1, keepdims=True)
+            x[i, :4] = np.dot(weights, x[:, :4]) / weights.sum(
+                1, keepdims=True
+            )
             if redundant:
                 i = i[iou.sum(1) > 1]
 
         output[xi] = x[i]
 
     return output
-
-
 
     pass

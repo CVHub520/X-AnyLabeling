@@ -18,6 +18,7 @@ from .types import AutoLabelingResult
 
 class CLRNet(Model):
     """Lane detection model using CLRNet (CVPR 2022)"""
+
     class Meta:
         required_config_names = [
             "type",
@@ -32,7 +33,7 @@ class CLRNet(Model):
             "conf_threshold",
             "n_offsets",
             "max_lanes",
-            "cut_height"
+            "cut_height",
         ]
         widgets = ["button_run"]
         output_modes = {
@@ -54,16 +55,18 @@ class CLRNet(Model):
 
         self.sess_opts = ort.SessionOptions()
         if "OMP_NUM_THREADS" in os.environ:
-            self.sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
-        self.providers = ['CPUExecutionProvider']
+            self.sess_opts.inter_op_num_threads = int(
+                os.environ["OMP_NUM_THREADS"]
+            )
+        self.providers = ["CPUExecutionProvider"]
         if __preferred_device__ == "GPU":
-            self.providers = ['CUDAExecutionProvider']
+            self.providers = ["CUDAExecutionProvider"]
 
         self.net = ort.InferenceSession(
-                        model_abs_path, 
-                        providers=self.providers,
-                        sess_options=self.sess_opts,
-                    )
+            model_abs_path,
+            providers=self.providers,
+            sess_options=self.sess_opts,
+        )
         self.n_offsets = self.config["n_offsets"]
         self.n_strips = self.n_offsets - 1
         self.max_lanes = self.config["max_lanes"]
@@ -71,8 +74,14 @@ class CLRNet(Model):
         self.conf_thres = self.config["conf_threshold"]
         self.cut_height = self.config["cut_height"]
         self.prior_ys = np.linspace(1, 0, self.n_offsets)
-        self.input_size = (self.config["input_width"], self.config["input_height"])
-        self.image_size = (self.config["image_width"], self.config["image_height"])
+        self.input_size = (
+            self.config["input_width"],
+            self.config["input_height"],
+        )
+        self.image_size = (
+            self.config["image_width"],
+            self.config["image_height"],
+        )
 
     def pre_process(self, input_image, net):
         """
@@ -81,10 +90,10 @@ class CLRNet(Model):
         self.ori_image_height, self.ori_image_width = input_image.shape[:2]
         image = cv2.resize(input_image, self.image_size)
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        image = image[self.cut_height:, :, :]
+        image = image[self.cut_height :, :, :]
         image = cv2.resize(image, self.input_size, cv2.INTER_CUBIC)
-        image = image.transpose((2, 0, 1)) # HWC to CHW
-        image = image.astype('float32')
+        image = image.transpose((2, 0, 1))  # HWC to CHW
+        image = image.astype("float32")
         image /= 255  # 0 - 255 to 0.0 - 1.0
         if len(image.shape) == 3:
             image = image[None]
@@ -105,20 +114,26 @@ class CLRNet(Model):
             scores = scores[keep_inds]
             if filter_outputs.shape[0] == 0:
                 continue
-            
+
             tmp_outputs = filter_outputs
-            tmp_outputs = np.concatenate([tmp_outputs[..., :4], tmp_outputs[..., 5:]], axis=-1)
+            tmp_outputs = np.concatenate(
+                [tmp_outputs[..., :4], tmp_outputs[..., 5:]], axis=-1
+            )
             tmp_outputs[..., 4] = tmp_outputs[..., 4] * self.n_strips
-            tmp_outputs[..., 5:] = tmp_outputs[..., 5:] * (self.image_size[0] - 1)
+            tmp_outputs[..., 5:] = tmp_outputs[..., 5:] * (
+                self.image_size[0] - 1
+            )
             nms_keep_inds = self.numpy_land_nms(tmp_outputs, scores)
             nms_predictions = filter_outputs[nms_keep_inds]
             if nms_predictions.shape[0] == 0:
                 continue
 
-            nms_predictions[:, 5] = np.round(nms_predictions[:, 5] * self.n_strips)
+            nms_predictions[:, 5] = np.round(
+                nms_predictions[:, 5] * self.n_strips
+            )
             out_predictions = self.convert_outputs(nms_predictions)
             results = out_predictions
-        
+
         lane_points = []
         for lane in results:
             points = []
@@ -137,8 +152,12 @@ class CLRNet(Model):
             }
             for point in land_point:
                 ori_x, ori_y = point
-                new_x = int(ori_x * (self.ori_image_width / self.image_size[0]))
-                new_y = int(ori_y * (self.ori_image_height / self.image_size[1]))
+                new_x = int(
+                    ori_x * (self.ori_image_width / self.image_size[0])
+                )
+                new_y = int(
+                    ori_y * (self.ori_image_height / self.image_size[1])
+                )
                 info["points"].append([new_x, new_y])
             output_infos.append(info)
 
@@ -164,7 +183,7 @@ class CLRNet(Model):
 
         shapes = []
         for i, info in enumerate(infos):
-            label = "lane" + str(i+1)
+            label = "lane" + str(i + 1)
             shape = Shape(label=label, shape_type="line", flags={})
             start_point, end_point = info["points"][0], info["points"][-1]
             shape = Shape(label=label, shape_type="line", flags={})
@@ -191,16 +210,16 @@ class CLRNet(Model):
         if end < start:
             return False
 
-        dist = np.sum(np.abs(a[5 + start:5 + end + 1] - b[5 + start:5 + end + 1]))
+        dist = np.sum(
+            np.abs(a[5 + start : 5 + end + 1] - b[5 + start : 5 + end + 1])
+        )
         return dist < self.nms_thres * (end - start + 1)
 
     def numpy_land_nms(self, lanes, scores):
-    
         # Sort by score
         sorted_indices = np.argsort(scores)[::-1]
         keep_lanes = []
         while sorted_indices.size > 0 and len(keep_lanes) < self.max_lanes:
-        
             # Pick the last box
             land_id = sorted_indices[0]
             keep_lanes.append(land_id)
@@ -222,26 +241,43 @@ class CLRNet(Model):
         lanes = []
         for lane in nms_predictions:
             lane_xs = lane[6:]
-            start_point = min(max(0, int(round(lane[2].item() * self.n_strips))), self.n_strips)
+            start_point = min(
+                max(0, int(round(lane[2].item() * self.n_strips))),
+                self.n_strips,
+            )
             lane_length = int(round(lane[5].item()))
             end_point = start_point + lane_length - 1
             end_point = min(end_point, len(self.prior_ys) - 1)
             # if the prediction does not start at the bottom of the image,
             # extend its prediction until the x is outside the image
-            mask = ~((((lane_xs[:start_point] >= 0.) & (lane_xs[:start_point] <= 1.))[::-1].cumprod()[::-1]).astype(bool))
-            lane_xs[end_point + 1:] = -2
+            mask = ~(
+                (
+                    (
+                        (lane_xs[:start_point] >= 0.0)
+                        & (lane_xs[:start_point] <= 1.0)
+                    )[::-1].cumprod()[::-1]
+                ).astype(bool)
+            )
+            lane_xs[end_point + 1 :] = -2
             lane_xs[:start_point][mask] = -2
             lane_ys = self.prior_ys[lane_xs >= 0]
             lane_xs = lane_xs[lane_xs >= 0]
             lane_xs = np.double(lane_xs)
             lane_xs = np.flip(lane_xs, axis=0)
             lane_ys = np.flip(lane_ys, axis=0)
-            lane_ys = (lane_ys * (self.image_size[1] - self.cut_height) + self.cut_height) / self.image_size[1]
+            lane_ys = (
+                lane_ys * (self.image_size[1] - self.cut_height)
+                + self.cut_height
+            ) / self.image_size[1]
             if len(lane_xs) <= 1:
                 continue
-            points = np.stack((lane_xs.reshape(-1, 1), lane_ys.reshape(-1, 1)), axis=1).squeeze(2)
-            spline = InterpolatedUnivariateSpline(points[:, 1], points[:, 0], k=min(3, len(points) - 1))
-            invalid_value = -2.
+            points = np.stack(
+                (lane_xs.reshape(-1, 1), lane_ys.reshape(-1, 1)), axis=1
+            ).squeeze(2)
+            spline = InterpolatedUnivariateSpline(
+                points[:, 1], points[:, 0], k=min(3, len(points) - 1)
+            )
+            invalid_value = -2.0
             min_y = points[:, 1].min() - 0.01
             max_y = points[:, 1].max() + 0.01
             # ys
@@ -254,7 +290,9 @@ class CLRNet(Model):
             valid_mask = (xs >= 0) & (xs < 1)
             lane_xs = xs[valid_mask] * self.image_size[0]
             lane_ys = ys[valid_mask] * self.image_size[1]
-            lane = np.concatenate((lane_xs.reshape(-1, 1), lane_ys.reshape(-1, 1)), axis=1)
+            lane = np.concatenate(
+                (lane_xs.reshape(-1, 1), lane_ys.reshape(-1, 1)), axis=1
+            )
             lanes.append(lane)
         return lanes
 

@@ -15,7 +15,16 @@ from PIL import Image
 from anylabeling.services.auto_labeling.utils.sahi.utils.file import Path
 
 IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".tiff", ".bmp"]
-VIDEO_EXTENSIONS = [".mp4", ".mkv", ".flv", ".avi", ".ts", ".mpg", ".mov", "wmv"]
+VIDEO_EXTENSIONS = [
+    ".mp4",
+    ".mkv",
+    ".flv",
+    ".avi",
+    ".ts",
+    ".mpg",
+    ".mov",
+    "wmv",
+]
 
 
 class Colors:
@@ -89,12 +98,20 @@ def crop_object_predictions(
         )
         save_path = os.path.join(
             output_dir,
-            file_name + "_box" + str(ind) + "_class" + str(category_id) + "." + export_format,
+            file_name
+            + "_box"
+            + str(ind)
+            + "_class"
+            + str(category_id)
+            + "."
+            + export_format,
         )
         cv2.imwrite(save_path, cv2.cvtColor(cropped_img, cv2.COLOR_RGB2BGR))
 
 
-def convert_image_to(read_path, extension: str = "jpg", grayscale: bool = False):
+def convert_image_to(
+    read_path, extension: str = "jpg", grayscale: bool = False
+):
     """
     Reads image from path and saves as given extension.
     """
@@ -119,9 +136,12 @@ def read_large_image(image_path: str):
             import skimage.io
         except ImportError:
             raise ImportError(
-                'Please run "pip install -U scikit-image" ' "to install scikit-image first for large image handling."
+                'Please run "pip install -U scikit-image" '
+                "to install scikit-image first for large image handling."
             )
-        image0 = skimage.io.imread(image_path, as_grey=False).astype(np.uint8)  # [::-1]
+        image0 = skimage.io.imread(image_path, as_grey=False).astype(
+            np.uint8
+        )  # [::-1]
         use_cv2 = False
     return image0, use_cv2
 
@@ -137,7 +157,9 @@ def read_image(image_path: str):
     return image
 
 
-def read_image_as_pil(image: Union[Image.Image, str, np.ndarray], exif_fix: bool = False):
+def read_image_as_pil(
+    image: Union[Image.Image, str, np.ndarray], exif_fix: bool = False
+):
     """
     Loads an image as PIL.Image.Image.
 
@@ -153,7 +175,9 @@ def read_image_as_pil(image: Union[Image.Image, str, np.ndarray], exif_fix: bool
         # read image if str image path is provided
         try:
             image_pil = Image.open(
-                requests.get(image, stream=True).raw if str(image).startswith("http") else image
+                requests.get(image, stream=True).raw
+                if str(image).startswith("http")
+                else image
             ).convert("RGB")
             if exif_fix:
                 image_pil = exif_transpose(image_pil)
@@ -161,7 +185,9 @@ def read_image_as_pil(image: Union[Image.Image, str, np.ndarray], exif_fix: bool
             try:
                 import skimage.io
             except ImportError:
-                raise ImportError("Please run 'pip install -U scikit-image imagecodecs' for large image handling.")
+                raise ImportError(
+                    "Please run 'pip install -U scikit-image imagecodecs' for large image handling."
+                )
             image_sk = skimage.io.imread(image).astype(np.uint8)
             if len(image_sk.shape) == 2:  # b&w
                 image_pil = Image.fromarray(image_sk, mode="1")
@@ -170,7 +196,9 @@ def read_image_as_pil(image: Union[Image.Image, str, np.ndarray], exif_fix: bool
             elif image_sk.shape[2] == 3:  # rgb
                 image_pil = Image.fromarray(image_sk, mode="RGB")
             else:
-                raise TypeError(f"image with shape: {image_sk.shape[3]} is not supported.")
+                raise TypeError(
+                    f"image with shape: {image_sk.shape[3]} is not supported."
+                )
     elif isinstance(image, np.ndarray):
         if image.shape[0] < 5:  # image in CHW
             image = image[:, :, ::-1]
@@ -247,11 +275,16 @@ def get_video_reader(
 
     def read_video_frame(video_capture, frame_skip_interval):
         if view_visual:
-            cv2.imshow("Prediction of {}".format(str(video_file_name)), cv2.WINDOW_AUTOSIZE)
+            cv2.imshow(
+                "Prediction of {}".format(str(video_file_name)),
+                cv2.WINDOW_AUTOSIZE,
+            )
 
             while video_capture.isOpened:
                 frame_num = video_capture.get(cv2.CAP_PROP_POS_FRAMES)
-                video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_num + frame_skip_interval)
+                video_capture.set(
+                    cv2.CAP_PROP_POS_FRAMES, frame_num + frame_skip_interval
+                )
 
                 k = cv2.waitKey(20)
                 frame_num = video_capture.get(cv2.CAP_PROP_POS_FRAMES)
@@ -273,18 +306,24 @@ def get_video_reader(
 
                 ret, frame = video_capture.read()
                 if not ret:
-                    print("\n=========================== Video Ended ===========================")
+                    print(
+                        "\n=========================== Video Ended ==========================="
+                    )
                     break
                 yield Image.fromarray(frame)
 
         else:
             while video_capture.isOpened:
                 frame_num = video_capture.get(cv2.CAP_PROP_POS_FRAMES)
-                video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_num + frame_skip_interval)
+                video_capture.set(
+                    cv2.CAP_PROP_POS_FRAMES, frame_num + frame_skip_interval
+                )
 
                 ret, frame = video_capture.read()
                 if not ret:
-                    print("\n=========================== Video Ended ===========================")
+                    print(
+                        "\n=========================== Video Ended ==========================="
+                    )
                     break
                 yield Image.fromarray(frame)
 
@@ -303,11 +342,18 @@ def get_video_reader(
         h = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
         size = (w, h)
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        video_writer = cv2.VideoWriter(os.path.join(save_dir, video_file_name), fourcc, fps, size)
+        video_writer = cv2.VideoWriter(
+            os.path.join(save_dir, video_file_name), fourcc, fps, size
+        )
     else:
         video_writer = None
 
-    return read_video_frame(video_capture, frame_skip_interval), video_writer, video_file_name, num_frames
+    return (
+        read_video_frame(video_capture, frame_skip_interval),
+        video_writer,
+        video_file_name,
+        num_frames,
+    )
 
 
 def visualize_prediction(
@@ -374,7 +420,11 @@ def visualize_prediction(
         if not hide_labels:
             # arange bounding box text location
             label = f"{class_}"
-            w, h = cv2.getTextSize(label, 0, fontScale=text_size, thickness=text_th)[0]  # label width, height
+            w, h = cv2.getTextSize(
+                label, 0, fontScale=text_size, thickness=text_th
+            )[
+                0
+            ]  # label width, height
             outside = p1[1] - h - 3 >= 0  # label fits outside box
             p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
             # add bounding box text
@@ -487,7 +537,11 @@ def visualize_object_predictions(
             if not hide_conf:
                 label += f" {score:.2f}"
 
-            w, h = cv2.getTextSize(label, 0, fontScale=text_size, thickness=text_th)[0]  # label width, height
+            w, h = cv2.getTextSize(
+                label, 0, fontScale=text_size, thickness=text_th
+            )[
+                0
+            ]  # label width, height
             outside = p1[1] - h - 3 >= 0  # label fits outside box
             p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
             # add bounding box text
@@ -527,7 +581,9 @@ def get_coco_segmentation_from_bool_mask(bool_mask):
     mask = np.squeeze(bool_mask)
     mask = mask.astype(np.uint8)
     mask = cv2.copyMakeBorder(mask, 1, 1, 1, 1, cv2.BORDER_CONSTANT, value=0)
-    polygons = cv2.findContours(mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE, offset=(-1, -1))
+    polygons = cv2.findContours(
+        mask, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE, offset=(-1, -1)
+    )
     polygons = polygons[0] if len(polygons) == 2 else polygons[1]
     # Convert polygon to coco segmentation
     coco_segmentation = []
@@ -544,7 +600,10 @@ def get_bool_mask_from_coco_segmentation(coco_segmentation, width, height):
     Convert coco segmentation to 2D boolean mask of given height and width
     """
     size = [height, width]
-    points = [np.array(point).reshape(-1, 2).round().astype(int) for point in coco_segmentation]
+    points = [
+        np.array(point).reshape(-1, 2).round().astype(int)
+        for point in coco_segmentation
+    ]
     bool_mask = np.zeros(size)
     bool_mask = cv2.fillPoly(bool_mask, points, 1)
     bool_mask.astype(bool)

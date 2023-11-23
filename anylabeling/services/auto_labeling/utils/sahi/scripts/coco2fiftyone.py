@@ -41,12 +41,18 @@ def main(
                 name_increment += 1
             result_name_list.append(result_name)
 
-    dataset = create_fiftyone_dataset_from_coco_file(image_dir, dataset_json_path)
+    dataset = create_fiftyone_dataset_from_coco_file(
+        image_dir, dataset_json_path
+    )
 
     # submit detections if coco result is given
     if result_json_paths:
-        for result_name, coco_result in zip(result_name_list, coco_result_list):
-            add_coco_labels(dataset, result_name, coco_result, coco_id_field="gt_coco_id")
+        for result_name, coco_result in zip(
+            result_name_list, coco_result_list
+        ):
+            add_coco_labels(
+                dataset, result_name, coco_result, coco_id_field="gt_coco_id"
+            )
 
     # visualize results
     session = fo.launch_app()
@@ -69,11 +75,18 @@ def main(
         # Print a classification report for the top-10 classes
         # results.print_report(classes=classes_top10)
         # Load the view on which we ran the `eval` evaluation
-        eval_view = dataset.load_evaluation_view(f"{first_coco_result_name}_eval")
+        eval_view = dataset.load_evaluation_view(
+            f"{first_coco_result_name}_eval"
+        )
         # Show samples with most false positives
-        session.view = eval_view.sort_by(f"{first_coco_result_name}_eval_fp", reverse=True)
+        session.view = eval_view.sort_by(
+            f"{first_coco_result_name}_eval_fp", reverse=True
+        )
 
-        print("SAHI has successfully launched a Fiftyone app " f"at http://localhost:{fo.config.default_app_port}")
+        print(
+            "SAHI has successfully launched a Fiftyone app "
+            f"at http://localhost:{fo.config.default_app_port}"
+        )
     while 1:
         time.sleep(3)
 

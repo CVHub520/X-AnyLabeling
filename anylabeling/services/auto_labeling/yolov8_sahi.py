@@ -13,6 +13,7 @@ from .types import AutoLabelingResult
 from .utils.sahi.predict import get_sliced_prediction
 from .utils.sahi.models.yolov8_onnx import Yolov8OnnxDetectionModel
 
+
 class YOLOv8_SAHI(Model):
     """Object detection model using YOLOv8 with SAHI"""
 
@@ -48,15 +49,15 @@ class YOLOv8_SAHI(Model):
                 )
             )
         category_mapping = {
-                    str(ind): category_name
-                    for ind, category_name in enumerate(self.config["classes"])
-                }
+            str(ind): category_name
+            for ind, category_name in enumerate(self.config["classes"])
+        }
         self.net = Yolov8OnnxDetectionModel(
             model_path=model_abs_path,
             nms_threshold=self.config["nms_threshold"],
             confidence_threshold=self.config["confidence_threshold"],
             category_mapping=category_mapping,
-            device=__preferred_device__
+            device=__preferred_device__,
         )
         self.slice_height = self.config["slice_height"]
         self.slice_width = self.config["slice_width"]
@@ -90,7 +91,9 @@ class YOLOv8_SAHI(Model):
         shapes = []
 
         for out in results.object_prediction_list:
-            shape = Shape(label=str(out.category.name), shape_type="rectangle", flags={})
+            shape = Shape(
+                label=str(out.category.name), shape_type="rectangle", flags={}
+            )
             shape.add_point(QtCore.QPointF(out.bbox.minx, out.bbox.miny))
             shape.add_point(QtCore.QPointF(out.bbox.maxx, out.bbox.maxy))
             shapes.append(shape)

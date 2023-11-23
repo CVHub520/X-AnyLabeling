@@ -18,8 +18,8 @@ from .lru_cache import LRUCache
 from .model import Model
 from .types import AutoLabelingResult
 
-class SegmentAnythingONNX:
 
+class SegmentAnythingONNX:
     def __init__(self, encoder_model_path, decoder_model_path) -> None:
         # Basic hyp-parameters
         self.pixel_mean = np.array([123.675, 116.28, 103.53])
@@ -32,8 +32,12 @@ class SegmentAnythingONNX:
         # TODO: Add back when TensorRT backend is stable
         providers = [p for p in providers if p != "TensorrtExecutionProvider"]
 
-        self.encoder_session = ort.InferenceSession(encoder_model_path, providers=providers)
-        self.decoder_session = ort.InferenceSession(decoder_model_path, providers=providers)
+        self.encoder_session = ort.InferenceSession(
+            encoder_model_path, providers=providers
+        )
+        self.decoder_session = ort.InferenceSession(
+            decoder_model_path, providers=providers
+        )
 
         self.encoder_input_name = self.encoder_session.get_inputs()[0].name
         self.encoder_input_shape = self.encoder_session.get_inputs()[0].shape
@@ -60,7 +64,9 @@ class SegmentAnythingONNX:
         input_image = (input_image - self.pixel_mean) / self.pixel_std
 
         # Resize
-        input_image = cv2.resize(input_image, self.encoder_input_size, cv2.INTER_NEAREST)
+        input_image = cv2.resize(
+            input_image, self.encoder_input_size, cv2.INTER_NEAREST
+        )
 
         # HWC -> CHW
         input_image = input_image.transpose((2, 0, 1))
@@ -95,10 +101,14 @@ class SegmentAnythingONNX:
                 labels.append(mark["label"])
             elif mark["type"] == "rectangle":
                 points.append([mark["data"][0], mark["data"][1]])  # top left
-                points.append([mark["data"][2], mark["data"][3]])  # bottom right
+                points.append(
+                    [mark["data"][2], mark["data"][3]]
+                )  # bottom right
                 labels.append(2)
                 labels.append(3)
-        points, labels = np.array(points).astype(np.float32), np.array(labels).astype(np.float32)
+        points, labels = np.array(points).astype(np.float32), np.array(
+            labels
+        ).astype(np.float32)
         return points, labels
 
     def apply_coords(self, coords, original_size, new_size):
@@ -114,14 +124,16 @@ class SegmentAnythingONNX:
         point_coords, point_labels = self.get_input_points(prompt)
 
         if point_coords is None or point_labels is None:
-            raise ValueError("Unable to segment, please input at least one box or point.")
+            raise ValueError(
+                "Unable to segment, please input at least one box or point."
+            )
 
         h, w = self.encoder_input_size
-        if image_embedding.shape != (1, 256, int(h/16), int(w/16)):
+        if image_embedding.shape != (1, 256, int(h / 16), int(w / 16)):
             raise ValueError("Got wrong embedding shape!")
-        
+
         has_mask_input = np.zeros(1, dtype=np.float32)
-        mask_input = np.zeros((1, 1, int(h/4), int(w/4)), dtype=np.float32)
+        mask_input = np.zeros((1, 1, int(h / 4), int(w / 4)), dtype=np.float32)
 
         if point_coords is not None:
             if isinstance(point_coords, list):
@@ -130,18 +142,22 @@ class SegmentAnythingONNX:
                 point_labels = np.array(point_labels, dtype=np.float32)
 
         if point_coords is not None:
-            point_coords = self.apply_coords(point_coords, original_size, self.encoder_input_size).astype(np.float32)
+            point_coords = self.apply_coords(
+                point_coords, original_size, self.encoder_input_size
+            ).astype(np.float32)
             point_coords = np.expand_dims(point_coords, axis=0)
             point_labels = np.expand_dims(point_labels, axis=0)
 
         assert point_coords.shape[0] == 1 and point_coords.shape[-1] == 2
         assert point_labels.shape[0] == 1
-        input_dict = {"image_embeddings": image_embedding,
-                      "point_coords": point_coords,
-                      "point_labels": point_labels,
-                      "mask_input": mask_input,
-                      "has_mask_input": has_mask_input,
-                      "orig_im_size": np.array(original_size, dtype=np.float32)}
+        input_dict = {
+            "image_embeddings": image_embedding,
+            "point_coords": point_coords,
+            "point_labels": point_labels,
+            "mask_input": mask_input,
+            "has_mask_input": has_mask_input,
+            "orig_im_size": np.array(original_size, dtype=np.float32),
+        }
         masks, _, _ = self.decoder_session.run(None, input_dict)
 
         return masks
@@ -157,6 +173,7 @@ class SegmentAnythingONNX:
         )
 
         return masks
+
 
 class SAM_Med2D(Model):
     """Segmentation model using SAM_Med2D"""
@@ -350,7 +367,7 @@ class SAM_Med2D(Model):
 
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
-        
+
         shapes = []
         try:
             # Use cached image embedding if possible
@@ -429,4 +446,3 @@ class SAM_Med2D(Model):
                 self.pre_inference_worker.run
             )
             self.pre_inference_thread.start()
-

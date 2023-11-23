@@ -151,7 +151,7 @@ class ModelManager(QObject):
 
         # Check config file content
         model_config = {}
-        with open(config_file, "r", encoding='utf-8') as f:
+        with open(config_file, "r", encoding="utf-8") as f:
             model_config = yaml.safe_load(f)
             model_config["config_file"] = os.path.abspath(config_file)
         if not model_config:
@@ -168,15 +168,15 @@ class ModelManager(QObject):
                 "segment_anything",
                 "sam_med2d",
                 "sam_hq",
-                "yolov5", 
-                "yolov6", 
-                "yolov7", 
+                "yolov5",
+                "yolov6",
+                "yolov7",
                 "yolov8",
                 "yolov8_seg",
-                "yolox", 
-                "yolov5_cls", 
-                "yolov6_face", 
-                "rtdetr", 
+                "yolox",
+                "yolov5_cls",
+                "yolov6_face",
+                "rtdetr",
                 "yolo_nas",
                 "yolox_dwpose",
                 "clrnet",

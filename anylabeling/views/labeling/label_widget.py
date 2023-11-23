@@ -24,7 +24,7 @@ from PyQt5.QtWidgets import (
     QWidget,
     QMessageBox,
     QProgressDialog,
-    QScrollArea
+    QScrollArea,
 )
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
@@ -710,7 +710,7 @@ class LabelingWidget(LabelDialog):
             self.import_attr_file,
             None,
             icon=None,
-            tip=self.tr("Import Custom Attributes File")
+            tip=self.tr("Import Custom Attributes File"),
         )
 
         # Save mode
@@ -871,7 +871,14 @@ class LabelingWidget(LabelDialog):
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
-            file_menu_actions=(open_, openvideo, opendir, save, save_as, close),
+            file_menu_actions=(
+                open_,
+                openvideo,
+                opendir,
+                save,
+                save_as,
+                close,
+            ),
             tool=(),
             # XXX: need to add some actions here to activate the shortcut
             editMenu=(
@@ -974,9 +981,7 @@ class LabelingWidget(LabelDialog):
         )
         utils.add_actions(
             self.menus.upload,
-            (
-                import_attr_file,
-            ),
+            (import_attr_file,),
         )
         utils.add_actions(
             self.menus.mode,
@@ -1266,15 +1271,15 @@ class LabelingWidget(LabelDialog):
     def set_output_format(self, mode):
         if self._config["save_mode"] == mode:
             return
-        
+
         self._config["save_mode"] = mode
         confirm_flag = True
         if mode in ["yolo", "coco", "mot"]:
             filter = "Classes Files (*.txt);;All Files (*)"
             self.classes, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self, 
+                self,
                 self.tr("Select a specific classes file"),
-                '', 
+                "",
                 filter,
             )
             if not self.classes:
@@ -1282,22 +1287,31 @@ class LabelingWidget(LabelDialog):
                     self,
                     self.tr("Warning"),
                     self.tr("Please select a specific classes file!"),
-                    QtWidgets.QMessageBox.Ok
+                    QtWidgets.QMessageBox.Ok,
                 )
                 confirm_flag = False
-                self._config["save_mode"] = 'default'
+                self._config["save_mode"] = "default"
                 return
             else:
-                with open(self.classes, 'r', encoding='utf-8') as f:
+                with open(self.classes, "r", encoding="utf-8") as f:
                     classes = f.read().splitlines()
                     for label in classes:
-                        if not self.unique_label_list.find_items_by_label(label):
-                            item = self.unique_label_list.create_item_from_label(label)
+                        if not self.unique_label_list.find_items_by_label(
+                            label
+                        ):
+                            item = (
+                                self.unique_label_list.create_item_from_label(
+                                    label
+                                )
+                            )
                             self.unique_label_list.addItem(item)
                             rgb = self._get_rgb_by_label(label)
-                            self.unique_label_list.set_item_label(item, label, rgb)
+                            self.unique_label_list.set_item_label(
+                                item, label, rgb
+                            )
                 if self.filename and mode == "coco":
                     from .label_converter import LabelConverter
+
                     formats = [
                         f"*.{fmt.data().decode()}"
                         for fmt in QtGui.QImageReader.supportedImageFormats()
@@ -1306,20 +1320,22 @@ class LabelingWidget(LabelDialog):
                         formats.remove("*.json")
                     converter = LabelConverter(classes_file=self.classes)
                     root_path = osp.split(self.filename)[0]
-                    save_path = root_path + '/annotations'
+                    save_path = root_path + "/annotations"
                     os.makedirs(save_path, exist_ok=True)
-                    dst_file = save_path + '/' + 'instances_default.json'
+                    dst_file = save_path + "/" + "instances_default.json"
                     converter.custom_to_coco(root_path, dst_file, formats)
                     msg_box = QMessageBox()
                     msg_box.setText(
-                        self.tr("The COCO format (*.json) label file has been successfully saved!")
+                        self.tr(
+                            "The COCO format (*.json) label file has been successfully saved!"
+                        )
                     )
                     msg_box.exec_()
                     confirm_flag = False
-                    self._config["save_mode"] = 'default'
+                    self._config["save_mode"] = "default"
 
         # Show dialog to restart application
-        if confirm_flag and self._config["save_mode"] != 'default':
+        if confirm_flag and self._config["save_mode"] != "default":
             msg_box = QMessageBox()
             msg_box.setText(
                 self.tr("The output format '%s' will be saved.") % mode
@@ -1695,9 +1711,9 @@ class LabelingWidget(LabelDialog):
             if text not in list(self.attributes.keys()):
                 self.error_message(
                     self.tr("Invalid label"),
-                    self.tr("Invalid label '{}' with validation type '{}'").format(
-                        text, list(self.attributes.keys())
-                    ),
+                    self.tr(
+                        "Invalid label '{}' with validation type '{}'"
+                    ).format(text, list(self.attributes.keys())),
                 )
                 return
         shape.label = text
@@ -1776,9 +1792,13 @@ class LabelingWidget(LabelDialog):
             category_label = None
             property_combo = None
             if self.grid_layout.itemAtPosition(row, 0):
-                category_label = self.grid_layout.itemAtPosition(row, 0).widget()
+                category_label = self.grid_layout.itemAtPosition(
+                    row, 0
+                ).widget()
             if self.grid_layout.itemAtPosition(row, 1):
-                property_combo = self.grid_layout.itemAtPosition(row, 1).widget()
+                property_combo = self.grid_layout.itemAtPosition(
+                    row, 1
+                ).widget()
             if category_label and property_combo:
                 category = category_label.text()
                 if category in new_attributes:
@@ -1800,14 +1820,17 @@ class LabelingWidget(LabelDialog):
             # Clear the existing widgets from the QGridLayout
             self.grid_layout = QGridLayout()
             # Repopulate the QGridLayout with the updated data
-            for row, (property, options) in enumerate(current_attibute.items()):
+            for row, (property, options) in enumerate(
+                current_attibute.items()
+            ):
                 selected_options[property] = options[0]
                 property_label = QLabel(property)
                 property_combo = QComboBox()
                 property_combo.addItems(options)
                 property_combo.currentIndexChanged.connect(
-                    lambda index, property=property, combo=property_combo:
-                    self.attribute_selection_changed(i, property, combo)
+                    lambda index, property=property, combo=property_combo: self.attribute_selection_changed(
+                        i, property, combo
+                    )
                 )
                 self.grid_layout.addWidget(property_label, row, 0)
                 self.grid_layout.addWidget(property_combo, row, 1)
@@ -1928,7 +1951,7 @@ class LabelingWidget(LabelDialog):
         self.actions.edit.setEnabled(n_selected == 1)
         self.set_text_editing(True)
         if self.attributes:
-            #TODO: For future optimization(add parm to monitor selected_shape status)
+            # TODO: For future optimization(add parm to monitor selected_shape status)
             for i in range(len(self.canvas.shapes)):
                 if self.canvas.shapes[i].selected:
                     self.update_attributes(i)
@@ -2223,9 +2246,9 @@ class LabelingWidget(LabelDialog):
             if text not in list(self.attributes.keys()):
                 self.error_message(
                     self.tr("Invalid label"),
-                    self.tr("Invalid label '{}' with validation type '{}'").format(
-                        text, list(self.attributes.keys())
-                    ),
+                    self.tr(
+                        "Invalid label '{}' with validation type '{}'"
+                    ).format(text, list(self.attributes.keys())),
                 )
                 return
 
@@ -2687,20 +2710,22 @@ class LabelingWidget(LabelDialog):
     def import_attr_file(self):
         filter = "Attribute Files (*.json);;All Files (*)"
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, 
+            self,
             self.tr("Select a specific attributes file"),
-            '', 
+            "",
             filter,
         )
         if not file_path:
             QMessageBox.warning(
                 self,
                 self.tr("Warning"),
-                self.tr("Upload failed! Please reselect a specific attributes file!"),
-                QMessageBox.Ok
+                self.tr(
+                    "Upload failed! Please reselect a specific attributes file!"
+                ),
+                QMessageBox.Ok,
             )
             return
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             self.attributes = json.load(f)
 
     def open_file(self, _value=False):
@@ -2954,23 +2979,30 @@ class LabelingWidget(LabelDialog):
             "yolov8_efficientvit_sam",
         ]
 
-        if self.auto_labeling_widget.model_manager.loaded_model_config["type"] not in marks_model_list:
+        if (
+            self.auto_labeling_widget.model_manager.loaded_model_config["type"]
+            not in marks_model_list
+        ):
             self.auto_labeling_widget.model_manager.new_model_status.emit(
-                self.tr("Invalid model type, please choose a valid model_type to run.")
+                self.tr(
+                    "Invalid model type, please choose a valid model_type to run."
+                )
             )
             return
 
         reply = QMessageBox.question(
-            self, 
+            self,
             self.tr("Confirmation"),
-            self.tr("Do you want to process all images?"), 
-            QMessageBox.Yes | QMessageBox.No
+            self.tr("Do you want to process all images?"),
+            QMessageBox.Yes | QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
             self.current_index = self.image_list.index(self.filename)
             self.image_index = self.current_index
-            self.text_prompt = ''
-            if self.auto_labeling_widget.model_manager.loaded_model_config["type"] in [
+            self.text_prompt = ""
+            if self.auto_labeling_widget.model_manager.loaded_model_config[
+                "type"
+            ] in [
                 "grounding_dino",
                 "grounding_sam",
             ]:
@@ -3000,7 +3032,7 @@ class LabelingWidget(LabelDialog):
         else:
             self.filename = self.image_list[self.current_index]
             self.load_file(self.filename)
-            del self.text_prompt 
+            del self.text_prompt
             del self.image_index
             del self.current_index
 
@@ -3052,15 +3084,15 @@ class LabelingWidget(LabelDialog):
             return output_dir
         os.makedirs(output_dir)
 
-        # Decode the video and save frames to the created folder 
+        # Decode the video and save frames to the created folder
         video_capture = cv2.VideoCapture(target_video_path)
         total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
 
         progress_dialog = QProgressDialog(
-            self.tr("Extracting frames. Please wait..."), 
-            self.tr("Cancel"), 
-            0, 
-            total_frames
+            self.tr("Extracting frames. Please wait..."),
+            self.tr("Cancel"),
+            0,
+            total_frames,
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle("Frame Extraction Progress")
@@ -3071,7 +3103,9 @@ class LabelingWidget(LabelDialog):
             ret, frame = video_capture.read()
             if not ret:
                 break
-            frame_filename = osp.join(output_dir, f'{base_name}_{frame_count:06d}.jpg')
+            frame_filename = osp.join(
+                output_dir, f"{base_name}_{frame_count:06d}.jpg"
+            )
             cv2.imwrite(frame_filename, frame)
 
             frame_count += 1
@@ -3088,12 +3122,16 @@ class LabelingWidget(LabelDialog):
     def open_video_file(self, _value=False):
         if not self.may_continue():
             return
-        default_open_video_path = osp.dirname(str(self.filename)) if self.filename else "."
-        supportedVideoFormats = "*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv"        
+        default_open_video_path = (
+            osp.dirname(str(self.filename)) if self.filename else "."
+        )
+        supportedVideoFormats = (
+            "*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv"
+        )
         target_video_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, 
+            self,
             self.tr("%s - Open Video file") % __appname__,
-            default_open_video_path, 
+            default_open_video_path,
             supportedVideoFormats,
         )
         target_video_path = str(target_video_path)
@@ -3348,9 +3386,9 @@ class LabelingWidget(LabelDialog):
             if text not in list(self.attributes.keys()):
                 self.error_message(
                     self.tr("Invalid label"),
-                    self.tr("Invalid label '{}' with validation type '{}'").format(
-                        text, list(self.attributes.keys())
-                    ),
+                    self.tr(
+                        "Invalid label '{}' with validation type '{}'"
+                    ).format(text, list(self.attributes.keys())),
                 )
                 return
 

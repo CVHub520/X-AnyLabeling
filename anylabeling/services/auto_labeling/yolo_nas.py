@@ -19,6 +19,7 @@ YOLO_NAS_DEFAULT_PROCESSING_STEPS = [
     {"Standardize": {"max_value": 255.0}},
 ]
 
+
 class Preprocessing:
     """Preprocessing Handler
 
@@ -40,7 +41,9 @@ class Preprocessing:
     @staticmethod
     def __rescale_img(img, out_shape):
         """rescale func"""
-        return cv2.resize(img, dsize=out_shape, interpolation=cv2.INTER_LINEAR).astype(np.uint8)
+        return cv2.resize(
+            img, dsize=out_shape, interpolation=cv2.INTER_LINEAR
+        ).astype(np.uint8)
 
     def _standarize(self, img, max_value):
         """standarize img based on max value"""
@@ -59,24 +62,40 @@ class Preprocessing:
     def _det_long_max_rescale(self, img):
         """Rescale image to output based on max size"""
         height, width = img.shape[:2]
-        scale_factor = min((self.out_shape[1] - 4) / height, (self.out_shape[0] - 4) / width)
+        scale_factor = min(
+            (self.out_shape[1] - 4) / height, (self.out_shape[0] - 4) / width
+        )
 
         if scale_factor != 1.0:
-            new_height, new_width = round(height * scale_factor), round(width * scale_factor)
+            new_height, new_width = round(height * scale_factor), round(
+                width * scale_factor
+            )
             img = self.__rescale_img(img, (new_width, new_height))
 
         return img, {"scale_factors": (scale_factor, scale_factor)}
 
     def _bot_right_pad(self, img, pad_value):
         """Pad bottom and right only (palce image on top left)"""
-        pad_height, pad_width = self.out_shape[1] - img.shape[0], self.out_shape[0] - img.shape[1]
+        pad_height, pad_width = (
+            self.out_shape[1] - img.shape[0],
+            self.out_shape[0] - img.shape[1],
+        )
         return cv2.copyMakeBorder(
-            img, 0, pad_height, 0, pad_width, cv2.BORDER_CONSTANT, value=[pad_value] * img.shape[-1]
+            img,
+            0,
+            pad_height,
+            0,
+            pad_width,
+            cv2.BORDER_CONSTANT,
+            value=[pad_value] * img.shape[-1],
         ), {"padding": (0, pad_height, 0, pad_width)}
 
     def _center_pad(self, img, pad_value):
         """Pad center (palce image on center)"""
-        pad_height, pad_width = self.out_shape[1] - img.shape[0], self.out_shape[0] - img.shape[1]
+        pad_height, pad_width = (
+            self.out_shape[1] - img.shape[0],
+            self.out_shape[0] - img.shape[1],
+        )
         pad_top, pad_left = pad_height // 2, pad_width // 2
         return cv2.copyMakeBorder(
             img,
@@ -86,7 +105,14 @@ class Preprocessing:
             pad_width - pad_left,
             cv2.BORDER_CONSTANT,
             value=[pad_value] * img.shape[-1],
-        ), {"padding": (pad_top, pad_height - pad_top, pad_left, pad_width - pad_left)}
+        ), {
+            "padding": (
+                pad_top,
+                pad_height - pad_top,
+                pad_left,
+                pad_width - pad_left,
+            )
+        }
 
     def _normalize(self, img, mean, std):
         """Normalize image based on mean and stdev"""
@@ -112,11 +138,16 @@ class Preprocessing:
             if not st:  # if steps isn't None
                 continue
             name, kwargs = list(st.items())[0]
-            img, meta = self._call_fn(name)(img, **kwargs) if kwargs else self._call_fn(name)(img)
+            img, meta = (
+                self._call_fn(name)(img, **kwargs)
+                if kwargs
+                else self._call_fn(name)(img)
+            )
             metadata.append(meta)
 
         img = cv2.dnn.blobFromImage(img, swapRB=True)
         return img, metadata
+
 
 class Postprocessing:
     """Postprocessing Handler
@@ -187,6 +218,7 @@ class Postprocessing:
         classes = np.argmax(raw_scores, axis=2).flatten()
         return boxes, scores, classes
 
+
 class YOLO_NAS(Model):
     """Object detection model using YOLO_NAS"""
 
@@ -209,21 +241,20 @@ class YOLO_NAS(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-        model_name = self.config['type']
+        model_name = self.config["type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    "Model",
+                    f"Could not download or initialize {model_name} model.",
                 )
             )
 
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         _, _, input_height, input_width = self.net.get_input_shape()
         self.preprocess = Preprocessing(
-            YOLO_NAS_DEFAULT_PROCESSING_STEPS, 
-            (input_height, input_width)
+            YOLO_NAS_DEFAULT_PROCESSING_STEPS, (input_height, input_width)
         )
         self.postprocess = Postprocessing(
             YOLO_NAS_DEFAULT_PROCESSING_STEPS,
@@ -236,7 +267,7 @@ class YOLO_NAS(Model):
         """
         Predict shapes from image
         """
- 
+
         if image is None:
             return []
 

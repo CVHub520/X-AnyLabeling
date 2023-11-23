@@ -41,7 +41,8 @@ class DAMO_YOLO(Model):
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize DAMO_YOLO model."
+                    "Model",
+                    "Could not download or initialize DAMO_YOLO model.",
                 )
             )
 
@@ -59,10 +60,14 @@ class DAMO_YOLO(Model):
         transformed_image = np.ones((dst_h, dst_w, dst_c), dtype=np.uint8)
         ratio_hw = min(dst_h / src_h, dst_w / src_w)
         new_h, new_w = int(ratio_hw * src_h), int(ratio_hw * src_w)
-        image = cv2.resize(input_image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(
+            input_image, (new_w, new_h), interpolation=cv2.INTER_LINEAR
+        )
         transformed_image[:new_h, :new_w, :] = image
         transformed_image = transformed_image.transpose((2, 0, 1))
-        transformed_image = np.ascontiguousarray(transformed_image).astype('float32')
+        transformed_image = np.ascontiguousarray(transformed_image).astype(
+            "float32"
+        )
         if len(transformed_image.shape) == 3:
             transformed_image = transformed_image[None]
         return transformed_image, ratio_hw
@@ -78,7 +83,10 @@ class DAMO_YOLO(Model):
             if score < self.conf_thres:
                 continue
             class_id = np.argmax(scores[i, :])
-            if self.filter_classes and self.classes[int(class_id)] not in self.filter_classes:
+            if (
+                self.filter_classes
+                and self.classes[int(class_id)] not in self.filter_classes
+            ):
                 continue
             xmin, ymin, xmax, ymax = bboxes[i, :].astype(np.int32)
             width = xmax - xmin
@@ -87,7 +95,9 @@ class DAMO_YOLO(Model):
             confidences.append(score)
             class_ids.append(class_id)
 
-        indices = cv2.dnn.NMSBoxes(boxes, confidences, self.conf_thres, self.nms_thres)
+        indices = cv2.dnn.NMSBoxes(
+            boxes, confidences, self.conf_thres, self.nms_thres
+        )
         output_infos = []
         for i in indices:
             x, y, w, h = boxes[i]
@@ -99,7 +109,7 @@ class DAMO_YOLO(Model):
                 "label": str(self.classes[int(class_ids[i])]),
             }
             output_infos.append(output_info)
-        
+
         return output_infos
 
     def predict_shapes(self, image, image_path=None):
@@ -123,13 +133,18 @@ class DAMO_YOLO(Model):
 
         shapes = []
         for result in results:
-            rectangle_shape = Shape(label=result["label"], shape_type="rectangle", flags={})
-            rectangle_shape.add_point(QtCore.QPointF(result["xmin"], result["ymin"]))
-            rectangle_shape.add_point(QtCore.QPointF(result["xmax"], result["ymax"]))
+            rectangle_shape = Shape(
+                label=result["label"], shape_type="rectangle", flags={}
+            )
+            rectangle_shape.add_point(
+                QtCore.QPointF(result["xmin"], result["ymin"])
+            )
+            rectangle_shape.add_point(
+                QtCore.QPointF(result["xmax"], result["ymax"])
+            )
             shapes.append(rectangle_shape)
         result = AutoLabelingResult(shapes, replace=True)
         return result
 
     def unload(self):
         del self.net
-

@@ -164,7 +164,7 @@ class LabelFile:
         image_data=None,
         other_data=None,
         flags=None,
-        output_format='defalut',
+        output_format="defalut",
         classes_file=None,
     ):
         if image_data is not None:
@@ -212,21 +212,21 @@ class LabelFile:
         base_name = osp.splitext(file_name)[0]
 
         if mode == "yolo":
-            save_path = root_path + '/labels'
-            dst_file = save_path + '/' + base_name+'.txt'
+            save_path = root_path + "/labels"
+            dst_file = save_path + "/" + base_name + ".txt"
             os.makedirs(save_path, exist_ok=True)
         elif mode == "coco":
             pass
         elif mode == "voc":
-            save_path = root_path + '/Annotations'
-            dst_file = save_path + '/' + base_name+'.xml'
+            save_path = root_path + "/Annotations"
+            dst_file = save_path + "/" + base_name + ".xml"
             os.makedirs(save_path, exist_ok=True)
         elif mode == "dota":
-            save_path = root_path + '/labelTxt'
-            dst_file = save_path + '/' + base_name+'.txt'
+            save_path = root_path + "/labelTxt"
+            dst_file = save_path + "/" + base_name + ".txt"
             os.makedirs(save_path, exist_ok=True)
         elif mode == "mot":
-            dst_file = root_path + '/' + base_name.rsplit("_", 1)[0]+'.csv'
+            dst_file = root_path + "/" + base_name.rsplit("_", 1)[0] + ".csv"
 
         converter = LabelConverter(classes_file=classes_file)
         if mode == "yolo" and shape_type == "rectangle":

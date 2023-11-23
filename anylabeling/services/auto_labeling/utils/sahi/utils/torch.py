@@ -6,7 +6,9 @@ import os
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import is_available
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    is_available,
+)
 
 if is_available("torch"):
     import torch
@@ -66,17 +68,29 @@ def select_device(device: str):
     """
     if device == "cuda":
         device = "cuda:0"
-    device = str(device).strip().lower().replace("cuda:", "").replace("none", "")  # to string, 'cuda:0' to '0'
+    device = (
+        str(device).strip().lower().replace("cuda:", "").replace("none", "")
+    )  # to string, 'cuda:0' to '0'
     cpu = device == "cpu"
     mps = device == "mps"  # Apple Metal Performance Shaders (MPS)
     if cpu or mps:
-        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # force torch.cuda.is_available() = False
+        os.environ[
+            "CUDA_VISIBLE_DEVICES"
+        ] = "-1"  # force torch.cuda.is_available() = False
     elif device:  # non-cpu device requested
-        os.environ["CUDA_VISIBLE_DEVICES"] = device  # set environment variable - must be before assert is_available()
+        os.environ[
+            "CUDA_VISIBLE_DEVICES"
+        ] = device  # set environment variable - must be before assert is_available()
 
-    if not cpu and not mps and is_torch_cuda_available():  # prefer GPU if available
+    if (
+        not cpu and not mps and is_torch_cuda_available()
+    ):  # prefer GPU if available
         arg = "cuda:0"
-    elif mps and getattr(torch, "has_mps", False) and torch.backends.mps.is_available():  # prefer MPS if available
+    elif (
+        mps
+        and getattr(torch, "has_mps", False)
+        and torch.backends.mps.is_available()
+    ):  # prefer MPS if available
         arg = "mps"
     else:  # revert to CPU
         arg = "cpu"

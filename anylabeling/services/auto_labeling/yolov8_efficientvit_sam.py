@@ -56,13 +56,17 @@ class SamEncoder:
             image_embedding: image`s feature.
             origin_image_size: image`s size.
         """
-        image_embedding = self.session.run(None, {self.input_name: cv_image})[0]
+        image_embedding = self.session.run(None, {self.input_name: cv_image})[
+            0
+        ]
         return {
             "image_embedding": image_embedding,
             "origin_image_size": cv_image.shape[:2],
         }
+
     def __call__(self, img: np.array) -> Any:
         return self._extract_feature(img)
+
 
 class SamDecoder:
     """Sam decoder model.
@@ -72,6 +76,7 @@ class SamDecoder:
     Args:
         model_path (str): decoder model path.
     """
+
     def __init__(self, model_path: str, target_size: int):
         # Load models
         providers = ort.get_available_providers()
@@ -84,7 +89,9 @@ class SamDecoder:
         self.session = ort.InferenceSession(model_path, providers=providers)
 
     @staticmethod
-    def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int) -> Tuple[int, int]:
+    def get_preprocess_shape(
+        oldh: int, oldw: int, long_side_length: int
+    ) -> Tuple[int, int]:
         """
         Compute the output size given input size and target long side length.
         """
@@ -94,13 +101,15 @@ class SamDecoder:
         newh = int(newh + 0.5)
         return (newh, neww)
 
-    def run(self,
-            img_embeddings: np.ndarray,
-            origin_image_size: Union[list, tuple],
-            point_coords: Union[list, np.ndarray] = None,
-            point_labels: Union[list, np.ndarray] = None,
-            boxes: Union[list, np.ndarray] = None,
-            mask_input: np.ndarray = None):
+    def run(
+        self,
+        img_embeddings: np.ndarray,
+        origin_image_size: Union[list, tuple],
+        point_coords: Union[list, np.ndarray] = None,
+        point_labels: Union[list, np.ndarray] = None,
+        boxes: Union[list, np.ndarray] = None,
+        mask_input: np.ndarray = None,
+    ):
         """decoder forward function
 
         This function can use image feature and prompt to generate mask. Must input
@@ -126,7 +135,9 @@ class SamDecoder:
         )
 
         if point_coords is None and point_labels is None and boxes is None:
-            raise ValueError("Unable to segment, please input at least one box or point.")
+            raise ValueError(
+                "Unable to segment, please input at least one box or point."
+            )
 
         if img_embeddings.shape != (1, 256, 64, 64):
             raise ValueError("Got wrong embedding shape!")
@@ -145,18 +156,22 @@ class SamDecoder:
                 point_labels = np.array(point_labels, dtype=np.float32)
 
         if point_coords is not None:
-            point_coords = self.apply_coords(point_coords, origin_image_size, input_size).astype(np.float32)
+            point_coords = self.apply_coords(
+                point_coords, origin_image_size, input_size
+            ).astype(np.float32)
             point_coords = np.expand_dims(point_coords, axis=0)
             point_labels = np.expand_dims(point_labels, axis=0)
 
         assert point_coords.shape[0] == 1 and point_coords.shape[-1] == 2
         assert point_labels.shape[0] == 1
-        input_dict = {"image_embeddings": img_embeddings,
-                      "point_coords": point_coords,
-                      "point_labels": point_labels,
-                      "mask_input": mask_input,
-                      "has_mask_input": has_mask_input,
-                      "orig_im_size": np.array(origin_image_size, dtype=np.float32)}
+        input_dict = {
+            "image_embeddings": img_embeddings,
+            "point_coords": point_coords,
+            "point_labels": point_labels,
+            "mask_input": mask_input,
+            "has_mask_input": has_mask_input,
+            "orig_im_size": np.array(origin_image_size, dtype=np.float32),
+        }
         masks, _, _ = self.session.run(None, input_dict)
 
         return masks[0]
@@ -170,8 +185,11 @@ class SamDecoder:
         return coords
 
     def apply_boxes(self, boxes, original_size, new_size):
-        boxes = self.apply_coords(boxes.reshape(-1, 2, 2), original_size, new_size)
+        boxes = self.apply_coords(
+            boxes.reshape(-1, 2, 2), original_size, new_size
+        )
         return boxes.reshape(-1, 4)
+
 
 class YOLOv8_EfficientViT_SAM(YOLO):
     """Segmentation model using YOLOv8 by EfficientViT_SAM"""
@@ -222,13 +240,13 @@ class YOLOv8_EfficientViT_SAM(YOLO):
             self.input_height = self.config.get("input_height", -1)
 
         self.task = "det"
-        self.model_type = self.config['type']
+        self.model_type = self.config["type"]
         self.classes = self.config.get("classes", [])
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
         self.show_boxes = self.config.get("show_boxes", False)
         self.strategy = self.config.get("strategy", "largest")
-        self.iou_thres= self.config.get("nms_threshold", 0.45)
+        self.iou_thres = self.config.get("nms_threshold", 0.45)
         self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
         self.nc = len(self.classes)
@@ -237,16 +255,18 @@ class YOLOv8_EfficientViT_SAM(YOLO):
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
             self.grid = [np.zeros(1)] * self.nl
-            self.stride = np.array(
-                [self.stride//4, self.stride//2, self.stride]
-            ) if not isinstance(self.stride, list) else \
-            np.array(self.stride)
+            self.stride = (
+                np.array([self.stride // 4, self.stride // 2, self.stride])
+                if not isinstance(self.stride, list)
+                else np.array(self.stride)
+            )
             self.anchor_grid = np.asarray(
                 self.anchors, dtype=np.float32
             ).reshape(self.nl, -1, 2)
         if self.filter_classes:
             self.filter_classes = [
-                i for i, item in enumerate(self.classes) 
+                i
+                for i, item in enumerate(self.classes)
                 if item in self.filter_classes
             ]
 
@@ -281,7 +301,9 @@ class YOLOv8_EfficientViT_SAM(YOLO):
         # Load models
         self.target_size = self.config["target_size"]
         self.encoder_model = SamEncoder(encoder_model_abs_path)
-        self.decoder_model = SamDecoder(decoder_model_abs_path, self.target_size)
+        self.decoder_model = SamDecoder(
+            decoder_model_abs_path, self.target_size
+        )
 
         # Mark for auto labeling: [points, rectangles]
         self.marks = []
@@ -406,10 +428,14 @@ class YOLOv8_EfficientViT_SAM(YOLO):
                 labels.append(mark["label"])
             elif mark["type"] == "rectangle":
                 points.append([mark["data"][0], mark["data"][1]])  # top left
-                points.append([mark["data"][2], mark["data"][3]])  # bottom right
+                points.append(
+                    [mark["data"][2], mark["data"][3]]
+                )  # bottom right
                 labels.append(2)
                 labels.append(3)
-        points, labels = np.array(points).astype(np.float32), np.array(labels).astype(np.float32)
+        points, labels = np.array(points).astype(np.float32), np.array(
+            labels
+        ).astype(np.float32)
         return points, labels
 
     def predict_shapes(self, image, filename=None) -> AutoLabelingResult:
@@ -439,8 +465,8 @@ class YOLOv8_EfficientViT_SAM(YOLO):
                 point_coords = np.array([[x1, y1], [x2, y2]], dtype=np.float32)
                 point_labels = np.array([2, 3], dtype=np.float32)
                 masks = self.decoder_model.run(
-                    img_embeddings=image_embedding['image_embedding'],
-                    origin_image_size=image_embedding['origin_image_size'],
+                    img_embeddings=image_embedding["image_embedding"],
+                    origin_image_size=image_embedding["origin_image_size"],
                     point_coords=point_coords,
                     point_labels=point_labels,
                 )
@@ -457,8 +483,8 @@ class YOLOv8_EfficientViT_SAM(YOLO):
             point_coords, point_labels = self.get_input_points()
             image_embedding = self.image_embed_cache[filename]
             masks = self.decoder_model.run(
-                img_embeddings=image_embedding['image_embedding'],
-                origin_image_size=image_embedding['origin_image_size'],
+                img_embeddings=image_embedding["image_embedding"],
+                origin_image_size=image_embedding["origin_image_size"],
                 point_coords=point_coords,
                 point_labels=point_labels,
             )

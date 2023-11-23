@@ -42,9 +42,19 @@ def convert_x_to_bbox(x, score=None):
     w = np.sqrt(x[2] * x[3])
     h = x[2] / w
     if score == None:
-        return np.array([x[0] - w / 2.0, x[1] - h / 2.0, x[0] + w / 2.0, x[1] + h / 2.0]).reshape((1, 4))
+        return np.array(
+            [x[0] - w / 2.0, x[1] - h / 2.0, x[0] + w / 2.0, x[1] + h / 2.0]
+        ).reshape((1, 4))
     else:
-        return np.array([x[0] - w / 2.0, x[1] - h / 2.0, x[0] + w / 2.0, x[1] + h / 2.0, score]).reshape((1, 5))
+        return np.array(
+            [
+                x[0] - w / 2.0,
+                x[1] - h / 2.0,
+                x[0] + w / 2.0,
+                x[1] + h / 2.0,
+                score,
+            ]
+        ).reshape((1, 5))
 
 
 def speed_direction(bbox1, bbox2):
@@ -88,11 +98,18 @@ class KalmanBoxTracker(object):
             ]
         )
         self.kf.H = np.array(
-            [[1, 0, 0, 0, 0, 0, 0], [0, 1, 0, 0, 0, 0, 0], [0, 0, 1, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0]]
+            [
+                [1, 0, 0, 0, 0, 0, 0],
+                [0, 1, 0, 0, 0, 0, 0],
+                [0, 0, 1, 0, 0, 0, 0],
+                [0, 0, 0, 1, 0, 0, 0],
+            ]
         )
 
         self.kf.R[2:, 2:] *= 10.0
-        self.kf.P[4:, 4:] *= 1000.0  # give high uncertainty to the unobservable initial velocities
+        self.kf.P[
+            4:, 4:
+        ] *= 1000.0  # give high uncertainty to the unobservable initial velocities
         self.kf.P *= 10.0
         self.kf.Q[-1, -1] *= 0.01
         self.kf.Q[4:, 4:] *= 0.01
@@ -183,7 +200,13 @@ class KalmanBoxTracker(object):
     that we hardly normalize the cost by all methods to (0,1) which may not be 
     the best practice.
 """
-ASSO_FUNCS = {"iou": iou_batch, "giou": giou_batch, "ciou": ciou_batch, "diou": diou_batch, "ct_dist": ct_dist}
+ASSO_FUNCS = {
+    "iou": iou_batch,
+    "giou": giou_batch,
+    "ciou": ciou_batch,
+    "diou": diou_batch,
+    "ct_dist": ct_dist,
+}
 
 
 class OCSort(object):
@@ -236,8 +259,12 @@ class OCSort(object):
 
         inds_low = confs > 0.1
         inds_high = confs < self.det_thresh
-        inds_second = np.logical_and(inds_low, inds_high)  # self.det_thresh > score > 0.1, for second matching
-        dets_second = output_results[inds_second]  # detections for second matching
+        inds_second = np.logical_and(
+            inds_low, inds_high
+        )  # self.det_thresh > score > 0.1, for second matching
+        dets_second = output_results[
+            inds_second
+        ]  # detections for second matching
         remain_inds = confs > self.det_thresh
         dets = output_results[remain_inds]
 
@@ -254,15 +281,30 @@ class OCSort(object):
         for t in reversed(to_del):
             self.trackers.pop(t)
 
-        velocities = np.array([trk.velocity if trk.velocity is not None else np.array((0, 0)) for trk in self.trackers])
+        velocities = np.array(
+            [
+                trk.velocity if trk.velocity is not None else np.array((0, 0))
+                for trk in self.trackers
+            ]
+        )
         last_boxes = np.array([trk.last_observation for trk in self.trackers])
-        k_observations = np.array([k_previous_obs(trk.observations, trk.age, self.delta_t) for trk in self.trackers])
+        k_observations = np.array(
+            [
+                k_previous_obs(trk.observations, trk.age, self.delta_t)
+                for trk in self.trackers
+            ]
+        )
 
         """
             First round of association
         """
         matched, unmatched_dets, unmatched_trks = associate(
-            dets, trks, self.iou_threshold, velocities, k_observations, self.inertia
+            dets,
+            trks,
+            self.iou_threshold,
+            velocities,
+            k_observations,
+            self.inertia,
         )
         for m in matched:
             self.trackers[m[1]].update(dets[m[0], :5], dets[m[0], 5])
@@ -271,9 +313,15 @@ class OCSort(object):
             Second round of associaton by OCR
         """
         # BYTE association
-        if self.use_byte and len(dets_second) > 0 and unmatched_trks.shape[0] > 0:
+        if (
+            self.use_byte
+            and len(dets_second) > 0
+            and unmatched_trks.shape[0] > 0
+        ):
             u_trks = trks[unmatched_trks]
-            iou_left = self.asso_func(dets_second, u_trks)  # iou between low score detections and unmatched tracks
+            iou_left = self.asso_func(
+                dets_second, u_trks
+            )  # iou between low score detections and unmatched tracks
             iou_left = np.array(iou_left)
             if iou_left.max() > self.iou_threshold:
                 """
@@ -287,9 +335,13 @@ class OCSort(object):
                     det_ind, trk_ind = m[0], unmatched_trks[m[1]]
                     if iou_left[m[0], m[1]] < self.iou_threshold:
                         continue
-                    self.trackers[trk_ind].update(dets_second[det_ind, :5], dets_second[det_ind, 5])
+                    self.trackers[trk_ind].update(
+                        dets_second[det_ind, :5], dets_second[det_ind, 5]
+                    )
                     to_remove_trk_indices.append(trk_ind)
-                unmatched_trks = np.setdiff1d(unmatched_trks, np.array(to_remove_trk_indices))
+                unmatched_trks = np.setdiff1d(
+                    unmatched_trks, np.array(to_remove_trk_indices)
+                )
 
         if unmatched_dets.shape[0] > 0 and unmatched_trks.shape[0] > 0:
             left_dets = dets[unmatched_dets]
@@ -306,21 +358,32 @@ class OCSort(object):
                 to_remove_det_indices = []
                 to_remove_trk_indices = []
                 for m in rematched_indices:
-                    det_ind, trk_ind = unmatched_dets[m[0]], unmatched_trks[m[1]]
+                    det_ind, trk_ind = (
+                        unmatched_dets[m[0]],
+                        unmatched_trks[m[1]],
+                    )
                     if iou_left[m[0], m[1]] < self.iou_threshold:
                         continue
-                    self.trackers[trk_ind].update(dets[det_ind, :5], dets[det_ind, 5])
+                    self.trackers[trk_ind].update(
+                        dets[det_ind, :5], dets[det_ind, 5]
+                    )
                     to_remove_det_indices.append(det_ind)
                     to_remove_trk_indices.append(trk_ind)
-                unmatched_dets = np.setdiff1d(unmatched_dets, np.array(to_remove_det_indices))
-                unmatched_trks = np.setdiff1d(unmatched_trks, np.array(to_remove_trk_indices))
+                unmatched_dets = np.setdiff1d(
+                    unmatched_dets, np.array(to_remove_det_indices)
+                )
+                unmatched_trks = np.setdiff1d(
+                    unmatched_trks, np.array(to_remove_trk_indices)
+                )
 
         for m in unmatched_trks:
             self.trackers[m].update(None, None)
 
         # create and initialise new trackers for unmatched detections
         for i in unmatched_dets:
-            trk = KalmanBoxTracker(dets[i, :4], dets[i, 4], dets[i, 5], delta_t=self.delta_t)
+            trk = KalmanBoxTracker(
+                dets[i, :4], dets[i, 4], dets[i, 5], delta_t=self.delta_t
+            )
             self.trackers.append(trk)
         i = len(self.trackers)
         for trk in reversed(self.trackers):
@@ -332,9 +395,16 @@ class OCSort(object):
                 we didn't notice significant difference here
                 """
                 d = trk.last_observation[:4]
-            if (trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits):
+            if (trk.time_since_update < 1) and (
+                trk.hit_streak >= self.min_hits
+                or self.frame_count <= self.min_hits
+            ):
                 # +1 as MOT benchmark requires positive
-                ret.append(np.concatenate((d, [trk.id + 1], [trk.cls], [trk.conf])).reshape(1, -1))
+                ret.append(
+                    np.concatenate(
+                        (d, [trk.id + 1], [trk.cls], [trk.conf])
+                    ).reshape(1, -1)
+                )
             i -= 1
             # remove dead tracklet
             if trk.time_since_update > self.max_age:
@@ -342,4 +412,3 @@ class OCSort(object):
         if len(ret) > 0:
             return np.concatenate(ret)
         return np.empty((0, 7))
-    

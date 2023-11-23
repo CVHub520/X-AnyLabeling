@@ -14,8 +14,8 @@ from ..engines import OnnxBaseModel
 from ..types import AutoLabelingResult
 from ..trackers import ByteTrack, OcSort
 from ..utils import (
-    letterbox, 
-    scale_boxes, 
+    letterbox,
+    scale_boxes,
     scale_coords,
     masks2segments,
     non_max_suppression_v5,
@@ -24,7 +24,6 @@ from ..utils import (
 
 
 class YOLO(Model):
-
     class Meta:
         required_config_names = [
             "type",
@@ -48,7 +47,8 @@ class YOLO(Model):
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", f"Could not download or initialize {self.config['type']} model."
+                    "Model",
+                    f"Could not download or initialize {self.config['type']} model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
@@ -58,13 +58,13 @@ class YOLO(Model):
         if not isinstance(self.input_height, int):
             self.input_height = self.config.get("input_height", -1)
 
-        self.model_type = self.config['type']
+        self.model_type = self.config["type"]
         self.classes = self.config.get("classes", [])
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
         self.show_boxes = self.config.get("show_boxes", False)
         self.strategy = self.config.get("strategy", "largest")
-        self.iou_thres= self.config.get("nms_threshold", 0.45)
+        self.iou_thres = self.config.get("nms_threshold", 0.45)
         self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
         self.nc = len(self.classes)
@@ -73,20 +73,22 @@ class YOLO(Model):
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
             self.grid = [np.zeros(1)] * self.nl
-            self.stride = np.array(
-                [self.stride//4, self.stride//2, self.stride]
-            ) if not isinstance(self.stride, list) else \
-            np.array(self.stride)
+            self.stride = (
+                np.array([self.stride // 4, self.stride // 2, self.stride])
+                if not isinstance(self.stride, list)
+                else np.array(self.stride)
+            )
             self.anchor_grid = np.asarray(
                 self.anchors, dtype=np.float32
             ).reshape(self.nl, -1, 2)
         if self.filter_classes:
             self.filter_classes = [
-                i for i, item in enumerate(self.classes) 
+                i
+                for i, item in enumerate(self.classes)
                 if item in self.filter_classes
             ]
 
-        '''Tracker'''
+        """Tracker"""
         tracker = self.config.get("tracker", None)
         if tracker == "ocsort":
             self.tracker = OcSort(self.input_shape)
@@ -95,10 +97,11 @@ class YOLO(Model):
         else:
             self.tracker = None
 
-        '''Keypoints'''
+        """Keypoints"""
         self.keypoints = self.config.get("keypoints", [])
-        self.five_key_points_classes = \
-            self.config.get("five_key_points_classes", [])
+        self.five_key_points_classes = self.config.get(
+            "five_key_points_classes", []
+        )
 
         if self.model_type in [
             "yolov5",
@@ -157,7 +160,7 @@ class YOLO(Model):
                 nc=self.nc,
             )
         elif self.model_type in [
-            "yolov8", 
+            "yolov8",
             "yolov8_efficientvit_sam",
             "yolov8_seg",
             "yolov8_track",
@@ -181,7 +184,11 @@ class YOLO(Model):
         for i, pred in enumerate(p):
             if self.task == "seg":
                 masks = self.process_mask(
-                    proto[i], pred[:, 6:], pred[:, :4], self.input_shape, upsample=True
+                    proto[i],
+                    pred[:, 6:],
+                    pred[:, :4],
+                    self.input_shape,
+                    upsample=True,
                 )  # HWC
             pred[:, :4] = scale_boxes(self.input_shape, pred[:, :4], img_shape)
 
@@ -219,10 +226,14 @@ class YOLO(Model):
         if self.task == "track":
             image_shape = image.shape[:2][::-1]
             results = np.concatenate((boxes, scores, class_ids), axis=1)
-            boxes, track_ids, _, class_ids = self.tracker.track(results, image_shape)
+            boxes, track_ids, _, class_ids = self.tracker.track(
+                results, image_shape
+            )
 
         shapes = []
-        for box, class_id, point, track_id in zip(boxes, class_ids, points, track_ids):
+        for box, class_id, point, track_id in zip(
+            boxes, class_ids, points, track_ids
+        ):
             if self.show_boxes or self.task == "det":
                 x1, y1, x2, y2 = box.astype(float)
                 shape = Shape(flags={})
@@ -279,14 +290,16 @@ class YOLO(Model):
             h = int(self.input_shape[0] / self.stride[i])
             w = int(self.input_shape[1] / self.stride[i])
             length = int(self.na * h * w)
-            if self.grid[i].shape[2: 4] != (h, w):
+            if self.grid[i].shape[2:4] != (h, w):
                 self.grid[i] = self.make_grid(w, h)
-            outs[row_ind:row_ind + length, 0:2] = \
-                (outs[row_ind:row_ind + length, 0:2] * 2. - 0.5 + \
-                    np.tile(self.grid[i], (self.na, 1))) * int(self.stride[i])
-            outs[row_ind:row_ind + length, 2:4] = \
-                (outs[row_ind:row_ind + length, 2:4] * 2) ** 2 * \
-                    np.repeat(self.anchor_grid[i], h * w, axis=0)
+            outs[row_ind : row_ind + length, 0:2] = (
+                outs[row_ind : row_ind + length, 0:2] * 2.0
+                - 0.5
+                + np.tile(self.grid[i], (self.na, 1))
+            ) * int(self.stride[i])
+            outs[row_ind : row_ind + length, 2:4] = (
+                outs[row_ind : row_ind + length, 2:4] * 2
+            ) ** 2 * np.repeat(self.anchor_grid[i], h * w, axis=0)
             row_ind += length
         return outs[np.newaxis, :]
 
@@ -302,14 +315,21 @@ class YOLO(Model):
             upsample (bool): A flag to indicate whether to upsample the mask to the original image size. Default is False.
 
         Returns:
-            (np.ndarray): A binary mask tensor of shape [n, h, w], 
+            (np.ndarray): A binary mask tensor of shape [n, h, w],
             where n is the number of masks after NMS, and h and w
-            are the height and width of the input image. 
+            are the height and width of the input image.
             The mask is applied to the bounding boxes.
         """
         c, mh, mw = protos.shape
         ih, iw = shape
-        masks = 1 / (1 + np.exp(-np.dot(masks_in, protos.reshape(c, -1).astype(float)).astype(float)))
+        masks = 1 / (
+            1
+            + np.exp(
+                -np.dot(masks_in, protos.reshape(c, -1).astype(float)).astype(
+                    float
+                )
+            )
+        )
         masks = masks.reshape(-1, mh, mw)
 
         downsampled_bboxes = bboxes.copy()
@@ -322,7 +342,9 @@ class YOLO(Model):
         masks = self.crop_mask_np(masks, downsampled_bboxes)  # CHW
         if upsample:
             masks_np = np.transpose(masks, (1, 2, 0))
-            masks_resized = cv2.resize(masks_np, (shape[1], shape[0]), interpolation=cv2.INTER_LINEAR)
+            masks_resized = cv2.resize(
+                masks_np, (shape[1], shape[0]), interpolation=cv2.INTER_LINEAR
+            )
             masks = np.transpose(masks_resized, (2, 0, 1))
 
         masks[masks > 0.5] = 1

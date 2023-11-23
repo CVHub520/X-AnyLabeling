@@ -38,7 +38,7 @@ class TextInputDialog(QtWidgets.QDialog):
         if result == QtWidgets.QDialog.Accepted:
             return self.text_input.text()
         else:
-            return ''
+            return ""
 
 
 class LabelQLineEdit(QtWidgets.QLineEdit):

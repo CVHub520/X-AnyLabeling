@@ -188,32 +188,31 @@ def rbox2poly(obboxes):
         rboxes (array/tensor): (num_gts, [cx cy l s θ]) θ∈[-pi/2, pi/2)
 
     Returns:
-        polys (array/tensor): (num_gts, [x1 y1 x2 y2 x3 y3 x4 y4]) 
+        polys (array/tensor): (num_gts, [x1 y1 x2 y2 x3 y3 x4 y4])
     """
     center, w, h, theta = np.split(obboxes, (2, 3, 4), axis=-1)
     Cos, Sin = np.cos(theta), np.sin(theta)
-    vector1 = np.concatenate(
-        [w/2 * Cos, -w/2 * Sin], axis=-1)
-    vector2 = np.concatenate(
-        [-h/2 * Sin, -h/2 * Cos], axis=-1)
+    vector1 = np.concatenate([w / 2 * Cos, -w / 2 * Sin], axis=-1)
+    vector2 = np.concatenate([-h / 2 * Sin, -h / 2 * Cos], axis=-1)
 
     point1 = center + vector1 + vector2
     point2 = center + vector1 - vector2
     point3 = center - vector1 - vector2
     point4 = center - vector1 + vector2
     order = obboxes.shape[:-1]
-    return np.concatenate(
-        [point1, point2, point3, point4], axis=-1).reshape(*order, 8)
+    return np.concatenate([point1, point2, point3, point4], axis=-1).reshape(
+        *order, 8
+    )
 
 
 def rescale_box(input_shape, boxes, image_shape, kpts=False):
-    '''Rescale the output to the original image shape'''
+    """Rescale the output to the original image shape"""
     ratio = min(
-        input_shape[0] / image_shape[0], 
+        input_shape[0] / image_shape[0],
         input_shape[1] / image_shape[1],
     )
     padding = (
-        (input_shape[1] - image_shape[1] * ratio) / 2, 
+        (input_shape[1] - image_shape[1] * ratio) / 2,
         (input_shape[0] - image_shape[0] * ratio) / 2,
     )
     boxes[:, [0, 2]] -= padding[0]
@@ -227,17 +226,17 @@ def rescale_box(input_shape, boxes, image_shape, kpts=False):
         num_kpts = boxes.shape[1] // 3
         for i in range(2, num_kpts + 1):
             boxes[:, i * 3 - 1] = (boxes[:, i * 3 - 1] - padding[0]) / ratio
-            boxes[:, i * 3]  = (boxes[:, i * 3] -  padding[1]) / ratio
+            boxes[:, i * 3] = (boxes[:, i * 3] - padding[1]) / ratio
     return boxes
 
 
 def rescale_box_and_landmark(input_shape, boxes, lmdks, image_shape):
     ratio = min(
-        input_shape[0] / image_shape[0], 
+        input_shape[0] / image_shape[0],
         input_shape[1] / image_shape[1],
     )
     padding = (
-        (input_shape[1] - image_shape[1] * ratio) / 2, 
+        (input_shape[1] - image_shape[1] * ratio) / 2,
         (input_shape[0] - image_shape[0] * ratio) / 2,
     )
     boxes[:, [0, 2]] -= padding[0]
@@ -247,7 +246,7 @@ def rescale_box_and_landmark(input_shape, boxes, lmdks, image_shape):
     boxes[:, 1] = np.clip(boxes[:, 1], 0, image_shape[0])  # y1
     boxes[:, 2] = np.clip(boxes[:, 2], 0, image_shape[1])  # x2
     boxes[:, 3] = np.clip(boxes[:, 3], 0, image_shape[0])  # y2
-    #lmdks 
+    # lmdks
     lmdks[:, [0, 2, 4, 6, 8]] -= padding[0]
     lmdks[:, [1, 3, 5, 7, 9]] -= padding[1]
     lmdks[:, :10] /= ratio
@@ -266,13 +265,13 @@ def rescale_box_and_landmark(input_shape, boxes, lmdks, image_shape):
 
 
 def rescale_tlwh(input_shape, boxes, image_shape, kpts=False):
-    '''Rescale the output to the original image shape'''
+    """Rescale the output to the original image shape"""
     ratio = min(
-        input_shape[0] / image_shape[0], 
+        input_shape[0] / image_shape[0],
         input_shape[1] / image_shape[1],
     )
     padding = (
-        (input_shape[1] - image_shape[1] * ratio) / 2, 
+        (input_shape[1] - image_shape[1] * ratio) / 2,
         (input_shape[0] - image_shape[0] * ratio) / 2,
     )
     boxes[:, 0] -= padding[0]
@@ -280,17 +279,13 @@ def rescale_tlwh(input_shape, boxes, image_shape, kpts=False):
     boxes[:, :4] /= ratio
     boxes[:, 0] = np.clip(boxes[:, 0], 0, image_shape[1])  # x1
     boxes[:, 1] = np.clip(boxes[:, 1], 0, image_shape[0])  # y1
-    boxes[:, 2] = np.clip(
-        (boxes[:, 0] + boxes[:, 2]), 0, image_shape[1]
-    )  # x2
-    boxes[:, 3] = np.clip(
-        (boxes[:, 1] + boxes[:, 3]), 0, image_shape[0]
-    )  # y2
+    boxes[:, 2] = np.clip((boxes[:, 0] + boxes[:, 2]), 0, image_shape[1])  # x2
+    boxes[:, 3] = np.clip((boxes[:, 1] + boxes[:, 3]), 0, image_shape[0])  # y2
     if kpts:
         num_kpts = boxes.shape[1] // 3
         for i in range(2, num_kpts + 1):
             boxes[:, i * 3 - 1] = (boxes[:, i * 3 - 1] - padding[0]) / ratio
-            boxes[:, i * 3]  = (boxes[:, i * 3] -  padding[1]) / ratio
+            boxes[:, i * 3] = (boxes[:, i * 3] - padding[1]) / ratio
     return boxes
 
 
@@ -312,9 +307,12 @@ def scale_boxes(img1_shape, boxes, img0_shape, ratio_pad=None, padding=True):
       boxes (np.ndarray): The scaled bounding boxes, in the format of (x1, y1, x2, y2)
     """
     if ratio_pad is None:  # calculate from img0_shape
-        gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
+        gain = min(
+            img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1]
+        )  # gain  = old / new
         pad = round((img1_shape[1] - img0_shape[1] * gain) / 2 - 0.1), round(
-            (img1_shape[0] - img0_shape[0] * gain) / 2 - 0.1)  # wh padding
+            (img1_shape[0] - img0_shape[0] * gain) / 2 - 0.1
+        )  # wh padding
     else:
         gain = ratio_pad[0][0]
         pad = ratio_pad[1]
@@ -348,15 +346,22 @@ def scale_masks(masks, shape, padding=True):
     masks = masks[:, top:bottom, left:right]
     # Resizing without loop
     masks = cv2.resize(
-        masks.transpose((1, 2, 0)), 
-        (shape[1], shape[0]), 
-        interpolation=cv2.INTER_LINEAR
+        masks.transpose((1, 2, 0)),
+        (shape[1], shape[0]),
+        interpolation=cv2.INTER_LINEAR,
     )
     masks = masks.transpose((2, 0, 1))
     return masks
 
 
-def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None, normalize=False, padding=True):
+def scale_coords(
+    img1_shape,
+    coords,
+    img0_shape,
+    ratio_pad=None,
+    normalize=False,
+    padding=True,
+):
     """
     Rescale segment coordinates (xyxy) from img1_shape to img0_shape
 
@@ -373,8 +378,12 @@ def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None, normalize=False
       coords (np.ndarray): the segmented image.
     """
     if ratio_pad is None:  # calculate from img0_shape
-        gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
-        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2  # wh padding
+        gain = min(
+            img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1]
+        )  # gain  = old / new
+        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (
+            img1_shape[0] - img0_shape[0] * gain
+        ) / 2  # wh padding
     else:
         gain = ratio_pad[0][0]
         pad = ratio_pad[1]
@@ -419,7 +428,7 @@ def clip_boxes(boxes, shape):
     boxes[..., [1, 3]] = boxes[..., [1, 3]].clip(0, shape[0])  # y1, y2
 
 
-def masks2segments(masks, strategy='largest'):
+def masks2segments(masks, strategy="largest"):
     """
     It takes a list of masks(n,h,w) and returns a list of segments(n,xy)
 
@@ -431,26 +440,30 @@ def masks2segments(masks, strategy='largest'):
       segments (List): list of segment masks
     """
     segments = []
-    allowed_strategies = ['concat', 'largest']
+    allowed_strategies = ["concat", "largest"]
     if strategy not in allowed_strategies:
-        logging.error(f"Invalid strategy '{strategy}'! \
-                      Allowed strategies are {allowed_strategies}.")
-    for x in masks.astype('uint8'):
+        logging.error(
+            f"Invalid strategy '{strategy}'! \
+                      Allowed strategies are {allowed_strategies}."
+        )
+    for x in masks.astype("uint8"):
         c = cv2.findContours(x, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
         if c:
-            if strategy == 'concat':  # concatenate all segments
+            if strategy == "concat":  # concatenate all segments
                 c = np.concatenate([x.reshape(-1, 2) for x in c])
-            elif strategy == 'largest':  # select largest segment
-                c = np.array(c[np.array([len(x) for x in c]).argmax()]).reshape(-1, 2)
+            elif strategy == "largest":  # select largest segment
+                c = np.array(
+                    c[np.array([len(x) for x in c]).argmax()]
+                ).reshape(-1, 2)
                 c = np.concatenate([c, [c[0]]])  # Close the contour
         else:
             c = np.zeros((0, 2))  # no segments found
-        segments.append(c.astype('float32'))
+        segments.append(c.astype("float32"))
     return segments
 
 
 def tlwh_to_xyxy(x):
-    """" Convert tlwh to xyxy """
+    """ " Convert tlwh to xyxy"""
     x1 = x[0]
     y1 = x[1]
     x2 = x[2] + x1

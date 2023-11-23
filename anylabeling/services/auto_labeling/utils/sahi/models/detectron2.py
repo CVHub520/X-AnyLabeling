@@ -6,10 +6,18 @@ from typing import List, Optional
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.models.base import DetectionModel
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.cv import get_bbox_from_bool_mask
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_requirements
+from anylabeling.services.auto_labeling.utils.sahi.models.base import (
+    DetectionModel,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.cv import (
+    get_bbox_from_bool_mask,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_requirements,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +62,8 @@ class Detectron2DetectionModel(DetectionModel):
                 category_names = metadata.thing_classes
                 self.category_names = category_names
                 self.category_mapping = {
-                    str(ind): category_name for ind, category_name in enumerate(self.category_names)
+                    str(ind): category_name
+                    for ind, category_name in enumerate(self.category_names)
                 }
             except Exception as e:
                 logger.warning(e)
@@ -63,9 +72,12 @@ class Detectron2DetectionModel(DetectionModel):
                     num_categories = cfg.MODEL.RETINANET.NUM_CLASSES
                 else:  # fasterrcnn/maskrcnn etc
                     num_categories = cfg.MODEL.ROI_HEADS.NUM_CLASSES
-                self.category_names = [str(category_id) for category_id in range(num_categories)]
+                self.category_names = [
+                    str(category_id) for category_id in range(num_categories)
+                ]
                 self.category_mapping = {
-                    str(ind): category_name for ind, category_name in enumerate(self.category_names)
+                    str(ind): category_name
+                    for ind, category_name in enumerate(self.category_names)
                 }
         else:
             self.category_names = list(self.category_mapping.values())
@@ -80,7 +92,9 @@ class Detectron2DetectionModel(DetectionModel):
 
         # Confirm model is loaded
         if self.model is None:
-            raise RuntimeError("Model is not loaded, load it by calling .load_model()")
+            raise RuntimeError(
+                "Model is not loaded, load it by calling .load_model()"
+            )
 
         if isinstance(image, np.ndarray) and self.model.input_format == "BGR":
             # convert RGB image to BGR format
@@ -150,15 +164,23 @@ class Detectron2DetectionModel(DetectionModel):
             object_prediction_list = [
                 ObjectPrediction(
                     bbox=box.tolist() if mask is None else None,
-                    bool_mask=mask.detach().cpu().numpy() if mask is not None else None,
+                    bool_mask=mask.detach().cpu().numpy()
+                    if mask is not None
+                    else None,
                     category_id=category_id.item(),
-                    category_name=self.category_mapping[str(category_id.item())],
+                    category_name=self.category_mapping[
+                        str(category_id.item())
+                    ],
                     shift_amount=shift_amount,
                     score=score.item(),
                     full_shape=full_shape,
                 )
-                for box, score, category_id, mask in zip(boxes, scores, category_ids, masks)
-                if mask is None or get_bbox_from_bool_mask(mask.detach().cpu().numpy()) is not None
+                for box, score, category_id, mask in zip(
+                    boxes, scores, category_ids, masks
+                )
+                if mask is None
+                or get_bbox_from_bool_mask(mask.detach().cpu().numpy())
+                is not None
             ]
         else:
             object_prediction_list = [
@@ -166,7 +188,9 @@ class Detectron2DetectionModel(DetectionModel):
                     bbox=box.tolist(),
                     bool_mask=None,
                     category_id=category_id.item(),
-                    category_name=self.category_mapping[str(category_id.item())],
+                    category_name=self.category_mapping[
+                        str(category_id.item())
+                    ],
                     shift_amount=shift_amount,
                     score=score.item(),
                     full_shape=full_shape,
@@ -177,4 +201,6 @@ class Detectron2DetectionModel(DetectionModel):
         # detectron2 DefaultPredictor supports single image
         object_prediction_list_per_image = [object_prediction_list]
 
-        self._object_prediction_list_per_image = object_prediction_list_per_image
+        self._object_prediction_list_per_image = (
+            object_prediction_list_per_image
+        )

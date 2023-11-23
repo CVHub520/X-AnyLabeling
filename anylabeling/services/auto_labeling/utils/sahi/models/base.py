@@ -5,7 +5,9 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import is_available
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    is_available,
+)
 
 
 class DetectionModel:
@@ -142,7 +144,9 @@ class DetectionModel:
         for object_prediction_list in self._object_prediction_list_per_image:
             for object_prediction in object_prediction_list:
                 old_category_id_str = str(object_prediction.category.id)
-                new_category_id_int = self.category_remapping[old_category_id_str]
+                new_category_id_int = self.category_remapping[
+                    old_category_id_str
+                ]
                 object_prediction.category.id = new_category_id_int
 
     def convert_original_predictions(

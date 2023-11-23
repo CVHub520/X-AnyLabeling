@@ -1,7 +1,10 @@
 import fire
 
 from anylabeling.services.auto_labeling.utils.sahi.utils.coco import Coco
-from anylabeling.services.auto_labeling.utils.sahi.utils.file import Path, increment_path
+from anylabeling.services.auto_labeling.utils.sahi.utils.file import (
+    Path,
+    increment_path,
+)
 
 
 def main(
@@ -39,7 +42,9 @@ def main(
         disable_symlink=disable_symlink,
     )
 
-    print(f"COCO to YOLOv5 conversion results are successfully exported to {save_dir}")
+    print(
+        f"COCO to YOLOv5 conversion results are successfully exported to {save_dir}"
+    )
 
 
 if __name__ == "__main__":

@@ -4,23 +4,30 @@ from typing import Dict, List, Optional
 import cv2
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.models.base import DetectionModel
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import fix_full_shape_list, fix_shift_amount_list
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_requirements
+from anylabeling.services.auto_labeling.utils.sahi.models.base import (
+    DetectionModel,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import (
+    fix_full_shape_list,
+    fix_shift_amount_list,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_requirements,
+)
 
-from anylabeling.services.auto_labeling.engines.build_onnx_engine import OnnxBaseModel
+from anylabeling.services.auto_labeling.engines.build_onnx_engine import (
+    OnnxBaseModel,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class Yolov8ONNX(object):
     def __init__(
-        self,
-        model_path: str,
-        device: str,
-        conf_thres: float,
-        nms_thres: float
+        self, model_path: str, device: str, conf_thres: float, nms_thres: float
     ):
         self.net = OnnxBaseModel(model_path, device)
         self.conf_thres = conf_thres
@@ -45,7 +52,7 @@ class Yolov8ONNX(object):
 
         # Transposed
         input_img = input_img.transpose(2, 0, 1)
-        
+
         # Processed
         blob = input_img[np.newaxis, :, :, :].astype(np.float32)
 
@@ -108,7 +115,7 @@ class Yolov8ONNX(object):
         bboxes, scores, class_ids = [], [], []
         for i in indices:
             _x, _y, _w, _h = _boxes[i]
-            bboxes.append([_x, _y, _x+_w, _y+_h])
+            bboxes.append([_x, _y, _x + _w, _y + _h])
             scores.append(_confidences[i])
             class_ids.append(_class_ids[i])
 
@@ -131,7 +138,7 @@ class Yolov8OnnxDetectionModel(DetectionModel):
             model_path=self.model_path,
             device=self.device,
             conf_thres=self.conf_thres,
-            nms_thres=self.nms_thres
+            nms_thres=self.nms_thres,
         )
 
         # set category list
@@ -149,7 +156,9 @@ class Yolov8OnnxDetectionModel(DetectionModel):
         """
 
         # Confirm model is loaded
-        assert self.model is not None, "Model is not loaded, load it by calling .load_model()"
+        assert (
+            self.model is not None
+        ), "Model is not loaded, load it by calling .load_model()"
 
         prediction_result = self.model.inference(image)
 
@@ -197,13 +206,15 @@ class Yolov8OnnxDetectionModel(DetectionModel):
             class_ids = original_prediction[2]
 
             shift_amount = shift_amount_list[image_ind]
-            full_shape = None if full_shape_list is None else full_shape_list[
-                image_ind]
+            full_shape = (
+                None if full_shape_list is None else full_shape_list[image_ind]
+            )
             object_prediction_list = []
 
             # process predictions
-            for original_bbox, score, class_id in zip(bboxes, scores,
-                                                      class_ids):
+            for original_bbox, score, class_id in zip(
+                bboxes, scores, class_ids
+            ):
                 x1 = int(original_bbox[0])
                 y1 = int(original_bbox[1])
                 x2 = int(original_bbox[2])
@@ -229,7 +240,8 @@ class Yolov8OnnxDetectionModel(DetectionModel):
                 # ignore invalid predictions
                 if not (bbox[0] < bbox[2]) or not (bbox[1] < bbox[3]):
                     logger.warning(
-                        f"ignoring invalid prediction with bbox: {bbox}")
+                        f"ignoring invalid prediction with bbox: {bbox}"
+                    )
                     continue
 
                 object_prediction = ObjectPrediction(
@@ -244,4 +256,6 @@ class Yolov8OnnxDetectionModel(DetectionModel):
                 object_prediction_list.append(object_prediction)
             object_prediction_list_per_image.append(object_prediction_list)
 
-        self._object_prediction_list_per_image = object_prediction_list_per_image
+        self._object_prediction_list_per_image = (
+            object_prediction_list_per_image
+        )

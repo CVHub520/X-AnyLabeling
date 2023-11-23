@@ -219,7 +219,16 @@ def _make_gt_area_histogram_plot(cocoEval, outDir):
     return export_path
 
 
-def _analyze_individual_category(k, cocoDt, cocoGt, catId, iou_type, areas=None, max_detections=None, COCOeval=None):
+def _analyze_individual_category(
+    k,
+    cocoDt,
+    cocoGt,
+    catId,
+    iou_type,
+    areas=None,
+    max_detections=None,
+    COCOeval=None,
+):
     nm = cocoGt.loadCats(catId)[0]
     print(f'--------------analyzing {k + 1}-{nm["name"]}---------------')
     ps_ = {}
@@ -299,7 +308,9 @@ def _analyse_results(
             raise ValueError(f"res_type {res_type} is not supported")
     if areas is not None:
         if len(areas) != 3:
-            raise ValueError("3 integers should be specified as areas,representing 3 area regions")
+            raise ValueError(
+                "3 integers should be specified as areas,representing 3 area regions"
+            )
 
     if out_dir is None:
         out_dir = Path(res_file).parent
@@ -322,7 +333,9 @@ def _analyse_results(
             print(f"-------------create {res_out_dir}-----------------")
             os.makedirs(res_directory)
         iou_type = res_type
-        cocoEval = COCOeval(copy.deepcopy(cocoGt), copy.deepcopy(cocoDt), iou_type)
+        cocoEval = COCOeval(
+            copy.deepcopy(cocoGt), copy.deepcopy(cocoDt), iou_type
+        )
         cocoEval.params.imgIds = imgIds
         cocoEval.params.iouThrs = [0.75, 0.5, 0.1]
         cocoEval.params.maxDets = [max_detections]
@@ -353,7 +366,16 @@ def _analyse_results(
         recThrs = cocoEval.params.recThrs
         with Pool(processes=48) as pool:
             args = [
-                (k, cocoDt, cocoGt, catId, iou_type, areas, max_detections, COCOeval)
+                (
+                    k,
+                    cocoDt,
+                    cocoGt,
+                    catId,
+                    iou_type,
+                    areas,
+                    max_detections,
+                    COCOeval,
+                )
                 for k, catId in enumerate(present_cat_ids)
             ]
             analyze_results = pool.starmap(_analyze_individual_category, args)
@@ -364,7 +386,9 @@ def _analyse_results(
             print(f'--------------saving {k + 1}-{nm["name"]}---------------')
             analyze_result = analyze_results[k]
             if k != analyze_result[0]:
-                raise ValueError(f"k {k} != analyze_result[0] {analyze_result[0]}")
+                raise ValueError(
+                    f"k {k} != analyze_result[0] {analyze_result[0]}"
+                )
             ps_supercategory = analyze_result[1]["ps_supercategory"]
             ps_allcategory = analyze_result[1]["ps_allcategory"]
             # compute precision but ignore superclass confusion
@@ -376,12 +400,26 @@ def _analyse_results(
             ps[5, :, k, :, :][ps[4, :, k, :, :] > 0] = 1
             ps[6, :, k, :, :] = 1.0
 
-            normalized_class_name = nm["name"].replace("/", "_").replace(os.sep, "_")
+            normalized_class_name = (
+                nm["name"].replace("/", "_").replace(os.sep, "_")
+            )
 
-            curve_export_path_list = _makeplot(recThrs, ps[:, :, k], res_out_dir, normalized_class_name, iou_type)
+            curve_export_path_list = _makeplot(
+                recThrs,
+                ps[:, :, k],
+                res_out_dir,
+                normalized_class_name,
+                iou_type,
+            )
 
             if extraplots:
-                bar_plot_path = _makebarplot(recThrs, ps[:, :, k], res_out_dir, normalized_class_name, iou_type)
+                bar_plot_path = _makebarplot(
+                    recThrs,
+                    ps[:, :, k],
+                    res_out_dir,
+                    normalized_class_name,
+                    iou_type,
+                )
             else:
                 bar_plot_path = None
             classname_to_export_path_list[nm["name"]] = {
@@ -389,15 +427,25 @@ def _analyse_results(
                 "bar_plot": bar_plot_path,
             }
 
-        curve_export_path_list = _makeplot(recThrs, ps, res_out_dir, "allclass", iou_type)
+        curve_export_path_list = _makeplot(
+            recThrs, ps, res_out_dir, "allclass", iou_type
+        )
         if extraplots:
-            bar_plot_path = _makebarplot(recThrs, ps, res_out_dir, "allclass", iou_type)
+            bar_plot_path = _makebarplot(
+                recThrs, ps, res_out_dir, "allclass", iou_type
+            )
             gt_area_group_numbers_plot_path = _make_gt_area_group_numbers_plot(
                 cocoEval=cocoEval, outDir=res_out_dir, verbose=True
             )
-            gt_area_histogram_plot_path = _make_gt_area_histogram_plot(cocoEval=cocoEval, outDir=res_out_dir)
+            gt_area_histogram_plot_path = _make_gt_area_histogram_plot(
+                cocoEval=cocoEval, outDir=res_out_dir
+            )
         else:
-            bar_plot_path, gt_area_group_numbers_plot_path, gt_area_histogram_plot_path = None, None, None
+            (
+                bar_plot_path,
+                gt_area_group_numbers_plot_path,
+                gt_area_histogram_plot_path,
+            ) = (None, None, None)
 
         result_type_to_export_paths[res_type] = {
             "classwise": classname_to_export_path_list,
@@ -408,7 +456,9 @@ def _analyse_results(
                 "gt_area_histogram": gt_area_histogram_plot_path,
             },
         }
-    print(f"COCO error analysis results are successfully exported to {out_dir}")
+    print(
+        f"COCO error analysis results are successfully exported to {out_dir}"
+    )
 
     return result_type_to_export_paths
 
@@ -439,13 +489,15 @@ def analyse(
         from pycocotools.cocoeval import COCOeval
     except ModuleNotFoundError:
         raise ModuleNotFoundError(
-            'Please run "pip install -U pycocotools" ' "to install pycocotools first for coco evaluation."
+            'Please run "pip install -U pycocotools" '
+            "to install pycocotools first for coco evaluation."
         )
     try:
         import matplotlib.pyplot as plt
     except ModuleNotFoundError:
         raise ModuleNotFoundError(
-            'Please run "pip install -U matplotlib" ' "to install matplotlib first for visualization."
+            'Please run "pip install -U matplotlib" '
+            "to install matplotlib first for visualization."
         )
 
     result = _analyse_results(

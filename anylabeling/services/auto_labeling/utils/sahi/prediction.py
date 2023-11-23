@@ -7,9 +7,17 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 from PIL import Image
 
-from anylabeling.services.auto_labeling.utils.sahi.annotation import ObjectAnnotation
-from anylabeling.services.auto_labeling.utils.sahi.utils.coco import CocoAnnotation, CocoPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.cv import read_image_as_pil, visualize_object_predictions
+from anylabeling.services.auto_labeling.utils.sahi.annotation import (
+    ObjectAnnotation,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.coco import (
+    CocoAnnotation,
+    CocoPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.cv import (
+    read_image_as_pil,
+    visualize_object_predictions,
+)
 from anylabeling.services.auto_labeling.utils.sahi.utils.file import Path
 
 
@@ -137,11 +145,22 @@ class ObjectPrediction(ObjectAnnotation):
         try:
             import fiftyone as fo
         except ImportError:
-            raise ImportError('Please run "pip install -U fiftyone" to install fiftyone first for fiftyone conversion.')
+            raise ImportError(
+                'Please run "pip install -U fiftyone" to install fiftyone first for fiftyone conversion.'
+            )
 
         x1, y1, x2, y2 = self.bbox.to_xyxy()
-        rel_box = [x1 / image_width, y1 / image_height, (x2 - x1) / image_width, (y2 - y1) / image_height]
-        fiftyone_detection = fo.Detection(label=self.category.name, bounding_box=rel_box, confidence=self.score.value)
+        rel_box = [
+            x1 / image_width,
+            y1 / image_height,
+            (x2 - x1) / image_width,
+            (y2 - y1) / image_height,
+        ]
+        fiftyone_detection = fo.Detection(
+            label=self.category.name,
+            bounding_box=rel_box,
+            confidence=self.score.value,
+        )
         return fiftyone_detection
 
     def __repr__(self):
@@ -161,7 +180,9 @@ class PredictionResult:
     ):
         self.image: Image.Image = read_image_as_pil(image)
         self.image_width, self.image_height = self.image.size
-        self.object_prediction_list: List[ObjectPrediction] = object_prediction_list
+        self.object_prediction_list: List[
+            ObjectPrediction
+        ] = object_prediction_list
         self.durations_in_seconds = durations_in_seconds
 
     def export_visuals(
@@ -203,30 +224,41 @@ class PredictionResult:
     def to_coco_annotations(self):
         coco_annotation_list = []
         for object_prediction in self.object_prediction_list:
-            coco_annotation_list.append(object_prediction.to_coco_prediction().json)
+            coco_annotation_list.append(
+                object_prediction.to_coco_prediction().json
+            )
         return coco_annotation_list
 
     def to_coco_predictions(self, image_id: Optional[int] = None):
         coco_prediction_list = []
         for object_prediction in self.object_prediction_list:
-            coco_prediction_list.append(object_prediction.to_coco_prediction(image_id=image_id).json)
+            coco_prediction_list.append(
+                object_prediction.to_coco_prediction(image_id=image_id).json
+            )
         return coco_prediction_list
 
     def to_imantics_annotations(self):
         imantics_annotation_list = []
         for object_prediction in self.object_prediction_list:
-            imantics_annotation_list.append(object_prediction.to_imantics_annotation())
+            imantics_annotation_list.append(
+                object_prediction.to_imantics_annotation()
+            )
         return imantics_annotation_list
 
     def to_fiftyone_detections(self):
         try:
             import fiftyone as fo
         except ImportError:
-            raise ImportError('Please run "pip install -U fiftyone" to install fiftyone first for fiftyone conversion.')
+            raise ImportError(
+                'Please run "pip install -U fiftyone" to install fiftyone first for fiftyone conversion.'
+            )
 
         fiftyone_detection_list: List[fo.Detection] = []
         for object_prediction in self.object_prediction_list:
             fiftyone_detection_list.append(
-                object_prediction.to_fiftyone_detection(image_height=self.image_height, image_width=self.image_width)
+                object_prediction.to_fiftyone_detection(
+                    image_height=self.image_height,
+                    image_width=self.image_width,
+                )
             )
         return fiftyone_detection_list

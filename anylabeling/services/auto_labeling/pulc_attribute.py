@@ -34,13 +34,13 @@ class PULC_Attribute(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-        model_name = self.config['type']
+        model_name = self.config["type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    "Model",
+                    f"Could not download or initialize {model_name} model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
@@ -55,10 +55,12 @@ class PULC_Attribute(Model):
         image = cv2.resize(input_image, self.input_shape, interpolation=1)
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
-        mean = np.array(mean).reshape((1, 1, 3)).astype('float32')
-        std = np.array(std).reshape((1, 1, 3)).astype('float32')
-        image = (image.astype('float32') * np.float32(1.0 / 255.0) - mean) / std
-        image = image.transpose(2, 0, 1).astype('float32')
+        mean = np.array(mean).reshape((1, 1, 3)).astype("float32")
+        std = np.array(std).reshape((1, 1, 3)).astype("float32")
+        image = (
+            image.astype("float32") * np.float32(1.0 / 255.0) - mean
+        ) / std
+        image = image.transpose(2, 0, 1).astype("float32")
         image = np.expand_dims(image, axis=0)
         return image
 
@@ -74,13 +76,15 @@ class PULC_Attribute(Model):
             options, threshold = infos
             if threshold == -1:
                 num_classes = len(options)
-                current_class = outs[interval: interval+num_classes]
+                current_class = outs[interval : interval + num_classes]
                 current_index = np.argmax(current_class)
                 results[property] = options[current_index]
                 interval += num_classes
-            elif 0. <= threshold <= 1.:
+            elif 0.0 <= threshold <= 1.0:
                 current_score = outs[interval]
-                current_class = options[0] if current_score > threshold else options[1]
+                current_class = (
+                    options[0] if current_score > threshold else options[1]
+                )
                 results[property] = current_class
                 interval += 1
 

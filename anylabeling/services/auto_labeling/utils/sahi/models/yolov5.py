@@ -6,10 +6,20 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.models.base import DetectionModel
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import fix_full_shape_list, fix_shift_amount_list
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_package_minimum_version, check_requirements
+from anylabeling.services.auto_labeling.utils.sahi.models.base import (
+    DetectionModel,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import (
+    fix_full_shape_list,
+    fix_shift_amount_list,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_package_minimum_version,
+    check_requirements,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +49,10 @@ class Yolov5DetectionModel(DetectionModel):
                 A YOLOv5 model
         """
 
-        if model.__class__.__module__ not in ["yolov5.models.common", "models.common"]:
+        if model.__class__.__module__ not in [
+            "yolov5.models.common",
+            "models.common",
+        ]:
             raise Exception(f"Not a yolov5 model: {type(model)}")
 
         model.conf = self.confidence_threshold
@@ -47,7 +60,10 @@ class Yolov5DetectionModel(DetectionModel):
 
         # set category_mapping
         if not self.category_mapping:
-            category_mapping = {str(ind): category_name for ind, category_name in enumerate(self.category_names)}
+            category_mapping = {
+                str(ind): category_name
+                for ind, category_name in enumerate(self.category_names)
+            }
             self.category_mapping = category_mapping
 
     def perform_inference(self, image: np.ndarray):
@@ -60,7 +76,9 @@ class Yolov5DetectionModel(DetectionModel):
 
         # Confirm model is loaded
         if self.model is None:
-            raise ValueError("Model is not loaded, load it by calling .load_model()")
+            raise ValueError(
+                "Model is not loaded, load it by calling .load_model()"
+            )
         if self.image_size is not None:
             prediction_result = self.model(image, size=self.image_size)
         else:
@@ -119,13 +137,19 @@ class Yolov5DetectionModel(DetectionModel):
 
         # handle all predictions
         object_prediction_list_per_image = []
-        for image_ind, image_predictions_in_xyxy_format in enumerate(original_predictions.xyxy):
+        for image_ind, image_predictions_in_xyxy_format in enumerate(
+            original_predictions.xyxy
+        ):
             shift_amount = shift_amount_list[image_ind]
-            full_shape = None if full_shape_list is None else full_shape_list[image_ind]
+            full_shape = (
+                None if full_shape_list is None else full_shape_list[image_ind]
+            )
             object_prediction_list = []
 
             # process predictions
-            for prediction in image_predictions_in_xyxy_format.cpu().detach().numpy():
+            for prediction in (
+                image_predictions_in_xyxy_format.cpu().detach().numpy()
+            ):
                 x1 = prediction[0]
                 y1 = prediction[1]
                 x2 = prediction[2]
@@ -150,7 +174,9 @@ class Yolov5DetectionModel(DetectionModel):
 
                 # ignore invalid predictions
                 if not (bbox[0] < bbox[2]) or not (bbox[1] < bbox[3]):
-                    logger.warning(f"ignoring invalid prediction with bbox: {bbox}")
+                    logger.warning(
+                        f"ignoring invalid prediction with bbox: {bbox}"
+                    )
                     continue
 
                 object_prediction = ObjectPrediction(
@@ -165,4 +191,6 @@ class Yolov5DetectionModel(DetectionModel):
                 object_prediction_list.append(object_prediction)
             object_prediction_list_per_image.append(object_prediction_list)
 
-        self._object_prediction_list_per_image = object_prediction_list_per_image
+        self._object_prediction_list_per_image = (
+            object_prediction_list_per_image
+        )

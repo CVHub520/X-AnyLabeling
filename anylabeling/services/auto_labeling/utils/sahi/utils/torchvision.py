@@ -4,15 +4,21 @@
 
 from packaging import version
 
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import get_package_info
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    get_package_info,
+)
 
 
 class TorchVisionTestConstants:
-    FASTERRCNN_CONFIG_PATH = "tests/data/models/torchvision/fasterrcnn_resnet50_fpn.yaml"
+    FASTERRCNN_CONFIG_PATH = (
+        "tests/data/models/torchvision/fasterrcnn_resnet50_fpn.yaml"
+    )
     SSD300_CONFIG_PATH = "tests/data/models/torchvision/ssd300_vgg16.yaml"
 
 
-_torchvision_available, _torchvision_version = get_package_info("torchvision", verbose=False)
+_torchvision_available, _torchvision_version = get_package_info(
+    "torchvision", verbose=False
+)
 
 if _torchvision_available:
     import torchvision
@@ -28,7 +34,9 @@ if _torchvision_available:
 
     # fcos requires torchvision >= 0.12.0
     if version.parse(_torchvision_version) >= version.parse("0.12.0"):
-        MODEL_NAME_TO_CONSTRUCTOR["fcos_resnet50_fpn"] = (torchvision.models.detection.fcos_resnet50_fpn,)
+        MODEL_NAME_TO_CONSTRUCTOR["fcos_resnet50_fpn"] = (
+            torchvision.models.detection.fcos_resnet50_fpn,
+        )
 
 
 COCO_CLASSES = [

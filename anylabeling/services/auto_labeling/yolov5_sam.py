@@ -66,13 +66,13 @@ class YOLOv5SegmentAnything(YOLO):
             self.input_height = self.config.get("input_height", -1)
 
         self.task = "det"
-        self.model_type = self.config['type']
+        self.model_type = self.config["type"]
         self.classes = self.config.get("classes", [])
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
         self.show_boxes = self.config.get("show_boxes", False)
         self.strategy = self.config.get("strategy", "largest")
-        self.iou_thres= self.config.get("nms_threshold", 0.45)
+        self.iou_thres = self.config.get("nms_threshold", 0.45)
         self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
         self.nc = len(self.classes)
@@ -81,16 +81,18 @@ class YOLOv5SegmentAnything(YOLO):
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
             self.grid = [np.zeros(1)] * self.nl
-            self.stride = np.array(
-                [self.stride//4, self.stride//2, self.stride]
-            ) if not isinstance(self.stride, list) else \
-            np.array(self.stride)
+            self.stride = (
+                np.array([self.stride // 4, self.stride // 2, self.stride])
+                if not isinstance(self.stride, list)
+                else np.array(self.stride)
+            )
             self.anchor_grid = np.asarray(
                 self.anchors, dtype=np.float32
             ).reshape(self.nl, -1, 2)
         if self.filter_classes:
             self.filter_classes = [
-                i for i, item in enumerate(self.classes) 
+                i
+                for i, item in enumerate(self.classes)
                 if item in self.filter_classes
             ]
 
@@ -127,10 +129,17 @@ class YOLOv5SegmentAnything(YOLO):
         max_width = self.config["max_width"]
         self.target_size = self.config["target_size"]
         self.input_size = (max_height, max_width)
-        self.encoder_session = OnnxBaseModel(encoder_model_abs_path, __preferred_device__)
-        self.decoder_session = OnnxBaseModel(decoder_model_abs_path, __preferred_device__)
+        self.encoder_session = OnnxBaseModel(
+            encoder_model_abs_path, __preferred_device__
+        )
+        self.decoder_session = OnnxBaseModel(
+            decoder_model_abs_path, __preferred_device__
+        )
         self.model = SegmentAnythingONNX(
-            self.encoder_session, self.decoder_session, self.target_size, self.input_size
+            self.encoder_session,
+            self.decoder_session,
+            self.target_size,
+            self.input_size,
         )
 
         # Mark for auto labeling: [points, rectangles]
@@ -246,7 +255,9 @@ class YOLOv5SegmentAnything(YOLO):
             self.image_embed_cache[filename] = image_embedding
             return result
         else:
-            masks = self.model.predict_masks(self.image_embed_cache[filename], self.marks)
+            masks = self.model.predict_masks(
+                self.image_embed_cache[filename], self.marks
+            )
             if len(masks.shape) == 4:
                 masks = masks[0][0]
             else:

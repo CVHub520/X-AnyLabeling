@@ -4,11 +4,12 @@ from ...utils.points_conversion import tlwh_to_xyxy
 
 
 class ByteTrack(object):
-    def __init__(self,
-                 input_shape: tuple,
-                 min_box_area: int = 10,
-                 aspect_ratio_thresh: float= 3.0) -> None:
-
+    def __init__(
+        self,
+        input_shape: tuple,
+        min_box_area: int = 10,
+        aspect_ratio_thresh: float = 3.0,
+    ) -> None:
         self.min_box_area = min_box_area
         self.aspect_ratio_thresh = aspect_ratio_thresh
         self.min_box_area = min_box_area
@@ -18,9 +19,7 @@ class ByteTrack(object):
         self.input_shape = input_shape
         self.tracker = BYTETracker(frame_rate=30)
 
-    def track(self,
-              dets_xyxy: np.ndarray,
-              image_shape: tuple) -> tuple:
+    def track(self, dets_xyxy: np.ndarray, image_shape: tuple) -> tuple:
         image_info = {"width": image_shape[0], "height": image_shape[1]}
         class_ids = []
         ids = []
@@ -39,10 +38,10 @@ class ByteTrack(object):
         if dets is not None:
             online_targets = self.tracker.update(
                 dets[:, :-1],
-                [image_info['height'], image_info['width']],
-                [image_info['height'], image_info['width']],
+                [image_info["height"], image_info["width"]],
+                [image_info["height"], image_info["width"]],
             )
-            
+
         online_xyxys = []
         online_ids = []
         online_scores = []

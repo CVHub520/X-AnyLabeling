@@ -674,11 +674,11 @@ class Canvas(
 
     def get_adjoint_points(self, theta, p3, p1, index):
         a1 = math.tan(theta)
-        if (a1 == 0):
+        if a1 == 0:
             if index % 2 == 0:
                 p2 = QtCore.QPointF(p3.x(), p1.y())
                 p4 = QtCore.QPointF(p1.x(), p3.y())
-            else:            
+            else:
                 p4 = QtCore.QPointF(p3.x(), p1.y())
                 p2 = QtCore.QPointF(p1.x(), p3.y())
         else:
@@ -693,7 +693,7 @@ class Canvas(
             if index % 2 == 0:
                 p2 = self.get_cross_point(a1, b1, a4, b4)
                 p4 = self.get_cross_point(a2, b2, a3, b3)
-            else:            
+            else:
                 p4 = self.get_cross_point(a1, b1, a4, b4)
                 p2 = self.get_cross_point(a2, b2, a3, b3)
 
@@ -703,7 +703,7 @@ class Canvas(
     def get_cross_point(a1, b1, a2, b2):
         x = (b2 - b1) / (a1 - a2)
         y = (a1 * b2 - a2 * b1) / (a1 - a2)
-        return QtCore.QPointF(x,y)
+        return QtCore.QPointF(x, y)
 
     def bounded_move_vertex(self, pos):
         """Move a vertex. Adjust position to be bounded by pixmap border"""
@@ -717,13 +717,17 @@ class Canvas(
         else:
             sindex = (index + 2) % 4
             # Get the other 3 points after transformed
-            p2, p3, p4 = self.get_adjoint_points(shape.direction, shape[sindex], pos, index)
-            if self.out_off_pixmap(p2) or \
-                self.out_off_pixmap(p3) or \
-                self.out_off_pixmap(p4):
+            p2, p3, p4 = self.get_adjoint_points(
+                shape.direction, shape[sindex], pos, index
+            )
+            if (
+                self.out_off_pixmap(p2)
+                or self.out_off_pixmap(p3)
+                or self.out_off_pixmap(p4)
+            ):
                 return  # No need to move if one pixal out of map
 
-            # Move 4 pixal one by one 
+            # Move 4 pixal one by one
             shape.move_vertex_by(index, pos - point)
             lindex = (index + 1) % 4
             rindex = (index + 3) % 4
@@ -772,12 +776,16 @@ class Canvas(
         if len(shape.points) == 2:
             new_shape.points[0] = shape.points[0]
             new_shape.points[1] = QtCore.QPointF(
-                (shape.points[0].x()+shape.points[1].x()) / 2, shape.points[0].y()
+                (shape.points[0].x() + shape.points[1].x()) / 2,
+                shape.points[0].y(),
             )
             new_shape.points.append(shape.points[1])
-            new_shape.points.append(QtCore.QPointF(
-                shape.points[1].x(), (shape.points[0].y()+shape.points[1].y()) / 2
-            ))
+            new_shape.points.append(
+                QtCore.QPointF(
+                    shape.points[1].x(),
+                    (shape.points[0].y() + shape.points[1].y()) / 2,
+                )
+            )
         center = QtCore.QPointF(
             (new_shape.points[0].x() + new_shape.points[2].x()) / 2,
             (new_shape.points[0].y() + new_shape.points[2].y()) / 2,
@@ -960,23 +968,23 @@ class Canvas(
                 shape.fill = shape.selected or shape == self.h_hape
                 shape.paint(p)
 
-            if (
-                shape._shape_type == "rotation"
-                and len(shape.points) == 4
-            ):
+            if shape._shape_type == "rotation" and len(shape.points) == 4:
                 d = shape.point_size / shape.scale
                 center = QtCore.QPointF(
                     (shape.points[0].x() + shape.points[2].x()) / 2,
                     (shape.points[0].y() + shape.points[2].y()) / 2,
                 )
                 if self.show_shape_degrees:
-                    degrees = str(int(math.degrees(shape.direction))) + '°'
+                    degrees = str(int(math.degrees(shape.direction))) + "°"
                     p.setFont(
                         QtGui.QFont(
-                            "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
+                            "Arial",
+                            int(max(6.0, int(round(8.0 / Shape.scale)))),
                         )
                     )
-                    pen = QtGui.QPen(QtGui.QColor("#FF9900"), 8, QtCore.Qt.SolidLine)
+                    pen = QtGui.QPen(
+                        QtGui.QColor("#FF9900"), 8, QtCore.Qt.SolidLine
+                    )
                     p.setPen(pen)
                     fm = QtGui.QFontMetrics(p.font())
                     rect = fm.boundingRect(degrees)
@@ -987,7 +995,9 @@ class Canvas(
                         rect.height(),
                         QtGui.QColor("#FF9900"),
                     )
-                    pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 7, QtCore.Qt.SolidLine)
+                    pen = QtGui.QPen(
+                        QtGui.QColor("#FFFFFF"), 7, QtCore.Qt.SolidLine
+                    )
                     p.setPen(pen)
                     p.drawText(
                         center.x() - d,
@@ -1302,10 +1312,8 @@ class Canvas(
         """Rotate selected shapes by an theta (using keyboard)"""
         if self.selected_shapes:
             for i, shape in enumerate(self.selected_shapes):
-                if shape._shape_type == 'rotation':
-                    self.bounded_rotate_shapes(
-                        i, shape, theta
-                    )
+                if shape._shape_type == "rotation":
+                    self.bounded_rotate_shapes(i, shape, theta)
                     self.repaint()
                     self.rotating_shape = True
 
@@ -1349,7 +1357,9 @@ class Canvas(
             if int(modifiers) == 0:
                 self.snapping = True
         elif self.editing():
-            if (self.moving_shape or self.rotating_shape) and self.selected_shapes:
+            if (
+                self.moving_shape or self.rotating_shape
+            ) and self.selected_shapes:
                 index = self.shapes.index(self.selected_shapes[0])
                 if (
                     self.shapes_backups[-1][index].points
@@ -1461,7 +1471,7 @@ class Canvas(
         self.update()
 
     def set_show_degrees(self, enabled):
-        """ Set showing degrees"""
+        """Set showing degrees"""
         self.show_shape_degrees = enabled
         self.update()
 

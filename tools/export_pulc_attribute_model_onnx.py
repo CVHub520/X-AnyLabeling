@@ -6,7 +6,7 @@ import numpy as np
 import onnxruntime as ort
 
 
-'''
+"""
 The ONNX Export of the PULC Attribute Model
 Written by Wei Wang (CVHub)
 
@@ -52,26 +52,30 @@ Written by Wei Wang (CVHub)
                 ./models/person_attribute_infer/pulc_person_attribute.onnx \
                 --task person
         ```
-'''
+"""
 
-class OnnxBaseModel():
-    def __init__(self, model_path, device_type: str = 'cpu'):
 
+class OnnxBaseModel:
+    def __init__(self, model_path, device_type: str = "cpu"):
         self.sess_opts = ort.SessionOptions()
         if "OMP_NUM_THREADS" in os.environ:
-            self.sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
+            self.sess_opts.inter_op_num_threads = int(
+                os.environ["OMP_NUM_THREADS"]
+            )
 
-        self.providers = ['CPUExecutionProvider']
-        if device_type.lower() != 'cpu':
-            self.providers = ['CUDAExecutionProvider']
+        self.providers = ["CPUExecutionProvider"]
+        if device_type.lower() != "cpu":
+            self.providers = ["CUDAExecutionProvider"]
 
         self.ort_session = ort.InferenceSession(
-                        model_path, 
-                        providers=self.providers,
-                        sess_options=self.sess_opts,
-                    )
+            model_path,
+            providers=self.providers,
+            sess_options=self.sess_opts,
+        )
 
-    def get_ort_inference(self, blob, inputs=None, extract=True, squeeze=False):
+    def get_ort_inference(
+        self, blob, inputs=None, extract=True, squeeze=False
+    ):
         if inputs is None:
             inputs = self.get_input_name()
             outs = self.ort_session.run(None, {inputs: blob})
@@ -82,7 +86,7 @@ class OnnxBaseModel():
         if squeeze:
             outs = outs.squeeze(axis=0)
         return outs
-    
+
     def get_input_name(self):
         return self.ort_session.get_inputs()[0].name
 
@@ -96,16 +100,35 @@ class OnnxBaseModel():
 class PULC_Attribute(object):
     def __init__(self, model_abs_path, task="vehicle"):
         self.vehicle_attributes = {
-            "Color": [[
-                "yellow", "orange", "green", 
-                "gray", "red", "blue", "white",
-                "golden", "brown", "black"
-            ], -1],
-            "Type": [[
-                "sedan", "suv", "van", 
-                "hatchback", "mpv", "pickup", 
-                "bus", "truck", "estate"
-            ], -1]
+            "Color": [
+                [
+                    "yellow",
+                    "orange",
+                    "green",
+                    "gray",
+                    "red",
+                    "blue",
+                    "white",
+                    "golden",
+                    "brown",
+                    "black",
+                ],
+                -1,
+            ],
+            "Type": [
+                [
+                    "sedan",
+                    "suv",
+                    "van",
+                    "hatchback",
+                    "mpv",
+                    "pickup",
+                    "bus",
+                    "truck",
+                    "estate",
+                ],
+                -1,
+            ],
         }
         self.person_attributes = {
             "Hat": [["Yes", "False"], 0.5],
@@ -128,7 +151,7 @@ class PULC_Attribute(object):
             "HoldObjectsInFront": [["Yes", "No"], 0.6],
             "Age": [["AgeLess18", "Age18-60", "AgeOver60"], -1],
             "Gender": [["Female", "Male"], 0.5],
-            "Direction": [["Front", "Side", "Back"], -1]
+            "Direction": [["Front", "Side", "Back"], -1],
         }
         if task == "vehicle":
             self.attributes = self.vehicle_attributes
@@ -137,7 +160,7 @@ class PULC_Attribute(object):
         else:
             raise ValueError(f"Invalid task mode: {task}!")
 
-        self.net = OnnxBaseModel(model_abs_path, device_type='cpu')
+        self.net = OnnxBaseModel(model_abs_path, device_type="cpu")
         self.input_shape = self.net.get_input_shape()[-2:][::-1]
 
     def preprocess(self, input_image):
@@ -147,10 +170,12 @@ class PULC_Attribute(object):
         image = cv2.resize(input_image, self.input_shape, interpolation=1)
         mean = [0.485, 0.456, 0.406]
         std = [0.229, 0.224, 0.225]
-        mean = np.array(mean).reshape((1, 1, 3)).astype('float32')
-        std = np.array(std).reshape((1, 1, 3)).astype('float32')
-        image = (image.astype('float32') * np.float32(1.0 / 255.0) - mean) / std
-        image = image.transpose(2, 0, 1).astype('float32')
+        mean = np.array(mean).reshape((1, 1, 3)).astype("float32")
+        std = np.array(std).reshape((1, 1, 3)).astype("float32")
+        image = (
+            image.astype("float32") * np.float32(1.0 / 255.0) - mean
+        ) / std
+        image = image.transpose(2, 0, 1).astype("float32")
         image = np.expand_dims(image, axis=0)
         return image
 
@@ -166,13 +191,15 @@ class PULC_Attribute(object):
             options, threshold = infos
             if threshold == -1:
                 num_classes = len(options)
-                current_class = outs[interval: interval+num_classes]
+                current_class = outs[interval : interval + num_classes]
                 current_index = np.argmax(current_class)
                 results[property] = options[current_index]
                 interval += num_classes
-            elif 0. <= threshold <= 1.:
+            elif 0.0 <= threshold <= 1.0:
                 current_score = outs[interval]
-                current_class = options[0] if current_score > threshold else options[1]
+                current_class = (
+                    options[0] if current_score > threshold else options[1]
+                )
                 results[property] = current_class
                 interval += 1
 
@@ -195,11 +222,25 @@ class PULC_Attribute(object):
     def unload(self):
         del self.net
 
+
 def main():
-    parser = argparse.ArgumentParser(description='PaddleCls PULC Inference Demo')
-    parser.add_argument('image_path', type=str, help='Path to the input image')
-    parser.add_argument('model_path', type=str, default='model.onnx', help='Path to the ONNX model file')
-    parser.add_argument('--task', type=str, default='vehicle', choices=['vehicle', 'person'], help='Task mode')
+    parser = argparse.ArgumentParser(
+        description="PaddleCls PULC Inference Demo"
+    )
+    parser.add_argument("image_path", type=str, help="Path to the input image")
+    parser.add_argument(
+        "model_path",
+        type=str,
+        default="model.onnx",
+        help="Path to the ONNX model file",
+    )
+    parser.add_argument(
+        "--task",
+        type=str,
+        default="vehicle",
+        choices=["vehicle", "person"],
+        help="Task mode",
+    )
     args = parser.parse_args()
 
     inference_model = PULC_Attribute(args.model_path, task=args.task)
@@ -212,5 +253,5 @@ def main():
         print(f"{k}: {v}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

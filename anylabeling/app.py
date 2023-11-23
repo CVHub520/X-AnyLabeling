@@ -12,7 +12,8 @@ import codecs
 import logging
 
 import sys
-sys.path.append('.')
+
+sys.path.append(".")
 
 import yaml
 from PyQt5 import QtCore, QtWidgets

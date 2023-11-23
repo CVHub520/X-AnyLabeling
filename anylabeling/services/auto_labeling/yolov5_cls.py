@@ -16,7 +16,6 @@ from .engines.build_onnx_engine import OnnxBaseModel
 
 
 class YOLOv5_CLS(YOLO):
-
     class Meta:
         required_config_names = [
             "cls_model_path",
@@ -34,24 +33,26 @@ class YOLOv5_CLS(YOLO):
         # Run the parent class's init method
         super().__init__(model_config, on_message)
 
-        '''Classify'''
+        """Classify"""
         model_abs_path = self.get_model_abs_path(self.config, "cls_model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", f"Could not download or initialize {self.config['type']} model."
+                    "Model",
+                    f"Could not download or initialize {self.config['type']} model.",
                 )
             )
         self.cls_net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.cls_classes = self.config["cls_classes"]
         self.cls_input_shape = self.cls_net.get_input_shape()[-2:]
 
-        '''Detection'''
+        """Detection"""
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", f"Could not download or initialize {self.config['type']} model."
+                    "Model",
+                    f"Could not download or initialize {self.config['type']} model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
@@ -61,13 +62,13 @@ class YOLOv5_CLS(YOLO):
         if not isinstance(self.input_height, int):
             self.input_height = self.config.get("input_height", -1)
 
-        self.model_type = self.config['type']
+        self.model_type = self.config["type"]
         self.classes = self.config["det_classes"]
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
         self.show_boxes = self.config.get("show_boxes", False)
         self.strategy = self.config.get("strategy", "largest")
-        self.iou_thres= self.config.get("nms_threshold", 0.45)
+        self.iou_thres = self.config.get("nms_threshold", 0.45)
         self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
 
@@ -78,30 +79,32 @@ class YOLOv5_CLS(YOLO):
             self.nl = len(self.anchors)
             self.na = len(self.anchors[0]) // 2
             self.grid = [np.zeros(1)] * self.nl
-            self.stride = np.array(
-                [self.stride//4, self.stride//2, self.stride]
-            ) if not isinstance(self.stride, list) else \
-            np.array(self.stride)
+            self.stride = (
+                np.array([self.stride // 4, self.stride // 2, self.stride])
+                if not isinstance(self.stride, list)
+                else np.array(self.stride)
+            )
             self.anchor_grid = np.asarray(
                 self.anchors, dtype=np.float32
             ).reshape(self.nl, -1, 2)
         if self.filter_classes:
             self.filter_classes = [
-                i for i, item in enumerate(self.classes) 
+                i
+                for i, item in enumerate(self.classes)
                 if item in self.filter_classes
             ]
 
     def cls_preprocess(self, input_image, mean=None, std=None):
         """
         Pre-processes the input image before feeding it to the network.
-        
+
         Args:
             input_image (numpy.ndarray): The input image to be processed.
-            mean (numpy.ndarray): Mean values for normalization. 
+            mean (numpy.ndarray): Mean values for normalization.
                 If not provided, default values are used.
-            std (numpy.ndarray): Standard deviation values for normalization. 
+            std (numpy.ndarray): Standard deviation values for normalization.
                 If not provided, default values are used.
-        
+
         Returns:
             numpy.ndarray: The processed input image.
         """
@@ -114,13 +117,13 @@ class YOLOv5_CLS(YOLO):
             mean = np.array([0.485, 0.456, 0.406])
         if not std:
             std = np.array([0.229, 0.224, 0.225])
-        norm_img_data = np.zeros(input_data.shape).astype('float32')
+        norm_img_data = np.zeros(input_data.shape).astype("float32")
         # Normalize the image data
         for channel in range(input_data.shape[0]):
             norm_img_data[channel, :, :] = (
                 input_data[channel, :, :] / 255 - mean[channel]
             ) / std[channel]
-        blob = norm_img_data.reshape(1, 3, h, w).astype('float32')
+        blob = norm_img_data.reshape(1, 3, h, w).astype("float32")
         return blob
 
     def cls_postprocess(self, outs, topk=1):
@@ -162,7 +165,7 @@ class YOLOv5_CLS(YOLO):
         shapes = []
         for box in boxes:
             x1, y1, x2, y2 = list(map(int, box))
-            img = image[y1: y2, x1: x2]
+            img = image[y1:y2, x1:x2]
 
             blob = self.cls_preprocess(img)
             predictions = self.cls_net.get_ort_inference(blob, extract=False)

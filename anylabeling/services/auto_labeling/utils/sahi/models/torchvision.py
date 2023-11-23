@@ -6,9 +6,15 @@ from typing import Any, Dict, List, Optional
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.models.base import DetectionModel
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_requirements
+from anylabeling.services.auto_labeling.utils.sahi.models.base import (
+    DetectionModel,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_requirements,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -40,19 +46,27 @@ class TorchVisionDetectionModel(DetectionModel):
         # complete params if not provided in config
         if not model_name:
             model_name = "fasterrcnn_resnet50_fpn"
-            logger.warning(f"model_name not provided in config, using default model_type: {model_name}'")
+            logger.warning(
+                f"model_name not provided in config, using default model_type: {model_name}'"
+            )
         if num_classes is None:
-            logger.warning("num_classes not provided in config, using default num_classes: 91")
+            logger.warning(
+                "num_classes not provided in config, using default num_classes: 91"
+            )
             num_classes = 91
         if self.model_path is None:
-            logger.warning("model_path not provided in config, using pretrained weights and default num_classes: 91.")
+            logger.warning(
+                "model_path not provided in config, using pretrained weights and default num_classes: 91."
+            )
             pretrained = True
             num_classes = 91
         else:
             pretrained = False
 
         # load model
-        model = MODEL_NAME_TO_CONSTRUCTOR[model_name](num_classes=num_classes, pretrained=pretrained)
+        model = MODEL_NAME_TO_CONSTRUCTOR[model_name](
+            num_classes=num_classes, pretrained=pretrained
+        )
         try:
             model.load_state_dict(torch.load(self.model_path))
         except Exception as e:
@@ -76,7 +90,9 @@ class TorchVisionDetectionModel(DetectionModel):
         from sahi.utils.torchvision import COCO_CLASSES
 
         if self.category_mapping is None:
-            category_names = {str(i): COCO_CLASSES[i] for i in range(len(COCO_CLASSES))}
+            category_names = {
+                str(i): COCO_CLASSES[i] for i in range(len(COCO_CLASSES))
+            }
             self.category_mapping = category_names
 
     def perform_inference(self, image: np.ndarray, image_size: int = None):
@@ -156,14 +172,29 @@ class TorchVisionDetectionModel(DetectionModel):
             selected_indices = np.where(scores > self.confidence_threshold)[0]
 
             # parse boxes, masks, scores, category_ids from predictions
-            category_ids = list(image_predictions["labels"][selected_indices].cpu().detach().numpy())
-            boxes = list(image_predictions["boxes"][selected_indices].cpu().detach().numpy())
+            category_ids = list(
+                image_predictions["labels"][selected_indices]
+                .cpu()
+                .detach()
+                .numpy()
+            )
+            boxes = list(
+                image_predictions["boxes"][selected_indices]
+                .cpu()
+                .detach()
+                .numpy()
+            )
             scores = scores[selected_indices]
 
             # check if predictions contain mask
             masks = image_predictions.get("masks", None)
             if masks is not None:
-                masks = list(image_predictions["masks"][selected_indices].cpu().detach().numpy())
+                masks = list(
+                    image_predictions["masks"][selected_indices]
+                    .cpu()
+                    .detach()
+                    .numpy()
+                )
             else:
                 masks = None
 
@@ -171,7 +202,9 @@ class TorchVisionDetectionModel(DetectionModel):
             object_prediction_list = []
 
             shift_amount = shift_amount_list[0]
-            full_shape = None if full_shape_list is None else full_shape_list[0]
+            full_shape = (
+                None if full_shape_list is None else full_shape_list[0]
+            )
 
             for ind in range(len(boxes)):
                 if masks is not None:
@@ -183,7 +216,9 @@ class TorchVisionDetectionModel(DetectionModel):
                     bbox=boxes[ind],
                     bool_mask=mask,
                     category_id=int(category_ids[ind]),
-                    category_name=self.category_mapping[str(int(category_ids[ind]))],
+                    category_name=self.category_mapping[
+                        str(int(category_ids[ind]))
+                    ],
                     shift_amount=shift_amount,
                     score=scores[ind],
                     full_shape=full_shape,
@@ -191,4 +226,6 @@ class TorchVisionDetectionModel(DetectionModel):
                 object_prediction_list.append(object_prediction)
             object_prediction_list_per_image.append(object_prediction_list)
 
-        self._object_prediction_list_per_image = object_prediction_list_per_image
+        self._object_prediction_list_per_image = (
+            object_prediction_list_per_image
+        )

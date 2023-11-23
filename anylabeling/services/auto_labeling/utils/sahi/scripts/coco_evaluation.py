@@ -11,7 +11,14 @@ from terminaltables import AsciiTable
 
 
 def _cocoeval_summarize(
-    cocoeval, ap=1, iouThr=None, catIdx=None, areaRng="all", maxDets=100, catName="", nameStrLen=None
+    cocoeval,
+    ap=1,
+    iouThr=None,
+    catIdx=None,
+    areaRng="all",
+    maxDets=100,
+    catName="",
+    nameStrLen=None,
 ):
     p = cocoeval.params
     if catName:
@@ -21,7 +28,11 @@ def _cocoeval_summarize(
         iStr = " {:<18} {} @[ IoU={:<9} | area={:>6s} | maxDets={:>3d} ] = {:0.3f}"
     titleStr = "Average Precision" if ap == 1 else "Average Recall"
     typeStr = "(AP)" if ap == 1 else "(AR)"
-    iouStr = "{:0.2f}:{:0.2f}".format(p.iouThrs[0], p.iouThrs[-1]) if iouThr is None else "{:0.2f}".format(iouThr)
+    iouStr = (
+        "{:0.2f}:{:0.2f}".format(p.iouThrs[0], p.iouThrs[-1])
+        if iouThr is None
+        else "{:0.2f}".format(iouThr)
+    )
 
     aind = [i for i, aRng in enumerate(p.areaRngLbl) if aRng == areaRng]
     mind = [i for i, mDet in enumerate(p.maxDets) if mDet == maxDets]
@@ -51,7 +62,18 @@ def _cocoeval_summarize(
     else:
         mean_s = np.mean(s[s > -1])
     if catName:
-        print(iStr.format(titleStr, typeStr, nameStr, iouStr, areaRng, maxDets, mean_s, nameStrLen=nameStrLen))
+        print(
+            iStr.format(
+                titleStr,
+                typeStr,
+                nameStr,
+                iouStr,
+                areaRng,
+                maxDets,
+                mean_s,
+                nameStrLen=nameStrLen,
+            )
+        )
     else:
         print(iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets, mean_s))
     return mean_s
@@ -106,13 +128,17 @@ def evaluate_core(
         if metric not in allowed_metrics:
             raise KeyError(f"metric {metric} is not supported")
     if iou_thrs is None:
-        iou_thrs = np.linspace(0.5, 0.95, int(np.round((0.95 - 0.5) / 0.05)) + 1, endpoint=True)
+        iou_thrs = np.linspace(
+            0.5, 0.95, int(np.round((0.95 - 0.5) / 0.05)) + 1, endpoint=True
+        )
     if metric_items is not None:
         if not isinstance(metric_items, list):
             metric_items = [metric_items]
     if areas is not None:
         if len(areas) != 3:
-            raise ValueError("3 integers should be specified as areas, representing 3 area regions")
+            raise ValueError(
+                "3 integers should be specified as areas, representing 3 area regions"
+            )
     eval_results = OrderedDict()
     cocoGt = COCO(dataset_path)
     cat_ids = list(cocoGt.cats.keys())
@@ -141,7 +167,10 @@ def evaluate_core(
         cocoEval.params.catIds = cat_ids
         cocoEval.params.maxDets = [max_detections]
         cocoEval.params.iouThrs = (
-            [iou_thrs] if not isinstance(iou_thrs, list) and not isinstance(iou_thrs, np.ndarray) else iou_thrs
+            [iou_thrs]
+            if not isinstance(iou_thrs, list)
+            and not isinstance(iou_thrs, np.ndarray)
+            else iou_thrs
         )
         # mapping of cocoEval.stats
         coco_metric_names = {
@@ -161,25 +190,93 @@ def evaluate_core(
         if metric_items is not None:
             for metric_item in metric_items:
                 if metric_item not in coco_metric_names:
-                    raise KeyError(f"metric item {metric_item} is not supported")
+                    raise KeyError(
+                        f"metric item {metric_item} is not supported"
+                    )
 
         cocoEval.evaluate()
         cocoEval.accumulate()
         # calculate mAP50_s/m/l
-        mAP = _cocoeval_summarize(cocoEval, ap=1, iouThr=None, areaRng="all", maxDets=max_detections)
-        mAP50 = _cocoeval_summarize(cocoEval, ap=1, iouThr=0.5, areaRng="all", maxDets=max_detections)
-        mAP75 = _cocoeval_summarize(cocoEval, ap=1, iouThr=0.75, areaRng="all", maxDets=max_detections)
-        mAP50_s = _cocoeval_summarize(cocoEval, ap=1, iouThr=0.5, areaRng="small", maxDets=max_detections)
-        mAP50_m = _cocoeval_summarize(cocoEval, ap=1, iouThr=0.5, areaRng="medium", maxDets=max_detections)
-        mAP50_l = _cocoeval_summarize(cocoEval, ap=1, iouThr=0.5, areaRng="large", maxDets=max_detections)
-        mAP_s = _cocoeval_summarize(cocoEval, ap=1, iouThr=None, areaRng="small", maxDets=max_detections)
-        mAP_m = _cocoeval_summarize(cocoEval, ap=1, iouThr=None, areaRng="medium", maxDets=max_detections)
-        mAP_l = _cocoeval_summarize(cocoEval, ap=1, iouThr=None, areaRng="large", maxDets=max_detections)
-        AR_s = _cocoeval_summarize(cocoEval, ap=0, iouThr=None, areaRng="small", maxDets=max_detections)
-        AR_m = _cocoeval_summarize(cocoEval, ap=0, iouThr=None, areaRng="medium", maxDets=max_detections)
-        AR_l = _cocoeval_summarize(cocoEval, ap=0, iouThr=None, areaRng="large", maxDets=max_detections)
+        mAP = _cocoeval_summarize(
+            cocoEval, ap=1, iouThr=None, areaRng="all", maxDets=max_detections
+        )
+        mAP50 = _cocoeval_summarize(
+            cocoEval, ap=1, iouThr=0.5, areaRng="all", maxDets=max_detections
+        )
+        mAP75 = _cocoeval_summarize(
+            cocoEval, ap=1, iouThr=0.75, areaRng="all", maxDets=max_detections
+        )
+        mAP50_s = _cocoeval_summarize(
+            cocoEval, ap=1, iouThr=0.5, areaRng="small", maxDets=max_detections
+        )
+        mAP50_m = _cocoeval_summarize(
+            cocoEval,
+            ap=1,
+            iouThr=0.5,
+            areaRng="medium",
+            maxDets=max_detections,
+        )
+        mAP50_l = _cocoeval_summarize(
+            cocoEval, ap=1, iouThr=0.5, areaRng="large", maxDets=max_detections
+        )
+        mAP_s = _cocoeval_summarize(
+            cocoEval,
+            ap=1,
+            iouThr=None,
+            areaRng="small",
+            maxDets=max_detections,
+        )
+        mAP_m = _cocoeval_summarize(
+            cocoEval,
+            ap=1,
+            iouThr=None,
+            areaRng="medium",
+            maxDets=max_detections,
+        )
+        mAP_l = _cocoeval_summarize(
+            cocoEval,
+            ap=1,
+            iouThr=None,
+            areaRng="large",
+            maxDets=max_detections,
+        )
+        AR_s = _cocoeval_summarize(
+            cocoEval,
+            ap=0,
+            iouThr=None,
+            areaRng="small",
+            maxDets=max_detections,
+        )
+        AR_m = _cocoeval_summarize(
+            cocoEval,
+            ap=0,
+            iouThr=None,
+            areaRng="medium",
+            maxDets=max_detections,
+        )
+        AR_l = _cocoeval_summarize(
+            cocoEval,
+            ap=0,
+            iouThr=None,
+            areaRng="large",
+            maxDets=max_detections,
+        )
         cocoEval.stats = np.append(
-            [mAP, mAP75, mAP50, mAP_s, mAP_m, mAP_l, mAP50_s, mAP50_m, mAP50_l, AR_s, AR_m, AR_l], 0
+            [
+                mAP,
+                mAP75,
+                mAP50,
+                mAP_s,
+                mAP_m,
+                mAP_l,
+                mAP50_s,
+                mAP50_m,
+                mAP50_l,
+                AR_s,
+                AR_m,
+                AR_l,
+            ],
+            0,
         )
 
         if classwise:  # Compute per-category AP
@@ -195,7 +292,11 @@ def evaluate_core(
             for idx, catId in enumerate(cat_ids):
                 nm = cocoGt.loadCats(catId)[0]
                 cat_name_len = len(nm["name"])
-                max_cat_name_len = cat_name_len if cat_name_len > max_cat_name_len else max_cat_name_len
+                max_cat_name_len = (
+                    cat_name_len
+                    if cat_name_len > max_cat_name_len
+                    else max_cat_name_len
+                )
 
             results_per_category = []
             for idx, catId in enumerate(cat_ids):
@@ -282,30 +383,60 @@ def evaluate_core(
                     catName=nm["name"],
                     nameStrLen=max_cat_name_len,
                 )
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP', f"{float(ap):0.3f}"))
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP_s', f"{float(ap_s):0.3f}"))
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP_m', f"{float(ap_m):0.3f}"))
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP_l', f"{float(ap_l):0.3f}"))
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP50', f"{float(ap50):0.3f}"))
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP50_s', f"{float(ap50_s):0.3f}"))
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP50_m', f"{float(ap50_m):0.3f}"))
-                results_per_category.append((f'{metric}_{nm["name"]}_mAP50_l', f"{float(ap50_l):0.3f}"))
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP', f"{float(ap):0.3f}")
+                )
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP_s', f"{float(ap_s):0.3f}")
+                )
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP_m', f"{float(ap_m):0.3f}")
+                )
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP_l', f"{float(ap_l):0.3f}")
+                )
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP50', f"{float(ap50):0.3f}")
+                )
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP50_s', f"{float(ap50_s):0.3f}")
+                )
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP50_m', f"{float(ap50_m):0.3f}")
+                )
+                results_per_category.append(
+                    (f'{metric}_{nm["name"]}_mAP50_l', f"{float(ap50_l):0.3f}")
+                )
 
             num_columns = min(6, len(results_per_category) * 2)
             results_flatten = list(itertools.chain(*results_per_category))
             headers = ["category", "AP"] * (num_columns // 2)
-            results_2d = itertools.zip_longest(*[results_flatten[i::num_columns] for i in range(num_columns)])
+            results_2d = itertools.zip_longest(
+                *[results_flatten[i::num_columns] for i in range(num_columns)]
+            )
             table_data = [headers]
             table_data += [result for result in results_2d]
             table = AsciiTable(table_data)
             print("\n" + table.table)
 
         if metric_items is None:
-            metric_items = ["mAP", "mAP50", "mAP75", "mAP_s", "mAP_m", "mAP_l", "mAP50_s", "mAP50_m", "mAP50_l"]
+            metric_items = [
+                "mAP",
+                "mAP50",
+                "mAP75",
+                "mAP_s",
+                "mAP_m",
+                "mAP_l",
+                "mAP50_s",
+                "mAP50_m",
+                "mAP50_l",
+            ]
 
         for metric_item in metric_items:
             key = f"{metric}_{metric_item}"
-            val = float(f"{cocoEval.stats[coco_metric_names[metric_item]]:.3f}")
+            val = float(
+                f"{cocoEval.stats[coco_metric_names[metric_item]]:.3f}"
+            )
             eval_results[key] = val
         ap = cocoEval.stats
         eval_results[f"{metric}_mAP_copypaste"] = (
@@ -314,7 +445,9 @@ def evaluate_core(
             f"{ap[8]:.3f}"
         )
         if classwise:
-            eval_results["results_per_category"] = {key: value for key, value in results_per_category}
+            eval_results["results_per_category"] = {
+                key: value for key, value in results_per_category
+            }
     # set save path
     if not out_dir:
         out_dir = Path(result_path).parent
@@ -323,7 +456,9 @@ def evaluate_core(
     # export as json
     with open(export_path, "w", encoding="utf-8") as outfile:
         json.dump(eval_results, outfile, indent=4, separators=(",", ":"))
-    print(f"COCO evaluation results are successfully exported to {export_path}")
+    print(
+        f"COCO evaluation results are successfully exported to {export_path}"
+    )
     return {"eval_results": eval_results, "export_path": export_path}
 
 
@@ -355,7 +490,8 @@ def evaluate(
         from pycocotools.cocoeval import COCOeval
     except ModuleNotFoundError:
         raise ModuleNotFoundError(
-            'Please run "pip install -U pycocotools" ' "to install pycocotools first for coco evaluation."
+            'Please run "pip install -U pycocotools" '
+            "to install pycocotools first for coco evaluation."
         )
 
     # perform coco eval

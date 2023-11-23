@@ -16,8 +16,16 @@ from typing import Dict, List, Optional, Set, Union
 import numpy as np
 from tqdm import tqdm
 
-from anylabeling.services.auto_labeling.utils.sahi.utils.file import is_colab, load_json, save_json
-from anylabeling.services.auto_labeling.utils.sahi.utils.shapely import ShapelyAnnotation, box, get_shapely_multipolygon
+from anylabeling.services.auto_labeling.utils.sahi.utils.file import (
+    is_colab,
+    load_json,
+    save_json,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.shapely import (
+    ShapelyAnnotation,
+    box,
+    get_shapely_multipolygon,
+)
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -49,7 +57,9 @@ class CocoCategory:
         return cls(
             id=category["id"],
             name=category["name"],
-            supercategory=category["supercategory"] if "supercategory" in category else category["name"],
+            supercategory=category["supercategory"]
+            if "supercategory" in category
+            else category["name"],
         )
 
     @property
@@ -73,7 +83,9 @@ class CocoAnnotation:
     """
 
     @classmethod
-    def from_coco_segmentation(cls, segmentation, category_id, category_name, iscrowd=0):
+    def from_coco_segmentation(
+        cls, segmentation, category_id, category_name, iscrowd=0
+    ):
         """
         Creates CocoAnnotation object using coco segmentation.
 
@@ -117,7 +129,9 @@ class CocoAnnotation:
         )
 
     @classmethod
-    def from_coco_annotation_dict(cls, annotation_dict: Dict, category_name: Optional[str] = None):
+    def from_coco_annotation_dict(
+        cls, annotation_dict: Dict, category_name: Optional[str] = None
+    ):
         """
         Creates CocoAnnotation object from category name and COCO formatted
         annotation dict (with fields "bbox", "segmentation", "category_id").
@@ -128,7 +142,9 @@ class CocoAnnotation:
             annotation_dict: dict
                 COCO formatted annotation dict (with fields "bbox", "segmentation", "category_id")
         """
-        if annotation_dict.__contains__("segmentation") and not isinstance(annotation_dict["segmentation"], list):
+        if annotation_dict.__contains__("segmentation") and not isinstance(
+            annotation_dict["segmentation"], list
+        ):
             has_rle_segmentation = True
             logger.warning(
                 f"Segmentation annotation for id {annotation_dict['id']} is skipped since RLE segmentation format is not supported."
@@ -176,7 +192,9 @@ class CocoAnnotation:
             category_name=category_name,
             iscrowd=iscrowd,
         )
-        coco_annotation._segmentation = shapely_annotation.to_coco_segmentation()
+        coco_annotation._segmentation = (
+            shapely_annotation.to_coco_segmentation()
+        )
         coco_annotation._shapely_annotation = shapely_annotation
         return coco_annotation
 
@@ -216,14 +234,20 @@ class CocoAnnotation:
         self._iscrowd = iscrowd
 
         if self._segmentation:
-            shapely_annotation = ShapelyAnnotation.from_coco_segmentation(segmentation=self._segmentation)
+            shapely_annotation = ShapelyAnnotation.from_coco_segmentation(
+                segmentation=self._segmentation
+            )
         else:
             shapely_annotation = ShapelyAnnotation.from_coco_bbox(bbox=bbox)
         self._shapely_annotation = shapely_annotation
 
     def get_sliced_coco_annotation(self, slice_bbox: List[int]):
-        shapely_polygon = box(slice_bbox[0], slice_bbox[1], slice_bbox[2], slice_bbox[3])
-        intersection_shapely_annotation = self._shapely_annotation.get_intersection(shapely_polygon)
+        shapely_polygon = box(
+            slice_bbox[0], slice_bbox[1], slice_bbox[2], slice_bbox[3]
+        )
+        intersection_shapely_annotation = (
+            self._shapely_annotation.get_intersection(shapely_polygon)
+        )
         return CocoAnnotation.from_shapely_annotation(
             intersection_shapely_annotation,
             category_id=self.category_id,
@@ -332,7 +356,15 @@ class CocoPrediction(CocoAnnotation):
     """
 
     @classmethod
-    def from_coco_segmentation(cls, segmentation, category_id, category_name, score, iscrowd=0, image_id=None):
+    def from_coco_segmentation(
+        cls,
+        segmentation,
+        category_id,
+        category_name,
+        score,
+        iscrowd=0,
+        image_id=None,
+    ):
         """
         Creates CocoAnnotation object using coco segmentation.
 
@@ -358,7 +390,9 @@ class CocoPrediction(CocoAnnotation):
         )
 
     @classmethod
-    def from_coco_bbox(cls, bbox, category_id, category_name, score, iscrowd=0, image_id=None):
+    def from_coco_bbox(
+        cls, bbox, category_id, category_name, score, iscrowd=0, image_id=None
+    ):
         """
         Creates CocoAnnotation object using coco bbox
 
@@ -384,7 +418,9 @@ class CocoPrediction(CocoAnnotation):
         )
 
     @classmethod
-    def from_coco_annotation_dict(cls, category_name, annotation_dict, score, image_id=None):
+    def from_coco_annotation_dict(
+        cls, category_name, annotation_dict, score, image_id=None
+    ):
         """
         Creates CocoAnnotation object from category name and COCO formatted
         annotation dict (with fields "bbox", "segmentation", "category_id").
@@ -566,7 +602,9 @@ class CocoImage:
             width=image_dict["width"],
         )
 
-    def __init__(self, file_name: str, height: int, width: int, id: int = None):
+    def __init__(
+        self, file_name: str, height: int, width: int, id: int = None
+    ):
         """
         Creates CocoImage object
 
@@ -584,8 +622,12 @@ class CocoImage:
         self.file_name = file_name
         self.height = int(height)
         self.width = int(width)
-        self.annotations = []  # list of CocoAnnotation that belong to this image
-        self.predictions = []  # list of CocoPrediction that belong to this image
+        self.annotations = (
+            []
+        )  # list of CocoAnnotation that belong to this image
+        self.predictions = (
+            []
+        )  # list of CocoPrediction that belong to this image
 
     def add_annotation(self, annotation):
         """
@@ -660,7 +702,9 @@ class CocoVidImage(CocoImage):
             video_id: int
                 Video id
         """
-        super(CocoVidImage, self).__init__(file_name=file_name, height=height, width=width, id=id)
+        super(CocoVidImage, self).__init__(
+            file_name=file_name, height=height, width=width, id=id
+        )
         self.frame_id = frame_id
         self.video_id = video_id
 
@@ -823,7 +867,9 @@ class Coco:
                     manual --> you will need to provide image ids in <CocoImage> instances (<CocoImage>.id can not be None)
         """
         if image_id_setting not in ["auto", "manual"]:
-            raise ValueError("image_id_setting must be either 'auto' or 'manual'")
+            raise ValueError(
+                "image_id_setting must be either 'auto' or 'manual'"
+            )
         self.name = name
         self.image_dir = image_dir
         self.remapping_dict = remapping_dict
@@ -877,7 +923,9 @@ class Coco:
         """
 
         if self.image_id_setting == "manual" and image.id is None:
-            raise ValueError("image id should be manually set for image_id_setting='manual'")
+            raise ValueError(
+                "image id should be manually set for image_id_setting='manual'"
+            )
         self.images.append(image)
 
     def update_categories(self, desired_name2id, update_image_filenames=False):
@@ -904,27 +952,43 @@ class Coco:
             current_category_id = coco_category.id
             current_category_name = coco_category.name
             if current_category_name in desired_name2id.keys():
-                currentid2desiredid_mapping[current_category_id] = desired_name2id[current_category_name]
+                currentid2desiredid_mapping[
+                    current_category_id
+                ] = desired_name2id[current_category_name]
             else:
                 # ignore categories that are not included in desired_name2id
                 currentid2desiredid_mapping[current_category_id] = None
 
         # add updated categories
         for name in desired_name2id.keys():
-            updated_coco_category = CocoCategory(id=desired_name2id[name], name=name, supercategory=name)
+            updated_coco_category = CocoCategory(
+                id=desired_name2id[name], name=name, supercategory=name
+            )
             updated_coco.add_category(updated_coco_category)
 
         # add updated images & annotations
         for coco_image in copy.deepcopy(self.images):
-            updated_coco_image = CocoImage.from_coco_image_dict(coco_image.json)
+            updated_coco_image = CocoImage.from_coco_image_dict(
+                coco_image.json
+            )
             # update filename to abspath
-            file_name_is_abspath = True if os.path.abspath(coco_image.file_name) == coco_image.file_name else False
+            file_name_is_abspath = (
+                True
+                if os.path.abspath(coco_image.file_name)
+                == coco_image.file_name
+                else False
+            )
             if update_image_filenames and not file_name_is_abspath:
-                updated_coco_image.file_name = str(Path(os.path.abspath(self.image_dir)) / coco_image.file_name)
+                updated_coco_image.file_name = str(
+                    Path(os.path.abspath(self.image_dir))
+                    / coco_image.file_name
+                )
             # update annotations
             for coco_annotation in coco_image.annotations:
                 current_category_id = coco_annotation.category_id
-                desired_category_id = currentid2desiredid_mapping[current_category_id]
+                desired_category_id = currentid2desiredid_mapping[
+                    current_category_id
+                ]
                 # append annotations with category id present in desired_name2id
                 if desired_category_id is not None:
                     # update cetegory id
@@ -953,7 +1017,9 @@ class Coco:
             raise ValueError("image_dir should be provided for merging.")
         if verbose:
             if not desired_name2id:
-                print("'desired_name2id' is not specified, combining all categories.")
+                print(
+                    "'desired_name2id' is not specified, combining all categories."
+                )
 
         # create desired_name2id by combining all categories, if desired_name2id is not specified
         coco1 = self
@@ -972,7 +1038,9 @@ class Coco:
 
         # update categories and image paths
         for coco in [coco1, coco2]:
-            coco.update_categories(desired_name2id=desired_name2id, update_image_filenames=True)
+            coco.update_categories(
+                desired_name2id=desired_name2id, update_image_filenames=True
+            )
 
         # combine images and categories
         coco1.images.extend(coco2.images)
@@ -1042,7 +1110,9 @@ class Coco:
 
         # arrange image id to annotation id mapping
         coco.add_categories_from_coco_category_list(coco_dict["categories"])
-        image_id_to_annotation_list = get_imageid2annotationlist_mapping(coco_dict)
+        image_id_to_annotation_list = get_imageid2annotationlist_mapping(
+            coco_dict
+        )
         category_mapping = coco.category_mapping
 
         # https://github.com/obss/sahi/issues/98
@@ -1050,9 +1120,18 @@ class Coco:
 
         lock = Lock()
 
-        def fill_image_id_set(start, finish, image_list, _image_id_set, _image_id_to_annotation_list, _coco, lock):
+        def fill_image_id_set(
+            start,
+            finish,
+            image_list,
+            _image_id_set,
+            _image_id_to_annotation_list,
+            _coco,
+            lock,
+        ):
             for coco_image_dict in tqdm(
-                image_list[start:finish], f"Loading coco annotations between {start} and {finish}"
+                image_list[start:finish],
+                f"Loading coco annotations between {start} and {finish}",
             ):
                 coco_image = CocoImage.from_coco_image_dict(coco_image_dict)
                 image_id = coco_image_dict["id"]
@@ -1071,7 +1150,9 @@ class Coco:
                     # apply category remapping if remapping_dict is provided
                     if _coco.remapping_dict is not None:
                         # apply category remapping (id:id)
-                        category_id = _coco.remapping_dict[coco_annotation_dict["category_id"]]
+                        category_id = _coco.remapping_dict[
+                            coco_annotation_dict["category_id"]
+                        ]
                         # update category id
                         coco_annotation_dict["category_id"] = category_id
                     else:
@@ -1079,7 +1160,8 @@ class Coco:
                     # get category name (id:name)
                     category_name = category_mapping[category_id]
                     coco_annotation = CocoAnnotation.from_coco_annotation_dict(
-                        category_name=category_name, annotation_dict=coco_annotation_dict
+                        category_name=category_name,
+                        annotation_dict=coco_annotation_dict,
                     )
                     coco_image.add_annotation(coco_annotation)
                 _coco.add_image(coco_image)
@@ -1094,7 +1176,15 @@ class Coco:
                     finish = dict_size
                 t = Thread(
                     target=fill_image_id_set,
-                    args=(start, finish, coco_dict["images"], image_id_set, image_id_to_annotation_list, coco, lock),
+                    args=(
+                        start,
+                        finish,
+                        coco_dict["images"],
+                        image_id_set,
+                        image_id_to_annotation_list,
+                        coco,
+                        lock,
+                    ),
                 )
                 t.start()
 
@@ -1104,7 +1194,9 @@ class Coco:
                     t.join()
 
         else:
-            for coco_image_dict in tqdm(coco_dict["images"], "Loading coco annotations"):
+            for coco_image_dict in tqdm(
+                coco_dict["images"], "Loading coco annotations"
+            ):
                 coco_image = CocoImage.from_coco_image_dict(coco_image_dict)
                 image_id = coco_image_dict["id"]
                 # https://github.com/obss/sahi/issues/98
@@ -1119,7 +1211,9 @@ class Coco:
                     # apply category remapping if remapping_dict is provided
                     if coco.remapping_dict is not None:
                         # apply category remapping (id:id)
-                        category_id = coco.remapping_dict[coco_annotation_dict["category_id"]]
+                        category_id = coco.remapping_dict[
+                            coco_annotation_dict["category_id"]
+                        ]
                         # update category id
                         coco_annotation_dict["category_id"] = category_id
                     else:
@@ -1127,7 +1221,8 @@ class Coco:
                     # get category name (id:name)
                     category_name = category_mapping[category_id]
                     coco_annotation = CocoAnnotation.from_coco_annotation_dict(
-                        category_name=category_name, annotation_dict=coco_annotation_dict
+                        category_name=category_name,
+                        annotation_dict=coco_annotation_dict,
                     )
                     coco_image.add_annotation(coco_annotation)
                 coco.add_image(coco_image)
@@ -1182,8 +1277,12 @@ class Coco:
         num_images = len(self.images)
         num_negative_images = 0
         num_categories = len(self.json_categories)
-        category_name_to_zero = {category["name"]: 0 for category in self.json_categories}
-        category_name_to_inf = {category["name"]: float("inf") for category in self.json_categories}
+        category_name_to_zero = {
+            category["name"]: 0 for category in self.json_categories
+        }
+        category_name_to_inf = {
+            category["name"]: float("inf") for category in self.json_categories
+        }
         num_images_per_category = copy.deepcopy(category_name_to_zero)
         num_annotations_per_category = copy.deepcopy(category_name_to_zero)
         min_annotation_area_per_category = copy.deepcopy(category_name_to_inf)
@@ -1205,17 +1304,34 @@ class Coco:
                     max_annotation_area = annotation_area
                 if annotation_area < min_annotation_area:
                     min_annotation_area = annotation_area
-                if annotation_area > max_annotation_area_per_category[annotation.category_name]:
-                    max_annotation_area_per_category[annotation.category_name] = annotation_area
-                if annotation_area < min_annotation_area_per_category[annotation.category_name]:
-                    min_annotation_area_per_category[annotation.category_name] = annotation_area
+                if (
+                    annotation_area
+                    > max_annotation_area_per_category[
+                        annotation.category_name
+                    ]
+                ):
+                    max_annotation_area_per_category[
+                        annotation.category_name
+                    ] = annotation_area
+                if (
+                    annotation_area
+                    < min_annotation_area_per_category[
+                        annotation.category_name
+                    ]
+                ):
+                    min_annotation_area_per_category[
+                        annotation.category_name
+                    ] = annotation_area
             # update num_negative_images
             if len(image.annotations) == 0:
                 num_negative_images += 1
             # update num_annotations
             num_annotations += len(image.annotations)
             # update num_images_per_category
-            num_images_per_category = dict(Counter(num_images_per_category) + Counter(image_contains_category))
+            num_images_per_category = dict(
+                Counter(num_images_per_category)
+                + Counter(image_contains_category)
+            )
             # update min&max_num_annotations_in_image
             num_annotations_in_image = len(image.annotations)
             if num_annotations_in_image > max_num_annotations_in_image:
@@ -1223,7 +1339,9 @@ class Coco:
             if num_annotations_in_image < min_num_annotations_in_image:
                 min_num_annotations_in_image = num_annotations_in_image
         if (num_images - num_negative_images) > 0:
-            avg_num_annotations_in_image = num_annotations / (num_images - num_negative_images)
+            avg_num_annotations_in_image = num_annotations / (
+                num_images - num_negative_images
+            )
             avg_annotation_area = total_annotation_area / num_annotations
         else:
             avg_num_annotations_in_image = 0
@@ -1281,7 +1399,10 @@ class Coco:
         train_coco.images = train_images
         train_coco.categories = self.categories
 
-        val_coco = Coco(name=self.name if self.name else "split" + "_val", image_dir=self.image_dir)
+        val_coco = Coco(
+            name=self.name if self.name else "split" + "_val",
+            image_dir=self.image_dir,
+        )
         val_coco.images = val_images
         val_coco.categories = self.categories
 
@@ -1291,7 +1412,14 @@ class Coco:
             "val_coco": val_coco,
         }
 
-    def export_as_yolov5(self, output_dir, train_split_rate=1, numpy_seed=0, mp=False, disable_symlink=False):
+    def export_as_yolov5(
+        self,
+        output_dir,
+        train_split_rate=1,
+        numpy_seed=0,
+        mp=False,
+        disable_symlink=False,
+    ):
         """
         Exports current COCO dataset in ultralytics/yolov5 format.
         Creates train val folders with image symlinks and txt files and a data yaml file.
@@ -1315,7 +1443,8 @@ class Coco:
             import yaml
         except ImportError:
             raise ImportError(
-                'Please run "pip install -U pyyaml" ' "to install yaml first for yolov5 formatted exporting."
+                'Please run "pip install -U pyyaml" '
+                "to install yaml first for yolov5 formatted exporting."
             )
 
         # set split_mode
@@ -1382,7 +1511,9 @@ class Coco:
         with open(yaml_path, "w") as outfile:
             yaml.dump(data, outfile, default_flow_style=None)
 
-    def get_subsampled_coco(self, subsample_ratio: int = 2, category_id: int = None):
+    def get_subsampled_coco(
+        self, subsample_ratio: int = 2, category_id: int = None
+    ):
         """
         Subsamples images with subsample_ratio and returns as sahi.utils.coco.Coco object.
 
@@ -1400,7 +1531,9 @@ class Coco:
             remapping_dict=self.remapping_dict,
             ignore_negative_samples=self.ignore_negative_samples,
         )
-        subsampled_coco.add_categories_from_coco_category_list(self.json_categories)
+        subsampled_coco.add_categories_from_coco_category_list(
+            self.json_categories
+        )
 
         if category_id is not None:
             # get images that contain given category id
@@ -1443,7 +1576,9 @@ class Coco:
             selected_images = images_that_contain_category
             # add images that does not contain given category without subsampling
             for image_ind in range(len(images_that_doesnt_contain_category)):
-                subsampled_coco.add_image(images_that_doesnt_contain_category[image_ind])
+                subsampled_coco.add_image(
+                    images_that_doesnt_contain_category[image_ind]
+                )
         else:
             selected_images = self.images
         for image_ind in range(0, len(selected_images), subsample_ratio):
@@ -1451,7 +1586,9 @@ class Coco:
 
         return subsampled_coco
 
-    def get_upsampled_coco(self, upsample_ratio: int = 2, category_id: int = None):
+    def get_upsampled_coco(
+        self, upsample_ratio: int = 2, category_id: int = None
+    ):
         """
         Upsamples images with upsample_ratio and returns as sahi.utils.coco.Coco object.
 
@@ -1469,7 +1606,9 @@ class Coco:
             remapping_dict=self.remapping_dict,
             ignore_negative_samples=self.ignore_negative_samples,
         )
-        upsampled_coco.add_categories_from_coco_category_list(self.json_categories)
+        upsampled_coco.add_categories_from_coco_category_list(
+            self.json_categories
+        )
         for ind in range(upsample_ratio):
             for image_ind in range(len(self.images)):
                 # calculate add_this_image
@@ -1480,7 +1619,10 @@ class Coco:
                         category_id_to_contains[annotation.category_id] = 1
                     if category_id_to_contains[category_id]:
                         add_this_image = True
-                    elif category_id == -1 and len(self.images[image_ind].annotations) == 0:
+                    elif (
+                        category_id == -1
+                        and len(self.images[image_ind].annotations) == 0
+                    ):
                         # if category_id is given as -1, select negative samples
                         add_this_image = True
                     elif ind == 0:
@@ -1496,7 +1638,9 @@ class Coco:
 
         return upsampled_coco
 
-    def get_area_filtered_coco(self, min=0, max=float("inf"), intervals_per_category=None):
+    def get_area_filtered_coco(
+        self, min=0, max=float("inf"), intervals_per_category=None
+    ):
         """
         Filters annotation areas with given min and max values and returns remaining
         images as sahi.utils.coco.Coco object.
@@ -1520,14 +1664,27 @@ class Coco:
             remapping_dict=self.remapping_dict,
             ignore_negative_samples=self.ignore_negative_samples,
         )
-        area_filtered_coco.add_categories_from_coco_category_list(self.json_categories)
+        area_filtered_coco.add_categories_from_coco_category_list(
+            self.json_categories
+        )
         for image in self.images:
             is_valid_image = True
             for annotation in image.annotations:
-                if intervals_per_category is not None and annotation.category_name in intervals_per_category.keys():
-                    category_based_min = intervals_per_category[annotation.category_name]["min"]
-                    category_based_max = intervals_per_category[annotation.category_name]["max"]
-                    if annotation.area < category_based_min or annotation.area > category_based_max:
+                if (
+                    intervals_per_category is not None
+                    and annotation.category_name
+                    in intervals_per_category.keys()
+                ):
+                    category_based_min = intervals_per_category[
+                        annotation.category_name
+                    ]["min"]
+                    category_based_max = intervals_per_category[
+                        annotation.category_name
+                    ]["max"]
+                    if (
+                        annotation.area < category_based_min
+                        or annotation.area > category_based_max
+                    ):
                         is_valid_image = False
                 if annotation.area < min or annotation.area > max:
                     is_valid_image = False
@@ -1553,13 +1710,20 @@ class Coco:
         for coco_img in self.images:
             img_dims = [0, 0, coco_img.width, coco_img.height]
             coco_image = CocoImage(
-                file_name=coco_img.file_name, height=coco_img.height, width=coco_img.width, id=coco_img.id
+                file_name=coco_img.file_name,
+                height=coco_img.height,
+                width=coco_img.width,
+                id=coco_img.id,
             )
             for coco_ann in coco_img.annotations:
                 ann_dict: Dict = coco_ann.json
-                if annotation_inside_slice(annotation=ann_dict, slice_bbox=img_dims):
+                if annotation_inside_slice(
+                    annotation=ann_dict, slice_bbox=img_dims
+                ):
                     shapely_ann = coco_ann.get_sliced_coco_annotation(img_dims)
-                    bbox = ShapelyAnnotation.to_xywh(shapely_ann._shapely_annotation)
+                    bbox = ShapelyAnnotation.to_xywh(
+                        shapely_ann._shapely_annotation
+                    )
                     coco_ann_from_shapely = CocoAnnotation(
                         bbox=bbox,
                         category_id=coco_ann.category_id,
@@ -1574,7 +1738,11 @@ class Coco:
 
 
 def export_yolov5_images_and_txts_from_coco_object(
-    output_dir, coco, ignore_negative_samples=False, mp=False, disable_symlink=False
+    output_dir,
+    coco,
+    ignore_negative_samples=False,
+    mp=False,
+    disable_symlink=False,
 ):
     """
     Creates image symlinks and annotation txts in yolo format from coco dataset.
@@ -1592,7 +1760,9 @@ def export_yolov5_images_and_txts_from_coco_object(
         disable_symlink: bool
             If True, symlinks are not created. Instead images are copied.
     """
-    logger.info("generating image symlinks and annotation files for yolov5..."),
+    logger.info(
+        "generating image symlinks and annotation files for yolov5..."
+    ),
     # symlink is not supported in colab
     if is_colab() and not disable_symlink:
         logger.warning("symlink is not supported in colab, disabling it...")
@@ -1600,7 +1770,13 @@ def export_yolov5_images_and_txts_from_coco_object(
     if mp:
         with Pool(processes=48) as pool:
             args = [
-                (coco_image, coco.image_dir, output_dir, ignore_negative_samples, disable_symlink)
+                (
+                    coco_image,
+                    coco.image_dir,
+                    output_dir,
+                    ignore_negative_samples,
+                    disable_symlink,
+                )
                 for coco_image in coco.images
             ]
             pool.starmap(
@@ -1610,12 +1786,20 @@ def export_yolov5_images_and_txts_from_coco_object(
     else:
         for coco_image in tqdm(coco.images):
             export_single_yolov5_image_and_corresponding_txt(
-                coco_image, coco.image_dir, output_dir, ignore_negative_samples, disable_symlink
+                coco_image,
+                coco.image_dir,
+                output_dir,
+                ignore_negative_samples,
+                disable_symlink,
             )
 
 
 def export_single_yolov5_image_and_corresponding_txt(
-    coco_image, coco_image_dir, output_dir, ignore_negative_samples=False, disable_symlink=False
+    coco_image,
+    coco_image_dir,
+    output_dir,
+    ignore_negative_samples=False,
+    disable_symlink=False,
 ):
     """
     Generates yolov5 formatted image symlink and annotation txt file.
@@ -1642,21 +1826,33 @@ def export_single_yolov5_image_and_corresponding_txt(
     # skip images without suffix
     # https://github.com/obss/sahi/issues/114
     if Path(coco_image.file_name).suffix == "":
-        print(f"image file has no suffix, skipping it: '{coco_image.file_name}'")
+        print(
+            f"image file has no suffix, skipping it: '{coco_image.file_name}'"
+        )
         return
-    elif Path(coco_image.file_name).suffix in [".txt"]:  # TODO: extend this list
-        print(f"image file has incorrect suffix, skipping it: '{coco_image.file_name}'")
+    elif Path(coco_image.file_name).suffix in [
+        ".txt"
+    ]:  # TODO: extend this list
+        print(
+            f"image file has incorrect suffix, skipping it: '{coco_image.file_name}'"
+        )
         return
     # set coco and yolo image paths
     if Path(coco_image.file_name).is_file():
         coco_image_path = os.path.abspath(coco_image.file_name)
     else:
         if coco_image_dir is None:
-            raise ValueError("You have to specify image_dir of Coco object for yolov5 conversion.")
+            raise ValueError(
+                "You have to specify image_dir of Coco object for yolov5 conversion."
+            )
 
-        coco_image_path = os.path.abspath(str(Path(coco_image_dir) / coco_image.file_name))
+        coco_image_path = os.path.abspath(
+            str(Path(coco_image_dir) / coco_image.file_name)
+        )
 
-    yolo_image_path_temp = str(Path(output_dir) / Path(coco_image.file_name).name)
+    yolo_image_path_temp = str(
+        Path(output_dir) / Path(coco_image.file_name).name
+    )
     # increment target file name if already present
     yolo_image_path = copy.deepcopy(yolo_image_path_temp)
     name_increment = 2
@@ -1698,7 +1894,12 @@ def export_single_yolov5_image_and_corresponding_txt(
             category_id = annotation.category_id
             yolo_bbox = (x_center, y_center, bbox_width, bbox_height)
             # save yolo annotation
-            outfile.write(str(category_id) + " " + " ".join([str(value) for value in yolo_bbox]) + "\n")
+            outfile.write(
+                str(category_id)
+                + " "
+                + " ".join([str(value) for value in yolo_bbox])
+                + "\n"
+            )
 
 
 def update_categories(desired_name2id: dict, coco_dict: dict) -> dict:
@@ -1730,7 +1931,9 @@ def update_categories(desired_name2id: dict, coco_dict: dict) -> dict:
         current_category_id = category["id"]
         current_category_name = category["name"]
         if current_category_name in desired_name2id.keys():
-            currentid2desiredid_mapping[current_category_id] = desired_name2id[current_category_name]
+            currentid2desiredid_mapping[current_category_id] = desired_name2id[
+                current_category_name
+            ]
         else:
             # ignore categories that are not included in desired_name2id
             currentid2desiredid_mapping[current_category_id] = -1
@@ -1763,7 +1966,9 @@ def update_categories(desired_name2id: dict, coco_dict: dict) -> dict:
     return coco_target
 
 
-def update_categories_from_file(desired_name2id: dict, coco_path: str, save_path: str) -> None:
+def update_categories_from_file(
+    desired_name2id: dict, coco_path: str, save_path: str
+) -> None:
     """
     Rearranges category mapping of a COCO dictionary in coco_path based on given category_mapping.
     Can also be used to filter some of the categories.
@@ -1784,7 +1989,9 @@ def update_categories_from_file(desired_name2id: dict, coco_path: str, save_path
     save_json(coco_target, save_path)
 
 
-def merge(coco_dict1: dict, coco_dict2: dict, desired_name2id: dict = None) -> dict:
+def merge(
+    coco_dict1: dict, coco_dict2: dict, desired_name2id: dict = None
+) -> dict:
     """
     Combines 2 coco formatted annotations dicts, and returns the combined coco dict.
 
@@ -1813,12 +2020,19 @@ def merge(coco_dict1: dict, coco_dict2: dict, desired_name2id: dict = None) -> d
 
     # rearrange categories of the second coco based on first, if their categories are not the same
     if temp_coco_dict1["categories"] != temp_coco_dict2["categories"]:
-        desired_name2id = {category["name"]: category["id"] for category in temp_coco_dict1["categories"]}
+        desired_name2id = {
+            category["name"]: category["id"]
+            for category in temp_coco_dict1["categories"]
+        }
         temp_coco_dict2 = update_categories(desired_name2id, temp_coco_dict2)
 
     # calculate first image and annotation index of the second coco file
-    max_image_id = np.array([image["id"] for image in coco_dict1["images"]]).max()
-    max_annotation_id = np.array([annotation["id"] for annotation in coco_dict1["annotations"]]).max()
+    max_image_id = np.array(
+        [image["id"] for image in coco_dict1["images"]]
+    ).max()
+    max_annotation_id = np.array(
+        [annotation["id"] for annotation in coco_dict1["annotations"]]
+    ).max()
 
     merged_coco_dict = temp_coco_dict1
 
@@ -1853,7 +2067,9 @@ def merge_from_list(coco_dict_list, desired_name2id=None, verbose=1):
     """
     if verbose:
         if not desired_name2id:
-            print("'desired_name2id' is not specified, combining all categories.")
+            print(
+                "'desired_name2id' is not specified, combining all categories."
+            )
 
     # create desired_name2id by combinin all categories, if desired_name2id is not specified
     if desired_name2id is None:
@@ -1872,7 +2088,9 @@ def merge_from_list(coco_dict_list, desired_name2id=None, verbose=1):
         if ind == 0:
             merged_coco_dict = copy.deepcopy(coco_dict)
         else:
-            merged_coco_dict = merge(merged_coco_dict, coco_dict, desired_name2id)
+            merged_coco_dict = merge(
+                merged_coco_dict, coco_dict, desired_name2id
+            )
 
     # print categories
     if verbose:
@@ -1947,7 +2165,9 @@ def get_imageid2annotationlist_mapping(
     return image_id_to_annotation_list
 
 
-def create_coco_dict(images, categories, ignore_negative_samples=False, image_id_setting="auto"):
+def create_coco_dict(
+    images, categories, ignore_negative_samples=False, image_id_setting="auto"
+):
     """
     Creates COCO dict with fields "images", "annotations", "categories".
 
@@ -1969,7 +2189,9 @@ def create_coco_dict(images, categories, ignore_negative_samples=False, image_id
     """
     # assertion of parameters
     if image_id_setting not in ["auto", "manual"]:
-        raise ValueError("'image_id_setting' should be one of ['auto', 'manual']")
+        raise ValueError(
+            "'image_id_setting' should be one of ['auto', 'manual']"
+        )
 
     # define accumulators
     image_index = 1
@@ -1990,7 +2212,9 @@ def create_coco_dict(images, categories, ignore_negative_samples=False, image_id
                 image_index += 1
             elif image_id_setting == "manual":
                 if coco_image.id is None:
-                    raise ValueError("'coco_image.id' should be set manually when image_id_setting == 'manual'")
+                    raise ValueError(
+                        "'coco_image.id' should be set manually when image_id_setting == 'manual'"
+                    )
                 image_id = coco_image.id
 
             # create coco image object
@@ -2022,7 +2246,9 @@ def create_coco_dict(images, categories, ignore_negative_samples=False, image_id
     return coco_dict
 
 
-def create_coco_prediction_array(images, ignore_negative_samples=False, image_id_setting="auto"):
+def create_coco_prediction_array(
+    images, ignore_negative_samples=False, image_id_setting="auto"
+):
     """
     Creates COCO prediction array which is list of predictions
 
@@ -2042,7 +2268,9 @@ def create_coco_prediction_array(images, ignore_negative_samples=False, image_id
     """
     # assertion of parameters
     if image_id_setting not in ["auto", "manual"]:
-        raise ValueError("'image_id_setting' should be one of ['auto', 'manual']")
+        raise ValueError(
+            "'image_id_setting' should be one of ['auto', 'manual']"
+        )
     # define accumulators
     image_index = 1
     prediction_id = 1
@@ -2062,11 +2290,15 @@ def create_coco_prediction_array(images, ignore_negative_samples=False, image_id
                 image_index += 1
             elif image_id_setting == "manual":
                 if coco_image.id is None:
-                    raise ValueError("'coco_image.id' should be set manually when image_id_setting == 'manual'")
+                    raise ValueError(
+                        "'coco_image.id' should be set manually when image_id_setting == 'manual'"
+                    )
                 image_id = coco_image.id
 
             # create coco prediction object
-            for prediction_index, coco_prediction in enumerate(coco_predictions):
+            for prediction_index, coco_prediction in enumerate(
+                coco_predictions
+            ):
                 # create coco prediction object
                 out_prediction = {
                     "id": prediction_id,
@@ -2108,7 +2340,10 @@ def add_bbox_and_area_to_coco(
         # assign annotation bbox
         if add_bbox:
             coco_polygons = []
-            [coco_polygons.extend(coco_polygon) for coco_polygon in annotation["segmentation"]]
+            [
+                coco_polygons.extend(coco_polygon)
+                for coco_polygon in annotation["segmentation"]
+            ]
             minx, miny, maxx, maxy = list(
                 [
                     min(coco_polygons[0::2]),
@@ -2127,7 +2362,9 @@ def add_bbox_and_area_to_coco(
 
         # assign annotation area
         if add_area:
-            shapely_multipolygon = get_shapely_multipolygon(coco_segmentation=annotation["segmentation"])
+            shapely_multipolygon = get_shapely_multipolygon(
+                coco_segmentation=annotation["segmentation"]
+            )
             annotations[ind]["area"] = shapely_multipolygon.area
 
     coco_dict["annotations"] = annotations
@@ -2144,7 +2381,10 @@ class DatasetClassCounts:
 
     def frequencies(self):
         """calculates the frequenct of images that contain each category"""
-        return {cid: count / self.total_images for cid, count in self.counts.items()}
+        return {
+            cid: count / self.total_images
+            for cid, count in self.counts.items()
+        }
 
     def __add__(self, o):
         total = self.total_images + o.total_images
@@ -2170,10 +2410,15 @@ def count_images_with_category(coco_file_path):
     for annotation in coco["annotations"]:
         image_id = annotation["image_id"]
         cid = annotation["category_id"]
-        image_id_2_category_2_count[image_id][cid] = image_id_2_category_2_count[image_id][cid] + 1
+        image_id_2_category_2_count[image_id][cid] = (
+            image_id_2_category_2_count[image_id][cid] + 1
+        )
 
     category_2_count = defaultdict(lambda: 0)
-    for image_id, image_category_2_count in image_id_2_category_2_count.items():
+    for (
+        image_id,
+        image_category_2_count,
+    ) in image_id_2_category_2_count.items():
         for cid, count in image_category_2_count.items():
             if count > 0:
                 category_2_count[cid] = category_2_count[cid] + 1
@@ -2302,7 +2547,10 @@ class CocoVid:
         return coco_dict
 
 
-def remove_invalid_coco_results(result_list_or_path: Union[List, str], dataset_dict_or_path: Union[Dict, str] = None):
+def remove_invalid_coco_results(
+    result_list_or_path: Union[List, str],
+    dataset_dict_or_path: Union[Dict, str] = None,
+):
     """
     Removes invalid predictions from coco result such as:
         - negative bbox value
@@ -2392,7 +2640,10 @@ def export_coco_as_yolov5(
     try:
         import yaml
     except ImportError:
-        raise ImportError('Please run "pip install -U pyyaml" ' "to install yaml first for yolov5 formatted exporting.")
+        raise ImportError(
+            'Please run "pip install -U pyyaml" '
+            "to install yaml first for yolov5 formatted exporting."
+        )
 
     # set split_mode
     if train_coco and not val_coco:
@@ -2452,7 +2703,11 @@ def export_coco_as_yolov5(
 
 
 def export_coco_as_yolov5_via_yml(
-    yml_path: str, output_dir: str, train_split_rate: float = 0.9, numpy_seed=0, disable_symlink=False
+    yml_path: str,
+    output_dir: str,
+    train_split_rate: float = 0.9,
+    numpy_seed=0,
+    disable_symlink=False,
 ):
     """
     Exports current COCO dataset in ultralytics/yolov5 format.
@@ -2482,7 +2737,10 @@ def export_coco_as_yolov5_via_yml(
     try:
         import yaml
     except ImportError:
-        raise ImportError('Please run "pip install -U pyyaml" ' "to install yaml first for yolov5 formatted exporting.")
+        raise ImportError(
+            'Please run "pip install -U pyyaml" '
+            "to install yaml first for yolov5 formatted exporting."
+        )
 
     with open(yml_path, "r") as stream:
         config_dict = yaml.safe_load(stream)
@@ -2491,7 +2749,8 @@ def export_coco_as_yolov5_via_yml(
         if not config_dict["train_image_dir"]:
             raise ValueError(f"{yml_path} is missing `train_image_dir`")
         train_coco = Coco.from_coco_dict_or_path(
-            config_dict["train_json_path"], image_dir=config_dict["train_image_dir"]
+            config_dict["train_json_path"],
+            image_dir=config_dict["train_image_dir"],
         )
     else:
         train_coco = None
@@ -2499,7 +2758,10 @@ def export_coco_as_yolov5_via_yml(
     if config_dict["val_json_path"]:
         if not config_dict["val_image_dir"]:
             raise ValueError(f"{yml_path} is missing `val_image_dir`")
-        val_coco = Coco.from_coco_dict_or_path(config_dict["val_json_path"], image_dir=config_dict["val_image_dir"])
+        val_coco = Coco.from_coco_dict_or_path(
+            config_dict["val_json_path"],
+            image_dir=config_dict["val_image_dir"],
+        )
     else:
         val_coco = None
 

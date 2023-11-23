@@ -36,13 +36,13 @@ class YOLOX(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-        model_name = self.config['type']
+        model_name = self.config["type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    "Model",
+                    f"Could not download or initialize {model_name} model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
@@ -55,26 +55,31 @@ class YOLOX(Model):
         Pre-process the input RGB image before feeding it to the network.
         """
         if len(input_image.shape) == 3:
-            padded_img = np.ones(
-                (self.input_shape[0], self.input_shape[1], 3), 
-                dtype=np.uint8
-            ) * 114
+            padded_img = (
+                np.ones(
+                    (self.input_shape[0], self.input_shape[1], 3),
+                    dtype=np.uint8,
+                )
+                * 114
+            )
         else:
             padded_img = np.ones(self.input_shape, dtype=np.uint8) * 114
 
         ratio_hw = min(
-            self.input_shape[0] / input_image.shape[0], 
+            self.input_shape[0] / input_image.shape[0],
             self.input_shape[1] / input_image.shape[1],
         )
         resized_img = cv2.resize(
             input_image,
-            (int(input_image.shape[1] * ratio_hw), 
-             int(input_image.shape[0] * ratio_hw)),
+            (
+                int(input_image.shape[1] * ratio_hw),
+                int(input_image.shape[0] * ratio_hw),
+            ),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
         padded_img[
-            :int(input_image.shape[0] * ratio_hw), 
-            :int(input_image.shape[1] * ratio_hw),
+            : int(input_image.shape[0] * ratio_hw),
+            : int(input_image.shape[1] * ratio_hw),
         ] = resized_img
 
         padded_img = padded_img.transpose((2, 0, 1))
@@ -129,9 +134,14 @@ class YOLOX(Model):
         results = self.rescale(predictions, ratio_hw)
 
         shapes = []
-        final_boxes, final_scores, final_cls_inds = \
-            results[:, :4], results[:, 4], results[:, 5]
-        for box, score, cls_inds in zip(final_boxes, final_scores, final_cls_inds):
+        final_boxes, final_scores, final_cls_inds = (
+            results[:, :4],
+            results[:, 4],
+            results[:, 5],
+        )
+        for box, score, cls_inds in zip(
+            final_boxes, final_scores, final_cls_inds
+        ):
             if score < self.config["confidence_threshold"]:
                 continue
             x1, y1, x2, y2 = box
@@ -144,9 +154,9 @@ class YOLOX(Model):
         result = AutoLabelingResult(shapes, replace=True)
 
         return result
-    
+
     def rescale(self, predictions, ratio):
-        '''Rescale the output to the original image shape'''
+        """Rescale the output to the original image shape"""
 
         nms_thr = self.config["nms_threshold"]
         score_thr = self.config["confidence_threshold"]
@@ -155,10 +165,10 @@ class YOLOX(Model):
         scores = predictions[:, 4:5] * predictions[:, 5:]
 
         boxes_xyxy = np.ones_like(boxes)
-        boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2]/2.
-        boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3]/2.
-        boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2]/2.
-        boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3]/2.
+        boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.0
+        boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.0
+        boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.0
+        boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.0
         boxes_xyxy /= ratio
         dets = self.multiclass_nms_class_agnostic(
             boxes_xyxy, scores, nms_thr=nms_thr, score_thr=score_thr
@@ -181,10 +191,10 @@ class YOLOX(Model):
         if keep:
             dets = np.concatenate(
                 [
-                    valid_boxes[keep], 
-                    valid_scores[keep, None], 
+                    valid_boxes[keep],
+                    valid_scores[keep, None],
                     valid_cls_inds[keep, None],
-                ], 
+                ],
                 1,
             )
         return dets

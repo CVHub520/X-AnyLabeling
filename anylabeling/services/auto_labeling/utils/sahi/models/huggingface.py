@@ -5,15 +5,26 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
+
 try:
     import pybboxes.functional as pbf
 except:
     pass
 
-from anylabeling.services.auto_labeling.utils.sahi.models.base import DetectionModel
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import fix_full_shape_list, fix_shift_amount_list
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_requirements, ensure_package_minimum_version
+from anylabeling.services.auto_labeling.utils.sahi.models.base import (
+    DetectionModel,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import (
+    fix_full_shape_list,
+    fix_shift_amount_list,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_requirements,
+    ensure_package_minimum_version,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +84,9 @@ class HuggingfaceDetectionModel(DetectionModel):
         model = AutoModelForObjectDetection.from_pretrained(self.model_path)
         if self.image_size is not None:
             processor = AutoProcessor.from_pretrained(
-                self.model_path, size={"shortest_edge": self.image_size, "longest_edge": None}, do_resize=True
+                self.model_path,
+                size={"shortest_edge": self.image_size, "longest_edge": None},
+                do_resize=True,
             )
         else:
             processor = AutoProcessor.from_pretrained(self.model_path)
@@ -82,8 +95,13 @@ class HuggingfaceDetectionModel(DetectionModel):
     def set_model(self, model: Any, processor: Any = None):
         processor = processor or self.processor
         if processor is None:
-            raise ValueError(f"'processor' is required to be set, got {processor}.")
-        elif "ObjectDetection" not in model.__class__.__name__ or "ImageProcessor" not in processor.__class__.__name__:
+            raise ValueError(
+                f"'processor' is required to be set, got {processor}."
+            )
+        elif (
+            "ObjectDetection" not in model.__class__.__name__
+            or "ImageProcessor" not in processor.__class__.__name__
+        ):
             raise ValueError(
                 "Given 'model' is not an ObjectDetectionModel or 'processor' is not a valid ImageProcessor."
             )
@@ -103,7 +121,9 @@ class HuggingfaceDetectionModel(DetectionModel):
 
         # Confirm model is loaded
         if self.model is None:
-            raise RuntimeError("Model is not loaded, load it by calling .load_model()")
+            raise RuntimeError(
+                "Model is not loaded, load it by calling .load_model()"
+            )
 
         with torch.no_grad():
             inputs = self.processor(images=image, return_tensors="pt")
@@ -134,7 +154,9 @@ class HuggingfaceDetectionModel(DetectionModel):
         scores = probs.max(-1).values
         cat_ids = probs.argmax(-1)
         valid_detections = torch.where(cat_ids < self.num_categories, 1, 0)
-        valid_confidences = torch.where(scores >= self.confidence_threshold, 1, 0)
+        valid_confidences = torch.where(
+            scores >= self.confidence_threshold, 1, 0
+        )
         valid_mask = valid_detections.logical_and(valid_confidences)
         scores = scores[valid_mask]
         cat_ids = cat_ids[valid_mask]
@@ -168,14 +190,17 @@ class HuggingfaceDetectionModel(DetectionModel):
         for image_ind in range(n_image):
             image_height, image_width, _ = self.image_shapes[image_ind]
             scores, cat_ids, boxes = self.get_valid_predictions(
-                logits=original_predictions.logits[image_ind], pred_boxes=original_predictions.pred_boxes[image_ind]
+                logits=original_predictions.logits[image_ind],
+                pred_boxes=original_predictions.pred_boxes[image_ind],
             )
 
             # create object_prediction_list
             object_prediction_list = []
 
             shift_amount = shift_amount_list[image_ind]
-            full_shape = None if full_shape_list is None else full_shape_list[image_ind]
+            full_shape = (
+                None if full_shape_list is None else full_shape_list[image_ind]
+            )
 
             for ind in range(len(boxes)):
                 category_id = cat_ids[ind].item()
@@ -209,4 +234,6 @@ class HuggingfaceDetectionModel(DetectionModel):
                 object_prediction_list.append(object_prediction)
             object_prediction_list_per_image.append(object_prediction_list)
 
-        self._object_prediction_list_per_image = object_prediction_list_per_image
+        self._object_prediction_list_per_image = (
+            object_prediction_list_per_image
+        )

@@ -62,7 +62,9 @@ class SegmentAnythingONNX:
     def run_encoder(self, encoder_inputs):
         """Run encoder"""
         features = self.encoder_session.run(None, encoder_inputs)
-        image_embeddings, interm_embeddings = features[0], np.stack(features[1:])
+        image_embeddings, interm_embeddings = features[0], np.stack(
+            features[1:]
+        )
         return image_embeddings, interm_embeddings
 
     @staticmethod
@@ -91,7 +93,12 @@ class SegmentAnythingONNX:
         return coords
 
     def run_decoder(
-        self, image_embeddings, interm_embeddings, original_size, transform_matrix, prompt
+        self,
+        image_embeddings,
+        interm_embeddings,
+        original_size,
+        transform_matrix,
+        prompt,
     ):
         """Run decoder"""
         input_points, input_labels = self.get_input_points(prompt)
@@ -403,7 +410,7 @@ class SAM_HQ(Model):
         """
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
-        
+
         shapes = []
         try:
             # Use cached image embedding if possible
@@ -482,4 +489,3 @@ class SAM_HQ(Model):
                 self.pre_inference_worker.run
             )
             self.pre_inference_thread.start()
-

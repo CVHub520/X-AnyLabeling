@@ -7,28 +7,40 @@ from typing import List
 import numpy as np
 from collections import defaultdict
 
-from anylabeling.services.auto_labeling.utils.sahi.postprocess.utils import ObjectPredictionList, has_match, merge_object_prediction_pair
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_requirements
+from anylabeling.services.auto_labeling.utils.sahi.postprocess.utils import (
+    ObjectPredictionList,
+    has_match,
+    merge_object_prediction_pair,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_requirements,
+)
 
 logger = logging.getLogger(__name__)
+
 
 def batched_nms(predictions, match_metric="IOU", match_threshold=0.5):
     scores = predictions[:, 4].squeeze()
     category_ids = predictions[:, 5].squeeze()
     keep_mask = np.zeros_like(category_ids, dtype=bool)
     unique_categories = np.unique(category_ids)
-    
+
     for category_id in unique_categories:
         curr_indices = np.where(category_ids == category_id)[0]
-        curr_keep_indices = nms(predictions[curr_indices], match_metric, match_threshold)
+        curr_keep_indices = nms(
+            predictions[curr_indices], match_metric, match_threshold
+        )
         keep_mask[curr_indices[curr_keep_indices]] = True
-    
+
     keep_indices = np.where(keep_mask)[0]
     sorted_indices = np.argsort(scores[keep_indices])[::-1]
     keep_indices = keep_indices[sorted_indices].tolist()
-    
+
     return keep_indices
+
 
 def nms(predictions, match_metric="IOU", match_threshold=0.5):
     x1 = predictions[:, 0]
@@ -85,24 +97,37 @@ def nms(predictions, match_metric="IOU", match_threshold=0.5):
 
     return keep
 
-def batched_greedy_nmm(object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5):
+
+def batched_greedy_nmm(
+    object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5
+):
     category_ids = object_predictions_as_tensor[:, 5].squeeze()
     keep_to_merge_list = defaultdict(list)
     unique_categories = np.unique(category_ids)
 
     for category_id in unique_categories:
         curr_indices = np.where(category_ids == category_id)[0]
-        curr_keep_to_merge_list = greedy_nmm(object_predictions_as_tensor[curr_indices], match_metric, match_threshold)
+        curr_keep_to_merge_list = greedy_nmm(
+            object_predictions_as_tensor[curr_indices],
+            match_metric,
+            match_threshold,
+        )
         curr_indices_list = curr_indices.tolist()
 
         for curr_keep, curr_merge_list in curr_keep_to_merge_list.items():
             keep = curr_indices_list[curr_keep]
-            merge_list = [curr_indices_list[curr_merge_ind] for curr_merge_ind in curr_merge_list]
+            merge_list = [
+                curr_indices_list[curr_merge_ind]
+                for curr_merge_ind in curr_merge_list
+            ]
             keep_to_merge_list[keep] = merge_list
 
     return dict(keep_to_merge_list)
 
-def greedy_nmm(object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5):
+
+def greedy_nmm(
+    object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5
+):
     keep_to_merge_list = {}
 
     # Extract coordinates for every prediction box present in P
@@ -191,22 +216,33 @@ def greedy_nmm(object_predictions_as_tensor, match_metric="IOU", match_threshold
 
     return keep_to_merge_list
 
-def batched_nmm(object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5):
+
+def batched_nmm(
+    object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5
+):
     category_ids = object_predictions_as_tensor[:, 5].squeeze()
     keep_to_merge_list = {}
     unique_categories = np.unique(category_ids)
 
     for category_id in unique_categories:
         curr_indices = np.where(category_ids == category_id)[0]
-        curr_keep_to_merge_list = nmm(object_predictions_as_tensor[curr_indices], match_metric, match_threshold)
+        curr_keep_to_merge_list = nmm(
+            object_predictions_as_tensor[curr_indices],
+            match_metric,
+            match_threshold,
+        )
         curr_indices_list = curr_indices.tolist()
 
         for curr_keep, curr_merge_list in curr_keep_to_merge_list.items():
             keep = curr_indices_list[curr_keep]
-            merge_list = [curr_indices_list[curr_merge_ind] for curr_merge_ind in curr_merge_list]
+            merge_list = [
+                curr_indices_list[curr_merge_ind]
+                for curr_merge_ind in curr_merge_list
+            ]
             keep_to_merge_list[keep] = merge_list
 
     return keep_to_merge_list
+
 
 def nmm(object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5):
     keep_to_merge_list = {}
@@ -290,7 +326,10 @@ def nmm(object_predictions_as_tensor, match_metric="IOU", match_threshold=0.5):
         else:
             keep = merge_to_keep[pred_ind]
             for matched_box_ind in matched_box_indices.tolist():
-                if matched_box_ind not in keep_to_merge_list and matched_box_ind not in merge_to_keep:
+                if (
+                    matched_box_ind not in keep_to_merge_list
+                    and matched_box_ind not in merge_to_keep
+                ):
                     keep_to_merge_list[keep].append(matched_box_ind)
                     merge_to_keep[matched_box_ind] = keep
 
@@ -323,11 +362,15 @@ class NMSPostprocess(PostprocessPredictions):
         object_predictions_as_torch = object_prediction_list.totensor()
         if self.class_agnostic:
             keep = nms(
-                object_predictions_as_torch, match_threshold=self.match_threshold, match_metric=self.match_metric
+                object_predictions_as_torch,
+                match_threshold=self.match_threshold,
+                match_metric=self.match_metric,
             )
         else:
             keep = batched_nms(
-                object_predictions_as_torch, match_threshold=self.match_threshold, match_metric=self.match_metric
+                object_predictions_as_torch,
+                match_threshold=self.match_threshold,
+                match_metric=self.match_metric,
             )
 
         selected_object_predictions = object_prediction_list[keep].tolist()
@@ -366,10 +409,15 @@ class NMMPostprocess(PostprocessPredictions):
                     self.match_metric,
                     self.match_threshold,
                 ):
-                    object_prediction_list[keep_ind] = merge_object_prediction_pair(
-                        object_prediction_list[keep_ind].tolist(), object_prediction_list[merge_ind].tolist()
+                    object_prediction_list[
+                        keep_ind
+                    ] = merge_object_prediction_pair(
+                        object_prediction_list[keep_ind].tolist(),
+                        object_prediction_list[merge_ind].tolist(),
                     )
-            selected_object_predictions.append(object_prediction_list[keep_ind].tolist())
+            selected_object_predictions.append(
+                object_prediction_list[keep_ind].tolist()
+            )
 
         return selected_object_predictions
 
@@ -403,10 +451,15 @@ class GreedyNMMPostprocess(PostprocessPredictions):
                     self.match_metric,
                     self.match_threshold,
                 ):
-                    object_prediction_list[keep_ind] = merge_object_prediction_pair(
-                        object_prediction_list[keep_ind].tolist(), object_prediction_list[merge_ind].tolist()
+                    object_prediction_list[
+                        keep_ind
+                    ] = merge_object_prediction_pair(
+                        object_prediction_list[keep_ind].tolist(),
+                        object_prediction_list[merge_ind].tolist(),
                     )
-            selected_object_predictions.append(object_prediction_list[keep_ind].tolist())
+            selected_object_predictions.append(
+                object_prediction_list[keep_ind].tolist()
+            )
 
         return selected_object_predictions
 
@@ -425,9 +478,13 @@ class LSNMSPostprocess(PostprocessPredictions):
             )
 
         if self.match_metric == "IOS":
-            NotImplementedError(f"match_metric={self.match_metric} is not supported for LSNMSPostprocess")
+            NotImplementedError(
+                f"match_metric={self.match_metric} is not supported for LSNMSPostprocess"
+            )
 
-        logger.warning("LSNMSPostprocess is experimental and not recommended to use.")
+        logger.warning(
+            "LSNMSPostprocess is experimental and not recommended to use."
+        )
 
         object_prediction_list = ObjectPredictionList(object_predictions)
         object_predictions_as_numpy = object_prediction_list.tonumpy()
@@ -437,7 +494,10 @@ class LSNMSPostprocess(PostprocessPredictions):
         class_ids = object_predictions_as_numpy[:, 5].astype("uint8")
 
         keep = nms(
-            boxes, scores, iou_threshold=self.match_threshold, class_ids=None if self.class_agnostic else class_ids
+            boxes,
+            scores,
+            iou_threshold=self.match_threshold,
+            class_ids=None if self.class_agnostic else class_ids,
         )
 
         selected_object_predictions = object_prediction_list[keep].tolist()

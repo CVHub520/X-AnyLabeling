@@ -11,8 +11,12 @@ from functools import cmp_to_key
 import numpy as np
 from tqdm import tqdm
 
-from anylabeling.services.auto_labeling.utils.sahi.auto_model import AutoDetectionModel
-from anylabeling.services.auto_labeling.utils.sahi.models.base import DetectionModel
+from anylabeling.services.auto_labeling.utils.sahi.auto_model import (
+    AutoDetectionModel,
+)
+from anylabeling.services.auto_labeling.utils.sahi.models.base import (
+    DetectionModel,
+)
 from anylabeling.services.auto_labeling.utils.sahi.postprocess.combine import (
     GreedyNMMPostprocess,
     LSNMSPostprocess,
@@ -20,9 +24,15 @@ from anylabeling.services.auto_labeling.utils.sahi.postprocess.combine import (
     NMSPostprocess,
     PostprocessPredictions,
 )
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction, PredictionResult
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+    PredictionResult,
+)
 from anylabeling.services.auto_labeling.utils.sahi.slicing import slice_image
-from anylabeling.services.auto_labeling.utils.sahi.utils.coco import Coco, CocoImage
+from anylabeling.services.auto_labeling.utils.sahi.utils.coco import (
+    Coco,
+    CocoImage,
+)
 from anylabeling.services.auto_labeling.utils.sahi.utils.cv import (
     IMAGE_EXTENSIONS,
     VIDEO_EXTENSIONS,
@@ -32,8 +42,16 @@ from anylabeling.services.auto_labeling.utils.sahi.utils.cv import (
     read_image_as_pil,
     visualize_object_predictions,
 )
-from anylabeling.services.auto_labeling.utils.sahi.utils.file import Path, increment_path, list_files, save_json, save_pickle
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_requirements
+from anylabeling.services.auto_labeling.utils.sahi.utils.file import (
+    Path,
+    increment_path,
+    list_files,
+    save_json,
+    save_pickle,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_requirements,
+)
 
 POSTPROCESS_NAME_TO_CLASS = {
     "GREEDYNMM": GreedyNMMPostprocess,
@@ -95,7 +113,9 @@ def get_prediction(
         shift_amount=shift_amount,
         full_shape=full_shape,
     )
-    object_prediction_list: List[ObjectPrediction] = detection_model.object_prediction_list
+    object_prediction_list: List[
+        ObjectPrediction
+    ] = detection_model.object_prediction_list
 
     # postprocess matching predictions
     if postprocess is not None:
@@ -112,7 +132,9 @@ def get_prediction(
         )
 
     return PredictionResult(
-        image=image, object_prediction_list=object_prediction_list, durations_in_seconds=durations_in_seconds
+        image=image,
+        object_prediction_list=object_prediction_list,
+        durations_in_seconds=durations_in_seconds,
     )
 
 
@@ -210,7 +232,9 @@ def get_sliced_prediction(
         )
     elif postprocess_type == "UNIONMERGE":
         # deprecated in v0.9.3
-        raise ValueError("'UNIONMERGE' postprocess_type is deprecated, use 'GREEDYNMM' instead.")
+        raise ValueError(
+            "'UNIONMERGE' postprocess_type is deprecated, use 'GREEDYNMM' instead."
+        )
     postprocess_constructor = POSTPROCESS_NAME_TO_CLASS[postprocess_type]
     postprocess = postprocess_constructor(
         match_threshold=postprocess_match_threshold,
@@ -229,8 +253,14 @@ def get_sliced_prediction(
         image_list = []
         shift_amount_list = []
         for image_ind in range(num_batch):
-            image_list.append(slice_image_result.images[group_ind * num_batch + image_ind])
-            shift_amount_list.append(slice_image_result.starting_pixels[group_ind * num_batch + image_ind])
+            image_list.append(
+                slice_image_result.images[group_ind * num_batch + image_ind]
+            )
+            shift_amount_list.append(
+                slice_image_result.starting_pixels[
+                    group_ind * num_batch + image_ind
+                ]
+            )
         # perform batch prediction
         prediction_result = get_prediction(
             image=image_list[0],
@@ -244,10 +274,15 @@ def get_sliced_prediction(
         # convert sliced predictions to full predictions
         for object_prediction in prediction_result.object_prediction_list:
             if object_prediction:  # if not empty
-                object_prediction_list.append(object_prediction.get_shifted_object_prediction())
+                object_prediction_list.append(
+                    object_prediction.get_shifted_object_prediction()
+                )
 
         # merge matching predictions during sliced prediction
-        if merge_buffer_length is not None and len(object_prediction_list) > merge_buffer_length:
+        if (
+            merge_buffer_length is not None
+            and len(object_prediction_list) > merge_buffer_length
+        ):
             object_prediction_list = postprocess(object_prediction_list)
 
     # perform standard prediction
@@ -281,7 +316,9 @@ def get_sliced_prediction(
         )
 
     return PredictionResult(
-        image=image, object_prediction_list=object_prediction_list, durations_in_seconds=durations_in_seconds
+        image=image,
+        object_prediction_list=object_prediction_list,
+        durations_in_seconds=durations_in_seconds,
     )
 
 
@@ -315,7 +352,9 @@ def agg_prediction(result: PredictionResult, thresh):
         h = current_bbox[3]
 
         coord_list.append((x, y, w, h))
-    cnts = sorted(coord_list, key=cmp_to_key(lambda a, b: bbox_sort(a, b, thresh)))
+    cnts = sorted(
+        coord_list, key=cmp_to_key(lambda a, b: bbox_sort(a, b, thresh))
+    )
     for pred in range(len(res) - 1):
         res[pred]["image_id"] = cnts.index(tuple(res[pred]["bbox"]))
 
@@ -449,10 +488,16 @@ def predict(
     """
     # assert prediction type
     if no_standard_prediction and no_sliced_prediction:
-        raise ValueError("'no_standard_prediction' and 'no_sliced_prediction' cannot be True at the same time.")
+        raise ValueError(
+            "'no_standard_prediction' and 'no_sliced_prediction' cannot be True at the same time."
+        )
 
     # auto postprocess type
-    if not force_postprocess_type and model_confidence_threshold < LOW_MODEL_CONFIDENCE and postprocess_type != "NMS":
+    if (
+        not force_postprocess_type
+        and model_confidence_threshold < LOW_MODEL_CONFIDENCE
+        and postprocess_type != "NMS"
+    ):
         logger.warning(
             f"Switching postprocess type/metric to NMS/IOU since confidence threshold is low ({model_confidence_threshold})."
         )
@@ -463,12 +508,19 @@ def predict(
     durations_in_seconds = dict()
 
     # init export directories
-    save_dir = Path(increment_path(Path(project) / name, exist_ok=False))  # increment run
+    save_dir = Path(
+        increment_path(Path(project) / name, exist_ok=False)
+    )  # increment run
     crop_dir = save_dir / "crops"
     visual_dir = save_dir / "visuals"
     visual_with_gt_dir = save_dir / "visuals_with_gt"
     pickle_dir = save_dir / "pickles"
-    if not novisual or export_pickle or export_crop or dataset_json_path is not None:
+    if (
+        not novisual
+        or export_pickle
+        or export_crop
+        or dataset_json_path is not None
+    ):
         save_dir.mkdir(parents=True, exist_ok=True)  # make dir
 
     # init image iterator
@@ -477,7 +529,10 @@ def predict(
     num_frames = None
     if dataset_json_path:
         coco: Coco = Coco.from_coco_dict_or_path(dataset_json_path)
-        image_iterator = [str(Path(source) / Path(coco_image.file_name)) for coco_image in coco.images]
+        image_iterator = [
+            str(Path(source) / Path(coco_image.file_name))
+            for coco_image in coco.images
+        ]
         coco_json = []
     elif os.path.isdir(source):
         image_iterator = list_files(
@@ -487,7 +542,12 @@ def predict(
         )
     elif Path(source).suffix in VIDEO_EXTENSIONS:
         source_is_video = True
-        read_video_frame, output_video_writer, video_file_name, num_frames = get_video_reader(
+        (
+            read_video_frame,
+            output_video_writer,
+            video_file_name,
+            num_frames,
+        ) = get_video_reader(
             source, save_dir, frame_skip_interval, not novisual, view_video
         )
         image_iterator = read_video_frame
@@ -519,15 +579,27 @@ def predict(
 
     input_type_str = "video frames" if source_is_video else "images"
     for ind, image_path in enumerate(
-        tqdm(image_iterator, f"Performing inference on {input_type_str}", total=num_frames)
+        tqdm(
+            image_iterator,
+            f"Performing inference on {input_type_str}",
+            total=num_frames,
+        )
     ):
         # get filename
         if source_is_video:
             video_name = Path(source).stem
             relative_filepath = video_name + "_frame_" + str(ind)
-        elif os.path.isdir(source):  # preserve source folder structure in export
-            relative_filepath = str(Path(image_path)).split(str(Path(source)))[-1]
-            relative_filepath = relative_filepath[1:] if relative_filepath[0] == os.sep else relative_filepath
+        elif os.path.isdir(
+            source
+        ):  # preserve source folder structure in export
+            relative_filepath = str(Path(image_path)).split(str(Path(source)))[
+                -1
+            ]
+            relative_filepath = (
+                relative_filepath[1:]
+                if relative_filepath[0] == os.sep
+                else relative_filepath
+            )
         else:  # no process if source is single file
             relative_filepath = Path(image_path).name
 
@@ -554,7 +626,9 @@ def predict(
                 verbose=1 if verbose else 0,
             )
             object_prediction_list = prediction_result.object_prediction_list
-            durations_in_seconds["slice"] += prediction_result.durations_in_seconds["slice"]
+            durations_in_seconds[
+                "slice"
+            ] += prediction_result.durations_in_seconds["slice"]
         else:
             # get standard prediction
             prediction_result = get_prediction(
@@ -567,16 +641,22 @@ def predict(
             )
             object_prediction_list = prediction_result.object_prediction_list
 
-        durations_in_seconds["prediction"] += prediction_result.durations_in_seconds["prediction"]
+        durations_in_seconds[
+            "prediction"
+        ] += prediction_result.durations_in_seconds["prediction"]
         # Show prediction time
         if verbose:
             tqdm.write(
-                "Prediction time is: {:.2f} ms".format(prediction_result.durations_in_seconds["prediction"] * 1000)
+                "Prediction time is: {:.2f} ms".format(
+                    prediction_result.durations_in_seconds["prediction"] * 1000
+                )
             )
 
         if dataset_json_path:
             if source_is_video is True:
-                raise NotImplementedError("Video input type not supported with coco formatted dataset json")
+                raise NotImplementedError(
+                    "Video input type not supported with coco formatted dataset json"
+                )
 
             # append predictions in coco format
             for object_prediction in object_prediction_list:
@@ -593,12 +673,18 @@ def predict(
                     coco_annotation_dict = coco_annotation.json
                     category_name = coco_annotation.category_name
                     full_shape = [coco_image.height, coco_image.width]
-                    object_prediction_gt = ObjectPrediction.from_coco_annotation_dict(
-                        annotation_dict=coco_annotation_dict, category_name=category_name, full_shape=full_shape
+                    object_prediction_gt = (
+                        ObjectPrediction.from_coco_annotation_dict(
+                            annotation_dict=coco_annotation_dict,
+                            category_name=category_name,
+                            full_shape=full_shape,
+                        )
                     )
                     object_prediction_gt_list.append(object_prediction_gt)
                 # export visualizations with ground truths
-                output_dir = str(visual_with_gt_dir / Path(relative_filepath).parent)
+                output_dir = str(
+                    visual_with_gt_dir / Path(relative_filepath).parent
+                )
                 color = (0, 255, 0)  # original annotations in green
                 result = visualize_object_predictions(
                     np.ascontiguousarray(image_as_pil),
@@ -641,7 +727,11 @@ def predict(
             )
         # export prediction list as pickle
         if export_pickle:
-            save_path = str(pickle_dir / Path(relative_filepath).parent / (filename_without_extension + ".pickle"))
+            save_path = str(
+                pickle_dir
+                / Path(relative_filepath).parent
+                / (filename_without_extension + ".pickle")
+            )
             save_pickle(data=object_prediction_list, save_path=save_path)
 
         # export visualization
@@ -664,7 +754,10 @@ def predict(
 
         # render video inference
         if view_video:
-            cv2.imshow("Prediction of {}".format(str(video_file_name)), result["image"])
+            cv2.imshow(
+                "Prediction of {}".format(str(video_file_name)),
+                result["image"],
+            )
             cv2.waitKey(1)
 
         time_end = time.time() - time_start
@@ -675,7 +768,12 @@ def predict(
         save_path = str(save_dir / "result.json")
         save_json(coco_json, save_path)
 
-    if not novisual or export_pickle or export_crop or dataset_json_path is not None:
+    if (
+        not novisual
+        or export_pickle
+        or export_crop
+        or dataset_json_path is not None
+    ):
         print(f"Prediction results are successfully exported to {save_dir}")
 
     # print prediction duration
@@ -793,11 +891,15 @@ def predict_fiftyone(
 
     # assert prediction type
     if no_standard_prediction and no_sliced_prediction:
-        raise ValueError("'no_standard_pred' and 'no_sliced_prediction' cannot be True at the same time.")
+        raise ValueError(
+            "'no_standard_pred' and 'no_sliced_prediction' cannot be True at the same time."
+        )
     # for profiling
     durations_in_seconds = dict()
 
-    dataset = create_fiftyone_dataset_from_coco_file(image_dir, dataset_json_path)
+    dataset = create_fiftyone_dataset_from_coco_file(
+        image_dir, dataset_json_path
+    )
 
     # init model instance
     time_start = time.time()
@@ -839,7 +941,9 @@ def predict_fiftyone(
                     postprocess_class_agnostic=postprocess_class_agnostic,
                     verbose=verbose,
                 )
-                durations_in_seconds["slice"] += prediction_result.durations_in_seconds["slice"]
+                durations_in_seconds[
+                    "slice"
+                ] += prediction_result.durations_in_seconds["slice"]
             else:
                 # get standard prediction
                 prediction_result = get_prediction(
@@ -850,10 +954,14 @@ def predict_fiftyone(
                     postprocess=None,
                     verbose=0,
                 )
-                durations_in_seconds["prediction"] += prediction_result.durations_in_seconds["prediction"]
+                durations_in_seconds[
+                    "prediction"
+                ] += prediction_result.durations_in_seconds["prediction"]
 
             # Save predictions to dataset
-            sample[model_type] = fo.Detections(detections=prediction_result.to_fiftyone_detections())
+            sample[model_type] = fo.Detections(
+                detections=prediction_result.to_fiftyone_detections()
+            )
             sample.save()
 
     # print prediction duration

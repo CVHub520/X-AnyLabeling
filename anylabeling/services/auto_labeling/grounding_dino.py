@@ -42,23 +42,29 @@ class Grounding_DINO(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-        
+
         model_type = self.config["model_type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", f"Could not download or initialize {model_type} model."
+                    "Model",
+                    f"Could not download or initialize {model_type} model.",
                 )
             )
 
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.model_configs = self.get_configs(self.config["model_type"])
         self.net.max_text_len = self.model_configs.max_text_len
-        self.net.tokenizer = self.get_tokenlizer(self.model_configs.text_encoder_type)
+        self.net.tokenizer = self.get_tokenlizer(
+            self.model_configs.text_encoder_type
+        )
         self.box_threshold = self.config["box_threshold"]
         self.text_threshold = self.config["text_threshold"]
-        self.target_size = (self.config["input_width"], self.config["input_height"])
+        self.target_size = (
+            self.config["input_width"],
+            self.config["input_height"],
+        )
 
     def preprocess(self, image, text_prompt):
         # Resize the image
@@ -78,8 +84,10 @@ class Grounding_DINO(Model):
         tokenized_raw_results = self.net.tokenizer.encode(captions)
         tokenized = {
             "input_ids": np.array([tokenized_raw_results.ids], dtype=np.int64),
-            "token_type_ids": np.array([tokenized_raw_results.type_ids], dtype=np.int64),
-            "attention_mask": np.array([tokenized_raw_results.attention_mask])
+            "token_type_ids": np.array(
+                [tokenized_raw_results.type_ids], dtype=np.int64
+            ),
+            "attention_mask": np.array([tokenized_raw_results.attention_mask]),
         }
         specical_tokens = [101, 102, 1012, 1029]
         (
@@ -87,29 +95,49 @@ class Grounding_DINO(Model):
             position_ids,
             _,
         ) = self.generate_masks_with_special_tokens_and_transfer_map(
-            tokenized, specical_tokens)
+            tokenized, specical_tokens
+        )
         if text_self_attention_masks.shape[1] > self.net.max_text_len:
             text_self_attention_masks = text_self_attention_masks[
-                :, : self.net.max_text_len, : self.net.max_text_len]
-            
+                :, : self.net.max_text_len, : self.net.max_text_len
+            ]
+
             position_ids = position_ids[:, : self.net.max_text_len]
-            tokenized["input_ids"] = tokenized["input_ids"][:, : self.net.max_text_len]
-            tokenized["attention_mask"] = tokenized["attention_mask"][:, : self.net.max_text_len]
-            tokenized["token_type_ids"] = tokenized["token_type_ids"][:, : self.net.max_text_len]
+            tokenized["input_ids"] = tokenized["input_ids"][
+                :, : self.net.max_text_len
+            ]
+            tokenized["attention_mask"] = tokenized["attention_mask"][
+                :, : self.net.max_text_len
+            ]
+            tokenized["token_type_ids"] = tokenized["token_type_ids"][
+                :, : self.net.max_text_len
+            ]
         inputs = {}
         inputs["img"] = image
         inputs["input_ids"] = np.array(tokenized["input_ids"], dtype=np.int64)
-        inputs["attention_mask"] = np.array(tokenized["attention_mask"], dtype=bool)
-        inputs["token_type_ids"] = np.array(tokenized["token_type_ids"], dtype=np.int64)
+        inputs["attention_mask"] = np.array(
+            tokenized["attention_mask"], dtype=bool
+        )
+        inputs["token_type_ids"] = np.array(
+            tokenized["token_type_ids"], dtype=np.int64
+        )
         inputs["position_ids"] = np.array(position_ids, dtype=np.int64)
-        inputs["text_token_mask"] = np.array(text_self_attention_masks, dtype=bool)
+        inputs["text_token_mask"] = np.array(
+            text_self_attention_masks, dtype=bool
+        )
         return image, inputs, captions
 
-    def postprocess(self, outputs, caption, with_logits=True, token_spans=None):
+    def postprocess(
+        self, outputs, caption, with_logits=True, token_spans=None
+    ):
         logits, boxes = outputs
-        prediction_logits_ = np.squeeze(logits, 0) #[0]  # prediction_logits.shape = (nq, 256)
+        prediction_logits_ = np.squeeze(
+            logits, 0
+        )  # [0]  # prediction_logits.shape = (nq, 256)
         logits_filt = self.sig(prediction_logits_)
-        boxes_filt = np.squeeze(boxes, 0) #[0]  # prediction_boxes.shape = (nq, 4)
+        boxes_filt = np.squeeze(
+            boxes, 0
+        )  # [0]  # prediction_boxes.shape = (nq, 4)
         # filter output
         if token_spans is None:
             filt_mask = logits_filt.max(axis=1) > self.box_threshold
@@ -120,15 +148,23 @@ class Grounding_DINO(Model):
             tokenlizer = self.net.tokenizer
             tokenized_raw_results = tokenlizer.encode(caption)
             tokenized = {
-                "input_ids": np.array(tokenized_raw_results.ids, dtype=np.int64),
-                "token_type_ids": np.array(tokenized_raw_results.type_ids, dtype=np.int64),
-                "attention_mask": np.array(tokenized_raw_results.attention_mask)
+                "input_ids": np.array(
+                    tokenized_raw_results.ids, dtype=np.int64
+                ),
+                "token_type_ids": np.array(
+                    tokenized_raw_results.type_ids, dtype=np.int64
+                ),
+                "attention_mask": np.array(
+                    tokenized_raw_results.attention_mask
+                ),
             }
             # build pred
             pred_phrases = []
             for logit in logits_filt:
                 posmap = logit > self.text_threshold
-                pred_phrase = self.get_phrases_from_posmap(posmap, tokenized, tokenlizer)
+                pred_phrase = self.get_phrases_from_posmap(
+                    posmap, tokenized, tokenlizer
+                )
                 if with_logits:
                     pred_phrases.append([pred_phrase, logit.max()])
                 else:
@@ -154,7 +190,9 @@ class Grounding_DINO(Model):
             return []
 
         blob, inputs, caption = self.preprocess(image, text_prompt)
-        outputs = self.net.get_ort_inference(blob, inputs=inputs, extract=False)
+        outputs = self.net.get_ort_inference(
+            blob, inputs=inputs, extract=False
+        )
         boxes_filt, pred_phrases = self.postprocess(outputs, caption)
 
         shapes = []
@@ -173,7 +211,7 @@ class Grounding_DINO(Model):
 
     @staticmethod
     def sig(x):
-        return 1/(1 + np.exp(-x))
+        return 1 / (1 + np.exp(-x))
 
     @staticmethod
     def rescale_boxes(boxes, img_h, img_w):
@@ -191,95 +229,95 @@ class Grounding_DINO(Model):
     def get_configs(model_type):
         if model_type == "groundingdino_swinb_cogcoor":
             configs = Args(
-                batch_size = 1,
-                modelname = "groundingdino",
-                backbone = "swin_B_384_22k",
-                position_embedding = "sine",
-                pe_temperatureH = 20,
-                pe_temperatureW = 20,
-                return_interm_indices = [1, 2, 3],
-                backbone_freeze_keywords = None,
-                enc_layers = 6,
-                dec_layers = 6,
-                pre_norm = False,
-                dim_feedforward = 2048,
-                hidden_dim = 256,
-                dropout = 0.0,
-                nheads = 8,
-                num_queries = 900,
-                query_dim = 4,
-                num_patterns = 0,
-                num_feature_levels = 4,
-                enc_n_points = 4,
-                dec_n_points = 4,
-                two_stage_type = "standard",
-                two_stage_bbox_embed_share = False,
-                two_stage_class_embed_share = False,
-                transformer_activation = "relu",
-                dec_pred_bbox_embed_share = True,
-                dn_box_noise_scale = 1.0,
-                dn_label_noise_ratio = 0.5,
-                dn_label_coef = 1.0,
-                dn_bbox_coef = 1.0,
-                embed_init_tgt = True,
-                dn_labelbook_size = 2000,
-                max_text_len = 256,
-                text_encoder_type = "bert-base-uncased",
-                use_text_enhancer = True,
-                use_fusion_layer = True,
-                use_checkpoint = True,
-                use_transformer_ckpt = True,
-                use_text_cross_attention = True,
-                text_dropout = 0.0,
-                fusion_dropout = 0.0,
-                fusion_droppath = 0.1,
-                sub_sentence_present = True,
+                batch_size=1,
+                modelname="groundingdino",
+                backbone="swin_B_384_22k",
+                position_embedding="sine",
+                pe_temperatureH=20,
+                pe_temperatureW=20,
+                return_interm_indices=[1, 2, 3],
+                backbone_freeze_keywords=None,
+                enc_layers=6,
+                dec_layers=6,
+                pre_norm=False,
+                dim_feedforward=2048,
+                hidden_dim=256,
+                dropout=0.0,
+                nheads=8,
+                num_queries=900,
+                query_dim=4,
+                num_patterns=0,
+                num_feature_levels=4,
+                enc_n_points=4,
+                dec_n_points=4,
+                two_stage_type="standard",
+                two_stage_bbox_embed_share=False,
+                two_stage_class_embed_share=False,
+                transformer_activation="relu",
+                dec_pred_bbox_embed_share=True,
+                dn_box_noise_scale=1.0,
+                dn_label_noise_ratio=0.5,
+                dn_label_coef=1.0,
+                dn_bbox_coef=1.0,
+                embed_init_tgt=True,
+                dn_labelbook_size=2000,
+                max_text_len=256,
+                text_encoder_type="bert-base-uncased",
+                use_text_enhancer=True,
+                use_fusion_layer=True,
+                use_checkpoint=True,
+                use_transformer_ckpt=True,
+                use_text_cross_attention=True,
+                text_dropout=0.0,
+                fusion_dropout=0.0,
+                fusion_droppath=0.1,
+                sub_sentence_present=True,
             )
         elif model_type == "groundingdino_swint_ogc":
             configs = Args(
-                batch_size = 1,
-                modelname = "groundingdino",
-                backbone = "swin_T_224_1k",
-                position_embedding = "sine",
-                pe_temperatureH = 20,
-                pe_temperatureW = 20,
-                return_interm_indices = [1, 2, 3],
-                backbone_freeze_keywords = None,
-                enc_layers = 6,
-                dec_layers = 6,
-                pre_norm = False,
-                dim_feedforward = 2048,
-                hidden_dim = 256,
-                dropout = 0.0,
-                nheads = 8,
-                num_queries = 900,
-                query_dim = 4,
-                num_patterns = 0,
-                num_feature_levels = 4,
-                enc_n_points = 4,
-                dec_n_points = 4,
-                two_stage_type = "standard",
-                two_stage_bbox_embed_share = False,
-                two_stage_class_embed_share = False,
-                transformer_activation = "relu",
-                dec_pred_bbox_embed_share = True,
-                dn_box_noise_scale = 1.0,
-                dn_label_noise_ratio = 0.5,
-                dn_label_coef = 1.0,
-                dn_bbox_coef = 1.0,
-                embed_init_tgt = True,
-                dn_labelbook_size = 2000,
-                max_text_len = 256,
-                text_encoder_type = "bert-base-uncased",
-                use_text_enhancer = True,
-                use_fusion_layer = True,
-                use_checkpoint = True,
-                use_transformer_ckpt = True,
-                use_text_cross_attention = True,
-                text_dropout = 0.0,
-                fusion_dropout = 0.0,
-                fusion_droppath = 0.1,
-                sub_sentence_present = True,
+                batch_size=1,
+                modelname="groundingdino",
+                backbone="swin_T_224_1k",
+                position_embedding="sine",
+                pe_temperatureH=20,
+                pe_temperatureW=20,
+                return_interm_indices=[1, 2, 3],
+                backbone_freeze_keywords=None,
+                enc_layers=6,
+                dec_layers=6,
+                pre_norm=False,
+                dim_feedforward=2048,
+                hidden_dim=256,
+                dropout=0.0,
+                nheads=8,
+                num_queries=900,
+                query_dim=4,
+                num_patterns=0,
+                num_feature_levels=4,
+                enc_n_points=4,
+                dec_n_points=4,
+                two_stage_type="standard",
+                two_stage_bbox_embed_share=False,
+                two_stage_class_embed_share=False,
+                transformer_activation="relu",
+                dec_pred_bbox_embed_share=True,
+                dn_box_noise_scale=1.0,
+                dn_label_noise_ratio=0.5,
+                dn_label_coef=1.0,
+                dn_bbox_coef=1.0,
+                embed_init_tgt=True,
+                dn_labelbook_size=2000,
+                max_text_len=256,
+                text_encoder_type="bert-base-uncased",
+                use_text_enhancer=True,
+                use_fusion_layer=True,
+                use_checkpoint=True,
+                use_transformer_ckpt=True,
+                use_text_cross_attention=True,
+                text_dropout=0.0,
+                fusion_dropout=0.0,
+                fusion_droppath=0.1,
+                sub_sentence_present=True,
             )
         else:
             raise ValueError(
@@ -300,22 +338,22 @@ class Grounding_DINO(Model):
     @staticmethod
     def get_tokenlizer(text_encoder_type):
         current_dir = os.path.dirname(__file__)
-        cfg_name = text_encoder_type.replace('-', '_') + "_tokenizer.json"
+        cfg_name = text_encoder_type.replace("-", "_") + "_tokenizer.json"
         cfg_file = os.path.join(current_dir, "configs", cfg_name)
         tokenizer = Tokenizer.from_file(cfg_file)
         return tokenizer
 
     @staticmethod
     def get_phrases_from_posmap(
-        posmap: np.ndarray, 
-        tokenized: Dict, 
-        tokenizer, 
-        left_idx: int = 0, 
-        right_idx: int = 255
+        posmap: np.ndarray,
+        tokenized: Dict,
+        tokenizer,
+        left_idx: int = 0,
+        right_idx: int = 255,
     ):
         assert isinstance(posmap, np.ndarray), "posmap must be numpy.ndarray"
         if posmap.ndim == 1:
-            posmap[0: left_idx + 1] = False
+            posmap[0 : left_idx + 1] = False
             posmap[right_idx:] = False
             non_zero_idx = np.where(posmap)[0]
             token_ids = [tokenized["input_ids"][i] for i in non_zero_idx]
@@ -325,16 +363,15 @@ class Grounding_DINO(Model):
 
     @staticmethod
     def generate_masks_with_special_tokens_and_transfer_map(
-            tokenized, 
-            special_tokens_list
-        ):
+        tokenized, special_tokens_list
+    ):
         input_ids = tokenized["input_ids"]
         bs, num_token = input_ids.shape
-        # special_tokens_mask: bs, num_token. 
+        # special_tokens_mask: bs, num_token.
         # 1 for special tokens. 0 for normal tokens
         special_tokens_mask = np.zeros((bs, num_token), dtype=bool)
         for special_token in special_tokens_list:
-            special_tokens_mask |= (input_ids == special_token)
+            special_tokens_mask |= input_ids == special_token
 
         # idxs: each row is a list of indices of special tokens
         idxs = np.argwhere(special_tokens_mask)
@@ -354,12 +391,13 @@ class Grounding_DINO(Model):
                 position_ids[row, col] = 0
             else:
                 attention_mask[
-                    row, previous_col + 1: col + 1, previous_col + 1: col + 1
+                    row, previous_col + 1 : col + 1, previous_col + 1 : col + 1
                 ] = True
-                position_ids[row, previous_col + 1: col + 1] = \
-                    np.arange(0, col - previous_col)
+                position_ids[row, previous_col + 1 : col + 1] = np.arange(
+                    0, col - previous_col
+                )
                 c2t_maski = np.zeros((num_token), dtype=bool)
-                c2t_maski[previous_col + 1: col] = True
+                c2t_maski[previous_col + 1 : col] = True
                 cate_to_token_mask_list[row].append(c2t_maski)
             previous_col = col
 

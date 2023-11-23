@@ -3,7 +3,10 @@ import os
 import fire
 
 from anylabeling.services.auto_labeling.utils.sahi.slicing import slice_coco
-from anylabeling.services.auto_labeling.utils.sahi.utils.file import Path, save_json
+from anylabeling.services.auto_labeling.utils.sahi.utils.file import (
+    Path,
+    save_json,
+)
 
 
 def slice(
@@ -38,7 +41,8 @@ def slice(
     for slice_size in slice_size_list:
         # in format: train_images_512_01
         output_images_folder_name = (
-            Path(dataset_json_path).stem + f"_images_{str(slice_size)}_{str(overlap_ratio).replace('.','')}"
+            Path(dataset_json_path).stem
+            + f"_images_{str(slice_size)}_{str(overlap_ratio).replace('.','')}"
         )
         output_images_dir = str(Path(output_dir) / output_images_folder_name)
         sliced_coco_name = Path(dataset_json_path).name.replace(
@@ -58,9 +62,13 @@ def slice(
             out_ext=".jpg",
             verbose=False,
         )
-        output_coco_annotation_file_path = os.path.join(output_dir, sliced_coco_name + ".json")
+        output_coco_annotation_file_path = os.path.join(
+            output_dir, sliced_coco_name + ".json"
+        )
         save_json(coco_dict, output_coco_annotation_file_path)
-        print(f"Sliced dataset for 'slice_size: {slice_size}' is exported to {output_dir}")
+        print(
+            f"Sliced dataset for 'slice_size: {slice_size}' is exported to {output_dir}"
+        )
 
 
 if __name__ == "__main__":

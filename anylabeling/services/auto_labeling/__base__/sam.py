@@ -7,12 +7,8 @@ class SegmentAnythingONNX:
     """Segmentation model using SegmentAnything"""
 
     def __init__(
-            self, 
-            encoder_session, 
-            decoder_session, 
-            target_size, 
-            input_size
-        ) -> None:
+        self, encoder_session, decoder_session, target_size, input_size
+    ) -> None:
         self.target_size = target_size
         self.input_size = input_size
         self.encoder_session = encoder_session
@@ -67,12 +63,12 @@ class SegmentAnythingONNX:
         return coords
 
     def run_decoder(
-        self, 
-        image_embedding, 
-        original_size, 
-        transform_matrix, 
-        prompt, 
-        transform_prompt
+        self,
+        image_embedding,
+        original_size,
+        transform_matrix,
+        prompt,
+        transform_prompt,
     ):
         """Run decoder"""
         if transform_prompt:
@@ -84,9 +80,9 @@ class SegmentAnythingONNX:
         onnx_coord = np.concatenate(
             [input_points, np.array([[0.0, 0.0]])], axis=0
         )[None, :, :]
-        onnx_label = np.concatenate([
-            input_labels, np.array([-1])
-        ], axis=0)[None, :].astype(np.float32)
+        onnx_label = np.concatenate([input_labels, np.array([-1])], axis=0)[
+            None, :
+        ].astype(np.float32)
         onnx_coord = self.apply_coords(
             onnx_coord, self.input_size, self.target_size
         ).astype(np.float32)
@@ -95,10 +91,7 @@ class SegmentAnythingONNX:
         onnx_coord = np.concatenate(
             [
                 onnx_coord,
-                np.ones(
-                    (1, onnx_coord.shape[1], 1), 
-                    dtype=np.float32
-                ),
+                np.ones((1, onnx_coord.shape[1], 1), dtype=np.float32),
             ],
             axis=2,
         )
@@ -216,9 +209,7 @@ class SegmentAnythingONNX:
         # Remove too big contours ( >90% of image size)
         if len(approx_contours) > 1:
             image_size = masks.shape[0] * masks.shape[1]
-            areas = [
-                cv2.contourArea(contour) for contour in approx_contours
-            ]
+            areas = [cv2.contourArea(contour) for contour in approx_contours]
             filtered_approx_contours = [
                 contour
                 for contour, area in zip(approx_contours, areas)
@@ -227,9 +218,7 @@ class SegmentAnythingONNX:
 
         # Remove small contours (area < 20% of average area)
         if len(approx_contours) > 1:
-            areas = [
-                cv2.contourArea(contour) for contour in approx_contours
-            ]
+            areas = [cv2.contourArea(contour) for contour in approx_contours]
             avg_area = np.mean(areas)
 
             filtered_approx_contours = [

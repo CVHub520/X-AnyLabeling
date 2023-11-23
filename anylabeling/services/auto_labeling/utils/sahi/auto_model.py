@@ -1,6 +1,8 @@
 from typing import Any, Dict, Optional
 
-from anylabeling.services.auto_labeling.utils.sahi.utils.file import import_model_class
+from anylabeling.services.auto_labeling.utils.sahi.utils.file import (
+    import_model_class,
+)
 
 MODEL_TYPE_TO_MODEL_CLASS_NAME = {
     "yolov8": "Yolov8DetectionModel",

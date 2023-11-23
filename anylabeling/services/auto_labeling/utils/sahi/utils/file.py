@@ -41,7 +41,13 @@ def save_json(data, save_path, indent: Optional[int] = None):
 
     # export as json
     with open(save_path, "w", encoding="utf-8") as outfile:
-        json.dump(data, outfile, separators=(",", ":"), cls=NumpyEncoder, indent=indent)
+        json.dump(
+            data,
+            outfile,
+            separators=(",", ":"),
+            cls=NumpyEncoder,
+            indent=indent,
+        )
 
 
 # type check when save json files
@@ -106,12 +112,16 @@ def list_files(
     number_of_files = len(filepath_list)
     folder_name = Path(directory).name
 
-    verboseprint(f"There are {str(number_of_files)} listed files in folder: {folder_name}/")
+    verboseprint(
+        f"There are {str(number_of_files)} listed files in folder: {folder_name}/"
+    )
 
     return filepath_list
 
 
-def list_files_recursively(directory: str, contains: list = [".json"], verbose: str = True) -> (list, list):
+def list_files_recursively(
+    directory: str, contains: list = [".json"], verbose: str = True
+) -> (list, list):
     """
     Walk given directory recursively and return a list of file path with desired extension
 
@@ -151,7 +161,11 @@ def list_files_recursively(directory: str, contains: list = [".json"], verbose: 
     number_of_files = len(relative_filepath_list)
     folder_name = directory.split(os.sep)[-1]
 
-    verboseprint("There are {} listed files in folder {}.".format(number_of_files, folder_name))
+    verboseprint(
+        "There are {} listed files in folder {}.".format(
+            number_of_files, folder_name
+        )
+    )
 
     return relative_filepath_list, abs_filepath_list
 
@@ -161,7 +175,9 @@ def get_base_filename(path: str):
     Takes a file path, returns (base_filename_with_extension, base_filename_without_extension)
     """
     base_filename_with_extension = ntpath.basename(path)
-    base_filename_without_extension, _ = os.path.splitext(base_filename_with_extension)
+    base_filename_without_extension, _ = os.path.splitext(
+        base_filename_with_extension
+    )
     return base_filename_with_extension, base_filename_without_extension
 
 

@@ -3,8 +3,14 @@ from typing import List, Union
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.annotation import BoundingBox, Category, Mask
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
+from anylabeling.services.auto_labeling.utils.sahi.annotation import (
+    BoundingBox,
+    Category,
+    Mask,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
 
 
 class ObjectPredictionList(Sequence):
@@ -62,7 +68,9 @@ class ObjectPredictionList(Sequence):
             return self.list
 
 
-def object_prediction_list_to_torch(object_prediction_list: ObjectPredictionList):
+def object_prediction_list_to_torch(
+    object_prediction_list: ObjectPredictionList,
+):
     """
     Returns:
         torch.tensor of size N x [x1, y1, x2, y2, score, category_id]
@@ -74,13 +82,17 @@ def object_prediction_list_to_torch(object_prediction_list: ObjectPredictionList
     num_predictions = len(object_prediction_list)
     torch_predictions = torch.zeros([num_predictions, 6], dtype=torch.float32)
     for ind, object_prediction in enumerate(object_prediction_list):
-        torch_predictions[ind, :4] = torch.tensor(object_prediction.tolist().bbox.to_xyxy(), dtype=torch.float32)
+        torch_predictions[ind, :4] = torch.tensor(
+            object_prediction.tolist().bbox.to_xyxy(), dtype=torch.float32
+        )
         torch_predictions[ind, 4] = object_prediction.tolist().score.value
         torch_predictions[ind, 5] = object_prediction.tolist().category.id
     return torch_predictions
 
 
-def object_prediction_list_to_numpy(object_prediction_list: ObjectPredictionList) -> np.ndarray:
+def object_prediction_list_to_numpy(
+    object_prediction_list: ObjectPredictionList,
+) -> np.ndarray:
     """
     Returns:
         np.ndarray of size N x [x1, y1, x2, y2, score, category_id]
@@ -88,13 +100,17 @@ def object_prediction_list_to_numpy(object_prediction_list: ObjectPredictionList
     num_predictions = len(object_prediction_list)
     numpy_predictions = np.zeros([num_predictions, 6], dtype=np.float32)
     for ind, object_prediction in enumerate(object_prediction_list):
-        numpy_predictions[ind, :4] = np.array(object_prediction.tolist().bbox.to_xyxy(), dtype=np.float32)
+        numpy_predictions[ind, :4] = np.array(
+            object_prediction.tolist().bbox.to_xyxy(), dtype=np.float32
+        )
         numpy_predictions[ind, 4] = object_prediction.tolist().score.value
         numpy_predictions[ind, 5] = object_prediction.tolist().category.id
     return numpy_predictions
 
 
-def calculate_box_union(box1: Union[List[int], np.ndarray], box2: Union[List[int], np.ndarray]) -> List[int]:
+def calculate_box_union(
+    box1: Union[List[int], np.ndarray], box2: Union[List[int], np.ndarray]
+) -> List[int]:
     """
     Args:
         box1 (List[int]): [x1, y1, x2, y2]
@@ -127,7 +143,9 @@ def calculate_intersection_area(box1: np.ndarray, box2: np.ndarray) -> float:
     return width_height[0] * width_height[1]
 
 
-def calculate_bbox_iou(pred1: ObjectPrediction, pred2: ObjectPrediction) -> float:
+def calculate_bbox_iou(
+    pred1: ObjectPrediction, pred2: ObjectPrediction
+) -> float:
     """Returns the ratio of intersection area to the union"""
     box1 = np.array(pred1.bbox.to_xyxy())
     box2 = np.array(pred2.bbox.to_xyxy())
@@ -137,7 +155,9 @@ def calculate_bbox_iou(pred1: ObjectPrediction, pred2: ObjectPrediction) -> floa
     return intersect / (area1 + area2 - intersect)
 
 
-def calculate_bbox_ios(pred1: ObjectPrediction, pred2: ObjectPrediction) -> float:
+def calculate_bbox_ios(
+    pred1: ObjectPrediction, pred2: ObjectPrediction
+) -> float:
     """Returns the ratio of intersection area to the smaller box's area"""
     box1 = np.array(pred1.bbox.to_xyxy())
     box2 = np.array(pred2.bbox.to_xyxy())
@@ -149,12 +169,19 @@ def calculate_bbox_ios(pred1: ObjectPrediction, pred2: ObjectPrediction) -> floa
 
 
 def has_match(
-    pred1: ObjectPrediction, pred2: ObjectPrediction, match_type: str = "IOU", match_threshold: float = 0.5
+    pred1: ObjectPrediction,
+    pred2: ObjectPrediction,
+    match_type: str = "IOU",
+    match_threshold: float = 0.5,
 ) -> bool:
     if match_type == "IOU":
-        threshold_condition = calculate_bbox_iou(pred1, pred2) > match_threshold
+        threshold_condition = (
+            calculate_bbox_iou(pred1, pred2) > match_threshold
+        )
     elif match_type == "IOS":
-        threshold_condition = calculate_bbox_ios(pred1, pred2) > match_threshold
+        threshold_condition = (
+            calculate_bbox_ios(pred1, pred2) > match_threshold
+        )
     else:
         raise ValueError()
     return threshold_condition
@@ -179,14 +206,18 @@ def get_merged_score(
     return max(scores)
 
 
-def get_merged_bbox(pred1: ObjectPrediction, pred2: ObjectPrediction) -> BoundingBox:
+def get_merged_bbox(
+    pred1: ObjectPrediction, pred2: ObjectPrediction
+) -> BoundingBox:
     box1: List[int] = pred1.bbox.to_xyxy()
     box2: List[int] = pred2.bbox.to_xyxy()
     bbox = BoundingBox(box=calculate_box_union(box1, box2))
     return bbox
 
 
-def get_merged_category(pred1: ObjectPrediction, pred2: ObjectPrediction) -> Category:
+def get_merged_category(
+    pred1: ObjectPrediction, pred2: ObjectPrediction
+) -> Category:
     if pred1.score.value > pred2.score.value:
         return pred1.category
     else:

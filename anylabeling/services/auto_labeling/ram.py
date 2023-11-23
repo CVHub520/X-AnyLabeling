@@ -33,18 +33,18 @@ class RAM(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-        model_name = self.config['type']
+        model_name = self.config["type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    "Model",
+                    f"Could not download or initialize {model_name} model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
-        self.tag_mode = self.config.get("tag_mode", '')  # ['en', 'cn']
+        self.tag_mode = self.config.get("tag_mode", "")  # ['en', 'cn']
 
         # load tag list
         self.tag_list, self.tag_list_chinese = self.load_tag_list()
@@ -56,12 +56,12 @@ class RAM(Model):
             ]
         elif filter_tags:
             self.delete_tag_index = [
-                index for index, item in enumerate(self.tag_list) 
+                index
+                for index, item in enumerate(self.tag_list)
                 if item not in filter_tags
             ]
         else:
             self.delete_tag_index = []
-
 
     def preprocess(self, input_image):
         """
@@ -81,15 +81,15 @@ class RAM(Model):
         Post-processes the network's output.
         """
         tags, bs = outs
-        tags[:,self.delete_tag_index] = 0
+        tags[:, self.delete_tag_index] = 0
         tag_output = []
         tag_output_chinese = []
         for b in range(bs[0]):
             index = np.argwhere(tags[b] == 1)
             token = self.tag_list[index].squeeze(axis=1)
-            tag_output.append(' | '.join(token))
+            tag_output.append(" | ".join(token))
             token_chinese = self.tag_list_chinese[index].squeeze(axis=1)
-            tag_output_chinese.append(' | '.join(token_chinese))
+            tag_output_chinese.append(" | ".join(token_chinese))
 
         return tag_output, tag_output_chinese
 
@@ -137,10 +137,10 @@ class RAM(Model):
             current_dir, "configs", "ram_tag_list_chinese.txt"
         )
 
-        with open(tag_list_file, 'r', encoding="utf-8") as f:
+        with open(tag_list_file, "r", encoding="utf-8") as f:
             tag_list = f.read().splitlines()
         tag_list = np.array(tag_list)
-        with open(tag_list_chinese_file, 'r', encoding="utf-8") as f:
+        with open(tag_list_chinese_file, "r", encoding="utf-8") as f:
             tag_list_chinese = f.read().splitlines()
         tag_list_chinese = np.array(tag_list_chinese)
 
@@ -148,10 +148,10 @@ class RAM(Model):
 
     def get_results(self, tags):
         en_tags, zh_tag = tags
-        image_text = en_tags[0] + '\n' + zh_tag[0]
-        if self.tag_mode == 'en':
+        image_text = en_tags[0] + "\n" + zh_tag[0]
+        if self.tag_mode == "en":
             return en_tags[0]
-        elif self.tag_mode == 'zh':
+        elif self.tag_mode == "zh":
             return zh_tag[0]
         return image_text
 

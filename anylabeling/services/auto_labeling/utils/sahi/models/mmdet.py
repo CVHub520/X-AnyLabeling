@@ -6,17 +6,27 @@ from typing import Any, Dict, List, Optional, Union
 
 import numpy as np
 
-from anylabeling.services.auto_labeling.utils.sahi.models.base import DetectionModel
-from anylabeling.services.auto_labeling.utils.sahi.prediction import ObjectPrediction
-from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import fix_full_shape_list, fix_shift_amount_list
-from anylabeling.services.auto_labeling.utils.sahi.utils.cv import get_bbox_from_bool_mask
-from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import check_requirements
+from anylabeling.services.auto_labeling.utils.sahi.models.base import (
+    DetectionModel,
+)
+from anylabeling.services.auto_labeling.utils.sahi.prediction import (
+    ObjectPrediction,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.compatibility import (
+    fix_full_shape_list,
+    fix_shift_amount_list,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.cv import (
+    get_bbox_from_bool_mask,
+)
+from anylabeling.services.auto_labeling.utils.sahi.utils.import_utils import (
+    check_requirements,
+)
 
 logger = logging.getLogger(__name__)
 
 
 try:
-
     check_requirements(["torch", "mmdet", "mmcv", "mmengine"])
 
     from mmdet.apis.det_inferencer import DetInferencer
@@ -37,7 +47,9 @@ try:
             self.image_size = image_size
             super().__init__(model, weights, device, scope, palette)
 
-        def __call__(self, images: List[np.ndarray], batch_size: int = 1) -> dict:
+        def __call__(
+            self, images: List[np.ndarray], batch_size: int = 1
+        ) -> dict:
             """
             Emulate DetInferencer(images) without progressbar
             Args:
@@ -68,19 +80,28 @@ try:
             # For inference, the key of ``img_id`` is not used.
             if "meta_keys" in pipeline_cfg[-1]:
                 pipeline_cfg[-1]["meta_keys"] = tuple(
-                    meta_key for meta_key in pipeline_cfg[-1]["meta_keys"] if meta_key != "img_id"
+                    meta_key
+                    for meta_key in pipeline_cfg[-1]["meta_keys"]
+                    if meta_key != "img_id"
                 )
 
-            load_img_idx = self._get_transform_idx(pipeline_cfg, "LoadImageFromFile")
+            load_img_idx = self._get_transform_idx(
+                pipeline_cfg, "LoadImageFromFile"
+            )
             if load_img_idx == -1:
-                raise ValueError("LoadImageFromFile is not found in the test pipeline")
+                raise ValueError(
+                    "LoadImageFromFile is not found in the test pipeline"
+                )
             pipeline_cfg[load_img_idx]["type"] = "mmdet.InferencerLoader"
 
             resize_idx = self._get_transform_idx(pipeline_cfg, "Resize")
             if resize_idx == -1:
                 raise ValueError("Resize is not found in the test pipeline")
             if self.image_size is not None:
-                pipeline_cfg[resize_idx]["scale"] = (self.image_size, self.image_size)
+                pipeline_cfg[resize_idx]["scale"] = (
+                    self.image_size,
+                    self.image_size,
+                )
             return Compose(pipeline_cfg)
 
     IMPORT_MMDET_V3 = True
@@ -104,9 +125,10 @@ class MmdetDetectionModel(DetectionModel):
         image_size: int = None,
         scope: str = "mmdet",
     ):
-
         if not IMPORT_MMDET_V3:
-            raise ImportError("Failed to import `DetInferencer`. Please confirm you have installed 'mmdet>=3.0.0'")
+            raise ImportError(
+                "Failed to import `DetInferencer`. Please confirm you have installed 'mmdet>=3.0.0'"
+            )
 
         self.scope = scope
         self.image_size = image_size
@@ -134,7 +156,11 @@ class MmdetDetectionModel(DetectionModel):
 
         # create model
         model = DetInferencerWrapper(
-            self.config_path, self.model_path, device=self.device, scope=self.scope, image_size=self.image_size
+            self.config_path,
+            self.model_path,
+            device=self.device,
+            scope=self.scope,
+            image_size=self.image_size,
         )
 
         self.set_model(model)
@@ -152,7 +178,10 @@ class MmdetDetectionModel(DetectionModel):
 
         # set category_mapping
         if not self.category_mapping:
-            category_mapping = {str(ind): category_name for ind, category_name in enumerate(self.category_names)}
+            category_mapping = {
+                str(ind): category_name
+                for ind, category_name in enumerate(self.category_names)
+            }
             self.category_mapping = category_mapping
 
     def perform_inference(self, image: np.ndarray):
@@ -165,7 +194,9 @@ class MmdetDetectionModel(DetectionModel):
 
         # Confirm model is loaded
         if self.model is None:
-            raise ValueError("Model is not loaded, load it by calling .load_model()")
+            raise ValueError(
+                "Model is not loaded, load it by calling .load_model()"
+            )
 
         # Supports only batch of 1
 
@@ -239,7 +270,9 @@ class MmdetDetectionModel(DetectionModel):
         object_prediction_list_per_image = []
         for image_ind, original_prediction in enumerate(original_predictions):
             shift_amount = shift_amount_list[image_ind]
-            full_shape = None if full_shape_list is None else full_shape_list[image_ind]
+            full_shape = (
+                None if full_shape_list is None else full_shape_list[image_ind]
+            )
 
             boxes = original_prediction["bboxes"]
             scores = original_prediction["scores"]
@@ -298,7 +331,9 @@ class MmdetDetectionModel(DetectionModel):
 
                 # ignore invalid predictions
                 if not (bbox[0] < bbox[2]) or not (bbox[1] < bbox[3]):
-                    logger.warning(f"ignoring invalid prediction with bbox: {bbox}")
+                    logger.warning(
+                        f"ignoring invalid prediction with bbox: {bbox}"
+                    )
                     continue
 
                 object_prediction = ObjectPrediction(
@@ -312,4 +347,6 @@ class MmdetDetectionModel(DetectionModel):
                 )
                 object_prediction_list.append(object_prediction)
             object_prediction_list_per_image.append(object_prediction_list)
-        self._object_prediction_list_per_image = object_prediction_list_per_image
+        self._object_prediction_list_per_image = (
+            object_prediction_list_per_image
+        )

@@ -14,6 +14,7 @@ from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
 from .utils.points_conversion import cxywh2xyxy
 
+
 class RTDETR(Model):
     """Object detection model using RTDETR"""
 
@@ -35,13 +36,13 @@ class RTDETR(Model):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         super().__init__(model_config, on_message)
-        model_name = self.config['type']
+        model_name = self.config["type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", 
-                    f"Could not download or initialize {model_name} model."
+                    "Model",
+                    f"Could not download or initialize {model_name} model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
@@ -51,10 +52,10 @@ class RTDETR(Model):
     def preprocess(self, input_image):
         """
         Pre-processes the input image before feeding it to the network.
-        
+
         Args:
             input_image (numpy.ndarray): The input image to be processed.
-        
+
         Returns:
             numpy.ndarray: The pre-processed output.
         """
@@ -68,14 +69,10 @@ class RTDETR(Model):
 
         # Perform the pre-processing steps
         image = cv2.resize(
-            input_image, 
-            (0, 0), 
-            fx=ratio_w, 
-            fy=ratio_h, 
-            interpolation=2
+            input_image, (0, 0), fx=ratio_w, fy=ratio_h, interpolation=2
         )
-        image = image.transpose((2, 0, 1)) # HWC to CHW
-        image = np.ascontiguousarray(image).astype('float32')
+        image = image.transpose((2, 0, 1))  # HWC to CHW
+        image = np.ascontiguousarray(image).astype("float32")
         image /= 255  # 0 - 255 to 0.0 - 1.0
         if len(image.shape) == 3:
             image = image[None]
@@ -84,13 +81,13 @@ class RTDETR(Model):
     def postprocess(self, input_image, outputs):
         """
         Post-processes the network's output.
-        
+
         Args:
             input_image (numpy.ndarray): The input image.
             outputs (numpy.ndarray): The output from the network.
-        
+
         Returns:
-            list: List of dictionaries containing the output 
+            list: List of dictionaries containing the output
                     bounding boxes, labels, and scores.
         """
         image_height, image_width = input_image.shape[:2]
@@ -103,17 +100,17 @@ class RTDETR(Model):
 
         boxes = cxywh2xyxy(boxes)
         _max = scores.max(-1)
-        _mask = _max > self.config['score_threshold']
+        _mask = _max > self.config["score_threshold"]
         boxes, scores = boxes[_mask], scores[_mask]
         indexs, scores = scores.argmax(-1), scores.max(-1)
 
         # Normalize the bounding box coordinates
         x1, y1, x2, y2 = boxes[:, 0], boxes[:, 1], boxes[:, 2], boxes[:, 3]
-        x1 = np.floor(np.minimum(
-            np.maximum(1, x1 * image_width), image_width - 1)
+        x1 = np.floor(
+            np.minimum(np.maximum(1, x1 * image_width), image_width - 1)
         ).astype(int)
-        y1 = np.floor(np.minimum(
-            np.maximum(1, y1 * image_height), image_height - 1)
+        y1 = np.floor(
+            np.minimum(np.maximum(1, y1 * image_height), image_height - 1)
         ).astype(int)
         x2 = np.ceil(
             np.minimum(np.maximum(1, x2 * image_width), image_width - 1)

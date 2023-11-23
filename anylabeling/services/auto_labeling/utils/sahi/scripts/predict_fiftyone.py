@@ -1,6 +1,8 @@
 import fire
 
-from anylabeling.services.auto_labeling.utils.sahi.predict import predict_fiftyone
+from anylabeling.services.auto_labeling.utils.sahi.predict import (
+    predict_fiftyone,
+)
 
 
 def main():
