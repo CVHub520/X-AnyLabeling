@@ -73,19 +73,21 @@
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - Nov. 2023:
-  - 🤗🤗🤗 Release the latest version [2.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
-  - 🔥🔥🔥 Added support for Grounding-SAM, combining [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) with [HQ-SAM](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
-  - 🚀🚀🚀 Enhanced support for [HQ-SAM](https://github.com/SysCV/sam-hq) model to achieve high-quality mask predictions.
-  - 🙌🙌🙌 Support the [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md) and [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md) model for multi-label classification task.
-  - 🆕🆕🆕 Introducing a new multi-label attribute annotation functionality.
-  - Release the latest version [1.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0).
+  - 🤗 Release the latest version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0) 🤗
+  - Supoort [InternImage](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
+  - Release version [2.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
+  - Added support for Grounding-SAM, combining [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) with [HQ-SAM](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
+  - Enhanced support for [HQ-SAM](https://github.com/SysCV/sam-hq) model to achieve high-quality mask predictions.
+  - Support the [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_person_attribute_en.md) and [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_vehicle_attribute_en.md) model for multi-label classification task.
+  - Introducing a new multi-label attribute annotation functionality.
+  - Release version [1.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0).
   - Support pose estimation: [YOLOv8-Pose](https://github.com/ultralytics/ultralytics).
   - Support object-level tag with yolov5_ram.
   - Add a new feature enabling batch labeling for arbitrary unknown categories based on Grounding-DINO.
 - Oct. 2023:
-  - Release the latest version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
+  - Release version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
   - Add a new feature for rotation box.
-  - Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
+  -  Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
   - SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
   - SOTA Image Tagging Model - [Recognize Anything](https://github.com/xinyu1205/Tag2Text) is released.
   - Support **YOLOv5-SAM** and **YOLOv8-EfficientViT_SAM** union task.
@@ -95,7 +97,7 @@
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
 - Sep. 2023:
   - Release version [0.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.4).
-  - Release [EfficientViT-SAM](https://github.com/mit-han-lab/efficientvit) (**ICCV'23**), [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D), [MedSAM](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
+  - Release [EfficientViT-SAM](https://github.com/mit-han-lab/efficientvit) (**ICCV'23**),[SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D), [MedSAM](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
   - Support [ByteTrack](https://github.com/ifzhang/ByteTrack) (**ECCV'22**) for MOT task.
   - Support [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR) model.
   - Add `video` annotation feature.
@@ -161,7 +163,7 @@
 
 ### 🔜快速开始
 
-直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0) 或 [百度网盘](https://pan.baidu.com/s/1qX1Q36EfHEJiTkS7xri3_g?pwd=e5it) 下载并运行 `GUI` 版本。
+直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0) 或 [百度网盘](https://pan.baidu.com/s/1XKflqsbb7C_7seL-ROD3bg?pwd=a64z) 下载并运行 `GUI` 版本。
 
 注意事项：
 - 对于 MacOS：
@@ -195,6 +197,8 @@ python anylabeling/app.py
 ```
 
 ### 📦编译
+
+> 请注意，以下步骤是非必要的，这些构建脚本仅为可能需要自定义和编译软件以在特定环境中分发的用户提供的。
 
 ```bash
 #Windows-CPU
@@ -247,11 +251,10 @@ bash scripts/build_executable.sh linux-gpu
 - [帮助文档](./docs/Q&A.md)
 - [模型库](./docs/models_list.md)
 - [加载自定义模型](./docs/custom_model.md)
-- [视频教程]()
 
 ### 🧷快捷键
 
-<details open>
+<details>
 
 <summary>点击展开/关闭</summary>
 

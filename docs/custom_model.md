@@ -18,9 +18,6 @@ type: yolov5
 name: yolov5s-r20230520
 display_name: YOLOv5s Ultralytics
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
-input_width: 640
-input_height: 640
-stride: 32
 nms_threshold: 0.45
 confidence_threshold: 0.45
 classes:
@@ -59,7 +56,8 @@ classes:
   - orange
 ```
 
-可以看出，这里 `model_path` 字段建议直接填写模型权重名称，随后我们只需在任意新建一个文件夹，将上述权重文件和对应的配置文件放置到同一个文件夹下存放即可，组织目录如下：
+注意，这里  `model_path` 即模型文件路径时相对于此 YAML 文件的相对路径，例如这里我们直接填写文件名即表示在当前目录下。</br>
+因此，我们只需新建一个文件夹，将权重文件和对应的配置文件放置到同一个文件夹下存放，后续直接加载该配置文件即可。</br>
 
 ```
 |- custom_model
@@ -75,8 +73,6 @@ anchors:
   - [30,61, 62,45, 59,119]  # P4/16
   - [116,90, 156,198, 373,326]  # P5/32
 ```
-
-通过上面的简单教程大家也可以看出，其实这与整个 `yolo` 框架是无缝对接的。
 
 > 注：如果按照上述教程加载后提示报错，请参考[帮助文档](./Q&A.md)中的**问题反馈**章节。
 
@@ -195,3 +191,13 @@ The recent Segment Anything Model (SAM) represents a big leap in scaling up segm
 > 发表：NeurIPS 2023</br>
 
 参考此[教程](https://github.com/CVHub520/sam-hq).
+
+- [InternImage](https://github.com/OpenGVLab/InternImage)
+
+InternImage introduces a large-scale convolutional neural network (CNN) model, leveraging deformable convolution as the core operator to achieve a large effective receptive field, adaptive spatial aggregation, and reduced inductive bias, leading to stronger and more robust pattern learning from massive data, outperforming current CNNs and vision transformers on benchmarks like COCO and ADE20K.
+
+> 论文：InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions</br>
+> 单位：Shanghai AI Laboratory, Tsinghua University, Nanjing University, etc.</br>
+> 发表：CVPR 2023</br>
+
+参考此[教程](../tools/export_internimage_model_onnx.py).
