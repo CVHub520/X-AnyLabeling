@@ -106,6 +106,7 @@ class YOLO(Model):
         if self.model_type in [
             "yolov5",
             "yolov6",
+            "yolov7",
             "yolov8",
             "gold_yolo",
         ]:
@@ -144,6 +145,7 @@ class YOLO(Model):
             "yolov5_seg",
             "yolov5_track",
             "yolov6",
+            "yolov7",
             "gold_yolo",
         ]:
             # Only support YOLOv5 version 5.0 and earlier versions
