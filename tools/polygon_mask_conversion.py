@@ -155,6 +155,7 @@ def main():
             )
             converter.mask_to_polygon(img_file, mask_file, json_file)
     elif args.mode == "poly2mask":
+        # Only binary mask transformations are supported.
         os.makedirs(args.mask_path, exist_ok=True)
         file_list = os.listdir(args.img_path)
         for file_name in tqdm(
@@ -168,7 +169,7 @@ def main():
                 json_file = os.path.join(args.img_path, base_name + ".json")
             else:
                 json_file = os.path.join(args.json_path, base_name + ".json")
-            mask_file = os.path.join(args.mask_path, file_name)
+            mask_file = os.path.join(args.mask_path, base_name + ".png")
             converter.polygon_to_mask(img_file, mask_file, json_file)
 
     end_time = time.time()
