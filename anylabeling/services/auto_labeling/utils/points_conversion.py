@@ -2,7 +2,7 @@ import logging
 
 import cv2
 import numpy as np
-
+from .general import refine_contours
 
 def xyxy2xywh(x):
     """
@@ -428,34 +428,31 @@ def clip_boxes(boxes, shape):
     boxes[..., [1, 3]] = boxes[..., [1, 3]].clip(0, shape[0])  # y1, y2
 
 
-def masks2segments(masks, strategy="largest"):
+def masks2segments(masks, epsilon_factor=0):
     """
     It takes a list of masks(n,h,w) and returns a list of segments(n,xy)
 
     Args:
-      masks (np.ndarray): the output of the model, which is a tensor of shape (batch_size, 160, 160)
-      strategy (str): 'concat' or 'largest'. Defaults to largest
+      masks (np.ndarray): 
+        the output of the model, which is a tensor of shape (batch_size, 160, 160)
+      epsilon_factor (float, optional): 
+        Factor used for epsilon calculation in contour approximation.
+        A smaller value results in smoother contours but with more points. 
+        If the value is set to 0, the default result will be used.
 
     Returns:
       segments (List): list of segment masks
     """
     segments = []
-    allowed_strategies = ["concat", "largest"]
-    if strategy not in allowed_strategies:
-        logging.error(
-            f"Invalid strategy '{strategy}'! \
-                      Allowed strategies are {allowed_strategies}."
-        )
     for x in masks.astype("uint8"):
-        c = cv2.findContours(x, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
+        c = cv2.findContours(
+            x, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )[0]
+        img_area = masks.shape[1] * masks.shape[2]
+        c = refine_contours(c, img_area, epsilon_factor)
         if c:
-            if strategy == "concat":  # concatenate all segments
-                c = np.concatenate([x.reshape(-1, 2) for x in c])
-            elif strategy == "largest":  # select largest segment
-                c = np.array(
-                    c[np.array([len(x) for x in c]).argmax()]
-                ).reshape(-1, 2)
-                c = np.concatenate([c, [c[0]]])  # Close the contour
+            c = np.array([c[0] for c in c[0]])
+            c = np.concatenate([c, [c[0]]])  # Close the contour
         else:
             c = np.zeros((0, 2))  # no segments found
         segments.append(c.astype("float32"))

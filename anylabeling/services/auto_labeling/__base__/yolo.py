@@ -63,7 +63,7 @@ class YOLO(Model):
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
         self.show_boxes = self.config.get("show_boxes", False)
-        self.strategy = self.config.get("strategy", "largest")
+        self.epsilon_factor = self.config.get("epsilon_factor", 0.005)
         self.iou_thres = self.config.get("nms_threshold", 0.45)
         self.conf_thres = self.config.get("confidence_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
@@ -222,7 +222,7 @@ class YOLO(Model):
         if self.task == "seg":
             points = [
                 scale_coords(self.input_shape, x, image.shape, normalize=False)
-                for x in masks2segments(masks, self.strategy)
+                for x in masks2segments(masks, self.epsilon_factor)
             ]
         track_ids = [[] for _ in range(len(boxes))]
         if self.task == "track":

@@ -75,3 +75,47 @@ def softmax(x):
     x = x.reshape(-1)
     e_x = np.exp(x - np.max(x))
     return e_x / e_x.sum(axis=0)
+
+
+def refine_contours(contours, img_area, epsilon_factor=0.001):
+    """
+    Refine contours by approximating and filtering.
+
+    Parameters:
+    - contours (list): List of input contours.
+    - img_area (int): Maximum factor for contour area.
+    - epsilon_factor (float, optional): Factor used for epsilon calculation in contour approximation. Default is 0.001.
+
+    Returns:
+    - list: List of refined contours.
+    """
+    # Refine contours
+    approx_contours = []
+    for contour in contours:
+        # Approximate contour
+        epsilon = epsilon_factor * cv2.arcLength(contour, True)
+        approx = cv2.approxPolyDP(contour, epsilon, True)
+        approx_contours.append(approx)
+
+    # Remove too big contours ( >90% of image size)
+    if len(approx_contours) > 1:
+        areas = [cv2.contourArea(contour) for contour in approx_contours]
+        filtered_approx_contours = [
+            contour
+            for contour, area in zip(approx_contours, areas)
+            if area < img_area * 0.9
+        ]
+
+    # Remove small contours (area < 20% of average area)
+    if len(approx_contours) > 1:
+        areas = [cv2.contourArea(contour) for contour in approx_contours]
+        avg_area = np.mean(areas)
+
+        filtered_approx_contours = [
+            contour
+            for contour, area in zip(approx_contours, areas)
+            if area > avg_area * 0.2
+        ]
+        approx_contours = filtered_approx_contours
+
+    return approx_contours
