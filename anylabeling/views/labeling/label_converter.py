@@ -1,4 +1,5 @@
 import os
+import cv2
 import csv
 import json
 import natsort
@@ -13,11 +14,15 @@ from anylabeling.app_info import __version__
 
 
 class LabelConverter:
-    def __init__(self, classes_file):
+    def __init__(self, classes_file, mapping_file):
         self.classes = []
         if classes_file:
             with open(classes_file, "r", encoding="utf-8") as f:
                 self.classes = f.read().splitlines()
+        self.mapping_table = None
+        if mapping_file:
+            with open(mapping_file, "r", encoding="utf-8") as f:
+                self.mapping_table = json.load(f)
 
     @staticmethod
     def calculate_polygon_area(segmentation):
@@ -311,3 +316,50 @@ class LabelConverter:
         # Save the coco result
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(coco_meta_data, f, indent=4, ensure_ascii=False)
+
+    def custom_polygon_to_mask(self, data, output_file):
+        image_width = data["imageWidth"]
+        image_height = data["imageHeight"]
+        image_shape = (image_height, image_width)
+
+        polygons = {}
+        for shape in data["shapes"]:
+            points = shape["points"]
+            polygon = []
+            for point in points:
+                x, y = point
+                polygon.append((int(x), int(y)))  # Convert to integers
+            polygons[shape["label"]] = polygon
+
+        output_format = self.mapping_table["type"]
+        if output_format not in  ["grayscale", "rgb"]:
+            raise ValueError("Invalid output format specified")
+        mapping_color = self.mapping_table["colors"]
+
+        if output_format == "grayscale":
+            binary_mask = np.zeros(image_shape, dtype=np.uint8)
+            for label, polygon in polygons.items():
+                mask = np.zeros(image_shape, dtype=np.uint8)
+                cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
+                if label in mapping_color:
+                    mask_mapped = mask * mapping_color[label]
+                else:
+                    mask_mapped = mask
+                binary_mask += mask_mapped
+            cv2.imwrite(output_file, binary_mask)
+        elif output_format == "rgb":
+            # Initialize rgb_mask
+            color_mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
+            for label, polygon in polygons.items():
+                # Create a mask for each polygon
+                mask = np.zeros(image_shape[:2], dtype=np.uint8)
+                cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
+                # Initialize mask_mapped with a default value
+                mask_mapped = mask
+                # Map the mask values using the provided mapping table
+                if label in mapping_color:
+                    color = mapping_color[label]
+                    mask_mapped = np.zeros_like(color_mask)
+                    cv2.fillPoly(mask_mapped, [np.array(polygon, dtype=np.int32)], color)
+                    color_mask = cv2.addWeighted(color_mask, 1, mask_mapped, 1, 0)
+            cv2.imwrite(output_file, cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))

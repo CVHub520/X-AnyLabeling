@@ -61,16 +61,16 @@ A: X-AnyLabeling 工具目前内置了多种主流数据格式的导出，包括
 2. 此处 `--classes` 参数指定的  `*.txt` 文件是用户预定义的类别文件，每一行代表一个类别，类别编号按从上到下的顺序编排，可参考此文件[classes.txt](../assets/classes.txt)。</br>
 
 Q: **语义分割任务如何将输出的标签文件转换为 \*.png 格式输出？**</br>
-A: 针对工具本身自定义(`custom`)的格式，我们可以使用工程目录下的 `tools/polygon_mask_conversion.py` 脚本轻松转换，以下是参考的转换指令：
+A: 当前 `X-AnyLabeling` 中同样支持了 png 掩码图的导出，仅需在标注之前准备好一份自定义颜色映射表文件（具体可参考[mask_color_map.json](../assets/mask_color_map.json)和[mask_grayscale_map.json](../assets/mask_grayscale_map.json)文件，分别用于将当前分割结果映射为相应地RGB格式活灰度图格式掩码图，可按需选取），并将当前导出格式设置为 `MASK` 格式并导入事先准备好的文件即可，掩码图默认保存在与图像文件同级目录下。</br>
+当然，针对工具本身自定义(`custom`)的格式，我们可以使用工程目录下的 `tools/polygon_mask_conversion.py` 脚本 （仅支持二分类转换）轻松转换，以下是参考的转换指令：
 
 ```bash
 python tools/polygon_mask_conversion.py --img_path xxx_folder --mask_path xxx_folder --mode poly2mask
-
 # [option] 如果标签和图像不在同一目录下，请使用以下命令：
 python tools/polygon_mask_conversion.py --img_path xxx_folder --mask_path xxx_folder --json_path xxx_folder --mode poly2mask
 ```
 
-同样地，也支持将掩码图一键转换为自定义格式导入 `X-AnyLabeling` 中进行修正，输出的 `*.json` 文件默认保存至 'img_path' 目录：
+此外，也支持将掩码图一键转换为自定义格式导入 `X-AnyLabeling` 中进行修正，输出的 `*.json` 文件默认保存至 'img_path' 目录：
 
 ```bash
 python tools/polygon_mask_conversion.py --img_path xxx_folder --mask_path xxx_folder --mode mask2poly

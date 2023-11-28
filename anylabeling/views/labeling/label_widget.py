@@ -84,7 +84,8 @@ class LabelingWidget(LabelDialog):
         self.image_data = None
         self.label_file = None
         self.other_data = {}
-        self.classes = None
+        self.classes_file = None
+        self.mapping_file = None
         self.attributes = {}
         self.current_category = None
 
@@ -762,6 +763,14 @@ class LabelingWidget(LabelDialog):
             checked=self._config["save_mode"] == "mot",
             enabled=self._config["save_mode"] != "mot",
         )
+        select_mask_format = action(
+            "MASK",
+            functools.partial(self.set_output_format, "mask"),
+            icon="format_mask",
+            checkable=True,
+            checked=self._config["save_mode"] == "mask",
+            enabled=self._config["save_mode"] != "mask",
+        )
 
         # Group zoom controls into a list for easier toggling.
         zoom_actions = (
@@ -854,6 +863,7 @@ class LabelingWidget(LabelDialog):
             select_voc_format=select_voc_format,
             select_dota_format=select_dota_format,
             select_mot_format=select_mot_format,
+            select_mask_format=select_mask_format,
             zoom=zoom,
             zoom_in=zoom_in,
             zoom_out=zoom_out,
@@ -992,6 +1002,7 @@ class LabelingWidget(LabelDialog):
                 select_voc_format,
                 select_dota_format,
                 select_mot_format,
+                select_mask_format,
             ),
         )
         utils.add_actions(
@@ -1276,13 +1287,13 @@ class LabelingWidget(LabelDialog):
         confirm_flag = True
         if mode in ["yolo", "coco", "mot"]:
             filter = "Classes Files (*.txt);;All Files (*)"
-            self.classes, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self,
                 self.tr("Select a specific classes file"),
                 "",
                 filter,
             )
-            if not self.classes:
+            if not self.classes_file:
                 QtWidgets.QMessageBox.warning(
                     self,
                     self.tr("Warning"),
@@ -1293,7 +1304,7 @@ class LabelingWidget(LabelDialog):
                 self._config["save_mode"] = "default"
                 return
             else:
-                with open(self.classes, "r", encoding="utf-8") as f:
+                with open(self.classes_file, "r", encoding="utf-8") as f:
                     classes = f.read().splitlines()
                     for label in classes:
                         if not self.unique_label_list.find_items_by_label(
@@ -1318,7 +1329,7 @@ class LabelingWidget(LabelDialog):
                     ] + [f"*{LabelFile.suffix}"]
                     if "*.json" in formats:
                         formats.remove("*.json")
-                    converter = LabelConverter(classes_file=self.classes)
+                    converter = LabelConverter(classes_file=self.classes_file)
                     root_path = osp.split(self.filename)[0]
                     save_path = root_path + "/annotations"
                     os.makedirs(save_path, exist_ok=True)
@@ -1333,6 +1344,42 @@ class LabelingWidget(LabelDialog):
                     msg_box.exec_()
                     confirm_flag = False
                     self._config["save_mode"] = "default"
+        elif mode == "mask":
+            filter = "JSON Files (*.json);;All Files (*)"
+            self.mapping_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific color_map file"),
+                "",
+                filter,
+            )
+            if not self.mapping_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific color_map file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                confirm_flag = False
+                self._config["save_mode"] = "default"
+                return
+            else:
+                with open(self.mapping_file, "r", encoding="utf-8") as f:
+                    mapping_table = json.load(f)
+                    classes = list(mapping_table["colors"].keys())
+                    for label in classes:
+                        if not self.unique_label_list.find_items_by_label(
+                            label
+                        ):
+                            item = (
+                                self.unique_label_list.create_item_from_label(
+                                    label
+                                )
+                            )
+                            self.unique_label_list.addItem(item)
+                            rgb = self._get_rgb_by_label(label)
+                            self.unique_label_list.set_item_label(
+                                item, label, rgb
+                            )
 
         # Show dialog to restart application
         if confirm_flag and self._config["save_mode"] != "default":
@@ -1349,6 +1396,7 @@ class LabelingWidget(LabelDialog):
             self.actions.select_voc_format.setEnabled(True)
             self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
+            self.actions.select_mask_format.setEnabled(True)
         elif self._config["save_mode"] == "yolo":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(False)
@@ -1356,6 +1404,7 @@ class LabelingWidget(LabelDialog):
             self.actions.select_voc_format.setEnabled(True)
             self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
+            self.actions.select_mask_format.setEnabled(True)
         elif self._config["save_mode"] == "voc":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
@@ -1363,6 +1412,7 @@ class LabelingWidget(LabelDialog):
             self.actions.select_voc_format.setEnabled(False)
             self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(True)
+            self.actions.select_mask_format.setEnabled(True)
         elif self._config["save_mode"] == "dota":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
@@ -1370,6 +1420,7 @@ class LabelingWidget(LabelDialog):
             self.actions.select_voc_format.setEnabled(True)
             self.actions.select_dota_format.setEnabled(False)
             self.actions.select_mot_format.setEnabled(True)
+            self.actions.select_mask_format.setEnabled(True)
         elif self._config["save_mode"] == "mot":
             self.actions.select_default_format.setEnabled(True)
             self.actions.select_yolo_format.setEnabled(True)
@@ -1377,6 +1428,15 @@ class LabelingWidget(LabelDialog):
             self.actions.select_voc_format.setEnabled(True)
             self.actions.select_dota_format.setEnabled(True)
             self.actions.select_mot_format.setEnabled(False)
+            self.actions.select_mask_format.setEnabled(True)
+        elif self._config["save_mode"] == "mask":
+            self.actions.select_default_format.setEnabled(True)
+            self.actions.select_yolo_format.setEnabled(True)
+            self.actions.select_coco_format.setEnabled(True)
+            self.actions.select_voc_format.setEnabled(True)
+            self.actions.select_dota_format.setEnabled(True)
+            self.actions.select_mot_format.setEnabled(True)
+            self.actions.select_mask_format.setEnabled(False)
 
     def get_labeling_instruction(self):
         text_mode = self.tr("Mode:")
@@ -1912,7 +1972,8 @@ class LabelingWidget(LabelDialog):
                 other_data=self.other_data,
                 flags=flags,
                 output_format=self._config["save_mode"],
-                classes_file=self.classes,
+                classes_file=self.classes_file,
+                mapping_file=self.mapping_file,
             )
             self.label_file = label_file
             items = self.file_list_widget.findItems(
@@ -2145,7 +2206,8 @@ class LabelingWidget(LabelDialog):
                 other_data=self.other_data,
                 flags=flags,
                 output_format=self._config["save_mode"],
-                classes_file=self.classes,
+                classes_file=self.classes_file,
+                mapping_file=self.mapping_file,
             )
             self.label_file = label_file
             items = self.file_list_widget.findItems(

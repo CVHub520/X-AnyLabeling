@@ -166,6 +166,7 @@ class LabelFile:
         flags=None,
         output_format="defalut",
         classes_file=None,
+        mapping_file=None,
     ):
         if image_data is not None:
             image_data = base64.b64encode(image_data).decode("utf-8")
@@ -194,7 +195,9 @@ class LabelFile:
             with io_open(filename, "w") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             self.filename = filename
-            _ = self.save_other_mode(data, output_format, classes_file)
+            _ = self.save_other_mode(
+                data, output_format, classes_file, mapping_file
+            )
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
 
@@ -202,7 +205,7 @@ class LabelFile:
     def is_label_file(filename):
         return osp.splitext(filename)[1].lower() == LabelFile.suffix
 
-    def save_other_mode(self, data, mode, classes_file=None):
+    def save_other_mode(self, data, mode, classes_file=None, mapping_file=None):
         target_formats = ["polygon", "rectangle", "rotation"]
         shape_type = self.get_shape_type(data, target_formats)
         if mode == "default" or not shape_type:
@@ -227,8 +230,15 @@ class LabelFile:
             os.makedirs(save_path, exist_ok=True)
         elif mode == "mot":
             dst_file = root_path + "/" + base_name.rsplit("_", 1)[0] + ".csv"
+        elif mode == "mask":
+            save_path = root_path + "/masks"
+            dst_file = save_path + "/" + base_name + ".png"
+            os.makedirs(save_path, exist_ok=True)
 
-        converter = LabelConverter(classes_file=classes_file)
+        converter = LabelConverter(
+            classes_file=classes_file, 
+            mapping_file=mapping_file,
+        )
         if mode == "yolo" and shape_type == "rectangle":
             converter.custom_to_yolo_rectangle(data, dst_file)
             return True
@@ -246,6 +256,9 @@ class LabelFile:
             return True
         elif mode == "mot" and shape_type == "rectangle":
             converter.custom_to_mot_rectangle(data, dst_file, base_name)
+            return True
+        elif mode == "mask" and shape_type == "polygon":
+            converter.custom_polygon_to_mask(data, dst_file)
             return True
         else:
             return False

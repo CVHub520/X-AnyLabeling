@@ -1,0 +1,24 @@
+{
+    "type": "grayscale",
+    "colors": {
+        "Road": 128,
+        "Sidewalk": 200,
+        "Building": 50,
+        "Wall": 120,
+        "Fence": 180,
+        "Pole": 150,
+        "Traffic Light": 220,
+        "Traffic Sign": 190,
+        "Vegetation": 70,
+        "Terrain": 210,
+        "Sky": 100,
+        "Person": 10,
+        "Rider": 5,
+        "Car": 60,
+        "Truck": 30,
+        "Bus": 40,
+        "Train": 50,
+        "Motorcycle": 80,
+        "Bicycle": 90
+    }
+}
