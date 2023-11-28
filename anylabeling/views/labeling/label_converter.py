@@ -88,7 +88,7 @@ class LabelConverter:
         file_list = natsort.os_sorted(file_list)
         for file_name in file_list:
             fmt = "*." + file_name.rsplit(".", 1)[-1]
-            if fmt not in formats:
+            if fmt.lower() not in formats:
                 if fmt == "*.json":
                     label_list.append(file_name)
                 continue

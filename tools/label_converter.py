@@ -479,7 +479,6 @@ class PolyLabelConvert(BaseLabelConverter):
                 mask = self.polygons_to_mask(
                     [data["imageHeight"], data["imageWidth"]], points
                 )
-                print(mask)
                 x_min, y_min, width, height = self.mask2box(mask)
 
                 annotation = {
