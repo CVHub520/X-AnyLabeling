@@ -212,6 +212,11 @@ class LabelConverter:
             for shape in data["shapes"]:
                 label = shape["label"]
                 points = shape["points"]
+
+                # Skip shapes with negative coordinates
+                if any(coord < 0 for point in points for coord in point):
+                    continue
+
                 x0 = points[0][0]
                 y0 = points[0][1]
                 x1 = points[1][0]
