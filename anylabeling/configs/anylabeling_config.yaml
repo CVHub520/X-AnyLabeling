@@ -115,6 +115,7 @@ shortcuts:
   remove_selected_point: Backspace
   group_selected_shapes: G
   ungroup_selected_shapes: U
+  toggle_auto_use_last_label: Ctrl+Y
 
   auto_label: Ctrl+A
   auto_run: Ctrl+M
