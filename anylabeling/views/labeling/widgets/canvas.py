@@ -223,7 +223,7 @@ class Canvas(
         if self.auto_labeling_mode is None:
             self.auto_labeling_mode = AutoLabelingMode.NONE
             self.parent.toggle_draw_mode(
-                False, "rectangle", disable_auto_labeling=True
+                True, "rectangle", disable_auto_labeling=True
             )
 
     def get_mode(self):
