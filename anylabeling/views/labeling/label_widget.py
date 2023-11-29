@@ -390,6 +390,18 @@ class LabelingWidget(LabelDialog):
             self._config["auto_use_last_label"]
         )
 
+        toggle_visibility_shapes_mode = action(
+            self.tr("Visibility Shapes"),
+            self.toggle_visibility_shapes,
+            shortcuts["toggle_visibility_shapes"],
+            None,
+            self.tr('Toggle "Visibility Shapes" mode'),
+            checkable=True,
+        )
+        toggle_visibility_shapes_mode.setChecked(
+            self._config["show_shapes"]
+        )
+
         create_mode = action(
             self.tr("Create Polygons"),
             lambda: self.toggle_draw_mode(False, create_mode="polygon"),
@@ -838,6 +850,7 @@ class LabelingWidget(LabelDialog):
             delete_file=delete_file,
             toggle_keep_prev_mode=toggle_keep_prev_mode,
             toggle_auto_use_last_label_mode=toggle_auto_use_last_label_mode,
+            toggle_visibility_shapes_mode=toggle_visibility_shapes_mode,
             run_all_images=run_all_images,
             delete=delete,
             edit=edit,
@@ -904,6 +917,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 toggle_keep_prev_mode,
                 toggle_auto_use_last_label_mode,
+                toggle_visibility_shapes_mode,
             ),
             # menu shown at right click
             menu=(
@@ -1016,8 +1030,6 @@ class LabelingWidget(LabelDialog):
                 None,
                 fill_drawing,
                 None,
-                hide_all,
-                show_all,
                 None,
                 zoom_in,
                 zoom_out,
@@ -2999,6 +3011,13 @@ class LabelingWidget(LabelDialog):
     def toggle_auto_use_last_label(self):
         self._config["auto_use_last_label"] = not self._config[
             "auto_use_last_label"
+        ]
+        save_config(self._config)
+
+    def toggle_visibility_shapes(self):
+        self.toggle_polygons(self._config["show_shapes"])
+        self._config["show_shapes"] = not self._config[
+            "show_shapes"
         ]
         save_config(self._config)
 

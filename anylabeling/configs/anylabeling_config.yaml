@@ -11,6 +11,7 @@ show_cross_line: true
 show_groups: true
 show_texts: true
 show_degrees: false
+show_shapes: true
 logger_level: info
 save_mode: default
 
@@ -116,6 +117,7 @@ shortcuts:
   group_selected_shapes: G
   ungroup_selected_shapes: U
   toggle_auto_use_last_label: Ctrl+Y
+  toggle_visibility_shapes: Ctrl+H
 
   auto_label: Ctrl+A
   auto_run: Ctrl+M
