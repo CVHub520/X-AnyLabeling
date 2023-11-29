@@ -894,6 +894,8 @@ class LabelingWidget(LabelDialog):
                 edit,
                 duplicate,
                 delete,
+                copy,
+                paste,
                 None,
                 undo,
                 undo_last_point,
