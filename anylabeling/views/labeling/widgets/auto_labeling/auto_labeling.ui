@@ -201,8 +201,7 @@
      </property>
      <property name="styleSheet">
       <string notr="true">margin-top: 0;
-margin-bottom: 10px;
-color: #456;</string>
+margin-bottom: 10px;</string>
      </property>
      <property name="text">
       <string>Ready!</string>
