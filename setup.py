@@ -53,7 +53,7 @@ def get_install_requires():
         'PyQt5>=5.15.7; platform_system != "Darwin"',
         "onnx==1.13.1",
         "qimage2ndarray==1.10.0",
-        "lap==0.4.0",
+        "lapx==0.5.5",
         "darkdetect==0.8.0",
         "tqdm",
         "scipy",
