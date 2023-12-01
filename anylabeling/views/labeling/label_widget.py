@@ -7,6 +7,7 @@ import os.path as osp
 import cv2
 import re
 import webbrowser
+from difflib import SequenceMatcher
 
 import darkdetect
 import imgviz
@@ -1586,6 +1587,20 @@ class LabelingWidget(LabelDialog):
         self.other_data = {}
         self.canvas.reset_state()
 
+    def reset_attribute(self, text):
+        valid_labels = list(self.attributes.keys())
+        if text not in valid_labels:
+            most_similar_label = self.find_most_similar_label(text, valid_labels)
+            self.error_message(
+                self.tr("Invalid label"),
+                self.tr(
+                    "Invalid label '{}' with validation type: {}!\n"
+                    "Reset the label as {}."
+                ).format(text, valid_labels, most_similar_label),
+            )
+            text = most_similar_label
+        return text
+
     def current_item(self):
         items = self.label_list.selected_items()
         if items:
@@ -1781,14 +1796,7 @@ class LabelingWidget(LabelDialog):
             )
             return
         if self.attributes and text:
-            if text not in list(self.attributes.keys()):
-                self.error_message(
-                    self.tr("Invalid label"),
-                    self.tr(
-                        "Invalid label '{}' with validation type '{}'"
-                    ).format(text, list(self.attributes.keys())),
-                )
-                return
+            text = self.reset_attribute(text)
         shape.label = text
         shape.flags = flags
         shape.group_id = group_id
@@ -1841,14 +1849,16 @@ class LabelingWidget(LabelDialog):
             if filename:
                 self.load_file(filename)
                 if self.attributes:
-                    # Reset the value
-                    self.current_category = None
-                    # Clear the history widgets from the QGridLayout to avoid conflict
+                    # Clear the history widgets from the QGridLayout
                     self.grid_layout = QGridLayout()
                     self.grid_layout_container = QWidget()
                     self.grid_layout_container.setLayout(self.grid_layout)
                     self.scroll_area.setWidget(self.grid_layout_container)
                     self.scroll_area.setWidgetResizable(True)
+                    # Create a container widget for the grid layout
+                    self.grid_layout_container = QWidget()
+                    self.grid_layout_container.setLayout(self.grid_layout)
+                    self.scroll_area.setWidget(self.grid_layout_container)
 
     def attribute_selection_changed(self, i, property, combo):
         # This function is called when the user changes the value in a QComboBox
@@ -1857,11 +1867,11 @@ class LabelingWidget(LabelDialog):
         self.canvas.shapes[i].attributes[property] = selected_option
         self.save_attributes(self.canvas.shapes)
 
-    def update_selected_options(self, new_attributes):
-        if not isinstance(new_attributes, dict):
-            # Handle the case where 'new_attributes' is not a dictionary
+    def update_selected_options(self, selected_options):
+        if not isinstance(selected_options, dict):
+            # Handle the case where `selected_options`` is not valid
             return
-        for row in range(len(new_attributes)):
+        for row in range(len(selected_options)):
             category_label = None
             property_combo = None
             if self.grid_layout.itemAtPosition(row, 0):
@@ -1874,57 +1884,50 @@ class LabelingWidget(LabelDialog):
                 ).widget()
             if category_label and property_combo:
                 category = category_label.text()
-                if category in new_attributes:
-                    selected_option = new_attributes[category]
+                if category in selected_options:
+                    selected_option = selected_options[category]
                     index = property_combo.findText(selected_option)
                     if index >= 0:
                         property_combo.setCurrentIndex(index)
         return
 
     def update_attributes(self, i):
-        current_shape = self.canvas.shapes[i]
-        update_category = current_shape.label
-        update_attribute = current_shape.attributes
-        current_attibute = self.attributes[update_category]
         selected_options = {}
-        if self.current_category != update_category:
-            self.file_selection_changed_flag = False
-            self.current_category = update_category
-            # Clear the existing widgets from the QGridLayout
-            self.grid_layout = QGridLayout()
-            # Repopulate the QGridLayout with the updated data
-            for row, (property, options) in enumerate(
-                current_attibute.items()
-            ):
-                selected_options[property] = options[0]
-                property_label = QLabel(property)
-                property_combo = QComboBox()
-                property_combo.addItems(options)
-                property_combo.currentIndexChanged.connect(
-                    lambda index, property=property, combo=property_combo: self.attribute_selection_changed(
+        update_shape = self.canvas.shapes[i]
+        update_category = update_shape.label
+        update_attribute = update_shape.attributes
+        current_attibute = self.attributes[update_category]
+        # Clear the existing widgets from the QGridLayout
+        self.grid_layout = QGridLayout()
+        # Repopulate the QGridLayout with the updated data
+        for row, (property, options) in enumerate(current_attibute.items()):
+            property_label = QLabel(property)
+            property_combo = QComboBox()
+            property_combo.addItems(options)
+            property_combo.currentIndexChanged.connect(
+                lambda _, property=property, combo = \
+                    property_combo: self.attribute_selection_changed(
                         i, property, combo
                     )
-                )
-                self.grid_layout.addWidget(property_label, row, 0)
-                self.grid_layout.addWidget(property_combo, row, 1)
-            # Ensure the scroll_area updates its contents
-            self.grid_layout_container = QWidget()
-            self.grid_layout_container.setLayout(self.grid_layout)
-            self.scroll_area.setWidget(self.grid_layout_container)
-        else:
-            for property, options in current_attibute.items():
-                selected_options[property] = options[0]
-        if update_attribute:
-            self.update_selected_options(update_attribute)
-        else:
-            new_attributes = {}
-            for property, option in selected_options.items():
-                new_attributes[property] = option
-            current_shape.attributes = new_attributes
-            self.canvas.shapes[i] = current_shape
-        # Update the label_file
-        self.save_attributes(self.canvas.shapes)
+            )
+            self.grid_layout.addWidget(property_label, row, 0)
+            self.grid_layout.addWidget(property_combo, row, 1)
+            selected_options[property] = options[0]
+        # Ensure the scroll_area updates its contents
+        self.grid_layout_container = QWidget()
+        self.grid_layout_container.setLayout(self.grid_layout)
+        self.scroll_area.setWidget(self.grid_layout_container)
         self.scroll_area.setWidgetResizable(True)
+        
+
+        if update_attribute:
+            for property, option in update_attribute.items():
+                selected_options[property] = option
+            self.update_selected_options(selected_options)
+        else:
+            update_shape.attributes = selected_options
+            self.canvas.shapes[i] = update_shape
+            self.save_attributes(self.canvas.shapes)
 
     def save_attributes(self, _shapes):
         filename = osp.splitext(self.image_path)[0] + ".json"
@@ -2318,14 +2321,7 @@ class LabelingWidget(LabelDialog):
             return
 
         if self.attributes and text:
-            if text not in list(self.attributes.keys()):
-                self.error_message(
-                    self.tr("Invalid label"),
-                    self.tr(
-                        "Invalid label '{}' with validation type '{}'"
-                    ).format(text, list(self.attributes.keys())),
-                )
-                return
+            text = self.reset_attribute(text)
 
         if text:
             self.label_list.clearSelection()
@@ -2802,6 +2798,20 @@ class LabelingWidget(LabelDialog):
             return
         with open(file_path, "r", encoding="utf-8") as f:
             self.attributes = json.load(f)
+            for label in list(self.attributes.keys()):
+                if not self.unique_label_list.find_items_by_label(
+                    label
+                ):
+                    item = (
+                        self.unique_label_list.create_item_from_label(
+                            label
+                        )
+                    )
+                    self.unique_label_list.addItem(item)
+                    rgb = self._get_rgb_by_label(label)
+                    self.unique_label_list.set_item_label(
+                        item, label, rgb
+                    )
 
     def open_file(self, _value=False):
         if not self.may_continue():
@@ -3428,6 +3438,19 @@ class LabelingWidget(LabelDialog):
         # No label is found
         return ""
 
+    @staticmethod
+    def find_most_similar_label(text, valid_labels):
+        max_similarity = 0
+        most_similar_label = valid_labels[0]
+
+        for label in valid_labels:
+            similarity = SequenceMatcher(None, text, label).ratio()
+            if similarity > max_similarity:
+                max_similarity = similarity
+                most_similar_label = label
+
+        return most_similar_label
+
     def finish_auto_labeling_object(self):
         """Finish auto labeling object."""
         has_object = False
@@ -3466,14 +3489,7 @@ class LabelingWidget(LabelDialog):
             return
 
         if self.attributes and text:
-            if text not in list(self.attributes.keys()):
-                self.error_message(
-                    self.tr("Invalid label"),
-                    self.tr(
-                        "Invalid label '{}' with validation type '{}'"
-                    ).format(text, list(self.attributes.keys())),
-                )
-                return
+            text = self.reset_attribute(text)
 
         # Add to label history
         self.label_dialog.add_label_history(text)
