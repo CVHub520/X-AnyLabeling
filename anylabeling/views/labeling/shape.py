@@ -156,6 +156,30 @@ class Shape:
         x2, y2 = pt2.x(), pt2.y()
         return QtCore.QRectF(x1, y1, x2 - x1, y2 - y1)
 
+    def get_rect_eight_vertices(self):
+        """Get eight vertices from the diagonal points of a rectangle: 
+            tl: top_left
+            tm: top_middle
+            tr: top_right
+            rm: right_middle
+            br: bottom_right
+            bm: bottom_middle
+            bl: bottom_left
+            lm: left_middle
+        """
+        assert len(self.points) == 2
+
+        tl, br = sorted(self.points, key=lambda p: (p.x(), p.y()))
+        tr = QtCore.QPointF(br.x(), tl.y())
+        bl = QtCore.QPointF(tl.x(), br.y())
+
+        lm = QtCore.QPointF(tl.x(), (tl.y() + bl.y()) / 2)
+        rm = QtCore.QPointF(tr.x(), (tr.y() + br.y()) / 2)
+        tm = QtCore.QPointF((tl.x() + tr.x()) / 2, tl.y())
+        bm = QtCore.QPointF((bl.x() + br.x()) / 2, bl.y())
+
+        return [tl, tm, tr, rm, br, bm, bl, lm]
+
     def paint(self, painter: QtGui.QPainter):  # noqa: max-complexity: 18
         """Paint shape using QPainter"""
         if self.points:
@@ -176,7 +200,8 @@ class Shape:
                     rectangle = self.get_rect_from_line(*self.points)
                     line_path.addRect(rectangle)
                 if self.selected:
-                    for i in range(len(self.points)):
+                    eight_points = self.get_rect_eight_vertices()
+                    for i in range(len(eight_points)):
                         self.draw_vertex(vrtx_path, i)
             elif self.shape_type == "rotation":
                 assert len(self.points) in [1, 2, 4]
@@ -238,7 +263,11 @@ class Shape:
         """Draw a vertex"""
         d = self.point_size / self.scale
         shape = self.point_type
-        point = self.points[i]
+        if self.shape_type == "rectangle":
+            eight_points = self.get_rect_eight_vertices()
+            point = eight_points[i]
+        else:
+            point = self.points[i]
         if i == self._highlight_index:
             size, shape = self._highlight_settings[self._highlight_mode]
             d *= size
@@ -259,7 +288,11 @@ class Shape:
         """
         min_distance = float("inf")
         min_i = None
-        for i, p in enumerate(self.points):
+        if self.shape_type == "rectangle":
+            points = self.get_rect_eight_vertices()
+        else:
+            points = self.points
+        for i, p in enumerate(points):
             dist = utils.distance(p - point)
             if dist <= epsilon and dist < min_distance:
                 min_distance = dist
@@ -270,8 +303,12 @@ class Shape:
         """Get nearest edge index"""
         min_distance = float("inf")
         post_i = None
-        for i in range(len(self.points)):
-            line = [self.points[i - 1], self.points[i]]
+        if self.shape_type == "rectangle":
+            points = self.get_rect_eight_vertices()
+        else:
+            points = self.points
+        for i in range(len(points)):
+            line = [points[i - 1], points[i]]
             dist = utils.distance_to_line(point, line)
             if dist <= epsilon and dist < min_distance:
                 min_distance = dist
@@ -320,7 +357,43 @@ class Shape:
 
     def move_vertex_by(self, i, offset):
         """Move a specific vertex by an offset"""
-        self.points[i] = self.points[i] + offset
+        if self.shape_type == "rectangle":
+            if i == 0:
+                self.points[0] = self.points[0] + offset
+            elif i == 1:
+                x = self.points[0].x()
+                y = self.points[0].y() + offset.y()
+                self.points[0] = QtCore.QPointF(x, y)
+            elif i == 2:
+                x = self.points[0].x()
+                y = self.points[0].y() + offset.y()
+                self.points[0] = QtCore.QPointF(x, y)
+                x = self.points[1].x() + offset.x()
+                y = self.points[1].y()
+                self.points[1] = QtCore.QPointF(x, y)
+            elif i == 3:
+                x = self.points[1].x() + offset.x()
+                y = self.points[1].y()
+                self.points[1] = QtCore.QPointF(x, y)
+            elif i == 4:
+                self.points[1] = self.points[1] + offset
+            elif i == 5:
+                x = self.points[1].x()
+                y = self.points[1].y() + offset.y()
+                self.points[1] = QtCore.QPointF(x, y)
+            elif i == 6:
+                x = self.points[0].x() + offset.x()
+                y = self.points[0].y()
+                self.points[0] = QtCore.QPointF(x, y)
+                x = self.points[1].x()
+                y = self.points[1].y() + offset.y()
+                self.points[1] = QtCore.QPointF(x, y)
+            elif i == 7:
+                x = self.points[0].x() + offset.x()
+                y = self.points[0].y()
+                self.points[0] = QtCore.QPointF(x, y)
+        else:
+            self.points[i] = self.points[i] + offset
 
     def highlight_vertex(self, i, action):
         """Highlight a vertex appropriately based on the current action
@@ -345,7 +418,13 @@ class Shape:
         return len(self.points)
 
     def __getitem__(self, key):
-        return self.points[key]
+        if self.shape_type == "rectangle":
+            if len(self.points) == 1:
+                return self.points[0]
+            points = self.get_rect_eight_vertices()
+        else:
+            points = self.points
+        return points[key]
 
     def __setitem__(self, key, value):
         self.points[key] = value
