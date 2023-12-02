@@ -91,6 +91,15 @@ anchors:
 
 > 此章节仅提供从 `pt` 转 `onnx` 格式的步骤，剩余操作请参考上述教程。
 
+- [YOLOv7](https://github.com/WongKinYiu/yolov7)
+
+> 论文：YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors</br>
+> 单位：Institute of Information Science, Academia Sinica, Taiwan
+
+```bash
+python export.py --weights yolov7.pt --img-size 640 --grid
+```
+
 - [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)
 
 > 论文：Efficient object detectors including Gold-YOLO</br>
