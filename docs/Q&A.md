@@ -179,6 +179,37 @@ A: 由于当前模型权重暂存在 `github` 上，下载前请先开启科学�
         └── yolox_l.onnx
 ```
 
+Q: 如何修改自定义标签颜色？
+A: 您可以通过以下步骤来修改自定义标签的颜色：
+
+1. 打开您的用户目录下的配置文件(.anylabelingrc)，您可以使用文本编辑器或命令行工具进行编辑。
+
+2. 在配置文件中找到字段 `shape_color`，确保其值为 "manual"，这表示您将手动设置标签的颜色。
+
+3. 定位到 `label_colors` 字段，这是一个包含各个标签及其对应颜色的部分。
+
+4. 在 `label_colors` 中，找到您想要修改颜色的标签，比如 "person"、"car"、"bicycle" 等。
+
+5. 使用 RGB 值来表示颜色，例如 [255, 0, 0] 表示红色，[0, 255, 0] 表示绿色，[0, 0, 255] 表示蓝色。
+
+6. 将您想要设置的颜色值替换到相应标签的值中，保存文件并关闭编辑器。
+
+具体示例如下：
+```YAML
+...
+default_shape_color: [0, 255, 0]
+shape_color: manual  # null, 'auto', 'manual'
+shift_auto_shape_color: 0
+label_colors:
+  person: [255, 0, 0]
+  car: [0, 255, 0]
+  bicycle: [0, 0, 255]
+  ...
+...
+```
+
+这样，您已成功修改了自定义标签的颜色。下次在标注过程中使用这些标签时，它们将显示您所设置的颜色。
+
 Q: **自定义快捷键不生效？**</br>
 A: 可参考 [#100](https://github.com/CVHub520/X-AnyLabeling/issues/100).
 
