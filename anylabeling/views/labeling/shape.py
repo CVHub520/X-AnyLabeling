@@ -357,43 +357,7 @@ class Shape:
 
     def move_vertex_by(self, i, offset):
         """Move a specific vertex by an offset"""
-        if self.shape_type == "rectangle":
-            if i == 0:
-                self.points[0] = self.points[0] + offset
-            elif i == 1:
-                x = self.points[0].x()
-                y = self.points[0].y() + offset.y()
-                self.points[0] = QtCore.QPointF(x, y)
-            elif i == 2:
-                x = self.points[0].x()
-                y = self.points[0].y() + offset.y()
-                self.points[0] = QtCore.QPointF(x, y)
-                x = self.points[1].x() + offset.x()
-                y = self.points[1].y()
-                self.points[1] = QtCore.QPointF(x, y)
-            elif i == 3:
-                x = self.points[1].x() + offset.x()
-                y = self.points[1].y()
-                self.points[1] = QtCore.QPointF(x, y)
-            elif i == 4:
-                self.points[1] = self.points[1] + offset
-            elif i == 5:
-                x = self.points[1].x()
-                y = self.points[1].y() + offset.y()
-                self.points[1] = QtCore.QPointF(x, y)
-            elif i == 6:
-                x = self.points[0].x() + offset.x()
-                y = self.points[0].y()
-                self.points[0] = QtCore.QPointF(x, y)
-                x = self.points[1].x()
-                y = self.points[1].y() + offset.y()
-                self.points[1] = QtCore.QPointF(x, y)
-            elif i == 7:
-                x = self.points[0].x() + offset.x()
-                y = self.points[0].y()
-                self.points[0] = QtCore.QPointF(x, y)
-        else:
-            self.points[i] = self.points[i] + offset
+        self.points[i] = self.points[i] + offset
 
     def highlight_vertex(self, i, action):
         """Highlight a vertex appropriately based on the current action

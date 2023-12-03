@@ -712,9 +712,7 @@ class Canvas(
         if self.out_off_pixmap(pos):
             pos = self.intersection_point(point, pos)
 
-        if shape._shape_type != "rotation":
-            shape.move_vertex_by(index, pos - point)
-        else:
+        if shape.shape_type == "rotation":
             sindex = (index + 2) % 4
             # Get the other 3 points after transformed
             p2, p3, p4 = self.get_adjoint_points(
@@ -725,8 +723,8 @@ class Canvas(
                 or self.out_off_pixmap(p3)
                 or self.out_off_pixmap(p4)
             ):
-                return  # No need to move if one pixal out of map
-
+                # No need to move if one pixal out of map
+                return
             # Move 4 pixal one by one
             shape.move_vertex_by(index, pos - point)
             lindex = (index + 1) % 4
@@ -734,6 +732,29 @@ class Canvas(
             shape[lindex] = p2
             shape[rindex] = p4
             shape.close()
+        elif shape.shape_type == "rectangle":
+            offset = pos - point
+            dx, dy = offset.x(), offset.y()
+            if index == 0:
+                shape.move_vertex_by(0, offset)
+            elif index == 1:
+                shape.move_vertex_by(0, QtCore.QPointF(0, dy))
+            elif index == 2:
+                shape.move_vertex_by(0, QtCore.QPointF(0, dy))
+                shape.move_vertex_by(1, QtCore.QPointF(dx, 0))
+            elif index == 3:
+                shape.move_vertex_by(1, QtCore.QPointF(dx, 0))
+            elif index == 4:
+                shape.move_vertex_by(1, offset)
+            elif index == 5:
+                shape.move_vertex_by(1, QtCore.QPointF(0, dy))
+            elif index == 6:
+                shape.move_vertex_by(0, QtCore.QPointF(dx, 0))
+                shape.move_vertex_by(1, QtCore.QPointF(0, dy))
+            elif index == 7:
+                shape.move_vertex_by(0, QtCore.QPointF(dx, 0))
+        else:
+            shape.move_vertex_by(index, pos - point)
 
     def bounded_move_shapes(self, shapes, pos):
         """Move shapes. Adjust position to be bounded by pixmap border"""
