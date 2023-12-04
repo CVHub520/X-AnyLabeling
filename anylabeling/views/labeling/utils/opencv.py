@@ -13,6 +13,8 @@ def qt_img_to_rgb_cv_img(qt_img, img_path=None):
     """
     if img_path is not None and os.path.exists(img_path):
         # Load Image From Path Directly
+        # NOTE: Potential issue - unable to handle the flipped image.
+        # Temporary workaround: cv_image = cv2.imread(img_path)
         cv_image = cv2.imdecode(np.fromfile(img_path, dtype=np.uint8), -1)
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
     else:
