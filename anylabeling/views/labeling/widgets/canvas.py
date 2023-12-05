@@ -32,6 +32,7 @@ class Canvas(
     zoom_request = QtCore.pyqtSignal(int, QtCore.QPoint)
     scroll_request = QtCore.pyqtSignal(int, int)
     new_shape = QtCore.pyqtSignal()
+    show_shape = QtCore.pyqtSignal(int, int, QtCore.QPointF)
     selection_changed = QtCore.pyqtSignal(list)
     shape_moved = QtCore.pyqtSignal()
     shape_rotated = QtCore.pyqtSignal()
@@ -275,6 +276,8 @@ class Canvas(
         except AttributeError:
             return
 
+        self.show_shape.emit(-1, -1, pos)
+
         self.prev_move_point = pos
         self.repaint()
         self.restore_cursor()
@@ -286,6 +289,12 @@ class Canvas(
             self.override_cursor(CURSOR_DRAW)
             if not self.current:
                 return
+            
+            if self.create_mode == "rectangle":
+                shape_width = abs(self.current[0].x() - pos.x())
+                shape_height = abs(self.current[0].y() - pos.y())
+                self.show_shape.emit(shape_width, shape_height, pos)
+
             color = QtGui.QColor(0, 0, 255)
             if self.out_off_pixmap(pos):
                 # Don't allow the user to draw outside the pixmap.
@@ -352,11 +361,23 @@ class Canvas(
                 self.bounded_move_vertex(pos)
                 self.repaint()
                 self.moving_shape = True
+                if self.create_mode == "rectangle":
+                    p1 = self.h_hape[0]
+                    p2 = self.h_hape[4]
+                    shape_width = abs(p2.x() - p1.x())
+                    shape_height = abs(p2.y() - p1.y())
+                    self.show_shape.emit(shape_width, shape_height, pos)
             elif self.selected_shapes and self.prev_point:
                 self.override_cursor(CURSOR_MOVE)
                 self.bounded_move_shapes(self.selected_shapes, pos)
                 self.repaint()
                 self.moving_shape = True
+                if self.create_mode == "rectangle":
+                    p1 = self.h_hape[0]
+                    p2 = self.h_hape[4]
+                    shape_width = abs(p2.x() - p1.x())
+                    shape_height = abs(p2.y() - p1.y())
+                    self.show_shape.emit(shape_width, shape_height, pos)
             return
 
         # Just hovering over the canvas, 2 possibilities:
@@ -408,6 +429,13 @@ class Canvas(
                 self.setStatusTip(self.toolTip())
                 self.override_cursor(CURSOR_GRAB)
                 self.update()
+
+                if self.create_mode == "rectangle":
+                    p1 = self.h_hape[0]
+                    p2 = self.h_hape[4]
+                    shape_width = abs(p2.x() - p1.x())
+                    shape_height = abs(p2.y() - p1.y())
+                    self.show_shape.emit(shape_width, shape_height, pos)
                 break
         else:  # Nothing found, clear highlights, reset state.
             self.un_highlight()

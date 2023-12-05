@@ -241,6 +241,7 @@ class LabelingWidget(LabelDialog):
         self.canvas.scroll_request.connect(self.scroll_request)
 
         self.canvas.new_shape.connect(self.new_shape)
+        self.canvas.show_shape.connect(self.show_shape)
         self.canvas.shape_moved.connect(self.set_dirty)
         self.canvas.shape_rotated.connect(self.set_dirty)
         self.canvas.selection_changed.connect(self.shape_selection_changed)
@@ -2336,6 +2337,25 @@ class LabelingWidget(LabelDialog):
         else:
             self.canvas.undo_last_line()
             self.canvas.shapes_backups.pop()
+
+    def show_shape(self, shape_height, shape_width, pos):
+        """Display annotation width and height while hovering inside.
+
+        Parameters:
+        - shape_height (float): The height of the shape.
+        - shape_width (float): The width of the shape.
+        - pos (QPointF): The current mouse coordinates inside the shape.
+        """
+        if shape_height > 0 and shape_width > 0:
+            self.status(
+                str(self.tr("X: %d, Y: %d | H: %d, W: %d")) % \
+                    (int(pos.x()), int(pos.y()), shape_height, shape_width)
+            )
+        elif self.image_path:
+            self.status(
+                str(self.tr("X: %d, Y: %d")) % \
+                    (int(pos.x()), int(pos.y()))
+            )
 
     def scroll_request(self, delta, orientation):
         units = -delta * 0.1  # natural scroll
