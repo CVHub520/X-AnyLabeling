@@ -431,7 +431,7 @@ class Canvas(
                 self.override_cursor(CURSOR_GRAB)
                 self.update()
 
-                if self.create_mode == "rectangle":
+                if shape.shape_type == "rectangle":
                     p1 = self.h_hape[0]
                     p2 = self.h_hape[4]
                     shape_width = abs(p2.x() - p1.x())
