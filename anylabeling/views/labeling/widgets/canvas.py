@@ -362,7 +362,7 @@ class Canvas(
                 self.bounded_move_vertex(pos)
                 self.repaint()
                 self.moving_shape = True
-                if self.create_mode == "rectangle":
+                if self.h_hape.shape_type == "rectangle":
                     p1 = self.h_hape[0]
                     p2 = self.h_hape[4]
                     shape_width = abs(p2.x() - p1.x())
@@ -373,7 +373,7 @@ class Canvas(
                 self.bounded_move_shapes(self.selected_shapes, pos)
                 self.repaint()
                 self.moving_shape = True
-                if self.create_mode == "rectangle":
+                if self.h_hape.shape_type == "rectangle":
                     p1 = self.h_hape[0]
                     p2 = self.h_hape[4]
                     shape_width = abs(p2.x() - p1.x())
