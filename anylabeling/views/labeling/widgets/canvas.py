@@ -31,6 +31,7 @@ class Canvas(
 
     zoom_request = QtCore.pyqtSignal(int, QtCore.QPoint)
     scroll_request = QtCore.pyqtSignal(int, int)
+    mode_changed = QtCore.pyqtSignal()
     new_shape = QtCore.pyqtSignal()
     show_shape = QtCore.pyqtSignal(int, int, QtCore.QPointF)
     selection_changed = QtCore.pyqtSignal(list)
@@ -505,6 +506,7 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
+                    self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)

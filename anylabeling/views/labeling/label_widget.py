@@ -240,6 +240,7 @@ class LabelingWidget(LabelDialog):
         }
         self.canvas.scroll_request.connect(self.scroll_request)
 
+        self.canvas.mode_changed.connect(self.set_edit_mode)
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.show_shape.connect(self.show_shape)
         self.canvas.shape_moved.connect(self.set_dirty)
