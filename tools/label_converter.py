@@ -3,6 +3,7 @@ import json
 import os
 import os.path as osp
 import time
+import math
 
 from PIL import Image
 from tqdm import tqdm
@@ -809,6 +810,59 @@ class RotateLabelConverter(BaseLabelConverter):
                         f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n"
                     )
 
+    def dxml_to_dota(self, input_file, output_file):
+        tree = ET.parse(input_file)
+        root = tree.getroot()
+        with open(output_file, "w", encoding="utf-8") as f:
+            for obj in root.findall("object"):
+                obj_type = obj.find("type").text
+                difficult = 0
+                if obj.find('difficult') is not None:
+                    difficult = obj.find('difficult').text
+                label = obj.find("name").text
+                if obj_type == "bndbox":
+                    hbndbox = obj.find("bndbox")
+                    points = self.hbndbox_to_dota(hbndbox)
+                elif obj_type == "robndbox":
+                    rbndbox = obj.find("robndbox")
+                    points = self.rbndbox_to_dota(rbndbox)
+                p0, p1, p2, p3 = points
+                x0, y0, x1, y1, x2, y2, x3, y3 = *p0, *p1, *p2, *p3
+                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {difficult}\n")
+
+    @staticmethod
+    def rotatePoint(xc, yc, xp, yp, theta):        
+        xoff = xp - xc
+        yoff = yp - yc
+        cosTheta = math.cos(theta)
+        sinTheta = math.sin(theta)
+        pResx = cosTheta * xoff + sinTheta * yoff
+        pResy = - sinTheta * xoff + cosTheta * yoff
+        return xc + pResx, yc + pResy
+
+    def rbndbox_to_dota(self, box):
+        cx = float(box.find('cx').text)
+        cy = float(box.find('cy').text)
+        w = float(box.find('w').text)
+        h = float(box.find('h').text)
+        angle = float(box.find('angle').text)
+
+        x0, y0 = self.rotatePoint(cx, cy, cx - w / 2, cy - h / 2, -angle)
+        x1, y1 = self.rotatePoint(cx, cy, cx + w / 2, cy - h / 2, -angle)
+        x2, y2 = self.rotatePoint(cx, cy, cx + w / 2, cy + h / 2, -angle)
+        x3, y3 = self.rotatePoint(cx, cy, cx - w / 2, cy + h / 2, -angle)
+        points = [(x0, y0), (x1, y1), (x2, y2), (x3, y3)]
+        return points
+
+    @staticmethod
+    def hbndbox_to_dota(box):
+        xmin = int(box.find('xmin').text)
+        ymin = int(box.find('ymin').text)
+        xmax = int(box.find('xmax').text)
+        ymax = int(box.find('ymax').text)
+        points = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)]
+        return points
+
 
 def main():
     parser = argparse.ArgumentParser(description="Label Converter")
@@ -841,6 +895,7 @@ def main():
             "dota2custom",
             "dota2dcoco",
             "dcoco2dota",
+            "dxml2dota",
         ],
     )
     args = parser.parse_args()
@@ -879,6 +934,7 @@ def main():
             "dota2custom",
             "dota2dcoco",
             "dcoco2dota",
+            "dxml2dota",
         ]
         assert (
             args.mode in valid_modes
@@ -976,6 +1032,15 @@ def main():
         converter.dota_to_dcoco(args.src_path, args.dst_path, args.img_path)
     elif args.mode == "dcoco2dota":
         converter.dcoco_to_dota(args.src_path, args.dst_path)
+    elif args.mode == "dxml2dota":
+        file_list = os.listdir(args.src_path)
+        os.makedirs(args.dst_path, exist_ok=True)
+        for file_name in tqdm(
+            file_list, desc="Converting files", unit="file", colour="green"
+        ):
+            src_file = osp.join(args.src_path, file_name)
+            dst_file = osp.join(args.dst_path, osp.splitext(file_name)[0] + ".txt")
+            converter.dxml_to_dota(src_file, dst_file)
 
     end_time = time.time()
     print(f"Conversion completed successfully: {args.dst_path}")
