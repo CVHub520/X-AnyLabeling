@@ -101,6 +101,7 @@ class AutoLabelingWidget(QWidget):
         self.button_clear.clicked.connect(
             self.clear_auto_labeling_action_requested
         )
+        self.button_clear.setShortcut("C")
         self.button_finish_object.clicked.connect(
             self.finish_auto_labeling_object_action_requested
         )
