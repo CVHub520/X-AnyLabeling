@@ -91,6 +91,13 @@ anchors:
 
 > 此章节仅提供从 `pt` 转 `onnx` 格式的步骤，剩余操作请参考上述教程。
 
+- [YOLOv5_OBB](https://github.com/hukaixuan19970627/yolov5_obb)
+
+> 作者：胡凯旋
+
+参考此[教程](https://github.com/CVHub520/yolov5_obb/tree/main).
+
+
 - [YOLOv7](https://github.com/WongKinYiu/yolov7)
 
 > 论文：YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors</br>
