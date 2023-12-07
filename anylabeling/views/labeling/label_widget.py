@@ -44,6 +44,7 @@ from .widgets import (
     FileDialogPreview,
     TextInputDialog,
     LabelDialog,
+    LabelFilterComboBox,
     LabelListWidget,
     LabelListWidgetItem,
     ToolBar,
@@ -173,6 +174,9 @@ class LabelingWidget(LabelDialog):
             "}"
         )
 
+        # Create and add combobox for showing unique labels in group
+        self.label_filter_combobox = LabelFilterComboBox(self)
+
         self.label_list.item_selection_changed.connect(
             self.label_selection_changed
         )
@@ -180,9 +184,9 @@ class LabelingWidget(LabelDialog):
         self.label_list.item_changed.connect(self.label_item_changed)
         self.label_list.item_dropped.connect(self.label_order_changed)
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Objects"), self)
-        self.shape_dock.setObjectName("Objects")
         self.shape_dock.setWidget(self.label_list)
-        self.shape_dock.setStyleSheet(dock_title_style)
+        self.shape_dock.setStyleSheet("QDockWidget::title { background: transparent; }")
+        self.shape_dock.setTitleBarWidget(QtWidgets.QWidget())
 
         self.unique_label_list = UniqueLabelQListWidget()
         self.unique_label_list.setToolTip(
@@ -1190,6 +1194,7 @@ class LabelingWidget(LabelDialog):
         right_sidebar_layout.addWidget(self.shape_text_edit)
         right_sidebar_layout.addWidget(self.flag_dock)
         right_sidebar_layout.addWidget(self.label_dock)
+        right_sidebar_layout.addWidget(self.label_filter_combobox)
         right_sidebar_layout.addWidget(self.shape_dock)
         right_sidebar_layout.addWidget(self.file_dock)
         self.file_dock.setFeatures(QDockWidget.DockWidgetFloatable)
@@ -1588,6 +1593,7 @@ class LabelingWidget(LabelDialog):
         self.label_file = None
         self.other_data = {}
         self.canvas.reset_state()
+        self.label_filter_combobox.combo_box.clear()
 
     def reset_attribute(self, text):
         valid_labels = list(self.attributes.keys())
@@ -1829,6 +1835,7 @@ class LabelingWidget(LabelDialog):
         else:
             item.setText(f"{shape.label} ({shape.group_id})")
         self.set_dirty()
+        self.update_combo_box()
 
     def file_search_changed(self):
         self.import_image_folder(
@@ -2071,6 +2078,7 @@ class LabelingWidget(LabelDialog):
         label_list_item.setBackground(
             QtGui.QColor(*color, LABEL_OPACITY)
         )
+        self.update_combo_box()
 
     def shape_text_changed(self):
         text = self.shape_text_edit.toPlainText()
@@ -2114,6 +2122,7 @@ class LabelingWidget(LabelDialog):
         for shape in shapes:
             item = self.label_list.find_item_by_shape(shape)
             self.label_list.remove_item(item)
+        self.update_combo_box()
 
     def load_shapes(self, shapes, replace=True):
         self._no_selection_slot = True
@@ -2164,6 +2173,7 @@ class LabelingWidget(LabelDialog):
             shape.other_data = other_data
 
             s.append(shape)
+        self.update_combo_box()
         self.load_shapes(s)
 
     def load_flags(self, flags):
@@ -2173,6 +2183,19 @@ class LabelingWidget(LabelDialog):
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Checked if flag else Qt.Unchecked)
             self.flag_widget.addItem(item)
+
+    def update_combo_box(self):
+        # Get the unique labels and add them to the Combobox.
+        labels_list = []
+        for item in self.label_list:
+            label = item.shape().label
+            labels_list.append(str(label))
+        unique_labels_list = list(set(labels_list))
+
+        # Add a null row for showing all the labels
+        unique_labels_list.append("")
+        unique_labels_list.sort()
+        self.label_filter_combobox.update_items(unique_labels_list)
 
     def save_labels(self, filename):
         label_file = LabelFile()
@@ -2263,6 +2286,14 @@ class LabelingWidget(LabelDialog):
     def copy_selected_shape(self):
         self._copied_shapes = [s.copy() for s in self.canvas.selected_shapes]
         self.actions.paste.setEnabled(len(self._copied_shapes) > 0)
+
+    def combo_selection_changed(self, index):
+        label = self.label_filter_combobox.combo_box.itemText(index)
+        for item in self.label_list:
+            if label in ["", item.shape().label]:
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
 
     def label_selection_changed(self):
         if self._no_selection_slot:
