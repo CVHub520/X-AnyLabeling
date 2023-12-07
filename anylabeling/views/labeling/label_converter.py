@@ -183,6 +183,7 @@ class LabelConverter:
         for shape in data["shapes"]:
             label = shape["label"]
             points = shape["points"]
+            difficult = shape.get("difficult", False)
 
             xmin = str(points[0][0])
             ymin = str(points[0][1])
@@ -193,7 +194,7 @@ class LabelConverter:
             ET.SubElement(object_elem, "name").text = label
             ET.SubElement(object_elem, "pose").text = "Unspecified"
             ET.SubElement(object_elem, "truncated").text = "0"
-            ET.SubElement(object_elem, "difficult").text = "0"
+            ET.SubElement(object_elem, "difficult").text = str(int(difficult))
             bndbox = ET.SubElement(object_elem, "bndbox")
             ET.SubElement(bndbox, "xmin").text = xmin
             ET.SubElement(bndbox, "ymin").text = ymin
@@ -212,6 +213,7 @@ class LabelConverter:
             for shape in data["shapes"]:
                 label = shape["label"]
                 points = shape["points"]
+                difficult = shape.get("difficult", False)
 
                 # Skip shapes with negative coordinates
                 if any(coord < 0 for point in points for coord in point):
@@ -225,7 +227,7 @@ class LabelConverter:
                 y2 = points[2][1]
                 x3 = points[3][0]
                 y3 = points[3][1]
-                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n")
+                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n")
 
     def custom_to_yolo_rectangle(self, data, output_file):
         image_width = data["imageWidth"]
@@ -285,12 +287,14 @@ class LabelConverter:
                 annotation_id += 1
                 label = shape["label"]
                 points = shape["points"]
+                difficult = shape.get("difficult", False)
                 class_id = self.classes.index(label)
                 annotation = {
                     "id": annotation_id,
                     "image_id": basename_to_img_id[basename],
                     "category_id": class_id + 1,
                     "iscrowd": 0,
+                    "ignore": int(difficult),
                 }
                 if shape["shape_type"] == "rectangle":
                     x_min = min(points[0][0], points[1][0])

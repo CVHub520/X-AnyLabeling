@@ -1788,10 +1788,11 @@ class LabelingWidget(LabelDialog):
         shape = item.shape()
         if shape is None:
             return
-        text, flags, group_id = self.label_dialog.pop_up(
+        text, flags, group_id, difficult = self.label_dialog.pop_up(
             text=shape.label,
             flags=shape.flags,
             group_id=shape.group_id,
+            difficult=shape.difficult,
         )
         if text is None:
             return
@@ -1808,6 +1809,7 @@ class LabelingWidget(LabelDialog):
         shape.label = text
         shape.flags = flags
         shape.group_id = group_id
+        shape.difficult = difficult
 
         # Add to label history
         self.label_dialog.add_label_history(shape.label)
@@ -1953,6 +1955,7 @@ class LabelingWidget(LabelDialog):
                 "text": s.text,
                 "points": [(p.x(), p.y()) for p in s.points],
                 "group_id": s.group_id,
+                "difficult": s.difficult,
                 "shape_type": s.shape_type,
                 "flags": s.flags,
                 "attributes": s.attributes,
@@ -2141,6 +2144,7 @@ class LabelingWidget(LabelDialog):
             shape_type = shape["shape_type"]
             flags = shape["flags"]
             group_id = shape["group_id"]
+            difficult = shape.get("difficult", False)
             attributes = shape.get("attributes", {})
             direction = shape.get("direction", 0)
             other_data = shape["other_data"]
@@ -2154,6 +2158,7 @@ class LabelingWidget(LabelDialog):
                 text=text,
                 shape_type=shape_type,
                 group_id=group_id,
+                difficult=difficult,
                 direction=direction,
                 attributes=attributes,
             )
@@ -2207,6 +2212,7 @@ class LabelingWidget(LabelDialog):
                 "text": s.text,
                 "points": [(p.x(), p.y()) for p in s.points],
                 "group_id": s.group_id,
+                "difficult": s.difficult,
                 "shape_type": s.shape_type,
                 "flags": s.flags,
                 "attributes": s.attributes,
@@ -2344,7 +2350,7 @@ class LabelingWidget(LabelDialog):
                 text = last_label
             else:
                 previous_text = self.label_dialog.edit.text()
-                text, flags, group_id = self.label_dialog.pop_up(text)
+                text, flags, group_id, difficult = self.label_dialog.pop_up(text)
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
 
@@ -2366,6 +2372,7 @@ class LabelingWidget(LabelDialog):
             shape = self.canvas.set_last_label(text, flags)
             shape.group_id = group_id
             shape.label = text
+            shape.difficult = difficult
             self.add_label(shape)
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
@@ -3527,10 +3534,11 @@ class LabelingWidget(LabelDialog):
             text = last_label
         else:
             previous_text = self.label_dialog.edit.text()
-            text, flags, group_id = self.label_dialog.pop_up(
+            text, flags, group_id, difficult = self.label_dialog.pop_up(
                 text=self.find_last_label(),
                 flags={},
                 group_id=None,
+                difficult=False,
             )
             if not text:
                 self.label_dialog.edit.setText(previous_text)
@@ -3559,6 +3567,7 @@ class LabelingWidget(LabelDialog):
                 shape.label = text
                 shape.flags = flags
                 shape.group_id = group_id
+                shape.difficult = difficult
                 # Update unique label list
                 if not self.unique_label_list.find_items_by_label(shape.label):
                     unique_label_item = (

@@ -68,6 +68,7 @@ class LabelDialog(QtWidgets.QDialog):
         completion="startswith",
         fit_to_content=None,
         flags=None,
+        difficult=False,
     ):
         if text is None:
             text = QCoreApplication.translate(
@@ -92,6 +93,9 @@ class LabelDialog(QtWidgets.QDialog):
                 QtCore.QRegularExpression(r"\d*"), None
             )
         )
+        self.edit_difficult = QtWidgets.QCheckBox('useDifficult')
+        self.edit_difficult.setChecked(difficult)
+
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
         if show_text_field:
@@ -109,7 +113,12 @@ class LabelDialog(QtWidgets.QDialog):
         bb.button(bb.Cancel).setIcon(utils.new_icon("undo"))
         bb.accepted.connect(self.validate)
         bb.rejected.connect(self.reject)
-        layout.addWidget(bb)
+
+        layout_button = QtWidgets.QHBoxLayout()
+        layout_button.addWidget(self.edit_difficult)
+        layout_button.addWidget(self.button_box)
+        layout.addLayout(layout_button)
+
         # label_list
         self.label_list = QtWidgets.QListWidget()
         if self._fit_to_content["row"]:
@@ -238,7 +247,10 @@ class LabelDialog(QtWidgets.QDialog):
             return int(group_id)
         return None
 
-    def pop_up(self, text=None, move=True, flags=None, group_id=None):
+    def get_difficult_state(self):
+        return self.edit_difficult.isChecked()
+
+    def pop_up(self, text=None, move=True, flags=None, group_id=None, difficult=False):
         if self._fit_to_content["row"]:
             self.label_list.setMinimumHeight(
                 self.label_list.sizeHintForRow(0) * self.label_list.count() + 2
@@ -254,6 +266,10 @@ class LabelDialog(QtWidgets.QDialog):
             self.set_flags(flags)
         else:
             self.reset_flags(text)
+        if difficult:
+            self.edit_difficult.setChecked(True)
+        else:
+            self.edit_difficult.setChecked(False)
         self.edit.setText(text)
         self.edit.setSelection(0, len(text))
         if group_id is None:
@@ -271,6 +287,6 @@ class LabelDialog(QtWidgets.QDialog):
         if move:
             self.move(QtGui.QCursor.pos())
         if self.exec_():
-            return self.edit.text(), self.get_flags(), self.get_group_id()
+            return self.edit.text(), self.get_flags(), self.get_group_id(), self.get_difficult_state()
 
-        return None, None, None
+        return None, None, None, False

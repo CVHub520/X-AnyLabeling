@@ -151,6 +151,7 @@ class RectLabelConverter(BaseLabelConverter):
         for shape in data["shapes"]:
             label = shape["label"]
             points = shape["points"]
+            difficult = shape.get("difficult", False)
 
             xmin = str(points[0][0])
             ymin = str(points[0][1])
@@ -161,7 +162,7 @@ class RectLabelConverter(BaseLabelConverter):
             ET.SubElement(object_elem, "name").text = label
             ET.SubElement(object_elem, "pose").text = "Unspecified"
             ET.SubElement(object_elem, "truncated").text = "0"
-            ET.SubElement(object_elem, "difficult").text = "0"
+            ET.SubElement(object_elem, "difficult").text = str(int(difficult))
             bndbox = ET.SubElement(object_elem, "bndbox")
             ET.SubElement(bndbox, "xmin").text = xmin
             ET.SubElement(bndbox, "ymin").text = ymin
@@ -191,6 +192,9 @@ class RectLabelConverter(BaseLabelConverter):
 
         for obj in root.findall("object"):
             label = obj.find("name").text
+            difficult = "0"
+            if obj.find("difficult") is not None:
+                difficult = str(obj.find("difficult").text)
             xmin = float(obj.find("bndbox/xmin").text)
             ymin = float(obj.find("bndbox/ymin").text)
             xmax = float(obj.find("bndbox/xmax").text)
@@ -201,6 +205,7 @@ class RectLabelConverter(BaseLabelConverter):
                 "text": "",
                 "points": [[xmin, ymin], [xmax, ymax]],
                 "group_id": None,
+                "difficult": bool(int(difficult)),
                 "shape_type": "rectangle",
                 "flags": {},
             }
@@ -317,6 +322,7 @@ class RectLabelConverter(BaseLabelConverter):
                 annotation_id += 1
                 label = shape["label"]
                 points = shape["points"]
+                difficult = shape.get("difficult", False)
                 class_id = self.classes.index(label)
                 x_min = min(points[0][0], points[1][0])
                 y_min = min(points[0][1], points[1][1])
@@ -332,6 +338,8 @@ class RectLabelConverter(BaseLabelConverter):
                     "bbox": [x_min, y_min, width, height],
                     "area": width * height,
                     "iscrowd": 0,
+                    "ignore": int(difficult),
+                    "segmentation": [],
                 }
 
                 coco_data["annotations"].append(annotation)
@@ -376,11 +384,13 @@ class RectLabelConverter(BaseLabelConverter):
             x_max = x_min + width
             y_max = y_min + height
 
+            difficult = str(dic_info.get("ignore", "0"))
             shape_info = {
                 "label": self.classes[dic_info["category_id"] - 1],
                 "text": None,
                 "points": [[x_min, y_min], [x_max, y_max]],
                 "group_id": None,
+                "difficult": bool(int(difficult)),
                 "shape_type": "rectangle",
                 "flags": {},
             }
@@ -476,6 +486,7 @@ class PolyLabelConvert(BaseLabelConverter):
                 annotation_id += 1
                 label = shape["label"]
                 points = shape["points"]
+                difficult = shape.get("difficult", False)
                 class_id = self.classes.index(label)
                 mask = self.polygons_to_mask(
                     [data["imageHeight"], data["imageWidth"]], points
@@ -490,6 +501,7 @@ class PolyLabelConvert(BaseLabelConverter):
                     "segmentation": [list(np.asarray(points).flatten())],
                     "area": width * height,
                     "iscrowd": 0,
+                    "ignore": int(difficult),
                 }
 
                 coco_data["annotations"].append(annotation)
@@ -594,12 +606,13 @@ class PolyLabelConvert(BaseLabelConverter):
                 x, y = segmentation[i : i + 2]
                 point = [float(x), float(y)]
                 points.append(point)
-
+            difficult = str(dic_info.get("ignore", "0"))
             shape_info = {
                 "label": self.classes[dic_info["category_id"] - 1],
                 "text": None,
                 "points": points,
                 "group_id": None,
+                "difficult": bool(int(difficult)),
                 "shape_type": "polygon",
                 "flags": {},
             }
@@ -631,6 +644,7 @@ class RotateLabelConverter(BaseLabelConverter):
             for shape in data["shapes"]:
                 label = shape["label"]
                 points = shape["points"]
+                difficult = shape.get("difficult", False)
                 x0 = points[0][0]
                 y0 = points[0][1]
                 x1 = points[1][0]
@@ -639,7 +653,7 @@ class RotateLabelConverter(BaseLabelConverter):
                 y2 = points[2][1]
                 x3 = points[3][0]
                 y3 = points[3][1]
-                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n")
+                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n")
 
     def dota_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -652,11 +666,13 @@ class RotateLabelConverter(BaseLabelConverter):
         for line in lines:
             line = line.strip().split(" ")
             x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in line[:8]]
+            difficult = line[-1]
             shape = {
                 "label": line[8],
                 "text": None,
                 "points": [[x0, y0], [x1, y1], [x2, y2], [x3, y3]],
                 "group_id": None,
+                "difficult": bool(int(difficult)),
                 "direction": 0,
                 "shape_type": "rotation",
                 "flags": {},
@@ -714,7 +730,7 @@ class RotateLabelConverter(BaseLabelConverter):
 
             for line in lines:
                 line = line.strip().split(" ")
-                *poly, label, _ = line
+                *poly, label, difficult = line
                 poly = list(map(float, poly))
                 area = self.get_poly_area(poly)
                 rect = self.get_minimal_enclosing_rectangle(poly)
@@ -728,6 +744,7 @@ class RotateLabelConverter(BaseLabelConverter):
                     "segmentation": [poly],
                     "area": area,
                     "iscrowd": 0,
+                    "ignore": difficult,
                 }
 
                 coco_data["annotations"].append(annotation)
@@ -759,55 +776,20 @@ class RotateLabelConverter(BaseLabelConverter):
             image_id = dic_info["image_id"]
             category_id = dic_info["category_id"]
             label = label_info[category_id]
+            difficult = dic_info.get("ignore", 0)
             if image_id not in total_info:
-                total_info[image_id] = [[*poly, label]]
+                total_info[image_id] = [[*poly, label, difficult]]
             else:
-                total_info[image_id].append([*poly, label])
+                total_info[image_id].append([*poly, label, difficult])
 
         for image_id, label_info in total_info.items():
             label_file = osp.basename(name_info[image_id]) + ".txt"
             output_file = osp.join(output_path, label_file)
             with open(output_file, "w", encoding="utf-8") as f:
                 for info in label_info:
-                    x0, y0, x1, y1, x2, y2, x3, y3, label = info
+                    x0, y0, x1, y1, x2, y2, x3, y3, label, difficult = info
                     f.write(
-                        f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n"
-                    )
-
-    def dcoco_to_yolo(self, input_file, output_path):
-        self.ensure_output_path(output_path)
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        label_info = {}
-        # map category_id to label
-        for dic_info in data["categories"]:
-            label_info[dic_info["id"]] = dic_info["id"] - 1
-
-        name_info = {}
-        # map image_id to file_naame
-        for dic_info in data["images"]:
-            name_info[dic_info["id"]] = dic_info["file_name"]
-
-        total_info = {}
-        for dic_info in data["annotations"]:
-            poly = dic_info["segmentation"][0]
-            image_id = dic_info["image_id"]
-            category_id = dic_info["category_id"]
-            label = label_info[category_id]
-            if image_id not in total_info:
-                total_info[image_id] = [[*poly, label]]
-            else:
-                total_info[image_id].append([*poly, label])
-
-        for image_id, label_info in total_info.items():
-            label_file = osp.basename(name_info[image_id]) + ".txt"
-            output_file = osp.join(output_path, label_file)
-            with open(output_file, "w", encoding="utf-8") as f:
-                for info in label_info:
-                    x0, y0, x1, y1, x2, y2, x3, y3, label = info
-                    f.write(
-                        f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} 0\n"
+                        f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n"
                     )
 
     def dxml_to_dota(self, input_file, output_file):

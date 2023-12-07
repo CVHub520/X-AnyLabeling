@@ -51,12 +51,14 @@ class Shape:
         shape_type=None,
         flags=None,
         group_id=None,
+        difficult=False,
         direction=0,
         attributes={},
     ):
         self.label = label
         self.text = text
         self.group_id = group_id
+        self.difficult = difficult
         self.points = []
         self.fill = False
         self.selected = False

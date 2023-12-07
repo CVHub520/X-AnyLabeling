@@ -74,6 +74,7 @@ class LabelFile:
             "text",
             "points",
             "group_id",
+            "difficult",
             "shape_type",
             "flags",
             "attributes",
@@ -108,6 +109,7 @@ class LabelFile:
                     "shape_type": s.get("shape_type", "polygon"),
                     "flags": s.get("flags", {}),
                     "group_id": s.get("group_id"),
+                    "difficult": s.get("difficult", False),
                     "attributes": s.get("attributes", {}),
                     "other_data": {
                         k: v for k, v in s.items() if k not in shape_keys
