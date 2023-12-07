@@ -2334,6 +2334,7 @@ class LabelingWidget(LabelDialog):
             text = items[0].data(Qt.UserRole)
         flags = {}
         group_id = None
+        difficult = False
 
         if self.canvas.shapes[-1].label in [
             AutoLabelingMode.ADD,
