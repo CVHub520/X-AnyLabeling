@@ -56,7 +56,7 @@ LABEL_COLORMAP = imgviz.label_colormap()
 # Green for the first label
 LABEL_COLORMAP[2] = LABEL_COLORMAP[1]
 LABEL_COLORMAP[1] = [0, 180, 33]
-
+LABEL_OPACITY = 128
 
 class LabelingWidget(LabelDialog):
     """The main widget for labeling images"""
@@ -196,7 +196,7 @@ class LabelingWidget(LabelDialog):
                 item = self.unique_label_list.create_item_from_label(label)
                 self.unique_label_list.addItem(item)
                 rgb = self._get_rgb_by_label(label)
-                self.unique_label_list.set_item_label(item, label, rgb)
+                self.unique_label_list.set_item_label(item, label, rgb, LABEL_OPACITY)
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
         self.label_dock.setObjectName("Labels")
         self.label_dock.setWidget(self.unique_label_list)
@@ -1334,7 +1334,7 @@ class LabelingWidget(LabelDialog):
                             self.unique_label_list.addItem(item)
                             rgb = self._get_rgb_by_label(label)
                             self.unique_label_list.set_item_label(
-                                item, label, rgb
+                                item, label, rgb, LABEL_OPACITY
                             )
                 if self.filename and mode == "coco":
                     from .label_converter import LabelConverter
@@ -1394,7 +1394,7 @@ class LabelingWidget(LabelDialog):
                             self.unique_label_list.addItem(item)
                             rgb = self._get_rgb_by_label(label)
                             self.unique_label_list.set_item_label(
-                                item, label, rgb
+                                item, label, rgb, LABEL_OPACITY
                             )
 
         # Show dialog to restart application
@@ -1814,16 +1814,17 @@ class LabelingWidget(LabelDialog):
             self.unique_label_list.addItem(unique_label_item)
             rgb = self._get_rgb_by_label(shape.label)
             self.unique_label_list.set_item_label(
-                unique_label_item, shape.label, rgb
+                unique_label_item, shape.label, rgb, LABEL_OPACITY
             )
 
         self._update_shape_color(shape)
         if shape.group_id is None:
             color = shape.fill_color.getRgb()[:3]
             item.setText(
-                '{} <font color="#{:02x}{:02x}{:02x}">●</font>'.format(
-                    html.escape(shape.label), *color
-                )
+                '{}'.format(html.escape(shape.label))
+            )
+            item.setBackground(
+                QtGui.QColor(*color, LABEL_OPACITY)
             )
         else:
             item.setText(f"{shape.label} ({shape.group_id})")
@@ -2047,7 +2048,9 @@ class LabelingWidget(LabelDialog):
             item = self.unique_label_list.create_item_from_label(shape.label)
             self.unique_label_list.addItem(item)
             rgb = self._get_rgb_by_label(shape.label)
-            self.unique_label_list.set_item_label(item, shape.label, rgb)
+            self.unique_label_list.set_item_label(
+                item, shape.label, rgb, LABEL_OPACITY
+            )
 
         # Add label to history if it is not a special label
         if shape.label not in [
@@ -2061,10 +2064,12 @@ class LabelingWidget(LabelDialog):
             action.setEnabled(True)
 
         self._update_shape_color(shape)
+        color = shape.fill_color.getRgb()[:3]
         label_list_item.setText(
-            '{} <font color="#{:02x}{:02x}{:02x}">●</font>'.format(
-                html.escape(text), *shape.fill_color.getRgb()[:3]
-            )
+            '{}'.format(html.escape(text))
+        )
+        label_list_item.setBackground(
+            QtGui.QColor(*color, LABEL_OPACITY)
         )
 
     def shape_text_changed(self):
@@ -2831,7 +2836,7 @@ class LabelingWidget(LabelDialog):
                     self.unique_label_list.addItem(item)
                     rgb = self._get_rgb_by_label(label)
                     self.unique_label_list.set_item_label(
-                        item, label, rgb
+                        item, label, rgb, LABEL_OPACITY
                     )
 
     def open_file(self, _value=False):
@@ -3533,7 +3538,7 @@ class LabelingWidget(LabelDialog):
                     self.unique_label_list.addItem(unique_label_item)
                     rgb = self._get_rgb_by_label(shape.label)
                     self.unique_label_list.set_item_label(
-                        unique_label_item, shape.label, rgb
+                        unique_label_item, shape.label, rgb, LABEL_OPACITY
                     )
 
                 # Update label list
@@ -3555,6 +3560,17 @@ class LabelingWidget(LabelDialog):
         # Update shape colors
         for shape in self.canvas.shapes:
             self._update_shape_color(shape)
+            color = shape.fill_color.getRgb()[:3]
+            item = self.label_list.find_item_by_shape(shape)
+            item.setText(
+                '{}'.format(html.escape(shape.label))
+            )
+            item.setBackground(
+                QtGui.QColor(*color, LABEL_OPACITY)
+            )
+            self.unique_label_list.update_item_color(
+                shape.label, color, LABEL_OPACITY
+            )
 
         if updated_shapes:
             self.set_dirty()
