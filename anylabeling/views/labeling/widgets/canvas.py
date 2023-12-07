@@ -506,7 +506,8 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
-                    self.mode_changed.emit()
+                    if self.create_mode in ["rectangle", "rotation", "circle", "line", "point"]:
+                        self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
