@@ -111,12 +111,12 @@ class RAM(Model):
         blob = self.preprocess(image)
         outs = self.net.get_ort_inference(blob, extract=False)
         tags = self.postprocess(outs)
-        image_text = self.get_results(tags)
+        description = self.get_results(tags)
 
         shapes = []
         shape = Shape(
             label="tag",
-            text=image_text,
+            description=description,
             shape_type="rectangle",
         )
         h, w = image.shape[:2]
@@ -148,12 +148,12 @@ class RAM(Model):
 
     def get_results(self, tags):
         en_tags, zh_tag = tags
-        image_text = en_tags[0] + "\n" + zh_tag[0]
+        image_description = en_tags[0] + "\n" + zh_tag[0]
         if self.tag_mode == "en":
             return en_tags[0]
         elif self.tag_mode == "zh":
             return zh_tag[0]
-        return image_text
+        return image_description
 
     def unload(self):
         del self.net

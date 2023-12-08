@@ -1095,11 +1095,11 @@ class Canvas(
             pen = QtGui.QPen(QtGui.QColor("#00FF00"), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
-                text = shape.text
-                if text:
+                description = shape.description
+                if description:
                     bbox = shape.bounding_rect()
                     fm = QtGui.QFontMetrics(p.font())
-                    rect = fm.boundingRect(text)
+                    rect = fm.boundingRect(description)
                     p.fillRect(
                         rect.x() + bbox.x(),
                         rect.y() + bbox.y(),
@@ -1110,18 +1110,18 @@ class Canvas(
                     p.drawText(
                         bbox.x(),
                         bbox.y(),
-                        text,
+                        description,
                     )
             pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
-                text = shape.text
-                if text:
+                description = shape.description
+                if description:
                     bbox = shape.bounding_rect()
                     p.drawText(
                         bbox.x(),
                         bbox.y(),
-                        text,
+                        description,
                     )
 
         # Draw mouse coordinates

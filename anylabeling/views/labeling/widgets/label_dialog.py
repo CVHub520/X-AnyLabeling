@@ -150,6 +150,11 @@ class LabelDialog(QtWidgets.QDialog):
         self.reset_flags()
         layout.addItem(self.flags_layout)
         self.edit.textChanged.connect(self.update_flags)
+        # text edit
+        self.edit_description = QtWidgets.QTextEdit()
+        self.edit_description.setPlaceholderText("Label description")
+        self.edit_description.setFixedHeight(50)
+        layout.addWidget(self.edit_description)
         self.setLayout(layout)
         # completion
         completer = QtWidgets.QCompleter()
@@ -247,10 +252,19 @@ class LabelDialog(QtWidgets.QDialog):
             return int(group_id)
         return None
 
+    def get_description(self):
+        return self.edit_description.toPlainText()
+
     def get_difficult_state(self):
         return self.edit_difficult.isChecked()
 
-    def pop_up(self, text=None, move=True, flags=None, group_id=None, difficult=False):
+    def pop_up(self,
+               text=None,
+               move=True,
+               flags=None,
+               group_id=None,
+               description=None,
+               difficult=False):
         if self._fit_to_content["row"]:
             self.label_list.setMinimumHeight(
                 self.label_list.sizeHintForRow(0) * self.label_list.count() + 2
@@ -262,6 +276,10 @@ class LabelDialog(QtWidgets.QDialog):
         # if text is None, the previous label in self.edit is kept
         if text is None:
             text = self.edit.text()
+        # description is always initialized by empty text c.f., self.edit.text
+        if description is None:
+            description = ""
+        self.edit_description.setPlainText(description)
         if flags:
             self.set_flags(flags)
         else:
@@ -287,6 +305,12 @@ class LabelDialog(QtWidgets.QDialog):
         if move:
             self.move(QtGui.QCursor.pos())
         if self.exec_():
-            return self.edit.text(), self.get_flags(), self.get_group_id(), self.get_difficult_state()
+            return (
+                self.edit.text(),
+                self.get_flags(),
+                self.get_group_id(),
+                self.get_description(),
+                self.get_difficult_state(),
+            )
 
-        return None, None, None, False
+        return None, None, None, None, False

@@ -163,7 +163,7 @@ class YOLOv5_RAM(YOLO):
             x1, y1, x2, y2 = res["xyxy"]
             shape = Shape(
                 label=res["label"],
-                text=res["text"],
+                description=res["description"],
                 shape_type="rectangle",
             )
             shape.add_point(QtCore.QPointF(x1, y1))
@@ -194,12 +194,12 @@ class YOLOv5_RAM(YOLO):
 
     def get_results(self, tags):
         en_tags, zh_tag = tags
-        image_text = en_tags[0] + "\n" + zh_tag[0]
+        image_description = en_tags[0] + "\n" + zh_tag[0]
         if self.tag_mode == "en":
             return en_tags[0]
         elif self.tag_mode == "zh":
             return zh_tag[0]
-        return image_text
+        return image_description
 
     def get_attributes(self, image, boxes, class_ids):
         outputs = []
@@ -210,11 +210,11 @@ class YOLOv5_RAM(YOLO):
             blob = self.ram_preprocess(img)
             outs = self.ram_net.get_ort_inference(blob, extract=False)
             tags = self.ram_postprocess(outs)
-            text = self.get_results(tags)
+            description = self.get_results(tags)
             outputs.append(
                 {
                     "xyxy": xyxy,
-                    "text": text,
+                    "description": description,
                     "label": self.classes[int(cls_id)],
                 }
             )

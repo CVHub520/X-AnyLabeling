@@ -1788,10 +1788,11 @@ class LabelingWidget(LabelDialog):
         shape = item.shape()
         if shape is None:
             return
-        text, flags, group_id, difficult = self.label_dialog.pop_up(
+        text, flags, group_id, description, difficult = self.label_dialog.pop_up(
             text=shape.label,
             flags=shape.flags,
             group_id=shape.group_id,
+            description=shape.description,
             difficult=shape.difficult,
         )
         if text is None:
@@ -1809,6 +1810,7 @@ class LabelingWidget(LabelDialog):
         shape.label = text
         shape.flags = flags
         shape.group_id = group_id
+        shape.description = description
         shape.difficult = difficult
 
         # Add to label history
@@ -1952,9 +1954,9 @@ class LabelingWidget(LabelDialog):
             data = s.other_data.copy()
             info = {
                 "label": s.label,
-                "text": s.text,
                 "points": [(p.x(), p.y()) for p in s.points],
                 "group_id": s.group_id,
+                "description": s.description,
                 "difficult": s.difficult,
                 "shape_type": s.shape_type,
                 "flags": s.flags,
@@ -2084,13 +2086,13 @@ class LabelingWidget(LabelDialog):
         self.update_combo_box()
 
     def shape_text_changed(self):
-        text = self.shape_text_edit.toPlainText()
+        description = self.shape_text_edit.toPlainText()
         if self.canvas.current is not None:
-            self.canvas.current.text = text
+            self.canvas.current.description = description
         elif self.canvas.editing() and len(self.canvas.selected_shapes) == 1:
-            self.canvas.selected_shapes[0].text = text
+            self.canvas.selected_shapes[0].description = description
         else:
-            self.other_data["image_text"] = text
+            self.other_data["image_description"] = description
         self.set_dirty()
 
     def _update_shape_color(self, shape):
@@ -2139,11 +2141,11 @@ class LabelingWidget(LabelDialog):
         s = []
         for shape in shapes:
             label = shape["label"]
-            text = shape.get("text", "")
             points = shape["points"]
             shape_type = shape["shape_type"]
             flags = shape["flags"]
             group_id = shape["group_id"]
+            description = shape.get("description", "")
             difficult = shape.get("difficult", False)
             attributes = shape.get("attributes", {})
             direction = shape.get("direction", 0)
@@ -2155,9 +2157,9 @@ class LabelingWidget(LabelDialog):
 
             shape = Shape(
                 label=label,
-                text=text,
                 shape_type=shape_type,
                 group_id=group_id,
+                description=description,
                 difficult=difficult,
                 direction=direction,
                 attributes=attributes,
@@ -2209,9 +2211,9 @@ class LabelingWidget(LabelDialog):
             data = s.other_data.copy()
             info = {
                 "label": s.label,
-                "text": s.text,
                 "points": [(p.x(), p.y()) for p in s.points],
                 "group_id": s.group_id,
+                "description": s.description,
                 "difficult": s.difficult,
                 "shape_type": s.shape_type,
                 "flags": s.flags,
@@ -2334,6 +2336,7 @@ class LabelingWidget(LabelDialog):
             text = items[0].data(Qt.UserRole)
         flags = {}
         group_id = None
+        description = ""
         difficult = False
 
         if self.canvas.shapes[-1].label in [
@@ -2351,7 +2354,7 @@ class LabelingWidget(LabelDialog):
                 text = last_label
             else:
                 previous_text = self.label_dialog.edit.text()
-                text, flags, group_id, difficult = self.label_dialog.pop_up(text)
+                text, flags, group_id, description, difficult = self.label_dialog.pop_up(text)
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
 
@@ -2372,6 +2375,7 @@ class LabelingWidget(LabelDialog):
             self.label_list.clearSelection()
             shape = self.canvas.set_last_label(text, flags)
             shape.group_id = group_id
+            shape.description = description
             shape.label = text
             shape.difficult = difficult
             self.add_label(shape)
@@ -2620,7 +2624,7 @@ class LabelingWidget(LabelDialog):
             self.other_data = self.label_file.other_data
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText(
-                self.other_data.get("image_text", "")
+                self.other_data.get("image_description", "")
             )
             self.shape_text_edit.textChanged.connect(self.shape_text_changed)
         else:
@@ -3529,16 +3533,17 @@ class LabelingWidget(LabelDialog):
             return
 
         # Ask a label for the object
-        text, flags, group_id = "", {}, None
+        text, flags, group_id, description = "", {}, None, None
         last_label = self.find_last_label()
         if self._config["auto_use_last_label"] and last_label:
             text = last_label
         else:
             previous_text = self.label_dialog.edit.text()
-            text, flags, group_id, difficult = self.label_dialog.pop_up(
+            text, flags, group_id, description, difficult = self.label_dialog.pop_up(
                 text=self.find_last_label(),
                 flags={},
                 group_id=None,
+                description=None,
                 difficult=False,
             )
             if not text:
@@ -3568,6 +3573,7 @@ class LabelingWidget(LabelDialog):
                 shape.label = text
                 shape.flags = flags
                 shape.group_id = group_id
+                shape.description = description
                 shape.difficult = difficult
                 # Update unique label list
                 if not self.unique_label_list.find_items_by_label(shape.label):
@@ -3621,19 +3627,19 @@ class LabelingWidget(LabelDialog):
         if enable:
             # Enable text editing and set shape text from selected shape
             if len(self.canvas.selected_shapes) == 1:
-                self.shape_text_label.setText(self.tr("Object Text"))
+                self.shape_text_label.setText(self.tr("Object Description"))
                 self.shape_text_edit.textChanged.disconnect()
                 self.shape_text_edit.setPlainText(
-                    self.canvas.selected_shapes[0].text
+                    self.canvas.selected_shapes[0].description
                 )
                 self.shape_text_edit.textChanged.connect(
                     self.shape_text_changed
                 )
             else:
-                self.shape_text_label.setText(self.tr("Image Text"))
+                self.shape_text_label.setText(self.tr("Image Description"))
                 self.shape_text_edit.textChanged.disconnect()
                 self.shape_text_edit.setPlainText(
-                    self.other_data.get("image_text", "")
+                    self.other_data.get("image_description", "")
                 )
                 self.shape_text_edit.textChanged.connect(
                     self.shape_text_changed
@@ -3642,7 +3648,7 @@ class LabelingWidget(LabelDialog):
         else:
             self.shape_text_edit.setDisabled(True)
             self.shape_text_label.setText(
-                self.tr("Switch to Edit mode for text editing")
+                self.tr("Switch to Edit mode for description editing")
             )
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText("")

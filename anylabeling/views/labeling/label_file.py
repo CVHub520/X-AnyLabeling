@@ -71,12 +71,12 @@ class LabelFile:
         ]
         shape_keys = [
             "label",
-            "text",
             "points",
             "group_id",
             "difficult",
             "shape_type",
             "flags",
+            "description",
             "attributes",
         ]
         try:
@@ -104,11 +104,11 @@ class LabelFile:
             shapes = [
                 {
                     "label": s["label"],
-                    "text": s.get("text", ""),
                     "points": s["points"],
                     "shape_type": s.get("shape_type", "polygon"),
                     "flags": s.get("flags", {}),
                     "group_id": s.get("group_id"),
+                    "description": s.get("description"),
                     "difficult": s.get("difficult", False),
                     "attributes": s.get("attributes", {}),
                     "other_data": {

@@ -46,18 +46,18 @@ class Shape:
     def __init__(
         self,
         label=None,
-        text="",
         line_color=None,
         shape_type=None,
         flags=None,
         group_id=None,
+        description=None,
         difficult=False,
         direction=0,
         attributes={},
     ):
         self.label = label
-        self.text = text
         self.group_id = group_id
+        self.description = description
         self.difficult = difficult
         self.points = []
         self.fill = False
