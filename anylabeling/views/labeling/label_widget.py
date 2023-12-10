@@ -562,6 +562,14 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Show all polygons"),
             enabled=False,
         )
+        hide_selected_polygons = action(
+            self.tr("Hide Selected Polygons"),
+            self.hide_selected_polygons,
+            shortcuts["hide_selected_polygons"],
+            None,
+            self.tr("Hide selected polygons"),
+            enabled=True,
+        )
 
         documentation = action(
             self.tr("&Documentation"),
@@ -958,6 +966,7 @@ class LabelingWidget(LabelDialog):
                 brightness_contrast,
             ),
             on_shapes_present=(save_as, hide_all, show_all),
+            hide_selected_polygons = hide_selected_polygons,
             group_selected_shapes=group_selected_shapes,
             ungroup_selected_shapes=ungroup_selected_shapes,
         )
@@ -1053,6 +1062,7 @@ class LabelingWidget(LabelDialog):
                 show_texts,
                 show_degrees,
                 show_groups,
+                hide_selected_polygons,
                 group_selected_shapes,
                 ungroup_selected_shapes,
             ),
@@ -2530,6 +2540,11 @@ class LabelingWidget(LabelDialog):
     def toggle_polygons(self, value):
         for item in self.label_list:
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+
+    def hide_selected_polygons(self):
+        for item in self.label_list:
+            if item.shape().selected:
+                item.setCheckState(Qt.Unchecked)
 
     def get_next_files(self, filename, num_files):
         """Get the next files in the list."""

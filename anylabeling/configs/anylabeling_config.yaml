@@ -116,6 +116,7 @@ shortcuts:
   remove_selected_point: Backspace
   group_selected_shapes: G
   ungroup_selected_shapes: U
+  hide_selected_polygons: S
   toggle_auto_use_last_label: Ctrl+Y
   toggle_visibility_shapes: Ctrl+H
 
