@@ -5,7 +5,7 @@ import os.path as osp
 import time
 import math
 
-from PIL import Image
+from PIL import Image, ImageDraw
 from tqdm import tqdm
 from datetime import date
 
@@ -439,8 +439,7 @@ class PolyLabelConvert(BaseLabelConverter):
         mask = np.zeros(img_shape, dtype=np.uint8)
         mask = Image.fromarray(mask)
         xy = list(map(tuple, polygons))
-        # from PIL import ImageDraw
-        # ImageDraw.Draw(mask).polygon(xy=xy, outline=1, fill=1)
+        ImageDraw.Draw(mask).polygon(xy=xy, outline=1, fill=1)
         mask = np.array(mask, dtype=bool)
         return mask
 
