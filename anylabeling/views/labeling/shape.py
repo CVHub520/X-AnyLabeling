@@ -88,6 +88,7 @@ class Shape:
             # with an object attribute. Currently this
             # is used for drawing the pending line a different color.
             self.line_color = line_color
+        self.shape_type = shape_type
 
     @property
     def shape_type(self):
@@ -113,7 +114,7 @@ class Shape:
 
     def close(self):
         """Close the shape"""
-        if len(self.points) == 4:
+        if self.shape_type == "rotation" and len(self.points) == 4:
             cx = (self.points[0].x() + self.points[2].x()) / 2
             cy = (self.points[0].y() + self.points[2].y()) / 2
             self.center = QtCore.QPointF(cx, cy)
