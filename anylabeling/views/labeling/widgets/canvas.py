@@ -1020,7 +1020,9 @@ class Canvas(
                 shape.fill = shape.selected or shape == self.h_hape
                 shape.paint(p)
 
-            if shape._shape_type == "rotation" and len(shape.points) == 4:
+            if shape.shape_type == "rotation" \
+               and len(shape.points) == 4 \
+               and self.is_visible(shape):
                 d = shape.point_size / shape.scale
                 center = QtCore.QPointF(
                     (shape.points[0].x() + shape.points[2].x()) / 2,
