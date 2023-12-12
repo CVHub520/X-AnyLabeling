@@ -202,7 +202,7 @@ class RectLabelConverter(BaseLabelConverter):
 
             shape = {
                 "label": label,
-                "text": "",
+                "description": "",
                 "points": [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]],
                 "group_id": None,
                 "difficult": bool(int(difficult)),
@@ -240,42 +240,44 @@ class RectLabelConverter(BaseLabelConverter):
 
     def yolov5_to_custom(self, input_file, output_file, image_file):
         self.reset()
-
         with open(input_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
-
-        image_width, image_height = self.get_image_size(image_file)
+        img_w, img_h = self.get_image_size(image_file)
 
         for line in lines:
             line = line.strip().split(" ")
             class_index = int(line[0])
-            x_center = float(line[1])
-            y_center = float(line[2])
-            width = float(line[3])
-            height = float(line[4])
+            cx = float(line[1])
+            cy = float(line[2])
+            nw = float(line[3])
+            nh = float(line[4])
+            xmin = int((cx - nw / 2) * img_w)
+            ymin = int((cy - nh / 2) * img_h)
+            xmax = int((cx + nw / 2) * img_w)
+            ymax = int((cy + nh / 2) * img_h)
 
-            xmin = int((x_center - width / 2) * image_width)
-            ymin = int((y_center - height / 2) * image_height)
-            xmax = int((x_center + width / 2) * image_width)
-            ymax = int((y_center + height / 2) * image_height)
-
+            shape_type = "rectangle"
             label = self.classes[class_index]
-
+            points = [
+                [xmin, ymin],
+                [xmax, ymin],
+                [xmax, ymax],
+                [xmin, ymax],
+            ]
             shape = {
                 "label": label,
-                "text": None,
-                "points": [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]],
-                "group_id": None,
-                "shape_type": "rectangle",
+                "shape_type": shape_type,
                 "flags": {},
+                "points": points,
+                "group_id": None,
+                "description": None,
+                "difficult": False,
+                "attributes": {},
             }
-
             self.custom_data["shapes"].append(shape)
-
-        self.custom_data["imagePath"] = osp.basename(image_file)
-        self.custom_data["imageHeight"] = image_height
-        self.custom_data["imageWidth"] = image_width
-
+        self.custom_data["imagePath"] = os.path.basename(image_file)
+        self.custom_data["imageHeight"] = img_h
+        self.custom_data["imageWidth"] = img_w
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
@@ -377,25 +379,34 @@ class RectLabelConverter(BaseLabelConverter):
 
         for dic_info in data["annotations"]:
             bbox = dic_info["bbox"]
-            x_min = bbox[0]
-            y_min = bbox[1]
+            xmin = bbox[0]
+            ymin = bbox[1]
             width = bbox[2]
             height = bbox[3]
-            x_max = x_min + width
-            y_max = y_min + height
+            xmax = xmin + width
+            ymax = ymin + height
 
-            difficult = str(dic_info.get("ignore", "0"))
-            shape_info = {
-                "label": self.classes[dic_info["category_id"] - 1],
-                "text": None,
-                "points": [[x_min, y_min], [x_max, y_min], [x_max, y_max], [x_min, y_max]],
-                "group_id": None,
-                "difficult": bool(int(difficult)),
-                "shape_type": "rectangle",
+            shape_type = "rectangle"
+            difficult = bool(int(str(dic_info.get("ignore", "0"))))
+            label = self.classes[dic_info["category_id"] - 1]
+            points = [
+                [xmin, ymin],
+                [xmax, ymin],
+                [xmax, ymax],
+                [xmin, ymax],
+            ]
+            shape = {
+                "label": label,
+                "shape_type": shape_type,
                 "flags": {},
+                "points": points,
+                "group_id": None,
+                "description": None,
+                "difficult": difficult,
+                "attributes": {},
             }
 
-            total_info[dic_info["image_id"]]["shapes"].append(shape_info)
+            total_info[dic_info["image_id"]]["shapes"].append(shape)
 
         for dic_info in tqdm(
             total_info.values(),
@@ -552,11 +563,13 @@ class PolyLabelConvert(BaseLabelConverter):
             masks = line[1:]
             shape = {
                 "label": label,
-                "text": None,
                 "points": [],
                 "group_id": None,
                 "shape_type": "rectangle",
                 "flags": {},
+                "attributes": {},
+                "difficult": False,
+                "description": None,
             }
             for x, y in zip(masks[0::2], masks[1::2]):
                 point = [np.float64(x), np.float64(y)]
@@ -608,7 +621,7 @@ class PolyLabelConvert(BaseLabelConverter):
             difficult = str(dic_info.get("ignore", "0"))
             shape_info = {
                 "label": self.classes[dic_info["category_id"] - 1],
-                "text": None,
+                "description": None,
                 "points": points,
                 "group_id": None,
                 "difficult": bool(int(difficult)),
@@ -668,7 +681,7 @@ class RotateLabelConverter(BaseLabelConverter):
             difficult = line[-1]
             shape = {
                 "label": line[8],
-                "text": None,
+                "description": None,
                 "points": [[x0, y0], [x1, y1], [x2, y2], [x3, y3]],
                 "group_id": None,
                 "difficult": bool(int(difficult)),

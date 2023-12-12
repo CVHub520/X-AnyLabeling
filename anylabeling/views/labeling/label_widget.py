@@ -35,6 +35,7 @@ from ...app_info import __appname__
 from . import utils
 from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
+from .label_converter import LabelConverter
 from .logger import logger
 from .shape import Shape
 from .widgets import (
@@ -731,13 +732,20 @@ class LabelingWidget(LabelDialog):
             enabled=self._config["language"] != "zh_CN",
         )
 
-        # Import
-        import_attr_file = action(
-            self.tr("&Import Attributes File"),
-            self.import_attr_file,
+        # Upload
+        upload_attr_file = action(
+            self.tr("&Upload Attributes File"),
+            self.upload_attr_file,
             None,
             icon=None,
-            tip=self.tr("Import Custom Attributes File"),
+            tip=self.tr("Upload Custom Attributes File"),
+        )
+        upload_yolo_file = action(
+            self.tr("&Upload YOLO Files"),
+            self.upload_yolo_file,
+            None,
+            icon=None,
+            tip=self.tr("Upload Custom YOLO Files"),
         )
 
         # Save mode
@@ -883,7 +891,8 @@ class LabelingWidget(LabelDialog):
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
-            import_attr_file=import_attr_file,
+            upload_attr_file=upload_attr_file,
+            upload_yolo_file=upload_yolo_file,
             select_default_format=select_default_format,
             select_yolo_format=select_yolo_format,
             select_coco_format=select_coco_format,
@@ -980,7 +989,7 @@ class LabelingWidget(LabelDialog):
             edit=self.menu(self.tr("&Edit")),
             view=self.menu(self.tr("&View")),
             language=self.menu(self.tr("&Language")),
-            upload=self.menu(self.tr("&Import")),
+            upload=self.menu(self.tr("&Upload")),
             mode=self.menu(self.tr("&Format")),
             help=self.menu(self.tr("&Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open &Recent")),
@@ -1022,7 +1031,10 @@ class LabelingWidget(LabelDialog):
         )
         utils.add_actions(
             self.menus.upload,
-            (import_attr_file,),
+            (
+                upload_attr_file,
+                upload_yolo_file,
+            ),
         )
         utils.add_actions(
             self.menus.mode,
@@ -1352,8 +1364,6 @@ class LabelingWidget(LabelDialog):
                                 item, label, rgb, LABEL_OPACITY
                             )
                 if self.filename and mode == "coco":
-                    from .label_converter import LabelConverter
-
                     formats = [
                         f"*.{fmt.data().decode()}"
                         for fmt in QtGui.QImageReader.supportedImageFormats()
@@ -2862,7 +2872,7 @@ class LabelingWidget(LabelDialog):
         self._config["keep_prev"] = keep_prev
         save_config(self._config)
 
-    def import_attr_file(self):
+    def upload_attr_file(self):
         filter = "Attribute Files (*.json);;All Files (*)"
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self,
@@ -2896,6 +2906,107 @@ class LabelingWidget(LabelDialog):
                     self.unique_label_list.set_item_label(
                         item, label, rgb, LABEL_OPACITY
                     )
+
+    def upload_yolo_file(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        filter = "Classes Files (*.txt);;All Files (*)"
+        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific classes file"),
+            "",
+            filter,
+        )
+        if not self.classes_file:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please select a specific classes file!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+        with open(self.classes_file, "r", encoding="utf-8") as f:
+            labels = f.read().splitlines()
+            for label in labels:
+                if not self.unique_label_list.find_items_by_label(
+                    label
+                ):
+                    item = (
+                        self.unique_label_list.create_item_from_label(
+                            label
+                        )
+                    )
+                    self.unique_label_list.addItem(item)
+                    rgb = self._get_rgb_by_label(label)
+                    self.unique_label_list.set_item_label(
+                        item, label, rgb, LABEL_OPACITY
+                    )
+
+        default_open_dir_path = dirpath if dirpath else "."
+        if self.last_open_dir and osp.exists(self.last_open_dir):
+            default_open_dir_path = self.last_open_dir
+        else:
+            default_open_dir_path = (
+                osp.dirname(self.filename) if self.filename else "."
+            )
+        image_dir_path = osp.dirname(self.filename)
+        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
+                self,
+                self.tr("%s - Open Directory") % __appname__,
+                default_open_dir_path,
+                QtWidgets.QFileDialog.ShowDirsOnly
+                | QtWidgets.QFileDialog.DontResolveSymlinks,
+            )
+
+        response = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be lost"),
+            self.tr("You are going to upload new annotations to this task. Continue?"),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        )
+
+        if response != QtWidgets.QMessageBox.Ok:
+            return
+
+        converter = LabelConverter(classes_file=self.classes_file)
+        image_file_list = os.listdir(image_dir_path)
+        label_file_list = os.listdir(label_dir_path)
+        output_dir_path = image_dir_path
+        if self.output_dir:
+            output_dir_path = self.output_dir
+        for image_filename in image_file_list:
+            if image_filename.endswith(".json"):
+                continue
+            label_filename = osp.splitext(image_filename)[0] + ".txt"
+            data_filename = osp.splitext(image_filename)[0] + ".json"
+            if label_filename not in label_file_list:
+                continue
+            input_file = osp.join(label_dir_path, label_filename)
+            output_file = osp.join(output_dir_path, data_filename)
+            image_file = osp.join(image_dir_path, image_filename)
+            converter.yolo_to_custom(
+                input_file=input_file,
+                output_file=output_file,
+                image_file=image_file,
+            )
+
+        history_index = current_index = self.image_list.index(self.filename)
+        while current_index < len(self.image_list):
+            self.filename = self.image_list[current_index]
+            self.load_file(self.filename)
+            current_index += 1
+        self.filename = self.image_list[history_index]
+        self.load_file(self.filename)
 
     def open_file(self, _value=False):
         if not self.may_continue():

@@ -14,7 +14,7 @@ from anylabeling.app_info import __version__
 
 
 class LabelConverter:
-    def __init__(self, classes_file, mapping_file):
+    def __init__(self, classes_file=None, mapping_file=None):
         self.classes = []
         if classes_file:
             with open(classes_file, "r", encoding="utf-8") as f:
@@ -23,6 +23,17 @@ class LabelConverter:
         if mapping_file:
             with open(mapping_file, "r", encoding="utf-8") as f:
                 self.mapping_table = json.load(f)
+
+    def reset(self):
+        self.custom_data = dict(
+            version=__version__,
+            flags={},
+            shapes=[],
+            imagePath="",
+            imageData=None,
+            imageHeight=-1,
+            imageWidth=-1,
+        )
 
     @staticmethod
     def calculate_polygon_area(segmentation):
@@ -372,3 +383,46 @@ class LabelConverter:
                     cv2.fillPoly(mask_mapped, [np.array(polygon, dtype=np.int32)], color)
                     color_mask = cv2.addWeighted(color_mask, 1, mask_mapped, 1, 0)
             cv2.imwrite(output_file, cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
+
+    def yolo_to_custom(self, input_file, output_file, image_file):
+        self.reset()
+        with open(input_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        img_w, img_h = self.get_image_size(image_file)
+
+        for line in lines:
+            line = line.strip().split(" ")
+            class_index = int(line[0])
+            cx = float(line[1])
+            cy = float(line[2])
+            nw = float(line[3])
+            nh = float(line[4])
+            xmin = int((cx - nw / 2) * img_w)
+            ymin = int((cy - nh / 2) * img_h)
+            xmax = int((cx + nw / 2) * img_w)
+            ymax = int((cy + nh / 2) * img_h)
+
+            shape_type = "rectangle"
+            label = self.classes[class_index]
+            points = [
+                [xmin, ymin],
+                [xmax, ymin],
+                [xmax, ymax],
+                [xmin, ymax],
+            ]
+            shape = {
+                "label": label,
+                "shape_type": shape_type,
+                "flags": {},
+                "points": points,
+                "group_id": None,
+                "description": None,
+                "difficult": False,
+                "attributes": {},
+            }
+            self.custom_data["shapes"].append(shape)
+        self.custom_data["imagePath"] = os.path.basename(image_file)
+        self.custom_data["imageHeight"] = img_h
+        self.custom_data["imageWidth"] = img_w
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
