@@ -126,8 +126,8 @@ class LabelConverter:
             points = shape["points"]
             xmin = points[0][0]
             ymin = points[0][1]
-            xmax = points[1][0]
-            ymax = points[1][1]
+            xmax = points[2][0]
+            ymax = points[2][1]
             data = [
                 frame_id,
                 track_id,
@@ -187,8 +187,8 @@ class LabelConverter:
 
             xmin = str(points[0][0])
             ymin = str(points[0][1])
-            xmax = str(points[1][0])
-            ymax = str(points[1][1])
+            xmax = str(points[2][0])
+            ymax = str(points[2][1])
 
             object_elem = ET.SubElement(root, "object")
             ET.SubElement(object_elem, "name").text = label
@@ -237,10 +237,10 @@ class LabelConverter:
                 label = shape["label"]
                 points = shape["points"]
                 class_index = self.classes.index(label)
-                x_center = (points[0][0] + points[1][0]) / (2 * image_width)
-                y_center = (points[0][1] + points[1][1]) / (2 * image_height)
-                width = abs(points[1][0] - points[0][0]) / image_width
-                height = abs(points[1][1] - points[0][1]) / image_height
+                x_center = (points[0][0] + points[2][0]) / (2 * image_width)
+                y_center = (points[0][1] + points[2][1]) / (2 * image_height)
+                width = abs(points[2][0] - points[0][0]) / image_width
+                height = abs(points[2][1] - points[0][1]) / image_height
                 f.write(
                     f"{class_index} {x_center} {y_center} {width} {height}\n"
                 )
@@ -297,10 +297,10 @@ class LabelConverter:
                     "ignore": int(difficult),
                 }
                 if shape["shape_type"] == "rectangle":
-                    x_min = min(points[0][0], points[1][0])
-                    y_min = min(points[0][1], points[1][1])
-                    x_max = max(points[0][0], points[1][0])
-                    y_max = max(points[0][1], points[1][1])
+                    x_min = min(points[0][0], points[2][0])
+                    y_min = min(points[0][1], points[2][1])
+                    x_max = max(points[0][0], points[2][0])
+                    y_max = max(points[0][1], points[2][1])
                     width = x_max - x_min
                     height = y_max - y_min
                     area = width * height

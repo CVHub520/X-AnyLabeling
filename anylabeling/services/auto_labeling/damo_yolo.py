@@ -133,16 +133,23 @@ class DAMO_YOLO(Model):
 
         shapes = []
         for result in results:
-            rectangle_shape = Shape(
-                label=result["label"], shape_type="rectangle", flags={}
+            shape = Shape(
+                label=result["label"], 
+                shape_type="rectangle",
             )
-            rectangle_shape.add_point(
-                QtCore.QPointF(result["xmin"], result["ymin"])
-            )
-            rectangle_shape.add_point(
-                QtCore.QPointF(result["xmax"], result["ymax"])
-            )
-            shapes.append(rectangle_shape)
+            xmin = result["xmin"]
+            ymin = result["ymin"]
+            xmax = result["xmax"]
+            ymax = result["ymax"]
+            pt1 = QtCore.QPointF(xmin, ymin)
+            pt2 = QtCore.QPointF(xmax, ymin)
+            pt3 = QtCore.QPointF(xmax, ymax)
+            pt4 = QtCore.QPointF(xmin, ymax)
+            shape.add_point(pt1)
+            shape.add_point(pt2)
+            shape.add_point(pt3)
+            shape.add_point(pt4)
+            shapes.append(shape)
         result = AutoLabelingResult(shapes, replace=True)
         return result
 

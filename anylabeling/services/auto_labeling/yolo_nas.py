@@ -292,9 +292,15 @@ class YOLO_NAS(Model):
                 continue
             box = boxes[i, :].astype(np.int32).flatten()
             x, y, w, h = box[0], box[1], box[2], box[3]
+            xmin = x
+            ymin = y
+            xmax = x + w
+            ymax = y + h
             shape = Shape(label=label, shape_type="rectangle", flags={})
-            shape.add_point(QtCore.QPointF(x, y))
-            shape.add_point(QtCore.QPointF(x + w, y + h))
+            shape.add_point(QtCore.QPointF(xmin, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymax))
+            shape.add_point(QtCore.QPointF(xmin, ymax))
             shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)

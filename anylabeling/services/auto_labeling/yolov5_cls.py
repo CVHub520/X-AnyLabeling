@@ -172,7 +172,9 @@ class YOLOv5_CLS(YOLO):
 
             shape = Shape(label=label, shape_type="rectangle")
             shape.add_point(QtCore.QPointF(x1, y1))
+            shape.add_point(QtCore.QPointF(x2, y1))
             shape.add_point(QtCore.QPointF(x2, y2))
+            shape.add_point(QtCore.QPointF(x1, y2))
             shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)

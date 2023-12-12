@@ -92,3 +92,30 @@ def masks_to_bboxes(masks):
         bboxes.append((y1, x1, y2, x2))
     bboxes = np.asarray(bboxes, dtype=np.float32)
     return bboxes
+
+
+def rectangle_from_diagonal(diagonal_vertices):
+    """
+    Generate rectangle vertices from diagonal vertices.
+
+    Parameters:
+    - diagonal_vertices (list of lists): 
+        List containing two points representing the diagonal vertices.
+
+    Returns:
+    - list of lists: 
+        List containing four points representing the rectangle's four corners.
+        [tl -> tr -> br -> bl]
+    """
+    x1, y1 = diagonal_vertices[0]
+    x2, y2 = diagonal_vertices[1]
+
+    # Creating the four-point representation
+    rectangle_vertices = [
+        [x1, y1],  # Top-left
+        [x2, y1],  # Top-right
+        [x2, y2],  # Bottom-right
+        [x1, y2],   # Bottom-left
+    ]
+
+    return rectangle_vertices

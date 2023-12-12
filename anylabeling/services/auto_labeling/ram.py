@@ -121,7 +121,9 @@ class RAM(Model):
         )
         h, w = image.shape[:2]
         shape.add_point(QtCore.QPointF(0, 0))
+        shape.add_point(QtCore.QPointF(w, 0))
         shape.add_point(QtCore.QPointF(w, h))
+        shape.add_point(QtCore.QPointF(0, h))
         shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)

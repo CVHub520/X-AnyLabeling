@@ -120,12 +120,21 @@ class Shape:
             self.center = QtCore.QPointF(cx, cy)
         self._closed = True
 
+    def reach_max_points(self):
+        if len(self.points) >= 4:
+            return True
+        return False
+
     def add_point(self, point):
         """Add a point"""
-        if self.points and point == self.points[0]:
-            self.close()
+        if self.shape_type == "rectangle":
+            if not self.reach_max_points():
+                self.points.append(point)
         else:
-            self.points.append(point)
+            if self.points and point == self.points[0]:
+                self.close()
+            else:
+                self.points.append(point)
 
     def can_add_point(self):
         """Check if shape supports more points"""
@@ -159,30 +168,6 @@ class Shape:
         x2, y2 = pt2.x(), pt2.y()
         return QtCore.QRectF(x1, y1, x2 - x1, y2 - y1)
 
-    def get_rect_eight_vertices(self):
-        """Get eight vertices from the diagonal points of a rectangle: 
-            tl: top_left
-            tm: top_middle
-            tr: top_right
-            rm: right_middle
-            br: bottom_right
-            bm: bottom_middle
-            bl: bottom_left
-            lm: left_middle
-        """
-        assert len(self.points) == 2
-
-        tl, br = sorted(self.points, key=lambda p: (p.x(), p.y()))
-        tr = QtCore.QPointF(br.x(), tl.y())
-        bl = QtCore.QPointF(tl.x(), br.y())
-
-        lm = QtCore.QPointF(tl.x(), (tl.y() + bl.y()) / 2)
-        rm = QtCore.QPointF(tr.x(), (tr.y() + br.y()) / 2)
-        tm = QtCore.QPointF((tl.x() + tr.x()) / 2, tl.y())
-        bm = QtCore.QPointF((bl.x() + br.x()) / 2, bl.y())
-
-        return [tl, tm, tr, rm, br, bm, bl, lm]
-
     def paint(self, painter: QtGui.QPainter):  # noqa: max-complexity: 18
         """Paint shape using QPainter"""
         if self.points:
@@ -198,14 +183,18 @@ class Shape:
             vrtx_path = QtGui.QPainterPath()
 
             if self.shape_type == "rectangle":
-                assert len(self.points) in [1, 2]
+                assert len(self.points) in [1, 2, 4]
                 if len(self.points) == 2:
                     rectangle = self.get_rect_from_line(*self.points)
                     line_path.addRect(rectangle)
-                if self.selected:
-                    eight_points = self.get_rect_eight_vertices()
-                    for i in range(len(eight_points)):
-                        self.draw_vertex(vrtx_path, i)
+                if len(self.points) == 4:
+                    line_path.moveTo(self.points[0])
+                    for i, p in enumerate(self.points):
+                        line_path.lineTo(p)
+                        if self.selected:
+                            self.draw_vertex(vrtx_path, i)
+                    if self.is_closed() or self.label is not None:
+                        line_path.lineTo(self.points[0])
             elif self.shape_type == "rotation":
                 assert len(self.points) in [1, 2, 4]
                 if len(self.points) == 2:
@@ -266,11 +255,7 @@ class Shape:
         """Draw a vertex"""
         d = self.point_size / self.scale
         shape = self.point_type
-        if self.shape_type == "rectangle":
-            eight_points = self.get_rect_eight_vertices()
-            point = eight_points[i]
-        else:
-            point = self.points[i]
+        point = self.points[i]
         if i == self._highlight_index:
             size, shape = self._highlight_settings[self._highlight_mode]
             d *= size
@@ -291,11 +276,7 @@ class Shape:
         """
         min_distance = float("inf")
         min_i = None
-        if self.shape_type == "rectangle":
-            points = self.get_rect_eight_vertices()
-        else:
-            points = self.points
-        for i, p in enumerate(points):
+        for i, p in enumerate(self.points):
             dist = utils.distance(p - point)
             if dist <= epsilon and dist < min_distance:
                 min_distance = dist
@@ -306,12 +287,8 @@ class Shape:
         """Get nearest edge index"""
         min_distance = float("inf")
         post_i = None
-        if self.shape_type == "rectangle":
-            points = self.get_rect_eight_vertices()
-        else:
-            points = self.points
-        for i in range(len(points)):
-            line = [points[i - 1], points[i]]
+        for i in range(len(self.points)):
+            line = [self.points[i - 1], self.points[i]]
             dist = utils.distance_to_line(point, line)
             if dist <= epsilon and dist < min_distance:
                 min_distance = dist
@@ -335,10 +312,9 @@ class Shape:
     def make_path(self):
         """Create a path from shape"""
         if self.shape_type == "rectangle":
-            path = QtGui.QPainterPath()
-            if len(self.points) == 2:
-                rectangle = self.get_rect_from_line(*self.points)
-                path.addRect(rectangle)
+            path = QtGui.QPainterPath(self.points[0])
+            for p in self.points[1:]:
+                path.lineTo(p)
         elif self.shape_type == "circle":
             path = QtGui.QPainterPath()
             if len(self.points) == 2:
@@ -385,13 +361,7 @@ class Shape:
         return len(self.points)
 
     def __getitem__(self, key):
-        if self.shape_type == "rectangle":
-            if len(self.points) == 1:
-                return self.points[0]
-            points = self.get_rect_eight_vertices()
-        else:
-            points = self.points
-        return points[key]
+        return self.points[key]
 
     def __setitem__(self, key, value):
         self.points[key] = value

@@ -160,14 +160,16 @@ class YOLOv5_RAM(YOLO):
 
         shapes = []
         for res in results:
-            x1, y1, x2, y2 = res["xyxy"]
+            xmin, ymin, xmax, ymax = res["xyxy"]
             shape = Shape(
                 label=res["label"],
                 description=res["description"],
                 shape_type="rectangle",
             )
-            shape.add_point(QtCore.QPointF(x1, y1))
-            shape.add_point(QtCore.QPointF(x2, y2))
+            shape.add_point(QtCore.QPointF(xmin, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymax))
+            shape.add_point(QtCore.QPointF(xmin, ymax))
             shapes.append(shape)
         result = AutoLabelingResult(shapes, replace=True)
 

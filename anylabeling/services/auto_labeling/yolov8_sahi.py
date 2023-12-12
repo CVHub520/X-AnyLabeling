@@ -91,11 +91,17 @@ class YOLOv8_SAHI(Model):
         shapes = []
 
         for out in results.object_prediction_list:
+            xmin = out.bbox.minx
+            ymin = out.bbox.miny
+            xmax = out.bbox.maxx
+            ymax = out.bbox.maxy
             shape = Shape(
                 label=str(out.category.name), shape_type="rectangle", flags={}
             )
-            shape.add_point(QtCore.QPointF(out.bbox.minx, out.bbox.miny))
-            shape.add_point(QtCore.QPointF(out.bbox.maxx, out.bbox.maxy))
+            shape.add_point(QtCore.QPointF(xmin, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymax))
+            shape.add_point(QtCore.QPointF(xmin, ymax))
             shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)

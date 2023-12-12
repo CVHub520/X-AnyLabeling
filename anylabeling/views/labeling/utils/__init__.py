@@ -26,4 +26,5 @@ from .shape import (
     polygons_to_mask,
     shape_to_mask,
     shapes_to_label,
+    rectangle_from_diagonal,
 )

@@ -219,7 +219,9 @@ class YOLOX_DWPose(Model):
                     shape_type="rectangle",
                 )
                 rectangle_shape.add_point(QtCore.QPointF(x1, y1))
+                rectangle_shape.add_point(QtCore.QPointF(x2, y1))
                 rectangle_shape.add_point(QtCore.QPointF(x2, y2))
+                rectangle_shape.add_point(QtCore.QPointF(x1, y2))
                 shapes.append(rectangle_shape)
 
             num_kpts = len(kpt_scores)

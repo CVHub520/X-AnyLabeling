@@ -186,7 +186,7 @@ class PPOCRv4(Model):
 
         results = [
             {
-                "text": rec_res[i][0],
+                "description": rec_res[i][0],
                 "points": np.array(dt_boxes[i]).astype(np.int32).tolist(),
             }
             for i in range(len(dt_boxes))
@@ -194,17 +194,21 @@ class PPOCRv4(Model):
 
         shapes = []
         for i, res in enumerate(results):
-            text = res["text"]
             points = res["points"]
-            pt1, pt2 = points[0], points[2]
+            description = res["description"]
+            pt1, pt2, pt3, pt4 = points
+            pt2 = [pt3[0], pt1[1]]
+            pt4 = [pt1[0], pt3[1]]
             shape = Shape(
                 label="text",
-                text=text,
                 shape_type="rectangle",
                 group_id=int(i),
+                description=description,
             )
             shape.add_point(QtCore.QPointF(*pt1))
             shape.add_point(QtCore.QPointF(*pt2))
+            shape.add_point(QtCore.QPointF(*pt3))
+            shape.add_point(QtCore.QPointF(*pt4))
             shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)

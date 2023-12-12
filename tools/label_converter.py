@@ -155,8 +155,8 @@ class RectLabelConverter(BaseLabelConverter):
 
             xmin = str(points[0][0])
             ymin = str(points[0][1])
-            xmax = str(points[1][0])
-            ymax = str(points[1][1])
+            xmax = str(points[2][0])
+            ymax = str(points[2][1])
 
             object_elem = ET.SubElement(root, "object")
             ET.SubElement(object_elem, "name").text = label
@@ -203,7 +203,7 @@ class RectLabelConverter(BaseLabelConverter):
             shape = {
                 "label": label,
                 "text": "",
-                "points": [[xmin, ymin], [xmax, ymax]],
+                "points": [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]],
                 "group_id": None,
                 "difficult": bool(int(difficult)),
                 "shape_type": "rectangle",
@@ -229,10 +229,10 @@ class RectLabelConverter(BaseLabelConverter):
 
                 class_index = self.classes.index(label)
 
-                x_center = (points[0][0] + points[1][0]) / (2 * image_width)
-                y_center = (points[0][1] + points[1][1]) / (2 * image_height)
-                width = abs(points[1][0] - points[0][0]) / image_width
-                height = abs(points[1][1] - points[0][1]) / image_height
+                x_center = (points[0][0] + points[2][0]) / (2 * image_width)
+                y_center = (points[0][1] + points[2][1]) / (2 * image_height)
+                width = abs(points[2][0] - points[0][0]) / image_width
+                height = abs(points[2][1] - points[0][1]) / image_height
 
                 f.write(
                     f"{class_index} {x_center} {y_center} {width} {height}\n"
@@ -254,17 +254,17 @@ class RectLabelConverter(BaseLabelConverter):
             width = float(line[3])
             height = float(line[4])
 
-            x_min = int((x_center - width / 2) * image_width)
-            y_min = int((y_center - height / 2) * image_height)
-            x_max = int((x_center + width / 2) * image_width)
-            y_max = int((y_center + height / 2) * image_height)
+            xmin = int((x_center - width / 2) * image_width)
+            ymin = int((y_center - height / 2) * image_height)
+            xmax = int((x_center + width / 2) * image_width)
+            ymax = int((y_center + height / 2) * image_height)
 
             label = self.classes[class_index]
 
             shape = {
                 "label": label,
                 "text": None,
-                "points": [[x_min, y_min], [x_max, y_max]],
+                "points": [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]],
                 "group_id": None,
                 "shape_type": "rectangle",
                 "flags": {},
@@ -324,10 +324,10 @@ class RectLabelConverter(BaseLabelConverter):
                 points = shape["points"]
                 difficult = shape.get("difficult", False)
                 class_id = self.classes.index(label)
-                x_min = min(points[0][0], points[1][0])
-                y_min = min(points[0][1], points[1][1])
-                x_max = max(points[0][0], points[1][0])
-                y_max = max(points[0][1], points[1][1])
+                x_min = min(points[0][0], points[2][0])
+                y_min = min(points[0][1], points[2][1])
+                x_max = max(points[0][0], points[2][0])
+                y_max = max(points[0][1], points[2][1])
                 width = x_max - x_min
                 height = y_max - y_min
 
@@ -388,7 +388,7 @@ class RectLabelConverter(BaseLabelConverter):
             shape_info = {
                 "label": self.classes[dic_info["category_id"] - 1],
                 "text": None,
-                "points": [[x_min, y_min], [x_max, y_max]],
+                "points": [[x_min, y_min], [x_max, y_min], [x_max, y_max], [x_min, y_max]],
                 "group_id": None,
                 "difficult": bool(int(difficult)),
                 "shape_type": "rectangle",

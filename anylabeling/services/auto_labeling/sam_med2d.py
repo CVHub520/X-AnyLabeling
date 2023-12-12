@@ -348,7 +348,9 @@ class SAM_Med2D(Model):
             # Create shape
             shape = Shape(flags={})
             shape.add_point(QtCore.QPointF(x_min, y_min))
+            shape.add_point(QtCore.QPointF(x_max, y_min))
             shape.add_point(QtCore.QPointF(x_max, y_max))
+            shape.add_point(QtCore.QPointF(x_min, y_max))
             shape.shape_type = "rectangle"
             shape.closed = True
             shape.fill_color = "#000000"

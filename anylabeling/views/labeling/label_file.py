@@ -88,6 +88,18 @@ class LabelFile:
                     "Loading JSON file (%s) of unknown version", filename
                 )
 
+            # Deprecated
+            if data["shapes"]:
+                for i in range(len(data["shapes"])):
+                    shape_type = data["shapes"][i]["shape_type"]
+                    shape_points = data["shapes"][i]["points"]
+                    if shape_type == "rectangle" and len(shape_points) == 2:
+                        logger.warning(
+                            "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
+                            "Please update your code to accommodate the new four-point mode."
+                        )
+                        data["shapes"][i]["points"] = utils.rectangle_from_diagonal(shape_points)
+
             if data["imageData"] is not None:
                 image_data = base64.b64decode(data["imageData"])
             else:

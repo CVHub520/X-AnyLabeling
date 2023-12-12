@@ -364,7 +364,7 @@ class Canvas(
                 self.moving_shape = True
                 if self.h_hape.shape_type == "rectangle":
                     p1 = self.h_hape[0]
-                    p2 = self.h_hape[4]
+                    p2 = self.h_hape[2]
                     shape_width = abs(p2.x() - p1.x())
                     shape_height = abs(p2.y() - p1.y())
                     self.show_shape.emit(shape_width, shape_height, pos)
@@ -373,9 +373,9 @@ class Canvas(
                 self.bounded_move_shapes(self.selected_shapes, pos)
                 self.repaint()
                 self.moving_shape = True
-                if self.h_hape.shape_type == "rectangle":
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[4]
+                if self.selected_shapes[-1].shape_type == "rectangle":
+                    p1 = self.selected_shapes[-1][0]
+                    p2 = self.selected_shapes[-1][2]
                     shape_width = abs(p2.x() - p1.x())
                     shape_height = abs(p2.y() - p1.y())
                     self.show_shape.emit(shape_width, shape_height, pos)
@@ -433,7 +433,7 @@ class Canvas(
 
                 if shape.shape_type == "rectangle":
                     p1 = self.h_hape[0]
-                    p2 = self.h_hape[4]
+                    p2 = self.h_hape[2]
                     shape_width = abs(p2.x() - p1.x())
                     shape_height = abs(p2.y() - p1.y())
                     self.show_shape.emit(shape_width, shape_height, pos)
@@ -483,10 +483,22 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if self.current.is_closed():
                             self.finalise()
-                    elif self.create_mode in ["rectangle", "circle", "line"]:
+                    elif self.create_mode in ["circle", "line"]:
                         assert len(self.current.points) == 1
                         self.current.points = self.line.points
                         self.finalise()
+                    elif self.create_mode == "rectangle":
+                        if self.current.reach_max_points() is False:
+                            init_pos = self.current[0]
+                            min_x = init_pos.x()
+                            min_y = init_pos.y()
+                            target_pos = self.line[1]
+                            max_x = target_pos.x()
+                            max_y = target_pos.y()
+                            self.current.add_point(QtCore.QPointF(max_x, min_y))
+                            self.current.add_point(target_pos)
+                            self.current.add_point(QtCore.QPointF(min_x, max_y))
+                            self.finalise()
                     elif self.create_mode == "rotation":
                         initPos = self.current[0]
                         minX = initPos.x()
@@ -506,7 +518,8 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
-                    if self.create_mode in ["rectangle", "rotation", "circle", "line", "point"]:
+                    if self.create_mode in ["rectangle", "rotation", "circle", "line", "point"] \
+                       and not self.is_auto_labeling:
                         self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Create new shape.
@@ -646,8 +659,7 @@ class Canvas(
         if self.selected_vertex():  # A vertex is marked for selection.
             index, shape = self.h_vertex, self.h_hape
             shape.highlight_vertex(index, shape.MOVE_VERTEX)
-
-            if shape._shape_type == "rotation":
+            if shape.shape_type == "rotation":
                 self.set_hiding()
                 if shape not in self.selected_shapes:
                     if multiple_selection_mode:
@@ -764,26 +776,20 @@ class Canvas(
             shape[rindex] = p4
             shape.close()
         elif shape.shape_type == "rectangle":
-            offset = pos - point
-            dx, dy = offset.x(), offset.y()
-            if index == 0:
-                shape.move_vertex_by(0, offset)
-            elif index == 1:
-                shape.move_vertex_by(0, QtCore.QPointF(0, dy))
-            elif index == 2:
-                shape.move_vertex_by(0, QtCore.QPointF(0, dy))
-                shape.move_vertex_by(1, QtCore.QPointF(dx, 0))
-            elif index == 3:
-                shape.move_vertex_by(1, QtCore.QPointF(dx, 0))
-            elif index == 4:
-                shape.move_vertex_by(1, offset)
-            elif index == 5:
-                shape.move_vertex_by(1, QtCore.QPointF(0, dy))
-            elif index == 6:
-                shape.move_vertex_by(0, QtCore.QPointF(dx, 0))
-                shape.move_vertex_by(1, QtCore.QPointF(0, dy))
-            elif index == 7:
-                shape.move_vertex_by(0, QtCore.QPointF(dx, 0))
+            shift_pos = pos - point
+            shape.move_vertex_by(index, shift_pos)
+            left_index = (index + 1) % 4
+            right_index = (index + 3) % 4
+            left_shift = None
+            right_shift = None
+            if index % 2 == 0:
+                right_shift = QtCore.QPointF(shift_pos.x(), 0)
+                left_shift = QtCore.QPointF(0, shift_pos.y())
+            else:
+                left_shift = QtCore.QPointF(shift_pos.x(), 0)
+                right_shift = QtCore.QPointF(0, shift_pos.y())
+            shape.move_vertex_by(right_index, right_shift)
+            shape.move_vertex_by(left_index, left_shift)
         else:
             shape.move_vertex_by(index, pos - point)
 
@@ -1181,16 +1187,6 @@ class Canvas(
         if self.current.label is None:
             self.current.label = ""
         self.current.close()
-        # Sort tl -> br for rectangle
-        if self.current.shape_type == "rectangle":
-            x_min = min(self.current.points[0].x(), self.current.points[1].x())
-            y_min = min(self.current.points[0].y(), self.current.points[1].y())
-            x_max = max(self.current.points[0].x(), self.current.points[1].x())
-            y_max = max(self.current.points[0].y(), self.current.points[1].y())
-            self.current.points = [
-                QtCore.QPointF(x_min, y_min),
-                QtCore.QPointF(x_max, y_max),
-            ]
         self.shapes.append(self.current)
         self.store_shapes()
         self.current = None
@@ -1223,8 +1219,8 @@ class Canvas(
                             "data": [
                                 int(shape.points[0].x()),
                                 int(shape.points[0].y()),
-                                int(shape.points[1].x()),
-                                int(shape.points[1].y()),
+                                int(shape.points[2].x()),
+                                int(shape.points[2].y()),
                             ],
                             "label": 1,
                         }
@@ -1248,8 +1244,8 @@ class Canvas(
                             "data": [
                                 int(shape.points[0].x()),
                                 int(shape.points[0].y()),
-                                int(shape.points[1].x()),
-                                int(shape.points[1].y()),
+                                int(shape.points[2].x()),
+                                int(shape.points[2].y()),
                             ],
                             "label": 0,
                         }

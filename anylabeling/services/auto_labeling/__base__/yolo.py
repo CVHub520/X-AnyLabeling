@@ -240,7 +240,9 @@ class YOLO(Model):
                 x1, y1, x2, y2 = box.astype(float)
                 shape = Shape(flags={})
                 shape.add_point(QtCore.QPointF(x1, y1))
+                shape.add_point(QtCore.QPointF(x2, y1))
                 shape.add_point(QtCore.QPointF(x2, y2))
+                shape.add_point(QtCore.QPointF(x1, y2))
                 shape.shape_type = "rectangle"
                 shape.closed = True
                 shape.fill_color = "#000000"
@@ -265,7 +267,9 @@ class YOLO(Model):
                 x1, y1, x2, y2 = list(map(float, box))
                 shape = Shape(flags={})
                 shape.add_point(QtCore.QPointF(x1, y1))
+                shape.add_point(QtCore.QPointF(x2, y1))
                 shape.add_point(QtCore.QPointF(x2, y2))
+                shape.add_point(QtCore.QPointF(x1, y2))
                 shape.shape_type = "rectangle"
                 shape.group_id = int(track_id)
                 shape.closed = True

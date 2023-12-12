@@ -164,9 +164,15 @@ class RTDETR(Model):
         shapes = []
 
         for box in boxes:
+            xmin = box["x1"]
+            ymin = box["y1"]
+            xmax = box["x2"]
+            ymax = box["y2"]
             shape = Shape(label=box["label"], shape_type="rectangle")
-            shape.add_point(QtCore.QPointF(box["x1"], box["y1"]))
-            shape.add_point(QtCore.QPointF(box["x2"], box["y2"]))
+            shape.add_point(QtCore.QPointF(xmin, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymin))
+            shape.add_point(QtCore.QPointF(xmax, ymax))
+            shape.add_point(QtCore.QPointF(xmin, ymax))
             shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)
