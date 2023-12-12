@@ -81,8 +81,14 @@ python tools/polygon_mask_conversion.py --img_path xxx_folder --mask_path xxx_fo
 
 ## 工具使用
 
-Q: **如何修改自定义快捷键？**
-</br>
+Q: 如何上传本地标注好的 `YOLO` (*.txt) 标签文件？</br>
+A: 可参考以下步骤：
+1. 准备好一个自定义类别标签文件，具体示例可参考 [classes.txt](../assets/classes.txt)；
+2. 运行`X-AnyLabeling`，点击`Upload`-`Upload YOLO File`导入上一步的标签文件；
+3. 选择标签文件所在目录。
+
+
+Q: **如何修改自定义快捷键？**</br>
 A: 可通过修改当前设备用户根目录下的 `.anylabelingrc` 文件：
 
 ```bash
@@ -93,7 +99,7 @@ cd ~/.anylabelingrc
 cd C:\\Users\\xxx\\.anylabelingrc
 ```
 
-Q: **如何使用X-AnyLabeling自动标注功能？**
+Q: **如何使用X-AnyLabeling自动标注功能？**</br>
 A: 可参考此篇[文章](https://zhuanlan.zhihu.com/p/667668033)
 
 Q：**如何使用GPU加速推理？**</br>
@@ -102,7 +108,7 @@ A：由于 `X-AnyLabeling` 现阶段的 IR 是基于 `OnnxRuntime` 库实现的�
 Q: **如何进行多分类属性标注**</br>
 A: 可参考以下步骤：
 1. 准备好一个自定义属性标签文件，具体示例可参考 [attributes.json](../assets/attributes.json)；
-2. 运行`X-AnyLabeling`，点击`Import`-`Import Attributes File`导入上一步的标签文件；
+2. 运行`X-AnyLabeling`，点击`Upload`-`Upload Attributes File`导入上一步的标签文件；
 3. 加载图片，绘制目标矩形框，标签必须与自定义类别标签一致；
 4. 右键或者快捷键`Ctrl+J`打开编辑模式；
 5. 点击选中目标，右上角即可进行标签属性的标注。
