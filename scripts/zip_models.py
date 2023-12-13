@@ -34,6 +34,7 @@ for model in model_list:
         "sam_med2d",
         "sam_hq",
         "efficientvit_sam",
+        "edge_sam",
     ]:
         download_links.append(model_config["encoder_model_path"])
         download_links.append(model_config["decoder_model_path"])

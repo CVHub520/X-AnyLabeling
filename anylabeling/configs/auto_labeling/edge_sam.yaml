@@ -1,0 +1,5 @@
+type: edge_sam
+name: edge_sam-r20231213
+display_name: EdgeSAM
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/edge_sam_encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/edge_sam_decoder.onnx

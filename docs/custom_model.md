@@ -217,3 +217,13 @@ InternImage introduces a large-scale convolutional neural network (CNN) model, l
 > 发表：CVPR 2023</br>
 
 参考此[教程](../tools/export_internimage_model_onnx.py).
+
+- [EdgeSAM](https://github.com/chongzhou96/EdgeSAM)
+
+`EdgeSAM` is an accelerated variant of the Segment Anything Model (SAM), optimized for efficient execution on edge devices with minimal compromise in performance. It achieves a 40-fold speed increase compared to the original SAM, and outperforms MobileSAM, being 14 times as fast when deployed on edge devices while enhancing the mIoUs on COCO and LVIS by 2.3 and 3.2 respectively. EdgeSAM is also the first SAM variant that can run at over 30 FPS on an iPhone 14.
+
+> 论文：Prompt-In-the-Loop Distillation for On-Device Deployment of SAM</br>
+> 单位：S-Lab, Nanyang Technological University, Shanghai Artificial Intelligence Laboratory.</br>
+> 发表：Arxiv 2023</br>
+
+参考此[教程](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py).

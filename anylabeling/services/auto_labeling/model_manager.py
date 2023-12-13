@@ -198,6 +198,7 @@ class ModelManager(QObject):
                 "yolov8_pose",
                 "pulc_attribute",
                 "internimage_cls",
+                "edge_sam",
             ]
         ):
             self.new_model_status.emit(
@@ -839,6 +840,30 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "edge_sam":
+            from .edge_sam import EdgeSAM
+
+            try:
+                model_config["model"] = EdgeSAM(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+            except Exception as e:  # noqa
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "sam_hq":
             from .sam_hq import SAM_HQ
 
@@ -1057,6 +1082,7 @@ class ModelManager(QObject):
             "efficientvit_sam",
             "yolov8_efficientvit_sam",
             "grounding_sam",
+            "edge_sam",
         ]
         if (
             self.loaded_model_config is None
@@ -1165,6 +1191,7 @@ class ModelManager(QObject):
             "efficientvit_sam",
             "yolov8_efficientvit_sam",
             "grounding_sam",
+            "edge_sam",
         ]:
             return
 

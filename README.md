@@ -73,6 +73,8 @@
 
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
+- Dec. 2023:
+  - 🔥🔥🔥 Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
 - Nov. 2023:
   - 🤗 Release the latest version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0) 🤗
   - Supoort [InternImage](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
