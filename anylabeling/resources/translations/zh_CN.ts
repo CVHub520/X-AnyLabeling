@@ -1030,7 +1030,7 @@ Polygons</source>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="739"/>
         <source>&amp;Upload Attributes File</source>
-        <translation type="obsolete">导入属性文件</translation>
+        <translation type="unfinished">导入属性文件</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="739"/>
@@ -1040,7 +1040,7 @@ Polygons</source>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="746"/>
         <source>&amp;Upload YOLO Files</source>
-        <translation type="obsolete">导入YOLO标签文件</translation>
+        <translation type="unfinished">导入YOLO标签文件</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="746"/>
@@ -1050,7 +1050,7 @@ Polygons</source>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="990"/>
         <source>&amp;Upload</source>
-        <translation type="obsolete">导入</translation>
+        <translation>导入</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="1393"/>
