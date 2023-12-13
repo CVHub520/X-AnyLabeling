@@ -134,7 +134,7 @@ class DAMO_YOLO(Model):
         shapes = []
         for result in results:
             shape = Shape(
-                label=result["label"], 
+                label=result["label"],
                 shape_type="rectangle",
             )
             xmin = result["xmin"]

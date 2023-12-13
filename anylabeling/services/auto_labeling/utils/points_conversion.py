@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from .general import refine_contours
 
+
 def xyxy2xywh(x):
     """
     Convert bounding box coordinates from (x1, y1, x2, y2) format to (x, y, width, height) format.
@@ -433,11 +434,11 @@ def masks2segments(masks, epsilon_factor=0):
     It takes a list of masks(n,h,w) and returns a list of segments(n,xy)
 
     Args:
-      masks (np.ndarray): 
+      masks (np.ndarray):
         the output of the model, which is a tensor of shape (batch_size, 160, 160)
-      epsilon_factor (float, optional): 
+      epsilon_factor (float, optional):
         Factor used for epsilon calculation in contour approximation.
-        A smaller value results in smoother contours but with more points. 
+        A smaller value results in smoother contours but with more points.
         If the value is set to 0, the default result will be used.
 
     Returns:
@@ -445,9 +446,7 @@ def masks2segments(masks, epsilon_factor=0):
     """
     segments = []
     for x in masks.astype("uint8"):
-        c = cv2.findContours(
-            x, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-        )[0]
+        c = cv2.findContours(x, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0]
         img_area = masks.shape[1] * masks.shape[2]
         c = refine_contours(c, img_area, epsilon_factor)
         if c:

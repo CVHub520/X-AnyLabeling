@@ -21,7 +21,9 @@ from .types import AutoLabelingResult
 
 
 class EdgeSAMONNX(object):
-    def __init__(self, encoder_model_path, decoder_model_path, target_length) -> None:
+    def __init__(
+        self, encoder_model_path, decoder_model_path, target_length
+    ) -> None:
         # Load models
         providers = ort.get_available_providers()
 
@@ -45,7 +47,9 @@ class EdgeSAMONNX(object):
         return image_embeddings[0]
 
     @staticmethod
-    def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int) -> Tuple[int, int]:
+    def get_preprocess_shape(
+        oldh: int, oldw: int, long_side_length: int
+    ) -> Tuple[int, int]:
         """
         Compute the output size given input size and target long side length.
         """
@@ -75,7 +79,7 @@ class EdgeSAMONNX(object):
         input_image = input_image.transpose((2, 0, 1))
 
         # CHW -> NCHW
-        input_image= np.ascontiguousarray(input_image)
+        input_image = np.ascontiguousarray(input_image)
         input_image = np.expand_dims(input_image, 0)
 
         return input_image
@@ -127,12 +131,22 @@ class EdgeSAMONNX(object):
         high_threshold_mask = masks > (mask_threshold + threshold_offset)
         low_threshold_mask = masks > (mask_threshold - threshold_offset)
 
-        intersections = np.sum(high_threshold_mask & low_threshold_mask, axis=(-1, -2), dtype=np.int32)
-        unions = np.sum(high_threshold_mask | low_threshold_mask, axis=(-1, -2), dtype=np.int32)
+        intersections = np.sum(
+            high_threshold_mask & low_threshold_mask,
+            axis=(-1, -2),
+            dtype=np.int32,
+        )
+        unions = np.sum(
+            high_threshold_mask | low_threshold_mask,
+            axis=(-1, -2),
+            dtype=np.int32,
+        )
 
         return intersections / unions
 
-    def apply_coords(self, coords: np.ndarray, original_size: Tuple[int, ...]) -> np.ndarray:
+    def apply_coords(
+        self, coords: np.ndarray, original_size: Tuple[int, ...]
+    ) -> np.ndarray:
         """
         Expects a numpy array of length 2 in the final dimension. Requires the
         original image size in (H, W) format.
@@ -147,14 +161,16 @@ class EdgeSAMONNX(object):
         return coords
 
     def apply_boxes(self, boxes, original_size, new_size):
-        boxes = self.apply_coords(boxes.reshape(-1, 2, 2), original_size, new_size)
+        boxes = self.apply_coords(
+            boxes.reshape(-1, 2, 2), original_size, new_size
+        )
         return boxes
 
     def postprocess_masks(
         self,
         mask: np.ndarray,
         input_size: Tuple[int, ...],
-        original_size: Tuple[int, ...]
+        original_size: Tuple[int, ...],
     ) -> np.ndarray:
         """
         Remove padding and upscale masks to the original image size.
@@ -176,7 +192,7 @@ class EdgeSAMONNX(object):
         mask = cv2.resize(mask, (img_size, img_size))
 
         # Remove padding
-        mask = mask[..., :input_size[0], :input_size[1]]
+        mask = mask[..., : input_size[0], : input_size[1]]
 
         # Upscale masks to the original size
         new_size = original_size[::-1]
@@ -222,7 +238,9 @@ class EdgeSAMONNX(object):
         )
         max_score_index = np.argmax(scores)
         masks = masks[0, max_score_index]
-        input_size = self.get_preprocess_shape(*original_size, self.target_length)
+        input_size = self.get_preprocess_shape(
+            *original_size, self.target_length
+        )
         masks = self.postprocess_masks(masks, input_size, original_size)
         masks = masks > 0.0
         return masks

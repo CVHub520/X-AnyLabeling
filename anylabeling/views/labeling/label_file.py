@@ -98,7 +98,9 @@ class LabelFile:
                             "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
                             "Please update your code to accommodate the new four-point mode."
                         )
-                        data["shapes"][i]["points"] = utils.rectangle_from_diagonal(shape_points)
+                        data["shapes"][i][
+                            "points"
+                        ] = utils.rectangle_from_diagonal(shape_points)
 
             if data["imageData"] is not None:
                 image_data = base64.b64decode(data["imageData"])
@@ -219,7 +221,9 @@ class LabelFile:
     def is_label_file(filename):
         return osp.splitext(filename)[1].lower() == LabelFile.suffix
 
-    def save_other_mode(self, data, mode, classes_file=None, mapping_file=None):
+    def save_other_mode(
+        self, data, mode, classes_file=None, mapping_file=None
+    ):
         target_formats = ["polygon", "rectangle", "rotation"]
         shape_type = self.get_shape_type(data, target_formats)
         if mode == "default" or not shape_type:
@@ -250,7 +254,7 @@ class LabelFile:
             os.makedirs(save_path, exist_ok=True)
 
         converter = LabelConverter(
-            classes_file=classes_file, 
+            classes_file=classes_file,
             mapping_file=mapping_file,
         )
         if mode == "yolo" and shape_type == "rectangle":

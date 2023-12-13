@@ -49,7 +49,7 @@ class InternImage_CLS(Model):
 
     def preprocess(self, input_image, mean=None, std=None):
         """
-        Classification: 
+        Classification:
             Pre-processes the input image before feeding it to the network.
 
         Args:
@@ -82,7 +82,7 @@ class InternImage_CLS(Model):
 
     def postprocess(self, outs, topk=1):
         """
-        Classification: 
+        Classification:
             Post-processes the output of the network.
 
         Args:

@@ -60,6 +60,7 @@ LABEL_COLORMAP[2] = LABEL_COLORMAP[1]
 LABEL_COLORMAP[1] = [0, 180, 33]
 LABEL_OPACITY = 128
 
+
 class LabelingWidget(LabelDialog):
     """The main widget for labeling images"""
 
@@ -186,7 +187,9 @@ class LabelingWidget(LabelDialog):
         self.label_list.item_dropped.connect(self.label_order_changed)
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Objects"), self)
         self.shape_dock.setWidget(self.label_list)
-        self.shape_dock.setStyleSheet("QDockWidget::title { background: transparent; }")
+        self.shape_dock.setStyleSheet(
+            "QDockWidget::title { background: transparent; }"
+        )
         self.shape_dock.setTitleBarWidget(QtWidgets.QWidget())
 
         self.unique_label_list = UniqueLabelQListWidget()
@@ -201,7 +204,9 @@ class LabelingWidget(LabelDialog):
                 item = self.unique_label_list.create_item_from_label(label)
                 self.unique_label_list.addItem(item)
                 rgb = self._get_rgb_by_label(label)
-                self.unique_label_list.set_item_label(item, label, rgb, LABEL_OPACITY)
+                self.unique_label_list.set_item_label(
+                    item, label, rgb, LABEL_OPACITY
+                )
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
         self.label_dock.setObjectName("Labels")
         self.label_dock.setWidget(self.unique_label_list)
@@ -406,9 +411,7 @@ class LabelingWidget(LabelDialog):
             self.tr('Toggle "Visibility Shapes" mode'),
             checkable=True,
         )
-        toggle_visibility_shapes_mode.setChecked(
-            self._config["show_shapes"]
-        )
+        toggle_visibility_shapes_mode.setChecked(self._config["show_shapes"])
 
         create_mode = action(
             self.tr("Create Polygons"),
@@ -975,7 +978,7 @@ class LabelingWidget(LabelDialog):
                 brightness_contrast,
             ),
             on_shapes_present=(save_as, hide_all, show_all),
-            hide_selected_polygons = hide_selected_polygons,
+            hide_selected_polygons=hide_selected_polygons,
             group_selected_shapes=group_selected_shapes,
             ungroup_selected_shapes=ungroup_selected_shapes,
         )
@@ -1618,7 +1621,9 @@ class LabelingWidget(LabelDialog):
     def reset_attribute(self, text):
         valid_labels = list(self.attributes.keys())
         if text not in valid_labels:
-            most_similar_label = self.find_most_similar_label(text, valid_labels)
+            most_similar_label = self.find_most_similar_label(
+                text, valid_labels
+            )
             self.error_message(
                 self.tr("Invalid label"),
                 self.tr(
@@ -1808,7 +1813,13 @@ class LabelingWidget(LabelDialog):
         shape = item.shape()
         if shape is None:
             return
-        text, flags, group_id, description, difficult = self.label_dialog.pop_up(
+        (
+            text,
+            flags,
+            group_id,
+            description,
+            difficult,
+        ) = self.label_dialog.pop_up(
             text=shape.label,
             flags=shape.flags,
             group_id=shape.group_id,
@@ -1850,12 +1861,8 @@ class LabelingWidget(LabelDialog):
         self._update_shape_color(shape)
         if shape.group_id is None:
             color = shape.fill_color.getRgb()[:3]
-            item.setText(
-                '{}'.format(html.escape(shape.label))
-            )
-            item.setBackground(
-                QtGui.QColor(*color, LABEL_OPACITY)
-            )
+            item.setText("{}".format(html.escape(shape.label)))
+            item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         else:
             item.setText(f"{shape.label} ({shape.group_id})")
         self.set_dirty()
@@ -1939,10 +1946,9 @@ class LabelingWidget(LabelDialog):
             property_combo = QComboBox()
             property_combo.addItems(options)
             property_combo.currentIndexChanged.connect(
-                lambda _, property=property, combo = \
-                    property_combo: self.attribute_selection_changed(
-                        i, property, combo
-                    )
+                lambda _, property=property, combo=property_combo: self.attribute_selection_changed(
+                    i, property, combo
+                )
             )
             self.grid_layout.addWidget(property_label, row, 0)
             self.grid_layout.addWidget(property_combo, row, 1)
@@ -1952,7 +1958,6 @@ class LabelingWidget(LabelDialog):
         self.grid_layout_container.setLayout(self.grid_layout)
         self.scroll_area.setWidget(self.grid_layout_container)
         self.scroll_area.setWidgetResizable(True)
-        
 
         if update_attribute:
             for property, option in update_attribute.items():
@@ -2097,12 +2102,8 @@ class LabelingWidget(LabelDialog):
 
         self._update_shape_color(shape)
         color = shape.fill_color.getRgb()[:3]
-        label_list_item.setText(
-            '{}'.format(html.escape(text))
-        )
-        label_list_item.setBackground(
-            QtGui.QColor(*color, LABEL_OPACITY)
-        )
+        label_list_item.setText("{}".format(html.escape(text)))
+        label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         self.update_combo_box()
 
     def shape_text_changed(self):
@@ -2374,7 +2375,13 @@ class LabelingWidget(LabelDialog):
                 text = last_label
             else:
                 previous_text = self.label_dialog.edit.text()
-                text, flags, group_id, description, difficult = self.label_dialog.pop_up(text)
+                (
+                    text,
+                    flags,
+                    group_id,
+                    description,
+                    difficult,
+                ) = self.label_dialog.pop_up(text)
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
 
@@ -2417,13 +2424,12 @@ class LabelingWidget(LabelDialog):
         """
         if shape_height > 0 and shape_width > 0:
             self.status(
-                str(self.tr("X: %d, Y: %d | H: %d, W: %d")) % \
-                    (int(pos.x()), int(pos.y()), shape_height, shape_width)
+                str(self.tr("X: %d, Y: %d | H: %d, W: %d"))
+                % (int(pos.x()), int(pos.y()), shape_height, shape_width)
             )
         elif self.image_path:
             self.status(
-                str(self.tr("X: %d, Y: %d")) % \
-                    (int(pos.x()), int(pos.y()))
+                str(self.tr("X: %d, Y: %d")) % (int(pos.x()), int(pos.y()))
             )
 
     def scroll_request(self, delta, orientation):
@@ -2893,14 +2899,8 @@ class LabelingWidget(LabelDialog):
         with open(file_path, "r", encoding="utf-8") as f:
             self.attributes = json.load(f)
             for label in list(self.attributes.keys()):
-                if not self.unique_label_list.find_items_by_label(
-                    label
-                ):
-                    item = (
-                        self.unique_label_list.create_item_from_label(
-                            label
-                        )
-                    )
+                if not self.unique_label_list.find_items_by_label(label):
+                    item = self.unique_label_list.create_item_from_label(label)
                     self.unique_label_list.addItem(item)
                     rgb = self._get_rgb_by_label(label)
                     self.unique_label_list.set_item_label(
@@ -2938,14 +2938,8 @@ class LabelingWidget(LabelDialog):
         with open(self.classes_file, "r", encoding="utf-8") as f:
             labels = f.read().splitlines()
             for label in labels:
-                if not self.unique_label_list.find_items_by_label(
-                    label
-                ):
-                    item = (
-                        self.unique_label_list.create_item_from_label(
-                            label
-                        )
-                    )
+                if not self.unique_label_list.find_items_by_label(label):
+                    item = self.unique_label_list.create_item_from_label(label)
                     self.unique_label_list.addItem(item)
                     rgb = self._get_rgb_by_label(label)
                     self.unique_label_list.set_item_label(
@@ -2961,17 +2955,19 @@ class LabelingWidget(LabelDialog):
             )
         image_dir_path = osp.dirname(self.filename)
         label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
-                self,
-                self.tr("%s - Open Directory") % __appname__,
-                default_open_dir_path,
-                QtWidgets.QFileDialog.ShowDirsOnly
-                | QtWidgets.QFileDialog.DontResolveSymlinks,
-            )
+            self,
+            self.tr("%s - Open Directory") % __appname__,
+            default_open_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly
+            | QtWidgets.QFileDialog.DontResolveSymlinks,
+        )
 
         response = QtWidgets.QMessageBox.warning(
             self,
             self.tr("Current annotation will be lost"),
-            self.tr("You are going to upload new annotations to this task. Continue?"),
+            self.tr(
+                "You are going to upload new annotations to this task. Continue?"
+            ),
             QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
         )
 
@@ -3221,9 +3217,7 @@ class LabelingWidget(LabelDialog):
 
     def toggle_visibility_shapes(self):
         self.toggle_polygons(self._config["show_shapes"])
-        self._config["show_shapes"] = not self._config[
-            "show_shapes"
-        ]
+        self._config["show_shapes"] = not self._config["show_shapes"]
         save_config(self._config)
 
     def run_all_images(self):
@@ -3665,7 +3659,13 @@ class LabelingWidget(LabelDialog):
             text = last_label
         else:
             previous_text = self.label_dialog.edit.text()
-            text, flags, group_id, description, difficult = self.label_dialog.pop_up(
+            (
+                text,
+                flags,
+                group_id,
+                description,
+                difficult,
+            ) = self.label_dialog.pop_up(
                 text=self.find_last_label(),
                 flags={},
                 group_id=None,
@@ -3735,12 +3735,8 @@ class LabelingWidget(LabelDialog):
             self._update_shape_color(shape)
             color = shape.fill_color.getRgb()[:3]
             item = self.label_list.find_item_by_shape(shape)
-            item.setText(
-                '{}'.format(html.escape(shape.label))
-            )
-            item.setBackground(
-                QtGui.QColor(*color, LABEL_OPACITY)
-            )
+            item.setText("{}".format(html.escape(shape.label)))
+            item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
             self.unique_label_list.update_item_color(
                 shape.label, color, LABEL_OPACITY
             )

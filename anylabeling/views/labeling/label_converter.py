@@ -238,7 +238,9 @@ class LabelConverter:
                 y2 = points[2][1]
                 x3 = points[3][0]
                 y3 = points[3][1]
-                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n")
+                f.write(
+                    f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n"
+                )
 
     def custom_to_yolo_rectangle(self, data, output_file):
         image_width = data["imageWidth"]
@@ -352,7 +354,7 @@ class LabelConverter:
             polygons[shape["label"]] = polygon
 
         output_format = self.mapping_table["type"]
-        if output_format not in  ["grayscale", "rgb"]:
+        if output_format not in ["grayscale", "rgb"]:
             raise ValueError("Invalid output format specified")
         mapping_color = self.mapping_table["colors"]
 
@@ -369,7 +371,9 @@ class LabelConverter:
             cv2.imwrite(output_file, binary_mask)
         elif output_format == "rgb":
             # Initialize rgb_mask
-            color_mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
+            color_mask = np.zeros(
+                (image_height, image_width, 3), dtype=np.uint8
+            )
             for label, polygon in polygons.items():
                 # Create a mask for each polygon
                 mask = np.zeros(image_shape[:2], dtype=np.uint8)
@@ -380,9 +384,15 @@ class LabelConverter:
                 if label in mapping_color:
                     color = mapping_color[label]
                     mask_mapped = np.zeros_like(color_mask)
-                    cv2.fillPoly(mask_mapped, [np.array(polygon, dtype=np.int32)], color)
-                    color_mask = cv2.addWeighted(color_mask, 1, mask_mapped, 1, 0)
-            cv2.imwrite(output_file, cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))
+                    cv2.fillPoly(
+                        mask_mapped, [np.array(polygon, dtype=np.int32)], color
+                    )
+                    color_mask = cv2.addWeighted(
+                        color_mask, 1, mask_mapped, 1, 0
+                    )
+            cv2.imwrite(
+                output_file, cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB)
+            )
 
     def yolo_to_custom(self, input_file, output_file, image_file):
         self.reset()

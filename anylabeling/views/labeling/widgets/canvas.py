@@ -290,7 +290,7 @@ class Canvas(
             self.override_cursor(CURSOR_DRAW)
             if not self.current:
                 return
-            
+
             if self.create_mode == "rectangle":
                 shape_width = abs(self.current[0].x() - pos.x())
                 shape_height = abs(self.current[0].y() - pos.y())
@@ -495,9 +495,13 @@ class Canvas(
                             target_pos = self.line[1]
                             max_x = target_pos.x()
                             max_y = target_pos.y()
-                            self.current.add_point(QtCore.QPointF(max_x, min_y))
+                            self.current.add_point(
+                                QtCore.QPointF(max_x, min_y)
+                            )
                             self.current.add_point(target_pos)
-                            self.current.add_point(QtCore.QPointF(min_x, max_y))
+                            self.current.add_point(
+                                QtCore.QPointF(min_x, max_y)
+                            )
                             self.finalise()
                     elif self.create_mode == "rotation":
                         initPos = self.current[0]
@@ -518,8 +522,11 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
-                    if self.create_mode in ["rectangle", "rotation", "circle", "line", "point"] \
-                       and not self.is_auto_labeling:
+                    if (
+                        self.create_mode
+                        in ["rectangle", "rotation", "circle", "line", "point"]
+                        and not self.is_auto_labeling
+                    ):
                         self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Create new shape.
@@ -1026,9 +1033,11 @@ class Canvas(
                 shape.fill = shape.selected or shape == self.h_hape
                 shape.paint(p)
 
-            if shape.shape_type == "rotation" \
-               and len(shape.points) == 4 \
-               and self.is_visible(shape):
+            if (
+                shape.shape_type == "rotation"
+                and len(shape.points) == 4
+                and self.is_visible(shape)
+            ):
                 d = shape.point_size / shape.scale
                 center = QtCore.QPointF(
                     (shape.points[0].x() + shape.points[2].x()) / 2,

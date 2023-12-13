@@ -27,24 +27,28 @@ Written by Wei Wang (CVHub)
         ```
 """
 
-class OnnxBaseModel():
-    def __init__(self, model_path, device_type: str = 'cpu'):
 
+class OnnxBaseModel:
+    def __init__(self, model_path, device_type: str = "cpu"):
         self.sess_opts = ort.SessionOptions()
         if "OMP_NUM_THREADS" in os.environ:
-            self.sess_opts.inter_op_num_threads = int(os.environ["OMP_NUM_THREADS"])
+            self.sess_opts.inter_op_num_threads = int(
+                os.environ["OMP_NUM_THREADS"]
+            )
 
-        self.providers = ['CPUExecutionProvider']
-        if device_type.lower() != 'cpu':
-            self.providers = ['CUDAExecutionProvider']
+        self.providers = ["CPUExecutionProvider"]
+        if device_type.lower() != "cpu":
+            self.providers = ["CUDAExecutionProvider"]
 
         self.ort_session = ort.InferenceSession(
-                        model_path, 
-                        providers=self.providers,
-                        sess_options=self.sess_opts,
-                    )
+            model_path,
+            providers=self.providers,
+            sess_options=self.sess_opts,
+        )
 
-    def get_ort_inference(self, blob, inputs=None, extract=True, squeeze=False):
+    def get_ort_inference(
+        self, blob, inputs=None, extract=True, squeeze=False
+    ):
         if inputs is None:
             inputs = self.get_input_name()
             outs = self.ort_session.run(None, {inputs: blob})
@@ -55,7 +59,7 @@ class OnnxBaseModel():
         if squeeze:
             outs = outs.squeeze(axis=0)
         return outs
-    
+
     def get_input_name(self):
         return self.ort_session.get_inputs()[0].name
 
@@ -67,20 +71,29 @@ class OnnxBaseModel():
 
 
 class Model(OnnxBaseModel):
-    def __init__(self, model_path, device_type: str = 'cpu', configs: dict = {}):
+    def __init__(
+        self, model_path, device_type: str = "cpu", configs: dict = {}
+    ):
         super().__init__(model_path, device_type)
 
         self.configs = configs
         self.class_names = self.configs["class_names"]
         self.num_classes = len(self.class_names)
-        input_width = self.configs.get("input_width", self.get_input_shape()[-1])
-        input_height = self.configs.get("input_height", self.get_input_shape()[-2])
+        input_width = self.configs.get(
+            "input_width", self.get_input_shape()[-1]
+        )
+        input_height = self.configs.get(
+            "input_height", self.get_input_shape()[-2]
+        )
         self.input_shape = (input_height, input_width)
-        self.color_map = [(
-            random.randint(0, 255), 
-            random.randint(0, 255), 
-            random.randint(0, 255),
-        ) for _ in range(self.num_classes)]
+        self.color_map = [
+            (
+                random.randint(0, 255),
+                random.randint(0, 255),
+                random.randint(0, 255),
+            )
+            for _ in range(self.num_classes)
+        ]
 
     def __call__(self, *args: Any, **kwds: Any) -> Any:
         return self.predict(*args, **kwds)
@@ -88,14 +101,14 @@ class Model(OnnxBaseModel):
     def preprocess(self, input_image, mean=None, std=None):
         """
         Pre-processes the input image before feeding it to the network.
-        
+
         Args:
             input_image (numpy.ndarray): The input image to be processed.
-            mean (numpy.ndarray): Mean values for normalization. 
+            mean (numpy.ndarray): Mean values for normalization.
                 If not provided, default values are used.
-            std (numpy.ndarray): Standard deviation values for normalization. 
+            std (numpy.ndarray): Standard deviation values for normalization.
                 If not provided, default values are used.
-        
+
         Returns:
             numpy.ndarray: The processed input image.
         """
@@ -108,13 +121,13 @@ class Model(OnnxBaseModel):
             mean = np.array([0.485, 0.456, 0.406])
         if not std:
             std = np.array([0.229, 0.224, 0.225])
-        norm_img_data = np.zeros(input_data.shape).astype('float32')
+        norm_img_data = np.zeros(input_data.shape).astype("float32")
         # Normalize the image data
         for channel in range(input_data.shape[0]):
             norm_img_data[channel, :, :] = (
                 input_data[channel, :, :] / 255 - mean[channel]
             ) / std[channel]
-        blob = norm_img_data.reshape(1, 3, h, w).astype('float32')
+        blob = norm_img_data.reshape(1, 3, h, w).astype("float32")
         return blob
 
     @staticmethod
@@ -156,15 +169,11 @@ class Model(OnnxBaseModel):
         return label
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     model_path = "/path/to/internimage_l_22kto1k_384.onnx"
     image_path = "/path/to/demo_imagenet.jpg"
-    device_type = 'cpu'  # 'cpu' or 'gpu'
-    configs = {
-        "class_names": [
-            ...
-        ]
-    }
+    device_type = "cpu"  # 'cpu' or 'gpu'
+    configs = {"class_names": [...]}
     model = Model(model_path, device_type, configs)
     image = cv2.imread(image_path)
     label = model(image)

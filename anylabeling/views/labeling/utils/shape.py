@@ -99,11 +99,11 @@ def rectangle_from_diagonal(diagonal_vertices):
     Generate rectangle vertices from diagonal vertices.
 
     Parameters:
-    - diagonal_vertices (list of lists): 
+    - diagonal_vertices (list of lists):
         List containing two points representing the diagonal vertices.
 
     Returns:
-    - list of lists: 
+    - list of lists:
         List containing four points representing the rectangle's four corners.
         [tl -> tr -> br -> bl]
     """
@@ -115,7 +115,7 @@ def rectangle_from_diagonal(diagonal_vertices):
         [x1, y1],  # Top-left
         [x2, y1],  # Top-right
         [x2, y2],  # Bottom-right
-        [x1, y2],   # Bottom-left
+        [x1, y2],  # Bottom-left
     ]
 
     return rectangle_vertices

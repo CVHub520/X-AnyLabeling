@@ -93,7 +93,7 @@ class LabelDialog(QtWidgets.QDialog):
                 QtCore.QRegularExpression(r"\d*"), None
             )
         )
-        self.edit_difficult = QtWidgets.QCheckBox('useDifficult')
+        self.edit_difficult = QtWidgets.QCheckBox("useDifficult")
         self.edit_difficult.setChecked(difficult)
 
         layout = QtWidgets.QVBoxLayout()
@@ -258,13 +258,15 @@ class LabelDialog(QtWidgets.QDialog):
     def get_difficult_state(self):
         return self.edit_difficult.isChecked()
 
-    def pop_up(self,
-               text=None,
-               move=True,
-               flags=None,
-               group_id=None,
-               description=None,
-               difficult=False):
+    def pop_up(
+        self,
+        text=None,
+        move=True,
+        flags=None,
+        group_id=None,
+        description=None,
+        difficult=False,
+    ):
         if self._fit_to_content["row"]:
             self.label_list.setMinimumHeight(
                 self.label_list.sizeHintForRow(0) * self.label_list.count() + 2

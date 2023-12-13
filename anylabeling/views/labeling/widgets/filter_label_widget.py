@@ -7,7 +7,9 @@ class LabelFilterComboBox(QWidget):
         self.items = items
         self.combo_box = QComboBox()
         self.combo_box.addItems(self.items)
-        self.combo_box.currentIndexChanged.connect(parent.combo_selection_changed)
+        self.combo_box.currentIndexChanged.connect(
+            parent.combo_selection_changed
+        )
 
         layout = QHBoxLayout()
         layout.addWidget(self.combo_box)

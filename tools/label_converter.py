@@ -203,7 +203,12 @@ class RectLabelConverter(BaseLabelConverter):
             shape = {
                 "label": label,
                 "description": "",
-                "points": [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]],
+                "points": [
+                    [xmin, ymin],
+                    [xmax, ymin],
+                    [xmax, ymax],
+                    [xmin, ymax],
+                ],
                 "group_id": None,
                 "difficult": bool(int(difficult)),
                 "shape_type": "rectangle",
@@ -665,7 +670,9 @@ class RotateLabelConverter(BaseLabelConverter):
                 y2 = points[2][1]
                 x3 = points[3][0]
                 y3 = points[3][1]
-                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n")
+                f.write(
+                    f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n"
+                )
 
     def dota_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -811,8 +818,8 @@ class RotateLabelConverter(BaseLabelConverter):
             for obj in root.findall("object"):
                 obj_type = obj.find("type").text
                 difficult = 0
-                if obj.find('difficult') is not None:
-                    difficult = obj.find('difficult').text
+                if obj.find("difficult") is not None:
+                    difficult = obj.find("difficult").text
                 label = obj.find("name").text
                 if obj_type == "bndbox":
                     hbndbox = obj.find("bndbox")
@@ -822,24 +829,26 @@ class RotateLabelConverter(BaseLabelConverter):
                     points = self.rbndbox_to_dota(rbndbox)
                 p0, p1, p2, p3 = points
                 x0, y0, x1, y1, x2, y2, x3, y3 = *p0, *p1, *p2, *p3
-                f.write(f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {difficult}\n")
+                f.write(
+                    f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {difficult}\n"
+                )
 
     @staticmethod
-    def rotatePoint(xc, yc, xp, yp, theta):        
+    def rotatePoint(xc, yc, xp, yp, theta):
         xoff = xp - xc
         yoff = yp - yc
         cosTheta = math.cos(theta)
         sinTheta = math.sin(theta)
         pResx = cosTheta * xoff + sinTheta * yoff
-        pResy = - sinTheta * xoff + cosTheta * yoff
+        pResy = -sinTheta * xoff + cosTheta * yoff
         return xc + pResx, yc + pResy
 
     def rbndbox_to_dota(self, box):
-        cx = float(box.find('cx').text)
-        cy = float(box.find('cy').text)
-        w = float(box.find('w').text)
-        h = float(box.find('h').text)
-        angle = float(box.find('angle').text)
+        cx = float(box.find("cx").text)
+        cy = float(box.find("cy").text)
+        w = float(box.find("w").text)
+        h = float(box.find("h").text)
+        angle = float(box.find("angle").text)
 
         x0, y0 = self.rotatePoint(cx, cy, cx - w / 2, cy - h / 2, -angle)
         x1, y1 = self.rotatePoint(cx, cy, cx + w / 2, cy - h / 2, -angle)
@@ -850,10 +859,10 @@ class RotateLabelConverter(BaseLabelConverter):
 
     @staticmethod
     def hbndbox_to_dota(box):
-        xmin = int(box.find('xmin').text)
-        ymin = int(box.find('ymin').text)
-        xmax = int(box.find('xmax').text)
-        ymax = int(box.find('ymax').text)
+        xmin = int(box.find("xmin").text)
+        ymin = int(box.find("ymin").text)
+        xmax = int(box.find("xmax").text)
+        ymax = int(box.find("ymax").text)
         points = [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)]
         return points
 
@@ -1033,7 +1042,9 @@ def main():
             file_list, desc="Converting files", unit="file", colour="green"
         ):
             src_file = osp.join(args.src_path, file_name)
-            dst_file = osp.join(args.dst_path, osp.splitext(file_name)[0] + ".txt")
+            dst_file = osp.join(
+                args.dst_path, osp.splitext(file_name)[0] + ".txt"
+            )
             converter.dxml_to_dota(src_file, dst_file)
 
     end_time = time.time()

@@ -33,9 +33,7 @@ class UniqueLabelQListWidget(EscapableQListWidget):
         if color is None:
             qlabel.setText(f"{label}")
         else:
-            qlabel.setText(
-                '{}'.format(html.escape(label))
-            )
+            qlabel.setText("{}".format(html.escape(label)))
             background_color = QtGui.QColor(*color, opacity)
             style_sheet = (
                 f"background-color: rgba("
