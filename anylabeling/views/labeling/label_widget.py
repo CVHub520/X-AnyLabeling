@@ -2737,7 +2737,16 @@ class LabelingWidget(LabelDialog):
         self.add_recent_file(self.filename)
         self.toggle_actions(True)
         self.canvas.setFocus()
-        self.status(str(self.tr("Loaded %s")) % osp.basename(str(filename)))
+        basename = osp.basename(str(filename))
+        if self.image_list:
+            num_images = len(self.image_list)
+            current_index = self.image_list.index(filename) + 1
+            msg = str(self.tr("Loaded %s [%d/%d]")) % (
+                basename, current_index, num_images
+            )
+        else:
+            msg = str(self.tr("Loaded %s")) % basename
+        self.status(msg)
         return True
 
     # QT Overload
