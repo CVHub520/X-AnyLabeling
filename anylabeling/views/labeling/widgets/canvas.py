@@ -429,6 +429,10 @@ class Canvas(
                 )
                 self.setStatusTip(self.toolTip())
                 self.override_cursor(CURSOR_GRAB)
+                group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                self.select_shape_point(
+                    pos, multiple_selection_mode=group_mode
+                )
                 self.update()
 
                 if shape.shape_type == "rectangle":
