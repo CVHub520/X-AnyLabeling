@@ -3231,39 +3231,16 @@ class LabelingWidget(LabelDialog):
             return
 
         marks_model_list = [
-            "ram",
-            "yolox",
-            "yolov5",
-            "yolov6",
-            "yolov7",
-            "yolov8",
-            "rtdetr",
-            "clrnet",
-            "yolo_nas",
-            "yolo_seg",
-            "ppocr_v4",
-            "damo_yolo",
-            "gold_yolo",
-            "yolov5_cls",
-            "yolov5_obb",
-            "yolov5_ram",
-            "yolov8_seg",
-            "yolov6_face",
-            "yolov8_pose",
-            "yolov8_sahi",
-            "yolov5_track",
-            "yolov8_track",
-            "yolox_dwpose",
-            "grounding_sam",
-            "grounding_dino",
-            "pulc_attribute",
-            "internimage_cls",
-            "yolov8_efficientvit_sam",
+            "segment_anything",
+            "sam_med2d",
+            "sam_hq",
+            "efficientvit_sam",
+            "edge_sam",
         ]
 
         if (
             self.auto_labeling_widget.model_manager.loaded_model_config["type"]
-            not in marks_model_list
+            in marks_model_list
         ):
             self.auto_labeling_widget.model_manager.new_model_status.emit(
                 self.tr(
