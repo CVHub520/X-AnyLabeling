@@ -3307,18 +3307,11 @@ class LabelingWidget(LabelDialog):
                     action.setEnabled(False)
 
     def delete_selected_shape(self):
-        yes, no = QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No
-        msg = self.tr(
-            "You are about to permanently delete {} polygons, proceed anyway?"
-        ).format(len(self.canvas.selected_shapes))
-        if yes == QtWidgets.QMessageBox.warning(
-            self, self.tr("Attention"), msg, yes | no, yes
-        ):
-            self.remove_labels(self.canvas.delete_selected())
-            self.set_dirty()
-            if self.no_shape():
-                for action in self.actions.on_shapes_present:
-                    action.setEnabled(False)
+        self.remove_labels(self.canvas.delete_selected())
+        self.set_dirty()
+        if self.no_shape():
+            for action in self.actions.on_shapes_present:
+                action.setEnabled(False)
 
     def copy_shape(self):
         self.canvas.end_move(copy=True)
