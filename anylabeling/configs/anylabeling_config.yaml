@@ -117,6 +117,7 @@ shortcuts:
   group_selected_shapes: G
   ungroup_selected_shapes: U
   hide_selected_polygons: S
+  show_hidden_polygons: W
   toggle_auto_use_last_label: Ctrl+Y
   toggle_visibility_shapes: Ctrl+H
 

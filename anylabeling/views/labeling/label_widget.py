@@ -93,6 +93,7 @@ class LabelingWidget(LabelDialog):
         self.mapping_file = None
         self.attributes = {}
         self.current_category = None
+        self.tmp_selected_polygons = []
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -574,6 +575,14 @@ class LabelingWidget(LabelDialog):
             self.tr("Hide selected polygons"),
             enabled=True,
         )
+        show_hidden_polygons = action(
+            self.tr("Show Hidden Polygons"),
+            self.show_hidden_polygons,
+            shortcuts["show_hidden_polygons"],
+            None,
+            self.tr("Show hidden polygons"),
+            enabled=True,
+        )
 
         documentation = action(
             self.tr("&Documentation"),
@@ -979,6 +988,7 @@ class LabelingWidget(LabelDialog):
             ),
             on_shapes_present=(save_as, hide_all, show_all),
             hide_selected_polygons=hide_selected_polygons,
+            show_hidden_polygons=show_hidden_polygons,
             group_selected_shapes=group_selected_shapes,
             ungroup_selected_shapes=ungroup_selected_shapes,
         )
@@ -1078,6 +1088,7 @@ class LabelingWidget(LabelDialog):
                 show_degrees,
                 show_groups,
                 hide_selected_polygons,
+                show_hidden_polygons,
                 group_selected_shapes,
                 ungroup_selected_shapes,
             ),
@@ -2561,6 +2572,12 @@ class LabelingWidget(LabelDialog):
         for item in self.label_list:
             if item.shape().selected:
                 item.setCheckState(Qt.Unchecked)
+                self.tmp_selected_polygons.append(item)
+
+    def show_hidden_polygons(self):
+        if self.tmp_selected_polygons:
+            item = self.tmp_selected_polygons.pop()
+            item.setCheckState(Qt.Checked)
 
     def get_next_files(self, filename, num_files):
         """Get the next files in the list."""
