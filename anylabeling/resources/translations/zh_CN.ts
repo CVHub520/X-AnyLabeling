@@ -1352,12 +1352,12 @@ Reset the label as {}.</source>
     </message>
     <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="117"/>
-        <source>+Point</source>
+        <source>Point (q)</source>
         <translation>+点</translation>
     </message>
     <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="118"/>
-        <source>-Point</source>
+        <source>Point (e)</source>
         <translation>-点</translation>
     </message>
     <message>

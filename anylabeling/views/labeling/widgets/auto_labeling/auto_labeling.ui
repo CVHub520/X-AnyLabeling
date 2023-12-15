@@ -121,14 +121,14 @@
      <item>
       <widget class="QPushButton" name="button_add_point">
        <property name="text">
-        <string>+Point</string>
+        <string>Point (q)</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="button_remove_point">
        <property name="text">
-        <string>-Point</string>
+        <string>Point (e)</string>
        </property>
       </widget>
      </item>

@@ -81,13 +81,13 @@ class AutoLabelingWidget(QWidget):
             "Enter text prompt here and press Enter to confirm."
         )
         self.edit_text.returnPressed.connect(self.run_vl_prediction)
-        self.button_add_point.setShortcut("+")
+        self.button_add_point.setShortcut("Q")
         self.button_add_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
                 AutoLabelingMode.ADD, AutoLabelingMode.POINT
             )
         )
-        self.button_remove_point.setShortcut("-")
+        self.button_remove_point.setShortcut("E")
         self.button_remove_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
                 AutoLabelingMode.REMOVE, AutoLabelingMode.POINT
