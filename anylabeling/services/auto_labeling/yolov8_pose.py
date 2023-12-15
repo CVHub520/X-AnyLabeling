@@ -13,6 +13,7 @@ from .utils import (
     xywh2xyxy,
     xyxy2ltwh,
     rescale_tlwh,
+    point_in_bbox,
 )
 
 
@@ -82,7 +83,8 @@ class YOLOv8_Pose(YOLO):
             interval = 3
             for i in range(0, len(kpts), interval):
                 x, y, kpt_score = kpts[i : i + 3]
-                if kpt_score > self.conf_thres:
+                inside_flag = point_in_bbox((x, y), xyxy)
+                if (kpt_score > self.conf_thres) and inside_flag:
                     label = self.keypoints[int(i // interval)]
                     point_shape = Shape(
                         label=label, shape_type="point", group_id=group_id

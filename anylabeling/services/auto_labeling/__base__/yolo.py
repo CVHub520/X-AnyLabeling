@@ -62,7 +62,7 @@ class YOLO(Model):
         self.classes = self.config.get("classes", [])
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
-        self.show_boxes = self.config.get("show_boxes", False)
+        self.show_boxes = self.config.get("show_boxes", True)
         self.epsilon_factor = self.config.get("epsilon_factor", 0.005)
         self.iou_thres = self.config.get("nms_threshold", 0.45)
         self.conf_thres = self.config.get("confidence_threshold", 0.25)

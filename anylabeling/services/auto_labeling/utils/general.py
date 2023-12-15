@@ -119,3 +119,24 @@ def refine_contours(contours, img_area, epsilon_factor=0.001):
         approx_contours = filtered_approx_contours
 
     return approx_contours
+
+
+def point_in_bbox(point, bbox):
+    """
+    Check if a point is inside a bounding box.
+
+    Parameters:
+    - point: Tuple (x, y) representing the point coordinates.
+    - bbox: List [xmin, ymin, xmax, ymax] representing the bounding box.
+
+    Returns:
+    - True if the point is inside the bounding box, False otherwise.
+    """
+    x, y = point
+    xmin, ymin, xmax, ymax = bbox
+
+    # Check if the point is within the bounding box.
+    if xmin <= x <= xmax and ymin <= y <= ymax:
+        return True
+    else:
+        return False
