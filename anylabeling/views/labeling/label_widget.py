@@ -766,6 +766,13 @@ class LabelingWidget(LabelDialog):
             icon=None,
             tip=self.tr("Upload Custom VOC Annotations"),
         )
+        upload_coco_annotation = action(
+            self.tr("&Upload COCO Annotations"),
+            self.upload_coco_annotation,
+            None,
+            icon=None,
+            tip=self.tr("Upload Custom COCO Annotations"),
+        )
 
         # Save mode
         select_default_format = action(
@@ -913,6 +920,7 @@ class LabelingWidget(LabelDialog):
             upload_attr_file=upload_attr_file,
             upload_yolo_annotation=upload_yolo_annotation,
             upload_voc_annotation=upload_voc_annotation,
+            upload_coco_annotation=upload_coco_annotation,
             select_default_format=select_default_format,
             select_yolo_format=select_yolo_format,
             select_coco_format=select_coco_format,
@@ -1056,6 +1064,7 @@ class LabelingWidget(LabelDialog):
                 upload_attr_file,
                 upload_yolo_annotation,
                 upload_voc_annotation,
+                upload_coco_annotation,
             ),
         )
         utils.add_actions(
@@ -3094,6 +3103,46 @@ class LabelingWidget(LabelDialog):
                 input_file=input_file,
                 output_file=output_file,
             )
+
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+    def upload_coco_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        filter = "Attribute Files (*.json);;All Files (*)"
+        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a custom coco annotation file"),
+            "",
+            filter,
+        )
+
+        if not input_file or QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be lost"),
+            self.tr(
+                "You are going to upload new annotations to this task. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        ) != QtWidgets.QMessageBox.Ok:
+            return
+
+        converter = LabelConverter()
+        converter.coco_to_custom(
+            input_file=input_file,
+            image_path=osp.dirname(self.filename),
+        )
 
         # update and refresh the current canvas
         self.load_file(self.filename)

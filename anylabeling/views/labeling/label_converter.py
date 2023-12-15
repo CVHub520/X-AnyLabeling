@@ -480,3 +480,70 @@ class LabelConverter:
 
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def coco_to_custom(self, input_file, image_path):
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if not self.classes:
+            for cat in data["categories"]:
+                self.classes.append(cat["name"])
+
+        total_info, label_info = {}, {}
+
+        # map category_id to name
+        for dic_info in data["categories"]:
+            label_info[dic_info["id"]] = dic_info["name"]
+
+        # map image_id to info
+        for dic_info in data["images"]:
+            total_info[dic_info["id"]] = {
+                "imageWidth": dic_info["width"],
+                "imageHeight": dic_info["height"],
+                "imagePath": os.path.basename(dic_info["file_name"]),
+                "shapes": [],
+            }
+
+        for dic_info in data["annotations"]:
+            bbox = dic_info["bbox"]
+            xmin = bbox[0]
+            ymin = bbox[1]
+            width = bbox[2]
+            height = bbox[3]
+            xmax = xmin + width
+            ymax = ymin + height
+
+            shape_type = "rectangle"
+            difficult = bool(int(str(dic_info.get("ignore", "0"))))
+            label = self.classes[dic_info["category_id"] - 1]
+            points = [
+                [xmin, ymin],
+                [xmax, ymin],
+                [xmax, ymax],
+                [xmin, ymax],
+            ]
+            shape = {
+                "label": label,
+                "shape_type": shape_type,
+                "flags": {},
+                "points": points,
+                "group_id": None,
+                "description": None,
+                "difficult": difficult,
+                "attributes": {},
+            }
+
+            total_info[dic_info["image_id"]]["shapes"].append(shape)
+
+        for dic_info in total_info.values():
+            self.reset()
+            self.custom_data["shapes"] = dic_info["shapes"]
+            self.custom_data["imagePath"] = dic_info["imagePath"]
+            self.custom_data["imageHeight"] = dic_info["imageHeight"]
+            self.custom_data["imageWidth"] = dic_info["imageWidth"]
+
+            output_file = os.path.join(
+                image_path, os.path.splitext(dic_info["imagePath"])[0] + ".json"
+            )
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
