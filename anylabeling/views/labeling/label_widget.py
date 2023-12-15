@@ -752,12 +752,19 @@ class LabelingWidget(LabelDialog):
             icon=None,
             tip=self.tr("Upload Custom Attributes File"),
         )
-        upload_yolo_file = action(
-            self.tr("&Upload YOLO Files"),
-            self.upload_yolo_file,
+        upload_yolo_annotation = action(
+            self.tr("&Upload YOLO Annotations"),
+            self.upload_yolo_annotation,
             None,
             icon=None,
-            tip=self.tr("Upload Custom YOLO Files"),
+            tip=self.tr("Upload Custom YOLO Annotations"),
+        )
+        upload_voc_annotation = action(
+            self.tr("&Upload VOC Annotations"),
+            self.upload_voc_annotation,
+            None,
+            icon=None,
+            tip=self.tr("Upload Custom VOC Annotations"),
         )
 
         # Save mode
@@ -904,7 +911,8 @@ class LabelingWidget(LabelDialog):
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
             upload_attr_file=upload_attr_file,
-            upload_yolo_file=upload_yolo_file,
+            upload_yolo_annotation=upload_yolo_annotation,
+            upload_voc_annotation=upload_voc_annotation,
             select_default_format=select_default_format,
             select_yolo_format=select_yolo_format,
             select_coco_format=select_coco_format,
@@ -1046,7 +1054,8 @@ class LabelingWidget(LabelDialog):
             self.menus.upload,
             (
                 upload_attr_file,
-                upload_yolo_file,
+                upload_yolo_annotation,
+                upload_voc_annotation,
             ),
         )
         utils.add_actions(
@@ -2933,7 +2942,7 @@ class LabelingWidget(LabelDialog):
                         item, label, rgb, LABEL_OPACITY
                     )
 
-    def upload_yolo_file(self, _value=False, dirpath=None):
+    def upload_yolo_annotation(self, _value=False, dirpath=None):
         if not self.may_continue():
             return
 
@@ -3022,12 +3031,71 @@ class LabelingWidget(LabelDialog):
                 image_file=image_file,
             )
 
-        history_index = current_index = self.image_list.index(self.filename)
-        while current_index < len(self.image_list):
-            self.filename = self.image_list[current_index]
-            self.load_file(self.filename)
-            current_index += 1
-        self.filename = self.image_list[history_index]
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+    def upload_voc_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        default_open_dir_path = dirpath if dirpath else "."
+        if self.last_open_dir and osp.exists(self.last_open_dir):
+            default_open_dir_path = self.last_open_dir
+        else:
+            default_open_dir_path = (
+                osp.dirname(self.filename) if self.filename else "."
+            )
+        image_dir_path = osp.dirname(self.filename)
+        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("%s - Open Directory") % __appname__,
+            default_open_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly
+            | QtWidgets.QFileDialog.DontResolveSymlinks,
+        )
+
+        response = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be lost"),
+            self.tr(
+                "You are going to upload new annotations to this task. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        )
+
+        if response != QtWidgets.QMessageBox.Ok:
+            return
+
+        converter = LabelConverter(classes_file=self.classes_file)
+        image_file_list = os.listdir(image_dir_path)
+        label_file_list = os.listdir(label_dir_path)
+        output_dir_path = image_dir_path
+        if self.output_dir:
+            output_dir_path = self.output_dir
+        for image_filename in image_file_list:
+            if image_filename.endswith(".json"):
+                continue
+            label_filename = osp.splitext(image_filename)[0] + ".xml"
+            data_filename = osp.splitext(image_filename)[0] + ".json"
+            if label_filename not in label_file_list:
+                continue
+            input_file = osp.join(label_dir_path, label_filename)
+            output_file = osp.join(output_dir_path, data_filename)
+            converter.voc_to_custom(
+                input_file=input_file,
+                output_file=output_file,
+            )
+
+        # update and refresh the current canvas
         self.load_file(self.filename)
 
     def open_file(self, _value=False):

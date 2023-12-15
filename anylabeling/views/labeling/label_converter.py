@@ -436,3 +436,47 @@ class LabelConverter:
         self.custom_data["imageWidth"] = img_w
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def voc_to_custom(self, input_file, output_file):
+        self.reset()
+
+        tree = ET.parse(input_file)
+        root = tree.getroot()
+
+        image_path = root.find("filename").text
+        image_width = int(root.find("size/width").text)
+        image_height = int(root.find("size/height").text)
+
+        self.custom_data["imagePath"] = image_path
+        self.custom_data["imageHeight"] = image_height
+        self.custom_data["imageWidth"] = image_width
+
+        for obj in root.findall("object"):
+            label = obj.find("name").text
+            difficult = "0"
+            if obj.find("difficult") is not None:
+                difficult = str(obj.find("difficult").text)
+            xmin = float(obj.find("bndbox/xmin").text)
+            ymin = float(obj.find("bndbox/ymin").text)
+            xmax = float(obj.find("bndbox/xmax").text)
+            ymax = float(obj.find("bndbox/ymax").text)
+
+            shape = {
+                "label": label,
+                "description": "",
+                "points": [
+                    [xmin, ymin],
+                    [xmax, ymin],
+                    [xmax, ymax],
+                    [xmin, ymax],
+                ],
+                "group_id": None,
+                "difficult": bool(int(difficult)),
+                "shape_type": "rectangle",
+                "flags": {},
+            }
+
+            self.custom_data["shapes"].append(shape)
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
