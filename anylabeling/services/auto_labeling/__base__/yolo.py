@@ -62,7 +62,7 @@ class YOLO(Model):
         self.classes = self.config.get("classes", [])
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
-        self.show_boxes = self.config.get("show_boxes", True)
+        self.show_boxes = self.config.get("show_boxes", False)
         self.epsilon_factor = self.config.get("epsilon_factor", 0.005)
         self.iou_thres = self.config.get("nms_threshold", 0.45)
         self.conf_thres = self.config.get("confidence_threshold", 0.25)
@@ -343,8 +343,6 @@ class YOLO(Model):
         downsampled_bboxes[:, 2] *= mw / iw
         downsampled_bboxes[:, 3] *= mh / ih
         downsampled_bboxes[:, 1] *= mh / ih
-
-        masks = self.crop_mask_np(masks, downsampled_bboxes)  # CHW
         masks = self.crop_mask_np(masks, downsampled_bboxes)  # CHW
         if upsample:
             masks_np = np.transpose(masks, (1, 2, 0))
