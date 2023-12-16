@@ -236,7 +236,7 @@ class YOLO(Model):
         for box, class_id, point, track_id in zip(
             boxes, class_ids, points, track_ids
         ):
-            if self.show_boxes or self.task == "det":
+            if (self.show_boxes and self.task != "track") or self.task == "det":
                 x1, y1, x2, y2 = box.astype(float)
                 shape = Shape(flags={})
                 shape.add_point(QtCore.QPointF(x1, y1))
