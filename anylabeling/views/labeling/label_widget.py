@@ -4,6 +4,7 @@ import math
 import json
 import os
 import os.path as osp
+import pathlib
 import cv2
 import re
 import webbrowser
@@ -3267,18 +3268,24 @@ class LabelingWidget(LabelDialog):
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
+        image_list = self.image_list
+        if not image_list:
+            image_list = [self.filename]
         save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
         os.makedirs(save_path, exist_ok=True)
         converter = LabelConverter(classes_file=self.classes_file)
         label_file_list = os.listdir(label_dir_path)
         try:
-            for src_file_name in label_file_list:
-                if not src_file_name.endswith(".json"):
-                    continue
-                dst_file_name = osp.splitext(src_file_name)[0] + ".txt"
-                src_file = osp.join(label_dir_path, src_file_name)
+            for image_file in image_list:
+                image_file_name = osp.basename(image_file)
+                label_file_name = osp.splitext(image_file_name)[0] + '.json'
+                dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
-                converter.custom_to_yolo(src_file, dst_file)
+                if label_file_name not in label_file_list:
+                    pathlib.Path(dst_file).touch()
+                else:
+                    src_file = osp.join(label_dir_path, label_file_name)
+                    converter.custom_to_yolo(src_file, dst_file)
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
@@ -3409,18 +3416,24 @@ class LabelingWidget(LabelDialog):
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "labelTxt"))
+        image_list = self.image_list
+        if not image_list:
+            image_list = [self.filename]
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
         os.makedirs(save_path, exist_ok=True)
         converter = LabelConverter(classes_file=self.classes_file)
         label_file_list = os.listdir(label_dir_path)
         try:
-            for src_file_name in label_file_list:
-                if not src_file_name.endswith(".json"):
-                    continue
-                dst_file_name = osp.splitext(src_file_name)[0] + ".txt"
-                src_file = osp.join(label_dir_path, src_file_name)
+            for image_file in image_list:
+                image_file_name = osp.basename(image_file)
+                label_file_name = osp.splitext(image_file_name)[0] + ".json"
+                dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
-                converter.custom_to_dota(src_file, dst_file)
+                if label_file_name not in label_file_list:
+                    pathlib.Path(dst_file).touch()
+                else:
+                    src_file = osp.join(label_dir_path, label_file_name)
+                    converter.custom_to_dota(src_file, dst_file)
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
