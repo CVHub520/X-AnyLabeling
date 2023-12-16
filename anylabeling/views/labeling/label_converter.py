@@ -1,4 +1,5 @@
 import os
+import os.path as osp
 import cv2
 import csv
 import json
@@ -14,15 +15,11 @@ from anylabeling.app_info import __version__
 
 
 class LabelConverter:
-    def __init__(self, classes_file=None, mapping_file=None):
+    def __init__(self, classes_file=None):
         self.classes = []
         if classes_file:
             with open(classes_file, "r", encoding="utf-8") as f:
                 self.classes = f.read().splitlines()
-        self.mapping_table = None
-        if mapping_file:
-            with open(mapping_file, "r", encoding="utf-8") as f:
-                self.mapping_table = json.load(f)
 
     def reset(self):
         self.custom_data = dict(
@@ -46,7 +43,7 @@ class LabelConverter:
         area = 0.5 * np.abs(
             np.dot(x, np.roll(y, 1)) - np.dot(y, np.roll(x, 1))
         )
-        return area
+        return float(area)
 
     @staticmethod
     def get_image_size(image_file):
@@ -71,10 +68,67 @@ class LabelConverter:
         bbox_height = y_max - y_min
         return [x_min, y_min, bbox_width, bbox_height]
 
-    def get_coco_meta_data(self, root_path, formats):
-        label_list = []
-        basename_to_img_id = {}
-        coco_meta_data = {
+    @staticmethod
+    def get_contours_and_labels(
+        mask, mapping_table, epsilon_factor=0.001
+    ):
+        results = []
+        input_type = mapping_table["type"]
+        mapping_color = mapping_table["colors"]
+
+        if input_type == "grayscale":
+            color_to_label = {v: k for k, v in mapping_color.items()}
+            binaray_img = cv2.imread(mask, cv2.IMREAD_GRAYSCALE)
+            contours, _ = cv2.findContours(
+                binaray_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            for contour in contours:
+                epsilon = epsilon_factor* cv2.arcLength(contour, True)
+                approx = cv2.approxPolyDP(contour, epsilon, True)
+                if len(approx) < 5:
+                    continue
+                x, y, w, h = cv2.boundingRect(contour)
+                center = (int(x + w / 2), int(y + h / 2))
+                color_value = binaray_img[center[1], center[0]]
+                class_name = color_to_label.get(color_value, "Unknown")
+                points = []
+                for point in approx:
+                    x, y = point[0].tolist()
+                    points.append([x, y])
+                result_item = {"points": points, "label": class_name}
+                results.append(result_item)
+        elif input_type == "rgb":
+            color_to_label = {tuple(color): label for label, color in mapping_color.items()}
+            rgb_img = cv2.imread(mask)
+            hsv_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
+
+            _, binary_img = cv2.threshold(hsv_img[:, :, 1], 0, 255, cv2.THRESH_BINARY)
+            contours, _ = cv2.findContours(
+                binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            # print(f"contours: {contours}")
+            for contour in contours:
+                epsilon = epsilon_factor * cv2.arcLength(contour, True)
+                approx = cv2.approxPolyDP(contour, epsilon, True)
+                if len(approx) < 5:
+                    continue
+                
+                x, y, w, h = cv2.boundingRect(contour)
+                center = (int(x + w / 2), int(y + h / 2))
+                rgb_color = rgb_img[center[1], center[0]].tolist()
+                label = color_to_label.get(tuple(rgb_color[::-1]), "Unknown")
+
+                points = []
+                for point in approx:
+                    x, y = point[0].tolist()
+                    points.append([x, y])
+                
+                result_item = {"points": points, "label": label}
+                results.append(result_item)
+        return results
+
+    def get_coco_data(self):
+        coco_data = {
             "info": {
                 "year": 2023,
                 "version": __version__,
@@ -94,332 +148,41 @@ class LabelConverter:
             "images": [],
             "annotations": [],
         }
-
-        for i, class_name in enumerate(self.classes):
-            coco_meta_data["categories"].append(
-                {"id": i + 1, "name": class_name, "supercategory": ""}
-            )
-        image_id = 0
-        file_list = os.listdir(root_path)
-        file_list = natsort.os_sorted(file_list)
-        for file_name in file_list:
-            fmt = "*." + file_name.rsplit(".", 1)[-1]
-            if fmt.lower() not in formats:
-                if fmt == "*.json":
-                    label_list.append(file_name)
-                continue
-            image_id += 1
-            image_file = os.path.join(root_path, file_name)
-            width, height = self.get_image_size(image_file)
-            base_name = os.path.splitext(file_name)[0]
-            coco_meta_data["images"].append(
-                {
-                    "id": image_id,
-                    "file_name": base_name,
-                    "width": width,
-                    "height": height,
-                    "license": 0,
-                    "flickr_url": "",
-                    "coco_url": "",
-                    "date_captured": "",
-                }
-            )
-            basename_to_img_id[base_name] = image_id
-
-        return coco_meta_data, label_list, basename_to_img_id
-
-    def custom_to_mot_rectangle(self, data, output_file, base_name):
-        frame_id = int(base_name.split("_")[-1][:6])
-        mot_data = []
-        for shape in data["shapes"]:
-            track_id = int(shape["group_id"]) if shape["group_id"] else -1
-            class_id = self.classes.index(shape["label"])
-            points = shape["points"]
-            xmin = points[0][0]
-            ymin = points[0][1]
-            xmax = points[2][0]
-            ymax = points[2][1]
-            data = [
-                frame_id,
-                track_id,
-                xmin,
-                ymin,
-                xmax - xmin,
-                ymax - ymin,
-                0,
-                class_id,
-                1,
-            ]
-            mot_data.append(data)
-
-        # Check if output_file exists
-        if os.path.isfile(output_file):
-            # Read existing CSV file and update data
-            with open(output_file, "r", newline="") as csvfile:
-                reader = csv.reader(csvfile, delimiter=",")
-                existing_data = [row for row in reader]
-
-            # Check if frame_id exists in existing_data
-            frame_ids = set(int(row[0]) for row in existing_data)
-            if frame_id in frame_ids:
-                # Remove existing data with the same frame_id
-                updated_data = [
-                    row for row in existing_data if int(row[0]) != frame_id
-                ]
-                # Insert new mot_data
-                updated_data.extend(mot_data)
-            else:
-                updated_data = existing_data + mot_data
-        else:
-            updated_data = mot_data
-
-        # Save updated_data to output_file
-        with open(output_file, "w", newline="") as csvfile:
-            writer = csv.writer(csvfile, delimiter=",")
-            writer.writerows(updated_data)
-
-    def custom_to_voc_rectangle(self, data, output_dir):
-        image_path = data["imagePath"]
-        image_width = data["imageWidth"]
-        image_height = data["imageHeight"]
-
-        root = ET.Element("annotation")
-        ET.SubElement(root, "folder").text = os.path.dirname(output_dir)
-        ET.SubElement(root, "filename").text = os.path.basename(image_path)
-        size = ET.SubElement(root, "size")
-        ET.SubElement(size, "width").text = str(image_width)
-        ET.SubElement(size, "height").text = str(image_height)
-        ET.SubElement(size, "depth").text = "3"
-
-        for shape in data["shapes"]:
-            label = shape["label"]
-            points = shape["points"]
-            difficult = shape.get("difficult", False)
-
-            xmin = str(points[0][0])
-            ymin = str(points[0][1])
-            xmax = str(points[2][0])
-            ymax = str(points[2][1])
-
-            object_elem = ET.SubElement(root, "object")
-            ET.SubElement(object_elem, "name").text = label
-            ET.SubElement(object_elem, "pose").text = "Unspecified"
-            ET.SubElement(object_elem, "truncated").text = "0"
-            ET.SubElement(object_elem, "difficult").text = str(int(difficult))
-            bndbox = ET.SubElement(object_elem, "bndbox")
-            ET.SubElement(bndbox, "xmin").text = xmin
-            ET.SubElement(bndbox, "ymin").text = ymin
-            ET.SubElement(bndbox, "xmax").text = xmax
-            ET.SubElement(bndbox, "ymax").text = ymax
-
-        xml_string = ET.tostring(root, encoding="utf-8")
-        dom = minidom.parseString(xml_string)
-        formatted_xml = dom.toprettyxml(indent="  ")
-
-        with open(output_dir, "w") as f:
-            f.write(formatted_xml)
-
-    def custom_to_dota(self, data, output_file):
-        with open(output_file, "w", encoding="utf-8") as f:
-            for shape in data["shapes"]:
-                label = shape["label"]
-                points = shape["points"]
-                difficult = shape.get("difficult", False)
-
-                # Skip shapes with negative coordinates
-                if any(coord < 0 for point in points for coord in point):
-                    continue
-
-                x0 = points[0][0]
-                y0 = points[0][1]
-                x1 = points[1][0]
-                y1 = points[1][1]
-                x2 = points[2][0]
-                y2 = points[2][1]
-                x3 = points[3][0]
-                y3 = points[3][1]
-                f.write(
-                    f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n"
-                )
-
-    def custom_to_yolo_rectangle(self, data, output_file):
-        image_width = data["imageWidth"]
-        image_height = data["imageHeight"]
-        with open(output_file, "w", encoding="utf-8") as f:
-            for shape in data["shapes"]:
-                label = shape["label"]
-                points = shape["points"]
-                class_index = self.classes.index(label)
-                x_center = (points[0][0] + points[2][0]) / (2 * image_width)
-                y_center = (points[0][1] + points[2][1]) / (2 * image_height)
-                width = abs(points[2][0] - points[0][0]) / image_width
-                height = abs(points[2][1] - points[0][1]) / image_height
-                f.write(
-                    f"{class_index} {x_center} {y_center} {width} {height}\n"
-                )
-
-    def custom_to_yolo_polygon(self, data, output_file):
-        image_width = data["imageWidth"]
-        image_height = data["imageHeight"]
-        image_size = np.array([[image_width, image_height]])
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            for shape in data["shapes"]:
-                label = shape["label"]
-                points = np.array(shape["points"])
-                class_index = self.classes.index(label)
-                norm_points = points / image_size
-                f.write(
-                    f"{class_index} "
-                    + " ".join(
-                        [
-                            " ".join([str(cell[0]), str(cell[1])])
-                            for cell in norm_points.tolist()
-                        ]
-                    )
-                    + "\n"
-                )
-
-    def custom_to_coco(self, root_path, output_file, formats):
-        (
-            coco_meta_data,
-            label_list,
-            basename_to_img_id,
-        ) = self.get_coco_meta_data(root_path, formats)
-        # Loop the label_list
-        annotation_id = 0
-        for file_name in label_list:
-            # Load custom data
-            input_file = os.path.join(root_path, file_name)
-            with open(input_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            # Extract the basename
-            basename = os.path.splitext(file_name)[0]
-            # Loop the shapes
-            for shape in data["shapes"]:
-                annotation_id += 1
-                label = shape["label"]
-                points = shape["points"]
-                difficult = shape.get("difficult", False)
-                class_id = self.classes.index(label)
-                annotation = {
-                    "id": annotation_id,
-                    "image_id": basename_to_img_id[basename],
-                    "category_id": class_id + 1,
-                    "iscrowd": 0,
-                    "ignore": int(difficult),
-                }
-                if shape["shape_type"] == "rectangle":
-                    x_min = min(points[0][0], points[2][0])
-                    y_min = min(points[0][1], points[2][1])
-                    x_max = max(points[0][0], points[2][0])
-                    y_max = max(points[0][1], points[2][1])
-                    width = x_max - x_min
-                    height = y_max - y_min
-                    area = width * height
-                    bbox = [x_min, y_min, width, height]
-                    annotation["bbox"] = bbox
-                    annotation["area"] = area
-                elif shape["shape_type"] == "polygon":
-                    segmentation = []
-                    for point in points:
-                        x, y = point
-                        segmentation.append(x)
-                        segmentation.append(y)
-                    annotation["segmentation"] = [segmentation]
-                    annotation["bbox"] = self.get_min_enclosing_bbox(
-                        segmentation
-                    )
-                    annotation["area"] = self.calculate_polygon_area(
-                        segmentation
-                    )
-                coco_meta_data["annotations"].append(annotation)
-
-        # Save the coco result
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(coco_meta_data, f, indent=4, ensure_ascii=False)
-
-    def custom_polygon_to_mask(self, data, output_file):
-        image_width = data["imageWidth"]
-        image_height = data["imageHeight"]
-        image_shape = (image_height, image_width)
-
-        polygons = {}
-        for shape in data["shapes"]:
-            points = shape["points"]
-            polygon = []
-            for point in points:
-                x, y = point
-                polygon.append((int(x), int(y)))  # Convert to integers
-            polygons[shape["label"]] = polygon
-
-        output_format = self.mapping_table["type"]
-        if output_format not in ["grayscale", "rgb"]:
-            raise ValueError("Invalid output format specified")
-        mapping_color = self.mapping_table["colors"]
-
-        if output_format == "grayscale":
-            binary_mask = np.zeros(image_shape, dtype=np.uint8)
-            for label, polygon in polygons.items():
-                mask = np.zeros(image_shape, dtype=np.uint8)
-                cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
-                if label in mapping_color:
-                    mask_mapped = mask * mapping_color[label]
-                else:
-                    mask_mapped = mask
-                binary_mask += mask_mapped
-            cv2.imwrite(output_file, binary_mask)
-        elif output_format == "rgb":
-            # Initialize rgb_mask
-            color_mask = np.zeros(
-                (image_height, image_width, 3), dtype=np.uint8
-            )
-            for label, polygon in polygons.items():
-                # Create a mask for each polygon
-                mask = np.zeros(image_shape[:2], dtype=np.uint8)
-                cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
-                # Initialize mask_mapped with a default value
-                mask_mapped = mask
-                # Map the mask values using the provided mapping table
-                if label in mapping_color:
-                    color = mapping_color[label]
-                    mask_mapped = np.zeros_like(color_mask)
-                    cv2.fillPoly(
-                        mask_mapped, [np.array(polygon, dtype=np.int32)], color
-                    )
-                    color_mask = cv2.addWeighted(
-                        color_mask, 1, mask_mapped, 1, 0
-                    )
-            cv2.imwrite(
-                output_file, cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB)
-            )
+        return coco_data
 
     def yolo_to_custom(self, input_file, output_file, image_file):
         self.reset()
         with open(input_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
         img_w, img_h = self.get_image_size(image_file)
-
+        image_size = np.array([img_w, img_h], np.float64)
         for line in lines:
             line = line.strip().split(" ")
             class_index = int(line[0])
-            cx = float(line[1])
-            cy = float(line[2])
-            nw = float(line[3])
-            nh = float(line[4])
-            xmin = int((cx - nw / 2) * img_w)
-            ymin = int((cy - nh / 2) * img_h)
-            xmax = int((cx + nw / 2) * img_w)
-            ymax = int((cy + nh / 2) * img_h)
-
-            shape_type = "rectangle"
             label = self.classes[class_index]
-            points = [
-                [xmin, ymin],
-                [xmax, ymin],
-                [xmax, ymax],
-                [xmin, ymax],
-            ]
+            if len(line) == 5:
+                shape_type = "rectangle"
+                cx = float(line[1])
+                cy = float(line[2])
+                nw = float(line[3])
+                nh = float(line[4])
+                xmin = int((cx - nw / 2) * img_w)
+                ymin = int((cy - nh / 2) * img_h)
+                xmax = int((cx + nw / 2) * img_w)
+                ymax = int((cy + nh / 2) * img_h)
+                points = [
+                    [xmin, ymin],
+                    [xmax, ymin],
+                    [xmax, ymax],
+                    [xmin, ymax],
+                ]
+            else:
+                shape_type = "polygon"
+                points, masks = [], line[1:]
+                for x, y in zip(masks[0::2], masks[1::2]):
+                    point = [np.float64(x), np.float64(y)]
+                    point = np.array(point, np.float64) * image_size
+                    points.append(point.tolist())
             shape = {
                 "label": label,
                 "shape_type": shape_type,
@@ -431,7 +194,7 @@ class LabelConverter:
                 "attributes": {},
             }
             self.custom_data["shapes"].append(shape)
-        self.custom_data["imagePath"] = os.path.basename(image_file)
+        self.custom_data["imagePath"] = osp.basename(image_file)
         self.custom_data["imageHeight"] = img_h
         self.custom_data["imageWidth"] = img_w
         with open(output_file, "w", encoding="utf-8") as f:
@@ -500,7 +263,7 @@ class LabelConverter:
             total_info[dic_info["id"]] = {
                 "imageWidth": dic_info["width"],
                 "imageHeight": dic_info["height"],
-                "imagePath": os.path.basename(dic_info["file_name"]),
+                "imagePath": osp.basename(dic_info["file_name"]),
                 "shapes": [],
             }
 
@@ -542,8 +305,409 @@ class LabelConverter:
             self.custom_data["imageHeight"] = dic_info["imageHeight"]
             self.custom_data["imageWidth"] = dic_info["imageWidth"]
 
-            output_file = os.path.join(
-                image_path, os.path.splitext(dic_info["imagePath"])[0] + ".json"
+            output_file = osp.join(
+                image_path, osp.splitext(dic_info["imagePath"])[0] + ".json"
             )
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def dota_to_custom(self, input_file, output_file, image_file):
+        self.reset()
+
+        with open(input_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+        image_width, image_height = self.get_image_size(image_file)
+
+        for line in lines:
+            line = line.strip().split(" ")
+            x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in line[:8]]
+            difficult = line[-1]
+            shape = {
+                "label": line[8],
+                "description": None,
+                "points": [[x0, y0], [x1, y1], [x2, y2], [x3, y3]],
+                "group_id": None,
+                "difficult": bool(int(difficult)),
+                "direction": 0,
+                "shape_type": "rotation",
+                "flags": {},
+            }
+            self.custom_data["shapes"].append(shape)
+
+        self.custom_data["imagePath"] = osp.basename(image_file)
+        self.custom_data["imageHeight"] = image_height
+        self.custom_data["imageWidth"] = image_width
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def mask_to_custom(self, input_file, output_file, image_file, mapping_table):
+        self.reset()
+
+        results = self.get_contours_and_labels(
+            input_file, mapping_table
+        )
+        for result in results:
+            shape = {
+                "label": result["label"],
+                "text": "",
+                "points": result["points"],
+                "group_id": None,
+                "shape_type": "polygon",
+                "flags": {},
+            }
+            self.custom_data["shapes"].append(shape)
+
+        image_width, image_height = self.get_image_size(image_file)
+        self.custom_data["imagePath"] = os.path.basename(image_file)
+        self.custom_data["imageHeight"] = image_height
+        self.custom_data["imageWidth"] = image_width
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)            
+
+    def mot_to_custom(self, input_file, output_path, image_path):
+        with open(input_file, "r", newline="") as csvfile:
+            reader = csv.reader(csvfile, delimiter=",")
+            mot_data = [row for row in reader]
+
+        data_to_shape = {}
+        for data in mot_data:
+            frame_id = int(data[0])
+            group_id = int(data[1])
+            xmin = int(data[2])
+            ymin = int(data[3])
+            xmax = int(data[4]) + xmin
+            ymax = int(data[5]) + ymin
+            label = self.classes[int(data[7])]
+            info = [label, xmin, ymin, xmax, ymax, group_id]
+            if frame_id not in data_to_shape:
+                data_to_shape[frame_id] = [info]
+            else:
+                data_to_shape[frame_id].append(info)
+
+        file_list = os.listdir(image_path)
+        for file_name in file_list:
+            if file_name.endswith(".json"):
+                continue
+
+            self.reset()
+            frame_id = int(osp.splitext(file_name.split("_")[-1])[0])
+            data = data_to_shape[frame_id]
+            image_file = osp.join(image_path, file_name)
+            imageWidth, imageHeight = self.get_image_size(image_file)
+
+            shapes = []
+            for d in data:
+                label, xmin, ymin, xmax, ymax, group_id = d
+                points = [
+                    [xmin, ymin],
+                    [xmax, ymin],
+                    [xmax, ymax],
+                    [xmin, ymax],
+                ]
+                shape = {
+                    "label": label,
+                    "description": None,
+                    "points": points,
+                    "group_id": group_id,
+                    "difficult": False,
+                    "direction": 0,
+                    "shape_type": "rectangle",
+                    "flags": {},
+                }
+                shapes.append(shape)
+            
+            imagePath = file_name
+            if output_path != image_path:
+                imagePath = osp.join(output_path, file_name)
+            self.custom_data["imagePath"] = imagePath
+            self.custom_data["imageWidth"] = imageWidth
+            self.custom_data["imageHeight"] = imageHeight
+            self.custom_data["shapes"] = shapes
+
+            output_file = osp.join(
+                output_path, osp.splitext(file_name)[0] + ".json"
+            )
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def custom_to_yolo(self, input_file, output_file):
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        image_width = data["imageWidth"]
+        image_height = data["imageHeight"]
+        image_size = np.array([[image_width, image_height]])
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            for shape in data["shapes"]:
+                shape_type = shape["shape_type"]
+                if shape_type == "rectangle":
+                    label = shape["label"]
+                    points = shape["points"]
+
+                    class_index = self.classes.index(label)
+
+                    x_center = (points[0][0] + points[2][0]) / (2 * image_width)
+                    y_center = (points[0][1] + points[2][1]) / (2 * image_height)
+                    width = abs(points[2][0] - points[0][0]) / image_width
+                    height = abs(points[2][1] - points[0][1]) / image_height
+
+                    f.write(
+                        f"{class_index} {x_center} {y_center} {width} {height}\n"
+                    )
+                elif shape_type == "polygon":
+                    label = shape["label"]
+                    points = np.array(shape["points"])
+                    class_index = self.classes.index(label)
+                    norm_points = points / image_size
+                    f.write(
+                        f"{class_index} "
+                        + " ".join(
+                            [
+                                " ".join([str(cell[0]), str(cell[1])])
+                                for cell in norm_points.tolist()
+                            ]
+                        )
+                        + "\n"
+                    )
+
+    def custom_to_voc(self, input_file, output_dir):
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        image_path = data["imagePath"]
+        image_width = data["imageWidth"]
+        image_height = data["imageHeight"]
+
+        root = ET.Element("annotation")
+        ET.SubElement(root, "folder").text = osp.dirname(output_dir)
+        ET.SubElement(root, "filename").text = osp.basename(image_path)
+        size = ET.SubElement(root, "size")
+        ET.SubElement(size, "width").text = str(image_width)
+        ET.SubElement(size, "height").text = str(image_height)
+        ET.SubElement(size, "depth").text = "3"
+
+        for shape in data["shapes"]:
+            label = shape["label"]
+            points = shape["points"]
+            difficult = shape.get("difficult", False)
+
+            xmin = str(points[0][0])
+            ymin = str(points[0][1])
+            xmax = str(points[2][0])
+            ymax = str(points[2][1])
+
+            object_elem = ET.SubElement(root, "object")
+            ET.SubElement(object_elem, "name").text = label
+            ET.SubElement(object_elem, "pose").text = "Unspecified"
+            ET.SubElement(object_elem, "truncated").text = "0"
+            ET.SubElement(object_elem, "difficult").text = str(int(difficult))
+            bndbox = ET.SubElement(object_elem, "bndbox")
+            ET.SubElement(bndbox, "xmin").text = xmin
+            ET.SubElement(bndbox, "ymin").text = ymin
+            ET.SubElement(bndbox, "xmax").text = xmax
+            ET.SubElement(bndbox, "ymax").text = ymax
+
+        xml_string = ET.tostring(root, encoding="utf-8")
+        dom = minidom.parseString(xml_string)
+        formatted_xml = dom.toprettyxml(indent="  ")
+
+        with open(output_dir, "w") as f:
+            f.write(formatted_xml)
+
+    def custom_to_coco(self, input_path, output_path):
+        coco_data = self.get_coco_data()
+
+        for i, class_name in enumerate(self.classes):
+            coco_data["categories"].append(
+                {"id": i + 1, "name": class_name, "supercategory": ""}
+            )
+
+        image_id = 0
+        annotation_id = 0
+
+        label_file_list = os.listdir(input_path)
+        for file_name in label_file_list:
+            if not file_name.endswith(".json"):
+                continue
+            image_id += 1
+            input_file = osp.join(input_path, file_name)
+            with open(input_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            coco_data["images"].append(
+                {
+                    "id": image_id,
+                    "file_name": data["imagePath"],
+                    "width": data["imageWidth"],
+                    "height": data["imageHeight"],
+                    "license": 0,
+                    "flickr_url": "",
+                    "coco_url": "",
+                    "date_captured": "",
+                }
+            )
+
+            for shape in data["shapes"]:
+                annotation_id += 1
+                label = shape["label"]
+                points = shape["points"]
+                difficult = shape.get("difficult", False)
+                class_id = self.classes.index(label)
+                bbox, segmentation, area = [], [], 0
+                shape_type = shape["shape_type"]
+                if shape_type == "rectangle":
+                    x_min = min(points[0][0], points[2][0])
+                    y_min = min(points[0][1], points[2][1])
+                    x_max = max(points[0][0], points[2][0])
+                    y_max = max(points[0][1], points[2][1])
+                    width = x_max - x_min
+                    height = y_max - y_min
+                    bbox = [x_min, y_min, width, height]
+                    area = width * height
+                elif shape_type == "polygon":
+                    for point in points:
+                        segmentation += point
+                    bbox = self.get_min_enclosing_bbox(segmentation)
+                    area = self.calculate_polygon_area(segmentation)
+                    segmentation = [segmentation]
+
+                annotation = {
+                    "id": annotation_id,
+                    "image_id": image_id,
+                    "category_id": class_id + 1,
+                    "bbox": bbox,
+                    "area": area,
+                    "iscrowd": 0,
+                    "ignore": int(difficult),
+                    "segmentation": segmentation,
+                }
+
+                coco_data["annotations"].append(annotation)
+
+        output_file = osp.join(output_path, "instances_default.json")
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(coco_data, f, indent=4, ensure_ascii=False)
+
+    def custom_to_dota(self, input_file, output_file):
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        with open(output_file, "w", encoding="utf-8") as f:
+            for shape in data["shapes"]:
+                label = shape["label"]
+                points = shape["points"]
+                difficult = shape.get("difficult", False)
+                x0 = points[0][0]
+                y0 = points[0][1]
+                x1 = points[1][0]
+                y1 = points[1][1]
+                x2 = points[2][0]
+                y2 = points[2][1]
+                x3 = points[3][0]
+                y3 = points[3][1]
+                f.write(
+                    f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n"
+                )
+
+    def custom_to_mask(self, input_file, output_file, mapping_table):
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        image_width = data["imageWidth"]
+        image_height = data["imageHeight"]
+        image_shape = (image_height, image_width)
+
+        polygons = {}
+        for shape in data["shapes"]:
+            shape_type = shape["shape_type"]
+            if shape_type != "polygon":
+                continue
+            points = shape["points"]
+            polygon = []
+            for point in points:
+                x, y = point
+                polygon.append((int(x), int(y)))  # Convert to integers
+            polygons[shape["label"]] = polygon
+
+        output_format = mapping_table["type"]
+        if output_format not in ["grayscale", "rgb"]:
+            raise ValueError("Invalid output format specified")
+        mapping_color = mapping_table["colors"]
+        if output_format == "grayscale" and polygons:
+            # Initialize binary_mask
+            binary_mask = np.zeros(image_shape, dtype=np.uint8)
+            for label, polygon in polygons.items():
+                mask = np.zeros(image_shape, dtype=np.uint8)
+                cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
+                if label in mapping_color:
+                    mask_mapped = mask * mapping_color[label]
+                else:
+                    mask_mapped = mask
+                binary_mask += mask_mapped
+            cv2.imwrite(output_file, binary_mask)
+        elif output_format == "rgb" and polygons:
+            # Initialize rgb_mask
+            color_mask = np.zeros(
+                (image_height, image_width, 3), dtype=np.uint8
+            )
+            for label, polygon in polygons.items():
+                # Create a mask for each polygon
+                mask = np.zeros(image_shape[:2], dtype=np.uint8)
+                cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
+                # Initialize mask_mapped with a default value
+                mask_mapped = mask
+                # Map the mask values using the provided mapping table
+                if label in mapping_color:
+                    color = mapping_color[label]
+                    mask_mapped = np.zeros_like(color_mask)
+                    cv2.fillPoly(
+                        mask_mapped, [np.array(polygon, dtype=np.int32)], color
+                    )
+                    color_mask = cv2.addWeighted(
+                        color_mask, 1, mask_mapped, 1, 0
+                    )
+            cv2.imwrite(
+                output_file, cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB)
+            )
+
+    def custom_to_mot(self, input_path, output_file):
+        mot_data = []
+        label_file_list = os.listdir(input_path)
+        label_file_list.sort(key=lambda x: int(osp.splitext(x.split("_")[-1])[0]))
+
+        for label_file_name in label_file_list:
+            if not label_file_name.endswith("json"):
+                continue
+            label_file = os.path.join(input_path, label_file_name)
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            frame_id = int(osp.splitext(label_file_name.split("_")[-1])[0])
+            for shape in data["shapes"]:
+                if shape["shape_type"] != "rectangle":
+                    continue
+                class_id = self.classes.index(shape["label"])
+                track_id = int(shape["group_id"]) if shape["group_id"] else -1
+                points = shape["points"]
+                xmin = int(points[0][0])
+                ymin = int(points[0][1])
+                xmax = int(points[2][0])
+                ymax = int(points[2][1])
+                data = [
+                    frame_id,
+                    track_id,
+                    xmin,
+                    ymin,
+                    xmax - xmin,
+                    ymax - ymin,
+                    0,
+                    class_id,
+                    1,
+                ]
+                mot_data.append(data)
+
+        # Save updated_data to output_file
+        with open(output_file, "w", newline="") as csvfile:
+            writer = csv.writer(csvfile, delimiter=",")
+            writer.writerows(mot_data)

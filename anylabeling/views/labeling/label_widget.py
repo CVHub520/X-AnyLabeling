@@ -90,7 +90,6 @@ class LabelingWidget(LabelDialog):
         self.label_file = None
         self.other_data = {}
         self.classes_file = None
-        self.mapping_file = None
         self.attributes = {}
         self.current_category = None
         self.tmp_selected_polygons = []
@@ -756,80 +755,87 @@ class LabelingWidget(LabelDialog):
             self.tr("&Upload YOLO Annotations"),
             self.upload_yolo_annotation,
             None,
-            icon=None,
+            icon="format_yolo",
             tip=self.tr("Upload Custom YOLO Annotations"),
         )
         upload_voc_annotation = action(
             self.tr("&Upload VOC Annotations"),
             self.upload_voc_annotation,
             None,
-            icon=None,
+            icon="format_voc",
             tip=self.tr("Upload Custom VOC Annotations"),
         )
         upload_coco_annotation = action(
             self.tr("&Upload COCO Annotations"),
             self.upload_coco_annotation,
             None,
-            icon=None,
+            icon="format_coco",
             tip=self.tr("Upload Custom COCO Annotations"),
         )
-
-        # Save mode
-        select_default_format = action(
-            "Default",
-            functools.partial(self.set_output_format, "default"),
-            icon="format_default",
-            checkable=True,
-            checked=self._config["save_mode"] == "default",
-            enabled=self._config["save_mode"] != "default",
-        )
-        select_yolo_format = action(
-            "YOLO",
-            functools.partial(self.set_output_format, "yolo"),
-            icon="format_yolo",
-            checkable=True,
-            checked=self._config["save_mode"] == "yolo",
-            enabled=self._config["save_mode"] != "yolo",
-        )
-        select_coco_format = action(
-            "COCO",
-            functools.partial(self.set_output_format, "coco"),
-            icon="format_coco",
-            checkable=True,
-            checked=self._config["save_mode"] == "coco",
-            enabled=self._config["save_mode"] != "coco",
-        )
-        select_voc_format = action(
-            "PascalVOC",
-            functools.partial(self.set_output_format, "voc"),
-            icon="format_voc",
-            checkable=True,
-            checked=self._config["save_mode"] == "voc",
-            enabled=self._config["save_mode"] != "voc",
-        )
-        select_dota_format = action(
-            "DOTA",
-            functools.partial(self.set_output_format, "dota"),
+        upload_dota_annotation = action(
+            self.tr("&Upload DOTA Annotations"),
+            self.upload_dota_annotation,
+            None,
             icon="format_dota",
-            checkable=True,
-            checked=self._config["save_mode"] == "dota",
-            enabled=self._config["save_mode"] != "dota",
+            tip=self.tr("Upload Custom DOTA Annotations"),
         )
-        select_mot_format = action(
-            "MOT",
-            functools.partial(self.set_output_format, "mot"),
-            icon="format_mot",
-            checkable=True,
-            checked=self._config["save_mode"] == "mot",
-            enabled=self._config["save_mode"] != "mot",
-        )
-        select_mask_format = action(
-            "MASK",
-            functools.partial(self.set_output_format, "mask"),
+        upload_mask_annotation = action(
+            self.tr("&Upload MASK Annotations"),
+            self.upload_mask_annotation,
+            None,
             icon="format_mask",
-            checkable=True,
-            checked=self._config["save_mode"] == "mask",
-            enabled=self._config["save_mode"] != "mask",
+            tip=self.tr("Upload Custom MASK Annotations"),
+        )
+        upload_mot_annotation = action(
+            self.tr("&Upload MOT Annotations"),
+            self.upload_mot_annotation,
+            None,
+            icon="format_mot",
+            tip=self.tr("Upload Custom Multi-Object-Tracking Annotations"),
+        )
+
+        # Export
+        export_yolo_annotation = action(
+            self.tr("&Export YOLO Annotations"),
+            self.export_yolo_annotation,
+            None,
+            icon="format_yolo",
+            tip=self.tr("Export Custom YOLO Annotations"),
+        )
+        export_voc_annotation = action(
+            self.tr("&Export VOC Annotations"),
+            self.export_voc_annotation,
+            None,
+            icon="format_voc",
+            tip=self.tr("Export Custom PASCAL VOC Annotations"),
+        )
+        export_coco_annotation = action(
+            self.tr("&Export COCO Annotations"),
+            self.export_coco_annotation,
+            None,
+            icon="format_coco",
+            tip=self.tr("Export Custom COCO Annotations"),
+        )
+        export_dota_annotation = action(
+            self.tr("&Export DOTA Annotations"),
+            self.export_dota_annotation,
+            None,
+            icon="format_dota",
+            tip=self.tr("Export Custom DOTA Annotations"),
+        )
+        export_mask_annotation = action(
+            self.tr("&Export MASK Annotations"),
+            self.export_mask_annotation,
+            None,
+            icon="format_mask",
+            tip=self.tr("Export Custom MASK Annotations"),
+        )
+        export_mot_annotation = action(
+            self.tr("&Export MOT Annotations"),
+            self.export_mot_annotation,
+            None,
+            icon="format_mot",
+            tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
         )
 
         # Group zoom controls into a list for easier toggling.
@@ -921,13 +927,15 @@ class LabelingWidget(LabelDialog):
             upload_yolo_annotation=upload_yolo_annotation,
             upload_voc_annotation=upload_voc_annotation,
             upload_coco_annotation=upload_coco_annotation,
-            select_default_format=select_default_format,
-            select_yolo_format=select_yolo_format,
-            select_coco_format=select_coco_format,
-            select_voc_format=select_voc_format,
-            select_dota_format=select_dota_format,
-            select_mot_format=select_mot_format,
-            select_mask_format=select_mask_format,
+            upload_dota_annotation=upload_dota_annotation,
+            upload_mask_annotation=upload_mask_annotation,
+            upload_mot_annotation=upload_mot_annotation,
+            export_yolo_annotation=export_yolo_annotation,
+            export_voc_annotation=export_voc_annotation,
+            export_coco_annotation=export_coco_annotation,
+            export_dota_annotation=export_dota_annotation,
+            export_mask_annotation=export_mask_annotation,
+            export_mot_annotation=export_mot_annotation,
             zoom=zoom,
             zoom_in=zoom_in,
             zoom_out=zoom_out,
@@ -1019,7 +1027,7 @@ class LabelingWidget(LabelDialog):
             view=self.menu(self.tr("&View")),
             language=self.menu(self.tr("&Language")),
             upload=self.menu(self.tr("&Upload")),
-            mode=self.menu(self.tr("&Format")),
+            export=self.menu(self.tr("&Export")),
             help=self.menu(self.tr("&Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open &Recent")),
             label_list=label_menu,
@@ -1065,18 +1073,20 @@ class LabelingWidget(LabelDialog):
                 upload_yolo_annotation,
                 upload_voc_annotation,
                 upload_coco_annotation,
+                upload_dota_annotation,
+                upload_mask_annotation,
+                upload_mot_annotation,
             ),
         )
         utils.add_actions(
-            self.menus.mode,
+            self.menus.export,
             (
-                select_default_format,
-                select_yolo_format,
-                select_coco_format,
-                select_voc_format,
-                select_dota_format,
-                select_mot_format,
-                select_mask_format,
+                export_yolo_annotation,
+                export_voc_annotation,
+                export_coco_annotation,
+                export_dota_annotation,
+                export_mask_annotation,
+                export_mot_annotation,
             ),
         )
         utils.add_actions(
@@ -1353,163 +1363,6 @@ class LabelingWidget(LabelDialog):
         )
         msg_box.exec_()
         self.parent.parent.close()
-
-    def set_output_format(self, mode):
-        if self._config["save_mode"] == mode:
-            return
-
-        self._config["save_mode"] = mode
-        confirm_flag = True
-        if mode in ["yolo", "coco", "mot"]:
-            filter = "Classes Files (*.txt);;All Files (*)"
-            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific classes file"),
-                "",
-                filter,
-            )
-            if not self.classes_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific classes file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                confirm_flag = False
-                self._config["save_mode"] = "default"
-                return
-            else:
-                with open(self.classes_file, "r", encoding="utf-8") as f:
-                    classes = f.read().splitlines()
-                    for label in classes:
-                        if not self.unique_label_list.find_items_by_label(
-                            label
-                        ):
-                            item = (
-                                self.unique_label_list.create_item_from_label(
-                                    label
-                                )
-                            )
-                            self.unique_label_list.addItem(item)
-                            rgb = self._get_rgb_by_label(label)
-                            self.unique_label_list.set_item_label(
-                                item, label, rgb, LABEL_OPACITY
-                            )
-                if self.filename and mode == "coco":
-                    formats = [
-                        f"*.{fmt.data().decode()}"
-                        for fmt in QtGui.QImageReader.supportedImageFormats()
-                    ] + [f"*{LabelFile.suffix}"]
-                    if "*.json" in formats:
-                        formats.remove("*.json")
-                    converter = LabelConverter(classes_file=self.classes_file)
-                    root_path = osp.split(self.filename)[0]
-                    save_path = root_path + "/annotations"
-                    os.makedirs(save_path, exist_ok=True)
-                    dst_file = save_path + "/" + "instances_default.json"
-                    converter.custom_to_coco(root_path, dst_file, formats)
-                    msg_box = QMessageBox()
-                    msg_box.setText(
-                        self.tr(
-                            "The COCO format (*.json) label file has been successfully saved!"
-                        )
-                    )
-                    msg_box.exec_()
-                    confirm_flag = False
-                    self._config["save_mode"] = "default"
-        elif mode == "mask":
-            filter = "JSON Files (*.json);;All Files (*)"
-            self.mapping_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific color_map file"),
-                "",
-                filter,
-            )
-            if not self.mapping_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific color_map file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                confirm_flag = False
-                self._config["save_mode"] = "default"
-                return
-            else:
-                with open(self.mapping_file, "r", encoding="utf-8") as f:
-                    mapping_table = json.load(f)
-                    classes = list(mapping_table["colors"].keys())
-                    for label in classes:
-                        if not self.unique_label_list.find_items_by_label(
-                            label
-                        ):
-                            item = (
-                                self.unique_label_list.create_item_from_label(
-                                    label
-                                )
-                            )
-                            self.unique_label_list.addItem(item)
-                            rgb = self._get_rgb_by_label(label)
-                            self.unique_label_list.set_item_label(
-                                item, label, rgb, LABEL_OPACITY
-                            )
-
-        # Show dialog to restart application
-        if confirm_flag and self._config["save_mode"] != "default":
-            msg_box = QMessageBox()
-            msg_box.setText(
-                self.tr("The output format '%s' will be saved.") % mode
-            )
-            msg_box.exec_()
-
-        if self._config["save_mode"] == "default":
-            self.actions.select_default_format.setEnabled(False)
-            self.actions.select_yolo_format.setEnabled(True)
-            self.actions.select_coco_format.setEnabled(True)
-            self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_dota_format.setEnabled(True)
-            self.actions.select_mot_format.setEnabled(True)
-            self.actions.select_mask_format.setEnabled(True)
-        elif self._config["save_mode"] == "yolo":
-            self.actions.select_default_format.setEnabled(True)
-            self.actions.select_yolo_format.setEnabled(False)
-            self.actions.select_coco_format.setEnabled(True)
-            self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_dota_format.setEnabled(True)
-            self.actions.select_mot_format.setEnabled(True)
-            self.actions.select_mask_format.setEnabled(True)
-        elif self._config["save_mode"] == "voc":
-            self.actions.select_default_format.setEnabled(True)
-            self.actions.select_yolo_format.setEnabled(True)
-            self.actions.select_coco_format.setEnabled(True)
-            self.actions.select_voc_format.setEnabled(False)
-            self.actions.select_dota_format.setEnabled(True)
-            self.actions.select_mot_format.setEnabled(True)
-            self.actions.select_mask_format.setEnabled(True)
-        elif self._config["save_mode"] == "dota":
-            self.actions.select_default_format.setEnabled(True)
-            self.actions.select_yolo_format.setEnabled(True)
-            self.actions.select_coco_format.setEnabled(True)
-            self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_dota_format.setEnabled(False)
-            self.actions.select_mot_format.setEnabled(True)
-            self.actions.select_mask_format.setEnabled(True)
-        elif self._config["save_mode"] == "mot":
-            self.actions.select_default_format.setEnabled(True)
-            self.actions.select_yolo_format.setEnabled(True)
-            self.actions.select_coco_format.setEnabled(True)
-            self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_dota_format.setEnabled(True)
-            self.actions.select_mot_format.setEnabled(False)
-            self.actions.select_mask_format.setEnabled(True)
-        elif self._config["save_mode"] == "mask":
-            self.actions.select_default_format.setEnabled(True)
-            self.actions.select_yolo_format.setEnabled(True)
-            self.actions.select_coco_format.setEnabled(True)
-            self.actions.select_voc_format.setEnabled(True)
-            self.actions.select_dota_format.setEnabled(True)
-            self.actions.select_mot_format.setEnabled(True)
-            self.actions.select_mask_format.setEnabled(False)
 
     def get_labeling_instruction(self):
         text_mode = self.tr("Mode:")
@@ -2056,9 +1909,6 @@ class LabelingWidget(LabelDialog):
                 image_width=self.image.width(),
                 other_data=self.other_data,
                 flags=flags,
-                output_format=self._config["save_mode"],
-                classes_file=self.classes_file,
-                mapping_file=self.mapping_file,
             )
             self.label_file = label_file
             items = self.file_list_widget.findItems(
@@ -2309,9 +2159,6 @@ class LabelingWidget(LabelDialog):
                 image_width=self.image.width(),
                 other_data=self.other_data,
                 flags=flags,
-                output_format=self._config["save_mode"],
-                classes_file=self.classes_file,
-                mapping_file=self.mapping_file,
             )
             self.label_file = label_file
             items = self.file_list_widget.findItems(
@@ -2922,6 +2769,7 @@ class LabelingWidget(LabelDialog):
         self._config["keep_prev"] = keep_prev
         save_config(self._config)
 
+    # Uplaod
     def upload_attr_file(self):
         filter = "Attribute Files (*.json);;All Files (*)"
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -3146,6 +2994,559 @@ class LabelingWidget(LabelDialog):
 
         # update and refresh the current canvas
         self.load_file(self.filename)
+
+    def upload_dota_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        default_open_dir_path = dirpath if dirpath else "."
+        if self.last_open_dir and osp.exists(self.last_open_dir):
+            default_open_dir_path = self.last_open_dir
+        else:
+            default_open_dir_path = (
+                osp.dirname(self.filename) if self.filename else "."
+            )
+        image_dir_path = osp.dirname(self.filename)
+        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("%s - Open Directory") % __appname__,
+            default_open_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly
+            | QtWidgets.QFileDialog.DontResolveSymlinks,
+        )
+
+        response = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be lost"),
+            self.tr(
+                "You are going to upload new annotations to this task. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        )
+
+        if response != QtWidgets.QMessageBox.Ok:
+            return
+
+        converter = LabelConverter()
+        image_file_list = os.listdir(image_dir_path)
+        label_file_list = os.listdir(label_dir_path)
+        output_dir_path = image_dir_path
+        if self.output_dir:
+            output_dir_path = self.output_dir
+        for image_filename in image_file_list:
+            if image_filename.endswith(".json"):
+                continue
+            label_filename = osp.splitext(image_filename)[0] + ".txt"
+            data_filename = osp.splitext(image_filename)[0] + ".json"
+            if label_filename not in label_file_list:
+                continue
+            input_file = osp.join(label_dir_path, label_filename)
+            output_file = osp.join(output_dir_path, data_filename)
+            image_file = osp.join(image_dir_path, image_filename)
+            converter.dota_to_custom(
+                input_file=input_file,
+                output_file=output_file,
+                image_file=image_file,
+            )
+
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+    def upload_mask_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        filter = "JSON Files (*.json);;All Files (*)"
+        color_map_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific color_map file"),
+            "",
+            filter,
+        )
+        if not color_map_file:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please select a specific color_map file!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            self._config["save_mode"] = "default"
+            return
+        with open(color_map_file, "r", encoding="utf-8") as f:
+            mapping_table = json.load(f)
+            classes = list(mapping_table["colors"].keys())
+            for label in classes:
+                if not self.unique_label_list.find_items_by_label(
+                    label
+                ):
+                    item = (
+                        self.unique_label_list.create_item_from_label(
+                            label
+                        )
+                    )
+                    self.unique_label_list.addItem(item)
+                    rgb = self._get_rgb_by_label(label)
+                    self.unique_label_list.set_item_label(
+                        item, label, rgb, LABEL_OPACITY
+                    )
+
+        default_open_dir_path = dirpath if dirpath else "."
+        if self.last_open_dir and osp.exists(self.last_open_dir):
+            default_open_dir_path = self.last_open_dir
+        else:
+            default_open_dir_path = (
+                osp.dirname(self.filename) if self.filename else "."
+            )
+        image_dir_path = osp.dirname(self.filename)
+        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("%s - Open Directory") % __appname__,
+            default_open_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly
+            | QtWidgets.QFileDialog.DontResolveSymlinks,
+        )
+
+        response = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be lost"),
+            self.tr(
+                "You are going to upload new annotations to this task. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        )
+
+        if response != QtWidgets.QMessageBox.Ok:
+            return
+
+        converter = LabelConverter()
+        image_file_list = os.listdir(image_dir_path)
+        label_file_list = os.listdir(label_dir_path)
+        output_dir_path = image_dir_path
+        if self.output_dir:
+            output_dir_path = self.output_dir
+        for image_filename in image_file_list:
+            if image_filename.endswith(".json"):
+                continue
+            label_filename = osp.splitext(image_filename)[0] + ".png"
+            data_filename = osp.splitext(image_filename)[0] + ".json"
+            if label_filename not in label_file_list:
+                continue
+            input_file = osp.join(label_dir_path, label_filename)
+            output_file = osp.join(output_dir_path, data_filename)
+            image_file = osp.join(image_dir_path, image_filename)
+            converter.mask_to_custom(
+                input_file=input_file,
+                output_file=output_file,
+                image_file=image_file,
+                mapping_table=mapping_table,
+            )
+
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+    def upload_mot_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        filter = "Classes Files (*.txt);;All Files (*)"
+        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific classes file"),
+            "",
+            filter,
+        )
+        if not self.classes_file:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please select a specific classes file!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+        with open(self.classes_file, "r", encoding="utf-8") as f:
+            labels = f.read().splitlines()
+            for label in labels:
+                if not self.unique_label_list.find_items_by_label(label):
+                    item = self.unique_label_list.create_item_from_label(label)
+                    self.unique_label_list.addItem(item)
+                    rgb = self._get_rgb_by_label(label)
+                    self.unique_label_list.set_item_label(
+                        item, label, rgb, LABEL_OPACITY
+                    )
+
+        filter = "Attribute Files (*.csv);;All Files (*)"
+        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a custom mot annotation file"),
+            "",
+            filter,
+        )
+
+        if not input_file or QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be lost"),
+            self.tr(
+                "You are going to upload new annotations to this task. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        ) != QtWidgets.QMessageBox.Ok:
+            return
+
+        image_dir_path = osp.dirname(self.filename)
+        output_dir_path = image_dir_path
+        if self.output_dir:
+            output_dir_path = self.output_dir
+        converter = LabelConverter(classes_file=self.classes_file)
+        converter.mot_to_custom(
+            input_file=input_file,
+            output_path=output_dir_path,
+            image_path=image_dir_path,
+        )
+
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+    # Export
+    def export_yolo_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+        
+        if not self.classes_file:
+            filter = "Classes Files (*.txt);;All Files (*)"
+            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific classes file"),
+                "",
+                filter,
+            )
+            if not self.classes_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific classes file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter(classes_file=self.classes_file)
+        label_file_list = os.listdir(label_dir_path)
+        try:
+            for src_file_name in label_file_list:
+                if not src_file_name.endswith(".json"):
+                    continue
+                dst_file_name = osp.splitext(src_file_name)[0] + ".txt"
+                src_file = osp.join(label_dir_path, src_file_name)
+                dst_file = osp.join(save_path, dst_file_name)
+                converter.custom_to_yolo(src_file, dst_file)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(f"Annotation exported successfully!\n"
+                        f"Check the results in: {save_path}."),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def export_voc_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "Annotations"))
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter()
+        label_file_list = os.listdir(label_dir_path)
+        try:
+            for src_file_name in label_file_list:
+                if not src_file_name.endswith(".json"):
+                    continue
+                dst_file_name = osp.splitext(src_file_name)[0] + ".xml"
+                src_file = osp.join(label_dir_path, src_file_name)
+                dst_file = osp.join(save_path, dst_file_name)
+                converter.custom_to_voc(src_file, dst_file)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(f"Annotation exported successfully!\n"
+                        f"Check the results in: {save_path}."),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def export_coco_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+        
+        if not self.classes_file:
+            filter = "Classes Files (*.txt);;All Files (*)"
+            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific classes file"),
+                "",
+                filter,
+            )
+            if not self.classes_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific classes file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "annotations"))
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter(classes_file=self.classes_file)
+        try:
+            converter.custom_to_coco(label_dir_path, save_path)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(f"Annotation exported successfully!\n"
+                        f"Check the results in: {save_path}."),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def export_dota_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "labelTxt"))
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter(classes_file=self.classes_file)
+        label_file_list = os.listdir(label_dir_path)
+        try:
+            for src_file_name in label_file_list:
+                if not src_file_name.endswith(".json"):
+                    continue
+                dst_file_name = osp.splitext(src_file_name)[0] + ".txt"
+                src_file = osp.join(label_dir_path, src_file_name)
+                dst_file = osp.join(save_path, dst_file_name)
+                converter.custom_to_dota(src_file, dst_file)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(f"Annotation exported successfully!\n"
+                        f"Check the results in: {save_path}."),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def export_mask_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        filter = "JSON Files (*.json);;All Files (*)"
+        color_map_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific color_map file"),
+            "",
+            filter,
+        )
+        if not color_map_file:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please select a specific color_map file!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            self._config["save_mode"] = "default"
+            return
+
+        with open(color_map_file, "r", encoding="utf-8") as f:
+            mapping_table = json.load(f)
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "mask"))
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter(classes_file=self.classes_file)
+        label_file_list = os.listdir(label_dir_path)
+        try:
+            for src_file_name in label_file_list:
+                if not src_file_name.endswith(".json"):
+                    continue
+                dst_file_name = osp.splitext(src_file_name)[0] + ".png"
+                src_file = osp.join(label_dir_path, src_file_name)
+                dst_file = osp.join(save_path, dst_file_name)
+                converter.custom_to_mask(src_file, dst_file, mapping_table)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(f"Annotation exported successfully!\n"
+                        f"Check the results in: {save_path}."),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def export_mot_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+        
+        if not self.classes_file:
+            filter = "Classes Files (*.txt);;All Files (*)"
+            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific classes file"),
+                "",
+                filter,
+            )
+            if not self.classes_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific classes file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "MOT"))
+        base_name = osp.basename(self.filename).rsplit("_", 1)[0]
+        output_file = osp.join(save_path, base_name + ".csv")
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter(classes_file=self.classes_file)
+        try:
+            converter.custom_to_mot(label_dir_path, output_file)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(f"Annotation exported successfully!\n"
+                        f"Check the results in: {save_path}."),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
 
     def open_file(self, _value=False):
         if not self.may_continue():
