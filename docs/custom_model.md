@@ -136,6 +136,16 @@ cd DAMO-YOLO
 python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tinynasL25_S.pth --batch_size 1 --img_size 640
 ```
 
+- [RT-DETR](https://github.com/lyuwenyu/RT-DETR)
+
+Real-Time DEtection TRansformer (`RT-DETR`, aka RTDETR), the first real-time end-to-end object detector to our best knowledge. Our RT-DETR-L achieves 53.0% AP on COCO val2017 and 114 FPS on T4 GPU, while RT-DETR-X achieves 54.8% AP and 74 FPS, outperforming all YOLO detectors of the same scale in both speed and accuracy. Furthermore, our RT-DETR-R50 achieves 53.1% AP and 108 FPS, outperforming DINO-Deformable-DETR-R50 by 2.2% AP in accuracy and by about 21 times in FPS.
+
+> 论文：RT-DETR: DETRs Beat YOLOs on Real-time Object Detection</br>
+> 单位：Baidu</br>
+> 发表：Arxiv22</br>
+
+参考此[文章](https://zhuanlan.zhihu.com/p/628660998).
+
 - [SAM](https://github.com/vietanhdev/samexporter)
 
 The Segment Anything Model (`SAM`) produces high quality object masks from input prompts such as points or boxes, and it can be used to generate masks for all objects in an image. It has been trained on a dataset of 11 million images and 1.1 billion masks, and has strong zero-shot performance on a variety of segmentation tasks.
