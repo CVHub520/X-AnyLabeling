@@ -49,6 +49,7 @@ from .widgets import (
     LabelFilterComboBox,
     LabelListWidget,
     LabelListWidgetItem,
+    OverviewDialog,
     ToolBar,
     UniqueLabelQListWidget,
     ZoomWidget,
@@ -94,6 +95,7 @@ class LabelingWidget(LabelDialog):
         self.attributes = {}
         self.current_category = None
         self.tmp_selected_polygons = []
+        self.available_shapes = Shape.get_available_shapes()
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -584,13 +586,19 @@ class LabelingWidget(LabelDialog):
             enabled=True,
         )
 
+        overview = action(
+            self.tr("&Overview"),
+            self.overview,
+            shortcuts["show_overview"],
+            icon=None,
+            tip=self.tr("Show Annotations Statistics"),
+        )
         documentation = action(
             self.tr("&Documentation"),
             self.documentation,
             icon="help",
             tip=self.tr("Show documentation"),
         )
-
         contact = action(
             self.tr("&Contact me"),
             self.contact,
@@ -1056,6 +1064,7 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(
             self.menus.help,
             (
+                overview,
                 documentation,
                 contact,
             ),
@@ -1531,12 +1540,35 @@ class LabelingWidget(LabelDialog):
         self.recent_files.insert(0, filename)
 
     # Callbacks
-
     def undo_shape_edit(self):
         self.canvas.restore_shape()
         self.label_list.clear()
         self.load_shapes(self.canvas.shapes)
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
+
+    def overview(self):
+        label_file_list = []
+        if not self.image_list and self.filename:
+            dir_path, filename = osp.split(self.filename)
+            label_file = osp.join(dir_path, osp.splitext(filename)[0] + ".json")
+            if osp.exists(label_file):
+                label_file_list = [label_file]
+        elif self.image_list and not self.output_dir and self.filename:
+            file_list = os.listdir(osp.dirname(self.filename))
+            for file_name in file_list:
+                if not file_name.endswith(".json"):
+                    continue
+                label_file_list.append(osp.join(osp.dirname(self.filename), file_name))
+        if self.output_dir:
+            for file_name in os.listdir(self.output_dir):
+                if not file_name.endswith(".json"):
+                    continue
+                label_file_list.append(osp.join(self.output_dir, file_name))
+        _ = OverviewDialog(
+            parent=self,
+            label_file_list=label_file_list,
+            available_shapes=self.available_shapes,
+        )
 
     def documentation(self):
         url = "https://space.bilibili.com/3493129615313789/channel/collectiondetail?sid=1792823"  # NOQA

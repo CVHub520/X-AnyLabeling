@@ -100,7 +100,13 @@ class Shape:
         """Set shape type"""
         if value is None:
             value = "polygon"
-        if value not in [
+        if value not in self.get_available_shapes():
+            raise ValueError(f"Unexpected shape_type: {value}")
+        self._shape_type = value
+
+    @staticmethod
+    def get_available_shapes():
+        return [
             "polygon",
             "rectangle",
             "rotation",
@@ -108,9 +114,7 @@ class Shape:
             "line",
             "circle",
             "linestrip",
-        ]:
-            raise ValueError(f"Unexpected shape_type: {value}")
-        self._shape_type = value
+        ]
 
     def close(self):
         """Close the shape"""
