@@ -130,6 +130,14 @@ class YOLO(Model):
             )
         elif upsample_mode == "letterbox":
             input_img = letterbox(image, self.input_shape)[0]
+        elif upsample_mode == "centercrop":
+            m = min(self.img_height, self.img_width)
+            top = (self.img_height - m) // 2
+            left = (self.img_width - m) // 2
+            cropped_img = image[top:top + m, left:left + m]
+            input_img = cv2.resize(
+                cropped_img, (self.input_width, self.input_height)
+            )
         # Norm
         input_img = input_img / 255.0
         # Transpose

@@ -199,6 +199,8 @@ class ModelManager(QObject):
                 "pulc_attribute",
                 "internimage_cls",
                 "edge_sam",
+                "yolov5_cls",
+                "yolov8_cls",
             ]
         ):
             self.new_model_status.emit(
@@ -1003,6 +1005,50 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = PPOCRv4(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov5_cls":
+            from .yolov5_cls import YOLOv5_CLS
+
+            try:
+                model_config["model"] = YOLOv5_CLS(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov8_cls":
+            from .yolov8_cls import YOLOv8_CLS
+
+            try:
+                model_config["model"] = YOLOv8_CLS(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
