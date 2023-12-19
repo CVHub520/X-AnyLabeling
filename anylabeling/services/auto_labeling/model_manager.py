@@ -174,7 +174,7 @@ class ModelManager(QObject):
                 "yolov8",
                 "yolov8_seg",
                 "yolox",
-                "yolov5_cls",
+                "yolov5_resnet",
                 "yolov6_face",
                 "rtdetr",
                 "yolo_nas",
@@ -888,11 +888,11 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
-        elif model_config["type"] == "yolov5_cls":
-            from .yolov5_cls import YOLOv5_CLS
+        elif model_config["type"] == "yolov5_resnet":
+            from .yolov5_resnet import YOLOv5_ResNet
 
             try:
-                model_config["model"] = YOLOv5_CLS(
+                model_config["model"] = YOLOv5_ResNet(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

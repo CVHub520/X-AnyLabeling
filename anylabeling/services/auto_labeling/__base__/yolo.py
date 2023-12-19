@@ -141,7 +141,7 @@ class YOLO(Model):
     def postprocess(self, preds):
         if self.model_type in [
             "yolov5",
-            "yolov5_cls",
+            "yolov5_resnet",
             "yolov5_ram",
             "yolov5_sam",
             "yolov5_seg",

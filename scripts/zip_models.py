@@ -46,7 +46,7 @@ for model in model_list:
         download_links.append(model_config["encoder_model_path"])
         download_links.append(model_config["decoder_model_path"])
         download_links.append(model_config["model_path"])
-    elif model_config["type"] in ["yolov5_cls"]:
+    elif model_config["type"] in ["yolov5_resnet"]:
         download_links.append(model_config["model_path"])
         download_links.append(model_config["cls_model_path"])
     elif model_config["type"] in ["ppocr_v4"]:
@@ -91,7 +91,7 @@ for model in model_list:
         model_config["model_path"] = get_filename_from_url(
             model_config["model_path"]
         )
-    elif model_config["type"] in ["yolov5_cls"]:
+    elif model_config["type"] in ["yolov5_resnet"]:
         model_config["model_path"] = get_filename_from_url(
             model_config["model_path"]
         )

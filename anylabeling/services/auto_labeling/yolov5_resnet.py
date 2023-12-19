@@ -15,7 +15,7 @@ from .__base__.yolo import YOLO
 from .engines.build_onnx_engine import OnnxBaseModel
 
 
-class YOLOv5_CLS(YOLO):
+class YOLOv5_ResNet(YOLO):
     class Meta:
         required_config_names = [
             "cls_model_path",
