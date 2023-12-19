@@ -12,6 +12,8 @@ from PIL import Image
 from datetime import date
 
 from anylabeling.app_info import __version__
+from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 
 
 class LabelConverter:
@@ -20,6 +22,7 @@ class LabelConverter:
         if classes_file:
             with open(classes_file, "r", encoding="utf-8") as f:
                 self.classes = f.read().splitlines()
+            logger.info(f"Loading classes: {self.classes}")
 
     def reset(self):
         self.custom_data = dict(
@@ -447,6 +450,12 @@ class LabelConverter:
                 if shape_type == "rectangle":
                     label = shape["label"]
                     points = shape["points"]
+                    if len(points) == 2:
+                        logger.warning(
+                            "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
+                            "Please update your code to accommodate the new four-point mode."
+                        )
+                        points = rectangle_from_diagonal(points)
 
                     class_index = self.classes.index(label)
 
@@ -491,10 +500,17 @@ class LabelConverter:
         ET.SubElement(size, "depth").text = "3"
 
         for shape in data["shapes"]:
+            if shape["shape_type"] != "rectangle":
+                continue
             label = shape["label"]
             points = shape["points"]
             difficult = shape.get("difficult", False)
-
+            if len(points) == 2:
+                logger.warning(
+                    "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
+                    "Please update your code to accommodate the new four-point mode."
+                )
+                points = rectangle_from_diagonal(points)
             xmin = str(points[0][0])
             ymin = str(points[0][1])
             xmax = str(points[2][0])
@@ -559,6 +575,12 @@ class LabelConverter:
                 bbox, segmentation, area = [], [], 0
                 shape_type = shape["shape_type"]
                 if shape_type == "rectangle":
+                    if len(points) == 2:
+                        logger.warning(
+                            "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
+                            "Please update your code to accommodate the new four-point mode."
+                        )
+                        points = rectangle_from_diagonal(points)
                     x_min = min(points[0][0], points[2][0])
                     y_min = min(points[0][1], points[2][1])
                     x_max = max(points[0][0], points[2][0])
@@ -690,6 +712,12 @@ class LabelConverter:
                 class_id = self.classes.index(shape["label"])
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
                 points = shape["points"]
+                if len(points) == 2:
+                    logger.warning(
+                        "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
+                        "Please update your code to accommodate the new four-point mode."
+                    )
+                    points = rectangle_from_diagonal(points)
                 xmin = int(points[0][0])
                 ymin = int(points[0][1])
                 xmax = int(points[2][0])
