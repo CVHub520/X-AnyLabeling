@@ -2331,15 +2331,40 @@ class LabelingWidget(LabelDialog):
         - shape_width (float): The width of the shape.
         - pos (QPointF): The current mouse coordinates inside the shape.
         """
+        num_images = len(self.image_list)
         if shape_height > 0 and shape_width > 0:
-            self.status(
-                str(self.tr("X: %d, Y: %d | H: %d, W: %d"))
-                % (int(pos.x()), int(pos.y()), shape_height, shape_width)
-            )
+            if num_images:
+                current_index = self.image_list.index(self.filename) + 1
+                self.status(
+                    str(self.tr("X: %d, Y: %d | H: %d, W: %d [%d/%d]")) % (
+                        int(pos.x()),
+                        int(pos.y()),
+                        shape_height,
+                        shape_width,
+                        current_index,
+                        num_images,
+                    )
+                )
+            else:
+                self.status(
+                    str(self.tr("X: %d, Y: %d | H: %d, W: %d"))
+                    % (int(pos.x()), int(pos.y()), shape_height, shape_width)
+                )
         elif self.image_path:
-            self.status(
-                str(self.tr("X: %d, Y: %d")) % (int(pos.x()), int(pos.y()))
-            )
+            if num_images:
+                current_index = self.image_list.index(self.filename) + 1
+                self.status(
+                    str(self.tr("X: %d, Y: %d [%d/%d]")) % (
+                        int(pos.x()),
+                        int(pos.y()),
+                        current_index,
+                        num_images,
+                    )
+                )
+            else:
+                self.status(
+                    str(self.tr("X: %d, Y: %d")) % (int(pos.x()), int(pos.y()))
+                )
 
     def scroll_request(self, delta, orientation):
         units = -delta * 0.1  # natural scroll
