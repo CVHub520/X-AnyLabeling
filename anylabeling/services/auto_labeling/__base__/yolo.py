@@ -62,6 +62,7 @@ class YOLO(Model):
         self.classes = self.config.get("classes", [])
         if isinstance(self.classes, dict):
             self.classes = list(self.classes.values())
+        self.stride = self.config.get("stride", 32)
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
         self.show_boxes = self.config.get("show_boxes", False)
