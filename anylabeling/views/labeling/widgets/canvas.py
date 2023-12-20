@@ -400,7 +400,7 @@ class Canvas(
                 self.h_edge = None
                 shape.highlight_vertex(index, shape.MOVE_VERTEX)
                 self.override_cursor(CURSOR_POINT)
-                self.setToolTip(self.tr("Click & drag to move point"))
+                self.setToolTip(self.tr("Click & drag to move point of shape '%s'") % shape.label)
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
@@ -412,7 +412,7 @@ class Canvas(
                 self.prev_h_shape = self.h_hape = shape
                 self.prev_h_edge = self.h_edge = index_edge
                 self.override_cursor(CURSOR_POINT)
-                self.setToolTip(self.tr("Click to create point"))
+                self.setToolTip(self.tr("Click to create point of shape '%s'") % shape.label)
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
