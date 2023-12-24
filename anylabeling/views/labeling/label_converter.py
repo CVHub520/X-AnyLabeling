@@ -371,7 +371,7 @@ class LabelConverter:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)            
 
     def mot_to_custom(self, input_file, output_path, image_path):
-        with open(input_file, "r", newline="") as csvfile:
+        with open(input_file, "r", encoding="utf-8", newline="") as csvfile:
             reader = csv.reader(csvfile, delimiter=",")
             mot_data = [row for row in reader]
 
@@ -531,7 +531,7 @@ class LabelConverter:
         dom = minidom.parseString(xml_string)
         formatted_xml = dom.toprettyxml(indent="  ")
 
-        with open(output_dir, "w") as f:
+        with open(output_dir, "w", encoding="utf-8") as f:
             f.write(formatted_xml)
 
     def custom_to_coco(self, input_path, output_path):
@@ -736,6 +736,6 @@ class LabelConverter:
                 mot_data.append(data)
 
         # Save updated_data to output_file
-        with open(output_file, "w", newline="") as csvfile:
+        with open(output_file, "w", encoding="utf-8", newline="") as csvfile:
             writer = csv.writer(csvfile, delimiter=",")
             writer.writerows(mot_data)

@@ -34,8 +34,8 @@ def save_config(config):
     # Local config file
     user_config_file = osp.join(osp.expanduser("~"), ".anylabelingrc")
     try:
-        with open(user_config_file, "w") as f:
-            yaml.safe_dump(config, f)
+        with open(user_config_file, "w", encoding="utf-8") as f:
+            yaml.safe_dump(config, f, allow_unicode=True)
     except Exception:  # noqa
         logger.warning("Failed to save config: %s", user_config_file)
 
@@ -77,7 +77,7 @@ def get_config(config_file_or_yaml=None, config_from_args=None):
     if config_file_or_yaml is not None:
         config_from_yaml = yaml.safe_load(config_file_or_yaml)
         if not isinstance(config_from_yaml, dict):
-            with open(config_from_yaml) as f:
+            with open(config_from_yaml, encoding="utf-8") as f:
                 logger.info("Loading config file from: %s", config_from_yaml)
                 config_from_yaml = yaml.safe_load(f)
         update_dict(
