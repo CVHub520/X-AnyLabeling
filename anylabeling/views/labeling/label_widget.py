@@ -2332,15 +2332,17 @@ class LabelingWidget(LabelDialog):
         - pos (QPointF): The current mouse coordinates inside the shape.
         """
         num_images = len(self.image_list)
+        basename = osp.basename(str(self.filename))
         if shape_height > 0 and shape_width > 0:
             if num_images:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d | H: %d, W: %d [%d/%d]")) % (
+                    str(self.tr("X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]")) % (
                         int(pos.x()),
                         int(pos.y()),
                         shape_height,
                         shape_width,
+                        basename,
                         current_index,
                         num_images,
                     )
@@ -2354,9 +2356,10 @@ class LabelingWidget(LabelDialog):
             if num_images:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d [%d/%d]")) % (
+                    str(self.tr("X: %d, Y: %d [%s: %d/%d]")) % (
                         int(pos.x()),
                         int(pos.y()),
+                        basename,
                         current_index,
                         num_images,
                     )
