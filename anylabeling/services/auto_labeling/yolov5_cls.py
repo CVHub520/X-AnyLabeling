@@ -10,8 +10,8 @@ from .types import AutoLabelingResult
 from .__base__.yolo import YOLO
 from .utils import softmax
 
-class YOLOv5_CLS(YOLO):
 
+class YOLOv5_CLS(YOLO):
     def postprocess(self, outs, topk=1):
         """
         Classification:
@@ -29,7 +29,6 @@ class YOLOv5_CLS(YOLO):
         label = str(self.classes[index])
 
         return label
-
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -65,4 +64,3 @@ class YOLOv5_CLS(YOLO):
         result = AutoLabelingResult(shapes, replace=True)
 
         return result
-

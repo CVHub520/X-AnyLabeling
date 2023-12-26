@@ -31,7 +31,9 @@ class OverviewDialog(QtWidgets.QDialog):
 
         layout.addWidget(table)
         table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeToContents
+        )
         layout.addWidget(table)
         self.exec_()
 
@@ -46,7 +48,9 @@ class OverviewDialog(QtWidgets.QDialog):
             for shape in shapes:
                 label = shape.get("label", "_empty")
                 if label not in label_infos:
-                    label_infos[label] = dict(zip(self.available_shapes, initial_nums))
+                    label_infos[label] = dict(
+                        zip(self.available_shapes, initial_nums)
+                    )
                 shape_type = shape.get("shape_type", "")
                 label_infos[label][shape_type] += 1
 
@@ -57,7 +61,9 @@ class OverviewDialog(QtWidgets.QDialog):
         shape_counter = [0 for _ in range(len(self.available_shapes) + 1)]
 
         for label, infos in label_infos.items():
-            counter = [infos[shape_type] for shape_type in self.available_shapes]
+            counter = [
+                infos[shape_type] for shape_type in self.available_shapes
+            ]
             counter.append(sum(counter))
             row = [label] + counter
             total_infos.append(row)

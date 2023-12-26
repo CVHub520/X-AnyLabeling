@@ -590,7 +590,7 @@ class LabelingWidget(LabelDialog):
             self.tr("&Overview"),
             self.overview,
             shortcuts["show_overview"],
-            icon=None,
+            icon="overview",
             tip=self.tr("Show Annotations Statistics"),
         )
         documentation = action(
@@ -1550,7 +1550,9 @@ class LabelingWidget(LabelDialog):
         label_file_list = []
         if not self.image_list and self.filename:
             dir_path, filename = osp.split(self.filename)
-            label_file = osp.join(dir_path, osp.splitext(filename)[0] + ".json")
+            label_file = osp.join(
+                dir_path, osp.splitext(filename)[0] + ".json"
+            )
             if osp.exists(label_file):
                 label_file_list = [label_file]
         elif self.image_list and not self.output_dir and self.filename:
@@ -1558,7 +1560,9 @@ class LabelingWidget(LabelDialog):
             for file_name in file_list:
                 if not file_name.endswith(".json"):
                     continue
-                label_file_list.append(osp.join(osp.dirname(self.filename), file_name))
+                label_file_list.append(
+                    osp.join(osp.dirname(self.filename), file_name)
+                )
         if self.output_dir:
             for file_name in os.listdir(self.output_dir):
                 if not file_name.endswith(".json"):
@@ -1571,7 +1575,9 @@ class LabelingWidget(LabelDialog):
         )
 
     def documentation(self):
-        url = "https://space.bilibili.com/3493129615313789/channel/collectiondetail?sid=1792823"  # NOQA
+        url = (
+            "https://github.com/CVHub520/X-AnyLabeling/tree/main/docs"  # NOQA
+        )
         webbrowser.open(url)
 
     def contact(self):
@@ -2337,7 +2343,8 @@ class LabelingWidget(LabelDialog):
             if num_images:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]")) % (
+                    str(self.tr("X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]"))
+                    % (
                         int(pos.x()),
                         int(pos.y()),
                         shape_height,
@@ -2356,7 +2363,8 @@ class LabelingWidget(LabelDialog):
             if num_images:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d [%s: %d/%d]")) % (
+                    str(self.tr("X: %d, Y: %d [%s: %d/%d]"))
+                    % (
                         int(pos.x()),
                         int(pos.y()),
                         basename,
@@ -2685,7 +2693,9 @@ class LabelingWidget(LabelDialog):
             num_images = len(self.image_list)
             current_index = self.image_list.index(filename) + 1
             msg = str(self.tr("Loaded %s [%d/%d]")) % (
-                basename, current_index, num_images
+                basename,
+                current_index,
+                num_images,
             )
         else:
             msg = str(self.tr("Loaded %s")) % basename
@@ -3037,14 +3047,18 @@ class LabelingWidget(LabelDialog):
             filter,
         )
 
-        if not input_file or QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be lost"),
-            self.tr(
-                "You are going to upload new annotations to this task. Continue?"
-            ),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        ) != QtWidgets.QMessageBox.Ok:
+        if (
+            not input_file
+            or QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Current annotation will be lost"),
+                self.tr(
+                    "You are going to upload new annotations to this task. Continue?"
+                ),
+                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+            )
+            != QtWidgets.QMessageBox.Ok
+        ):
             return
 
         converter = LabelConverter()
@@ -3155,14 +3169,8 @@ class LabelingWidget(LabelDialog):
             mapping_table = json.load(f)
             classes = list(mapping_table["colors"].keys())
             for label in classes:
-                if not self.unique_label_list.find_items_by_label(
-                    label
-                ):
-                    item = (
-                        self.unique_label_list.create_item_from_label(
-                            label
-                        )
-                    )
+                if not self.unique_label_list.find_items_by_label(label):
+                    item = self.unique_label_list.create_item_from_label(label)
                     self.unique_label_list.addItem(item)
                     rgb = self._get_rgb_by_label(label)
                     self.unique_label_list.set_item_label(
@@ -3270,14 +3278,18 @@ class LabelingWidget(LabelDialog):
             filter,
         )
 
-        if not input_file or QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be lost"),
-            self.tr(
-                "You are going to upload new annotations to this task. Continue?"
-            ),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        ) != QtWidgets.QMessageBox.Ok:
+        if (
+            not input_file
+            or QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Current annotation will be lost"),
+                self.tr(
+                    "You are going to upload new annotations to this task. Continue?"
+                ),
+                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+            )
+            != QtWidgets.QMessageBox.Ok
+        ):
             return
 
         image_dir_path = osp.dirname(self.filename)
@@ -3307,7 +3319,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
-        
+
         if not self.classes_file:
             filter = "Classes Files (*.txt);;All Files (*)"
             self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -3338,7 +3350,7 @@ class LabelingWidget(LabelDialog):
         try:
             for image_file in image_list:
                 image_file_name = osp.basename(image_file)
-                label_file_name = osp.splitext(image_file_name)[0] + '.json'
+                label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
                 if label_file_name not in label_file_list:
@@ -3349,8 +3361,10 @@ class LabelingWidget(LabelDialog):
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
-                self.tr(f"Annotation exported successfully!\n"
-                        f"Check the results in: {save_path}."),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
@@ -3393,8 +3407,10 @@ class LabelingWidget(LabelDialog):
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
-                self.tr(f"Annotation exported successfully!\n"
-                        f"Check the results in: {save_path}."),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
@@ -3418,7 +3434,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
-        
+
         if not self.classes_file:
             filter = "Classes Files (*.txt);;All Files (*)"
             self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -3447,8 +3463,10 @@ class LabelingWidget(LabelDialog):
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
-                self.tr(f"Annotation exported successfully!\n"
-                        f"Check the results in: {save_path}."),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
@@ -3497,8 +3515,10 @@ class LabelingWidget(LabelDialog):
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
-                self.tr(f"Annotation exported successfully!\n"
-                        f"Check the results in: {save_path}."),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
@@ -3552,8 +3572,10 @@ class LabelingWidget(LabelDialog):
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
-                self.tr(f"Annotation exported successfully!\n"
-                        f"Check the results in: {save_path}."),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
@@ -3577,7 +3599,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
-        
+
         if not self.classes_file:
             filter = "Classes Files (*.txt);;All Files (*)"
             self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -3608,8 +3630,10 @@ class LabelingWidget(LabelDialog):
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
-                self.tr(f"Annotation exported successfully!\n"
-                        f"Check the results in: {save_path}."),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
@@ -4240,7 +4264,13 @@ class LabelingWidget(LabelDialog):
             return
 
         # Ask a label for the object
-        text, flags, group_id, description, difficult = "", {}, None, None, False  
+        text, flags, group_id, description, difficult = (
+            "",
+            {},
+            None,
+            None,
+            False,
+        )
         last_label = self.find_last_label()
         if self._config["auto_use_last_label"] and last_label:
             text = last_label

@@ -72,9 +72,7 @@ class LabelConverter:
         return [x_min, y_min, bbox_width, bbox_height]
 
     @staticmethod
-    def get_contours_and_labels(
-        mask, mapping_table, epsilon_factor=0.001
-    ):
+    def get_contours_and_labels(mask, mapping_table, epsilon_factor=0.001):
         results = []
         input_type = mapping_table["type"]
         mapping_color = mapping_table["colors"]
@@ -86,7 +84,7 @@ class LabelConverter:
                 binaray_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
             )
             for contour in contours:
-                epsilon = epsilon_factor* cv2.arcLength(contour, True)
+                epsilon = epsilon_factor * cv2.arcLength(contour, True)
                 approx = cv2.approxPolyDP(contour, epsilon, True)
                 if len(approx) < 5:
                     continue
@@ -101,11 +99,15 @@ class LabelConverter:
                 result_item = {"points": points, "label": class_name}
                 results.append(result_item)
         elif input_type == "rgb":
-            color_to_label = {tuple(color): label for label, color in mapping_color.items()}
+            color_to_label = {
+                tuple(color): label for label, color in mapping_color.items()
+            }
             rgb_img = cv2.imread(mask)
             hsv_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
 
-            _, binary_img = cv2.threshold(hsv_img[:, :, 1], 0, 255, cv2.THRESH_BINARY)
+            _, binary_img = cv2.threshold(
+                hsv_img[:, :, 1], 0, 255, cv2.THRESH_BINARY
+            )
             contours, _ = cv2.findContours(
                 binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
             )
@@ -115,7 +117,7 @@ class LabelConverter:
                 approx = cv2.approxPolyDP(contour, epsilon, True)
                 if len(approx) < 5:
                     continue
-                
+
                 x, y, w, h = cv2.boundingRect(contour)
                 center = (int(x + w / 2), int(y + h / 2))
                 rgb_color = rgb_img[center[1], center[0]].tolist()
@@ -125,7 +127,7 @@ class LabelConverter:
                 for point in approx:
                     x, y = point[0].tolist()
                     points.append([x, y])
-                
+
                 result_item = {"points": points, "label": label}
                 results.append(result_item)
         return results
@@ -345,12 +347,12 @@ class LabelConverter:
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def mask_to_custom(self, input_file, output_file, image_file, mapping_table):
+    def mask_to_custom(
+        self, input_file, output_file, image_file, mapping_table
+    ):
         self.reset()
 
-        results = self.get_contours_and_labels(
-            input_file, mapping_table
-        )
+        results = self.get_contours_and_labels(input_file, mapping_table)
         for result in results:
             shape = {
                 "label": result["label"],
@@ -368,7 +370,7 @@ class LabelConverter:
         self.custom_data["imageWidth"] = image_width
 
         with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)            
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def mot_to_custom(self, input_file, output_path, image_path):
         with open(input_file, "r", encoding="utf-8", newline="") as csvfile:
@@ -421,7 +423,7 @@ class LabelConverter:
                     "flags": {},
                 }
                 shapes.append(shape)
-            
+
             imagePath = file_name
             if output_path != image_path:
                 imagePath = osp.join(output_path, file_name)
@@ -459,8 +461,12 @@ class LabelConverter:
 
                     class_index = self.classes.index(label)
 
-                    x_center = (points[0][0] + points[2][0]) / (2 * image_width)
-                    y_center = (points[0][1] + points[2][1]) / (2 * image_height)
+                    x_center = (points[0][0] + points[2][0]) / (
+                        2 * image_width
+                    )
+                    y_center = (points[0][1] + points[2][1]) / (
+                        2 * image_height
+                    )
                     width = abs(points[2][0] - points[0][0]) / image_width
                     height = abs(points[2][1] - points[0][1]) / image_height
 
@@ -697,7 +703,9 @@ class LabelConverter:
     def custom_to_mot(self, input_path, output_file):
         mot_data = []
         label_file_list = os.listdir(input_path)
-        label_file_list.sort(key=lambda x: int(osp.splitext(x.split("_")[-1])[0]))
+        label_file_list.sort(
+            key=lambda x: int(osp.splitext(x.split("_")[-1])[0])
+        )
 
         for label_file_name in label_file_list:
             if not label_file_name.endswith("json"):

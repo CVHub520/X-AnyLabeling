@@ -10,5 +10,6 @@ from .types import AutoLabelingResult
 from .yolov5_cls import YOLOv5_CLS
 from .utils import softmax
 
+
 class YOLOv8_CLS(YOLOv5_CLS):
     pass

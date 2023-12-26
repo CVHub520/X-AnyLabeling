@@ -63,20 +63,21 @@
   - [👨🏼‍💻Build from source](#👨🏼‍💻build-from-source)
   - [📦Build executable](#📦build-executable)
 - [📋 Usage](#📋-usage-⏏️)
-  - [📌Basic usage](#📌basic-usage)
-  - [🚀Advanced usage](#🚀advanced-usage)
   - [📜Docs](#📜docs)
   - [🧷Hotkeys](#🧷hotkeys)
 - [📧 Contact](#📧-contact-⏏️)
 - [✅ License](#✅-license-⏏️)
+- [🙏🏻 Acknowledgments](#🙏🏻-acknowledgments-⏏️)
 - [🏷️ Citing](#🏷️-citing-⏏️)
 
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Dec. 2023:
+  - 🤗 Release the latest version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) 🤗
   - 🔥🔥🔥 Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
+  - Support YOLOv5-Cls and YOLOv8-Cls model.
 - Nov. 2023:
-  - 🤗 Release the latest version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0) 🤗
+  - Release version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0).
   - Supoort [InternImage](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
   - Release version [2.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
   - Added support for Grounding-SAM, combining [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) with [HQ-SAM](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
@@ -127,22 +128,33 @@
 
 ## 👋 Brief Introduction [⏏️](#📄-table-of-contents)
 
-`X-AnyLabeling` is an exceptional annotation tool that draws inspiration from renowned projects like [LabelImg](https://github.com/HumanSignal/labelImg), [roLabelImg](https://github.com/cgvict/roLabelImg), [Labelme](https://github.com/wkentaro/labelme), and [Anylabeling](https://github.com/vietanhdev/anylabeling). It transcends the realm of ordinary annotation tools, representing a significant stride into the future of automated data annotation. This cutting-edge tool not only simplifies the annotation process but also seamlessly integrates state-of-the-art AI models to deliver superior results. With a strong focus on practical applications, X-AnyLabeling is purpose-built to provide developers with an industrial-grade, feature-rich solution for automating annotation and data processing across a wide range of complex tasks.
+`X-AnyLabeling` stands out as a robust annotation tool seamlessly incorporating an AI inference engine alongside an array of sophisticated features. Tailored for practical applications, it is committed to delivering comprehensive, industrial-grade solutions for image data engineers. This tool excels in swiftly and automatically executing annotations across diverse and intricate tasks.
+
 
 ## 🔥 Highlight [⏏️](#📄-table-of-contents)
 
 ### 🗝️Key Features
 
-- Support for importing `images` and `videos`.
-- `CPU` and `GPU` inference support with on-demand selection.
-- Compatibility with multiple SOTA deep-learning algorithms.
-- Single-frame prediction and `one-click` processing for all images.
-- Export options for formats like `COCO-JSON`, `VOC-XML`, `YOLOv5-TXT`, `DOTA-TXT` and `MOT-CSV`.
-- Integration with popular frameworks such as [PaddlePaddle](https://www.paddlepaddle.org.cn/), [OpenMMLab](https://openmmlab.com/), [timm](https://github.com/huggingface/pytorch-image-models), and others.
-- Providing comprehensive `help documentation` along with active `developer community support`.
-- Accommodation of various visual tasks such as `detection`, `segmentation`, `face recognition`, and so on.
-- Modular design that empowers users to compile the system according to their specific needs and supports customization and further development.
-- Image annotation capabilities for `polygons`, `rectangles`, `rotation`, `circles`, `lines`, and `points`, as well as `text detection`, `recognition`, and `KIE` annotations.
+- Supports inference acceleration using `GPU`.
+- Handles both `image` and `video` processing.
+- Allows single-frame and batch predictions for all tasks.
+- Facilitates customization of models and supports secondary development design.
+- Enables one-click import and export of mainstream label formats such as COCO, VOC, YOLO, DOTA, MOT, and MASK.
+- Supports various image annotation styles, including `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, as well as annotations for `text detection`, `recognition`, and `KIE`.
+- Covers a range of visual tasks, including:
+  - `image classification`: ResNet | InternImage | YOLOv5-cls | YOLOv8-cls...
+  - `multi-label annotation`: PULC Vechile/Person Attribute | ...
+  - `object detection`: YOLOv5/v6/v7/v8/nas/X | DAMO_YOLO | Gold_YOLO | RT-DETR | Grounding-DINO | ...
+  - `face detection`: YOLOv6-face | ...
+  - `lane detection`: CLRNet | ...
+  - `rotated object detection`: YOLOv5obb | ...
+  - `instance segmentation`: YOLOv5-seg | YOLOv8-seg | ...
+  - `pose estimation`: DWPose | YOLOv8-pose | ...
+  - `multi-object tracking`: ByteTrack | OC-Sort | ...
+  - `optical character recognition (OCR)`: PPOCRv4 | ...
+  - `image captioning`: RAM | ...
+  - `segment anything`: SAM | MobileSAM | EdgeSAM | EfficientVit-SAM | SAM-Med2D | SAM-HQ | ...
+  - ...
 
 ### ⛏️Model Zoo
 
@@ -158,103 +170,20 @@
 |  **[SAM](https://segment-anything.com/)** | **BC-SAM** | **Skin-SAM** | **Polyp-SAM** |
 | <img src='https://user-images.githubusercontent.com/72010077/273421331-2c0858b5-0b92-405b-aae6-d061bc25aa3c.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764259-718dce97-d04d-4629-b6d2-95f17670ce2a.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764288-e26767d1-3c44-45cb-a72e-124efb4e8263.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764318-e8b6a197-e733-478e-a210-e4386bafa1e4.png' height="126px" width="180px"> |
 
-For more details, please refer to [models_list](./docs/models_list.md).
+For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 
 </div>
 
-## 📖 Tutorials [⏏️](#📄-table-of-contents)
-
-### 🔜Quick Start
-
-Download and run the `GUI` version directly from [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0) or [Baidu Disk](https://pan.baidu.com/s/1XKflqsbb7C_7seL-ROD3bg?pwd=a64z).
-
-Note:
-- For MacOS:
-  - After installation, go to the Applications folder.
-  - Right-click on the application and choose Open.
-  - From the second time onwards, you can open the application normally using Launchpad.
-
-- Due to the lack of necessary hardware, the current tool is only available in executable versions for `Windows` and `Linux`. If you require executable programs for other operating systems, e.g., `MacOS`, please refer to the following steps for self-compilation.
-- To obtain more stable performance and feature support, it is strongly recommended to build from source code.
-
-### 👨🏼‍💻Build from source
-
-- Install the required libraries:
-
-```bash
-pip install -r requirements.txt
-```
-
-> If you need to use GPU inference, install the corresponding requirements-gpu.txt file and download the appropriate version of onnxruntime-gpu based on your local CUDA and CuDNN versions. For more details, refer to the [FAQ](./docs/Q&A.md).
-
-- Generate resources [Option]:
-
-```
-pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
-```
-
-- Run the application:
-
-```
-python anylabeling/app.py
-```
-
-### 📦Build executable
-
-> It's essential to note that these steps are not obligatory for regular users; they are intended for scenarios where customization or re-distribution of executable files is necessary.
-
-```bash
-#Windows-CPU
-bash scripts/build_executable.sh win-cpu
-
-#Windows-GPU
-bash scripts/build_executable.sh win-gpu
-
-#Linux-CPU
-bash scripts/build_executable.sh linux-cpu
-
-#Linux-GPU
-bash scripts/build_executable.sh linux-gpu
-```
-
-<details open>
-
-<summary>Note:</summary>
-
-1. Before compiling, please modify the `__preferred_device__` parameter in the "anylabeling/app_info.py" file according to the appropriate GPU/CPU version.
-2. If you need to compile the GPU version, install the corresponding environment using "pip install -r requirements-gpu*.txt". Specifically, for compiling the GPU version, manually modify the "datas" list parameters in the "anylabeling-*-gpu.spec" file to include the relevant dynamic libraries (*.dll or *.so) of your local onnxruntime-gpu. Additionally, when downloading the onnxruntime-gpu package, ensure compatibility with your CUDA version. You can refer to the official [documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html) for the specific compatibility table.
-3. For macOS versions, you can make modifications by referring to the "anylabeling-win-*.spec" script.
-
-</details>
 
 ## 📋 Usage [⏏️](#📄-table-of-contents)
 
-### 📌Basic usage
-
-1. Build and launch using the instructions above.
-2. Click `Change Output Dir` in the `Menu/File` to specify a output directory; otherwise, it will save by default in the current image path.
-3. Click `Open`/`Open Dir`/`Open Video` to select a specific file, folder, or video.
-4. Click the `Start drawing xxx` button on the left-hand toolbar or the `Auto Lalbeling` control to initiate. 
-5. Click and release left mouse to select a region to annotate the rect box. Alternatively, you can press the "Run (i)" key for one-click processing.
-
-> Note: The annotation will be saved to the folder you specify and you can refer to the below hotkeys to speed up your workflow.
-
-### 🚀Advanced usage
-
-- Select **AutoLalbeing Button** on the left side or press the shortcut key "Ctrl + A" to activate auto labeling.
-- Select one of the `Segment Anything-liked Models` from the dropdown menu Model, where the Quant indicates the quantization of the model.
-- Use `Auto segmentation marking tools` to mark the object.
-    - +Point: Add a point that belongs to the object.
-    - -Point: Remove a point that you want to exclude from the object.
-    - +Rect: Draw a rectangle that contains the object. Segment Anything will automatically segment the object.
-    - Clear: Clear all auto segmentation markings.
-    - Finish Object (f): Finish the current marking. After finishing the object, you can enter the label name and save the object.
-
 ### 📜Docs
 
-- [FAQ](./docs/Q&A.md)
-- [Model Zoo](./docs/models_list.md)
-- [Loading Custom Models](./docs/custom_model.md)
+##### 🔜[Quick Start](./docs/en/get_started.md)
+
+##### 📋[User Guide](./docs/en/user_guide.md)
+
+##### 🚀[Load Custom Model](./docs/en/custom_model.md)
 
 ### 🧷Hotkeys
 
@@ -266,27 +195,33 @@ bash scripts/build_executable.sh linux-gpu
 |-------------------|-----------------------------------------|
 | d                 | Open next file                          |
 | a                 | Open previous file                      |
-| p                 | Create polygon                          |
+| p or [Ctrl+n]     | Create polygon                          |
 | o                 | Create rotation                         |
-| r                 | Create rectangle                        |
+| r or [Crtl+r]     | Create rectangle                        |
 | i                 | Run model                               |
-| r                 | Create rectangle                        |
-| +                 | `+point` of SAM mode                    |
-| -                 | `-point` of SAM mode                    |
+| q                 | `positive point` of SAM mode            |
+| e                 | `negative point` of SAM mode            |
+| c                 | Quickly clear points of SAM mode        |
 | g                 | Group selected shapes                   |
 | u                 | Ungroup selected shapes                 |
+| s                 | Hide selected shapes                    |
+| w                 | Show selected shapes                    |
 | Ctrl + q          | Quit                                    |
 | Ctrl + i          | Open image file                         |
 | Ctrl + o          | Open video file                         |
 | Ctrl + u          | Load all images from a directory        |
 | Ctrl + e          | Edit label                              |
 | Ctrl + j          | Edit polygon                            |
+| Ctrl + c          | Copy selected shapes                    |
+| Ctrl + v          | Paste selected shapes                   |
 | Ctrl + d          | Duplicate polygon                       |
+| Ctrl + g          | Display overview annotation statistics  |
+| Ctrl + h          | Toggle visibility shapes                |
 | Ctrl + p          | Toggle keep previous mode               |
 | Ctrl + y          | Toggle auto use last label              |
 | Ctrl + m          | Run all images at once                  |
 | Ctrl + a          | Enable auto annotation                  |
-| Ctrl + s          | Save current information                |
+| Ctrl + s          | Save current annotation                 |
 | Ctrl + Shift + s  | Change output directory                 |
 | Ctrl -            | Zoom out                                |
 | Ctrl + 0          | Zoom to Original                        |
@@ -304,6 +239,7 @@ bash scripts/build_executable.sh linux-gpu
 
 </details>
 
+
 ## 📧 Contact [⏏️](#📄-table-of-contents)
 
 <p align="center">
@@ -314,11 +250,28 @@ If you find this project helpful or interesting, consider starring it to show yo
 
 - [Create an issue](https://github.com/CVHub520/X-AnyLabeling/issues)
 - Email: cv_hub@163.com
-- WeChat: `ww10874` (Please include `X-Anylabeing+brief description of the issue` in your message)
+
 
 ## ✅ License [⏏️](#📄-table-of-contents)
 
 This project is released under the [GPL-3.0 license](./LICENSE).
+
+## 🙏🏻 Acknowledgments [⏏️](#📄-table-of-contents)
+
+I would like to express my gratitude to the developers and contributors of the following project, whose work has been invaluable in the development of this project:
+
+- [LabelMe](https://github.com/wkentaro/labelme)
+
+- [LabelImg](https://github.com/tzutalin/labelIm)
+
+- [roLabelImg](https://github.com/cgvict/roLabelImg)
+
+- [AnyLabeling](https://github.com/vietanhdev/anylabeling)
+
+- [Computer Vision Annotation Tool](https://github.com/opencv/cvat)
+
+I appreciate the dedication and effort put forth by the creators and maintainers of these tools, as they have contributed immensely to the success of this project.
+
 
 ## 🏷️ Citing [⏏️](#📄-table-of-contents)
 
@@ -337,3 +290,5 @@ If you use this software in your research, please cite it as below:
   howpublished = {\url{https://github.com/CVHub520/X-AnyLabeling}}
 }
 ```
+
+<div align="right"><a href="#top">🔝 Back to Top</a></div>

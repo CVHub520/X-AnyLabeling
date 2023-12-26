@@ -135,7 +135,7 @@ class YOLO(Model):
             m = min(self.img_height, self.img_width)
             top = (self.img_height - m) // 2
             left = (self.img_width - m) // 2
-            cropped_img = image[top:top + m, left:left + m]
+            cropped_img = image[top : top + m, left : left + m]
             input_img = cv2.resize(
                 cropped_img, (self.input_width, self.input_height)
             )
@@ -247,7 +247,9 @@ class YOLO(Model):
         for box, class_id, point, track_id in zip(
             boxes, class_ids, points, track_ids
         ):
-            if (self.show_boxes and self.task != "track") or self.task == "det":
+            if (
+                self.show_boxes and self.task != "track"
+            ) or self.task == "det":
                 x1, y1, x2, y2 = box.astype(float)
                 shape = Shape(flags={})
                 shape.add_point(QtCore.QPointF(x1, y1))

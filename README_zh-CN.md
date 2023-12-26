@@ -61,9 +61,7 @@
   - [🔜快速开始](#🔜快速开始)
   - [👨🏼‍💻从源码构建](#👨🏼‍💻从源码构建)
   - [📦编译](#📦编译)
-- [📋 用法](#📋-用法-⏏️)
-  - [📌基础用法](#📌基础用法)
-  - [🚀高级用法](#🚀高级用法)
+- [📋 教程](#📋-教程-⏏️)
   - [📜文档](#📜文档)
   - [🧷快捷键](#🧷快捷键)
 - [📧 联系](#📧-联系-⏏️)
@@ -72,8 +70,12 @@
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- Dec. 2023:
+  - 🤗 Release the latest version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) 🤗
+  - 🔥🔥🔥 Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
+  - Support YOLOv5-Cls and YOLOv8-Cls model.
 - Nov. 2023:
-  - 🤗 Release the latest version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0) 🤗
+  - Release version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0).
   - Supoort [InternImage](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
   - Release version [2.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
   - Added support for Grounding-SAM, combining [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) with [HQ-SAM](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
@@ -124,22 +126,21 @@
 
 ## 👋 简介 [⏏️](#📄-目录)
 
-`X-AnyLabeling` 是一款出色的标注工具，汲取了[LabelImg](https://github.com/HumanSignal/labelImg)、[roLabelImg](https://github.com/cgvict/roLabelImg)、[Labelme](https://github.com/wkentaro/labelme)以及[Anylabeling](https://github.com/vietanhdev/anylabeling )等知名标注软件的灵感。它代表了自动数据标注的未来重要一步。这一创新工具不仅简化了标注过程，还无缝集成了先进的人工智能模型，以提供卓越的结果。X-AnyLabeling 专注于实际应用，致力于为开发人员提供工业级、功能丰富的解决方案，用于自动进行各种复杂任务的标注和数据处理。
+`X-AnyLabeling` 是一款基于AI推理引擎和丰富功能特性于一体的强大辅助标注工具，其专注于实际应用，致力于为图像数据工程师提供工业级的一站式解决方案，可自动快速进行各种复杂任务的标定。
+
 
 ## 🔥 亮点 [⏏️](#📄-目录)
 
 ### 🗝️关键功能
 
-- 支持导入 `图像` 和 `视频`。
-- 支持 `CPU` 和 `GPU` 推理，可按需选择。
-- 兼容多种领先的深度学习算法。
-- 单帧预测和一键处理所有图像。
-- 导出选项，支持格式如 `COCO-JSON`、`VOC-XML`、`YOLOv5-TXT`、`DOTA-TXT` 和 `MOT-CSV`。
-- 与流行框架集成，包括 [PaddlePaddle](https://www.paddlepaddle.org.cn/)、[OpenMMLab](https://openmmlab.com/)、[timm](https://github.com/huggingface/pytorch-image-models) 等。
-- 提供全面的 `帮助文档`，并提供积极的 `开发者社区支持`。
-- 支持各种视觉任务，如 `目标检测`、`图像分割`、`人脸识别` 等。
-- 模块化设计，赋予用户根据其具体需求自行编译系统的能力，同时支持自定义和二次开发。
-- 图像标注功能，包括 `多边形`、`矩形`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注。
+- 支持`GPU`推理加速；
+- 支持`图像`和`视频`处理；
+- 支持单帧和批量预测所有任务；
+- 支持自定义模型和二次开发设计；
+- 支持一键导入和导出主流的标签格式，如COCO\VOC\YOLO\DOTA\MOT\MASK；
+- 支持多种图像标注样式，包括 `多边形`、`矩形`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
+- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`系列等。
+
 
 ### ⛏️模型库
 
@@ -155,102 +156,19 @@
 |  **[SAM](https://segment-anything.com/)** | **BC-SAM** | **Skin-SAM** | **Polyp-SAM** |
 | <img src='https://user-images.githubusercontent.com/72010077/273421331-2c0858b5-0b92-405b-aae6-d061bc25aa3c.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764259-718dce97-d04d-4629-b6d2-95f17670ce2a.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764288-e26767d1-3c44-45cb-a72e-124efb4e8263.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764318-e8b6a197-e733-478e-a210-e4386bafa1e4.png' height="126px" width="180px"> |
 
-更多详情，敬请参考[模型列表](./docs/models_list.md)。
+更多详情，请参考>>>[模型库](./docs/zh_cn/model_zoo.md)
 
 </div>
 
-## 📖 教程 [⏏️](#📄-目录)
-
-### 🔜快速开始
-
-直接从 [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0) 或 [百度网盘](https://pan.baidu.com/s/1XKflqsbb7C_7seL-ROD3bg?pwd=a64z) 下载并运行 `GUI` 版本。
-
-注意事项：
-- 对于 MacOS：
-  - 安装完成后，前往 Applications 文件夹。
-  - 右键单击应用程序并选择打开。
-  - 从第二次开始，您可以使用 Launchpad 正常打开应用程序。
-
-- 由于当前工具缺乏必要的硬件支持，所以仅提供 `Windows` 和 `Linux` 可执行版本。如果您需要其他操作系统的可执行程序，例如 `MacOS`，请参考以下步骤进行自行编译。
-- 为了获得更稳定的性能和功能支持，强烈建议从源码进行构建。
-
-### 👨🏼‍💻从源码构建
-
-- 安装所需的库：
-
-```bash
-pip install -r requirements.txt
-```
-
-> 如果您需要使用 GPU 推理，请安装相应的 requirements-gpu.txt 文件，并根据您本地的 CUDA 和 CuDNN 版本下载相应版本的 onnxruntime-gpu。更多详细信息，请参阅[帮助文档](./docs/Q&A.md).
-
-- 生成资源 [可选]:
-
-```
-pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
-```
-
-- 运行应用程序：
-
-```
-python anylabeling/app.py
-```
-
-### 📦编译
-
-> 请注意，以下步骤是非必要的，这些构建脚本仅为可能需要自定义和编译软件以在特定环境中分发的用户提供的。
-
-```bash
-#Windows-CPU
-bash scripts/build_executable.sh win-cpu
-
-#Windows-GPU
-bash scripts/build_executable.sh win-gpu
-
-#Linux-CPU
-bash scripts/build_executable.sh linux-cpu
-
-#Linux-GPU
-bash scripts/build_executable.sh linux-gpu
-```
-
-<details open>
-
-<summary>注意：</summary>
-
-1. 在编译之前，请根据适用的GPU/CPU版本，在 "anylabeling/app_info.py" 文件中修改 `__preferred_device__` 参数。
-2. 如果您需要编译GPU版本，请使用 "pip install -r requirements-gpu*.txt" 安装相应的环境。具体来说，对于编译GPU版本，需要手动修改 "anylabeling-*-gpu.spec" 文件中的 "datas" 列表参数，以包括您本地 onnxruntime-gpu 的相关动态库（*.dll 或 *.so）。此外，在下载 onnxruntime-gpu 包时，请确保与您的CUDA版本兼容。您可以参考官方[文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)以获取特定兼容性表格。
-3. 对于 macOS 版本，您可以参考 "anylabeling-win-*.spec" 脚本进行修改。
-</details>
-
-## 📋 用法 [⏏️](#📄-目录)
-
-### 📌基础用法
-
-1. 按照上述说明进行构建和启动。
-2. 在 `菜单/文件` 中点击 `更改输出目录` 以指定输出目录；否则，它将默认保存在当前图像路径下。
-3. 点击 `打开`/`打开目录`/`打开视频` 以选择特定的文件、文件夹或视频。
-4. 在左侧工具栏上点击 `开始绘制 xxx` 按钮或 `自动标注` 控制以启动标注。
-5. 单击并释放鼠标左键以选择要注释的矩形区域。或者，您可以按 "运行 (i)" 键进行一键处理。
-
-> 注意：标注文件将保存到您指定的文件夹中，并且您可以参考下面的热键以加快您的工作流程。
-
-### 🚀高级用法
-
-- 选择左侧的 **AutoLalbeing 按钮** 或按下快捷键 "Ctrl + A" 以启动自动标注。
-- 从下拉菜单 "Model" 中选择一个 `Segment Anything-liked Models`，其中 "Quant" 表示模型的量化程度。
-- 使用 `自动分割标记工具` 标记对象。
-    - +Point：添加属于对象的点。
-    - -Point：删除您希望从对象中排除的点。
-    - +Rect：绘制包含对象的矩形。Segment Anything 将自动分割对象。
-    - 清除：清除所有自动分割标记。
-    - 完成对象 (f)：完成当前标记。完成对象后，您可以输入标签名称并保存对象。
+## 📋 教程 [⏏️](#📄-目录)
 
 ### 📜文档
 
-- [帮助文档](./docs/Q&A.md)
-- [模型库](./docs/models_list.md)
-- [加载自定义模型](./docs/custom_model.md)
+##### 🔜[快速开始](./docs/zh_cn/get_started.md)
+
+##### 📋[用户手册](./docs/zh_cn/user_guide.md)
+
+##### 🚀[加载自定义模型](./docs/zh_cn/custom_model.md)
 
 ### 🧷快捷键
 
@@ -258,44 +176,50 @@ bash scripts/build_executable.sh linux-gpu
 
 <summary>点击展开/关闭</summary>
 
-| 快捷键         | 功能                                  |
-|-----------------|---------------------------------------|
-| d               | 打开下一个文件                        |
-| a               | 打开上一个文件                        |
-| p               | 创建多边形                            |
-| o               | 创建旋转                              |
-| r               | 创建矩形                              |
-| i               | 运行模型                              |
-| r               | 创建矩形                              |
-| +               | SAM 模式下的 "+point"                 |
-| -               | SAM 模式下的 "-point"                 |
-| g               | 组合选定的形状                       |
-| u               | 取消组合选定的形状                   |
-| Ctrl + q        | 退出                                  |
-| Ctrl + i        | 打开图像文件                          |
-| Ctrl + o        | 打开视频文件                          |
-| Ctrl + u        | 从目录加载所有图像                    |
-| Ctrl + e        | 编辑标签                             |
-| Ctrl + j        | 编辑多边形                           |
-| Ctrl + d        | 复制多边形                           |
-| Ctrl + p        | 切换保留先前模式                     |
-| Ctrl + y        | 切换自动使用上一标签                 |
-| Ctrl + m        | 一次运行所有图片                           |
-| Ctrl + a        | 启用自动标注                         |
-| Ctrl + s        | 保存当前信息                         |
-| Ctrl + Shift + s | 更改输出目录                        |
-| Ctrl -          | 缩小                                  |
-| Ctrl + 0        | 缩放到原始大小                        |
-| [Ctrl++, Ctrl+=] | 放大                              |
-| Ctrl + f        | 适应窗口大小                         |
-| Ctrl + Shift + f | 适应宽度                           |
-| Ctrl + z        | 撤销上次操作                         |
-| Ctrl + Delete   | 删除文件                              |
-| Delete          | 删除多边形                            |
-| Esc             | 取消选定的对象                        |
-| Backspace       | 移除选定点                            |
-| ↑→↓←           | 键盘箭头移动选定对象                  |
-| zxcv            | 旋转选定的矩形框的键盘操作            |
+| 快捷键            | 功能                                   |
+|-------------------|----------------------------------------|
+| d                 | 打开下一个文件                          |
+| a                 | 打开上一个文件                          |
+| p 或 [Ctrl+n]     | 创建多边形                              |
+| o                 | 创建旋转框                              |
+| r 或 [Crtl+r]     | 创建矩形框                              |
+| i                 | 运行模型                                |
+| q                 | `SAM 模式` 的正样本点                   |
+| e                 | `SAM 模式` 的负样本点                    |
+| c                 | `SAM 模式` 快速清除已选点               |
+| g                 | 组合选定的对象                         |
+| u                 | 取消组合选定的对象                     |
+| s                 | 隐藏选定的对象                         |
+| w                 | 显示选定的对象                         |
+| Ctrl + q          | 退出当前应用程序                        |
+| Ctrl + i          | 打开图像文件                           |
+| Ctrl + o          | 打开视频文件                           |
+| Ctrl + u          | 从目录加载所有图像                    |
+| Ctrl + e          | 编辑标签                               |
+| Ctrl + j          | 编辑多边形                             |
+| Ctrl + c          | 复制选定的对象                         |
+| Ctrl + v          | 粘贴选定的对象                         |
+| Ctrl + d          | 复制多边形                             |
+| Ctrl + g          | 显示当前任务的标注统计                       |
+| Ctrl + h          | 切换可见性对象                         |
+| Ctrl + p          | 切换保留上一个模式                     |
+| Ctrl + y          | 切换自动使用上一个标签                |
+| Ctrl + m          | 唤醒批量标注                       |
+| Ctrl + a          | 启用自动标注                           |
+| Ctrl + s          | 保存当前标注                           |
+| Ctrl + Shift + s  | 更改输出目录                           |
+| Ctrl -            | 缩小                                   |
+| Ctrl + 0          | 缩放至原始大小                         |
+| [Ctrl++, Ctrl+=]  | 放大                                   |
+| Ctrl + f          | 适应窗口                               |
+| Ctrl + Shift + f  | 适应宽度                               |
+| Ctrl + z          | 撤销上一操作                           |
+| Ctrl + Delete     | 删除文件                               |
+| Delete            | 删除多边形                             |
+| Esc               | 取消选择的对象                         |
+| Backspace         | 删除选定的点                           |
+| ↑→↓←              | 键盘箭头移动选定的对象                 |
+| zxcv              | 键盘旋转选定的矩形框                   |
 
 
 </details>
@@ -334,3 +258,5 @@ bash scripts/build_executable.sh linux-gpu
   howpublished = {\url{https://github.com/CVHub520/X-AnyLabeling}}
 }
 ```
+
+<div align="right"><a href="#top">🔝 Back to Top</a></div>
