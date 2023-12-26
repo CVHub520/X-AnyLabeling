@@ -37,6 +37,16 @@ To ensure access to the latest features and stable performance, it is highly rec
 
 Running in the GUI environment is convenient but may have limitations compared to running from the source code. Consider the pros and cons based on your specific needs and preferences.
 
+Download Link: [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) | [Baidu Disk](https://pan.baidu.com/s/1TK2-cBN-sLI84dqHUe7A2w?pwd=oevw)
+
+Note:
+- For MacOS:
+  - After installation, go to the Applications folder.
+  - Right-click on the application and choose Open.
+  - From the second time onwards, you can open the application normally using Launchpad.
+
+- Due to the lack of necessary hardware, the current tool is only available in executable versions for `Windows` and `Linux`. If you require executable programs for other operating systems, e.g., `MacOS`, please refer to the following steps for self-compilation.
+
 ### File Import
 
 `X-AnyLabeling` supports importing images or videos through shortcuts (Ctrl+I, Ctrl+U, Ctrl+O). Note that the default annotation file is saved in the import file path.
