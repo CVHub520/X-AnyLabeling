@@ -647,7 +647,7 @@ class LabelConverter:
         image_height = data["imageHeight"]
         image_shape = (image_height, image_width)
 
-        polygons = {}
+        polygons = []
         for shape in data["shapes"]:
             shape_type = shape["shape_type"]
             if shape_type != "polygon":
@@ -656,8 +656,11 @@ class LabelConverter:
             polygon = []
             for point in points:
                 x, y = point
-                polygon.append((int(x), int(y)))  # Convert to integers
-            polygons[shape["label"]] = polygon
+                polygon.append((int(x), int(y)))
+            polygons.append({
+                "label": shape["label"],
+                "polygon": polygon,
+            })
 
         output_format = mapping_table["type"]
         if output_format not in ["grayscale", "rgb"]:
@@ -666,7 +669,8 @@ class LabelConverter:
         if output_format == "grayscale" and polygons:
             # Initialize binary_mask
             binary_mask = np.zeros(image_shape, dtype=np.uint8)
-            for label, polygon in polygons.items():
+            for item in polygons:
+                label, polygon = item["label"], item["polygon"]
                 mask = np.zeros(image_shape, dtype=np.uint8)
                 cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
                 if label in mapping_color:
@@ -680,7 +684,8 @@ class LabelConverter:
             color_mask = np.zeros(
                 (image_height, image_width, 3), dtype=np.uint8
             )
-            for label, polygon in polygons.items():
+            for item in polygons:
+                label, polygon = item["label"], item["polygon"]
                 # Create a mask for each polygon
                 mask = np.zeros(image_shape[:2], dtype=np.uint8)
                 cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], 1)
