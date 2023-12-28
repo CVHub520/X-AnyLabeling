@@ -234,10 +234,10 @@ class RectLabelConverter(BaseLabelConverter):
 
                 class_index = self.classes.index(label)
 
-                x_center = (points[0][0] + points[2][0]) / (2 * image_width)
-                y_center = (points[0][1] + points[2][1]) / (2 * image_height)
-                width = abs(points[2][0] - points[0][0]) / image_width
-                height = abs(points[2][1] - points[0][1]) / image_height
+                x_center = (points[0][0] + points[1][0]) / (2 * image_width)
+                y_center = (points[0][1] + points[1][1]) / (2 * image_height)
+                width = abs(points[1][0] - points[0][0]) / image_width
+                height = abs(points[1][1] - points[0][1]) / image_height
 
                 f.write(
                     f"{class_index} {x_center} {y_center} {width} {height}\n"
