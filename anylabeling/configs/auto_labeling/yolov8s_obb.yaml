@@ -1,0 +1,23 @@
+type: yolov8_obb
+name: yolov8s-obb-r20240111
+display_name: YOLOv8s_obb (DOTA-v1.0) Ultralytics
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov8s-obb.onnx
+nms_threshold: 0.7
+confidence_threshold: 0.25
+classes:
+  - plane
+  - ship
+  - storage tank
+  - baseball diamond
+  - tennis court
+  - basketball court
+  - ground track field
+  - harbor
+  - bridge
+  - large vehicle
+  - small vehicle
+  - helicopter
+  - roundabout
+  - soccer ball field
+  - swimming pool
+

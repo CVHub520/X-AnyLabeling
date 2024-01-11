@@ -2,6 +2,7 @@ import logging
 import os
 
 import cv2
+import math
 import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -18,6 +19,7 @@ from ..utils import (
     scale_boxes,
     scale_coords,
     masks2segments,
+    xywhr2xyxyxyxy,
     non_max_suppression_v5,
     non_max_suppression_v8,
 )
@@ -121,6 +123,10 @@ class YOLO(Model):
             "yolov8_track",
         ]:
             self.task = "track"
+        elif self.model_type in [
+            "yolov8_obb",
+        ]:
+            self.task = "obb"
 
     def preprocess(self, image, upsample_mode="letterbox"):
         self.img_height, self.img_width = image.shape[:2]
@@ -139,12 +145,14 @@ class YOLO(Model):
             input_img = cv2.resize(
                 cropped_img, (self.input_width, self.input_height)
             )
-        # Norm
-        input_img = input_img / 255.0
         # Transpose
         input_img = input_img.transpose(2, 0, 1)
         # Expand
-        blob = input_img[np.newaxis, :, :, :].astype(np.float32)
+        input_img = input_img[np.newaxis, :, :, :].astype(np.float32)
+        # Contiguous
+        input_img = np.ascontiguousarray(input_img)
+        # Norm
+        blob = input_img / 255.0
         return blob
 
     def postprocess(self, preds):
@@ -177,6 +185,7 @@ class YOLO(Model):
             "yolov8_efficientvit_sam",
             "yolov8_seg",
             "yolov8_track",
+            "yolov8_obb",
         ]:
             p = non_max_suppression_v8(
                 preds[0],
@@ -203,11 +212,19 @@ class YOLO(Model):
                     self.input_shape,
                     upsample=True,
                 )  # HWC
-            pred[:, :4] = scale_boxes(self.input_shape, pred[:, :4], img_shape)
+            if self.task == "obb":
+                pred[:, :4] = scale_boxes(self.input_shape, pred[:, :4], img_shape, xywh=True)
+            else:
+                pred[:, :4] = scale_boxes(self.input_shape, pred[:, :4], img_shape)
 
-        bbox = pred[:, :4]
-        conf = pred[:, 4:5]
-        clas = pred[:, 5:6]
+        if self.task == "obb":
+            bbox = pred[:, :5]
+            clas = pred[:, 5:6]
+            conf = pred[:, 6:7]
+        else:
+            bbox = pred[:, :4]
+            conf = pred[:, 4:5]
+            clas = pred[:, 5:6]
 
         return (bbox, masks, clas, conf)
 
@@ -292,6 +309,27 @@ class YOLO(Model):
                 shape.label = self.classes[int(class_id)]
                 shape.selected = False
                 shapes.append(shape)
+            if self.task == "obb":
+                poly = xywhr2xyxyxyxy(box)
+                x0, y0 = poly[0]
+                x1, y1 = poly[1]
+                x2, y2 = poly[2]
+                x3, y3 = poly[3]
+                direction = self.calculate_rotation_theta(poly)
+                shape = Shape(flags={})
+                shape.add_point(QtCore.QPointF(x0, y0))
+                shape.add_point(QtCore.QPointF(x1, y1))
+                shape.add_point(QtCore.QPointF(x2, y2))
+                shape.add_point(QtCore.QPointF(x3, y3))
+                shape.shape_type = "rotation"
+                shape.closed = True
+                shape.direction=direction
+                shape.fill_color = "#000000"
+                shape.line_color = "#000000"
+                shape.line_width = 1
+                shape.label = self.classes[int(class_id)]
+                shape.selected = False
+                shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)
 
@@ -301,6 +339,26 @@ class YOLO(Model):
     def make_grid(nx=20, ny=20):
         xv, yv = np.meshgrid(np.arange(ny), np.arange(nx))
         return np.stack((xv, yv), 2).reshape((-1, 2)).astype(np.float32)
+
+    @staticmethod
+    def calculate_rotation_theta(poly):
+        x1, y1 = poly[0]
+        x2, y2 = poly[1]
+
+        # Calculate one of the diagonal vectors (after rotation)
+        diagonal_vector_x = x2 - x1
+        diagonal_vector_y = y2 - y1
+
+        # Calculate the rotation angle in radians
+        rotation_angle = math.atan2(diagonal_vector_y, diagonal_vector_x)
+
+        # Convert radians to degrees
+        rotation_angle_degrees = math.degrees(rotation_angle)
+
+        if rotation_angle_degrees < 0:
+            rotation_angle_degrees += 360
+
+        return rotation_angle_degrees / 360 * (2 * math.pi)
 
     def scale_grid(self, outs):
         outs = outs[0]

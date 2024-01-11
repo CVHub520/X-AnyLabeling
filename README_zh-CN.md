@@ -57,22 +57,24 @@
 - [🔥 亮点](#🔥-亮点-⏏️)
   - [🗝️关键功能](#🗝️关键功能-)
   - [⛏️模型库](#⛏️模型库-)
-- [📖 教程](#📖-教程-⏏️)
-  - [🔜快速开始](#🔜快速开始)
-  - [👨🏼‍💻从源码构建](#👨🏼‍💻从源码构建)
-  - [📦编译](#📦编译)
 - [📋 教程](#📋-教程-⏏️)
-  - [📜文档](#📜文档)
-  - [🧷快捷键](#🧷快捷键)
+  - [📜 文档](#📜-文档-⏏️)
+    - [🔜快速开始](#🔜-快速开始-⏏️)
+    - [📋用户手册](#📋-用户手册-⏏️)
+    - [🚀加载自定义模型](#🚀-加载自定义模型-⏏️)
+  - [🧷快捷键](#🧷-快捷键-⏏️)
 - [📧 联系](#📧-联系-⏏️)
 - [✅ 许可](#✅-许可-⏏️)
 - [🏷️ 引用](#🏷️-引用-⏏️)
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- Jan. 2024:
+  - 🤗 Release the latest version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
+  - 🔥🔥🔥 Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.
 - Dec. 2023:
-  - 🤗 Release the latest version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) 🤗
-  - 🔥🔥🔥 Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
+  - Release version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) 🤗
+  - Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
   - Support YOLOv5-Cls and YOLOv8-Cls model.
 - Nov. 2023:
   - Release version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0).
@@ -162,15 +164,15 @@
 
 ## 📋 教程 [⏏️](#📄-目录)
 
-### 📜文档
+- ### 📜文档
 
-##### 🔜[快速开始](./docs/zh_cn/get_started.md)
+  - ##### 🔜[快速开始](./docs/zh_cn/get_started.md)
 
-##### 📋[用户手册](./docs/zh_cn/user_guide.md)
+  - ##### 📋[用户手册](./docs/zh_cn/user_guide.md)
 
-##### 🚀[加载自定义模型](./docs/zh_cn/custom_model.md)
+  - ##### 🚀[加载自定义模型](./docs/zh_cn/custom_model.md)
 
-### 🧷快捷键
+- ### 🧷快捷键
 
 <details>
 

@@ -58,13 +58,12 @@
 - [🔥 Highlight](#🔥-highlight-⏏️)
   - [🗝️Key Features](#🗝️key-features)
   - [⛏️Model Zoo](#⛏️model-zoo)
-- [📖 Tutorials](#📖-tutorials-⏏️)
-  - [🔜Quick Start](#🔜quick-start)
-  - [👨🏼‍💻Build from source](#👨🏼‍💻build-from-source)
-  - [📦Build executable](#📦build-executable)
 - [📋 Usage](#📋-usage-⏏️)
-  - [📜Docs](#📜docs)
-  - [🧷Hotkeys](#🧷hotkeys)
+  - [📜 Docs](#📜-docs-⏏️)
+    - [🔜Quick Start](#🔜quick-start-⏏️)
+    - [📋User Guide](#📋quick-guide-⏏️)
+    - [🚀Load Custom Model](#🚀load-custom-model-⏏️)
+  - [🧷Hotkeys](#🧷-hotkeys-⏏️)
 - [📧 Contact](#📧-contact-⏏️)
 - [✅ License](#✅-license-⏏️)
 - [🙏🏻 Acknowledgments](#🙏🏻-acknowledgments-⏏️)
@@ -72,13 +71,16 @@
 
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
+- Jan. 2024:
+  - 🤗 Release the latest version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
+  - 🔥🔥🔥 Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.
 - Dec. 2023:
-  - 🤗 Release the latest version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) 🤗
-  - 🔥🔥🔥 Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
+  - Release version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) 🤗
+  - Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
   - Support YOLOv5-Cls and YOLOv8-Cls model.
 - Nov. 2023:
   - Release version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0).
-  - Supoort [InternImage](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
+  - Support [InternImage](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
   - Release version [2.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
   - Added support for Grounding-SAM, combining [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) with [HQ-SAM](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
   - Enhanced support for [HQ-SAM](https://github.com/SysCV/sam-hq) model to achieve high-quality mask predictions.
@@ -162,18 +164,17 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 
 </div>
 
-
 ## 📋 Usage [⏏️](#📄-table-of-contents)
 
-### 📜Docs
+- ### 📜Docs
 
-##### 🔜[Quick Start](./docs/en/get_started.md)
+  - ##### 🔜[Quick Start](./docs/en/get_started.md)
 
-##### 📋[User Guide](./docs/en/user_guide.md)
+  - ##### 📋[User Guide](./docs/en/user_guide.md)
 
-##### 🚀[Load Custom Model](./docs/en/custom_model.md)
+  - ##### 🚀[Load Custom Model](./docs/en/custom_model.md)
 
-### 🧷Hotkeys
+- ### 🧷Hotkeys
 
 <details>
 
@@ -246,20 +247,7 @@ This project is released under the [GPL-3.0 license](./LICENSE).
 
 ## 🙏🏻 Acknowledgments [⏏️](#📄-table-of-contents)
 
-I would like to express my gratitude to the developers and contributors of the following project, whose work has been invaluable in the development of this project:
-
-- [LabelMe](https://github.com/wkentaro/labelme)
-
-- [LabelImg](https://github.com/tzutalin/labelIm)
-
-- [roLabelImg](https://github.com/cgvict/roLabelImg)
-
-- [AnyLabeling](https://github.com/vietanhdev/anylabeling)
-
-- [Computer Vision Annotation Tool](https://github.com/opencv/cvat)
-
-I appreciate the dedication and effort put forth by the creators and maintainers of these tools, as they have contributed immensely to the success of this project.
-
+I extend my heartfelt thanks to the developers and contributors of the projects [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelIm), [roLabelImg](https://github.com/cgvict/roLabelImg), [AnyLabeling](https://github.com/vietanhdev/anylabeling), and [Computer Vision Annotation Tool](https://github.com/opencv/cvat). Their dedication and contributions have played a crucial role in shaping the success of this project.
 
 ## 🏷️ Citing [⏏️](#📄-table-of-contents)
 

@@ -37,6 +37,53 @@ def numpy_nms(boxes, scores, iou_threshold):
     return keep
 
 
+def numpy_nms_rotated(boxes, scores, iou_threshold):
+    if len(boxes) == 0:
+        return np.empty((0,), dtype=np.int8)
+    
+    sorted_idx = np.argsort(scores)[::-1]
+    boxes = boxes[sorted_idx]
+    ious = batch_probiou(boxes, boxes)
+    ious = np.triu(ious, k=1)
+    pick = np.nonzero(np.max(ious, axis=0) < iou_threshold)[0]
+    return sorted_idx[pick]
+
+
+def batch_probiou(obb1, obb2, eps=1e-7):
+    x1, y1 = np.split(obb1[..., :2], 2, axis=-1)
+    x2, y2 = (x.squeeze(-1)[None] for x in np.split(obb2[..., :2], 2, axis=-1))
+    a1, b1, c1 = _get_covariance_matrix(obb1)
+    a2, b2, c2 = (x.squeeze(-1)[None] for x in _get_covariance_matrix(obb2))
+    t1 = (
+        ((a1 + a2) * (np.power(y1 - y2, 2)) + (b1 + b2) * (np.power(x1 - x2, 2)))
+        / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)
+    ) * 0.25
+    t2 = (((c1 + c2) * (x2 - x1) * (y1 - y2)) / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)) * 0.5
+
+    t3 = (
+        np.log(
+            ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)))
+            / (4 * np.sqrt((a1 * b1 - np.power(c1, 2)).clip(0) * (a2 * b2 - np.power(c2, 2)).clip(0)) + eps)
+            + eps
+        )
+        * 0.5
+    )
+    bd = t1 + t2 + t3
+    bd = np.clip(bd, eps, 100.0)
+    hd = np.sqrt(1.0 - np.exp(-bd) + eps)
+    return 1 - hd
+
+
+def _get_covariance_matrix(boxes):
+    gbbs = np.concatenate((np.power(boxes[:, 2:4], 2) / 12, boxes[:, 4:]), axis=-1)
+    a, b, c = np.split(gbbs, [1, 2], axis=-1)
+    return (
+        a * np.cos(c) ** 2 + b * np.sin(c) ** 2,
+        a * np.sin(c) ** 2 + b * np.cos(c) ** 2,
+        a * np.cos(c) * np.sin(c) - b * np.sin(c) * np.cos(c),
+    )
+
+
 def non_max_suppression_v5(
     prediction,
     task="det",
@@ -203,7 +250,7 @@ def non_max_suppression_v8(
             A tensor of shape (batch_size, num_classes + 4 + num_masks, num_boxes)
             containing the predicted boxes, classes, and masks. 
             The tensor should be in the format output by a model, such as YOLO.
-        task: `det` | `seg` | `track`
+        task: `det` | `seg` | `track` | `obb`
         conf_thres (float): 
             The confidence threshold below which boxes will be filtered out.
             Valid values are between 0.0 and 1.0.
@@ -259,7 +306,8 @@ def non_max_suppression_v8(
 
     # shape(1,84,6300) to shape(1,6300,84)
     prediction = np.transpose(prediction, (0, 2, 1))
-    prediction[..., :4] = xywh2xyxy(prediction[..., :4])  # xywh to xyxy
+    if task != "obb":
+        prediction[..., :4] = xywh2xyxy(prediction[..., :4])  # xywh to xyxy
     output = [np.zeros((0, 6 + nm))] * bs
 
     for xi, x in enumerate(prediction):  # image index, image inference
@@ -268,7 +316,7 @@ def non_max_suppression_v8(
         # (x[:, 2:4] > max_wh)).any(1), 4] = 0  # width-height
         x = x[xc[xi]]  # confidence
 
-        if labels and len(labels[xi]):
+        if labels and len(labels[xi]) and task != "obb":
             lb = labels[xi]
             v = np.zeros((len(lb), nc + nm + 5))
             v[:, :4] = lb[:, 1:5]  # box
@@ -304,20 +352,23 @@ def non_max_suppression_v8(
             x = x[np.argsort(x[:, 4])[::-1][:max_nms]]
 
         c = x[:, 5:6] * (0 if agnostic else max_wh)
-        boxes, scores = x[:, :4] + c, x[:, 4]
-        i = numpy_nms(boxes, scores, iou_thres)
+        scores = x[:, 4]
+        if task == "obb":
+            boxes = np.concatenate((x[:, :2] + c, x[:, 2:4], x[:, -1:]), axis=-1)  # xywhr
+            i = numpy_nms_rotated(boxes, scores, iou_thres)
+        else:
+            boxes = x[:, :4] + c
+            i = numpy_nms(boxes, scores, iou_thres)
         i = i[:max_det]
-        if merge and (1 < n < 3e3):
-            iou = box_iou(boxes[i], boxes) > iou_thres
-            weights = iou * scores[None]
-            x[i, :4] = np.dot(weights, x[:, :4]) / weights.sum(
-                1, keepdims=True
-            )
-            if redundant:
-                i = i[iou.sum(1) > 1]
+        # if merge and (1 < n < 3e3):
+        #     iou = box_iou(boxes[i], boxes) > iou_thres
+        #     weights = iou * scores[None]
+        #     x[i, :4] = np.dot(weights, x[:, :4]) / weights.sum(
+        #         1, keepdims=True
+        #     )
+        #     if redundant:
+        #         i = i[iou.sum(1) > 1]
 
         output[xi] = x[i]
 
     return output
-
-    pass
