@@ -12,7 +12,7 @@ from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
-from .dwpose_onnx import inference_pose
+from .pose.dwpose_onnx import inference_pose
 
 
 class YOLOX_DWPose(Model):

@@ -59,6 +59,9 @@ for model in model_list:
     elif model_config["type"] in ["yolov5_car_plate"]:
         download_links.append(model_config["det_model_path"])
         download_links.append(model_config["rec_model_path"])
+    elif model_config["type"] in ["yolox_dwpose", "rtmdet_pose"]:
+        download_links.append(model_config["det_model_path"])
+        download_links.append(model_config["pose_model_path"])
     else:
         download_links.append(model_config["model_path"])
 
@@ -125,9 +128,12 @@ for model in model_list:
         model_config["rec_model_path"] = get_filename_from_url(
             model_config["rec_model_path"]
         )
-    else:
-        model_config["model_path"] = get_filename_from_url(
-            model_config["model_path"]
+    elif model_config["type"] in ["yolox_dwpose", "rtmdet_pose"]:
+        model_config["det_model_path"] = get_filename_from_url(
+            model_config["det_model_path"]
+        )
+        model_config["pose_model_path"] = get_filename_from_url(
+            model_config["pose_model_path"]
         )
     with open(os.path.join(model_output_path, "config.yaml"), "w") as f:
         yaml.dump(model_config, f)

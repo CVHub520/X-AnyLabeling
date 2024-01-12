@@ -70,60 +70,60 @@
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - Jan. 2024:
-  - 🤗 Release the latest version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
-  - 🔥🔥🔥 Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.
+  - 🤗 Release the latest version \[2.3.0\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
+  - 🔥🔥🔥 Support \[YOLOv8-OBB\](https://github.com/ultralytics/ultralytics) model.
 - Dec. 2023:
-  - Release version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0).
-  - Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
+  - Release version \[2.2.0\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0).
+  - Support \[EdgeSAM\](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
   - Support YOLOv5-Cls and YOLOv8-Cls model.
 - Nov. 2023:
-  - Release version [2.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0).
-  - Supoort [InternImage](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
-  - Release version [2.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
-  - Added support for Grounding-SAM, combining [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) with [HQ-SAM](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
-  - Enhanced support for [HQ-SAM](https://github.com/SysCV/sam-hq) model to achieve high-quality mask predictions.
-  - Support the [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_person_attribute_en.md) and [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_vehicle_attribute_en.md) model for multi-label classification task.
+  - Release version \[2.1.0\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.1.0).
+  - Supoort \[InternImage\](https://arxiv.org/abs/2211.05778) model (**CVPR'23**).
+  - Release version \[2.0.0\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.0.0).
+  - Added support for Grounding-SAM, combining \[GroundingDINO\](https://github.com/wenyi5608/GroundingDINO) with \[HQ-SAM\](https://github.com/SysCV/sam-hq) to achieve sota zero-shot high-quality predictions!
+  - Enhanced support for \[HQ-SAM\](https://github.com/SysCV/sam-hq) model to achieve high-quality mask predictions.
+  - Support the \[PersonAttribute\](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_person_attribute_en.md) and \[VehicleAttribute\](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_vehicle_attribute_en.md) model for multi-label classification task.
   - Introducing a new multi-label attribute annotation functionality.
-  - Release version [1.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0).
-  - Support pose estimation: [YOLOv8-Pose](https://github.com/ultralytics/ultralytics).
+  - Release version \[1.1.0\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.1.0).
+  - Support pose estimation: \[YOLOv8-Pose\](https://github.com/ultralytics/ultralytics).
   - Support object-level tag with yolov5_ram.
   - Add a new feature enabling batch labeling for arbitrary unknown categories based on Grounding-DINO.
 - Oct. 2023:
-  - Release version [1.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
+  - Release version \[1.0.0\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v1.0.0).
   - Add a new feature for rotation box.
-  -  Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
-  - SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
-  - SOTA Image Tagging Model - [Recognize Anything](https://github.com/xinyu1205/Tag2Text) is released.
+  -  Support \[YOLOv5-OBB\](https://github.com/hukaixuan19970627/yolov5_obb) with \[DroneVehicle\](https://github.com/VisDrone/DroneVehicle) and \[DOTA\](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
+  - SOTA Zero-Shot Object Detection - \[GroundingDINO\](https://github.com/wenyi5608/GroundingDINO) is released.
+  - SOTA Image Tagging Model - \[Recognize Anything\](https://github.com/xinyu1205/Tag2Text) is released.
   - Support **YOLOv5-SAM** and **YOLOv8-EfficientViT_SAM** union task.
   - Support **YOLOv5** and **YOLOv8** segmentation task.
-  - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
-  - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
-  - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
+  - Release \[Gold-YOLO\](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and \[DAMO-YOLO\](https://github.com/tinyvision/DAMO-YOLO) models.
+  - Release MOT algorithms: \[OC_Sort\](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
+  - Add a new feature for small object detection using \[SAHI\](https://github.com/obss/sahi).
 - Sep. 2023:
-  - Release version [0.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.4).
-  - Release [EfficientViT-SAM](https://github.com/mit-han-lab/efficientvit) (**ICCV'23**),[SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D), [MedSAM](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
-  - Support [ByteTrack](https://github.com/ifzhang/ByteTrack) (**ECCV'22**) for MOT task.
-  - Support [PP-OCRv4](https://github.com/PaddlePaddle/PaddleOCR) model.
+  - Release version \[0.2.4\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.4).
+  - Release \[EfficientViT-SAM\](https://github.com/mit-han-lab/efficientvit) (**ICCV'23**),\[SAM-Med2D\](https://github.com/OpenGVLab/SAM-Med2D), \[MedSAM\](https://arxiv.org/abs/2304.12306) and YOLOv5-SAM.
+  - Support \[ByteTrack\](https://github.com/ifzhang/ByteTrack) (**ECCV'22**) for MOT task.
+  - Support \[PP-OCRv4\](https://github.com/PaddlePaddle/PaddleOCR) model.
   - Add `video` annotation feature.
   - Add `yolo`/`coco`/`voc`/`mot`/`dota` export functionality.
   - Add the ability to process all images at once.
 - Aug. 2023:
-  - Release version [0.2.0]((https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.0)).
-  - Release [LVMSAM](https://arxiv.org/abs/2306.11925) and it's variants [BUID](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid), [ISIC](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic), [Kvasir](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir).
-  - Support lane detection algorithm: [CLRNet](https://github.com/Turoad/CLRNet) (**CVPR'22**).
-  - Support 2D human whole-body pose estimation: [DWPose](https://github.com/IDEA-Research/DWPose/tree/main) (**ICCV'23 Workshop**).
+  - Release version \[0.2.0\]((https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.2.0)).
+  - Release \[LVMSAM\](https://arxiv.org/abs/2306.11925) and it's variants \[BUID\](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/buid), \[ISIC\](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic), \[Kvasir\](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir).
+  - Support lane detection algorithm: \[CLRNet\](https://github.com/Turoad/CLRNet) (**CVPR'22**).
+  - Support 2D human whole-body pose estimation: \[DWPose\](https://github.com/IDEA-Research/DWPose/tree/main) (**ICCV'23 Workshop**).
 - Jul. 2023:
-  - Add [label_converter.py](./tools/label_converter.py) script.
-  - Release [RT-DETR](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md) model.
+  - Add \[label_converter.py\](./tools/label_converter.py) script.
+  - Release \[RT-DETR\](https://github.com/PaddlePaddle/PaddleDetection/blob/develop/configs/rtdetr/README.md) model.
 - Jun. 2023:
-  - Release [YOLO-NAS](https://github.com/Deci-AI/super-gradients/tree/master) model.
-  - Support instance segmentation: [YOLOv8-seg](https://github.com/ultralytics/ultralytics).
-  - Add [README_zh-CN.md](README_zh-CN.md) of X-AnyLabeling.
+  - Release \[YOLO-NAS\](https://github.com/Deci-AI/super-gradients/tree/master) model.
+  - Support instance segmentation: \[YOLOv8-seg\](https://github.com/ultralytics/ultralytics).
+  - Add \[README_zh-CN.md\](README_zh-CN.md) of X-AnyLabeling.
 - May. 2023:
-  - Release version [0.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.1.0).
-  - Release [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face) for face detection and facial landmark detection.
-  - Release [SAM](https://arxiv.org/abs/2304.02643) and it's faster version [MobileSAM](https://arxiv.org/abs/2306.14289).
-  - Release [YOLOv5](https://github.com/ultralytics/yolov5), [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX).
+  - Release version \[0.1.0\](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v0.1.0).
+  - Release \[YOLOv6-Face\](https://github.com/meituan/YOLOv6/tree/yolov6-face) for face detection and facial landmark detection.
+  - Release \[SAM\](https://arxiv.org/abs/2304.02643) and it's faster version \[MobileSAM\](https://arxiv.org/abs/2306.14289).
+  - Release \[YOLOv5\](https://github.com/ultralytics/yolov5), \[YOLOv6\](https://github.com/meituan/YOLOv6), \[YOLOv7\](https://github.com/WongKinYiu/yolov7), \[YOLOv8\](https://github.com/ultralytics/ultralytics), \[YOLOX\](https://github.com/Megvii-BaseDetection/YOLOX).](README.md)
 
 
 ## 👋 简介 [⏏️](#📄-目录)

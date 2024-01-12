@@ -74,6 +74,8 @@
 - Jan. 2024:
   - 🤗 Release the latest version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
   - 🔥🔥🔥 Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.
+  - 🔥🔥🔥 Support [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet) and [RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmpose) model.
+  - 🔥🔥🔥 Release a [chinese license plate](https://github.com/we0091234/Chinese_license_plate_detection_recognition) detection and recognition model based on YOLOv5.
 - Dec. 2023:
   - Release version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0).
   - Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
@@ -96,8 +98,8 @@
   -  Support [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb) with [DroneVehicle](https://github.com/VisDrone/DroneVehicle) and [DOTA](https://captain-whu.github.io/DOTA/index.html)-v1.0/v1.5/v2.0 model.
   - SOTA Zero-Shot Object Detection - [GroundingDINO](https://github.com/wenyi5608/GroundingDINO) is released.
   - SOTA Image Tagging Model - [Recognize Anything](https://github.com/xinyu1205/Tag2Text) is released.
-  - Support **YOLOv5-SAM** and **YOLOv8-EfficientViT_SAM** union task.
-  - Support **YOLOv5** and **YOLOv8** segmentation task.
+  - Support YOLOv5-SAM and YOLOv8-EfficientViT_SAM union task.
+  - Support YOLOv5 and YOLOv8 segmentation task.
   - Release [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO) and [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO) models.
   - Release MOT algorithms: [OC_Sort](https://github.com/noahcao/OC_SORT) (**CVPR'23**).
   - Add a new feature for small object detection using [SAHI](https://github.com/obss/sahi).
