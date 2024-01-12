@@ -76,6 +76,8 @@
   config_file: ":/yolo_nas_s.yaml"
 - model_name: "yolov5l-r20230520"
   config_file: ":/yolov5l.yaml"
+- model_name: "yolov5_car_plate-r20230112"
+  config_file: ":/yolov5_car_plate.yaml"
 - model_name: "yolov5m_bytetrack-r20231008"
   config_file: ":/yolov5m_bytetrack.yaml"
 - model_name: "yolov5m_obb_csl_dotav15-r20231024"

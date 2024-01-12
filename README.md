@@ -75,7 +75,7 @@
   - 🤗 Release the latest version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
   - 🔥🔥🔥 Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.
 - Dec. 2023:
-  - Release version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) 🤗
+  - Release version [2.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0).
   - Support [EdgeSAM](https://github.com/chongzhou96/EdgeSAM) to optimize for efficient execution on edge devices with minimal performance compromise.
   - Support YOLOv5-Cls and YOLOv8-Cls model.
 - Nov. 2023:

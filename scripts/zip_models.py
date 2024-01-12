@@ -56,6 +56,9 @@ for model in model_list:
     elif model_config["type"] in ["yolov5_ram"]:
         download_links.append(model_config["model_path"])
         download_links.append(model_config["tag_model_path"])
+    elif model_config["type"] in ["yolov5_car_plate"]:
+        download_links.append(model_config["det_model_path"])
+        download_links.append(model_config["rec_model_path"])
     else:
         download_links.append(model_config["model_path"])
 
@@ -114,6 +117,13 @@ for model in model_list:
         )
         model_config["cls_model_path"] = get_filename_from_url(
             model_config["cls_model_path"]
+        )
+    elif model_config["type"] in ["yolov5_car_plate"]:
+        model_config["det_model_path"] = get_filename_from_url(
+            model_config["det_model_path"]
+        )
+        model_config["rec_model_path"] = get_filename_from_url(
+            model_config["rec_model_path"]
         )
     else:
         model_config["model_path"] = get_filename_from_url(

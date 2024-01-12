@@ -202,6 +202,7 @@ class ModelManager(QObject):
                 "yolov5_cls",
                 "yolov8_cls",
                 "yolov8_obb",
+                "yolov5_car_plate",
             ]
         ):
             self.new_model_status.emit(
@@ -1050,6 +1051,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv5_CLS(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov5_car_plate":
+            from .yolov5_car_plate import YOLOv5CarPlateDetRec
+
+            try:
+                model_config["model"] = YOLOv5CarPlateDetRec(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

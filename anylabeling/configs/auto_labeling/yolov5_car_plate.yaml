@@ -1,0 +1,16 @@
+type: yolov5_car_plate
+name: yolov5_car_plate-r20230112
+display_name: YOLOv5-Car-Plate
+det_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov5_plate_detect.onnx
+rec_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov5_plate_rec_color.onnx
+std: 0.193
+mean: 0.588
+iou_thres: 0.5
+conf_thres: 0.3
+names: "#京沪津渝冀晋蒙辽吉黑苏浙皖闽赣鲁豫鄂湘粤桂琼川贵云藏陕甘青宁新学警港澳挂使领民航危0123456789ABCDEFGHJKLMNPQRSTUVWXYZ险品"
+classes:
+  - black
+  - blue
+  - green
+  - white
+  - yellow
