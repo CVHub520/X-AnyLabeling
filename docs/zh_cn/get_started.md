@@ -54,7 +54,7 @@ python anylabeling/app.py
 
 为了在选择运行方式时能够更好地权衡利弊，建议用户根据具体需求和偏好，灵活选择源码运行或GUI环境运行，以达到最佳的使用体验。
 
-下载链接：[Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.2.0) | [百度网盘](https://pan.baidu.com/s/1TK2-cBN-sLI84dqHUe7A2w?pwd=oevw)
+下载链接：[Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) | [百度网盘](https://pan.baidu.com/s/1wHp1a0buUrqJlqEr8ZjM2w?pwd=2t9s)
 
 
 ### 文件导入

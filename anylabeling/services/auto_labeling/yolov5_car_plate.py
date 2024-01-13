@@ -13,8 +13,8 @@ from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
 from .utils import xywh2xyxy
 
-class YOLOv5CarPlateDetRec(Model):
 
+class YOLOv5CarPlateDetRec(Model):
     class Meta:
         required_config_names = [
             "type",
@@ -36,7 +36,9 @@ class YOLOv5CarPlateDetRec(Model):
         # Run the parent class's init method
         super().__init__(model_config, on_message)
 
-        det_model_abs_path = self.get_model_abs_path(self.config, "det_model_path")
+        det_model_abs_path = self.get_model_abs_path(
+            self.config, "det_model_path"
+        )
         if not det_model_abs_path or not os.path.isfile(det_model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
@@ -45,7 +47,9 @@ class YOLOv5CarPlateDetRec(Model):
                 )
             )
         self.det_net = OnnxBaseModel(det_model_abs_path, __preferred_device__)
-        rec_model_abs_path = self.get_model_abs_path(self.config, "rec_model_path")
+        rec_model_abs_path = self.get_model_abs_path(
+            self.config, "rec_model_path"
+        )
         if not rec_model_abs_path or not os.path.isfile(rec_model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
@@ -70,21 +74,21 @@ class YOLOv5CarPlateDetRec(Model):
     def preprocess(self, image):
         img, r, left, top = self._letterbox(image, self.det_input_shape)
         img = img.transpose(2, 0, 1).astype(np.float32)
-        img /= 255.
+        img /= 255.0
         img = img.reshape(1, *img.shape)
         return img, r, left, top
 
     def postprocess(self, dets, r, left, top):
         choice = dets[:, :, 4] > self.conf_thres
         dets = dets[choice]
-        dets[:, 13: 15] *= dets[:, 4: 5]
+        dets[:, 13:15] *= dets[:, 4:5]
         box = dets[:, :4]
         boxes = xywh2xyxy(box)
-        score= np.max(dets[:, 13: 15], axis=-1, keepdims=True)
-        index = np.argmax(dets[:, 13: 15], axis=-1).reshape(-1, 1)
-        output = np.concatenate((boxes, score, dets[:, 5: 13], index), axis=1) 
-        reserve_ = self._nms(output, self.iou_thres) 
-        output = output[reserve_] 
+        score = np.max(dets[:, 13:15], axis=-1, keepdims=True)
+        index = np.argmax(dets[:, 13:15], axis=-1).reshape(-1, 1)
+        output = np.concatenate((boxes, score, dets[:, 5:13], index), axis=1)
+        reserve_ = self._nms(output, self.iou_thres)
+        output = output[reserve_]
         output = self.restore_box(output, r, left, top)
         return output
 
@@ -99,12 +103,14 @@ class YOLOv5CarPlateDetRec(Model):
 
     def get_plate_result(self, img):
         blob = self.rec_pre_processing(img)
-        y_onnx_plate, y_onnx_color = self.rec_net.get_ort_inference(blob, extract=False)
+        y_onnx_plate, y_onnx_color = self.rec_net.get_ort_inference(
+            blob, extract=False
+        )
         index = np.argmax(y_onnx_plate, axis=-1)
         index_color = np.argmax(y_onnx_color)
         plate_color = self.classes[index_color]
         plate_no = self.decodePlate(index[0])
-        return plate_no,plate_color
+        return plate_no, plate_color
 
     def rec_plate(self, outputs, img0):
         # Recognize license plates
@@ -113,7 +119,7 @@ class YOLOv5CarPlateDetRec(Model):
         for output in outputs:
             result_dict = {}
             rect = output[:4].tolist()
-            landmarks = output[5: 13].reshape(4, 2)
+            landmarks = output[5:13].reshape(4, 2)
             roi_img = self.four_point_transform(img0, landmarks)
             label = int(output[-1])
             score = output[4]
@@ -123,17 +129,16 @@ class YOLOv5CarPlateDetRec(Model):
 
             plate_no, plate_color = self.get_plate_result(roi_img)
 
-            result_dict['rect'] = rect
+            result_dict["rect"] = rect
             result_dict["score"] = score
-            result_dict['landmarks'] = landmarks.tolist()
-            result_dict['plate_no'] = plate_no
-            result_dict['roi_height'] = roi_img.shape[0]
-            result_dict['plate_color'] = plate_color
+            result_dict["landmarks"] = landmarks.tolist()
+            result_dict["plate_no"] = plate_no
+            result_dict["roi_height"] = roi_img.shape[0]
+            result_dict["plate_color"] = plate_color
 
             dict_list.append(result_dict)
 
         return dict_list
-
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -190,11 +195,15 @@ class YOLOv5CarPlateDetRec(Model):
         heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
         maxHeight = max(int(heightA), int(heightB))
 
-        dst = np.array([
-            [0, 0],
-            [maxWidth - 1, 0],
-            [maxWidth - 1, maxHeight - 1],
-            [0, maxHeight - 1]], dtype="float32")
+        dst = np.array(
+            [
+                [0, 0],
+                [maxWidth - 1, 0],
+                [maxWidth - 1, maxHeight - 1],
+                [0, maxHeight - 1],
+            ],
+            dtype="float32",
+        )
 
         M = cv2.getPerspectiveTransform(rect, dst)
         warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
@@ -214,7 +223,7 @@ class YOLOv5CarPlateDetRec(Model):
             pre = preds[i]
 
         plate = ""
-        
+
         # Decode the plate using the corresponding characters from plateName
         for i in new_preds:
             plate += self.names[int(i)]
@@ -227,11 +236,13 @@ class YOLOv5CarPlateDetRec(Model):
         h, w, c = img.shape
 
         # Extract upper and lower portions of the image
-        img_upper = img[0:int(5 / 12 * h), :]
-        img_lower = img[int(1 / 3 * h):, :]
+        img_upper = img[0 : int(5 / 12 * h), :]
+        img_lower = img[int(1 / 3 * h) :, :]
 
         # Resize the upper portion to match the lower portion's size
-        img_upper = cv2.resize(img_upper, (img_lower.shape[1], img_lower.shape[0]))
+        img_upper = cv2.resize(
+            img_upper, (img_lower.shape[1], img_lower.shape[0])
+        )
 
         # Concatenate the resized upper portion and the lower portion
         new_img = np.hstack((img_upper, img_lower))
@@ -250,8 +261,12 @@ class YOLOv5CarPlateDetRec(Model):
 
         # Calculate the difference between coordinates for each point
         diff = np.diff(pts, axis=1)
-        rect[1] = pts[np.argmin(diff)]  # Top-right point has the smallest difference
-        rect[3] = pts[np.argmax(diff)]  # Bottom-left point has the largest difference
+        rect[1] = pts[
+            np.argmin(diff)
+        ]  # Top-right point has the smallest difference
+        rect[3] = pts[
+            np.argmax(diff)
+        ]  # Bottom-left point has the largest difference
 
         return rect
 
@@ -283,8 +298,11 @@ class YOLOv5CarPlateDetRec(Model):
             h = np.maximum(0, y2 - y1)
 
             inter_area = w * h
-            union_area = (boxes[i, 2] - boxes[i, 0]) * (boxes[i, 3] - boxes[i, 1]) + \
-                        (boxes[index[1:], 2] - boxes[index[1:], 0]) * (boxes[index[1:], 3] - boxes[index[1:], 1])
+            union_area = (boxes[i, 2] - boxes[i, 0]) * (
+                boxes[i, 3] - boxes[i, 1]
+            ) + (boxes[index[1:], 2] - boxes[index[1:], 0]) * (
+                boxes[index[1:], 3] - boxes[index[1:], 1]
+            )
             iou = inter_area / (union_area - inter_area)
             idx = np.where(iou <= iou_thres)[0]
             index = index[idx + 1]
@@ -302,13 +320,16 @@ class YOLOv5CarPlateDetRec(Model):
         right = size[1] - new_w - left
         img_resize = cv2.resize(img, (new_w, new_h))
         img = cv2.copyMakeBorder(
-            img_resize, top, bottom, left, right, 
+            img_resize,
+            top,
+            bottom,
+            left,
+            right,
             borderType=cv2.BORDER_CONSTANT,
-            value=(114,114,114)
+            value=(114, 114, 114),
         )
         return img, r, left, top
 
     def unload(self):
         del self.det_net
         del self.rec_net
-

@@ -14,20 +14,20 @@ Ref:
     https://github.com/Tau-J/rtmlib/blob/main/rtmlib/tools/object_detection/rtmdet.py
 """
 
-class RTMDet():
 
-    def __init__(self,
-                 onnx_model: str,
-                 model_input_size: tuple = (640, 640),
-                 score_thr: float = 0.3,
-                 mean: tuple = (103.5300, 116.2800, 123.6750),
-                 std: tuple = (57.3750, 57.1200, 58.3950),
-                 backend: str = 'onnxruntime',
-                 device: str = 'cpu'):
+class RTMDet:
+    def __init__(
+        self,
+        onnx_model: str,
+        model_input_size: tuple = (640, 640),
+        score_thr: float = 0.3,
+        mean: tuple = (103.5300, 116.2800, 123.6750),
+        std: tuple = (57.3750, 57.1200, 58.3950),
+        backend: str = "onnxruntime",
+        device: str = "cpu",
+    ):
         super().__init__()
-        self.net = OnnxBaseModel(
-            onnx_model, device_type=device
-        )
+        self.net = OnnxBaseModel(onnx_model, device_type=device)
         self.model_input_size = self.net.get_input_shape()[-2:]
         if not isinstance(self.model_input_size[0], int):
             self.model_input_size = model_input_size
@@ -55,7 +55,6 @@ class RTMDet():
 
         return outputs
 
-
     def preprocess(self, img: np.ndarray):
         """Do preprocessing for RTMPose model inference.
 
@@ -69,21 +68,27 @@ class RTMDet():
             - scale (np.ndarray): Scale of image.
         """
         if len(img.shape) == 3:
-            padded_img = np.ones(
-                (self.model_input_size[0], self.model_input_size[1], 3),
-                dtype=np.uint8) * 114
+            padded_img = (
+                np.ones(
+                    (self.model_input_size[0], self.model_input_size[1], 3),
+                    dtype=np.uint8,
+                )
+                * 114
+            )
         else:
             padded_img = np.ones(self.model_input_size, dtype=np.uint8) * 114
 
-        ratio = min(self.model_input_size[0] / img.shape[0],
-                    self.model_input_size[1] / img.shape[1])
+        ratio = min(
+            self.model_input_size[0] / img.shape[0],
+            self.model_input_size[1] / img.shape[1],
+        )
         resized_img = cv2.resize(
             img,
             (int(img.shape[1] * ratio), int(img.shape[0] * ratio)),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
         padded_shape = (int(img.shape[0] * ratio), int(img.shape[1] * ratio))
-        padded_img[:padded_shape[0], :padded_shape[1]] = resized_img
+        padded_img[: padded_shape[0], : padded_shape[1]] = resized_img
 
         # normalize image
         if self.mean is not None:
@@ -101,7 +106,7 @@ class RTMDet():
     def postprocess(
         self,
         outputs: List[np.ndarray],
-        ratio: float = 1.,
+        ratio: float = 1.0,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Do postprocessing for RTMDet model inference.
 
@@ -142,15 +147,17 @@ class RTMDet():
             scores = predictions[:, 4:5] * predictions[:, 5:]
 
             boxes_xyxy = np.ones_like(boxes)
-            boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.
-            boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.
-            boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.
-            boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.
+            boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.0
+            boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.0
+            boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.0
+            boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.0
             boxes_xyxy /= ratio
-            dets = multiclass_nms(boxes_xyxy,
-                                  scores,
-                                  nms_thr=self.nms_thr,
-                                  score_thr=self.score_thr)
+            dets = multiclass_nms(
+                boxes_xyxy,
+                scores,
+                nms_thr=self.nms_thr,
+                score_thr=self.score_thr,
+            )
             if dets is not None:
                 pack_dets = (dets[:, :4], dets[:, 4], dets[:, 5])
                 final_boxes, final_scores, final_cls_inds = pack_dets

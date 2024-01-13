@@ -16,7 +16,6 @@ from .pose.rtmo_onnx import RTMO
 
 
 class RTMDet_Pose(Model):
-
     class Meta:
         required_config_names = [
             "type",
@@ -24,7 +23,7 @@ class RTMDet_Pose(Model):
             "display_name",
             "det_model_path",
             "pose_model_path",
-            "pose"
+            "pose",
         ]
         widgets = ["button_run"]
         output_modes = {
@@ -32,7 +31,6 @@ class RTMDet_Pose(Model):
             "point": QCoreApplication.translate("Model", "Point"),
         }
         default_output_mode = "rectangle"
-
 
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
@@ -89,9 +87,7 @@ class RTMDet_Pose(Model):
 
             if self.draw_det_box:
                 rectangle_shape = Shape(
-                    label="person",
-                    shape_type="rectangle",
-                    group_id=int(i)
+                    label="person", shape_type="rectangle", group_id=int(i)
                 )
                 rectangle_shape.add_point(QtCore.QPointF(x1, y1))
                 rectangle_shape.add_point(QtCore.QPointF(x2, y1))
@@ -108,15 +104,13 @@ class RTMDet_Pose(Model):
                 if score < self.kpt_thr:
                     continue
                 point_shape = Shape(
-                    label=self.kpt_classes[j], 
-                    shape_type="point", 
-                    group_id=int(i)
+                    label=self.kpt_classes[j],
+                    shape_type="point",
+                    group_id=int(i),
                 )
                 x = int(kpt_point[0]) + x1
                 y = int(kpt_point[1]) + y1
-                point_shape.add_point(
-                    QtCore.QPointF(x, y)
-                )
+                point_shape.add_point(QtCore.QPointF(x, y))
                 shapes.append(point_shape)
 
         result = AutoLabelingResult(shapes, replace=True)

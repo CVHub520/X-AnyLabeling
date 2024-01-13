@@ -657,10 +657,12 @@ class LabelConverter:
             for point in points:
                 x, y = point
                 polygon.append((int(x), int(y)))
-            polygons.append({
-                "label": shape["label"],
-                "polygon": polygon,
-            })
+            polygons.append(
+                {
+                    "label": shape["label"],
+                    "polygon": polygon,
+                }
+            )
 
         output_format = mapping_table["type"]
         if output_format not in ["grayscale", "rgb"]:

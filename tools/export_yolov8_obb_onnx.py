@@ -38,7 +38,10 @@ def clip_boxes(boxes, shape):
     boxes[..., [0, 2]] = boxes[..., [0, 2]].clip(0, shape[1])  # x1, x2
     boxes[..., [1, 3]] = boxes[..., [1, 3]].clip(0, shape[0])  # y1, y2
 
-def scale_boxes(img1_shape, boxes, img0_shape, ratio_pad=None, padding=True, xywh=False):
+
+def scale_boxes(
+    img1_shape, boxes, img0_shape, ratio_pad=None, padding=True, xywh=False
+):
     """
     Rescales bounding boxes (in the format of xyxy) from the shape of the image they were originally specified in
     (img1_shape) to the shape of a different image (img0_shape).
@@ -76,6 +79,7 @@ def scale_boxes(img1_shape, boxes, img0_shape, ratio_pad=None, padding=True, xyw
     boxes[..., :4] /= gain
     clip_boxes(boxes, img0_shape)
     return boxes
+
 
 def letterbox(
     im,
@@ -131,8 +135,10 @@ def letterbox(
     )
     return im, ratio, (dw, dh)
 
+
 def box_area(boxes):
     return (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
+
 
 def box_iou(box1, box2):
     area1 = box_area(box1)  # N
@@ -145,6 +151,7 @@ def box_iou(box1, box2):
     inter = wh[:, :, 0] * wh[:, :, 1]
     iou = inter / (area1[:, np.newaxis] + area2 - inter)
     return iou  # NxM
+
 
 def numpy_nms(boxes, scores, iou_threshold):
     idxs = scores.argsort()
@@ -162,10 +169,11 @@ def numpy_nms(boxes, scores, iou_threshold):
     keep = np.array(keep)
     return keep
 
+
 def numpy_nms_rotated(boxes, scores, iou_threshold):
     if len(boxes) == 0:
         return np.empty((0,), dtype=np.int8)
-    
+
     sorted_idx = np.argsort(scores)[::-1]
     boxes = boxes[sorted_idx]
     ious = batch_probiou(boxes, boxes)
@@ -173,21 +181,35 @@ def numpy_nms_rotated(boxes, scores, iou_threshold):
     pick = np.nonzero(np.max(ious, axis=0) < iou_threshold)[0]
     return sorted_idx[pick]
 
+
 def batch_probiou(obb1, obb2, eps=1e-7):
     x1, y1 = np.split(obb1[..., :2], 2, axis=-1)
     x2, y2 = (x.squeeze(-1)[None] for x in np.split(obb2[..., :2], 2, axis=-1))
     a1, b1, c1 = _get_covariance_matrix(obb1)
     a2, b2, c2 = (x.squeeze(-1)[None] for x in _get_covariance_matrix(obb2))
     t1 = (
-        ((a1 + a2) * (np.power(y1 - y2, 2)) + (b1 + b2) * (np.power(x1 - x2, 2)))
+        (
+            (a1 + a2) * (np.power(y1 - y2, 2))
+            + (b1 + b2) * (np.power(x1 - x2, 2))
+        )
         / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)
     ) * 0.25
-    t2 = (((c1 + c2) * (x2 - x1) * (y1 - y2)) / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)) * 0.5
+    t2 = (
+        ((c1 + c2) * (x2 - x1) * (y1 - y2))
+        / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)
+    ) * 0.5
 
     t3 = (
         np.log(
             ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)))
-            / (4 * np.sqrt((a1 * b1 - np.power(c1, 2)).clip(0) * (a2 * b2 - np.power(c2, 2)).clip(0)) + eps)
+            / (
+                4
+                * np.sqrt(
+                    (a1 * b1 - np.power(c1, 2)).clip(0)
+                    * (a2 * b2 - np.power(c2, 2)).clip(0)
+                )
+                + eps
+            )
             + eps
         )
         * 0.5
@@ -197,14 +219,18 @@ def batch_probiou(obb1, obb2, eps=1e-7):
     hd = np.sqrt(1.0 - np.exp(-bd) + eps)
     return 1 - hd
 
+
 def _get_covariance_matrix(boxes):
-    gbbs = np.concatenate((np.power(boxes[:, 2:4], 2) / 12, boxes[:, 4:]), axis=-1)
+    gbbs = np.concatenate(
+        (np.power(boxes[:, 2:4], 2) / 12, boxes[:, 4:]), axis=-1
+    )
     a, b, c = np.split(gbbs, [1, 2], axis=-1)
     return (
         a * np.cos(c) ** 2 + b * np.sin(c) ** 2,
         a * np.sin(c) ** 2 + b * np.cos(c) ** 2,
         a * np.cos(c) * np.sin(c) - b * np.sin(c) * np.cos(c),
     )
+
 
 def non_max_suppression_v8(
     prediction,
@@ -333,7 +359,9 @@ def non_max_suppression_v8(
         c = x[:, 5:6] * (0 if agnostic else max_wh)
         scores = x[:, 4]
         if task == "obb":
-            boxes = np.concatenate((x[:, :2] + c, x[:, 2:4], x[:, -1:]), axis=-1)  # xywhr
+            boxes = np.concatenate(
+                (x[:, :2] + c, x[:, 2:4], x[:, -1:]), axis=-1
+            )  # xywhr
             i = numpy_nms_rotated(boxes, scores, iou_thres)
         else:
             boxes = x[:, :4] + c
@@ -351,6 +379,7 @@ def non_max_suppression_v8(
         output[xi] = x[i]
 
     return output
+
 
 def xywhr2xyxyxyxy(center):
     """
@@ -378,12 +407,21 @@ def xywhr2xyxyxyxy(center):
     pt4 = ctr - vec1 + vec2
     return np.stack([pt1, pt2, pt3, pt4], axis=-2)
 
-def box_label(im, box, label="", line_width=2, color=(128, 128, 128), txt_color=(255, 255, 255), rotated=False):
+
+def box_label(
+    im,
+    box,
+    label="",
+    line_width=2,
+    color=(128, 128, 128),
+    txt_color=(255, 255, 255),
+    rotated=False,
+):
     """Add one xyxy box to image with label."""
     lw = line_width or max(round(sum(im.shape) / 2 * 0.003), 2)  # line width
     tf = max(lw - 1, 1)  # font thickness
     sf = lw / 3  # font scale
-    if rotated:  
+    if rotated:
         p1 = [int(b) for b in box[0]]
         # NOTE: cv2-version polylines needs np.asarray type.
         cv2.polylines(im, [np.asarray(box, dtype=int)], True, color, lw)
@@ -391,7 +429,9 @@ def box_label(im, box, label="", line_width=2, color=(128, 128, 128), txt_color=
         p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
         cv2.rectangle(im, p1, p2, color, thickness=lw, lineType=cv2.LINE_AA)
     if label:
-        w, h = cv2.getTextSize(label, 0, fontScale=sf, thickness=tf)[0]  # text width, height
+        w, h = cv2.getTextSize(label, 0, fontScale=sf, thickness=tf)[
+            0
+        ]  # text width, height
         outside = p1[1] - h >= 3
         p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
         cv2.rectangle(im, p1, p2, color, -1, cv2.LINE_AA)  # filled
@@ -405,6 +445,7 @@ def box_label(im, box, label="", line_width=2, color=(128, 128, 128), txt_color=
             thickness=tf,
             lineType=cv2.LINE_AA,
         )
+
 
 class Colors:
     """
@@ -480,6 +521,7 @@ class Colors:
     def hex2rgb(h):
         """Converts hex color codes to RGB values (i.e. default PIL order)."""
         return tuple(int(h[1 + i : 1 + i + 2], 16) for i in (0, 2, 4))
+
 
 class OnnxBaseModel:
     def __init__(self, model_path, device_type: str = "gpu"):
@@ -569,9 +611,13 @@ class YOLOv8_OBB:
         img_shape = image.shape[:2]
         results = []
         for pred in p:
-            pred[:, :4] = scale_boxes(self.input_shape, pred[:, :4], img_shape, xywh=True)
+            pred[:, :4] = scale_boxes(
+                self.input_shape, pred[:, :4], img_shape, xywh=True
+            )
             # xywh, r, conf, cls
-            results = np.concatenate([pred[:, :4], pred[:, -1:], pred[:, 4:6]], axis=-1)
+            results = np.concatenate(
+                [pred[:, :4], pred[:, -1:], pred[:, 4:6]], axis=-1
+            )
         return results
 
     def predict_shapes(self, image):
@@ -584,9 +630,7 @@ class YOLOv8_OBB:
 
         blob = self.preprocess(image)
         start_time = time.time()
-        outputs = self.net.get_ort_inference(
-            blob
-        )
+        outputs = self.net.get_ort_inference(blob)
         end_time = time.time()
         print("Inference time: {:.3f}s".format(end_time - start_time))
         results = self.postprocess(outputs, image)
@@ -598,9 +642,12 @@ class YOLOv8_OBB:
             label = self.class_names[c] + f": {conf:.2f}"
             xyxyxyxy = xywhr2xyxyxyxy(xywhr)
             box = xyxyxyxy.reshape(-1, 4, 2).squeeze()
-            box_label(image, box, label, color=self.colors(c, True), rotated=True)
+            box_label(
+                image, box, label, color=self.colors(c, True), rotated=True
+            )
         if self.save_path:
             cv2.imwrite(self.save_path, image)
+
 
 if __name__ == "__main__":
     save_path = ""
@@ -610,10 +657,21 @@ if __name__ == "__main__":
     iou_thres = 0.7
     conf_thres = 0.25
     class_names = [
-        'plane', 'ship', 'storage tank', 'baseball diamond',
-        'tennis court', 'basketball court', 'ground track field', 'harbor',
-        'bridge', 'large vehicle', 'small vehicle', 'helicopter',
-        'roundabout', 'soccer ball field', 'swimming pool'
+        "plane",
+        "ship",
+        "storage tank",
+        "baseball diamond",
+        "tennis court",
+        "basketball court",
+        "ground track field",
+        "harbor",
+        "bridge",
+        "large vehicle",
+        "small vehicle",
+        "helicopter",
+        "roundabout",
+        "soccer ball field",
+        "swimming pool",
     ]
     configs = {
         "model_path": model_path,

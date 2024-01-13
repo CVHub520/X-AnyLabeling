@@ -40,7 +40,7 @@ def numpy_nms(boxes, scores, iou_threshold):
 def numpy_nms_rotated(boxes, scores, iou_threshold):
     if len(boxes) == 0:
         return np.empty((0,), dtype=np.int8)
-    
+
     sorted_idx = np.argsort(scores)[::-1]
     boxes = boxes[sorted_idx]
     ious = batch_probiou(boxes, boxes)
@@ -55,15 +55,28 @@ def batch_probiou(obb1, obb2, eps=1e-7):
     a1, b1, c1 = _get_covariance_matrix(obb1)
     a2, b2, c2 = (x.squeeze(-1)[None] for x in _get_covariance_matrix(obb2))
     t1 = (
-        ((a1 + a2) * (np.power(y1 - y2, 2)) + (b1 + b2) * (np.power(x1 - x2, 2)))
+        (
+            (a1 + a2) * (np.power(y1 - y2, 2))
+            + (b1 + b2) * (np.power(x1 - x2, 2))
+        )
         / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)
     ) * 0.25
-    t2 = (((c1 + c2) * (x2 - x1) * (y1 - y2)) / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)) * 0.5
+    t2 = (
+        ((c1 + c2) * (x2 - x1) * (y1 - y2))
+        / ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)) + eps)
+    ) * 0.5
 
     t3 = (
         np.log(
             ((a1 + a2) * (b1 + b2) - (np.power(c1 + c2, 2)))
-            / (4 * np.sqrt((a1 * b1 - np.power(c1, 2)).clip(0) * (a2 * b2 - np.power(c2, 2)).clip(0)) + eps)
+            / (
+                4
+                * np.sqrt(
+                    (a1 * b1 - np.power(c1, 2)).clip(0)
+                    * (a2 * b2 - np.power(c2, 2)).clip(0)
+                )
+                + eps
+            )
             + eps
         )
         * 0.5
@@ -75,7 +88,9 @@ def batch_probiou(obb1, obb2, eps=1e-7):
 
 
 def _get_covariance_matrix(boxes):
-    gbbs = np.concatenate((np.power(boxes[:, 2:4], 2) / 12, boxes[:, 4:]), axis=-1)
+    gbbs = np.concatenate(
+        (np.power(boxes[:, 2:4], 2) / 12, boxes[:, 4:]), axis=-1
+    )
     a, b, c = np.split(gbbs, [1, 2], axis=-1)
     return (
         a * np.cos(c) ** 2 + b * np.sin(c) ** 2,
@@ -354,7 +369,9 @@ def non_max_suppression_v8(
         c = x[:, 5:6] * (0 if agnostic else max_wh)
         scores = x[:, 4]
         if task == "obb":
-            boxes = np.concatenate((x[:, :2] + c, x[:, 2:4], x[:, -1:]), axis=-1)  # xywhr
+            boxes = np.concatenate(
+                (x[:, :2] + c, x[:, 2:4], x[:, -1:]), axis=-1
+            )  # xywhr
             i = numpy_nms_rotated(boxes, scores, iou_thres)
         else:
             boxes = x[:, :4] + c

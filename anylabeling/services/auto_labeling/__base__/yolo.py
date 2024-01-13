@@ -213,9 +213,13 @@ class YOLO(Model):
                     upsample=True,
                 )  # HWC
             if self.task == "obb":
-                pred[:, :4] = scale_boxes(self.input_shape, pred[:, :4], img_shape, xywh=True)
+                pred[:, :4] = scale_boxes(
+                    self.input_shape, pred[:, :4], img_shape, xywh=True
+                )
             else:
-                pred[:, :4] = scale_boxes(self.input_shape, pred[:, :4], img_shape)
+                pred[:, :4] = scale_boxes(
+                    self.input_shape, pred[:, :4], img_shape
+                )
 
         if self.task == "obb":
             bbox = pred[:, :5]
@@ -323,7 +327,7 @@ class YOLO(Model):
                 shape.add_point(QtCore.QPointF(x3, y3))
                 shape.shape_type = "rotation"
                 shape.closed = True
-                shape.direction=direction
+                shape.direction = direction
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
                 shape.line_width = 1

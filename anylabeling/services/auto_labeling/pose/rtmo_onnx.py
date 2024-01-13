@@ -11,19 +11,19 @@ The onnxruntime demo of the RTMO model
 Ref: https://github.com/Tau-J/rtmlib
 """
 
-class RTMO():
 
-    def __init__(self,
-                 onnx_model: str,
-                 model_input_size: tuple = (640, 640),
-                 mean: tuple = None,
-                 std: tuple = None,
-                 backend: str = 'onnxruntime',
-                 device: str = 'cpu'):
+class RTMO:
+    def __init__(
+        self,
+        onnx_model: str,
+        model_input_size: tuple = (640, 640),
+        mean: tuple = None,
+        std: tuple = None,
+        backend: str = "onnxruntime",
+        device: str = "cpu",
+    ):
         super().__init__()
-        self.net = OnnxBaseModel(
-            onnx_model, device_type=device
-        )
+        self.net = OnnxBaseModel(onnx_model, device_type=device)
         self.model_input_size = self.net.get_input_shape()[-2:]
         if not isinstance(self.model_input_size[0], int):
             self.model_input_size = model_input_size
@@ -63,21 +63,27 @@ class RTMO():
             - scale (np.ndarray): Scale of image.
         """
         if len(img.shape) == 3:
-            padded_img = np.ones(
-                (self.model_input_size[0], self.model_input_size[1], 3),
-                dtype=np.uint8) * 114
+            padded_img = (
+                np.ones(
+                    (self.model_input_size[0], self.model_input_size[1], 3),
+                    dtype=np.uint8,
+                )
+                * 114
+            )
         else:
             padded_img = np.ones(self.model_input_size, dtype=np.uint8) * 114
 
-        ratio = min(self.model_input_size[0] / img.shape[0],
-                    self.model_input_size[1] / img.shape[1])
+        ratio = min(
+            self.model_input_size[0] / img.shape[0],
+            self.model_input_size[1] / img.shape[1],
+        )
         resized_img = cv2.resize(
             img,
             (int(img.shape[1] * ratio), int(img.shape[0] * ratio)),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
         padded_shape = (int(img.shape[0] * ratio), int(img.shape[1] * ratio))
-        padded_img[:padded_shape[0], :padded_shape[1]] = resized_img
+        padded_img[: padded_shape[0], : padded_shape[1]] = resized_img
 
         # normalize image
         if self.mean is not None:
@@ -95,7 +101,7 @@ class RTMO():
     def postprocess(
         self,
         outputs: List[np.ndarray],
-        ratio: float = 1.,
+        ratio: float = 1.0,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """Do postprocessing for RTMO model inference.
 
@@ -128,9 +134,10 @@ class RTMO():
         return keypoints, scores
 
 
-
 if __name__ == "__main__":
-    onnx_model = "/home/cvhub/anylabeling_data/models/rtmo_s-r20240112/rtmo-s.onnx"
+    onnx_model = (
+        "/home/cvhub/anylabeling_data/models/rtmo_s-r20240112/rtmo-s.onnx"
+    )
     image_path = "/home/cvhub/workspace/projects/python/pose/mmpose/projects/rtmpose/examples/onnxruntime/human-pose.jpeg"
     rtmo = RTMO(onnx_model, mean=[0, 0, 0], std=[1, 1, 1])
     image = cv2.imread(image_path)
