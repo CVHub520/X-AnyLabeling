@@ -2,14 +2,14 @@
 
 Currently, the built-in models in `X-AnyLabeling` are hosted on the GitHub release repository. Therefore, if you want to import a model directly from the GUI interface, it is essential to ensure a smooth internet connection; otherwise, you may encounter download failures.
 
-For users who, due to network issues, are unable to download weight files smoothly from the interface, please refer to the [models_zoo.md](./models_zoo.md) to locate the corresponding weight file for the model you wish to load. Follow the step-by-step instructions provided in [#23](https://github.com/CVHub520/X-AnyLabeling/issues/23) for a demonstration.
+For users who, due to network issues, are unable to download weight files smoothly from the interface, please refer to the [model_zoo.md](./model_zoo.md) to locate the corresponding weight file for the model you wish to load. Follow the step-by-step instructions provided in [#23](https://github.com/CVHub520/X-AnyLabeling/issues/23) for a demonstration.
 
 
 ## 2. Loading Custom Models
 
 ### 2.1 Adapted Models
 
-**Adapted Models** refer to network models that have already been adapted within X-AnyLabeling. Similarly, you can refer to the [models_zoo.md](./models_zoo.md) document. Taking the [yolov5s](https://github.com/ultralytics/yolov5) model as an example, assuming a user has trained a custom `yolov5` detection model locally, you can download the corresponding [configuration file](../../anylabeling/configs/auto_labeling/yolov5s.yaml) as shown below:
+**Adapted Models** refer to network models that have already been adapted within X-AnyLabeling. Similarly, you can refer to the [model_zoo.md](./model_zoo.md) document. Taking the [yolov5s](https://github.com/ultralytics/yolov5) model as an example, assuming a user has trained a custom `yolov5` detection model locally, you can download the corresponding [configuration file](../../anylabeling/configs/auto_labeling/yolov5s.yaml) as shown below:
 
 ```YAML
 type: yolov5
@@ -66,7 +66,7 @@ Now, we understand the role of configuration files in the entire `X-AnyLabeling`
 
 > Note: After the transformation, make sure to open the model using [Netron](https://netron.app/) tool to ensure alignment between the input and output nodes of the model and the built-in model within X-AnyLabeling. This step is crucial for compatibility and seamless integration.
 
-Next, copy the configuration file corresponding to the current model from [models_zoo.md](./models_zoo.md) to the local machine and modify the corresponding hyperparameter fields as needed, such as detection threshold and categories. For example:
+Next, copy the configuration file corresponding to the current model from [model_zoo.md](./model_zoo.md) to the local machine and modify the corresponding hyperparameter fields as needed, such as detection threshold and categories. For example:
 
 ```YAML
 type: yolov5

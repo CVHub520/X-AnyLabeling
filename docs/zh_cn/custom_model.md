@@ -2,14 +2,14 @@
 
 目前 `X-AnyLabeling` 内置模型默认是托管到 github 的 release 仓库，因此想要从 GUI 界面直接导入模型的同学需要自行配置科学上网条件，并保持当前网络畅通，否则大概会遇到下载失败的情况。
 
-对由于网络问题未能够从界面顺利下载权重文件至本地的小伙伴，请先从 [models_zoo.md](./models_zoo.md) 中找到您期望加载模型对应的权重文件（没配置科学上网的请自觉走百度网盘链接），最后按照 [#23](https://github.com/CVHub520/X-AnyLabeling/issues/23) 提供的演示步骤一步步操作即可。
+对由于网络问题未能够从界面顺利下载权重文件至本地的小伙伴，请先从 [model_zoo.md](./model_zoo.md) 中找到您期望加载模型对应的权重文件（没配置科学上网的请自觉走百度网盘链接），最后按照 [#23](https://github.com/CVHub520/X-AnyLabeling/issues/23) 提供的演示步骤一步步操作即可。
 
 
 ## 二、如何加载自定义模型？
 
 ### 2.1 已适配模型
 
-**已适配模型**指的是 X-AnyLabeling 中已经适配过的网络模型，同样地可参考 [models_zoo.md](./models_zoo.md) 文档。以 [yolov5s](https://github.com/ultralytics/yolov5) 模型为例，现假设用户在本地自己训练了一个 `yolov5` 检测模型，大家可以把相应的 [配置文件](../../anylabeling/configs/auto_labeling/yolov5s.yaml) 下载下来，如下所示：
+**已适配模型**指的是 X-AnyLabeling 中已经适配过的网络模型，同样地可参考 [model_zoo.md](./model_zoo.md) 文档。以 [yolov5s](https://github.com/ultralytics/yolov5) 模型为例，现假设用户在本地自己训练了一个 `yolov5` 检测模型，大家可以把相应的 [配置文件](../../anylabeling/configs/auto_labeling/yolov5s.yaml) 下载下来，如下所示：
 
 ```YAML
 type: yolov5
@@ -66,7 +66,7 @@ anchors:
 
 > 请注意，转换后的模型务必使用[netron](https://netron.app/)工具打开，确保输入输出节点与 X-AnyLabeling 内置模型的输入输出节点一致。
 
-其次，我们可以在 [models_zoo.md](./models_zoo.md) 中将当前模型对应的配置文件赋值一份至本地，并根据需要修改对应的超参数字段，如检测阈值和类别等，示例如下：
+其次，我们可以在 [model_zoo.md](./model_zoo.md) 中将当前模型对应的配置文件赋值一份至本地，并根据需要修改对应的超参数字段，如检测阈值和类别等，示例如下：
 
 ```YAML
 type: yolov5
