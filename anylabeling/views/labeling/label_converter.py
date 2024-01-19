@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 
 from PIL import Image
 from datetime import date
+from itertools import chain
 
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.logger import logger
@@ -154,6 +155,39 @@ class LabelConverter:
             "annotations": [],
         }
         return coco_data
+
+    def calculate_normalized_bbox(self, poly, img_w, img_h):
+        """
+        Calculate the minimum bounding box for a set of four points and return the YOLO format rectangle representation (normalized).
+
+        Args:
+        - poly (list): List of four points [(x1, y1), (x2, y2), (x3, y3), (x4, y4)].
+        - img_w (int): Width of the corresponding image.
+        - img_h (int): Height of the corresponding image.
+
+        Returns:
+        - tuple: Tuple representing the YOLO format rectangle in xywh_center form (all normalized).
+        """
+        xmin, ymin, xmax, ymax = self.calculate_bounding_box(poly)
+        x_center = (xmin + xmax) / (2 * img_w)
+        y_center = (ymin + ymax) / (2 * img_h)
+        width = (xmax - xmin) / img_w
+        height = (ymax - ymin) / img_h
+        return x_center, y_center, width, height
+
+    @staticmethod
+    def calculate_bounding_box(poly):
+        """
+        Calculate the minimum bounding box for a set of four points.
+
+        Args:
+        - poly (list): List of four points [(x1, y1), (x2, y2), (x3, y3), (x4, y4)].
+
+        Returns:
+        - tuple: Tuple representing the bounding box (xmin, ymin, xmax, ymax).
+        """
+        x_vals, y_vals = zip(*poly)
+        return min(x_vals), min(y_vals), max(x_vals), max(y_vals)
 
     def yolo_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -487,6 +521,16 @@ class LabelConverter:
                             ]
                         )
                         + "\n"
+                    )
+                elif shape_type == "rotation":
+                    label = shape["label"]
+                    points = list(chain.from_iterable(shape["points"]))
+                    normalized_coords = [
+                        points[i] / image_width if i % 2 == 0 else points[i] / image_height for i in range(8)]
+                    x0, y0, x1, y1, x2, y2, x3, y3 = normalized_coords
+                    class_index = self.classes.index(label)
+                    f.write(
+                        f"{class_index} {x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3}\n"
                     )
 
     def custom_to_voc(self, input_file, output_dir):

@@ -3497,7 +3497,7 @@ class LabelingWidget(LabelDialog):
         image_list = self.image_list
         if not image_list:
             image_list = [self.filename]
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "labelTxt"))
         os.makedirs(save_path, exist_ok=True)
         converter = LabelConverter(classes_file=self.classes_file)
         label_file_list = os.listdir(label_dir_path)
