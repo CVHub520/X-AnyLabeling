@@ -561,10 +561,7 @@ class LabelConverter:
                     "Please update your code to accommodate the new four-point mode."
                 )
                 points = rectangle_from_diagonal(points)
-            xmin = str(points[0][0])
-            ymin = str(points[0][1])
-            xmax = str(points[2][0])
-            ymax = str(points[2][1])
+            xmin, ymin, xmax, ymax = self.calculate_bounding_box(points)
 
             object_elem = ET.SubElement(root, "object")
             ET.SubElement(object_elem, "name").text = label
@@ -572,10 +569,10 @@ class LabelConverter:
             ET.SubElement(object_elem, "truncated").text = "0"
             ET.SubElement(object_elem, "difficult").text = str(int(difficult))
             bndbox = ET.SubElement(object_elem, "bndbox")
-            ET.SubElement(bndbox, "xmin").text = xmin
-            ET.SubElement(bndbox, "ymin").text = ymin
-            ET.SubElement(bndbox, "xmax").text = xmax
-            ET.SubElement(bndbox, "ymax").text = ymax
+            ET.SubElement(bndbox, "xmin").text = str(xmin)
+            ET.SubElement(bndbox, "ymin").text = str(ymin)
+            ET.SubElement(bndbox, "xmax").text = str(xmax)
+            ET.SubElement(bndbox, "ymax").text = str(ymax)
 
         xml_string = ET.tostring(root, encoding="utf-8")
         dom = minidom.parseString(xml_string)

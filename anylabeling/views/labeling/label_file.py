@@ -191,6 +191,17 @@ class LabelFile:
             other_data = {}
         if flags is None:
             flags = {}
+        for i, shape in enumerate(shapes):
+            if shape["shape_type"] == "rectangle":
+                sorted_box = LabelConverter.calculate_bounding_box(shape["points"])
+                xmin, ymin, xmax, ymax = sorted_box
+                shape["points"] = [
+                    [xmin, ymin],
+                    [xmax, ymin],
+                    [xmax, ymax],
+                    [xmin, ymax],
+                ]
+                shapes[i] = shape
         data = {
             "version": __version__,
             "flags": flags,
