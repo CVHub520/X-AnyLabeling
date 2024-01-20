@@ -569,10 +569,10 @@ class LabelConverter:
             ET.SubElement(object_elem, "truncated").text = "0"
             ET.SubElement(object_elem, "difficult").text = str(int(difficult))
             bndbox = ET.SubElement(object_elem, "bndbox")
-            ET.SubElement(bndbox, "xmin").text = str(xmin)
-            ET.SubElement(bndbox, "ymin").text = str(ymin)
-            ET.SubElement(bndbox, "xmax").text = str(xmax)
-            ET.SubElement(bndbox, "ymax").text = str(ymax)
+            ET.SubElement(bndbox, "xmin").text = str(int(xmin))
+            ET.SubElement(bndbox, "ymin").text = str(int(ymin))
+            ET.SubElement(bndbox, "xmax").text = str(int(xmax))
+            ET.SubElement(bndbox, "ymax").text = str(int(ymax))
 
         xml_string = ET.tostring(root, encoding="utf-8")
         dom = minidom.parseString(xml_string)
