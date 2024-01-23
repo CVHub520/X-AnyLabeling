@@ -204,6 +204,7 @@ class ModelManager(QObject):
                 "yolov8_obb",
                 "yolov5_car_plate",
                 "rtmdet_pose",
+                "depth_anything",
             ]
         ):
             self.new_model_status.emit(
@@ -1162,6 +1163,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv8_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "depth_anything":
+            from .depth_anything import DepthAnything
+
+            try:
+                model_config["model"] = DepthAnything(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

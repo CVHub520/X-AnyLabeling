@@ -1,0 +1,4 @@
+type: depth_anything
+name: depth_anything_vit_l-r20240124
+display_name: Depth Anything (ViT-Large)
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.1/depth_anything_vitl14.onnx

@@ -195,3 +195,12 @@
 | groundingdino_swint_ogc_quant.onnx | GroundingSAM-SwinB with HQ-SAM-VitL-QInt8 | [groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml](../../anylabeling/configs/auto_labeling/groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml) | 964.04MB | [百度网盘](https://pan.baidu.com/s/1D-JxYEOU2lTYcLT58xxX8A?pwd=8kyk) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/groundingdino_fuse_attention.onnx) |
 | sam_hq_vit_l_encoder_quant.onnx | GroundingSAM-SwinB with HQ-SAM-VitL-QInt8 | [groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml](../../anylabeling/configs/auto_labeling/groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml) | 307.96MB | [百度网盘](https://pan.baidu.com/s/1IkKuFWlJCsU1baKcE75aMQ?pwd=l23c) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_l_encoder_quant.onnx) |
 | sam_hq_vit_l_decoder | GroundingSAM-SwinB with HQ-SAM-VitL-QInt8 | [groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml](../../anylabeling/configs/auto_labeling/groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml) | 20.74MB | [百度网盘](https://pan.baidu.com/s/1eAjL_qW1V4CleLko_xmy4g?pwd=b7p8) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_l_decoder.onnx) |
+
+
+### 深度估计
+
+|名称|描述|配置|大小|链接|
+| --- | --- | --- | --- | --- |
+| depth_anything_vits14.onnx | [DepthAnything](https://github.com/LiheYoung/Depth-Anything.git) | [depth_anything_vit_s.yaml](../../anylabeling/configs/auto_labeling/depth_anything_vit_s.yaml) | 94.48MB | [百度网盘](https://pan.baidu.com/s/1-ONO7s0AUPY_pq1Zw0xpcQ?pwd=xkx0) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.1/depth_anything_vits14.onnx) |
+| depth_anything_vitb14.onnx | [DepthAnything](https://github.com/LiheYoung/Depth-Anything.git) | [depth_anything_vit_b.yaml](../../anylabeling/configs/auto_labeling/depth_anything_vit_b.yaml) | 370.91MB | [百度网盘](https://pan.baidu.com/s/1x8ADH6j1Qlm3_iHZV8Kmvw?pwd=trgt) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.1/depth_anything_vitb14.onnx) |
+| depth_anything_vitl14.onnx | [DepthAnything](https://github.com/LiheYoung/Depth-Anything.git) | [depth_anything_vit_l.yaml](../../anylabeling/configs/auto_labeling/depth_anything_vit_l.yaml) | 1.25GB | [百度网盘](https://pan.baidu.com/s/1MeEcbyJa6ysoGzK-8EjqYw?pwd=p3j4) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.1/depth_anything_vitl14.onnx) |
