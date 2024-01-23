@@ -3021,6 +3021,7 @@ class LabelingWidget(LabelDialog):
             converter.voc_to_custom(
                 input_file=input_file,
                 output_file=output_file,
+                image_filename=image_filename,
             )
 
         # update and refresh the current canvas

@@ -239,17 +239,16 @@ class LabelConverter:
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def voc_to_custom(self, input_file, output_file):
+    def voc_to_custom(self, input_file, output_file, image_filename):
         self.reset()
 
         tree = ET.parse(input_file)
         root = tree.getroot()
 
-        image_path = root.find("filename").text
         image_width = int(root.find("size/width").text)
         image_height = int(root.find("size/height").text)
 
-        self.custom_data["imagePath"] = image_path
+        self.custom_data["imagePath"] = image_filename
         self.custom_data["imageHeight"] = image_height
         self.custom_data["imageWidth"] = image_width
 
