@@ -136,4 +136,22 @@ Follow these steps:
 
 4. `Clear (c)`: Clear all automatic segmentation marks.
 
-5. Complete the object (f): After completing the current mark, press the shortcut key `f`, enter the label name, and save the current object
+5. Complete the object (f): After completing the current mark, press the shortcut key `f`, enter the label name, and save the current object.
+
+### Multi-Object Tracking
+
+Multi-object tracking (MOT) technology is employed to simultaneously identify and track multiple targets within video sequences, involving the association of targets across different frames. The X-AnyLabeling tool currently integrates various detection and tracking algorithms, including `ByteTrack` and `OCSort`, and supports the import and export of MOT format labels.
+
+#### Export Settings:
+
+1. Load a video file; for example, refer to [demo_video.mp4](../../assets/demo_video.mp4) for a sample file.
+2. Load a tracking model, such as [yolov5m_bytetrack](../../anylabeling/configs/auto_labeling/yolov5m_bytetrack.yaml) or [yolov8m_ocsort](../../anylabeling/configs/auto_labeling/yolov8m_ocsort.yaml).
+3. Click "Run (i)" verify correctness, and press the shortcut `Ctrl+M` to execute tracking for all frames.
+4. Prepare a custom class file; see [classes.txt](../../assets/classes.txt) for a specific example.
+5. Click on the menu bar -> Export -> Choose the custom class file -> Confirm. A *.csv file will be generated in the same directory as the current video file.
+
+#### Import Settings:
+
+1. Load a video file.
+2. Prepare a custom class file; refer to [classes.txt](../../assets/classes.txt) for an example.
+3. Click on the menu bar -> Upload -> Choose the custom class file -> Select *.csv label file -> Confirm. MOT labels will be imported.

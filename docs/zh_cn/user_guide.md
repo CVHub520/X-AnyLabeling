@@ -143,3 +143,21 @@ label_colors:
 
 5. 完成对象(f)：当完成当前标记后，我们可以及时按下快捷键f，输入标签名称并保存当前对象。
 
+
+### 多目标跟踪
+
+多目标跟踪技术可用于在视频序列中同时识别并跟踪多个目标，这涉及到在不同帧之间关联目标。当前 X-AnyLabeling 工具中内置了多个不同的检测后跟踪算法，包括 `ByteTrack` 和 `OCSort` 等，同时支持导入和导出 MOT 格式标签。
+
+首先，对于导出设置，可参考以下步骤实施：
+
+1. 加载视频文件，示例文件可参考[demo_video.mp4](../../assets/demo_video.mp4)；【需要注意的是不能出现中文路径！】
+2. 加载跟踪模型，例如 [yolov5m_bytetrack](../../anylabeling/configs/auto_labeling/yolov5m_bytetrack.yaml) 或者 [yolov8m_ocsort](../../anylabeling/configs/auto_labeling/yolov8m_ocsort.yaml)；
+3. 单击运行，检查确保无误后，可按下快捷键 `Ctrl+M` 一键运行所有帧；
+4. 准备一份自定义类别文件，具体示例可参考[classes.txt](../../assets/classes.txt)；
+5. 点击菜单栏->导出->选择自定义类别文件->点击确认，即可在当前视频文件同级目录下会自动生成一份 *.csv 文件。
+
+最后，对于导入设置，可参考以下步骤实施：
+
+1. 加载视频文件；
+2. 准备一份自定义类别文件，具体示例可参考[classes.txt](../../assets/classes.txt)；
+3. 点击菜单栏->导入->选择自定义类别文件->选择*.csv标签文件->点击确认，即可导入MOT标签。
