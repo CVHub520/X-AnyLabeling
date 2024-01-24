@@ -4028,10 +4028,26 @@ class LabelingWidget(LabelDialog):
             default_open_video_path,
             supportedVideoFormats,
         )
-        target_video_path = str(target_video_path)
-        if osp.exists(target_video_path):
+
+        # Check if the path contains Chinese characters
+        if self.containsChinese(target_video_path):
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("File path contains Chinese characters, invalid path!"),
+                QMessageBox.Ok,
+            )
+            return
+
+        if os.path.exists(target_video_path):
             target_dir_path = self.extract_frames_from_video(target_video_path)
             self.import_image_folder(target_dir_path)
+
+    def containsChinese(self, s):
+        for char in s:
+            if '\u4e00' <= char <= '\u9fff':
+                return True
+        return False
 
     def open_folder_dialog(self, _value=False, dirpath=None):
         if not self.may_continue():
