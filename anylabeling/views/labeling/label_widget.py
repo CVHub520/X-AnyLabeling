@@ -2329,6 +2329,14 @@ class LabelingWidget(LabelDialog):
             self.canvas.undo_last_line()
             self.canvas.shapes_backups.pop()
 
+    def get_pixel_color(self, x, y):
+        if self.image_path:
+            image = QtGui.QImage(self.image_path)
+            if 0 <= x < image.width() and 0 <= y < image.height():
+                color = QtGui.QColor(image.pixel(x, y))
+                return f"{color.red()}, {color.green()}, {color.blue()}"
+        return ""
+
     def show_shape(self, shape_height, shape_width, pos):
         """Display annotation width and height while hovering inside.
 
@@ -2339,16 +2347,18 @@ class LabelingWidget(LabelDialog):
         """
         num_images = len(self.image_list)
         basename = osp.basename(str(self.filename))
+
         if shape_height > 0 and shape_width > 0:
             if num_images:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]"))
+                    str(self.tr("X: %d, Y: %d | H: %d, W: %d | RGB: %s [%s: %d/%d]"))
                     % (
                         int(pos.x()),
                         int(pos.y()),
                         shape_height,
                         shape_width,
+                        str(self.get_pixel_color(int(pos.x()), int(pos.y()))),
                         basename,
                         current_index,
                         num_images,
@@ -2356,17 +2366,24 @@ class LabelingWidget(LabelDialog):
                 )
             else:
                 self.status(
-                    str(self.tr("X: %d, Y: %d | H: %d, W: %d"))
-                    % (int(pos.x()), int(pos.y()), shape_height, shape_width)
+                    str(self.tr("X: %d, Y: %d | H: %d, W: %d | RGB: %s"))
+                    % (
+                        int(pos.x()),
+                        int(pos.y()),
+                        shape_height,
+                        shape_width,
+                        str(self.get_pixel_color(int(pos.x()), int(pos.y()))),
+                    )
                 )
         elif self.image_path:
             if num_images:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d [%s: %d/%d]"))
+                    str(self.tr("X: %d, Y: %d, RGB: %s [%s: %d/%d] "))
                     % (
                         int(pos.x()),
                         int(pos.y()),
+                        str(self.get_pixel_color(int(pos.x()), int(pos.y()))),
                         basename,
                         current_index,
                         num_images,
@@ -2374,7 +2391,12 @@ class LabelingWidget(LabelDialog):
                 )
             else:
                 self.status(
-                    str(self.tr("X: %d, Y: %d")) % (int(pos.x()), int(pos.y()))
+                    str(self.tr("X: %d, Y: %d, RGB: %s"))
+                    % (
+                        int(pos.x()),
+                        int(pos.y()),
+                        str(self.get_pixel_color(int(pos.x()), int(pos.y()))),
+                    )
                 )
 
     def scroll_request(self, delta, orientation):
