@@ -4,6 +4,7 @@ import math
 import json
 import os
 import os.path as osp
+import shutil
 import pathlib
 import cv2
 import re
@@ -593,6 +594,13 @@ class LabelingWidget(LabelDialog):
             icon="overview",
             tip=self.tr("Show Annotations Statistics"),
         )
+        save_crop = action(
+            self.tr("&Save Crop"),
+            self.save_crop,
+            icon="crop",
+            tip=self.tr("Save Cropped Prediction Boxes"),
+        )
+
         documentation = action(
             self.tr("&Documentation"),
             self.documentation,
@@ -1037,6 +1045,7 @@ class LabelingWidget(LabelDialog):
             language=self.menu(self.tr("&Language")),
             upload=self.menu(self.tr("&Upload")),
             export=self.menu(self.tr("&Export")),
+            tool=self.menu(self.tr("&Tool")),
             help=self.menu(self.tr("&Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open &Recent")),
             label_list=label_menu,
@@ -1062,9 +1071,15 @@ class LabelingWidget(LabelDialog):
             ),
         )
         utils.add_actions(
-            self.menus.help,
+            self.menus.tool,
             (
                 overview,
+                save_crop,
+            ),
+        )
+        utils.add_actions(
+            self.menus.help,
+            (
                 documentation,
                 contact,
             ),
@@ -1545,6 +1560,89 @@ class LabelingWidget(LabelDialog):
         self.label_list.clear()
         self.load_shapes(self.canvas.shapes)
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
+
+    def save_crop(self):
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before executing!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+        image_file_list, label_dir_path = [], ''
+        if not self.image_list and self.filename:
+            image_file_list = [self.filename]
+            dir_path, filename = osp.split(self.filename)
+            label_file = osp.join(
+                dir_path, osp.splitext(filename)[0] + ".json"
+            )
+            if osp.exists(label_file):
+                label_dir_path = dir_path
+        elif self.image_list and not self.output_dir and self.filename:
+            image_file_list = self.image_list
+            label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        label_dic = {}
+        save_path = osp.join(osp.dirname(self.filename), "..", "crops")
+        if osp.exists(save_path):
+            shutil.rmtree(save_path)
+        try:
+            for image_file in image_file_list:
+                image_name = osp.basename(image_file)
+                base_name = osp.splitext(image_name)[0]
+                label_name = base_name + ".json"
+                label_file = osp.join(label_dir_path, label_name)
+                if not osp.exists(label_file):
+                    continue
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                shapes = data["shapes"]
+                for shape in shapes:
+                    if shape["shape_type"] != "rectangle":
+                        continue
+                    label = shape["label"]
+                    dst_path = osp.join(save_path, label)
+                    os.makedirs(dst_path, exist_ok=True)
+                    points = shape["points"]
+                    xmin, ymin = points[0]
+                    if len(points) == 2:
+                        xmax, ymax = points[1]
+                    else:
+                        xmax, ymax = points[2]
+                    image = cv2.imread(image_file)
+                    xmin = int(xmin)
+                    ymin = int(ymin)
+                    xmax = int(xmax)
+                    ymax = int(ymax)
+                    crop_image = image[ymin: ymax, xmin: xmax]
+                    if label not in label_dic:
+                        label_dic[label] = 0
+                        save_name = base_name
+                    else:
+                        label_dic[label] += 1
+                        save_name = base_name + str(label_dic[label])
+                    dst_file = osp.join(dst_path, save_name + ".jpg")
+                    cv2.imwrite(dst_file, crop_image)
+            save_path = osp.realpath(save_path)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(
+                    f"Image cropped successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
 
     def overview(self):
         label_file_list = []
