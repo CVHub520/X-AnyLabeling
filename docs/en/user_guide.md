@@ -155,3 +155,15 @@ Multi-object tracking (MOT) technology is employed to simultaneously identify an
 1. Load a video file.
 2. Prepare a custom class file; refer to [classes.txt](../../assets/classes.txt) for an example.
 3. Click on the menu bar -> Upload -> Choose the custom class file -> Select *.csv label file -> Confirm. MOT labels will be imported.
+
+### Depth Estimation
+
+Currently, the X-AnyLabeling tool incorporates the [Depth-Anything](https://github.com/LiheYoung/Depth-Anything.git) model, allowing users to choose a model of the desired scale (Small/Base/Large) based on their specific needs.
+
+The implementation steps are as follows:
+
+1. Load the image/video file.
+2. Load the Depth-Anything model or any other optional depth estimation model.
+3. Click on the run button, verify for accuracy, and, if all is correct, press the shortcut key `Ctrl+M` to run the process on all images at once.
+
+The final results of the run are saved by default in the `depth` folder located in the same directory as the current image.

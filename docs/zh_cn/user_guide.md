@@ -161,3 +161,16 @@ label_colors:
 1. 加载视频文件；
 2. 准备一份自定义类别文件，具体示例可参考[classes.txt](../../assets/classes.txt)；
 3. 点击菜单栏->导入->选择自定义类别文件->选择*.csv标签文件->点击确认，即可导入MOT标签。
+
+
+### 深度估计
+
+当前，X-AnyLabeling 工具内置了 [Depth-Anything](https://github.com/LiheYoung/Depth-Anything.git) 模型，用户可根据实际需要选择相应规模（Small/Base/Large）的模型。
+
+实施步骤参考如下：
+
+1. 加载图像/视频文件；
+2. 加载 Depth-Anything 或其它可选的深度估计模型；
+3. 单击运行，检查确保无误后，可按下快捷键 `Ctrl+M` 一键运行所有图片；
+
+最终运行得到的结果默认保存在与当前图像跟目录下的 `depth` 文件夹下。
