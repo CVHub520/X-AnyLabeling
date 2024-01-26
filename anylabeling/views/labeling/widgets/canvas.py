@@ -430,9 +430,14 @@ class Canvas(
                 self.prev_h_shape = self.h_hape = shape
                 self.prev_h_edge = self.h_edge
                 self.h_edge = None
-                self.setToolTip(
-                    self.tr("Click & drag to move shape '%s'") % shape.label
-                )
+                if shape.group_id and shape.shape_type == "rectangle":
+                    self.setToolTip(
+                        self.tr("Click & drag to move shape '%s (%d)'") % (shape.label, shape.group_id)
+                    )
+                else:
+                    self.setToolTip(
+                        self.tr("Click & drag to move shape '%s'") % shape.label
+                    )
                 self.setStatusTip(self.toolTip())
                 self.override_cursor(CURSOR_GRAB)
                 group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
