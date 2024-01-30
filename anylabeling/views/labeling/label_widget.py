@@ -349,6 +349,14 @@ class LabelingWidget(LabelDialog):
             self.tr("Delete current label file"),
             enabled=False,
         )
+        delete_image_file = action(
+            self.tr("&Delete Image File"),
+            self.delete_image_file,
+            shortcuts["delete_image_file"],
+            "delete",
+            self.tr("Delete current image file"),
+            enabled=True,
+        )
 
         change_output_dir = action(
             self.tr("&Change Output Dir"),
@@ -920,6 +928,7 @@ class LabelingWidget(LabelDialog):
             open=open_,
             close=close,
             delete_file=delete_file,
+            delete_image_file=delete_image_file,
             toggle_keep_prev_mode=toggle_keep_prev_mode,
             toggle_auto_use_last_label_mode=toggle_auto_use_last_label_mode,
             toggle_visibility_shapes_mode=toggle_visibility_shapes_mode,
@@ -1067,6 +1076,7 @@ class LabelingWidget(LabelDialog):
                 save_with_image_data,
                 close,
                 delete_file,
+                delete_image_file,
                 None,
             ),
         )
@@ -3878,6 +3888,14 @@ class LabelingWidget(LabelDialog):
 
         return label_file
 
+    def get_image_file(self):
+        if not self.filename.lower().endswith(".json"):
+            image_file = self.filename
+        else:
+            image_file = self.image_path
+
+        return image_file
+
     def delete_file(self):
         mb = QtWidgets.QMessageBox
         msg = self.tr(
@@ -3897,6 +3915,57 @@ class LabelingWidget(LabelDialog):
             item.setCheckState(Qt.Unchecked)
 
             self.reset_state()
+
+    def delete_image_file(self):
+
+        if len(self.image_list) <= 0:
+            return
+
+        mb = QtWidgets.QMessageBox
+        msg = self.tr(
+            "You are about to permanently delete this image file, "
+            "proceed anyway?"
+        )
+        answer = mb.warning(self, self.tr("Attention"), msg, mb.Yes | mb.No)
+        if answer != mb.Yes:
+            return
+
+        image_file = self.get_image_file()
+        if osp.exists(image_file):
+            image_path, image_name = osp.split(image_file)
+            save_path = osp.join(image_path, "..", "_delete_")
+            os.makedirs(save_path, exist_ok=True)
+            save_file = osp.join(save_path, image_name)
+            shutil.move(image_file, save_file)
+            logger.info("Image file is moved to: %s", osp.realpath(save_file))
+
+            label_dir_path = osp.dirname(self.filename)
+            if self.output_dir:
+                label_dir_path = self.output_dir
+            label_name = osp.splitext(image_name)[0] + ".json"
+            label_file = osp.join(label_dir_path, label_name)
+            if osp.exists(label_file):
+                os.remove(label_file)
+                logger.info("Label file is removed: %s", image_file)
+
+            filename = None
+            if self.filename is None:
+                filename = self.image_list[0]
+            else:
+                current_index = self.image_list.index(self.filename)
+                if current_index + 1 < len(self.image_list):
+                    filename = self.image_list[current_index + 1]
+                else:
+                    filename = self.image_list[0]
+
+            self.reset_state()
+            if osp.isfile(image_path):
+                image_path = osp.dirname(image_path)
+            self.import_image_folder(image_path)
+
+            self.filename = filename
+            if self.filename:
+                self.load_file(self.filename)
 
     # Message Dialogs. #
     def has_labels(self):
