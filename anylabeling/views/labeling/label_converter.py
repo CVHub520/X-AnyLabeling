@@ -720,7 +720,7 @@ class LabelConverter:
                 else:
                     mask_mapped = mask
                 binary_mask += mask_mapped
-            cv2.imwrite(output_file, binary_mask)
+            cv2.imencode(".png", binary_mask)[1].tofile(output_file)
         elif output_format == "rgb" and polygons:
             # Initialize rgb_mask
             color_mask = np.zeros(
@@ -743,9 +743,7 @@ class LabelConverter:
                     color_mask = cv2.addWeighted(
                         color_mask, 1, mask_mapped, 1, 0
                     )
-            cv2.imwrite(
-                output_file, cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB)
-            )
+            cv2.imencode(".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))[1].tofile(output_file)
 
     def custom_to_mot(self, input_path, output_file):
         mot_data = []
