@@ -41,6 +41,7 @@ class SegmentAnything(Model):
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
+            "rotation": QCoreApplication.translate("Model", "Rotation"),
         }
         default_output_mode = "polygon"
 
@@ -169,7 +170,7 @@ class SegmentAnything(Model):
                 shape.label = "AUTOLABEL_OBJECT"
                 shape.selected = False
                 shapes.append(shape)
-        elif self.output_mode == "rectangle":
+        elif self.output_mode in ["rectangle", "rotation"]:
             x_min = 100000000
             y_min = 100000000
             x_max = 0
@@ -196,7 +197,7 @@ class SegmentAnything(Model):
             shape.add_point(QtCore.QPointF(x_max, y_min))
             shape.add_point(QtCore.QPointF(x_max, y_max))
             shape.add_point(QtCore.QPointF(x_min, y_max))
-            shape.shape_type = "rectangle"
+            shape.shape_type = "rectangle" if self.output_mode == "rectangle" else "rotation"
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
