@@ -96,8 +96,11 @@ class RTMDet_Pose(Model):
                 shapes.append(rectangle_shape)
 
             img = image[y1:y2, x1:x2]
-            keypoints, scores = self.pose(img)
-            if not self.pose and not len(keypoints):
+            try:
+                keypoints, scores = self.pose(img)
+            except:
+                keypoints, scores = [], []
+            if not self.pose and len(keypoints) == 0:
                 continue
             for j in range(len(keypoints[0])):
                 kpt_point, score = keypoints[0][j], scores[0][j]
