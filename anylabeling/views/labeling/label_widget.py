@@ -2084,8 +2084,10 @@ class LabelingWidget(LabelDialog):
         for shape in self.canvas.selected_shapes:
             shape.selected = True
             item = self.label_list.find_item_by_shape(shape)
-            self.label_list.select_item(item)
-            self.label_list.scroll_to_item(item)
+            # NOTE: Handle the case when the shape is not found
+            if item is not None:
+                self.label_list.select_item(item)
+                self.label_list.scroll_to_item(item)
         self._no_selection_slot = False
         n_selected = len(selected_shapes)
         self.actions.delete.setEnabled(n_selected)
