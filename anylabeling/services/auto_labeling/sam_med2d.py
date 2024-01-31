@@ -10,6 +10,7 @@ from PyQt5 import QtCore
 from PyQt5.QtCore import QThread
 from PyQt5.QtCore import QCoreApplication
 
+from anylabeling.app_info import __preferred_device__
 from anylabeling.utils import GenericWorker
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
@@ -17,6 +18,7 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .lru_cache import LRUCache
 from .model import Model
 from .types import AutoLabelingResult
+from .__base__.clip import ChineseClipONNX
 
 
 class SegmentAnythingONNX:
@@ -252,11 +254,25 @@ class SAM_Med2D(Model):
         self.pre_inference_worker = None
         self.stop_inference = False
 
+        # CLIP models
+        self.clip_net = None
+        clip_txt_model_path = self.config.get("txt_model_path", "")
+        clip_img_model_path = self.config.get("img_model_path", "")
+        if clip_txt_model_path and clip_img_model_path:
+            if self.config["model_type"] == "cn_clip":
+                model_arch = self.config["model_arch"]
+                self.clip_net = ChineseClipONNX(
+                    clip_txt_model_path,
+                    clip_img_model_path,
+                    model_arch,
+                    device=__preferred_device__)
+            self.classes = self.config.get("classes", [])
+
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
         self.marks = marks
 
-    def post_process(self, masks):
+    def post_process(self, masks, image=None):
         """
         Post process masks
         """
@@ -357,6 +373,10 @@ class SAM_Med2D(Model):
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
             shape.line_width = 1
+            if self.clip_net is not None and self.classes:
+                img = image[y_min: y_max, x_min: x_max]
+                out = self.clip_net(img, self.classes)
+                shape.cache_label = self.classes[int(np.argmax(out))]
             shape.label = "AUTOLABEL_OBJECT"
             shape.selected = False
             shapes.append(shape)
@@ -372,13 +392,13 @@ class SAM_Med2D(Model):
             return AutoLabelingResult([], replace=False)
 
         shapes = []
+        cv_image = qt_img_to_rgb_cv_img(image, filename)
         try:
             # Use cached image embedding if possible
             cached_data = self.image_embedding_cache.get(filename)
             if cached_data is not None:
                 image_embedding = cached_data
             else:
-                cv_image = qt_img_to_rgb_cv_img(image, filename)
                 if self.stop_inference:
                     return AutoLabelingResult([], replace=False)
                 image_embedding = self.model.encode(cv_image)
@@ -393,7 +413,7 @@ class SAM_Med2D(Model):
                 masks = masks[0][0]
             else:
                 masks = masks[0]
-            shapes = self.post_process(masks)
+            shapes = self.post_process(masks, cv_image)
         except Exception as e:  # noqa
             logging.warning("Could not inference model")
             logging.warning(e)

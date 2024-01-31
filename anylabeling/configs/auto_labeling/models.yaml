@@ -16,6 +16,8 @@
   config_file: ":/depth_anything_vit_l.yaml"
 - model_name: "depth_anything_vit_s-r20240124"
   config_file: ":/depth_anything_vit_s.yaml"
+- model_name: "edge_sam_with_chinese_clip-r20240131"
+  config_file: ":/edge_sam_with_chinese_clip.yaml"
 - model_name: "edge_sam-r20231213"
   config_file: ":/edge_sam.yaml"
 - model_name: "efficientvit_sam_l0_vit_h-r20230920"

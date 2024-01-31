@@ -4439,9 +4439,10 @@ class LabelingWidget(LabelDialog):
 
     def finish_auto_labeling_object(self):
         """Finish auto labeling object."""
-        has_object = False
+        has_object, cache_label = False, None
         for shape in self.canvas.shapes:
             if shape.label == AutoLabelingMode.OBJECT:
+                cache_label = shape.cache_label
                 has_object = True
                 break
 
@@ -4460,6 +4461,8 @@ class LabelingWidget(LabelDialog):
         last_label = self.find_last_label()
         if self._config["auto_use_last_label"] and last_label:
             text = last_label
+        elif cache_label is not None:
+            text = cache_label
         else:
             previous_text = self.label_dialog.edit.text()
             (

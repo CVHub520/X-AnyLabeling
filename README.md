@@ -72,6 +72,7 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Jan. 2024:
+  - 👏👏👏 Combining CLIP and SAM models for enhanced semantic and spatial understanding. An example can be found [here](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml).
   - 🔥🔥🔥 Adding support for the [Depth Anything](https://github.com/LiheYoung/Depth-Anything.git) model in the depth estimation task.
   - 🤗 Release the latest version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
   - Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.

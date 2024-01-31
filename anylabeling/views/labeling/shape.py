@@ -66,6 +66,7 @@ class Shape:
         self.flags = flags
         self.other_data = {}
         self.attributes = attributes
+        self.cache_label = None
 
         # Rotation setting
         self.direction = direction
