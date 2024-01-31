@@ -371,7 +371,9 @@ class EfficientViT_SAM(Model):
             shape.add_point(QtCore.QPointF(x_max, y_min))
             shape.add_point(QtCore.QPointF(x_max, y_max))
             shape.add_point(QtCore.QPointF(x_min, y_max))
-            shape.shape_type = "rectangle" if self.output_mode == "rectangle" else "rotation"
+            shape.shape_type = (
+                "rectangle" if self.output_mode == "rectangle" else "rotation"
+            )
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"

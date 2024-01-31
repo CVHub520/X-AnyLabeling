@@ -423,13 +423,17 @@ class YOLO(Model):
             if masks.shape[0] == 1:
                 masks_np = np.squeeze(masks, axis=0)
                 masks_resized = cv2.resize(
-                    masks_np, (shape[1], shape[0]), interpolation=cv2.INTER_LINEAR
+                    masks_np,
+                    (shape[1], shape[0]),
+                    interpolation=cv2.INTER_LINEAR,
                 )
                 masks = np.expand_dims(masks_resized, axis=0)
             else:
                 masks_np = np.transpose(masks, (1, 2, 0))
                 masks_resized = cv2.resize(
-                    masks_np, (shape[1], shape[0]), interpolation=cv2.INTER_LINEAR
+                    masks_np,
+                    (shape[1], shape[0]),
+                    interpolation=cv2.INTER_LINEAR,
                 )
                 masks = np.transpose(masks_resized, (2, 0, 1))
         masks[masks > 0.5] = 1

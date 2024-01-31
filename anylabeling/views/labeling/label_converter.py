@@ -525,7 +525,11 @@ class LabelConverter:
                     label = shape["label"]
                     points = list(chain.from_iterable(shape["points"]))
                     normalized_coords = [
-                        points[i] / image_width if i % 2 == 0 else points[i] / image_height for i in range(8)]
+                        points[i] / image_width
+                        if i % 2 == 0
+                        else points[i] / image_height
+                        for i in range(8)
+                    ]
                     x0, y0, x1, y1, x2, y2, x3, y3 = normalized_coords
                     class_index = self.classes.index(label)
                     f.write(
@@ -743,7 +747,9 @@ class LabelConverter:
                     color_mask = cv2.addWeighted(
                         color_mask, 1, mask_mapped, 1, 0
                     )
-            cv2.imencode(".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))[1].tofile(output_file)
+            cv2.imencode(".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))[
+                1
+            ].tofile(output_file)
 
     def custom_to_mot(self, input_path, output_file):
         mot_data = []

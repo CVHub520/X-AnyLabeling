@@ -179,7 +179,7 @@ class LabelListWidget(QtWidgets.QListView):
             if item.shape() == shape:
                 return item
         # NOTE: Handle the case when the shape is not found
-        # This is a temporary solution to prevent a crash. 
+        # This is a temporary solution to prevent a crash.
         # Further investigation and a more robust fix are recommended.
         return None
         # raise ValueError(f"cannot find shape: {shape}")

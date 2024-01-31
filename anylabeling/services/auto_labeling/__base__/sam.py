@@ -5,6 +5,7 @@ import onnxruntime as ort
 from typing import Tuple
 from copy import deepcopy
 
+
 class SegmentAnythingONNX:
     """Segmentation model using SegmentAnything"""
 
@@ -231,6 +232,7 @@ class SegmentAnythingONNX:
             approx_contours = filtered_approx_contours
 
         return approx_contours
+
 
 class EdgeSAMONNX(object):
     def __init__(

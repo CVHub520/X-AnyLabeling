@@ -61,10 +61,14 @@ class Resize(object):
         y = (np.round(x / self.__multiple_of) * self.__multiple_of).astype(int)
 
         if max_val is not None and y > max_val:
-            y = (np.floor(x / self.__multiple_of) * self.__multiple_of).astype(int)
+            y = (np.floor(x / self.__multiple_of) * self.__multiple_of).astype(
+                int
+            )
 
         if y < min_val:
-            y = (np.ceil(x / self.__multiple_of) * self.__multiple_of).astype(int)
+            y = (np.ceil(x / self.__multiple_of) * self.__multiple_of).astype(
+                int
+            )
 
         return y
 
@@ -121,7 +125,9 @@ class Resize(object):
             new_height = self.constrain_to_multiple_of(scale_height * height)
             new_width = self.constrain_to_multiple_of(scale_width * width)
         else:
-            raise ValueError(f"resize_method {self.__resize_method} not implemented")
+            raise ValueError(
+                f"resize_method {self.__resize_method} not implemented"
+            )
 
         return (new_width, new_height)
 
@@ -147,12 +153,16 @@ class Resize(object):
 
             if "depth" in sample:
                 sample["depth"] = cv2.resize(
-                    sample["depth"], (width, height), interpolation=cv2.INTER_NEAREST
+                    sample["depth"],
+                    (width, height),
+                    interpolation=cv2.INTER_NEAREST,
                 )
 
             if "semseg_mask" in sample:
                 sample["semseg_mask"] = cv2.resize(
-                    sample["semseg_mask"], (width, height), interpolation=cv2.INTER_NEAREST
+                    sample["semseg_mask"],
+                    (width, height),
+                    interpolation=cv2.INTER_NEAREST,
                 )
 
             if "mask" in sample:
@@ -263,8 +273,7 @@ class DepthAnything(Model):
 
         # Apply NormalizeImage transformation manually
         normalize_transform = NormalizeImage(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225]
+            mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
         )
         image = normalize_transform({"image": image})["image"]
 

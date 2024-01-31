@@ -69,11 +69,13 @@
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- 2024年2月：
+  - - 🤗 发布[2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1)最新版本 🤗
 - 2024年1月：
   - 支持一键截取子图功能。
   - 👏👏👏 结合CLIP和SAM模型，实现更强大的语义和空间理解。具体可参考此[示例](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml)。
   - 🔥🔥🔥 在深度估计任务中增加对[Depth Anything](https://github.com/LiheYoung/Depth-Anything.git)模型的支持。
-  - 🤗 发布[2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0)最新版本 🤗
+  - 发布[2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0)版本
   - 支持 [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) 模型。
   - 支持 [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet) 和 [RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmpose) 模型。
   - 支持基于YOLOv5的[中文车牌](https://github.com/we0091234/Chinese_license_plate_detection_recognition)检测和识别模型。

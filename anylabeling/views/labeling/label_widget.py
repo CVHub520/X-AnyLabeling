@@ -1580,7 +1580,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
-        image_file_list, label_dir_path = [], ''
+        image_file_list, label_dir_path = [], ""
         if not self.image_list and self.filename:
             image_file_list = [self.filename]
             dir_path, filename = osp.split(self.filename)
@@ -1626,7 +1626,7 @@ class LabelingWidget(LabelDialog):
                     ymin = int(ymin)
                     xmax = int(xmax)
                     ymax = int(ymax)
-                    crop_image = image[ymin: ymax, xmin: xmax]
+                    crop_image = image[ymin:ymax, xmin:xmax]
                     if label not in label_dic:
                         label_dic[label] = 0
                         save_name = base_name
@@ -3919,7 +3919,6 @@ class LabelingWidget(LabelDialog):
             self.reset_state()
 
     def delete_image_file(self):
-
         if len(self.image_list) <= 0:
             return
 
@@ -4203,7 +4202,9 @@ class LabelingWidget(LabelDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Warning"),
-                self.tr("File path contains Chinese characters, invalid path!"),
+                self.tr(
+                    "File path contains Chinese characters, invalid path!"
+                ),
                 QMessageBox.Ok,
             )
             return
@@ -4214,7 +4215,7 @@ class LabelingWidget(LabelDialog):
 
     def containsChinese(self, s):
         for char in s:
-            if '\u4e00' <= char <= '\u9fff':
+            if "\u4e00" <= char <= "\u9fff":
                 return True
         return False
 

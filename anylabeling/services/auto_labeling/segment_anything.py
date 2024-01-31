@@ -19,6 +19,7 @@ from .types import AutoLabelingResult
 from .sam_onnx import SegmentAnythingONNX
 from .__base__.clip import ChineseClipONNX
 
+
 class SegmentAnything(Model):
     """Segmentation model using SegmentAnything"""
 
@@ -109,7 +110,8 @@ class SegmentAnything(Model):
                     clip_txt_model_path,
                     clip_img_model_path,
                     model_arch,
-                    device=__preferred_device__)
+                    device=__preferred_device__,
+                )
             self.classes = self.config.get("classes", [])
 
     def set_auto_labeling_marks(self, marks):
@@ -212,13 +214,15 @@ class SegmentAnything(Model):
             shape.add_point(QtCore.QPointF(x_max, y_min))
             shape.add_point(QtCore.QPointF(x_max, y_max))
             shape.add_point(QtCore.QPointF(x_min, y_max))
-            shape.shape_type = "rectangle" if self.output_mode == "rectangle" else "rotation"
+            shape.shape_type = (
+                "rectangle" if self.output_mode == "rectangle" else "rotation"
+            )
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
             shape.line_width = 1
             if self.clip_net is not None and self.classes:
-                img = image[y_min: y_max, x_min: x_max]
+                img = image[y_min:y_max, x_min:x_max]
                 out = self.clip_net(img, self.classes)
                 shape.cache_label = self.classes[int(np.argmax(out))]
             shape.label = "AUTOLABEL_OBJECT"

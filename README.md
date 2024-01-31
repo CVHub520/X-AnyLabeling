@@ -71,10 +71,12 @@
 
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
+- Feb. 2024:
+  - 🤗 Release the latest version [2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1) 🤗
 - Jan. 2024:
   - 👏👏👏 Combining CLIP and SAM models for enhanced semantic and spatial understanding. An example can be found [here](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml).
   - 🔥🔥🔥 Adding support for the [Depth Anything](https://github.com/LiheYoung/Depth-Anything.git) model in the depth estimation task.
-  - 🤗 Release the latest version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0) 🤗
+  - Release version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0).
   - Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.
   - Support [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet) and [RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmpose) model.
   - Release a [chinese license plate](https://github.com/we0091234/Chinese_license_plate_detection_recognition) detection and recognition model based on YOLOv5.

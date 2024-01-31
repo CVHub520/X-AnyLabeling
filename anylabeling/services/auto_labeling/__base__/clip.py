@@ -13,43 +13,40 @@ from ..engines import OnnxBaseModel
 _MODEL_INFO = {
     "ViT-B-16": {
         "struct": "ViT-B-16@RoBERTa-wwm-ext-base-chinese",
-        "input_resolution": 224
+        "input_resolution": 224,
     },
     "ViT-L-14": {
         "struct": "ViT-L-14@RoBERTa-wwm-ext-base-chinese",
-        "input_resolution": 224
+        "input_resolution": 224,
     },
     "ViT-L-14-336": {
         "struct": "ViT-L-14-336@RoBERTa-wwm-ext-base-chinese",
-        "input_resolution": 336
+        "input_resolution": 336,
     },
     "ViT-H-14": {
         "struct": "ViT-H-14@RoBERTa-wwm-ext-large-chinese",
-        "input_resolution": 224
+        "input_resolution": 224,
     },
-    "RN50": {
-        "struct": "RN50@RBT3-chinese",
-        "input_resolution": 224
-    },
+    "RN50": {"struct": "RN50@RBT3-chinese", "input_resolution": 224},
 }
 
 
 class ChineseClipONNX:
     """Ref: https://github.com/OFA-Sys/Chinese-CLIP"""
+
     def __init__(
         self,
         txt_model_path: str,
         img_model_path: str,
         model_arch: str,
         device: str = "cpu",
-        context_length: int = 52
+        context_length: int = 52,
     ) -> None:
-
         # Load models
         self.txt_net = OnnxBaseModel(txt_model_path, device_type=device)
         self.img_net = OnnxBaseModel(img_model_path, device_type=device)
         # Image settings
-        self.image_size = _MODEL_INFO[model_arch]['input_resolution']
+        self.image_size = _MODEL_INFO[model_arch]["input_resolution"]
         # Text settings
         self._tokenizer = FullTokenizer()
         self.context_length = context_length
@@ -94,12 +91,19 @@ class ChineseClipONNX:
         return arrays
 
     def image_preprocess(
-            self, image, image_size=224, bgr2rgb=False,
-            mean_value=[0.48145466, 0.4578275, 0.40821073],
-            std_value=[0.26862954, 0.26130258, 0.27577711],
-        ):
+        self,
+        image,
+        image_size=224,
+        bgr2rgb=False,
+        mean_value=[0.48145466, 0.4578275, 0.40821073],
+        std_value=[0.26862954, 0.26130258, 0.27577711],
+    ):
         # Resize using OpenCV
-        image_size = (image_size, image_size) if isinstance(image_size, int) else image_size
+        image_size = (
+            (image_size, image_size)
+            if isinstance(image_size, int)
+            else image_size
+        )
         image = cv2.resize(image, image_size)
         # Convert to RGB if needed
         if bgr2rgb:
@@ -131,16 +135,20 @@ class ChineseClipONNX:
 
         all_tokens = []
         for text in texts:
-            tokenized_text = [self._tokenizer.vocab['[CLS]']] \
-                + self._tokenizer.convert_tokens_to_ids(self._tokenizer.tokenize(text))[:context_length - 2] \
-                + [self._tokenizer.vocab['[SEP]']]
+            tokenized_text = (
+                [self._tokenizer.vocab["[CLS]"]]
+                + self._tokenizer.convert_tokens_to_ids(
+                    self._tokenizer.tokenize(text)
+                )[: context_length - 2]
+                + [self._tokenizer.vocab["[SEP]"]]
+            )
             all_tokens.append(tokenized_text)
 
         result = np.zeros((len(all_tokens), context_length), dtype=np.int64)
 
         for i, tokens in enumerate(all_tokens):
             assert len(tokens) <= context_length
-            result[i, :len(tokens)] = np.array(tokens)
+            result[i, : len(tokens)] = np.array(tokens)
 
         return result
 
@@ -149,6 +157,7 @@ class ChineseClipONNX:
 def default_vocab():
     current_dir = os.path.dirname(__file__)
     return os.path.join(current_dir, "..", "configs", "clip_vocab.txt")
+
 
 def convert_to_unicode(text):
     """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
@@ -161,6 +170,7 @@ def convert_to_unicode(text):
             raise ValueError("Unsupported string type: %s" % (type(text)))
     else:
         raise ValueError("Not running on Python2 or Python 3?")
+
 
 def load_vocab(vocab_file):
     """Loads a vocabulary file into a dictionary."""
@@ -176,6 +186,7 @@ def load_vocab(vocab_file):
             index += 1
     return vocab
 
+
 def whitespace_tokenize(text):
     """Runs basic whitespace cleaning and splitting on a piece of text."""
     text = text.strip()
@@ -184,6 +195,7 @@ def whitespace_tokenize(text):
     tokens = text.split()
     return tokens
 
+
 def _is_punctuation(char):
     """Checks whether `chars` is a punctuation character."""
     cp = ord(char)
@@ -191,13 +203,18 @@ def _is_punctuation(char):
     # Characters such as "^", "$", and "`" are not in the Unicode
     # Punctuation class but we treat them as punctuation anyways, for
     # consistency.
-    if ((cp >= 33 and cp <= 47) or (cp >= 58 and cp <= 64) or
-            (cp >= 91 and cp <= 96) or (cp >= 123 and cp <= 126)):
+    if (
+        (cp >= 33 and cp <= 47)
+        or (cp >= 58 and cp <= 64)
+        or (cp >= 91 and cp <= 96)
+        or (cp >= 123 and cp <= 126)
+    ):
         return True
     cat = unicodedata.category(char)
     if cat.startswith("P"):
         return True
     return False
+
 
 def _is_control(char):
     """Checks whether `chars` is a control character."""
@@ -210,6 +227,7 @@ def _is_control(char):
         return True
     return False
 
+
 def _is_whitespace(char):
     """Checks whether `chars` is a whitespace character."""
     # \t, \n, and \r are technically contorl characters but we treat them
@@ -221,6 +239,7 @@ def _is_whitespace(char):
         return True
     return False
 
+
 def convert_by_vocab(vocab, items):
     """Converts a sequence of [tokens|ids] using the vocab."""
     output = []
@@ -228,8 +247,10 @@ def convert_by_vocab(vocab, items):
         output.append(vocab[item])
     return output
 
+
 def convert_tokens_to_ids(vocab, tokens):
     return convert_by_vocab(vocab, tokens)
+
 
 def convert_ids_to_tokens(inv_vocab, ids):
     return convert_by_vocab(inv_vocab, ids)
@@ -324,14 +345,16 @@ class BasicTokenizer(object):
         # as is Japanese Hiragana and Katakana. Those alphabets are used to write
         # space-separated words, so they are not treated specially and handled
         # like the all of the other languages.
-        if ((cp >= 0x4E00 and cp <= 0x9FFF) or  #
-            (cp >= 0x3400 and cp <= 0x4DBF) or  #
-            (cp >= 0x20000 and cp <= 0x2A6DF) or  #
-            (cp >= 0x2A700 and cp <= 0x2B73F) or  #
-            (cp >= 0x2B740 and cp <= 0x2B81F) or  #
-            (cp >= 0x2B820 and cp <= 0x2CEAF) or
-            (cp >= 0xF900 and cp <= 0xFAFF) or  #
-                (cp >= 0x2F800 and cp <= 0x2FA1F)):  #
+        if (
+            (cp >= 0x4E00 and cp <= 0x9FFF)
+            or (cp >= 0x3400 and cp <= 0x4DBF)  #
+            or (cp >= 0x20000 and cp <= 0x2A6DF)  #
+            or (cp >= 0x2A700 and cp <= 0x2B73F)  #
+            or (cp >= 0x2B740 and cp <= 0x2B81F)  #
+            or (cp >= 0x2B820 and cp <= 0x2CEAF)  #
+            or (cp >= 0xF900 and cp <= 0xFAFF)
+            or (cp >= 0x2F800 and cp <= 0x2FA1F)  #
+        ):  #
             return True
 
         return False
@@ -341,13 +364,14 @@ class BasicTokenizer(object):
         output = []
         for char in text:
             cp = ord(char)
-            if cp == 0 or cp == 0xfffd or _is_control(char):
+            if cp == 0 or cp == 0xFFFD or _is_control(char):
                 continue
             if _is_whitespace(char):
                 output.append(" ")
             else:
                 output.append(char)
         return "".join(output)
+
 
 class WordpieceTokenizer(object):
     """Runs WordPiece tokenziation."""
@@ -410,6 +434,7 @@ class WordpieceTokenizer(object):
                 output_tokens.extend(sub_tokens)
         return output_tokens
 
+
 class FullTokenizer(object):
     """Runs end-to-end tokenziation."""
 
@@ -435,27 +460,27 @@ class FullTokenizer(object):
 
     @staticmethod
     def convert_tokens_to_string(tokens, clean_up_tokenization_spaces=True):
-        """ Converts a sequence of tokens (string) in a single string. """
+        """Converts a sequence of tokens (string) in a single string."""
 
         def clean_up_tokenization(out_string):
-            """ Clean up a list of simple English tokenization artifacts
+            """Clean up a list of simple English tokenization artifacts
             like spaces before punctuations and abreviated forms.
             """
             out_string = (
                 out_string.replace(" .", ".")
-                    .replace(" ?", "?")
-                    .replace(" !", "!")
-                    .replace(" ,", ",")
-                    .replace(" ' ", "'")
-                    .replace(" n't", "n't")
-                    .replace(" 'm", "'m")
-                    .replace(" 's", "'s")
-                    .replace(" 've", "'ve")
-                    .replace(" 're", "'re")
+                .replace(" ?", "?")
+                .replace(" !", "!")
+                .replace(" ,", ",")
+                .replace(" ' ", "'")
+                .replace(" n't", "n't")
+                .replace(" 'm", "'m")
+                .replace(" 's", "'s")
+                .replace(" 've", "'ve")
+                .replace(" 're", "'re")
             )
             return out_string
 
-        text = ' '.join(tokens).replace(' ##', '').strip()
+        text = " ".join(tokens).replace(" ##", "").strip()
         if clean_up_tokenization_spaces:
             clean_text = clean_up_tokenization(text)
             return clean_text
@@ -467,7 +492,6 @@ class FullTokenizer(object):
 
 
 if __name__ == "__main__":
-
     ROOT_PATH = ""
     txt_model_path = f"{ROOT_PATH}/deploy/vit-b-16.txt.fp16.onnx"
     img_model_path = f"{ROOT_PATH}/deploy/vit-b-16.img.fp16.onnx"
