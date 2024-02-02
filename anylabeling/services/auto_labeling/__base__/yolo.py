@@ -222,14 +222,16 @@ class YOLO(Model):
                 )
 
         if self.task == "obb":
+            pred = np.concatenate(
+                [pred[:, :4], pred[:, -1:], pred[:, 4:6]], axis=-1
+            )
             bbox = pred[:, :5]
-            clas = pred[:, 5:6]
-            conf = pred[:, 6:7]
+            conf = pred[:, -2]
+            clas = pred[:, -1]
         else:
             bbox = pred[:, :4]
             conf = pred[:, 4:5]
             clas = pred[:, 5:6]
-
         return (bbox, masks, clas, conf)
 
     def predict_shapes(self, image, image_path=None):
