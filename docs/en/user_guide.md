@@ -186,7 +186,7 @@ Follow these steps:
 - `Point (e)`: Remove a point you want to exclude from the object;
 - `+Rect`: Draw a rectangle containing the object. Segment Anything will automatically segment the object.
 
-4. `Clear (c)`: Clear all automatic segmentation marks.
+4. `Clear (b)`: Clear all automatic segmentation marks.
 
 5. Complete the object (f): After completing the current mark, press the shortcut key `f`, enter the label name, and save the current object.
 

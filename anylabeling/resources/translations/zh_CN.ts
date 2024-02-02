@@ -1658,8 +1658,8 @@ Check the results in: {save_path}.</source>
     </message>
     <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="120"/>
-        <source>Clear (c)</source>
-        <translation>清除对象（c）</translation>
+        <source>Clear (b)</source>
+        <translation>清除对象（b）</translation>
     </message>
 </context>
 </TS>

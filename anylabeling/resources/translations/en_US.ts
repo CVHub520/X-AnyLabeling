@@ -1492,7 +1492,7 @@ Check the results in: {save_path}.</source>
     </message>
     <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="120"/>
-        <source>Clear (c)</source>
+        <source>Clear (b)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
