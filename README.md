@@ -72,6 +72,7 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Feb. 2024:
+  - Support for quick tag correction is available; please refer to this [document](./docs/en/user_guide.md) for guidance.
   - 🤗 Release the latest version [2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1) 🤗
 - Jan. 2024:
   - 👏👏👏 Combining CLIP and SAM models for enhanced semantic and spatial understanding. An example can be found [here](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml).

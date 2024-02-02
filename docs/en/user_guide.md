@@ -83,6 +83,58 @@ label_colors:
 
 Now, you have successfully modified the color of the custom labels. The next time you use these labels during annotation, they will appear in the color you have set. Similarly, you can set some default configurations according to your needs, such as modifying the `labels` field for predefined labels or setting different shortcut keys for triggering settings based on your preferences.
 
+### Quick Tag Correction Feature
+
+This functionality is designed to swiftly address two common mislabeling scenarios during the calibration process:
+
+- Incorrectly labeled background as foreground
+- Errors in foreground labeling
+
+Follow the steps below for implementation:
+
+1. Click on the `Tool` option in the top menu bar and select `Save Crop`. This action will generate a subgraph folder named `x-anylabeling-crops` in the current directory, organizing targets based on their category. The directory structure is as follows:
+
+```
+|- root
+  |- images
+    |- xxx.jpg
+    |- xxx.json
+    |- yyy.jpg
+    |- yyy.json
+    |- ...
+  |- x-anylabeling-crops
+    |- src
+      |- CLASS-A
+        |- xxx.jpg
+        |- xxx1.jpg
+        |- xxx2.jpg
+        |- ...
+      |- CLASS-B
+        |- yyy.jpg
+        |- ...
+      ...
+    |- dst
+      |- CLASS-A
+      |- CLASS-B
+      |- ...
+    |- meta_data.json
+```
+
+Field explanations:
+
+- src: Original cropped image files
+- dst: Cropped image files after correction
+- meta_data.json: Cropped information file
+
+2. Open the src directory and perform the following actions for each subfolder:
+
+- Remove all erroneously labeled background boxes.
+- Move all foreground boxes with category errors to the corresponding folder in the dst directory.
+
+3. Open the X-Anylabeling tool, select `Tool` -> `Update Label`, choose the `x-anylabeling-crops` folder, click upload, and reload the source images.
+
+> Note: This feature is applicable only to `rectangle` objects.
+
 ### Multi-Label Classification Task Annotation
 
 Follow these steps:

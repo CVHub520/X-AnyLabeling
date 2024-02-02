@@ -608,6 +608,12 @@ class LabelingWidget(LabelDialog):
             icon="crop",
             tip=self.tr("Save Cropped Prediction Boxes"),
         )
+        update_label = action(
+            self.tr("&Update Label"),
+            self.update_label,
+            icon="update",
+            tip=self.tr("Update Labels"),
+        )
 
         documentation = action(
             self.tr("&Documentation"),
@@ -1085,6 +1091,7 @@ class LabelingWidget(LabelDialog):
             (
                 overview,
                 save_crop,
+                update_label,
             ),
         )
         utils.add_actions(
@@ -1594,8 +1601,11 @@ class LabelingWidget(LabelDialog):
             label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
-        label_dic = {}
-        save_path = osp.join(osp.dirname(self.filename), "..", "crops")
+        crop_dic, meta_data, unique_labels = dict(), dict(), set()
+        save_path = osp.join(osp.dirname(self.filename), "..", "x-anylabeling-crops")
+        save_src_path = osp.join(save_path, "src")
+        save_dst_path = osp.join(save_path, "dst")
+        save_dic_path = osp.join(save_path, "meta_data.json")
         if osp.exists(save_path):
             shutil.rmtree(save_path)
         try:
@@ -1610,10 +1620,11 @@ class LabelingWidget(LabelDialog):
                     data = json.load(f)
                 shapes = data["shapes"]
                 for shape in shapes:
-                    if shape["shape_type"] != "rectangle":
+                    if shape["shape_type"] not in ["rectangle"]:
                         continue
                     label = shape["label"]
-                    dst_path = osp.join(save_path, label)
+                    unique_labels.add(label)
+                    dst_path = osp.join(save_src_path, label)
                     os.makedirs(dst_path, exist_ok=True)
                     points = shape["points"]
                     xmin, ymin = points[0]
@@ -1627,14 +1638,24 @@ class LabelingWidget(LabelDialog):
                     xmax = int(xmax)
                     ymax = int(ymax)
                     crop_image = image[ymin:ymax, xmin:xmax]
-                    if label not in label_dic:
-                        label_dic[label] = 0
+                    if base_name not in crop_dic:
+                        crop_dic[base_name] = 0
                         save_name = base_name
                     else:
-                        label_dic[label] += 1
-                        save_name = base_name + str(label_dic[label])
-                    dst_file = osp.join(dst_path, save_name + ".jpg")
+                        crop_dic[base_name] += 1
+                        save_name = base_name + str(crop_dic[base_name])
+                    dst_name = save_name + ".jpg"
+                    dst_file = osp.join(dst_path, dst_name)
                     cv2.imwrite(dst_file, crop_image)
+                    meta_data[dst_name] = {
+                        "shape": shape,
+                        "label_file": label_file,
+                    }
+            for label in unique_labels:
+                dst_path = osp.join(save_dst_path, label)
+                os.makedirs(dst_path)
+            with open(save_dic_path, "w", encoding="utf-8") as f:
+                f.write(json.dumps(meta_data))
             save_path = osp.realpath(save_path)
             QtWidgets.QMessageBox.information(
                 self,
@@ -1642,6 +1663,81 @@ class LabelingWidget(LabelDialog):
                 self.tr(
                     f"Image cropped successfully!\n"
                     f"Check the results in: {save_path}."
+                ),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def update_label(self):
+        target_dir_path = str(
+            QtWidgets.QFileDialog.getExistingDirectory(
+                self,
+                self.tr("Please upload the x-anylabeling-crops directory"),
+                None,
+                QtWidgets.QFileDialog.ShowDirsOnly
+                | QtWidgets.QFileDialog.DontResolveSymlinks,
+            )
+        )
+        # Load meta data
+        src_dir_path = osp.join(target_dir_path, "src")
+        dst_dir_path = osp.join(target_dir_path, "dst")
+        meta_data_file = osp.join(target_dir_path, "meta_data.json")
+        with open(meta_data_file, "r", encoding="utf-8") as f:
+            meta_data = json.loads(f.read())
+        # Handle error labels
+        try:
+            targets = []
+            for label in os.listdir(src_dir_path):
+                dir_path = osp.join(src_dir_path, label)
+                for file_name in os.listdir(dir_path):
+                    targets.append(file_name)
+            for label in os.listdir(dst_dir_path):
+                dir_path = osp.join(dst_dir_path, label)
+                for file_name in os.listdir(dir_path):
+                    targets.append(file_name)
+                    data = meta_data[file_name]
+                    shape = data["shape"]
+                    label_file = data["label_file"]
+                    with open(label_file, "r", encoding="utf-8") as f:
+                        label_info = json.loads(f.read())
+                    shapes = label_info["shapes"]
+                    for i in range(len(shapes)):
+                        if shapes[i] != shape:
+                            continue
+                        shapes[i]["label"] = label
+                        break
+                    label_info["shapes"] = shapes
+                    with open(label_file, "w", encoding="utf-8") as f:
+                        f.write(json.dumps(label_info))
+            # Remove empty labels
+            for file_name, data in meta_data.items():
+                if file_name in targets:
+                    continue
+                shape = data["shape"]
+                label_file = data["label_file"]
+                with open(label_file, "r", encoding="utf-8") as f:
+                    label_info = json.loads(f.read())
+                shapes = label_info["shapes"]
+                save_shapes = []
+                for s in shapes:
+                    if s == shape:
+                        continue
+                    save_shapes.append(s)
+                label_info["shapes"] = save_shapes
+                with open(label_file, "w", encoding="utf-8") as f:
+                    f.write(json.dumps(label_info))
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(
+                    "Labels updated successfully! Please reload the data."
                 ),
                 QtWidgets.QMessageBox.Ok,
             )
