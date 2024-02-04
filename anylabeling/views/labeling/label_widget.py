@@ -1646,7 +1646,7 @@ class LabelingWidget(LabelDialog):
                         save_name = base_name + str(crop_dic[base_name])
                     dst_name = save_name + ".jpg"
                     dst_file = osp.join(dst_path, dst_name)
-                    cv2.imwrite(dst_file, crop_image)
+                    cv2.imencode(".jpg", crop_image)[1].tofile(dst_file)
                     meta_data[dst_name] = {
                         "shape": shape,
                         "label_file": label_file,
