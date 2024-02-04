@@ -197,7 +197,7 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 | i                 | Run model                               |
 | q                 | `positive point` of SAM mode            |
 | e                 | `negative point` of SAM mode            |
-| c                 | Quickly clear points of SAM mode        |
+| b                 | Quickly clear points of SAM mode        |
 | g                 | Group selected shapes                   |
 | u                 | Ungroup selected shapes                 |
 | s                 | Hide selected shapes                    |
