@@ -1587,6 +1587,27 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
+        
+        classes_file = None
+        filter = "Classes Files (*.txt);;All Files (*)"
+        classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific classes file"),
+            "",
+            filter,
+        )
+        if classes_file:
+            with open(classes_file, "r", encoding="utf-8") as f:
+                classes = f.read().splitlines()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please select a specific classes file!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
         image_file_list, label_dir_path = [], ""
         if not self.image_list and self.filename:
             image_file_list = [self.filename]
@@ -1608,8 +1629,28 @@ class LabelingWidget(LabelDialog):
         save_dic_path = osp.join(save_path, "meta_data.json")
         if osp.exists(save_path):
             shutil.rmtree(save_path)
+        for c in classes:
+            os.makedirs(osp.join(save_src_path, c))
+            os.makedirs(osp.join(save_dst_path, c))
+
+        total_images = len(image_file_list)
+        current_image = 0
+
+        progress_dialog = QtWidgets.QDialog(self)
+        progress_dialog.setWindowTitle("Processing...")
+        progress_dialog_layout = QVBoxLayout(progress_dialog)
+        progress_bar = QtWidgets.QProgressBar()
+        progress_dialog_layout.addWidget(progress_bar)
+        progress_dialog.setLayout(progress_dialog_layout)
+
+        # Show the progress dialog before entering the loop
+        progress_dialog.show()
+        
         try:
             for image_file in image_file_list:
+                # Update progress label
+                QtWidgets.QApplication.processEvents()
+
                 image_name = osp.basename(image_file)
                 base_name = osp.splitext(image_name)[0]
                 label_name = base_name + ".json"
@@ -1625,7 +1666,6 @@ class LabelingWidget(LabelDialog):
                     label = shape["label"]
                     unique_labels.add(label)
                     dst_path = osp.join(save_src_path, label)
-                    os.makedirs(dst_path, exist_ok=True)
                     points = shape["points"]
                     xmin, ymin = points[0]
                     if len(points) == 2:
@@ -1651,21 +1691,27 @@ class LabelingWidget(LabelDialog):
                         "shape": shape,
                         "label_file": label_file,
                     }
-            for label in unique_labels:
-                dst_path = osp.join(save_dst_path, label)
-                os.makedirs(dst_path)
+
+                # Update progress bar
+                current_image += 1
+                progress_value = int((current_image / total_images) * 100)
+                progress_bar.setValue(progress_value)
+
             with open(save_dic_path, "w", encoding="utf-8") as f:
                 f.write(json.dumps(meta_data))
             save_path = osp.realpath(save_path)
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("Success"),
-                self.tr(
-                    f"Image cropped successfully!\n"
-                    f"Check the results in: {save_path}."
-                ),
-                QtWidgets.QMessageBox.Ok,
-            )
+
+            success_message = QMessageBox(self)
+            success_message.setWindowTitle(self.tr("Success"))
+            success_message.setText(self.tr(
+                f"Image cropped successfully!\n"
+                f"Check the results in: {save_path}."
+            ))
+            success_message.setIcon(QMessageBox.Information)
+            success_message.setStandardButtons(QMessageBox.Ok)
+            success_message.move(self.mapToGlobal(self.rect().center()) - success_message.rect().center())
+            success_message.exec_()
+
         except Exception as e:
             QtWidgets.QMessageBox.warning(
                 self,
@@ -1674,6 +1720,12 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
+        finally:
+            # Hide the progress dialog after processing is done
+            progress_dialog.hide()
+
+        # Ensure the application processes events to update the UI
+        QtWidgets.QApplication.processEvents()
 
     def update_label(self):
         target_dir_path = str(

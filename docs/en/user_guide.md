@@ -92,7 +92,9 @@ This functionality is designed to swiftly address two common mislabeling scenari
 
 Follow the steps below for implementation:
 
-1. Click on the `Tool` option in the top menu bar and select `Save Crop`. This action will generate a subgraph folder named `x-anylabeling-crops` in the current directory, organizing targets based on their category. The directory structure is as follows:
+1. Prepare a custom class file, for a specific example, please refer to [classes.txt](../../assets/classes.txt).
+
+2. Click on the menu bar at the top, select `Tools` -> `Save Subgraphs`, and upload the corresponding custom class file. This action will generate a subgraph folder `x-anylabeling-crops` in the current directory, storing targets according to the respective class names. The directory structure is as follows:
 
 ```
 |- root
