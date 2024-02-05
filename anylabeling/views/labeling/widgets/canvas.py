@@ -1010,11 +1010,18 @@ class Canvas(
                 max_x = 0
                 max_y = 0
                 for shape in shapes:
-                    rect = shape.bounding_rect()
-                    min_x = min(min_x, rect.x())
-                    min_y = min(min_y, rect.y())
-                    max_x = max(max_x, rect.x() + rect.width())
-                    max_y = max(max_y, rect.y() + rect.height())
+                    if shape.shape_type == "point":
+                        points = shape.points[0]
+                        min_x = min(min_x, points.x())
+                        min_y = min(min_y, points.y())
+                        max_x = max(max_x, points.x())
+                        max_y = max(max_y, points.y())
+                    else:
+                        rect = shape.bounding_rect()
+                        min_x = min(min_x, rect.x())
+                        min_y = min(min_y, rect.y())
+                        max_x = max(max_x, rect.x() + rect.width())
+                        max_y = max(max_y, rect.y() + rect.height())
                     group_color = LABEL_COLORMAP[
                         int(group_id) % len(LABEL_COLORMAP)
                     ]
