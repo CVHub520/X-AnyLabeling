@@ -381,7 +381,7 @@ class LabelConverter:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def mask_to_custom(
-            self, input_file, output_file, image_file, mapping_table
+        self, input_file, output_file, image_file, mapping_table
     ):
         self.reset()
 
@@ -495,10 +495,10 @@ class LabelConverter:
                     class_index = self.classes.index(label)
 
                     x_center = (points[0][0] + points[2][0]) / (
-                            2 * image_width
+                        2 * image_width
                     )
                     y_center = (points[0][1] + points[2][1]) / (
-                            2 * image_height
+                        2 * image_height
                     )
                     width = abs(points[2][0] - points[0][0]) / image_width
                     height = abs(points[2][1] - points[0][1]) / image_height
