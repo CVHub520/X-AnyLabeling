@@ -81,24 +81,24 @@ class LabelConverter:
         if input_type == "grayscale":
             color_to_label = {v: k for k, v in mapping_color.items()}
             binaray_img = cv2.imread(mask, cv2.IMREAD_GRAYSCALE)
-            contours, _ = cv2.findContours(
-                binaray_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-            )
-            for contour in contours:
-                epsilon = epsilon_factor * cv2.arcLength(contour, True)
-                approx = cv2.approxPolyDP(contour, epsilon, True)
-                if len(approx) < 5:
-                    continue
-                x, y, w, h = cv2.boundingRect(contour)
-                center = (int(x + w / 2), int(y + h / 2))
-                color_value = binaray_img[center[1], center[0]]
+            # use the different color_value to find the sub-region for each class
+            for color_value in np.unique(binaray_img):
                 class_name = color_to_label.get(color_value, "Unknown")
-                points = []
-                for point in approx:
-                    x, y = point[0].tolist()
-                    points.append([x, y])
-                result_item = {"points": points, "label": class_name}
-                results.append(result_item)
+                label_map = (binaray_img == color_value).astype(np.uint8)
+
+                contours, _ = cv2.findContours(label_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                for contour in contours:
+                    epsilon = epsilon_factor * cv2.arcLength(contour, True)
+                    approx = cv2.approxPolyDP(contour, epsilon, True)
+                    if len(approx) < 5:
+                        continue
+
+                    points = []
+                    for point in approx:
+                        x, y = point[0].tolist()
+                        points.append([x, y])
+                    result_item = {"points": points, "label": class_name}
+                    results.append(result_item)
         elif input_type == "rgb":
             color_to_label = {
                 tuple(color): label for label, color in mapping_color.items()
@@ -381,7 +381,7 @@ class LabelConverter:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def mask_to_custom(
-        self, input_file, output_file, image_file, mapping_table
+            self, input_file, output_file, image_file, mapping_table
     ):
         self.reset()
 
@@ -495,10 +495,10 @@ class LabelConverter:
                     class_index = self.classes.index(label)
 
                     x_center = (points[0][0] + points[2][0]) / (
-                        2 * image_width
+                            2 * image_width
                     )
                     y_center = (points[0][1] + points[2][1]) / (
-                        2 * image_height
+                            2 * image_height
                     )
                     width = abs(points[2][0] - points[0][0]) / image_width
                     height = abs(points[2][1] - points[0][1]) / image_height
