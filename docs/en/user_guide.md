@@ -83,6 +83,21 @@ label_colors:
 
 Now, you have successfully modified the color of the custom labels. The next time you use these labels during annotation, they will appear in the color you have set. Similarly, you can set some default configurations according to your needs, such as modifying the `labels` field for predefined labels or setting different shortcut keys for triggering settings based on your preferences.
 
+### Quick Tag Modification Feature
+
+This feature provides users with a convenient way to process annotation data and supports two core operations:
+
+- **Delete Category:** By checking the checkbox in the `Delete` column of the corresponding rows, you can mark all objects of that category for deletion.
+- **Replace Category:** Fill in the new category name in the `New Value` column to replace the labels of all objects under the current category with the new category.
+
+You can follow these steps:
+
+1. Click on the menu bar at the top, select `Tools`-> `Change Label` option.
+
+2. In the popped-up `Label Change Manager` dialog, perform the desired operations on the respective categories.
+
+3. After completing all modifications, click the `Confirm` button to confirm and submit the changes.
+
 ### Quick Tag Correction Feature
 
 This functionality is designed to swiftly address two common mislabeling scenarios during the calibration process:

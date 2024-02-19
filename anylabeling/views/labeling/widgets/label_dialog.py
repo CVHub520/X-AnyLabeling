@@ -1,6 +1,8 @@
 import re
+import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtCore import QCoreApplication
 
 from .. import utils
@@ -8,6 +10,156 @@ from ..logger import logger
 
 # TODO(unknown):
 # - Calculate optimal position so as not to go out of screen area.
+
+
+class LabelChangeManagerDialog(QtWidgets.QDialog):
+    def __init__(self, label_file_list, parent=None):
+        super().__init__(parent)
+        self.label_file_list = label_file_list
+        self.label_info = self.get_classes()
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Label Change Manager")
+        self.setGeometry(100, 100, 600, 400)
+
+        self.table_widget = QtWidgets.QTableWidget(self)
+        self.table_widget.setColumnCount(3)
+        self.table_widget.setHorizontalHeaderLabels(
+            ["Category", "Delete", "New Value"]
+        )
+
+        # Set header font and alignment
+        for i in range(3):
+            self.table_widget.horizontalHeaderItem(i).setFont(
+                QFont("Arial", 8, QFont.Bold)
+            )
+            self.table_widget.horizontalHeaderItem(i).setTextAlignment(
+                QtCore.Qt.AlignCenter
+            )
+
+        self.buttons_layout = QtWidgets.QHBoxLayout()
+
+        self.cancel_button = QtWidgets.QPushButton("Cancel", self)
+        self.cancel_button.clicked.connect(self.reject)
+
+        self.confirm_button = QtWidgets.QPushButton("Confirm", self)
+        self.confirm_button.clicked.connect(self.confirm_changes)
+
+        self.buttons_layout.addWidget(self.cancel_button)
+        self.buttons_layout.addWidget(self.confirm_button)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.table_widget)
+        layout.addLayout(self.buttons_layout)
+
+        self.populate_table()
+
+    def populate_table(self):
+        for i, (class_name, info) in enumerate(self.label_info.items()):
+            self.table_widget.insertRow(i)
+
+            class_item = QtWidgets.QTableWidgetItem(class_name)
+            class_item.setFlags(class_item.flags() ^ QtCore.Qt.ItemIsEditable)
+
+            delete_checkbox = QtWidgets.QCheckBox()
+            delete_checkbox.setChecked(info["delete"])
+            delete_checkbox.setIcon(QIcon(":/images/images/delete.png"))
+            delete_checkbox.stateChanged.connect(
+                lambda state, row=i: self.on_delete_checkbox_changed(
+                    row, state
+                )
+            )
+
+            value_item = QtWidgets.QTableWidgetItem(info["value"])
+            value_item.setFlags(
+                value_item.flags() & ~QtCore.Qt.ItemIsEditable
+                if info["delete"]
+                else value_item.flags() | QtCore.Qt.ItemIsEditable
+            )
+            value_item.setBackground(
+                QtGui.QColor("lightgray")
+                if info["delete"]
+                else QtGui.QColor("white")
+            )
+
+            self.table_widget.setItem(i, 0, class_item)
+            self.table_widget.setCellWidget(i, 1, delete_checkbox)
+            self.table_widget.setItem(i, 2, value_item)
+
+    def on_delete_checkbox_changed(self, row, state):
+        value_item = self.table_widget.item(row, 2)
+        delete_checkbox = self.table_widget.cellWidget(row, 1)
+
+        if state == QtCore.Qt.Checked:
+            value_item.setFlags(value_item.flags() & ~QtCore.Qt.ItemIsEditable)
+            value_item.setBackground(QtGui.QColor("lightgray"))
+            delete_checkbox.setCheckable(True)
+        else:
+            value_item.setFlags(value_item.flags() | QtCore.Qt.ItemIsEditable)
+            value_item.setBackground(QtGui.QColor("white"))
+            delete_checkbox.setCheckable(False)
+
+        if value_item.text():
+            delete_checkbox.setCheckable(False)
+        else:
+            delete_checkbox.setCheckable(True)
+
+    def confirm_changes(self):
+        for i in range(self.table_widget.rowCount()):
+            class_name = self.table_widget.item(i, 0).text()
+            delete_checkbox = self.table_widget.cellWidget(i, 1)
+            value_item = self.table_widget.item(i, 2)
+
+            self.label_info[class_name]["delete"] = delete_checkbox.isChecked()
+            self.label_info[class_name]["value"] = value_item.text()
+
+        self.accept()
+        if self.change_label():
+            QtWidgets.QMessageBox.information(
+                self,
+                "Success",
+                "Labels changed successfully! Please reload the data.",
+            )
+        else:
+            QtWidgets.QMessageBox.warning(
+                self, "Warning", "An error occurred while updating the labels."
+            )
+
+    def change_label(self):
+        try:
+            for label_file in self.label_file_list:
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                src_shapes, dst_shapes = data["shapes"], []
+                for shape in src_shapes:
+                    label = shape["label"]
+                    if self.label_info[label]["delete"]:
+                        continue
+                    if self.label_info[label]["value"]:
+                        shape["label"] = self.label_info[label]["value"]
+                    dst_shapes.append(shape)
+                data["shapes"] = dst_shapes
+                with open(label_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"Error occurred while updating labels: {e}")
+            return False
+
+    def get_classes(self):
+        classes = set()
+        for label_file in self.label_file_list:
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            shapes = data.get("shapes", [])
+            for shape in shapes:
+                label = shape["label"]
+                classes.add(label)
+        label_info = {}
+        for c in classes:
+            label_info[c] = dict(delete=False, value=None)
+        return label_info
 
 
 class TextInputDialog(QtWidgets.QDialog):

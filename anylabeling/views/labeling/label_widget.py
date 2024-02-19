@@ -50,6 +50,7 @@ from .widgets import (
     LabelFilterComboBox,
     LabelListWidget,
     LabelListWidgetItem,
+    LabelChangeManagerDialog,
     OverviewDialog,
     ToolBar,
     UniqueLabelQListWidget,
@@ -606,13 +607,19 @@ class LabelingWidget(LabelDialog):
             self.tr("&Save Crop"),
             self.save_crop,
             icon="crop",
-            tip=self.tr("Save Cropped Prediction Boxes"),
+            tip=self.tr("Save Cropped Rectangle Shape"),
         )
-        update_label = action(
-            self.tr("&Update Label"),
-            self.update_label,
+        update_shape = action(
+            self.tr("&Update Shape"),
+            self.update_shape,
             icon="update",
-            tip=self.tr("Update Labels"),
+            tip=self.tr("Update Shapes"),
+        )
+        change_label = action(
+            self.tr("&Change Label"),
+            self.change_label,
+            icon="edit",
+            tip=self.tr("Modify or Delete Label"),
         )
 
         documentation = action(
@@ -1091,7 +1098,8 @@ class LabelingWidget(LabelDialog):
             (
                 overview,
                 save_crop,
-                update_label,
+                update_shape,
+                change_label,
             ),
         )
         utils.add_actions(
@@ -1587,7 +1595,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
-        
+
         classes_file = None
         filter = "Classes Files (*.txt);;All Files (*)"
         classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -1623,7 +1631,9 @@ class LabelingWidget(LabelDialog):
         if self.output_dir:
             label_dir_path = self.output_dir
         crop_dic, meta_data, unique_labels = dict(), dict(), set()
-        save_path = osp.join(osp.dirname(self.filename), "..", "x-anylabeling-crops")
+        save_path = osp.join(
+            osp.dirname(self.filename), "..", "x-anylabeling-crops"
+        )
         save_src_path = osp.join(save_path, "src")
         save_dst_path = osp.join(save_path, "dst")
         save_dic_path = osp.join(save_path, "meta_data.json")
@@ -1645,7 +1655,7 @@ class LabelingWidget(LabelDialog):
 
         # Show the progress dialog before entering the loop
         progress_dialog.show()
-        
+
         try:
             for image_file in image_file_list:
                 # Update progress label
@@ -1703,13 +1713,18 @@ class LabelingWidget(LabelDialog):
 
             success_message = QMessageBox(self)
             success_message.setWindowTitle(self.tr("Success"))
-            success_message.setText(self.tr(
-                f"Image cropped successfully!\n"
-                f"Check the results in: {save_path}."
-            ))
+            success_message.setText(
+                self.tr(
+                    f"Shape cropped successfully!\n"
+                    f"Check the results in: {save_path}."
+                )
+            )
             success_message.setIcon(QMessageBox.Information)
             success_message.setStandardButtons(QMessageBox.Ok)
-            success_message.move(self.mapToGlobal(self.rect().center()) - success_message.rect().center())
+            success_message.move(
+                self.mapToGlobal(self.rect().center())
+                - success_message.rect().center()
+            )
             success_message.exec_()
 
         except Exception as e:
@@ -1727,7 +1742,7 @@ class LabelingWidget(LabelDialog):
         # Ensure the application processes events to update the UI
         QtWidgets.QApplication.processEvents()
 
-    def update_label(self):
+    def update_shape(self):
         target_dir_path = str(
             QtWidgets.QFileDialog.getExistingDirectory(
                 self,
@@ -1741,8 +1756,20 @@ class LabelingWidget(LabelDialog):
         src_dir_path = osp.join(target_dir_path, "src")
         dst_dir_path = osp.join(target_dir_path, "dst")
         meta_data_file = osp.join(target_dir_path, "meta_data.json")
-        with open(meta_data_file, "r", encoding="utf-8") as f:
-            meta_data = json.loads(f.read())
+        if osp.exists(meta_data_file):
+            with open(meta_data_file, "r", encoding="utf-8") as f:
+                meta_data = json.loads(f.read())
+        else:
+            warning_message = self.tr(
+                "Please ensure that the 'meta_data.json' file is present in the specified location."
+            )
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                warning_message,
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
         # Handle error labels
         try:
             targets = []
@@ -1801,6 +1828,33 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
+
+    def change_label(self):
+        label_file_list = []
+        if not self.image_list and self.filename:
+            dir_path, filename = osp.split(self.filename)
+            label_file = osp.join(
+                dir_path, osp.splitext(filename)[0] + ".json"
+            )
+            if osp.exists(label_file):
+                label_file_list = [label_file]
+        elif self.image_list and not self.output_dir and self.filename:
+            file_list = os.listdir(osp.dirname(self.filename))
+            for file_name in file_list:
+                if not file_name.endswith(".json"):
+                    continue
+                label_file_list.append(
+                    osp.join(osp.dirname(self.filename), file_name)
+                )
+        if self.output_dir:
+            for file_name in os.listdir(self.output_dir):
+                if not file_name.endswith(".json"):
+                    continue
+                label_file_list.append(osp.join(self.output_dir, file_name))
+        change_label_dialog = LabelChangeManagerDialog(
+            label_file_list=label_file_list,
+        )
+        change_label_dialog.show()
 
     def overview(self):
         label_file_list = []
