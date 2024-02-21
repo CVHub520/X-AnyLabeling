@@ -29,10 +29,11 @@ class LabelFileError(Exception):
 class LabelFile:
     suffix = ".json"
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, image_dir=None):
         self.shapes = []
         self.image_path = None
         self.image_data = None
+        self.image_dir = image_dir
         if filename is not None:
             self.load(filename)
         self.filename = filename
@@ -106,7 +107,10 @@ class LabelFile:
                 image_data = base64.b64decode(data["imageData"])
             else:
                 # relative path from label file to relative path from cwd
-                image_path = osp.join(osp.dirname(filename), data["imagePath"])
+                if self.image_dir:
+                    image_path = osp.join(self.image_dir, data["imagePath"])
+                else:
+                    image_path = osp.join(osp.dirname(filename), data["imagePath"])
                 image_data = self.load_image_file(image_path)
             flags = data.get("flags") or {}
             image_path = data["imagePath"]

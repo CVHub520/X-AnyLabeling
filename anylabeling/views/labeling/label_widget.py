@@ -2891,14 +2891,16 @@ class LabelingWidget(LabelDialog):
             str(self.tr("Loading %s...")) % osp.basename(str(filename))
         )
         label_file = osp.splitext(filename)[0] + ".json"
+        image_dir = None
         if self.output_dir:
+            image_dir = osp.dirname(filename)
             label_file_without_path = osp.basename(label_file)
             label_file = osp.join(self.output_dir, label_file_without_path)
         if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
             label_file
         ):
             try:
-                self.label_file = LabelFile(label_file)
+                self.label_file = LabelFile(label_file, image_dir)
             except LabelFileError as e:
                 self.error_message(
                     self.tr("Error opening file"),
