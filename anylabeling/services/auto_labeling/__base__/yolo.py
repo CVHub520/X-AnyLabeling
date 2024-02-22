@@ -205,6 +205,8 @@ class YOLO(Model):
             self.mask_height, self.mask_width = proto.shape[2:]
         for i, pred in enumerate(p):
             if self.task == "seg":
+                if np.size(pred) == 0:
+                    continue
                 masks = self.process_mask(
                     proto[i],
                     pred[:, 6:],
@@ -253,7 +255,7 @@ class YOLO(Model):
         outputs = self.net.get_ort_inference(blob=blob, extract=False)
         boxes, masks, class_ids, scores = self.postprocess(outputs)
         points = [[] for _ in range(len(boxes))]
-        if self.task == "seg":
+        if self.task == "seg" and masks is not None:
             points = [
                 scale_coords(self.input_shape, x, image.shape, normalize=False)
                 for x in masks2segments(masks, self.epsilon_factor)
