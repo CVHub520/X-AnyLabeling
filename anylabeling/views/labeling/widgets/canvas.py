@@ -564,6 +564,7 @@ class Canvas(
                 elif (
                     self.selected_vertex()
                     and int(ev.modifiers()) == QtCore.Qt.ShiftModifier
+                    and self.h_hape.shape_type not in ["rectangle", "rotation", "line"]
                 ):
                     # Delete point if: left-click + SHIFT on a point
                     self.remove_selected_point()
