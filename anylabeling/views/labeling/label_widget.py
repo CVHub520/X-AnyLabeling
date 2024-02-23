@@ -621,6 +621,12 @@ class LabelingWidget(LabelDialog):
             icon="edit",
             tip=self.tr("Modify or Delete Label"),
         )
+        hbb_to_obb = action(
+            self.tr("&Convert HBB to OBB"),
+            self.hbb_to_obb,
+            icon="convert",
+            tip=self.tr("Perform conversion from horizontal bounding box to oriented bounding box"),
+        )
 
         documentation = action(
             self.tr("&Documentation"),
@@ -1097,9 +1103,12 @@ class LabelingWidget(LabelDialog):
             self.menus.tool,
             (
                 overview,
+                None,
                 save_crop,
                 update_shape,
                 change_label,
+                None,
+                hbb_to_obb,
             ),
         )
         utils.add_actions(
@@ -1586,6 +1595,75 @@ class LabelingWidget(LabelDialog):
         self.load_shapes(self.canvas.shapes)
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
+    def get_label_file_list(self):
+        label_file_list = []
+        if not self.image_list and self.filename:
+            dir_path, filename = osp.split(self.filename)
+            label_file = osp.join(
+                dir_path, osp.splitext(filename)[0] + ".json"
+            )
+            if osp.exists(label_file):
+                label_file_list = [label_file]
+        elif self.image_list and not self.output_dir and self.filename:
+            file_list = os.listdir(osp.dirname(self.filename))
+            for file_name in file_list:
+                if not file_name.endswith(".json"):
+                    continue
+                label_file_list.append(
+                    osp.join(osp.dirname(self.filename), file_name)
+                )
+        if self.output_dir:
+            for file_name in os.listdir(self.output_dir):
+                if not file_name.endswith(".json"):
+                    continue
+                label_file_list.append(osp.join(self.output_dir, file_name))
+        return label_file_list
+
+    def hbb_to_obb(self):        
+        label_file_list = self.get_label_file_list()
+
+        total_files = len(label_file_list)
+        current_index = 0
+
+        progress_dialog = QtWidgets.QDialog(self)
+        progress_dialog.setWindowTitle("Converting...")
+        progress_dialog_layout = QVBoxLayout(progress_dialog)
+        progress_bar = QtWidgets.QProgressBar()
+        progress_dialog_layout.addWidget(progress_bar)
+        progress_dialog.setLayout(progress_dialog_layout)
+
+        # Show the progress dialog before entering the loop
+        progress_dialog.show()
+
+        try:
+            for label_file in label_file_list:
+                # Update progress label
+                QtWidgets.QApplication.processEvents()
+
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for i in range(len(data["shapes"])):
+                    if data["shapes"][i]["shape_type"] == "rectangle":
+                        data["shapes"][i]["shape_type"] = "rotation"
+                        data["shapes"][i]["direction"] = 0
+                with open(label_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+
+                # Update progress bar
+                current_index += 1
+                progress_value = int((current_index / total_files) * 100)
+                progress_bar.setValue(progress_value)
+
+            # Reload the file after processing all label files
+            self.load_file(self.filename)
+            return True
+        except Exception as e:
+            print(f"Error occurred while updating labels: {e}")
+            return False
+        finally:
+            # Hide the progress dialog after processing is done
+            progress_dialog.hide()
+
     def save_crop(self):
         if not self.filename:
             QtWidgets.QMessageBox.warning(
@@ -1830,57 +1908,15 @@ class LabelingWidget(LabelDialog):
             return
 
     def change_label(self):
-        label_file_list = []
-        if not self.image_list and self.filename:
-            dir_path, filename = osp.split(self.filename)
-            label_file = osp.join(
-                dir_path, osp.splitext(filename)[0] + ".json"
-            )
-            if osp.exists(label_file):
-                label_file_list = [label_file]
-        elif self.image_list and not self.output_dir and self.filename:
-            file_list = os.listdir(osp.dirname(self.filename))
-            for file_name in file_list:
-                if not file_name.endswith(".json"):
-                    continue
-                label_file_list.append(
-                    osp.join(osp.dirname(self.filename), file_name)
-                )
-        if self.output_dir:
-            for file_name in os.listdir(self.output_dir):
-                if not file_name.endswith(".json"):
-                    continue
-                label_file_list.append(osp.join(self.output_dir, file_name))
         change_label_dialog = LabelChangeManagerDialog(
-            label_file_list=label_file_list,
+            label_file_list=self.get_label_file_list(),
         )
         change_label_dialog.show()
 
     def overview(self):
-        label_file_list = []
-        if not self.image_list and self.filename:
-            dir_path, filename = osp.split(self.filename)
-            label_file = osp.join(
-                dir_path, osp.splitext(filename)[0] + ".json"
-            )
-            if osp.exists(label_file):
-                label_file_list = [label_file]
-        elif self.image_list and not self.output_dir and self.filename:
-            file_list = os.listdir(osp.dirname(self.filename))
-            for file_name in file_list:
-                if not file_name.endswith(".json"):
-                    continue
-                label_file_list.append(
-                    osp.join(osp.dirname(self.filename), file_name)
-                )
-        if self.output_dir:
-            for file_name in os.listdir(self.output_dir):
-                if not file_name.endswith(".json"):
-                    continue
-                label_file_list.append(osp.join(self.output_dir, file_name))
         _ = OverviewDialog(
             parent=self,
-            label_file_list=label_file_list,
+            label_file_list=self.get_label_file_list(),
             available_shapes=self.available_shapes,
         )
 
