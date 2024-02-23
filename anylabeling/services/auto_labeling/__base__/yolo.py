@@ -53,12 +53,20 @@ class YOLO(Model):
                     f"Could not download or initialize {self.config['type']} model.",
                 )
             )
-        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
-        _, _, self.input_height, self.input_width = self.net.get_input_shape()
-        if not isinstance(self.input_width, int):
-            self.input_width = self.config.get("input_width", -1)
-        if not isinstance(self.input_height, int):
-            self.input_height = self.config.get("input_height", -1)
+
+        self.engine = self.config.get("engine", "ort")
+        if self.engine.lower() == "dnn":
+            from ..engines import DnnBaseModel
+            self.net = DnnBaseModel(model_abs_path, __preferred_device__)
+            self.input_width = self.config.get("input_width", 640)
+            self.input_height = self.config.get("input_height", 640)
+        else:
+            self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
+            _, _, self.input_height, self.input_width = self.net.get_input_shape()
+            if not isinstance(self.input_width, int):
+                self.input_width = self.config.get("input_width", -1)
+            if not isinstance(self.input_height, int):
+                self.input_height = self.config.get("input_height", -1)
 
         self.model_type = self.config["type"]
         self.classes = self.config.get("classes", [])
@@ -127,6 +135,15 @@ class YOLO(Model):
             "yolov8_obb",
         ]:
             self.task = "obb"
+
+    def inference(self, blob):
+        if self.engine == "dnn" and self.task in ["det", "seg", "track"]:
+            outputs = self.net.get_dnn_inference(blob=blob, extract=False)
+            if self.task == "det" and not isinstance(outputs, (tuple, list)):
+                outputs = [outputs]
+        else:
+            outputs = self.net.get_ort_inference(blob=blob, extract=False)
+        return outputs
 
     def preprocess(self, image, upsample_mode="letterbox"):
         self.img_height, self.img_width = image.shape[:2]
@@ -252,7 +269,7 @@ class YOLO(Model):
             return []
 
         blob = self.preprocess(image, upsample_mode="letterbox")
-        outputs = self.net.get_ort_inference(blob=blob, extract=False)
+        outputs = self.inference(blob)
         boxes, masks, class_ids, scores = self.postprocess(outputs)
         points = [[] for _ in range(len(boxes))]
         if self.task == "seg" and masks is not None:
