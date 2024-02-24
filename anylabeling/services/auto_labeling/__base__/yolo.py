@@ -121,6 +121,7 @@ class YOLO(Model):
             "yolov6",
             "yolov7",
             "yolov8",
+            "yolov9",
             "gold_yolo",
         ]:
             self.task = "det"
@@ -203,6 +204,7 @@ class YOLO(Model):
             "yolov8_seg",
             "yolov8_track",
             "yolov8_obb",
+            "yolov9",
         ]:
             p = non_max_suppression_v8(
                 preds[0],

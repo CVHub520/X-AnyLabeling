@@ -72,6 +72,8 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Feb. 2024:
+  - ✨✨✨ Support [YOLOv9](https://github.com/WongKinYiu/yolov9) model.
+  - Support the conversion from a horizontal bounding box to a rotated bounding box.
   - Supports label deletion and renaming. For more details, please refer to the [document](./docs/zh_cn/user_guide.md).
   - Support for quick tag correction is available; please refer to this [document](./docs/en/user_guide.md) for guidance.
   - 🤗 Release the latest version [2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1) 🤗
