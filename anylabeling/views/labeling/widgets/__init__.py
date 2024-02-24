@@ -10,7 +10,7 @@ from .label_dialog import (
     LabelDialog,
     LabelQLineEdit,
     TextInputDialog,
-    LabelChangeManagerDialog,
+    LabelModifyDialog,
 )
 from .label_list_widget import LabelListWidget, LabelListWidgetItem
 from .overview_dialog import OverviewDialog

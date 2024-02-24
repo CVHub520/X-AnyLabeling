@@ -50,7 +50,7 @@ from .widgets import (
     LabelFilterComboBox,
     LabelListWidget,
     LabelListWidgetItem,
-    LabelChangeManagerDialog,
+    LabelModifyDialog,
     OverviewDialog,
     ToolBar,
     UniqueLabelQListWidget,
@@ -615,11 +615,11 @@ class LabelingWidget(LabelDialog):
             icon="update",
             tip=self.tr("Update Shapes"),
         )
-        change_label = action(
-            self.tr("&Change Label"),
-            self.change_label,
+        modify_label = action(
+            self.tr("&Modify Label"),
+            self.modify_label,
             icon="edit",
-            tip=self.tr("Modify or Delete Label"),
+            tip=self.tr("Rename or Delete Label"),
         )
         hbb_to_obb = action(
             self.tr("&Convert HBB to OBB"),
@@ -1106,7 +1106,8 @@ class LabelingWidget(LabelDialog):
                 None,
                 save_crop,
                 update_shape,
-                change_label,
+                None,
+                modify_label,
                 None,
                 hbb_to_obb,
             ),
@@ -1907,11 +1908,13 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-    def change_label(self):
-        change_label_dialog = LabelChangeManagerDialog(
+    def modify_label(self):
+        modify_label_dialog = LabelModifyDialog(
             label_file_list=self.get_label_file_list(),
         )
-        change_label_dialog.show()
+        result = modify_label_dialog.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            self.load_file(self.filename)
 
     def overview(self):
         _ = OverviewDialog(

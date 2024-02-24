@@ -12,7 +12,7 @@ from ..logger import logger
 # - Calculate optimal position so as not to go out of screen area.
 
 
-class LabelChangeManagerDialog(QtWidgets.QDialog):
+class LabelModifyDialog(QtWidgets.QDialog):
     def __init__(self, label_file_list, parent=None):
         super().__init__(parent)
         self.label_file_list = label_file_list
@@ -115,18 +115,18 @@ class LabelChangeManagerDialog(QtWidgets.QDialog):
             self.label_info[class_name]["value"] = value_item.text()
 
         self.accept()
-        if self.change_label():
+        if self._modify_label():
             QtWidgets.QMessageBox.information(
                 self,
                 "Success",
-                "Labels changed successfully! Please reload the data.",
+                "Labels modified successfully!",
             )
         else:
             QtWidgets.QMessageBox.warning(
                 self, "Warning", "An error occurred while updating the labels."
             )
 
-    def change_label(self):
+    def _modify_label(self):
         try:
             for label_file in self.label_file_list:
                 with open(label_file, "r", encoding="utf-8") as f:
