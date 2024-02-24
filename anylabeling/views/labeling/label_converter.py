@@ -86,7 +86,9 @@ class LabelConverter:
                 class_name = color_to_label.get(color_value, "Unknown")
                 label_map = (binaray_img == color_value).astype(np.uint8)
 
-                contours, _ = cv2.findContours(label_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours, _ = cv2.findContours(
+                    label_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                )
                 for contour in contours:
                     epsilon = epsilon_factor * cv2.arcLength(contour, True)
                     approx = cv2.approxPolyDP(contour, epsilon, True)

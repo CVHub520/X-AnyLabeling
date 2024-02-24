@@ -625,7 +625,9 @@ class LabelingWidget(LabelDialog):
             self.tr("&Convert HBB to OBB"),
             self.hbb_to_obb,
             icon="convert",
-            tip=self.tr("Perform conversion from horizontal bounding box to oriented bounding box"),
+            tip=self.tr(
+                "Perform conversion from horizontal bounding box to oriented bounding box"
+            ),
         )
 
         documentation = action(
@@ -1620,7 +1622,7 @@ class LabelingWidget(LabelDialog):
                 label_file_list.append(osp.join(self.output_dir, file_name))
         return label_file_list
 
-    def hbb_to_obb(self):        
+    def hbb_to_obb(self):
         label_file_list = self.get_label_file_list()
 
         total_files = len(label_file_list)

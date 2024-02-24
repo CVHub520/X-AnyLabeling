@@ -110,7 +110,9 @@ class LabelFile:
                 if self.image_dir:
                     image_path = osp.join(self.image_dir, data["imagePath"])
                 else:
-                    image_path = osp.join(osp.dirname(filename), data["imagePath"])
+                    image_path = osp.join(
+                        osp.dirname(filename), data["imagePath"]
+                    )
                 image_data = self.load_image_file(image_path)
             flags = data.get("flags") or {}
             image_path = data["imagePath"]

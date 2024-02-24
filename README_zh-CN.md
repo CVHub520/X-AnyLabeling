@@ -70,11 +70,12 @@
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - 2024年2月：
+  - 🤗 发布[2.3.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.2)最新版本 🤗
   - ✨✨✨ 支持[YOLOv9](https://github.com/WongKinYiu/yolov9)模型。
   - 支持将水平框一键转换为旋转框。
   - 支持批量标签删除及重命名，详情可参考[用户手册](./docs/zh_cn/user_guide.md)。
   - 支持快速标签纠正功能，详情可参考[用户手册](./docs/zh_cn/user_guide.md)。
-  - 🤗 发布[2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1)最新版本 🤗
+  - 发布[2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1)版本。
 - 2024年1月：
   - 支持一键截取子图功能。
   - 👏👏👏 结合CLIP和SAM模型，实现更强大的语义和空间理解。具体可参考此[示例](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml)。

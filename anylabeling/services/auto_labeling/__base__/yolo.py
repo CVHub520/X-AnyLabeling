@@ -57,12 +57,18 @@ class YOLO(Model):
         self.engine = self.config.get("engine", "ort")
         if self.engine.lower() == "dnn":
             from ..engines import DnnBaseModel
+
             self.net = DnnBaseModel(model_abs_path, __preferred_device__)
             self.input_width = self.config.get("input_width", 640)
             self.input_height = self.config.get("input_height", 640)
         else:
             self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
-            _, _, self.input_height, self.input_width = self.net.get_input_shape()
+            (
+                _,
+                _,
+                self.input_height,
+                self.input_width,
+            ) = self.net.get_input_shape()
             if not isinstance(self.input_width, int):
                 self.input_width = self.config.get("input_width", -1)
             if not isinstance(self.input_height, int):

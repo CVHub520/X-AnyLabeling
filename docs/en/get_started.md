@@ -37,7 +37,7 @@ To ensure access to the latest features and stable performance, it is highly rec
 
 Running in the GUI environment is convenient but may have limitations compared to running from the source code. Consider the pros and cons based on your specific needs and preferences.
 
-Download Link: [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1) | [Baidu Disk](https://pan.baidu.com/s/1w1KZoUFeM5gBrHxhfc4eAA?pwd=d74g)
+Download Link: [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.2) | [Baidu Disk](https://pan.baidu.com/s/1YPU32J8sN5hwTewL4ImMzw?pwd=1y69)
 
 Note:
 - For MacOS:
