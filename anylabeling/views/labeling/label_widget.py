@@ -98,6 +98,7 @@ class LabelingWidget(LabelDialog):
         self.current_category = None
         self.tmp_selected_polygons = []
         self.available_shapes = Shape.get_available_shapes()
+        self.hidden_cls = []
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -1912,7 +1913,7 @@ class LabelingWidget(LabelDialog):
 
     def modify_label(self):
         modify_label_dialog = LabelModifyDialog(
-            label_file_list=self.get_label_file_list(),
+            label_file_list=self.get_label_file_list(), hidden_cls=self.hidden_cls
         )
         result = modify_label_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
@@ -2443,7 +2444,7 @@ class LabelingWidget(LabelDialog):
             direction = shape.get("direction", 0)
             other_data = shape["other_data"]
 
-            if not points:
+            if label in self.hidden_cls or not points:
                 # skip point-empty shape
                 continue
 

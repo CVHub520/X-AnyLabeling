@@ -13,9 +13,10 @@ from ..logger import logger
 
 
 class LabelModifyDialog(QtWidgets.QDialog):
-    def __init__(self, label_file_list, parent=None):
+    def __init__(self, label_file_list, parent=None, hidden_cls=[]):
         super().__init__(parent)
         self.label_file_list = label_file_list
+        self.hidden_cls = hidden_cls
         self.label_info = self.get_classes()
         self.init_ui()
 
@@ -24,13 +25,13 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.setGeometry(100, 100, 600, 400)
 
         self.table_widget = QtWidgets.QTableWidget(self)
-        self.table_widget.setColumnCount(3)
+        self.table_widget.setColumnCount(4)
         self.table_widget.setHorizontalHeaderLabels(
-            ["Category", "Delete", "New Value"]
+            ["Category", "Delete", "New Value", "Hidden"]
         )
 
         # Set header font and alignment
-        for i in range(3):
+        for i in range(4):
             self.table_widget.horizontalHeaderItem(i).setFont(
                 QFont("Arial", 8, QFont.Bold)
             )
@@ -71,6 +72,15 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 )
             )
 
+            hidden_checkbox = QtWidgets.QCheckBox()
+            hidden_checkbox.setChecked(info["hidden"])
+            # hidden_checkbox.setIcon(QIcon(":/images/images/hidden.png"))
+            hidden_checkbox.stateChanged.connect(
+                lambda state, row=i: self.on_hidden_checkbox_changed(
+                    row, state
+                )
+            )
+
             value_item = QtWidgets.QTableWidgetItem(info["value"])
             value_item.setFlags(
                 value_item.flags() & ~QtCore.Qt.ItemIsEditable
@@ -86,34 +96,49 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.table_widget.setItem(i, 0, class_item)
             self.table_widget.setCellWidget(i, 1, delete_checkbox)
             self.table_widget.setItem(i, 2, value_item)
+            self.table_widget.setCellWidget(i, 3, hidden_checkbox)
 
     def on_delete_checkbox_changed(self, row, state):
         value_item = self.table_widget.item(row, 2)
         delete_checkbox = self.table_widget.cellWidget(row, 1)
+        hidden_checkbox = self.table_widget.cellWidget(row, 3)
 
         if state == QtCore.Qt.Checked:
             value_item.setFlags(value_item.flags() & ~QtCore.Qt.ItemIsEditable)
             value_item.setBackground(QtGui.QColor("lightgray"))
             delete_checkbox.setCheckable(True)
+            hidden_checkbox.setCheckable(False)
         else:
             value_item.setFlags(value_item.flags() | QtCore.Qt.ItemIsEditable)
             value_item.setBackground(QtGui.QColor("white"))
             delete_checkbox.setCheckable(False)
+            hidden_checkbox.setCheckable(True)
 
         if value_item.text():
             delete_checkbox.setCheckable(False)
         else:
             delete_checkbox.setCheckable(True)
 
+    def on_hidden_checkbox_changed(self, row, state):
+        delete_checkbox = self.table_widget.cellWidget(row, 1)
+
+        if state == QtCore.Qt.Checked:
+            delete_checkbox.setCheckable(False)
+        else:
+            delete_checkbox.setCheckable(True)
+
     def confirm_changes(self):
+        self.hidden_cls.clear()
         for i in range(self.table_widget.rowCount()):
             class_name = self.table_widget.item(i, 0).text()
             delete_checkbox = self.table_widget.cellWidget(i, 1)
+            hidden_checkbox = self.table_widget.cellWidget(i, 3)
             value_item = self.table_widget.item(i, 2)
 
             self.label_info[class_name]["delete"] = delete_checkbox.isChecked()
             self.label_info[class_name]["value"] = value_item.text()
-
+            if not delete_checkbox.isChecked() and hidden_checkbox.isChecked():
+                self.hidden_cls.append(class_name if value_item.text() == "" else value_item.text())
         self.accept()
         if self._modify_label():
             QtWidgets.QMessageBox.information(
@@ -158,7 +183,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 classes.add(label)
         label_info = {}
         for c in classes:
-            label_info[c] = dict(delete=False, value=None)
+            label_info[c] = dict(delete=False, value=None, hidden=c in self.hidden_cls)
         return label_info
 
 
