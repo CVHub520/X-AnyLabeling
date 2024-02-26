@@ -74,7 +74,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
             hidden_checkbox = QtWidgets.QCheckBox()
             hidden_checkbox.setChecked(info["hidden"])
-            # hidden_checkbox.setIcon(QIcon(":/images/images/hidden.png"))
+            hidden_checkbox.setIcon(QIcon(":/images/images/hidden.png"))
             hidden_checkbox.stateChanged.connect(
                 lambda state, row=i: self.on_hidden_checkbox_changed(
                     row, state
