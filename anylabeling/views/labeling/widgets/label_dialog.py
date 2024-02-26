@@ -8,6 +8,7 @@ from PyQt5.QtCore import QCoreApplication
 from .. import utils
 from ..logger import logger
 
+
 # TODO(unknown):
 # - Calculate optimal position so as not to go out of screen area.
 
@@ -80,6 +81,8 @@ class LabelModifyDialog(QtWidgets.QDialog):
                     row, state
                 )
             )
+
+            delete_checkbox.setCheckable(not info["hidden"])
 
             value_item = QtWidgets.QTableWidgetItem(info["value"])
             value_item.setFlags(
