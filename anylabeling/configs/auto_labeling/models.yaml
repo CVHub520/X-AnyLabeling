@@ -84,6 +84,8 @@
   config_file: ":/yolo_nas_m.yaml"
 - model_name: "yolo-nas-s-r20230615"
   config_file: ":/yolo_nas_s.yaml"
+- model_name: "yolow_l-r20240227"
+  config_file: ":/yolow_l.yaml"
 - model_name: "yolov5l-r20230520"
   config_file: ":/yolov5l.yaml"
 - model_name: "yolov5_car_plate-r20230112"

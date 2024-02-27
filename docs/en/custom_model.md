@@ -247,3 +247,29 @@ Refer to this [tutorial](https://github.com/CVHub520/sam-hq).
 - [InternImage](https://github.com/OpenGVLab/InternImage)
 
 InternImage introduces a large-scale convolutional neural network (CNN) model, leveraging deformable convolution as the core operator to achieve a large effective receptive field, adaptive spatial aggregation, and reduced inductive bias, leading to stronger and more robust pattern learning from massive data. It outperforms current CNNs and vision transformers on benchmarks
+
+> Paper: InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions</br>
+> Affiliation: Shanghai AI Laboratory, Tsinghua University, Nanjing University, etc.</br>
+> Published: CVPR 2023</br>
+
+Refer to this [tutorial](../../tools/export_internimage_model_onnx.py).
+
+- [EdgeSAM](https://github.com/chongzhou96/EdgeSAM)
+
+`EdgeSAM` is an accelerated variant of the Segment Anything Model (SAM), optimized for efficient execution on edge devices with minimal compromise in performance. It achieves a 40-fold speed increase compared to the original SAM, and outperforms MobileSAM, being 14 times as fast when deployed on edge devices while enhancing the mIoUs on COCO and LVIS by 2.3 and 3.2 respectively. EdgeSAM is also the first SAM variant that can run at over 30 FPS on an iPhone 14.
+
+> Paper: Prompt-In-the-Loop Distillation for On-Device Deployment of SAM</br>
+> Affiliation: S-Lab, Nanyang Technological University, Shanghai Artificial Intelligence Laboratory.</br>
+> Published: Arxiv 2023</br>
+
+Refer to this [tutorial](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py).
+
+- [YOLO-World](https://github.com/AILab-CVC/YOLO-World)
+
+`YOLO-World` enhances the YOLO series by incorporating vision-language modeling, achieving efficient open-scenario object detection with impressive performance on various tasks.
+
+> Paper: Real-Time Open-Vocabulary Object Detection</br>
+> Affiliation: Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology.</br>
+> Published: Arxiv 2024</br>
+
+Refer to this [tutorial](../../tools/export_yolow_onnx.py).

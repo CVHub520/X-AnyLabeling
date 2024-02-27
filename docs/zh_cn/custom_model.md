@@ -265,3 +265,13 @@ InternImage introduces a large-scale convolutional neural network (CNN) model, l
 > 发表：Arxiv 2023</br>
 
 参考此[教程](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py).
+
+- [YOLO-World](https://github.com/AILab-CVC/YOLO-World)
+
+`YOLO-World` enhances the YOLO series by incorporating vision-language modeling, achieving efficient open-scenario object detection with impressive performance on various tasks.
+
+> 论文：Real-Time Open-Vocabulary Object Detection</br>
+> 单位：Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology.</br>
+> 发表：Arxiv 2024</br>
+
+参考此[教程](../../tools/export_yolow_onnx.py).
