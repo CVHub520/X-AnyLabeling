@@ -431,10 +431,8 @@ class Canvas(
                 self.prev_h_edge = self.h_edge
                 self.h_edge = None
                 if shape.group_id and shape.shape_type == "rectangle":
-                    self.setToolTip(
-                        self.tr("Click & drag to move shape '%s (%d)'")
-                        % (shape.label, shape.group_id)
-                    )
+                    tooltip_text = "Click & drag to move shape '{label} {group_id}'".format(label=shape.label, group_id=shape.group_id)
+                    self.setToolTip(self.tr(tooltip_text))
                 else:
                     self.setToolTip(
                         self.tr("Click & drag to move shape '%s'")
