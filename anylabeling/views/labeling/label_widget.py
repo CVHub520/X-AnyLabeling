@@ -3568,25 +3568,47 @@ class LabelingWidget(LabelDialog):
         output_dir_path = image_dir_path
         if self.output_dir:
             output_dir_path = self.output_dir
-        for image_filename in image_file_list:
-            if image_filename.endswith(".json"):
-                continue
-            label_filename = osp.splitext(image_filename)[0] + ".png"
-            data_filename = osp.splitext(image_filename)[0] + ".json"
-            if label_filename not in label_file_list:
-                continue
-            input_file = osp.join(label_dir_path, label_filename)
-            output_file = osp.join(output_dir_path, data_filename)
-            image_file = osp.join(image_dir_path, image_filename)
-            converter.mask_to_custom(
-                input_file=input_file,
-                output_file=output_file,
-                image_file=image_file,
-                mapping_table=mapping_table,
-            )
 
-        # update and refresh the current canvas
-        self.load_file(self.filename)
+        current_index, total_files = 0, len(image_file_list)
+        progress_dialog = QProgressDialog(
+            self.tr("Uploading masks. Please wait..."),
+            self.tr("Cancel"),
+            0,
+            total_files,
+            self
+        )
+
+        try:
+            for image_filename in image_file_list:
+                if image_filename.endswith(".json"):
+                    continue
+                label_filename = osp.splitext(image_filename)[0] + ".png"
+                data_filename = osp.splitext(image_filename)[0] + ".json"
+                if label_filename not in label_file_list:
+                    continue
+                input_file = osp.join(label_dir_path, label_filename)
+                output_file = osp.join(output_dir_path, data_filename)
+                image_file = osp.join(image_dir_path, image_filename)
+                converter.mask_to_custom(
+                    input_file=input_file,
+                    output_file=output_file,
+                    image_file=image_file,
+                    mapping_table=mapping_table,
+                )
+
+                current_index += 1
+                progress_dialog.setValue(current_index)
+                if progress_dialog.wasCanceled():
+                    break
+                    
+                QtWidgets.QApplication.processEvents()
+
+            # update and refresh the current canvas
+            self.load_file(self.filename)
+        except Exception as e:
+            print("Error occurred while uploading labels: {e}")
+        finally:
+            progress_dialog.close()
 
     def upload_mot_annotation(self, _value=False, dirpath=None):
         if not self.may_continue():
