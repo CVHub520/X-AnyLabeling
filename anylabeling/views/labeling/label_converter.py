@@ -15,13 +15,20 @@ from itertools import chain
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
+import chardet
 
 
+
+def detect_encoding(file_path):
+    with open(file_path, 'rb') as f:
+        result = chardet.detect(f.read())
+    return result['encoding']
 class LabelConverter:
     def __init__(self, classes_file=None):
         self.classes = []
         if classes_file:
-            with open(classes_file, "r", encoding="utf-8") as f:
+            from_encoding = detect_encoding(classes_file)
+            with open(classes_file, "r", encoding=from_encoding) as f:
                 self.classes = f.read().splitlines()
             logger.info(f"Loading classes: {self.classes}")
 
@@ -193,7 +200,8 @@ class LabelConverter:
 
     def yolo_to_custom(self, input_file, output_file, image_file):
         self.reset()
-        with open(input_file, "r", encoding="utf-8") as f:
+        from_encoding = detect_encoding(input_file)
+        with open(input_file, "r", encoding=from_encoding) as f:
             lines = f.readlines()
         img_w, img_h = self.get_image_size(image_file)
         image_size = np.array([img_w, img_h], np.float64)
