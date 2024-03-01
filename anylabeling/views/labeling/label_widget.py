@@ -56,7 +56,7 @@ from .widgets import (
     UniqueLabelQListWidget,
     ZoomWidget,
 )
-
+import chardet
 LABEL_COLORMAP = imgviz.label_colormap()
 
 # Green for the first label
@@ -3225,7 +3225,10 @@ class LabelingWidget(LabelDialog):
                     self.unique_label_list.set_item_label(
                         item, label, rgb, LABEL_OPACITY
                     )
-
+    def detect_encoding(self,file_path):
+        with open(file_path, 'rb') as f:
+            result = chardet.detect(f.read())
+        return result['encoding']
     def upload_yolo_annotation(self, _value=False, dirpath=None):
         if not self.may_continue():
             return
@@ -3254,7 +3257,8 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
-        with open(self.classes_file, "r", encoding="utf-8") as f:
+        from_encoding=self.detect_encoding(self.classes_file)
+        with open(self.classes_file, "r", encoding=from_encoding) as f:
             labels = f.read().splitlines()
             for label in labels:
                 if not self.unique_label_list.find_items_by_label(label):
