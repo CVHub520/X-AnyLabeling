@@ -3307,17 +3307,19 @@ class LabelingWidget(LabelDialog):
             if image_filename.endswith(".json"):
                 continue
             label_filename = osp.splitext(image_filename)[0] + ".txt"
-            data_filename = osp.splitext(image_filename)[0] + ".json"
-            if label_filename not in label_file_list:
-                continue
-            input_file = osp.join(label_dir_path, label_filename)
-            output_file = osp.join(output_dir_path, data_filename)
-            image_file = osp.join(image_dir_path, image_filename)
-            converter.yolo_to_custom(
-                input_file=input_file,
-                output_file=output_file,
-                image_file=image_file,
-            )
+            if "classes.txt" not in label_filename:
+                if image_filename.endswith(".jpg"):
+                    data_filename = osp.splitext(image_filename)[0] + ".json"
+                    if label_filename not in label_file_list:
+                        continue
+                    input_file = osp.join(label_dir_path, label_filename)
+                    output_file = osp.join(output_dir_path, data_filename)
+                    image_file = osp.join(image_dir_path, image_filename)
+                    converter.yolo_to_custom(
+                        input_file=input_file,
+                        output_file=output_file,
+                        image_file=image_file,
+                    )
 
         # update and refresh the current canvas
         self.load_file(self.filename)
