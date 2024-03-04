@@ -3,7 +3,7 @@ import os.path as osp
 import cv2
 import csv
 import json
-import natsort
+import math
 import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -35,6 +35,26 @@ class LabelConverter:
             imageHeight=-1,
             imageWidth=-1,
         )
+
+    @staticmethod
+    def calculate_rotation_theta(points):
+        x1, y1 = points[0]
+        x2, y2 = points[1]
+
+        # Calculate one of the diagonal vectors (after rotation)
+        diagonal_vector_x = x2 - x1
+        diagonal_vector_y = y2 - y1
+
+        # Calculate the rotation angle in radians
+        rotation_angle = math.atan2(diagonal_vector_y, diagonal_vector_x)
+
+        # Convert radians to degrees
+        rotation_angle_degrees = math.degrees(rotation_angle)
+
+        if rotation_angle_degrees < 0:
+            rotation_angle_degrees += 360
+
+        return rotation_angle_degrees / 360 * (2 * math.pi)
 
     @staticmethod
     def calculate_polygon_area(segmentation):
@@ -363,13 +383,14 @@ class LabelConverter:
             line = line.strip().split(" ")
             x0, y0, x1, y1, x2, y2, x3, y3 = [float(i) for i in line[:8]]
             difficult = line[-1]
+            points = [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]
             shape = {
                 "label": line[8],
                 "description": None,
-                "points": [[x0, y0], [x1, y1], [x2, y2], [x3, y3]],
+                "points": points,
                 "group_id": None,
                 "difficult": bool(int(difficult)),
-                "direction": 0,
+                "direction": self.calculate_rotation_theta(points),
                 "shape_type": "rotation",
                 "flags": {},
             }
