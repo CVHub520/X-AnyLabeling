@@ -314,7 +314,7 @@ class YOLO(Model):
                 shape.label = self.classes[int(class_id)]
                 shape.selected = False
                 shapes.append(shape)
-            if self.task == "seg":
+            if self.task == "seg" and point:
                 shape = Shape(flags={})
                 for p in point:
                     shape.add_point(QtCore.QPointF(int(p[0]), int(p[1])))
