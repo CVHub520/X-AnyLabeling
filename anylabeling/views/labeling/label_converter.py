@@ -211,6 +211,49 @@ class LabelConverter:
         x_vals, y_vals = zip(*poly)
         return min(x_vals), min(y_vals), max(x_vals), max(y_vals)
 
+    def yolo_obb_to_custom(self, input_file, output_file, image_file):
+        self.reset()
+        with open(input_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        img_w, img_h = self.get_image_size(image_file)
+        for line in lines:
+            line = line.strip().split(" ")
+            class_index = int(line[0])
+            label = self.classes[class_index]
+            shape_type = "rotation"
+            # Extracting coordinates from YOLO format
+            x0, y0, x1, y1, x2, y2, x3, y3 = map(float, line[1:])
+            # Rescaling coordinates to image size
+            x0, y0, x1, y1, x2, y2, x3, y3 = (
+                x0 * img_w,
+                y0 * img_h,
+                x1 * img_w,
+                y1 * img_h,
+                x2 * img_w,
+                y2 * img_h,
+                x3 * img_w,
+                y3 * img_h,
+            )
+            # Creating points in the custom format
+            points = [[x0, y0], [x1, y1], [x2, y2], [x3, y3]]
+            shape = {
+                "label": label,
+                "shape_type": shape_type,
+                "flags": {},
+                "points": points,
+                "group_id": None,
+                "description": None,
+                "difficult": False,
+                "direction": self.calculate_rotation_theta(points),
+                "attributes": {},
+            }
+            self.custom_data["shapes"].append(shape)
+        self.custom_data["imagePath"] = osp.basename(image_file)
+        self.custom_data["imageHeight"] = img_h
+        self.custom_data["imageWidth"] = img_w
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
     def yolo_to_custom(self, input_file, output_file, image_file):
         self.reset()
         with open(input_file, "r", encoding="utf-8") as f:

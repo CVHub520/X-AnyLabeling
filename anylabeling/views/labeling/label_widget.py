@@ -798,12 +798,26 @@ class LabelingWidget(LabelDialog):
             icon=None,
             tip=self.tr("Upload Custom Attributes File"),
         )
-        upload_yolo_annotation = action(
-            self.tr("&Upload YOLO Annotations"),
-            self.upload_yolo_annotation,
+        upload_yolo_hbb_annotation = action(
+            self.tr("&Upload YOLO-Hbb Annotations"),
+            lambda: self.upload_yolo_annotation("hbb"),
             None,
             icon="format_yolo",
-            tip=self.tr("Upload Custom YOLO Annotations"),
+            tip=self.tr("Upload Custom YOLO Horizontal Bounding Boxes Annotations"),
+        )
+        upload_yolo_obb_annotation = action(
+            self.tr("&Upload YOLO-Obb Annotations"),
+            lambda: self.upload_yolo_annotation("obb"),
+            None,
+            icon="format_yolo",
+            tip=self.tr("Upload Custom YOLO Oriented Bounding Boxes Annotations"),
+        )
+        upload_yolo_seg_annotation = action(
+            self.tr("&Upload YOLO-Seg Annotations"),
+            lambda: self.upload_yolo_annotation("seg"),
+            None,
+            icon="format_yolo",
+            tip=self.tr("Upload Custom YOLO Segmentation Annotations"),
         )
         upload_voc_annotation = action(
             self.tr("&Upload VOC Annotations"),
@@ -972,7 +986,9 @@ class LabelingWidget(LabelDialog):
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
             upload_attr_file=upload_attr_file,
-            upload_yolo_annotation=upload_yolo_annotation,
+            upload_yolo_hbb_annotation=upload_yolo_hbb_annotation,
+            upload_yolo_obb_annotation=upload_yolo_obb_annotation,
+            upload_yolo_seg_annotation=upload_yolo_seg_annotation,
             upload_voc_annotation=upload_voc_annotation,
             upload_coco_annotation=upload_coco_annotation,
             upload_dota_annotation=upload_dota_annotation,
@@ -1133,7 +1149,11 @@ class LabelingWidget(LabelDialog):
             self.menus.upload,
             (
                 upload_attr_file,
-                upload_yolo_annotation,
+                None,
+                upload_yolo_hbb_annotation,
+                upload_yolo_obb_annotation,
+                upload_yolo_seg_annotation,
+                None,
                 upload_voc_annotation,
                 upload_coco_annotation,
                 upload_dota_annotation,
@@ -3226,7 +3246,7 @@ class LabelingWidget(LabelDialog):
                         item, label, rgb, LABEL_OPACITY
                     )
 
-    def upload_yolo_annotation(self, _value=False, dirpath=None):
+    def upload_yolo_annotation(self, mode, _value=False, dirpath=None):
         if not self.may_continue():
             return
 
@@ -3309,12 +3329,18 @@ class LabelingWidget(LabelDialog):
             input_file = osp.join(label_dir_path, label_filename)
             output_file = osp.join(output_dir_path, data_filename)
             image_file = osp.join(image_dir_path, image_filename)
-            converter.yolo_to_custom(
-                input_file=input_file,
-                output_file=output_file,
-                image_file=image_file,
-            )
-
+            if mode in ["hbb", "seg"]:
+                converter.yolo_to_custom(
+                    input_file=input_file,
+                    output_file=output_file,
+                    image_file=image_file,
+                )
+            elif mode == "obb":
+                converter.yolo_obb_to_custom(
+                    input_file=input_file,
+                    output_file=output_file,
+                    image_file=image_file,
+                )
         # update and refresh the current canvas
         self.load_file(self.filename)
 
