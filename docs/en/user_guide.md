@@ -98,6 +98,14 @@ You can follow these steps:
 
 3. After completing all modifications, click the `Confirm` button to confirm and submit the changes.
 
+### Quick Screenshot and Save Feature
+
+Implementation Guide:
+
+1. Prepare a custom class file, you can refer to the example [classes.txt](../../assets/classes.txt);
+
+2. Click on the `Tools` menu at the top and select the `Save Cropped Image` option. Choose the corresponding custom class file for upload. This action will generate a subimage folder `x-anylabeling-crops` in the current directory, where targets will be stored based on their respective class names.
+
 ### Quick Tag Correction Feature
 
 This functionality is designed to swiftly address two common mislabeling scenarios during the calibration process:
@@ -109,7 +117,7 @@ Follow the steps below for implementation:
 
 1. Prepare a custom class file, for a specific example, please refer to [classes.txt](../../assets/classes.txt).
 
-2. Click on the menu bar at the top, select `Tools` -> `Save Subgraphs`, and upload the corresponding custom class file. This action will generate a subgraph folder `x-anylabeling-crops` in the current directory, storing targets according to the respective class names. The directory structure is as follows:
+2. Click on the menu bar at the top, select `Tools` -> `Save Expanded Sub-image`, and upload the corresponding custom class file. This action will generate a subgraph folder `x-anylabeling-crops` in the current directory, storing targets according to the respective class names. The directory structure is as follows:
 
 ```
 |- root

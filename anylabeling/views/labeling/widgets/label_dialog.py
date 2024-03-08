@@ -141,7 +141,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.label_info[class_name]["delete"] = delete_checkbox.isChecked()
             self.label_info[class_name]["value"] = value_item.text()
             if not delete_checkbox.isChecked() and hidden_checkbox.isChecked():
-                self.hidden_cls.append(class_name if value_item.text() == "" else value_item.text())
+                self.hidden_cls.append(
+                    class_name
+                    if value_item.text() == ""
+                    else value_item.text()
+                )
         self.accept()
         if self._modify_label():
             QtWidgets.QMessageBox.information(
@@ -186,7 +190,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 classes.add(label)
         label_info = {}
         for c in classes:
-            label_info[c] = dict(delete=False, value=None, hidden=c in self.hidden_cls)
+            label_info[c] = dict(
+                delete=False, value=None, hidden=c in self.hidden_cls
+            )
         return label_info
 
 

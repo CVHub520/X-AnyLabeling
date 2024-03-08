@@ -232,31 +232,33 @@ def rbox2poly(obboxes):
         *order, 8
     )
 
+
 def denormalize_bbox(bbox, input_shape, image_shape):
     """
     Denormalizes bounding box coordinates from input_shape to image_shape.
-    
+
     Parameters:
     - bbox: Normalized bounding box coordinates [xmin, ymin, xmax, ymax]
     - input_shape: The shape of the input image used during normalization (e.g., [640, 640])
     - image_shape: The shape of the original image (e.g., [height, width])
-    
+
     Returns:
     - Denormalized bounding box coordinates [xmin, ymin, xmax, ymax]
     """
     xmin, ymin, xmax, ymax = bbox
-    
+
     # Denormalize x-coordinates
     denorm_xmin = int(xmin * image_shape[1] / input_shape[1])
     denorm_xmax = int(xmax * image_shape[1] / input_shape[1])
-    
+
     # Denormalize y-coordinates
     denorm_ymin = int(ymin * image_shape[0] / input_shape[0])
     denorm_ymax = int(ymax * image_shape[0] / input_shape[0])
-    
+
     denormalized_bbox = [denorm_xmin, denorm_ymin, denorm_xmax, denorm_ymax]
-    
+
     return denormalized_bbox
+
 
 def rescale_box(input_shape, boxes, image_shape, kpts=False):
     """Rescale the output to the original image shape"""

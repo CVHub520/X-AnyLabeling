@@ -602,13 +602,19 @@ class LabelingWidget(LabelDialog):
             self.overview,
             shortcuts["show_overview"],
             icon="overview",
-            tip=self.tr("Show Annotations Statistics"),
+            tip=self.tr("Show annotations statistics"),
         )
         save_crop = action(
-            self.tr("&Save Crop"),
-            self.save_crop,
+            self.tr("&Save Cropped Image"),
+            functools.partial(self.save_crop, "default"),
             icon="crop",
-            tip=self.tr("Save Cropped Rectangle Shape"),
+            tip=self.tr("Save cropped rectangle shape"),
+        )
+        save_expanded_crop = action(
+            self.tr("&Save Expanded Sub-image"),
+            functools.partial(self.save_crop, "expand"),
+            icon="crop",
+            tip=self.tr("Save the cropped shape after expansion for checking"),
         )
         update_shape = action(
             self.tr("&Update Shape"),
@@ -803,14 +809,18 @@ class LabelingWidget(LabelDialog):
             lambda: self.upload_yolo_annotation("hbb"),
             None,
             icon="format_yolo",
-            tip=self.tr("Upload Custom YOLO Horizontal Bounding Boxes Annotations"),
+            tip=self.tr(
+                "Upload Custom YOLO Horizontal Bounding Boxes Annotations"
+            ),
         )
         upload_yolo_obb_annotation = action(
             self.tr("&Upload YOLO-Obb Annotations"),
             lambda: self.upload_yolo_annotation("obb"),
             None,
             icon="format_yolo",
-            tip=self.tr("Upload Custom YOLO Oriented Bounding Boxes Annotations"),
+            tip=self.tr(
+                "Upload Custom YOLO Oriented Bounding Boxes Annotations"
+            ),
         )
         upload_yolo_seg_annotation = action(
             self.tr("&Upload YOLO-Seg Annotations"),
@@ -1124,6 +1134,8 @@ class LabelingWidget(LabelDialog):
                 overview,
                 None,
                 save_crop,
+                None,
+                save_expanded_crop,
                 update_shape,
                 None,
                 modify_label,
@@ -1688,7 +1700,7 @@ class LabelingWidget(LabelDialog):
             # Hide the progress dialog after processing is done
             progress_dialog.hide()
 
-    def save_crop(self):
+    def save_crop(self, mode="default"):
         if not self.filename:
             QtWidgets.QMessageBox.warning(
                 self,
@@ -1785,11 +1797,31 @@ class LabelingWidget(LabelDialog):
                     else:
                         xmax, ymax = points[2]
                     image = cv2.imread(image_file)
-                    xmin = int(xmin)
-                    ymin = int(ymin)
-                    xmax = int(xmax)
-                    ymax = int(ymax)
-                    crop_image = image[ymin:ymax, xmin:xmax]
+                    xmin, ymin, xmax, ymax = map(int, [xmin, ymin, xmax, ymax])
+                    if mode == "default":
+                        crop_image = image[ymin:ymax, xmin:xmax]
+                    elif mode == "expand":
+                        img_h, img_w = ymax - ymin, xmax - xmin
+                        ori_h, ori_w, _ = image.shape
+                        pad_x = max(0, (256 - img_w) // 2)
+                        pad_y = max(0, (256 - img_h) // 2)
+                        x1 = max(0, xmin - pad_x)
+                        y1 = max(0, ymin - pad_y)
+                        x2 = min(ori_w, xmax + pad_x)
+                        y2 = min(ori_h, ymax + pad_y)
+                        crop_image = image[y1:y2, x1:x2]
+                        if pad_x or pad_y:
+                            _xmin = pad_x if x1 else xmin
+                            _ymin = pad_y if y1 else ymin
+                            _xmax = _xmin + img_w
+                            _ymax = _ymin + img_h
+                            cv2.rectangle(
+                                crop_image,
+                                (_xmin, _ymin),
+                                (_xmax, _ymax),
+                                (0, 165, 255),
+                                2,
+                            )
                     if base_name not in crop_dic:
                         crop_dic[base_name] = 0
                         save_name = base_name
@@ -1933,7 +1965,8 @@ class LabelingWidget(LabelDialog):
 
     def modify_label(self):
         modify_label_dialog = LabelModifyDialog(
-            label_file_list=self.get_label_file_list(), hidden_cls=self.hidden_cls
+            label_file_list=self.get_label_file_list(),
+            hidden_cls=self.hidden_cls,
         )
         result = modify_label_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
@@ -3601,7 +3634,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Cancel"),
             0,
             total_files,
-            self
+            self,
         )
 
         try:
@@ -3626,7 +3659,7 @@ class LabelingWidget(LabelDialog):
                 progress_dialog.setValue(current_index)
                 if progress_dialog.wasCanceled():
                     break
-                    
+
                 QtWidgets.QApplication.processEvents()
 
             # update and refresh the current canvas

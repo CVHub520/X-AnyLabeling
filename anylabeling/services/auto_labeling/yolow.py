@@ -15,7 +15,10 @@ class YOLOW(YOLO):
 
     def postprocess(self, outputs, image_shape):
         num_objs, bboxes, scores, class_ids = [out[0] for out in outputs]
-        bboxes = [denormalize_bbox(bbox, self.input_shape, image_shape) for bbox in bboxes]
+        bboxes = [
+            denormalize_bbox(bbox, self.input_shape, image_shape)
+            for bbox in bboxes
+        ]
         return num_objs, bboxes, scores, class_ids
 
     def predict_shapes(self, image, image_path=None):
@@ -35,7 +38,9 @@ class YOLOW(YOLO):
 
         blob = self.preprocess(image, upsample_mode="resize")
         outputs = self.net.get_ort_inference(blob, extract=False)
-        _, bboxes, scores, class_ids = self.postprocess(outputs, image.shape[:2])
+        _, bboxes, scores, class_ids = self.postprocess(
+            outputs, image.shape[:2]
+        )
 
         shapes = []
         for bbox, score, cls_id in zip(bboxes, scores, class_ids):
