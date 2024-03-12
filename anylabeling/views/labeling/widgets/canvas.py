@@ -1144,15 +1144,15 @@ class Canvas(
                     fm = QtGui.QFontMetrics(p.font())
                     rect = fm.boundingRect(description)
                     p.fillRect(
-                        rect.x() + bbox.x(),
-                        rect.y() + bbox.y(),
-                        rect.width(),
-                        rect.height(),
+                        int(rect.x() + bbox.x()),
+                        int(rect.y() + bbox.y()),
+                        int(rect.width()),
+                        int(rect.height()),
                         QtGui.QColor("#00FF00"),
                     )
                     p.drawText(
-                        bbox.x(),
-                        bbox.y(),
+                        int(bbox.x()),
+                        int(bbox.y()),
                         description,
                     )
             pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.SolidLine)
@@ -1162,8 +1162,8 @@ class Canvas(
                 if description:
                     bbox = shape.bounding_rect()
                     p.drawText(
-                        bbox.x(),
-                        bbox.y(),
+                        int(bbox.x()),
+                        int(bbox.y()),
                         description,
                     )
 
