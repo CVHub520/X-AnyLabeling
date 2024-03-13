@@ -768,6 +768,15 @@ class LabelingWidget(LabelDialog):
             checked=self._config["show_texts"],
             enabled=True,
         )
+        show_labels = action(
+            self.tr("&Show Labels"),
+            self.enable_show_labels,
+            tip=self.tr("Show label inside shapes"),
+            icon=None,
+            checkable=True,
+            checked=self._config["show_labels"],
+            enabled=True,
+        )
         show_degrees = action(
             self.tr("&Show Degress"),
             self.enable_show_degrees,
@@ -1023,6 +1032,7 @@ class LabelingWidget(LabelDialog):
             show_cross_line=show_cross_line,
             show_groups=show_groups,
             show_texts=show_texts,
+            show_labels=show_labels,
             show_degrees=show_degrees,
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
@@ -1208,6 +1218,7 @@ class LabelingWidget(LabelDialog):
                 brightness_contrast,
                 show_cross_line,
                 show_texts,
+                show_labels,
                 show_degrees,
                 show_groups,
                 hide_selected_polygons,
@@ -2873,6 +2884,12 @@ class LabelingWidget(LabelDialog):
         self._config["show_texts"] = enabled
         self.actions.show_texts.setChecked(enabled)
         self.canvas.set_show_texts(enabled)
+        save_config(self._config)
+
+    def enable_show_labels(self, enabled):
+        self._config["show_labels"] = enabled
+        self.actions.show_labels.setChecked(enabled)
+        self.canvas.set_show_labels(enabled)
         save_config(self._config)
 
     def enable_show_degrees(self, enabled):

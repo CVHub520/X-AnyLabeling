@@ -103,6 +103,7 @@ class Canvas(
         self.show_cross_line = True
         self.show_shape_groups = True
         self.show_texts = True
+        self.show_labels = True
         self.show_shape_degrees = False
 
         self.is_loading = False
@@ -1167,6 +1168,49 @@ class Canvas(
                         description,
                     )
 
+        # Draw labels
+        if self.show_labels:
+            p.setFont(
+                QtGui.QFont(
+                    "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
+                )
+            )
+            pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.SolidLine)
+            p.setPen(pen)
+            for shape in self.shapes:
+                label = shape.label
+                d = shape.point_size / shape.scale
+                if label:
+                    bbox = shape.bounding_rect()
+                    fm = QtGui.QFontMetrics(p.font())
+                    rect = fm.boundingRect(label)
+                    x = bbox.x()
+                    y = bbox.y()
+                    p.fillRect(
+                        int(x),
+                        int(y),
+                        int(rect.width()),
+                        int(rect.height()),
+                        shape.line_color,
+                    )
+            pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 8, Qt.SolidLine)
+            p.setPen(pen)
+            for shape in self.shapes:
+                d = 1.5 # default shape sacle
+                label = shape.label
+                if label:
+                    bbox = shape.bounding_rect()
+                    fm = QtGui.QFontMetrics(p.font())
+                    rect = fm.boundingRect(label)
+                    x = bbox.x()
+                    y = bbox.y() + rect.height()
+                    bbox = shape.bounding_rect()
+                    p.drawText(
+                        int(x),
+                        int(y - d),
+                        label,
+                    )
+
         # Draw mouse coordinates
         if self.show_cross_line:
             pen = QtGui.QPen(
@@ -1553,6 +1597,11 @@ class Canvas(
     def set_show_texts(self, enabled):
         """Set showing texts"""
         self.show_texts = enabled
+        self.update()
+
+    def set_show_labels(self, enabled):
+        """Set showing labels"""
+        self.show_labels = enabled
         self.update()
 
     def set_show_degrees(self, enabled):
