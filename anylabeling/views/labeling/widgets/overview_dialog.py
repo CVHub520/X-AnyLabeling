@@ -42,7 +42,7 @@ class OverviewDialog(QtWidgets.QDialog):
         initial_nums = [0 for _ in range(len(self.available_shapes))]
 
         for label_file in self.label_file_list:
-            with open(label_file, "r") as f:
+            with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             shapes = data.get("shapes", [])
             for shape in shapes:
