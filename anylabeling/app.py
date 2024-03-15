@@ -38,7 +38,12 @@ def main():
         choices=["debug", "info", "warning", "fatal", "error"],
         help="logger level",
     )
-    parser.add_argument("filename", nargs="?", help="image or label filename")
+    parser.add_argument(
+        "filename",
+        nargs="?",
+        help=(
+            "image or label filename; "
+            "If a directory path is passed in, the folder will be loaded automatically"))
     parser.add_argument(
         "--output",
         "-O",
