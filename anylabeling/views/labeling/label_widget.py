@@ -2935,7 +2935,10 @@ class LabelingWidget(LabelDialog):
     def show_hidden_polygons(self):
         if self.tmp_selected_polygons:
             item = self.tmp_selected_polygons.pop()
-            item.setCheckState(Qt.Checked)
+            # TODO: Improve error handling or find a better approach
+            # Check if item has associated data to ensure validity
+            if item.data(Qt.UserRole) is not None:
+                item.setCheckState(Qt.Checked)
 
     def get_next_files(self, filename, num_files):
         """Get the next files in the list."""
