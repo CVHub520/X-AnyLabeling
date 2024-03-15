@@ -19,7 +19,7 @@ To ensure access to the latest features and stable performance, it is highly rec
      ```bash
      # upgrade pip to its latest version
      pip install -U pip
-
+     
      pip install -r requirements-dev.txt
      ```
 
@@ -52,6 +52,35 @@ Note:
 `X-AnyLabeling` supports importing images or videos through shortcuts (Ctrl+I, Ctrl+U, Ctrl+O). Note that the default annotation file is saved in the import file path.
 
 If you need to save to a different directory, you can click on the top-left `File` -> `Save As`, and then choose the destination directory for saving.
+
+### Operating Parameter
+
+Location parameters.
+
+* filename: image or label filename; if a directory path is passed in, the folder will be automatically loaded
+
+  
+
+Options/Keywords parameters: 
+
+* `--help`,`-h`: display help message and exit.
+
+- `--reset-config`: Reset the Qt configuration, clearing all settings.
+- `--logger-level`: Set the logging level, options include "debug", "info", "warning", "fatal", "error".
+- `--output`, `-O`, `-o`: Specify the output file or directory. If it ends in `.json`, it is recognized as a file, otherwise it is recognized as a directory.
+- `--config`: Specify a configuration file or a string providing configuration information in YAML format.
+  Defaults to `~/.anylabelingrc` (Linux)         `C:\Users\{user}\.anylabelingrc` (Windows).
+- `--nodata`: Stops storing image data in JSON files.
+- `--autosave`: Automatically saves annotation data.
+- `--nosortlabels`: Stop sorting labels.
+- `--flags`: Comma-separated list of flags or file containing flags.
+- `--labelflags`: A YAML string containing label-specific flags or a file containing a JSON string.
+- `--labels`: Comma-separated list of labels or file containing labels.
+- `--validatelabel`: Label validation type.
+- `--keep-prev`: Keep comments from previous frame.
+- `--epsilon`: Find the epsilon of the nearest vertex on the canvas.
+
+
 
 ### Quick Annotation
 
