@@ -186,3 +186,6 @@ class LabelListWidget(QtWidgets.QListView):
 
     def clear(self):
         self.model().clear()
+
+    def item_at_index(self, index):
+        return self.model().item(index, 0)

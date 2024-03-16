@@ -96,7 +96,7 @@ class LabelingWidget(LabelDialog):
         self.classes_file = None
         self.attributes = {}
         self.current_category = None
-        self.tmp_selected_polygons = []
+        self.selected_polygon_stack = []
         self.available_shapes = Shape.get_available_shapes()
         self.hidden_cls = []
 
@@ -2927,18 +2927,16 @@ class LabelingWidget(LabelDialog):
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
     def hide_selected_polygons(self):
-        for item in self.label_list:
+        for index, item in enumerate(self.label_list):
             if item.shape().selected:
                 item.setCheckState(Qt.Unchecked)
-                self.tmp_selected_polygons.append(item)
+                self.selected_polygon_stack.append(index)
 
     def show_hidden_polygons(self):
-        if self.tmp_selected_polygons:
-            item = self.tmp_selected_polygons.pop()
-            # TODO: Improve error handling or find a better approach
-            # Check if item has associated data to ensure validity
-            if item.data(Qt.UserRole) is not None:
-                item.setCheckState(Qt.Checked)
+        if self.selected_polygon_stack:
+            index = self.selected_polygon_stack.pop()
+            item = self.label_list.item_at_index(index)
+            item.setCheckState(Qt.Checked)
 
     def get_next_files(self, filename, num_files):
         """Get the next files in the list."""
