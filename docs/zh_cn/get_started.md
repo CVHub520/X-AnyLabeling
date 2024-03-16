@@ -69,6 +69,31 @@ python anylabeling/app.py
 
 需要注意的是，默认的标注文件保存路径为导入文件路径，如果需要存放到其它目录，可点击左上角 `文件` -> `另存为`，选择保存目录即可。
 
+### 运行参数
+
+位置参数:
+
+* filename: 图像或标签文件名;如果传入目录路径，则会自动加载该文件夹
+
+选项/关键字参数:
+
+* `--help`,`-h`: 显示帮助消息并退出
+
+- `--reset-config`: 重置 Qt 配置，清除所有设置。
+- `--logger-level`: 设置日志级别，可选值包括 "debug", "info", "warning", "fatal", "error"。
+- `--output`, `-O`, `-o`: 指定输出文件或目录。如果以 `.json` 结尾，则被识别为文件，否则被识别为目录。
+- `--config`: 指定配置文件或者以 YAML 格式提供配置信息的字符串
+  默认为 `~/.anylabelingrc`(Linux)      `C:\Users\{user}\.anylabelingrc`(Windows)。
+- `--nodata`: 停止将图像数据存储到 JSON 文件中。
+- `--autosave`: 自动保存标注数据。
+- `--nosortlabels`: 停止对标签进行排序。
+- `--flags`: 逗号分隔的标志列表或包含标志的文件。
+- `--labelflags`: 包含标签特定标志的 YAML 字符串或包含 JSON 字符串的文件。
+- `--labels`: 逗号分隔的标签列表或包含标签的文件。
+- `--validatelabel`: 标签验证类型。
+- `--keep-prev`: 保留前一帧的注释。
+- `--epsilon`: 在画布上找到最近顶点的 epsilon。
+
 ### 快速绘制
 
 当前 `X-AnyLabeling` 中支持**多边形**、**矩形框**、**旋转框**、**圆形**、**线段**、**多线段**和**点**等多种标注样式，可供用户灵活地选取。部分绘制模式的快捷键设置如下：
