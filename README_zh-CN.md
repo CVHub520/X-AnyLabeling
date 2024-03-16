@@ -70,7 +70,9 @@
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - 2024年2月：
-  - 🤗 发布[2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.3)最新版本 🤗
+  - 🤗 发布[2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4)最新版本 🤗
+  - 支持标签显示功能。
+  - 发布[2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0)版本。
   - ✨✨✨ 支持[YOLO-World](https://github.com/AILab-CVC/YOLO-World)模型。
   - 发布[2.3.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.2)版本。
   - 支持[YOLOv9](https://github.com/WongKinYiu/yolov9)模型。
@@ -189,7 +191,7 @@
 
 <summary>点击展开/关闭</summary>
 
-| 快捷键            | 功能                                   |
+| 快捷键            | 功能                                    |
 |-------------------|----------------------------------------|
 | d                 | 打开下一个文件                          |
 | a                 | 打开上一个文件                          |
@@ -220,6 +222,8 @@
 | Ctrl + m          | 唤醒批量标注                       |
 | Ctrl + a          | 启用自动标注                           |
 | Ctrl + s          | 保存当前标注                           |
+| Ctrl + l          | 显示/隐藏标签                       |
+| Ctrl + t          | 显示/隐藏文本                       |
 | Ctrl + Shift + s  | 更改输出目录                           |
 | Ctrl -            | 缩小                                   |
 | Ctrl + 0          | 缩放至原始大小                         |

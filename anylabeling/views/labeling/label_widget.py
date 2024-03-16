@@ -33,7 +33,11 @@ from PyQt5.QtWidgets import (
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
 
-from ...app_info import __appname__
+from ...app_info import (
+    __appname__,
+    __version__,
+    __preferred_device__,
+)
 from . import utils
 from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
@@ -640,7 +644,7 @@ class LabelingWidget(LabelDialog):
         documentation = action(
             self.tr("&Documentation"),
             self.documentation,
-            icon="help",
+            icon="docs",
             tip=self.tr("Show documentation"),
         )
         contact = action(
@@ -648,6 +652,12 @@ class LabelingWidget(LabelDialog):
             self.contact,
             icon="contact",
             tip=self.tr("Show contact page"),
+        )
+        information = action(
+            self.tr("&Information"),
+            self.information,
+            icon="help",
+            tip=self.tr("Show system information"),
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -762,6 +772,7 @@ class LabelingWidget(LabelDialog):
         show_texts = action(
             self.tr("&Show Texts"),
             self.enable_show_texts,
+            shortcut=shortcuts["show_texts"],
             tip=self.tr("Show text above shapes"),
             icon=None,
             checkable=True,
@@ -771,6 +782,7 @@ class LabelingWidget(LabelDialog):
         show_labels = action(
             self.tr("&Show Labels"),
             self.enable_show_labels,
+            shortcut=shortcuts["show_labels"],
             tip=self.tr("Show label inside shapes"),
             icon=None,
             checkable=True,
@@ -1158,6 +1170,7 @@ class LabelingWidget(LabelDialog):
             (
                 documentation,
                 contact,
+                information,
             ),
         )
         utils.add_actions(
@@ -1999,6 +2012,14 @@ class LabelingWidget(LabelDialog):
     def contact(self):
         url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/"  # NOQA
         webbrowser.open(url)
+
+    def information(self):
+        msg = "App name: {0} \nApp version: {1} \nDevice: {2} ".format(
+            __appname__,
+            __version__,
+            __preferred_device__,
+        )
+        QMessageBox.information(self, "Information", msg)
 
     def toggle_drawing_sensitive(self, drawing=True):
         """Toggle drawing sensitive.

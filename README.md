@@ -72,7 +72,9 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - Feb. 2024:
-  - 🤗 Release the latest version [2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.3) 🤗
+  - 🤗 Release the latest version [2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4) 🤗
+  - Enable label display feature.
+  - Release version [2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.3).
   - ✨✨✨ Support [YOLO-World](https://github.com/AILab-CVC/YOLO-World) model.
   - Release version [2.3.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.2).
   - Support [YOLOv9](https://github.com/WongKinYiu/yolov9) model.
@@ -224,6 +226,8 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 | Ctrl + m          | Run all images at once                  |
 | Ctrl + a          | Enable auto annotation                  |
 | Ctrl + s          | Save current annotation                 |
+| Ctrl + l          | Toggle visibility Labels                |
+| Ctrl + t          | Toggle visibility Texts                 |
 | Ctrl + Shift + s  | Change output directory                 |
 | Ctrl -            | Zoom out                                |
 | Ctrl + 0          | Zoom to Original                        |

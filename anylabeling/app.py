@@ -43,7 +43,9 @@ def main():
         nargs="?",
         help=(
             "image or label filename; "
-            "If a directory path is passed in, the folder will be loaded automatically"))
+            "If a directory path is passed in, the folder will be loaded automatically"
+        ),
+    )
     parser.add_argument(
         "--output",
         "-O",

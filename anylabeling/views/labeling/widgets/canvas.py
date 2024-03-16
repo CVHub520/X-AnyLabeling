@@ -1196,7 +1196,7 @@ class Canvas(
             pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
-                d = 1.5 # default shape sacle
+                d = 1.5  # default shape sacle
                 label = shape.label
                 if label:
                     bbox = shape.bounding_rect()
