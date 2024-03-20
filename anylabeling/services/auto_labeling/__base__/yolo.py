@@ -311,7 +311,7 @@ class YOLO(Model):
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
                 shape.line_width = 1
-                shape.label = self.classes[int(class_id)]
+                shape.label = str(self.classes[int(class_id)])
                 shape.selected = False
                 shapes.append(shape)
             if self.task == "seg":
@@ -339,7 +339,7 @@ class YOLO(Model):
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
                 shape.line_width = 1
-                shape.label = self.classes[int(class_id)]
+                shape.label = str(self.classes[int(class_id)])
                 shape.selected = False
                 shapes.append(shape)
             if self.task == "obb":
@@ -360,7 +360,7 @@ class YOLO(Model):
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
                 shape.line_width = 1
-                shape.label = self.classes[int(class_id)]
+                shape.label = str(self.classes[int(class_id)])
                 shape.selected = False
                 shapes.append(shape)
 

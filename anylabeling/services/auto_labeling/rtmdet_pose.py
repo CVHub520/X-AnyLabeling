@@ -107,7 +107,7 @@ class RTMDet_Pose(Model):
                 if score < self.kpt_thr:
                     continue
                 point_shape = Shape(
-                    label=self.kpt_classes[j],
+                    label=str(self.kpt_classes[j]),
                     shape_type="point",
                     group_id=int(i),
                 )
