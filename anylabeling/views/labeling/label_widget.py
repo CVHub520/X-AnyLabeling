@@ -4282,7 +4282,11 @@ class LabelingWidget(LabelDialog):
             item = self.file_list_widget.currentItem()
             item.setCheckState(Qt.Unchecked)
 
+            filename = self.filename
             self.reset_state()
+            self.filename = filename
+            if self.filename:
+                self.load_file(self.filename)
 
     def delete_image_file(self):
         if len(self.image_list) <= 0:
