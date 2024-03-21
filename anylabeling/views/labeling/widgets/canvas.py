@@ -360,9 +360,12 @@ class Canvas(
         # Polygon/Vertex moving.
         if QtCore.Qt.LeftButton & ev.buttons():
             if self.selected_vertex():
-                self.bounded_move_vertex(pos)
-                self.repaint()
-                self.moving_shape = True
+                try:
+                    self.bounded_move_vertex(pos)
+                    self.repaint()
+                    self.moving_shape = True
+                except IndexError:
+                    return
                 if self.h_hape.shape_type == "rectangle":
                     p1 = self.h_hape[0]
                     p2 = self.h_hape[2]
@@ -423,7 +426,7 @@ class Canvas(
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
-            if shape.contains_point(pos):
+            if len(shape.points) > 1 and shape.contains_point(pos):
                 if self.selected_vertex():
                     self.h_hape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex
@@ -703,7 +706,7 @@ class Canvas(
 
         else:
             for shape in reversed(self.shapes):
-                if self.is_visible(shape) and shape.contains_point(point):
+                if self.is_visible(shape) and len(shape.points) > 1 and shape.contains_point(point):
                     self.set_hiding()
                     if shape not in self.selected_shapes:
                         if multiple_selection_mode:
@@ -1181,7 +1184,10 @@ class Canvas(
                 label = shape.label
                 d = shape.point_size / shape.scale
                 if label:
-                    bbox = shape.bounding_rect()
+                    try:
+                        bbox = shape.bounding_rect()
+                    except IndexError:
+                        continue
                     fm = QtGui.QFontMetrics(p.font())
                     rect = fm.boundingRect(label)
                     x = bbox.x()
@@ -1199,7 +1205,10 @@ class Canvas(
                 d = 1.5  # default shape sacle
                 label = shape.label
                 if label:
-                    bbox = shape.bounding_rect()
+                    try:
+                        bbox = shape.bounding_rect()
+                    except IndexError:
+                        continue
                     fm = QtGui.QFontMetrics(p.font())
                     rect = fm.boundingRect(label)
                     x = bbox.x()
