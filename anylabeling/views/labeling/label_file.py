@@ -42,26 +42,13 @@ class LabelFile:
         self.filename = filename
 
     @staticmethod
-    def load_image_file(filename):
+    def load_image_file(filename, default=None):
         try:
-            image_pil = PIL.Image.open(filename)
-        except IOError:
+            with open(filename, 'rb') as f:
+                return f.read()
+        except:
             logger.error("Failed opening image file: %s", filename)
-            return None
-
-        # apply orientation to image according to exif
-        image_pil = utils.apply_exif_orientation(image_pil)
-
-        with io.BytesIO() as f:
-            ext = osp.splitext(filename)[1].lower()
-            if ext in [".jpg", ".jpeg"]:
-                image_pil = image_pil.convert("RGB")
-                img_format = "JPEG"
-            else:
-                img_format = "PNG"
-            image_pil.save(f, format=img_format)
-            f.seek(0)
-            return f.read()
+            return default
 
     def load(self, filename):
         keys = [
