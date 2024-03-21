@@ -14,6 +14,7 @@ from difflib import SequenceMatcher
 import darkdetect
 import imgviz
 import natsort
+import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import (
@@ -1809,17 +1810,18 @@ class LabelingWidget(LabelDialog):
                     data = json.load(f)
                 shapes = data["shapes"]
                 for shape in shapes:
-                    if shape["shape_type"] not in ["rectangle"]:
+                    if shape["shape_type"] in ["rectangle", "polygon", "rotation"]:
+                        points = np.array(shape["points"]).astype(np.int32)
+                        x, y, w, h = cv2.boundingRect(points)
+                        xmin = int(x)
+                        ymin = int(y)
+                        xmax = int(w) + xmin
+                        ymax = int(h) + ymin
+                    else:
                         continue
                     label = shape["label"]
                     unique_labels.add(label)
                     dst_path = osp.join(save_src_path, label)
-                    points = shape["points"]
-                    xmin, ymin = points[0]
-                    if len(points) == 2:
-                        xmax, ymax = points[1]
-                    else:
-                        xmax, ymax = points[2]
                     image = cv2.imread(image_file)
                     xmin, ymin, xmax, ymax = map(int, [xmin, ymin, xmax, ymax])
                     if mode == "default":
