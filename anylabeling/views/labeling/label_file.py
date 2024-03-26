@@ -93,6 +93,7 @@ class LabelFile:
                             "points"
                         ] = utils.rectangle_from_diagonal(shape_points)
 
+            data["imagePath"] = osp.basename(data["imagePath"])
             if data["imageData"] is not None:
                 image_data = base64.b64decode(data["imageData"])
             else:

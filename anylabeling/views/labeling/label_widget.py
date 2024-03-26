@@ -1567,7 +1567,7 @@ class LabelingWidget(LabelDialog):
             label_file = osp.splitext(self.image_path)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
-                label_file = osp.join(self.output_dir, label_file_without_path)
+                label_file = self.output_dir + '/' + label_file_without_path
             self.save_labels(label_file)
             return
         self.dirty = True
@@ -3031,7 +3031,7 @@ class LabelingWidget(LabelDialog):
         if self.output_dir:
             image_dir = osp.dirname(filename)
             label_file_without_path = osp.basename(label_file)
-            label_file = osp.join(self.output_dir, label_file_without_path)
+            label_file = self.output_dir + '/' + label_file_without_path
         if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
             label_file
         ):
@@ -4637,7 +4637,7 @@ class LabelingWidget(LabelDialog):
             label_file = osp.splitext(file)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
-                label_file = osp.join(self.output_dir, label_file_without_path)
+                label_file = self.output_dir + '/' + label_file_without_path
             item = QtWidgets.QListWidgetItem(file)
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
             if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
@@ -4670,7 +4670,7 @@ class LabelingWidget(LabelDialog):
             label_file = osp.splitext(filename)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
-                label_file = osp.join(self.output_dir, label_file_without_path)
+                label_file = self.output_dir + '/' + label_file_without_path
             item = QtWidgets.QListWidgetItem(filename)
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
             if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
