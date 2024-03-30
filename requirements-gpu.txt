@@ -8,7 +8,6 @@ onnx==1.13.1
 onnxruntime-gpu>=1.16.0
 qimage2ndarray==1.10.0
 lapx==0.5.5
-darkdetect==0.8.0
 tqdm
 scipy
 shapely
