@@ -75,7 +75,7 @@ for model in model_list:
         "sam_med2d",
         "sam_hq",
         "efficientvit_sam",
-        "grounding_sam",
+        "edeg_sam",
     ]:
         model_config["encoder_model_path"] = get_filename_from_url(
             model_config["encoder_model_path"]

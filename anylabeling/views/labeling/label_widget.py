@@ -1170,7 +1170,7 @@ class LabelingWidget(LabelDialog):
                 modify_label,
                 None,
                 hbb_to_obb,
-                obb_to_hbb
+                obb_to_hbb,
             ),
         )
         utils.add_actions(
@@ -1574,7 +1574,7 @@ class LabelingWidget(LabelDialog):
             label_file = osp.splitext(self.image_path)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
-                label_file = self.output_dir + '/' + label_file_without_path
+                label_file = self.output_dir + "/" + label_file_without_path
             self.save_labels(label_file)
             return
         self.dirty = True
@@ -1759,7 +1759,9 @@ class LabelingWidget(LabelDialog):
                     if data["shapes"][i]["shape_type"] == "rotation":
                         del data["shapes"][i]["direction"]
                         data["shapes"][i]["shape_type"] = "rectangle"
-                        points = np.array(data["shapes"][i]["points"]).astype(np.int32)
+                        points = np.array(data["shapes"][i]["points"]).astype(
+                            np.int32
+                        )
                         x, y, w, h = map(int, list(cv2.boundingRect(points)))
                         data["shapes"][i]["points"] = [
                             [x, y],
@@ -1870,7 +1872,11 @@ class LabelingWidget(LabelDialog):
                     data = json.load(f)
                 shapes = data["shapes"]
                 for shape in shapes:
-                    if shape["shape_type"] in ["rectangle", "polygon", "rotation"]:
+                    if shape["shape_type"] in [
+                        "rectangle",
+                        "polygon",
+                        "rotation",
+                    ]:
                         points = np.array(shape["points"]).astype(np.int32)
                         x, y, w, h = cv2.boundingRect(points)
                         xmin = int(x)
@@ -3091,7 +3097,7 @@ class LabelingWidget(LabelDialog):
         if self.output_dir:
             image_dir = osp.dirname(filename)
             label_file_without_path = osp.basename(label_file)
-            label_file = self.output_dir + '/' + label_file_without_path
+            label_file = self.output_dir + "/" + label_file_without_path
         if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
             label_file
         ):
@@ -4697,7 +4703,7 @@ class LabelingWidget(LabelDialog):
             label_file = osp.splitext(file)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
-                label_file = self.output_dir + '/' + label_file_without_path
+                label_file = self.output_dir + "/" + label_file_without_path
             item = QtWidgets.QListWidgetItem(file)
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
             if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
@@ -4730,7 +4736,7 @@ class LabelingWidget(LabelDialog):
             label_file = osp.splitext(filename)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
-                label_file = self.output_dir + '/' + label_file_without_path
+                label_file = self.output_dir + "/" + label_file_without_path
             item = QtWidgets.QListWidgetItem(filename)
             item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
             if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(

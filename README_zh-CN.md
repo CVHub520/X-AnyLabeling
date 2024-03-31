@@ -16,7 +16,16 @@
     <a href="https://github.com/CVHub520/X-AnyLabeling/stargazers"><img src="https://img.shields.io/github/stars/CVHub520/X-AnyLabeling?color=ccf"></a>
 </p>
 
-![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
+| ![Grounding DINO](https://user-images.githubusercontent.com/72010077/277691916-58be8e7d-133c-4df8-9416-d3243fc7a335.gif) | ![Recognize Anything Model](https://user-images.githubusercontent.com/72010077/277692001-b58832b3-4c21-4c6f-9121-02d9daf2b02b.gif) |
+|:---:|:---:|
+| *SOTA Zero-Shot Openset Object Detection Model* | *Strong Image Tagging Model* |
+
+| ![Segment Anything Model](https://user-images.githubusercontent.com/72010077/277405591-5ebffdcf-83e8-4999-9594-ee4058627d47.gif) | ![PULC PersonAttribute Model](https://user-images.githubusercontent.com/72010077/282393906-059920cc-0f65-4d2c-9350-941aaa8bbd02.png) |
+|:---:|:---:|
+| *Powerful Object Segmentation Anything Model* | *Advanced Multi-Label Classification Model* |
+
+
+
 
 <div align=center>
   <figure>
@@ -69,10 +78,12 @@
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- 2024年3月：
+  - 🤗 发布[2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5)最新版本 🤗
 - 2024年2月：
-  - 🤗 发布[2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4)最新版本 🤗
+  - 发布[2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4)版本。
   - 支持标签显示功能。
-  - 发布[2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0)版本。
+  - 发布[2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.3)版本。
   - ✨✨✨ 支持[YOLO-World](https://github.com/AILab-CVC/YOLO-World)模型。
   - 发布[2.3.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.2)版本。
   - 支持[YOLOv9](https://github.com/WongKinYiu/yolov9)模型。

@@ -44,7 +44,7 @@ class LabelFile:
     @staticmethod
     def load_image_file(filename, default=None):
         try:
-            with open(filename, 'rb') as f:
+            with open(filename, "rb") as f:
                 return f.read()
         except:
             logger.error("Failed opening image file: %s", filename)

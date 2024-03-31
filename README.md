@@ -71,8 +71,10 @@
 
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
+- Mar. 2024:
+  - 🤗 Release the latest version [2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5) 🤗
 - Feb. 2024:
-  - 🤗 Release the latest version [2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4) 🤗
+  - Release version [2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4).
   - Enable label display feature.
   - Release version [2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.3).
   - ✨✨✨ Support [YOLO-World](https://github.com/AILab-CVC/YOLO-World) model.
