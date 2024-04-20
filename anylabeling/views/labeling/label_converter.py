@@ -134,7 +134,6 @@ class LabelConverter:
             contours, _ = cv2.findContours(
                 binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
             )
-            # print(f"contours: {contours}")
             for contour in contours:
                 epsilon = epsilon_factor * cv2.arcLength(contour, True)
                 approx = cv2.approxPolyDP(contour, epsilon, True)
