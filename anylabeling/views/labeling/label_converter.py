@@ -733,8 +733,11 @@ class LabelConverter:
             data = json.load(f)
         with open(output_file, "w", encoding="utf-8") as f:
             for shape in data["shapes"]:
-                label = shape["label"]
                 points = shape["points"]
+                shape_type = shape["shape_type"]
+                if shape_type != "rotation" or len(points) != 4:
+                    continue
+                label = shape["label"]
                 difficult = shape.get("difficult", False)
                 x0 = points[0][0]
                 y0 = points[0][1]
