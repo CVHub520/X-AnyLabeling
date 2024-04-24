@@ -1499,24 +1499,22 @@ class Canvas(
             if int(modifiers) == 0:
                 self.snapping = True
         elif self.editing():
-            if (
-                self.moving_shape or self.rotating_shape
-            ) and self.selected_shapes:
-                index = self.shapes.index(self.selected_shapes[0])
-                if (
-                    self.shapes_backups[-1][index].points
-                    != self.shapes[index].points
-                ):
-                    self.store_shapes()
-                    if self.moving_shape:
-                        self.shape_moved.emit()
-                    if self.rotating_shape:
-                        self.shape_rotated.emit()
+            if (self.moving_shape or self.rotating_shape) and self.selected_shapes:
+                try:
+                    index = self.shapes.index(self.selected_shapes[0])
+                    if self.shapes_backups[-1][index].points != self.shapes[index].points:
+                        self.store_shapes()
+                        if self.moving_shape:
+                            self.shape_moved.emit()
+                        if self.rotating_shape:
+                            self.shape_rotated.emit()
 
-                if self.moving_shape:
-                    self.moving_shape = False
-                if self.rotating_shape:
-                    self.rotating_shape = False
+                    if self.moving_shape:
+                        self.moving_shape = False
+                    if self.rotating_shape:
+                        self.rotating_shape = False
+                except ValueError:
+                    print("Selected shape is not in the list.")
 
     def set_last_label(self, text, flags):
         """Set label and flags for last shape"""
