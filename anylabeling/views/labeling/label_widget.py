@@ -103,6 +103,7 @@ class LabelingWidget(LabelDialog):
         self.selected_polygon_stack = []
         self.available_shapes = Shape.get_available_shapes()
         self.hidden_cls = []
+        self.last_label = None
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -2792,7 +2793,11 @@ class LabelingWidget(LabelDialog):
             or not text
             or self.canvas.shapes[-1].label == AutoLabelingMode.OBJECT
         ):
-            last_label = self.find_last_label()
+            if self.last_label is not None:
+                last_label = self.last_label
+            else:
+                last_label = self.find_last_label()
+                self.last_label = last_label
             if self._config["auto_use_last_label"] and last_label:
                 text = last_label
             else:
