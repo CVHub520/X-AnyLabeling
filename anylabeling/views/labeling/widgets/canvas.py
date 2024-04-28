@@ -3,7 +3,6 @@ import imgviz
 import math
 from copy import deepcopy
 
-import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QWheelEvent
@@ -1433,16 +1432,19 @@ class Canvas(
         if shape is None or len(shape.points) < 3:
             return False
 
-        points = np.array([(p.x(), p.y()) for p in shape.points])
-        lt = np.min(points, axis=0)
-        rb = np.max(points, axis=0)
-        center = (lt + rb) // 2
+        points = [(p.x(), p.y()) for p in shape.points]
+        lt = [min(point[0] for point in points), min(point[1] for point in points)]
+        rb = [max(point[0] for point in points), max(point[1] for point in points)]
+        center = [(lt[0] + rb[0]) // 2, (lt[1] + rb[1]) // 2]
 
-        vector = np.array(points) - np.array(center)
-        extended_point = np.array(center) + vector * (1.1 if expansion_size > 0 else 0.9)
-        new_points = tuple(extended_point)
+        new_points = []
+        for point in points:
+            vector = [point[0] - center[0], point[1] - center[1]]
+            extended_point = [center[0] + vector[0] * (1.1 if expansion_size > 0 else 0.9),
+                              center[1] + vector[1] * (1.1 if expansion_size > 0 else 0.9)]
+            new_points.append(extended_point)
 
-        if np.any([self.out_off_pixmap(QtCore.QPointF(point[0], point[1])) for point in new_points]):
+        if any(self.out_off_pixmap(QtCore.QPointF(point[0], point[1])) for point in new_points):
             return False
 
         for i, v in enumerate(shape.points):
