@@ -2,8 +2,6 @@
 import imgviz
 import math
 from copy import deepcopy
-
-import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QWheelEvent
@@ -1428,45 +1426,12 @@ class Canvas(
             return self.scale * self.pixmap.size()
         return super().minimumSizeHint()
 
-    def expandShapeSize(self, shape, expansion_size):
-        """Expand shape size"""
-        if shape is None or len(shape.points) < 3:
-            return False
-
-        points = np.array([(p.x(), p.y()) for p in shape.points])
-        lt = np.min(points, axis=0)
-        rb = np.max(points, axis=0)
-        center = (lt + rb) // 2
-
-        vector = np.array(points) - np.array(center)
-        extended_point = np.array(center) + vector * (1.1 if expansion_size > 0 else 0.9)
-        new_points = tuple(extended_point)
-
-        if np.any([self.out_off_pixmap(QtCore.QPointF(point[0], point[1])) for point in new_points]):
-            return False
-
-        for i, v in enumerate(shape.points):
-            v.setX(new_points[i][0])
-            v.setY(new_points[i][1])
-
-        return True
-
     # QT Overload
     def wheelEvent(self, ev: QWheelEvent):
         """Mouse wheel event"""
         mods = ev.modifiers()
         delta = ev.angleDelta()
-        if Qt.ShiftModifier == int(mods):
-            # zoom shape
-            current_shape = None
-            if len(self.selected_shapes) == 1:
-                current_shape = self.selected_shapes[0]
-            elif self.is_auto_labeling:
-                current_shape = self.shapes[-1]
-            if current_shape is not None and self.expandShapeSize(current_shape, 1 if delta.y() > 0 else -1):
-                self.repaint()
-                self.shape_moved.emit()
-        elif QtCore.Qt.ControlModifier == int(mods):
+        if QtCore.Qt.ControlModifier == int(mods):
             # with Ctrl/Command key
             # zoom
             self.zoom_request.emit(delta.y(), ev.pos())

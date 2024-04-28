@@ -14,4 +14,3 @@ shapely
 pyclipper
 filterpy
 tokenizers
-numpy
