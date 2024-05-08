@@ -1499,9 +1499,12 @@ class Canvas(
             if int(modifiers) == 0:
                 self.snapping = True
         elif self.editing():
+            # NOTE: Temporary fix to avoid ValueError
+            # when the selected shape is not in the shapes list
             if (
                 self.moving_shape or self.rotating_shape
-            ) and self.selected_shapes:
+            ) and self.selected_shapes \
+              and self.selected_shapes[0] in self.shapes:
                 index = self.shapes.index(self.selected_shapes[0])
                 if (
                     self.shapes_backups[-1][index].points
