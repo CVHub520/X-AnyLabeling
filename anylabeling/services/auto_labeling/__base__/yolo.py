@@ -128,6 +128,7 @@ class YOLO(Model):
             "yolov7",
             "yolov8",
             "yolov9",
+            "yolov10",
             "gold_yolo",
         ]:
             self.task = "det"
@@ -222,7 +223,12 @@ class YOLO(Model):
                 multi_label=False,
                 nc=self.nc,
             )
-
+        elif self.model_type == "yolov10":
+            p = self.postprocess_v10(
+                preds[0][0],
+                conf_thres=self.conf_thres,
+                classes=self.filter_classes
+            )
         masks = None
         img_shape = (self.img_height, self.img_width)
         if self.task == "seg":
@@ -470,6 +476,13 @@ class YOLO(Model):
 
         return masks
 
+    def postprocess_v10(self, prediction, task="det", conf_thres=0.25, classes=None):
+        x = prediction[prediction[:, 4] >= conf_thres]
+        x[:, -1] =  x[:, -1].astype(int)
+        if classes is not None:
+            x = x[np.isin(x[:, -1], classes)]
+        return [x]
+
     @staticmethod
     def crop_mask_np(masks, boxes):
         """
@@ -488,6 +501,24 @@ class YOLO(Model):
         c = np.arange(h, dtype=x1.dtype)[None, :, None]  # cols shape(1,h,1)
 
         return masks * ((r >= x1) & (r < x2) & (c >= y1) & (c < y2))
+
+    @staticmethod
+    def rescale_coords_v10(boxes, image_shape, input_shape):
+        image_height, image_width = image_shape
+        input_height, input_width = input_shape
+
+        scale = min(input_width / image_width, input_height / image_height)
+
+        pad_w = (input_width - image_width * scale) / 2
+        pad_h = (input_height - image_height * scale) / 2
+
+        boxes[:, [0, 2]] = (boxes[:, [0, 2]] - pad_w) / scale
+        boxes[:, [1, 3]] = (boxes[:, [1, 3]] - pad_h) / scale
+
+        boxes[:, [0, 2]] = np.clip(boxes[:, [0, 2]], 0, image_width)
+        boxes[:, [1, 3]] = np.clip(boxes[:, [1, 3]], 0, image_height)
+
+        return boxes
 
     def unload(self):
         del self.net

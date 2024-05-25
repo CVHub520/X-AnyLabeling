@@ -207,6 +207,7 @@ class ModelManager(QObject):
                 "depth_anything",
                 "yolov9",
                 "yolow",
+                "yolov10",
             ]
         ):
             self.new_model_status.emit(
@@ -423,6 +424,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv9(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov10":
+            from .yolov10 import YOLOv10
+
+            try:
+                model_config["model"] = YOLOv10(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
