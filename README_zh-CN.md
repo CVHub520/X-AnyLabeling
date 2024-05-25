@@ -44,8 +44,11 @@
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- 2024年5月：
+  - 支持[YOLOv10](https://github.com/THU-MIG/yolov10)模型.
+  - 🤗 发布[2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6)最新版本 🤗
 - 2024年3月：
-  - 🤗 发布[2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5)最新版本 🤗
+  - 发布[2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5)版本。
 - 2024年2月：
   - 发布[2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4)版本。
   - 支持标签显示功能。

@@ -45,8 +45,11 @@
 
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
+- May. 2024:
+  - Support [YOLOv10](https://github.com/THU-MIG/yolov10) model.
+  - 🤗 Release the latest version [2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6) 🤗
 - Mar. 2024:
-  - 🤗 Release the latest version [2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5) 🤗
+  - Release version [2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5).
 - Feb. 2024:
   - Release version [2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4).
   - Enable label display feature.
