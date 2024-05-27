@@ -46,6 +46,7 @@ class Shape:
     def __init__(
         self,
         label=None,
+        score=None,
         line_color=None,
         shape_type=None,
         flags=None,
@@ -56,6 +57,7 @@ class Shape:
         attributes={},
     ):
         self.label = label
+        self.score = score
         self.group_id = group_id
         self.description = description
         self.difficult = difficult

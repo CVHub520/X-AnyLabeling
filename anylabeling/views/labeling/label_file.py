@@ -62,6 +62,7 @@ class LabelFile:
         ]
         shape_keys = [
             "label",
+            "score",
             "points",
             "group_id",
             "difficult",
@@ -115,6 +116,7 @@ class LabelFile:
             shapes = [
                 {
                     "label": s["label"],
+                    "score": s.get("score", None),
                     "points": s["points"],
                     "shape_type": s.get("shape_type", "polygon"),
                     "flags": s.get("flags", {}),

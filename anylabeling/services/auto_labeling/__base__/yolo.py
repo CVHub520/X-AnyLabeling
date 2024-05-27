@@ -295,13 +295,13 @@ class YOLO(Model):
         if self.task == "track":
             image_shape = image.shape[:2][::-1]
             results = np.concatenate((boxes, scores, class_ids), axis=1)
-            boxes, track_ids, _, class_ids = self.tracker.track(
+            boxes, track_ids, scores, class_ids = self.tracker.track(
                 results, image_shape
             )
 
         shapes = []
-        for box, class_id, point, track_id in zip(
-            boxes, class_ids, points, track_ids
+        for box, class_id, point, track_id, score in zip(
+            boxes, class_ids, points, track_ids, scores
         ):
             if (
                 self.show_boxes and self.task != "track"
@@ -318,6 +318,7 @@ class YOLO(Model):
                 shape.line_color = "#000000"
                 shape.line_width = 1
                 shape.label = str(self.classes[int(class_id)])
+                shape.score = float(score)
                 shape.selected = False
                 shapes.append(shape)
             if self.task == "seg":
@@ -330,6 +331,7 @@ class YOLO(Model):
                 shape.line_color = "#000000"
                 shape.line_width = 1
                 shape.label = str(self.classes[int(class_id)])
+                shape.score = float(score)
                 shape.selected = False
                 shapes.append(shape)
             if self.task == "track":
@@ -346,6 +348,7 @@ class YOLO(Model):
                 shape.line_color = "#000000"
                 shape.line_width = 1
                 shape.label = str(self.classes[int(class_id)])
+                shape.score = float(score)
                 shape.selected = False
                 shapes.append(shape)
             if self.task == "obb":
@@ -367,6 +370,7 @@ class YOLO(Model):
                 shape.line_color = "#000000"
                 shape.line_width = 1
                 shape.label = str(self.classes[int(class_id)])
+                shape.score = float(score)
                 shape.selected = False
                 shapes.append(shape)
 

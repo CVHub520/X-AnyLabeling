@@ -120,7 +120,7 @@ class RTDETR(Model):
         ).astype(int)
         boxes = np.stack([x1, y1, x2, y2], axis=1)
 
-        output_boxes = []
+        results = []
         for box, index, score in zip(boxes, indexs, scores):
             x1 = box[0]
             y1 = box[1]
@@ -128,18 +128,18 @@ class RTDETR(Model):
             y2 = box[3]
             label = str(self.classes[index])
 
-            output_box = {
+            result = {
                 "x1": x1,
                 "y1": y1,
                 "x2": x2,
                 "y2": y2,
                 "label": label,
-                "score": score,
+                "score": float(score),
             }
 
-            output_boxes.append(output_box)
+            results.append(result)
 
-        return output_boxes
+        return results
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -160,15 +160,19 @@ class RTDETR(Model):
         detections = self.net.get_ort_inference(
             blob, extract=True, squeeze=True
         )
-        boxes = self.postprocess(image, detections)
+        results = self.postprocess(image, detections)
         shapes = []
 
-        for box in boxes:
-            xmin = box["x1"]
-            ymin = box["y1"]
-            xmax = box["x2"]
-            ymax = box["y2"]
-            shape = Shape(label=box["label"], shape_type="rectangle")
+        for result in results:
+            xmin = result["x1"]
+            ymin = result["y1"]
+            xmax = result["x2"]
+            ymax = result["y2"]
+            shape = Shape(
+                label=result["label"],
+                score=result["score"],
+                shape_type="rectangle"
+            )
             shape.add_point(QtCore.QPointF(xmin, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymax))

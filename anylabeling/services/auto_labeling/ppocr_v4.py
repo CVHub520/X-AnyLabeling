@@ -75,6 +75,7 @@ class PPOCRv4(Model):
         self.det_net = self.load_model("det_model_path")
         self.rec_net = self.load_model("rec_model_path")
         self.cls_net = self.load_model("cls_model_path")
+        self.drop_score = self.config.get("drop_score", 0.5)
         self.use_angle_cls = self.config["use_angle_cls"]
         self.current_dir = os.path.dirname(__file__)
 
@@ -133,7 +134,7 @@ class PPOCRv4(Model):
                 self.current_dir, "configs", "ppocr_keys_v1.txt"
             ),
             use_space_char=True,
-            drop_score=0.5,
+            drop_score=self.drop_score,
             # params for e2e
             e2e_algorithm="PGNet",
             e2e_model_dir="",
@@ -182,18 +183,20 @@ class PPOCRv4(Model):
 
         args = self.parse_args()
         text_sys = TextSystem(args)
-        dt_boxes, rec_res = text_sys(image)
+        dt_boxes, rec_res, scores = text_sys(image)
 
         results = [
             {
                 "description": rec_res[i][0],
                 "points": np.array(dt_boxes[i]).astype(np.int32).tolist(),
+                "score": float(scores[i])
             }
             for i in range(len(dt_boxes))
         ]
 
         shapes = []
         for i, res in enumerate(results):
+            score = res["score"]
             points = res["points"]
             description = res["description"]
             pt1, pt2, pt3, pt4 = points
@@ -201,6 +204,7 @@ class PPOCRv4(Model):
             pt4 = [pt1[0], pt3[1]]
             shape = Shape(
                 label="text",
+                score=score,
                 shape_type="rectangle",
                 group_id=int(i),
                 description=description,

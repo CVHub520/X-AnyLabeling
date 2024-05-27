@@ -107,6 +107,7 @@ class DAMO_YOLO(Model):
                 "xmax": x + w,
                 "ymax": y + h,
                 "label": str(self.classes[int(class_ids[i])]),
+                "score": float(confidences[i])
             }
             output_infos.append(output_info)
 
@@ -135,6 +136,7 @@ class DAMO_YOLO(Model):
         for result in results:
             shape = Shape(
                 label=result["label"],
+                score=result["score"],
                 shape_type="rectangle",
             )
             xmin = result["xmin"]

@@ -145,8 +145,9 @@ class YOLOX(Model):
             if score < self.config["confidence_threshold"]:
                 continue
             x1, y1, x2, y2 = box
+            score = float(score)
             label = str(self.classes[int(cls_inds)])
-            rectangle_shape = Shape(label=label, shape_type="rectangle")
+            rectangle_shape = Shape(label=label, score=score, shape_type="rectangle")
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y2))

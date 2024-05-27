@@ -287,6 +287,7 @@ class YOLO_NAS(Model):
 
         shapes = []
         for i in selected:
+            score = float(scores[i])
             label = str(self.config["classes"][classes[i]])
             if self.filter_classes and label not in self.filter_classes:
                 continue
@@ -296,7 +297,7 @@ class YOLO_NAS(Model):
             ymin = y
             xmax = x + w
             ymax = y + h
-            shape = Shape(label=label, shape_type="rectangle", flags={})
+            shape = Shape(label=label, score=score, shape_type="rectangle", flags={})
             shape.add_point(QtCore.QPointF(xmin, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymax))

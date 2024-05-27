@@ -48,6 +48,7 @@ class YOLOW(YOLO):
                 continue
             xmin, ymin, xmax, ymax = bbox
             rectangle_shape = Shape(
+                score=float(score),
                 label=str(self.classes[int(cls_id)]),
                 shape_type="rectangle",
             )

@@ -983,14 +983,15 @@ class TextSystem(object):
 
         rec_res = self.text_recognizer(img_crop_list)
 
-        filter_boxes, filter_rec_res = [], []
+        filter_boxes, filter_rec_res, scores = [], [], []
         for box, rec_result in zip(dt_boxes, rec_res):
             text, score = rec_result
             if score >= self.drop_score:
                 filter_boxes.append(box)
                 filter_rec_res.append(rec_result)
+                scores.append(score)
 
-        return filter_boxes, filter_rec_res
+        return filter_boxes, filter_rec_res, scores
 
 
 def build_post_process(config, global_config=None):

@@ -2587,6 +2587,7 @@ class LabelingWidget(LabelDialog):
         s = []
         for shape in shapes:
             label = shape["label"]
+            score = shape.get("score", None)
             points = shape["points"]
             shape_type = shape["shape_type"]
             flags = shape["flags"]
@@ -2603,6 +2604,7 @@ class LabelingWidget(LabelDialog):
 
             shape = Shape(
                 label=label,
+                score=score,
                 shape_type=shape_type,
                 group_id=group_id,
                 description=description,
@@ -2657,6 +2659,7 @@ class LabelingWidget(LabelDialog):
             data = s.other_data.copy()
             info = {
                 "label": s.label,
+                "score": s.score,
                 "points": [(p.x(), p.y()) for p in s.points],
                 "group_id": s.group_id,
                 "description": s.description,

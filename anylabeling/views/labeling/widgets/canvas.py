@@ -1185,7 +1185,10 @@ class Canvas(
             pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
-                label = shape.label
+                if shape.score is not None:
+                    label = f"{shape.label} {shape.score:.2f}"
+                else:
+                    label = shape.label
                 d = shape.point_size / shape.scale
                 if label:
                     try:
@@ -1207,7 +1210,10 @@ class Canvas(
             p.setPen(pen)
             for shape in self.shapes:
                 d = 1.5  # default shape sacle
-                label = shape.label
+                if shape.score is not None:
+                    label = f"{shape.label} {shape.score:.2f}"
+                else:
+                    label = shape.label
                 if label:
                     try:
                         bbox = shape.bounding_rect()
