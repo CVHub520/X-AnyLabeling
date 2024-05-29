@@ -274,4 +274,8 @@ InternImage introduces a large-scale convolutional neural network (CNN) model, l
 > 单位：Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology.</br>
 > 发表：Arxiv 2024</br>
 
-参考此[教程](../../tools/export_yolow_onnx.py).
+```bash
+git clone https://github.com/ultralytics/ultralytics.git
+cd ultralytics
+yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
+```

@@ -1,8 +1,9 @@
-type: yolow
-name: yolow_l-r20240227
-display_name: YOLO-World-L Tencent
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.3/yolow-l.onnx
-confidence_threshold: 0.05
+type: yolov8
+name: yolov8s-worldv2-r20240529
+display_name: YOLOv8s-worldv2 Ultralytics
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.7/yolov8s-worldv2.onnx
+nms_threshold: 0.3
+confidence_threshold: 0.1
 classes:
   - person
   - bicycle

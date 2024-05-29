@@ -46,15 +46,15 @@
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
 - May. 2024:
-  - Support [YOLOv10](https://github.com/THU-MIG/yolov10) model.
+  - ✨✨✨ Support [YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10) model.
   - 🤗 Release the latest version [2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6) 🤗
+  - Add feature to display confidence score.
 - Mar. 2024:
   - Release version [2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5).
 - Feb. 2024:
   - Release version [2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4).
   - Enable label display feature.
   - Release version [2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.3).
-  - ✨✨✨ Support [YOLO-World](https://github.com/AILab-CVC/YOLO-World) model.
   - Release version [2.3.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.2).
   - Support [YOLOv9](https://github.com/WongKinYiu/yolov9) model.
   - Support the conversion from a horizontal bounding box to a rotated bounding box.

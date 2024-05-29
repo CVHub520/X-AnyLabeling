@@ -272,4 +272,8 @@ Refer to this [tutorial](https://github.com/chongzhou96/EdgeSAM/blob/master/scri
 > Affiliation: Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology.</br>
 > Published: Arxiv 2024</br>
 
-Refer to this [tutorial](../../tools/export_yolow_onnx.py).
+```bash
+git clone https://github.com/ultralytics/ultralytics.git
+cd ultralytics
+yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
+```

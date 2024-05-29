@@ -45,8 +45,9 @@
 ## 🥳 新功能 [⏏️](#📄-目录)
 
 - 2024年5月：
-  - 支持[YOLOv10](https://github.com/THU-MIG/yolov10)模型.
+  - ✨✨✨ 支持[YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10)模型。
   - 🤗 发布[2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6)最新版本 🤗
+  - 支持显示模型预测得分。
 - 2024年3月：
   - 发布[2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5)版本。
 - 2024年2月：
