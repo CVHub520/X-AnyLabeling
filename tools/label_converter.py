@@ -656,7 +656,10 @@ class PolyLabelConvert(BaseLabelConverter):
 
 
 class RotateLabelConverter(BaseLabelConverter):
-    def custom_to_dota(self, data, output_file):
+    def custom_to_dota(self, input_file, output_file):
+        with open(input_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            
         with open(output_file, "w", encoding="utf-8") as f:
             for shape in data["shapes"]:
                 label = shape["label"]
