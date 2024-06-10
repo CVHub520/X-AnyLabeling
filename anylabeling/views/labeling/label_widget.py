@@ -321,6 +321,22 @@ class LabelingWidget(LabelDialog):
             self.tr("Open prev (hold Ctrl+Shift to copy labels)"),
             enabled=False,
         )
+        open_next_labeled_image = action(
+            self.tr("&Next Labeled Image"),
+            self.open_next_labeled_image,
+            shortcuts["open_next_labeled"],
+            "next-labeled",
+            self.tr("Open next labeled (hold Ctrl+Shift to copy labels)"),
+            enabled=False,
+        )
+        open_prev_labeled_image = action(
+            self.tr("&Prev Labeled Image"),
+            self.open_prev_labeled_image,
+            shortcuts["open_prev_labeled"],
+            "prev-labeled",
+            self.tr("Open prev labeled (hold Ctrl+Shift to copy labels)"),
+            enabled=False,
+        )
         save = action(
             self.tr("&Save"),
             self.save_file,
@@ -1056,6 +1072,8 @@ class LabelingWidget(LabelDialog):
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
+            open_next_labeled_image=open_next_labeled_image,
+            open_prev_labeled_image=open_prev_labeled_image,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1143,6 +1161,8 @@ class LabelingWidget(LabelDialog):
                 open_,
                 open_next_image,
                 open_prev_image,
+                open_next_labeled_image,
+                open_prev_labeled_image,
                 opendir,
                 openvideo,
                 self.menus.recent_files,
@@ -1268,6 +1288,8 @@ class LabelingWidget(LabelDialog):
             opendir,
             open_next_image,
             open_prev_image,
+            open_next_labeled_image,
+            open_prev_labeled_image,
             save,
             delete_file,
             None,
@@ -3359,6 +3381,34 @@ class LabelingWidget(LabelDialog):
         self._config["keep_prev"] = keep_prev
         save_config(self._config)
 
+    def _open_next_labeled_image(self, end_index, step, load):
+        keep_prev = self._config["keep_prev"]
+        if QtWidgets.QApplication.keyboardModifiers() == (
+            Qt.ControlModifier | Qt.ShiftModifier
+        ):
+            self._config["keep_prev"] = True
+            save_config(self._config)
+
+        if not self.may_continue():
+            return
+
+        current_index = self.image_list.index(self.filename)
+        for i in range(current_index + step, end_index, step):
+            if self.file_list_widget.item(i).checkState() == Qt.Checked:
+                self.filename = self.image_list[i]
+                if self.filename and load:
+                    self.load_file(self.filename)
+
+                self._config["keep_prev"] = keep_prev
+                save_config(self._config)
+                break
+
+    def open_prev_labeled_image(self, _value=False, load=True):
+        self._open_next_labeled_image(-1, -1, load)
+
+    def open_next_labeled_image(self, _value=False, load=True):
+        self._open_next_labeled_image(self.file_list_widget.count(), 1, load)
+
     # Uplaod
     def upload_attr_file(self):
         filter = "Attribute Files (*.json);;All Files (*)"
@@ -4720,12 +4770,16 @@ class LabelingWidget(LabelDialog):
         if len(self.image_list) > 1:
             self.actions.open_next_image.setEnabled(True)
             self.actions.open_prev_image.setEnabled(True)
+            self.actions.open_next_labeled_image.setEnabled(True)
+            self.actions.open_prev_labeled_image.setEnabled(True)
 
         self.open_next_image()
 
     def import_image_folder(self, dirpath, pattern=None, load=True):
         self.actions.open_next_image.setEnabled(True)
         self.actions.open_prev_image.setEnabled(True)
+        self.actions.open_next_labeled_image.setEnabled(True)
+        self.actions.open_prev_labeled_image.setEnabled(True)
 
         if not self.may_continue() or not dirpath:
             return
