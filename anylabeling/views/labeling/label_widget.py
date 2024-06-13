@@ -2245,12 +2245,14 @@ class LabelingWidget(LabelDialog):
             group_id,
             description,
             difficult,
+            visibility,
         ) = self.label_dialog.pop_up(
             text=shape.label,
             flags=shape.flags,
             group_id=shape.group_id,
             description=shape.description,
             difficult=shape.difficult,
+            visibility=shape.visibility,
         )
         if text is None:
             return
@@ -2269,6 +2271,7 @@ class LabelingWidget(LabelDialog):
         shape.group_id = group_id
         shape.description = description
         shape.difficult = difficult
+        shape.visibility = visibility
 
         # Add to label history
         self.label_dialog.add_label_history(shape.label)
@@ -2409,6 +2412,7 @@ class LabelingWidget(LabelDialog):
                 "group_id": s.group_id,
                 "description": s.description,
                 "difficult": s.difficult,
+                "visibility": s.visibility,
                 "shape_type": s.shape_type,
                 "flags": s.flags,
                 "attributes": s.attributes,
@@ -2594,6 +2598,7 @@ class LabelingWidget(LabelDialog):
             group_id = shape["group_id"]
             description = shape.get("description", "")
             difficult = shape.get("difficult", False)
+            visibility = shape.get("visibility", 0)
             attributes = shape.get("attributes", {})
             direction = shape.get("direction", 0)
             other_data = shape["other_data"]
@@ -2609,6 +2614,7 @@ class LabelingWidget(LabelDialog):
                 group_id=group_id,
                 description=description,
                 difficult=difficult,
+                visibility=visibility,
                 direction=direction,
                 attributes=attributes,
             )
@@ -2664,6 +2670,7 @@ class LabelingWidget(LabelDialog):
                 "group_id": s.group_id,
                 "description": s.description,
                 "difficult": s.difficult,
+                "visibility": s.visibility,
                 "shape_type": s.shape_type,
                 "flags": s.flags,
                 "attributes": s.attributes,
@@ -2784,6 +2791,7 @@ class LabelingWidget(LabelDialog):
         group_id = None
         description = ""
         difficult = False
+        visibility = 0
 
         if self.canvas.shapes[-1].label in [
             AutoLabelingMode.ADD,
@@ -2806,6 +2814,7 @@ class LabelingWidget(LabelDialog):
                     group_id,
                     description,
                     difficult,
+                    visibility,
                 ) = self.label_dialog.pop_up(text)
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
@@ -2830,6 +2839,7 @@ class LabelingWidget(LabelDialog):
             shape.description = description
             shape.label = text
             shape.difficult = difficult
+            shape.visibility = visibility
             self.add_label(shape)
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
@@ -4893,12 +4903,13 @@ class LabelingWidget(LabelDialog):
             return
 
         # Ask a label for the object
-        text, flags, group_id, description, difficult = (
+        text, flags, group_id, description, difficult, visibility = (
             "",
             {},
             None,
             None,
             False,
+            0,
         )
         last_label = self.find_last_label()
         if self._config["auto_use_last_label"] and last_label:
@@ -4913,12 +4924,14 @@ class LabelingWidget(LabelDialog):
                 group_id,
                 description,
                 difficult,
+                visibility,
             ) = self.label_dialog.pop_up(
                 text=self.find_last_label(),
                 flags={},
                 group_id=None,
                 description=None,
                 difficult=False,
+                visibility=0,
             )
             if not text:
                 self.label_dialog.edit.setText(previous_text)
@@ -4949,6 +4962,7 @@ class LabelingWidget(LabelDialog):
                 shape.group_id = group_id
                 shape.description = description
                 shape.difficult = difficult
+                shape.visibility = visibility
                 # Update unique label list
                 if not self.unique_label_list.find_items_by_label(shape.label):
                     unique_label_item = (

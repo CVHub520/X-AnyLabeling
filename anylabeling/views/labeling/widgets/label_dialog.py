@@ -255,6 +255,7 @@ class LabelDialog(QtWidgets.QDialog):
         fit_to_content=None,
         flags=None,
         difficult=False,
+        visibility=0,
     ):
         if text is None:
             text = QCoreApplication.translate(
@@ -282,6 +283,13 @@ class LabelDialog(QtWidgets.QDialog):
         self.edit_difficult = QtWidgets.QCheckBox("useDifficult")
         self.edit_difficult.setChecked(difficult)
 
+        label_visibility = QtWidgets.QLabel("Keypoint Visibility Flag")
+        self.visibility_options = [0, 1, 2]
+        self.edit_visibility = QtWidgets.QComboBox()
+        self.edit_visibility.addItems(map(str, self.visibility_options))
+        self.edit_visibility.setCurrentIndex(visibility)
+        self.edit_visibility.currentIndexChanged.connect(self.on_visibility_index_changed)
+
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
         if show_text_field:
@@ -303,6 +311,11 @@ class LabelDialog(QtWidgets.QDialog):
         layout_button = QtWidgets.QHBoxLayout()
         layout_button.addWidget(self.edit_difficult)
         layout_button.addWidget(self.button_box)
+        layout.addLayout(layout_button)
+
+        layout_button = QtWidgets.QHBoxLayout()
+        layout_button.addWidget(label_visibility)
+        layout_button.addWidget(self.edit_visibility)
         layout.addLayout(layout_button)
 
         # label_list
@@ -444,6 +457,13 @@ class LabelDialog(QtWidgets.QDialog):
     def get_difficult_state(self):
         return self.edit_difficult.isChecked()
 
+    def on_visibility_index_changed(self, index):
+        current_text = self.edit_visibility.itemText(index)
+        self.current_visibility = current_text
+
+    def get_visibility(self):
+        return self.current_visibility
+
     def pop_up(
         self,
         text=None,
@@ -452,6 +472,7 @@ class LabelDialog(QtWidgets.QDialog):
         group_id=None,
         description=None,
         difficult=False,
+        visibility=None,
     ):
         if self._fit_to_content["row"]:
             self.label_list.setMinimumHeight(
@@ -476,6 +497,8 @@ class LabelDialog(QtWidgets.QDialog):
             self.edit_difficult.setChecked(True)
         else:
             self.edit_difficult.setChecked(False)
+        if visibility is not None:
+            self.current_visibility = visibility
         self.edit.setText(text)
         self.edit.setSelection(0, len(text))
         if group_id is None:
@@ -499,6 +522,7 @@ class LabelDialog(QtWidgets.QDialog):
                 self.get_group_id(),
                 self.get_description(),
                 self.get_difficult_state(),
+                self.get_visibility(),
             )
 
-        return None, None, None, None, False
+        return None, None, None, None, False, None
