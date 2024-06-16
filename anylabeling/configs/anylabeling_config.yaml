@@ -91,8 +91,8 @@ shortcuts:
 
   open_next: [D, Ctrl+Shift+D]
   open_prev: [A, Ctrl+Shift+A]
-  open_next_labeled: [E, Ctrl+Shift+E]
-  open_prev_labeled: [Q, Ctrl+Shift+Q]
+  open_next_labeled: [C, Ctrl+Shift+C]
+  open_prev_labeled: [Z, Ctrl+Shift+Z]
 
   zoom_in: [Ctrl++, Ctrl+=]
   zoom_out: Ctrl+-
