@@ -27,7 +27,12 @@ class RTDETR(Model):
             "score_threshold",
             "classes",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf", 
+            "edit_conf",
+            "toggle_preserve_existing_annotations",
+        ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
@@ -48,6 +53,16 @@ class RTDETR(Model):
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.classes = self.config["classes"]
         self.input_shape = self.net.get_input_shape()[-2:]
+        self.conf_thres = self.config["score_threshold"]
+        self.replace = True
+
+    def set_auto_labeling_conf(self, value):
+        """ set auto labeling confidence threshold """
+        self.conf_thres = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def preprocess(self, input_image):
         """
@@ -100,7 +115,7 @@ class RTDETR(Model):
 
         boxes = cxywh2xyxy(boxes)
         _max = scores.max(-1)
-        _mask = _max > self.config["score_threshold"]
+        _mask = _max > self.conf_thres
         boxes, scores = boxes[_mask], scores[_mask]
         indexs, scores = scores.argmax(-1), scores.max(-1)
 
@@ -179,7 +194,7 @@ class RTDETR(Model):
             shape.add_point(QtCore.QPointF(xmin, ymax))
             shapes.append(shape)
 
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
         return result
 
     def unload(self):

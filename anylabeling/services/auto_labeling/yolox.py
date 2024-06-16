@@ -27,7 +27,14 @@ class YOLOX(Model):
             "confidence_threshold",
             "classes",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf", 
+            "edit_conf",
+            "input_iou", 
+            "edit_iou",
+            "toggle_preserve_existing_annotations",
+        ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
@@ -49,6 +56,21 @@ class YOLOX(Model):
         self.p6 = self.config["p6"]
         self.classes = self.config["classes"]
         self.input_shape = self.net.get_input_shape()[-2:]
+        self.nms_thres = self.config["nms_threshold"]
+        self.conf_thres = self.config["confidence_threshold"]
+        self.replace = True
+
+    def set_auto_labeling_conf(self, value):
+        """ set auto labeling confidence threshold """
+        self.conf_thres = value
+
+    def set_auto_labeling_iou(self, value):
+        """ set auto labeling iou threshold """
+        self.nms_thres = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def preprocess(self, input_image):
         """
@@ -154,15 +176,15 @@ class YOLOX(Model):
             rectangle_shape.add_point(QtCore.QPointF(x1, y2))
             shapes.append(rectangle_shape)
 
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
 
         return result
 
     def rescale(self, predictions, ratio):
         """Rescale the output to the original image shape"""
 
-        nms_thr = self.config["nms_threshold"]
-        score_thr = self.config["confidence_threshold"]
+        nms_thr = self.nms_thres
+        score_thr = self.conf_thres
 
         boxes = predictions[:, :4]
         scores = predictions[:, 4:5] * predictions[:, 5:]

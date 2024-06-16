@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 from PyQt5 import QtCore
+from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
@@ -12,6 +13,20 @@ from .utils import numpy_nms, xywh2xyxy, rescale_box_and_landmark
 
 
 class YOLOv6Face(YOLO):
+    class Meta:
+        required_config_names = [
+            "type",
+            "name",
+            "display_name",
+            "model_path",
+        ]
+        widgets = ["button_run"]
+        output_modes = {
+            "point": QCoreApplication.translate("Model", "Point"),
+            "rectangle": QCoreApplication.translate("Model", "Rectangle"),
+        }
+        default_output_mode = "rectangle"
+
     def postprocess(
         self,
         prediction,

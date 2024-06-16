@@ -33,7 +33,13 @@ class Grounding_DINO(Model):
             "box_threshold",
             "text_threshold",
         ]
-        widgets = ["edit_text"]
+        widgets = [
+            "edit_text",
+            "button_send",
+            "input_box_thres",
+            "edit_conf",
+            "toggle_preserve_existing_annotations",
+        ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
@@ -65,6 +71,15 @@ class Grounding_DINO(Model):
             self.config["input_width"],
             self.config["input_height"],
         )
+        self.replace = True
+
+    def set_auto_labeling_conf(self, value):
+        """ set auto labeling box threshold """
+        self.box_threshold = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def preprocess(self, image, text_prompt):
         # Resize the image
@@ -200,15 +215,19 @@ class Grounding_DINO(Model):
         boxes = self.rescale_boxes(boxes_filt, img_h, img_w)
         for box, label_info in zip(boxes, pred_phrases):
             x1, y1, x2, y2 = box
-            label, _ = label_info
-            shape = Shape(label=str(label), shape_type="rectangle")
+            label, score = label_info
+            shape = Shape(
+                label=str(label),
+                score=float(score),
+                shape_type="rectangle"
+            )
             shape.add_point(QtCore.QPointF(x1, y1))
             shape.add_point(QtCore.QPointF(x2, y1))
             shape.add_point(QtCore.QPointF(x2, y2))
             shape.add_point(QtCore.QPointF(x1, y2))
             shapes.append(shape)
 
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
         return result
 
     @staticmethod

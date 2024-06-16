@@ -76,10 +76,9 @@ class AutoLabelingWidget(QWidget):
         # Auto labeling buttons
         self.button_run.setShortcut("I")
         self.button_run.clicked.connect(self.run_prediction)
-        self.edit_text.setPlaceholderText(
-            "Enter text prompt here and press Enter to confirm."
-        )
-        self.edit_text.returnPressed.connect(self.run_vl_prediction)
+        self.button_send.clicked.connect(self.run_vl_prediction)
+        self.edit_conf.valueChanged.connect(self.on_conf_value_changed)
+        self.edit_iou.valueChanged.connect(self.on_iou_value_changed)
         self.button_add_point.setShortcut("Q")
         self.button_add_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
@@ -105,7 +104,9 @@ class AutoLabelingWidget(QWidget):
             self.finish_auto_labeling_object_action_requested
         )
         self.button_finish_object.setShortcut("F")
-
+        self.toggle_preserve_existing_annotations.stateChanged.connect(
+            self.on_preserve_existing_annotations_state_changed
+        )
         # Hide labeling widgets by default
         self.hide_labeling_widgets()
 
@@ -287,15 +288,22 @@ class AutoLabelingWidget(QWidget):
     def hide_labeling_widgets(self):
         """Hide labeling widgets by default"""
         widgets = [
-            "output_label",
-            "output_select_combobox",
             "button_run",
-            "edit_text",
             "button_add_point",
             "button_remove_point",
             "button_add_rect",
             "button_clear",
             "button_finish_object",
+            "button_send",
+            "edit_text",
+            "edit_conf",
+            "edit_iou",
+            "input_box_thres",
+            "input_conf",
+            "input_iou",
+            "output_label",
+            "output_select_combobox",
+            "toggle_preserve_existing_annotations",
         ]
         for widget in widgets:
             getattr(self, widget).hide()
@@ -310,3 +318,12 @@ class AutoLabelingWidget(QWidget):
 
     def on_close(self):
         return True
+
+    def on_conf_value_changed(self, value):
+        self.model_manager.set_auto_labeling_conf(value)
+
+    def on_iou_value_changed(self, value):
+        self.model_manager.set_auto_labeling_iou(value)
+
+    def on_preserve_existing_annotations_state_changed(self, state):
+        self.model_manager.set_auto_labeling_preserve_existing_annotations_state(state)

@@ -2,6 +2,7 @@ import logging
 import numpy as np
 
 from PyQt5 import QtCore
+from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
@@ -12,6 +13,21 @@ from .utils import softmax
 
 
 class YOLOv5_CLS(YOLO):
+    class Meta:
+        required_config_names = [
+            "type",
+            "name",
+            "display_name",
+            "model_path",
+        ]
+        widgets = [
+            "button_run",
+        ]
+        output_modes = {
+            "rectangle": QCoreApplication.translate("Model", "Rectangle"),
+        }
+        default_output_mode = "rectangle"
+
     def postprocess(self, outs, topk=1):
         """
         Classification:

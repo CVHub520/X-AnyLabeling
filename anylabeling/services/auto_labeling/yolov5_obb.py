@@ -30,7 +30,14 @@ class YOLOv5OBB(Model):
             "confidence_threshold",
             "classes",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf", 
+            "edit_conf",
+            "input_iou", 
+            "edit_iou",
+            "toggle_preserve_existing_annotations",
+        ]
         output_modes = {
             "rotation": QCoreApplication.translate("Model", "Rotation"),
         }
@@ -57,6 +64,19 @@ class YOLOv5OBB(Model):
 
         _, _, h, w = self.net.get_input_shape()
         self.input_shape = (h, w)
+        self.replace = True
+
+    def set_auto_labeling_conf(self, value):
+        """ set auto labeling confidence threshold """
+        self.conf_thres = value
+
+    def set_auto_labeling_iou(self, value):
+        """ set auto labeling iou threshold """
+        self.nms_thres = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def preprocess(self, img):
         """
@@ -154,7 +174,7 @@ class YOLOv5OBB(Model):
             shape.add_point(QtCore.QPointF(x3, y3))
             shapes.append(shape)
 
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
         return result
 
     @staticmethod

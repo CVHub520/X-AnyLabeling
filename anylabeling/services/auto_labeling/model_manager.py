@@ -1298,6 +1298,74 @@ class ModelManager(QObject):
             return
         self.loaded_model_config["model"].set_auto_labeling_marks(marks)
 
+    def set_auto_labeling_conf(self, value):
+        """Set auto labeling confidences
+        """
+        model_list = [
+            "damo_yolo",
+            "gold_yolo",
+            "grounding_dino",
+            "rtdetr",
+            "yolo_nas",
+            "yolov5_obb",
+            "yolov5_seg",
+            "yolov5_track",
+            "yolov5",
+            "yolov6",
+            "yolov7",
+            "yolov8_obb",
+            "yolov8_pose",
+            "yolov8_seg",
+            "yolov8_track",
+            "yolov8",
+            "yolov9",
+            "yolov10",
+            "yolow",
+            "yolox",
+        ]
+        if (
+            self.loaded_model_config is None
+            or self.loaded_model_config["type"] not in model_list
+        ):
+            return
+        self.loaded_model_config["model"].set_auto_labeling_conf(value)
+
+    def set_auto_labeling_iou(self, value):
+        """Set auto labeling iou
+        """
+        model_list = [
+            "damo_yolo",
+            "gold_yolo",
+            "yolo_nas",
+            "yolov5_obb",
+            "yolov5_seg",
+            "yolov5_track",
+            "yolov5",
+            "yolov6",
+            "yolov7",
+            "yolov8_obb",
+            "yolov8_pose",
+            "yolov8_seg",
+            "yolov8_track",
+            "yolov8",
+            "yolov9"
+            "yolox",
+        ]
+        if (
+            self.loaded_model_config is None
+            or self.loaded_model_config["type"] not in model_list
+        ):
+            return
+        self.loaded_model_config["model"].set_auto_labeling_iou(value)
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        invalid_model_list = []
+        if (
+            self.loaded_model_config is not None
+            and self.loaded_model_config["type"] not in invalid_model_list
+        ):
+            self.loaded_model_config["model"].set_auto_labeling_preserve_existing_annotations_state(state)
+
     def unload_model(self):
         """Unload model"""
         if self.loaded_model_config is not None:

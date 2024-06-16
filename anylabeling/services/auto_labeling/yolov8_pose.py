@@ -92,6 +92,6 @@ class YOLOv8_Pose(YOLO):
                     point_shape.add_point(QtCore.QPointF(x, y))
                     shapes.append(point_shape)
 
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
 
         return result

@@ -27,7 +27,14 @@ class DAMO_YOLO(Model):
             "confidence_threshold",
             "classes",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf", 
+            "edit_conf",
+            "input_iou", 
+            "edit_iou",
+            "toggle_preserve_existing_annotations",
+        ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
@@ -53,6 +60,19 @@ class DAMO_YOLO(Model):
         self.input_size = self.input_shape[-2:]
         self.nms_thres = self.config["nms_threshold"]
         self.conf_thres = self.config["confidence_threshold"]
+        self.replace = True
+
+    def set_auto_labeling_conf(self, value):
+        """ set auto labeling confidence threshold """
+        self.conf_thres = value
+
+    def set_auto_labeling_iou(self, value):
+        """ set auto labeling iou threshold """
+        self.nms_thres = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def preprocess(self, input_image):
         src_h, src_w, _ = input_image.shape
@@ -152,7 +172,7 @@ class DAMO_YOLO(Model):
             shape.add_point(pt3)
             shape.add_point(pt4)
             shapes.append(shape)
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
         return result
 
     def unload(self):

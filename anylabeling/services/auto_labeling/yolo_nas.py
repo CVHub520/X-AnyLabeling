@@ -232,7 +232,14 @@ class YOLO_NAS(Model):
             "nms_threshold",
             "classes",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf", 
+            "edit_conf",
+            "input_iou", 
+            "edit_iou",
+            "toggle_preserve_existing_annotations",
+        ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
@@ -262,6 +269,21 @@ class YOLO_NAS(Model):
             self.config["confidence_threshold"],
         )
         self.filter_classes = self.config.get("filter_classes", [])
+        self.nms_thres = self.config["nms_threshold"]
+        self.conf_thres = self.config["confidence_threshold"]
+        self.replace = True
+
+    def set_auto_labeling_conf(self, value):
+        """ set auto labeling confidence threshold """
+        self.conf_thres = value
+
+    def set_auto_labeling_iou(self, value):
+        """ set auto labeling iou threshold """
+        self.nms_thres = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -281,8 +303,8 @@ class YOLO_NAS(Model):
         blob, prep_meta = self.preprocess(image)
         outputs = self.net.get_ort_inference(blob, extract=False)
         boxes, scores, classes = self.postprocess(outputs, prep_meta)
-        score_thres = self.config["confidence_threshold"]
-        iou_thres = self.config["nms_threshold"]
+        score_thres = self.conf_thres
+        iou_thres = self.nms_thres
         selected = cv2.dnn.NMSBoxes(boxes, scores, score_thres, iou_thres)
 
         shapes = []
@@ -304,7 +326,7 @@ class YOLO_NAS(Model):
             shape.add_point(QtCore.QPointF(xmin, ymax))
             shapes.append(shape)
 
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
 
         return result
 

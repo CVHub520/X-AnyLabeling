@@ -113,8 +113,71 @@
      </item>
      <item>
       <widget class="QLineEdit" name="edit_text">
+        <property name="placeholderText">
+            <string>Enter text prompt here, e.g., person.car.bicycle</string>
+        </property>
+      </widget>
+     </item>
+    <item>
+        <widget class="QPushButton" name="button_send">
+            <property name="text">
+                <string>Send</string>
+            </property>
+        </widget>
+    </item>
+     <item>
+      <widget class="QLabel" name="input_box_thres">
        <property name="text">
-        <string></string>
+        <string>Box threshold</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="input_conf">
+       <property name="text">
+        <string>Confidence</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="edit_conf">
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <!-- <property name="value">
+        <double>0.250000000000000</double>
+       </property> -->
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="input_iou">
+       <property name="text">
+        <string>IoU</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="edit_iou">
+       <property name="decimals">
+        <number>2</number>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
        </property>
       </widget>
      </item>
@@ -151,6 +214,16 @@
        <property name="text">
         <string>Finish Object (f)</string>
        </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="toggle_preserve_existing_annotations">
+          <property name="text">
+              <string>Preserve existing annotations</string>
+          </property>
+          <property name="checked">
+              <bool>false</bool>
+          </property>
       </widget>
      </item>
      <item>

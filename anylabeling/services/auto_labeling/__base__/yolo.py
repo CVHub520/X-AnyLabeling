@@ -33,7 +33,14 @@ class YOLO(Model):
             "display_name",
             "model_path",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf", 
+            "edit_conf",
+            "input_iou", 
+            "edit_iou",
+            "toggle_preserve_existing_annotations",
+        ]
         output_modes = {
             "point": QCoreApplication.translate("Model", "Point"),
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -75,6 +82,7 @@ class YOLO(Model):
                 self.input_height = self.config.get("input_height", -1)
 
         self.model_type = self.config["type"]
+        self.replace = True
         self.classes = self.config.get("classes", [])
         if isinstance(self.classes, dict):
             self.classes = list(self.classes.values())
@@ -130,6 +138,7 @@ class YOLO(Model):
             "yolov9",
             "yolov10",
             "gold_yolo",
+            "yolow",
         ]:
             self.task = "det"
         elif self.model_type in ["yolov5_seg", "yolov8_seg"]:
@@ -143,6 +152,18 @@ class YOLO(Model):
             "yolov8_obb",
         ]:
             self.task = "obb"
+
+    def set_auto_labeling_conf(self, value):
+        """ set auto labeling confidence threshold """
+        self.conf_thres = value
+
+    def set_auto_labeling_iou(self, value):
+        """ set auto labeling iou threshold """
+        self.iou_thres = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def inference(self, blob):
         if self.engine == "dnn" and self.task in ["det", "seg", "track"]:
@@ -212,6 +233,7 @@ class YOLO(Model):
             "yolov8_track",
             "yolov8_obb",
             "yolov9",
+            "yolow",
         ]:
             p = non_max_suppression_v8(
                 preds[0],
@@ -373,8 +395,7 @@ class YOLO(Model):
                 shape.score = float(score)
                 shape.selected = False
                 shapes.append(shape)
-
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
 
         return result
 

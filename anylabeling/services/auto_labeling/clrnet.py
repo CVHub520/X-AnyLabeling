@@ -2,7 +2,6 @@ import logging
 import os
 
 import cv2
-import math
 import numpy as np
 import onnxruntime as ort
 from scipy.interpolate import InterpolatedUnivariateSpline
@@ -35,7 +34,7 @@ class CLRNet(Model):
             "max_lanes",
             "cut_height",
         ]
-        widgets = ["button_run"]
+        widgets = ["button_run", "toggle_preserve_existing_annotations"]
         output_modes = {
             "line": QCoreApplication.translate("Model", "Line"),
         }
@@ -82,6 +81,11 @@ class CLRNet(Model):
             self.config["image_width"],
             self.config["image_height"],
         )
+        self.replace = True
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        self.replace = not state
 
     def pre_process(self, input_image, net):
         """
@@ -190,7 +194,7 @@ class CLRNet(Model):
             shape.add_point(QtCore.QPointF(start_point[0], start_point[1]))
             shape.add_point(QtCore.QPointF(end_point[0], end_point[1]))
             shapes.append(shape)
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
 
         return result
 
