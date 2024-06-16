@@ -53,7 +53,6 @@ class Shape:
         group_id=None,
         description=None,
         difficult=False,
-        visibility=0,
         direction=0,
         attributes={},
     ):
@@ -62,7 +61,6 @@ class Shape:
         self.group_id = group_id
         self.description = description
         self.difficult = difficult
-        self.visibility = visibility
         self.points = []
         self.fill = False
         self.selected = False

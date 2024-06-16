@@ -1190,7 +1190,8 @@ class Canvas(
                 else:
                     label = shape.label
                 d = shape.point_size / shape.scale
-                if label:
+                shapy_type = shape.shape_type
+                if label and shapy_type == "rectangle":
                     try:
                         bbox = shape.bounding_rect()
                     except IndexError:
@@ -1210,11 +1211,12 @@ class Canvas(
             p.setPen(pen)
             for shape in self.shapes:
                 d = 1.5  # default shape sacle
+                shapy_type = shape.shape_type
                 if shape.score is not None:
                     label = f"{shape.label} {shape.score:.2f}"
                 else:
                     label = shape.label
-                if label:
+                if label and shapy_type == "rectangle":
                     try:
                         bbox = shape.bounding_rect()
                     except IndexError:
