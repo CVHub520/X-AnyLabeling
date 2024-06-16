@@ -44,6 +44,24 @@ class LabelFile:
     @staticmethod
     def load_image_file(filename, default=None):
         try:
+            # NOTE: This method includes a temporary workaround for handling EXIF orientation.
+            # It may result in a slight performance overhead due to the additional processing and file I/O.
+            # A more efficient solution should be considered in the future.
+            from PIL import Image, ExifTags
+            with Image.open(filename) as img:
+                exif_data = img._getexif()
+                if exif_data is not None:
+                    for tag, value in exif_data.items():
+                        tag_name = ExifTags.TAGS.get(tag, tag)
+                        if tag_name != "Orientation":
+                            continue
+                        if value == 3:
+                            img = img.rotate(180, expand=True)
+                        elif value == 6:
+                            img = img.rotate(270, expand=True)
+                        elif value == 8:
+                            img = img.rotate(90, expand=True)
+                        img.save(filename)
             with open(filename, "rb") as f:
                 return f.read()
         except:
