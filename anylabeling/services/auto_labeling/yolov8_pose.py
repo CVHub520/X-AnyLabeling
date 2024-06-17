@@ -68,17 +68,16 @@ class YOLOv8_Pose(YOLO):
         for group_id, r in enumerate(reversed(results)):
             xyxy, _, kpts = r[:4], r[4], r[5:]
             xmin, ymin, xmax, ymax = xyxy
-
-            if self.show_boxes:
-                rectangle_shape = Shape(
-                    label=str(self.classes[0]),
-                    shape_type="rectangle",
-                )
-                rectangle_shape.add_point(QtCore.QPointF(xmin, ymin))
-                rectangle_shape.add_point(QtCore.QPointF(xmax, ymin))
-                rectangle_shape.add_point(QtCore.QPointF(xmax, ymax))
-                rectangle_shape.add_point(QtCore.QPointF(xmin, ymax))
-                shapes.append(rectangle_shape)
+            rectangle_shape = Shape(
+                label=str(self.classes[0]),
+                shape_type="rectangle",
+                group_id=group_id,
+            )
+            rectangle_shape.add_point(QtCore.QPointF(xmin, ymin))
+            rectangle_shape.add_point(QtCore.QPointF(xmax, ymin))
+            rectangle_shape.add_point(QtCore.QPointF(xmax, ymax))
+            rectangle_shape.add_point(QtCore.QPointF(xmin, ymax))
+            shapes.append(rectangle_shape)
 
             interval = 3
             for i in range(0, len(kpts), interval):
