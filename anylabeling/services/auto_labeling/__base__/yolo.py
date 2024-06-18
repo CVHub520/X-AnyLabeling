@@ -81,11 +81,9 @@ class YOLO(Model):
             if not isinstance(self.input_height, int):
                 self.input_height = self.config.get("input_height", -1)
 
-        self.model_type = self.config["type"]
         self.replace = True
+        self.model_type = self.config["type"]
         self.classes = self.config.get("classes", [])
-        if isinstance(self.classes, dict):
-            self.classes = list(self.classes.values())
         self.stride = self.config.get("stride", 32)
         self.anchors = self.config.get("anchors", None)
         self.agnostic = self.config.get("agnostic", False)
@@ -124,12 +122,6 @@ class YOLO(Model):
         else:
             self.tracker = None
 
-        """Keypoints"""
-        self.keypoints = self.config.get("keypoints", [])
-        self.five_key_points_classes = self.config.get(
-            "five_key_points_classes", []
-        )
-
         if self.model_type in [
             "yolov5",
             "yolov6",
@@ -152,6 +144,21 @@ class YOLO(Model):
             "yolov8_obb",
         ]:
             self.task = "obb"
+        elif self.model_type in [
+            "yolov6_face",
+            "yolov8_pose",
+        ]:
+            self.task = "pose"
+            self.keypoints = {}
+            self.has_visible = self.config.get("has_visible", True)
+            self.kpt_threshold = self.config.get("kpt_threshold", 0.1)
+            for class_name, keypoints in self.classes.items():
+                self.keypoints[class_name] = keypoints
+            self.classes = list(self.classes.keys())
+            self.multi_label = True if len(self.classes) > 1 else False
+
+        if isinstance(self.classes, dict):
+            self.classes = list(self.classes.values())
 
     def set_auto_labeling_conf(self, value):
         """ set auto labeling confidence threshold """

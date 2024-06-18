@@ -319,7 +319,7 @@ def rescale_box_and_landmark(input_shape, boxes, lmdks, image_shape):
     return np.round(boxes), np.round(lmdks)
 
 
-def rescale_tlwh(input_shape, boxes, image_shape, kpts=False):
+def rescale_tlwh(input_shape, boxes, image_shape, kpts=False, has_visible=True, multi_label=False):
     """Rescale the output to the original image shape"""
     ratio = min(
         input_shape[0] / image_shape[0],
@@ -337,10 +337,15 @@ def rescale_tlwh(input_shape, boxes, image_shape, kpts=False):
     boxes[:, 2] = np.clip((boxes[:, 0] + boxes[:, 2]), 0, image_shape[1])  # x2
     boxes[:, 3] = np.clip((boxes[:, 1] + boxes[:, 3]), 0, image_shape[0])  # y2
     if kpts:
-        num_kpts = boxes.shape[1] // 3
-        for i in range(2, num_kpts + 1):
-            boxes[:, i * 3 - 1] = (boxes[:, i * 3 - 1] - padding[0]) / ratio
-            boxes[:, i * 3] = (boxes[:, i * 3] - padding[1]) / ratio
+        start_index = 6 if multi_label else 5
+        num_kpts = boxes.shape[1] - start_index
+        interval = 3 if has_visible else 2
+        for i in range(0, num_kpts, interval):
+            boxes[:, start_index + i] = (boxes[:, start_index + i] - padding[0]) / ratio
+            boxes[:, start_index + i + 1] = (boxes[:, start_index + i + 1] - padding[1]) / ratio
+            # skip visible flag
+            if has_visible and (i + 1) % interval == 0:
+                continue
     return boxes
 
 

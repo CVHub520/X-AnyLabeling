@@ -61,15 +61,24 @@ class YOLOv8_Pose(YOLO):
         if len(results) == 0:
             return AutoLabelingResult([], replace=True)
         results = rescale_tlwh(
-            self.input_shape, results, image.shape, kpts=True
+            self.input_shape, results,
+            image.shape, kpts=True,
+            has_visible=self.has_visible,
+            multi_label=self.multi_label
         )
 
         shapes = []
         for group_id, r in enumerate(reversed(results)):
-            xyxy, _, kpts = r[:4], r[4], r[5:]
+            if self.multi_label:
+                xyxy, score, class_ids, kpts = r[:4], r[4], r[5], r[6:]
+            else:
+                class_ids = 0
+                xyxy, score, kpts = r[:4], r[4], r[5:]
             xmin, ymin, xmax, ymax = xyxy
+            class_name = str(self.classes[int(class_ids)])
             rectangle_shape = Shape(
-                label=str(self.classes[0]),
+                label=class_name,
+                score=score,
                 shape_type="rectangle",
                 group_id=group_id,
             )
@@ -79,12 +88,18 @@ class YOLOv8_Pose(YOLO):
             rectangle_shape.add_point(QtCore.QPointF(xmin, ymax))
             shapes.append(rectangle_shape)
 
-            interval = 3
+            interval = 3 if self.has_visible else 2
             for i in range(0, len(kpts), interval):
-                x, y, kpt_score = kpts[i : i + 3]
+                if self.has_visible:
+                    x, y, kpt_score = kpts[i : i + 3]
+                else:
+                    x, y =  kpts[i : i + 2]
+                    kpt_score = 1.0
+                if x == 0 and y == 0:
+                    continue
                 inside_flag = point_in_bbox((x, y), xyxy)
-                if (kpt_score > self.conf_thres) and inside_flag:
-                    label = self.keypoints[int(i // interval)]
+                if (kpt_score > self.kpt_threshold) and inside_flag:
+                    label = self.keypoints[class_name][int(i // interval)]
                     point_shape = Shape(
                         label=label, shape_type="point", group_id=group_id
                     )

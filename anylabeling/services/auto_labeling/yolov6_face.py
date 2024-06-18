@@ -163,16 +163,19 @@ class YOLOv6Face(YOLO):
             x1, y1, x2, y2 = list(map(int, xyxy))
             lmdks = list(map(int, lmdks))
             label = str(self.classes[int(cls_id)])
-            rectangle_shape = Shape(label=label, shape_type="rectangle")
+            rectangle_shape = Shape(
+                label=label, shape_type="rectangle", group_id=int(i)
+            )
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y2))
             rectangle_shape.add_point(QtCore.QPointF(x1, y2))
             shapes.append(rectangle_shape)
+            kpt_names = self.keypoints[label]
             for j in range(0, len(lmdks), 2):
                 x, y = lmdks[j], lmdks[j + 1]
                 point_shape = Shape(
-                    label=self.five_key_points_classes[j // 2],
+                    label=kpt_names[j // 2],
                     shape_type="point",
                     group_id=int(i),
                 )
