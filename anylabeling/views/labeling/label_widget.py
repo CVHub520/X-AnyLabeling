@@ -305,6 +305,14 @@ class LabelingWidget(LabelDialog):
             "open",
             self.tr("Open Dir"),
         )
+        open_image_at_index = action(
+            self.tr("&Goto Image"),
+            self.open_image_at_index,
+            shortcuts["open_index"],
+            "goto",
+            self.tr("Goto specific image (Ctrl+SHIFT+I)"),
+            enabled=True,
+        )
         open_next_image = action(
             self.tr("&Next Image"),
             self.open_next_image,
@@ -1055,6 +1063,7 @@ class LabelingWidget(LabelDialog):
             show_degrees=show_degrees,
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
+            open_image_at_index=open_image_at_index,    
             open_prev_image=open_prev_image,
             file_menu_actions=(
                 open_,
@@ -1141,6 +1150,7 @@ class LabelingWidget(LabelDialog):
             self.menus.file,
             (
                 open_,
+                open_image_at_index,
                 open_next_image,
                 open_prev_image,
                 opendir,
@@ -3328,7 +3338,13 @@ class LabelingWidget(LabelDialog):
         self._config["keep_prev"] = keep_prev
         save_config(self._config)
 
-    def open_next_image(self, _value=False, load=True):
+    def open_image_at_index(self):
+        index, ok = QtWidgets.QInputDialog.getInt(None, self.tr("Goto Image"), self.tr("Enter image number:"), 0, 0, len(self.image_list) - 1, 1)
+        if ok:
+             adjusted_index = max(0, index - 1);
+             self.open_next_image(index=adjusted_index)
+
+    def open_next_image(self, _value=False, load=True, index=-1):
         keep_prev = self._config["keep_prev"]
         if QtWidgets.QApplication.keyboardModifiers() == (
             Qt.ControlModifier | Qt.ShiftModifier
@@ -3342,15 +3358,21 @@ class LabelingWidget(LabelDialog):
         if len(self.image_list) <= 0:
             return
 
-        filename = None
-        if self.filename is None:
-            filename = self.image_list[0]
-        else:
-            current_index = self.image_list.index(self.filename)
-            if current_index + 1 < len(self.image_list):
-                filename = self.image_list[current_index + 1]
+        if index != -1:
+            if 0 <= index < len(self.image_list):
+                filename = self.image_list[index]
             else:
-                filename = self.image_list[-1]
+                return
+        else:
+            if self.filename is None:
+                filename = self.image_list[0]
+            else:
+                current_index = self.image_list.index(self.filename)
+                if current_index + 1 < len(self.image_list):
+                    filename = self.image_list[current_index + 1]
+                else:
+                    filename = self.image_list[-1]
+
         self.filename = filename
 
         if self.filename and load:
