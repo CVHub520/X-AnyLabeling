@@ -18,6 +18,7 @@ from ..utils import (
     letterbox,
     scale_boxes,
     scale_coords,
+    point_in_bbox,
     masks2segments,
     xywhr2xyxyxyxy,
     non_max_suppression_v5,
@@ -149,13 +150,18 @@ class YOLO(Model):
             "yolov8_pose",
         ]:
             self.task = "pose"
-            self.keypoints = {}
-            self.has_visible = self.config.get("has_visible", True)
-            self.kpt_threshold = self.config.get("kpt_threshold", 0.1)
+            self.keypoint_name = {}
+            self.show_boxes = True
+            self.has_visible = self.config["has_visible"]
+            self.kpt_thres = self.config.get("kpt_threshold", 0.1)
             for class_name, keypoints in self.classes.items():
-                self.keypoints[class_name] = keypoints
+                self.keypoint_name[class_name] = keypoints
             self.classes = list(self.classes.keys())
-            self.multi_label = True if len(self.classes) > 1 else False
+            self.kpt_shape = eval(self.net.get_metadata_info("kpt_shape"))
+            if self.kpt_shape is None:
+                max_kpts = max(len(num_kpts) for num_kpts in self.keypoint_name.values())
+                visible_flag = 3 if self.has_visible else 2
+                self.kpt_shape = [max_kpts, visible_flag]
 
         if isinstance(self.classes, dict):
             self.classes = list(self.classes.values())
@@ -241,6 +247,7 @@ class YOLO(Model):
             "yolov8_obb",
             "yolov9",
             "yolow",
+            "yolov8_pose",
         ]:
             p = non_max_suppression_v8(
                 preds[0],
@@ -258,7 +265,7 @@ class YOLO(Model):
                 conf_thres=self.conf_thres,
                 classes=self.filter_classes
             )
-        masks = None
+        masks, kpts = None, None
         img_shape = (self.img_height, self.img_width)
         if self.task == "seg":
             proto = preds[1][-1] if len(preds[1]) == 3 else preds[1]
@@ -274,7 +281,7 @@ class YOLO(Model):
                     self.input_shape,
                     upsample=True,
                 )  # HWC
-            if self.task == "obb":
+            elif self.task == "obb":
                 pred[:, :4] = scale_boxes(
                     self.input_shape, pred[:, :4], img_shape, xywh=True
                 )
@@ -290,11 +297,19 @@ class YOLO(Model):
             bbox = pred[:, :5]
             conf = pred[:, -2]
             clas = pred[:, -1]
+        elif self.task == "pose":
+            pred_kpts = pred[:, 6:]
+            if pred.shape[0] != 0:
+                pred_kpts = pred_kpts.reshape(pred_kpts.shape[0], *self.kpt_shape)
+            bbox = pred[:, :4]
+            conf = pred[:, 4:5]
+            clas = pred[:, 5:6]
+            keypoints = scale_coords(self.input_shape, pred_kpts, self.image_shape)
         else:
             bbox = pred[:, :4]
             conf = pred[:, 4:5]
             clas = pred[:, 5:6]
-        return (bbox, masks, clas, conf)
+        return (bbox, clas, conf, masks, keypoints)
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -310,10 +325,10 @@ class YOLO(Model):
             logging.warning("Could not inference model")
             logging.warning(e)
             return []
-
+        self.image_shape = image.shape
         blob = self.preprocess(image, upsample_mode="letterbox")
         outputs = self.inference(blob)
-        boxes, masks, class_ids, scores = self.postprocess(outputs)
+        boxes, class_ids, scores, masks, keypoints = self.postprocess(outputs)
         points = [[] for _ in range(len(boxes))]
         if self.task == "seg" and masks is not None:
             points = [
@@ -329,9 +344,9 @@ class YOLO(Model):
             )
 
         shapes = []
-        for box, class_id, point, track_id, score in zip(
-            boxes, class_ids, points, track_ids, scores
-        ):
+        for i, (box, class_id, score, point, keypoint, track_id) in enumerate(
+            zip(boxes, class_ids, scores, points, keypoints, track_ids)
+            ):
             if (
                 self.show_boxes and self.task != "track"
             ) or self.task == "det":
@@ -349,6 +364,8 @@ class YOLO(Model):
                 shape.label = str(self.classes[int(class_id)])
                 shape.score = float(score)
                 shape.selected = False
+                if self.task == "pose":
+                    shape.group_id = int(i)
                 shapes.append(shape)
             if self.task == "seg":
                 shape = Shape(flags={})
@@ -363,6 +380,30 @@ class YOLO(Model):
                 shape.score = float(score)
                 shape.selected = False
                 shapes.append(shape)
+            if self.task == "pose":
+                label = str(self.classes[int(class_id)])
+                keypoint_name = self.keypoint_name[label]
+                for j, kpt in enumerate(keypoint):
+                    if len(kpt) == 2:
+                        x, y, s = *kpt, False
+                    else:
+                        x, y, s = kpt
+                    inside_flag = point_in_bbox((x, y), box)
+                    if (x == 0 and y == 0 ) or not inside_flag or s < self.kpt_thres:
+                        continue
+                    shape = Shape(flags={})
+                    shape.add_point(QtCore.QPointF(int(x), int(y)))
+                    shape.shape_type = "point"
+                    shape.difficult = False
+                    shape.group_id = int(i)
+                    shape.closed = True
+                    shape.fill_color = "#000000"
+                    shape.line_color = "#000000"
+                    shape.line_width = 1
+                    shape.label = keypoint_name[j]
+                    shape.score = float(s)
+                    shape.selected = False
+                    shapes.append(shape)
             if self.task == "track":
                 x1, y1, x2, y2 = list(map(float, box))
                 shape = Shape(flags={})

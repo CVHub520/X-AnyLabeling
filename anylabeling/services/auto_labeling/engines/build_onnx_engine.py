@@ -1,4 +1,5 @@
 import os
+import onnx
 import onnxruntime as ort
 
 
@@ -19,6 +20,7 @@ class OnnxBaseModel:
             providers=self.providers,
             sess_options=self.sess_opts,
         )
+        self.model_path = model_path
 
     def get_ort_inference(
         self, blob, inputs=None, extract=True, squeeze=False
@@ -42,3 +44,11 @@ class OnnxBaseModel:
 
     def get_output_name(self):
         return [out.name for out in self.ort_session.get_outputs()]
+
+    def get_metadata_info(self, field):
+        model = onnx.load(self.model_path)
+        metadata = model.metadata_props
+        for prop in metadata:
+            if prop.key == field:
+                return prop.value
+        return None
