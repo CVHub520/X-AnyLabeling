@@ -51,7 +51,7 @@ python anylabeling/app.py
 - `--logger-level`: 设置日志级别，可选值包括 "debug", "info", "warning", "fatal", "error"。
 - `--output`, `-O`, `-o`: 指定输出文件或目录。如果以 `.json` 结尾，则被识别为文件，否则被识别为目录。
 - `--config`: 指定配置文件或者以 YAML 格式提供配置信息的字符串
-  默认为 `~/.anylabelingrc`(Linux)      `C:\Users\{user}\.anylabelingrc`(Windows)。
+  默认为 `~/.xanylabelingrc`(Linux)      `C:\Users\{user}\.xanylabelingrc`(Windows)。
 - `--nodata`: 停止将图像数据存储到 JSON 文件中。
 - `--autosave`: 自动保存标注数据。
 - `--nosortlabels`: 停止对标签进行排序。
@@ -135,9 +135,9 @@ python anylabeling/app.py
 
 2. 如果需要编译 GPU 版本，请先激活相应地 `GPU` 运行环境，执行 `pip install | grep onnxruntime-gpu` 确保被正确安装。
 
-3. 对于 Windows-GPU 版本的编译，需要手动修改 `anylabeling-win-gpu.spec` 文件中的 `datas` 列表参数，将本地的 `onnxruntime-gpu` 相关动态库 `*.dll` 添加进列表中。
+3. 对于 Windows-GPU 版本的编译，需要手动修改 `x-anylabeling-win-gpu.spec` 文件中的 `datas` 列表参数，将本地的 `onnxruntime-gpu` 相关动态库 `*.dll` 添加进列表中。
 
-4. 对于 Linux-GPU 版本的编译，需要手动修改 `anylabeling-linux-gpu.spec` 文件中的 `datas` 列表参数，将本地的 `onnxruntime-gpu` 相关动态库 `*.so` 添加进列表中。此外，请注意根据您的 CUDA 版本下载匹配的 `onnxruntime-gpu` 包，详细匹配表可参考[官方文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)。
+4. 对于 Linux-GPU 版本的编译，需要手动修改 `x-anylabeling-linux-gpu.spec` 文件中的 `datas` 列表参数，将本地的 `onnxruntime-gpu` 相关动态库 `*.so` 添加进列表中。此外，请注意根据您的 CUDA 版本下载匹配的 `onnxruntime-gpu` 包，详细匹配表可参考[官方文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)。
 
 参考指令：
 

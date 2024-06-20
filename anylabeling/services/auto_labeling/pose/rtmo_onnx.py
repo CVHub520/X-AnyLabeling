@@ -136,7 +136,7 @@ class RTMO:
 
 if __name__ == "__main__":
     onnx_model = (
-        "/home/cvhub/anylabeling_data/models/rtmo_s-r20240112/rtmo-s.onnx"
+        "/home/cvhub/xanylabeling_data/models/rtmo_s-r20240112/rtmo-s.onnx"
     )
     image_path = "/home/cvhub/workspace/projects/python/pose/mmpose/projects/rtmpose/examples/onnxruntime/human-pose.jpeg"
     rtmo = RTMO(onnx_model, mean=[0, 0, 0], std=[1, 1, 1])

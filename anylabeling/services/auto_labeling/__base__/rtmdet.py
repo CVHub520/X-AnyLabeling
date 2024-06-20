@@ -179,7 +179,7 @@ class RTMDet:
 
 
 if __name__ == "__main__":
-    onnx_model = "/home/cvhub/anylabeling_data/models/rtmdet_nano_coco_person_rtmo_s-r20240112/rtmdet_nano_320-8xb32_coco-person.onnx"
+    onnx_model = "/home/cvhub/xanylabeling_data/models/rtmdet_nano_coco_person_rtmo_s-r20240112/rtmdet_nano_320-8xb32_coco-person.onnx"
     image_path = "/home/cvhub/workspace/projects/python/toolkits/X-AnyLabeling/assets/examples/demo_sod.jpeg"
     rtmdet = RTMDet(onnx_model, score_thr=0.3)
     image = cv2.imread(image_path)

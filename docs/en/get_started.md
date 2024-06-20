@@ -46,7 +46,7 @@ To ensure access to the latest features and stable performance, it is highly rec
     - `--logger-level`: Set the logging level, options include "debug", "info", "warning", "fatal", "error".
     - `--output`, `-O`, `-o`: Specify the output file or directory. If it ends in `.json`, it is recognized as a file, otherwise it is recognized as a directory.
     - `--config`: Specify a configuration file or a string providing configuration information in YAML format.
-      Defaults to `~/.anylabelingrc` (Linux)         `C:\Users\{user}\.anylabelingrc` (Windows).
+      Defaults to `~/.xanylabelingrc` (Linux)         `C:\Users\{user}\.xanylabelingrc` (Windows).
     - `--nodata`: Stops storing image data in JSON files.
     - `--autosave`: Automatically saves annotation data.
     - `--nosortlabels`: Stop sorting labels.
@@ -121,9 +121,9 @@ Considerations:
 
 2. If compiling the GPU version, activate the corresponding GPU runtime environment first, and execute `pip install | grep onnxruntime-gpu` to ensure it is correctly installed.
 
-3. For compiling the Windows-GPU version, manually modify the `datas` list parameter in the `anylabeling-win-gpu.spec` file to add the relevant `*.dll` files of the local `onnxruntime-gpu` dynamic library to the list.
+3. For compiling the Windows-GPU version, manually modify the `datas` list parameter in the `x-anylabeling-win-gpu.spec` file to add the relevant `*.dll` files of the local `onnxruntime-gpu` dynamic library to the list.
 
-4. For compiling the Linux-GPU version, manually modify the `datas` list parameter in the `anylabeling-linux-gpu.spec` file to add the relevant `*.so` files of the local `onnxruntime-gpu` dynamic library to the list. Additionally, ensure that you download the matching `onnxruntime-gpu` package based on your CUDA version. Refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html) for detailed compatibility information.
+4. For compiling the Linux-GPU version, manually modify the `datas` list parameter in the `x-anylabeling-linux-gpu.spec` file to add the relevant `*.so` files of the local `onnxruntime-gpu` dynamic library to the list. Additionally, ensure that you download the matching `onnxruntime-gpu` package based on your CUDA version. Refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html) for detailed compatibility information.
 
 Reference commands:
 

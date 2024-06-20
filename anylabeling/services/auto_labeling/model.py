@@ -118,10 +118,24 @@ class Model(QObject):
 
         # Create model folder
         home_dir = os.path.expanduser("~")
-        model_abs_path = os.path.abspath(
+        old_model_path = os.path.abspath(
             os.path.join(
                 home_dir,
                 "anylabeling_data",
+            )
+        )
+        new_model_path = os.path.abspath(
+            os.path.join(
+                home_dir,
+                "xanylabeling_data",
+            )
+        )
+        if os.path.exists(old_model_path):
+            os.rename(old_model_path, new_model_path)
+        model_abs_path = os.path.abspath(
+            os.path.join(
+                home_dir,
+                "xanylabeling_data",
                 "models",
                 model_config["name"],
                 filename,

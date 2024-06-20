@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 
 try:
@@ -32,7 +33,7 @@ def update_dict(target_dict, new_dict, validate_item=None):
 
 def save_config(config):
     # Local config file
-    user_config_file = osp.join(osp.expanduser("~"), ".anylabelingrc")
+    user_config_file = osp.join(osp.expanduser("~"), ".xanylabelingrc")
     try:
         with open(user_config_file, "w", encoding="utf-8") as f:
             yaml.safe_dump(config, f, allow_unicode=True)
@@ -41,12 +42,17 @@ def save_config(config):
 
 
 def get_default_config():
-    config_file = "anylabeling_config.yaml"
+    old_cfg_file = osp.join(osp.expanduser("~"), ".anylabelingrc")
+    new_cfg_file = osp.join(osp.expanduser("~"), ".xanylabelingrc")
+    if osp.exists(old_cfg_file):
+        os.rename(old_cfg_file, new_cfg_file)
+
+    config_file = "xanylabeling_config.yaml"
     with pkg_resources.open_text(anylabeling_configs, config_file) as f:
         config = yaml.safe_load(f)
 
-    # Save default config to ~/.anylabelingrc
-    if not osp.exists(osp.join(osp.expanduser("~"), ".anylabelingrc")):
+    # Save default config to ~/.xanylabelingrc
+    if not osp.exists(osp.join(osp.expanduser("~"), ".xanylabelingrc")):
         save_config(config)
 
     return config

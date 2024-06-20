@@ -76,19 +76,19 @@
 
 ### 配置文件设置
 
-`X-AnyLabeling` 中的配置文件 `.anylabelingrc` 默认存放在当前用户目录下，可参考：
+`X-AnyLabeling` 中的配置文件 `.xanylabelingrc` 默认存放在当前用户目录下，可参考：
 
 ```bash
 #Linux
-cd ~/.anylabelingrc
+cd ~/.xanylabelingrc
 
 #Windows
-cd C:\\Users\\xxx\\.anylabelingrc
+cd C:\\Users\\xxx\\.xanylabelingrc
 ```
 
 以修改自定义的标签颜色为例，实施步骤如下：
 
-1. 打开您的用户目录下的配置文件(.anylabelingrc)，您可以使用文本编辑器或命令行工具进行编辑。
+1. 打开您的用户目录下的配置文件(.xanylabelingrc)，您可以使用文本编辑器或命令行工具进行编辑。
 
 2. 在配置文件中找到字段 `shape_color`，确保其值为 "manual"，这表示您将手动设置标签的颜色。
 

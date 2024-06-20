@@ -72,19 +72,19 @@ To export labels, click the `Export` button, upload the configuration file, and 
 
 ### Configuration File Settings
 
-The configuration file `.anylabelingrc` in `X-AnyLabeling` is by default stored in the current user's directory. You can refer to:
+The configuration file `.xanylabelingrc` in `X-AnyLabeling` is by default stored in the current user's directory. You can refer to:
 
 ```bash
 # Linux
-cd ~/.anylabelingrc
+cd ~/.xanylabelingrc
 
 # Windows
-cd C:\\Users\\xxx\\.anylabelingrc
+cd C:\\Users\\xxx\\.xanylabelingrc
 ```
 
 Taking the example of modifying the color of custom labels, follow these steps:
 
-1. Open your user directory's configuration file (.anylabelingrc). You can use a text editor or command-line tools for editing.
+1. Open your user directory's configuration file (.xanylabelingrc). You can use a text editor or command-line tools for editing.
 
 2. Find the field `shape_color` in the configuration file and ensure its value is "manual," indicating that you will set the label colors manually.
 

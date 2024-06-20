@@ -25,28 +25,28 @@ system=$1
 if [ $system = "win-cpu" ]; then
     expected_value="CPU"
     if [ "$variable_value" = "$expected_value" ]; then
-        pyinstaller --noconfirm anylabeling-win-cpu.spec
+        pyinstaller --noconfirm x-anylabeling-win-cpu.spec
     else
         echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
     fi
 elif [ $system = "win-gpu" ];then
     expected_value="GPU"
     if [ "$variable_value" = "$expected_value" ]; then
-        pyinstaller --noconfirm anylabeling-win-gpu.spec
+        pyinstaller --noconfirm x-anylabeling-win-gpu.spec
     else
         echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
     fi
 elif [ $system = "linux-cpu" ];then
     expected_value="CPU"
     if [ "$variable_value" = "$expected_value" ]; then
-        pyinstaller --noconfirm anylabeling-linux-cpu.spec
+        pyinstaller --noconfirm x-anylabeling-linux-cpu.spec
     else
         echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
     fi
 elif [ $system = "linux-gpu" ];then
     expected_value="GPU"
     if [ "$variable_value" = "GPU" ]; then
-        pyinstaller --noconfirm anylabeling-linux-gpu.spec
+        pyinstaller --noconfirm x-anylabeling-linux-gpu.spec
     else
         echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
     fi
