@@ -235,6 +235,19 @@ Follow these steps:
 | c        | Rotate clockwise at a small angle |
 | v        | Rotate clockwise at a large angle |
 
+### Keypoint Annotation for YOLOv8 Pose Estimation
+
+1. **Import Image Files**;
+
+2. Click the `Rectangle` button on the left menu or press the shortcut key `R` to quickly draw a bounding box. Set the `group_id` field to ensure each object in the image has a unique identifier;
+
+3. Click the `Point` button on the left menu to draw keypoints, and set the `group_id` field to match the corresponding bounding box ID. Additionally:
+
+- If a keypoint is not visible, it can be ignored;
+- If a keypoint is occluded, check the `useDifficult` field;
+
+4. After completing the annotations, export the corresponding label files as described in the `Import/Export YOLO Labels` section.
+
 ### SAM Series Models
 
 Follow these steps:
