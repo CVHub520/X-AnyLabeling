@@ -44,6 +44,9 @@
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- 2024年6月:
+  - 支持[yolov8-pose](https://docs.ultralytics.com/tasks/pose/)模型。
+  - 支持[yolo-pose](./docs/zh_cn/user_guide.md)标签导入/导出功能。
 - 2024年5月：
   - ✨✨✨ 支持[YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10)模型。
   - 🤗 发布[2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6)最新版本 🤗

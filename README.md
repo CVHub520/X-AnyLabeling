@@ -45,6 +45,9 @@
 
 ## 🥳 What's New [⏏️](#📄-table-of-contents)
 
+- Jun. 2024:
+  - Support [YOLOv8-Pose](https://docs.ultralytics.com/tasks/pose/) model.
+  - Add [yolo-pose](./docs/en/user_guide.md) import/export functionality.
 - May. 2024:
   - ✨✨✨ Support [YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10) model.
   - 🤗 Release the latest version [2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6) 🤗

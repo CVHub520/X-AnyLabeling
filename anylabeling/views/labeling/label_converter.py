@@ -4,6 +4,7 @@ import cv2
 import csv
 import json
 import math
+import yaml
 import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -18,12 +19,19 @@ from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 
 
 class LabelConverter:
-    def __init__(self, classes_file=None):
+    def __init__(self, classes_file=None, pose_cfg_file=None):
         self.classes = []
         if classes_file:
             with open(classes_file, "r", encoding="utf-8") as f:
                 self.classes = f.read().splitlines()
             logger.info(f"Loading classes: {self.classes}")
+        self.pose_classes = {}
+        if pose_cfg_file:
+            with open(pose_cfg_file, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+                self.has_vasiable = data['has_visible']
+                for class_name, keypoint_name in data['classes'].items():
+                    self.pose_classes[class_name] = keypoint_name
 
     def reset(self):
         self.custom_data = dict(
@@ -252,6 +260,74 @@ class LabelConverter:
         self.custom_data["imageWidth"] = img_w
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def yolo_pose_to_custom(self, input_file, output_file, image_file):
+        self.reset()
+        with open(input_file, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        img_w, img_h = self.get_image_size(image_file)
+        classes = list(self.pose_classes.keys())
+        for i, line in enumerate(lines):
+            line = line.strip().split(" ")
+            class_index = int(line[0])
+            label = classes[class_index]
+            # Add rectangle info
+            cx = float(line[1])
+            cy = float(line[2])
+            nw = float(line[3])
+            nh = float(line[4])
+            xmin = int((cx - nw / 2) * img_w)
+            ymin = int((cy - nh / 2) * img_h)
+            xmax = int((cx + nw / 2) * img_w)
+            ymax = int((cy + nh / 2) * img_h)
+            points = [
+                [xmin, ymin],
+                [xmax, ymin],
+                [xmax, ymax],
+                [xmin, ymax],
+            ]
+            shape = {
+                "label": label,
+                "shape_type": "rectangle",
+                "flags": {},
+                "points": points,
+                "group_id": i,
+                "description": None,
+                "difficult": False,
+                "attributes": {},
+            }
+            self.custom_data["shapes"].append(shape)
+            # Add keypoints info
+            keypoint_name = self.pose_classes[label]
+            keypoints = line[5:]
+            interval = 3 if self.has_vasiable else 2
+            for j in range(0, len(keypoints), interval):
+                x = float(keypoints[j]) * img_w
+                y = float(keypoints[j + 1]) * img_h
+                flag = int(keypoints[j + 2])
+                if (x == 0 and y == 0) or flag == 0:
+                    continue
+                if interval == 3 and flag == 1:
+                    difficult = True
+                else:
+                    difficult = False
+                shape = {
+                    "label": keypoint_name[j // interval],
+                    "shape_type": "point",
+                    "flags": {},
+                    "points": [[x, y]],
+                    "group_id": i,
+                    "description": None,
+                    "difficult": difficult,
+                    "attributes": {},
+                }
+                self.custom_data["shapes"].append(shape)
+
+        self.custom_data["imagePath"] = osp.basename(image_file)
+        self.custom_data["imageHeight"] = img_h
+        self.custom_data["imageWidth"] = img_w
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)        
 
     def yolo_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -548,18 +624,18 @@ class LabelConverter:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def custom_to_yolo(self, input_file, output_file):
+    def custom_to_yolo(self, input_file, output_file, mode):
         with open(input_file, "r", encoding="utf-8") as f:
             data = json.load(f)
-
         image_width = data["imageWidth"]
         image_height = data["imageHeight"]
         image_size = np.array([[image_width, image_height]])
-
+        if mode == "pose":
+            pose_data = {}
         with open(output_file, "w", encoding="utf-8") as f:
             for shape in data["shapes"]:
                 shape_type = shape["shape_type"]
-                if shape_type == "rectangle":
+                if mode == "hbb" and shape_type == "rectangle":
                     label = shape["label"]
                     points = shape["points"]
                     if len(points) == 2:
@@ -583,7 +659,7 @@ class LabelConverter:
                     f.write(
                         f"{class_index} {x_center} {y_center} {width} {height}\n"
                     )
-                elif shape_type == "polygon":
+                elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
                     points = np.array(shape["points"])
                     class_index = self.classes.index(label)
@@ -598,7 +674,7 @@ class LabelConverter:
                         )
                         + "\n"
                     )
-                elif shape_type == "rotation":
+                elif mode == "obb" and shape_type == "rotation":
                     label = shape["label"]
                     points = list(chain.from_iterable(shape["points"]))
                     normalized_coords = [
@@ -612,6 +688,72 @@ class LabelConverter:
                     f.write(
                         f"{class_index} {x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3}\n"
                     )
+                elif mode == "pose":
+                    if shape_type not in ["rectangle", "point"]:
+                        continue
+                    label = shape["label"]
+                    points = shape["points"]
+                    group_id = int(shape["group_id"])
+                    if group_id not in pose_data:
+                        pose_data[group_id] = {
+                            "rectangle": [],
+                            "keypoints": {},
+                        }
+                    if shape_type == "rectangle":
+                        if len(points) == 2:
+                            points = rectangle_from_diagonal(points)
+                        pose_data[group_id]["rectangle"] = points
+                        pose_data[group_id]["box_label"] = label
+                    else:
+                        x, y = points[0]
+                        difficult = shape.get("difficult", False)
+                        visible = 1 if difficult is True else 2
+                        pose_data[group_id]["keypoints"][label] = [x, y, visible]
+            if mode == "pose":
+                classes = list(self.pose_classes.keys())
+                max_keypoints = max([len(kpts) for kpts in self.pose_classes.values()])
+                for data in pose_data.values():
+                    box_label = data["box_label"]
+                    box_index = classes.index(box_label)
+                    kpt_names = self.pose_classes[box_label]
+                    rectangle = data["rectangle"]
+                    x_center = (rectangle[0][0] + rectangle[2][0]) / (
+                        2 * image_width
+                    )
+                    y_center = (rectangle[0][1] + rectangle[2][1]) / (
+                        2 * image_height
+                    )
+                    width = abs(rectangle[2][0] - rectangle[0][0]) / image_width
+                    height = abs(rectangle[2][1] - rectangle[0][1]) / image_height
+                    x = round(x_center, 6)
+                    y = round(y_center, 6)
+                    w = round(width, 6)
+                    h = round(height, 6)
+                    label = f"{box_index} {x} {y} {w} {h}"
+                    keypoints = data["keypoints"]
+                    for name in kpt_names:
+                        # 0: Invisible, 1: Occluded, 2: Visible
+                        if name not in keypoints:
+                            if self.has_vasiable:
+                                label += f" 0 0 0"
+                            else:
+                                label += f" 0 0"
+                        else:
+                            x, y, visible = keypoints[name]
+                            x = round((int(x) / image_width), 6)
+                            y = round((int(y) / image_height), 6)
+                            if self.has_vasiable:
+                                label += f" {x} {y} {visible}"
+                            else:
+                                label += f" {x} {y}"
+                    # Pad the label with zeros to meet 
+                    # the yolov8-pose model’s training data format requirements
+                    for _ in range(max_keypoints-len(kpt_names)):
+                        if self.has_vasiable:
+                            label += f" 0 0 0"
+                        else:
+                            label += f" 0 0"
+                    f.write(f"{label}\n")
 
     def custom_to_voc(self, input_file, output_dir):
         with open(input_file, "r", encoding="utf-8") as f:

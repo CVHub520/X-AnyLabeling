@@ -857,6 +857,13 @@ class LabelingWidget(LabelDialog):
             icon="format_yolo",
             tip=self.tr("Upload Custom YOLO Segmentation Annotations"),
         )
+        upload_yolo_pose_annotation = action(
+            self.tr("&Upload YOLO-Pose Annotations"),
+            lambda: self.upload_yolo_annotation("pose"),
+            None,
+            icon="format_yolo",
+            tip=self.tr("Upload Custom YOLO Pose Annotations"),
+        )
         upload_voc_annotation = action(
             self.tr("&Upload VOC Annotations"),
             self.upload_voc_annotation,
@@ -894,12 +901,33 @@ class LabelingWidget(LabelDialog):
         )
 
         # Export
-        export_yolo_annotation = action(
-            self.tr("&Export YOLO Annotations"),
-            self.export_yolo_annotation,
+        export_yolo_hbb_annotation = action(
+            self.tr("&Export YOLO-Hbb Annotations"),
+            lambda: self.export_yolo_annotation("hbb"),
             None,
             icon="format_yolo",
-            tip=self.tr("Export Custom YOLO Annotations"),
+            tip=self.tr("Export Custom YOLO Horizontal Bounding Boxes Annotations"),
+        )
+        export_yolo_obb_annotation = action(
+            self.tr("&Export YOLO-Obb Annotations"),
+            lambda: self.export_yolo_annotation("obb"),
+            None,
+            icon="format_yolo",
+            tip=self.tr("Export Custom YOLO Oriented Bounding Boxes Annotations"),
+        )
+        export_yolo_seg_annotation = action(
+            self.tr("&Export YOLO-Seg Annotations"),
+            lambda: self.export_yolo_annotation("seg"),
+            None,
+            icon="format_yolo",
+            tip=self.tr("Export Custom YOLO Segmentation Annotations"),
+        )
+        export_yolo_pose_annotation = action(
+            self.tr("&Export YOLO-Pose Annotations"),
+            lambda: self.export_yolo_annotation("pose"),
+            None,
+            icon="format_yolo",
+            tip=self.tr("Export Custom YOLO Pose Annotations"),
         )
         export_voc_annotation = action(
             self.tr("&Export VOC Annotations"),
@@ -1027,12 +1055,16 @@ class LabelingWidget(LabelDialog):
             upload_yolo_hbb_annotation=upload_yolo_hbb_annotation,
             upload_yolo_obb_annotation=upload_yolo_obb_annotation,
             upload_yolo_seg_annotation=upload_yolo_seg_annotation,
+            upload_yolo_pose_annotation=upload_yolo_pose_annotation,
             upload_voc_annotation=upload_voc_annotation,
             upload_coco_annotation=upload_coco_annotation,
             upload_dota_annotation=upload_dota_annotation,
             upload_mask_annotation=upload_mask_annotation,
             upload_mot_annotation=upload_mot_annotation,
-            export_yolo_annotation=export_yolo_annotation,
+            export_yolo_hbb_annotation=export_yolo_hbb_annotation,
+            export_yolo_obb_annotation=export_yolo_obb_annotation,
+            export_yolo_seg_annotation=export_yolo_seg_annotation,
+            export_yolo_pose_annotation=export_yolo_pose_annotation,
             export_voc_annotation=export_voc_annotation,
             export_coco_annotation=export_coco_annotation,
             export_dota_annotation=export_dota_annotation,
@@ -1196,6 +1228,7 @@ class LabelingWidget(LabelDialog):
                 upload_yolo_hbb_annotation,
                 upload_yolo_obb_annotation,
                 upload_yolo_seg_annotation,
+                upload_yolo_pose_annotation,
                 None,
                 upload_voc_annotation,
                 upload_coco_annotation,
@@ -1207,7 +1240,11 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(
             self.menus.export,
             (
-                export_yolo_annotation,
+                export_yolo_hbb_annotation,
+                export_yolo_obb_annotation,
+                export_yolo_seg_annotation,
+                export_yolo_pose_annotation,
+                None,
                 export_voc_annotation,
                 export_coco_annotation,
                 export_dota_annotation,
@@ -3402,31 +3439,59 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        filter = "Classes Files (*.txt);;All Files (*)"
-        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific classes file"),
-            "",
-            filter,
-        )
-        if not self.classes_file:
-            QtWidgets.QMessageBox.warning(
+        if mode == "pose":
+            filter = "Classes Files (*.yaml);;All Files (*)"
+            self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self,
-                self.tr("Warning"),
-                self.tr("Please select a specific classes file!"),
-                QtWidgets.QMessageBox.Ok,
+                self.tr("Select a specific yolo-pose config file"),
+                "",
+                filter,
             )
-            return
-        with open(self.classes_file, "r", encoding="utf-8") as f:
-            labels = f.read().splitlines()
-            for label in labels:
-                if not self.unique_label_list.find_items_by_label(label):
-                    item = self.unique_label_list.create_item_from_label(label)
-                    self.unique_label_list.addItem(item)
-                    rgb = self._get_rgb_by_label(label)
-                    self.unique_label_list.set_item_label(
-                        item, label, rgb, LABEL_OPACITY
-                    )
+            if not self.yaml_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific config file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+            labels = []
+            with open(self.yaml_file, 'r', encoding='utf-8') as f:
+                import yaml
+                data = yaml.safe_load(f)
+                for class_name, keypoint_name in data['classes'].items():
+                    labels.append(class_name)
+                    labels.extend(keypoint_name)
+            converter = LabelConverter(pose_cfg_file=self.yaml_file)
+        elif mode in ["hbb", "obb", "seg"] and not self.classes_file:
+            filter = "Classes Files (*.txt);;All Files (*)"
+            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific classes file"),
+                "",
+                filter,
+            )
+            if not self.classes_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific classes file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+            with open(self.classes_file, "r", encoding="utf-8") as f:
+                labels = f.read().splitlines()
+            converter = LabelConverter(classes_file=self.classes_file)
+
+        # Initialize unique labels
+        for label in labels:
+            if not self.unique_label_list.find_items_by_label(label):
+                item = self.unique_label_list.create_item_from_label(label)
+                self.unique_label_list.addItem(item)
+                rgb = self._get_rgb_by_label(label)
+                self.unique_label_list.set_item_label(
+                    item, label, rgb, LABEL_OPACITY
+                )
 
         default_open_dir_path = dirpath if dirpath else "."
         if self.last_open_dir and osp.exists(self.last_open_dir):
@@ -3452,11 +3517,9 @@ class LabelingWidget(LabelDialog):
             ),
             QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
         )
-
         if response != QtWidgets.QMessageBox.Ok:
             return
 
-        converter = LabelConverter(classes_file=self.classes_file)
         image_file_list = os.listdir(image_dir_path)
         label_file_list = os.listdir(label_dir_path)
         output_dir_path = image_dir_path
@@ -3480,6 +3543,12 @@ class LabelingWidget(LabelDialog):
                 )
             elif mode == "obb":
                 converter.yolo_obb_to_custom(
+                    input_file=input_file,
+                    output_file=output_file,
+                    image_file=image_file,
+                )
+            elif mode == "pose":
+                converter.yolo_pose_to_custom(
                     input_file=input_file,
                     output_file=output_file,
                     image_file=image_file,
@@ -3855,7 +3924,7 @@ class LabelingWidget(LabelDialog):
         self.load_file(self.filename)
 
     # Export
-    def export_yolo_annotation(self, _value=False, dirpath=None):
+    def export_yolo_annotation(self, mode, _value=False, dirpath=None):
         if not self.may_continue():
             return
 
@@ -3868,7 +3937,24 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        if not self.classes_file:
+        if mode == "pose":
+            filter = "Classes Files (*.yaml);;All Files (*)"
+            self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific yolo-pose config file"),
+                "",
+                filter,
+            )
+            if not self.yaml_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific config file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+            converter = LabelConverter(pose_cfg_file=self.yaml_file)
+        elif mode in ["hbb", "obb", "seg"] and not self.classes_file:
             filter = "Classes Files (*.txt);;All Files (*)"
             self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self,
@@ -3884,6 +3970,7 @@ class LabelingWidget(LabelDialog):
                     QtWidgets.QMessageBox.Ok,
                 )
                 return
+            converter = LabelConverter(classes_file=self.classes_file)
 
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
@@ -3893,7 +3980,6 @@ class LabelingWidget(LabelDialog):
             image_list = [self.filename]
         save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
         os.makedirs(save_path, exist_ok=True)
-        converter = LabelConverter(classes_file=self.classes_file)
         label_file_list = os.listdir(label_dir_path)
         try:
             for image_file in image_list:
@@ -3905,7 +3991,7 @@ class LabelingWidget(LabelDialog):
                     pathlib.Path(dst_file).touch()
                 else:
                     src_file = osp.join(label_dir_path, label_file_name)
-                    converter.custom_to_yolo(src_file, dst_file)
+                    converter.custom_to_yolo(src_file, dst_file, mode)
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),

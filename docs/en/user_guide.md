@@ -2,44 +2,73 @@
 
 ### Annotations Upload/Export
 
-Currently, `X-AnyLabeling` provides functionality for importing/exporting labels in six mainstream annotation formats. Below are the steps for each format.
+`X-AnyLabeling` currently supports the import and export of various popular annotation formats. Here is a brief guide on how to use these features.
 
-- Upload YOLO Labels
+#### Import/Export YOLO Labels
 
-Before importing YOLO annotation files, you need to prepare a custom class file. Once prepared, import the image file to be annotated, click the `Upload` button on the top menu, select `Upload YOLO Labels`, choose the prepared label file, and then select the directory containing the label files.
+The latest version of X-AnyLabeling allows one-click upload/export of YOLOv5/v8 labels for object detection, instance segmentation, oriented bounding box, and keypoint detection tasks (`*.txt` files).</br>
 
-> Custom class file format can be referred to [classes.txt](../../assets/classes.txt).
+Before importing/exporting YOLO label files, prepare a label configuration file:</br>
+1. For object detection, instance segmentation, and oriented bounding box, refer to [classes.txt](../../assets/classes.txt), with each line representing a class, numbered sequentially from 0.
+2. For keypoint detection, refer to [yolov8_pose.yaml](../../assets/yolov8_pose.yaml), following the `has_visible` parameter as per the [official definition](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format).</br>
 
-- Upload VOC Labels
+To import labels, click the `Upload` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
+To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `labels` folder within the current image directory.</br>
 
-As Pascal-VOC XML label files come with category information, simply click the `Upload` button on the top menu, select `Upload VOC Labels`, and then choose the directory containing the label files.
+> Example YOLO label file: [demo.txt](../../assets/labels/demo.txt).
 
-> XML label file format can be referred to [demo.xml](../../assets/Annotations/demo.xml).
+#### Import/Export COCO Labels
 
-- Upload COCO Labels
+X-AnyLabeling supports one-click import/export of COCO labels for object detection and instance segmentation tasks (`*.json` files).</br>
 
-Similar to VOC labels, importing COCO labels is straightforward. Click the `Upload` button on the top menu, select `Upload COCO Labels`, and choose the COCO JSON file.
+Prepare a label configuration file by referring to [classes.txt](../../assets/classes.txt), with each line representing a class, numbered sequentially from 0.</br>
 
-> JSON label file format can be referred to [instances_default.json](../../assets/annotations/instances_default.json).
+To import labels, click the `Upload` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
+To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `annotations` folder within the current image directory.
 
-- Upload DOTA Labels
+> Example COCO label file: [instances_default.json](../../assets/annotations/instances_default.json).
 
-Click the `Upload` button on the top menu, select `Upload DOTA Labels`, and choose the directory containing the label files.
+#### Import/Export VOC Labels
 
-- Upload MASK Labels
+X-AnyLabeling supports one-click import/export of Pascal-VOC labels for detection and segmentation tasks (`*.xml` files).</br>
 
-Mask labels are mainly used for segmentation algorithms. Currently, `X-AnyLabeling` supports two forms: grayscale and color modes. Before importing mask label files, you need to prepare a corresponding color mapping table file (*.json). Then, following the previous steps, click the `Upload` button on the top menu, select `Upload MASK Labels`, choose the defined color mapping table file, and finally select the directory containing the mask label files.
+To import labels, click the `Import` button on the menu, select the task, choose the label file directory and confirm.</br>
+To export labels, click the `Export` button and confirm. Exported files are saved in the `Annotations` folder within the current image directory.</br>
 
-> Color mapping table file for color images can be referred to [mask_color_map.json](../../assets/mask_color_map.json),</br>
-> Color mapping table file for grayscale images can be referred to [mask_grayscale_map.json](../../assets/mask_grayscale_map.json).
+> Example VOC label file: [demo.xml](../../assets/Annotations/demo.xml).
 
-- Upload MOT Labels
+#### Import/Export DOTA Labels
 
-MOT labels are used for multi-object tracking algorithms, and the label file type is `*.csv`. Similar to importing YOLO label files, you need to prepare a custom class file. Then, click the `Upload` button, select `Upload MOT Labels`, choose the custom class file, and finally import the CSV format MOT label file.
+X-AnyLabeling supports one-click import/export of DOTA label files (`*.txt`). The format is:</br>
 
----
+> x1 y1 x2 y2 x3 y3 x4 y4 class_name difficulty
 
-Export settings are similar to import settings. After completing the annotation task and verifying its correctness, click the export button in the top menu, and choose the appropriate format for export. Note that for different export styles, you may need to prepare class files or color mapping table files in advance, as described in the import settings.
+To import labels, click the `Upload` button on the menu, select the task, choose the label file directory and confirm.</br>
+To export labels, click the `Export` button and confirm. Exported files are saved in the `labelTxt` folder within the current image directory.</br>
+
+> Example DOTA label file: [demo_obb.txt](../../assets/labelTxt/demo_obb.txt).
+
+#### Import/Export MASK Labels
+
+X-AnyLabeling supports one-click import/export of semantic segmentation mask label files (`*.png`).</br>
+
+Before importing/exporting mask label files, prepare a configuration file:</br>
+1. For color maps of colored images, refer to [mask_color_map.json](../../assets/mask_color_map.json).</br>
+2. For grayscale maps, refer to [mask_grayscale_map.json](../../assets/mask_grayscale_map.json).</br>
+
+To import labels, click the `Upload` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
+To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `mask` folder within the current image directory.</br>
+
+#### Import/Export MOT Labels
+
+X-AnyLabeling supports one-click import/export of multi-object tracking label files (`*.csv`).</br>
+
+Prepare a label configuration file by referring to [classes.txt](../../assets/classes.txt), with each line representing a class, numbered sequentially from 0.</br>
+
+To import labels, click the `Import` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
+To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `MOT` folder within the current image directory.</br>
+
+> Example MOT label file: [demo_video.csv](../../assets/MOT/demo_video.csv).
 
 ### Configuration File Settings
 
@@ -81,7 +110,20 @@ label_colors:
 ...
 ```
 
-Now, you have successfully modified the color of the custom labels. The next time you use these labels during annotation, they will appear in the color you have set. Similarly, you can set some default configurations according to your needs, such as modifying the `labels` field for predefined labels or setting different shortcut keys for triggering settings based on your preferences.
+By following these steps, you have successfully customized the colors of your labels. The next time you use these labels in your annotations, they will appear in the colors you have set.
+
+Additionally, you can load predefined labels by modifying the `labels` field. Note that label names starting with **numbers** should be enclosed in single quotes `''`:
+
+```YAML
+...
+labels:
+- car
+- '1'
+- apple
+- _phone
+```
+
+You can also set different hotkeys for various functions. For more details, please refer to the configuration file.
 
 ### Quick Tag Modification Feature
 
