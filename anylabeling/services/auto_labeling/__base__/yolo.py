@@ -154,6 +154,7 @@ class YOLO(Model):
             self.show_boxes = True
             self.has_visible = self.config["has_visible"]
             self.kpt_thres = self.config.get("kpt_threshold", 0.1)
+            self.classes = self.config.get("classes", {})
             for class_name, keypoints in self.classes.items():
                 self.keypoint_name[class_name] = keypoints
             self.classes = list(self.classes.keys())

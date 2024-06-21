@@ -171,7 +171,7 @@ class YOLOv6Face(YOLO):
             rectangle_shape.add_point(QtCore.QPointF(x2, y2))
             rectangle_shape.add_point(QtCore.QPointF(x1, y2))
             shapes.append(rectangle_shape)
-            kpt_names = self.keypoints[label]
+            kpt_names = self.keypoint_name[label]
             for j in range(0, len(lmdks), 2):
                 x, y = lmdks[j], lmdks[j + 1]
                 point_shape = Shape(
