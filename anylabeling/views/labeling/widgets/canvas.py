@@ -1064,7 +1064,9 @@ class Canvas(
             if (
                 shape.selected or not self._hide_backround
             ) and self.is_visible(shape):
-                shape.fill = shape.selected or shape == self.h_hape
+                shape.fill = self._fill_drawing and (
+                    shape.selected or shape == self.h_hape
+                )
                 shape.paint(p)
 
             if (
