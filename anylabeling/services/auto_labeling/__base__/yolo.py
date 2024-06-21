@@ -266,7 +266,7 @@ class YOLO(Model):
                 conf_thres=self.conf_thres,
                 classes=self.filter_classes
             )
-        masks, kpts = None, None
+        masks, keypoints = None, None
         img_shape = (self.img_height, self.img_width)
         if self.task == "seg":
             proto = preds[1][-1] if len(preds[1]) == 3 else preds[1]
