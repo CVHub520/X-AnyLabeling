@@ -1,5 +1,5 @@
-import os
 import os.path as osp
+import shutil
 
 try:
     import importlib.resources as pkg_resources
@@ -44,8 +44,8 @@ def save_config(config):
 def get_default_config():
     old_cfg_file = osp.join(osp.expanduser("~"), ".anylabelingrc")
     new_cfg_file = osp.join(osp.expanduser("~"), ".xanylabelingrc")
-    if osp.exists(old_cfg_file):
-        os.rename(old_cfg_file, new_cfg_file)
+    if osp.exists(old_cfg_file) and not osp.exists(new_cfg_file):
+        shutil.copyfile(old_cfg_file, new_cfg_file)
 
     config_file = "xanylabeling_config.yaml"
     with pkg_resources.open_text(anylabeling_configs, config_file) as f:
