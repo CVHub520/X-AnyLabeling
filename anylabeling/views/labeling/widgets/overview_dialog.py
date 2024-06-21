@@ -2,7 +2,12 @@ import json
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QVBoxLayout, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import (
+    QVBoxLayout,
+    QTableWidget,
+    QProgressDialog,
+    QTableWidgetItem,
+)
 
 
 class OverviewDialog(QtWidgets.QDialog):
@@ -41,7 +46,26 @@ class OverviewDialog(QtWidgets.QDialog):
         label_infos = {}
         initial_nums = [0 for _ in range(len(self.available_shapes))]
 
-        for label_file in self.label_file_list:
+        progress_dialog = QProgressDialog(
+            self.tr("Loading..."),
+            self.tr("Cancel"),
+            0,
+            len(self.label_file_list),
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setStyleSheet("""
+        QProgressDialog QProgressBar {
+            border: 1px solid grey;
+            border-radius: 5px;
+            text-align: center;
+        }
+        QProgressDialog QProgressBar::chunk {
+            background-color: orange;
+        }
+        """)
+
+        for i, label_file in enumerate(self.label_file_list):
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             shapes = data.get("shapes", [])
@@ -53,7 +77,11 @@ class OverviewDialog(QtWidgets.QDialog):
                     )
                 shape_type = shape.get("shape_type", "")
                 label_infos[label][shape_type] += 1
+            progress_dialog.setValue(i)
+            if progress_dialog.wasCanceled():
+                break
 
+        progress_dialog.close()
         return label_infos
 
     def calculate_total_infos(self, label_infos):

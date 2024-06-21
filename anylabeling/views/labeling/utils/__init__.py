@@ -1,6 +1,9 @@
 # flake8: noqa
 
-from ._io import lblsave
+from ._io import (
+    is_chinese,
+    lblsave,
+)
 from .image import (
     apply_exif_orientation,
     img_arr_to_b64,
@@ -27,4 +30,7 @@ from .shape import (
     shape_to_mask,
     shapes_to_label,
     rectangle_from_diagonal,
+)
+from .video import (
+    extract_frames_from_video
 )

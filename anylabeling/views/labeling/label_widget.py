@@ -29,7 +29,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QProgressDialog,
     QScrollArea,
-    QInputDialog,
 )
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
@@ -614,18 +613,6 @@ class LabelingWidget(LabelDialog):
             icon="crop",
             tip=self.tr("Save cropped rectangle shape"),
         )
-        save_expanded_crop = action(
-            self.tr("&Save Expanded Sub-image"),
-            functools.partial(self.save_crop, "expand"),
-            icon="crop",
-            tip=self.tr("Save the cropped shape after expansion for checking"),
-        )
-        update_shape = action(
-            self.tr("&Update Shape"),
-            self.update_shape,
-            icon="update",
-            tip=self.tr("Update Shapes"),
-        )
         modify_label = action(
             self.tr("&Modify Label"),
             self.modify_label,
@@ -943,14 +930,14 @@ class LabelingWidget(LabelDialog):
             self.export_voc_annotation,
             None,
             icon="format_voc",
-            tip=self.tr("Export Custom PASCAL VOC Annotations"),
+            tip=self.tr("Export Custom PASCAL VOC Annotations - Rectangle/Polygon"),
         )
         export_coco_annotation = action(
             self.tr("&Export COCO Annotations"),
             self.export_coco_annotation,
             None,
             icon="format_coco",
-            tip=self.tr("Export Custom COCO Annotations"),
+            tip=self.tr("Export Custom COCO Annotations - Rectangle/Polygon"),
         )
         export_dota_annotation = action(
             self.tr("&Export DOTA Annotations"),
@@ -964,7 +951,7 @@ class LabelingWidget(LabelDialog):
             self.export_mask_annotation,
             None,
             icon="format_mask",
-            tip=self.tr("Export Custom MASK Annotations"),
+            tip=self.tr("Export Custom MASK Annotations - RGB/Gray"),
         )
         export_mot_annotation = action(
             self.tr("&Export MOT Annotations"),
@@ -1205,9 +1192,6 @@ class LabelingWidget(LabelDialog):
                 None,
                 save_crop,
                 None,
-                save_expanded_crop,
-                update_shape,
-                None,
                 modify_label,
                 None,
                 hbb_to_obb,
@@ -1391,14 +1375,6 @@ class LabelingWidget(LabelDialog):
 
         # Shape attributes
         self.shape_attributes = QLabel(self.tr("Attributes"))
-        self.shape_attributes.setStyleSheet(
-            "QLabel {"
-            "text-align: center;"
-            "padding: 0px;"
-            "font-size: 11px;"
-            "margin-bottom: 5px;"
-            "}"
-        )
         self.grid_layout = QGridLayout()
         self.scroll_area = QScrollArea()
         # Show vertical scrollbar as needed
@@ -1417,14 +1393,6 @@ class LabelingWidget(LabelDialog):
 
         # Shape text label
         self.shape_text_label = QLabel("Object Text")
-        self.shape_text_label.setStyleSheet(
-            "QLabel {"
-            "text-align: center;"
-            "padding: 0px;"
-            "font-size: 11px;"
-            "margin-bottom: 5px;"
-            "}"
-        )
         self.shape_text_edit = QPlainTextEdit()
         right_sidebar_layout.addWidget(
             self.shape_text_label, 0, Qt.AlignCenter
@@ -2069,93 +2037,6 @@ class LabelingWidget(LabelDialog):
 
         # Ensure the application processes events to update the UI
         QtWidgets.QApplication.processEvents()
-
-    def update_shape(self):
-        target_dir_path = str(
-            QtWidgets.QFileDialog.getExistingDirectory(
-                self,
-                self.tr("Please upload the x-anylabeling-crops directory"),
-                None,
-                QtWidgets.QFileDialog.ShowDirsOnly
-                | QtWidgets.QFileDialog.DontResolveSymlinks,
-            )
-        )
-        # Load meta data
-        src_dir_path = osp.join(target_dir_path, "src")
-        dst_dir_path = osp.join(target_dir_path, "dst")
-        meta_data_file = osp.join(target_dir_path, "meta_data.json")
-        if osp.exists(meta_data_file):
-            with open(meta_data_file, "r", encoding="utf-8") as f:
-                meta_data = json.loads(f.read())
-        else:
-            warning_message = self.tr(
-                "Please ensure that the 'meta_data.json' file is present in the specified location."
-            )
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                warning_message,
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-        # Handle error labels
-        try:
-            targets = []
-            for label in os.listdir(src_dir_path):
-                dir_path = osp.join(src_dir_path, label)
-                for file_name in os.listdir(dir_path):
-                    targets.append(file_name)
-            for label in os.listdir(dst_dir_path):
-                dir_path = osp.join(dst_dir_path, label)
-                for file_name in os.listdir(dir_path):
-                    targets.append(file_name)
-                    data = meta_data[file_name]
-                    shape = data["shape"]
-                    label_file = data["label_file"]
-                    with open(label_file, "r", encoding="utf-8") as f:
-                        label_info = json.loads(f.read())
-                    shapes = label_info["shapes"]
-                    for i in range(len(shapes)):
-                        if shapes[i] != shape:
-                            continue
-                        shapes[i]["label"] = label
-                        break
-                    label_info["shapes"] = shapes
-                    with open(label_file, "w", encoding="utf-8") as f:
-                        f.write(json.dumps(label_info))
-            # Remove empty labels
-            for file_name, data in meta_data.items():
-                if file_name in targets:
-                    continue
-                shape = data["shape"]
-                label_file = data["label_file"]
-                with open(label_file, "r", encoding="utf-8") as f:
-                    label_info = json.loads(f.read())
-                shapes = label_info["shapes"]
-                save_shapes = []
-                for s in shapes:
-                    if s == shape:
-                        continue
-                    save_shapes.append(s)
-                label_info["shapes"] = save_shapes
-                with open(label_file, "w", encoding="utf-8") as f:
-                    f.write(json.dumps(label_info))
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("Success"),
-                self.tr(
-                    "Labels updated successfully! Please reload the data."
-                ),
-                QtWidgets.QMessageBox.Ok,
-            )
-        except Exception as e:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Error"),
-                self.tr(f"{e}"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
 
     def modify_label(self):
         modify_label_dialog = LabelModifyDialog(
@@ -4726,98 +4607,6 @@ class LabelingWidget(LabelDialog):
         self.canvas.end_move(copy=False)
         self.set_dirty()
 
-    def extract_frames_from_video(self, target_video_path):
-        # Get the directory of the target file
-        video_dir = osp.dirname(target_video_path)
-
-        # Create a folder in the current directory with the current video file_name
-        folder_name = osp.splitext(osp.basename(target_video_path))[0]
-        output_dir = osp.join(video_dir, folder_name)
-
-        if osp.exists(output_dir):
-            # Ask the user if they want to overwrite the existing directory
-            reply = QMessageBox.question(
-                self,
-                "Directory Exists",
-                f"The directory '{folder_name}' already exists. Do you want to overwrite it?",
-                QMessageBox.Yes | QMessageBox.No
-            )
-            if reply == QMessageBox.No:
-                # If no, return None
-                return None
-            else:
-                # If yes, delete the existing directory first
-                shutil.rmtree(output_dir)
-
-        # Open the video file
-        video_capture = cv2.VideoCapture(target_video_path)
-        total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
-        fps = int(video_capture.get(cv2.CAP_PROP_FPS))
-
-        # Ask the user to input the frame interval
-        interval, ok = QInputDialog.getInt(
-            self,
-            self.tr("Frame Interval"),
-            self.tr(f"Enter the frame interval (FPS: {fps}):"),
-            1,  # default value
-            1,  # minimum value
-            total_frames,  # maximum value
-            1  # step
-        )
-
-        if not ok:
-            # If the user cancels the dialog, show a message box and return
-            QMessageBox.warning(self, "Cancelled", "Frame extraction was cancelled.")
-            return None
-
-        os.makedirs(output_dir)
-
-        # Decode the video and save frames to the created folder
-        progress_dialog = QProgressDialog(
-            self.tr("Extracting frames. Please wait..."),
-            self.tr("Cancel"),
-            0,
-            total_frames // interval
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle("Progress")
-        progress_dialog.setStyleSheet("""
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """)
-
-        frame_count = 0
-        saved_frame_count = 0
-        base_name = osp.splitext(osp.basename(target_video_path))[0]
-        while True:
-            ret, frame = video_capture.read()
-            if not ret:
-                break
-
-            if frame_count % interval == 0:
-                frame_filename = osp.join(
-                    output_dir, f"{base_name}-{saved_frame_count}.jpg"
-                )
-                cv2.imwrite(frame_filename, frame)
-                saved_frame_count += 1
-                progress_dialog.setValue(saved_frame_count)
-                if progress_dialog.wasCanceled():
-                    break
-
-            frame_count += 1
-
-        video_capture.release()
-        progress_dialog.close()
-
-        # Return the path of the created folder
-        return output_dir
-
     def open_video_file(self, _value=False):
         if not self.may_continue():
             return
@@ -4827,7 +4616,7 @@ class LabelingWidget(LabelDialog):
         supportedVideoFormats = (
             "*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv"
         )
-        target_video_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+        source_video_path , _ = QtWidgets.QFileDialog.getOpenFileName(
             self,
             self.tr("%s - Open Video file") % __appname__,
             default_open_video_path,
@@ -4835,7 +4624,7 @@ class LabelingWidget(LabelDialog):
         )
 
         # Check if the path contains Chinese characters
-        if self.containsChinese(target_video_path):
+        if utils.is_chinese(source_video_path):
             QMessageBox.warning(
                 self,
                 self.tr("Warning"),
@@ -4846,15 +4635,9 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        if os.path.exists(target_video_path):
-            target_dir_path = self.extract_frames_from_video(target_video_path)
+        if osp.exists(source_video_path):
+            target_dir_path = utils.extract_frames_from_video(self, source_video_path)
             self.import_image_folder(target_dir_path)
-
-    def containsChinese(self, s):
-        for char in s:
-            if "\u4e00" <= char <= "\u9fff":
-                return True
-        return False
 
     def open_folder_dialog(self, _value=False, dirpath=None):
         if not self.may_continue():
