@@ -648,6 +648,14 @@ class LabelingWidget(LabelDialog):
                 "Perform conversion from oriented bounding box to horizontal bounding box"
             ),
         )
+        polygon_to_hbb = action(
+            self.tr("&Convert Polygon to HBB"),
+            self.polygon_to_hbb,
+            icon="convert",
+            tip=self.tr(
+                "Perform conversion from polygon to horizontal bounding box"
+            ),
+        )
 
         documentation = action(
             self.tr("&Documentation"),
@@ -1204,6 +1212,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 hbb_to_obb,
                 obb_to_hbb,
+                polygon_to_hbb,
             ),
         )
         utils.add_actions(
@@ -1806,6 +1815,61 @@ class LabelingWidget(LabelDialog):
                             [x + w, y],
                             [x + w, y + w],
                             [x, y + w],
+                        ]
+                with open(label_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+
+                # Update progress bar
+                current_index += 1
+                progress_value = int((current_index / total_files) * 100)
+                progress_bar.setValue(progress_value)
+
+            # Reload the file after processing all label files
+            self.load_file(self.filename)
+            return True
+        except Exception as e:
+            print(f"Error occurred while updating labels: {e}")
+            return False
+        finally:
+            # Hide the progress dialog after processing is done
+            progress_dialog.hide()
+
+    def polygon_to_hbb(self):
+        label_file_list = self.get_label_file_list()
+
+        total_files = len(label_file_list)
+        current_index = 0
+
+        progress_dialog = QtWidgets.QDialog(self)
+        progress_dialog.setWindowTitle("Converting...")
+        progress_dialog_layout = QVBoxLayout(progress_dialog)
+        progress_bar = QtWidgets.QProgressBar()
+        progress_dialog_layout.addWidget(progress_bar)
+        progress_dialog.setLayout(progress_dialog_layout)
+
+        # Show the progress dialog before entering the loop
+        progress_dialog.show()
+
+        try:
+            for label_file in label_file_list:
+                # Update progress label
+                QtWidgets.QApplication.processEvents()
+
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for i in range(len(data["shapes"])):
+                    if data["shapes"][i]["shape_type"] == "polygon":
+                        data["shapes"][i]["shape_type"] = "rectangle"
+                        points = np.array(data["shapes"][i]["points"])
+                        xmin = int(np.min(points[:, 0]))
+                        ymin = int(np.min(points[:, 1]))
+                        xmax = int(np.max(points[:, 0]))
+                        ymax = int(np.max(points[:, 1]))
+                        data["shapes"][i]["points"] = [
+                            [xmin, ymin],
+                            [xmax, ymin],
+                            [xmax, ymax],
+                            [xmin, ymax],
                         ]
                 with open(label_file, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
