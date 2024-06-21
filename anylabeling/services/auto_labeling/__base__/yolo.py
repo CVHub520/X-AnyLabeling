@@ -330,6 +330,10 @@ class YOLO(Model):
         blob = self.preprocess(image, upsample_mode="letterbox")
         outputs = self.inference(blob)
         boxes, class_ids, scores, masks, keypoints = self.postprocess(outputs)
+
+        if keypoints is None:
+            keypoints = [[] for _ in range(len(boxes))]
+
         points = [[] for _ in range(len(boxes))]
         if self.task == "seg" and masks is not None:
             points = [
