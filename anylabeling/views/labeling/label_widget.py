@@ -4518,11 +4518,35 @@ class LabelingWidget(LabelDialog):
                 text_input_dialog = TextInputDialog(parent=self)
                 self.text_prompt = text_input_dialog.get_input_text()
                 if self.text_prompt:
-                    self.process_next_image()
+                    self.show_progress_dialog_and_process()
             else:
-                self.process_next_image()
+                self.show_progress_dialog_and_process()
 
-    def process_next_image(self):
+    def show_progress_dialog_and_process(self):
+        self.cancel_processing = False
+        progress_dialog = QProgressDialog(
+            self.tr("Inferencing..."),
+            self.tr("Cancel"),
+            self.image_index,
+            len(self.image_list),
+            self
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setStyleSheet("""
+        QProgressDialog QProgressBar {
+            border: 1px solid grey;
+            border-radius: 5px;
+            text-align: center;
+        }
+        QProgressDialog QProgressBar::chunk {
+            background-color: orange;
+        }
+        """)
+        progress_dialog.canceled.connect(self.cancel_operation)
+        self.process_next_image(progress_dialog)
+
+    def process_next_image(self, progress_dialog):
         if self.image_index < len(self.image_list):
             filename = self.image_list[self.image_index]
             self.filename = filename
@@ -4535,15 +4559,29 @@ class LabelingWidget(LabelDialog):
                 self.auto_labeling_widget.model_manager.predict_shapes(
                     self.image, self.filename
                 )
+
+            # Update the progress dialog
+            progress_dialog.setValue(self.image_index)
+
             self.image_index += 1
-            delay_ms = 1
-            QtCore.QTimer.singleShot(delay_ms, self.process_next_image)
+            if not self.cancel_processing:
+                delay_ms = 1
+                QtCore.QTimer.singleShot(delay_ms, lambda: self.process_next_image(progress_dialog))
+            else:
+                self.cancel_operation()
         else:
-            self.filename = self.image_list[self.current_index]
-            self.load_file(self.filename)
-            del self.text_prompt
-            del self.image_index
-            del self.current_index
+            self.finish_processing(progress_dialog)
+
+    def cancel_operation(self):
+        self.cancel_processing = True
+
+    def finish_processing(self, progress_dialog):
+        self.filename = self.image_list[self.current_index]
+        self.load_file(self.filename)
+        del self.text_prompt
+        del self.image_index
+        del self.current_index
+        progress_dialog.close()
 
     def remove_selected_point(self):
         self.canvas.remove_selected_point()
