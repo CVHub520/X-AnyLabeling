@@ -373,6 +373,8 @@ class YOLO(Model):
                     shape.group_id = int(i)
                 shapes.append(shape)
             if self.task == "seg":
+                if len(point) < 3:
+                    continue
                 shape = Shape(flags={})
                 for p in point:
                     shape.add_point(QtCore.QPointF(int(p[0]), int(p[1])))
