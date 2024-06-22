@@ -1393,14 +1393,14 @@ class ModelManager(QObject):
                     "model"
                 ].predict_shapes(image, filename, text_prompt)
             self.new_auto_labeling_result.emit(auto_labeling_result)
+            self.new_model_status.emit(
+                self.tr("Finished inferencing AI model. Check the result.")
+            )
         except Exception as e:  # noqa
             print(f"Error in predict_shapes: {e}")
             self.new_model_status.emit(
-                self.tr("Error in model prediction. Please check the model.")
+                self.tr(f"Error in model prediction: {e}. Please check the model.")
             )
-        self.new_model_status.emit(
-            self.tr("Finished inferencing AI model. Check the result.")
-        )
         self.prediction_finished.emit()
 
     @pyqtSlot()
