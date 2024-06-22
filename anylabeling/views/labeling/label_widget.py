@@ -609,9 +609,9 @@ class LabelingWidget(LabelDialog):
         )
         save_crop = action(
             self.tr("&Save Cropped Image"),
-            functools.partial(self.save_crop, "default"),
+            self.save_crop,
             icon="crop",
-            tip=self.tr("Save cropped rectangle shape"),
+            tip=self.tr("Save cropped image. (Support rectangle/rotation/polygon shape_type)"),
         )
         modify_label = action(
             self.tr("&Modify Label"),
@@ -1704,6 +1704,9 @@ class LabelingWidget(LabelDialog):
 
     def hbb_to_obb(self):
         label_file_list = self.get_label_file_list()
+        if len(label_file_list) == 0:
+            return
+
         progress_dialog = QProgressDialog(
             self.tr("Converting..."),
             self.tr("Cancel"),
@@ -1753,6 +1756,9 @@ class LabelingWidget(LabelDialog):
 
     def obb_to_hbb(self):
         label_file_list = self.get_label_file_list()
+        if len(label_file_list) == 0:
+            return
+
         progress_dialog = QProgressDialog(
             self.tr("Converting..."),
             self.tr("Cancel"),
@@ -1815,6 +1821,9 @@ class LabelingWidget(LabelDialog):
 
     def polygon_to_hbb(self):
         label_file_list = self.get_label_file_list()
+        if len(label_file_list) == 0:
+            return
+
         progress_dialog = QProgressDialog(
             self.tr("Converting..."),
             self.tr("Cancel"),
@@ -1874,34 +1883,8 @@ class LabelingWidget(LabelDialog):
             error_dialog.setWindowTitle("Error")
             error_dialog.exec_()
 
-    def save_crop(self, mode="default"):
+    def save_crop(self):
         if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before executing!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        classes_file = None
-        filter = "Classes Files (*.txt);;All Files (*)"
-        classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific classes file"),
-            "",
-            filter,
-        )
-        if classes_file:
-            with open(classes_file, "r", encoding="utf-8") as f:
-                classes = f.read().splitlines()
-        else:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please select a specific classes file!"),
-                QtWidgets.QMessageBox.Ok,
-            )
             return
 
         image_file_list, label_dir_path = [], ""
@@ -1918,142 +1901,109 @@ class LabelingWidget(LabelDialog):
             label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
-        crop_dic, meta_data, unique_labels = dict(), dict(), set()
         save_path = osp.join(
             osp.dirname(self.filename), "..", "x-anylabeling-crops"
         )
-        save_src_path = osp.join(save_path, "src")
-        save_dst_path = osp.join(save_path, "dst")
-        save_dic_path = osp.join(save_path, "meta_data.json")
         if osp.exists(save_path):
             shutil.rmtree(save_path)
-        for c in classes:
-            os.makedirs(osp.join(save_src_path, c))
-            os.makedirs(osp.join(save_dst_path, c))
 
-        total_images = len(image_file_list)
-        current_image = 0
-
-        progress_dialog = QtWidgets.QDialog(self)
-        progress_dialog.setWindowTitle("Processing...")
-        progress_dialog_layout = QVBoxLayout(progress_dialog)
-        progress_bar = QtWidgets.QProgressBar()
-        progress_dialog_layout.addWidget(progress_bar)
-        progress_dialog.setLayout(progress_dialog_layout)
-
-        # Show the progress dialog before entering the loop
-        progress_dialog.show()
-
+        progress_dialog = QProgressDialog(
+            self.tr("Processing..."),
+            self.tr("Cancel"),
+            0,
+            len(image_file_list),
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setStyleSheet("""
+        QProgressDialog QProgressBar {
+            border: 1px solid grey;
+            border-radius: 5px;
+            text-align: center;
+        }
+        QProgressDialog QProgressBar::chunk {
+            background-color: orange;
+        }
+        """)
+        label_to_count = {}
         try:
-            for image_file in image_file_list:
-                # Update progress label
-                QtWidgets.QApplication.processEvents()
-
+            for i, image_file in enumerate(image_file_list):
                 image_name = osp.basename(image_file)
-                base_name = osp.splitext(image_name)[0]
-                label_name = base_name + ".json"
+                label_name = osp.splitext(image_name)[0] + ".json"
                 label_file = osp.join(label_dir_path, label_name)
                 if not osp.exists(label_file):
                     continue
+
                 with open(label_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 shapes = data["shapes"]
                 for shape in shapes:
-                    if shape["shape_type"] in [
-                        "rectangle",
-                        "polygon",
-                        "rotation",
-                    ]:
-                        points = np.array(shape["points"]).astype(np.int32)
-                        x, y, w, h = cv2.boundingRect(points)
-                        xmin = int(x)
-                        ymin = int(y)
-                        xmax = int(w) + xmin
-                        ymax = int(h) + ymin
-                    else:
-                        continue
                     label = shape["label"]
-                    unique_labels.add(label)
-                    dst_path = osp.join(save_src_path, label)
-                    image = cv2.imread(image_file)
-                    xmin, ymin, xmax, ymax = map(int, [xmin, ymin, xmax, ymax])
-                    if mode == "default":
-                        crop_image = image[ymin:ymax, xmin:xmax]
-                    elif mode == "expand":
-                        img_h, img_w = ymax - ymin, xmax - xmin
-                        ori_h, ori_w, _ = image.shape
-                        pad_x = max(0, (256 - img_w) // 2)
-                        pad_y = max(0, (256 - img_h) // 2)
-                        x1 = max(0, xmin - pad_x)
-                        y1 = max(0, ymin - pad_y)
-                        x2 = min(ori_w, xmax + pad_x)
-                        y2 = min(ori_h, ymax + pad_y)
-                        crop_image = image[y1:y2, x1:x2]
-                        if pad_x or pad_y:
-                            _xmin = pad_x if x1 else xmin
-                            _ymin = pad_y if y1 else ymin
-                            _xmax = _xmin + img_w
-                            _ymax = _ymin + img_h
-                            cv2.rectangle(
-                                crop_image,
-                                (_xmin, _ymin),
-                                (_xmax, _ymax),
-                                (0, 165, 255),
-                                2,
-                            )
-                    if base_name not in crop_dic:
-                        crop_dic[base_name] = 0
-                        save_name = base_name
+                    points = shape["points"]
+                    shape_type = shape["shape_type"]
+                    if shape_type not in ["rectangle", "polygon", "rotation"]:
+                        continue
+                    if (shape_type == "polygon" and len(points) < 3) or \
+                       (shape_type == "rotation" and len(points) != 4) or \
+                       (shape_type == "rectangle" and len(points) != 4):
+                        progress_dialog.close()
+                        error_dialog = QMessageBox()
+                        error_dialog.setIcon(QMessageBox.Critical)
+                        error_dialog.setText("Existing invalid shape!")
+                        error_dialog.setInformativeText(label_file)
+                        error_dialog.setWindowTitle("Critical")
+                        error_dialog.exec_()
+                        progress_dialog.close()
+                        return
+
+                    points = np.array(points).astype(np.int32)
+                    x, y, w, h = cv2.boundingRect(points)
+                    xmin = int(x)
+                    ymin = int(y)
+                    xmax = int(w) + xmin
+                    ymax = int(h) + ymin
+
+                    dst_path = osp.join(save_path, label)
+                    if not osp.exists(dst_path):
+                        label_to_count[label] = 0
+                        os.makedirs(dst_path)
                     else:
-                        crop_dic[base_name] += 1
-                        save_name = base_name + str(crop_dic[base_name])
-                    dst_name = save_name + ".jpg"
-                    dst_file = osp.join(dst_path, dst_name)
+                        label_to_count[label] += 1
+
+                    image = cv2.imread(image_file)
+                    height, width = image.shape[:2]
+                    xmin, ymin, xmax, ymax = map(int, [xmin, ymin, xmax, ymax])
+                    xmin = max(0, min(xmin, width))
+                    ymin = max(0, min(ymin, height))
+                    xmax = max(xmin, min(xmax, width))
+                    ymax = max(ymin, min(ymax, height))
+                    crop_image = image[ymin:ymax, xmin:xmax]
+                    dst_file = osp.join(dst_path, f"{label_to_count[label]}-{shape_type}.jpg")
                     cv2.imencode(".jpg", crop_image)[1].tofile(dst_file)
-                    meta_data[dst_name] = {
-                        "shape": shape,
-                        "label_file": label_file,
-                    }
-
                 # Update progress bar
-                current_image += 1
-                progress_value = int((current_image / total_images) * 100)
-                progress_bar.setValue(progress_value)
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
+            # Hide the progress dialog after processing is done
+            progress_dialog.close()
 
-            with open(save_dic_path, "w", encoding="utf-8") as f:
-                f.write(json.dumps(meta_data))
+            # # Show success message
             save_path = osp.realpath(save_path)
-
-            success_message = QMessageBox(self)
-            success_message.setWindowTitle(self.tr("Success"))
-            success_message.setText(
-                self.tr(
-                    f"Shape cropped successfully!\n"
-                    f"Check the results in: {save_path}."
-                )
-            )
-            success_message.setIcon(QMessageBox.Information)
-            success_message.setStandardButtons(QMessageBox.Ok)
-            success_message.move(
-                self.mapToGlobal(self.rect().center())
-                - success_message.rect().center()
-            )
-            success_message.exec_()
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText("Cropping completed successfully!")
+            msg_box.setInformativeText(f"Cropped images have been saved to:\n{save_path}")
+            msg_box.setWindowTitle("Success")
+            msg_box.exec_()
 
         except Exception as e:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Error"),
-                self.tr(f"{e}"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-        finally:
-            # Hide the progress dialog after processing is done
-            progress_dialog.hide()
-
-        # Ensure the application processes events to update the UI
-        QtWidgets.QApplication.processEvents()
+            progress_dialog.close()
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText("Error occurred while saving cropped image.")
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec_()
 
     def modify_label(self):
         modify_label_dialog = LabelModifyDialog(
