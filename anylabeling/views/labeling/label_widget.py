@@ -1704,136 +1704,90 @@ class LabelingWidget(LabelDialog):
 
     def hbb_to_obb(self):
         label_file_list = self.get_label_file_list()
-
-        total_files = len(label_file_list)
-        current_index = 0
-
-        progress_dialog = QtWidgets.QDialog(self)
-        progress_dialog.setWindowTitle("Converting...")
-        progress_dialog_layout = QVBoxLayout(progress_dialog)
-        progress_bar = QtWidgets.QProgressBar()
-        progress_dialog_layout.addWidget(progress_bar)
-        progress_dialog.setLayout(progress_dialog_layout)
-
-        # Show the progress dialog before entering the loop
-        progress_dialog.show()
+        progress_dialog = QProgressDialog(
+            self.tr("Converting..."),
+            self.tr("Cancel"),
+            0,
+            len(label_file_list),
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setStyleSheet("""
+        QProgressDialog QProgressBar {
+            border: 1px solid grey;
+            border-radius: 5px;
+            text-align: center;
+        }
+        QProgressDialog QProgressBar::chunk {
+            background-color: orange;
+        }
+        """)
 
         try:
-            for label_file in label_file_list:
-                # Update progress label
-                QtWidgets.QApplication.processEvents()
-
+            for i, label_file in enumerate(label_file_list):
                 with open(label_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                for i in range(len(data["shapes"])):
-                    if data["shapes"][i]["shape_type"] == "rectangle":
-                        data["shapes"][i]["shape_type"] = "rotation"
-                        data["shapes"][i]["direction"] = 0
+                for j in range(len(data["shapes"])):
+                    if data["shapes"][j]["shape_type"] == "rectangle":
+                        data["shapes"][j]["shape_type"] = "rotation"
+                        data["shapes"][j]["direction"] = 0
                 with open(label_file, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
-
                 # Update progress bar
-                current_index += 1
-                progress_value = int((current_index / total_files) * 100)
-                progress_bar.setValue(progress_value)
-
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
+            # Hide the progress dialog after processing is done
+            progress_dialog.close()
             # Reload the file after processing all label files
             self.load_file(self.filename)
-            return True
+
         except Exception as e:
-            print(f"Error occurred while updating labels: {e}")
-            return False
-        finally:
-            # Hide the progress dialog after processing is done
-            progress_dialog.hide()
+            progress_dialog.close()
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText("Error occurred while updating labels.")
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec_()
 
     def obb_to_hbb(self):
         label_file_list = self.get_label_file_list()
-
-        total_files = len(label_file_list)
-        current_index = 0
-
-        progress_dialog = QtWidgets.QDialog(self)
-        progress_dialog.setWindowTitle("Converting...")
-        progress_dialog_layout = QVBoxLayout(progress_dialog)
-        progress_bar = QtWidgets.QProgressBar()
-        progress_dialog_layout.addWidget(progress_bar)
-        progress_dialog.setLayout(progress_dialog_layout)
-
-        # Show the progress dialog before entering the loop
-        progress_dialog.show()
-
-        try:
-            for label_file in label_file_list:
-                # Update progress label
-                QtWidgets.QApplication.processEvents()
-
-                with open(label_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                for i in range(len(data["shapes"])):
-                    if data["shapes"][i]["shape_type"] == "rotation":
-                        del data["shapes"][i]["direction"]
-                        data["shapes"][i]["shape_type"] = "rectangle"
-                        points = np.array(data["shapes"][i]["points"]).astype(
-                            np.int32
-                        )
-                        x, y, w, h = map(int, list(cv2.boundingRect(points)))
-                        data["shapes"][i]["points"] = [
-                            [x, y],
-                            [x + w, y],
-                            [x + w, y + w],
-                            [x, y + w],
-                        ]
-                with open(label_file, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-
-                # Update progress bar
-                current_index += 1
-                progress_value = int((current_index / total_files) * 100)
-                progress_bar.setValue(progress_value)
-
-            # Reload the file after processing all label files
-            self.load_file(self.filename)
-            return True
-        except Exception as e:
-            print(f"Error occurred while updating labels: {e}")
-            return False
-        finally:
-            # Hide the progress dialog after processing is done
-            progress_dialog.hide()
-
-    def polygon_to_hbb(self):
-        label_file_list = self.get_label_file_list()
-
-        total_files = len(label_file_list)
-        current_index = 0
-
-        progress_dialog = QtWidgets.QDialog(self)
-        progress_dialog.setWindowTitle("Converting...")
-        progress_dialog_layout = QVBoxLayout(progress_dialog)
-        progress_bar = QtWidgets.QProgressBar()
-        progress_dialog_layout.addWidget(progress_bar)
-        progress_dialog.setLayout(progress_dialog_layout)
-
-        # Show the progress dialog before entering the loop
-        progress_dialog.show()
+        progress_dialog = QProgressDialog(
+            self.tr("Converting..."),
+            self.tr("Cancel"),
+            0,
+            len(label_file_list),
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setStyleSheet("""
+        QProgressDialog QProgressBar {
+            border: 1px solid grey;
+            border-radius: 5px;
+            text-align: center;
+        }
+        QProgressDialog QProgressBar::chunk {
+            background-color: orange;
+        }
+        """)
 
         try:
-            for label_file in label_file_list:
-                # Update progress label
-                QtWidgets.QApplication.processEvents()
-
+            for i, label_file in enumerate(label_file_list):
                 with open(label_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
-                for i in range(len(data["shapes"])):
-                    if data["shapes"][i]["shape_type"] == "polygon":
-                        data["shapes"][i]["shape_type"] = "rectangle"
-                        points = np.array(data["shapes"][i]["points"])
+                for j in range(len(data["shapes"])):
+                    if data["shapes"][j]["shape_type"] == "rotation":
+                        del data["shapes"][j]["direction"]
+                        data["shapes"][j]["shape_type"] = "rectangle"
+                        points = np.array(data["shapes"][j]["points"])
+                        if len(points) != 4:
+                            continue
                         xmin = int(np.min(points[:, 0]))
                         ymin = int(np.min(points[:, 1]))
                         xmax = int(np.max(points[:, 0]))
                         ymax = int(np.max(points[:, 1]))
-                        data["shapes"][i]["points"] = [
+                        data["shapes"][j]["points"] = [
                             [xmin, ymin],
                             [xmax, ymin],
                             [xmax, ymax],
@@ -1841,21 +1795,84 @@ class LabelingWidget(LabelDialog):
                         ]
                 with open(label_file, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
-
                 # Update progress bar
-                current_index += 1
-                progress_value = int((current_index / total_files) * 100)
-                progress_bar.setValue(progress_value)
-
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
+            # Hide the progress dialog after processing is done
+            progress_dialog.close()
             # Reload the file after processing all label files
             self.load_file(self.filename)
-            return True
+
         except Exception as e:
-            print(f"Error occurred while updating labels: {e}")
-            return False
-        finally:
+            progress_dialog.close()
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText("Error occurred while updating labels.")
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec_()
+
+    def polygon_to_hbb(self):
+        label_file_list = self.get_label_file_list()
+        progress_dialog = QProgressDialog(
+            self.tr("Converting..."),
+            self.tr("Cancel"),
+            0,
+            len(label_file_list),
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setStyleSheet("""
+        QProgressDialog QProgressBar {
+            border: 1px solid grey;
+            border-radius: 5px;
+            text-align: center;
+        }
+        QProgressDialog QProgressBar::chunk {
+            background-color: orange;
+        }
+        """)
+
+        try:
+            for i, label_file in enumerate(label_file_list):
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                for j in range(len(data["shapes"])):
+                    if data["shapes"][j]["shape_type"] == "polygon":
+                        data["shapes"][j]["shape_type"] = "rectangle"
+                        points = np.array(data["shapes"][j]["points"])
+                        if len(points) < 3:
+                            continue
+                        xmin = int(np.min(points[:, 0]))
+                        ymin = int(np.min(points[:, 1]))
+                        xmax = int(np.max(points[:, 0]))
+                        ymax = int(np.max(points[:, 1]))
+                        data["shapes"][j]["points"] = [
+                            [xmin, ymin],
+                            [xmax, ymin],
+                            [xmax, ymax],
+                            [xmin, ymax],
+                        ]
+                with open(label_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+                # Update progress bar
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
             # Hide the progress dialog after processing is done
-            progress_dialog.hide()
+            progress_dialog.close()
+            # Reload the file after processing all label files
+            self.load_file(self.filename)
+
+        except Exception as e:
+            progress_dialog.close()
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText("Error occurred while updating labels.")
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle("Error")
+            error_dialog.exec_()
 
     def save_crop(self, mode="default"):
         if not self.filename:
