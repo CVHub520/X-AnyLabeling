@@ -100,11 +100,16 @@ class Canvas(
         # Set widget options.
         self.setMouseTracking(True)
         self.setFocusPolicy(QtCore.Qt.WheelFocus)
-        self.show_cross_line = True
         self.show_shape_groups = True
         self.show_texts = True
         self.show_labels = True
         self.show_shape_degrees = False
+
+        # Set cross line options.
+        self.cross_line_show = True
+        self.cross_line_size = 2.0
+        self.cross_line_color = "#00FF00"
+        self.cross_line_opacity = 0.5
 
         self.is_loading = False
         self.loading_text = self.tr("Loading...")
@@ -286,6 +291,8 @@ class Canvas(
 
         # Polygon drawing.
         if self.drawing():
+            line_color = utils.hex_to_rgb(self.cross_line_color)
+            self.line.line_color = QtGui.QColor(*line_color)
             self.line.shape_type = self.create_mode
 
             self.override_cursor(CURSOR_DRAW)
@@ -1235,14 +1242,14 @@ class Canvas(
                     )
 
         # Draw mouse coordinates
-        if self.show_cross_line:
+        if self.cross_line_show:
             pen = QtGui.QPen(
-                QtGui.QColor("#00FF00"),
-                max(1, int(round(2.0 / Shape.scale))),
+                QtGui.QColor(self.cross_line_color),
+                max(1, int(round(self.cross_line_size / Shape.scale))),
                 Qt.DashLine,
             )
             p.setPen(pen)
-            p.setOpacity(0.5)
+            p.setOpacity(self.cross_line_opacity)
             p.drawLine(
                 QtCore.QPointF(self.prev_move_point.x(), 0),
                 QtCore.QPointF(self.prev_move_point.x(), self.pixmap.height()),
@@ -1610,9 +1617,12 @@ class Canvas(
         self.shapes_backups = []
         self.update()
 
-    def set_show_cross_line(self, enabled):
-        """Set cross line visibility"""
-        self.show_cross_line = enabled
+    def set_cross_line(self, show, size, color, opacity):
+        """Set cross line options"""
+        self.cross_line_show = show
+        self.cross_line_size = size
+        self.cross_line_color = color
+        self.cross_line_opacity = opacity
         self.update()
 
     def set_show_groups(self, enabled):

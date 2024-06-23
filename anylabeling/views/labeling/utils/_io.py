@@ -1,14 +1,9 @@
 import os.path as osp
-import re
 
 import imgviz
 import numpy as np
 import PIL.Image
 
-
-def is_chinese(s='人工智能'):
-    # Is string composed of any Chinese characters?
-    return bool(re.search('[\u4e00-\u9fff]', str(s)))
 
 def lblsave(filename, lbl):
     if osp.splitext(filename)[1] != ".png":

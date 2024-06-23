@@ -1,7 +1,10 @@
 # flake8: noqa
 
-from ._io import (
+from .general import (
+    hex_to_rgb,
     is_chinese,
+)
+from ._io import (
     lblsave,
 )
 from .image import (

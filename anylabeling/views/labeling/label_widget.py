@@ -48,6 +48,7 @@ from .widgets import (
     AutoLabelingWidget,
     BrightnessContrastDialog,
     Canvas,
+    CrosshairSettingsDialog,
     FileDialogPreview,
     TextInputDialog,
     LabelDialog,
@@ -754,14 +755,11 @@ class LabelingWidget(LabelDialog):
             "Adjust brightness and contrast",
             enabled=False,
         )
-        show_cross_line = action(
-            self.tr("&Show Cross Line"),
-            self.enable_show_cross_line,
-            tip=self.tr("Show cross line for mouse position"),
-            icon="cartesian",
-            checkable=True,
-            checked=self._config["show_cross_line"],
-            enabled=True,
+        set_cross_line = action(
+            self.tr("&Set Cross Line"),
+            self.set_cross_line,
+            tip=self.tr("Set cross line for mouse position"),
+            icon="cartesian"
         )
         show_groups = action(
             self.tr("&Show Groups"),
@@ -1076,7 +1074,7 @@ class LabelingWidget(LabelDialog):
             fit_window=fit_window,
             fit_width=fit_width,
             brightness_contrast=brightness_contrast,
-            show_cross_line=show_cross_line,
+            set_cross_line=set_cross_line,
             show_groups=show_groups,
             show_texts=show_texts,
             show_labels=show_labels,
@@ -1268,7 +1266,7 @@ class LabelingWidget(LabelDialog):
                 fit_width,
                 None,
                 brightness_contrast,
-                show_cross_line,
+                set_cross_line,
                 show_texts,
                 show_labels,
                 show_degrees,
@@ -2910,11 +2908,15 @@ class LabelingWidget(LabelDialog):
         self._config["keep_prev_contrast"] = enabled
         self.actions.keep_prev_contrast.setChecked(enabled)
 
-    def enable_show_cross_line(self, enabled):
-        self._config["show_cross_line"] = enabled
-        self.actions.show_cross_line.setChecked(enabled)
-        self.canvas.set_show_cross_line(enabled)
-        save_config(self._config)
+    def set_cross_line(self):
+        crosshair_dialog = CrosshairSettingsDialog()
+        if crosshair_dialog.exec_() == QtWidgets.QDialog.Accepted:
+            crosshair_settings = crosshair_dialog.get_settings()
+            show = crosshair_settings["show"]
+            size = crosshair_settings["size"]
+            color = crosshair_settings["color"]
+            opacity = crosshair_settings["opacity"]
+            self.canvas.set_cross_line(show, size, color, opacity)
 
     def enable_show_groups(self, enabled):
         self._config["show_groups"] = enabled
