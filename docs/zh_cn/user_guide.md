@@ -12,6 +12,8 @@
 1. 对于 YOLO 目标检测/实例分割/旋转框检测任务，请参考[classes.txt](../../assets/classes.txt)准备配置文件，其中每一行代表一个类别，编号由上往下从0开始依次递增。
 2. 对于 YOLO 关键点检测任务，请参考[yolov8_pose.yaml](../../assets/yolov8_pose.yaml)进行准备，这里`has_visible`参数请参考[官方定义](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format)。
 
+> 要以 YOLO-Pose 格式导出，您需要在标注过程中为每个组（检测框及其关键点）指定 group_id，以便 X-AnyLabeling 在导出时能够理解它们之间的从属关系。
+
 对于导入任务，点击上方菜单栏的 `导入` 按钮，点击对应的任务，上传准备好的配置文件，最后再选择标签文件所在目录，点击确定即可。</br>
 对于导出任务，点击上方菜单栏的 `导出` 按钮，上传准备好的配置文件，点击确定即可。导出路径默认保存在当前图片目录的同级目录下的`labels`文件夹下。
 
