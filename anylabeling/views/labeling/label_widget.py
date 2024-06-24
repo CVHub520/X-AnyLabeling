@@ -128,6 +128,8 @@ class LabelingWidget(LabelDialog):
 
         # Set point size from config file
         Shape.point_size = self._config["shape"]["point_size"]
+        # Set line width from config file
+        Shape.line_width = self._config["shape"]["line_width"]
 
         super(LabelDialog, self).__init__()
 
@@ -267,6 +269,10 @@ class LabelingWidget(LabelDialog):
         self.canvas.shape_rotated.connect(self.set_dirty)
         self.canvas.selection_changed.connect(self.shape_selection_changed)
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
+
+        # Crosshair
+        self.crosshair_settings = self._config["canvas"]["crosshair"]
+        self.canvas.set_cross_line(**self.crosshair_settings)
 
         self._central_widget = scroll_area
 
@@ -2951,14 +2957,16 @@ class LabelingWidget(LabelDialog):
         self.actions.keep_prev_contrast.setChecked(enabled)
 
     def set_cross_line(self):
-        crosshair_dialog = CrosshairSettingsDialog()
+        crosshair_dialog = CrosshairSettingsDialog(**self.crosshair_settings)
         if crosshair_dialog.exec_() == QtWidgets.QDialog.Accepted:
             crosshair_settings = crosshair_dialog.get_settings()
             show = crosshair_settings["show"]
-            size = crosshair_settings["size"]
+            width = crosshair_settings["width"]
             color = crosshair_settings["color"]
             opacity = crosshair_settings["opacity"]
-            self.canvas.set_cross_line(show, size, color, opacity)
+            self.canvas.set_cross_line(show, width, color, opacity)
+            self._config["canvas"]["crosshair"] = crosshair_settings
+            save_config(self._config)
 
     def enable_show_groups(self, enabled):
         self._config["show_groups"] = enabled

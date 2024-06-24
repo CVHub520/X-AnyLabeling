@@ -107,7 +107,7 @@ class Canvas(
 
         # Set cross line options.
         self.cross_line_show = True
-        self.cross_line_size = 2.0
+        self.cross_line_width = 2.0
         self.cross_line_color = "#00FF00"
         self.cross_line_opacity = 0.5
 
@@ -1245,7 +1245,7 @@ class Canvas(
         if self.cross_line_show:
             pen = QtGui.QPen(
                 QtGui.QColor(self.cross_line_color),
-                max(1, int(round(self.cross_line_size / Shape.scale))),
+                max(1, int(round(self.cross_line_width / Shape.scale))),
                 Qt.DashLine,
             )
             p.setPen(pen)
@@ -1617,10 +1617,10 @@ class Canvas(
         self.shapes_backups = []
         self.update()
 
-    def set_cross_line(self, show, size, color, opacity):
+    def set_cross_line(self, show, width, color, opacity):
         """Set cross line options"""
         self.cross_line_show = show
-        self.cross_line_size = size
+        self.cross_line_width = width
         self.cross_line_color = color
         self.cross_line_opacity = opacity
         self.update()

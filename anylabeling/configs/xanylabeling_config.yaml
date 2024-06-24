@@ -37,6 +37,7 @@ shape:
   select_fill_color: [0, 255, 0, 155]
   hvertex_fill_color: [255, 255, 255, 255]
   point_size: 8
+  line_width: 2
 
 # main
 flag_dock:
@@ -75,6 +76,11 @@ canvas:
   double_click: close
   # The max number of edits we can undo
   num_backups: 10
+  crosshair:
+    show: true
+    width: 2.0
+    color: "#00FF00"
+    opacity: 0.5
 
 shortcuts:
   close: Ctrl+W

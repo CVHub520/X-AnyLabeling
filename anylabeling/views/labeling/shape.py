@@ -42,6 +42,7 @@ class Shape:
     point_type = P_ROUND
     point_size = 4
     scale = 1.5
+    line_width = 2.0
 
     def __init__(
         self,
@@ -183,7 +184,7 @@ class Shape:
             )
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
-            pen.setWidth(max(1, int(round(2.0 / self.scale))))
+            pen.setWidth(max(1, int(round(self.line_width / self.scale))))
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
