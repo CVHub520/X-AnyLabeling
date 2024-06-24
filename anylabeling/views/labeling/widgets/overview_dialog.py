@@ -53,7 +53,7 @@ class OverviewDialog(QtWidgets.QDialog):
             len(self.label_file_list),
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle("Progress")
+        progress_dialog.setWindowTitle(self.tr("Progress"))
         progress_dialog.setStyleSheet("""
         QProgressDialog QProgressBar {
             border: 1px solid grey;

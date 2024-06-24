@@ -329,7 +329,7 @@ class LabelConverter:
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)        
 
-    def yolo_to_custom(self, input_file, output_file, image_file):
+    def yolo_to_custom(self, input_file, output_file, image_file, mode):
         self.reset()
         with open(input_file, "r", encoding="utf-8") as f:
             lines = f.readlines()
@@ -339,7 +339,7 @@ class LabelConverter:
             line = line.strip().split(" ")
             class_index = int(line[0])
             label = self.classes[class_index]
-            if len(line) == 5:
+            if mode == "hbb":
                 shape_type = "rectangle"
                 cx = float(line[1])
                 cy = float(line[2])
@@ -355,7 +355,7 @@ class LabelConverter:
                     [xmax, ymax],
                     [xmin, ymax],
                 ]
-            else:
+            elif mode == "seg":
                 shape_type = "polygon"
                 points, masks = [], line[1:]
                 for x, y in zip(masks[0::2], masks[1::2]):
@@ -379,7 +379,7 @@ class LabelConverter:
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def voc_to_custom(self, input_file, output_file, image_filename):
+    def voc_to_custom(self, input_file, output_file, image_filename, mode):
         self.reset()
 
         tree = ET.parse(input_file)
@@ -398,7 +398,7 @@ class LabelConverter:
             if obj.find("difficult") is not None:
                 difficult = str(obj.find("difficult").text)
             points = []
-            if obj.find("polygon") is not None:
+            if obj.find("polygon") is not None and mode == "polygon":
                 num_points = len(obj.find("polygon")) // 2
                 for i in range(1, num_points+1):
                     x_tag = f"polygon/x{i}"
@@ -407,7 +407,7 @@ class LabelConverter:
                     y = float(obj.find(y_tag).text)
                     points.append([x, y])
                 shape_type = "polygon"
-            elif obj.find("bndbox") is not None:
+            elif obj.find("bndbox") is not None and mode in ["rectangle", "polygon"]:
                 xmin = float(obj.find("bndbox/xmin").text)
                 ymin = float(obj.find("bndbox/ymin").text)
                 xmax = float(obj.find("bndbox/xmax").text)
@@ -434,7 +434,7 @@ class LabelConverter:
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def coco_to_custom(self, input_file, image_path):
+    def coco_to_custom(self, input_file, image_path, mode):
         with open(input_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -458,23 +458,33 @@ class LabelConverter:
             }
 
         for dic_info in data["annotations"]:
-            bbox = dic_info["bbox"]
-            xmin = bbox[0]
-            ymin = bbox[1]
-            width = bbox[2]
-            height = bbox[3]
-            xmax = xmin + width
-            ymax = ymin + height
-
-            shape_type = "rectangle"
             difficult = bool(int(str(dic_info.get("ignore", "0"))))
             label = self.classes[dic_info["category_id"] - 1]
-            points = [
-                [xmin, ymin],
-                [xmax, ymin],
-                [xmax, ymax],
-                [xmin, ymax],
-            ]
+
+            if mode == "rectangle":
+                shape_type = "rectangle"
+                bbox = dic_info["bbox"]
+                xmin = bbox[0]
+                ymin = bbox[1]
+                width = bbox[2]
+                height = bbox[3]
+                xmax = xmin + width
+                ymax = ymin + height
+                points = [
+                    [xmin, ymin],
+                    [xmax, ymin],
+                    [xmax, ymax],
+                    [xmin, ymax],
+                ]
+            elif mode == "polygon":
+                shape_type = "polygon"
+                segmentation = dic_info["segmentation"][0]
+                if len(segmentation) < 6 or len(segmentation) % 2 != 0:
+                    continue
+                points = []
+                for i in range(0, len(segmentation), 2):
+                    points.append([segmentation[i], segmentation[i+1]])
+
             shape = {
                 "label": label,
                 "shape_type": shape_type,
@@ -662,6 +672,8 @@ class LabelConverter:
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
                     points = np.array(shape["points"])
+                    if len(points) < 3:
+                        continue
                     class_index = self.classes.index(label)
                     norm_points = points / image_size
                     f.write(
@@ -755,7 +767,7 @@ class LabelConverter:
                             label += f" 0 0"
                     f.write(f"{label}\n")
 
-    def custom_to_voc(self, input_file, output_dir):
+    def custom_to_voc(self, input_file, output_dir, mode):
         with open(input_file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
@@ -782,7 +794,7 @@ class LabelConverter:
             ET.SubElement(object_elem, "truncated").text = "0"
             ET.SubElement(object_elem, "occluded").text = "0"
             ET.SubElement(object_elem, "difficult").text = str(int(difficult))
-            if shape["shape_type"] == "rectangle":
+            if shape["shape_type"] == "rectangle" and mode in ["rectangle", "polygon"]:
                 if len(points) == 2:
                     logger.warning(
                         "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -795,7 +807,9 @@ class LabelConverter:
                 ET.SubElement(bndbox, "ymin").text = str(int(ymin))
                 ET.SubElement(bndbox, "xmax").text = str(int(xmax))
                 ET.SubElement(bndbox, "ymax").text = str(int(ymax))
-            elif shape["shape_type"] == "polygon":
+            elif shape["shape_type"] == "polygon" and mode == "polygon":
+                if len(points) < 3:
+                    continue
                 xmin, ymin, xmax, ymax = self.calculate_bounding_box(points)
                 bndbox = ET.SubElement(object_elem, "bndbox")
                 ET.SubElement(bndbox, "xmin").text = str(int(xmin))
@@ -816,7 +830,7 @@ class LabelConverter:
         with open(output_dir, "w", encoding="utf-8") as f:
             f.write(formatted_xml)
 
-    def custom_to_coco(self, input_path, output_path):
+    def custom_to_coco(self, input_path, output_path, mode):
         coco_data = self.get_coco_data()
 
         for i, class_name in enumerate(self.classes):
@@ -856,7 +870,7 @@ class LabelConverter:
                 class_id = self.classes.index(label)
                 bbox, segmentation, area = [], [], 0
                 shape_type = shape["shape_type"]
-                if shape_type == "rectangle":
+                if shape_type == "rectangle" and mode in ["rectangle", "polygon"]:
                     if len(points) == 2:
                         logger.warning(
                             "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -871,7 +885,7 @@ class LabelConverter:
                     height = y_max - y_min
                     bbox = [x_min, y_min, width, height]
                     area = width * height
-                elif shape_type == "polygon":
+                elif shape_type == "polygon" and mode == "polygon":
                     for point in points:
                         segmentation += point
                     bbox = self.get_min_enclosing_bbox(segmentation)
