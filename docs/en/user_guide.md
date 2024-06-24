@@ -12,6 +12,8 @@ Before importing/exporting YOLO label files, prepare a label configuration file:
 1. For object detection, instance segmentation, and oriented bounding box, refer to [classes.txt](../../assets/classes.txt), with each line representing a class, numbered sequentially from 0.
 2. For keypoint detection, refer to [yolov8_pose.yaml](../../assets/yolov8_pose.yaml), following the `has_visible` parameter as per the [official definition](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format).</br>
 
+> To export in YOLO-Pose format, you need to specify a group_id for each group (bounding box and its keypoints) during the annotation process so that X-Anylabeling can understand their relationships during export.
+
 To import labels, click the `Upload` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
 To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `labels` folder within the current image directory.</br>
 
