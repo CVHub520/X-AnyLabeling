@@ -49,7 +49,9 @@ class LabelFile:
             # A more efficient solution should be considered in the future.
             from PIL import Image, ExifTags
             with Image.open(filename) as img:
-                exif_data = img._getexif()
+                exif_data=None
+                if hasattr(img, '_getexif'):
+                    exif_data = img._getexif()
                 if exif_data is not None:
                     for tag, value in exif_data.items():
                         tag_name = ExifTags.TAGS.get(tag, tag)

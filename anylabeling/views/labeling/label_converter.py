@@ -459,7 +459,7 @@ class LabelConverter:
 
         for dic_info in data["annotations"]:
             difficult = bool(int(str(dic_info.get("ignore", "0"))))
-            label = self.classes[dic_info["category_id"] - 1]
+            label = label_info[dic_info["category_id"]]
 
             if mode == "rectangle":
                 shape_type = "rectangle"
