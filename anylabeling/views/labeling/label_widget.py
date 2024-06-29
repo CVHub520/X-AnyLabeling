@@ -1752,6 +1752,17 @@ class LabelingWidget(LabelDialog):
         if len(label_file_list) == 0:
             return
 
+        response = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be changed"),
+            self.tr(
+                "You are about to start a transformation. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        )
+        if response != QtWidgets.QMessageBox.Ok:
+            return
+
         progress_dialog = QProgressDialog(
             self.tr("Converting..."),
             self.tr("Cancel"),
@@ -1802,6 +1813,17 @@ class LabelingWidget(LabelDialog):
     def obb_to_hbb(self):
         label_file_list = self.get_label_file_list()
         if len(label_file_list) == 0:
+            return
+
+        response = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be changed"),
+            self.tr(
+                "You are about to start a transformation. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        )
+        if response != QtWidgets.QMessageBox.Ok:
             return
 
         progress_dialog = QProgressDialog(
@@ -1867,6 +1889,17 @@ class LabelingWidget(LabelDialog):
     def polygon_to_hbb(self):
         label_file_list = self.get_label_file_list()
         if len(label_file_list) == 0:
+            return
+
+        response = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Current annotation will be changed"),
+            self.tr(
+                "You are about to start a transformation. Continue?"
+            ),
+            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+        )
+        if response != QtWidgets.QMessageBox.Ok:
             return
 
         progress_dialog = QProgressDialog(
