@@ -317,7 +317,7 @@ class LabelingWidget(LabelDialog):
             self.open_next_image,
             shortcuts["open_next"],
             "next",
-            self.tr("Open next (hold Ctrl+Shift to copy labels)"),
+            self.tr("Open next (hold Ctrl+Shift to move to the next labeled image)"),
             enabled=False,
         )
         open_prev_image = action(
@@ -325,7 +325,7 @@ class LabelingWidget(LabelDialog):
             self.open_prev_image,
             shortcuts["open_prev"],
             "prev",
-            self.tr("Open prev (hold Ctrl+Shift to copy labels)"),
+            self.tr("Open prev (hold Ctrl+Shift to move to the prev labeled image)"),
             enabled=False,
         )
         save = action(
@@ -3338,12 +3338,10 @@ class LabelingWidget(LabelDialog):
             self.load_file(filename)
 
     def open_prev_image(self, _value=False):
-        keep_prev = self._config["keep_prev"]
         if QtWidgets.QApplication.keyboardModifiers() == (
             Qt.ControlModifier | Qt.ShiftModifier
         ):
-            self._config["keep_prev"] = True
-            save_config(self._config)
+            self.open_labeled_image(-1, -1)
 
         if not self.may_continue():
             return
@@ -3360,16 +3358,12 @@ class LabelingWidget(LabelDialog):
             if filename:
                 self.load_file(filename)
 
-        self._config["keep_prev"] = keep_prev
-        save_config(self._config)
-
     def open_next_image(self, _value=False, load=True):
-        keep_prev = self._config["keep_prev"]
         if QtWidgets.QApplication.keyboardModifiers() == (
             Qt.ControlModifier | Qt.ShiftModifier
         ):
-            self._config["keep_prev"] = True
-            save_config(self._config)
+            self.open_labeled_image(self.file_list_widget.count(), 1, load)
+            return
 
         if not self.may_continue():
             return
@@ -3391,8 +3385,17 @@ class LabelingWidget(LabelDialog):
         if self.filename and load:
             self.load_file(self.filename)
 
-        self._config["keep_prev"] = keep_prev
-        save_config(self._config)
+    def open_labeled_image(self, end_index, step, load=True):
+        if not self.may_continue():
+            return
+
+        current_index = self.image_list.index(self.filename)
+        for i in range(current_index + step, end_index, step):
+            if self.file_list_widget.item(i).checkState() == Qt.Checked:
+                self.filename = self.image_list[i]
+                if self.filename and load:
+                    self.load_file(self.filename)
+                break
 
     # Uplaod
     def upload_attr_file(self):
