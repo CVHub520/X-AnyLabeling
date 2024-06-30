@@ -3342,6 +3342,7 @@ class LabelingWidget(LabelDialog):
             Qt.ControlModifier | Qt.ShiftModifier
         ):
             self.open_labeled_image(-1, -1)
+            return
 
         if not self.may_continue():
             return
@@ -3388,7 +3389,6 @@ class LabelingWidget(LabelDialog):
     def open_labeled_image(self, end_index, step, load=True):
         if not self.may_continue():
             return
-
         current_index = self.image_list.index(self.filename)
         for i in range(current_index + step, end_index, step):
             if self.file_list_widget.item(i).checkState() == Qt.Checked:
