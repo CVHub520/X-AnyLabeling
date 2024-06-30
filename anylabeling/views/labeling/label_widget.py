@@ -104,6 +104,7 @@ class LabelingWidget(LabelDialog):
         self.selected_polygon_stack = []
         self.available_shapes = Shape.get_available_shapes()
         self.hidden_cls = []
+        self.label_info = {}
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -2084,10 +2085,7 @@ class LabelingWidget(LabelDialog):
             error_dialog.exec_()
 
     def modify_label(self):
-        modify_label_dialog = LabelModifyDialog(
-            label_file_list=self.get_label_file_list(),
-            hidden_cls=self.hidden_cls,
-        )
+        modify_label_dialog = LabelModifyDialog(parent=self, opacity=LABEL_OPACITY)
         result = modify_label_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
             self.load_file(self.filename)
@@ -2580,7 +2578,9 @@ class LabelingWidget(LabelDialog):
         shape.select_line_color = QtGui.QColor(255, 255, 255)
         shape.select_fill_color = QtGui.QColor(r, g, b, 155)
 
-    def _get_rgb_by_label(self, label):
+    def _get_rgb_by_label(self, label, skip_label_info=False):
+        if label in self.label_info and not skip_label_info:
+            return tuple(self.label_info[label]["color"])
         if self._config["shape_color"] == "auto":
             if not self.unique_label_list.find_items_by_label(label):
                 item = self.unique_label_list.create_item_from_label(label)

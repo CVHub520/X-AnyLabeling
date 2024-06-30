@@ -2,8 +2,9 @@ import re
 import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtWidgets import QColorDialog, QTableWidgetItem, QTableWidget, QCheckBox
 
 from .. import utils
 from ..logger import logger
@@ -13,26 +14,53 @@ from ..logger import logger
 # - Calculate optimal position so as not to go out of screen area.
 
 
-class LabelModifyDialog(QtWidgets.QDialog):
-    def __init__(self, label_file_list, parent=None, hidden_cls=[]):
+class LabelColorButton(QtWidgets.QWidget):
+    def __init__(self, color, parent=None):
         super().__init__(parent)
-        self.label_file_list = label_file_list
-        self.hidden_cls = hidden_cls
-        self.label_info = self.get_classes()
+        self.color = color
+        self.parent = parent
+        self.init_ui()
+
+    def init_ui(self):
+        self.color_label = QtWidgets.QLabel()
+        self.color_label.setFixedSize(15, 15)
+        self.color_label.setStyleSheet(f'background-color: {self.color.name()}; border: 1px solid transparent; border-radius: 10px;')
+        
+        self.layout = QtWidgets.QHBoxLayout(self)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.color_label)
+        
+    def set_color(self, color):
+        self.color = color
+        self.color_label.setStyleSheet(f'background-color: {self.color.name()}; border: 1px solid transparent; border-radius: 10px;')
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.parent.change_color(self)
+
+
+class LabelModifyDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None, opacity=128):
+        super(LabelModifyDialog, self).__init__(parent)
+        self.parent = parent
+        self.opacity = opacity
+        self.label_file_list = parent.get_label_file_list()
+        self.hidden_cls = parent.hidden_cls
+        self.init_label_info()
         self.init_ui()
 
     def init_ui(self):
         self.setWindowTitle("Label Change Manager")
         self.setGeometry(100, 100, 600, 400)
 
-        self.table_widget = QtWidgets.QTableWidget(self)
-        self.table_widget.setColumnCount(4)
+        self.table_widget = QTableWidget(self)
+        self.table_widget.setColumnCount(5)
         self.table_widget.setHorizontalHeaderLabels(
-            ["Category", "Delete", "New Value", "Hidden"]
+            ["Category", "Delete", "New Value", "Hidden", "Color"]
         )
 
         # Set header font and alignment
-        for i in range(4):
+        for i in range(5):
             self.table_widget.horizontalHeaderItem(i).setFont(
                 QFont("Arial", 8, QFont.Bold)
             )
@@ -58,24 +86,24 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.populate_table()
 
     def populate_table(self):
-        for i, (class_name, info) in enumerate(self.label_info.items()):
+        for i, (label, info) in enumerate(self.parent.label_info.items()):
             self.table_widget.insertRow(i)
 
-            class_item = QtWidgets.QTableWidgetItem(class_name)
+            class_item = QTableWidgetItem(label)
             class_item.setFlags(class_item.flags() ^ QtCore.Qt.ItemIsEditable)
 
-            delete_checkbox = QtWidgets.QCheckBox()
+            delete_checkbox = QCheckBox()
             delete_checkbox.setChecked(info["delete"])
-            delete_checkbox.setIcon(QIcon(":/images/images/delete.png"))
+            delete_checkbox.setIcon(QtGui.QIcon(":/images/images/delete.png"))
             delete_checkbox.stateChanged.connect(
                 lambda state, row=i: self.on_delete_checkbox_changed(
                     row, state
                 )
             )
 
-            hidden_checkbox = QtWidgets.QCheckBox()
+            hidden_checkbox = QCheckBox()
             hidden_checkbox.setChecked(info["hidden"])
-            hidden_checkbox.setIcon(QIcon(":/images/images/hidden.png"))
+            hidden_checkbox.setIcon(QtGui.QIcon(":/images/images/hidden.png"))
             hidden_checkbox.stateChanged.connect(
                 lambda state, row=i: self.on_hidden_checkbox_changed(
                     row, state
@@ -84,7 +112,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
             delete_checkbox.setCheckable(not info["hidden"])
 
-            value_item = QtWidgets.QTableWidgetItem(info["value"])
+            value_item = QTableWidgetItem(info["value"] if info["value"] else "")
             value_item.setFlags(
                 value_item.flags() & ~QtCore.Qt.ItemIsEditable
                 if info["delete"]
@@ -96,10 +124,24 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 else QtGui.QColor("white")
             )
 
+            color = QColor(*info['color'])
+            color.setAlpha(info['opacity'])
+            color_button = LabelColorButton(color, self)
+            color_button.setParent(self.table_widget)
             self.table_widget.setItem(i, 0, class_item)
             self.table_widget.setCellWidget(i, 1, delete_checkbox)
             self.table_widget.setItem(i, 2, value_item)
             self.table_widget.setCellWidget(i, 3, hidden_checkbox)
+            self.table_widget.setCellWidget(i, 4, color_button)
+
+    def change_color(self, button):
+        row = self.table_widget.indexAt(button.pos()).row()
+        current_color = self.parent.label_info[self.table_widget.item(row, 0).text()]['color']
+        color = QColorDialog.getColor(QColor(*current_color), self)
+        if color.isValid():
+            self.parent.label_info[self.table_widget.item(row, 0).text()]['color'] = [color.red(), color.green(), color.blue()]
+            self.parent.label_info[self.table_widget.item(row, 0).text()]['opacity'] = color.alpha()
+            button.set_color(color)
 
     def on_delete_checkbox_changed(self, row, state):
         value_item = self.table_widget.item(row, 2)
@@ -132,33 +174,67 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def confirm_changes(self):
         self.hidden_cls.clear()
-        for i in range(self.table_widget.rowCount()):
-            class_name = self.table_widget.item(i, 0).text()
+
+        total_num = self.table_widget.rowCount()
+        if total_num == 0:
+            self.reject()
+            return
+
+        # Temporary dictionary to handle changes
+        updated_label_info = {}
+
+        for i in range(total_num):
+            label = self.table_widget.item(i, 0).text()
             delete_checkbox = self.table_widget.cellWidget(i, 1)
             hidden_checkbox = self.table_widget.cellWidget(i, 3)
             value_item = self.table_widget.item(i, 2)
 
-            self.label_info[class_name]["delete"] = delete_checkbox.isChecked()
-            self.label_info[class_name]["value"] = value_item.text()
-            if not delete_checkbox.isChecked() and hidden_checkbox.isChecked():
+            is_delete = delete_checkbox.isChecked()
+            new_value = value_item.text()
+            is_hidden = hidden_checkbox.isChecked()
+
+            # Update the label info in the temporary dictionary
+            self.parent.label_info[label]["delete"] = is_delete
+            self.parent.label_info[label]["value"] = new_value
+
+            # Handle hidden classes
+            if not is_delete and is_hidden:
                 self.hidden_cls.append(
-                    class_name
-                    if value_item.text() == ""
-                    else value_item.text()
+                    label if new_value == "" else new_value
                 )
-        self.accept()
-        if self._modify_label():
+
+            # Update the color
+            color = self.parent.label_info[label]["color"]
+            self.parent.unique_label_list.update_item_color(
+                label, color, self.opacity
+            )
+
+            # Handle delete and change of labels
+            if is_delete:
+                self.parent.unique_label_list.remove_items_by_label(label)
+                continue  # Skip adding this to updated_label_info to effectively delete it
+            elif new_value:
+                self.parent.unique_label_list.remove_items_by_label(label)
+                updated_label_info[new_value] = self.parent.label_info[label]
+            else:
+                updated_label_info[label] = self.parent.label_info[label]
+
+        # Try to modify labels
+        if self.modify_label():
+            # If modification is successful, update self.parent.label_info
+            self.parent.label_info = updated_label_info
             QtWidgets.QMessageBox.information(
                 self,
                 "Success",
                 "Labels modified successfully!",
             )
+            self.accept()
         else:
             QtWidgets.QMessageBox.warning(
                 self, "Warning", "An error occurred while updating the labels."
             )
 
-    def _modify_label(self):
+    def modify_label(self):
         try:
             for label_file in self.label_file_list:
                 with open(label_file, "r", encoding="utf-8") as f:
@@ -166,10 +242,10 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 src_shapes, dst_shapes = data["shapes"], []
                 for shape in src_shapes:
                     label = shape["label"]
-                    if self.label_info[label]["delete"]:
+                    if self.parent.label_info[label]["delete"]:
                         continue
-                    if self.label_info[label]["value"]:
-                        shape["label"] = self.label_info[label]["value"]
+                    if self.parent.label_info[label]["value"]:
+                        shape["label"] = self.parent.label_info[label]["value"]
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
                 with open(label_file, "w", encoding="utf-8") as f:
@@ -179,8 +255,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
             print(f"Error occurred while updating labels: {e}")
             return False
 
-    def get_classes(self):
+    def init_label_info(self):
         classes = set()
+
         for label_file in self.label_file_list:
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -188,12 +265,35 @@ class LabelModifyDialog(QtWidgets.QDialog):
             for shape in shapes:
                 label = shape["label"]
                 classes.add(label)
-        label_info = {}
-        for c in classes:
-            label_info[c] = dict(
-                delete=False, value=None, hidden=c in self.hidden_cls
+
+        for c in sorted(classes):
+            # Update unique label list
+            if not self.parent.unique_label_list.find_items_by_label(c):
+                unique_label_item = self.parent.unique_label_list.create_item_from_label(c)
+                self.parent.unique_label_list.addItem(unique_label_item)
+                rgb = self.parent._get_rgb_by_label(c, skip_label_info=True)
+                self.parent.unique_label_list.set_item_label(
+                    unique_label_item, c, rgb, self.opacity
+                )
+            # Update label info
+            color = [0, 0, 0]
+            opacity = 255
+            items = self.parent.unique_label_list.find_items_by_label(c)
+            for item in items:
+                qlabel = self.parent.unique_label_list.itemWidget(item)
+                if qlabel:
+                    style_sheet = qlabel.styleSheet()
+                    start_index = style_sheet.find('rgba(') + 5
+                    end_index = style_sheet.find(')', start_index)
+                    rgba_color = style_sheet[start_index:end_index].split(',')
+                    rgba_color = [int(x.strip()) for x in rgba_color]
+                    color = rgba_color[:-1]
+                    opacity = rgba_color[-1]
+                    break
+            self.parent.label_info[c] = dict(
+                delete=False, value=None, hidden=c in self.hidden_cls,
+                color=color, opacity=opacity
             )
-        return label_info
 
 
 class TextInputDialog(QtWidgets.QDialog):
