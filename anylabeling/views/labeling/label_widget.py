@@ -2879,7 +2879,7 @@ class LabelingWidget(LabelDialog):
         num_images = len(self.image_list)
         basename = osp.basename(str(self.filename))
         if shape_height > 0 and shape_width > 0:
-            if num_images:
+            if num_images and self.filename in self.image_list:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
                     str(self.tr("X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]"))
@@ -2899,7 +2899,7 @@ class LabelingWidget(LabelDialog):
                     % (int(pos.x()), int(pos.y()), shape_height, shape_width)
                 )
         elif self.image_path:
-            if num_images:
+            if num_images and self.filename in self.image_list:
                 current_index = self.image_list.index(self.filename) + 1
                 self.status(
                     str(self.tr("X: %d, Y: %d [%s: %d/%d]"))
@@ -3243,7 +3243,7 @@ class LabelingWidget(LabelDialog):
         self.toggle_actions(True)
         self.canvas.setFocus()
         basename = osp.basename(str(filename))
-        if self.image_list:
+        if self.image_list and filename in self.image_list:
             num_images = len(self.image_list)
             current_index = self.image_list.index(filename) + 1
             msg = str(self.tr("Loaded %s [%d/%d]")) % (
