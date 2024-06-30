@@ -64,3 +64,9 @@ class UniqueLabelQListWidget(EscapableQListWidget):
                 )
                 qlabel.setStyleSheet(style_sheet)
                 break
+
+    def remove_items_by_label(self, label):
+        items = self.find_items_by_label(label)
+        for item in items:
+            row = self.row(item)
+            self.takeItem(row)
