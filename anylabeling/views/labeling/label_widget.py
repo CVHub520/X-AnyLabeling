@@ -619,7 +619,9 @@ class LabelingWidget(LabelDialog):
             self.tr("&Save Cropped Image"),
             self.save_crop,
             icon="crop",
-            tip=self.tr("Save cropped image. (Support rectangle/rotation/polygon shape_type)"),
+            tip=self.tr(
+                "Save cropped image. (Support rectangle/rotation/polygon shape_type)"
+            ),
         )
         modify_label = action(
             self.tr("&Modify Label"),
@@ -766,7 +768,7 @@ class LabelingWidget(LabelDialog):
             self.tr("&Set Cross Line"),
             self.set_cross_line,
             tip=self.tr("Set cross line for mouse position"),
-            icon="cartesian"
+            icon="cartesian",
         )
         show_groups = action(
             self.tr("&Show Groups"),
@@ -786,6 +788,7 @@ class LabelingWidget(LabelDialog):
             checkable=True,
             checked=self._config["show_texts"],
             enabled=True,
+            auto_trigger=True,
         )
         show_labels = action(
             self.tr("&Show Labels"),
@@ -796,6 +799,7 @@ class LabelingWidget(LabelDialog):
             checkable=True,
             checked=self._config["show_labels"],
             enabled=True,
+            auto_trigger=True,
         )
         show_degrees = action(
             self.tr("&Show Degress"),
@@ -805,6 +809,7 @@ class LabelingWidget(LabelDialog):
             checkable=True,
             checked=self._config["show_degrees"],
             enabled=True,
+            auto_trigger=True,
         )
 
         # Languages
@@ -921,14 +926,18 @@ class LabelingWidget(LabelDialog):
             lambda: self.export_yolo_annotation("hbb"),
             None,
             icon="format_yolo",
-            tip=self.tr("Export Custom YOLO Horizontal Bounding Boxes Annotations"),
+            tip=self.tr(
+                "Export Custom YOLO Horizontal Bounding Boxes Annotations"
+            ),
         )
         export_yolo_obb_annotation = action(
             self.tr("&Export YOLO-Obb Annotations"),
             lambda: self.export_yolo_annotation("obb"),
             None,
             icon="format_yolo",
-            tip=self.tr("Export Custom YOLO Oriented Bounding Boxes Annotations"),
+            tip=self.tr(
+                "Export Custom YOLO Oriented Bounding Boxes Annotations"
+            ),
         )
         export_yolo_seg_annotation = action(
             self.tr("&Export YOLO-Seg Annotations"),
@@ -1772,7 +1781,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -1781,7 +1791,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, label_file in enumerate(label_file_list):
@@ -1806,7 +1817,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while updating labels."))
+            error_dialog.setText(
+                self.tr("Error occurred while updating labels.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -1835,7 +1848,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -1844,7 +1858,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, label_file in enumerate(label_file_list):
@@ -1882,7 +1897,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while updating labels."))
+            error_dialog.setText(
+                self.tr("Error occurred while updating labels.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -1911,7 +1928,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -1920,7 +1938,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, label_file in enumerate(label_file_list):
@@ -1957,7 +1976,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while updating labels."))
+            error_dialog.setText(
+                self.tr("Error occurred while updating labels.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -1994,7 +2015,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -2003,7 +2025,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
         label_to_count = {}
         try:
             for i, image_file in enumerate(image_file_list):
@@ -2022,9 +2045,11 @@ class LabelingWidget(LabelDialog):
                     shape_type = shape["shape_type"]
                     if shape_type not in ["rectangle", "polygon", "rotation"]:
                         continue
-                    if (shape_type == "polygon" and len(points) < 3) or \
-                       (shape_type == "rotation" and len(points) != 4) or \
-                       (shape_type == "rectangle" and len(points) != 4):
+                    if (
+                        (shape_type == "polygon" and len(points) < 3)
+                        or (shape_type == "rotation" and len(points) != 4)
+                        or (shape_type == "rectangle" and len(points) != 4)
+                    ):
                         progress_dialog.close()
                         error_dialog = QMessageBox()
                         error_dialog.setIcon(QMessageBox.Critical)
@@ -2057,7 +2082,9 @@ class LabelingWidget(LabelDialog):
                     xmax = max(xmin, min(xmax, width))
                     ymax = max(ymin, min(ymax, height))
                     crop_image = image[ymin:ymax, xmin:xmax]
-                    dst_file = osp.join(dst_path, f"{label_to_count[label]}-{shape_type}.jpg")
+                    dst_file = osp.join(
+                        dst_path, f"{label_to_count[label]}-{shape_type}.jpg"
+                    )
                     cv2.imencode(".jpg", crop_image)[1].tofile(dst_file)
                 # Update progress bar
                 progress_dialog.setValue(i)
@@ -2071,7 +2098,9 @@ class LabelingWidget(LabelDialog):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Cropping completed successfully!"))
-            msg_box.setInformativeText(self.tr(f"Cropped images have been saved to:\n{save_path}"))
+            msg_box.setInformativeText(
+                self.tr(f"Cropped images have been saved to:\n{save_path}")
+            )
             msg_box.setWindowTitle(self.tr("Success"))
             msg_box.exec_()
 
@@ -2079,7 +2108,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while saving cropped image."))
+            error_dialog.setText(
+                self.tr("Error occurred while saving cropped image.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -2978,16 +3009,12 @@ class LabelingWidget(LabelDialog):
 
     def enable_keep_prev_scale(self, enabled):
         self._config["keep_prev_scale"] = enabled
-        self.actions.keep_prev_scale.setChecked(enabled)
-        save_config(self._config)
 
     def enable_keep_prev_brightness(self, enabled):
         self._config["keep_prev_brightness"] = enabled
-        self.actions.keep_prev_brightness.setChecked(enabled)
 
     def enable_keep_prev_contrast(self, enabled):
         self._config["keep_prev_contrast"] = enabled
-        self.actions.keep_prev_contrast.setChecked(enabled)
 
     def set_cross_line(self):
         crosshair_dialog = CrosshairSettingsDialog(**self.crosshair_settings)
@@ -3003,25 +3030,21 @@ class LabelingWidget(LabelDialog):
 
     def enable_show_groups(self, enabled):
         self._config["show_groups"] = enabled
-        self.actions.show_groups.setChecked(enabled)
         self.canvas.set_show_groups(enabled)
         save_config(self._config)
 
     def enable_show_texts(self, enabled):
         self._config["show_texts"] = enabled
-        self.actions.show_texts.setChecked(enabled)
         self.canvas.set_show_texts(enabled)
         save_config(self._config)
 
     def enable_show_labels(self, enabled):
         self._config["show_labels"] = enabled
-        self.actions.show_labels.setChecked(enabled)
         self.canvas.set_show_labels(enabled)
         save_config(self._config)
 
     def enable_show_degrees(self, enabled):
         self._config["show_degrees"] = enabled
-        self.actions.show_degrees.setChecked(enabled)
         self.canvas.set_show_degrees(enabled)
         # save_config(self._config)
 
@@ -3459,10 +3482,11 @@ class LabelingWidget(LabelDialog):
                 )
                 return
             labels = []
-            with open(self.yaml_file, 'r', encoding='utf-8') as f:
+            with open(self.yaml_file, "r", encoding="utf-8") as f:
                 import yaml
+
                 data = yaml.safe_load(f)
-                for class_name, keypoint_name in data['classes'].items():
+                for class_name, keypoint_name in data["classes"].items():
                     labels.append(class_name)
                     labels.extend(keypoint_name)
             converter = LabelConverter(pose_cfg_file=self.yaml_file)
@@ -3537,7 +3561,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -3546,7 +3571,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, image_filename in enumerate(image_file_list):
@@ -3591,7 +3617,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while uploading annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -3652,7 +3680,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -3661,7 +3690,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, image_filename in enumerate(image_file_list):
@@ -3693,7 +3723,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while uploading annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -3799,7 +3831,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -3808,7 +3841,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, image_filename in enumerate(image_file_list):
@@ -3839,7 +3873,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while uploading annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -3928,7 +3964,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -3937,7 +3974,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, image_filename in enumerate(image_file_list):
@@ -3970,7 +4008,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while uploading annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -4117,7 +4157,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -4126,7 +4167,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, image_file in enumerate(image_list):
@@ -4151,7 +4193,9 @@ class LabelingWidget(LabelDialog):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(self.tr(f"Results have been saved to:\n{save_path}"))
+            msg_box.setInformativeText(
+                self.tr(f"Results have been saved to:\n{save_path}")
+            )
             msg_box.setWindowTitle(self.tr("Success"))
             msg_box.exec_()
 
@@ -4159,7 +4203,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while exporting annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while exporting annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -4193,7 +4239,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -4202,7 +4249,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, src_file_name in enumerate(label_file_list):
@@ -4224,7 +4272,9 @@ class LabelingWidget(LabelDialog):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(self.tr(f"Results have been saved to:\n{save_path}"))
+            msg_box.setInformativeText(
+                self.tr(f"Results have been saved to:\n{save_path}")
+            )
             msg_box.setWindowTitle(self.tr("Success"))
             msg_box.exec_()
 
@@ -4232,7 +4282,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while exporting annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while exporting annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -4325,7 +4377,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -4334,7 +4387,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, image_file in enumerate(image_list):
@@ -4359,7 +4413,9 @@ class LabelingWidget(LabelDialog):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(self.tr(f"Results have been saved to:\n{save_path}"))
+            msg_box.setInformativeText(
+                self.tr(f"Results have been saved to:\n{save_path}")
+            )
             msg_box.setWindowTitle(self.tr("Success"))
             msg_box.exec_()
 
@@ -4367,7 +4423,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while exporting annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while exporting annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -4412,7 +4470,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -4421,7 +4480,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, src_file_name in enumerate(label_file_list):
@@ -4443,7 +4503,9 @@ class LabelingWidget(LabelDialog):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(self.tr(f"Results have been saved to:\n{save_path}"))
+            msg_box.setInformativeText(
+                self.tr(f"Results have been saved to:\n{save_path}")
+            )
             msg_box.setWindowTitle(self.tr("Success"))
             msg_box.exec_()
 
@@ -4451,7 +4513,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while exporting annotations."))
+            error_dialog.setText(
+                self.tr("Error occurred while exporting annotations.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -4852,11 +4916,12 @@ class LabelingWidget(LabelDialog):
             self.tr("Cancel"),
             self.image_index,
             len(self.image_list),
-            self
+            self,
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -4865,7 +4930,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
         progress_dialog.canceled.connect(self.cancel_operation)
         self.process_next_image(progress_dialog)
 
@@ -4889,7 +4955,9 @@ class LabelingWidget(LabelDialog):
             self.image_index += 1
             if not self.cancel_processing:
                 delay_ms = 1
-                QtCore.QTimer.singleShot(delay_ms, lambda: self.process_next_image(progress_dialog))
+                QtCore.QTimer.singleShot(
+                    delay_ms, lambda: self.process_next_image(progress_dialog)
+                )
             else:
                 self.cancel_operation()
         else:
@@ -4944,7 +5012,7 @@ class LabelingWidget(LabelDialog):
         supportedVideoFormats = (
             "*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv"
         )
-        source_video_path , _ = QtWidgets.QFileDialog.getOpenFileName(
+        source_video_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self,
             self.tr("%s - Open Video file") % __appname__,
             default_open_video_path,
@@ -4964,7 +5032,9 @@ class LabelingWidget(LabelDialog):
             return
 
         if osp.exists(source_video_path):
-            target_dir_path = utils.extract_frames_from_video(self, source_video_path)
+            target_dir_path = utils.extract_frames_from_video(
+                self, source_video_path
+            )
             self.import_image_folder(target_dir_path)
 
     def open_folder_dialog(self, _value=False, dirpath=None):
