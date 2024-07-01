@@ -1,4 +1,5 @@
 """This module defines Canvas widget - the core component for drawing image labels"""
+
 import imgviz
 import math
 from copy import deepcopy
@@ -100,10 +101,10 @@ class Canvas(
         # Set widget options.
         self.setMouseTracking(True)
         self.setFocusPolicy(QtCore.Qt.WheelFocus)
-        self.show_shape_groups = True
+        self.show_groups = True
         self.show_texts = True
         self.show_labels = True
-        self.show_shape_degrees = False
+        self.show_degrees = False
 
         # Set cross line options.
         self.cross_line_show = True
@@ -1009,7 +1010,7 @@ class Canvas(
             return
 
         # Draw groups
-        if self.show_shape_groups:
+        if self.show_groups:
             pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.SolidLine)
             p.setPen(pen)
             grouped_shapes = {}
@@ -1086,7 +1087,7 @@ class Canvas(
                     (shape.points[0].x() + shape.points[2].x()) / 2,
                     (shape.points[0].y() + shape.points[2].y()) / 2,
                 )
-                if self.show_shape_degrees:
+                if self.show_degrees:
                     degrees = str(int(math.degrees(shape.direction))) + "°"
                     p.setFont(
                         QtGui.QFont(
@@ -1519,9 +1520,10 @@ class Canvas(
             # NOTE: Temporary fix to avoid ValueError
             # when the selected shape is not in the shapes list
             if (
-                self.moving_shape or self.rotating_shape
-            ) and self.selected_shapes \
-              and self.selected_shapes[0] in self.shapes:
+                (self.moving_shape or self.rotating_shape)
+                and self.selected_shapes
+                and self.selected_shapes[0] in self.shapes
+            ):
                 index = self.shapes.index(self.selected_shapes[0])
                 if (
                     self.shapes_backups[-1][index].points
@@ -1623,26 +1625,6 @@ class Canvas(
         self.cross_line_width = width
         self.cross_line_color = color
         self.cross_line_opacity = opacity
-        self.update()
-
-    def set_show_groups(self, enabled):
-        """Set showing shape groups"""
-        self.show_shape_groups = enabled
-        self.update()
-
-    def set_show_texts(self, enabled):
-        """Set showing texts"""
-        self.show_texts = enabled
-        self.update()
-
-    def set_show_labels(self, enabled):
-        """Set showing labels"""
-        self.show_labels = enabled
-        self.update()
-
-    def set_show_degrees(self, enabled):
-        """Set showing degrees"""
-        self.show_shape_degrees = enabled
         self.update()
 
     def gen_new_group_id(self):
