@@ -130,7 +130,7 @@ class Model(QObject):
                 "xanylabeling_data",
             )
         )
-        if os.path.exists(old_model_path):
+        if os.path.exists(old_model_path) and not os.path.exists(new_model_path):
             os.rename(old_model_path, new_model_path)
         model_abs_path = os.path.abspath(
             os.path.join(
