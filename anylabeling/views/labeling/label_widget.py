@@ -4537,6 +4537,7 @@ class LabelingWidget(LabelDialog):
         if file_dialog.exec_():
             filename = file_dialog.selectedFiles()[0]
             if filename:
+                self.file_list_widget.clear()
                 self.load_file(filename)
 
     def change_output_dir_dialog(self, _value=False):
