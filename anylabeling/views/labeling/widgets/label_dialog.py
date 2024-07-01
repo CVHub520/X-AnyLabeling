@@ -3,7 +3,7 @@ import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QFont, QColor
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtWidgets import QColorDialog, QTableWidgetItem, QTableWidget, QCheckBox
 
 from .. import utils
@@ -51,7 +51,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def init_ui(self):
         self.setWindowTitle("Label Change Manager")
-        self.setGeometry(100, 100, 600, 400)
+        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint)
+        self.resize(560, 380)
+        self.move_to_center()
 
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(5)
@@ -84,6 +86,12 @@ class LabelModifyDialog(QtWidgets.QDialog):
         layout.addLayout(self.buttons_layout)
 
         self.populate_table()
+
+    def move_to_center(self):
+        qr = self.frameGeometry()
+        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def populate_table(self):
         for i, (label, info) in enumerate(self.parent.label_info.items()):
