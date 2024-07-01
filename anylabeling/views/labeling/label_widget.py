@@ -3058,12 +3058,14 @@ class LabelingWidget(LabelDialog):
             if item.shape().selected:
                 item.setCheckState(Qt.Unchecked)
                 self.selected_polygon_stack.append(index)
+                self.label_list[index].shape().visible = False
 
     def show_hidden_polygons(self):
         if self.selected_polygon_stack:
             index = self.selected_polygon_stack.pop()
             item = self.label_list.item_at_index(index)
             item.setCheckState(Qt.Checked)
+            self.label_list[index].shape().visible = True
 
     def get_next_files(self, filename, num_files):
         """Get the next files in the list."""

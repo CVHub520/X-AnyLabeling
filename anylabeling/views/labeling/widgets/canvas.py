@@ -1194,53 +1194,75 @@ class Canvas(
             pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
+                if not shape.visible:
+                    continue
                 if shape.score is not None:
                     label = f"{shape.label} {shape.score:.2f}"
                 else:
                     label = shape.label
+                if not label:
+                    continue
                 d = shape.point_size / shape.scale
-                shapy_type = shape.shape_type
-                if label and shapy_type == "rectangle":
+                shape_type = shape.shape_type
+                fm = QtGui.QFontMetrics(p.font())
+                rect = fm.boundingRect(label)
+                w = int(rect.width())
+                h = int(rect.height())
+                if shape_type in ["rectangle", "polygon", "rotation"]:
                     try:
                         bbox = shape.bounding_rect()
                     except IndexError:
                         continue
-                    fm = QtGui.QFontMetrics(p.font())
-                    rect = fm.boundingRect(label)
-                    x = bbox.x()
-                    y = bbox.y()
-                    p.fillRect(
-                        int(x),
-                        int(y),
-                        int(rect.width()),
-                        int(rect.height()),
-                        shape.line_color,
-                    )
+                    x = int(bbox.x())
+                    y = int(bbox.y())
+                elif shape_type in ["circle", "line", "linestrip", "point"]:
+                    points = shape.points
+                    point = points[0]
+                    x = int(point.x() + d)
+                    y = int(point.y() - 15)
+                else:
+                    continue
+                p.fillRect(
+                    x,
+                    y,
+                    w,
+                    h,
+                    shape.line_color,
+                )
             pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
+                if not shape.visible:
+                    continue
                 d = 1.5  # default shape sacle
-                shapy_type = shape.shape_type
+                shape_type = shape.shape_type
                 if shape.score is not None:
                     label = f"{shape.label} {shape.score:.2f}"
                 else:
                     label = shape.label
-                if label and shapy_type == "rectangle":
+                if not label:
+                    continue
+                fm = QtGui.QFontMetrics(p.font())
+                rect = fm.boundingRect(label)
+                if shape_type in ["rectangle", "polygon", "rotation"]:
                     try:
                         bbox = shape.bounding_rect()
                     except IndexError:
                         continue
-                    fm = QtGui.QFontMetrics(p.font())
-                    rect = fm.boundingRect(label)
                     x = bbox.x()
                     y = bbox.y() + rect.height()
-                    bbox = shape.bounding_rect()
-                    p.drawText(
-                        int(x),
-                        int(y - d),
-                        label,
-                    )
-
+                elif shape_type in ["circle", "line", "linestrip", "point"]:
+                    points = shape.points
+                    point = points[0]
+                    x = int(point.x() + (shape.point_size / shape.scale))
+                    y = int(point.y() - 15 + rect.height())
+                else:
+                    continue
+                p.drawText(
+                    int(x),
+                    int(y - d),
+                    label,
+                )
         # Draw mouse coordinates
         if self.cross_line_show:
             pen = QtGui.QPen(

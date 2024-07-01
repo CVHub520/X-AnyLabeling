@@ -246,6 +246,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
                         continue
                     if self.parent.label_info[label]["value"]:
                         shape["label"] = self.parent.label_info[label]["value"]
+                    shape["visible"] = self.parent.label_info[label]["hidden"]
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
                 with open(label_file, "w", encoding="utf-8") as f:

@@ -70,6 +70,7 @@ class Shape:
         self.other_data = {}
         self.attributes = attributes
         self.cache_label = None
+        self.visible = True
 
         # Rotation setting
         self.direction = direction
