@@ -380,18 +380,18 @@ class LabelingWidget(LabelDialog):
 
         save_auto = action(
             text=self.tr("Save &Automatically"),
-            slot=lambda x: self.actions.save_auto.setChecked(x),
-            icon="save",
+            slot=lambda x: self._config.update({"auto_save": x}),
+            icon=None,
             tip=self.tr("Save automatically"),
             checkable=True,
             enabled=True,
+            checked=self._config["auto_save"],
         )
-        save_auto.setChecked(self._config["auto_save"])
 
         save_with_image_data = action(
             text=self.tr("Save With Image Data"),
-            slot=self.enable_save_image_with_data,
-            icon="save",
+            slot=lambda x: self._config.update({"store_data": x}),
+            icon=None,
             tip=self.tr("Save image data in label file"),
             checkable=True,
             checked=self._config["store_data"],
@@ -405,37 +405,35 @@ class LabelingWidget(LabelDialog):
             self.tr("Close current file"),
         )
 
-        toggle_keep_prev_mode = action(
+        keep_prev_mode = action(
             self.tr("Keep Previous Annotation"),
-            self.toggle_keep_prev_mode,
+            lambda x: self._config.update({"keep_prev": x}),
             shortcuts["toggle_keep_prev_mode"],
             None,
             self.tr('Toggle "Keep Previous Annotation" mode'),
             checkable=True,
+            checked=self._config["keep_prev"],
         )
-        toggle_keep_prev_mode.setChecked(self._config["keep_prev"])
 
-        toggle_auto_use_last_label_mode = action(
+        auto_use_last_label_mode = action(
             self.tr("Auto Use Last Label"),
-            self.toggle_auto_use_last_label,
+            lambda x: self._config.update({"auto_use_last_label": x}),
             shortcuts["toggle_auto_use_last_label"],
             None,
             self.tr('Toggle "Auto Use Last Label" mode'),
             checkable=True,
-        )
-        toggle_auto_use_last_label_mode.setChecked(
-            self._config["auto_use_last_label"]
+            checked=self._config["auto_use_last_label"],
         )
 
-        toggle_visibility_shapes_mode = action(
+        visibility_shapes_mode = action(
             self.tr("Visibility Shapes"),
             self.toggle_visibility_shapes,
             shortcuts["toggle_visibility_shapes"],
             None,
             self.tr('Toggle "Visibility Shapes" mode'),
             checkable=True,
+            checked=self._config["show_shapes"],
         )
-        toggle_visibility_shapes_mode.setChecked(self._config["show_shapes"])
 
         create_mode = action(
             self.tr("Create Polygons"),
@@ -575,21 +573,6 @@ class LabelingWidget(LabelDialog):
             self.tr("Undo last add and edit of shape"),
             enabled=False,
         )
-
-        hide_all = action(
-            self.tr("&Hide\nPolygons"),
-            functools.partial(self.toggle_polygons, False),
-            icon="eye",
-            tip=self.tr("Hide all polygons"),
-            enabled=False,
-        )
-        show_all = action(
-            self.tr("&Show\nPolygons"),
-            functools.partial(self.toggle_polygons, True),
-            icon="eye",
-            tip=self.tr("Show all polygons"),
-            enabled=False,
-        )
         hide_selected_polygons = action(
             self.tr("Hide Selected Polygons"),
             self.hide_selected_polygons,
@@ -715,7 +698,7 @@ class LabelingWidget(LabelDialog):
         )
         keep_prev_scale = action(
             self.tr("&Keep Previous Scale"),
-            self.enable_keep_prev_scale,
+            lambda x: self._config.update({"keep_prev_scale": x}),
             tip=self.tr("Keep previous zoom scale"),
             checkable=True,
             checked=self._config["keep_prev_scale"],
@@ -723,7 +706,7 @@ class LabelingWidget(LabelDialog):
         )
         keep_prev_brightness = action(
             self.tr("&Keep Previous Brightness"),
-            self.enable_keep_prev_brightness,
+            lambda x: self._config.update({"keep_prev_brightness": x}),
             tip=self.tr("Keep previous brightness"),
             checkable=True,
             checked=self._config["keep_prev_brightness"],
@@ -731,7 +714,7 @@ class LabelingWidget(LabelDialog):
         )
         keep_prev_contrast = action(
             self.tr("&Keep Previous Contrast"),
-            self.enable_keep_prev_contrast,
+            lambda x: self._config.update({"keep_prev_contrast": x}),
             tip=self.tr("Keep previous contrast"),
             checkable=True,
             checked=self._config["keep_prev_contrast"],
@@ -771,7 +754,7 @@ class LabelingWidget(LabelDialog):
         )
         show_groups = action(
             self.tr("&Show Groups"),
-            self.enable_show_groups,
+            lambda x: self.set_canvas_params("show_groups", x),
             tip=self.tr("Show shape groups"),
             icon=None,
             checkable=True,
@@ -781,7 +764,7 @@ class LabelingWidget(LabelDialog):
         )
         show_texts = action(
             self.tr("&Show Texts"),
-            self.enable_show_texts,
+            lambda x: self.set_canvas_params("show_texts", x),
             shortcut=shortcuts["show_texts"],
             tip=self.tr("Show text above shapes"),
             icon=None,
@@ -792,7 +775,7 @@ class LabelingWidget(LabelDialog):
         )
         show_labels = action(
             self.tr("&Show Labels"),
-            self.enable_show_labels,
+            lambda x: self.set_canvas_params("show_labels", x),
             shortcut=shortcuts["show_labels"],
             tip=self.tr("Show label inside shapes"),
             icon=None,
@@ -803,7 +786,7 @@ class LabelingWidget(LabelDialog):
         )
         show_degrees = action(
             self.tr("&Show Degress"),
-            self.enable_show_degrees,
+            lambda x: self.set_canvas_params("show_degrees", x),
             tip=self.tr("Show degrees above rotated shapes"),
             icon=None,
             checkable=True,
@@ -1069,9 +1052,9 @@ class LabelingWidget(LabelDialog):
             close=close,
             delete_file=delete_file,
             delete_image_file=delete_image_file,
-            toggle_keep_prev_mode=toggle_keep_prev_mode,
-            toggle_auto_use_last_label_mode=toggle_auto_use_last_label_mode,
-            toggle_visibility_shapes_mode=toggle_visibility_shapes_mode,
+            keep_prev_mode=keep_prev_mode,
+            auto_use_last_label_mode=auto_use_last_label_mode,
+            visibility_shapes_mode=visibility_shapes_mode,
             run_all_images=run_all_images,
             delete=delete,
             edit=edit,
@@ -1152,9 +1135,9 @@ class LabelingWidget(LabelDialog):
                 None,
                 remove_point,
                 None,
-                toggle_keep_prev_mode,
-                toggle_auto_use_last_label_mode,
-                toggle_visibility_shapes_mode,
+                keep_prev_mode,
+                auto_use_last_label_mode,
+                visibility_shapes_mode,
             ),
             # menu shown at right click
             menu=(
@@ -1187,7 +1170,7 @@ class LabelingWidget(LabelDialog):
                 edit_mode,
                 brightness_contrast,
             ),
-            on_shapes_present=(save_as, hide_all, show_all),
+            on_shapes_present=(save_as,),
             hide_selected_polygons=hide_selected_polygons,
             show_hidden_polygons=show_hidden_polygons,
             group_selected_shapes=group_selected_shapes,
@@ -1550,7 +1533,6 @@ class LabelingWidget(LabelDialog):
         if self._config["language"] == language:
             return
         self._config["language"] = language
-        save_config(self._config)
 
         # Show dialog to restart application
         msg_box = QMessageBox()
@@ -1639,7 +1621,7 @@ class LabelingWidget(LabelDialog):
         # Even if we autosave the file, we keep the ability to undo
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
-        if self._config["auto_save"] or self.actions.save_auto.isChecked():
+        if self._config["auto_save"]:
             label_file = osp.splitext(self.image_path)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
@@ -2975,15 +2957,6 @@ class LabelingWidget(LabelDialog):
         self.zoom_mode = self.FIT_WIDTH if value else self.MANUAL_ZOOM
         self.adjust_scale()
 
-    def enable_keep_prev_scale(self, enabled):
-        self._config["keep_prev_scale"] = enabled
-
-    def enable_keep_prev_brightness(self, enabled):
-        self._config["keep_prev_brightness"] = enabled
-
-    def enable_keep_prev_contrast(self, enabled):
-        self._config["keep_prev_contrast"] = enabled
-
     def set_cross_line(self):
         crosshair_dialog = CrosshairSettingsDialog(**self.crosshair_settings)
         if crosshair_dialog.exec_() == QtWidgets.QDialog.Accepted:
@@ -2994,27 +2967,12 @@ class LabelingWidget(LabelDialog):
             opacity = crosshair_settings["opacity"]
             self.canvas.set_cross_line(show, width, color, opacity)
             self._config["canvas"]["crosshair"] = crosshair_settings
-            save_config(self._config)
 
-    def enable_show_groups(self, enabled):
-        self._config["show_groups"] = enabled
-        self.canvas.set_show_groups(enabled)
-        save_config(self._config)
-
-    def enable_show_texts(self, enabled):
-        self._config["show_texts"] = enabled
-        self.canvas.set_show_texts(enabled)
-        save_config(self._config)
-
-    def enable_show_labels(self, enabled):
-        self._config["show_labels"] = enabled
-        self.canvas.set_show_labels(enabled)
-        save_config(self._config)
-
-    def enable_show_degrees(self, enabled):
-        self._config["show_degrees"] = enabled
-        self.canvas.set_show_degrees(enabled)
-        # save_config(self._config)
+    def set_canvas_params(self, key, value):
+        self._config[key] = value
+        assert hasattr(self.canvas, key), f"Canvas has no attribute {key}"
+        setattr(self.canvas, key, value)
+        self.canvas.update()
 
     def on_new_brightness_contrast(self, qimage):
         self.canvas.load_pixmap(
@@ -3039,10 +2997,6 @@ class LabelingWidget(LabelDialog):
         brightness = dialog.slider_brightness.value()
         contrast = dialog.slider_contrast.value()
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
-
-    def toggle_polygons(self, value):
-        for item in self.label_list:
-            item.setCheckState(Qt.Checked if value else Qt.Unchecked)
 
     def hide_selected_polygons(self):
         for index, item in enumerate(self.label_list):
@@ -3089,6 +3043,7 @@ class LabelingWidget(LabelDialog):
     def load_file(self, filename=None):  # noqa: C901
         """Load the specified file, or the last opened file if None."""
 
+        save_config(self._config)
         # For auto labeling, clear the previous marks
         # and inform the next files to be annotated
         self.clear_auto_labeling_marks()
@@ -3285,10 +3240,6 @@ class LabelingWidget(LabelDialog):
         w = self.central_widget().width() - 2.0
         return w / self.canvas.pixmap.width()
 
-    def enable_save_image_with_data(self, enabled):
-        self._config["store_data"] = enabled
-        self.actions.save_with_image_data.setChecked(enabled)
-
     # QT Overload
     def closeEvent(self, event):
         if not self.may_continue():
@@ -3300,6 +3251,7 @@ class LabelingWidget(LabelDialog):
         self.settings.setValue("window/position", self.pos())
         self.settings.setValue("window/state", self.parent.parent.saveState())
         self.settings.setValue("recent_files", self.recent_files)
+        save_config(self._config)
         # ask the use for where to save the labels
         # self.settings.setValue('window/geometry', self.saveGeometry())
 
@@ -3329,12 +3281,10 @@ class LabelingWidget(LabelDialog):
             self.load_file(filename)
 
     def open_prev_image(self, _value=False):
-        keep_prev = self._config["keep_prev"]
         if QtWidgets.QApplication.keyboardModifiers() == (
             Qt.ControlModifier | Qt.ShiftModifier
         ):
             self._config["keep_prev"] = True
-            save_config(self._config)
 
         if not self.may_continue():
             return
@@ -3351,16 +3301,13 @@ class LabelingWidget(LabelDialog):
             if filename:
                 self.load_file(filename)
 
-        self._config["keep_prev"] = keep_prev
-        save_config(self._config)
+        self._config["keep_prev"] = self.actions.keep_prev_mode.isChecked()
 
-    def open_next_image(self, _value=False, load=True):
-        keep_prev = self._config["keep_prev"]
+    def open_next_image(self, _=False, load=True):
         if QtWidgets.QApplication.keyboardModifiers() == (
             Qt.ControlModifier | Qt.ShiftModifier
         ):
             self._config["keep_prev"] = True
-            save_config(self._config)
 
         if not self.may_continue():
             return
@@ -3382,8 +3329,7 @@ class LabelingWidget(LabelDialog):
         if self.filename and load:
             self.load_file(self.filename)
 
-        self._config["keep_prev"] = keep_prev
-        save_config(self._config)
+        self._config["keep_prev"] = self.actions.keep_prev_mode.isChecked()
 
     # Uplaod
     def upload_attr_file(self):
@@ -4805,20 +4751,10 @@ class LabelingWidget(LabelDialog):
     def current_path(self):
         return osp.dirname(str(self.filename)) if self.filename else "."
 
-    def toggle_keep_prev_mode(self):
-        self._config["keep_prev"] = not self._config["keep_prev"]
-        save_config(self._config)
-
-    def toggle_auto_use_last_label(self):
-        self._config["auto_use_last_label"] = not self._config[
-            "auto_use_last_label"
-        ]
-        save_config(self._config)
-
-    def toggle_visibility_shapes(self):
-        self.toggle_polygons(self._config["show_shapes"])
-        self._config["show_shapes"] = not self._config["show_shapes"]
-        save_config(self._config)
+    def toggle_visibility_shapes(self, value):
+        for item in self.label_list:
+            item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+        self._config["show_shapes"] = value
 
     def run_all_images(self):
         if len(self.image_list) <= 0:
