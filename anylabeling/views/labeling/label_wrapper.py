@@ -21,7 +21,7 @@ class LabelingWrapper(QWidget):
         self.parent = parent
 
         # Create a labeling widget
-        view = LabelingWidget(
+        self.view = LabelingWidget(
             self,
             config=config,
             filename=filename,
@@ -33,5 +33,8 @@ class LabelingWrapper(QWidget):
         # Create the main layout and put labeling into
         main_layout = QVBoxLayout()
         main_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.addWidget(view)
+        main_layout.addWidget(self.view)
         self.setLayout(main_layout)
+
+    def closeEvent(self, event):
+        self.view.closeEvent(event)
