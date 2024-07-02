@@ -74,6 +74,27 @@ class Model(QObject):
         """
         return self.Meta.widgets
 
+    @staticmethod
+    def allow_migrate_data():
+        home_dir = os.path.expanduser("~")
+        old_model_path = os.path.join(home_dir, "anylabeling_data")
+        new_model_path = os.path.join(home_dir, "xanylabeling_data")
+
+        if os.path.exists(new_model_path) or not os.path.exists(old_model_path):
+            return True
+
+        # Check if the current env have write permissions
+        if not os.access(home_dir, os.W_OK):
+            return False
+
+        # Attempt to migrate data
+        try:
+            os.rename(old_model_path, new_model_path)
+            return True
+        except Exception as e:
+            print(f"An error occurred during data migration: {str(e)}")
+            return False
+
     def get_model_abs_path(self, model_config, model_path_field_name):
         """
         Get model absolute path from config path or download from url
@@ -116,26 +137,19 @@ class Model(QObject):
         filename = get_filename_from_url(model_path)
         download_url = model_path
 
+        # Continue with the rest of your function logic
+        migrate_flag = self.allow_migrate_data()
+        home_dir = os.path.expanduser("~")
+        data_dir = "xanylabeling_data" if migrate_flag else "anylabeling_data"
+
         # Create model folder
         home_dir = os.path.expanduser("~")
-        old_model_path = os.path.abspath(
-            os.path.join(
-                home_dir,
-                "anylabeling_data",
-            )
+        model_path = os.path.abspath(
+            os.path.join(home_dir, data_dir)
         )
-        new_model_path = os.path.abspath(
-            os.path.join(
-                home_dir,
-                "xanylabeling_data",
-            )
-        )
-        if os.path.exists(old_model_path) and not os.path.exists(new_model_path):
-            os.rename(old_model_path, new_model_path)
         model_abs_path = os.path.abspath(
             os.path.join(
-                home_dir,
-                "xanylabeling_data",
+                model_path,
                 "models",
                 model_config["name"],
                 filename,
