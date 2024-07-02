@@ -105,12 +105,12 @@ class Shape:
         """Set shape type"""
         if value is None:
             value = "polygon"
-        if value not in self.get_available_shapes():
+        if value not in self.get_supported_shape():
             raise ValueError(f"Unexpected shape_type: {value}")
         self._shape_type = value
 
     @staticmethod
-    def get_available_shapes():
+    def get_supported_shape():
         return [
             "polygon",
             "rectangle",

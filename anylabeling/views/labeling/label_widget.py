@@ -102,7 +102,7 @@ class LabelingWidget(LabelDialog):
         self.attributes = {}
         self.current_category = None
         self.selected_polygon_stack = []
-        self.available_shapes = Shape.get_available_shapes()
+        self.supported_shape = Shape.get_supported_shape()
         self.hidden_cls = []
         self.label_info = {}
 
@@ -2091,11 +2091,8 @@ class LabelingWidget(LabelDialog):
             self.load_file(self.filename)
 
     def overview(self):
-        _ = OverviewDialog(
-            parent=self,
-            label_file_list=self.get_label_file_list(),
-            available_shapes=self.available_shapes,
-        )
+        if self.filename:
+            OverviewDialog(parent=self)
 
     # Help
     def documentation(self):
