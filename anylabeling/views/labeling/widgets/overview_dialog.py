@@ -1,13 +1,20 @@
-import os
+import csv
 import json
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRegExp
+from PyQt5.QtGui import QRegExpValidator
 from PyQt5.QtWidgets import (
-    QVBoxLayout,
-    QTableWidget,
+    QFileDialog,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
     QProgressDialog,
+    QTableWidget,
     QTableWidgetItem,
+    QVBoxLayout,
 )
 
 
@@ -15,9 +22,10 @@ class OverviewDialog(QtWidgets.QDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
-        self.label_file_list = parent.get_label_file_list()
+        self.label_file_list = sorted(parent.get_label_file_list())
         self.supported_shape = parent.supported_shape
-        self.current_file = self.get_current_file()
+        self.start_index = 1
+        self.end_index = len(self.label_file_list)
         self.init_ui()
 
     def init_ui(self):
@@ -27,18 +35,61 @@ class OverviewDialog(QtWidgets.QDialog):
         self.move_to_center()
 
         layout = QVBoxLayout(self)
-        table = QTableWidget(self)
 
-        label_infos = self.load_label_infos()
-        total_infos = self.calculate_total_infos(label_infos)
-        self.populate_table(table, total_infos)
+        # Table widget
+        self.table = QTableWidget(self)
 
-        layout.addWidget(table)
-        table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        table.horizontalHeader().setSectionResizeMode(
+        self.populate_table()
+
+        layout.addWidget(self.table)
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.table.horizontalHeader().setSectionResizeMode(
             QtWidgets.QHeaderView.ResizeToContents
         )
-        layout.addWidget(table)
+
+        # Add input fields for range selection
+        range_layout = QHBoxLayout()
+        # Add stretch to center the widgets
+        range_layout.addStretch(1)
+        # Set filter
+        regex = QRegExp("^[0-9]+$")
+        validator = QRegExpValidator(regex)
+
+        from_label = QLabel("From:")
+        self.from_input = QLineEdit()
+        self.from_input.setValidator(validator)
+        self.from_input.setPlaceholderText(str(self.start_index))
+
+        range_layout.addWidget(from_label)
+        range_layout.addWidget(self.from_input)
+
+        to_label = QLabel("To:")
+        self.to_input = QLineEdit()
+        self.to_input.setValidator(validator)
+        self.to_input.setPlaceholderText(str(self.end_index))
+        range_layout.addWidget(to_label)
+        range_layout.addWidget(self.to_input)
+
+        self.range_button = QPushButton("Go")
+        range_layout.addWidget(self.range_button)
+        self.range_button.clicked.connect(self.update_range)
+
+        # Add stretch to center the widgets
+        range_layout.addStretch(1)
+
+        # Add export button for exporting data
+        self.export_button = QPushButton(self.tr("Export"))
+
+        range_and_export_layout = QHBoxLayout()
+        range_and_export_layout.addStretch(1)
+        range_and_export_layout.addLayout(range_layout)
+        range_and_export_layout.addStretch(1)
+        range_and_export_layout.addWidget(self.export_button, 0, Qt.AlignRight)
+
+        layout.addLayout(range_and_export_layout)
+
+        self.export_button.clicked.connect(self.export_to_csv)
+
         self.exec_()
 
     def move_to_center(self):
@@ -47,27 +98,9 @@ class OverviewDialog(QtWidgets.QDialog):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
-    def get_current_file(self):
-        try:
-            dir_path, filename = os.path.split(self.parent.filename)
-            filename = os.path.splitext(filename)[0] + ".json"
-            current_file = os.path.join(dir_path, filename)
-            if self.parent.output_dir:
-                current_file = os.path.join(self.parent.output_dir, filename)
-        except:
-            return ""
-        if not os.path.exists(current_file):
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.parent.tr("Warning"),
-                self.parent.tr("No file selected.")
-            )
-            return ""
-        return current_file
-
-    def load_label_infos(self):
-        label_infos = {}
+    def get_label_infos(self, start_index: int = None, end_index: int = None):
         initial_nums = [0 for _ in range(len(self.supported_shape))]
+        label_infos = {}
 
         progress_dialog = QProgressDialog(
             self.tr("Loading..."),
@@ -88,26 +121,36 @@ class OverviewDialog(QtWidgets.QDialog):
         }
         """)
 
-        for i, label_file in enumerate(self.label_file_list):
+        if start_index is None:
+            start_index = self.start_index
+        if end_index is None:
+            end_index = self.end_index
+        for i, label_file in enumerate(sorted(self.label_file_list)):
+            if i < start_index - 1 or i > end_index - 1:
+                continue
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             shapes = data.get("shapes", [])
             for shape in shapes:
-                label = shape.get("label", "_empty")
+                if "label" not in shape or "shape_type" not in shape:
+                    continue
+                shape_type = shape["shape_type"]
+                if shape_type not in self.supported_shape:
+                    print(f"Invalid shape_type {shape_type} of {label_file}!")
+                    continue
+                label = shape["label"]
                 if label not in label_infos:
-                    label_infos[label] = dict(
-                        zip(self.supported_shape, initial_nums)
-                    )
-                shape_type = shape.get("shape_type", "")
+                    label_infos[label] = dict(zip(self.supported_shape, initial_nums))
                 label_infos[label][shape_type] += 1
             progress_dialog.setValue(i)
             if progress_dialog.wasCanceled():
                 break
-
         progress_dialog.close()
+        label_infos = {k: label_infos[k] for k in sorted(label_infos)}
         return label_infos
 
-    def calculate_total_infos(self, label_infos):
+    def get_total_infos(self, start_index: int = None, end_index: int = None):
+        label_infos = self.get_label_infos(start_index, end_index)
         total_infos = [["Label"] + self.supported_shape + ["Total"]]
         shape_counter = [0 for _ in range(len(self.supported_shape) + 1)]
 
@@ -123,16 +166,60 @@ class OverviewDialog(QtWidgets.QDialog):
         total_infos.append(["Total"] + shape_counter)
         return total_infos
 
-    def populate_table(self, table, total_infos):
+    def populate_table(self):
+        total_infos = self.get_total_infos()
         rows = len(total_infos) - 1
         cols = len(total_infos[0])
-        table.setRowCount(rows)
-        table.setColumnCount(cols)
-        table.setHorizontalHeaderLabels(total_infos[0])
+        self.table.setRowCount(rows)
+        self.table.setColumnCount(cols)
+        self.table.setHorizontalHeaderLabels(total_infos[0])
 
         data = [list(map(str, info)) for info in total_infos[1:]]
 
         for row, info in enumerate(data):
             for col, value in enumerate(info):
                 item = QTableWidgetItem(value)
-                table.setItem(row, col, item)
+                self.table.setItem(row, col, item)
+
+    def update_range(self):
+        from_value = int(self.from_input.text()) if self.from_input.text() else self.start_index
+        to_value = int(self.to_input.text()) if self.to_input.text() else self.end_index
+
+        if (from_value > to_value) or \
+           (from_value < 1) or (to_value > len(self.label_file_list)):
+            self.from_input.setText(str(self.start_index))
+            self.to_input.setText(str(self.end_index))
+        else:
+            self.start_index = from_value
+            self.end_index = to_value
+            self.populate_table()
+
+    def export_to_csv(self):
+        path, ok = QFileDialog.getSaveFileName(
+            self, self.tr("Save CSV"),
+            "annotations_statistics", "CSV files (*.csv)"
+        )
+        if not ok or not path:
+            return
+        if not path.endswith(".csv"):
+            path += ".csv"
+
+        try:
+            total_infos = self.get_total_infos(1, len(self.label_file_list))
+            with open(path, "w", newline="", encoding="utf-8") as csvfile:
+                writer = csv.writer(csvfile)
+                for row in total_infos:
+                    writer.writerow(row)
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText(self.tr("Exporting successfully!"))
+            msg_box.setInformativeText(self.tr(f"Results have been saved to:\n{path}"))
+            msg_box.setWindowTitle(self.tr("Success"))
+            msg_box.exec_()
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(self.tr("Error occurred while exporting annotations statistics file."))
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
