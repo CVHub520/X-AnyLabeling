@@ -31,7 +31,7 @@ class OverviewDialog(QtWidgets.QDialog):
 
     def init_ui(self):
         self.setWindowTitle(self.tr("Overview"))
-        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint)
         self.resize(600, 400)
         self.move_to_center()
 

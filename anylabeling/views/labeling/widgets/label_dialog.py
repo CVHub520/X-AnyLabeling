@@ -51,8 +51,8 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def init_ui(self):
         self.setWindowTitle("Label Change Manager")
-        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint)
-        self.resize(560, 380)
+        self.setWindowFlags(self.windowFlags() | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint)
+        self.resize(600, 400)
         self.move_to_center()
 
         self.table_widget = QTableWidget(self)
