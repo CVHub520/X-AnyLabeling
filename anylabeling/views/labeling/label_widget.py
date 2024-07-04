@@ -4096,6 +4096,29 @@ class LabelingWidget(LabelDialog):
                 return
             converter = LabelConverter(classes_file=self.classes_file)
 
+        dialog = QtWidgets.QDialog()
+        dialog.setWindowTitle(self.tr("Options"))
+
+        layout = QVBoxLayout()
+
+        save_images_checkbox = QtWidgets.QCheckBox(self.tr("Save images?"))
+        save_images_checkbox.setChecked(False)
+        layout.addWidget(save_images_checkbox)
+
+        skip_empty_files_checkbox = QtWidgets.QCheckBox(self.tr("Skip empty labels?"))
+        skip_empty_files_checkbox.setChecked(False)
+        layout.addWidget(skip_empty_files_checkbox)
+
+        button_box = QtWidgets.QPushButton(self.tr("OK"))
+        button_box.clicked.connect(dialog.accept)
+        layout.addWidget(button_box)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+        save_images = save_images_checkbox.isChecked()
+        skip_empty_files = skip_empty_files_checkbox.isChecked()
+
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
@@ -4103,8 +4126,22 @@ class LabelingWidget(LabelDialog):
         if not image_list:
             image_list = [self.filename]
         save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
+
+        if osp.exists(save_path):
+            response = QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Output Directory Exist!"),
+                self.tr(
+                    "You are going to export new annotations to this task. Continue?"
+                ),
+                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+            )
+
+            if response != QtWidgets.QMessageBox.Ok:
+                return
+            else:
+                shutil.rmtree(save_path)
         os.makedirs(save_path, exist_ok=True)
-        label_file_list = os.listdir(label_dir_path)
 
         progress_dialog = QProgressDialog(
             self.tr("Exporting..."),
@@ -4131,11 +4168,15 @@ class LabelingWidget(LabelDialog):
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
-                if label_file_name not in label_file_list:
-                    pathlib.Path(dst_file).touch()
-                else:
-                    src_file = osp.join(label_dir_path, label_file_name)
-                    converter.custom_to_yolo(src_file, dst_file, mode)
+                src_file = osp.join(label_dir_path, label_file_name)
+                is_emtpy_file = converter.custom_to_yolo(
+                    src_file, dst_file, mode, skip_empty_files
+                )
+                if save_images and not (skip_empty_files and is_emtpy_file):
+                    image_dst = osp.join(save_path, image_file_name)
+                    shutil.copy(image_file, image_dst)
+                if skip_empty_files and is_emtpy_file and osp.exists(dst_file):
+                    os.remove(dst_file)
                 # Update progress bar
                 progress_dialog.setValue(i)
                 if progress_dialog.wasCanceled():
@@ -4174,11 +4215,53 @@ class LabelingWidget(LabelDialog):
             )
             return
 
+        dialog = QtWidgets.QDialog()
+        dialog.setWindowTitle(self.tr("Options"))
+
+        layout = QVBoxLayout()
+
+        save_images_checkbox = QtWidgets.QCheckBox(self.tr("Save images?"))
+        save_images_checkbox.setChecked(False)
+        layout.addWidget(save_images_checkbox)
+
+        skip_empty_files_checkbox = QtWidgets.QCheckBox(self.tr("Skip empty labels?"))
+        skip_empty_files_checkbox.setChecked(False)
+        layout.addWidget(skip_empty_files_checkbox)
+
+        button_box = QtWidgets.QPushButton(self.tr("OK"))
+        button_box.clicked.connect(dialog.accept)
+        layout.addWidget(button_box)
+
+        dialog.setLayout(layout)
+        dialog.exec_()
+
+        save_images = save_images_checkbox.isChecked()
+        skip_empty_files = skip_empty_files_checkbox.isChecked()
+
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
+        image_list = self.image_list
+        if not image_list:
+            image_list = [self.filename]
         save_path = osp.realpath(osp.join(label_dir_path, "..", "Annotations"))
+
+        if osp.exists(save_path):
+            response = QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Output Directory Exist!"),
+                self.tr(
+                    "You are going to export new annotations to this task. Continue?"
+                ),
+                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+            )
+
+            if response != QtWidgets.QMessageBox.Ok:
+                return
+            else:
+                shutil.rmtree(save_path)
         os.makedirs(save_path, exist_ok=True)
+
         converter = LabelConverter()
         label_file_list = os.listdir(label_dir_path)
 
@@ -4202,13 +4285,20 @@ class LabelingWidget(LabelDialog):
         """)
 
         try:
-            for i, src_file_name in enumerate(label_file_list):
-                if not src_file_name.endswith(".json"):
-                    continue
-                dst_file_name = osp.splitext(src_file_name)[0] + ".xml"
-                src_file = osp.join(label_dir_path, src_file_name)
+            for i, image_file in enumerate(image_list):
+                image_file_name = osp.basename(image_file)
+                label_file_name = osp.splitext(image_file_name)[0] + ".json"
+                dst_file_name = osp.splitext(image_file_name)[0] + ".xml"
+                src_file = osp.join(label_dir_path, label_file_name)
                 dst_file = osp.join(save_path, dst_file_name)
-                converter.custom_to_voc(src_file, dst_file, mode)
+                is_emtpy_file = converter.custom_to_voc(
+                    image_file, src_file, dst_file, mode, skip_empty_files
+                )
+                if save_images and not (skip_empty_files and is_emtpy_file):
+                    image_dst = osp.join(save_path, image_file_name)
+                    shutil.copyfile(image_file, image_dst)
+                if skip_empty_files and is_emtpy_file and osp.exists(dst_file):
+                    os.remove(dst_file)
                 # Update progress bar
                 progress_dialog.setValue(i)
                 if progress_dialog.wasCanceled():

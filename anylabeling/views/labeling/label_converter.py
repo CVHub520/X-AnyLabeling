@@ -5,6 +5,7 @@ import csv
 import json
 import math
 import yaml
+import pathlib
 import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -634,9 +635,20 @@ class LabelConverter:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def custom_to_yolo(self, input_file, output_file, mode):
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    def custom_to_yolo(self,
+                       input_file,
+                       output_file,
+                       mode,
+                       skip_empty_files=False):
+        is_empty_file = True
+        if osp.exists(input_file):
+            with open(input_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        else:
+            if not skip_empty_files:
+                pathlib.Path(output_file).touch()
+            return is_empty_file
+
         image_width = data["imageWidth"]
         image_height = data["imageHeight"]
         image_size = np.array([[image_width, image_height]])
@@ -669,6 +681,7 @@ class LabelConverter:
                     f.write(
                         f"{class_index} {x_center} {y_center} {width} {height}\n"
                     )
+                    is_empty_file = False
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
                     points = np.array(shape["points"])
@@ -686,6 +699,7 @@ class LabelConverter:
                         )
                         + "\n"
                     )
+                    is_empty_file = False
                 elif mode == "obb" and shape_type == "rotation":
                     label = shape["label"]
                     points = list(chain.from_iterable(shape["points"]))
@@ -700,6 +714,7 @@ class LabelConverter:
                     f.write(
                         f"{class_index} {x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3}\n"
                     )
+                    is_empty_file = False
                 elif mode == "pose":
                     if shape_type not in ["rectangle", "point"]:
                         continue
@@ -721,6 +736,7 @@ class LabelConverter:
                         difficult = shape.get("difficult", False)
                         visible = 1 if difficult is True else 2
                         pose_data[group_id]["keypoints"][label] = [x, y, visible]
+                    is_empty_file = False
             if mode == "pose":
                 classes = list(self.pose_classes.keys())
                 max_keypoints = max([len(kpts) for kpts in self.pose_classes.values()])
@@ -766,25 +782,38 @@ class LabelConverter:
                         else:
                             label += f" 0 0"
                     f.write(f"{label}\n")
+        return is_empty_file
 
-    def custom_to_voc(self, input_file, output_dir, mode):
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    def custom_to_voc(self,
+                      image_file,
+                      input_file,
+                      output_dir,
+                      mode,
+                      skip_empty_files=False):
+        is_emtpy_file = True
+        image = cv2.imread(image_file)
+        image_height, image_width, image_depth = image.shape
+        if osp.exists(input_file):
+            with open(input_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            shapes = data["shapes"]
+        else:
+            if not skip_empty_files:
+                shapes = []
+            else:
+                return is_emtpy_file
 
-        image_path = data["imagePath"]
-        image_width = data["imageWidth"]
-        image_height = data["imageHeight"]
-
+        image_path = osp.basename(image_file)
         root = ET.Element("annotation")
         ET.SubElement(root, "folder").text = osp.dirname(output_dir)
         ET.SubElement(root, "filename").text = osp.basename(image_path)
         size = ET.SubElement(root, "size")
         ET.SubElement(size, "width").text = str(image_width)
         ET.SubElement(size, "height").text = str(image_height)
-        ET.SubElement(size, "depth").text = "3"
+        ET.SubElement(size, "depth").text = str(image_depth)
         source = ET.SubElement(root, "source")
         ET.SubElement(source, "database").text = "https://github.com/CVHub520/X-AnyLabeling"
-        for shape in data["shapes"]:
+        for shape in shapes:
             label = shape["label"]
             points = shape["points"]
             difficult = shape.get("difficult", False)
@@ -795,6 +824,7 @@ class LabelConverter:
             ET.SubElement(object_elem, "occluded").text = "0"
             ET.SubElement(object_elem, "difficult").text = str(int(difficult))
             if shape["shape_type"] == "rectangle" and mode in ["rectangle", "polygon"]:
+                is_emtpy_file = False
                 if len(points) == 2:
                     logger.warning(
                         "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -810,6 +840,7 @@ class LabelConverter:
             elif shape["shape_type"] == "polygon" and mode == "polygon":
                 if len(points) < 3:
                     continue
+                is_emtpy_file = False
                 xmin, ymin, xmax, ymax = self.calculate_bounding_box(points)
                 bndbox = ET.SubElement(object_elem, "bndbox")
                 ET.SubElement(bndbox, "xmin").text = str(int(xmin))
@@ -829,6 +860,8 @@ class LabelConverter:
 
         with open(output_dir, "w", encoding="utf-8") as f:
             f.write(formatted_xml)
+
+        return is_emtpy_file
 
     def custom_to_coco(self, input_path, output_path, mode):
         coco_data = self.get_coco_data()
