@@ -600,7 +600,22 @@ class LabelDialog(QtWidgets.QDialog):
             self.edit.completer().setCurrentRow(row)
         self.edit.setFocus(QtCore.Qt.PopupFocusReason)
         if move:
-            self.move(QtGui.QCursor.pos())
+            cursor_pos = QtGui.QCursor.pos()
+            screen = QtWidgets.QApplication.desktop().screenGeometry(cursor_pos)
+            dialog_frame_size = self.frameGeometry()
+            
+            # Calculate the ideal top-left corner position for the dialog based on the mouse click
+            ideal_pos = cursor_pos
+            
+            # Adjust to prevent the dialog from exceeding the right screen boundary
+            if (ideal_pos.x() + dialog_frame_size.width()) > screen.right():
+                ideal_pos.setX(screen.right() - dialog_frame_size.width())
+            
+            # Adjust to prevent the dialog's bottom from going off-screen
+            if (ideal_pos.y() + dialog_frame_size.height()) > screen.bottom():
+                ideal_pos.setY(screen.bottom() - dialog_frame_size.height())
+            
+            self.move(ideal_pos)
         if self.exec_():
             return (
                 self.edit.text(),
