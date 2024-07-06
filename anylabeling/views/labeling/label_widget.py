@@ -1185,7 +1185,6 @@ class LabelingWidget(LabelDialog):
                 create_point_mode,
                 create_line_strip_mode,
                 edit_mode,
-                union_selection,
                 brightness_contrast,
             ),
             on_shapes_present=(save_as, hide_all, show_all),
@@ -1657,6 +1656,7 @@ class LabelingWidget(LabelDialog):
     def set_clean(self):
         self.dirty = False
         self.actions.save.setEnabled(False)
+        self.actions.union_selection.setEnabled(False)
         self.actions.create_mode.setEnabled(True)
         self.actions.create_rectangle_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
@@ -2208,6 +2208,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_point_mode.setEnabled(True)
             self.actions.create_line_strip_mode.setEnabled(True)
         else:
+            self.actions.union_selection.setEnabled(False)
             if create_mode == "polygon":
                 self.actions.create_mode.setEnabled(False)
                 self.actions.create_rectangle_mode.setEnabled(True)
