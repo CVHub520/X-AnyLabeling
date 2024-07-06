@@ -262,8 +262,9 @@ class LabelingWidget(LabelDialog):
             Qt.Horizontal: scroll_area.horizontalScrollBar(),
         }
         self.canvas.scroll_request.connect(self.scroll_request)
-
-        self.canvas.mode_changed.connect(self.set_edit_mode)
+        # [Feature] support for automatically switching to editing mode 
+        # when the cursor moves over an object (commit cd84619)
+        # self.canvas.mode_changed.connect(self.set_edit_mode)
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.show_shape.connect(self.show_shape)
         self.canvas.shape_moved.connect(self.set_dirty)

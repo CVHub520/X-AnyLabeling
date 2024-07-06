@@ -31,7 +31,9 @@ class Canvas(
 
     zoom_request = QtCore.pyqtSignal(int, QtCore.QPoint)
     scroll_request = QtCore.pyqtSignal(int, int)
-    mode_changed = QtCore.pyqtSignal()
+    # [Feature] support for automatically switching to editing mode 
+    # when the cursor moves over an object (commit cd84619)
+    # mode_changed = QtCore.pyqtSignal()
     new_shape = QtCore.pyqtSignal()
     show_shape = QtCore.pyqtSignal(int, int, QtCore.QPointF)
     selection_changed = QtCore.pyqtSignal(list)
@@ -550,12 +552,14 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
-                    if (
-                        self.create_mode
-                        in ["rectangle", "rotation", "circle", "line", "point"]
-                        and not self.is_auto_labeling
-                    ):
-                        self.mode_changed.emit()
+                    # [Feature] support for automatically switching to editing mode 
+                    # when the cursor moves over an object (commit cd84619)
+                    # if (
+                    #     self.create_mode
+                    #     in ["rectangle", "rotation", "circle", "line", "point"]
+                    #     and not self.is_auto_labeling
+                    # ):
+                    #     self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
