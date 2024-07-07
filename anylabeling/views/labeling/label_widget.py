@@ -398,6 +398,7 @@ class LabelingWidget(LabelDialog):
             checkable=True,
             checked=self._config["store_data"],
         )
+        save_with_image_data.setChecked(self._config["store_data"])
 
         close = action(
             self.tr("&Close"),
