@@ -383,7 +383,7 @@ class LabelingWidget(LabelDialog):
         save_auto = action(
             text=self.tr("Save &Automatically"),
             slot=lambda x: self.actions.save_auto.setChecked(x),
-            icon="save",
+            icon=None,
             tip=self.tr("Save automatically"),
             checkable=True,
             enabled=True,
@@ -393,7 +393,7 @@ class LabelingWidget(LabelDialog):
         save_with_image_data = action(
             text=self.tr("Save With Image Data"),
             slot=self.enable_save_image_with_data,
-            icon="save",
+            icon=None,
             tip=self.tr("Save image data in label file"),
             checkable=True,
             checked=self._config["store_data"],
