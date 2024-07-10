@@ -49,11 +49,20 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         self.reset_button = QtWidgets.QPushButton(self.tr("Reset"))
         self.reset_button.clicked.connect(self.reset_values)
 
+        # Confirm button
+        self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"))
+        self.confirm_button.clicked.connect(self.confirm_values)
+
+        # Buttons layout
+        buttons_layout = QtWidgets.QHBoxLayout()
+        buttons_layout.addWidget(self.reset_button)
+        buttons_layout.addWidget(self.confirm_button)
+
         # Main layout
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.addWidget(brightness_widget)
         main_layout.addWidget(contrast_widget)
-        main_layout.addWidget(self.reset_button)
+        main_layout.addLayout(buttons_layout)
         self.setLayout(main_layout)
 
         assert isinstance(img, PIL.Image.Image)
@@ -89,6 +98,10 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         self.slider_contrast.setValue(50)
         self.img = self.original_img.copy()
         self.on_new_value()
+
+    def confirm_values(self):
+        """Confirm the current values and close the dialog"""
+        self.accept()
 
     def _create_slider(self):
         """Create brightness/contrast slider"""

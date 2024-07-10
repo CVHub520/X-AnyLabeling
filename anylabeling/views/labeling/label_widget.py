@@ -763,7 +763,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         brightness_contrast = action(
-            self.tr("&Brightness Contrast"),
+            self.tr("&Set Brightness Contrast"),
             self.brightness_contrast,
             None,
             "color",
@@ -3301,7 +3301,7 @@ class LabelingWidget(LabelDialog):
             dialog.slider_contrast.setValue(contrast)
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
         if brightness is not None or contrast is not None:
-            dialog.on_new_value(None)
+            dialog.on_new_value()
         self.paint_canvas()
         self.add_recent_file(self.filename)
         self.toggle_actions(True)
