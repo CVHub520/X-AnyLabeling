@@ -4551,8 +4551,22 @@ class LabelingWidget(LabelDialog):
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "mask"))
-        os.makedirs(save_path, exist_ok=True)
+        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Select a directory to save the mask annotations"),
+            label_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly
+        )
+
+        if not selected_dir:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("No directory selected! Operation cancelled."),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+        save_path = osp.realpath(selected_dir)
         converter = LabelConverter(classes_file=self.classes_file)
         label_file_list = os.listdir(label_dir_path)
 
