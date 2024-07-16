@@ -1037,7 +1037,9 @@ class LabelConverter:
         mot_data = []
         label_file_list = os.listdir(input_path)
         label_file_list.sort(
-            key=lambda x: int(osp.splitext(x.split("_")[-1])[0])
+            key=lambda x: int(osp.splitext(x.rsplit("_", 1)[-1])[0])
+            if osp.splitext(x.rsplit("_", 1)[-1])[0].isdigit()
+            else 0
         )
 
         for label_file_name in label_file_list:
