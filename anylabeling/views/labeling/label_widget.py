@@ -4656,7 +4656,7 @@ class LabelingWidget(LabelDialog):
         if self.output_dir:
             label_dir_path = self.output_dir
         save_path = osp.realpath(osp.join(label_dir_path, "..", "MOT"))
-        base_name = osp.basename(self.filename).rsplit("_", 1)[0]
+        base_name = osp.basename(self.filename).rsplit("-", 1)[0]
         output_file = osp.join(save_path, base_name + ".csv")
         os.makedirs(save_path, exist_ok=True)
         converter = LabelConverter(classes_file=self.classes_file)

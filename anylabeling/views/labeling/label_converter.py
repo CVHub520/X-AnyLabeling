@@ -1037,8 +1037,8 @@ class LabelConverter:
         mot_data = []
         label_file_list = os.listdir(input_path)
         label_file_list.sort(
-            key=lambda x: int(osp.splitext(x.rsplit("_", 1)[-1])[0])
-            if osp.splitext(x.rsplit("_", 1)[-1])[0].isdigit()
+            key=lambda x: int(osp.splitext(x.rsplit("-", 1)[-1])[0])
+            if osp.splitext(x.rsplit("-", 1)[-1])[0].isdigit()
             else 0
         )
 
@@ -1048,7 +1048,7 @@ class LabelConverter:
             label_file = os.path.join(input_path, label_file_name)
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            frame_id = int(osp.splitext(label_file_name.split("_")[-1])[0])
+            frame_id = int(osp.splitext(label_file_name.split("-")[-1])[0])
             for shape in data["shapes"]:
                 if shape["shape_type"] != "rectangle":
                     continue
