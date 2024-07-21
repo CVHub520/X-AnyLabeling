@@ -1201,10 +1201,19 @@ class Canvas(
             for shape in self.shapes:
                 if not shape.visible:
                     continue
-                if shape.score is not None:
-                    label = f"{shape.label} {shape.score:.2f}"
-                else:
-                    label = shape.label
+                if shape.label in [
+                    "AUTOLABEL_OBJECT",
+                    "AUTOLABEL_ADD",
+                    "AUTOLABEL_REMOVE",
+                ]:
+                    continue
+                label = (
+                    f"id:{shape.group_id} " if shape.group_id is not None else ""
+                ) + (
+                    f"{shape.label}"
+                ) + (
+                    f" {shape.score:.2f}" if shape.score is not None else ""
+                )
                 if not label:
                     continue
                 d = shape.point_size / shape.scale
@@ -1241,10 +1250,19 @@ class Canvas(
                     continue
                 d = 1.5  # default shape sacle
                 shape_type = shape.shape_type
-                if shape.score is not None:
-                    label = f"{shape.label} {shape.score:.2f}"
-                else:
-                    label = shape.label
+                if shape.label in [
+                    "AUTOLABEL_OBJECT",
+                    "AUTOLABEL_ADD",
+                    "AUTOLABEL_REMOVE",
+                ]:
+                    continue
+                label = (
+                    f"id:{shape.group_id} " if shape.group_id is not None else ""
+                ) + (
+                    f"{shape.label}"
+                ) + (
+                    f" {shape.score:.2f}" if shape.score is not None else ""
+                )
                 if not label:
                     continue
                 fm = QtGui.QFontMetrics(p.font())
@@ -1268,6 +1286,7 @@ class Canvas(
                     int(y - d),
                     label,
                 )
+
         # Draw mouse coordinates
         if self.cross_line_show:
             pen = QtGui.QPen(
