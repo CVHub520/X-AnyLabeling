@@ -6,6 +6,7 @@ import json
 import math
 import yaml
 import pathlib
+import configparser
 import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -570,9 +571,8 @@ class LabelConverter:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def mot_to_custom(self, input_file, output_path, image_path):
-        with open(input_file, "r", encoding="utf-8", newline="") as csvfile:
-            reader = csv.reader(csvfile, delimiter=",")
-            mot_data = [row for row in reader]
+        with open(input_file, "r", encoding="utf-8") as f:
+            mot_data = [line.strip().split(',') for line in f]
 
         data_to_shape = {}
         for data in mot_data:
@@ -595,7 +595,7 @@ class LabelConverter:
                 continue
 
             self.reset()
-            frame_id = int(osp.splitext(file_name.split("_")[-1])[0])
+            frame_id = int(osp.splitext(file_name.rsplit("-")[-1])[0])
             data = data_to_shape[frame_id]
             image_file = osp.join(image_path, file_name)
             imageWidth, imageHeight = self.get_image_size(image_file)
@@ -1033,8 +1033,22 @@ class LabelConverter:
                 1
             ].tofile(output_file)
 
-    def custom_to_mot(self, input_path, output_file):
-        mot_data = []
+    def custom_to_mot(self, input_path, save_path):
+        mot_structure = {
+            "sequence": dict(
+                name="MOT",
+                imDir=osp.basename(save_path),
+                frameRate=30,
+                seqLength=None,
+                imWidth=None,
+                imHeight=None,
+                imExt=None,
+            ),
+            "det": [],
+            "gt": [],
+        }
+        seg_len, im_widht, im_height, im_ext = 0, None, None, None
+
         label_file_list = os.listdir(input_path)
         label_file_list.sort(
             key=lambda x: int(osp.splitext(x.rsplit("-", 1)[-1])[0])
@@ -1048,11 +1062,20 @@ class LabelConverter:
             label_file = os.path.join(input_path, label_file_name)
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
+
+            seg_len += 1
+            if im_widht is None:
+                im_widht = data["imageWidth"]
+            if im_height is None:
+                im_height = data["imageHeight"]
+            if im_ext is None:
+                im_ext = osp.splitext(osp.basename(data["imagePath"]))[-1]
             frame_id = int(osp.splitext(label_file_name.split("-")[-1])[0])
             for shape in data["shapes"]:
                 if shape["shape_type"] != "rectangle":
                     continue
-                class_id = self.classes.index(shape["label"])
+                diccicult = shape.get("diccicult", False)
+                class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
                 points = shape["points"]
                 if len(points) == 2:
@@ -1065,20 +1088,29 @@ class LabelConverter:
                 ymin = int(points[0][1])
                 xmax = int(points[2][0])
                 ymax = int(points[2][1])
-                data = [
-                    frame_id,
-                    track_id,
-                    xmin,
-                    ymin,
-                    xmax - xmin,
-                    ymax - ymin,
-                    0,
-                    class_id,
-                    1,
-                ]
-                mot_data.append(data)
+                boxw = xmax - xmin
+                boxh = ymax - ymin
+                det = [frame_id, -1, xmin, ymin, boxw, boxh, 1, -1, -1, -1]
+                gt = [frame_id, track_id, xmin, ymin, boxw, boxh, int(not diccicult), class_id, 1]
+                mot_structure["det"].append(det)
+                mot_structure["gt"].append(gt)
 
-        # Save updated_data to output_file
-        with open(output_file, "w", encoding="utf-8", newline="") as csvfile:
-            writer = csv.writer(csvfile, delimiter=",")
-            writer.writerows(mot_data)
+        # Save seqinfo.ini
+        mot_structure["sequence"]["seqLength"] = seg_len
+        mot_structure["sequence"]["imWidth"] = im_widht
+        mot_structure["sequence"]["imHeight"] = im_height
+        mot_structure["sequence"]["imExt"] = im_ext
+        config = configparser.ConfigParser()
+        config.add_section('Sequence')
+        for key, value in mot_structure["sequence"].items():
+            config['Sequence'][key] = str(value)
+        with open(osp.join(save_path, "seqinfo.ini"), 'w') as f:
+            config.write(f)
+        # Save det.txt
+        with open(osp.join(save_path, "det.txt"), "w", encoding="utf-8") as f:
+            for row in mot_structure["det"]:
+                f.write(",".join(map(str, row)) + "\n")
+        # Save gt.txt
+        with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
+            for row in mot_structure["gt"]:
+                f.write(",".join(map(str, row)) + "\n")

@@ -4076,10 +4076,10 @@ class LabelingWidget(LabelDialog):
                         item, label, rgb, LABEL_OPACITY
                     )
 
-        filter = "Attribute Files (*.csv);;All Files (*)"
+        filter = "Attribute Files (*.txt);;All Files (*)"
         input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
             self,
-            self.tr("Select a custom mot annotation file"),
+            self.tr("Select a custom mot annotation file (gt.txt)"),
             "",
             filter,
         )
@@ -4644,24 +4644,27 @@ class LabelingWidget(LabelDialog):
                 filter,
             )
             if not self.classes_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific classes file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
                 return
 
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "MOT"))
-        base_name = osp.basename(self.filename).rsplit("-", 1)[0]
-        output_file = osp.join(save_path, base_name + ".csv")
+
+        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Select a directory to save the mot annotations"),
+            label_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly
+        )
+
+        if not selected_dir:
+            return
+
+        save_path = osp.realpath(selected_dir)
         os.makedirs(save_path, exist_ok=True)
         converter = LabelConverter(classes_file=self.classes_file)
         try:
-            converter.custom_to_mot(label_dir_path, output_file)
+            converter.custom_to_mot(label_dir_path, save_path)
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
