@@ -388,7 +388,7 @@ class LabelDialog(QtWidgets.QDialog):
                 QtCore.QRegularExpression(r"\d*"), None
             )
         )
-        self.edit_difficult = QtWidgets.QCheckBox("useDifficult")
+        self.edit_difficult = QtWidgets.QCheckBox(self.tr("useDifficult"))
         self.edit_difficult.setChecked(difficult)
 
         layout = QtWidgets.QVBoxLayout()
@@ -447,7 +447,7 @@ class LabelDialog(QtWidgets.QDialog):
         self.edit.textChanged.connect(self.update_flags)
         # text edit
         self.edit_description = QtWidgets.QTextEdit()
-        self.edit_description.setPlaceholderText("Label description")
+        self.edit_description.setPlaceholderText(self.tr("Label description"))
         self.edit_description.setFixedHeight(50)
         layout.addWidget(self.edit_description)
         self.setLayout(layout)
