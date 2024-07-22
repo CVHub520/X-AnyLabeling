@@ -32,8 +32,8 @@ class Canvas(
     zoom_request = QtCore.pyqtSignal(int, QtCore.QPoint)
     scroll_request = QtCore.pyqtSignal(int, int)
     # [Feature] support for automatically switching to editing mode 
-    # when the cursor moves over an object (commit cd84619)
-    # mode_changed = QtCore.pyqtSignal()
+    # when the cursor moves over an object
+    mode_changed = QtCore.pyqtSignal()
     new_shape = QtCore.pyqtSignal()
     show_shape = QtCore.pyqtSignal(int, int, QtCore.QPointF)
     selection_changed = QtCore.pyqtSignal(list)
@@ -455,11 +455,11 @@ class Canvas(
                     )
                 self.setStatusTip(self.toolTip())
                 self.override_cursor(CURSOR_GRAB)
-                # [Feature] Automatically highlight shape when the mouse is moved inside it (commit eeb15c4)
-                # group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
-                # self.select_shape_point(
-                #     pos, multiple_selection_mode=group_mode
-                # )
+                # [Feature] Automatically highlight shape when the mouse is moved inside it
+                group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                self.select_shape_point(
+                    pos, multiple_selection_mode=group_mode
+                )
                 self.update()
 
                 if shape.shape_type == "rectangle":
@@ -554,13 +554,13 @@ class Canvas(
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
                     # [Feature] support for automatically switching to editing mode 
-                    # when the cursor moves over an object (commit cd84619)
-                    # if (
-                    #     self.create_mode
-                    #     in ["rectangle", "rotation", "circle", "line", "point"]
-                    #     and not self.is_auto_labeling
-                    # ):
-                    #     self.mode_changed.emit()
+                    # when the cursor moves over an object
+                    if (
+                        self.create_mode
+                        in ["rectangle", "rotation", "circle", "line", "point"]
+                        and not self.is_auto_labeling
+                    ):
+                        self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)

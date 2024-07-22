@@ -262,15 +262,16 @@ class LabelingWidget(LabelDialog):
             Qt.Horizontal: scroll_area.horizontalScrollBar(),
         }
         self.canvas.scroll_request.connect(self.scroll_request)
-        # [Feature] support for automatically switching to editing mode 
-        # when the cursor moves over an object (commit cd84619)
-        # self.canvas.mode_changed.connect(self.set_edit_mode)
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.show_shape.connect(self.show_shape)
         self.canvas.shape_moved.connect(self.set_dirty)
         self.canvas.shape_rotated.connect(self.set_dirty)
         self.canvas.selection_changed.connect(self.shape_selection_changed)
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
+        # [Feature] support for automatically switching to editing mode 
+        # when the cursor moves over an object
+        if self._config["auto_switch_to_edit_mode"]:
+            self.canvas.mode_changed.connect(self.set_edit_mode)
 
         # Crosshair
         self.crosshair_settings = self._config["canvas"]["crosshair"]
