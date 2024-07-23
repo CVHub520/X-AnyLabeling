@@ -923,6 +923,13 @@ class LabelingWidget(LabelDialog):
             icon="format_mot",
             tip=self.tr("Upload Custom Multi-Object-Tracking Annotations"),
         )
+        upload_ppocr_text_annotation = action(
+            self.tr("&Upload PPOCR-Label Annotations"),
+            lambda: self.upload_ppocr_annotation("text"),
+            None,
+            icon="format_ppocr",
+            tip=self.tr("Upload Custom PPOCR Label Annotations"),
+        )
 
         # Export
         export_yolo_hbb_annotation = action(
@@ -1001,6 +1008,13 @@ class LabelingWidget(LabelDialog):
             None,
             icon="format_mot",
             tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
+        )
+        export_pporc_text_annotation = action(
+            self.tr("&Export PPOCR-Label Annotations"),
+            lambda: self.export_pporc_annotation("text"),
+            None,
+            icon="format_ppocr",
+            tip=self.tr("Export Custom PPOCR Label Annotations"),
         )
 
         # Group zoom controls into a list for easier toggling.
@@ -1102,6 +1116,7 @@ class LabelingWidget(LabelDialog):
             upload_dota_annotation=upload_dota_annotation,
             upload_mask_annotation=upload_mask_annotation,
             upload_mot_annotation=upload_mot_annotation,
+            upload_ppocr_text_annotation=upload_ppocr_text_annotation,
             export_yolo_hbb_annotation=export_yolo_hbb_annotation,
             export_yolo_obb_annotation=export_yolo_obb_annotation,
             export_yolo_seg_annotation=export_yolo_seg_annotation,
@@ -1113,6 +1128,7 @@ class LabelingWidget(LabelDialog):
             export_dota_annotation=export_dota_annotation,
             export_mask_annotation=export_mask_annotation,
             export_mot_annotation=export_mot_annotation,
+            export_pporc_text_annotation=export_pporc_text_annotation,
             zoom=zoom,
             zoom_in=zoom_in,
             zoom_out=zoom_out,
@@ -1281,6 +1297,8 @@ class LabelingWidget(LabelDialog):
                 upload_dota_annotation,
                 upload_mask_annotation,
                 upload_mot_annotation,
+                None,
+                upload_ppocr_text_annotation,
             ),
         )
         utils.add_actions(
@@ -1300,6 +1318,8 @@ class LabelingWidget(LabelDialog):
                 export_dota_annotation,
                 export_mask_annotation,
                 export_mot_annotation,
+                None,
+                export_pporc_text_annotation,
             ),
         )
         utils.add_actions(
@@ -4113,6 +4133,56 @@ class LabelingWidget(LabelDialog):
         # update and refresh the current canvas
         self.load_file(self.filename)
 
+    def upload_ppocr_annotation(self, mode, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        filter = "Attribute Files (*.txt);;All Files (*)"
+        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a custom mot annotation file (Label.txt)"),
+            "",
+            filter,
+        )
+
+        if (
+            not input_file
+            or QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Current annotation will be lost"),
+                self.tr(
+                    "You are going to upload new annotations to this task. Continue?"
+                ),
+                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+            )
+            != QtWidgets.QMessageBox.Ok
+        ):
+            return
+
+        image_dir_path = osp.dirname(self.filename)
+        output_dir_path = image_dir_path
+        if self.output_dir:
+            output_dir_path = self.output_dir
+        converter = LabelConverter(classes_file=self.classes_file)
+        converter.ppocr_to_custom(
+            input_file=input_file,
+            output_path=output_dir_path,
+            image_path=image_dir_path,
+            mode=mode,
+        )
+
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
     # Export
     def export_yolo_annotation(self, mode, _value=False, dirpath=None):
         if not self.may_continue():
@@ -4683,6 +4753,100 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
             return
+
+    def export_pporc_annotation(self, mode, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        converter = LabelConverter(classes_file=self.classes_file)
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        image_list = self.image_list
+        if not image_list:
+            image_list = [self.filename]
+        save_path = osp.realpath(osp.join(label_dir_path, "..", "ppocr"))
+
+        if osp.exists(save_path):
+            response = QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Output Directory Exist!"),
+                self.tr(
+                    "You are going to export new annotations to this task. Continue?"
+                ),
+                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+            )
+
+            if response != QtWidgets.QMessageBox.Ok:
+                return
+            else:
+                shutil.rmtree(save_path)
+        os.makedirs(save_path, exist_ok=True)
+        save_crop_img_path = osp.join(save_path, "crop_img")
+        if osp.exists(save_crop_img_path):
+            shutil.rmtree(save_crop_img_path)
+        os.makedirs(save_crop_img_path, exist_ok=True)
+
+        progress_dialog = QProgressDialog(
+            self.tr("Exporting..."),
+            self.tr("Cancel"),
+            0,
+            len(image_list),
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle(self.tr("Progress"))
+        progress_dialog.setStyleSheet("""
+        QProgressDialog QProgressBar {
+            border: 1px solid grey;
+            border-radius: 5px;
+            text-align: center;
+        }
+        QProgressDialog QProgressBar::chunk {
+            background-color: orange;
+        }
+        """)
+
+        try:
+            for i, image_file in enumerate(image_list):
+                image_file_name = osp.basename(image_file)
+                label_file_name = osp.splitext(image_file_name)[0] + ".json"
+                label_file = osp.join(label_dir_path, label_file_name)
+                converter.custom_to_pporc(
+                    image_file, label_file, save_path, mode
+                )
+                # Update progress bar
+                progress_dialog.setValue(i)
+                if progress_dialog.wasCanceled():
+                    break
+            # Hide the progress dialog after processing is done
+            progress_dialog.close()
+
+            # # Show success message
+            save_path = osp.realpath(save_path)
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText(self.tr("Exporting annotations successfully!"))
+            msg_box.setInformativeText(self.tr(f"Results have been saved to:\n{save_path}"))
+            msg_box.setWindowTitle(self.tr("Success"))
+            msg_box.exec_()
+
+        except Exception as e:
+            progress_dialog.close()
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(self.tr("Error occurred while exporting annotations."))
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     # File
     def open_file(self, _value=False):

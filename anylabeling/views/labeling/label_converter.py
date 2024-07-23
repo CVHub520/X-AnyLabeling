@@ -1,7 +1,6 @@
 import os
 import os.path as osp
 import cv2
-import csv
 import json
 import math
 import yaml
@@ -18,6 +17,7 @@ from itertools import chain
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
+from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
 
 class LabelConverter:
@@ -219,6 +219,91 @@ class LabelConverter:
         """
         x_vals, y_vals = zip(*poly)
         return min(x_vals), min(y_vals), max(x_vals), max(y_vals)
+
+    @staticmethod
+    def gen_quad_from_poly(poly):
+        """
+        Generate min area quad from poly.
+        """
+        point_num = poly.shape[0]
+        min_area_quad = np.zeros((4, 2), dtype=np.float32)
+        rect = cv2.minAreaRect(poly.astype(np.int32))
+        box = np.array(cv2.boxPoints(rect))
+
+        first_point_idx = 0
+        min_dist = 1e4
+        for i in range(4):
+            dist = (
+                np.linalg.norm(box[(i + 0) % 4] - poly[0])
+                + np.linalg.norm(box[(i + 1) % 4] - poly[point_num // 2 - 1])
+                + np.linalg.norm(box[(i + 2) % 4] - poly[point_num // 2])
+                + np.linalg.norm(box[(i + 3) % 4] - poly[-1])
+            )
+            if dist < min_dist:
+                min_dist = dist
+                first_point_idx = i
+        for i in range(4):
+            min_area_quad[i] = box[(first_point_idx + i) % 4]
+
+        bbox_new = min_area_quad.tolist()
+        bbox = []
+
+        for box in bbox_new:
+            box = list(map(int, box))
+            bbox.append(box)
+
+        return bbox
+
+    @staticmethod
+    def get_rotate_crop_image(img, points):
+        # Use Green's theory to judge clockwise or counterclockwise
+        # author: biyanhua
+        d = 0.0
+        for index in range(-1, 3):
+            d += (
+                -0.5
+                * (points[index + 1][1] + points[index][1])
+                * (points[index + 1][0] - points[index][0])
+            )
+        if d < 0:  # counterclockwise
+            tmp = np.array(points)
+            points[1], points[3] = tmp[3], tmp[1]
+
+        try:
+            img_crop_width = int(
+                max(
+                    np.linalg.norm(points[0] - points[1]),
+                    np.linalg.norm(points[2] - points[3]),
+                )
+            )
+            img_crop_height = int(
+                max(
+                    np.linalg.norm(points[0] - points[3]),
+                    np.linalg.norm(points[1] - points[2]),
+                )
+            )
+            pts_std = np.float32(
+                [
+                    [0, 0],
+                    [img_crop_width, 0],
+                    [img_crop_width, img_crop_height],
+                    [0, img_crop_height],
+                ]
+            )
+            M = cv2.getPerspectiveTransform(points, pts_std)
+            dst_img = cv2.warpPerspective(
+                img,
+                M,
+                (img_crop_width, img_crop_height),
+                borderMode=cv2.BORDER_REPLICATE,
+                flags=cv2.INTER_CUBIC,
+            )
+            dst_img_height, dst_img_width = dst_img.shape[0:2]
+            if dst_img_height * 1.0 / dst_img_width >= 1.5:
+                dst_img = np.rot90(dst_img)
+            return dst_img
+        except Exception as e:
+            print(e)
 
     def yolo_obb_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -635,6 +720,54 @@ class LabelConverter:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
+
+    def ppocr_to_custom(self, input_file, output_path, image_path, mode):
+        if mode == "text":
+            self.reset()
+
+            with open(input_file, "r", encoding="utf-8") as f:
+                ocr_data = [line.strip().split('\t', 1) for line in f]
+
+            for data in ocr_data:
+                # initialize
+                self.reset()
+
+                # image
+                filename = osp.basename(data[0])
+                image_file = osp.join(image_path, filename)
+                imageWidth, imageHeight = self.get_image_size(image_file)
+                self.custom_data["imageHeight"] = imageHeight
+                self.custom_data["imageWidth"] = imageWidth
+                self.custom_data["imagePath"] = filename
+
+                # label
+                shapes = []
+                label_info = json.loads(data[1])
+                for label in label_info:
+                    points = label["points"]
+                    shape_type = (
+                        "rectangle" if is_possible_rectangle(points) else "polygon"
+                    ) 
+                    is_possible_rectangle(points)
+                    shape = {
+                        "label": "text",
+                        "description": label["transcription"],
+                        "points": points,
+                        "group_id": None,
+                        "difficult": label["difficult"],
+                        "direction": 0,
+                        "shape_type": shape_type,
+                        "flags": {},
+                    }
+                    shapes.append(shape)
+                self.custom_data["shapes"] = shapes
+                output_file = osp.join(
+                    output_path, osp.splitext(filename)[0] + ".json"
+                )
+                with open(output_file, "w", encoding="utf-8") as f:
+                    json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    # Export functions
     def custom_to_yolo(self,
                        input_file,
                        output_file,
@@ -1114,3 +1247,56 @@ class LabelConverter:
         with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
             for row in mot_structure["gt"]:
                 f.write(",".join(map(str, row)) + "\n")
+
+    def custom_to_pporc(self, image_file, label_file, save_path, mode):
+        if not osp.exists(label_file):
+            return
+        image_name = osp.basename(image_file)
+        prefix = osp.splitext(image_name)[0]
+        dir_name = osp.basename(osp.dirname(image_file))
+
+        if mode == "text":
+            crop_img_count, rec_gt, annotations = 0, [], []
+            avaliable_shape_types = ["rectangle", "rotation", "polygon"]
+            img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
+ 
+            Label_file = osp.join(save_path, "Label.txt")
+            rec_gt_file = osp.join(save_path, "rec_gt.txt")
+            save_crop_img_path = osp.join(save_path, "crop_img")
+
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for shape in data["shapes"]:
+                shape_type = shape["shape_type"]
+                if shape_type not in avaliable_shape_types:
+                    continue
+
+                transcription = shape["description"]
+                difficult = shape.get("difficult", False)
+                points = [list(map(int, p)) for p in shape["points"]]
+                annotations.append(dict(
+                    transcription=transcription,
+                    points=points,
+                    difficult=difficult,
+                ))
+
+                if len(points) > 4:
+                    points = self.gen_quad_from_poly(np.array(points))
+                assert len(points) == 4
+                img_crop = self.get_rotate_crop_image(img, np.array(points, np.float32))
+                if img_crop is None:
+                    print(f"Can not recognise the detection box in {image_file}. Please change manually")
+                    continue
+                crop_img_filenmame = f"{prefix}_crop_{crop_img_count}.jpg"
+                crop_img_file = osp.join(save_crop_img_path, crop_img_filenmame)
+                cv2.imwrite(crop_img_file, img_crop)
+                rec_gt.append(f"crop_img/{crop_img_filenmame}\t{transcription}\n")
+                crop_img_count += 1
+            
+            if annotations:
+                Label = f"{dir_name}/{image_name}\t{json.dumps(annotations, ensure_ascii=False)}\n"
+                with open(Label_file, "a", encoding="utf-8") as f:
+                    f.write(Label)
+                with open(rec_gt_file, "a", encoding="utf-8") as f:
+                    for item in rec_gt:
+                        f.write(item)

@@ -29,6 +29,7 @@
         <file>images/fit.png</file>
         <file>images/format_default.png</file>
         <file>images/format_mot.png</file>
+        <file>images/format_ppocr.png</file>
         <file>images/format_voc.png</file>
         <file>images/format_dota.png</file>
         <file>images/format_yolo.png</file>
