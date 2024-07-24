@@ -270,6 +270,7 @@ class LabelingWidget(LabelDialog):
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
         # [Feature] support for automatically switching to editing mode 
         # when the cursor moves over an object
+        self.canvas.h_shape_is_hovered = self._config.get("auto_highlight_shape", False)
         if self._config["auto_switch_to_edit_mode"]:
             self.canvas.mode_changed.connect(self.set_edit_mode)
 
@@ -839,7 +840,7 @@ class LabelingWidget(LabelDialog):
             self.tr("&Upload Attributes File"),
             self.upload_attr_file,
             None,
-            icon=None,
+            icon="format_attributes",
             tip=self.tr("Upload Custom Attributes File"),
         )
         upload_yolo_hbb_annotation = action(
@@ -1462,6 +1463,9 @@ class LabelingWidget(LabelDialog):
         self.grid_layout_container = QWidget()
         self.grid_layout_container.setLayout(self.grid_layout)
         self.scroll_area.setWidget(self.grid_layout_container)
+        if not self.attributes:
+            self.shape_attributes.hide()
+            self.scroll_area.hide()
         right_sidebar_layout.addWidget(
             self.shape_attributes, 0, Qt.AlignCenter
         )
@@ -3492,15 +3496,8 @@ class LabelingWidget(LabelDialog):
             filter,
         )
         if not file_path:
-            QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr(
-                    "Upload failed! Please reselect a specific attributes file!"
-                ),
-                QMessageBox.Ok,
-            )
             return
+
         with open(file_path, "r", encoding="utf-8") as f:
             self.attributes = json.load(f)
             for label in list(self.attributes.keys()):
@@ -3511,6 +3508,17 @@ class LabelingWidget(LabelDialog):
                     self.unique_label_list.set_item_label(
                         item, label, rgb, LABEL_OPACITY
                     )
+
+        self.shape_attributes.show()
+        self.scroll_area.show()
+        self.canvas.h_shape_is_hovered = False
+        self.canvas.mode_changed.disconnect(self.set_edit_mode)
+
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setInformativeText(self.tr(f"Attribute file loaded successfully!"))
+        msg_box.setWindowTitle(self.tr("Information"))
+        msg_box.exec_()
 
     def upload_yolo_annotation(self, mode, _value=False, dirpath=None):
         if not self.may_continue():

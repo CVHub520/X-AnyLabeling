@@ -93,6 +93,7 @@ class Canvas(
         self.rotating_shape = False
         self.snapping = True
         self.h_shape_is_selected = False
+        self.h_shape_is_hovered = None
         self._painter = QtGui.QPainter()
         self._cursor = CURSOR_DEFAULT
         # Menus:
@@ -456,10 +457,11 @@ class Canvas(
                 self.setStatusTip(self.toolTip())
                 self.override_cursor(CURSOR_GRAB)
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
-                group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
-                self.select_shape_point(
-                    pos, multiple_selection_mode=group_mode
-                )
+                if self.h_shape_is_hovered:
+                    group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                    self.select_shape_point(
+                        pos, multiple_selection_mode=group_mode
+                    )
                 self.update()
 
                 if shape.shape_type == "rectangle":
