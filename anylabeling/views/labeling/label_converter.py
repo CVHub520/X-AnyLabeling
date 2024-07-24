@@ -1279,7 +1279,9 @@ class LabelConverter:
                     points=points,
                     difficult=difficult,
                 ))
-
+                # skip hard sample
+                if difficult:
+                    continue
                 if len(points) > 4:
                     points = self.gen_quad_from_poly(np.array(points))
                 assert len(points) == 4
