@@ -837,7 +837,7 @@ class LabelConverter:
                     label = shape["label"]
                     points = shape["points"]
                     if not any(0 <= p[0] < image_width and 0 <= p[1] < image_height for p in points):
-                        print(f"{data["imagePath"]}: Skip out of bounds coordinates of {points}!")
+                        print(f"{data['imagePath']}: Skip out of bounds coordinates of {points}!")
                         continue
                     points = list(chain.from_iterable(points))
                     normalized_coords = [
@@ -1090,7 +1090,7 @@ class LabelConverter:
                 if (shape_type != "rotation" or len(points) != 4):
                     continue
                 if not any(0 <= p[0] < w and 0 <= p[1] < h for p in points):
-                    print(f"{data["imagePath"]}: Skip out of bounds coordinates of {points}!")
+                    print(f"{data['imagePath']}: Skip out of bounds coordinates of {points}!")
                     continue
                 label = shape["label"]
                 difficult = shape.get("difficult", False)
