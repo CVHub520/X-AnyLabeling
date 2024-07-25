@@ -94,6 +94,7 @@ class Canvas(
         self.snapping = True
         self.h_shape_is_selected = False
         self.h_shape_is_hovered = None
+        self.allowed_oop_shape_types = ["rotation"]
         self._painter = QtGui.QPainter()
         self._cursor = CURSOR_DEFAULT
         # Menus:
@@ -308,8 +309,8 @@ class Canvas(
                 self.show_shape.emit(shape_width, shape_height, pos)
 
             color = QtGui.QColor(0, 0, 255)
-            if self.out_off_pixmap(pos):
-                # Don't allow the user to draw outside the pixmap.
+            if self.out_off_pixmap(pos) and self.create_mode not in self.allowed_oop_shape_types:
+                # Don't allow the user to draw outside the pixmap, except for rotation.
                 # Project the point to the pixmap's edges.
                 pos = self.intersection_point(self.current[-1], pos)
             elif (
@@ -576,6 +577,15 @@ class Canvas(
                         self.set_hiding()
                         self.drawing_polygon.emit(True)
                         self.update()
+                elif (self.out_off_pixmap(pos) 
+                      and self.create_mode in self.allowed_oop_shape_types):
+                    # Create new shape.
+                    self.current = Shape(shape_type=self.create_mode)
+                    self.current.add_point(pos)
+                    self.line.points = [pos, pos]
+                    self.set_hiding()
+                    self.drawing_polygon.emit(True)
+                    self.update()
             elif self.editing():
                 if self.selected_edge():
                     self.add_point_to_edge()
@@ -800,7 +810,9 @@ class Canvas(
         """Move a vertex. Adjust position to be bounded by pixmap border"""
         index, shape = self.h_vertex, self.h_hape
         point = shape[index]
-        if self.out_off_pixmap(pos):
+        if (self.out_off_pixmap(pos) 
+            and shape.shape_type 
+            not in self.allowed_oop_shape_types):
             pos = self.intersection_point(point, pos)
 
         if shape.shape_type == "rotation":
@@ -809,13 +821,13 @@ class Canvas(
             p2, p3, p4 = self.get_adjoint_points(
                 shape.direction, shape[sindex], pos, index
             )
-            if (
-                self.out_off_pixmap(p2)
-                or self.out_off_pixmap(p3)
-                or self.out_off_pixmap(p4)
-            ):
-                # No need to move if one pixal out of map
-                return
+            # if (
+            #     self.out_off_pixmap(p2)
+            #     or self.out_off_pixmap(p3)
+            #     or self.out_off_pixmap(p4)
+            # ):
+            #     # No need to move if one pixal out of map
+            #     return
             # Move 4 pixal one by one
             shape.move_vertex_by(index, pos - point)
             lindex = (index + 1) % 4
@@ -843,17 +855,26 @@ class Canvas(
 
     def bounded_move_shapes(self, shapes, pos):
         """Move shapes. Adjust position to be bounded by pixmap border"""
-        if self.out_off_pixmap(pos):
+        shape_types = []
+        for shape in shapes:
+            if shape.shape_type in self.allowed_oop_shape_types:
+                shape_types.append(shape.shape_type)
+
+        if self.out_off_pixmap(pos) and len(shape_types) == 0:
             return False  # No need to move
-        o1 = pos + self.offsets[0]
-        if self.out_off_pixmap(o1):
-            pos -= QtCore.QPoint(min(0, int(o1.x())), min(0, int(o1.y())))
-        o2 = pos + self.offsets[1]
-        if self.out_off_pixmap(o2):
-            pos += QtCore.QPoint(
-                min(0, int(self.pixmap.width() - o2.x())),
-                min(0, int(self.pixmap.height() - o2.y())),
-            )
+        if len(shape_types) > 0 and len(shapes) != len(shape_types):
+            return False
+
+        if len(shape_types) == 0:
+            o1 = pos + self.offsets[0]
+            if self.out_off_pixmap(o1):
+                pos -= QtCore.QPoint(min(0, int(o1.x())), min(0, int(o1.y())))
+            o2 = pos + self.offsets[1]
+            if self.out_off_pixmap(o2):
+                pos += QtCore.QPoint(
+                    min(0, int(self.pixmap.width() - o2.x())),
+                    min(0, int(self.pixmap.height() - o2.y())),
+                )
         # XXX: The next line tracks the new position of the cursor
         # relative to the shape, but also results in making it
         # a bit "shaky" when nearing the border and allows it to

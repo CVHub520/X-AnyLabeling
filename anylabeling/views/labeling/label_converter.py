@@ -835,7 +835,11 @@ class LabelConverter:
                     is_empty_file = False
                 elif mode == "obb" and shape_type == "rotation":
                     label = shape["label"]
-                    points = list(chain.from_iterable(shape["points"]))
+                    points = shape["points"]
+                    if not any(0 <= p[0] < image_width and 0 <= p[1] < image_height for p in points):
+                        print(f"{data["imagePath"]}: Skip out of bounds coordinates of {points}!")
+                        continue
+                    points = list(chain.from_iterable(points))
                     normalized_coords = [
                         points[i] / image_width
                         if i % 2 == 0
@@ -1078,11 +1082,15 @@ class LabelConverter:
     def custom_to_dota(self, input_file, output_file):
         with open(input_file, "r", encoding="utf-8") as f:
             data = json.load(f)
+        w, h = data["imageWidth"], data["imageHeight"]
         with open(output_file, "w", encoding="utf-8") as f:
             for shape in data["shapes"]:
                 points = shape["points"]
                 shape_type = shape["shape_type"]
-                if shape_type != "rotation" or len(points) != 4:
+                if (shape_type != "rotation" or len(points) != 4):
+                    continue
+                if not any(0 <= p[0] < w and 0 <= p[1] < h for p in points):
+                    print(f"{data["imagePath"]}: Skip out of bounds coordinates of {points}!")
                     continue
                 label = shape["label"]
                 difficult = shape.get("difficult", False)
