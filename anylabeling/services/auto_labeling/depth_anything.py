@@ -245,6 +245,7 @@ class DepthAnything(Model):
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
+        self.render_mode = self.config.get("render_mode", "color")
 
     def preprocess(self, input_image):
         """
@@ -298,8 +299,9 @@ class DepthAnything(Model):
         depth = cv2.resize(outputs[0, 0], (orig_w, orig_h))
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
         depth = depth.astype(np.uint8)
-        depth_color = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
-        return depth_color
+        if self.render_mode == "color":
+            return cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
+        return depth
 
     def predict_shapes(self, image, image_path=None):
         """

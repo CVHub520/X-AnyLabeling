@@ -2,7 +2,6 @@ import logging
 import os
 
 import cv2
-import numpy as np
 from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
@@ -43,6 +42,7 @@ class DepthAnythingV2(Model):
         self.model_path = model_abs_path
         self.net = OnnxBaseModel(model_abs_path, )
         self.input_shape = self.net.get_input_shape()[-2:]
+        self.render_mode = self.config.get("render_mode", "color")
         self.device = "cuda" if __preferred_device__ == "GPU" else "cpu"
 
     def preprocess(self, input_image):
@@ -88,8 +88,9 @@ class DepthAnythingV2(Model):
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
         depth = depth.transpose(1, 2, 0).astype("uint8")
         depth = cv2.resize(depth, (orig_w, orig_h), interpolation=cv2.INTER_CUBIC)
-        depth_color = cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
-        return depth_color
+        if self.render_mode == "color":
+            return cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
+        return depth
 
     def predict_shapes(self, image, image_path=None):
         """
