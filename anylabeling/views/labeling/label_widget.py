@@ -924,12 +924,19 @@ class LabelingWidget(LabelDialog):
             icon="format_mot",
             tip=self.tr("Upload Custom Multi-Object-Tracking Annotations"),
         )
-        upload_ppocr_text_annotation = action(
-            self.tr("&Upload PPOCR-Label Annotations"),
-            lambda: self.upload_ppocr_annotation("text"),
+        upload_ppocr_rec_annotation = action(
+            self.tr("&Upload PPOCR-Rec Annotations"),
+            lambda: self.upload_ppocr_annotation("rec"),
             None,
             icon="format_ppocr",
-            tip=self.tr("Upload Custom PPOCR Label Annotations"),
+            tip=self.tr("Upload Custom PPOCR Recognition Annotations"),
+        )
+        upload_ppocr_kie_annotation = action(
+            self.tr("&Upload PPOCR-KIE Annotations"),
+            lambda: self.upload_ppocr_annotation("kie"),
+            None,
+            icon="format_ppocr",
+            tip=self.tr("Upload Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition & Relation Extraction) Annotations"),
         )
 
         # Export
@@ -1010,12 +1017,19 @@ class LabelingWidget(LabelDialog):
             icon="format_mot",
             tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
         )
-        export_pporc_text_annotation = action(
-            self.tr("&Export PPOCR-Label Annotations"),
-            lambda: self.export_pporc_annotation("text"),
+        export_pporc_rec_annotation = action(
+            self.tr("&Export PPOCR-Rec Annotations"),
+            lambda: self.export_pporc_annotation("rec"),
             None,
             icon="format_ppocr",
-            tip=self.tr("Export Custom PPOCR Label Annotations"),
+            tip=self.tr("Export Custom PPOCR Recognition Annotations"),
+        )
+        export_pporc_kie_annotation = action(
+            self.tr("&Export PPOCR-KIE Annotations"),
+            lambda: self.export_pporc_annotation("kie"),
+            None,
+            icon="format_ppocr",
+            tip=self.tr("Export Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition & Relation Extraction) Annotations"),
         )
 
         # Group zoom controls into a list for easier toggling.
@@ -1117,7 +1131,8 @@ class LabelingWidget(LabelDialog):
             upload_dota_annotation=upload_dota_annotation,
             upload_mask_annotation=upload_mask_annotation,
             upload_mot_annotation=upload_mot_annotation,
-            upload_ppocr_text_annotation=upload_ppocr_text_annotation,
+            upload_ppocr_rec_annotation=upload_ppocr_rec_annotation,
+            upload_ppocr_kie_annotation=upload_ppocr_kie_annotation,
             export_yolo_hbb_annotation=export_yolo_hbb_annotation,
             export_yolo_obb_annotation=export_yolo_obb_annotation,
             export_yolo_seg_annotation=export_yolo_seg_annotation,
@@ -1129,7 +1144,8 @@ class LabelingWidget(LabelDialog):
             export_dota_annotation=export_dota_annotation,
             export_mask_annotation=export_mask_annotation,
             export_mot_annotation=export_mot_annotation,
-            export_pporc_text_annotation=export_pporc_text_annotation,
+            export_pporc_rec_annotation=export_pporc_rec_annotation,
+            export_pporc_kie_annotation=export_pporc_kie_annotation,
             zoom=zoom,
             zoom_in=zoom_in,
             zoom_out=zoom_out,
@@ -1299,7 +1315,8 @@ class LabelingWidget(LabelDialog):
                 upload_mask_annotation,
                 upload_mot_annotation,
                 None,
-                upload_ppocr_text_annotation,
+                upload_ppocr_rec_annotation,
+                upload_ppocr_kie_annotation,
             ),
         )
         utils.add_actions(
@@ -1320,7 +1337,8 @@ class LabelingWidget(LabelDialog):
                 export_mask_annotation,
                 export_mot_annotation,
                 None,
-                export_pporc_text_annotation,
+                export_pporc_rec_annotation,
+                export_pporc_kie_annotation,
             ),
         )
         utils.add_actions(
@@ -4164,13 +4182,22 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        filter = "Attribute Files (*.txt);;All Files (*)"
-        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a custom mot annotation file (Label.txt)"),
-            "",
-            filter,
-        )
+        if mode == "rec":
+            filter = "Attribute Files (*.txt);;All Files (*)"
+            input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a custom annotation file (Label.txt)"),
+                "",
+                filter,
+            )
+        elif mode == "kie":
+            filter = "Attribute Files (*.json);;All Files (*)"
+            input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a custom annotation file (ppocr_kie.json)"),
+                "",
+                filter,
+            )
 
         if (
             not input_file
@@ -4792,7 +4819,7 @@ class LabelingWidget(LabelDialog):
         image_list = self.image_list
         if not image_list:
             image_list = [self.filename]
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "ppocr"))
+        save_path = osp.realpath(osp.join(label_dir_path, "..", f"ppocr-{mode}"))
 
         if osp.exists(save_path):
             response = QtWidgets.QMessageBox.warning(
@@ -4809,10 +4836,14 @@ class LabelingWidget(LabelDialog):
             else:
                 shutil.rmtree(save_path)
         os.makedirs(save_path, exist_ok=True)
-        save_crop_img_path = osp.join(save_path, "crop_img")
-        if osp.exists(save_crop_img_path):
-            shutil.rmtree(save_crop_img_path)
-        os.makedirs(save_crop_img_path, exist_ok=True)
+        if mode == "rec":
+            save_crop_img_path = osp.join(save_path, "crop_img")
+            if osp.exists(save_crop_img_path):
+                shutil.rmtree(save_crop_img_path)
+            os.makedirs(save_crop_img_path, exist_ok=True)
+        elif mode == "kie":
+            total_class_set = set()
+            class_list_file = osp.join(save_path, "class_list.txt")
 
         progress_dialog = QProgressDialog(
             self.tr("Exporting..."),
@@ -4838,13 +4869,25 @@ class LabelingWidget(LabelDialog):
                 image_file_name = osp.basename(image_file)
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 label_file = osp.join(label_dir_path, label_file_name)
-                converter.custom_to_pporc(
-                    image_file, label_file, save_path, mode
-                )
+                if mode == "rec":
+                    converter.custom_to_pporc(
+                        image_file, label_file, save_path, mode
+                    )
+                elif mode == "kie":
+                    class_set = converter.custom_to_pporc(
+                        image_file, label_file, save_path, mode
+                    )
+                    total_class_set = total_class_set.union(class_set)
                 # Update progress bar
                 progress_dialog.setValue(i)
                 if progress_dialog.wasCanceled():
-                    break
+                    break   
+            
+            if mode == "kie":
+                with open(class_list_file, 'w') as f:
+                    for c in total_class_set:
+                        f.writelines(f'{c.upper()}\n')
+
             # Hide the progress dialog after processing is done
             progress_dialog.close()
 

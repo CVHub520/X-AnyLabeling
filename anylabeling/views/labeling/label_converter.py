@@ -720,52 +720,48 @@ class LabelConverter:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-
     def ppocr_to_custom(self, input_file, output_path, image_path, mode):
-        if mode == "text":
-            self.reset()
-
+        if mode in ["rec", "kie"]:
             with open(input_file, "r", encoding="utf-8") as f:
                 ocr_data = [line.strip().split('\t', 1) for line in f]
 
-            for data in ocr_data:
-                # initialize
-                self.reset()
+        for data in ocr_data:
+            # init
+            self.reset()
 
-                # image
-                filename = osp.basename(data[0])
-                image_file = osp.join(image_path, filename)
-                imageWidth, imageHeight = self.get_image_size(image_file)
-                self.custom_data["imageHeight"] = imageHeight
-                self.custom_data["imageWidth"] = imageWidth
-                self.custom_data["imagePath"] = filename
+            # image
+            filename = osp.basename(data[0])
+            image_file = osp.join(image_path, filename)
+            imageWidth, imageHeight = self.get_image_size(image_file)
+            self.custom_data["imageHeight"] = imageHeight
+            self.custom_data["imageWidth"] = imageWidth
+            self.custom_data["imagePath"] = filename
 
-                # label
-                shapes = []
-                label_info = json.loads(data[1])
-                for label in label_info:
-                    points = label["points"]
-                    shape_type = (
-                        "rectangle" if is_possible_rectangle(points) else "polygon"
-                    ) 
-                    is_possible_rectangle(points)
-                    shape = {
-                        "label": "text",
-                        "description": label["transcription"],
-                        "points": points,
-                        "group_id": None,
-                        "difficult": label["difficult"],
-                        "direction": 0,
-                        "shape_type": shape_type,
-                        "flags": {},
-                    }
-                    shapes.append(shape)
-                self.custom_data["shapes"] = shapes
-                output_file = osp.join(
-                    output_path, osp.splitext(filename)[0] + ".json"
+            # label
+            shapes = []
+            annotations = json.loads(data[1])
+            for annotation in annotations:
+                points = annotation["points"]
+                shape_type = (
+                    "rectangle" if is_possible_rectangle(points) else "polygon"
                 )
-                with open(output_file, "w", encoding="utf-8") as f:
-                    json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+                shape = {
+                    "label": annotation.get("label", "text"),
+                    "description": annotation["transcription"],
+                    "points": points,
+                    "group_id": annotation.get("id", None),
+                    "difficult": annotation.get("difficult", False),
+                    "kie_linking": annotation.get("linking", []),
+                    "shape_type": shape_type,
+                    "flags": {},
+                }
+                shapes.append(shape)
+            self.custom_data["shapes"] = shapes
+            output_file = osp.join(
+                output_path, osp.splitext(filename)[0] + ".json"
+            )
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     # Export functions
     def custom_to_yolo(self,
@@ -1263,22 +1259,21 @@ class LabelConverter:
         prefix = osp.splitext(image_name)[0]
         dir_name = osp.basename(osp.dirname(image_file))
 
-        if mode == "text":
+        avaliable_shape_types = ["rectangle", "rotation", "polygon"]
+        img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
+        with open(label_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if mode == "rec":
             crop_img_count, rec_gt, annotations = 0, [], []
-            avaliable_shape_types = ["rectangle", "rotation", "polygon"]
-            img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
- 
             Label_file = osp.join(save_path, "Label.txt")
             rec_gt_file = osp.join(save_path, "rec_gt.txt")
             save_crop_img_path = osp.join(save_path, "crop_img")
 
-            with open(label_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
             for shape in data["shapes"]:
                 shape_type = shape["shape_type"]
                 if shape_type not in avaliable_shape_types:
                     continue
-
                 transcription = shape["description"]
                 difficult = shape.get("difficult", False)
                 points = [list(map(int, p)) for p in shape["points"]]
@@ -1287,9 +1282,6 @@ class LabelConverter:
                     points=points,
                     difficult=difficult,
                 ))
-                # skip hard sample
-                if difficult:
-                    continue
                 if len(points) > 4:
                     points = self.gen_quad_from_poly(np.array(points))
                 assert len(points) == 4
@@ -1302,7 +1294,6 @@ class LabelConverter:
                 cv2.imwrite(crop_img_file, img_crop)
                 rec_gt.append(f"crop_img/{crop_img_filenmame}\t{transcription}\n")
                 crop_img_count += 1
-            
             if annotations:
                 Label = f"{dir_name}/{image_name}\t{json.dumps(annotations, ensure_ascii=False)}\n"
                 with open(Label_file, "a", encoding="utf-8") as f:
@@ -1310,3 +1301,30 @@ class LabelConverter:
                 with open(rec_gt_file, "a", encoding="utf-8") as f:
                     for item in rec_gt:
                         f.write(item)
+        elif mode == "kie":
+            annotations, class_set = [], set()
+            ppocr_kie_file = osp.join(save_path, "ppocr_kie.json")
+            for shape in data["shapes"]:
+                shape_type = shape["shape_type"]
+                if shape_type not in avaliable_shape_types:
+                    continue
+                label = shape["label"]
+                class_set.add(label)
+                transcription = shape["description"]
+                group_id = shape.get("group_id", 0)
+                kie_linking = shape.get("kie_linking", [])
+                difficult = shape.get("difficult", False)
+                points = [list(map(int, p)) for p in shape["points"]]
+                annotations.append(dict(
+                    transcription=transcription,
+                    label=label,
+                    points=points,
+                    difficult=difficult,
+                    id=group_id,
+                    linking=kie_linking,    
+                ))
+            if annotations:
+                item = f"{dir_name}/{image_name}\t{json.dumps(annotations, ensure_ascii=False)}\n"
+                with open(ppocr_kie_file, "a", encoding="utf-8") as f:
+                    f.write(item)
+            return class_set
