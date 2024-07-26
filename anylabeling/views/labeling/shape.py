@@ -56,12 +56,14 @@ class Shape:
         difficult=False,
         direction=0,
         attributes={},
+        kie_linking=[],
     ):
         self.label = label
         self.score = score
         self.group_id = group_id
         self.description = description
         self.difficult = difficult
+        self.kie_linking = kie_linking
         self.points = []
         self.fill = False
         self.selected = False

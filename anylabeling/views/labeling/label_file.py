@@ -90,6 +90,7 @@ class LabelFile:
             "flags",
             "description",
             "attributes",
+            "kie_linking",
         ]
         try:
             with io_open(filename, "r") as f:
@@ -144,6 +145,7 @@ class LabelFile:
                     "description": s.get("description"),
                     "difficult": s.get("difficult", False),
                     "attributes": s.get("attributes", {}),
+                    "kie_linking": s.get("kie_linking", []),
                     "other_data": {
                         k: v for k, v in s.items() if k not in shape_keys
                     },

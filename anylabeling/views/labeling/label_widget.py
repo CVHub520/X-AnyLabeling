@@ -2356,12 +2356,14 @@ class LabelingWidget(LabelDialog):
             group_id,
             description,
             difficult,
+            kie_linking,
         ) = self.label_dialog.pop_up(
             text=shape.label,
             flags=shape.flags,
             group_id=shape.group_id,
             description=shape.description,
             difficult=shape.difficult,
+            kie_linking=shape.kie_linking
         )
         if text is None:
             return
@@ -2380,6 +2382,7 @@ class LabelingWidget(LabelDialog):
         shape.group_id = group_id
         shape.description = description
         shape.difficult = difficult
+        shape.kie_linking = kie_linking
 
         # Add to label history
         self.label_dialog.add_label_history(shape.label)
@@ -2523,6 +2526,7 @@ class LabelingWidget(LabelDialog):
                 "shape_type": s.shape_type,
                 "flags": s.flags,
                 "attributes": s.attributes,
+                "kie_linking": s.kie_linking,
             }
             if s.shape_type == "rotation":
                 info["direction"] = s.direction
@@ -2713,6 +2717,7 @@ class LabelingWidget(LabelDialog):
             difficult = shape.get("difficult", False)
             attributes = shape.get("attributes", {})
             direction = shape.get("direction", 0)
+            kie_linking = shape.get("kie_linking", [])
             other_data = shape["other_data"]
 
             if label in self.hidden_cls or not points:
@@ -2728,6 +2733,7 @@ class LabelingWidget(LabelDialog):
                 difficult=difficult,
                 direction=direction,
                 attributes=attributes,
+                kie_linking=kie_linking,
             )
             for x, y in points:
                 shape.add_point(QtCore.QPointF(x, y))
@@ -2784,6 +2790,7 @@ class LabelingWidget(LabelDialog):
                 "shape_type": s.shape_type,
                 "flags": s.flags,
                 "attributes": s.attributes,
+                "kie_linking": s.kie_linking,
             }
             if s.shape_type == "rotation":
                 info["direction"] = s.direction
@@ -2900,6 +2907,7 @@ class LabelingWidget(LabelDialog):
         group_id = None
         description = ""
         difficult = False
+        kie_linking = []
 
         if self.canvas.shapes[-1].label in [
             AutoLabelingMode.ADD,
@@ -2922,6 +2930,7 @@ class LabelingWidget(LabelDialog):
                     group_id,
                     description,
                     difficult,
+                    kie_linking,
                 ) = self.label_dialog.pop_up(text)
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
@@ -2946,6 +2955,7 @@ class LabelingWidget(LabelDialog):
             shape.description = description
             shape.label = text
             shape.difficult = difficult
+            shape.kie_linking = kie_linking
             self.add_label(shape)
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
@@ -5563,12 +5573,14 @@ class LabelingWidget(LabelDialog):
                 group_id,
                 description,
                 difficult,
+                kie_linking,
             ) = self.label_dialog.pop_up(
                 text=self.find_last_label(),
                 flags={},
                 group_id=None,
                 description=None,
                 difficult=False,
+                kie_linking=[],
             )
             if not text:
                 self.label_dialog.edit.setText(previous_text)
@@ -5599,6 +5611,7 @@ class LabelingWidget(LabelDialog):
                 shape.group_id = group_id
                 shape.description = description
                 shape.difficult = difficult
+                shape.kie_linking = kie_linking
                 # Update unique label list
                 if not self.unique_label_list.find_items_by_label(shape.label):
                     unique_label_item = (
