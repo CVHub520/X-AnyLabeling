@@ -1921,9 +1921,9 @@ class LabelingWidget(LabelDialog):
                         progress_dialog.close()
                         error_dialog = QMessageBox()
                         error_dialog.setIcon(QMessageBox.Critical)
-                        error_dialog.setText("Existing invalid shape!")
+                        error_dialog.setText(self.tr("Existing invalid shape!"))
                         error_dialog.setInformativeText(label_file)
-                        error_dialog.setWindowTitle("Critical")
+                        error_dialog.setWindowTitle(self.tr("Critical"))
                         error_dialog.exec_()
                         progress_dialog.close()
                         return

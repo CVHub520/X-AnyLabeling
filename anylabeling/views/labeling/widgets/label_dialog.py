@@ -50,7 +50,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.init_ui()
 
     def init_ui(self):
-        self.setWindowTitle("Label Change Manager")
+        self.setWindowTitle(self.tr("Label Change Manager"))
         self.setWindowFlags(self.windowFlags() | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint)
         self.resize(600, 400)
         self.move_to_center()
@@ -72,10 +72,10 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
         self.buttons_layout = QtWidgets.QHBoxLayout()
 
-        self.cancel_button = QtWidgets.QPushButton("Cancel", self)
+        self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"), self)
         self.cancel_button.clicked.connect(self.reject)
 
-        self.confirm_button = QtWidgets.QPushButton("Confirm", self)
+        self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"), self)
         self.confirm_button.clicked.connect(self.confirm_changes)
 
         self.buttons_layout.addWidget(self.cancel_button)
@@ -308,15 +308,15 @@ class LabelModifyDialog(QtWidgets.QDialog):
 class TextInputDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle("Text Input Dialog")
+        self.setWindowTitle(self.tr("Text Input Dialog"))
 
         layout = QtWidgets.QVBoxLayout()
 
-        self.label = QtWidgets.QLabel("Enter the text prompt below:")
+        self.label = QtWidgets.QLabel(self.tr("Enter the text prompt below:"))
         self.text_input = QtWidgets.QLineEdit()
 
-        self.ok_button = QtWidgets.QPushButton("OK")
-        self.cancel_button = QtWidgets.QPushButton("Cancel")
+        self.ok_button = QtWidgets.QPushButton(self.tr("OK"))
+        self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
 
         self.ok_button.clicked.connect(self.accept)
         self.cancel_button.clicked.connect(self.reject)
