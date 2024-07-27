@@ -105,6 +105,7 @@ class LabelingWidget(LabelDialog):
         self.supported_shape = Shape.get_supported_shape()
         self.hidden_cls = []
         self.label_info = {}
+        self.image_flags = []
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -160,7 +161,8 @@ class LabelingWidget(LabelDialog):
         self.flag_dock.setObjectName("Flags")
         self.flag_widget = QtWidgets.QListWidget()
         if config["flags"]:
-            self.load_flags({k: False for k in config["flags"]})
+            self.image_flags = config["flags"]
+            self.load_flags({k: False for k in self.image_flags})
         else:
             self.flag_dock.hide()
         self.flag_dock.setWidget(self.flag_widget)
@@ -855,11 +857,18 @@ class LabelingWidget(LabelDialog):
         )
 
         # Upload
+        upload_image_flags_file = action(
+            self.tr("&Upload Image Flags File"),
+            self.upload_image_flags_file,
+            None,
+            icon="format_classify",
+            tip=self.tr("Upload Custom Image Flags File"),
+        )
         upload_attr_file = action(
             self.tr("&Upload Attributes File"),
             self.upload_attr_file,
             None,
-            icon="format_attributes",
+            icon="format_classify",
             tip=self.tr("Upload Custom Attributes File"),
         )
         upload_yolo_hbb_annotation = action(
@@ -1138,6 +1147,7 @@ class LabelingWidget(LabelDialog):
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
+            upload_image_flags_file=upload_image_flags_file,
             upload_attr_file=upload_attr_file,
             upload_yolo_hbb_annotation=upload_yolo_hbb_annotation,
             upload_yolo_obb_annotation=upload_yolo_obb_annotation,
@@ -1319,6 +1329,7 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(
             self.menus.upload,
             (
+                upload_image_flags_file,
                 upload_attr_file,
                 None,
                 upload_yolo_hbb_annotation,
@@ -3341,7 +3352,7 @@ class LabelingWidget(LabelDialog):
         if self._config["keep_prev"]:
             prev_shapes = self.canvas.shapes
         self.canvas.load_pixmap(QtGui.QPixmap.fromImage(image))
-        flags = {k: False for k in self._config["flags"] or []}
+        flags = {k: False for k in self.image_flags or []}
         if self.label_file:
             self.load_labels(self.label_file.shapes)
             if self.label_file.flags is not None:
@@ -3550,6 +3561,33 @@ class LabelingWidget(LabelDialog):
                 break
 
     # Uplaod
+    def upload_image_flags_file(self):
+        filter = "Image Flags Files (*.txt);;All Files (*)"
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific flags file"),
+            "",
+            filter,
+        )
+        if not file_path:
+            return
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            # Each line in the file is an image-level flag
+            self.image_flags = f.read().splitlines()
+            self.load_flags({k: False for k in self.image_flags})
+
+        self.flag_dock.show()
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setText(self.tr("Success!"))
+        msg_box.setInformativeText(self.tr("Uploading successfully!"))
+        msg_box.setWindowTitle(self.tr("Information"))
+        msg_box.exec_()
+
     def upload_attr_file(self):
         filter = "Attribute Files (*.json);;All Files (*)"
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
