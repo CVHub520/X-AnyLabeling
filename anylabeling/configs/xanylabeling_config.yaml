@@ -9,11 +9,13 @@ keep_prev_contrast: false
 auto_use_last_label: false
 auto_highlight_shape: true
 auto_switch_to_edit_mode: true
-show_groups: true
+show_groups: false
 show_texts: true
 show_labels: true
+show_scores: true
 show_degrees: false
 show_shapes: true
+show_linking: true
 logger_level: info
 save_mode: default
 
@@ -38,8 +40,8 @@ shape:
   select_line_color: [255, 255, 255, 255]
   select_fill_color: [0, 255, 0, 155]
   hvertex_fill_color: [255, 255, 255, 255]
-  point_size: 8
-  line_width: 2
+  point_size: 10
+  line_width: 4
 
 # main
 flag_dock:
@@ -131,6 +133,7 @@ shortcuts:
   show_overview: Ctrl+G
   show_texts: Ctrl+T
   show_labels: Ctrl+L
+  show_linking: Ctrl+K
   toggle_auto_use_last_label: Ctrl+Y
   toggle_visibility_shapes: Ctrl+H
 

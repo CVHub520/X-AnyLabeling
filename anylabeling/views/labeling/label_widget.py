@@ -807,6 +807,15 @@ class LabelingWidget(LabelDialog):
             checked=self._config["show_labels"],
             enabled=True,
         )
+        show_scores = action(
+            self.tr("&Show Scores"),
+            self.enable_show_scores,
+            tip=self.tr("Show score inside shapes"),
+            icon=None,
+            checkable=True,
+            checked=self._config["show_scores"],
+            enabled=True,
+        )
         show_degrees = action(
             self.tr("&Show Degress"),
             self.enable_show_degrees,
@@ -814,6 +823,16 @@ class LabelingWidget(LabelDialog):
             icon=None,
             checkable=True,
             checked=self._config["show_degrees"],
+            enabled=True,
+        )
+        show_linking = action(
+            self.tr("&Show KIE Linking"),
+            self.enable_show_linking,
+            shortcut=shortcuts["show_linking"],
+            tip=self.tr("Show KIE linking between key and value"),
+            icon=None,
+            checkable=True,
+            checked=self._config["show_linking"],
             enabled=True,
         )
 
@@ -1160,7 +1179,9 @@ class LabelingWidget(LabelDialog):
             show_groups=show_groups,
             show_texts=show_texts,
             show_labels=show_labels,
+            show_scores=show_scores,
             show_degrees=show_degrees,
+            show_linking=show_linking,
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
@@ -1366,7 +1387,9 @@ class LabelingWidget(LabelDialog):
                 set_cross_line,
                 show_texts,
                 show_labels,
+                show_scores,
                 show_degrees,
+                show_linking,
                 show_groups,
                 hide_selected_polygons,
                 show_hidden_polygons,
@@ -3134,11 +3157,23 @@ class LabelingWidget(LabelDialog):
         self.canvas.set_show_labels(enabled)
         save_config(self._config)
 
+    def enable_show_scores(self, enabled):
+        self._config["show_scores"] = enabled
+        self.actions.show_scores.setChecked(enabled)
+        self.canvas.set_show_scores(enabled)
+        save_config(self._config)
+
     def enable_show_degrees(self, enabled):
         self._config["show_degrees"] = enabled
         self.actions.show_degrees.setChecked(enabled)
         self.canvas.set_show_degrees(enabled)
         # save_config(self._config)
+
+    def enable_show_linking(self, enabled):
+        self._config["show_linking"] = enabled
+        self.actions.show_linking.setChecked(enabled)
+        self.canvas.set_show_linking(enabled)
+        save_config(self._config)
 
     def on_new_brightness_contrast(self, qimage):
         self.canvas.load_pixmap(

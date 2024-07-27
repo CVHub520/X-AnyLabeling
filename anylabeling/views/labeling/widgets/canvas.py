@@ -104,10 +104,12 @@ class Canvas(
         # Set widget options.
         self.setMouseTracking(True)
         self.setFocusPolicy(QtCore.Qt.WheelFocus)
-        self.show_shape_groups = True
+        self.show_groups = False
         self.show_texts = True
         self.show_labels = True
-        self.show_shape_degrees = False
+        self.show_scores = True
+        self.show_degrees = False
+        self.show_linking = True
 
         # Set cross line options.
         self.cross_line_show = True
@@ -1037,7 +1039,7 @@ class Canvas(
             return
 
         # Draw groups
-        if self.show_shape_groups:
+        if self.show_groups:
             pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.SolidLine)
             p.setPen(pen)
             grouped_shapes = {}
@@ -1099,6 +1101,50 @@ class Canvas(
                 )
                 p.drawRect(wrap_rect)
 
+        # Draw KIE linking
+        if self.show_linking:
+            pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.SolidLine)
+            p.setPen(pen)
+            gid2point = {}
+            linking_pairs = []
+            group_color = (255, 128, 0)
+            for shape in self.shapes:
+                try:
+                    linking_pairs += shape.kie_linking
+                except:
+                    pass
+
+                if (shape.group_id is None 
+                    or shape.shape_type not in 
+                    ["rectangle", "polygon", "rotation"]):
+                    continue
+                rect = shape.bounding_rect()
+                cx = rect.x() + (rect.width() / 2.)
+                cy = rect.y() + (rect.height() / 2.)
+                gid2point[shape.group_id] = (cx, cy)
+            
+            for linking in linking_pairs:
+                pen.setStyle(Qt.SolidLine)
+                pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
+                pen.setColor(QtGui.QColor(*group_color))
+                p.setPen(pen)
+                key, value = linking
+                # Adapt to the 'ungroup_selected_shapes' operation
+                if key not in gid2point or value not in gid2point:
+                    continue
+                kp, vp = gid2point[key], gid2point[value]
+                # Draw a link from key point to value point
+                p.drawLine(QtCore.QPointF(*kp), QtCore.QPointF(*vp))
+                # Draw the triangle arrowhead
+                arrow_size = max(1, int(round(10.0 / Shape.scale)))  # Size of the arrowhead
+                angle = math.atan2(vp[1] - kp[1], vp[0] - kp[0])  # Angle towards the value point
+                arrow_points = [
+                    QtCore.QPointF(vp[0], vp[1]),
+                    QtCore.QPointF(vp[0] - arrow_size * math.cos(angle - math.pi / 6), vp[1] - arrow_size * math.sin(angle - math.pi / 6)),
+                    QtCore.QPointF(vp[0] - arrow_size * math.cos(angle + math.pi / 6), vp[1] - arrow_size * math.sin(angle + math.pi / 6)),
+                ]
+                p.drawPolygon(arrow_points)
+
         # Draw degrees
         for shape in self.shapes:
             if (
@@ -1119,7 +1165,7 @@ class Canvas(
                     (shape.points[0].x() + shape.points[2].x()) / 2,
                     (shape.points[0].y() + shape.points[2].y()) / 2,
                 )
-                if self.show_shape_degrees:
+                if self.show_degrees:
                     degrees = str(int(math.degrees(shape.direction))) + "°"
                     p.setFont(
                         QtGui.QFont(
@@ -1180,12 +1226,14 @@ class Canvas(
 
         # Draw texts
         if self.show_texts:
+            text_color = "#FFFFFF"
+            background_color = "#007BFF"
             p.setFont(
                 QtGui.QFont(
                     "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
                 )
             )
-            pen = QtGui.QPen(QtGui.QColor("#00FF00"), 8, Qt.SolidLine)
+            pen = QtGui.QPen(QtGui.QColor(background_color), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
                 description = shape.description
@@ -1198,14 +1246,14 @@ class Canvas(
                         int(rect.y() + bbox.y()),
                         int(rect.width()),
                         int(rect.height()),
-                        QtGui.QColor("#00FF00"),
+                        QtGui.QColor(background_color),
                     )
                     p.drawText(
                         int(bbox.x()),
                         int(bbox.y()),
                         description,
                     )
-            pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.SolidLine)
+            pen = QtGui.QPen(QtGui.QColor(text_color), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
                 description = shape.description
@@ -1289,7 +1337,7 @@ class Canvas(
                 ) + (
                     f"{shape.label}"
                 ) + (
-                    f" {shape.score:.2f}" if shape.score is not None else ""
+                    f" {shape.score:.2f}" if (shape.score is not None and self.show_scores) else ""
                 )
                 if not label:
                     continue
@@ -1701,7 +1749,7 @@ class Canvas(
 
     def set_show_groups(self, enabled):
         """Set showing shape groups"""
-        self.show_shape_groups = enabled
+        self.show_groups = enabled
         self.update()
 
     def set_show_texts(self, enabled):
@@ -1714,9 +1762,19 @@ class Canvas(
         self.show_labels = enabled
         self.update()
 
+    def set_show_scores(self, enabled):
+        """Set showing scores"""
+        self.show_scores = enabled
+        self.update()
+
     def set_show_degrees(self, enabled):
         """Set showing degrees"""
-        self.show_shape_degrees = enabled
+        self.show_degrees = enabled
+        self.update()
+
+    def set_show_linking(self, enabled):
+        """Set showing KIE linking"""
+        self.show_linking = enabled
         self.update()
 
     def gen_new_group_id(self):
