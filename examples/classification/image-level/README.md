@@ -54,12 +54,11 @@ python anylabeling/app.py --flags Apple,Meta,Google
 
 **Option 2: Using a Configuration File**
 
-> **TIP:** This option is suitable for loading labels from a local file.
-
 ```bash
 python anylabeling/app.py --flags flags.txt
 ```
-> [!CAUTION]
+
+> [!NOTE]
 > Here, each line represents a category.
 
 
