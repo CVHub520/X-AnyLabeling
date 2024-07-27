@@ -1074,17 +1074,22 @@ class Canvas(
                     pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
                     pen.setColor(QtGui.QColor(*group_color))
                     p.setPen(pen)
+                    
+                    # Calculate the center point of the bounding rectangle
                     cx = rect.x() + rect.width() / 2
                     cy = rect.y() + rect.height() / 2
-                    circle_radius = max(1, int(round(3.0 / Shape.scale)))
-                    p.drawEllipse(
-                        QtCore.QRectF(
-                            cx - circle_radius,
-                            cy - circle_radius,
-                            2 * circle_radius,
-                            2 * circle_radius,
-                        )
-                    )
+                    triangle_radius = max(1, int(round(3.0 / Shape.scale)))
+
+                    # Define the points of the triangle
+                    triangle_points = [
+                        QtCore.QPointF(cx, cy - triangle_radius),
+                        QtCore.QPointF(cx - triangle_radius, cy + triangle_radius),
+                        QtCore.QPointF(cx + triangle_radius, cy + triangle_radius),
+                    ]
+
+                    # Draw the triangle
+                    p.drawPolygon(triangle_points)
+
                 pen.setStyle(Qt.DashLine)
                 pen.setWidth(max(1, int(round(1.0 / Shape.scale))))
                 pen.setColor(QtGui.QColor("#EEEEEE"))
