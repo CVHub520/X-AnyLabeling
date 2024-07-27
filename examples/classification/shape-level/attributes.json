@@ -1,0 +1,24 @@
+{
+    "vehicle": {
+        "bodyColor": [
+            "red",
+            "white",
+            "blue"
+        ],
+        "vehicleType": [
+            "SUV",
+            "sedan",
+            "bus",
+            "truck"
+        ]
+    },
+    "person": {
+        "wearsGlasses": ["yes", "no"],
+        "wearsMask": ["yes", "no"],
+        "clothingColor": [
+            "red",
+            "green",
+            "blue"
+        ]
+    }
+}

@@ -574,6 +574,9 @@ class LabelDialog(QtWidgets.QDialog):
             text = text.trimmed()
         self.edit.setText(text)
 
+    def upload_flags(self, flags):
+        self._flags = flags
+
     def update_flags(self, label_new):
         # keep state of shared flags
         flags_old = self.get_flags()

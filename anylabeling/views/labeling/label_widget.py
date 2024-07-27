@@ -8,6 +8,7 @@ import shutil
 import pathlib
 import cv2
 import re
+import yaml
 import webbrowser
 from difflib import SequenceMatcher
 
@@ -111,6 +112,7 @@ class LabelingWidget(LabelDialog):
         if config is None:
             config = get_config()
         self._config = config
+        self.label_flags = self._config["label_flags"]
 
         # set default shape colors
         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
@@ -150,7 +152,7 @@ class LabelingWidget(LabelDialog):
             show_text_field=self._config["show_label_text_field"],
             completion=self._config["label_completion"],
             fit_to_content=self._config["fit_to_content"],
-            flags=self._config["label_flags"],
+            flags=self.label_flags,
         )
 
         self.label_list = LabelListWidget()
@@ -864,9 +866,16 @@ class LabelingWidget(LabelDialog):
             icon="format_classify",
             tip=self.tr("Upload Custom Image Flags File"),
         )
-        upload_attr_file = action(
+        upload_label_flags_file = action(
+            self.tr("&Upload Label Flags File"),
+            self.upload_label_flags_file,
+            None,
+            icon="format_classify",
+            tip=self.tr("Upload Custom Label Flags File"),
+        )
+        upload_shape_attrs_file = action(
             self.tr("&Upload Attributes File"),
-            self.upload_attr_file,
+            self.upload_shape_attrs_file,
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Attributes File"),
@@ -1148,7 +1157,8 @@ class LabelingWidget(LabelDialog):
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
             upload_image_flags_file=upload_image_flags_file,
-            upload_attr_file=upload_attr_file,
+            upload_label_flags_file=upload_label_flags_file,
+            upload_shape_attrs_file=upload_shape_attrs_file,
             upload_yolo_hbb_annotation=upload_yolo_hbb_annotation,
             upload_yolo_obb_annotation=upload_yolo_obb_annotation,
             upload_yolo_seg_annotation=upload_yolo_seg_annotation,
@@ -1330,7 +1340,8 @@ class LabelingWidget(LabelDialog):
             self.menus.upload,
             (
                 upload_image_flags_file,
-                upload_attr_file,
+                upload_label_flags_file,
+                upload_shape_attrs_file,
                 None,
                 upload_yolo_hbb_annotation,
                 upload_yolo_obb_annotation,
@@ -2792,8 +2803,8 @@ class LabelingWidget(LabelDialog):
             shape.close()
 
             default_flags = {}
-            if self._config["label_flags"]:
-                for pattern, keys in self._config["label_flags"].items():
+            if self.label_flags:
+                for pattern, keys in self.label_flags.items():
                     if re.match(pattern, label):
                         for key in keys:
                             default_flags[key] = False
@@ -3588,7 +3599,38 @@ class LabelingWidget(LabelDialog):
         msg_box.setWindowTitle(self.tr("Information"))
         msg_box.exec_()
 
-    def upload_attr_file(self):
+    def upload_label_flags_file(self):
+        filter = "Label Flags Files (*.yaml);;All Files (*)"
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific flags file"),
+            "",
+            filter,
+        )
+        if not file_path:
+            return
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            # Each line in the file is an flag-level flag
+            self.label_flags = yaml.safe_load(f)
+            for label in list(self.label_flags.keys()):
+                if not self.unique_label_list.find_items_by_label(label):
+                    item = self.unique_label_list.create_item_from_label(label)
+                    self.unique_label_list.addItem(item)
+                    rgb = self._get_rgb_by_label(label)
+                    self.unique_label_list.set_item_label(
+                        item, label, rgb, LABEL_OPACITY
+                    )
+        self.label_dialog.upload_flags(self.label_flags)
+
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setText(self.tr("Success!"))
+        msg_box.setInformativeText(self.tr("Uploading successfully!"))
+        msg_box.setWindowTitle(self.tr("Information"))
+        msg_box.exec_()
+
+    def upload_shape_attrs_file(self):
         filter = "Attribute Files (*.json);;All Files (*)"
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             self,
@@ -3617,7 +3659,8 @@ class LabelingWidget(LabelDialog):
 
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Information)
-        msg_box.setInformativeText(self.tr(f"Attribute file loaded successfully!"))
+        msg_box.setText(self.tr("Success!"))
+        msg_box.setInformativeText(self.tr("Uploading successfully!"))
         msg_box.setWindowTitle(self.tr("Information"))
         msg_box.exec_()
 
