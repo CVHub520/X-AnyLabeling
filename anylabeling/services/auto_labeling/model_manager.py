@@ -63,6 +63,7 @@ class ModelManager(QObject):
         "yolow",
         "yolov10",
         "depth_anything_v2",
+        "yolow_ram",
     ]
 
     model_configs_changed = pyqtSignal(list)
@@ -514,6 +515,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv5_RAM(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolow_ram":
+            from .yolow_ram import YOLOW_RAM
+
+            try:
+                model_config["model"] = YOLOW_RAM(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
