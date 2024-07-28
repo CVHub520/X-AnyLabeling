@@ -1,0 +1,39 @@
+{
+  "version": "2.4.0",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "tag",
+      "score": null,
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          1124.0,
+          0.0
+        ],
+        [
+          1124.0,
+          750.0
+        ],
+        [
+          0.0,
+          750.0
+        ]
+      ],
+      "group_id": null,
+      "description": "armchair | lamp | chair | couch | floor | furniture | living room | pillow | room | wall lamp | stool\n扶手椅  | 灯  | 椅子  | 沙发 | 地板/地面 | 家具  | 客厅  | 枕头  | 房间  | 壁灯  | 凳子 ",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "parlor.jpeg",
+  "imageData": null,
+  "imageHeight": 750,
+  "imageWidth": 1124
+}

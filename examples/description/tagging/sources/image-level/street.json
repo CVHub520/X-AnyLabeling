@@ -1,0 +1,2360 @@
+{
+  "version": "2.4.0",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "bus",
+      "score": null,
+      "points": [
+        [
+          251.0,
+          83.0
+        ],
+        [
+          644.0,
+          83.0
+        ],
+        [
+          644.0,
+          421.0
+        ],
+        [
+          251.0,
+          421.0
+        ]
+      ],
+      "group_id": null,
+      "description": "building | pole | stop light | traffic light | street corner | street sign",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          1770.0,
+          561.0
+        ],
+        [
+          2392.0,
+          561.0
+        ],
+        [
+          2392.0,
+          920.0
+        ],
+        [
+          1770.0,
+          920.0
+        ]
+      ],
+      "group_id": null,
+      "description": "car | suv",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          1383.0,
+          490.0
+        ],
+        [
+          1796.0,
+          490.0
+        ],
+        [
+          1796.0,
+          708.0
+        ],
+        [
+          1383.0,
+          708.0
+        ]
+      ],
+      "group_id": null,
+      "description": "car | computer",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          944.0,
+          481.0
+        ],
+        [
+          1380.0,
+          481.0
+        ],
+        [
+          1380.0,
+          709.0
+        ],
+        [
+          944.0,
+          709.0
+        ]
+      ],
+      "group_id": null,
+      "description": "taxi | car | floor | lay | pillow | stool | yellow",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          2055.0,
+          940.0408163265306
+        ],
+        [
+          2591.0,
+          940.0408163265306
+        ],
+        [
+          2591.0,
+          1503.0408163265306
+        ],
+        [
+          2055.0,
+          1503.0408163265306
+        ]
+      ],
+      "group_id": null,
+      "description": "control | electronic | game controller | home appliance | mouse | remote | white | Wii | Wii controller",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1735.0,
+          859.0
+        ],
+        [
+          1909.0,
+          859.0
+        ],
+        [
+          1909.0,
+          1184.0
+        ],
+        [
+          1735.0,
+          1184.0
+        ]
+      ],
+      "group_id": null,
+      "description": "pillow",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          570.0,
+          1124.0
+        ],
+        [
+          720.0,
+          1124.0
+        ],
+        [
+          720.0,
+          1512.0
+        ],
+        [
+          570.0,
+          1512.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | rink | skate | man | pole | skateboarder | skater | ski pole | skier | sky | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "bicycle",
+      "score": null,
+      "points": [
+        [
+          1467.0,
+          659.0
+        ],
+        [
+          1597.0,
+          659.0
+        ],
+        [
+          1597.0,
+          841.0
+        ],
+        [
+          1467.0,
+          841.0
+        ]
+      ],
+      "group_id": null,
+      "description": "blanket | floor | man | ski slope | skateboarder | ski pole | skier | snow | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "bicycle",
+      "score": null,
+      "points": [
+        [
+          1698.0,
+          1040.0
+        ],
+        [
+          1915.0,
+          1040.0
+        ],
+        [
+          1915.0,
+          1272.0
+        ],
+        [
+          1698.0,
+          1272.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1219.0,
+          969.0
+        ],
+        [
+          1340.0,
+          969.0
+        ],
+        [
+          1340.0,
+          1370.0
+        ],
+        [
+          1219.0,
+          1370.0
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          569.0,
+          1435.0
+        ],
+        [
+          795.0,
+          1435.0
+        ],
+        [
+          795.0,
+          1944.0
+        ],
+        [
+          569.0,
+          1944.0
+        ]
+      ],
+      "group_id": null,
+      "description": "fly | sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "truck",
+      "score": null,
+      "points": [
+        [
+          1484.0,
+          208.0
+        ],
+        [
+          1967.0,
+          208.0
+        ],
+        [
+          1967.0,
+          466.0
+        ],
+        [
+          1484.0,
+          466.0
+        ]
+      ],
+      "group_id": null,
+      "description": "lamp | pillow | room | stool",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          347.0,
+          834.0
+        ],
+        [
+          500.0,
+          834.0
+        ],
+        [
+          500.0,
+          1194.0
+        ],
+        [
+          347.0,
+          1194.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | man | skier | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          146.0,
+          280.0
+        ],
+        [
+          333.0,
+          280.0
+        ],
+        [
+          333.0,
+          426.0
+        ],
+        [
+          146.0,
+          426.0
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          498.0,
+          807.0
+        ],
+        [
+          635.0,
+          807.0
+        ],
+        [
+          635.0,
+          1104.0
+        ],
+        [
+          498.0,
+          1104.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | man | ski pole | skier | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          1297.0,
+          1146.0
+        ],
+        [
+          1372.0,
+          1146.0
+        ],
+        [
+          1372.0,
+          1226.0
+        ],
+        [
+          1297.0,
+          1226.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | person | man | pole | skier | sky | snowboarder | stand",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          700.0,
+          302.0
+        ],
+        [
+          929.0,
+          302.0
+        ],
+        [
+          929.0,
+          438.0
+        ],
+        [
+          700.0,
+          438.0
+        ]
+      ],
+      "group_id": null,
+      "description": "bathroom | bathroom accessory | home appliance | room | selfie | sink | stool | tile wall | white",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          324.0,
+          346.0
+        ],
+        [
+          387.0,
+          346.0
+        ],
+        [
+          387.0,
+          522.0
+        ],
+        [
+          324.0,
+          522.0
+        ]
+      ],
+      "group_id": null,
+      "description": "cloudy | fly | man | sea | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          836.0,
+          971.0
+        ],
+        [
+          990.0,
+          971.0
+        ],
+        [
+          990.0,
+          1365.0
+        ],
+        [
+          836.0,
+          1365.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | skate | man | skateboarder | skater | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1533.0,
+          1290.0
+        ],
+        [
+          1772.0,
+          1290.0
+        ],
+        [
+          1772.0,
+          1737.0
+        ],
+        [
+          1533.0,
+          1737.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | man | pillow",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          1193.0,
+          1239.0
+        ],
+        [
+          1254.0,
+          1239.0
+        ],
+        [
+          1254.0,
+          1317.0
+        ],
+        [
+          1193.0,
+          1317.0
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          773.0,
+          850.0
+        ],
+        [
+          905.0,
+          850.0
+        ],
+        [
+          905.0,
+          1182.0
+        ],
+        [
+          773.0,
+          1182.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | skate | man | skateboarder | skier | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1481.0,
+          558.0
+        ],
+        [
+          1591.0,
+          558.0
+        ],
+        [
+          1591.0,
+          782.0
+        ],
+        [
+          1481.0,
+          782.0
+        ]
+      ],
+      "group_id": null,
+      "description": "blanket | floor | skate | man | ski slope | pole | skateboarder | ski pole | skier | snow | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "truck",
+      "score": null,
+      "points": [
+        [
+          2163.0,
+          287.0
+        ],
+        [
+          2592.0,
+          287.0
+        ],
+        [
+          2592.0,
+          650.0
+        ],
+        [
+          2163.0,
+          650.0
+        ]
+      ],
+      "group_id": null,
+      "description": "game controller | man | remote",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          682.0,
+          550.0
+        ],
+        [
+          1121.0,
+          550.0
+        ],
+        [
+          1121.0,
+          883.0
+        ],
+        [
+          682.0,
+          883.0
+        ]
+      ],
+      "group_id": null,
+      "description": "image | office supply | pen | photo",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          131.0,
+          789.0
+        ],
+        [
+          259.0,
+          789.0
+        ],
+        [
+          259.0,
+          1110.0
+        ],
+        [
+          131.0,
+          1110.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | man | sea | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1095.0,
+          1044.0
+        ],
+        [
+          1227.0,
+          1044.0
+        ],
+        [
+          1227.0,
+          1395.0
+        ],
+        [
+          1095.0,
+          1395.0
+        ]
+      ],
+      "group_id": null,
+      "description": "pillow | skier | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1012.0,
+          934.0
+        ],
+        [
+          1135.0,
+          934.0
+        ],
+        [
+          1135.0,
+          1145.0
+        ],
+        [
+          1012.0,
+          1145.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          459.0,
+          621.0
+        ],
+        [
+          568.0,
+          621.0
+        ],
+        [
+          568.0,
+          844.0
+        ],
+        [
+          459.0,
+          844.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | skate | man | skateboarder | ski pole | skier | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          620.0,
+          772.0
+        ],
+        [
+          755.0,
+          772.0
+        ],
+        [
+          755.0,
+          1076.0
+        ],
+        [
+          620.0,
+          1076.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | man | pole | skateboarder | skier | sky | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1046.0,
+          1551.0
+        ],
+        [
+          1285.0,
+          1551.0
+        ],
+        [
+          1285.0,
+          1944.0
+        ],
+        [
+          1046.0,
+          1944.0
+        ]
+      ],
+      "group_id": null,
+      "description": "catch | game controller | man | play | remote | stand | tennis racket | Wii | Wii controller",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          264.0,
+          684.0
+        ],
+        [
+          374.0,
+          684.0
+        ],
+        [
+          374.0,
+          997.0
+        ],
+        [
+          264.0,
+          997.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          20.0,
+          1075.0
+        ],
+        [
+          172.0,
+          1075.0
+        ],
+        [
+          172.0,
+          1433.0
+        ],
+        [
+          20.0,
+          1433.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          866.0,
+          1641.0
+        ],
+        [
+          1045.0,
+          1641.0
+        ],
+        [
+          1045.0,
+          1944.0
+        ],
+        [
+          866.0,
+          1944.0
+        ]
+      ],
+      "group_id": null,
+      "description": "fly | man | sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          0.0,
+          917.0
+        ],
+        [
+          76.0,
+          917.0
+        ],
+        [
+          76.0,
+          1294.0
+        ],
+        [
+          0.0,
+          1294.0
+        ]
+      ],
+      "group_id": null,
+      "description": "horizon | man | sea | sky | stand | sunset | water",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          392.0,
+          604.0
+        ],
+        [
+          473.0,
+          604.0
+        ],
+        [
+          473.0,
+          740.0
+        ],
+        [
+          392.0,
+          740.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | man",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1006.0,
+          142.0
+        ],
+        [
+          1038.0,
+          142.0
+        ],
+        [
+          1038.0,
+          215.0
+        ],
+        [
+          1006.0,
+          215.0
+        ]
+      ],
+      "group_id": null,
+      "description": "horizon | man | sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          145.0,
+          339.0
+        ],
+        [
+          217.0,
+          339.0
+        ],
+        [
+          217.0,
+          515.0
+        ],
+        [
+          145.0,
+          515.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | skate | man | skateboarder | skier | snowboarder | trick",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1401.0,
+          227.0
+        ],
+        [
+          1440.0,
+          227.0
+        ],
+        [
+          1440.0,
+          353.0
+        ],
+        [
+          1401.0,
+          353.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | skate | man | sea | skateboarder | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          954.0,
+          1063.0
+        ],
+        [
+          1141.0,
+          1063.0
+        ],
+        [
+          1141.0,
+          1376.0
+        ],
+        [
+          954.0,
+          1376.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | lay | pillow",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          24.0,
+          600.0
+        ],
+        [
+          106.0,
+          600.0
+        ],
+        [
+          106.0,
+          851.0
+        ],
+        [
+          24.0,
+          851.0
+        ]
+      ],
+      "group_id": null,
+      "description": "fly | man | sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          950.0,
+          377.0
+        ],
+        [
+          1284.0,
+          377.0
+        ],
+        [
+          1284.0,
+          512.0
+        ],
+        [
+          950.0,
+          512.0
+        ]
+      ],
+      "group_id": null,
+      "description": "car | pillow | stool | yellow",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          982.0,
+          306.0
+        ],
+        [
+          1222.0,
+          306.0
+        ],
+        [
+          1222.0,
+          388.0
+        ],
+        [
+          982.0,
+          388.0
+        ]
+      ],
+      "group_id": null,
+      "description": "bathroom | floor | tile wall | umbrella",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          1663.0,
+          1474.0
+        ],
+        [
+          1776.0,
+          1474.0
+        ],
+        [
+          1776.0,
+          1577.0
+        ],
+        [
+          1663.0,
+          1577.0
+        ]
+      ],
+      "group_id": null,
+      "description": "sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          1537.0,
+          1544.0
+        ],
+        [
+          1647.0,
+          1544.0
+        ],
+        [
+          1647.0,
+          1667.0
+        ],
+        [
+          1537.0,
+          1667.0
+        ]
+      ],
+      "group_id": null,
+      "description": "sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          921.0,
+          1248.0
+        ],
+        [
+          1125.0,
+          1248.0
+        ],
+        [
+          1125.0,
+          1714.0
+        ],
+        [
+          921.0,
+          1714.0
+        ]
+      ],
+      "group_id": null,
+      "description": "animal | blanket | pad | floor | lay | pillow | white",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          394.0,
+          690.0
+        ],
+        [
+          496.0,
+          690.0
+        ],
+        [
+          496.0,
+          902.0
+        ],
+        [
+          394.0,
+          902.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | man | skateboarder | skier | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1100.0,
+          1336.0
+        ],
+        [
+          1199.0,
+          1336.0
+        ],
+        [
+          1199.0,
+          1652.0
+        ],
+        [
+          1100.0,
+          1652.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          2024.0,
+          366.0
+        ],
+        [
+          2189.0,
+          366.0
+        ],
+        [
+          2189.0,
+          559.0
+        ],
+        [
+          2024.0,
+          559.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          1518.0,
+          379.0
+        ],
+        [
+          1964.0,
+          379.0
+        ],
+        [
+          1964.0,
+          626.0
+        ],
+        [
+          1518.0,
+          626.0
+        ]
+      ],
+      "group_id": null,
+      "description": "lamp | computer | computer desk | computer monitor | computer screen | table | office supply | pillow | room | stool",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          1063.0,
+          1370.0
+        ],
+        [
+          1126.0,
+          1370.0
+        ],
+        [
+          1126.0,
+          1533.0
+        ],
+        [
+          1063.0,
+          1533.0
+        ]
+      ],
+      "group_id": null,
+      "description": "sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          64.0,
+          322.0
+        ],
+        [
+          122.0,
+          322.0
+        ],
+        [
+          122.0,
+          477.0
+        ],
+        [
+          64.0,
+          477.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "bus",
+      "score": null,
+      "points": [
+        [
+          477.0,
+          411.0
+        ],
+        [
+          848.0,
+          411.0
+        ],
+        [
+          848.0,
+          737.0
+        ],
+        [
+          477.0,
+          737.0
+        ]
+      ],
+      "group_id": null,
+      "description": "image | man | photo",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "fire hydrant",
+      "score": null,
+      "points": [
+        [
+          291.0,
+          483.0
+        ],
+        [
+          327.0,
+          483.0
+        ],
+        [
+          327.0,
+          570.0
+        ],
+        [
+          291.0,
+          570.0
+        ]
+      ],
+      "group_id": null,
+      "description": "fly | sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "truck",
+      "score": null,
+      "points": [
+        [
+          479.0,
+          411.0
+        ],
+        [
+          849.0,
+          411.0
+        ],
+        [
+          849.0,
+          735.0
+        ],
+        [
+          479.0,
+          735.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | writing",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1437.0,
+          239.0
+        ],
+        [
+          1479.0,
+          239.0
+        ],
+        [
+          1479.0,
+          350.0
+        ],
+        [
+          1437.0,
+          350.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          129.0,
+          926.0
+        ],
+        [
+          177.0,
+          926.0
+        ],
+        [
+          177.0,
+          979.0
+        ],
+        [
+          129.0,
+          979.0
+        ]
+      ],
+      "group_id": null,
+      "description": "sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          0.0,
+          650.0
+        ],
+        [
+          32.0,
+          650.0
+        ],
+        [
+          32.0,
+          859.0
+        ],
+        [
+          0.0,
+          859.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          0.0,
+          354.0
+        ],
+        [
+          19.0,
+          354.0
+        ],
+        [
+          19.0,
+          500.0
+        ],
+        [
+          0.0,
+          500.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          2472.0,
+          500.0
+        ],
+        [
+          2591.0,
+          500.0
+        ],
+        [
+          2591.0,
+          768.0
+        ],
+        [
+          2472.0,
+          768.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          350.0,
+          1009.0
+        ],
+        [
+          393.0,
+          1009.0
+        ],
+        [
+          393.0,
+          1102.0
+        ],
+        [
+          350.0,
+          1102.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          68.0,
+          990.0
+        ],
+        [
+          138.0,
+          990.0
+        ],
+        [
+          138.0,
+          1077.0
+        ],
+        [
+          68.0,
+          1077.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          823.0,
+          252.0
+        ],
+        [
+          968.0,
+          252.0
+        ],
+        [
+          968.0,
+          341.0
+        ],
+        [
+          823.0,
+          341.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          505.0,
+          744.0
+        ],
+        [
+          602.0,
+          744.0
+        ],
+        [
+          602.0,
+          881.0
+        ],
+        [
+          505.0,
+          881.0
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1950.0,
+          270.0
+        ],
+        [
+          1984.0,
+          270.0
+        ],
+        [
+          1984.0,
+          340.0
+        ],
+        [
+          1950.0,
+          340.0
+        ]
+      ],
+      "group_id": null,
+      "description": "horizon | man | sea | sky | sunset",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "backpack",
+      "score": null,
+      "points": [
+        [
+          1650.0,
+          1375.0
+        ],
+        [
+          1778.0,
+          1375.0
+        ],
+        [
+          1778.0,
+          1578.0
+        ],
+        [
+          1650.0,
+          1578.0
+        ]
+      ],
+      "group_id": null,
+      "description": "floor | sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "bus",
+      "score": null,
+      "points": [
+        [
+          1808.0,
+          343.0
+        ],
+        [
+          2037.0,
+          343.0
+        ],
+        [
+          2037.0,
+          543.0
+        ],
+        [
+          1808.0,
+          543.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | skier",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          2034.0,
+          286.0
+        ],
+        [
+          2064.0,
+          286.0
+        ],
+        [
+          2064.0,
+          348.0
+        ],
+        [
+          2034.0,
+          348.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          293.0,
+          483.0
+        ],
+        [
+          328.0,
+          483.0
+        ],
+        [
+          328.0,
+          572.0
+        ],
+        [
+          293.0,
+          572.0
+        ]
+      ],
+      "group_id": null,
+      "description": "sea | skier | sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          1178.0,
+          1379.0
+        ],
+        [
+          1253.0,
+          1379.0
+        ],
+        [
+          1253.0,
+          1536.0
+        ],
+        [
+          1178.0,
+          1536.0
+        ]
+      ],
+      "group_id": null,
+      "description": "boat | horizon | sea | skier | sky | vessel | water",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          493.0,
+          1026.0
+        ],
+        [
+          525.0,
+          1026.0
+        ],
+        [
+          525.0,
+          1077.0
+        ],
+        [
+          493.0,
+          1077.0
+        ]
+      ],
+      "group_id": null,
+      "description": "sky",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "truck",
+      "score": null,
+      "points": [
+        [
+          1075.0,
+          187.0
+        ],
+        [
+          1347.0,
+          187.0
+        ],
+        [
+          1347.0,
+          356.0
+        ],
+        [
+          1075.0,
+          356.0
+        ]
+      ],
+      "group_id": null,
+      "description": "bathroom | bathroom sink | counter top | pillow | room | sink | stool",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          1079.0,
+          211.0
+        ],
+        [
+          1349.0,
+          211.0
+        ],
+        [
+          1349.0,
+          358.0
+        ],
+        [
+          1079.0,
+          358.0
+        ]
+      ],
+      "group_id": null,
+      "description": "bathroom | bathroom accessory | pillow | room | stool",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          81.0,
+          1153.0
+        ],
+        [
+          135.0,
+          1153.0
+        ],
+        [
+          135.0,
+          1226.0
+        ],
+        [
+          81.0,
+          1226.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "handbag",
+      "score": null,
+      "points": [
+        [
+          90.0,
+          688.0
+        ],
+        [
+          123.0,
+          688.0
+        ],
+        [
+          123.0,
+          735.0
+        ],
+        [
+          90.0,
+          735.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          657.0,
+          712.0
+        ],
+        [
+          758.0,
+          712.0
+        ],
+        [
+          758.0,
+          913.0
+        ],
+        [
+          657.0,
+          913.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | skier | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          904.0,
+          192.0
+        ],
+        [
+          1062.0,
+          192.0
+        ],
+        [
+          1062.0,
+          327.0
+        ],
+        [
+          904.0,
+          327.0
+        ]
+      ],
+      "group_id": null,
+      "description": "envelope | notepad | office supply | pen",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "stop sign",
+      "score": null,
+      "points": [
+        [
+          44.0,
+          1600.0
+        ],
+        [
+          394.0,
+          1600.0
+        ],
+        [
+          394.0,
+          1944.0
+        ],
+        [
+          44.0,
+          1944.0
+        ]
+      ],
+      "group_id": null,
+      "description": "pole | road sign | sign | street sign | tennis racket | traffic sign",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "backpack",
+      "score": null,
+      "points": [
+        [
+          1803.0,
+          942.0
+        ],
+        [
+          1873.0,
+          942.0
+        ],
+        [
+          1873.0,
+          1038.0
+        ],
+        [
+          1803.0,
+          1038.0
+        ]
+      ],
+      "group_id": null,
+      "description": "liquid",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          1451.0,
+          193.0
+        ],
+        [
+          1487.0,
+          193.0
+        ],
+        [
+          1487.0,
+          301.0
+        ],
+        [
+          1451.0,
+          301.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | sea | ski slope | pole | skier | sky | snowboarder",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "car",
+      "score": null,
+      "points": [
+        [
+          630.0,
+          182.0
+        ],
+        [
+          817.0,
+          182.0
+        ],
+        [
+          817.0,
+          321.0
+        ],
+        [
+          630.0,
+          321.0
+        ]
+      ],
+      "group_id": null,
+      "description": "man | selfie | tile wall",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "street.jpg",
+  "imageData": null,
+  "imageHeight": 1944,
+  "imageWidth": 2592,
+  "text": ""
+}
