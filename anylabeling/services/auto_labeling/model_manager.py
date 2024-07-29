@@ -64,6 +64,7 @@ class ModelManager(QObject):
         "yolov10",
         "depth_anything_v2",
         "yolow_ram",
+        "rtdetrv2",
     ]
 
     model_configs_changed = pyqtSignal(list)
@@ -1037,6 +1038,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = RTDETR(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "rtdetrv2":
+            from .rtdetrv2 import RTDETRv2
+
+            try:
+                model_config["model"] = RTDETRv2(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
