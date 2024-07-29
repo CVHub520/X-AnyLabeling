@@ -411,14 +411,14 @@ class LabelDialog(QtWidgets.QDialog):
         layout.setContentsMargins(10, 10, 10, 10)
         if show_text_field:
             layout_edit = QtWidgets.QHBoxLayout()
-            layout_edit.addWidget(self.edit, 2.5)
-            layout_edit.addWidget(self.edit_group_id, 1.5)
+            layout_edit.addWidget(self.edit, 4)
+            layout_edit.addWidget(self.edit_group_id, 2)
             layout.addLayout(layout_edit)
 
         # Add linking layout
         layout_linking = QtWidgets.QHBoxLayout()
-        layout_linking.addWidget(self.linking_input, 2.5)
-        layout_linking.addWidget(self.add_linking_button, 1.5)
+        layout_linking.addWidget(self.linking_input, 4)
+        layout_linking.addWidget(self.add_linking_button, 2)
         layout.addLayout(layout_linking)
         layout.addWidget(self.linking_list)
 
