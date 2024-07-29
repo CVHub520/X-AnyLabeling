@@ -1376,6 +1376,7 @@ class ModelManager(QObject):
             "gold_yolo",
             "grounding_dino",
             "rtdetr",
+            "rtdetrv2",
             "yolo_nas",
             "yolov5_obb",
             "yolov5_seg",
