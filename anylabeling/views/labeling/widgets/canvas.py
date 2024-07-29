@@ -1288,7 +1288,7 @@ class Canvas(
                 ) + (
                     f"{shape.label}"
                 ) + (
-                    f" {shape.score:.2f}" if shape.score is not None else ""
+                    f" {float(shape.score):.2f}" if shape.score is not None else ""
                 )
                 if not label:
                     continue
@@ -1337,7 +1337,7 @@ class Canvas(
                 ) + (
                     f"{shape.label}"
                 ) + (
-                    f" {shape.score:.2f}" if (shape.score is not None and self.show_scores) else ""
+                    f" {float(shape.score):.2f}" if (shape.score is not None and self.show_scores) else ""
                 )
                 if not label:
                     continue
