@@ -32,7 +32,7 @@ class Canvas(
 
     zoom_request = QtCore.pyqtSignal(int, QtCore.QPoint)
     scroll_request = QtCore.pyqtSignal(int, int)
-    # [Feature] support for automatically switching to editing mode 
+    # [Feature] support for automatically switching to editing mode
     # when the cursor moves over an object
     mode_changed = QtCore.pyqtSignal()
     new_shape = QtCore.pyqtSignal()
@@ -312,7 +312,10 @@ class Canvas(
                 self.show_shape.emit(shape_width, shape_height, pos)
 
             color = QtGui.QColor(0, 0, 255)
-            if self.out_off_pixmap(pos) and self.create_mode not in self.allowed_oop_shape_types:
+            if (
+                self.out_off_pixmap(pos)
+                and self.create_mode not in self.allowed_oop_shape_types
+            ):
                 # Don't allow the user to draw outside the pixmap, except for rotation.
                 # Project the point to the pixmap's edges.
                 pos = self.intersection_point(self.current[-1], pos)
@@ -462,7 +465,9 @@ class Canvas(
                 self.override_cursor(CURSOR_GRAB)
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
                 if self.h_shape_is_hovered:
-                    group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                    group_mode = (
+                        int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                    )
                     self.select_shape_point(
                         pos, multiple_selection_mode=group_mode
                     )
@@ -559,7 +564,7 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
                             self.finalise()
-                    # [Feature] support for automatically switching to editing mode 
+                    # [Feature] support for automatically switching to editing mode
                     # when the cursor moves over an object
                     if (
                         self.create_mode
@@ -580,8 +585,10 @@ class Canvas(
                         self.set_hiding()
                         self.drawing_polygon.emit(True)
                         self.update()
-                elif (self.out_off_pixmap(pos) 
-                      and self.create_mode in self.allowed_oop_shape_types):
+                elif (
+                    self.out_off_pixmap(pos)
+                    and self.create_mode in self.allowed_oop_shape_types
+                ):
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
                     self.current.add_point(pos)
@@ -813,9 +820,10 @@ class Canvas(
         """Move a vertex. Adjust position to be bounded by pixmap border"""
         index, shape = self.h_vertex, self.h_hape
         point = shape[index]
-        if (self.out_off_pixmap(pos) 
-            and shape.shape_type 
-            not in self.allowed_oop_shape_types):
+        if (
+            self.out_off_pixmap(pos)
+            and shape.shape_type not in self.allowed_oop_shape_types
+        ):
             pos = self.intersection_point(point, pos)
 
         if shape.shape_type == "rotation":
@@ -1077,7 +1085,7 @@ class Canvas(
                     pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
                     pen.setColor(QtGui.QColor(*group_color))
                     p.setPen(pen)
-                    
+
                     # Calculate the center point of the bounding rectangle
                     cx = rect.x() + rect.width() / 2
                     cy = rect.y() + rect.height() / 2
@@ -1086,8 +1094,12 @@ class Canvas(
                     # Define the points of the triangle
                     triangle_points = [
                         QtCore.QPointF(cx, cy - triangle_radius),
-                        QtCore.QPointF(cx - triangle_radius, cy + triangle_radius),
-                        QtCore.QPointF(cx + triangle_radius, cy + triangle_radius),
+                        QtCore.QPointF(
+                            cx - triangle_radius, cy + triangle_radius
+                        ),
+                        QtCore.QPointF(
+                            cx + triangle_radius, cy + triangle_radius
+                        ),
                     ]
 
                     # Draw the triangle
@@ -1115,15 +1127,17 @@ class Canvas(
                 except:
                     pass
 
-                if (shape.group_id is None 
-                    or shape.shape_type not in 
-                    ["rectangle", "polygon", "rotation"]):
+                if shape.group_id is None or shape.shape_type not in [
+                    "rectangle",
+                    "polygon",
+                    "rotation",
+                ]:
                     continue
                 rect = shape.bounding_rect()
-                cx = rect.x() + (rect.width() / 2.)
-                cy = rect.y() + (rect.height() / 2.)
+                cx = rect.x() + (rect.width() / 2.0)
+                cy = rect.y() + (rect.height() / 2.0)
                 gid2point[shape.group_id] = (cx, cy)
-            
+
             for linking in linking_pairs:
                 pen.setStyle(Qt.SolidLine)
                 pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
@@ -1137,12 +1151,22 @@ class Canvas(
                 # Draw a link from key point to value point
                 p.drawLine(QtCore.QPointF(*kp), QtCore.QPointF(*vp))
                 # Draw the triangle arrowhead
-                arrow_size = max(1, int(round(10.0 / Shape.scale)))  # Size of the arrowhead
-                angle = math.atan2(vp[1] - kp[1], vp[0] - kp[0])  # Angle towards the value point
+                arrow_size = max(
+                    1, int(round(10.0 / Shape.scale))
+                )  # Size of the arrowhead
+                angle = math.atan2(
+                    vp[1] - kp[1], vp[0] - kp[0]
+                )  # Angle towards the value point
                 arrow_points = [
                     QtCore.QPointF(vp[0], vp[1]),
-                    QtCore.QPointF(vp[0] - arrow_size * math.cos(angle - math.pi / 6), vp[1] - arrow_size * math.sin(angle - math.pi / 6)),
-                    QtCore.QPointF(vp[0] - arrow_size * math.cos(angle + math.pi / 6), vp[1] - arrow_size * math.sin(angle + math.pi / 6)),
+                    QtCore.QPointF(
+                        vp[0] - arrow_size * math.cos(angle - math.pi / 6),
+                        vp[1] - arrow_size * math.sin(angle - math.pi / 6),
+                    ),
+                    QtCore.QPointF(
+                        vp[0] - arrow_size * math.cos(angle + math.pi / 6),
+                        vp[1] - arrow_size * math.sin(angle + math.pi / 6),
+                    ),
                 ]
                 p.drawPolygon(arrow_points)
 
@@ -1273,96 +1297,81 @@ class Canvas(
                     "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
                 )
             )
+            labels = []
+            for shape in self.shapes:
+                d_react = shape.point_size / shape.scale
+                d_text = 1.5
+                if not shape.visible:
+                    continue
+                if shape.label in [
+                    "AUTOLABEL_OBJECT",
+                    "AUTOLABEL_ADD",
+                    "AUTOLABEL_REMOVE",
+                ]:
+                    continue
+                label_text = (
+                    (
+                        f"id:{shape.group_id} "
+                        if shape.group_id is not None
+                        else ""
+                    )
+                    + (f"{shape.label}")
+                    + (
+                        f" {float(shape.score):.2f}"
+                        if (shape.score is not None and self.show_scores)
+                        else ""
+                    )
+                )
+                if not label_text:
+                    continue
+                fm = QtGui.QFontMetrics(p.font())
+                bound_rect = fm.boundingRect(label_text)
+                if shape.shape_type in ["rectangle", "polygon", "rotation"]:
+                    try:
+                        bbox = shape.bounding_rect()
+                    except IndexError:
+                        continue
+                    rect = QtCore.QRect(
+                        int(bbox.x()),
+                        int(bbox.y()),
+                        int(bound_rect.width()),
+                        int(bound_rect.height()),
+                    )
+                    text_pos = QtCore.QPoint(
+                        int(bbox.x()),
+                        int(bbox.y() + bound_rect.height() - d_text),
+                    )
+                elif shape.shape_type in [
+                    "circle",
+                    "line",
+                    "linestrip",
+                    "point",
+                ]:
+                    points = shape.points
+                    point = points[0]
+                    rect = QtCore.QRect(
+                        int(point.x() + d_react),
+                        int(point.y() - 15),
+                        int(bound_rect.width()),
+                        int(bound_rect.height()),
+                    )
+                    text_pos = QtCore.QPoint(
+                        int(point.x()),
+                        int(point.y() - 15 + bound_rect.height() - d_text),
+                    )
+                else:
+                    continue
+                labels.append((shape, rect, text_pos, label_text))
+
             pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.SolidLine)
             p.setPen(pen)
-            for shape in self.shapes:
-                if not shape.visible:
-                    continue
-                if shape.label in [
-                    "AUTOLABEL_OBJECT",
-                    "AUTOLABEL_ADD",
-                    "AUTOLABEL_REMOVE",
-                ]:
-                    continue
-                label = (
-                    f"id:{shape.group_id} " if shape.group_id is not None else ""
-                ) + (
-                    f"{shape.label}"
-                ) + (
-                    f" {float(shape.score):.2f}" if shape.score is not None else ""
-                )
-                if not label:
-                    continue
-                d = shape.point_size / shape.scale
-                shape_type = shape.shape_type
-                fm = QtGui.QFontMetrics(p.font())
-                rect = fm.boundingRect(label)
-                w = int(rect.width())
-                h = int(rect.height())
-                if shape_type in ["rectangle", "polygon", "rotation"]:
-                    try:
-                        bbox = shape.bounding_rect()
-                    except IndexError:
-                        continue
-                    x = int(bbox.x())
-                    y = int(bbox.y())
-                elif shape_type in ["circle", "line", "linestrip", "point"]:
-                    points = shape.points
-                    point = points[0]
-                    x = int(point.x() + d)
-                    y = int(point.y() - 15)
-                else:
-                    continue
-                p.fillRect(
-                    x,
-                    y,
-                    w,
-                    h,
-                    shape.line_color,
-                )
+            for shape, rect, _, _ in labels:
+                p.fillRect(rect, shape.line_color)
+
             pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 8, Qt.SolidLine)
             p.setPen(pen)
-            for shape in self.shapes:
-                if not shape.visible:
-                    continue
-                d = 1.5  # default shape sacle
-                shape_type = shape.shape_type
-                if shape.label in [
-                    "AUTOLABEL_OBJECT",
-                    "AUTOLABEL_ADD",
-                    "AUTOLABEL_REMOVE",
-                ]:
-                    continue
-                label = (
-                    f"id:{shape.group_id} " if shape.group_id is not None else ""
-                ) + (
-                    f"{shape.label}"
-                ) + (
-                    f" {float(shape.score):.2f}" if (shape.score is not None and self.show_scores) else ""
-                )
-                if not label:
-                    continue
-                fm = QtGui.QFontMetrics(p.font())
-                rect = fm.boundingRect(label)
-                if shape_type in ["rectangle", "polygon", "rotation"]:
-                    try:
-                        bbox = shape.bounding_rect()
-                    except IndexError:
-                        continue
-                    x = bbox.x()
-                    y = bbox.y() + rect.height()
-                elif shape_type in ["circle", "line", "linestrip", "point"]:
-                    points = shape.points
-                    point = points[0]
-                    x = int(point.x() + (shape.point_size / shape.scale))
-                    y = int(point.y() - 15 + rect.height())
-                else:
-                    continue
-                p.drawText(
-                    int(x),
-                    int(y - d),
-                    label,
-                )
+            for _, _, text_pos, label_text in labels:
+                p.drawText(text_pos, label_text)
 
         # Draw mouse coordinates
         if self.cross_line_show:
