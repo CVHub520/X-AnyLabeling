@@ -470,7 +470,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Start drawing rotations"),
             enabled=False,
         )
-        create_cirle_mode = action(
+        create_circle_mode = action(
             self.tr("Create Circle"),
             lambda: self.toggle_draw_mode(False, create_mode="circle"),
             shortcuts["create_circle"],
@@ -1152,7 +1152,7 @@ class LabelingWidget(LabelDialog):
             edit_mode=edit_mode,
             create_rectangle_mode=create_rectangle_mode,
             create_rotation_mode=create_rotation_mode,
-            create_cirle_mode=create_cirle_mode,
+            create_circle_mode=create_circle_mode,
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
@@ -1236,7 +1236,7 @@ class LabelingWidget(LabelDialog):
                 create_mode,
                 create_rectangle_mode,
                 create_rotation_mode,
-                create_cirle_mode,
+                create_circle_mode,
                 create_line_mode,
                 create_point_mode,
                 create_line_strip_mode,
@@ -1256,7 +1256,7 @@ class LabelingWidget(LabelDialog):
                 create_mode,
                 create_rectangle_mode,
                 create_rotation_mode,
-                create_cirle_mode,
+                create_circle_mode,
                 create_line_mode,
                 create_point_mode,
                 create_line_strip_mode,
@@ -1445,7 +1445,7 @@ class LabelingWidget(LabelDialog):
             create_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_rotation_mode,
-            self.actions.create_cirle_mode,
+            self.actions.create_circle_mode,
             self.actions.create_line_mode,
             self.actions.create_point_mode,
             self.actions.create_line_strip_mode,
@@ -1716,7 +1716,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_rotation_mode,
-            self.actions.create_cirle_mode,
+            self.actions.create_circle_mode,
             self.actions.create_line_mode,
             self.actions.create_point_mode,
             self.actions.create_line_strip_mode,
@@ -1749,7 +1749,7 @@ class LabelingWidget(LabelDialog):
         self.actions.create_mode.setEnabled(True)
         self.actions.create_rectangle_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
-        self.actions.create_cirle_mode.setEnabled(True)
+        self.actions.create_circle_mode.setEnabled(True)
         self.actions.create_line_mode.setEnabled(True)
         self.actions.create_point_mode.setEnabled(True)
         self.actions.create_line_strip_mode.setEnabled(True)
@@ -2292,7 +2292,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_mode.setEnabled(True)
             self.actions.create_rectangle_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
-            self.actions.create_cirle_mode.setEnabled(True)
+            self.actions.create_circle_mode.setEnabled(True)
             self.actions.create_line_mode.setEnabled(True)
             self.actions.create_point_mode.setEnabled(True)
             self.actions.create_line_strip_mode.setEnabled(True)
@@ -2302,7 +2302,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(False)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_cirle_mode.setEnabled(True)
+                self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
                 self.actions.create_line_strip_mode.setEnabled(True)
@@ -2310,7 +2310,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(False)
                 self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_cirle_mode.setEnabled(True)
+                self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
                 self.actions.create_line_strip_mode.setEnabled(True)
@@ -2318,7 +2318,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_cirle_mode.setEnabled(True)
+                self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(False)
                 self.actions.create_point_mode.setEnabled(True)
                 self.actions.create_line_strip_mode.setEnabled(True)
@@ -2326,7 +2326,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_cirle_mode.setEnabled(True)
+                self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(False)
                 self.actions.create_line_strip_mode.setEnabled(True)
@@ -2334,7 +2334,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_cirle_mode.setEnabled(False)
+                self.actions.create_circle_mode.setEnabled(False)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
                 self.actions.create_line_strip_mode.setEnabled(True)
@@ -2342,7 +2342,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_cirle_mode.setEnabled(True)
+                self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
                 self.actions.create_line_strip_mode.setEnabled(False)
@@ -2350,7 +2350,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(False)
-                self.actions.create_cirle_mode.setEnabled(True)
+                self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
                 self.actions.create_line_strip_mode.setEnabled(True)
