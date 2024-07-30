@@ -16,3 +16,4 @@ shapely
 pyclipper
 filterpy
 tokenizers
+jsonlines

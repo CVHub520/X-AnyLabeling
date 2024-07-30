@@ -2,6 +2,7 @@ import os
 import os.path as osp
 import cv2
 import json
+import jsonlines
 import math
 import yaml
 import pathlib
@@ -720,6 +721,43 @@ class LabelConverter:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
+    def odvg_to_custom(self, input_file, output_path):
+        # Load od.json or od.jsonl
+        with jsonlines.open(input_file, 'r') as reader:
+            od_data = list(reader)
+        # Save custom info
+        for data in od_data:
+            self.reset()
+            shapes = []
+            for instance in data["detection"]["instance"]:
+                xmin, ymin, xmax, ymax = instance["bbox"]
+                points = [
+                    [xmin, ymin],
+                    [xmax, ymin],
+                    [xmax, ymax],
+                    [xmin, ymax],
+                ]
+                shape = {
+                    "label": instance["category"],
+                    "description": None,
+                    "points": points,
+                    "group_id": None,
+                    "difficult": False,
+                    "direction": 0,
+                    "shape_type": "rectangle",
+                    "flags": {},
+                }
+                shapes.append(shape)
+            self.custom_data["imagePath"] = data["filename"]
+            self.custom_data["imageHeight"] = data["height"]
+            self.custom_data["imageWidth"] = data["width"]
+            self.custom_data["shapes"] = shapes
+            output_file = osp.join(
+                output_path, osp.splitext(data["filename"])[0] + ".json"
+            )
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
     def ppocr_to_custom(self, input_file, output_path, image_path, mode):
         if mode in ["rec", "kie"]:
             with open(input_file, "r", encoding="utf-8") as f:
@@ -1251,6 +1289,54 @@ class LabelConverter:
         with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
             for row in mot_structure["gt"]:
                 f.write(",".join(map(str, row)) + "\n")
+
+    def custom_to_odvg(self, image_list, label_path, save_path):
+        # Save label_map.json
+        label_map = {}
+        for i, c in enumerate(self.classes):
+            label_map[i] = c
+        label_map_file = osp.join(save_path, "label_map.json")
+        with open(label_map_file, 'w') as f:
+            json.dump(label_map, f)
+        # Save od.json
+        od_data = []
+        for image_file in image_list:
+            image_name = osp.basename(image_file)
+            label_name = osp.splitext(image_name)[0] + ".json"
+            label_file = osp.join(label_path, label_name)
+            img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
+            height, width = img.shape[:2]
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            instance = []
+            for shape in data["shapes"]:
+                if (shape["shape_type"] != "rectangle"
+                    or shape["label"] not in self.classes):
+                    continue
+                points = shape["points"]
+                xmin = float(points[0][0])
+                ymin = float(points[0][1])
+                xmax = float(points[2][0])
+                ymax = float(points[2][1])
+                bbox = [xmin, ymin, xmax, ymax]
+                label = self.classes.index(shape["label"])
+                category = shape["label"]
+                instance.append({
+                    "bbox": bbox,
+                    "label": label,
+                    "category": category
+                })
+            od_data.append({
+                "filename": image_name,
+                "height": height,
+                "width": width,
+                "detection": {
+                    "instance": instance
+                }
+            })
+        od_file = osp.join(save_path, "od.json")
+        with jsonlines.open(od_file, mode='w') as writer:
+            writer.write_all(od_data)
 
     def custom_to_pporc(self, image_file, label_file, save_path, mode):
         if not osp.exists(label_file):

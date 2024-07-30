@@ -951,6 +951,13 @@ class LabelingWidget(LabelDialog):
             icon="format_mot",
             tip=self.tr("Upload Custom Multi-Object-Tracking Annotations"),
         )
+        upload_odvg_annotation = action(
+            self.tr("&Upload ODVG Annotations"),
+            self.upload_odvg_annotation,
+            None,
+            icon="format_odvg",
+            tip=self.tr("Upload Custom Object Detection Visual Grounding Annotations"),
+        )
         upload_ppocr_rec_annotation = action(
             self.tr("&Upload PPOCR-Rec Annotations"),
             lambda: self.upload_ppocr_annotation("rec"),
@@ -1047,6 +1054,13 @@ class LabelingWidget(LabelDialog):
             None,
             icon="format_mot",
             tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
+        )
+        export_odvg_annotation = action(
+            self.tr("&Export ODVG Annotations"),
+            self.export_odvg_annotation,
+            None,
+            icon="format_odvg",
+            tip=self.tr("Export Custom Object Detection Visual Grounding Annotations"),
         )
         export_pporc_rec_annotation = action(
             self.tr("&Export PPOCR-Rec Annotations"),
@@ -1164,6 +1178,7 @@ class LabelingWidget(LabelDialog):
             upload_dota_annotation=upload_dota_annotation,
             upload_mask_annotation=upload_mask_annotation,
             upload_mot_annotation=upload_mot_annotation,
+            upload_odvg_annotation=upload_odvg_annotation,
             upload_ppocr_rec_annotation=upload_ppocr_rec_annotation,
             upload_ppocr_kie_annotation=upload_ppocr_kie_annotation,
             export_yolo_hbb_annotation=export_yolo_hbb_annotation,
@@ -1177,6 +1192,7 @@ class LabelingWidget(LabelDialog):
             export_dota_annotation=export_dota_annotation,
             export_mask_annotation=export_mask_annotation,
             export_mot_annotation=export_mot_annotation,
+            export_odvg_annotation=export_odvg_annotation,
             export_pporc_rec_annotation=export_pporc_rec_annotation,
             export_pporc_kie_annotation=export_pporc_kie_annotation,
             zoom=zoom,
@@ -1351,6 +1367,7 @@ class LabelingWidget(LabelDialog):
                 upload_dota_annotation,
                 upload_mask_annotation,
                 upload_mot_annotation,
+                upload_odvg_annotation,
                 None,
                 upload_ppocr_rec_annotation,
                 upload_ppocr_kie_annotation,
@@ -1373,6 +1390,7 @@ class LabelingWidget(LabelDialog):
                 export_dota_annotation,
                 export_mask_annotation,
                 export_mot_annotation,
+                export_odvg_annotation,
                 None,
                 export_pporc_rec_annotation,
                 export_pporc_kie_annotation,
@@ -4185,12 +4203,6 @@ class LabelingWidget(LabelDialog):
             return
 
         if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
             return
 
         filter = "Classes Files (*.txt);;All Files (*)"
@@ -4201,12 +4213,6 @@ class LabelingWidget(LabelDialog):
             filter,
         )
         if not self.classes_file:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please select a specific classes file!"),
-                QtWidgets.QMessageBox.Ok,
-            )
             return
         with open(self.classes_file, "r", encoding="utf-8") as f:
             labels = f.read().splitlines()
@@ -4250,6 +4256,47 @@ class LabelingWidget(LabelDialog):
             input_file=input_file,
             output_path=output_dir_path,
             image_path=image_dir_path,
+        )
+
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+    def upload_odvg_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            return
+
+        filter = "OD Files (*.json *.jsonl);;All Files (*)"
+        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific OD file"),
+            "",
+            filter,
+        )
+
+        if (
+            not input_file
+            or QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Current annotation will be lost"),
+                self.tr(
+                    "You are going to upload new annotations to this task. Continue?"
+                ),
+                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+            )
+            != QtWidgets.QMessageBox.Ok
+        ):
+            return
+
+        output_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            output_dir_path = self.output_dir
+        converter = LabelConverter()
+        converter.odvg_to_custom(
+            input_file=input_file,
+            output_path=output_dir_path,
         )
 
         # update and refresh the current canvas
@@ -4891,6 +4938,69 @@ class LabelingWidget(LabelDialog):
         converter = LabelConverter(classes_file=self.classes_file)
         try:
             converter.custom_to_mot(label_dir_path, save_path)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def export_odvg_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        if not self.classes_file:
+            filter = "Classes Files (*.txt);;All Files (*)"
+            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific classes file"),
+                "",
+                filter,
+            )
+            if not self.classes_file:
+                return
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+
+        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Select a directory to save the odvg annotations"),
+            label_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly
+        )
+        if not selected_dir:
+            return
+
+        save_path = osp.realpath(selected_dir)
+        image_list = self.image_list
+        if not image_list:
+            image_list = [self.filename]
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter(classes_file=self.classes_file)
+        try:
+            converter.custom_to_odvg(image_list, label_dir_path, save_path)
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
