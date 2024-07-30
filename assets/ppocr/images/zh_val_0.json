@@ -1,0 +1,2345 @@
+{
+  "version": "2.4.0",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "other",
+      "description": "Maribyrnong",
+      "points": [
+        [
+          1958,
+          144
+        ],
+        [
+          2184,
+          144
+        ],
+        [
+          2184,
+          198
+        ],
+        [
+          1958,
+          198
+        ]
+      ],
+      "group_id": 1,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "CITYCOUNCIL",
+      "points": [
+        [
+          2052,
+          183
+        ],
+        [
+          2171,
+          183
+        ],
+        [
+          2171,
+          214
+        ],
+        [
+          2052,
+          214
+        ]
+      ],
+      "group_id": 3,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "Maribyrnong市政府",
+      "points": [
+        [
+          258,
+          155
+        ],
+        [
+          574,
+          155
+        ],
+        [
+          574,
+          203
+        ],
+        [
+          258,
+          203
+        ]
+      ],
+      "group_id": 6,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "header",
+      "description": "纾困申请表",
+      "points": [
+        [
+          1062,
+          298
+        ],
+        [
+          1350,
+          298
+        ],
+        [
+          1350,
+          366
+        ],
+        [
+          1062,
+          366
+        ]
+      ],
+      "group_id": 11,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "header",
+      "description": "仅限业主自住物业",
+      "points": [
+        [
+          1053,
+          398
+        ],
+        [
+          1437,
+          398
+        ],
+        [
+          1437,
+          455
+        ],
+        [
+          1053,
+          455
+        ]
+      ],
+      "group_id": 17,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "夏艳辰",
+      "points": [
+        [
+          410,
+          541
+        ],
+        [
+          535,
+          541
+        ],
+        [
+          535,
+          590
+        ],
+        [
+          410,
+          590
+        ]
+      ],
+      "group_id": 26,
+      "difficult": false,
+      "kie_linking": [
+        [
+          30,
+          26
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "姓名:",
+      "points": [
+        [
+          259,
+          541
+        ],
+        [
+          375,
+          541
+        ],
+        [
+          375,
+          590
+        ],
+        [
+          259,
+          590
+        ]
+      ],
+      "group_id": 30,
+      "difficult": false,
+      "kie_linking": [
+        [
+          30,
+          26
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "出生日期:",
+      "points": [
+        [
+          260,
+          626
+        ],
+        [
+          481,
+          626
+        ],
+        [
+          481,
+          684
+        ],
+        [
+          260,
+          684
+        ]
+      ],
+      "group_id": 34,
+      "difficult": false,
+      "kie_linking": [
+        [
+          34,
+          635
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "电子邮件:",
+      "points": [
+        [
+          260,
+          717
+        ],
+        [
+          473,
+          717
+        ],
+        [
+          473,
+          771
+        ],
+        [
+          260,
+          771
+        ]
+      ],
+      "group_id": 46,
+      "difficult": false,
+      "kie_linking": [
+        [
+          46,
+          641
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "邮政地址:",
+      "points": [
+        [
+          261,
+          802
+        ],
+        [
+          483,
+          802
+        ],
+        [
+          483,
+          859
+        ],
+        [
+          261,
+          859
+        ]
+      ],
+      "group_id": 54,
+      "difficult": false,
+      "kie_linking": [
+        [
+          54,
+          60
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "湖南省怀化市市辖区",
+      "points": [
+        [
+          487,
+          810
+        ],
+        [
+          862,
+          810
+        ],
+        [
+          862,
+          859
+        ],
+        [
+          487,
+          859
+        ]
+      ],
+      "group_id": 60,
+      "difficult": false,
+      "kie_linking": [
+        [
+          54,
+          60
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "电话:",
+      "points": [
+        [
+          260,
+          890
+        ],
+        [
+          414,
+          890
+        ],
+        [
+          414,
+          948
+        ],
+        [
+          260,
+          948
+        ]
+      ],
+      "group_id": 70,
+      "difficult": false,
+      "kie_linking": [
+        [
+          70,
+          81
+        ],
+        [
+          70,
+          644
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "工作:",
+      "points": [
+        [
+          2011,
+          898
+        ],
+        [
+          2153,
+          898
+        ],
+        [
+          2153,
+          955
+        ],
+        [
+          2011,
+          955
+        ]
+      ],
+      "group_id": 77,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "手机:",
+      "points": [
+        [
+          262,
+          978
+        ],
+        [
+          376,
+          978
+        ],
+        [
+          376,
+          1029
+        ],
+        [
+          262,
+          1029
+        ]
+      ],
+      "group_id": 81,
+      "difficult": false,
+      "kie_linking": [
+        [
+          70,
+          81
+        ],
+        [
+          81,
+          85
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "15845878995",
+      "points": [
+        [
+          411,
+          986
+        ],
+        [
+          637,
+          986
+        ],
+        [
+          637,
+          1027
+        ],
+        [
+          411,
+          1027
+        ]
+      ],
+      "group_id": 85,
+      "difficult": false,
+      "kie_linking": [
+        [
+          81,
+          85
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "申请针对的物业地址",
+      "points": [
+        [
+          257,
+          1068
+        ],
+        [
+          653,
+          1068
+        ],
+        [
+          653,
+          1119
+        ],
+        [
+          257,
+          1119
+        ]
+      ],
+      "group_id": 87,
+      "difficult": false,
+      "kie_linking": [
+        [
+          87,
+          97
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "紫藤苑4号楼3单元301",
+      "points": [
+        [
+          426,
+          1149
+        ],
+        [
+          806,
+          1149
+        ],
+        [
+          806,
+          1199
+        ],
+        [
+          426,
+          1199
+        ]
+      ],
+      "group_id": 97,
+      "difficult": false,
+      "kie_linking": [
+        [
+          87,
+          97
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "市政府隐私声明",
+      "points": [
+        [
+          251,
+          1322
+        ],
+        [
+          537,
+          1322
+        ],
+        [
+          537,
+          1368
+        ],
+        [
+          251,
+          1368
+        ]
+      ],
+      "group_id": 108,
+      "difficult": false,
+      "kie_linking": [
+        [
+          108,
+          116
+        ],
+        [
+          108,
+          164
+        ],
+        [
+          108,
+          213
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "市政府收集的所有个人信息都将用于市政府的业务目的并得到保密。除非市政府受其它法律要求必须披露信",
+      "points": [
+        [
+          256,
+          1404
+        ],
+        [
+          2181,
+          1404
+        ],
+        [
+          2181,
+          1462
+        ],
+        [
+          256,
+          1462
+        ]
+      ],
+      "group_id": 116,
+      "difficult": false,
+      "kie_linking": [
+        [
+          108,
+          116
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "息,或者信息披露在相关情况下是合理的,否则个人信息不会披露给第三方。如需更多信息,请参见市政府的",
+      "points": [
+        [
+          253,
+          1453
+        ],
+        [
+          2177,
+          1453
+        ],
+        [
+          2177,
+          1510
+        ],
+        [
+          253,
+          1510
+        ]
+      ],
+      "group_id": 164,
+      "difficult": false,
+      "kie_linking": [
+        [
+          108,
+          164
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "“隐私声明”。你可以致电96880286联系市政府获得该信息。",
+      "points": [
+        [
+          275,
+          1504
+        ],
+        [
+          1312,
+          1504
+        ],
+        [
+          1312,
+          1558
+        ],
+        [
+          275,
+          1558
+        ]
+      ],
+      "group_id": 213,
+      "difficult": false,
+      "kie_linking": [
+        [
+          108,
+          213
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "问题",
+      "points": [
+        [
+          263,
+          1575
+        ],
+        [
+          337,
+          1575
+        ],
+        [
+          337,
+          1622
+        ],
+        [
+          263,
+          1622
+        ]
+      ],
+      "group_id": 238,
+      "difficult": false,
+      "kie_linking": [
+        [
+          238,
+          241
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "回答",
+      "points": [
+        [
+          1766,
+          1587
+        ],
+        [
+          1837,
+          1587
+        ],
+        [
+          1837,
+          1630
+        ],
+        [
+          1766,
+          1630
+        ]
+      ],
+      "group_id": 241,
+      "difficult": false,
+      "kie_linking": [
+        [
+          238,
+          241
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "申请人的姓名",
+      "points": [
+        [
+          242,
+          1656
+        ],
+        [
+          498,
+          1656
+        ],
+        [
+          498,
+          1710
+        ],
+        [
+          242,
+          1710
+        ]
+      ],
+      "group_id": 244,
+      "difficult": false,
+      "kie_linking": [
+        [
+          244,
+          251
+        ],
+        [
+          244,
+          257
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "第一债务人",
+      "points": [
+        [
+          1508,
+          1661
+        ],
+        [
+          1713,
+          1661
+        ],
+        [
+          1713,
+          1715
+        ],
+        [
+          1508,
+          1715
+        ]
+      ],
+      "group_id": 251,
+      "difficult": false,
+      "kie_linking": [
+        [
+          244,
+          251
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "第二债务人",
+      "points": [
+        [
+          1898,
+          1670
+        ],
+        [
+          2104,
+          1670
+        ],
+        [
+          2104,
+          1722
+        ],
+        [
+          1898,
+          1722
+        ]
+      ],
+      "group_id": 257,
+      "difficult": false,
+      "kie_linking": [
+        [
+          244,
+          257
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "你是否领取任何Centrelink福利?如果是,请在第2页上提供详",
+      "points": [
+        [
+          245,
+          1752
+        ],
+        [
+          1351,
+          1752
+        ],
+        [
+          1351,
+          1802
+        ],
+        [
+          245,
+          1802
+        ]
+      ],
+      "group_id": 263,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "细信息,并附上福利卡复印件。(是或否)",
+      "points": [
+        [
+          250,
+          1802
+        ],
+        [
+          990,
+          1802
+        ],
+        [
+          990,
+          1854
+        ],
+        [
+          250,
+          1854
+        ]
+      ],
+      "group_id": 288,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1434,
+          1907
+        ],
+        [
+          1456,
+          1907
+        ],
+        [
+          1456,
+          1936
+        ],
+        [
+          1434,
+          1936
+        ]
+      ],
+      "group_id": 308,
+      "difficult": false,
+      "kie_linking": [
+        [
+          312,
+          308
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "请告知每两周收到的工资或福利津贴总额",
+      "points": [
+        [
+          249,
+          1888
+        ],
+        [
+          978,
+          1888
+        ],
+        [
+          978,
+          1940
+        ],
+        [
+          249,
+          1940
+        ]
+      ],
+      "group_id": 312,
+      "difficult": false,
+      "kie_linking": [
+        [
+          312,
+          308
+        ],
+        [
+          312,
+          653
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1435,
+          1988
+        ],
+        [
+          1453,
+          1988
+        ],
+        [
+          1453,
+          2021
+        ],
+        [
+          1435,
+          2021
+        ]
+      ],
+      "group_id": 331,
+      "difficult": false,
+      "kie_linking": [
+        [
+          333,
+          331
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "提供应缴地方税的物业尚未偿还的任何按揭或收费数额",
+      "points": [
+        [
+          243,
+          1973
+        ],
+        [
+          1215,
+          1973
+        ],
+        [
+          1215,
+          2028
+        ],
+        [
+          243,
+          2028
+        ]
+      ],
+      "group_id": 333,
+      "difficult": false,
+      "kie_linking": [
+        [
+          333,
+          331
+        ],
+        [
+          333,
+          655
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "提供以下每月开支的详细信息:",
+      "points": [
+        [
+          241,
+          2060
+        ],
+        [
+          786,
+          2060
+        ],
+        [
+          786,
+          2111
+        ],
+        [
+          241,
+          2111
+        ]
+      ],
+      "group_id": 358,
+      "difficult": false,
+      "kie_linking": [
+        [
+          358,
+          377
+        ],
+        [
+          358,
+          384
+        ],
+        [
+          358,
+          397
+        ],
+        [
+          358,
+          409
+        ],
+        [
+          358,
+          422
+        ],
+        [
+          358,
+          447
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1433,
+          2168
+        ],
+        [
+          1447,
+          2168
+        ],
+        [
+          1447,
+          2198
+        ],
+        [
+          1433,
+          2198
+        ]
+      ],
+      "group_id": 373,
+      "difficult": false,
+      "kie_linking": [
+        [
+          377,
+          373
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1827,
+          2165
+        ],
+        [
+          1843,
+          2165
+        ],
+        [
+          1843,
+          2197
+        ],
+        [
+          1827,
+          2197
+        ]
+      ],
+      "group_id": 375,
+      "difficult": false,
+      "kie_linking": [
+        [
+          377,
+          375
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "每月按揭还款",
+      "points": [
+        [
+          333,
+          2148
+        ],
+        [
+          572,
+          2148
+        ],
+        [
+          572,
+          2201
+        ],
+        [
+          333,
+          2201
+        ]
+      ],
+      "group_id": 377,
+      "difficult": false,
+      "kie_linking": [
+        [
+          377,
+          373
+        ],
+        [
+          377,
+          375
+        ],
+        [
+          358,
+          377
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "每月汽车贷款还款",
+      "points": [
+        [
+          333,
+          2229
+        ],
+        [
+          660,
+          2229
+        ],
+        [
+          660,
+          2285
+        ],
+        [
+          333,
+          2285
+        ]
+      ],
+      "group_id": 384,
+      "difficult": false,
+      "kie_linking": [
+        [
+          358,
+          384
+        ],
+        [
+          384,
+          393
+        ],
+        [
+          384,
+          395
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1425,
+          2254
+        ],
+        [
+          1446,
+          2254
+        ],
+        [
+          1446,
+          2288
+        ],
+        [
+          1425,
+          2288
+        ]
+      ],
+      "group_id": 393,
+      "difficult": false,
+      "kie_linking": [
+        [
+          384,
+          393
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1823,
+          2254
+        ],
+        [
+          1846,
+          2254
+        ],
+        [
+          1846,
+          2287
+        ],
+        [
+          1823,
+          2287
+        ]
+      ],
+      "group_id": 395,
+      "difficult": false,
+      "kie_linking": [
+        [
+          384,
+          395
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "每月食品和服装开支",
+      "points": [
+        [
+          329,
+          2323
+        ],
+        [
+          694,
+          2323
+        ],
+        [
+          694,
+          2372
+        ],
+        [
+          329,
+          2372
+        ]
+      ],
+      "group_id": 397,
+      "difficult": false,
+      "kie_linking": [
+        [
+          358,
+          397
+        ],
+        [
+          397,
+          407
+        ],
+        [
+          397,
+          657
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1822,
+          2340
+        ],
+        [
+          1841,
+          2340
+        ],
+        [
+          1841,
+          2371
+        ],
+        [
+          1822,
+          2371
+        ]
+      ],
+      "group_id": 407,
+      "difficult": false,
+      "kie_linking": [
+        [
+          397,
+          407
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "每月汽车使用开支",
+      "points": [
+        [
+          329,
+          2408
+        ],
+        [
+          652,
+          2408
+        ],
+        [
+          652,
+          2461
+        ],
+        [
+          329,
+          2461
+        ]
+      ],
+      "group_id": 409,
+      "difficult": false,
+      "kie_linking": [
+        [
+          358,
+          409
+        ],
+        [
+          409,
+          418
+        ],
+        [
+          409,
+          420
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1433,
+          2421
+        ],
+        [
+          1447,
+          2421
+        ],
+        [
+          1447,
+          2456
+        ],
+        [
+          1433,
+          2456
+        ]
+      ],
+      "group_id": 418,
+      "difficult": false,
+      "kie_linking": [
+        [
+          409,
+          418
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1820,
+          2427
+        ],
+        [
+          1841,
+          2427
+        ],
+        [
+          1841,
+          2461
+        ],
+        [
+          1820,
+          2461
+        ]
+      ],
+      "group_id": 420,
+      "difficult": false,
+      "kie_linking": [
+        [
+          409,
+          420
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "每月电费、煤气费、电话费、水费等",
+      "points": [
+        [
+          330,
+          2496
+        ],
+        [
+          972,
+          2496
+        ],
+        [
+          972,
+          2550
+        ],
+        [
+          330,
+          2550
+        ]
+      ],
+      "group_id": 422,
+      "difficult": false,
+      "kie_linking": [
+        [
+          358,
+          422
+        ],
+        [
+          422,
+          439
+        ],
+        [
+          422,
+          441
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1432,
+          2509
+        ],
+        [
+          1453,
+          2509
+        ],
+        [
+          1453,
+          2542
+        ],
+        [
+          1432,
+          2542
+        ]
+      ],
+      "group_id": 439,
+      "difficult": false,
+      "kie_linking": [
+        [
+          422,
+          439
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1820,
+          2513
+        ],
+        [
+          1843,
+          2513
+        ],
+        [
+          1843,
+          2546
+        ],
+        [
+          1820,
+          2546
+        ]
+      ],
+      "group_id": 441,
+      "difficult": false,
+      "kie_linking": [
+        [
+          422,
+          441
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1433,
+          2597
+        ],
+        [
+          1447,
+          2597
+        ],
+        [
+          1447,
+          2627
+        ],
+        [
+          1433,
+          2627
+        ]
+      ],
+      "group_id": 443,
+      "difficult": false,
+      "kie_linking": [
+        [
+          447,
+          443
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1821,
+          2598
+        ],
+        [
+          1843,
+          2598
+        ],
+        [
+          1843,
+          2630
+        ],
+        [
+          1821,
+          2630
+        ]
+      ],
+      "group_id": 445,
+      "difficult": false,
+      "kie_linking": [
+        [
+          447,
+          445
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "每月其它开支--信用卡、其它贷款等,提供详细信息",
+      "points": [
+        [
+          326,
+          2578
+        ],
+        [
+          1294,
+          2578
+        ],
+        [
+          1294,
+          2634
+        ],
+        [
+          326,
+          2634
+        ]
+      ],
+      "group_id": 447,
+      "difficult": false,
+      "kie_linking": [
+        [
+          447,
+          443
+        ],
+        [
+          447,
+          445
+        ],
+        [
+          358,
+          447
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "频率",
+      "points": [
+        [
+          1501,
+          2676
+        ],
+        [
+          1596,
+          2676
+        ],
+        [
+          1596,
+          2718
+        ],
+        [
+          1501,
+          2718
+        ]
+      ],
+      "group_id": 480,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          480
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "数额",
+      "points": [
+        [
+          1622,
+          2677
+        ],
+        [
+          1707,
+          2677
+        ],
+        [
+          1707,
+          2718
+        ],
+        [
+          1622,
+          2718
+        ]
+      ],
+      "group_id": 483,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          483
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "频率",
+      "points": [
+        [
+          1896,
+          2679
+        ],
+        [
+          1987,
+          2679
+        ],
+        [
+          1987,
+          2722
+        ],
+        [
+          1896,
+          2722
+        ]
+      ],
+      "group_id": 486,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          486
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "数额",
+      "points": [
+        [
+          2010,
+          2677
+        ],
+        [
+          2097,
+          2677
+        ],
+        [
+          2097,
+          2723
+        ],
+        [
+          2010,
+          2723
+        ]
+      ],
+      "group_id": 489,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          489
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "你打算如何偿还所欠的地方税?分期付款——每两周或每月及数额",
+      "points": [
+        [
+          241,
+          2665
+        ],
+        [
+          1369,
+          2665
+        ],
+        [
+          1369,
+          2778
+        ],
+        [
+          241,
+          2778
+        ]
+      ],
+      "group_id": 492,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          480
+        ],
+        [
+          492,
+          483
+        ],
+        [
+          492,
+          486
+        ],
+        [
+          492,
+          489
+        ],
+        [
+          492,
+          513
+        ],
+        [
+          492,
+          515
+        ],
+        [
+          492,
+          517
+        ],
+        [
+          492,
+          527
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1957,
+          2751
+        ],
+        [
+          1985,
+          2751
+        ],
+        [
+          1985,
+          2788
+        ],
+        [
+          1957,
+          2788
+        ]
+      ],
+      "group_id": 513,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          513
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1562,
+          2754
+        ],
+        [
+          1589,
+          2754
+        ],
+        [
+          1589,
+          2790
+        ],
+        [
+          1562,
+          2790
+        ]
+      ],
+      "group_id": 515,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          515
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "每周/每两周/每月",
+      "points": [
+        [
+          1444,
+          2809
+        ],
+        [
+          1769,
+          2809
+        ],
+        [
+          1769,
+          2861
+        ],
+        [
+          1444,
+          2861
+        ]
+      ],
+      "group_id": 517,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          517
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "每周/每两周/每月",
+      "points": [
+        [
+          1818,
+          2812
+        ],
+        [
+          2140,
+          2812
+        ],
+        [
+          2140,
+          2861
+        ],
+        [
+          1818,
+          2861
+        ]
+      ],
+      "group_id": 527,
+      "difficult": false,
+      "kie_linking": [
+        [
+          492,
+          527
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "除了你的住宅物业外,你是否拥有任何其它物业或在任何其它物",
+      "points": [
+        [
+          237,
+          2891
+        ],
+        [
+          1369,
+          2891
+        ],
+        [
+          1369,
+          2945
+        ],
+        [
+          237,
+          2945
+        ]
+      ],
+      "group_id": 537,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "业中有任何权益?是/否",
+      "points": [
+        [
+          240,
+          2944
+        ],
+        [
+          656,
+          2944
+        ],
+        [
+          656,
+          2995
+        ],
+        [
+          240,
+          2995
+        ]
+      ],
+      "group_id": 566,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "如果是,请提供详细信息,包括地址、物业类型(独栋房屋、单",
+      "points": [
+        [
+          234,
+          3031
+        ],
+        [
+          1366,
+          3031
+        ],
+        [
+          1366,
+          3083
+        ],
+        [
+          234,
+          3083
+        ]
+      ],
+      "group_id": 578,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "元房等),每月从该物业收到的收入以及物业的价值。",
+      "points": [
+        [
+          237,
+          3084
+        ],
+        [
+          1173,
+          3084
+        ],
+        [
+          1173,
+          3137
+        ],
+        [
+          237,
+          3137
+        ]
+      ],
+      "group_id": 607,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "other",
+      "description": "1|Page",
+      "points": [
+        [
+          2025,
+          3238
+        ],
+        [
+          2157,
+          3238
+        ],
+        [
+          2157,
+          3278
+        ],
+        [
+          2025,
+          3278
+        ]
+      ],
+      "group_id": 631,
+      "difficult": false,
+      "kie_linking": [],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "1983/6/8",
+      "points": [
+        [
+          494,
+          630
+        ],
+        [
+          841,
+          630
+        ],
+        [
+          841,
+          675
+        ],
+        [
+          494,
+          675
+        ]
+      ],
+      "group_id": 635,
+      "difficult": false,
+      "kie_linking": [
+        [
+          34,
+          635
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "597494564@qq.com",
+      "points": [
+        [
+          499,
+          728
+        ],
+        [
+          825,
+          728
+        ],
+        [
+          825,
+          771
+        ],
+        [
+          499,
+          771
+        ]
+      ],
+      "group_id": 641,
+      "difficult": false,
+      "kie_linking": [
+        [
+          46,
+          641
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "question",
+      "description": "家中:",
+      "points": [
+        [
+          437,
+          893
+        ],
+        [
+          569,
+          893
+        ],
+        [
+          569,
+          947
+        ],
+        [
+          437,
+          947
+        ]
+      ],
+      "group_id": 644,
+      "difficult": false,
+      "kie_linking": [
+        [
+          70,
+          644
+        ],
+        [
+          644,
+          649
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "0731-56494164",
+      "points": [
+        [
+          585,
+          899
+        ],
+        [
+          859,
+          899
+        ],
+        [
+          859,
+          943
+        ],
+        [
+          585,
+          943
+        ]
+      ],
+      "group_id": 649,
+      "difficult": false,
+      "kie_linking": [
+        [
+          644,
+          649
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1828,
+          1902
+        ],
+        [
+          1859,
+          1902
+        ],
+        [
+          1859,
+          1940
+        ],
+        [
+          1828,
+          1940
+        ]
+      ],
+      "group_id": 653,
+      "difficult": false,
+      "kie_linking": [
+        [
+          312,
+          653
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1827,
+          1983
+        ],
+        [
+          1857,
+          1983
+        ],
+        [
+          1857,
+          2036
+        ],
+        [
+          1827,
+          2036
+        ]
+      ],
+      "group_id": 655,
+      "difficult": false,
+      "kie_linking": [
+        [
+          333,
+          655
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    },
+    {
+      "label": "answer",
+      "description": "$",
+      "points": [
+        [
+          1427,
+          2331
+        ],
+        [
+          1458,
+          2331
+        ],
+        [
+          1458,
+          2374
+        ],
+        [
+          1427,
+          2374
+        ]
+      ],
+      "group_id": 657,
+      "difficult": false,
+      "kie_linking": [
+        [
+          397,
+          657
+        ]
+      ],
+      "shape_type": "rectangle",
+      "flags": {}
+    }
+  ],
+  "imagePath": "zh_val_0.jpg",
+  "imageData": null,
+  "imageHeight": 3508,
+  "imageWidth": 2480
+}

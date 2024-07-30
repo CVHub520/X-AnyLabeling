@@ -1,10 +1,11 @@
 import os
 import os.path as osp
 import cv2
-import csv
 import json
 import math
 import yaml
+import pathlib
+import configparser
 import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
@@ -16,6 +17,7 @@ from itertools import chain
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
+from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
 
 class LabelConverter:
@@ -217,6 +219,91 @@ class LabelConverter:
         """
         x_vals, y_vals = zip(*poly)
         return min(x_vals), min(y_vals), max(x_vals), max(y_vals)
+
+    @staticmethod
+    def gen_quad_from_poly(poly):
+        """
+        Generate min area quad from poly.
+        """
+        point_num = poly.shape[0]
+        min_area_quad = np.zeros((4, 2), dtype=np.float32)
+        rect = cv2.minAreaRect(poly.astype(np.int32))
+        box = np.array(cv2.boxPoints(rect))
+
+        first_point_idx = 0
+        min_dist = 1e4
+        for i in range(4):
+            dist = (
+                np.linalg.norm(box[(i + 0) % 4] - poly[0])
+                + np.linalg.norm(box[(i + 1) % 4] - poly[point_num // 2 - 1])
+                + np.linalg.norm(box[(i + 2) % 4] - poly[point_num // 2])
+                + np.linalg.norm(box[(i + 3) % 4] - poly[-1])
+            )
+            if dist < min_dist:
+                min_dist = dist
+                first_point_idx = i
+        for i in range(4):
+            min_area_quad[i] = box[(first_point_idx + i) % 4]
+
+        bbox_new = min_area_quad.tolist()
+        bbox = []
+
+        for box in bbox_new:
+            box = list(map(int, box))
+            bbox.append(box)
+
+        return bbox
+
+    @staticmethod
+    def get_rotate_crop_image(img, points):
+        # Use Green's theory to judge clockwise or counterclockwise
+        # author: biyanhua
+        d = 0.0
+        for index in range(-1, 3):
+            d += (
+                -0.5
+                * (points[index + 1][1] + points[index][1])
+                * (points[index + 1][0] - points[index][0])
+            )
+        if d < 0:  # counterclockwise
+            tmp = np.array(points)
+            points[1], points[3] = tmp[3], tmp[1]
+
+        try:
+            img_crop_width = int(
+                max(
+                    np.linalg.norm(points[0] - points[1]),
+                    np.linalg.norm(points[2] - points[3]),
+                )
+            )
+            img_crop_height = int(
+                max(
+                    np.linalg.norm(points[0] - points[3]),
+                    np.linalg.norm(points[1] - points[2]),
+                )
+            )
+            pts_std = np.float32(
+                [
+                    [0, 0],
+                    [img_crop_width, 0],
+                    [img_crop_width, img_crop_height],
+                    [0, img_crop_height],
+                ]
+            )
+            M = cv2.getPerspectiveTransform(points, pts_std)
+            dst_img = cv2.warpPerspective(
+                img,
+                M,
+                (img_crop_width, img_crop_height),
+                borderMode=cv2.BORDER_REPLICATE,
+                flags=cv2.INTER_CUBIC,
+            )
+            dst_img_height, dst_img_width = dst_img.shape[0:2]
+            if dst_img_height * 1.0 / dst_img_width >= 1.5:
+                dst_img = np.rot90(dst_img)
+            return dst_img
+        except Exception as e:
+            print(e)
 
     def yolo_obb_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -569,9 +656,8 @@ class LabelConverter:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def mot_to_custom(self, input_file, output_path, image_path):
-        with open(input_file, "r", encoding="utf-8", newline="") as csvfile:
-            reader = csv.reader(csvfile, delimiter=",")
-            mot_data = [row for row in reader]
+        with open(input_file, "r", encoding="utf-8") as f:
+            mot_data = [line.strip().split(',') for line in f]
 
         data_to_shape = {}
         for data in mot_data:
@@ -594,7 +680,7 @@ class LabelConverter:
                 continue
 
             self.reset()
-            frame_id = int(osp.splitext(file_name.split("_")[-1])[0])
+            frame_id = int(osp.splitext(file_name.rsplit("-")[-1])[0])
             data = data_to_shape[frame_id]
             image_file = osp.join(image_path, file_name)
             imageWidth, imageHeight = self.get_image_size(image_file)
@@ -634,9 +720,64 @@ class LabelConverter:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def custom_to_yolo(self, input_file, output_file, mode):
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    def ppocr_to_custom(self, input_file, output_path, image_path, mode):
+        if mode in ["rec", "kie"]:
+            with open(input_file, "r", encoding="utf-8") as f:
+                ocr_data = [line.strip().split('\t', 1) for line in f]
+
+        for data in ocr_data:
+            # init
+            self.reset()
+
+            # image
+            filename = osp.basename(data[0])
+            image_file = osp.join(image_path, filename)
+            imageWidth, imageHeight = self.get_image_size(image_file)
+            self.custom_data["imageHeight"] = imageHeight
+            self.custom_data["imageWidth"] = imageWidth
+            self.custom_data["imagePath"] = filename
+
+            # label
+            shapes = []
+            annotations = json.loads(data[1])
+            for annotation in annotations:
+                points = annotation["points"]
+                shape_type = (
+                    "rectangle" if is_possible_rectangle(points) else "polygon"
+                )
+                shape = {
+                    "label": annotation.get("label", "text"),
+                    "description": annotation["transcription"],
+                    "points": points,
+                    "group_id": annotation.get("id", None),
+                    "difficult": annotation.get("difficult", False),
+                    "kie_linking": annotation.get("linking", []),
+                    "shape_type": shape_type,
+                    "flags": {},
+                }
+                shapes.append(shape)
+            self.custom_data["shapes"] = shapes
+            output_file = osp.join(
+                output_path, osp.splitext(filename)[0] + ".json"
+            )
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    # Export functions
+    def custom_to_yolo(self,
+                       input_file,
+                       output_file,
+                       mode,
+                       skip_empty_files=False):
+        is_empty_file = True
+        if osp.exists(input_file):
+            with open(input_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        else:
+            if not skip_empty_files:
+                pathlib.Path(output_file).touch()
+            return is_empty_file
+
         image_width = data["imageWidth"]
         image_height = data["imageHeight"]
         image_size = np.array([[image_width, image_height]])
@@ -669,6 +810,7 @@ class LabelConverter:
                     f.write(
                         f"{class_index} {x_center} {y_center} {width} {height}\n"
                     )
+                    is_empty_file = False
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
                     points = np.array(shape["points"])
@@ -686,9 +828,14 @@ class LabelConverter:
                         )
                         + "\n"
                     )
+                    is_empty_file = False
                 elif mode == "obb" and shape_type == "rotation":
                     label = shape["label"]
-                    points = list(chain.from_iterable(shape["points"]))
+                    points = shape["points"]
+                    if not any(0 <= p[0] < image_width and 0 <= p[1] < image_height for p in points):
+                        print(f"{data['imagePath']}: Skip out of bounds coordinates of {points}!")
+                        continue
+                    points = list(chain.from_iterable(points))
                     normalized_coords = [
                         points[i] / image_width
                         if i % 2 == 0
@@ -700,6 +847,7 @@ class LabelConverter:
                     f.write(
                         f"{class_index} {x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3}\n"
                     )
+                    is_empty_file = False
                 elif mode == "pose":
                     if shape_type not in ["rectangle", "point"]:
                         continue
@@ -721,6 +869,7 @@ class LabelConverter:
                         difficult = shape.get("difficult", False)
                         visible = 1 if difficult is True else 2
                         pose_data[group_id]["keypoints"][label] = [x, y, visible]
+                    is_empty_file = False
             if mode == "pose":
                 classes = list(self.pose_classes.keys())
                 max_keypoints = max([len(kpts) for kpts in self.pose_classes.values()])
@@ -766,25 +915,38 @@ class LabelConverter:
                         else:
                             label += f" 0 0"
                     f.write(f"{label}\n")
+        return is_empty_file
 
-    def custom_to_voc(self, input_file, output_dir, mode):
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+    def custom_to_voc(self,
+                      image_file,
+                      input_file,
+                      output_dir,
+                      mode,
+                      skip_empty_files=False):
+        is_emtpy_file = True
+        image = cv2.imread(image_file)
+        image_height, image_width, image_depth = image.shape
+        if osp.exists(input_file):
+            with open(input_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            shapes = data["shapes"]
+        else:
+            if not skip_empty_files:
+                shapes = []
+            else:
+                return is_emtpy_file
 
-        image_path = data["imagePath"]
-        image_width = data["imageWidth"]
-        image_height = data["imageHeight"]
-
+        image_path = osp.basename(image_file)
         root = ET.Element("annotation")
         ET.SubElement(root, "folder").text = osp.dirname(output_dir)
         ET.SubElement(root, "filename").text = osp.basename(image_path)
         size = ET.SubElement(root, "size")
         ET.SubElement(size, "width").text = str(image_width)
         ET.SubElement(size, "height").text = str(image_height)
-        ET.SubElement(size, "depth").text = "3"
+        ET.SubElement(size, "depth").text = str(image_depth)
         source = ET.SubElement(root, "source")
         ET.SubElement(source, "database").text = "https://github.com/CVHub520/X-AnyLabeling"
-        for shape in data["shapes"]:
+        for shape in shapes:
             label = shape["label"]
             points = shape["points"]
             difficult = shape.get("difficult", False)
@@ -795,6 +957,7 @@ class LabelConverter:
             ET.SubElement(object_elem, "occluded").text = "0"
             ET.SubElement(object_elem, "difficult").text = str(int(difficult))
             if shape["shape_type"] == "rectangle" and mode in ["rectangle", "polygon"]:
+                is_emtpy_file = False
                 if len(points) == 2:
                     logger.warning(
                         "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -810,6 +973,7 @@ class LabelConverter:
             elif shape["shape_type"] == "polygon" and mode == "polygon":
                 if len(points) < 3:
                     continue
+                is_emtpy_file = False
                 xmin, ymin, xmax, ymax = self.calculate_bounding_box(points)
                 bndbox = ET.SubElement(object_elem, "bndbox")
                 ET.SubElement(bndbox, "xmin").text = str(int(xmin))
@@ -829,6 +993,8 @@ class LabelConverter:
 
         with open(output_dir, "w", encoding="utf-8") as f:
             f.write(formatted_xml)
+
+        return is_emtpy_file
 
     def custom_to_coco(self, input_path, output_path, mode):
         coco_data = self.get_coco_data()
@@ -912,11 +1078,15 @@ class LabelConverter:
     def custom_to_dota(self, input_file, output_file):
         with open(input_file, "r", encoding="utf-8") as f:
             data = json.load(f)
+        w, h = data["imageWidth"], data["imageHeight"]
         with open(output_file, "w", encoding="utf-8") as f:
             for shape in data["shapes"]:
                 points = shape["points"]
                 shape_type = shape["shape_type"]
-                if shape_type != "rotation" or len(points) != 4:
+                if (shape_type != "rotation" or len(points) != 4):
+                    continue
+                if not any(0 <= p[0] < w and 0 <= p[1] < h for p in points):
+                    print(f"{data['imagePath']}: Skip out of bounds coordinates of {points}!")
                     continue
                 label = shape["label"]
                 difficult = shape.get("difficult", False)
@@ -1000,11 +1170,27 @@ class LabelConverter:
                 1
             ].tofile(output_file)
 
-    def custom_to_mot(self, input_path, output_file):
-        mot_data = []
+    def custom_to_mot(self, input_path, save_path):
+        mot_structure = {
+            "sequence": dict(
+                name="MOT",
+                imDir=osp.basename(save_path),
+                frameRate=30,
+                seqLength=None,
+                imWidth=None,
+                imHeight=None,
+                imExt=None,
+            ),
+            "det": [],
+            "gt": [],
+        }
+        seg_len, im_widht, im_height, im_ext = 0, None, None, None
+
         label_file_list = os.listdir(input_path)
         label_file_list.sort(
-            key=lambda x: int(osp.splitext(x.split("_")[-1])[0])
+            key=lambda x: int(osp.splitext(x.rsplit("-", 1)[-1])[0])
+            if osp.splitext(x.rsplit("-", 1)[-1])[0].isdigit()
+            else 0
         )
 
         for label_file_name in label_file_list:
@@ -1013,11 +1199,20 @@ class LabelConverter:
             label_file = os.path.join(input_path, label_file_name)
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            frame_id = int(osp.splitext(label_file_name.split("_")[-1])[0])
+
+            seg_len += 1
+            if im_widht is None:
+                im_widht = data["imageWidth"]
+            if im_height is None:
+                im_height = data["imageHeight"]
+            if im_ext is None:
+                im_ext = osp.splitext(osp.basename(data["imagePath"]))[-1]
+            frame_id = int(osp.splitext(label_file_name.split("-")[-1])[0])
             for shape in data["shapes"]:
                 if shape["shape_type"] != "rectangle":
                     continue
-                class_id = self.classes.index(shape["label"])
+                diccicult = shape.get("diccicult", False)
+                class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
                 points = shape["points"]
                 if len(points) == 2:
@@ -1030,20 +1225,106 @@ class LabelConverter:
                 ymin = int(points[0][1])
                 xmax = int(points[2][0])
                 ymax = int(points[2][1])
-                data = [
-                    frame_id,
-                    track_id,
-                    xmin,
-                    ymin,
-                    xmax - xmin,
-                    ymax - ymin,
-                    0,
-                    class_id,
-                    1,
-                ]
-                mot_data.append(data)
+                boxw = xmax - xmin
+                boxh = ymax - ymin
+                det = [frame_id, -1, xmin, ymin, boxw, boxh, 1, -1, -1, -1]
+                gt = [frame_id, track_id, xmin, ymin, boxw, boxh, int(not diccicult), class_id, 1]
+                mot_structure["det"].append(det)
+                mot_structure["gt"].append(gt)
 
-        # Save updated_data to output_file
-        with open(output_file, "w", encoding="utf-8", newline="") as csvfile:
-            writer = csv.writer(csvfile, delimiter=",")
-            writer.writerows(mot_data)
+        # Save seqinfo.ini
+        mot_structure["sequence"]["seqLength"] = seg_len
+        mot_structure["sequence"]["imWidth"] = im_widht
+        mot_structure["sequence"]["imHeight"] = im_height
+        mot_structure["sequence"]["imExt"] = im_ext
+        config = configparser.ConfigParser()
+        config.add_section('Sequence')
+        for key, value in mot_structure["sequence"].items():
+            config['Sequence'][key] = str(value)
+        with open(osp.join(save_path, "seqinfo.ini"), 'w') as f:
+            config.write(f)
+        # Save det.txt
+        with open(osp.join(save_path, "det.txt"), "w", encoding="utf-8") as f:
+            for row in mot_structure["det"]:
+                f.write(",".join(map(str, row)) + "\n")
+        # Save gt.txt
+        with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
+            for row in mot_structure["gt"]:
+                f.write(",".join(map(str, row)) + "\n")
+
+    def custom_to_pporc(self, image_file, label_file, save_path, mode):
+        if not osp.exists(label_file):
+            return
+        image_name = osp.basename(image_file)
+        prefix = osp.splitext(image_name)[0]
+        dir_name = osp.basename(osp.dirname(image_file))
+
+        avaliable_shape_types = ["rectangle", "rotation", "polygon"]
+        img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
+        with open(label_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if mode == "rec":
+            crop_img_count, rec_gt, annotations = 0, [], []
+            Label_file = osp.join(save_path, "Label.txt")
+            rec_gt_file = osp.join(save_path, "rec_gt.txt")
+            save_crop_img_path = osp.join(save_path, "crop_img")
+
+            for shape in data["shapes"]:
+                shape_type = shape["shape_type"]
+                if shape_type not in avaliable_shape_types:
+                    continue
+                transcription = shape["description"]
+                difficult = shape.get("difficult", False)
+                points = [list(map(int, p)) for p in shape["points"]]
+                annotations.append(dict(
+                    transcription=transcription,
+                    points=points,
+                    difficult=difficult,
+                ))
+                if len(points) > 4:
+                    points = self.gen_quad_from_poly(np.array(points))
+                assert len(points) == 4
+                img_crop = self.get_rotate_crop_image(img, np.array(points, np.float32))
+                if img_crop is None:
+                    print(f"Can not recognise the detection box in {image_file}. Please change manually")
+                    continue
+                crop_img_filenmame = f"{prefix}_crop_{crop_img_count}.jpg"
+                crop_img_file = osp.join(save_crop_img_path, crop_img_filenmame)
+                cv2.imwrite(crop_img_file, img_crop)
+                rec_gt.append(f"crop_img/{crop_img_filenmame}\t{transcription}\n")
+                crop_img_count += 1
+            if annotations:
+                Label = f"{dir_name}/{image_name}\t{json.dumps(annotations, ensure_ascii=False)}\n"
+                with open(Label_file, "a", encoding="utf-8") as f:
+                    f.write(Label)
+                with open(rec_gt_file, "a", encoding="utf-8") as f:
+                    for item in rec_gt:
+                        f.write(item)
+        elif mode == "kie":
+            annotations, class_set = [], set()
+            ppocr_kie_file = osp.join(save_path, "ppocr_kie.json")
+            for shape in data["shapes"]:
+                shape_type = shape["shape_type"]
+                if shape_type not in avaliable_shape_types:
+                    continue
+                label = shape["label"]
+                class_set.add(label)
+                transcription = shape["description"]
+                group_id = shape.get("group_id", 0)
+                kie_linking = shape.get("kie_linking", [])
+                difficult = shape.get("difficult", False)
+                points = [list(map(int, p)) for p in shape["points"]]
+                annotations.append(dict(
+                    transcription=transcription,
+                    label=label,
+                    points=points,
+                    difficult=difficult,
+                    id=group_id,
+                    linking=kie_linking,    
+                ))
+            if annotations:
+                item = f"{dir_name}/{image_name}\t{json.dumps(annotations, ensure_ascii=False)}\n"
+                with open(ppocr_kie_file, "a", encoding="utf-8") as f:
+                    f.write(item)
+            return class_set

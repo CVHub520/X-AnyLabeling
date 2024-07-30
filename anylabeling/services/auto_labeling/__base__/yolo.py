@@ -132,6 +132,7 @@ class YOLO(Model):
             "yolov10",
             "gold_yolo",
             "yolow",
+            "yolow_ram",
         ]:
             self.task = "det"
         elif self.model_type in ["yolov5_seg", "yolov8_seg"]:
@@ -249,6 +250,7 @@ class YOLO(Model):
             "yolov9",
             "yolow",
             "yolov8_pose",
+            "yolow_ram",
         ]:
             p = non_max_suppression_v8(
                 preds[0],

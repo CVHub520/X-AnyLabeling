@@ -1,0 +1,77 @@
+{
+  "version": "2.4.0",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "vehicle",
+      "score": null,
+      "points": [
+        [
+          80.24691358024691,
+          404.93827160493834
+        ],
+        [
+          1745.6790123456788,
+          404.93827160493834
+        ],
+        [
+          1745.6790123456788,
+          986.4197530864197
+        ],
+        [
+          80.24691358024691,
+          986.4197530864197
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {
+        "bodyColor": "white",
+        "vehicleType": "suv",
+        "": "Tesla"
+      },
+      "kie_linking": []
+    },
+    {
+      "label": "person",
+      "score": null,
+      "points": [
+        [
+          692.5925925925926,
+          123.45679012345686
+        ],
+        [
+          1116.0493827160494,
+          123.45679012345686
+        ],
+        [
+          1116.0493827160494,
+          1091.358024691358
+        ],
+        [
+          692.5925925925926,
+          1091.358024691358
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {
+        "gender": "male",
+        "wearsMask": "no",
+        "clothingColor": "black"
+      },
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "elon-musk-tesla.webp",
+  "imageData": null,
+  "imageHeight": 1200,
+  "imageWidth": 1800,
+  "text": ""
+}

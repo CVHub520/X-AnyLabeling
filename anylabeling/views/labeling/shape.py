@@ -56,12 +56,14 @@ class Shape:
         difficult=False,
         direction=0,
         attributes={},
+        kie_linking=[],
     ):
         self.label = label
         self.score = score
         self.group_id = group_id
         self.description = description
         self.difficult = difficult
+        self.kie_linking = kie_linking
         self.points = []
         self.fill = False
         self.selected = False
@@ -70,6 +72,7 @@ class Shape:
         self.other_data = {}
         self.attributes = attributes
         self.cache_label = None
+        self.visible = True
 
         # Rotation setting
         self.direction = direction
@@ -104,12 +107,12 @@ class Shape:
         """Set shape type"""
         if value is None:
             value = "polygon"
-        if value not in self.get_available_shapes():
+        if value not in self.get_supported_shape():
             raise ValueError(f"Unexpected shape_type: {value}")
         self._shape_type = value
 
     @staticmethod
-    def get_available_shapes():
+    def get_supported_shape():
         return [
             "polygon",
             "rectangle",

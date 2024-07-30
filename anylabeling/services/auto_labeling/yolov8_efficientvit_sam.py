@@ -458,7 +458,7 @@ class YOLOv8_EfficientViT_SAM(YOLO):
             image_embedding = self.encoder_model(cv_image)
             blob = self.preprocess(cv_image, upsample_mode="letterbox")
             outputs = self.net.get_ort_inference(blob=blob, extract=False)
-            boxes, _, class_ids, _ = self.postprocess(outputs)
+            boxes, class_ids, _, _, _ = self.postprocess(outputs)
 
             shapes = []
             for box, class_id in zip(boxes, class_ids):

@@ -1,0 +1,23 @@
+{
+  "version": "2.4.0",
+  "flags": {
+    "plum": true,
+    "pear": true,
+    "pineapple": true,
+    "apricot": true,
+    "Pomegranate": true,
+    "grapes": true,
+    "kiwi": true,
+    "apple": true,
+    "lemon": true,
+    "strawberry": true,
+    "cherry": true,
+    "watermelon": true,
+    "melon": true
+  },
+  "shapes": [],
+  "imagePath": "fruit.png",
+  "imageData": null,
+  "imageHeight": 1000,
+  "imageWidth": 1500
+}
