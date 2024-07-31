@@ -729,8 +729,8 @@ class LabelConverter:
         for data in od_data:
             self.reset()
             shapes = []
-            for instance in data["detection"]["instance"]:
-                xmin, ymin, xmax, ymax = instance["bbox"]
+            for instances in data["detection"]["instances"]:
+                xmin, ymin, xmax, ymax = instances["bbox"]
                 points = [
                     [xmin, ymin],
                     [xmax, ymin],
@@ -738,7 +738,7 @@ class LabelConverter:
                     [xmin, ymax],
                 ]
                 shape = {
-                    "label": instance["category"],
+                    "label": instances["category"],
                     "description": None,
                     "points": points,
                     "group_id": None,
@@ -1308,7 +1308,7 @@ class LabelConverter:
             height, width = img.shape[:2]
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            instance = []
+            instances = []
             for shape in data["shapes"]:
                 if (shape["shape_type"] != "rectangle"
                     or shape["label"] not in self.classes):
@@ -1321,7 +1321,7 @@ class LabelConverter:
                 bbox = [xmin, ymin, xmax, ymax]
                 label = self.classes.index(shape["label"])
                 category = shape["label"]
-                instance.append({
+                instances.append({
                     "bbox": bbox,
                     "label": label,
                     "category": category
@@ -1331,7 +1331,7 @@ class LabelConverter:
                 "height": height,
                 "width": width,
                 "detection": {
-                    "instance": instance
+                    "instances": instances
                 }
             })
         od_file = osp.join(save_path, "od.json")
