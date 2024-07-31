@@ -234,9 +234,9 @@ class YOLO_NAS(Model):
         ]
         widgets = [
             "button_run",
-            "input_conf", 
+            "input_conf",
             "edit_conf",
-            "input_iou", 
+            "input_iou",
             "edit_iou",
             "toggle_preserve_existing_annotations",
         ]
@@ -274,15 +274,15 @@ class YOLO_NAS(Model):
         self.replace = True
 
     def set_auto_labeling_conf(self, value):
-        """ set auto labeling confidence threshold """
+        """set auto labeling confidence threshold"""
         self.conf_thres = value
 
     def set_auto_labeling_iou(self, value):
-        """ set auto labeling iou threshold """
+        """set auto labeling iou threshold"""
         self.nms_thres = value
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        """Toggle the preservation of existing annotations based on the checkbox state."""
         self.replace = not state
 
     def predict_shapes(self, image, image_path=None):
@@ -319,7 +319,9 @@ class YOLO_NAS(Model):
             ymin = y
             xmax = x + w
             ymax = y + h
-            shape = Shape(label=label, score=score, shape_type="rectangle", flags={})
+            shape = Shape(
+                label=label, score=score, shape_type="rectangle", flags={}
+            )
             shape.add_point(QtCore.QPointF(xmin, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymax))

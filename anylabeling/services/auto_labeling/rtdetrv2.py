@@ -29,7 +29,7 @@ class RTDETRv2(Model):
         ]
         widgets = [
             "button_run",
-            "input_conf", 
+            "input_conf",
             "edit_conf",
             "toggle_preserve_existing_annotations",
         ]
@@ -57,11 +57,11 @@ class RTDETRv2(Model):
         self.replace = True
 
     def set_auto_labeling_conf(self, value):
-        """ set auto labeling confidence threshold """
+        """set auto labeling confidence threshold"""
         self.conf_thres = value
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        """Toggle the preservation of existing annotations based on the checkbox state."""
         self.replace = not state
 
     def preprocess(self, input_image):
@@ -133,9 +133,7 @@ class RTDETRv2(Model):
             xmin, ymin, xmax, ymax = box
             label = self.classes[int(index)]
             shape = Shape(
-                label=str(label),
-                score=float(score),
-                shape_type="rectangle"
+                label=str(label), score=float(score), shape_type="rectangle"
             )
             shape.add_point(QtCore.QPointF(xmin, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymin))

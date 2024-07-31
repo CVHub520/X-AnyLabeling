@@ -13,7 +13,7 @@ class YOLOv10(YOLO):
         ]
         widgets = [
             "button_run",
-            "input_conf", 
+            "input_conf",
             "edit_conf",
             "toggle_preserve_existing_annotations",
         ]

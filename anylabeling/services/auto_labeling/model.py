@@ -80,7 +80,9 @@ class Model(QObject):
         old_model_path = os.path.join(home_dir, "anylabeling_data")
         new_model_path = os.path.join(home_dir, "xanylabeling_data")
 
-        if os.path.exists(new_model_path) or not os.path.exists(old_model_path):
+        if os.path.exists(new_model_path) or not os.path.exists(
+            old_model_path
+        ):
             return True
 
         # Check if the current env have write permissions
@@ -144,9 +146,7 @@ class Model(QObject):
 
         # Create model folder
         home_dir = os.path.expanduser("~")
-        model_path = os.path.abspath(
-            os.path.join(home_dir, data_dir)
-        )
+        model_path = os.path.abspath(os.path.join(home_dir, data_dir))
         model_abs_path = os.path.abspath(
             os.path.join(
                 model_path,

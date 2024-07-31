@@ -2,7 +2,9 @@ from PyQt5 import QtWidgets, QtCore
 
 
 class CrosshairSettingsDialog(QtWidgets.QDialog):
-    def __init__(self, show=True, width=2.0, color="#00FF00", opacity=0.5, parent=None):
+    def __init__(
+        self, show=True, width=2.0, color="#00FF00", opacity=0.5, parent=None
+    ):
         super().__init__(parent)
 
         self._show = show

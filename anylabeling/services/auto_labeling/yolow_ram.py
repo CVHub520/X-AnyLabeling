@@ -12,8 +12,8 @@ from .__base__.yolo import YOLO
 from .__base__.ram import RecognizeAnything
 from .engines.build_onnx_engine import OnnxBaseModel
 
-class YOLOW_RAM(YOLO, RecognizeAnything):
 
+class YOLOW_RAM(YOLO, RecognizeAnything):
     def __init__(self, model_config, on_message) -> None:
         # Run the parent class's init method
         YOLO.__init__(self, model_config, on_message)
@@ -73,7 +73,9 @@ class YOLOW_RAM(YOLO, RecognizeAnything):
             label = self.classes[int(cls_id)]
             xmin, ymin, xmax, ymax = list(map(int, box))
             img = image[ymin:ymax, xmin:xmax]
-            blob = RecognizeAnything.preprocess(self, img, self.ram_input_shape)
+            blob = RecognizeAnything.preprocess(
+                self, img, self.ram_input_shape
+            )
             outs = self.ram_net.get_ort_inference(blob, extract=False)
             tags = RecognizeAnything.postprocess(self, outs)
             description = RecognizeAnything.get_results(self, tags)

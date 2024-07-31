@@ -3605,7 +3605,9 @@ class LabelingWidget(LabelDialog):
                 self.label_flags = yaml.safe_load(f)
                 for label in list(self.label_flags.keys()):
                     if not self.unique_label_list.find_items_by_label(label):
-                        item = self.unique_label_list.create_item_from_label(label)
+                        item = self.unique_label_list.create_item_from_label(
+                            label
+                        )
                         self.unique_label_list.addItem(item)
                         rgb = self._get_rgb_by_label(label)
                         self.unique_label_list.set_item_label(
@@ -3644,7 +3646,9 @@ class LabelingWidget(LabelDialog):
                 self.attributes = json.load(f)
                 for label in list(self.attributes.keys()):
                     if not self.unique_label_list.find_items_by_label(label):
-                        item = self.unique_label_list.create_item_from_label(label)
+                        item = self.unique_label_list.create_item_from_label(
+                            label
+                        )
                         self.unique_label_list.addItem(item)
                         rgb = self._get_rgb_by_label(label)
                         self.unique_label_list.set_item_label(

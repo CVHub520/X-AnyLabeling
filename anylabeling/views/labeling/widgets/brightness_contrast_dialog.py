@@ -21,20 +21,26 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
 
         # Brightness slider and label
         self.slider_brightness = self._create_slider()
-        self.brightness_label = QtWidgets.QLabel(f"{self.slider_brightness.value() / 50:.2f}")
-        self.slider_brightness.valueChanged.connect(self.update_brightness_label)
+        self.brightness_label = QtWidgets.QLabel(
+            f"{self.slider_brightness.value() / 50:.2f}"
+        )
+        self.slider_brightness.valueChanged.connect(
+            self.update_brightness_label
+        )
 
         brightness_layout = QtWidgets.QHBoxLayout()
         brightness_layout.addWidget(QtWidgets.QLabel(self.tr("Brightness: ")))
         brightness_layout.addWidget(self.slider_brightness)
         brightness_layout.addWidget(self.brightness_label)
-        
+
         brightness_widget = QtWidgets.QWidget()
         brightness_widget.setLayout(brightness_layout)
 
         # Contrast slider and label
         self.slider_contrast = self._create_slider()
-        self.contrast_label = QtWidgets.QLabel(f"{self.slider_contrast.value() / 50:.2f}")
+        self.contrast_label = QtWidgets.QLabel(
+            f"{self.slider_contrast.value() / 50:.2f}"
+        )
         self.slider_contrast.valueChanged.connect(self.update_contrast_label)
 
         contrast_layout = QtWidgets.QHBoxLayout()
@@ -89,7 +95,9 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
             img = PIL.ImageEnhance.Contrast(img).enhance(contrast)
 
         img = img.convert("RGB")
-        qimage = QImage(img.tobytes(), img.width, img.height, QImage.Format_RGB888)
+        qimage = QImage(
+            img.tobytes(), img.width, img.height, QImage.Format_RGB888
+        )
         self.callback(qimage)
 
     def reset_values(self):

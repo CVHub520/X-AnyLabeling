@@ -189,7 +189,7 @@ class PPOCRv4(Model):
             {
                 "description": rec_res[i][0],
                 "points": np.array(dt_boxes[i]).astype(np.int32).tolist(),
-                "score": float(scores[i])
+                "score": float(scores[i]),
             }
             for i in range(len(dt_boxes))
         ]

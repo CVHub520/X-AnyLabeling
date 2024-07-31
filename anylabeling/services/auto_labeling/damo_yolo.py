@@ -29,9 +29,9 @@ class DAMO_YOLO(Model):
         ]
         widgets = [
             "button_run",
-            "input_conf", 
+            "input_conf",
             "edit_conf",
-            "input_iou", 
+            "input_iou",
             "edit_iou",
             "toggle_preserve_existing_annotations",
         ]
@@ -63,15 +63,15 @@ class DAMO_YOLO(Model):
         self.replace = True
 
     def set_auto_labeling_conf(self, value):
-        """ set auto labeling confidence threshold """
+        """set auto labeling confidence threshold"""
         self.conf_thres = value
 
     def set_auto_labeling_iou(self, value):
-        """ set auto labeling iou threshold """
+        """set auto labeling iou threshold"""
         self.nms_thres = value
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        """Toggle the preservation of existing annotations based on the checkbox state."""
         self.replace = not state
 
     def preprocess(self, input_image):
@@ -127,7 +127,7 @@ class DAMO_YOLO(Model):
                 "xmax": x + w,
                 "ymax": y + h,
                 "label": str(self.classes[int(class_ids[i])]),
-                "score": float(confidences[i])
+                "score": float(confidences[i]),
             }
             output_infos.append(output_info)
 

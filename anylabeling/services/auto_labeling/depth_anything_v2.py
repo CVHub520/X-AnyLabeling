@@ -40,7 +40,9 @@ class DepthAnythingV2(Model):
                 )
             )
         self.model_path = model_abs_path
-        self.net = OnnxBaseModel(model_abs_path, )
+        self.net = OnnxBaseModel(
+            model_abs_path,
+        )
         self.input_shape = self.net.get_input_shape()[-2:]
         self.render_mode = self.config.get("render_mode", "color")
         self.device = "cuda" if __preferred_device__ == "GPU" else "cpu"
@@ -58,7 +60,9 @@ class DepthAnythingV2(Model):
         height, width = self.input_shape
         orig_shape = input_image.shape[:2]
         image = input_image / 255.0
-        image = cv2.resize(image, (width, height), interpolation=cv2.INTER_CUBIC)
+        image = cv2.resize(
+            image, (width, height), interpolation=cv2.INTER_CUBIC
+        )
         image = (image - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]
         image = image.transpose(2, 0, 1)[None].astype("float32")
         return image, orig_shape
@@ -87,7 +91,9 @@ class DepthAnythingV2(Model):
         orig_h, orig_w = orig_shape
         depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
         depth = depth.transpose(1, 2, 0).astype("uint8")
-        depth = cv2.resize(depth, (orig_w, orig_h), interpolation=cv2.INTER_CUBIC)
+        depth = cv2.resize(
+            depth, (orig_w, orig_h), interpolation=cv2.INTER_CUBIC
+        )
         if self.render_mode == "color":
             return cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
         return depth

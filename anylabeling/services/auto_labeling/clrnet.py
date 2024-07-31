@@ -84,7 +84,7 @@ class CLRNet(Model):
         self.replace = True
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        """Toggle the preservation of existing annotations based on the checkbox state."""
         self.replace = not state
 
     def pre_process(self, input_image, net):

@@ -32,7 +32,11 @@ class OverviewDialog(QtWidgets.QDialog):
 
     def init_ui(self):
         self.setWindowTitle(self.tr("Overview"))
-        self.setWindowFlags(self.windowFlags() | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint)
+        self.setWindowFlags(
+            self.windowFlags()
+            | Qt.WindowMinimizeButtonHint
+            | Qt.WindowMaximizeButtonHint
+        )
         self.resize(600, 400)
         self.move_to_center()
 
@@ -126,7 +130,8 @@ class OverviewDialog(QtWidgets.QDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -135,7 +140,8 @@ class OverviewDialog(QtWidgets.QDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         if start_index == -1:
             start_index = self.start_index
@@ -147,7 +153,9 @@ class OverviewDialog(QtWidgets.QDialog):
             label_dir, filename = os.path.split(image_file)
             if self.parent.output_dir:
                 label_dir = self.parent.output_dir
-            label_file = os.path.join(label_dir, os.path.splitext(filename)[0] + ".json")
+            label_file = os.path.join(
+                label_dir, os.path.splitext(filename)[0] + ".json"
+            )
             if not os.path.exists(label_file):
                 continue
             with open(label_file, "r", encoding="utf-8") as f:
@@ -170,7 +178,9 @@ class OverviewDialog(QtWidgets.QDialog):
                 description = shape.get("description", "")
                 kie_linking = shape.get("kie_linking", [])
                 if label not in label_infos:
-                    label_infos[label] = dict(zip(self.supported_shape, initial_nums))
+                    label_infos[label] = dict(
+                        zip(self.supported_shape, initial_nums)
+                    )
                 label_infos[label][shape_type] += 1
                 current_shape = dict(
                     filename=filename,
@@ -232,7 +242,7 @@ class OverviewDialog(QtWidgets.QDialog):
                 str(shape["difficult"]),
                 shape["description"],
                 str(shape["flags"]),
-                str(shape["points"]),              
+                str(shape["points"]),
             ]
             table_data.append(row)
         return headers, table_data
@@ -264,13 +274,26 @@ class OverviewDialog(QtWidgets.QDialog):
                     item = QTableWidgetItem(value)
                     item.setToolTip(value)
                     self.table.setItem(row, col, item)
-            self.table.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Stretch)
+            self.table.horizontalHeader().setSectionResizeMode(
+                QtWidgets.QHeaderView.Stretch
+            )
 
     def update_range(self):
-        from_value = int(self.from_input.text()) if self.from_input.text() else self.start_index
-        to_value = int(self.to_input.text()) if self.to_input.text() else self.end_index
-        if (from_value > to_value) or \
-           (from_value < 1) or (to_value > len(self.image_file_list)):
+        from_value = (
+            int(self.from_input.text())
+            if self.from_input.text()
+            else self.start_index
+        )
+        to_value = (
+            int(self.to_input.text())
+            if self.to_input.text()
+            else self.end_index
+        )
+        if (
+            (from_value > to_value)
+            or (from_value < 1)
+            or (to_value > len(self.image_file_list))
+        ):
             self.from_input.setValue(1)
             self.to_input.setValue(len(self.image_file_list))
             self.populate_table(1, len(self.image_file_list))
@@ -281,8 +304,7 @@ class OverviewDialog(QtWidgets.QDialog):
 
     def export_to_csv(self):
         directory = QFileDialog.getExistingDirectory(
-            self, self.tr("Select Directory"),
-            ""
+            self, self.tr("Select Directory"), ""
         )
         if not directory:
             return
@@ -291,7 +313,9 @@ class OverviewDialog(QtWidgets.QDialog):
             # Export label_infos
             label_infos = self.get_total_infos(1, len(self.image_file_list))
             label_infos_path = os.path.join(directory, "label_infos.csv")
-            with open(label_infos_path, "w", newline="", encoding="utf-8") as csvfile:
+            with open(
+                label_infos_path, "w", newline="", encoding="utf-8"
+            ) as csvfile:
                 writer = csv.writer(csvfile)
                 for row in label_infos:
                     writer.writerow(row)
@@ -300,7 +324,9 @@ class OverviewDialog(QtWidgets.QDialog):
             _, shape_infos = self.get_label_infos(1, len(self.image_file_list))
             headers, shape_infos_data = self.get_shape_infos_table(shape_infos)
             shape_infos_path = os.path.join(directory, "shape_infos.csv")
-            with open(shape_infos_path, "w", newline="", encoding="utf-8") as csvfile:
+            with open(
+                shape_infos_path, "w", newline="", encoding="utf-8"
+            ) as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(headers)
                 for row in shape_infos_data:
@@ -309,13 +335,21 @@ class OverviewDialog(QtWidgets.QDialog):
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Exporting successfully!"))
-            msg_box.setInformativeText(self.tr(f"Results have been saved to:\n{label_infos_path}\nand\n{shape_infos_path}"))
+            msg_box.setInformativeText(
+                self.tr(
+                    f"Results have been saved to:\n{label_infos_path}\nand\n{shape_infos_path}"
+                )
+            )
             msg_box.setWindowTitle(self.tr("Success"))
             msg_box.exec_()
         except Exception as e:
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while exporting annotations statistics file."))
+            error_dialog.setText(
+                self.tr(
+                    "Error occurred while exporting annotations statistics file."
+                )
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()

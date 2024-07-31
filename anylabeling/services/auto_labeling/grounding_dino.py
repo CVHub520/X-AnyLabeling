@@ -74,11 +74,11 @@ class Grounding_DINO(Model):
         self.replace = True
 
     def set_auto_labeling_conf(self, value):
-        """ set auto labeling box threshold """
+        """set auto labeling box threshold"""
         self.box_threshold = value
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        """Toggle the preservation of existing annotations based on the checkbox state."""
         self.replace = not state
 
     def preprocess(self, image, text_prompt):
@@ -217,9 +217,7 @@ class Grounding_DINO(Model):
             x1, y1, x2, y2 = box
             label, score = label_info
             shape = Shape(
-                label=str(label),
-                score=float(score),
-                shape_type="rectangle"
+                label=str(label), score=float(score), shape_type="rectangle"
             )
             shape.add_point(QtCore.QPointF(x1, y1))
             shape.add_point(QtCore.QPointF(x2, y1))

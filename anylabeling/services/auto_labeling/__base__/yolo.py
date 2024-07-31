@@ -36,9 +36,9 @@ class YOLO(Model):
         ]
         widgets = [
             "button_run",
-            "input_conf", 
+            "input_conf",
             "edit_conf",
-            "input_iou", 
+            "input_iou",
             "edit_iou",
             "toggle_preserve_existing_annotations",
         ]
@@ -161,7 +161,9 @@ class YOLO(Model):
             self.classes = list(self.classes.keys())
             self.kpt_shape = eval(self.net.get_metadata_info("kpt_shape"))
             if self.kpt_shape is None:
-                max_kpts = max(len(num_kpts) for num_kpts in self.keypoint_name.values())
+                max_kpts = max(
+                    len(num_kpts) for num_kpts in self.keypoint_name.values()
+                )
                 visible_flag = 3 if self.has_visible else 2
                 self.kpt_shape = [max_kpts, visible_flag]
 
@@ -169,15 +171,15 @@ class YOLO(Model):
             self.classes = list(self.classes.values())
 
     def set_auto_labeling_conf(self, value):
-        """ set auto labeling confidence threshold """
+        """set auto labeling confidence threshold"""
         self.conf_thres = value
 
     def set_auto_labeling_iou(self, value):
-        """ set auto labeling iou threshold """
+        """set auto labeling iou threshold"""
         self.iou_thres = value
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        """ Toggle the preservation of existing annotations based on the checkbox state. """
+        """Toggle the preservation of existing annotations based on the checkbox state."""
         self.replace = not state
 
     def inference(self, blob):
@@ -266,7 +268,7 @@ class YOLO(Model):
             p = self.postprocess_v10(
                 preds[0][0],
                 conf_thres=self.conf_thres,
-                classes=self.filter_classes
+                classes=self.filter_classes,
             )
         masks, keypoints = None, None
         img_shape = (self.img_height, self.img_width)
@@ -303,11 +305,15 @@ class YOLO(Model):
         elif self.task == "pose":
             pred_kpts = pred[:, 6:]
             if pred.shape[0] != 0:
-                pred_kpts = pred_kpts.reshape(pred_kpts.shape[0], *self.kpt_shape)
+                pred_kpts = pred_kpts.reshape(
+                    pred_kpts.shape[0], *self.kpt_shape
+                )
             bbox = pred[:, :4]
             conf = pred[:, 4:5]
             clas = pred[:, 5:6]
-            keypoints = scale_coords(self.input_shape, pred_kpts, self.image_shape)
+            keypoints = scale_coords(
+                self.input_shape, pred_kpts, self.image_shape
+            )
         else:
             bbox = pred[:, :4]
             conf = pred[:, 4:5]
@@ -353,7 +359,7 @@ class YOLO(Model):
         shapes = []
         for i, (box, class_id, score, point, keypoint, track_id) in enumerate(
             zip(boxes, class_ids, scores, points, keypoints, track_ids)
-            ):
+        ):
             if (
                 self.show_boxes and self.task != "track"
             ) or self.task == "det":
@@ -398,7 +404,11 @@ class YOLO(Model):
                     else:
                         x, y, s = kpt
                     inside_flag = point_in_bbox((x, y), box)
-                    if (x == 0 and y == 0 ) or not inside_flag or s < self.kpt_thres:
+                    if (
+                        (x == 0 and y == 0)
+                        or not inside_flag
+                        or s < self.kpt_thres
+                    ):
                         continue
                     shape = Shape(flags={})
                     shape.add_point(QtCore.QPointF(int(x), int(y)))
@@ -558,9 +568,11 @@ class YOLO(Model):
 
         return masks
 
-    def postprocess_v10(self, prediction, task="det", conf_thres=0.25, classes=None):
+    def postprocess_v10(
+        self, prediction, task="det", conf_thres=0.25, classes=None
+    ):
         x = prediction[prediction[:, 4] >= conf_thres]
-        x[:, -1] =  x[:, -1].astype(int)
+        x[:, -1] = x[:, -1].astype(int)
         if classes is not None:
             x = x[np.isin(x[:, -1], classes)]
         return [x]

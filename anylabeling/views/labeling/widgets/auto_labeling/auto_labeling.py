@@ -326,4 +326,6 @@ class AutoLabelingWidget(QWidget):
         self.model_manager.set_auto_labeling_iou(value)
 
     def on_preserve_existing_annotations_state_changed(self, state):
-        self.model_manager.set_auto_labeling_preserve_existing_annotations_state(state)
+        self.model_manager.set_auto_labeling_preserve_existing_annotations_state(
+            state
+        )

@@ -24,21 +24,91 @@ Written by Wei Wang (CVHub)
 
 
 random.seed(10086)
-CLASS_NAMES = ('person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
-               'train', 'truck', 'boat', 'traffic light', 'fire hydrant',
-               'stop sign', 'parking meter', 'bench', 'bird', 'cat', 'dog',
-               'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe',
-               'backpack', 'umbrella', 'handbag', 'tie', 'suitcase', 'frisbee',
-               'skis', 'snowboard', 'sports ball', 'kite', 'baseball bat',
-               'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-               'bottle', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-               'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot',
-               'hot dog', 'pizza', 'donut', 'cake', 'chair', 'couch',
-               'potted plant', 'bed', 'dining table', 'toilet', 'tv', 'laptop',
-               'mouse', 'remote', 'keyboard', 'cell phone', 'microwave',
-               'oven', 'toaster', 'sink', 'refrigerator', 'book', 'clock',
-               'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush')
-CLASS_COLORS = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(CLASS_NAMES))]
+CLASS_NAMES = (
+    "person",
+    "bicycle",
+    "car",
+    "motorcycle",
+    "airplane",
+    "bus",
+    "train",
+    "truck",
+    "boat",
+    "traffic light",
+    "fire hydrant",
+    "stop sign",
+    "parking meter",
+    "bench",
+    "bird",
+    "cat",
+    "dog",
+    "horse",
+    "sheep",
+    "cow",
+    "elephant",
+    "bear",
+    "zebra",
+    "giraffe",
+    "backpack",
+    "umbrella",
+    "handbag",
+    "tie",
+    "suitcase",
+    "frisbee",
+    "skis",
+    "snowboard",
+    "sports ball",
+    "kite",
+    "baseball bat",
+    "baseball glove",
+    "skateboard",
+    "surfboard",
+    "tennis racket",
+    "bottle",
+    "wine glass",
+    "cup",
+    "fork",
+    "knife",
+    "spoon",
+    "bowl",
+    "banana",
+    "apple",
+    "sandwich",
+    "orange",
+    "broccoli",
+    "carrot",
+    "hot dog",
+    "pizza",
+    "donut",
+    "cake",
+    "chair",
+    "couch",
+    "potted plant",
+    "bed",
+    "dining table",
+    "toilet",
+    "tv",
+    "laptop",
+    "mouse",
+    "remote",
+    "keyboard",
+    "cell phone",
+    "microwave",
+    "oven",
+    "toaster",
+    "sink",
+    "refrigerator",
+    "book",
+    "clock",
+    "vase",
+    "scissors",
+    "teddy bear",
+    "hair drier",
+    "toothbrush",
+)
+CLASS_COLORS = [
+    [random.randint(0, 255) for _ in range(3)] for _ in range(len(CLASS_NAMES))
+]
 
 
 def letterbox(
@@ -95,6 +165,7 @@ def letterbox(
     )
     return im, ratio, (dw, dh)
 
+
 def rescale_coords(boxes, image_shape, input_shape):
     image_height, image_width = image_shape
     input_height, input_width = input_shape
@@ -112,6 +183,7 @@ def rescale_coords(boxes, image_shape, input_shape):
 
     return boxes.astype(int)
 
+
 def preprocess(image, input_shape):
     # Resize
     input_img = letterbox(image, input_shape)[0]
@@ -125,8 +197,8 @@ def preprocess(image, input_shape):
     blob = input_img / 255.0
     return blob
 
-def postprocess(outs, conf_thres, image_shape, input_shape):
 
+def postprocess(outs, conf_thres, image_shape, input_shape):
     # Filtered by conf
     outs = outs[outs[:, 4] >= conf_thres]
 
@@ -142,12 +214,11 @@ def postprocess(outs, conf_thres, image_shape, input_shape):
 
 
 def main():
-
     conf_thres = 0.25
     input_shape = (640, 640)
-    image_path = '/path/to/bus.jpg'
-    save_path = ''
-    model_path = '/path/to/yolov10n/s/m/b/l/x.onnx'
+    image_path = "/path/to/bus.jpg"
+    save_path = ""
+    model_path = "/path/to/yolov10n/s/m/b/l/x.onnx"
 
     ort_model = ort.InferenceSession(model_path)
 
@@ -157,19 +228,31 @@ def main():
     blob = preprocess(im0, input_shape)
 
     # Inference
-    outs = ort_model.run(None, {'images': blob})[0][0]
+    outs = ort_model.run(None, {"images": blob})[0][0]
 
     # Postprocess
-    boxes, scores, labels = postprocess(outs, conf_thres, image_shape, input_shape)
+    boxes, scores, labels = postprocess(
+        outs, conf_thres, image_shape, input_shape
+    )
 
     # 保存结果
     for label, score, box in zip(labels, scores, boxes):
-        label_text = f'{CLASS_NAMES[label]}: {score:.2f}'
-        cv2.rectangle(im0, (box[0], box[1]), (box[2], box[3]), CLASS_COLORS[label], 2)
-        cv2.putText(im0, label_text, (box[0], box[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-    
+        label_text = f"{CLASS_NAMES[label]}: {score:.2f}"
+        cv2.rectangle(
+            im0, (box[0], box[1]), (box[2], box[3]), CLASS_COLORS[label], 2
+        )
+        cv2.putText(
+            im0,
+            label_text,
+            (box[0], box[1] - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 0, 255),
+            1,
+        )
+
     try:
-        cv2.imshow('image', im0)
+        cv2.imshow("image", im0)
         cv2.waitKey(0)
     except:
         if not os.path.exists(os.path.dirname(save_path)):
@@ -177,5 +260,5 @@ def main():
         cv2.imwrite(save_path, im0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
