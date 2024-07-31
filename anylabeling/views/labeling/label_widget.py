@@ -554,7 +554,7 @@ class LabelingWidget(LabelDialog):
             shortcuts["paste_polygon"],
             "paste",
             self.tr("Paste copied polygons"),
-            enabled=False,
+            enabled=self._config["system_clipboard"],
         )
         undo_last_point = action(
             self.tr("Undo last point"),
@@ -2073,7 +2073,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -2082,7 +2083,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, label_file in enumerate(label_file_list):
@@ -2107,7 +2109,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while updating labels."))
+            error_dialog.setText(
+                self.tr("Error occurred while updating labels.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -2136,7 +2140,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -2145,7 +2150,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, label_file in enumerate(label_file_list):
@@ -2183,7 +2189,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while updating labels."))
+            error_dialog.setText(
+                self.tr("Error occurred while updating labels.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -2212,7 +2220,8 @@ class LabelingWidget(LabelDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet("""
+        progress_dialog.setStyleSheet(
+            """
         QProgressDialog QProgressBar {
             border: 1px solid grey;
             border-radius: 5px;
@@ -2221,7 +2230,8 @@ class LabelingWidget(LabelDialog):
         QProgressDialog QProgressBar::chunk {
             background-color: orange;
         }
-        """)
+        """
+        )
 
         try:
             for i, label_file in enumerate(label_file_list):
@@ -2258,7 +2268,9 @@ class LabelingWidget(LabelDialog):
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(self.tr("Error occurred while updating labels."))
+            error_dialog.setText(
+                self.tr("Error occurred while updating labels.")
+            )
             error_dialog.setInformativeText(str(e))
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
@@ -2788,56 +2800,6 @@ class LabelingWidget(LabelDialog):
         self._no_selection_slot = False
         self.canvas.load_shapes(shapes, replace=replace)
 
-    def load_labels(self, shapes):
-        s = []
-        for shape in shapes:
-            label = shape["label"]
-            score = shape.get("score", None)
-            points = shape["points"]
-            shape_type = shape["shape_type"]
-            flags = shape["flags"]
-            group_id = shape["group_id"]
-            description = shape.get("description", "")
-            difficult = shape.get("difficult", False)
-            attributes = shape.get("attributes", {})
-            direction = shape.get("direction", 0)
-            kie_linking = shape.get("kie_linking", [])
-            other_data = shape["other_data"]
-
-            if label in self.hidden_cls or not points:
-                # skip point-empty shape
-                continue
-
-            shape = Shape(
-                label=label,
-                score=score,
-                shape_type=shape_type,
-                group_id=group_id,
-                description=description,
-                difficult=difficult,
-                direction=direction,
-                attributes=attributes,
-                kie_linking=kie_linking,
-            )
-            for x, y in points:
-                shape.add_point(QtCore.QPointF(x, y))
-            shape.close()
-
-            default_flags = {}
-            if self.label_flags:
-                for pattern, keys in self.label_flags.items():
-                    if re.match(pattern, label):
-                        for key in keys:
-                            default_flags[key] = False
-            shape.flags = default_flags
-            if flags:
-                shape.flags.update(flags)
-            shape.other_data = other_data
-
-            s.append(shape)
-        self.update_combo_box()
-        self.load_shapes(s)
-
     def load_flags(self, flags):
         self.flag_widget.clear()
         for key, flag in flags.items():
@@ -2861,31 +2823,10 @@ class LabelingWidget(LabelDialog):
 
     def save_labels(self, filename):
         label_file = LabelFile()
-
-        def format_shape(s):
-            data = s.other_data.copy()
-            info = {
-                "label": s.label,
-                "score": s.score,
-                "points": [(p.x(), p.y()) for p in s.points],
-                "group_id": s.group_id,
-                "description": s.description,
-                "difficult": s.difficult,
-                "shape_type": s.shape_type,
-                "flags": s.flags,
-                "attributes": s.attributes,
-                "kie_linking": s.kie_linking,
-            }
-            if s.shape_type == "rotation":
-                info["direction"] = s.direction
-            data.update(info)
-
-            return data
-
         # Get current shapes
         # Excluding auto labeling special shapes
         shapes = [
-            format_shape(item.shape())
+            item.shape().to_dict()
             for item in self.label_list
             if item.shape().label
             not in [
@@ -2942,12 +2883,36 @@ class LabelingWidget(LabelDialog):
         self.set_dirty()
 
     def paste_selected_shape(self):
-        self.load_shapes(self._copied_shapes, replace=False)
+        if self._config["system_clipboard"]:
+            clipboard = QtWidgets.QApplication.clipboard()
+            json_str = clipboard.text()
+            shapes = []
+            try:
+                shapeDicts = json.loads(json_str)
+                for shapeDict in shapeDicts:
+                    shapes.append(Shape().load_from_dict(shapeDict))
+            except json.JSONDecodeError as e:
+                self.error_message(
+                    self.tr("Error pasting shapes"),
+                    self.tr("Error decoding shapes: %s") % str(e),
+                )
+                return
+            self.load_shapes(shapes, replace=False)
+        else:
+            self.load_shapes(self._copied_shapes, replace=False)
         self.set_dirty()
 
     def copy_selected_shape(self):
-        self._copied_shapes = [s.copy() for s in self.canvas.selected_shapes]
-        self.actions.paste.setEnabled(len(self._copied_shapes) > 0)
+        if self._config["system_clipboard"]:
+            clipboard = QtWidgets.QApplication.clipboard()
+            clipboard.setText(
+                json.dumps([s.to_dict() for s in self.canvas.selected_shapes])
+            )
+        else:
+            self._copied_shapes = [
+                s.copy() for s in self.canvas.selected_shapes
+            ]
+            self.actions.paste.setEnabled(len(self._copied_shapes) > 0)
 
     def combo_selection_changed(self, index):
         label = self.label_filter_combobox.combo_box.itemText(index)
@@ -3339,7 +3304,19 @@ class LabelingWidget(LabelDialog):
         self.canvas.load_pixmap(QtGui.QPixmap.fromImage(image))
         flags = {k: False for k in self.image_flags or []}
         if self.label_file:
-            self.load_labels(self.label_file.shapes)
+            for shape in self.label_file.shapes:
+                default_flags = {}
+                if self._config["label_flags"]:
+                    for pattern, keys in self._config["label_flags"].items():
+                        if re.match(pattern, shape.label):
+                            for key in keys:
+                                default_flags[key] = False
+                    shape.flags = {
+                        **default_flags,
+                        **shape.flags,
+                    }
+            self.update_combo_box()
+            self.load_shapes(self.label_file.shapes)
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
         self.load_flags(flags)

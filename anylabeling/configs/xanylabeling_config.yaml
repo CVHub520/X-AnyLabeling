@@ -18,6 +18,7 @@ show_shapes: true
 show_linking: true
 logger_level: info
 save_mode: default
+system_clipboard: false
 
 flags: null
 label_flags: null

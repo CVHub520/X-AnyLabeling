@@ -12,6 +12,7 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 from ...app_info import __version__
 from . import utils
+from .shape import Shape
 from .logger import logger
 from .label_converter import LabelConverter
 
@@ -48,9 +49,10 @@ class LabelFile:
             # It may result in a slight performance overhead due to the additional processing and file I/O.
             # A more efficient solution should be considered in the future.
             from PIL import Image, ExifTags
+
             with Image.open(filename) as img:
-                exif_data=None
-                if hasattr(img, '_getexif'):
+                exif_data = None
+                if hasattr(img, "_getexif"):
                     exif_data = img._getexif()
                 if exif_data is not None:
                     for tag, value in exif_data.items():
@@ -80,18 +82,6 @@ class LabelFile:
             "imageHeight",
             "imageWidth",
         ]
-        shape_keys = [
-            "label",
-            "score",
-            "points",
-            "group_id",
-            "difficult",
-            "shape_type",
-            "flags",
-            "description",
-            "attributes",
-            "kie_linking",
-        ]
         try:
             with io_open(filename, "r") as f:
                 data = json.load(f)
@@ -111,9 +101,9 @@ class LabelFile:
                             "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
                             "Please update your code to accommodate the new four-point mode."
                         )
-                        data["shapes"][i][
-                            "points"
-                        ] = utils.rectangle_from_diagonal(shape_points)
+                        data["shapes"][i]["points"] = (
+                            utils.rectangle_from_diagonal(shape_points)
+                        )
 
             data["imagePath"] = osp.basename(data["imagePath"])
             if data["imageData"] is not None:
@@ -134,27 +124,7 @@ class LabelFile:
                 data.get("imageHeight"),
                 data.get("imageWidth"),
             )
-            shapes = [
-                {
-                    "label": s["label"],
-                    "score": s.get("score", None),
-                    "points": s["points"],
-                    "shape_type": s.get("shape_type", "polygon"),
-                    "flags": s.get("flags", {}),
-                    "group_id": s.get("group_id"),
-                    "description": s.get("description"),
-                    "difficult": s.get("difficult", False),
-                    "attributes": s.get("attributes", {}),
-                    "kie_linking": s.get("kie_linking", []),
-                    "other_data": {
-                        k: v for k, v in s.items() if k not in shape_keys
-                    },
-                }
-                for s in data["shapes"]
-            ]
-            for i, s in enumerate(data["shapes"]):
-                if s.get("shape_type", "polygon") == "rotation":
-                    shapes[i]["direction"] = s.get("direction", 0)
+            shapes = [Shape().load_from_dict(s) for s in data["shapes"]]
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
 
