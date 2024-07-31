@@ -2485,6 +2485,7 @@ class LabelingWidget(LabelDialog):
             description=shape.description,
             difficult=shape.difficult,
             kie_linking=shape.kie_linking,
+            move_mode=self._config.get("move_mode", "auto"),
         )
         if text is None:
             return
@@ -3013,7 +3014,10 @@ class LabelingWidget(LabelDialog):
                     description,
                     difficult,
                     kie_linking,
-                ) = self.label_dialog.pop_up(text)
+                ) = self.label_dialog.pop_up(
+                    text,
+                    move_mode=self._config.get("move_mode", "auto"),
+                )
                 if not text:
                     self.label_dialog.edit.setText(previous_text)
 
@@ -5927,6 +5931,7 @@ class LabelingWidget(LabelDialog):
                 description=None,
                 difficult=False,
                 kie_linking=[],
+                move_mode=self._config.get("move_mode", "auto"),
             )
             if not text:
                 self.label_dialog.edit.setText(previous_text)

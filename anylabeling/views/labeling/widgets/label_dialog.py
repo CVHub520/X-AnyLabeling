@@ -676,6 +676,7 @@ class LabelDialog(QtWidgets.QDialog):
         self,
         text=None,
         move=True,
+        move_mode="auto",
         flags=None,
         group_id=None,
         description=None,
@@ -724,20 +725,28 @@ class LabelDialog(QtWidgets.QDialog):
         self.edit.setFocus(QtCore.Qt.PopupFocusReason)
 
         if move:
-            cursor_pos = QtGui.QCursor.pos()
-            screen = QtWidgets.QApplication.desktop().screenGeometry(
-                cursor_pos
-            )
-            dialog_frame_size = self.frameGeometry()
-            # Calculate the ideal top-left corner position for the dialog based on the mouse click
-            ideal_pos = cursor_pos
-            # Adjust to prevent the dialog from exceeding the right screen boundary
-            if (ideal_pos.x() + dialog_frame_size.width()) > screen.right():
-                ideal_pos.setX(screen.right() - dialog_frame_size.width())
-            # Adjust to prevent the dialog's bottom from going off-screen
-            if (ideal_pos.y() + dialog_frame_size.height()) > screen.bottom():
-                ideal_pos.setY(screen.bottom() - dialog_frame_size.height())
-            self.move(ideal_pos)
+            if move_mode == "auto":
+                cursor_pos = QtGui.QCursor.pos()
+                screen = QtWidgets.QApplication.desktop().screenGeometry(
+                    cursor_pos
+                )
+                dialog_frame_size = self.frameGeometry()
+                # Calculate the ideal top-left corner position for the dialog based on the mouse click
+                ideal_pos = cursor_pos
+                # Adjust to prevent the dialog from exceeding the right screen boundary
+                if (ideal_pos.x() + dialog_frame_size.width()) > screen.right():
+                    ideal_pos.setX(screen.right() - dialog_frame_size.width())
+                # Adjust to prevent the dialog's bottom from going off-screen
+                if (ideal_pos.y() + dialog_frame_size.height()) > screen.bottom():
+                    ideal_pos.setY(screen.bottom() - dialog_frame_size.height())
+                self.move(ideal_pos)
+            elif move_mode == "center":
+                # Calculate the center position to move the dialog to
+                screen = QtWidgets.QApplication.desktop().screenNumber(QtWidgets.QApplication.desktop().cursor().pos())
+                centerPoint = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+                qr = self.frameGeometry()
+                qr.moveCenter(centerPoint)
+                self.move(qr.topLeft())
 
         if self.exec_():
             return (

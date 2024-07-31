@@ -69,6 +69,7 @@ file_dock:
 # label_dialog
 show_label_text_field: true
 label_completion: startswith
+move_mode: auto  # 'auto', 'center'
 fit_to_content:
   column: true
   row: false
