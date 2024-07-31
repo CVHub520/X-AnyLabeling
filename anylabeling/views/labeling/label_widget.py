@@ -3554,21 +3554,29 @@ class LabelingWidget(LabelDialog):
         if not file_path:
             return
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            # Each line in the file is an image-level flag
-            self.image_flags = f.read().splitlines()
-            self.load_flags({k: False for k in self.image_flags})
-
-        self.flag_dock.show()
-        # update and refresh the current canvas
-        self.load_file(self.filename)
-
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(self.tr("Success!"))
-        msg_box.setInformativeText(self.tr("Uploading successfully!"))
-        msg_box.setWindowTitle(self.tr("Information"))
-        msg_box.exec_()
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                # Each line in the file is an image-level flag
+                self.image_flags = f.read().splitlines()
+                self.load_flags({k: False for k in self.image_flags})
+            self.flag_dock.show()
+            # update and refresh the current canvas
+            self.load_file(self.filename)
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText(self.tr("Success!"))
+            msg_box.setInformativeText(self.tr("Uploading successfully!"))
+            msg_box.setWindowTitle(self.tr("Information"))
+            msg_box.exec_()
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(
+                self.tr("Error occurred while uploading flags.")
+            )
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     def upload_label_flags_file(self):
         filter = "Label Flags Files (*.yaml);;All Files (*)"
@@ -3581,25 +3589,34 @@ class LabelingWidget(LabelDialog):
         if not file_path:
             return
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            # Each line in the file is an flag-level flag
-            self.label_flags = yaml.safe_load(f)
-            for label in list(self.label_flags.keys()):
-                if not self.unique_label_list.find_items_by_label(label):
-                    item = self.unique_label_list.create_item_from_label(label)
-                    self.unique_label_list.addItem(item)
-                    rgb = self._get_rgb_by_label(label)
-                    self.unique_label_list.set_item_label(
-                        item, label, rgb, LABEL_OPACITY
-                    )
-        self.label_dialog.upload_flags(self.label_flags)
-
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(self.tr("Success!"))
-        msg_box.setInformativeText(self.tr("Uploading successfully!"))
-        msg_box.setWindowTitle(self.tr("Information"))
-        msg_box.exec_()
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                # Each line in the file is an flag-level flag
+                self.label_flags = yaml.safe_load(f)
+                for label in list(self.label_flags.keys()):
+                    if not self.unique_label_list.find_items_by_label(label):
+                        item = self.unique_label_list.create_item_from_label(label)
+                        self.unique_label_list.addItem(item)
+                        rgb = self._get_rgb_by_label(label)
+                        self.unique_label_list.set_item_label(
+                            item, label, rgb, LABEL_OPACITY
+                        )
+            self.label_dialog.upload_flags(self.label_flags)
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText(self.tr("Success!"))
+            msg_box.setInformativeText(self.tr("Uploading successfully!"))
+            msg_box.setWindowTitle(self.tr("Information"))
+            msg_box.exec_()
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(
+                self.tr("Error occurred while uploading flags.")
+            )
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     def upload_shape_attrs_file(self):
         filter = "Attribute Files (*.json);;All Files (*)"
@@ -3612,28 +3629,36 @@ class LabelingWidget(LabelDialog):
         if not file_path:
             return
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            self.attributes = json.load(f)
-            for label in list(self.attributes.keys()):
-                if not self.unique_label_list.find_items_by_label(label):
-                    item = self.unique_label_list.create_item_from_label(label)
-                    self.unique_label_list.addItem(item)
-                    rgb = self._get_rgb_by_label(label)
-                    self.unique_label_list.set_item_label(
-                        item, label, rgb, LABEL_OPACITY
-                    )
-
-        self.shape_attributes.show()
-        self.scroll_area.show()
-        self.canvas.h_shape_is_hovered = False
-        self.canvas.mode_changed.disconnect(self.set_edit_mode)
-
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(self.tr("Success!"))
-        msg_box.setInformativeText(self.tr("Uploading successfully!"))
-        msg_box.setWindowTitle(self.tr("Information"))
-        msg_box.exec_()
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                self.attributes = json.load(f)
+                for label in list(self.attributes.keys()):
+                    if not self.unique_label_list.find_items_by_label(label):
+                        item = self.unique_label_list.create_item_from_label(label)
+                        self.unique_label_list.addItem(item)
+                        rgb = self._get_rgb_by_label(label)
+                        self.unique_label_list.set_item_label(
+                            item, label, rgb, LABEL_OPACITY
+                        )
+            self.shape_attributes.show()
+            self.scroll_area.show()
+            self.canvas.h_shape_is_hovered = False
+            self.canvas.mode_changed.disconnect(self.set_edit_mode)
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText(self.tr("Success!"))
+            msg_box.setInformativeText(self.tr("Uploading successfully!"))
+            msg_box.setWindowTitle(self.tr("Information"))
+            msg_box.exec_()
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(
+                self.tr("Error occurred while uploading attributes.")
+            )
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     def upload_yolo_annotation(self, mode, _value=False, dirpath=None):
         if not self.may_continue():
@@ -3948,15 +3973,24 @@ class LabelingWidget(LabelDialog):
         ):
             return
 
-        converter = LabelConverter()
-        converter.coco_to_custom(
-            input_file=input_file,
-            image_path=osp.dirname(self.filename),
-            mode=mode,
-        )
-
-        # update and refresh the current canvas
-        self.load_file(self.filename)
+        try:
+            converter = LabelConverter()
+            converter.coco_to_custom(
+                input_file=input_file,
+                image_path=osp.dirname(self.filename),
+                mode=mode,
+            )
+            # update and refresh the current canvas
+            self.load_file(self.filename)
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     def upload_dota_annotation(self, _value=False, dirpath=None):
         if not self.may_continue():
@@ -4247,19 +4281,28 @@ class LabelingWidget(LabelDialog):
         ):
             return
 
-        image_dir_path = osp.dirname(self.filename)
-        output_dir_path = image_dir_path
-        if self.output_dir:
-            output_dir_path = self.output_dir
-        converter = LabelConverter(classes_file=self.classes_file)
-        converter.mot_to_custom(
-            input_file=input_file,
-            output_path=output_dir_path,
-            image_path=image_dir_path,
-        )
-
-        # update and refresh the current canvas
-        self.load_file(self.filename)
+        try:
+            image_dir_path = osp.dirname(self.filename)
+            output_dir_path = image_dir_path
+            if self.output_dir:
+                output_dir_path = self.output_dir
+            converter = LabelConverter(classes_file=self.classes_file)
+            converter.mot_to_custom(
+                input_file=input_file,
+                output_path=output_dir_path,
+                image_path=image_dir_path,
+            )
+            # update and refresh the current canvas
+            self.load_file(self.filename)
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     def upload_odvg_annotation(self, _value=False, dirpath=None):
         if not self.may_continue():
@@ -4290,17 +4333,26 @@ class LabelingWidget(LabelDialog):
         ):
             return
 
-        output_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            output_dir_path = self.output_dir
-        converter = LabelConverter()
-        converter.odvg_to_custom(
-            input_file=input_file,
-            output_path=output_dir_path,
-        )
-
-        # update and refresh the current canvas
-        self.load_file(self.filename)
+        try:
+            output_dir_path = osp.dirname(self.filename)
+            if self.output_dir:
+                output_dir_path = self.output_dir
+            converter = LabelConverter()
+            converter.odvg_to_custom(
+                input_file=input_file,
+                output_path=output_dir_path,
+            )
+            # update and refresh the current canvas
+            self.load_file(self.filename)
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     def upload_ppocr_annotation(self, mode, _value=False, dirpath=None):
         if not self.may_continue():
@@ -4346,20 +4398,29 @@ class LabelingWidget(LabelDialog):
         ):
             return
 
-        image_dir_path = osp.dirname(self.filename)
-        output_dir_path = image_dir_path
-        if self.output_dir:
-            output_dir_path = self.output_dir
-        converter = LabelConverter(classes_file=self.classes_file)
-        converter.ppocr_to_custom(
-            input_file=input_file,
-            output_path=output_dir_path,
-            image_path=image_dir_path,
-            mode=mode,
-        )
-
-        # update and refresh the current canvas
-        self.load_file(self.filename)
+        try:
+            image_dir_path = osp.dirname(self.filename)
+            output_dir_path = image_dir_path
+            if self.output_dir:
+                output_dir_path = self.output_dir
+            converter = LabelConverter(classes_file=self.classes_file)
+            converter.ppocr_to_custom(
+                input_file=input_file,
+                output_path=output_dir_path,
+                image_path=image_dir_path,
+                mode=mode,
+            )
+            # update and refresh the current canvas
+            self.load_file(self.filename)
+        except Exception as e:
+            error_dialog = QMessageBox()
+            error_dialog.setIcon(QMessageBox.Critical)
+            error_dialog.setText(
+                self.tr("Error occurred while uploading annotations.")
+            )
+            error_dialog.setInformativeText(str(e))
+            error_dialog.setWindowTitle(self.tr("Error"))
+            error_dialog.exec_()
 
     # Export
     def export_yolo_annotation(self, mode, _value=False, dirpath=None):
