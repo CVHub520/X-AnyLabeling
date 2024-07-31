@@ -120,6 +120,7 @@ class Shape:
             "shape_type": self.shape_type,
             "flags": self.flags,
             "attributes": self.attributes,
+            "kie_linking": self.kie_linking,
         }
         if self.shape_type == "rotation":
             dictData["direction"] = self.direction
@@ -139,6 +140,7 @@ class Shape:
         self.shape_type = data.get("shape_type", "polygon")
         self.flags = data.get("flags", {})
         self.attributes = data.get("attributes", {})
+        self.kie_linking = data.get("kie_linking", [])
         if self.shape_type == "rotation":
             self.direction = data.get("direction", 0)
         self.other_data = {k: v for k, v in data.items() if k not in self.KEYS}
