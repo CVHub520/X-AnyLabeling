@@ -32,18 +32,6 @@ class Shape:
     # Flag for all other handles on the current shape
     NEAR_VERTEX = 1
 
-    KEYS = [
-        "label",
-        "score",
-        "points",
-        "group_id",
-        "difficult",
-        "shape_type",
-        "flags",
-        "description",
-        "attributes",
-    ]
-
     # The following class variables influence the drawing of all shape objects.
     line_color = DEFAULT_LINE_COLOR
     fill_color = DEFAULT_FILL_COLOR
@@ -108,45 +96,6 @@ class Shape:
             # is used for drawing the pending line a different color.
             self.line_color = line_color
         self.shape_type = shape_type
-
-    def to_dict(self):
-        dictData = {
-            "label": self.label,
-            "score": self.score,
-            "points": [(p.x(), p.y()) for p in self.points],
-            "group_id": self.group_id,
-            "description": self.description,
-            "difficult": self.difficult,
-            "shape_type": self.shape_type,
-            "flags": self.flags,
-            "attributes": self.attributes,
-            "kie_linking": self.kie_linking,
-        }
-        if self.shape_type == "rotation":
-            dictData["direction"] = self.direction
-        dictData = {
-            **self.other_data,
-            **dictData,
-        }
-        return dictData
-
-    def load_from_dict(self, data: dict, close=True):
-        self.label = data["label"]
-        self.score = data.get("score")
-        self.points = [QtCore.QPointF(p[0], p[1]) for p in data["points"]]
-        self.group_id = data.get("group_id")
-        self.description = data.get("description", "")
-        self.difficult = data.get("difficult", False)
-        self.shape_type = data.get("shape_type", "polygon")
-        self.flags = data.get("flags", {})
-        self.attributes = data.get("attributes", {})
-        self.kie_linking = data.get("kie_linking", [])
-        if self.shape_type == "rotation":
-            self.direction = data.get("direction", 0)
-        self.other_data = {k: v for k, v in data.items() if k not in self.KEYS}
-        if close:
-            self.close()
-        return self
 
     @property
     def shape_type(self):
