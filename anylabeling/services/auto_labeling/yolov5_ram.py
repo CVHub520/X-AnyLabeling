@@ -154,7 +154,7 @@ class YOLOv5_RAM(YOLO):
 
         blob = self.preprocess(image, upsample_mode="letterbox")
         outputs = self.net.get_ort_inference(blob=blob, extract=False)
-        boxes, _, class_ids, _ = self.postprocess(outputs)
+        boxes, class_ids, _, _, _ = self.postprocess(outputs)
 
         results = self.get_attributes(image, boxes, class_ids)
 

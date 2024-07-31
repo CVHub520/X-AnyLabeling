@@ -18,6 +18,54 @@ class ModelManager(QObject):
     """Model manager"""
 
     MAX_NUM_CUSTOM_MODELS = 5
+    CUSTOM_MODELS = [
+        "segment_anything",
+        "sam_med2d",
+        "sam_hq",
+        "yolov5",
+        "yolov6",
+        "yolov7",
+        "yolov8",
+        "yolov8_seg",
+        "yolox",
+        "yolov5_resnet",
+        "yolov6_face",
+        "rtdetr",
+        "yolo_nas",
+        "yolox_dwpose",
+        "clrnet",
+        "ppocr_v4",
+        "yolov5_sam",
+        "efficientvit_sam",
+        "yolov5_track",
+        "damo_yolo",
+        "yolov8_sahi",
+        "grounding_sam",
+        "grounding_dino",
+        "yolov5_obb",
+        "gold_yolo",
+        "yolov8_track",
+        "yolov8_efficientvit_sam",
+        "ram",
+        "yolov5_seg",
+        "yolov5_ram",
+        "yolov8_pose",
+        "pulc_attribute",
+        "internimage_cls",
+        "edge_sam",
+        "yolov5_cls",
+        "yolov8_cls",
+        "yolov8_obb",
+        "yolov5_car_plate",
+        "rtmdet_pose",
+        "depth_anything",
+        "yolov9",
+        "yolow",
+        "yolov10",
+        "depth_anything_v2",
+        "yolow_ram",
+        "rtdetrv2",
+    ]
 
     model_configs_changed = pyqtSignal(list)
     new_model_status = pyqtSignal(str)
@@ -164,51 +212,7 @@ class ModelManager(QObject):
             or "display_name" not in model_config
             or "name" not in model_config
             or model_config["type"]
-            not in [
-                "segment_anything",
-                "sam_med2d",
-                "sam_hq",
-                "yolov5",
-                "yolov6",
-                "yolov7",
-                "yolov8",
-                "yolov8_seg",
-                "yolox",
-                "yolov5_resnet",
-                "yolov6_face",
-                "rtdetr",
-                "yolo_nas",
-                "yolox_dwpose",
-                "clrnet",
-                "ppocr_v4",
-                "yolov5_sam",
-                "efficientvit_sam",
-                "yolov5_track",
-                "damo_yolo",
-                "yolov8_sahi",
-                "grounding_sam",
-                "grounding_dino",
-                "yolov5_obb",
-                "gold_yolo",
-                "yolov8_track",
-                "yolov8_efficientvit_sam",
-                "ram",
-                "yolov5_seg",
-                "yolov5_ram",
-                "yolov8_pose",
-                "pulc_attribute",
-                "internimage_cls",
-                "edge_sam",
-                "yolov5_cls",
-                "yolov8_cls",
-                "yolov8_obb",
-                "yolov5_car_plate",
-                "rtmdet_pose",
-                "depth_anything",
-                "yolov9",
-                "yolow",
-                "yolov10",
-            ]
+            not in self.CUSTOM_MODELS
         ):
             self.new_model_status.emit(
                 self.tr(
@@ -512,6 +516,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv5_RAM(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolow_ram":
+            from .yolow_ram import YOLOW_RAM
+
+            try:
+                model_config["model"] = YOLOW_RAM(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
@@ -1029,6 +1055,28 @@ class ModelManager(QObject):
                     )
                 )
                 return
+        elif model_config["type"] == "rtdetrv2":
+            from .rtdetrv2 import RTDETRv2
+
+            try:
+                model_config["model"] = RTDETRv2(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
         elif model_config["type"] == "yolov6_face":
             from .yolov6_face import YOLOv6Face
 
@@ -1271,6 +1319,28 @@ class ModelManager(QObject):
                     )
                 )
                 return
+        elif model_config["type"] == "depth_anything_v2":
+            from .depth_anything_v2 import DepthAnythingV2
+
+            try:
+                model_config["model"] = DepthAnythingV2(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
         else:
             raise Exception(f"Unknown model type: {model_config['type']}")
 
@@ -1306,6 +1376,7 @@ class ModelManager(QObject):
             "gold_yolo",
             "grounding_dino",
             "rtdetr",
+            "rtdetrv2",
             "yolo_nas",
             "yolov5_obb",
             "yolov5_seg",

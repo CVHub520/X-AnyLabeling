@@ -27,8 +27,11 @@
         <file>images/fit-width.png</file>
         <file>images/fit-window.png</file>
         <file>images/fit.png</file>
+        <file>images/format_classify.png</file>
         <file>images/format_default.png</file>
+        <file>images/format_odvg.png</file>
         <file>images/format_mot.png</file>
+        <file>images/format_ppocr.png</file>
         <file>images/format_voc.png</file>
         <file>images/format_dota.png</file>
         <file>images/format_yolo.png</file>
@@ -57,6 +60,7 @@
         <file>images/undo-cross.png</file>
         <file>images/update.png</file>
         <file>images/undo.png</file>
+        <file>images/union.png</file>
         <file>images/upload_brain.png</file>
         <file>images/us.png</file>
         <file>images/verify.png</file>

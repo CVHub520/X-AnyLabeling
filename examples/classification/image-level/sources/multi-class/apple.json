@@ -1,0 +1,13 @@
+{
+  "version": "2.4.0",
+  "flags": {
+    "Apple": true,
+    "Meta": false,
+    "Google": false
+  },
+  "shapes": [],
+  "imagePath": "apple.jpg",
+  "imageData": null,
+  "imageHeight": 700,
+  "imageWidth": 1000
+}

@@ -159,7 +159,7 @@ class YOLOv5_ResNet(YOLO):
 
         blob = self.preprocess(image, upsample_mode="letterbox")
         outputs = self.net.get_ort_inference(blob=blob, extract=False)
-        boxes, _, _, _ = self.postprocess(outputs)
+        boxes, _, _, _, _ = self.postprocess(outputs)
 
         shapes = []
         for box in boxes:

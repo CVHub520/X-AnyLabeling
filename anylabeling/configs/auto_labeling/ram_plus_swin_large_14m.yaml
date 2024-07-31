@@ -1,0 +1,4 @@
+type: ram
+name: ram_plus_swin_large_14m-r20240728
+display_name: RAM++ (SwinL) OPPO
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/ram_plus_swin_large_14m.onnx

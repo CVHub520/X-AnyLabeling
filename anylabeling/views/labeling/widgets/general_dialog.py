@@ -10,14 +10,14 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
         self._color = color
         self._opacity = opacity
 
-        self.setWindowTitle("Crosshair Settings")
+        self.setWindowTitle(self.tr("Crosshair Settings"))
         self.setModal(True)
 
-        self.show_label = QtWidgets.QLabel("Show Crosshair:")
+        self.show_label = QtWidgets.QLabel(self.tr("Show Crosshair:"))
         self.show_checkbox = QtWidgets.QCheckBox()
         self.show_checkbox.setChecked(self._show)
 
-        self.width_label = QtWidgets.QLabel("Line width:")
+        self.width_label = QtWidgets.QLabel(self.tr("Line width:"))
         self.width_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.width_slider.setMinimum(10)
         self.width_slider.setMaximum(100)
@@ -28,7 +28,7 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
         self.width_spinbox.setSingleStep(0.1)
         self.width_spinbox.setValue(self._width)
 
-        self.opacity_label = QtWidgets.QLabel("Line Opacity:")
+        self.opacity_label = QtWidgets.QLabel(self.tr("Line Opacity:"))
         self.opacity_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.opacity_slider.setMinimum(0)
         self.opacity_slider.setMaximum(100)
@@ -39,10 +39,10 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
         self.opacity_spinbox.setSingleStep(0.01)
         self.opacity_spinbox.setValue(self._opacity)
 
-        self.color_label = QtWidgets.QLabel("Line Color:")
+        self.color_label = QtWidgets.QLabel(self.tr("Line Color:"))
         self.color_lineedit = QtWidgets.QLineEdit()
         self.color_lineedit.setText(self._color)
-        self.color_button = QtWidgets.QPushButton("Choose Color")
+        self.color_button = QtWidgets.QPushButton(self.tr("Choose Color"))
         self.color_button.clicked.connect(self.choose_color)
 
         layout = QtWidgets.QVBoxLayout()
@@ -58,7 +58,7 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
 
         button_layout = QtWidgets.QHBoxLayout()
 
-        self.reset_button = QtWidgets.QPushButton("Reset")
+        self.reset_button = QtWidgets.QPushButton(self.tr("Reset"))
         self.reset_button.clicked.connect(self.reset_settings)
 
         self.button_box = QtWidgets.QDialogButtonBox(

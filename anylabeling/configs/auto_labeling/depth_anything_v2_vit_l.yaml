@@ -1,0 +1,5 @@
+type: depth_anything_v2
+name: depth_anything_v2_vit_l-r20240721
+display_name: Depth Anything V2 (ViT-Large)
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/depth_anything_v2_vitl.onnx
+render_mode: color  # 'color' or 'gray'

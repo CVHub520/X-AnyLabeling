@@ -1,0 +1,13 @@
+{
+  "version": "2.4.0",
+  "flags": {
+    "Apple": false,
+    "Meta": false,
+    "Google": true
+  },
+  "shapes": [],
+  "imagePath": "google.webp",
+  "imageData": null,
+  "imageHeight": 670,
+  "imageWidth": 1280
+}
