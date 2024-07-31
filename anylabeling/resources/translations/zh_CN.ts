@@ -256,14 +256,22 @@
         <translation>关闭当前文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="401"/>
-        <source>Keep Previous Annotation</source>
-        <translation>保留上一张图像的标注</translation>
+        <source>Use System Clipboard</source>
+        <translation>使用系统剪贴板</translation>
+    </message>
+    <message>
+        <source>Use system clipboard for copy and paste</source>
+        <translation>使用系统剪贴板进行复制和粘贴</translation>
     </message>
     <message>
         <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="345"/>
         <source>Toggle &quot;keep pevious annotation&quot; mode</source>
         <translation type="obsolete">切换 &quot;保留上一个注释 &quot;模式</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="401"/>
+        <source>Keep Previous Annotation</source>
+        <translation>保留上一张图像的标注</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="433"/>
@@ -931,6 +939,38 @@ Polygons</source>
         <location filename="../../views/labeling/label_widget.py" line="799"/>
         <source>Show degrees above rotated shapes</source>
         <translation>展示旋转图形上面的角度。</translation>
+    </message>
+    <message>
+        <source>&amp;Show Scores</source>
+        <translation>显示置信度</translation>
+    </message>
+    <message>
+        <source>Show score inside shapes</source>
+        <translation>在对象内部显示置信度</translation>
+    </message>
+    <message>
+        <source>&amp;Show KIE Linking</source>
+        <translation>显示KIE链接</translation>
+    </message>
+    <message>
+        <source>Show KIE linking between key and value</source>
+        <translation>显示键值之间的KIE链接</translation>
+    </message>
+    <message>
+        <source>&amp;Set Brightness Contrast</source>
+        <translation>设置亮度对比度</translation>
+    </message>
+    <message>
+        <source>Adjust brightness and contrast</source>
+        <translation>调整亮度和对比度</translation>
+    </message>
+    <message>
+        <source>&amp;Set Cross Line</source>
+        <translation>设置十字线</translation>
+    </message>
+    <message>
+        <source>Adjust cross line for mouse position</source>
+        <translation>调整鼠标位置的十字线</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="1383"/>
