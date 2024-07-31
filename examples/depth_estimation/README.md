@@ -9,14 +9,11 @@ X-AnyLabeling offers a range of depth models for using, including [Depth Anythin
 - **[Depth Anything V1](https://arxiv.org/abs/2401.10891)** is a highly practical solution for robust monocular depth estimation by training on a combination of 1.5M labeled images and 62M+ unlabeled images.
 - **[Depth Anything V2](https://arxiv.org/abs/2406.09414)** significantly outperforms its predecessor, V1, in terms of fine-grained detail and robustness. In comparison to SD-based models, V2 boasts faster inference speed, a reduced number of parameters, and enhanced depth accuracy.
 
-<video width="100%" height="auto" controls>
-  <source src=".data/ferris_wheel.mov" type="video/mp4">
-</video>
-<video width="100%" height="auto" controls>
-  <source src=".data/girl.mov" type="video/mp4">
-</video>
-<video width="100%" height="auto" controls>
-  <source src=".data/running.mov" type="video/mp4">
+<video src="https://github.com/user-attachments/assets/6542cc1f-8031-4e44-88a9-8c40452d130b" 
+       controls 
+       width="100%" 
+       height="auto" 
+       style="max-width: 720px; height: auto; display: block; object-fit: contain;">
 </video>
 
 ## Usage
