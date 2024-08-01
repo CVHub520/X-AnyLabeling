@@ -1205,10 +1205,10 @@ class Canvas(
                     fm = QtGui.QFontMetrics(p.font())
                     rect = fm.boundingRect(degrees)
                     p.fillRect(
-                        rect.x() + center.x() - d,
-                        rect.y() + center.y() + d,
-                        rect.width(),
-                        rect.height(),
+                        int(rect.x() + center.x() - d),
+                        int(rect.y() + center.y() + d),
+                        int(rect.width()),
+                        int(rect.height()),
                         QtGui.QColor("#FF9900"),
                     )
                     pen = QtGui.QPen(
@@ -1216,17 +1216,17 @@ class Canvas(
                     )
                     p.setPen(pen)
                     p.drawText(
-                        center.x() - d,
-                        center.y() + d,
+                        int(center.x() - d),
+                        int(center.y() + d),
                         degrees,
                     )
                 else:
                     cp = QtGui.QPainterPath()
                     cp.addRect(
-                        center.x() - d / 2,
-                        center.y() - d / 2,
-                        d,
-                        d,
+                        int(center.x() - d / 2),
+                        int(center.y() - d / 2),
+                        int(d),
+                        int(d),
                     )
                     p.drawPath(cp)
                     p.fillPath(cp, QtGui.QColor(255, 153, 0, 255))
