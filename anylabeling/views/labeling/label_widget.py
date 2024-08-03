@@ -5177,11 +5177,11 @@ class LabelingWidget(LabelDialog):
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 label_file = osp.join(label_dir_path, label_file_name)
                 if mode == "rec":
-                    converter.custom_to_pporc(
+                    converter.custom_to_ppocr(
                         image_file, label_file, save_path, mode
                     )
                 elif mode == "kie":
-                    class_set = converter.custom_to_pporc(
+                    class_set = converter.custom_to_ppocr(
                         image_file, label_file, save_path, mode
                     )
                     total_class_set = total_class_set.union(class_set)

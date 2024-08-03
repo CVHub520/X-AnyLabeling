@@ -1371,7 +1371,7 @@ class LabelConverter:
         with jsonlines.open(od_file, mode="w") as writer:
             writer.write_all(od_data)
 
-    def custom_to_pporc(self, image_file, label_file, save_path, mode):
+    def custom_to_ppocr(self, image_file, label_file, save_path, mode):
         if not osp.exists(label_file):
             return
         image_name = osp.basename(image_file)
