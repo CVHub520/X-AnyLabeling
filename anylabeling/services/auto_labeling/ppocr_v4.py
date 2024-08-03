@@ -13,6 +13,7 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
 from .utils.ppocr_utils.text_system import TextSystem
+from ...views.labeling.utils.general import is_possible_rectangle
 
 
 class Args:
@@ -78,6 +79,11 @@ class PPOCRv4(Model):
         self.drop_score = self.config.get("drop_score", 0.5)
         self.use_angle_cls = self.config["use_angle_cls"]
         self.current_dir = os.path.dirname(__file__)
+        self.lang = self.config.get("lang", "ch")
+        if self.lang == "ch":
+            self.rec_char_dict = "ppocr_keys_v1.txt"
+        elif self.lang == "japan":
+            self.rec_char_dict = "japan_dict.txt"
 
     def parse_args(self):
         args = Args(
@@ -131,7 +137,8 @@ class PPOCRv4(Model):
             rec_batch_num=6,
             max_text_length=25,
             rec_char_dict_path=os.path.join(
-                self.current_dir, "configs", "ppocr_keys_v1.txt"
+                self.current_dir,
+                f"configs/ppocr/{self.rec_char_dict}"
             ),
             use_space_char=True,
             drop_score=self.drop_score,
@@ -143,7 +150,8 @@ class PPOCRv4(Model):
             # PGNet parmas
             e2e_pgnet_score_thresh=0.5,
             e2e_char_dict_path=os.path.join(
-                self.current_dir, "configs", "ppocr_ic15_dict.txt"
+                self.current_dir,
+                "configs/ppocr/ppocr_ic15_dict.txt"
             ),
             e2e_pgnet_valid_set="totaltext",
             e2e_pgnet_mode="fast",
@@ -199,20 +207,30 @@ class PPOCRv4(Model):
             score = res["score"]
             points = res["points"]
             description = res["description"]
-            pt1, pt2, pt3, pt4 = points
-            pt2 = [pt3[0], pt1[1]]
-            pt4 = [pt1[0], pt3[1]]
+            shape_type = (
+                "rectangle" 
+                if is_possible_rectangle(points) 
+                else "polygon"
+            )
             shape = Shape(
                 label="text",
                 score=score,
-                shape_type="rectangle",
+                shape_type=shape_type,
                 group_id=int(i),
                 description=description,
             )
-            shape.add_point(QtCore.QPointF(*pt1))
-            shape.add_point(QtCore.QPointF(*pt2))
-            shape.add_point(QtCore.QPointF(*pt3))
-            shape.add_point(QtCore.QPointF(*pt4))
+            if shape_type == "rectangle":
+                pt1, pt2, pt3, pt4 = points
+                pt2 = [pt3[0], pt1[1]]
+                pt4 = [pt1[0], pt3[1]]
+                shape.add_point(QtCore.QPointF(*pt1))
+                shape.add_point(QtCore.QPointF(*pt2))
+                shape.add_point(QtCore.QPointF(*pt3))
+                shape.add_point(QtCore.QPointF(*pt4))
+            elif shape_type == "polygon":
+                for point in points:
+                    shape.add_point(QtCore.QPointF(*point))
+                shape.closed = True
             shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=True)

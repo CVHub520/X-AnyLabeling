@@ -28,8 +28,9 @@
 ## 🥳 What's New
 
 - Aug. 2024:
-  - ✨✨✨ Support [Segment-Anything-2](https://docs.ultralytics.com/tasks/pose/) model! (Recommended)
   - 🤗 Pre-release the latest version [2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0) 🤗
+  - ✨✨✨ Support [Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2) model! (Recommended)
+  - 👏👏👏 Support lightweight model for Japanese recognition.
 - Jul. 2024:
   - Add PPOCR-Recognition and KIE import/export functionality for training PP-OCR task.
   - Add ODVG import/export functionality for training grounding task.
@@ -56,8 +57,8 @@
   - Support for quick tag correction is available; please refer to this [document](./docs/en/user_guide.md) for guidance.
   - Release version [2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1).
 - Jan. 2024:
-  - 👏👏👏 Combining CLIP and SAM models for enhanced semantic and spatial understanding. An example can be found [here](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml).
-  - 🔥🔥🔥 Adding support for the [Depth Anything](https://github.com/LiheYoung/Depth-Anything.git) model in the depth estimation task.
+  - Combining CLIP and SAM models for enhanced semantic and spatial understanding. An example can be found [here](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml).
+  - Add support for the [Depth Anything](https://github.com/LiheYoung/Depth-Anything.git) model in the depth estimation task.
   - Release version [2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0).
   - Support [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) model.
   - Support [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet) and [RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmpose) model.
