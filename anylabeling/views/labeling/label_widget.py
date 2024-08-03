@@ -5502,6 +5502,7 @@ class LabelingWidget(LabelDialog):
 
         marks_model_list = [
             "segment_anything",
+            "segment_anything_2",
             "sam_med2d",
             "sam_hq",
             "efficientvit_sam",

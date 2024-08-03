@@ -18,7 +18,7 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<video src="https://github.com/CVHub520/Resources/assets/72010077/a1fb281a-856c-493e-8989-84f4f783576b" 
+<video src="https://github.com/user-attachments/assets/6e5131af-6946-4586-93c4-d1b8540e9e33" 
        controls 
        width="100%" 
        height="auto" 
@@ -44,12 +44,22 @@
 
 ## 🥳 新功能 [⏏️](#📄-目录)
 
+- 2024年8月:
+  - 🤗 预发布[X-AnyLabeling v2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0)最新版本 🤗
+  - ✨✨✨ 支持[Segment-Anything-2](https://docs.ultralytics.com/tasks/pose/)模型。
+- 2024年7月:
+  - 新增 PPOCR 识别和关键信息提取标签导入/导出功能。
+  - 新增 ODVG 标签导入/导出功能，以支持 Grounding 模型训练。
+  - 支持关键信息提取 linking 字段标注。
+  - 支持在线置信度和交并比阈值调整。
+  - 支持[RT-DETRv2](https://github.com/lyuwenyu/RT-DETR)模型。
+  - 支持[Depth Anything v2](https://github.com/DepthAnything/Depth-Anything-V2)模型。
 - 2024年6月:
   - 支持[yolov8-pose](https://docs.ultralytics.com/tasks/pose/)模型。
   - 支持[yolo-pose](./docs/zh_cn/user_guide.md)标签导入/导出功能。
 - 2024年5月：
-  - ✨✨✨ 支持[YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10)模型。
-  - 🤗 发布[2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6)最新版本 🤗
+  - 支持[YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10)模型。
+  - 发布[2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6)版本。
   - 支持显示模型预测得分。
 - 2024年3月：
   - 发布[2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5)版本。
@@ -57,7 +67,7 @@
   - 发布[2.3.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.4)版本。
   - 支持标签显示功能。
   - 发布[2.3.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.3)版本。
-  - ✨✨✨ 支持[YOLO-World](https://github.com/AILab-CVC/YOLO-World)模型。
+  - 支持[YOLO-World](https://github.com/AILab-CVC/YOLO-World)模型。
   - 发布[2.3.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.2)版本。
   - 支持[YOLOv9](https://github.com/WongKinYiu/yolov9)模型。
   - 支持将水平框一键转换为旋转框。
@@ -66,8 +76,8 @@
   - 发布[2.3.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.1)版本。
 - 2024年1月：
   - 支持一键截取子图功能。
-  - 👏👏👏 结合CLIP和SAM模型，实现更强大的语义和空间理解。具体可参考此[示例](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml)。
-  - 🔥🔥🔥 在深度估计任务中增加对[Depth Anything](https://github.com/LiheYoung/Depth-Anything.git)模型的支持。
+  - 结合CLIP和SAM模型，实现更强大的语义和空间理解。具体可参考此[示例](./anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml)。
+  - 在深度估计任务中增加对[Depth Anything](https://github.com/LiheYoung/Depth-Anything.git)模型的支持。
   - 发布[2.3.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.0)版本。
   - 支持 [YOLOv8-OBB](https://github.com/ultralytics/ultralytics) 模型。
   - 支持 [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet) 和 [RTMO](https://github.com/open-mmlab/mmpose/tree/main/projects/rtmpose) 模型。
@@ -179,6 +189,8 @@
 |-------------------|----------------------------------------|
 | d                 | 打开下一个文件                          |
 | a                 | 打开上一个文件                          |
+| Ctrl + Shift + d  | 打开下一个带标签的文件                 |
+| Ctrl + Shift + a  | 打开上一个带标签的文件                 |
 | p 或 [Ctrl+n]     | 创建多边形                              |
 | o                 | 创建旋转框                              |
 | r 或 [Crtl+r]     | 创建矩形框                              |
@@ -186,6 +198,7 @@
 | q                 | `SAM 模式` 的正样本点                   |
 | e                 | `SAM 模式` 的负样本点                    |
 | b                 | `SAM 模式` 快速清除提示点               |
+| f                 | `SAM 模式` 确认目标               |
 | g                 | 组合选定的对象                         |
 | u                 | 取消组合选定的对象                     |
 | s                 | 隐藏选定的对象                         |

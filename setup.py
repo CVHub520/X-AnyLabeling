@@ -61,6 +61,7 @@ def get_install_requires():
         "pyclipper",
         "filterpy",
         "tokenizers",
+        "jsonlines",
     ]
 
     # Add onnxruntime-gpu if GPU is preferred
@@ -93,6 +94,7 @@ setup(
     long_description_content_type="text/markdown",
     author="CVHub",
     author_email="cvhub.cn@gmail.com",
+    python_requires=">=3.8.0",
     url="https://github.com/CVHub520/X-AnyLabeling",
     install_requires=get_install_requires(),
     license="GPLv3",
@@ -103,9 +105,6 @@ setup(
         "Natural Language :: English",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3 :: Only",
     ],
     include_package_data=True,

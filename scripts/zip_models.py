@@ -31,6 +31,7 @@ for model in model_list:
     )
     if model_config["type"] in [
         "segment_anything",
+        "segment_anything_2",
         "sam_med2d",
         "sam_hq",
         "efficientvit_sam",
@@ -72,6 +73,7 @@ for model in model_list:
     # Rewrite model's urls
     if model_config["type"] in [
         "segment_anything",
+        "segment_anything_2",
         "sam_med2d",
         "sam_hq",
         "efficientvit_sam",

@@ -18,39 +18,30 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<video src="https://github.com/CVHub520/Resources/assets/72010077/a1fb281a-856c-493e-8989-84f4f783576b" 
+<video src="https://github.com/user-attachments/assets/6e5131af-6946-4586-93c4-d1b8540e9e33" 
        controls 
        width="100%" 
        height="auto" 
        style="max-width: 720px; height: auto; display: block; object-fit: contain;">
 </video>
 
-## 📄 Table of Contents
+## 🥳 What's New
 
-- [🥳 What's New](#🥳-whats-new-⏏️)
-- [👋 Brief Introduction](#👋-brief-introduction-⏏️)
-- [🔥 Highlight](#🔥-highlight-⏏️)
-  - [🗝️Key Features](#🗝️key-features)
-  - [⛏️Model Zoo](#⛏️model-zoo)
-- [📋 Usage](#📋-usage-⏏️)
-  - [📜 Docs](#📜-docs-⏏️)
-    - [🔜Quick Start](#🔜quick-start-⏏️)
-    - [📋User Guide](#📋quick-guide-⏏️)
-    - [🚀Load Custom Model](#🚀load-custom-model-⏏️)
-  - [🧷Hotkeys](#🧷-hotkeys-⏏️)
-- [📧 Contact](#📧-contact-⏏️)
-- [✅ License](#✅-license-⏏️)
-- [🙏🏻 Acknowledgments](#🙏🏻-acknowledgments-⏏️)
-- [🏷️ Citing](#🏷️-citing-⏏️)
-
-## 🥳 What's New [⏏️](#📄-table-of-contents)
-
+- Aug. 2024:
+  - ✨✨✨ Support [Segment-Anything-2](https://docs.ultralytics.com/tasks/pose/) model! (Recommended)
+  - 🤗 Pre-release the latest version [2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0) 🤗
+- Jul. 2024:
+  - Add PPOCR-Recognition and KIE import/export functionality for training PP-OCR task.
+  - Add ODVG import/export functionality for training grounding task.
+  - Add support to annotate KIE linking field.
+  - Support [RT-DETRv2](https://github.com/lyuwenyu/RT-DETR) model.
+  - Support [Depth Anything v2](https://github.com/DepthAnything/Depth-Anything-V2) model.
 - Jun. 2024:
   - Support [YOLOv8-Pose](https://docs.ultralytics.com/tasks/pose/) model.
   - Add [yolo-pose](./docs/en/user_guide.md) import/export functionality.
 - May. 2024:
-  - ✨✨✨ Support [YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10) model.
-  - 🤗 Release the latest version [2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6) 🤗
+  - Support [YOLOv8-World](https://docs.ultralytics.com/models/yolo-world), [YOLOv8-oiv7](https://docs.ultralytics.com/models/yolov8), [YOLOv10](https://github.com/THU-MIG/yolov10) model.
+  - Release version [2.3.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6).
   - Add feature to display confidence score.
 - Mar. 2024:
   - Release version [2.3.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.5).
@@ -125,12 +116,12 @@
   - Release [YOLOv5](https://github.com/ultralytics/yolov5), [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX).
 
 
-## 👋 Brief Introduction [⏏️](#📄-table-of-contents)
+## 👋 Brief Introduction
 
 `X-AnyLabeling` stands out as a robust annotation tool seamlessly incorporating an AI inference engine alongside an array of sophisticated features. Tailored for practical applications, it is committed to delivering comprehensive, industrial-grade solutions for image data engineers. This tool excels in swiftly and automatically executing annotations across diverse and intricate tasks.
 
 
-## 🔥 Highlight [⏏️](#📄-table-of-contents)
+## 🔥 Highlight
 
 ### 🗝️Key Features
 
@@ -181,6 +172,8 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 |-------------------|-----------------------------------------|
 | d                 | Open next file                          |
 | a                 | Open previous file                      |
+| Ctrl + Shift + d  | Open next labeled file                  |
+| Ctrl + Shift + a  | Open previous labeled file              |
 | p or [Ctrl+n]     | Create polygon                          |
 | o                 | Create rotation                         |
 | r or [Crtl+r]     | Create rectangle                        |
@@ -188,6 +181,7 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 | q                 | `positive point` of SAM mode            |
 | e                 | `negative point` of SAM mode            |
 | b                 | Quickly clear points of SAM mode        |
+| f                 | Quickly confirm target of SAM mode      |
 | g                 | Group selected shapes                   |
 | u                 | Ungroup selected shapes                 |
 | s                 | Hide selected shapes                    |
@@ -246,7 +240,7 @@ This project is released under the [GPL-3.0 license](./LICENSE).
 
 ## 🙏🏻 Acknowledgments [⏏️](#📄-table-of-contents)
 
-I extend my heartfelt thanks to the developers and contributors of the projects [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelIm), [roLabelImg](https://github.com/cgvict/roLabelImg), [AnyLabeling](https://github.com/vietanhdev/anylabeling), and [Computer Vision Annotation Tool](https://github.com/opencv/cvat). Their dedication and contributions have played a crucial role in shaping the success of this project.
+I extend my heartfelt thanks to the developers and contributors of the projects [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelIm), [roLabelImg](https://github.com/cgvict/roLabelImg), [AnyLabeling](https://github.com/vietanhdev/anylabeling), [PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) and [Computer Vision Annotation Tool](https://github.com/opencv/cvat). Their dedication and contributions have played a crucial role in shaping the success of this project.
 
 ## 🏷️ Citing [⏏️](#📄-table-of-contents)
 

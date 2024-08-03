@@ -20,6 +20,7 @@ class ModelManager(QObject):
     MAX_NUM_CUSTOM_MODELS = 5
     CUSTOM_MODELS = [
         "segment_anything",
+        "segment_anything_2"
         "sam_med2d",
         "sam_hq",
         "yolov5",
@@ -914,6 +915,30 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "segment_anything_2":
+            from .segment_anything_2 import SegmentAnything2
+
+            try:
+                model_config["model"] = SegmentAnything2(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+            except Exception as e:  # noqa
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "efficientvit_sam":
             from .efficientvit_sam import EfficientViT_SAM
 
@@ -1352,6 +1377,7 @@ class ModelManager(QObject):
         """
         marks_model_list = [
             "segment_anything",
+            "segment_anything_2",
             "sam_med2d",
             "sam_hq",
             "yolov5_sam",
@@ -1531,6 +1557,7 @@ class ModelManager(QObject):
         # Currently only segment_anything-like model supports this feature
         if self.loaded_model_config["type"] not in [
             "segment_anything",
+            "segment_anything_2",
             "sam_med2d",
             "sam_hq",
             "yolov5_sam",
