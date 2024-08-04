@@ -5904,12 +5904,13 @@ class LabelingWidget(LabelDialog):
             return
 
         # Ask a label for the object
-        text, flags, group_id, description, difficult = (
+        text, flags, group_id, description, difficult, kie_linking = (
             "",
             {},
             None,
             None,
             False,
+            [],
         )
         last_label = self.find_last_label()
         if self._config["auto_use_last_label"] and last_label:
