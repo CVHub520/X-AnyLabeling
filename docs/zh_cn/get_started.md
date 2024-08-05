@@ -1,145 +1,167 @@
-## 快速入门指南
+# 快速入门指南
 
-### 运行模式
+## 1. 准备工作
 
-目前 `X-AnyLabeling` 支持两种运行方式，一种是下载源码直接运行，另一种是直接下载编译好的 `GUI` 版本运行。需要注意的时，为了保证用户能使用到最新的功能特性和最稳定的性能体验，强烈建议从源码运行。
+### 1.1 从源码运行
 
-### 源码运行
+#### 1.1.1 前置条件
 
-1. 下载源码
+在开始之前，请确保您已安装以下前置条件：
+
+**步骤 0.** 从[官方网站](https://docs.anaconda.com/miniconda/)下载并安装 Miniconda。
+
+**步骤 1.** 创建一个 Python 版本为 3.8 或更高版本的 conda 环境，并激活它。
+
+```bash
+conda create --name x-anylabeling python=3.9 -y
+conda activate x-anylabeling
+```
+
+#### 1.1.2 安装
+
+**步骤 0.** 安装 [ONNX Runtime](https://onnxruntime.ai/)。
+
+```bash
+# Install ONNX Runtime CPU
+pip install onnxruntime
+
+# Install ONNX Runtime GPU (CUDA 11.x)
+pip install onnxruntime-gpu==x.x.x
+
+# Install ONNX Runtime GPU (CUDA 12.x)
+pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+```
+
+> [!Important]
+> 对于 GPU 加速，请按照以下说明，确保您本地的 CUDA 和 cuDNN 版本与 ONNX Runtime 版本兼容，并安装需要依赖库，以确保 GPU 加速推理正常：</br>
+> Ⅰ. [CUDA Execution Provider](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)</br>
+> Ⅱ. [Get started with ONNX Runtime in Python](https://onnxruntime.ai/docs/get-started/with-python.html)</br>
+> Ⅲ. ONNX Runtime 版本需大于等于 1.16.0.
+
+**步骤 1.** 克隆代码仓库。
 
 ```bash
 git clone https://github.com/CVHub520/X-AnyLabeling.git
 ```
 
-2. 安装依赖
+**步骤 2:** 安装 `requirements.txt` 文件。
 
-目前，`X-AnyLabeling` 针对不同的运行环境提供了多份依赖文件：
+对于不同的配置，X-AnyLabeling 提供了以下依赖文件：
 
-| 依赖文件                | 系统环境           | 运行环境 | 是否支持打包 |
-|----------------------|------------------|--------|-----|
-| requirements.txt     | Windows/Linux    | CPU    | 否   |
-| requirements-dev.txt | Windows/Linux    | CPU    | 是   |
-| requirements-gpu.txt | Windows/Linux    | GPU    | 否   |
-| requirements-gpu-dev.txt | Windows/Linux | GPU    | 是   |
-| requirements-macos.txt | MacOS           | CPU    | 否   |
-| requirements-macos-dev.txt | MacOS       | CPU    | 是   |
+| 依赖文件                   | 操作系统        | 运行环境 | 可编译   |
+|----------------------------|-----------------|----------|----------|
+| requirements.txt           | Windows/Linux   | CPU      | 否       |
+| requirements-dev.txt       | Windows/Linux   | CPU      | 是       |
+| requirements-gpu.txt       | Windows/Linux   | GPU      | 否       |
+| requirements-gpu-dev.txt   | Windows/Linux   | GPU      | 是       |
+| requirements-macos.txt     | MacOS           | CPU      | 否       |
+| requirements-macos-dev.txt | MacOS           | CPU      | 是       |
 
-由于当前工具内置的模型推理后端为 `OnnxRuntime`，因此，如果您希望利用 GPU 进行模型推理加速，请务必确保本地 CUDA 版本与 `onnxruntime-gpu` 版本兼容，以确保顺利调用显卡。有关详细信息，请参考[官方文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)。同时，请务必将[app_info.py](../../anylabeling/app_info.py)配置文件中的`__preferred_device__`字段设置为`GPU`。
+- 对于开发者，您应选择带有 `*-dev.txt` 后缀的选项进行安装。
+- 如需启用 GPU 加速，您应选择带有 `*-gpu.txt` 后缀的选项进行安装。
 
-3. 启动工具
-
-> 设置当前工作环境变量可参考以下步骤：</br>
-> - Linux/MasOS
->   - export PYTHONPATH=/path/to/X-AnyLabeling
-> - Windows
->   - set PYTHONPATH=C:\path\to\X-AnyLabeling
-
-在 `X-AnyLabeling` 工程目录下执行以下命令进行启动：
+使用以下命令安装必要的包，将 [xxx] 替换为适合您需求的安装包名称：
 
 ```bash
+pip install -r requirements-[xxx].txt
+```
+
+另外，如果您在 macOS 上遇到与 PyQt 相关的错误，可以运行以下命令从 conda-forge 源安装特定版本的版本：
+
+```bash
+conda install -c conda-forge pyqt=5.15.9
+```
+
+#### 1.1.3 启动
+
+完成必要步骤后，使用以下命令生成资源：
+
+```bash
+pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
+```
+
+> [!CAUTION]
+> 为避免冲突，请执行以下命令卸载第三方相关包。
+
+```bash
+pip uninstall anylabeling -y
+```
+
+设置环境变量：
+
+```bash
+# Linux 或 macOS
+export PYTHONPATH=/path/to/X-AnyLabeling
+# Windows
+set PYTHONPATH=C:\path\to\X-AnyLabeling
+```
+
+要运行应用程序，请执行以下命令：
+
+> [!TIP]
+> 您可以通过传递 `--help` 参数随时查看可用的选项。
+
+```python
 python anylabeling/app.py
 ```
 
-**可选参数:**
+**参数**:
 
-* `filename`: 图像或标签文件名；如果传入目录路径，则会自动加载该文件夹
+| 选项                       | 描述                                                                                               |
+|----------------------------|----------------------------------------------------------------------------------------------------|
+| `filename`                 | 指定图像或标签文件名。如果提供目录路径，则加载文件夹中的所有文件。                                |
+| `--help`, `-h`             | 显示帮助信息并退出。                                                                               |
+| `--reset-config`           | 重置 Qt 配置，清除所有设置。                                                                       |
+| `--logger-level`           | 设置日志记录级别：“debug”、“info”、“warning”、“fatal”、“error”。                              |
+| `--output`, `-O`, `-o`     | 指定输出文件或目录。以 `.json` 结尾的路径被视为文件。                                               |
+| `--config`                 | 指定配置文件或 YAML 格式的配置字符串。默认为用户特定路径。                                          |
+| `--nodata`                 | 防止在 JSON 文件中存储图像数据。                                                                   |
+| `--autosave`               | 启用自动保存注释数据。                                                                             |
+| `--nosortlabels`           | 禁用标签排序。                                                                                     |
+| `--flags`                  | 逗号分隔的标志列表或包含标志的文件路径。                                                           |
+| `--labelflags`             | 用于标签特定标志的 YAML 格式字符串或包含 JSON 格式字符串的文件。                                    |
+| `--labels`                 | 逗号分隔的标签列表或包含标签的文件路径。                                                           |
+| `--validatelabel`          | 指定标签验证的类型。                                                                               |
+| `--keep-prev`              | 保留上一帧的注释。                                                                                 |
+| `--epsilon`                | 确定在画布上找到最近顶点的 epsilon 值。                                                             |
 
-* `--help`,`-h`: 显示帮助消息并退出
+⚠️ 请注意，如果您需要 GPU 加速，应在 [app_info.py](../../anylabeling/app_info.py) 配置文件中将 `__preferred_device__` 字段设置为 'GPU'。
 
-- `--reset-config`: 重置 Qt 配置，清除所有设置。
-- `--logger-level`: 设置日志级别，可选值包括 "debug", "info", "warning", "fatal", "error"。
-- `--output`, `-O`, `-o`: 指定输出文件或目录。如果以 `.json` 结尾，则被识别为文件，否则被识别为目录。
-- `--config`: 指定配置文件或者以 YAML 格式提供配置信息的字符串
-  默认为 `~/.xanylabelingrc`(Linux)      `C:\Users\{user}\.xanylabelingrc`(Windows)。
-- `--nodata`: 停止将图像数据存储到 JSON 文件中。
-- `--autosave`: 自动保存标注数据。
-- `--nosortlabels`: 停止对标签进行排序。
-- `--flags`: 逗号分隔的标志列表或包含标志的文件。
-- `--labelflags`: 包含标签特定标志的 YAML 字符串或包含 JSON 字符串的文件。
-- `--labels`: 逗号分隔的标签列表或包含标签的文件。
-- `--validatelabel`: 标签验证类型。
-- `--keep-prev`: 保留前一帧的注释。
-- `--epsilon`: 在画布上找到最近顶点的 epsilon。
+### 1.2 从 GUI 运行
 
-### GUI 环境运行
+> 下载链接: [Github](https://github.com/CVHub520/X-AnyLabeling/releases) | [百度网盘](https://pan.baidu.com/s/1uI9pDYuOh-59qINQ6wTS_g?pwd=s00l)
 
-在使用 `X-AnyLabeling` 自身提供的 `GUI` 环境运行时，相较于源码运行，最大的优势在于其方便快捷，用户无需深入关注底层实现细节，只需下载完成即可立即使用，省去了繁琐的环境配置和依赖安装步骤。然而，这种便捷方式也存在一些明显的弊端，主要包括：
+相比于从源代码运行，GUI 运行环境提供了更便捷的体验，用户无需深入了解底层实现，只需解压便可直接使用。然而，其也存在一些问题，包括：
+- **故障排除困难:** 如果发生崩溃或错误，可能难以快速定位具体原因，从而增加了故障排除的难度。
+- **功能滞后:** GUI 版本在功能上可能落后于源代码版本，可能会导致缺少功能和兼容性问题。
+- **GPU 加速限制:** 鉴于硬件和操作系统环境的多样性，当前的 GPU 推理加速服务需要用户根据需要从源代码编译。
 
-1. **不易排查问题：** 当出现闪退或报错问题时，由于用户无法直接查看源码，难以快速定位具体原因，使问题排查变得相对困难。
+因此，建议根据具体需求和偏好，在从源代码运行和使用 GUI 环境之间做出选择，以优化用户体验。
 
-2. **GPU加速限制：** 对于希望通过调用GPU进行加速推理的用户，存在较大限制。当前提供的编译版本基于CUDA 11.6和onnxruntime 1.16.0版本进行打包编译，可能无法满足某些用户对于最新硬件或库版本的需求。
+## 2. 使用方法
 
-3. **功能特性滞后：** 由于无法及时更新编译版本，GUI环境运行可能无法享受到最新的功能特性，并且一些潜在的bug可能未能及时修复，影响了用户的整体体验。
+有关如何使用 X-AnyLabeling 的详细说明，请参考相应的[用户手册](./user_guide.md)。
 
-为了在选择运行方式时能够更好地权衡利弊，建议用户根据具体需求和偏好，灵活选择源码运行或GUI环境运行，以达到最佳的使用体验。
+## 3. 开发
 
-下载链接：[Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6) | [百度网盘](https://pan.baidu.com/s/1rtw_UY_qTOopKNqFfXEfzA?pwd=itwe)
-
-
-### 文件导入
-
-`X-AnyLabeling` 目前提供了三种便捷的导入方式，如下所示：
-
-| 导入方式  | 快捷键    |
-|----------|-----------|
-| 图像文件  | Ctrl+I    |
-| 图像目录  | Ctrl+U    |
-| 视频文件  | Ctrl+O    |
-
-需要注意的是，默认的标注文件保存路径为导入文件路径，如果需要存放到其它目录，可点击左上角 `文件` -> `另存为`，选择保存目录即可。
-
-### 快速绘制
-
-当前 `X-AnyLabeling` 中支持**多边形**、**矩形框**、**旋转框**、**圆形**、**线段**、**多线段**和**点**等多种标注样式，可供用户灵活地选取。部分绘制模式的快捷键设置如下：
-
-| 标注样式  | 快捷键    | 应用场景 |
-|----------|-----------|-----------|
-| 多边形  |  P   | 图像分割 |
-| 矩形框  |  R   | 水平目标检测 |
-| 旋转框  |  O   | 旋转目标检测 |
-| 圆形 | - | 特定场景 |
-| 线段 | - | 车道线检测 |
-| 多线段 | - | 血管分割 |
-| 点 | - | 关键点检测 |
-
-`X-AnyLabeling` 交互模式目前主要有两种：
-
-- 编辑模式：此状态下用户可移动、复制、黏贴、修改对象等；
-- 绘制模式：此状态下仅支持绘制相应地标注样式；
-
-目前在 **矩形框**、**旋转框**、**圆形**、**线段**、**点**五种标注样式下，当图案绘制完成后，会自动切换到编辑模式。对于其它两种样式，用户可通过快捷键 `Ctrl+J` 完成快速切换。
-
-### 辅助推理
-
-对于想要使用 `X-AnyLabeling` 工具提供的 AI 算法功能库，可点击左侧菜单栏带 `AI` 字样的图标或直接按下快捷键 `Ctrl+A` 调出模型列表，点击下拉框选择自己需要的模型即可。如遇下载失败情况，请参考[custom_model.md](./custom_model.md)文档。
-
-### 一键运行
-
-`X-AnyLabeling` 工具中提供了实用的 `一键运行` 功能给予用户快速完成对当前批次任务的标注工作，用户可直接点击左侧菜单栏带 `播放` 图案的图标或直接按下快捷键 `Ctrl+M` 唤醒该功能，自动完成从当前图片到最后一张图片的标注。
-
-> 需要注意的是，此项功能需要在给定模型被激活的状态下使用。此外一经开启便需要跑完整个任务，因此在启动之前笔者强烈建议先在小批量图片上进行测试，确保无误后再调用此功能。
-
-### 打包编译
-
-> 请注意，以下步骤是非必要的，本小节内容仅为可能需要自定义和编译软件以在特定环境中分发的用户提供的。如果您只是单纯使用本软件，请跳过这一步骤。
+> 请注意，以下步骤是可选的。此部分针对可能需要定制和编译软件以适应特定部署场景的用户。如果您使用软件时没有此类需求，可以跳过此部分。
 
 <details>
-<summary>展开/折叠</summary>
+<summary>展开/收起</summary>
 
-为了方便用户在不同平台上运行 `X-AnyLabeling`，工具提供了打包编译的指令和相关注意事项。在执行以下打包指令之前，请根据您的环境和需求，修改 [app_info.py](../../anylabeling/app_info.py) 文件中的 `__preferred_device__` 参数，以选择相应的 GPU 或 CPU 版本进行构建。
+为了方便用户在不同平台上运行 `X-AnyLabeling`，该工具提供了打包和编译的说明以及相关注意事项。在执行以下打包命令之前，根据您的环境和要求修改 [app_info.py](../../anylabeling/app_info.py) 文件中的 `__preferred_device__` 参数，以选择适当的 GPU 或 CPU 版本进行构建。
 
 注意事项：
 
-1. 在编译前，请确保已经根据所需的 GPU/CPU 版本修改了 `anylabeling/app_info.py` 文件中的 `__preferred_device__` 参数。
+1. 在编译之前，请确保 `anylabeling/app_info.py` 文件中的 `__preferred_device__` 参数已根据所需的 GPU/CPU 版本进行修改。
 
-2. 如果需要编译 GPU 版本，请先激活相应地 `GPU` 运行环境，执行 `pip install | grep onnxruntime-gpu` 确保被正确安装。
+2. 如果编译 GPU 版本，请先激活相应的 GPU 运行环境，并执行 `pip install | grep onnxruntime-gpu` 以确保其正确安装。
 
-3. 对于 Windows-GPU 版本的编译，需要手动修改 `x-anylabeling-win-gpu.spec` 文件中的 `datas` 列表参数，将本地的 `onnxruntime-gpu` 相关动态库 `*.dll` 添加进列表中。
+3. 对于编译 Windows-GPU 版本，手动修改 `x-anylabeling-win-gpu.spec` 文件中的 `datas` 列表参数，以将本地 `onnxruntime-gpu` 动态库的相关 `*.dll` 文件添加到列表中。
 
-4. 对于 Linux-GPU 版本的编译，需要手动修改 `x-anylabeling-linux-gpu.spec` 文件中的 `datas` 列表参数，将本地的 `onnxruntime-gpu` 相关动态库 `*.so` 添加进列表中。此外，请注意根据您的 CUDA 版本下载匹配的 `onnxruntime-gpu` 包，详细匹配表可参考[官方文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)。
+4. 对于编译 Linux-GPU 版本，手动修改 `x-anylabeling-linux-gpu.spec` 文件中的 `datas` 列表参数，以将本地 `onnxruntime-gpu` 动态库的相关 `*.so` 文件添加到列表中。此外，请确保根据您的 CUDA 版本下载匹配的 `onnxruntime-gpu` 包。有关详细的兼容性信息，请参阅 [官方文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)。
 
-参考指令：
+参考命令：
 
 ```bash
 # Windows-CPU
@@ -155,12 +177,9 @@ bash scripts/build_executable.sh linux-cpu
 bash scripts/build_executable.sh linux-gpu
 ```
 
-注：如果您在 Windows 环境下执行以上指令出现权限问题的话，可在确保上述准备工作完成之后，直接根据需要执行以下指令：
+注意：如果在 Windows 上执行上述命令时遇到权限问题，在确保完成上述准备步骤后，可以根据需要直接执行以下命令：
 
 > pyinstaller --noconfirm anylabeling-win-cpu.spec</br>
 > pyinstaller --noconfirm anylabeling-win-gpu.spec
 
 </details>
-
-
-

@@ -1,15 +1,42 @@
-## 一、如何加载内置模型
+# 模型加载
 
-目前 `X-AnyLabeling` 内置模型默认是托管到 github 的 release 仓库，因此想要从 GUI 界面直接导入模型的同学需要自行配置科学上网条件，并保持当前网络畅通，否则大概会遇到下载失败的情况。
+X-AnyLabeling 当前内置了许多通用模型，具体可参考 [模型列表](../../docs/zh_cn/model_zoo.md)。
 
-对由于网络问题未能够从界面顺利下载权重文件至本地的小伙伴，请先从 [model_zoo.md](./model_zoo.md) 中找到您期望加载模型对应的权重文件（没配置科学上网的请自觉走百度网盘链接），最后按照 [#23](https://github.com/CVHub520/X-AnyLabeling/issues/23) 提供的演示步骤一步步操作即可。
+## 加载内置模型
 
+在启用 AI 辅助标定功能之前，用户需要先加载模型，并通过左侧菜单栏的 `AI` 标识按钮或直接使用快捷键 `Ctrl+A` 激活。
 
-## 二、如何加载自定义模型？
+通常，当用户从模型下拉列表中选择对应的模型时，后台会检查当前用户目录下 `~/xanylabeling_data/models/${model_name}` 是否存在相应的模型文件。如果存在，则直接加载；如果不存在，则会通过网络自动下载到指定目录。
 
-### 2.1 已适配模型
+请注意，`X-AnyLabeling` 当前内置的所有模型默认托管在 GitHub 的 release 仓库。因此，用户需要配置科学上网条件，并保持网络畅通，否则可能会下载失败。对于由于网络问题未能成功加载模型的用户，可参考以下步骤进行配置：
 
-**已适配模型**指的是 X-AnyLabeling 中已经适配过的网络模型，同样地可参考 [model_zoo.md](./model_zoo.md) 文档。以 [yolov5s](https://github.com/ultralytics/yolov5) 模型为例，现假设用户在本地自己训练了一个 `yolov5` 检测模型，大家可以把相应的 [配置文件](../../anylabeling/configs/auto_labeling/yolov5s.yaml) 下载下来，如下所示：
+- 打开 [model_zoo.md](./model_zoo.md) 文件，找到欲加载模型对应的配置文件。
+- 编辑配置文件，修改模型路径，并根据需要选择性地修改其他超参数。
+- 打开工具界面，点击**加载自定义模型**，选择配置文件所在路径即可。
+
+## 加载已适配的用户自定义模型
+
+> **已适配模型**是指当前已经在 X-AnyLabeling 中适配过的模型，无须用户编写模型推理代码。具体可参考 [模型列表](../../docs/zh_cn/model_zoo.md)。
+
+以下以 [YOLOv5s](https://github.com/ultralytics/yolov5) 模型为例，介绍加载自定义模型的步骤：
+
+**a. 模型转换**
+
+假设您已经训练好一个本地模型，首先将 `PyTorch` 训练模型转换为 `ONNX` 文件格式：
+
+```bash
+python export.py --weights yolov5s.pt --include onnx
+```
+
+注意：当前版本不支持动态输入，因此请勿设置 `--dynamic` 参数。此外，您可以通过 [Netron](https://netron.app/) 在线查看 `onnx` 文件，检查输入和输出节点信息，确保输入节点的第一个维度为1。
+
+<p align="center">
+  <img src="../../assets/resources/netron.png" alt="Netron">
+</p>
+
+**b. 模型配置**
+
+准备好 `onnx` 文件后，您可以浏览 [模型列表](../../docs/zh_cn/model_zoo.md) 文件，找到并下载对应模型的配置文件。这里以 [yolov5s.yaml](../../anylabeling/configs/auto_labeling/yolov5s.yaml) 为例，其内容如下：
 
 ```YAML
 type: yolov5
@@ -22,27 +49,39 @@ classes:
   - person
   - bicycle
   - car
-  - ...
+  ...
 ```
 
-简单解释下每个字段：
+| 字段 | 描述 | 是否可修改 |
+|------|------|------------|
+| `type` | 模型类型标识，不支持自定义。| ❌ |
+| `name` | 模型配置文件的索引名称，保留默认值即可。 | ❌ |
+| `display_name` | 在界面上模型下拉列表中显示的名称，可自行修改。 | ✔️ |
+| `model_path` | 模型加载路径，支持相对路径和绝对路径。 | ✔️ |
 
-- `type`: 用于定义网络类型的标识符，以唯一标识每个模型。该标识符用户不可更改。
-- `name`: 用于定义当前内置模型对应的配置文件索引标记，如果是加载用户自定义模型，此字段可不用设置。更多详情可参见 [models.yaml](../../anylabeling/configs/auto_labeling/models.yaml) 文件。
-- `display_name`: 用于在界面上展示的名称，可根据自定义任务进行命名，例如 `Fruits (YOLOv5s)`。
-`model_path`: 用于指定加载模型权重的路径。请注意，该路径是相对于当前配置文件的相对路径。如果需要，也可以直接填写绝对路径。同时，确保文件格式为 `*.onnx`。
-- `nms_threshold`、`confidence_threshold`、`classes`字段可根据实际情况自行设置。此外，`X-AnyLabeling` 还为用户提供了一些辅助功能，例如支持 `agnostic` 和 `filter_classes` 功能，示例如下：
+对于不同模型，X-AnyLabeling 提供了一些特有字段，具体可参考对应模型的定义。以下以 [YOLO](../../anylabeling/services/auto_labeling/__base__/yolo.py) 模型为例，提供了一些超参数配置：
+
+| 字段 | 描述 |
+|------|------|
+| `classes` | 模型的标签列表，需与训练时的标签列表一致。| 
+| `filter_classes` | 指定推理时使用的类别。| 
+| `agnostic` | 是否使用单类 NMS。|
+| `nms_threshold` | 非极大值抑制的阈值，用于过滤重叠的目标框。|
+| `confidence_threshold` | 置信度阈值，用于过滤置信度较低的目标框。|
+
+一个典型的参考示例如下：
 
 ```YAML
 type: yolov5
 name: yolov5s-r20230520
-display_name: YOLOv5s Ultralytics
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+display_name: YOLOv5s Custom
+model_path: yolov5s_custom.onnx
+nms_threshold: 0.60
+confidence_threshold: 0.45
 agnostic: True
 filter_classes:
   - person
+  - car
 classes:
   - person
   - bicycle
@@ -50,7 +89,7 @@ classes:
   - ...
 ```
 
-通过 `filter_classes` 的设置我们便可以让模型仅检测 `person` 这个类别，而 `agnostic` 参数则用于将所有目标都视为一个类别做一次 NMS。需要注意的是，目前内置模型支持的 `yolov5` 版本为 v6.0+，如果你是 `v5.0` 等旧版本，务必在配置文件中指定 `anchors` 和 `stride` 字段，示例如下：
+特别地，当使用低版本的 YOLOv5（v5.0 及以下）时，请在配置文件中指定 `anchors` 和 `stride` 字段，否则请删除这些字段。示例如下：
 
 ```YAML
 type: yolov5
@@ -62,220 +101,479 @@ anchors:
   - [116,90, 156,198, 373,326]  # P5/32
 ```
 
-至此，我们便了解了整个 `X-AnyLabeling` 中配置文件的作用。假如用户手头上训练了一个检测 `apple`、`banana` 以及 `orange` 三类别的 `yolov5s` 检测模型，首先需要先将 `*.pt` 文件转换为 `*.onnx` 格式，得到一个 `fruits.onnx` 的模型权重。
+此外：
+- 对于 `nms_threshold` 和 `confidence_threshold` 字段，`v2.4.0` 及以上版本支持直接从 GUI 界面进行设置，用户可根据需要修改。
+- 对于分割模型，则可指定 `epsilon_factor` 参数来控制输出轮廓点的平滑程度，默认值为 0.005。
 
-> 请注意，转换后的模型务必使用[netron](https://netron.app/)工具打开，确保输入输出节点与 X-AnyLabeling 内置模型的输入输出节点一致。
+**c. 模型加载**
 
-其次，我们可以在 [model_zoo.md](./model_zoo.md) 中将当前模型对应的配置文件赋值一份至本地，并根据需要修改对应的超参数字段，如检测阈值和类别等，示例如下：
+建议将 `model_path` 字段设置为当前 `onnx` 模型的文件名称，并将模型文件和配置文件放在同一目录下，使用相对路径进行加载，以避免路径中出现转义字符的影响。
+
+最后，在菜单栏下方的模型下拉框选项中，找到 `...加载自定义模型`，然后导入上一步准备的配置文件即可完成自定义模型加载。
+
+
+## 加载未适配的用户自定义模型
+
+> **未适配模型**指还未在 X-AnyLabeling 中适配过的模型即内置模型，需要用户参考以下实施步骤进行集成。
+
+这里以多类别语义分割模型，可遵循以下实施步骤：
+
+**a. 训练及导出模型**
+
+导出 `ONNX` 模型，确保输出节点的维度为 `[1, C, H, W]`，其中 `C` 为总的类别数（包含背景类）。
+
+**b. 定义配置文件**
+
+首先，在[配置文件目录](../../anylabeling/configs/auto_labeling)下，新增一个配置文件，如`unet.yaml`：
 
 ```YAML
-type: yolov5
-name: yolov5s-r20230520
-display_name: Fruits (YOLOv5s)
-model_path: fruits.onnx
-input_width: 640
-input_height: 640
-nms_threshold: 0.45
-confidence_threshold: 0.45
+type: unet
+name: unet-r20240101
+display_name: U-Net (ResNet34)
+model_path: /path/to/best.onnx
 classes:
-  - apple
-  - banana
-  - orange
+  - cat
+  - dog
+  - _background_
 ```
 
-接下来，新建一个文件夹，将权重文件和对应的配置文件放置到同一个目录下：
+其中：
+
+| 字段 | 描述   |
+|-----|--------|
+| `type` | 必填项，指定模型的类型，确保与现有模型类型不重复，以维护模型标识的唯一性。|
+| `name` | 必填项，定义模型的索引，用于内部引用和管理，避免与现有模型的索引名称冲突。|
+| `display_name` | 必填项，展示在用户界面的模型名称，便于识别和选择，同样需保证其独特性，不与其它模型重名。|
+
+以上三个字段为不可缺省字段。最后，可根据实际需要添加其它字段，如模型路径、模型超参、模型类别等。
+
+**c. 添加配置文件**
+
+其次，将上述配置文件添加到[模型管理文件](../../anylabeling/configs/auto_labeling/models.yaml)中：
 
 ```
-|- custom_model
-|   |- fruits.onnx
-|   |- fruits_yolov5s.yaml
+...
+
+- model_name: "unet-r20240101"
+  config_file: ":/unet.yaml"
+...
+
 ```
 
-最后，打开 `GUI` 界面，点击 `模型图标` 按钮，选择 `...加载自定义模型`（中文版） 或者 `...Load Custom Model`（英文版），然后选择 `fruits_yolov5s.yaml` 配置文件即可完成自定义模型加载。
+**d. 定义推理服务**
+
+在定义推理服务的过程中，继承 [Model](../../anylabeling/services/auto_labeling/model.py) 基类是关键步骤之一，它允许你实现特定于模型的前向推理逻辑。具体地，你可以在[模型推理服务路径](../../anylabeling/services/auto_labeling/)下新建一个`unet.py`文件，参考示例如下：
+
+```python
+import logging
+import os
+
+import cv2
+import numpy as np
+from PyQt5 import QtCore
+from PyQt5.QtCore import QCoreApplication
+
+from anylabeling.app_info import __preferred_device__
+from anylabeling.views.labeling.shape import Shape
+from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
+from .model import Model
+from .types import AutoLabelingResult
+from .engines.build_onnx_engine import OnnxBaseModel
 
 
-### 2.2 未适配模型
+class UNet(Model):
+    """Semantic segmentation model using UNet"""
 
-**未适配模型**指的是非 `X-AnyLabeling` 工具内置的模型，可参考以下步骤快速集成到框架中：
+    class Meta:
+        required_config_names = [
+            "type",
+            "name",
+            "display_name",
+            "model_path",
+            "classes",
+        ]
+        widgets = ["button_run"]
+        output_modes = {
+            "polygon": QCoreApplication.translate("Model", "Polygon"),
+        }
+        default_output_mode = "polygon"
 
-- 定义配置文件
+    def __init__(self, model_config, on_message) -> None:
+        # Run the parent class's init method
+        super().__init__(model_config, on_message)
+        model_name = self.config["type"]
+        model_abs_path = self.get_model_abs_path(self.config, "model_path")
+        if not model_abs_path or not os.path.isfile(model_abs_path):
+            raise FileNotFoundError(
+                QCoreApplication.translate(
+                    "Model",
+                    f"Could not download or initialize {model_name} model.",
+                )
+            )
+        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
+        self.classes = self.config["classes"]
+        self.input_shape = self.net.get_input_shape()[-2:]
 
-以 `yolov5` 为例，具体可参考此[配置文件](../../anylabeling/configs/auto_labeling/yolov5s.yaml)。
+    def preprocess(self, input_image):
+        """
+        Pre-processes the input image before feeding it to the network.
 
-- 添加至任务管理
+        Args:
+            input_image (numpy.ndarray): The input image to be processed.
 
-具体可参考此[文件](../../anylabeling/configs/auto_labeling/models.yaml)，按照统一范式进行添加。
+        Returns:
+            numpy.ndarray: The pre-processed output.
+        """
+        input_h, input_w = self.input_shape
+        image = cv2.resize(input_image, (input_w, input_h))
+        image = np.transpose(image, (2, 0, 1))
+        image = image.astype(np.float32) / 255.0
+        image = (image - 0.5) / 0.5
+        image = np.expand_dims(image, axis=0)
+        return image
 
-- 定义模型文件
+    def postprocess(self, image, outputs):
+        """
+        Post-processes the network's output.
 
-这一步核心是继承 [models](../../anylabeling/services/auto_labeling/model.py) 类，实现相应地预处理、模型推理和后处理逻辑，具体可以找个示例查看。
+        Args:
+            image (numpy.ndarray): The input image.
+            outputs (numpy.ndarray): The output from the network.
 
-- 添加至模型管理
+        Returns:
+            contours (list): List of contours for each detected object class.
+                            Each contour is represented as a dictionary containing
+                            the class label and a list of contour points.
+        """
+        n, c, h, w = outputs.shape
+        image_height, image_width = image.shape[:2]
+        # Obtain the category index of each pixel
+        # target shape: (1, h, w)
+        outputs = np.argmax(outputs, axis=1)
+        results = []
+        for i in range(c):
+            # Skip the background label
+            if self.classes[i] == '_background_':
+                continue
+            # Get the category index of each pixel for the first batch by adding [0].
+            mask = outputs[0] == i
+            # Rescaled to original shape
+            mask_resized = cv2.resize(mask.astype(np.uint8), (image_width, image_height))
+            # Get the contours
+            contours, _ = cv2.findContours(mask_resized, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            # Append the contours along with their respective class labels
+            results.append((self.classes[i], [np.squeeze(contour).tolist() for contour in contours]))
+        return results
 
-在[模型管理文件](../../anylabeling/services/auto_labeling/model_manager.py)中新增上述自定义的模型类。
+    def predict_shapes(self, image, image_path=None):
+        """
+        Predict shapes from image
+        """
+
+        if image is None:
+            return []
+
+        try:
+            image = qt_img_to_rgb_cv_img(image, image_path)
+        except Exception as e:  # noqa
+            logging.warning("Could not inference model")
+            logging.warning(e)
+            return []
+
+        blob = self.preprocess(image)
+        outputs = self.net.get_ort_inference(blob)
+        results = self.postprocess(image, outputs)
+        shapes = []
+        for item in results:
+            label, contours = item
+            for points in contours:
+                # Make sure to close
+                points += points[0]
+                shape = Shape(flags={})
+                for point in points:
+                    shape.add_point(QtCore.QPointF(point[0], point[1]))
+                shape.shape_type = "polygon"
+                shape.closed = True
+                shape.fill_color = "#000000"
+                shape.line_color = "#000000"
+                shape.line_width = 1
+                shape.label = label
+                shape.selected = False
+                shapes.append(shape)
+
+        result = AutoLabelingResult(shapes, replace=True)
+        return result
+
+    def unload(self):
+        del self.net
+```
+
+**e. 添加至模型管理**
+
+最后，我们仅需将实现好的模型类添加至对应的模型管理文件中即可。具体地，你可以打开 [model_manager.py](../../anylabeling/services/auto_labeling/model_manager.py)，将对应的模型类型字段（如`unet`）添加至 `CUSTOM_MODELS` 列表中，同时在 `_load_model` 方法中初始化你的实例。参考示例如下：
+
+```python
+...
+
+class ModelManager(QObject):
+    """Model manager"""
+
+    MAX_NUM_CUSTOM_MODELS = 5
+    CUSTOM_MODELS = [
+      ...
+      "unet",
+      ...
+    ]
+
+    def __init__(self):
+        ...
+
+    ...
+
+    def _load_model(self, model_id):
+        """Load and return model info"""
+        if self.loaded_model_config is not None:
+            self.loaded_model_config["model"].unload()
+            self.loaded_model_config = None
+            self.auto_segmentation_model_unselected.emit()
+
+        model_config = copy.deepcopy(self.model_configs[model_id])
+        if model_config["type"] == "yolov5":
+            ...
+        elif model_config["type"] == "unet":
+            from .unet import UNet
+
+            try:
+                model_config["model"] = UNet(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+          ...
+    ...
+```
+
+⚠️注意：
+
+- 如果是基于 `SAM` 的模式，请将 `self.auto_segmentation_model_unselected.emit()` 替换为 `self.auto_segmentation_model_selected.emit()` 以触发相应的功能。
+- 模型类型字段需要与上述步骤**b. 定义配置文件**中定义的配置文件中的 `type` 字段保持一致。
 
 
-## 三、如何导出模型
+# 模型导出
 
-> 本小节主要提供将 PyTorch (`pt`) 权重文件转换为 ONNX (`onnx`) 的教程，旨在协助用户快速完成此转换过程。
+> 本章节将向您展示一些将自定义模型转换为 ONNX 模型的具体示例，以便您快速集成到 X-AnyLabeling 中。
 
-- [YOLOv5_OBB](https://github.com/hukaixuan19970627/yolov5_obb)
+## Classification
 
-> 作者：胡凯旋
+### [InternImage](https://github.com/OpenGVLab/InternImage)
 
-参考此[教程](https://github.com/CVHub520/yolov5_obb/tree/main).
+InternImage 引入了一个大规模卷积神经网络 (CNN) 模型，利用可变形卷积作为核心操作符，以实现大的有效感受野、自适应空间聚合和减少的归纳偏置，从而从大量数据中学习到更强、更鲁棒的模式。它在基准测试中超越了当前的 CNN 和视觉Transformer。
 
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions |
+| 发表单位       | 上海人工智能实验室，清华大学，南京大学等                              |
+| 发表时间       | CVPR 2023                                                          |
 
-- [YOLOv7](https://github.com/WongKinYiu/yolov7)
+请参考此 [教程](../../tools/export_internimage_model_onnx.py)。
 
-> 论文：YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors</br>
-> 单位：Institute of Information Science, Academia Sinica, Taiwan
+### [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md)
+
+本教程为用户提供了一种使用 PaddleClas PULC (实用超轻量图像分类) 快速构建轻量、高精度和实用的人员属性分类模型的方法。该模型可广泛用于行人分析场景、行人跟踪场景等。
+
+请参考此 [教程](../../tools/export_pulc_attribute_model_onnx.py)。
+
+### [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md)
+
+本教程为用户提供了一种使用 PaddleClas PULC (实用超轻量图像分类) 快速构建轻量、高精度和实用的车辆属性分类模型的方法。该模型可广泛用于车辆识别、道路监控等场景。
+
+请参考此 [教程](../../tools/export_pulc_attribute_model_onnx.py)。
+
+## Object Detection
+
+### [YOLOv5_OBB](https://github.com/hukaixuan19970627/yolov5_obb)
+
+> 作者: Kaixuan Hu
+
+请参考此 [教程](https://github.com/CVHub520/yolov5_obb/tree/main)。
+
+### [YOLOv7](https://github.com/WongKinYiu/yolov7)
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors |
+| 发表单位       | 台湾中央研究院信息科学研究所                                         |
 
 ```bash
 python export.py --weights yolov7.pt --img-size 640 --grid
 ```
 
-- [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)
+> **注意：** 运行此命令时必须包含 `--grid` 参数。
 
-> 论文：Efficient object detectors including Gold-YOLO</br>
-> 单位：huawei-noah</br>
-> 发表：NeurIPS23</br>
+### [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)
 
-```bash
-git clone https://github.com/huawei-noah/Efficient-Computing.git
-cd Detection/Gold-YOLO
-python deploy/ONNX/export_onnx.py --weights Gold_n_dist.pt --simplify --ort
-                                            Gold_s_pre_dist.pt                     
-                                            Gold_m_pre_dist.pt
-                                            Gold_l_pre_dist.pt
-```
-
-- [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)
-
-`DAMO-YOLO` is a fast and accurate object detection method, which is developed by TinyML Team from Alibaba DAMO Data Analytics and Intelligence Lab. And it achieves a higher performance than state-of-the-art YOLO series. DAMO-YOLO is extend from YOLO but with some new techs, including Neural Architecture Search (NAS) backbones, efficient Reparameterized Generalized-FPN (RepGFPN), a lightweight head with AlignedOTA label assignment, and distillation enhancement. For more details, please refer to our Arxiv Report. Moreover, here you can find not only powerful models, but also highly efficient training strategies and complete tools from training to deployment.
-
-> 论文：DAMO-YOLO: A Report on Real-Time Object Detection Design</br>
-> 单位：Alibaba Group</br>
-> 发表：Arxiv22</br>
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Efficient object detectors including Gold-YOLO                     |
+| 发表单位       | 华为诺亚                                                           |
+| 发表时间       | NeurIPS23                                                          |
 
 ```bash
-git clone https://github.com/tinyvision/DAMO-YOLO.git
-cd DAMO-YOLO
-python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tinynasL25_S.pth --batch_size 1 --img_size 640
+$ git clone https://github.com/huawei-noah/Efficient-Computing.git
+$ cd Detection/Gold-YOLO
+$ python deploy/ONNX/export_onnx.py --weights Gold_n_dist.pt --simplify --ort
+                                              Gold_s_pre_dist.pt                     
+                                              Gold_m_pre_dist.pt
+                                              Gold_l_pre_dist.pt
 ```
 
-- [RT-DETR](https://github.com/lyuwenyu/RT-DETR)
+### [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)
 
-Real-Time DEtection TRansformer (`RT-DETR`, aka RTDETR), the first real-time end-to-end object detector to our best knowledge. Our RT-DETR-L achieves 53.0% AP on COCO val2017 and 114 FPS on T4 GPU, while RT-DETR-X achieves 54.8% AP and 74 FPS, outperforming all YOLO detectors of the same scale in both speed and accuracy. Furthermore, our RT-DETR-R50 achieves 53.1% AP and 108 FPS, outperforming DINO-Deformable-DETR-R50 by 2.2% AP in accuracy and by about 21 times in FPS.
+`DAMO-YOLO` 是由阿里巴巴达摩院数据分析与智能实验室的 TinyML 团队开发的一种快速准确的目标检测方法。它通过引入新的技术，包括神经架构搜索 (NAS) 主干网、高效的重参数化通用-FPN (RepGFPN)、轻量级头部和 AlignedOTA 标签分配，并进行蒸馏增强，使其性能超过了最新的 YOLO 系列。更多细节请参阅 Arxiv 报告。这里不仅可以找到强大的模型，还可以找到从训练到部署的高效训练策略和完整工具。
 
-> 论文：RT-DETR: DETRs Beat YOLOs on Real-time Object Detection</br>
-> 单位：Baidu</br>
-> 发表：Arxiv22</br>
-
-参考此[文章](https://zhuanlan.zhihu.com/p/628660998).
-
-- [SAM](https://github.com/vietanhdev/samexporter)
-
-The Segment Anything Model (`SAM`) produces high quality object masks from input prompts such as points or boxes, and it can be used to generate masks for all objects in an image. It has been trained on a dataset of 11 million images and 1.1 billion masks, and has strong zero-shot performance on a variety of segmentation tasks.
-
-> 论文：Segment Anything</br>
-> 单位：Meta AI Research, FAIR</br>
-> 发表：ICCV23</br>
-
-参考此[步骤](https://github.com/vietanhdev/samexporter#sam-exporter).
-
-- [Efficient-SAM](https://github.com/CVHub520/efficientvit)
-
-`EfficientViT` is a new family of vision models for efficient high-resolution dense prediction. The core building block of EfficientViT is a new lightweight multi-scale linear attention module that achieves global receptive field and multi-scale learning with only hardware-efficient operations.
-
-> 论文：EfficientViT: Multi-Scale Linear Attention for High-Resolution Dense Prediction</br>
-> 单位：MIT</br>
-> 发表：ICCV23</br>
-
-参考此[步骤](https://github.com/CVHub520/efficientvit#benchmarking-with-onnxruntime).
-
-- [SAM-Med2D](https://github.com/CVHub520/SAM-Med2D)
-
-`SAM-Med2D` is a specialized model developed to address the challenge of applying state-of-the-art image segmentation techniques to medical images.
-
-> 论文：SAM-Med2D</br>
-> 单位：OpenGVLab</br>
-> 发表：Arxiv23</br>
-
-参考此[步骤](https://github.com/CVHub520/SAM-Med2D#-deploy).
-
-- [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) 
-
-`GroundingDINO` is a state-of-the-art (SOTA) zero-shot object detection model that excels in detecting objects beyond the predefined training classes. This unique capability allows the model to adapt to new objects and scenarios, making it highly versatile for real-world applications. It also excels in Referring Expression Comprehension (REC), where it can identify and localize specific objects or regions within an image based on textual descriptions. What sets it apart is its deep understanding of language and visual content, enabling it to associate words or phrases with corresponding visual elements. Moreover, Grounding DINO simplifies object detection by eliminating hand-designed components like Non-Maximum Suppression (NMS), streamlining the model architecture, and enhancing efficiency and performance.
-
-> 论文：Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection</br>
-> 单位：IDEA-CVR, IDEA-Research</br>
-> 发表：Arxiv23</br>
-
-参考此[教程](../../tools/export_grounding_dino_onnx.py).
-
-- [Recognize Anything](https://github.com/xinyu1205/Tag2Text) 
-
-`RAM` is a robust image tagging model known for its exceptional capabilities in image recognition. RAM stands out for its strong and versatile performance, excelling in zero-shot generalization. It offers the advantages of being both cost-effective and reproducible, thanks to its reliance on open-source and annotation-free datasets. RAM's flexibility makes it suitable for a wide range of application scenarios, making it a valuable tool for various image recognition tasks.
-
-> 论文：Recognize Anything: A Strong Image Tagging Model</br>
-> 单位：OPPO Research Institute, IDEA-Research, AI Robotics</br>
-> 发表：Arxiv23</br>
-
-参考此[教程](../../tools/export_recognize_anything_model_onnx.py).
-
-- [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md)
-
-This case provides a way for users to quickly build a lightweight, high-precision and practical classification model of person attribute using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in Pedestrian analysis scenarios, pedestrian tracking scenarios, etc.
-
-参考此[教程](../../tools/export_pulc_attribute_model_onnx.py).
-
-- [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md)
-
-This case provides a way for users to quickly build a lightweight, high-precision and practical classification model of vehicle attribute using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in Vehicle identification, road monitoring and other scenarios.
-
-参考此[教程](../../tools/export_pulc_attribute_model_onnx.py).
-
-- [HQ-SAM](https://github.com/SysCV/sam-hq)
-
-The recent Segment Anything Model (SAM) represents a big leap in scaling up segmentation models, allowing for powerful zero-shot capabilities and flexible prompting. Despite being trained with 1.1 billion masks, SAM's mask prediction quality falls short in many cases, particularly when dealing with objects that have intricate structures. We propose HQ-SAM, equipping SAM with the ability to accurately segment any object, while maintaining SAM's original promptable design, efficiency, and zero-shot generalizability. Our careful design reuses and preserves the pre-trained model weights of SAM, while only introducing minimal additional parameters and computation. We design a learnable High-Quality Output Token, which is injected into SAM's mask decoder and is responsible for predicting the high-quality mask. Instead of only applying it on mask-decoder features, we first fuse them with early and final ViT features for improved mask details. To train our introduced learnable parameters, we compose a dataset of 44K fine-grained masks from several sources. HQ-SAM is only trained on the introduced detaset of 44k masks, which takes only 4 hours on 8 GPUs. We show the efficacy of HQ-SAM in a suite of 9 diverse segmentation datasets across different downstream tasks, where 7 out of them are evaluated in a zero-shot transfer protocol.
-
-> 论文：Segment Anything in High Quality</br>
-> 单位：ETH Zurich & HKUST</br>
-> 发表：NeurIPS 2023</br>
-
-参考此[教程](https://github.com/CVHub520/sam-hq).
-
-- [InternImage](https://github.com/OpenGVLab/InternImage)
-
-InternImage introduces a large-scale convolutional neural network (CNN) model, leveraging deformable convolution as the core operator to achieve a large effective receptive field, adaptive spatial aggregation, and reduced inductive bias, leading to stronger and more robust pattern learning from massive data, outperforming current CNNs and vision transformers on benchmarks like COCO and ADE20K.
-
-> 论文：InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions</br>
-> 单位：Shanghai AI Laboratory, Tsinghua University, Nanjing University, etc.</br>
-> 发表：CVPR 2023</br>
-
-参考此[教程](../../tools/export_internimage_model_onnx.py).
-
-- [EdgeSAM](https://github.com/chongzhou96/EdgeSAM)
-
-`EdgeSAM` is an accelerated variant of the Segment Anything Model (SAM), optimized for efficient execution on edge devices with minimal compromise in performance. It achieves a 40-fold speed increase compared to the original SAM, and outperforms MobileSAM, being 14 times as fast when deployed on edge devices while enhancing the mIoUs on COCO and LVIS by 2.3 and 3.2 respectively. EdgeSAM is also the first SAM variant that can run at over 30 FPS on an iPhone 14.
-
-> 论文：Prompt-In-the-Loop Distillation for On-Device Deployment of SAM</br>
-> 单位：S-Lab, Nanyang Technological University, Shanghai Artificial Intelligence Laboratory.</br>
-> 发表：Arxiv 2023</br>
-
-参考此[教程](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py).
-
-- [YOLO-World](https://github.com/AILab-CVC/YOLO-World)
-
-`YOLO-World` enhances the YOLO series by incorporating vision-language modeling, achieving efficient open-scenario object detection with impressive performance on various tasks.
-
-> 论文：Real-Time Open-Vocabulary Object Detection</br>
-> 单位：Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology.</br>
-> 发表：Arxiv 2024</br>
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | DAMO-YOLO: A Report on Real-Time Object Detection                  |
+| 发表单位       | 阿里巴巴集团                                                       |
+| 发表时间       | Arxiv22                                                            |
 
 ```bash
-git clone https://github.com/ultralytics/ultralytics.git
-cd ultralytics
-yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
+$ git clone https://github.com/tinyvision/DAMO-YOLO.git
+$ cd DAMO-YOLO
+$ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tinynasL25_S.pth --batch_size 1 --img_size 640
 ```
+
+### [RT-DETR](https://github.com/lyuwenyu/RT-DETR)
+
+实时检测变换器 (`RT-DETR`，又称 RTDETR) 是已知的第一个实时端到端目标检测器。RT-DETR-L 在 COCO val2017 上达到了 53.0% AP，并在 T4 GPU 上达到了 114 FPS，而 RT-DETR-X 达到了 54.8% AP 和 74 FPS，速度和准确性都超过了同规模的所有 YOLO 检测器。此外，RT-DETR-R50 达到了 53.1% AP 和 108 FPS，准确性比 DINO-Deformable-DETR-R50 高 2.2% AP，FPS 快约 21 倍。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | RT-DETR: DETRs Beat YOLOs on Real-time Object Detection            |
+| 发表单位       | 百度                                                               |
+| 发表时间       | Arxiv22                                                            |
+
+请参考此 [文章](https://zhuanlan.zhihu.com/p/628660998)。
+
+## Segment Anything
+
+### [SAM](https://github.com/vietanhdev/samexporter)
+
+分割一切模型 (`SAM`) 从输入提示（如点或框）中生成高质量的物体掩码。它可用于生成图像中所有物体的掩码，并在 1100 万张图像和 11 亿个掩码的数据集上进行了训练。SAM 在各种分割任务中具有强大的零样本性能。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Segment Anything                                                  |
+| 发表单位       | Meta AI 研究院，FAIR                                                |
+| 发表时间       | ICCV23                                                            |
+
+请参考这些 [步骤](https://github.com/vietanhdev/samexporter#sam-exporter)。
+
+### [Efficient-SAM](https://github.com/CVHub520/efficientvit)
+
+`EfficientViT` 是一系列新的视觉模型，用于高效的高分辨率密集预测。它使用一种新的轻量级多尺度线性注意模块作为核心构建模块。该模块仅通过硬件高效操作实现全局感受野和多尺度学习。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | EfficientViT: Multi-Scale Linear Attention for High-Resolution Dense Prediction |
+| 发表单位       | 麻省理工学院                                                        |
+| 发表时间       | ICCV23                                                            |
+
+请参考这些 [步骤](https://github.com/CVHub520/efficientvit#benchmarking-with-onnxruntime)。
+
+### [SAM-Med2D](https://github.com/CVHub520/SAM-Med2D)
+
+`SAM-Med2D` 是为解决将最先进的图像分割技术应用于医学图像挑战而开发的专业模型。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | SAM-Med2D                                                          |
+| 发表单位       | OpenGVLab                                                         |
+| 发表时间       | Arxiv23                                                            |
+
+请参考这些 [步骤](https://github.com/CVHub520/SAM-Med2D#-deploy)。
+
+### [HQ-SAM](https://github.com/SysCV/sam-hq)
+
+`HQ-SAM` 是增强版的任意物体分割模型 (SAM)，旨在提高掩码预测质量，特别是针对复杂结构，同时保持 SAM 的效率和零样本能力。它通过改进的解码过程和在专用数据集上的额外训练来实现这一目标。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Segment Anything in High Quality                                  |
+| 发表单位       | 苏黎世联邦理工学院和香港科技大学                                    |
+| 发表时间       | NeurIPS 2023                                                      |
+
+请参考此 [教程](https://github.com/CVHub520/sam-hq)。
+
+### [EdgeSAM](https://github.com/chongzhou96/EdgeSAM)
+
+`EdgeSAM` 是任意物体分割模型 (SAM) 的加速变体，优化用于在边缘设备上高效执行，同时性能几乎没有妥协。它在性能上比原版 SAM
+
+ 提升了 40 倍，在边缘设备上的速度比 MobileSAM 快 14 倍，同时在 COCO 和 LVIS 数据集上的 mIoU 分别提高了 2.3 和 3.2。EdgeSAM 也是第一个在 iPhone 14 上能够运行超过 30 FPS 的 SAM 变体。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Prompt-In-the-Loop Distillation for On-Device Deployment of SAM   |
+| 发表单位       | 南洋理工大学 S-Lab，上海人工智能实验室                               |
+| 发表时间       | Arxiv 2023                                                        |
+
+请参考此 [教程](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py)。
+
+## Grounding
+
+### [Grounding DINO](https://github.com/IDEA-Research/GroundingDINO) 
+
+`Grounding DINO` 是一款最先进的 (SOTA) 零样本目标检测模型，擅长检测训练中未定义的物体。其独特的能力使其能够适应新物体和场景，使其在现实世界应用中具有高度的多样性。它在指称表达理解 (REC) 方面表现出色，能够基于文本描述识别和定位图像中的特定物体或区域。Grounding DINO 简化了目标检测，通过消除手工设计的组件（如非极大值抑制 (NMS)），简化了模型架构，增强了效率和性能。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection |
+| 发表单位       | IDEA-CVR，IDEA-Research                                             |
+| 发表时间       | Arxiv23                                                            |
+
+请参考此 [教程](../../tools/export_grounding_dino_onnx.py)。
+
+### [YOLO-World](https://github.com/AILab-CVC/YOLO-World)
+
+`YOLO-World` 通过引入视觉语言建模来增强 YOLO 系列，实现高效的开放场景目标检测，在各种任务中表现出色。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Real-Time Open-Vocabulary Object Detection                        |
+| 发表单位       | 腾讯人工智能实验室，ARC 实验室，腾讯 PCG，华中科技大学                |
+| 发表时间       | Arxiv 2024                                                        |
+
+```bash
+$ git clone https://github.com/ultralytics/ultralytics.git
+$ cd ultralytics
+$ yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
+```
+
+## Image Tagging
+
+### [Recognize Anything](https://github.com/xinyu1205/Tag2Text) 
+
+`RAM` 是一款以其卓越图像识别能力著称的强大图像打标签模型。RAM 在零样本泛化方面表现出色，具有成本效益高和可复现的优点，依赖于开源和无注释数据集。RAM 的灵活性使其适用于广泛的应用场景，成为各种图像识别任务中的宝贵工具。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Recognize Anything: A Strong Image Tagging Model                  |
+| 发表单位       | OPPO 研究院，IDEA-Research，AI Robotics                              |
+| 发表时间       | Arxiv23                                                            |
+
+请参考此 [教程](../../tools/export_recognize_anything_model_onnx.py)。
+
+
