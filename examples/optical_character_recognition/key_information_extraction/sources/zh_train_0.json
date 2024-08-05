@@ -1,0 +1,4648 @@
+{
+  "version": "2.4.0",
+  "flags": {},
+  "shapes": [
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          104.0,
+          114.0
+        ],
+        [
+          530.0,
+          114.0
+        ],
+        [
+          530.0,
+          175.0
+        ],
+        [
+          104.0,
+          175.0
+        ]
+      ],
+      "group_id": 1,
+      "description": "汇丰晋信",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          7,
+          13
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          126.0,
+          267.0
+        ],
+        [
+          266.0,
+          267.0
+        ],
+        [
+          266.0,
+          305.0
+        ],
+        [
+          126.0,
+          305.0
+        ]
+      ],
+      "group_id": 7,
+      "description": "受理时间:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          7,
+          13
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          321.0,
+          239.0
+        ],
+        [
+          537.0,
+          239.0
+        ],
+        [
+          537.0,
+          285.0
+        ],
+        [
+          321.0,
+          285.0
+        ]
+      ],
+      "group_id": 13,
+      "description": "2020.6.15",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "header",
+      "score": null,
+      "points": [
+        [
+          1449.0,
+          218.0
+        ],
+        [
+          2217.0,
+          218.0
+        ],
+        [
+          2217.0,
+          278.0
+        ],
+        [
+          1449.0,
+          278.0
+        ]
+      ],
+      "group_id": 15,
+      "description": "开放式基金账户业务申请表一机构",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          31,
+          51
+        ],
+        [
+          31,
+          86
+        ],
+        [
+          31,
+          126
+        ],
+        [
+          31,
+          149
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1214.0,
+          320.0
+        ],
+        [
+          1344.0,
+          320.0
+        ],
+        [
+          1344.0,
+          358.0
+        ],
+        [
+          1214.0,
+          358.0
+        ]
+      ],
+      "group_id": 31,
+      "description": "特别提示:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          134.0,
+          362.0
+        ],
+        [
+          266.0,
+          362.0
+        ],
+        [
+          266.0,
+          398.0
+        ],
+        [
+          134.0,
+          398.0
+        ]
+      ],
+      "group_id": 37,
+      "description": "基金账号:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          839.0,
+          362.0
+        ],
+        [
+          1015.0,
+          362.0
+        ],
+        [
+          1015.0,
+          398.0
+        ],
+        [
+          839.0,
+          398.0
+        ]
+      ],
+      "group_id": 43,
+      "description": "(新开户免填)",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          31,
+          51
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1246.0,
+          361.0
+        ],
+        [
+          2210.0,
+          361.0
+        ],
+        [
+          2210.0,
+          399.0
+        ],
+        [
+          1246.0,
+          399.0
+        ]
+      ],
+      "group_id": 51,
+      "description": "1.请在填表前仔细阅读有关基金的《基金合同》、最新《招募说明书》及《开",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          31,
+          86
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1251.0,
+          400.0
+        ],
+        [
+          2202.0,
+          400.0
+        ],
+        [
+          2202.0,
+          440.0
+        ],
+        [
+          1251.0,
+          440.0
+        ]
+      ],
+      "group_id": 86,
+      "description": "放式基金业务规则》。请用黑色或蓝黑色钢笔或签字笔填写,如有选择项,",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          124.0,
+          456.0
+        ],
+        [
+          264.0,
+          456.0
+        ],
+        [
+          264.0,
+          493.0
+        ],
+        [
+          124.0,
+          493.0
+        ]
+      ],
+      "group_id": 120,
+      "description": "交易账号:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          31,
+          126
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1252.0,
+          440.0
+        ],
+        [
+          1888.0,
+          440.0
+        ],
+        [
+          1888.0,
+          479.0
+        ],
+        [
+          1252.0,
+          479.0
+        ]
+      ],
+      "group_id": 126,
+      "description": "请在口内划√,任何涂改请加盖公章或签字证明。",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          31,
+          149
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1256.0,
+          480.0
+        ],
+        [
+          2027.0,
+          480.0
+        ],
+        [
+          2027.0,
+          516.0
+        ],
+        [
+          1256.0,
+          516.0
+        ]
+      ],
+      "group_id": 149,
+      "description": "2.请详细、准确、全面填写下列信息,以确保您的相关权益",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          842.0,
+          456.0
+        ],
+        [
+          1012.0,
+          456.0
+        ],
+        [
+          1012.0,
+          494.0
+        ],
+        [
+          842.0,
+          494.0
+        ]
+      ],
+      "group_id": 176,
+      "description": "(新开户免填)",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          101.0,
+          571.0
+        ],
+        [
+          472.0,
+          571.0
+        ],
+        [
+          472.0,
+          613.0
+        ],
+        [
+          101.0,
+          613.0
+        ]
+      ],
+      "group_id": 184,
+      "description": "以下表单中★为开户必填项",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          197,
+          203
+        ],
+        [
+          197,
+          209
+        ],
+        [
+          197,
+          252
+        ],
+        [
+          197,
+          258
+        ],
+        [
+          197,
+          266
+        ],
+        [
+          197,
+          274
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          119.0,
+          692.0
+        ],
+        [
+          285.0,
+          692.0
+        ],
+        [
+          285.0,
+          730.0
+        ],
+        [
+          119.0,
+          730.0
+        ]
+      ],
+      "group_id": 197,
+      "description": "▽业务类型",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          197,
+          203
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          424.0,
+          764.0
+        ],
+        [
+          590.0,
+          764.0
+        ],
+        [
+          590.0,
+          804.0
+        ],
+        [
+          424.0,
+          804.0
+        ]
+      ],
+      "group_id": 203,
+      "description": "□账户登记",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          197,
+          209
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          614.0,
+          766.0
+        ],
+        [
+          1853.0,
+          766.0
+        ],
+        [
+          1853.0,
+          811.0
+        ],
+        [
+          614.0,
+          811.0
+        ]
+      ],
+      "group_id": 209,
+      "description": "□客户资料变更(如需修改银行账户信息,请直接填写《投资者银行账户设置及变更申请表》)",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          197,
+          252
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          167.0,
+          760.0
+        ],
+        [
+          318.0,
+          760.0
+        ],
+        [
+          318.0,
+          806.0
+        ],
+        [
+          167.0,
+          806.0
+        ]
+      ],
+      "group_id": 252,
+      "description": "☑账户开户",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          197,
+          258
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          682.0,
+          832.0
+        ],
+        [
+          889.0,
+          832.0
+        ],
+        [
+          889.0,
+          868.0
+        ],
+        [
+          682.0,
+          868.0
+        ]
+      ],
+      "group_id": 258,
+      "description": "□交易密码重置",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          197,
+          266
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          423.0,
+          831.0
+        ],
+        [
+          635.0,
+          831.0
+        ],
+        [
+          635.0,
+          867.0
+        ],
+        [
+          423.0,
+          867.0
+        ]
+      ],
+      "group_id": 266,
+      "description": "□交易账户销户",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          197,
+          274
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          164.0,
+          829.0
+        ],
+        [
+          377.0,
+          829.0
+        ],
+        [
+          377.0,
+          870.0
+        ],
+        [
+          164.0,
+          870.0
+        ]
+      ],
+      "group_id": 274,
+      "description": "□基金账户销户",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          353
+        ],
+        [
+          282,
+          362
+        ],
+        [
+          282,
+          377
+        ],
+        [
+          282,
+          407
+        ],
+        [
+          282,
+          411
+        ],
+        [
+          282,
+          422
+        ],
+        [
+          282,
+          430
+        ],
+        [
+          282,
+          440
+        ],
+        [
+          282,
+          450
+        ],
+        [
+          282,
+          467
+        ],
+        [
+          282,
+          499
+        ],
+        [
+          282,
+          518
+        ],
+        [
+          282,
+          542
+        ],
+        [
+          282,
+          595
+        ],
+        [
+          282,
+          625
+        ],
+        [
+          282,
+          1232
+        ],
+        [
+          282,
+          1233
+        ],
+        [
+          282,
+          1242
+        ],
+        [
+          282,
+          1249
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          116.0,
+          907.0
+        ],
+        [
+          352.0,
+          907.0
+        ],
+        [
+          352.0,
+          951.0
+        ],
+        [
+          116.0,
+          951.0
+        ]
+      ],
+      "group_id": 282,
+      "description": "▽机构基本信息",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1232,
+          290
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          377.0,
+          936.0
+        ],
+        [
+          905.0,
+          936.0
+        ],
+        [
+          905.0,
+          995.0
+        ],
+        [
+          377.0,
+          995.0
+        ]
+      ],
+      "group_id": 290,
+      "description": "秦皇岛旭森企业管理有限公司",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1233,
+          312
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          315.0,
+          1022.0
+        ],
+        [
+          475.0,
+          1022.0
+        ],
+        [
+          475.0,
+          1063.0
+        ],
+        [
+          315.0,
+          1063.0
+        ]
+      ],
+      "group_id": 312,
+      "description": "☑营业执照",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1233,
+          324
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          819.0,
+          1027.0
+        ],
+        [
+          1020.0,
+          1027.0
+        ],
+        [
+          1020.0,
+          1062.0
+        ],
+        [
+          819.0,
+          1062.0
+        ]
+      ],
+      "group_id": 324,
+      "description": "□社会团体证件",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1233,
+          332
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1078.0,
+          1026.0
+        ],
+        [
+          1265.0,
+          1026.0
+        ],
+        [
+          1265.0,
+          1065.0
+        ],
+        [
+          1078.0,
+          1065.0
+        ]
+      ],
+      "group_id": 332,
+      "description": "□基金会证件",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          1318.0,
+          1029.0
+        ],
+        [
+          1473.0,
+          1029.0
+        ],
+        [
+          1473.0,
+          1066.0
+        ],
+        [
+          1318.0,
+          1066.0
+        ]
+      ],
+      "group_id": 339,
+      "description": "□其他证件",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1233,
+          345
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          545.0,
+          1025.0
+        ],
+        [
+          747.0,
+          1025.0
+        ],
+        [
+          747.0,
+          1062.0
+        ],
+        [
+          545.0,
+          1062.0
+        ]
+      ],
+      "group_id": 345,
+      "description": "□行政机关证件",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          353
+        ],
+        [
+          353,
+          360
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          140.0,
+          1086.0
+        ],
+        [
+          295.0,
+          1086.0
+        ],
+        [
+          295.0,
+          1120.0
+        ],
+        [
+          140.0,
+          1120.0
+        ]
+      ],
+      "group_id": 353,
+      "description": "*证件号码:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          353,
+          360
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          416.0,
+          1084.0
+        ],
+        [
+          881.0,
+          1084.0
+        ],
+        [
+          881.0,
+          1125.0
+        ],
+        [
+          416.0,
+          1125.0
+        ]
+      ],
+      "group_id": 360,
+      "description": "91130301MAOFFMWL8N",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          362
+        ],
+        [
+          362,
+          1250
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1104.0,
+          1082.0
+        ],
+        [
+          1292.0,
+          1082.0
+        ],
+        [
+          1292.0,
+          1128.0
+        ],
+        [
+          1104.0,
+          1128.0
+        ]
+      ],
+      "group_id": 362,
+      "description": "*证件有效期:2021年9",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          377
+        ],
+        [
+          377,
+          387
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          137.0,
+          1141.0
+        ],
+        [
+          312.0,
+          1141.0
+        ],
+        [
+          312.0,
+          1182.0
+        ],
+        [
+          137.0,
+          1182.0
+        ]
+      ],
+      "group_id": 377,
+      "description": "*邮寄地址:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          377,
+          387
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          341.0,
+          1136.0
+        ],
+        [
+          1341.0,
+          1136.0
+        ],
+        [
+          1341.0,
+          1189.0
+        ],
+        [
+          341.0,
+          1189.0
+        ]
+      ],
+      "group_id": 387,
+      "description": "省秦皇岛市市经济技术开发区永定河道9号",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          407
+        ],
+        [
+          407,
+          1243
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1690.0,
+          1145.0
+        ],
+        [
+          1773.0,
+          1145.0
+        ],
+        [
+          1773.0,
+          1184.0
+        ],
+        [
+          1690.0,
+          1184.0
+        ]
+      ],
+      "group_id": 407,
+      "description": "邮编:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          411
+        ],
+        [
+          411,
+          1240
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1463.0,
+          1202.0
+        ],
+        [
+          1628.0,
+          1202.0
+        ],
+        [
+          1628.0,
+          1244.0
+        ],
+        [
+          1463.0,
+          1244.0
+        ]
+      ],
+      "group_id": 411,
+      "description": "*证件号码:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          422,
+          418
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          384.0,
+          1188.0
+        ],
+        [
+          511.0,
+          1188.0
+        ],
+        [
+          511.0,
+          1232.0
+        ],
+        [
+          384.0,
+          1232.0
+        ]
+      ],
+      "group_id": 418,
+      "description": "李丛林",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          422,
+          418
+        ],
+        [
+          282,
+          422
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          141.0,
+          1200.0
+        ],
+        [
+          341.0,
+          1200.0
+        ],
+        [
+          341.0,
+          1239.0
+        ],
+        [
+          141.0,
+          1239.0
+        ]
+      ],
+      "group_id": 422,
+      "description": "*经办人姓名:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          430
+        ],
+        [
+          430,
+          1237
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1025.0,
+          1199.0
+        ],
+        [
+          1207.0,
+          1199.0
+        ],
+        [
+          1207.0,
+          1245.0
+        ],
+        [
+          1025.0,
+          1245.0
+        ]
+      ],
+      "group_id": 430,
+      "description": "*证件类型:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          440
+        ],
+        [
+          440,
+          1236
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          650.0,
+          1195.0
+        ],
+        [
+          760.0,
+          1195.0
+        ],
+        [
+          760.0,
+          1243.0
+        ],
+        [
+          650.0,
+          1243.0
+        ]
+      ],
+      "group_id": 440,
+      "description": "*职务:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          450
+        ],
+        [
+          450,
+          1254
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          130.0,
+          1254.0
+        ],
+        [
+          328.0,
+          1254.0
+        ],
+        [
+          328.0,
+          1301.0
+        ],
+        [
+          130.0,
+          1301.0
+        ]
+      ],
+      "group_id": 450,
+      "description": "*证件有效期:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          467
+        ],
+        [
+          467,
+          1241
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1526.0,
+          1311.0
+        ],
+        [
+          1708.0,
+          1311.0
+        ],
+        [
+          1708.0,
+          1366.0
+        ],
+        [
+          1526.0,
+          1366.0
+        ]
+      ],
+      "group_id": 467,
+      "description": "经办人手机:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          130.0,
+          1317.0
+        ],
+        [
+          465.0,
+          1317.0
+        ],
+        [
+          465.0,
+          1360.0
+        ],
+        [
+          130.0,
+          1360.0
+        ]
+      ],
+      "group_id": 475,
+      "description": "经办人联系电话:(日间)",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          944.0,
+          1322.0
+        ],
+        [
+          1024.0,
+          1322.0
+        ],
+        [
+          1024.0,
+          1359.0
+        ],
+        [
+          944.0,
+          1359.0
+        ]
+      ],
+      "group_id": 487,
+      "description": "(晚间",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1242,
+          491
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1263.0,
+          1371.0
+        ],
+        [
+          1703.0,
+          1371.0
+        ],
+        [
+          1703.0,
+          1418.0
+        ],
+        [
+          1263.0,
+          1418.0
+        ]
+      ],
+      "group_id": 491,
+      "description": "18757832244@163.com",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          127.0,
+          1379.0
+        ],
+        [
+          212.0,
+          1379.0
+        ],
+        [
+          212.0,
+          1413.0
+        ],
+        [
+          127.0,
+          1413.0
+        ]
+      ],
+      "group_id": 495,
+      "description": "传真:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          499
+        ],
+        [
+          499,
+          510
+        ],
+        [
+          499,
+          512
+        ],
+        [
+          499,
+          570
+        ],
+        [
+          499,
+          1244
+        ],
+        [
+          499,
+          1253
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          127.0,
+          1440.0
+        ],
+        [
+          337.0,
+          1440.0
+        ],
+        [
+          337.0,
+          1476.0
+        ],
+        [
+          127.0,
+          1476.0
+        ]
+      ],
+      "group_id": 499,
+      "description": "账单寄送方式:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          499,
+          510
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          503.0,
+          1440.0
+        ],
+        [
+          624.0,
+          1440.0
+        ],
+        [
+          624.0,
+          1475.0
+        ],
+        [
+          503.0,
+          1475.0
+        ]
+      ],
+      "group_id": 510,
+      "description": "☑E-mail",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          499,
+          512
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          686.0,
+          1437.0
+        ],
+        [
+          843.0,
+          1437.0
+        ],
+        [
+          843.0,
+          1477.0
+        ],
+        [
+          686.0,
+          1477.0
+        ]
+      ],
+      "group_id": 512,
+      "description": "□手机短信",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          518
+        ],
+        [
+          518,
+          1245
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          139.0,
+          1490.0
+        ],
+        [
+          711.0,
+          1490.0
+        ],
+        [
+          711.0,
+          1535.0
+        ],
+        [
+          139.0,
+          1535.0
+        ]
+      ],
+      "group_id": 518,
+      "description": "*法定代表人(非法人机构为负责人)姓名:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          542
+        ],
+        [
+          542,
+          1248
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          981.0,
+          1493.0
+        ],
+        [
+          1147.0,
+          1493.0
+        ],
+        [
+          1147.0,
+          1533.0
+        ],
+        [
+          981.0,
+          1533.0
+        ]
+      ],
+      "group_id": 542,
+      "description": "*证件类型:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1249,
+          552
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1611.0,
+          1492.0
+        ],
+        [
+          2019.0,
+          1492.0
+        ],
+        [
+          2019.0,
+          1536.0
+        ],
+        [
+          1611.0,
+          1536.0
+        ]
+      ],
+      "group_id": 552,
+      "description": "195658197506185119",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          2288.0,
+          1457.0
+        ],
+        [
+          2327.0,
+          1457.0
+        ],
+        [
+          2327.0,
+          1878.0
+        ],
+        [
+          2288.0,
+          1878.0
+        ]
+      ],
+      "group_id": 559,
+      "description": "第一联注册登记人留存",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          499,
+          570
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1016.0,
+          1438.0
+        ],
+        [
+          1606.0,
+          1438.0
+        ],
+        [
+          1606.0,
+          1487.0
+        ],
+        [
+          1016.0,
+          1487.0
+        ]
+      ],
+      "group_id": 570,
+      "description": "(只能选一项,后三项开通前均采用邮寄方式)",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          595
+        ],
+        [
+          595,
+          1246
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          137.0,
+          1554.0
+        ],
+        [
+          330.0,
+          1554.0
+        ],
+        [
+          330.0,
+          1595.0
+        ],
+        [
+          137.0,
+          1595.0
+        ]
+      ],
+      "group_id": 595,
+      "description": "*证件有效期:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          136.0,
+          1612.0
+        ],
+        [
+          540.0,
+          1612.0
+        ],
+        [
+          540.0,
+          1654.0
+        ],
+        [
+          136.0,
+          1654.0
+        ]
+      ],
+      "group_id": 610,
+      "description": "*控股股东或实际控制人名称:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          282,
+          625
+        ],
+        [
+          625,
+          656
+        ],
+        [
+          625,
+          679
+        ],
+        [
+          625,
+          1247
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          131.0,
+          1672.0
+        ],
+        [
+          516.0,
+          1672.0
+        ],
+        [
+          516.0,
+          1713.0
+        ],
+        [
+          131.0,
+          1713.0
+        ]
+      ],
+      "group_id": 625,
+      "description": "★投资资金是否为信托资产:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          979.0,
+          1674.0
+        ],
+        [
+          1206.0,
+          1674.0
+        ],
+        [
+          1206.0,
+          1714.0
+        ],
+        [
+          979.0,
+          1714.0
+        ]
+      ],
+      "group_id": 641,
+      "description": "信托委托人名称:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          1594.0,
+          1676.0
+        ],
+        [
+          1728.0,
+          1676.0
+        ],
+        [
+          1728.0,
+          1717.0
+        ],
+        [
+          1594.0,
+          1717.0
+        ]
+      ],
+      "group_id": 650,
+      "description": "联系方式:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          625,
+          656
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          697.0,
+          1672.0
+        ],
+        [
+          893.0,
+          1672.0
+        ],
+        [
+          893.0,
+          1713.0
+        ],
+        [
+          697.0,
+          1713.0
+        ]
+      ],
+      "group_id": 656,
+      "description": "若是信托资产,",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          1585.0,
+          1736.0
+        ],
+        [
+          1731.0,
+          1736.0
+        ],
+        [
+          1731.0,
+          1775.0
+        ],
+        [
+          1585.0,
+          1775.0
+        ]
+      ],
+      "group_id": 664,
+      "description": "联系方式:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          974.0,
+          1733.0
+        ],
+        [
+          1203.0,
+          1733.0
+        ],
+        [
+          1203.0,
+          1772.0
+        ],
+        [
+          974.0,
+          1772.0
+        ]
+      ],
+      "group_id": 670,
+      "description": "信托受益人名称:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          625,
+          679
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          532.0,
+          1792.0
+        ],
+        [
+          594.0,
+          1792.0
+        ],
+        [
+          594.0,
+          1829.0
+        ],
+        [
+          532.0,
+          1829.0
+        ]
+      ],
+      "group_id": 679,
+      "description": "☑否",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          2292.0,
+          1891.0
+        ],
+        [
+          2330.0,
+          1891.0
+        ],
+        [
+          2330.0,
+          1938.0
+        ],
+        [
+          2292.0,
+          1938.0
+        ]
+      ],
+      "group_id": 682,
+      "description": "\\",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          684,
+          731
+        ],
+        [
+          684,
+          736
+        ],
+        [
+          684,
+          773
+        ],
+        [
+          684,
+          794
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          111.0,
+          1886.0
+        ],
+        [
+          1484.0,
+          1886.0
+        ],
+        [
+          1484.0,
+          1931.0
+        ],
+        [
+          111.0,
+          1931.0
+        ]
+      ],
+      "group_id": 684,
+      "description": "▽开户预留银行账户信息(如需修改银行账户信息,请直接填写《投资者银行账户设置及变更申请表》)",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          684,
+          731
+        ],
+        [
+          731,
+          769
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          130.0,
+          1963.0
+        ],
+        [
+          230.0,
+          1963.0
+        ],
+        [
+          230.0,
+          1997.0
+        ],
+        [
+          130.0,
+          1997.0
+        ]
+      ],
+      "group_id": 731,
+      "description": "*户名:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          684,
+          736
+        ],
+        [
+          736,
+          743
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1143.0,
+          1964.0
+        ],
+        [
+          1300.0,
+          1964.0
+        ],
+        [
+          1300.0,
+          2000.0
+        ],
+        [
+          1143.0,
+          2000.0
+        ]
+      ],
+      "group_id": 736,
+      "description": "*银行账号:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          736,
+          743
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1357.0,
+          1944.0
+        ],
+        [
+          1780.0,
+          1944.0
+        ],
+        [
+          1780.0,
+          1985.0
+        ],
+        [
+          1357.0,
+          1985.0
+        ]
+      ],
+      "group_id": 743,
+      "description": "6215968321478528861",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          794,
+          745
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          412.0,
+          2012.0
+        ],
+        [
+          960.0,
+          2012.0
+        ],
+        [
+          960.0,
+          2060.0
+        ],
+        [
+          412.0,
+          2060.0
+        ]
+      ],
+      "group_id": 745,
+      "description": "中国银行(秦皇岛市开发区支行)",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          2287.0,
+          1970.0
+        ],
+        [
+          2328.0,
+          1970.0
+        ],
+        [
+          2328.0,
+          2274.0
+        ],
+        [
+          2287.0,
+          2274.0
+        ]
+      ],
+      "group_id": 761,
+      "description": "第二联客户留存",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          731,
+          769
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          294.0,
+          1938.0
+        ],
+        [
+          421.0,
+          1938.0
+        ],
+        [
+          421.0,
+          1981.0
+        ],
+        [
+          294.0,
+          1981.0
+        ]
+      ],
+      "group_id": 769,
+      "description": "李丛林",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          684,
+          773
+        ],
+        [
+          773,
+          782
+        ],
+        [
+          773,
+          786
+        ],
+        [
+          773,
+          788
+        ],
+        [
+          773,
+          792
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1138.0,
+          2043.0
+        ],
+        [
+          1374.0,
+          2043.0
+        ],
+        [
+          1374.0,
+          2082.0
+        ],
+        [
+          1138.0,
+          2082.0
+        ]
+      ],
+      "group_id": 773,
+      "description": "★开户银行属地:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          773,
+          782
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1414.0,
+          2021.0
+        ],
+        [
+          1542.0,
+          2021.0
+        ],
+        [
+          1542.0,
+          2069.0
+        ],
+        [
+          1414.0,
+          2069.0
+        ]
+      ],
+      "group_id": 782,
+      "description": "河北省",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          773,
+          786
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1688.0,
+          2040.0
+        ],
+        [
+          1740.0,
+          2040.0
+        ],
+        [
+          1740.0,
+          2080.0
+        ],
+        [
+          1688.0,
+          2080.0
+        ]
+      ],
+      "group_id": 786,
+      "description": "省",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          773,
+          788
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1757.0,
+          2018.0
+        ],
+        [
+          1878.0,
+          2018.0
+        ],
+        [
+          1878.0,
+          2065.0
+        ],
+        [
+          1757.0,
+          2065.0
+        ]
+      ],
+      "group_id": 788,
+      "description": "秦皇岛",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          773,
+          792
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          2052.0,
+          2053.0
+        ],
+        [
+          2081.0,
+          2053.0
+        ],
+        [
+          2081.0,
+          2081.0
+        ],
+        [
+          2052.0,
+          2081.0
+        ]
+      ],
+      "group_id": 792,
+      "description": "市",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          794,
+          745
+        ],
+        [
+          684,
+          794
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          134.0,
+          2043.0
+        ],
+        [
+          352.0,
+          2043.0
+        ],
+        [
+          352.0,
+          2081.0
+        ],
+        [
+          134.0,
+          2081.0
+        ]
+      ],
+      "group_id": 794,
+      "description": "*开户银行名称:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          803,
+          813
+        ],
+        [
+          803,
+          857
+        ],
+        [
+          803,
+          893
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          109.0,
+          2096.0
+        ],
+        [
+          399.0,
+          2096.0
+        ],
+        [
+          399.0,
+          2137.0
+        ],
+        [
+          109.0,
+          2137.0
+        ]
+      ],
+      "group_id": 803,
+      "description": "▽机构其他身份信息",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          803,
+          813
+        ],
+        [
+          813,
+          820
+        ],
+        [
+          813,
+          824
+        ],
+        [
+          813,
+          828
+        ],
+        [
+          813,
+          837
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          113.0,
+          2162.0
+        ],
+        [
+          291.0,
+          2162.0
+        ],
+        [
+          291.0,
+          2199.0
+        ],
+        [
+          113.0,
+          2199.0
+        ]
+      ],
+      "group_id": 813,
+      "description": "*企业性质:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          813,
+          820
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          290.0,
+          2166.0
+        ],
+        [
+          395.0,
+          2166.0
+        ],
+        [
+          395.0,
+          2200.0
+        ],
+        [
+          290.0,
+          2200.0
+        ]
+      ],
+      "group_id": 820,
+      "description": "□国有",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          813,
+          824
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          455.0,
+          2165.0
+        ],
+        [
+          552.0,
+          2165.0
+        ],
+        [
+          552.0,
+          2198.0
+        ],
+        [
+          455.0,
+          2198.0
+        ]
+      ],
+      "group_id": 824,
+      "description": "□集体",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          813,
+          828
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1201.0,
+          2162.0
+        ],
+        [
+          1301.0,
+          2162.0
+        ],
+        [
+          1301.0,
+          2200.0
+        ],
+        [
+          1201.0,
+          2200.0
+        ]
+      ],
+      "group_id": 828,
+      "description": "☑私营",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          1364.0,
+          2166.0
+        ],
+        [
+          1468.0,
+          2166.0
+        ],
+        [
+          1468.0,
+          2200.0
+        ],
+        [
+          1364.0,
+          2200.0
+        ]
+      ],
+      "group_id": 832,
+      "description": "□其他:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          813,
+          837
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          607.0,
+          2163.0
+        ],
+        [
+          1150.0,
+          2163.0
+        ],
+        [
+          1150.0,
+          2202.0
+        ],
+        [
+          607.0,
+          2202.0
+        ]
+      ],
+      "group_id": 837,
+      "description": "□三资[中外合资、中外合作、外商独资]",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          803,
+          857
+        ],
+        [
+          857,
+          869
+        ],
+        [
+          857,
+          877
+        ],
+        [
+          857,
+          884
+        ],
+        [
+          857,
+          1260
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          121.0,
+          2224.0
+        ],
+        [
+          287.0,
+          2224.0
+        ],
+        [
+          287.0,
+          2261.0
+        ],
+        [
+          121.0,
+          2261.0
+        ]
+      ],
+      "group_id": 857,
+      "description": "*行业类型:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          857,
+          869
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          521.0,
+          2225.0
+        ],
+        [
+          735.0,
+          2225.0
+        ],
+        [
+          735.0,
+          2263.0
+        ],
+        [
+          521.0,
+          2263.0
+        ]
+      ],
+      "group_id": 869,
+      "description": "☑其他金融机构",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          857,
+          877
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          787.0,
+          2226.0
+        ],
+        [
+          971.0,
+          2226.0
+        ],
+        [
+          971.0,
+          2262.0
+        ],
+        [
+          787.0,
+          2262.0
+        ]
+      ],
+      "group_id": 877,
+      "description": "□非赢利机构",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          857,
+          884
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1029.0,
+          2224.0
+        ],
+        [
+          1249.0,
+          2224.0
+        ],
+        [
+          1249.0,
+          2263.0
+        ],
+        [
+          1029.0,
+          2263.0
+        ]
+      ],
+      "group_id": 884,
+      "description": "□其他赢利机构_",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          803,
+          893
+        ],
+        [
+          893,
+          900
+        ],
+        [
+          893,
+          902
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          112.0,
+          2290.0
+        ],
+        [
+          272.0,
+          2290.0
+        ],
+        [
+          272.0,
+          2324.0
+        ],
+        [
+          112.0,
+          2324.0
+        ]
+      ],
+      "group_id": 893,
+      "description": "*注册资本:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          893,
+          900
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          430.0,
+          2280.0
+        ],
+        [
+          470.0,
+          2280.0
+        ],
+        [
+          470.0,
+          2315.0
+        ],
+        [
+          430.0,
+          2315.0
+        ]
+      ],
+      "group_id": 900,
+      "description": "50",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          893,
+          902
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          718.0,
+          2290.0
+        ],
+        [
+          774.0,
+          2290.0
+        ],
+        [
+          774.0,
+          2329.0
+        ],
+        [
+          718.0,
+          2329.0
+        ]
+      ],
+      "group_id": 902,
+      "description": "万元",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          905,
+          909
+        ],
+        [
+          905,
+          980
+        ],
+        [
+          905,
+          1051
+        ],
+        [
+          905,
+          1122
+        ],
+        [
+          905,
+          1174
+        ],
+        [
+          905,
+          1262
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          106.0,
+          2379.0
+        ],
+        [
+          216.0,
+          2379.0
+        ],
+        [
+          216.0,
+          2415.0
+        ],
+        [
+          106.0,
+          2415.0
+        ]
+      ],
+      "group_id": 905,
+      "description": "▽声明",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          905,
+          909
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          169.0,
+          2440.0
+        ],
+        [
+          2218.0,
+          2440.0
+        ],
+        [
+          2218.0,
+          2484.0
+        ],
+        [
+          169.0,
+          2484.0
+        ]
+      ],
+      "group_id": 909,
+      "description": "本机构已仔细阅读了汇丰晋信基金管理有限公司旗下基金的《基金合同》、最新的《招募说明书》、《开放式基金业务规则》等文件及本表所有内容(包括背面",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          905,
+          980
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          110.0,
+          2494.0
+        ],
+        [
+          2216.0,
+          2494.0
+        ],
+        [
+          2216.0,
+          2538.0
+        ],
+        [
+          110.0,
+          2538.0
+        ]
+      ],
+      "group_id": 980,
+      "description": "条款),愿意接受上述文件中载明的全部条款。本机构保证本申请表所填信息及所提供的资料真实有效,自愿履行基金投资人的各项义务,并自行承担基金投资风",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          905,
+          1051
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          105.0,
+          2547.0
+        ],
+        [
+          2212.0,
+          2547.0
+        ],
+        [
+          2212.0,
+          2590.0
+        ],
+        [
+          105.0,
+          2590.0
+        ]
+      ],
+      "group_id": 1051,
+      "description": "险。本机构保证,用于证券投资基金投资和交易的资金来源合法,本机构进行证券投资基金投资和交易之行为符合中华人民共和国各项法律、法规和规定。本机",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          905,
+          1122
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          106.0,
+          2598.0
+        ],
+        [
+          1010.0,
+          2598.0
+        ],
+        [
+          1010.0,
+          2639.0
+        ],
+        [
+          106.0,
+          2639.0
+        ]
+      ],
+      "group_id": 1122,
+      "description": "构已阅读并充分了解《汇丰晋信基金管理有限公司投资人权益须知》。",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          105.0,
+          2722.0
+        ],
+        [
+          243.0,
+          2722.0
+        ],
+        [
+          243.0,
+          2764.0
+        ],
+        [
+          105.0,
+          2764.0
+        ]
+      ],
+      "group_id": 1154,
+      "description": "机构公章:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          870.0,
+          2725.0
+        ],
+        [
+          1249.0,
+          2725.0
+        ],
+        [
+          1249.0,
+          2765.0
+        ],
+        [
+          870.0,
+          2765.0
+        ]
+      ],
+      "group_id": 1160,
+      "description": "法定代表人(负责人)签章:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          905,
+          1174
+        ],
+        [
+          1174,
+          1261
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1590.0,
+          2723.0
+        ],
+        [
+          1760.0,
+          2723.0
+        ],
+        [
+          1760.0,
+          2768.0
+        ],
+        [
+          1590.0,
+          2768.0
+        ]
+      ],
+      "group_id": 1174,
+      "description": "经办人签章:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1262,
+          1184
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1750.0,
+          2909.0
+        ],
+        [
+          2182.0,
+          2909.0
+        ],
+        [
+          2182.0,
+          2960.0
+        ],
+        [
+          1750.0,
+          2960.0
+        ]
+      ],
+      "group_id": 1184,
+      "description": "2020年6月15日",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          78.0,
+          3042.0
+        ],
+        [
+          210.0,
+          3042.0
+        ],
+        [
+          210.0,
+          3080.0
+        ],
+        [
+          78.0,
+          3080.0
+        ]
+      ],
+      "group_id": 1194,
+      "description": "销售网点:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          580.0,
+          3041.0
+        ],
+        [
+          711.0,
+          3041.0
+        ],
+        [
+          711.0,
+          3075.0
+        ],
+        [
+          580.0,
+          3075.0
+        ]
+      ],
+      "group_id": 1200,
+      "description": "投资顾问:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          1023.0,
+          3041.0
+        ],
+        [
+          1103.0,
+          3041.0
+        ],
+        [
+          1103.0,
+          3074.0
+        ],
+        [
+          1023.0,
+          3074.0
+        ]
+      ],
+      "group_id": 1206,
+      "description": "主管:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          1436.0,
+          3044.0
+        ],
+        [
+          1568.0,
+          3044.0
+        ],
+        [
+          1568.0,
+          3076.0
+        ],
+        [
+          1436.0,
+          3076.0
+        ]
+      ],
+      "group_id": 1210,
+      "description": "活动来源:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1216,
+          1219
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1911.0,
+          3042.0
+        ],
+        [
+          1994.0,
+          3042.0
+        ],
+        [
+          1994.0,
+          3079.0
+        ],
+        [
+          1911.0,
+          3079.0
+        ]
+      ],
+      "group_id": 1216,
+      "description": "附件：",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1216,
+          1219
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          2121.0,
+          3046.0
+        ],
+        [
+          2151.0,
+          3046.0
+        ],
+        [
+          2151.0,
+          3077.0
+        ],
+        [
+          2121.0,
+          3077.0
+        ]
+      ],
+      "group_id": 1219,
+      "description": "张",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          84.0,
+          3212.0
+        ],
+        [
+          185.0,
+          3212.0
+        ],
+        [
+          185.0,
+          3250.0
+        ],
+        [
+          84.0,
+          3250.0
+        ]
+      ],
+      "group_id": 1221,
+      "description": "录入员:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "visible": false,
+      "label": "other",
+      "score": null,
+      "points": [
+        [
+          581.0,
+          3208.0
+        ],
+        [
+          683.0,
+          3208.0
+        ],
+        [
+          683.0,
+          3247.0
+        ],
+        [
+          581.0,
+          3247.0
+        ]
+      ],
+      "group_id": 1226,
+      "description": "复核员:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1232,
+          290
+        ],
+        [
+          282,
+          1232
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          136.0,
+          959.0
+        ],
+        [
+          361.0,
+          959.0
+        ],
+        [
+          361.0,
+          1006.0
+        ],
+        [
+          136.0,
+          1006.0
+        ]
+      ],
+      "group_id": 1232,
+      "description": "*申请机构名称:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1233,
+          312
+        ],
+        [
+          1233,
+          324
+        ],
+        [
+          1233,
+          332
+        ],
+        [
+          1233,
+          345
+        ],
+        [
+          282,
+          1233
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          137.0,
+          1023.0
+        ],
+        [
+          308.0,
+          1023.0
+        ],
+        [
+          308.0,
+          1067.0
+        ],
+        [
+          137.0,
+          1067.0
+        ]
+      ],
+      "group_id": 1233,
+      "description": "*证件类型:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          440,
+          1236
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          769.0,
+          1194.0
+        ],
+        [
+          966.0,
+          1194.0
+        ],
+        [
+          966.0,
+          1248.0
+        ],
+        [
+          769.0,
+          1248.0
+        ]
+      ],
+      "group_id": 1236,
+      "description": "法定代表人",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          430,
+          1237
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1217.0,
+          1196.0
+        ],
+        [
+          1335.0,
+          1196.0
+        ],
+        [
+          1335.0,
+          1247.0
+        ],
+        [
+          1217.0,
+          1247.0
+        ]
+      ],
+      "group_id": 1237,
+      "description": "身份证",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          411,
+          1240
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1635.0,
+          1199.0
+        ],
+        [
+          2035.0,
+          1199.0
+        ],
+        [
+          2035.0,
+          1244.0
+        ],
+        [
+          1635.0,
+          1244.0
+        ]
+      ],
+      "group_id": 1240,
+      "description": "195658197506185119",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          467,
+          1241
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1713.0,
+          1302.0
+        ],
+        [
+          1958.0,
+          1302.0
+        ],
+        [
+          1958.0,
+          1347.0
+        ],
+        [
+          1713.0,
+          1347.0
+        ]
+      ],
+      "group_id": 1241,
+      "description": "18757832244",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1242,
+          491
+        ],
+        [
+          282,
+          1242
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1107.0,
+          1377.0
+        ],
+        [
+          1220.0,
+          1377.0
+        ],
+        [
+          1220.0,
+          1417.0
+        ],
+        [
+          1107.0,
+          1417.0
+        ]
+      ],
+      "group_id": 1242,
+      "description": "E-mail:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          407,
+          1243
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1789.0,
+          1144.0
+        ],
+        [
+          1926.0,
+          1144.0
+        ],
+        [
+          1926.0,
+          1188.0
+        ],
+        [
+          1789.0,
+          1188.0
+        ]
+      ],
+      "group_id": 1243,
+      "description": "066004",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          499,
+          1244
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          357.0,
+          1442.0
+        ],
+        [
+          447.0,
+          1442.0
+        ],
+        [
+          447.0,
+          1475.0
+        ],
+        [
+          357.0,
+          1475.0
+        ]
+      ],
+      "group_id": 1244,
+      "description": "□邮寄",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          518,
+          1245
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          713.0,
+          1483.0
+        ],
+        [
+          832.0,
+          1483.0
+        ],
+        [
+          832.0,
+          1529.0
+        ],
+        [
+          713.0,
+          1529.0
+        ]
+      ],
+      "group_id": 1245,
+      "description": "李丛林",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          595,
+          1246
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          337.0,
+          1546.0
+        ],
+        [
+          765.0,
+          1546.0
+        ],
+        [
+          765.0,
+          1592.0
+        ],
+        [
+          337.0,
+          1592.0
+        ]
+      ],
+      "group_id": 1246,
+      "description": "2026年7月13日",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          625,
+          1247
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          537.0,
+          1674.0
+        ],
+        [
+          600.0,
+          1674.0
+        ],
+        [
+          600.0,
+          1714.0
+        ],
+        [
+          537.0,
+          1714.0
+        ]
+      ],
+      "group_id": 1247,
+      "description": "□是",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          542,
+          1248
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1151.0,
+          1491.0
+        ],
+        [
+          1276.0,
+          1491.0
+        ],
+        [
+          1276.0,
+          1541.0
+        ],
+        [
+          1151.0,
+          1541.0
+        ]
+      ],
+      "group_id": 1248,
+      "description": "身份证",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1249,
+          552
+        ],
+        [
+          282,
+          1249
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1454.0,
+          1501.0
+        ],
+        [
+          1619.0,
+          1501.0
+        ],
+        [
+          1619.0,
+          1544.0
+        ],
+        [
+          1454.0,
+          1544.0
+        ]
+      ],
+      "group_id": 1249,
+      "description": "*证件号码:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          362,
+          1250
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1302.0,
+          1092.0
+        ],
+        [
+          1738.0,
+          1092.0
+        ],
+        [
+          1738.0,
+          1134.0
+        ],
+        [
+          1302.0,
+          1134.0
+        ]
+      ],
+      "group_id": 1250,
+      "description": "2021年9月22日",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          499,
+          1253
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          904.0,
+          1435.0
+        ],
+        [
+          994.0,
+          1435.0
+        ],
+        [
+          994.0,
+          1478.0
+        ],
+        [
+          904.0,
+          1478.0
+        ]
+      ],
+      "group_id": 1253,
+      "description": "□传真",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          450,
+          1254
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          340.0,
+          1247.0
+        ],
+        [
+          782.0,
+          1247.0
+        ],
+        [
+          782.0,
+          1308.0
+        ],
+        [
+          340.0,
+          1308.0
+        ]
+      ],
+      "group_id": 1254,
+      "description": "2026年7月13日",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          857,
+          1260
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          300.0,
+          2223.0
+        ],
+        [
+          451.0,
+          2223.0
+        ],
+        [
+          451.0,
+          2267.0
+        ],
+        [
+          300.0,
+          2267.0
+        ]
+      ],
+      "group_id": 1260,
+      "description": "□保险机构",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1174,
+          1261
+        ]
+      ],
+      "visible": false,
+      "label": "answer",
+      "score": null,
+      "points": [
+        [
+          1763.0,
+          2728.0
+        ],
+        [
+          1882.0,
+          2728.0
+        ],
+        [
+          1882.0,
+          2777.0
+        ],
+        [
+          1763.0,
+          2777.0
+        ]
+      ],
+      "group_id": 1261,
+      "description": "李丛林",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    },
+    {
+      "kie_linking": [
+        [
+          1262,
+          1184
+        ],
+        [
+          905,
+          1262
+        ]
+      ],
+      "visible": false,
+      "label": "question",
+      "score": null,
+      "points": [
+        [
+          1639.0,
+          2921.0
+        ],
+        [
+          1727.0,
+          2921.0
+        ],
+        [
+          1727.0,
+          2970.0
+        ],
+        [
+          1639.0,
+          2970.0
+        ]
+      ],
+      "group_id": 1262,
+      "description": "日期:",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {}
+    }
+  ],
+  "imagePath": "zh_train_0.jpg",
+  "imageData": null,
+  "imageHeight": 3508,
+  "imageWidth": 2480,
+  "text": ""
+}

@@ -1,0 +1,1577 @@
+{
+  "version": "2.4.0",
+  "flags": {},
+  "shapes": [
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9634811878204346,
+      "points": [
+        [
+          1.0,
+          0.0
+        ],
+        [
+          346.0,
+          0.0
+        ],
+        [
+          346.0,
+          17.0
+        ],
+        [
+          1.0,
+          17.0
+        ]
+      ],
+      "group_id": 0,
+      "description": "The detection visualized image saved in ./vis.jpg",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9990286231040955,
+      "points": [
+        [
+          58.0,
+          17.0
+        ],
+        [
+          159.0,
+          17.0
+        ],
+        [
+          159.0,
+          30.0
+        ],
+        [
+          58.0,
+          30.0
+        ]
+      ],
+      "group_id": 1,
+      "description": "纯臻营养护发素",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9982336759567261,
+      "points": [
+        [
+          168.0,
+          17.0
+        ],
+        [
+          229.0,
+          17.0
+        ],
+        [
+          229.0,
+          30.0
+        ],
+        [
+          168.0,
+          30.0
+        ]
+      ],
+      "group_id": 2,
+      "description": "0.993604",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9910615086555481,
+      "points": [
+        [
+          57.0,
+          32.0
+        ],
+        [
+          151.0,
+          32.0
+        ],
+        [
+          151.0,
+          49.0
+        ],
+        [
+          57.0,
+          49.0
+        ]
+      ],
+      "group_id": 4,
+      "description": "产品信息/参数",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9970434308052063,
+      "points": [
+        [
+          170.0,
+          33.0
+        ],
+        [
+          230.0,
+          33.0
+        ],
+        [
+          230.0,
+          47.0
+        ],
+        [
+          170.0,
+          47.0
+        ]
+      ],
+      "group_id": 5,
+      "description": "0.992728",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9991468191146851,
+      "points": [
+        [
+          1.0,
+          49.0
+        ],
+        [
+          13.0,
+          49.0
+        ],
+        [
+          13.0,
+          64.0
+        ],
+        [
+          1.0,
+          64.0
+        ]
+      ],
+      "group_id": 6,
+      "description": "2",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.956633448600769,
+      "points": [
+        [
+          64.0,
+          49.0
+        ],
+        [
+          173.0,
+          49.0
+        ],
+        [
+          173.0,
+          63.0
+        ],
+        [
+          64.0,
+          63.0
+        ]
+      ],
+      "group_id": 7,
+      "description": "（45元／每公斤，",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9909297227859497,
+      "points": [
+        [
+          167.0,
+          49.0
+        ],
+        [
+          255.0,
+          49.0
+        ],
+        [
+          255.0,
+          63.0
+        ],
+        [
+          167.0,
+          63.0
+        ]
+      ],
+      "group_id": 8,
+      "description": "100公斤起订）",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9993506669998169,
+      "points": [
+        [
+          282.0,
+          49.0
+        ],
+        [
+          332.0,
+          49.0
+        ],
+        [
+          332.0,
+          63.0
+        ],
+        [
+          282.0,
+          63.0
+        ]
+      ],
+      "group_id": 9,
+      "description": "0.97417",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9991299510002136,
+      "points": [
+        [
+          1.0,
+          65.0
+        ],
+        [
+          13.0,
+          65.0
+        ],
+        [
+          13.0,
+          79.0
+        ],
+        [
+          1.0,
+          79.0
+        ]
+      ],
+      "group_id": 10,
+      "description": "3",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9991061687469482,
+      "points": [
+        [
+          57.0,
+          64.0
+        ],
+        [
+          130.0,
+          64.0
+        ],
+        [
+          130.0,
+          80.0
+        ],
+        [
+          57.0,
+          80.0
+        ]
+      ],
+      "group_id": 11,
+      "description": "每瓶22元，",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9797261953353882,
+      "points": [
+        [
+          127.0,
+          66.0
+        ],
+        [
+          206.0,
+          66.0
+        ],
+        [
+          206.0,
+          79.0
+        ],
+        [
+          127.0,
+          79.0
+        ]
+      ],
+      "group_id": 12,
+      "description": "1000瓶起订）",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.998490571975708,
+      "points": [
+        [
+          224.0,
+          66.0
+        ],
+        [
+          286.0,
+          66.0
+        ],
+        [
+          286.0,
+          79.0
+        ],
+        [
+          224.0,
+          79.0
+        ]
+      ],
+      "group_id": 13,
+      "description": "0.993976",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.998847484588623,
+      "points": [
+        [
+          1.0,
+          81.0
+        ],
+        [
+          13.0,
+          81.0
+        ],
+        [
+          13.0,
+          95.0
+        ],
+        [
+          1.0,
+          95.0
+        ]
+      ],
+      "group_id": 14,
+      "description": "4",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9959591627120972,
+      "points": [
+        [
+          62.0,
+          80.0
+        ],
+        [
+          130.0,
+          80.0
+        ],
+        [
+          130.0,
+          96.0
+        ],
+        [
+          62.0,
+          96.0
+        ]
+      ],
+      "group_id": 15,
+      "description": "【品牌】：",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9673715233802795,
+      "points": [
+        [
+          127.0,
+          81.0
+        ],
+        [
+          251.0,
+          81.0
+        ],
+        [
+          251.0,
+          94.0
+        ],
+        [
+          127.0,
+          94.0
+        ]
+      ],
+      "group_id": 16,
+      "description": "代加工方式/OEMODM",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9983160495758057,
+      "points": [
+        [
+          281.0,
+          81.0
+        ],
+        [
+          340.0,
+          81.0
+        ],
+        [
+          340.0,
+          94.0
+        ],
+        [
+          281.0,
+          94.0
+        ]
+      ],
+      "group_id": 17,
+      "description": "0.985133",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9987248778343201,
+      "points": [
+        [
+          1.0,
+          97.0
+        ],
+        [
+          13.0,
+          97.0
+        ],
+        [
+          13.0,
+          111.0
+        ],
+        [
+          1.0,
+          111.0
+        ]
+      ],
+      "group_id": 18,
+      "description": "5",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9979655742645264,
+      "points": [
+        [
+          64.0,
+          96.0
+        ],
+        [
+          227.0,
+          96.0
+        ],
+        [
+          227.0,
+          112.0
+        ],
+        [
+          64.0,
+          112.0
+        ]
+      ],
+      "group_id": 19,
+      "description": "【品名】：纯臻营养护发素",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9983330965042114,
+      "points": [
+        [
+          280.0,
+          97.0
+        ],
+        [
+          338.0,
+          97.0
+        ],
+        [
+          338.0,
+          110.0
+        ],
+        [
+          280.0,
+          110.0
+        ]
+      ],
+      "group_id": 20,
+      "description": "0.995007",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9975666999816895,
+      "points": [
+        [
+          1.0,
+          112.0
+        ],
+        [
+          13.0,
+          112.0
+        ],
+        [
+          13.0,
+          127.0
+        ],
+        [
+          1.0,
+          127.0
+        ]
+      ],
+      "group_id": 21,
+      "description": "6",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9979310035705566,
+      "points": [
+        [
+          65.0,
+          113.0
+        ],
+        [
+          137.0,
+          113.0
+        ],
+        [
+          137.0,
+          127.0
+        ],
+        [
+          65.0,
+          127.0
+        ]
+      ],
+      "group_id": 22,
+      "description": "【产品编号】",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9758767485618591,
+      "points": [
+        [
+          155.0,
+          113.0
+        ],
+        [
+          277.0,
+          113.0
+        ],
+        [
+          277.0,
+          127.0
+        ],
+        [
+          155.0,
+          127.0
+        ]
+      ],
+      "group_id": 23,
+      "description": "YM-X-3011 0.96899",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.99788898229599,
+      "points": [
+        [
+          2.0,
+          129.0
+        ],
+        [
+          11.0,
+          129.0
+        ],
+        [
+          11.0,
+          142.0
+        ],
+        [
+          2.0,
+          142.0
+        ]
+      ],
+      "group_id": 24,
+      "description": "7",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9945838451385498,
+      "points": [
+        [
+          64.0,
+          128.0
+        ],
+        [
+          138.0,
+          128.0
+        ],
+        [
+          138.0,
+          142.0
+        ],
+        [
+          64.0,
+          142.0
+        ]
+      ],
+      "group_id": 25,
+      "description": "【净含量】：",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9822794198989868,
+      "points": [
+        [
+          141.0,
+          129.0
+        ],
+        [
+          180.0,
+          129.0
+        ],
+        [
+          180.0,
+          143.0
+        ],
+        [
+          141.0,
+          143.0
+        ]
+      ],
+      "group_id": 26,
+      "description": "220ml",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9971126914024353,
+      "points": [
+        [
+          226.0,
+          129.0
+        ],
+        [
+          284.0,
+          129.0
+        ],
+        [
+          284.0,
+          143.0
+        ],
+        [
+          226.0,
+          143.0
+        ]
+      ],
+      "group_id": 27,
+      "description": "0.996577",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9978025555610657,
+      "points": [
+        [
+          1.0,
+          145.0
+        ],
+        [
+          14.0,
+          145.0
+        ],
+        [
+          14.0,
+          159.0
+        ],
+        [
+          1.0,
+          159.0
+        ]
+      ],
+      "group_id": 28,
+      "description": "8",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9957130551338196,
+      "points": [
+        [
+          65.0,
+          146.0
+        ],
+        [
+          138.0,
+          146.0
+        ],
+        [
+          138.0,
+          159.0
+        ],
+        [
+          65.0,
+          159.0
+        ]
+      ],
+      "group_id": 29,
+      "description": "【适用人群】",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9982410669326782,
+      "points": [
+        [
+          134.0,
+          146.0
+        ],
+        [
+          240.0,
+          146.0
+        ],
+        [
+          240.0,
+          159.0
+        ],
+        [
+          134.0,
+          159.0
+        ]
+      ],
+      "group_id": 30,
+      "description": "：适合所有肤质",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9932493567466736,
+      "points": [
+        [
+          280.0,
+          144.0
+        ],
+        [
+          341.0,
+          144.0
+        ],
+        [
+          341.0,
+          160.0
+        ],
+        [
+          280.0,
+          160.0
+        ]
+      ],
+      "group_id": 31,
+      "description": "0.995842",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9866422414779663,
+      "points": [
+        [
+          1.0,
+          160.0
+        ],
+        [
+          14.0,
+          160.0
+        ],
+        [
+          14.0,
+          175.0
+        ],
+        [
+          1.0,
+          175.0
+        ]
+      ],
+      "group_id": 32,
+      "description": "9",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9579495191574097,
+      "points": [
+        [
+          63.0,
+          160.0
+        ],
+        [
+          245.0,
+          160.0
+        ],
+        [
+          245.0,
+          176.0
+        ],
+        [
+          63.0,
+          176.0
+        ]
+      ],
+      "group_id": 33,
+      "description": "【主要成分】：鲸蜡硬脂醇、",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9203217625617981,
+      "points": [
+        [
+          238.0,
+          160.0
+        ],
+        [
+          312.0,
+          160.0
+        ],
+        [
+          312.0,
+          176.0
+        ],
+        [
+          238.0,
+          176.0
+        ]
+      ],
+      "group_id": 34,
+      "description": "蒸麦B-葡聚",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9989203214645386,
+      "points": [
+        [
+          2.0,
+          177.0
+        ],
+        [
+          19.0,
+          177.0
+        ],
+        [
+          19.0,
+          190.0
+        ],
+        [
+          2.0,
+          190.0
+        ]
+      ],
+      "group_id": 36,
+      "description": "10",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9880477786064148,
+      "points": [
+        [
+          57.0,
+          176.0
+        ],
+        [
+          255.0,
+          176.0
+        ],
+        [
+          255.0,
+          192.0
+        ],
+        [
+          57.0,
+          192.0
+        ]
+      ],
+      "group_id": 37,
+      "description": "糖、椰油酰胺丙基甜菜碱、泛醒",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9930806159973145,
+      "points": [
+        [
+          280.0,
+          176.0
+        ],
+        [
+          341.0,
+          176.0
+        ],
+        [
+          341.0,
+          192.0
+        ],
+        [
+          280.0,
+          192.0
+        ]
+      ],
+      "group_id": 38,
+      "description": "0.925898",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.999031662940979,
+      "points": [
+        [
+          1.0,
+          191.0
+        ],
+        [
+          19.0,
+          191.0
+        ],
+        [
+          19.0,
+          207.0
+        ],
+        [
+          1.0,
+          207.0
+        ]
+      ],
+      "group_id": 39,
+      "description": "11",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9923512935638428,
+      "points": [
+        [
+          65.0,
+          193.0
+        ],
+        [
+          134.0,
+          193.0
+        ],
+        [
+          134.0,
+          206.0
+        ],
+        [
+          65.0,
+          206.0
+        ]
+      ],
+      "group_id": 40,
+      "description": "（成品包材）",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9974566102027893,
+      "points": [
+        [
+          171.0,
+          193.0
+        ],
+        [
+          229.0,
+          193.0
+        ],
+        [
+          229.0,
+          206.0
+        ],
+        [
+          171.0,
+          206.0
+        ]
+      ],
+      "group_id": 41,
+      "description": "0.972573",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9992388486862183,
+      "points": [
+        [
+          1.0,
+          207.0
+        ],
+        [
+          20.0,
+          207.0
+        ],
+        [
+          20.0,
+          224.0
+        ],
+        [
+          1.0,
+          224.0
+        ]
+      ],
+      "group_id": 42,
+      "description": "12",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.994053065776825,
+      "points": [
+        [
+          64.0,
+          209.0
+        ],
+        [
+          263.0,
+          209.0
+        ],
+        [
+          263.0,
+          223.0
+        ],
+        [
+          64.0,
+          223.0
+        ]
+      ],
+      "group_id": 43,
+      "description": "【主要功能】：可紧致头发磷层，",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.999348521232605,
+      "points": [
+        [
+          266.0,
+          209.0
+        ],
+        [
+          325.0,
+          209.0
+        ],
+        [
+          325.0,
+          223.0
+        ],
+        [
+          266.0,
+          223.0
+        ]
+      ],
+      "group_id": 44,
+      "description": "从而达到",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9964321851730347,
+      "points": [
+        [
+          334.0,
+          207.0
+        ],
+        [
+          397.0,
+          207.0
+        ],
+        [
+          397.0,
+          224.0
+        ],
+        [
+          334.0,
+          224.0
+        ]
+      ],
+      "group_id": 45,
+      "description": "0.994448",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9993536472320557,
+      "points": [
+        [
+          2.0,
+          225.0
+        ],
+        [
+          19.0,
+          225.0
+        ],
+        [
+          19.0,
+          239.0
+        ],
+        [
+          2.0,
+          239.0
+        ]
+      ],
+      "group_id": 46,
+      "description": "13",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9970267415046692,
+      "points": [
+        [
+          56.0,
+          223.0
+        ],
+        [
+          326.0,
+          223.0
+        ],
+        [
+          326.0,
+          241.0
+        ],
+        [
+          56.0,
+          241.0
+        ]
+      ],
+      "group_id": 47,
+      "description": "即时持久改善头发光泽的效果，给干燥的头",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9980379343032837,
+      "points": [
+        [
+          336.0,
+          225.0
+        ],
+        [
+          397.0,
+          225.0
+        ],
+        [
+          397.0,
+          239.0
+        ],
+        [
+          336.0,
+          239.0
+        ]
+      ],
+      "group_id": 48,
+      "description": "0.990198",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9994744062423706,
+      "points": [
+        [
+          3.0,
+          241.0
+        ],
+        [
+          18.0,
+          241.0
+        ],
+        [
+          18.0,
+          254.0
+        ],
+        [
+          3.0,
+          254.0
+        ]
+      ],
+      "group_id": 49,
+      "description": "14",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.998967170715332,
+      "points": [
+        [
+          57.0,
+          240.0
+        ],
+        [
+          142.0,
+          240.0
+        ],
+        [
+          142.0,
+          256.0
+        ],
+        [
+          57.0,
+          256.0
+        ]
+      ],
+      "group_id": 50,
+      "description": "发足够的滋养",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9977166056632996,
+      "points": [
+        [
+          169.0,
+          239.0
+        ],
+        [
+          230.0,
+          239.0
+        ],
+        [
+          230.0,
+          255.0
+        ],
+        [
+          169.0,
+          255.0
+        ]
+      ],
+      "group_id": 51,
+      "description": "0.997668",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "kie_linking": [],
+      "label": "text",
+      "score": 0.9911196231842041,
+      "points": [
+        [
+          2.0,
+          257.0
+        ],
+        [
+          113.0,
+          257.0
+        ],
+        [
+          113.0,
+          270.0
+        ],
+        [
+          2.0,
+          270.0
+        ]
+      ],
+      "group_id": 52,
+      "description": "花费了0.457335秒",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "label": "text",
+      "score": null,
+      "points": [
+        [
+          0.13385826771654763,
+          33.45669291338583
+        ],
+        [
+          12.732283464566947,
+          33.45669291338583
+        ],
+        [
+          12.732283464566947,
+          46.84251968503937
+        ],
+        [
+          0.13385826771654763,
+          46.84251968503937
+        ]
+      ],
+      "group_id": null,
+      "description": "1",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": null,
+      "points": [
+        [
+          0.13385826771654763,
+          18.889763779527563
+        ],
+        [
+          13.125984251968518,
+          18.889763779527563
+        ],
+        [
+          13.125984251968518,
+          31.094488188976378
+        ],
+        [
+          0.13385826771654763,
+          31.094488188976378
+        ]
+      ],
+      "group_id": null,
+      "description": "0",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    },
+    {
+      "label": "text",
+      "score": null,
+      "points": [
+        [
+          336.1574803149606,
+          161.8031496062992
+        ],
+        [
+          397.1811023622047,
+          161.8031496062992
+        ],
+        [
+          397.1811023622047,
+          174.00787401574803
+        ],
+        [
+          336.1574803149606,
+          174.00787401574803
+        ]
+      ],
+      "group_id": null,
+      "description": "0.961928",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "demo_ocr.png",
+  "imageData": null,
+  "imageHeight": 274,
+  "imageWidth": 442,
+  "text": ""
+}

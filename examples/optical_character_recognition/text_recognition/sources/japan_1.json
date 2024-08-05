@@ -1,0 +1,39 @@
+{
+  "version": "2.4.0",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "text",
+      "score": 0.8889570236206055,
+      "points": [
+        [
+          57.0,
+          20.0
+        ],
+        [
+          229.0,
+          20.0
+        ],
+        [
+          229.0,
+          35.0
+        ],
+        [
+          57.0,
+          35.0
+        ]
+      ],
+      "group_id": 0,
+      "description": "だいビようボ。未来は元気だよ",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
+  "imagePath": "japan_1.jpg",
+  "imageData": null,
+  "imageHeight": 170,
+  "imageWidth": 296
+}
