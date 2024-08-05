@@ -1,104 +1,571 @@
-## User Manual
+# User Manual
 
-### Annotations Upload/Export
+## 0. Table of Contents
+   * [1. File Management](#1-file-management)
+      * [1.1 Data Import](#11-data-import)
+      * [1.2 Data Deletion](#12-data-deletion)
+      * [1.3 Image Switching](#13-image-switching)
+      * [1.4 Saving Label Data](#14-saving-label-data)
+      * [1.5 Saving Image Data](#15-saving-image-data)
+   * [2. Editing](#2-editing)
+      * [2.1 Creating Objects](#21-creating-objects)
+      * [2.2 Editing Objects](#22-editing-objects)
+      * [2.3 Editing Labels](#23-editing-labels)
+      * [2.4 Editing Images](#24-editing-images)
+   * [3. View](#3-view)
+      * [3.1 Canvas Visualization](#31-canvas-visualization)
+      * [3.2 Image Visualization](#32-image-visualization)
+      * [3.3 Object Visualization](#33-object-visualization)
+      * [3.4 Crosshair](#34-crosshair)
+   * [4. Annotation Import and Export](#4-annotation-import-and-export)
+      * [4.1 YOLO Annotation](#41-yolo-annotation)
+      * [4.2 VOC Annotation](#42-voc-annotation)
+      * [4.3 COCO Annotation](#43-coco-annotation)
+      * [4.4 DOTA Annotation](#44-dota-annotation)
+      * [4.5 MASK Annotation](#45-mask-annotation)
+      * [4.6 MOT Annotation](#46-mot-annotation)
+      * [4.7 PPOCR Annotation](#47-ppocr-annotation)
+      * [5. Toolbar](#5-toolbar)
+      * [5.1 Data Statistics](#51-data-statistics)
+      * [5.2 Save Sub-Images](#52-save-sub-images)
+      * [5.3 Object Manager](#53-object-manager)
+      * [5.4 Label Type Conversion](#54-label-type-conversion)
+   * [6. Help and Language](#6-help-and-language)
+      * [6.1 Getting Version Information](#61-getting-version-information)
+      * [6.2 Setting Software Language](#62-setting-software-language)
+      * [7.1 Keyboard Shortcut Settings](#71-keyboard-shortcut-settings)
+      * [7.2 Customizing Label Colors](#72-customizing-label-colors)
+      * [7.3 Loading Predefined Labels](#73-loading-predefined-labels)
+      * [7.4 Auto-Switch to Edit Mode](#74-auto-switch-to-edit-mode)
+      * [7.5 Hover Auto-Highlight Mode](#75-hover-auto-highlight-mode)
+      * [8. Tasks](#8-tasks)
+         * [8.1 Image Classification](#81-image-classification)
+         * [8.2 Object Detection](#82-object-detection)
+         * [8.3 Image Segmentation](#83-image-segmentation)
+         * [8.4 Pose Estimation](#84-pose-estimation)
+         * [8.5 Multi-Object Tracking](#85-multi-object-tracking)
+         * [8.6 Depth Estimation](#86-depth-estimation)
+         * [8.7 Optical Character Recognition](#87-optical-character-recognition)
+   * [9. Models](#9-models)
 
-`X-AnyLabeling` currently supports the import and export of various popular annotation formats. Here is a brief guide on how to use these features.
 
-#### Import/Export YOLO Labels
+## 1. File Management
 
-The latest version of X-AnyLabeling allows one-click upload/export of YOLOv5/v8 labels for object detection, instance segmentation, oriented bounding box, and keypoint detection tasks (`*.txt` files).</br>
+This section details how to import, manage, and save data using X-AnyLabeling. Users can import images and video files in various ways, including shortcuts or menu options. Additionally, it covers data deletion, image switching, and saving of labels and image data to ensure an efficient annotation process and secure data management.
 
-Before importing/exporting YOLO label files, prepare a label configuration file:</br>
-1. For object detection, instance segmentation, and oriented bounding box, refer to [classes.txt](../../assets/classes.txt), with each line representing a class, numbered sequentially from 0.
-2. For keypoint detection, refer to [yolov8_pose.yaml](../../assets/yolov8_pose.yaml), following the `has_visible` parameter as per the [official definition](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format).</br>
+### 1.1 Data Import
 
-> To export in YOLO-Pose format, you need to specify a group_id for each group (bounding box and its keypoints) during the annotation process so that X-Anylabeling can understand their relationships during export.
+After opening the GUI, users can select the corresponding task type for import from the `File` dropdown menu at the top of the interface or use shortcuts.
 
-To import labels, click the `Upload` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
-To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `labels` folder within the current image directory.</br>
+X-AnyLabeling currently supports three data import formats:
 
-> Example YOLO label file: [demo.txt](../../assets/labels/demo.txt).
+- **Image File Directory** (Ctrl+U): Supports importing multiple files with multi-level directory nesting.
+- **Single Image File** (Ctrl+I): Supports importing various formats such as `*.jpg`, `*.png`, `*.bmp`, `*.webp`, and `*.tif`.
+- **Single Video File** (Ctrl+O): Supports importing video formats such as `*.mp4`, `*.avi`, `*.mov`, `*.mkv`, `*.wmv`, and `*.flv`.
 
-#### Import/Export COCO Labels
+### 1.2 Data Deletion
 
-X-AnyLabeling supports one-click import/export of COCO labels for object detection and instance segmentation tasks (`*.json` files).</br>
+X-AnyLabeling provides data deletion functionalities as follows:
 
-Prepare a label configuration file by referring to [classes.txt](../../assets/classes.txt), with each line representing a class, numbered sequentially from 0.</br>
+- **Delete Label File** (Ctrl+D): Deletes the current annotation file. This operation cannot be undone, so please proceed with caution.
+- **Delete Image File** (Ctrl+Shift+D): Deletes the current image file, moving it to the `_delete_` folder within the current image directory.
 
-To import labels, click the `Upload` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
-To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `annotations` folder within the current image directory.
+### 1.3 Image Switching
 
-> Example COCO label file: [instances_default.json](../../assets/annotations/instances_default.json).
+X-AnyLabeling offers image switching features as follows:
 
-#### Import/Export VOC Labels
+- **Previous Image** (A): Switches to the previous image.
+- **Next Image** (D): Switches to the next image.
+- **Previous Image with Label File** (Ctrl+Shift+A): Switches to the previous image with a label file.
+- **Next Image with Label File** (Ctrl+Shift+D): Switches to the next image with a label file.
+- **Jump to Specified Image**: Enter the image name in the file search bar at the bottom right of the interface and press Enter to jump to the specified image.
 
-X-AnyLabeling supports one-click import/export of Pascal-VOC labels for detection and segmentation tasks (`*.xml` files).</br>
+### 1.4 Saving Label Data
 
-To import labels, click the `Import` button on the menu, select the task, choose the label file directory and confirm.</br>
-To export labels, click the `Export` button and confirm. Exported files are saved in the `Annotations` folder within the current image directory.</br>
+X-AnyLabeling has an auto-save feature enabled by default. Upon initial startup, users can check if the `Auto Save` option is selected from the `File` dropdown menu.
 
-> Example VOC label file: [demo.xml](../../assets/Annotations/demo.xml).
+Label files are saved in the current image directory in `*.json` format, with the following template:
 
-#### Import/Export DOTA Labels
-
-X-AnyLabeling supports one-click import/export of DOTA label files (`*.txt`). The format is:</br>
-
-> x1 y1 x2 y2 x3 y3 x4 y4 class_name difficulty
-
-To import labels, click the `Upload` button on the menu, select the task, choose the label file directory and confirm.</br>
-To export labels, click the `Export` button and confirm. Exported files are saved in the `labelTxt` folder within the current image directory.</br>
-
-> Example DOTA label file: [demo_obb.txt](../../assets/labelTxt/demo_obb.txt).
-
-#### Import/Export MASK Labels
-
-X-AnyLabeling supports one-click import/export of semantic segmentation mask label files (`*.png`).</br>
-
-Before importing/exporting mask label files, prepare a configuration file:</br>
-1. For color maps of colored images, refer to [mask_color_map.json](../../assets/mask_color_map.json).</br>
-2. For grayscale maps, refer to [mask_grayscale_map.json](../../assets/mask_grayscale_map.json).</br>
-
-To import labels, click the `Upload` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
-To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `mask` folder within the current image directory.</br>
-
-#### Import/Export MOT Labels
-
-X-AnyLabeling supports one-click import/export of multi-object tracking label files (`*.csv`).</br>
-
-Prepare a label configuration file by referring to [classes.txt](../../assets/classes.txt), with each line representing a class, numbered sequentially from 0.</br>
-
-To import labels, click the `Import` button on the menu, select the task, upload the configuration file, then choose the label file directory and confirm.</br>
-To export labels, click the `Export` button, upload the configuration file, and confirm. Exported files are saved in the `MOT` folder within the current image directory.</br>
-
-> Example MOT label file: [demo_video.csv](../../assets/MOT/demo_video.csv).
-
-### Configuration File Settings
-
-The configuration file `.xanylabelingrc` in `X-AnyLabeling` is by default stored in the current user's directory. You can refer to:
-
-```bash
-# Linux
-cd ~/.xanylabelingrc
-
-# Windows
-cd C:\\Users\\xxx\\.xanylabelingrc
+```json
+{
+  "version": "${version}",
+  "flags": {},
+  "shapes": [
+    {
+      "label": "${label}",
+      "score": null,
+      "points": [...],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "${shape_type}",
+      "flags": null,
+      "attributes": {}
+    }
+  ],
+  "imagePath": "${filename}",
+  "imageData": null,  // base64
+  "imageHeight": -1,
+  "imageWidth": -1
+}
 ```
 
-Taking the example of modifying the color of custom labels, follow these steps:
+⚠️ To change the label save path, select the `Change Output Directory` option from the `File` dropdown menu and set the desired save path.
 
-1. Open your user directory's configuration file (.xanylabelingrc). You can use a text editor or command-line tools for editing.
+### 1.5 Saving Image Data
 
-2. Find the field `shape_color` in the configuration file and ensure its value is "manual," indicating that you will set the label colors manually.
+If you want to save the current image data (default `base64` encoded) during annotation, you can enable the `Save Image Data` option from the `File` dropdown menu.
 
-3. Locate the `label_colors` field, which contains the various labels and their corresponding colors.
+## 2. Editing
 
-4. In `label_colors`, find the label whose color you want to modify, such as "person," "car," "bicycle," etc.
+This section guides you on creating, editing, and managing various types of annotation objects and their label information in X-AnyLabeling. It covers everything from basic operations to advanced features, ensuring comprehensive guidance.
 
-5. Use RGB values to represent the color, where [255, 0, 0] represents red, [0, 255, 0] represents green, and [0, 0, 255] represents blue.
+### 2.1 Creating Objects
 
-6. Replace the color values of the label with the desired color values, save the file, and close the editor.
+In X-AnyLabeling, each distinct annotated object is referred to as a `shape`, with key properties such as:
 
-Example:
+| Field         | Type    | Description                                                      |
+|---------------|---------|------------------------------------------------------------------|
+| `label`       | String  | The category label of the object.                                |
+| `score`       | Float   | The confidence score of the object, typically used in AI inference. If unavailable, it is `null`. |
+| `points`      | Array   | List of vertices' coordinates, depending on the `shape_type`.    |
+| `group_id`    | Integer | Group ID to associate multiple objects within the same group; `null` if not available. |
+| `description` | String  | Description of the object; `null` if not available.              |
+| `difficult`   | Boolean | Indicates if the object is difficult to identify; `true` means difficult. |
+| `shape_type`  | String  | The shape type, such as `"rectangle"`, `"polygon"`, etc.         |
+| `flags`       | Dictionary | Additional flag information for extra state or attributes; `null` if not available. |
+| `attributes`  | Dictionary | Object's attribute information; an empty dictionary `{}` if not available. |
+| `kie_linking` | List    | Connection information between objects, e.g., `[[1,2],[3,4]]`; an empty list `[]` if not available. |
+
+For more details on additional fields, refer to [shape.py](../../anylabeling/views/labeling/shape.py).
+
+X-AnyLabeling supports creating the following types of shape objects:
+
+- **Rectangle** (R): Start drawing by left-clicking, move the cursor, and click again to finish the rectangle.
+- **Rotation** (O): Start drawing by left-clicking, move the cursor, and click again to finish the rotated box.
+- **Polygon** (P): Start drawing by left-clicking along the object's edge, adding segmentation points. Click on the starting point to finish. A minimum of 3 points is required.
+- **Point**: Left-click to create a key point.
+- **Line**: Start drawing by left-clicking, move the cursor, and click again to finish the line segment.
+- **Line Strip**: Start drawing by left-clicking, move the cursor, click to add line segments, and double-click to finish.
+- **Circle**: Start drawing by left-clicking, move the cursor to define the radius, and click again to finish.
+
+Users can operate through the corresponding options in the left menu, right-click, or use shortcuts.
+
+### 2.2 Editing Objects
+
+X-AnyLabeling has two modes: **Drawing Mode** and **Editing Mode**.
+
+- **Drawing Mode**: Users can create multiple objects continuously.
+- **Editing Mode**: Users can edit objects (Ctrl+E), undo (Ctrl+Z), copy (Ctrl+C), paste (Ctrl+V), delete (Delete), move, scale, rotate, etc.
+
+Users can quickly switch between drawing and editing modes using the `Ctrl+J` shortcut or the corresponding options mentioned in section 2.1.
+
+Specific operations include:
+
+- For rectangular objects, besides resizing by corner points, users can select multiple objects and merge them into a bounding rectangle by right-clicking and selecting "Merge Selected Objects."
+- For polygon objects, in editing mode, users can drag on an edge to add a new vertex or remove a selected vertex by holding the `Shift` key and left-clicking.
+- For rotation box objects, users can control the rotation angle and direction by selecting the target and using `Z`, `X`, `C`, `V`. Real-time rotation angles can also be displayed.
+
+### 2.3 Editing Labels
+
+When creating or editing an object, a label editing box pops up for editing the object's label information.
+
+<div style="display: flex; align-items: center;">
+  <img src="../../assets/resources/edit_label.png" style="max-width: 50%; height: auto;" />
+  <div style="margin-left: 1em;">
+    <table style="width: 100%;">
+      <tr>
+        <th>Field</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>Object Label</td>
+        <td>Enter the object's category label, supporting fuzzy search.</td>
+      </tr>
+      <tr>
+        <td>Group ID</td>
+        <td>For specific tasks like keypoint detection and multi-object tracking.</td>
+      </tr>
+      <tr>
+        <td>Difficult Label</td>
+        <td>Indicates if the object is difficult to recognize.</td>
+      </tr>
+      <tr>
+        <td>Label List</td>
+        <td>Shows the list of added labels, sorted alphabetically by default.</td>
+      </tr>
+      <tr>
+        <td>Label Description</td>
+        <td>Additional flag information for extra states or attributes, `null` if not available.</td>
+      </tr>
+      <tr>
+        <td>Label Linking</td>
+        <td>For linking fields in tasks like key information extraction and relationship extraction.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+### 2.4 Editing Images
+
+Currently, X-AnyLabeling supports adding a `Caption` description to the current image. To do this, enter editing mode, click on the blank area of the image, and fill in the image description in the `Description` area on the right.
+
+## 3. View
+
+This section demonstrates how to optimize and customize the display of images and annotation objects in X-AnyLabeling, including visual adjustments of the canvas and images, as well as object information visualization settings, ensuring an efficient and intuitive annotation workflow.
+
+### 3.1 Canvas Visualization
+
+X-AnyLabeling currently supports the following canvas operations:
+
+- **Zoom In** (Ctrl++)
+- **Zoom Out** (Ctrl+-)
+- **Reset** (Ctrl+0)
+
+Besides setting the zoom ratio in the left window and using shortcuts, users can also zoom in on specific areas by holding the `Ctrl` key and using the mouse scroll wheel for precise annotation and small object labeling. To apply this change globally, ensure to select the `Keep Previous Zoom Ratio` option from the `View` dropdown menu.
+
+### 3.2 Image Visualization
+
+<p align="center">
+  <img src="../../assets/resources/brightness_contrast.png" alt="Brightness-Contrast">
+</p>
+
+X-AnyLabeling supports color adjustment for the current image. Operations include:
+
+- Select `Brightness Contrast` from the `View` dropdown menu at the top of the interface to adjust the brightness and contrast for better visual effects.
+- To apply this change globally, select `Keep Current Brightness` and `Keep Current Contrast` from the `View` dropdown menu.
+
+Additionally, as the cursor moves, the information bar at the bottom of the GUI displays the current image's filename and annotation progress in real time.
+
+### 3.3 Object Visualization
+
+Object visualization features include displaying text descriptions (Ctrl+T), label names (Ctrl+L), group IDs, rotation angles, and prediction scores of annotated objects in the current image. Users can set these through shortcuts or the corresponding options in the `View` dropdown menu at the top of the interface.
+
+Furthermore, when the cursor hovers over an object of interest, the information bar at the bottom of the GUI displays the current object's width, height, and other details.
+
+### 3.4 Crosshair
+
+<p align="center">
+  <img src="../../assets/resources/crosshair.png" alt="Brightness-Contrast">
+</p>
+
+For the crosshair, users can adjust the width, transparency, and color by selecting the `Set Crosshair` option from the `View` dropdown menu at the top of the interface.
+
+Moreover, as the cursor moves, the information bar at the bottom of the GUI displays real-time position coordinates.
+
+## 4. Annotation Import and Export
+
+At present, `X-AnyLabeling` provides functionalities for importing and exporting a variety of mainstream label file formats. Below is a brief guide on how to use these features.
+
+### 4.1 YOLO Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for YOLOv5/v8 label files (*.txt) for object detection, instance segmentation, rotated bounding box detection, and keypoint detection tasks.
+
+Before importing/exporting YOLO label files, you need to prepare a label configuration file:
+
+1. For YOLO object detection, instance segmentation, and rotated bounding box detection tasks, refer to [classes.txt](../../assets/classes.txt). Each line represents a class, with numbers incrementing from 0.
+2. For YOLO keypoint detection tasks, refer to [yolov8_pose.yaml](../../assets/yolov8_pose.yaml). For the `has_visible` parameter, please refer to the [official definition](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format).
+
+> To export in YOLO-Pose format, you need to assign a `group_id` to each set (bounding box and its keypoints) during annotation so that X-AnyLabeling can understand their relationships during export.
+
+**Import Task**:
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Upload the prepared configuration file.
+4. Choose the directory where the label files are located and click OK.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Upload the prepared configuration file.
+3. Check the appropriate options as needed and click OK.
+
+The export path defaults to the `labels` folder in the same directory as the current image directory.
+
+> For a sample YOLO label file, refer to [demo.txt](../../assets/labels/demo.txt).
+
+### 4.2 VOC Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for Pascal-VOC label files (*.xml) for detection and segmentation tasks.
+
+**Import Task**:
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Choose the directory where the label files are located and click OK.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Check the appropriate options as needed and click OK.
+
+The export path defaults to the `Annotations` folder in the same directory as the current image directory.
+
+> For a sample VOC label file, refer to [demo.xml](../../assets/Annotations/demo.xml).
+
+### 4.3 COCO Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for COCO label files (*.json) related to object detection and instance segmentation tasks.
+
+Before importing/exporting COCO label files, prepare a label configuration file, referring to [classes.txt](../../assets/classes.txt), where each line represents a class, with numbers incrementing from 0.
+
+**Import Task**:
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Upload the prepared configuration file.
+4. Choose the directory where the label files are located and click OK.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Upload the prepared configuration file.
+3. Click OK.
+
+The export path defaults to the `annotations` folder in the same directory as the current image directory.
+
+> For a sample COCO label file, refer to [instances_default.json](../../assets/annotations/instances_default.json).
+
+### 4.4 DOTA Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for DOTA label files (*.txt). The label format is defined as:
+
+> x1 y1 x2 y2 x3 y3 x4 y4 class_name difficult
+
+**Import Task**:
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Choose the directory where the label files are located and click OK.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Click OK.
+
+The export path defaults to the `labelTxt` folder in the same directory as the current image directory.
+
+> For a sample DOTA label file, refer to [demo_obb.txt](../../assets/labelTxt/demo_obb.txt).
+
+### 4.5 MASK Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for semantic segmentation mask label files (*.png).
+
+Before importing/exporting mask label files, prepare the configuration file as follows:
+
+1. For color images, refer to [mask_color_map.json](../../assets/mask_color_map.json).
+2. For grayscale images, refer to [mask_grayscale_map.json](../../assets/mask_grayscale_map.json).
+
+**Import Task**:
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Upload the prepared configuration file.
+4. Choose the directory where the label files are located and click OK.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Upload the prepared configuration file.
+3. Click OK.
+
+The export path defaults to the `mask` folder in the same directory as the current image directory.
+
+### 4.6 MOT Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for multi-object tracking label files.
+
+Before importing/exporting label files, prepare a label configuration file, referring to [classes.txt](../../assets/classes.txt), where each line represents a class, with numbers incrementing from 0.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Upload the prepared configuration file.
+3. Choose the save path and click OK.
+
+**Import Task**:
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Upload the prepared configuration file.
+4. Choose the directory containing the label file (`gt.txt`) and click OK.
+
+> For sample label files, refer to the [MOT](../../assets/MOT/) directory, which includes three subfiles: `seqinfo.ini`, `det.txt`, and `gt.txt`.
+
+**seqinfo.ini**
+
+The `seqinfo.ini` file contains sequence information, describing metadata for the dataset. The file includes:
+
+```ini
+[Sequence]
+name = MOT            # Sequence name
+imdir = mot_label     # Image directory
+framerate = 30        # Frame rate
+seqlength = 249       # Sequence length (number of frames)
+imwidth = 1280        # Image width
+imheight = 720        # Image height
+imext = .jpg          # Image file extension
+```
+
+**det.txt**
+
+The `det.txt` file contains detection results, with each line representing a detection box. The file includes:
+
+```txt
+Frame number, Track ID, Top-left x-coordinate, Top-left y-coordinate, Width, Height, Confidence, <x>, <y>, <z>
+```
+
+The last three fields are for the `MOT3D` task and are set to **-1** by default.
+
+**gt.txt**
+
+The `gt.txt` file contains tracking annotation information, with each line representing an annotation box. The file includes:
+
+```txt
+Frame number, Track ID, Top-left x-coordinate, Top-left y-coordinate, Width, Height, Validity flag, Class ID, Visibility ratio
+```
+
+The **validity flag** indicates whether the current trajectory is valid, with `0` for invalid data (ignore) and `1` for valid data (activate). Users can set this using the `useDifficult` flag in the label manager, where ☑️ indicates an invalid trajectory.
+
+### 4.7 PPOCR Annotation
+
+The latest version of X-AnyLabeling (v2.4.0+) supports one-click import/export for the following two PPOCR tasks:
+- Text Detection and Recognition: Locates text areas in the input image and recognizes the text content.
+- Key Information Extraction: Extracts key information from images, including semantic entity recognition and relation extraction.
+
+**Import Task**:
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Choose the appropriate label file and click OK to upload.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Click OK.
+
+For the **Text Detection and Recognition** task, the export path defaults to the `ppocr-rec` folder in the same directory as the current image directory, which contains:
+1. `Label.txt`: Annotation results
+2. `rec_gt.txt`: Recognition results
+3. `crop_img`: Images corresponding to the recognition results for training
+
+For the **Key Information Extraction** task, the export path defaults to the `ppocr-kie` folder in the same directory as the current image directory, which contains:
+1. `class_list.txt`: List of label classes
+2. `ppocr_kie.json`: KIE annotation results
+
+For sample label files, refer to [ppocr-rec](../../assets/ppocr/ppocr-rec/) and [ppocr-kie](../../assets/ppocr/ppocr-kie/).
+
+
+### 5. Toolbar
+
+### 5.1 Data Statistics
+
+`X-AnyLabeling` includes a data statistics feature, allowing users to easily access an overview of the current task's data. By selecting the **Tools** dropdown in the top menu bar and clicking on **Overview**, users can view the current data status. This feature supports the following:
+
+- One-click export of statistical reports
+- Statistics for a specified range of data
+- Label statistics for both image and object dimensions
+
+<p align="center">
+  <img src="../../assets/resources/overview.png" alt="Overview">
+</p>
+
+### 5.2 Save Sub-Images
+
+To use the save sub-images feature, follow these steps:
+
+1. Prepare a custom class file. For an example, refer to [classes.txt](../../assets/classes.txt).
+2. Click on the **Tools** -> **Save Sub-Images** option in the top menu bar, and upload the corresponding custom class file. A sub-image folder named `x-anylabeling-crops` will be generated in the current directory, containing the targets categorized by class name.
+
+### 5.3 Object Manager
+
+`X-AnyLabeling` offers global management of label objects. Users can perform the following operations:
+
+- **Delete Labels**: Remove unnecessary labels.
+- **Rename Labels**: Update label names to align with new classification standards.
+- **Hide/Show Labels**: Control the visibility of labels in the interface.
+- **Change Label Colors**: Adjust label colors to improve distinguishability.
+
+These actions can be accessed through the **Tools** -> **Object Manager** option in the top menu bar, opening the label management window.
+
+### 5.4 Label Type Conversion
+
+`X-AnyLabeling` provides a label type conversion feature, allowing users to change label types through the **Tools** option in the top menu bar. The supported conversions include:
+
+- **Rectangular Box to Rotated Box**: Convert rectangular box labels to rotated box labels.
+- **Rotated Box to Rectangular Box**: Convert rotated box labels to rectangular box labels.
+- **Polygon to Bounding Box**: Convert polygon labels to bounding box labels.
+
+Note: The `Rotated Box to Rectangular Box` and `Polygon to Bounding Box` conversions use the maximum bounding rectangle by default, which may result in the loss of some label information, such as rotation angle. These actions are **irreversible**, so use them with caution.
+
+## 6. Help and Language
+
+### 6.1 Getting Version Information
+
+<p align="center">
+  <img src="../../assets/resources/information.png" alt="Information">
+</p>
+
+In the top menu bar, users can click on **Help** -> **Version Information** to view detailed information about the current version, including version number and runtime environment.
+
+### 6.2 Setting Software Language
+
+In the top menu bar, users can select the desired language from the **Language** dropdown menu. The software currently supports **Chinese** and **English**. After switching the language, the software will automatically restart. Please ensure that all data is saved before switching to prevent data loss.
+
+
+### 7.1 Keyboard Shortcut Settings
+
+The current default keyboard shortcuts in X-AnyLabeling are as follows. Users can modify them according to their needs to avoid conflicts:
+
+| Shortcut           | Function                                      |
+|--------------------|-----------------------------------------------|
+| d                  | Open the next file                            |
+| a                  | Open the previous file                        |
+| Ctrl + Shift + d   | Open the next labeled file                    |
+| Ctrl + Shift + a   | Open the previous labeled file                |
+| p or Ctrl + n      | Create a polygon                              |
+| o                  | Create a rotated box                          |
+| r or Ctrl + r      | Create a rectangular box                      |
+| i                  | Run the model                                 |
+| q                  | Positive sample point in `SAM Mode`           |
+| e                  | Negative sample point in `SAM Mode`           |
+| b                  | Clear hint points quickly in `SAM Mode`       |
+| f                  | Confirm completion in `SAM Mode`              |
+| g                  | Group selected objects                        |
+| u                  | Ungroup selected objects                      |
+| s                  | Hide selected objects                         |
+| w                  | Show selected objects                         |
+| Ctrl + q           | Exit the current application                  |
+| Ctrl + i           | Open image file                               |
+| Ctrl + o           | Open video file                               |
+| Ctrl + u           | Load all images from a directory              |
+| Ctrl + e           | Edit labels                                   |
+| Ctrl + j           | Edit polygons                                 |
+| Ctrl + c           | Copy selected objects                         |
+| Ctrl + v           | Paste selected objects                        |
+| Ctrl + d           | Copy polygons                                 |
+| Ctrl + g           | Show annotation statistics for the current task |
+| Ctrl + h           | Show all objects in the current image         |
+| Ctrl + p           | Toggle preserve previous mode                 |
+| Ctrl + y           | Toggle auto-use last label                    |
+| Ctrl + m           | Activate batch annotation                     |
+| Ctrl + a           | Enable auto annotation                        |
+| Ctrl + s           | Save current annotations                      |
+| Ctrl + l           | Show/Hide labels                              |
+| Ctrl + t           | Show/Hide text                                |
+| Ctrl + Shift + s   | Change output directory                       |
+| Ctrl -             | Zoom out                                      |
+| Ctrl + 0           | Zoom to original size                         |
+| Ctrl + + or Ctrl +=| Zoom in                                       |
+| Ctrl + f           | Fit to window                                 |
+| Ctrl + Shift + f   | Fit to width                                  |
+| Ctrl + z           | Undo last action                              |
+| Ctrl + Delete      | Delete file                                   |
+| Delete             | Delete polygon                                |
+| Esc                | Deselect object                               |
+| Backspace          | Delete selected point                         |
+| ↑→↓←               | Move selected object using keyboard arrows    |
+| zxcv               | Rotate selected rectangular box using the keyboard |
+
+### 7.2 Customizing Label Colors
+
+To modify custom label colors, follow these steps:
+
+1. Open the configuration file `.xanylabelingrc` in your user directory using a text editor or command-line tool.
+2. Locate the `shape_color` field and set its value to "manual" to manually set label colors.
+3. Find the `label_colors` section, which contains the labels and their corresponding colors.
+4. Locate the label you want to modify, such as "person," "car," "bicycle," etc.
+5. Set the color using RGB values, e.g., `[255, 0, 0]` for red, `[0, 255, 0]` for green, and `[0, 0, 255]` for blue.
+6. Replace the color values for the corresponding label, save the file, and close the editor.
+
+Example configuration:
 ```YAML
 ...
 default_shape_color: [0, 255, 0]
@@ -112,9 +579,13 @@ label_colors:
 ...
 ```
 
-By following these steps, you have successfully customized the colors of your labels. The next time you use these labels in your annotations, they will appear in the colors you have set.
+After completing these steps, the custom label colors will be applied. The next time you use these labels during annotation, they will display in the colors you set.
 
-Additionally, you can load predefined labels by modifying the `labels` field. Note that label names starting with **numbers** should be enclosed in single quotes `''`:
+> In X-AnyLabeling v2.4.0+, label colors can be directly set through the GUI. Navigate to `Tools` -> `Label Manager` in the menu bar. Note that these changes are only effective for the current session.
+
+### 7.3 Loading Predefined Labels
+
+To load `predefined labels`, you can modify the `labels` field in the configuration file. When defining label names with **pure numbers**, be sure to enclose them in single quotes `''`. Example:
 
 ```YAML
 ...
@@ -125,179 +596,61 @@ labels:
 - _phone
 ```
 
-You can also set different hotkeys for various functions. For more details, please refer to the configuration file.
+### 7.4 Auto-Switch to Edit Mode
 
-### Quick Tag Modification Feature
+In X-AnyLabeling v2.4.0 and above, there is a feature for **auto-switching to edit mode**. You can configure this in the `auto_switch_to_edit_mode` field in the configuration file:
 
-This feature provides users with a convenient way to process annotation data and supports two core operations:
+| Option   | Function                                         |
+|----------|--------------------------------------------------|
+| true     | Automatically switches to edit mode after creating an object. |
+| false    | Allows the creation of multiple objects of the same type continuously; manual switch to edit mode is required. |
 
-- **Delete Category:** By checking the checkbox in the `Delete` column of the corresponding rows, you can mark all objects of that category for deletion.
-- **Replace Category:** Fill in the new category name in the `New Value` column to replace the labels of all objects under the current category with the new category.
+### 7.5 Hover Auto-Highlight Mode
 
-You can follow these steps:
+In X-AnyLabeling v2.4.0 and above, the **hover auto-highlight mode** feature is available. You can set this using the `auto_highlight_shape` field in the configuration file:
 
-1. Click on the menu bar at the top, select `Tools`-> `Change Label` option.
+| Option   | Function                                        |
+|----------|-------------------------------------------------|
+| true     | Automatically highlights objects when hovering over them with the mouse, facilitating quick adjustments to the selected object. |
+| false    | Requires the user to manually click on an object to highlight it when hovering. |
 
-2. In the popped-up `Label Change Manager` dialog, perform the desired operations on the respective categories.
+Note: In `multi-label classification tasks`, if the user manually uploads a property file, the `auto_highlight_shape` field will be set to `false` to prevent accidental switching of the property window status bar, thus improving user experience.
 
-3. After completing all modifications, click the `Confirm` button to confirm and submit the changes.
 
-### Quick Screenshot and Save Feature
+### 8. Tasks
 
-Implementation Guide:
+#### 8.1 Image Classification
 
-1. Prepare a custom class file, you can refer to the example [classes.txt](../../assets/classes.txt);
+- Image-level classification: [Link](../../examples/classification/image-level/README.md)
+- Object-level classification: [Link](../../examples/classification/shape-level/README.md)
 
-2. Click on the `Tools` menu at the top and select the `Save Cropped Image` option. Choose the corresponding custom class file for upload. This action will generate a subimage folder `x-anylabeling-crops` in the current directory, where targets will be stored based on their respective class names.
+#### 8.2 Object Detection
 
-### Quick Tag Correction Feature
+- Horizontal Bounding Box Detection: [Link](../../examples/detection/hbb/README.md)
+- Oriented Bounding Box Detection: [Link](../../examples/detection/obb/README.md)
 
-This functionality is designed to swiftly address two common mislabeling scenarios during the calibration process:
+#### 8.3 Image Segmentation
 
-- Incorrectly labeled background as foreground
-- Errors in foreground labeling
+- Semantic & Instance Segmentation: [Link](../../examples/segmentation/README.md)
 
-Follow the steps below for implementation:
+#### 8.4 Pose Estimation
 
-1. Prepare a custom class file, for a specific example, please refer to [classes.txt](../../assets/classes.txt).
+- Keypoint Detection: [Link](../../examples/pose_estimation/README.md)
 
-2. Click on the menu bar at the top, select `Tools` -> `Save Expanded Sub-image`, and upload the corresponding custom class file. This action will generate a subgraph folder `x-anylabeling-crops` in the current directory, storing targets according to the respective class names. The directory structure is as follows:
+#### 8.5 Multi-Object Tracking
 
-```
-|- root
-  |- images
-    |- xxx.jpg
-    |- xxx.json
-    |- yyy.jpg
-    |- yyy.json
-    |- ...
-  |- x-anylabeling-crops
-    |- src
-      |- CLASS-A
-        |- xxx.jpg
-        |- xxx1.jpg
-        |- xxx2.jpg
-        |- ...
-      |- CLASS-B
-        |- yyy.jpg
-        |- ...
-      ...
-    |- dst
-      |- CLASS-A
-      |- CLASS-B
-      |- ...
-    |- meta_data.json
-```
+- Multi-Object Tracking: [Link](../../examples/multiple_object_tracking/README.md)
 
-Field explanations:
+#### 8.6 Depth Estimation
 
-- src: Original cropped image files
-- dst: Cropped image files after correction
-- meta_data.json: Cropped information file
+- Depth Estimation: [Link](../../examples/depth_estimation/README.md)
 
-2. Open the src directory and perform the following actions for each subfolder:
+#### 8.7 Optical Character Recognition
 
-- Remove all erroneously labeled background boxes.
-- Move all foreground boxes with category errors to the corresponding folder in the dst directory.
+- Text Detection and Recognition: [Link](../../examples/optical_character_recognition/text_recognition/README.md)
+- Key Information Extraction: [Link](../../examples/optical_character_recognition/kie/README.md)
 
-3. Open the X-Anylabeling tool, select `Tool` -> `Update Label`, choose the `x-anylabeling-crops` folder, click upload, and reload the source images.
 
-> Note: This feature is applicable only to `rectangle` objects.
+## 9. Models
 
-### Multi-Label Classification Task Annotation
-
-Follow these steps:
-
-1. Prepare a custom attribute label file. An example can be found in [attributes.json](../../assets/attributes.json).
-
-2. Run `X-AnyLabeling`, click `Upload` -> `Upload Attribute File` to import the prepared attribute label file.
-
-3. Load an image, draw a rectangular box, and ensure that the label matches the custom class label.
-
-4. Ensure that the current mode is in edit mode; otherwise, quickly switch by pressing the shortcut `Ctrl+J`.
-
-5. Click on the selected object, and in the top-right corner, you can annotate the label attributes.
-
-Note: If you plan to use an AI model for pre-labeling, you can first load the corresponding attribute classification model, choose the one-click run all image function, and then fine-tune as needed.
-
-### Rotated Object Annotation
-
-Follow these steps:
-
-1. Upload the image file.
-
-2. Click the `Rotated Box` button on the left menu or press the shortcut key `O` to quickly draw a rotated box.
-
-3. Select the corresponding rotated box object, and adjust the rotation angle using the following shortcuts:
-
-| Shortcut | Description |
-| ---      | ---         |
-| z        | Rotate counterclockwise at a large angle |
-| x        | Rotate counterclockwise at a small angle |
-| c        | Rotate clockwise at a small angle |
-| v        | Rotate clockwise at a large angle |
-
-### Keypoint Annotation for YOLOv8 Pose Estimation
-
-1. **Import Image Files**;
-
-2. Click the `Rectangle` button on the left menu or press the shortcut key `R` to quickly draw a bounding box. Set the `group_id` field to ensure each object in the image has a unique identifier;
-
-3. Click the `Point` button on the left menu to draw keypoints, and set the `group_id` field to match the corresponding bounding box ID. Additionally:
-
-- If a keypoint is not visible, it can be ignored;
-- If a keypoint is occluded, check the `useDifficult` field;
-
-4. After completing the annotations, export the corresponding label files as described in the `Import/Export YOLO Labels` section.
-
-### SAM Series Models
-
-Follow these steps:
-
-1. Click the `Brain` icon button on the left side of the menu to activate the AI function options.
-
-2. Choose the `Segment Anything Models` series models from the Model dropdown menu.
-
-> Note: Model accuracy and speed vary. Among them,</br>
-> - `Segment Anything Model (ViT-B)` is the fastest but less accurate;</br>
-> - `Segment Anything Model (ViT-H)` is the slowest and most accurate;</br>
-> - `Quant` indicates a quantized model;</br>
-
-3. Use the auto-segmentation tool to mark objects:
-- `Point (q)`: Add a point belonging to the object;
-- `Point (e)`: Remove a point you want to exclude from the object;
-- `+Rect`: Draw a rectangle containing the object. Segment Anything will automatically segment the object.
-
-4. `Clear (b)`: Clear all automatic segmentation marks.
-
-5. Complete the object (f): After completing the current mark, press the shortcut key `f`, enter the label name, and save the current object.
-
-### Multi-Object Tracking
-
-Multi-object tracking (MOT) technology is employed to simultaneously identify and track multiple targets within video sequences, involving the association of targets across different frames. The X-AnyLabeling tool currently integrates various detection and tracking algorithms, including `ByteTrack` and `OCSort`, and supports the import and export of MOT format labels.
-
-#### Export Settings:
-
-1. Load a video file; for example, refer to [demo_video.mp4](../../assets/demo_video.mp4) for a sample file.
-2. Load a tracking model, such as [yolov5m_bytetrack](../../anylabeling/configs/auto_labeling/yolov5m_bytetrack.yaml) or [yolov8m_ocsort](../../anylabeling/configs/auto_labeling/yolov8m_ocsort.yaml).
-3. Click "Run (i)" verify correctness, and press the shortcut `Ctrl+M` to execute tracking for all frames.
-4. Prepare a custom class file; see [classes.txt](../../assets/classes.txt) for a specific example.
-5. Click on the menu bar -> Export -> Choose the custom class file -> Confirm. A *.csv file will be generated in the same directory as the current video file.
-
-#### Import Settings:
-
-1. Load a video file.
-2. Prepare a custom class file; refer to [classes.txt](../../assets/classes.txt) for an example.
-3. Click on the menu bar -> Upload -> Choose the custom class file -> Select *.csv label file -> Confirm. MOT labels will be imported.
-
-### Depth Estimation
-
-Currently, the X-AnyLabeling tool incorporates the [Depth-Anything](https://github.com/LiheYoung/Depth-Anything.git) model, allowing users to choose a model of the desired scale (Small/Base/Large) based on their specific needs.
-
-The implementation steps are as follows:
-
-1. Load the image/video file.
-2. Load the Depth-Anything model or any other optional depth estimation model.
-3. Click on the run button, verify for accuracy, and, if all is correct, press the shortcut key `Ctrl+M` to run the process on all images at once.
-
-The final results of the run are saved by default in the `depth` folder located in the same directory as the current image.
+For information on how to load and export models, refer to the [custom_model.md](./custom_model.md) document.

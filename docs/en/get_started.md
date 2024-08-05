@@ -1,114 +1,146 @@
-## Quick Start Guide
+# QuickStart Guides
 
-### Running Modes
+## 1. Quick Start
 
-`X-AnyLabeling` currently supports two modes of operation: running the source code, or downloading the precompiled GUI version directly. 
+### 1.1 Running from Source
 
-To ensure access to the latest features and stable performance, it is highly recommended to run from the source code.
+#### 1.1.1 Prerequisites
 
-#### Running from Source Code
+Before you start, ensure that you have the following prerequisites installed:
 
-1. **Download Source Code:**
-   ```bash
-   git clone https://github.com/CVHub520/X-AnyLabeling.git
-   ```
+**Step 0.** Download and install Miniconda from the [official website](https://docs.anaconda.com/miniconda/).
 
-2. **Install Dependencies:**
-   - Choose the appropriate dependency file based on the operating environment and runtime (CPU or GPU).
-   - Example:
-     ```bash
-     # upgrade pip to its latest version
-     pip install -U pip
-     
-     pip install -r requirements-dev.txt
-     # or pip install -r requirements-gpu-dev.txt
-     ```
+**Step 1.** Create a new conda environment with Python version 3.8 or higher, and activate it.
 
-   **Note**: if you want to use gpu, ensure that your local CUDA version is compatible with the onnxruntime-gpu version for smooth GPU-accelerated model inference. Refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html) for details. Also, set the `__preferred_device__` field to GPU in the [app_info.py](../../anylabeling/app_info.py) configuration file.
+```bash
+conda create --name x-anylabeling python=3.9 -y
+conda activate x-anylabeling
+```
 
+#### 1.1.2 Installation
 
-3. **Launch the Tool:**
+**Step 0.** Install [ONNX Runtime](https://onnxruntime.ai/).
 
-   > Set the environment variable:
-   > - Linux/MacOS: `export PYTHONPATH=/path/to/X-AnyLabeling`
-   > - Windows: `set PYTHONPATH=C:\path\to\X-AnyLabeling`
+```bash
+# Install ONNX Runtime CPU
+pip install onnxruntime
 
-   Execute the following command in the `X-AnyLabeling` project directory:
-   ```bash
-   python anylabeling/app.py
-   ```
+# Install ONNX Runtime GPU (CUDA 11.x)
+pip install onnxruntime-gpu==x.x.x
 
-    Options parameters: 
+# Install ONNX Runtime GPU (CUDA 12.x)
+pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+```
 
-    * `filename`: image or label filename; if a directory path is passed in, the folder will be automatically loaded
-    * `--help`,`-h`: display help message and exit.
-    - `--reset-config`: Reset the Qt configuration, clearing all settings.
-    - `--logger-level`: Set the logging level, options include "debug", "info", "warning", "fatal", "error".
-    - `--output`, `-O`, `-o`: Specify the output file or directory. If it ends in `.json`, it is recognized as a file, otherwise it is recognized as a directory.
-    - `--config`: Specify a configuration file or a string providing configuration information in YAML format.
-      Defaults to `~/.xanylabelingrc` (Linux)         `C:\Users\{user}\.xanylabelingrc` (Windows).
-    - `--nodata`: Stops storing image data in JSON files.
-    - `--autosave`: Automatically saves annotation data.
-    - `--nosortlabels`: Stop sorting labels.
-    - `--flags`: Comma-separated list of flags or file containing flags.
-    - `--labelflags`: A YAML string containing label-specific flags or a file containing a JSON string.
-    - `--labels`: Comma-separated list of labels or file containing labels.
-    - `--validatelabel`: Label validation type.
-    - `--keep-prev`: Keep comments from previous frame.
-    - `--epsilon`: Find the epsilon of the nearest vertex on the canvas.
+> [!Important]
+> For GPU acceleration, please follow the instructions below to ensure that your local CUDA and cuDNN versions are compatible with your ONNX Runtime version. Additionally, install the required dependency libraries to ensure normal GPU-accelerated inference:</br>
+> Ⅰ. [CUDA Execution Provider](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)</br>
+> Ⅱ. [Get started with ONNX Runtime in Python](https://onnxruntime.ai/docs/get-started/with-python.html)</br>
+> Ⅲ. The ONNX Runtime version must be greater than or equal to 1.16.0.
 
-#### Running in GUI Environment
+**Step 1.** Git clone repository.
 
-Running in the GUI environment is convenient but may have limitations compared to running from the source code. Consider the pros and cons based on your specific needs and preferences.
+```bash
+git clone https://github.com/CVHub520/X-AnyLabeling.git
+```
 
-Download Link: [Release](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.3.6) | [Baidu Disk](https://pan.baidu.com/s/1rtw_UY_qTOopKNqFfXEfzA?pwd=itwe)
+**Step 2:** Install the `requirements.txt` file.
 
-Note:
-- For MacOS:
-  - After installation, go to the Applications folder.
-  - Right-click on the application and choose Open.
-  - From the second time onwards, you can open the application normally using Launchpad.
+For different configurations, X-AnyLabeling provides the following dependency files:
 
-- Due to the lack of necessary hardware, the current tool is only available in executable versions for `Windows` and `Linux`. If you require executable programs for other operating systems, e.g., `MacOS`, please refer to the following steps for self-compilation.
+| Dependency File            | Operating System | Runtime Environment | Compilable |
+|----------------------------|------------------|---------------------|------------|
+| requirements.txt           | Windows/Linux    | CPU                 | No         |
+| requirements-dev.txt       | Windows/Linux    | CPU                 | Yes        |
+| requirements-gpu.txt       | Windows/Linux    | GPU                 | No         |
+| requirements-gpu-dev.txt   | Windows/Linux    | GPU                 | Yes        |
+| requirements-macos.txt     | MacOS            | CPU                 | No         |
+| requirements-macos-dev.txt | MacOS            | CPU                 | Yes        |
 
-### File Import
+- For development purposes, you should select the option with the `*-dev.txt` suffix for installation.
+- To enable GPU acceleration, you should choose the option with the `*-gpu.txt` suffix for installation.
 
-`X-AnyLabeling` supports importing images or videos through shortcuts (Ctrl+I, Ctrl+U, Ctrl+O). Note that the default annotation file is saved in the import file path.
+To install the necessary packages, use the following command, replacing [xxx] with the appropriate suffix for your requirements:
 
-If you need to save to a different directory, you can click on the top-left `File` -> `Save As`, and then choose the destination directory for saving.
+```bash
+pip install -r requirements-[xxx].txt
+```
 
-### Quick Annotation
+Additionally, you might consider running the following command to install a specific version of PyQt from the conda-forge channel if you encounter an error related to PyQt on macOS:
 
-The tool supports various annotation styles (Polygon, Rectangle, Rotated Box, Circle, Line, Linestrip, Point). Use shortcut keys (e.g., P for Polygon, R for Rectangle, O for Rotation) for quick drawing.
+```bash
+conda install -c conda-forge pyqt=5.15.9
+```
 
-| Annotation Style | Shortcut | Application |
-|-------------------|----------|--------------|
-| Polygon           | P        | Image Segmentation |
-| Rectangle         | R        | Horizontal Object Detection |
-| Rotated Box       | O        | Rotational Object Detection |
-| Circle            | -        | Specific Scenarios |
-| Line              | -        | Lane Detection |
-| Polyline          | -        | Vessel Segmentation |
-| Point             | -        | Key Point Detection |
+#### 1.1.3 Launch
 
-Currently, the tools has two main interaction modes:
+Once you have completed the necessary steps, generate the resources with the following command:
 
-- **Edit Mode:** In this state, users can move, copy, paste, and modify objects.
-- **Draw Mode:** In this state, only drawing of the corresponding annotation style is supported.
+```bash
+pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
+```
 
-Note: for the annotation styles of **Rectangle**, **Rotated Box**, **Circle**, **Line**, and **Point**, when the drawing is completed, the tool will automatically switch to edit mode. For the other two styles, you can quickly switch by using the shortcut `Ctrl+J`.
+To avoid potential conflicts, uninstall any existing installations of AnyLabeling with the following command:
 
-### Auxiliary Inference
+```bash
+pip uninstall anylabeling -y
+```
 
-For AI algorithm functions, click the AI icon or use the shortcut Ctrl+A to access the model list. Choose the desired model for use.
+Set the environment variable:
 
-### One-Click Run
+```bash
+# linux or macos
+export PYTHONPATH=/path/to/X-AnyLabeling
+# windows
+set PYTHONPATH=C:\path\to\X-AnyLabeling
+```
 
-The "One-Click Run" feature automates annotation tasks for the current batch. Click the Play icon or use the shortcut Ctrl+M. Note that this feature requires an activated model and should be tested on a small batch before full deployment.
+To run the application, execute the following command:
 
-### Packaging and Compilation
+```python
+python anylabeling/app.py
+```
 
-> Please note that the following steps are not mandatory. This section is provided for users who may need to customize and compile the software for distribution in specific environments. If you are simply using the software, you can skip this step.
+**Arguments**:
+
+| Option                     | Description                                                                                       |
+|----------------------------|---------------------------------------------------------------------------------------------------|
+| `filename`                 | Specifies the image or label filename. If a directory path is provided, loads all files in the folder. |
+| `--help`, `-h`             | Displays the help message and exits.                                                              |
+| `--reset-config`           | Resets the Qt configuration, clearing all settings.                                                |
+| `--logger-level`           | Sets the logging level: "debug", "info", "warning", "fatal", "error".                             |
+| `--output`, `-O`, `-o`     | Specifies the output file or directory. Paths ending with `.json` are treated as files.            |
+| `--config`                 | Specifies a configuration file or YAML-formatted configuration string. Defaults to user-specific paths. |
+| `--nodata`                 | Prevents storing image data in JSON files.                                                         |
+| `--autosave`               | Enables automatic saving of annotation data.                                                       |
+| `--nosortlabels`           | Disables sorting of labels.                                                                       |
+| `--flags`                  | Comma-separated list of flags or file path containing flags.                                       |
+| `--labelflags`             | YAML-formatted string or file with JSON-formatted string for label-specific flags.                 |
+| `--labels`                 | Comma-separated list of labels or file path containing labels.                                     |
+| `--validatelabel`          | Specifies the type of label validation.                                                           |
+| `--keep-prev`              | Retains annotations from the previous frame.                                                       |
+| `--epsilon`                | Determines the epsilon value for finding the nearest vertex on the canvas.                         |
+
+⚠️Please note that if you require GPU acceleration, you should set the `__preferred_device__` field to 'GPU' in the [app_info.py](../../anylabeling/app_info.py) configuration file.
+
+### 1.2 Running from GUI
+
+> Download link: [Release](https://github.com/CVHub520/X-AnyLabeling/releases)
+
+Compared to running from source code, the GUI runtime environment offers a more convenient experience. Users do not need to delve into the underlying implementation; simply extract and it's ready to use. However, there are some issues associated with it, including:
+- **Difficulty in Troubleshooting:** In the event of a crash or error, it may be challenging to quickly pinpoint the exact cause, thereby increasing the difficulty of troubleshooting.
+- **Feature Lag:** The GUI version may lag behind the source code version in terms of features, which could result in missing features and compatibility issues.
+- **GPU Acceleration Limitations:** Given the diversity of hardware and operating system environments, the current GPU inference acceleration service requires users to compile from source code as needed.
+
+Therefore, it is recommended to choose between running from source code or using the GUI environment based on specific needs and preferences to optimize the user experience.
+
+## 2. Usage
+
+For detailed instructions on how to use X-AnyLabeling, please refer to the corresponding [User Manual](./user_guide.md).
+
+## 3. Development
+
+> Please be aware that the subsequent procedures are optional. This part is intended for users who might require tailoring and compiling the software to suit particular deployment scenarios. Should you be utilizing the software without such needs, you may proceed to bypass this section.
 
 <details>
 <summary>Expand/Collapse</summary>
