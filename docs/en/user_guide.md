@@ -25,7 +25,7 @@
       * [4.5 MASK Annotation](#45-mask-annotation)
       * [4.6 MOT Annotation](#46-mot-annotation)
       * [4.7 PPOCR Annotation](#47-ppocr-annotation)
-      * [5. Toolbar](#5-toolbar)
+  * [5. Toolbar](#5-toolbar)
       * [5.1 Data Statistics](#51-data-statistics)
       * [5.2 Save Sub-Images](#52-save-sub-images)
       * [5.3 Object Manager](#53-object-manager)
@@ -33,19 +33,20 @@
    * [6. Help and Language](#6-help-and-language)
       * [6.1 Getting Version Information](#61-getting-version-information)
       * [6.2 Setting Software Language](#62-setting-software-language)
+   * [7. User Configuration](#7-user-configuration)
       * [7.1 Keyboard Shortcut Settings](#71-keyboard-shortcut-settings)
       * [7.2 Customizing Label Colors](#72-customizing-label-colors)
       * [7.3 Loading Predefined Labels](#73-loading-predefined-labels)
       * [7.4 Auto-Switch to Edit Mode](#74-auto-switch-to-edit-mode)
       * [7.5 Hover Auto-Highlight Mode](#75-hover-auto-highlight-mode)
-      * [8. Tasks](#8-tasks)
-         * [8.1 Image Classification](#81-image-classification)
-         * [8.2 Object Detection](#82-object-detection)
-         * [8.3 Image Segmentation](#83-image-segmentation)
-         * [8.4 Pose Estimation](#84-pose-estimation)
-         * [8.5 Multi-Object Tracking](#85-multi-object-tracking)
-         * [8.6 Depth Estimation](#86-depth-estimation)
-         * [8.7 Optical Character Recognition](#87-optical-character-recognition)
+  * [8. Tasks](#8-tasks)
+      * [8.1 Image Classification](#81-image-classification)
+      * [8.2 Object Detection](#82-object-detection)
+      * [8.3 Image Segmentation](#83-image-segmentation)
+      * [8.4 Pose Estimation](#84-pose-estimation)
+      * [8.5 Multi-Object Tracking](#85-multi-object-tracking)
+      * [8.6 Depth Estimation](#86-depth-estimation)
+      * [8.7 Optical Character Recognition](#87-optical-character-recognition)
    * [9. Models](#9-models)
 
 
@@ -499,6 +500,15 @@ In the top menu bar, users can click on **Help** -> **Version Information** to v
 
 In the top menu bar, users can select the desired language from the **Language** dropdown menu. The software currently supports **Chinese** and **English**. After switching the language, the software will automatically restart. Please ensure that all data is saved before switching to prevent data loss.
 
+
+## 7. User Configuration
+
+The user configuration file for `X-AnyLabeling` is located in the `.xanylabelingrc` file in the current user's directory. You can find this file at the following locations:
+
+- **Linux**: `~/.xanylabelingrc`
+- **Windows**: `C:\Users\<username>\.xanylabelingrc`
+
+In this configuration file, you can adjust various user-customized settings, such as interface layout, keyboard shortcuts, and more.
 
 ### 7.1 Keyboard Shortcut Settings
 
