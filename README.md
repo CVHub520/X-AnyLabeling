@@ -30,7 +30,8 @@
 - Aug. 2024:
   - 🤗 Pre-release the latest version [2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0) 🤗
   - ✨✨✨ Support [Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2) model! (Recommended)
-  - 👏👏👏 Support lightweight model for Japanese recognition.
+  - 👏👏👏 Support [Grounding-SAM2](./docs/en/model_zoo.md) model.
+  - Support lightweight model for Japanese recognition.
 - Jul. 2024:
   - Add PPOCR-Recognition and KIE import/export functionality for training PP-OCR task.
   - Add ODVG import/export functionality for training grounding task.

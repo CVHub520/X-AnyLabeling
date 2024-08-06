@@ -5535,6 +5535,7 @@ class LabelingWidget(LabelDialog):
             ] in [
                 "grounding_dino",
                 "grounding_sam",
+                "grounding_sam2",
             ]:
                 text_input_dialog = TextInputDialog(parent=self)
                 self.text_prompt = text_input_dialog.get_input_text()

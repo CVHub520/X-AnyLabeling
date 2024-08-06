@@ -224,6 +224,7 @@ class GroundingSAM(Model):
         ]
         widgets = [
             "edit_text",
+            "button_send",
             "output_label",
             "output_select_combobox",
             "button_add_point",

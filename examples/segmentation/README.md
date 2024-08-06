@@ -33,7 +33,7 @@ Here's a guide on how to utilize the Segment Anything series models for efficien
 - Click the `AI` icon on the left side of the menu bar, or use the shortcut `Ctrl+A` to turn on the AI module for labeling.
 - From the dropdown menu labeled `Model`, select a model from the `Segment Anything Models` series; `SAM2 Large` is recommended for optimal performance!
 
-> ![Note]
+> [!NOTE]
 > As the model size progresses from `tiny` to `huge`, there is a continuous improvement in accuracy, though this is accompanied by a gradual decline in processing speed. Also, `Quant` means the model has been quantized.
 
 Furthermore, we can also use prompting to specify further and control the region we want segmented:

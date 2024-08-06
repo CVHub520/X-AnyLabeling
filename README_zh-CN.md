@@ -47,7 +47,8 @@
 - 2024年8月:
   - 🤗 预发布[X-AnyLabeling v2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0)最新版本 🤗
   - ✨✨✨ 支持[Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2)模型。
-  - 👏👏👏 支持[日文字符识别](./anylabeling/configs/auto_labeling/japan_ppocr.yaml)模型。
+  - 👏👏👏 支持[Grounding-SAM2](./docs/zh_cn/model_zoo.md)模型。
+  - 支持[日文字符识别](./anylabeling/configs/auto_labeling/japan_ppocr.yaml)模型。
 - 2024年7月:
   - 新增 PPOCR 识别和关键信息提取标签导入/导出功能。
   - 新增 ODVG 标签导入/导出功能，以支持 Grounding 模型训练。

@@ -1,0 +1,13 @@
+type: grounding_sam2
+name: groundingdino_swint_sam2_large-r20240806
+display_name: GroundingSAM2
+# Grounding-DINO (swint)
+model_type: groundingdino_swint_ogc
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swint_ogc_quant.onnx
+input_width: 1200
+input_height: 800
+box_threshold: 0.3
+text_threshold: 0.25
+# Segment-Anything-2 (large)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/sam2_hiera_large.encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/sam2_hiera_large.decoder.onnx
