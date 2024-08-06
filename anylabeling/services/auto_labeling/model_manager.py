@@ -20,7 +20,7 @@ class ModelManager(QObject):
     MAX_NUM_CUSTOM_MODELS = 5
     CUSTOM_MODELS = [
         "segment_anything",
-        "segment_anything_2"
+        "segment_anything_2",
         "sam_med2d",
         "sam_hq",
         "yolov5",

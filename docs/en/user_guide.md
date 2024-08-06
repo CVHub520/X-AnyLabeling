@@ -29,7 +29,7 @@
       * [5.1 Data Statistics](#51-data-statistics)
       * [5.2 Save Sub-Images](#52-save-sub-images)
       * [5.3 Object Manager](#53-object-manager)
-      * [5.4 Label Type Conversion](#54-label-type-conversion)
+      * [5.4 Shape Type Conversion](#54-shape-type-conversion)
    * [6. Help and Language](#6-help-and-language)
       * [6.1 Getting Version Information](#61-getting-version-information)
       * [6.2 Setting Software Language](#62-setting-software-language)
@@ -476,9 +476,9 @@ To use the save sub-images feature, follow these steps:
 
 These actions can be accessed through the **Tools** -> **Object Manager** option in the top menu bar, opening the label management window.
 
-### 5.4 Label Type Conversion
+### 5.4 Shape Type Conversion
 
-`X-AnyLabeling` provides a label type conversion feature, allowing users to change label types through the **Tools** option in the top menu bar. The supported conversions include:
+`X-AnyLabeling` provides a shape type conversion feature, allowing users to change shape types through the **Tools** option in the top menu bar. The supported conversions include:
 
 - **Rectangular Box to Rotated Box**: Convert rectangular box labels to rotated box labels.
 - **Rotated Box to Rectangular Box**: Convert rotated box labels to rectangular box labels.
