@@ -1,0 +1,113 @@
+# X-AnyLabeling 🌟, AGPL-3.0 license
+
+name: 🐛 Bug Report
+description: Something isn't working right when using X-AnyLabeling
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for submitting an X-AnyLabeling 🐛 Bug Report!
+
+  - type: checkboxes
+    attributes:
+      label: Search before asking
+      description: >
+        Please search the X-AnyLabeling [Docs](https://github.com/CVHub520/X-AnyLabeling/tree/main/docs) and [issues](https://github.com/CVHub520/X-AnyLabeling/issues) to see if a similar bug report already exists.
+      options:
+        - label: >
+            I have searched the X-AnyLabeling [issues](https://github.com/CVHub520/X-AnyLabeling/issues) and found no similar bug report.
+          required: true
+
+  - type: dropdown
+    attributes:
+      label: X-AnyLabeling Component
+      description: |
+        Please select the X-AnyLabeling component where you found the bug.
+      multiple: true
+      options:
+        - "Install"
+        - "Model"
+        - "File"
+        - "Edit"
+        - "View"
+        - "Tool"
+        - "Shortcut"
+        - "Export/Import"
+        - "User Interface (UI)"
+        - "Other"
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Bug
+      description: Please provide as much information as possible. Copy and paste console output and error messages. Use [Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) to format text, code and logs. If necessary, include screenshots for visual elements only. Providing detailed information will help us resolve the issue more efficiently.
+      placeholder: |
+        💡 ProTip! Include as much information as possible (logs, tracebacks, screenshots, etc.) to receive the most helpful response.
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Information
+      description: Many issues are often related to dependency versions and hardware. Please provide the output of `python anylabeling/checks.py` command to help us diagnose the problem.
+      placeholder: |
+        Paste output of `python anylabeling/checks.py` command, i.e.:
+        ```
+        Application Information:
+        {'App name': 'X-AnyLabeling', 'App version': '2.4.0', 'Device': 'CPU'}
+
+        System Information:
+        { 'CPU': 'x86_64',
+          'CUDA': 'V11.6.124',
+          'GPU': '0, NVIDIA GeForce RTX 3060, 12288',
+          'Operating System': 'Linux-5.15.153.1-microsoft-standard-WSL2-x86_64-with-glibc2.17',
+          'Python Version': '3.8.17'}
+
+        Package Information:
+        { 'ONNX Runtime GPU Version': None,
+          'ONNX Runtime Version': '1.16.0',
+          'ONNX Version': '1.13.1',
+          'OpenCV Contrib Python Headless Version': '4.7.0.72',
+          'PyQt5 Version': '5.15.7'}
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Link to a Reproducible Demonstration Video
+      description: >
+        To better assist you, please provide a link to a video that demonstrates the issue you are facing. Make sure the video is clear and shows a complete and minimal reproducible example of the problem.
+      placeholder: |
+        ```
+        # Paste the link to your video here
+        ```
+    validations:
+      required: true
+
+  - type: dropdown
+    id: execution_mode
+    attributes:
+      label: Execution Mode
+      description: Are you running the software through a pre-compiled executable or from source code?
+      multiple: false
+      options:
+        - Pre-compiled Executable
+        - Source Code
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: Additional
+      description: Anything else you would like to share? What did you expect?
+
+  - type: checkboxes
+    attributes:
+      label: Are you willing to submit a PR?
+      description: >
+        (Optional) We encourage you to submit a [Pull Request](https://github.com/CVHub520/X-AnyLabeling/pulls) (PR) to help improve X-AnyLabeling for everyone, especially if you have a good understanding of how to implement a fix or feature.
+      options:
+        - label: Yes I'd like to help by submitting a PR!
