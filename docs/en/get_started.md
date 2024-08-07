@@ -66,7 +66,7 @@ To install the necessary packages, use the following command, replacing [xxx] wi
 pip install -r requirements-[xxx].txt
 ```
 
-Additionally, you might consider running the following command to install a specific version of PyQt from the conda-forge channel if you encounter an error related to PyQt on macOS:
+Moreover, for macOS, you’ll need to execute an additional command to install a specific version of PyQt from the conda-forge repository:
 
 ```bash
 conda install -c conda-forge pyqt=5.15.9

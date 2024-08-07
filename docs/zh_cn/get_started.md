@@ -66,7 +66,7 @@ git clone https://github.com/CVHub520/X-AnyLabeling.git
 pip install -r requirements-[xxx].txt
 ```
 
-另外，如果您在 macOS 上遇到与 PyQt 相关的错误，可以运行以下命令从 conda-forge 源安装特定版本的版本：
+此外，对于 macOS 用户，你需要额外运行以下命令从 conda-forge 源安装特定版本的版本：
 
 ```bash
 conda install -c conda-forge pyqt=5.15.9

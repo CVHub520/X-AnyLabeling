@@ -494,7 +494,7 @@ Note: The `Rotated Box to Rectangular Box` and `Polygon to Bounding Box` convers
   <img src="../../assets/resources/information.png" alt="Information">
 </p>
 
-In the top menu bar, users can click on **Help** -> **Version Information** to view detailed information about the current version, including version number and runtime environment.
+In the top menu bar, users can click on **Help** -> **Information** to view detailed information about the current version, including version number and runtime environment.
 
 ### 6.2 Setting Software Language
 

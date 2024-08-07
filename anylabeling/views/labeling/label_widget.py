@@ -2312,12 +2312,34 @@ class LabelingWidget(LabelDialog):
         webbrowser.open(url)
 
     def information(self):
-        msg = "App name: {0} \nApp version: {1} \nDevice: {2} ".format(
-            __appname__,
-            __version__,
-            __preferred_device__,
+        app_info = (
+            f"App name: {__appname__}\n"
+            f"App version: {__version__}\n"
+            f"Device: {__preferred_device__}\n"
         )
-        QMessageBox.information(self, "Information", msg)
+        system_info, pkg_info = utils.general.collect_system_info()
+        system_info_str = "\n".join([f"{key}: {value}" for key, value in system_info.items()])
+        pkg_info_str = "\n".join([f"{key}: {value}" for key, value in pkg_info.items()])
+        msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
+
+        info_box = QMessageBox()
+        info_box.setIcon(QMessageBox.Information)
+        info_box.setText(msg)
+        info_box.setWindowTitle(self.tr("Information"))
+
+        copy_button = QtWidgets.QPushButton(self.tr("Copy"))
+        copy_button.clicked.connect(lambda: self.copy_to_clipboard(msg))
+        info_box.addButton(copy_button, QMessageBox.ActionRole)
+
+        info_box.exec_()
+
+    def copy_to_clipboard(self, text):
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setText(text)
+        QMessageBox.information(
+            self, self.tr("Copied"), 
+            self.tr("The information has been copied to the clipboard.")
+        )
 
     # General
     def toggle_drawing_sensitive(self, drawing=True):
