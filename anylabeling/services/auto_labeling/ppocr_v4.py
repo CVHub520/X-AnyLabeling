@@ -137,8 +137,7 @@ class PPOCRv4(Model):
             rec_batch_num=6,
             max_text_length=25,
             rec_char_dict_path=os.path.join(
-                self.current_dir,
-                f"configs/ppocr/{self.rec_char_dict}"
+                self.current_dir, f"configs/ppocr/{self.rec_char_dict}"
             ),
             use_space_char=True,
             drop_score=self.drop_score,
@@ -150,8 +149,7 @@ class PPOCRv4(Model):
             # PGNet parmas
             e2e_pgnet_score_thresh=0.5,
             e2e_char_dict_path=os.path.join(
-                self.current_dir,
-                "configs/ppocr/ppocr_ic15_dict.txt"
+                self.current_dir, "configs/ppocr/ppocr_ic15_dict.txt"
             ),
             e2e_pgnet_valid_set="totaltext",
             e2e_pgnet_mode="fast",
@@ -208,9 +206,7 @@ class PPOCRv4(Model):
             points = res["points"]
             description = res["description"]
             shape_type = (
-                "rectangle" 
-                if is_possible_rectangle(points) 
-                else "polygon"
+                "rectangle" if is_possible_rectangle(points) else "polygon"
             )
             shape = Shape(
                 label="text",

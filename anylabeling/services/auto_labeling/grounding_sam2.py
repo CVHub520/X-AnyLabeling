@@ -112,8 +112,8 @@ class GroundingSAM2(Model):
 
         # Load models
         self.model = SegmentAnything2ONNX(
-            encoder_model_abs_path, 
-            decoder_model_abs_path, 
+            encoder_model_abs_path,
+            decoder_model_abs_path,
             __preferred_device__,
         )
 
@@ -382,9 +382,7 @@ class GroundingSAM2(Model):
                     return AutoLabelingResult([], replace=False)
 
             if text_prompt:
-                blob, inputs, caption = self.preprocess(
-                    cv_image, text_prompt
-                )
+                blob, inputs, caption = self.preprocess(cv_image, text_prompt)
                 outputs = self.net.get_ort_inference(
                     blob, inputs=inputs, extract=False
                 )
@@ -394,14 +392,14 @@ class GroundingSAM2(Model):
                 shapes = []
                 for box, label_info in zip(boxes, pred_phrases):
                     label, _ = label_info
-                    marks = [{
-                        'data': box,
-                        'label': 1,
-                        'type': 'rectangle',
-                    }]
-                    masks = self.model.predict_masks(
-                        image_embedding, marks
-                    )
+                    marks = [
+                        {
+                            "data": box,
+                            "label": 1,
+                            "type": "rectangle",
+                        }
+                    ]
+                    masks = self.model.predict_masks(image_embedding, marks)
                     if len(masks.shape) == 4:
                         masks = masks[0][0]
                     else:

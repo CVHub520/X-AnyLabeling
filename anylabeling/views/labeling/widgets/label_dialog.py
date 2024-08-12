@@ -734,16 +734,28 @@ class LabelDialog(QtWidgets.QDialog):
                 # Calculate the ideal top-left corner position for the dialog based on the mouse click
                 ideal_pos = cursor_pos
                 # Adjust to prevent the dialog from exceeding the right screen boundary
-                if (ideal_pos.x() + dialog_frame_size.width()) > screen.right():
+                if (
+                    ideal_pos.x() + dialog_frame_size.width()
+                ) > screen.right():
                     ideal_pos.setX(screen.right() - dialog_frame_size.width())
                 # Adjust to prevent the dialog's bottom from going off-screen
-                if (ideal_pos.y() + dialog_frame_size.height()) > screen.bottom():
-                    ideal_pos.setY(screen.bottom() - dialog_frame_size.height())
+                if (
+                    ideal_pos.y() + dialog_frame_size.height()
+                ) > screen.bottom():
+                    ideal_pos.setY(
+                        screen.bottom() - dialog_frame_size.height()
+                    )
                 self.move(ideal_pos)
             elif move_mode == "center":
                 # Calculate the center position to move the dialog to
-                screen = QtWidgets.QApplication.desktop().screenNumber(QtWidgets.QApplication.desktop().cursor().pos())
-                centerPoint = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+                screen = QtWidgets.QApplication.desktop().screenNumber(
+                    QtWidgets.QApplication.desktop().cursor().pos()
+                )
+                centerPoint = (
+                    QtWidgets.QApplication.desktop()
+                    .screenGeometry(screen)
+                    .center()
+                )
                 qr = self.frameGeometry()
                 qr.moveCenter(centerPoint)
                 self.move(qr.topLeft())

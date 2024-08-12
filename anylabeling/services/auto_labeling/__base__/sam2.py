@@ -5,6 +5,7 @@ import numpy as np
 import onnxruntime as ort
 from numpy import ndarray
 
+
 class SegmentAnything2ONNX:
     """Segmentation model using Segment Anything 2 (SAM2)"""
 
@@ -16,7 +17,9 @@ class SegmentAnything2ONNX:
 
     def encode(self, cv_image: np.ndarray) -> List[np.ndarray]:
         original_size = cv_image.shape[:2]
-        high_res_feats_0, high_res_feats_1, image_embed = self.encoder(cv_image)
+        high_res_feats_0, high_res_feats_1, image_embed = self.encoder(
+            cv_image
+        )
         return {
             "high_res_feats_0": high_res_feats_0,
             "high_res_feats_1": high_res_feats_1,
@@ -175,7 +178,6 @@ class SAM2ImageDecoder:
         point_coords: Union[List[np.ndarray], np.ndarray],
         point_labels: Union[List[np.ndarray], np.ndarray],
     ) -> Tuple[List[np.ndarray], ndarray]:
-
         return self.predict(
             image_embed,
             high_res_feats_0,
@@ -192,7 +194,6 @@ class SAM2ImageDecoder:
         point_coords: Union[List[np.ndarray], np.ndarray],
         point_labels: Union[List[np.ndarray], np.ndarray],
     ) -> Tuple[List[np.ndarray], ndarray]:
-
         inputs = self.prepare_inputs(
             image_embed,
             high_res_feats_0,
@@ -213,7 +214,6 @@ class SAM2ImageDecoder:
         point_coords: Union[List[np.ndarray], np.ndarray],
         point_labels: Union[List[np.ndarray], np.ndarray],
     ):
-
         input_point_coords, input_point_labels = self.prepare_points(
             point_coords, point_labels
         )
@@ -245,7 +245,6 @@ class SAM2ImageDecoder:
         point_coords: Union[List[np.ndarray], np.ndarray],
         point_labels: Union[List[np.ndarray], np.ndarray],
     ) -> Tuple[np.ndarray, np.ndarray]:
-
         if isinstance(point_coords, np.ndarray):
             input_point_coords = point_coords[np.newaxis, ...]
             input_point_labels = point_labels[np.newaxis, ...]
@@ -278,9 +277,9 @@ class SAM2ImageDecoder:
             * self.encoder_input_size[0]
         )  # Normalize y
 
-        return input_point_coords.astype(np.float32), input_point_labels.astype(
+        return input_point_coords.astype(
             np.float32
-        )
+        ), input_point_labels.astype(np.float32)
 
     def forward_decoder(self, inputs) -> List[np.ndarray]:
         outputs = self.session.run(
@@ -295,7 +294,6 @@ class SAM2ImageDecoder:
     def process_output(
         self, outputs: List[np.ndarray]
     ) -> Tuple[List[Union[np.ndarray, Any]], np.ndarray]:
-
         scores = outputs[1].squeeze()
         masks = outputs[0][0]
 

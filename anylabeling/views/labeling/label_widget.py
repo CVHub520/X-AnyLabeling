@@ -2318,8 +2318,12 @@ class LabelingWidget(LabelDialog):
             f"Device: {__preferred_device__}\n"
         )
         system_info, pkg_info = utils.general.collect_system_info()
-        system_info_str = "\n".join([f"{key}: {value}" for key, value in system_info.items()])
-        pkg_info_str = "\n".join([f"{key}: {value}" for key, value in pkg_info.items()])
+        system_info_str = "\n".join(
+            [f"{key}: {value}" for key, value in system_info.items()]
+        )
+        pkg_info_str = "\n".join(
+            [f"{key}: {value}" for key, value in pkg_info.items()]
+        )
         msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
 
         info_box = QMessageBox()
@@ -2337,8 +2341,9 @@ class LabelingWidget(LabelDialog):
         clipboard = QtWidgets.QApplication.clipboard()
         clipboard.setText(text)
         QMessageBox.information(
-            self, self.tr("Copied"), 
-            self.tr("The information has been copied to the clipboard.")
+            self,
+            self.tr("Copied"),
+            self.tr("The information has been copied to the clipboard."),
         )
 
     # General

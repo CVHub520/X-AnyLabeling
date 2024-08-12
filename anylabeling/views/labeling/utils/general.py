@@ -3,6 +3,7 @@ import platform
 import subprocess
 from importlib_metadata import version as get_package_version
 
+
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
     return tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
@@ -39,11 +40,13 @@ def collect_system_info():
     gpu_info = get_gpu_info()
     cuda_info = get_cuda_version()
     python_info = platform.python_version()
-    pyqt5_info = get_installed_package_version('PyQt5')
-    onnx_info = get_installed_package_version('onnx')
-    ort_info = get_installed_package_version('onnxruntime')
-    ort_gpu_info = get_installed_package_version('onnxruntime-gpu')
-    opencv_contrib_info = get_installed_package_version('opencv-contrib-python-headless')
+    pyqt5_info = get_installed_package_version("PyQt5")
+    onnx_info = get_installed_package_version("onnx")
+    ort_info = get_installed_package_version("onnxruntime")
+    ort_gpu_info = get_installed_package_version("onnxruntime-gpu")
+    opencv_contrib_info = get_installed_package_version(
+        "opencv-contrib-python-headless"
+    )
 
     system_info = {
         "Operating System": os_info,
@@ -57,7 +60,7 @@ def collect_system_info():
         "ONNX Version": onnx_info,
         "ONNX Runtime Version": ort_info,
         "ONNX Runtime GPU Version": ort_gpu_info,
-        "OpenCV Contrib Python Headless Version": opencv_contrib_info
+        "OpenCV Contrib Python Headless Version": opencv_contrib_info,
     }
 
     return system_info, pkg_info
@@ -72,8 +75,13 @@ def get_installed_package_version(package_name):
 
 def get_cuda_version():
     try:
-        nvcc_output = subprocess.check_output(['nvcc', '--version']).decode('utf-8')
-        version_line = next((line for line in nvcc_output.split('\n') if 'release' in line), None)
+        nvcc_output = subprocess.check_output(["nvcc", "--version"]).decode(
+            "utf-8"
+        )
+        version_line = next(
+            (line for line in nvcc_output.split("\n") if "release" in line),
+            None,
+        )
         if version_line:
             return version_line.split()[-1]
     except Exception:
@@ -82,9 +90,14 @@ def get_cuda_version():
 
 def get_gpu_info():
     try:
-        smi_output = subprocess.check_output([
-            'nvidia-smi', '--query-gpu=index,name,memory.total', 
-            '--format=csv,noheader,nounits'], encoding='utf-8')
-        return ', '.join(smi_output.strip().split('\n'))
+        smi_output = subprocess.check_output(
+            [
+                "nvidia-smi",
+                "--query-gpu=index,name,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
+            encoding="utf-8",
+        )
+        return ", ".join(smi_output.strip().split("\n"))
     except Exception:
         return None

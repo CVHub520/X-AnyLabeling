@@ -79,8 +79,8 @@ class SegmentAnything2(Model):
 
         # Load models
         self.model = SegmentAnything2ONNX(
-            encoder_model_abs_path, 
-            decoder_model_abs_path, 
+            encoder_model_abs_path,
+            decoder_model_abs_path,
             __preferred_device__,
         )
 
