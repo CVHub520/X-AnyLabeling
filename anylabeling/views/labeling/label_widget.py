@@ -4018,11 +4018,16 @@ class LabelingWidget(LabelDialog):
         ):
             return
 
+        image_dir_path = osp.dirname(self.filename)
+        output_dir_path = image_dir_path
+        if self.output_dir:
+            output_dir_path = self.output_dir
+
         try:
             converter = LabelConverter()
             converter.coco_to_custom(
                 input_file=input_file,
-                image_path=osp.dirname(self.filename),
+                output_path=output_dir_path,
                 mode=mode,
             )
             # update and refresh the current canvas
