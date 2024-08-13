@@ -25,6 +25,7 @@
       * [4.5 MASK Annotation](#45-mask-annotation)
       * [4.6 MOT Annotation](#46-mot-annotation)
       * [4.7 PPOCR Annotation](#47-ppocr-annotation)
+      * [4.8 ODVG Annotation](#48-odvg-annotation)
   * [5. Toolbar](#5-toolbar)
       * [5.1 Data Statistics](#51-data-statistics)
       * [5.2 Save Sub-Images](#52-save-sub-images)
@@ -270,7 +271,7 @@ Before importing/exporting YOLO label files, you need to prepare a label configu
 > To export in YOLO-Pose format, you need to assign a `group_id` to each set (bounding box and its keypoints) during annotation so that X-AnyLabeling can understand their relationships during export.
 
 **Import Task**:
-1. Click the `Import` button in the top menu bar.
+1. Click the `Upload` button in the top menu bar.
 2. Select the corresponding task.
 3. Upload the prepared configuration file.
 4. Choose the directory where the label files are located and click OK.
@@ -289,7 +290,7 @@ The export path defaults to the `labels` folder in the same directory as the cur
 The latest version of X-AnyLabeling supports one-click import/export for Pascal-VOC label files (*.xml) for detection and segmentation tasks.
 
 **Import Task**:
-1. Click the `Import` button in the top menu bar.
+1. Click the `Upload` button in the top menu bar.
 2. Select the corresponding task.
 3. Choose the directory where the label files are located and click OK.
 
@@ -308,7 +309,7 @@ The latest version of X-AnyLabeling supports one-click import/export for COCO la
 Before importing/exporting COCO label files, prepare a label configuration file, referring to [classes.txt](../../assets/classes.txt), where each line represents a class, with numbers incrementing from 0.
 
 **Import Task**:
-1. Click the `Import` button in the top menu bar.
+1. Click the `Upload` button in the top menu bar.
 2. Select the corresponding task.
 3. Upload the prepared configuration file.
 4. Choose the directory where the label files are located and click OK.
@@ -329,7 +330,7 @@ The latest version of X-AnyLabeling supports one-click import/export for DOTA la
 > x1 y1 x2 y2 x3 y3 x4 y4 class_name difficult
 
 **Import Task**:
-1. Click the `Import` button in the top menu bar.
+1. Click the `Upload` button in the top menu bar.
 2. Select the corresponding task.
 3. Choose the directory where the label files are located and click OK.
 
@@ -351,7 +352,7 @@ Before importing/exporting mask label files, prepare the configuration file as f
 2. For grayscale images, refer to [mask_grayscale_map.json](../../assets/mask_grayscale_map.json).
 
 **Import Task**:
-1. Click the `Import` button in the top menu bar.
+1. Click the `Upload` button in the top menu bar.
 2. Select the corresponding task.
 3. Upload the prepared configuration file.
 4. Choose the directory where the label files are located and click OK.
@@ -375,7 +376,7 @@ Before importing/exporting label files, prepare a label configuration file, refe
 3. Choose the save path and click OK.
 
 **Import Task**:
-1. Click the `Import` button in the top menu bar.
+1. Click the `Upload` button in the top menu bar.
 2. Select the corresponding task.
 3. Upload the prepared configuration file.
 4. Choose the directory containing the label file (`gt.txt`) and click OK.
@@ -424,7 +425,7 @@ The latest version of X-AnyLabeling (v2.4.0+) supports one-click import/export f
 - Key Information Extraction: Extracts key information from images, including semantic entity recognition and relation extraction.
 
 **Import Task**:
-1. Click the `Import` button in the top menu bar.
+1. Click the `Upload` button in the top menu bar.
 2. Select the corresponding task.
 3. Choose the appropriate label file and click OK to upload.
 
@@ -442,6 +443,25 @@ For the **Key Information Extraction** task, the export path defaults to the `pp
 2. `ppocr_kie.json`: KIE annotation results
 
 For sample label files, refer to [ppocr-rec](../../assets/ppocr/ppocr-rec/) and [ppocr-kie](../../assets/ppocr/ppocr-kie/).
+
+### 4.8 ODVG Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for Grounding task-related label files, specifically ODVG annotations.
+
+Before importing/exporting ODVG label files, you need to prepare a label configuration file. For reference, see [classes.txt](../../assets/classes.txt), where each line represents a category, with the numbering incrementing from top to bottom.
+
+**Import Task**:
+1. Click the `Upload` button in the top menu bar.
+2. Select the corresponding task.
+3. Choose the directory where the label files are located and click OK.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Select the corresponding task.
+3. Upload the prepared configuration file.
+4. Choose the save path and click OK.
+
+> For the style of ODVG label files, refer to [ODVG](../../assets/ODVG).
 
 
 ### 5. Toolbar

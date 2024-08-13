@@ -50,6 +50,10 @@
 
 **答：** 可参考#515。
 
+> AttributeError: 'int' object has no attribute 'replace'
+
+**答：** 查看配置文件是否有定义纯数字标签。请注意在定义以**纯数字**命名的标签名称时，请务必将其加上单引号 `''`
+
 ## 标签导入导出相关问题
 
 > Export mask error: "imageWidth"
