@@ -400,7 +400,7 @@ class YOLO(Model):
                 keypoint_name = self.keypoint_name[label]
                 for j, kpt in enumerate(keypoint):
                     if len(kpt) == 2:
-                        x, y, s = *kpt, False
+                        x, y, s = *kpt, 1.0
                     else:
                         x, y, s = kpt
                     inside_flag = point_in_bbox((x, y), box)
