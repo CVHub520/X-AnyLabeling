@@ -392,8 +392,8 @@ class LabelConverter:
             for j in range(0, len(keypoints), interval):
                 x = float(keypoints[j]) * img_w
                 y = float(keypoints[j + 1]) * img_h
-                flag = int(keypoints[j + 2])
-                if (x == 0 and y == 0) or flag == 0:
+                flag = int(keypoints[j + 2]) if self.has_vasiable else 0
+                if (x == 0 and y == 0) or (flag == 0 and self.has_vasiable):
                     continue
                 if interval == 3 and flag == 1:
                     difficult = True
