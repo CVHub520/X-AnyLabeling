@@ -40,9 +40,7 @@ class DepthAnythingV2(Model):
                 )
             )
         self.model_path = model_abs_path
-        self.net = OnnxBaseModel(
-            model_abs_path,
-        )
+        self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
         self.render_mode = self.config.get("render_mode", "color")
         self.device = "cuda" if __preferred_device__ == "GPU" else "cpu"
@@ -68,15 +66,7 @@ class DepthAnythingV2(Model):
         return image, orig_shape
 
     def forward(self, blob):
-        binding = self.net.ort_session.io_binding()
-        ort_input = self.net.get_input_name()
-        binding.bind_cpu_input(ort_input, blob)
-        ort_output = self.net.get_output_name()[0]
-        binding.bind_output(ort_output, self.device)
-
-        self.net.ort_session.run_with_iobinding(binding)
-        outputs = binding.get_outputs()[0].numpy()
-        return outputs
+        return self.net.get_ort_inference(blob, extract=True)
 
     def postprocess(self, depth, orig_shape):
         """
