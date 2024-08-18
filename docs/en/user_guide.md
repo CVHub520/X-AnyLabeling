@@ -31,6 +31,7 @@
       * [5.2 Save Sub-Images](#52-save-sub-images)
       * [5.3 Object Manager](#53-object-manager)
       * [5.4 Shape Type Conversion](#54-shape-type-conversion)
+      * [5.5 Saving Masked Images](#55-saving-masked-images)
    * [6. Help and Language](#6-help-and-language)
       * [6.1 Getting Version Information](#61-getting-version-information)
       * [6.2 Setting Software Language](#62-setting-software-language)
@@ -505,6 +506,12 @@ These actions can be accessed through the **Tools** -> **Object Manager** option
 - **Polygon to Bounding Box**: Convert polygon labels to bounding box labels.
 
 Note: The `Rotated Box to Rectangular Box` and `Polygon to Bounding Box` conversions use the maximum bounding rectangle by default, which may result in the loss of some label information, such as rotation angle. These actions are **irreversible**, so use them with caution.
+
+### 5.5 Saving Masked Images
+
+To implement the masked image saving feature, follow the steps below:
+1. For areas that require `masking`, they can be identified using `rectangle`, `rotation`, or `polygon` objects, with the label name set to `__mask__`;
+2. Click on the **Tools** -> **Save Masked Image** option in the top menu bar to set the fill color block. The default value is (114, 114, 114). The resulting images are saved by default in the `x-anylabeling-mask-image` folder.
 
 ## 6. Help and Language
 
