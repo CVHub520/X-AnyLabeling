@@ -34,7 +34,6 @@
 | rtmdet_m_640-8xb32_coco-person.onnx | [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet)（2D human whole-body pose estimation）| [rtmdet_m_640-8xb32_coco-person.onnx](../../anylabeling/configs/auto_labeling/rtmdet_m_coco_person_rtmo_m.yaml) | 104.25MB | [baidu](https://pan.baidu.com/s/1BOoBNihoejvqoB7viBzbQQ?pwd=5ki4) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/rtmdet_m_640-8xb32_coco-person.onnx) |
 
 
-
 ### Lane Detection
 
 |Name|Description|Configuration|Size|Link|
@@ -46,8 +45,11 @@
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
-| yolov5m.onnx | [YOLOv5m-ByteTrack](https://github.com/ifzhang/ByteTrack)  | [yolov5m_bytetrack.yaml](../../anylabeling/configs/auto_labeling/yolov5m_bytetrack.yaml)  | 81.19MB  | [baidu](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
-| yolov5m.onnx | [YOLOv5m-OCSort](https://github.com/noahcao/OC_SORT)  | [yolov5m_ocsort.yaml](../../anylabeling/configs/auto_labeling/yolov5m_ocsort.yaml)  | 81.19MB  | [baidu](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
+| yolov5s.onnx | YOLOv5s-Det-BoT-SORT | [yolov5s_det_botsort.yaml](../../anylabeling/configs/auto_labeling/yolov5s_det_botsort.yaml) | 27.98MB | [baidu](https://pan.baidu.com/s/18I8ugM29NKjNlVEsnYYuWA?pwd=z8dl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx) |
+| yolov8n_obb_car_bus.onnx | YOLOv8n-Obb-BoT-SORT | [yolov8n_obb_botsort.yaml](../../anylabeling/configs/auto_labeling/yolov8n_obb_botsort.yaml) | 12.02MB | [baidu](https://pan.baidu.com/s/1hQpkBlH6Wc7yAADOxt9yeQ?pwd=o23t) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/yolov8n_obb_car_bus.onnx) |
+| yolov8s.onnx | YOLOv8s-Det-BoT-SORT | [yolov8s_det_botsort.yaml](../../anylabeling/configs/auto_labeling/yolov8s_det_botsort.yaml) | 42.75MB | [baidu](https://pan.baidu.com/s/1_1-9dFF_BfqcghE_0LDidg?pwd=oy9d) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8s.onnx) |
+| yolov8m-seg.onnx | YOLOv8m-Seg-Bytetrack | [yolov8m_seg_bytetrack.yaml](../../anylabeling/configs/auto_labeling/yolov8m_seg_bytetrack.yaml) | 104.23MB | [baidu](https://pan.baidu.com/s/1PmKsiatP2YfHtnDCJEnhRw?pwd=bo85) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8m-seg.onnx) |
+| yolov8x-pose-p6.onnx | YOLOv8x-Pose-P6-BoT-SORT | [yolov8x_pose_p6_botsort.yaml](../../anylabeling/configs/auto_labeling/yolov8x_pose_p6_botsort.yaml) | 378.92MB | [baidu](https://pan.baidu.com/s/1VRszCtMnHo2zeshuk93Aew?pwd=xvko) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x_pose_p6.onnx) |
 
 
 ### Object Detection
