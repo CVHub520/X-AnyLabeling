@@ -1,73 +1,97 @@
 # 常见问题解答 (FAQ)
 
-这里是关于项目的常见问题的列表及其答案。(持续更新中)
+
+### 安装与运行相关问题
+
+<details>
+<summary>Q: 启动时报错：`qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.` </summary>
+
+可参考[#541](https://github.com/CVHub520/X-AnyLabeling/issues/541)、[#496](https://github.com/CVHub520/X-AnyLabeling/issues/496)。
+</details>
+
+<details>
+<summary>Q: GPU版本运行时闪退？</summary>
+
+可参考[#500](https://github.com/CVHub520/X-AnyLabeling/issues/500)。
+</details>
 
 
-## 安装与运行相关问题
+### 界面交互相关问题
 
-> 启动时报错：`qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.`
+<details>
+<summary>Q: 应用启动时，首次点击无效？</summary>
 
-**答：** 可参考#541、#496。
+此问题暂时无解。 
+</details>
 
-> GPU版本运行时闪退？
 
-**答：** 可参考#500。
+### 模型相关问题
 
-## GUI交互相关问题
+<details>
+<summary>Q: AI模型推理时如何识别特定的类别？</summary>
 
-> 应用启动时，首次点击无效？
+当前仅支持部分模型设置此选项。具体地，以 yolo 系列模型为例，用户可通过在配置文件中添加 `filter_classes`，具体可参考此[文档](https://github.com/CVHub520/X-AnyLabeling/blob/main/docs/zh_cn/custom_model.md#%E5%8A%A0%E8%BD%BD%E5%B7%B2%E9%80%82%E9%85%8D%E7%9A%84%E7%94%A8%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%9E%8B)。
+</details>
 
-**答：** 此问题暂时无解，首次点击可视为正式触发交互生效。 
+<details>
+<summary>Q: in paint assert len(self.points) in [1, 2, 4] AssertionError.</summary>
 
-> 问：
+可参考[#491](https://github.com/CVHub520/X-AnyLabeling/issues/491)。
+</details>
 
-## 模型相关问题
+<details>
+<summary>Q: 加载自定义模型报错？</summary>
 
-> yolo 系列模型如何仅识别特定的类别？
-
-**答：** 可通过在配置文件中添加 `filter_classes`，具体可参考此[文档](https://github.com/CVHub520/X-AnyLabeling/blob/main/docs/zh_cn/custom_model.md#%E5%8A%A0%E8%BD%BD%E5%B7%B2%E9%80%82%E9%85%8D%E7%9A%84%E7%94%A8%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%9E%8B)。
-
-> in paint assert len(self.points) in [1, 2, 4] AssertionError.
-
-**答：** 可参考#491。
-
-> 加载自定义模型报错？
-
-**答：** 可参考以下步骤解决：
+可参考以下步骤解决：
 
 1. 检查配置文件中的定义的类别与模型支持的类别列表是否一致。
 2. 使用 [netron](https://netron.app/) 工具比较自定义模型与官方对应的内置模型输入输出节点维度是否一致。
+</details>
 
-> 运行完没有输出结果？
+<details>
+<summary>Q: 运行完没有输出结果？</summary>
 
-**答：** 可参考#536。
+可参考[#536](https://github.com/CVHub520/X-AnyLabeling/issues/536)。
+</details>
 
-> 使用 Grounding DINO 模型进行 GPU 推理时报错：Error in predict_shapes: [ONNXRuntimeError] : 1 : FAIL : Non-zero status code returned while running Expand node. Name:'Expand_33526' Status Message: Expand_33526: left operand cannot broadcast on dim 2 LeftShape: {1,900,4}, RightShape: {1,900,256}
+<details>
+<summary>Q: 使用 Grounding DINO 模型进行 GPU 推理时报错：
 
-**答：** 可参考#389。
+```shell
+Error in predict_shapes: [ONNXRuntimeError] : 1 : FAIL : Non-zero status code returned while running Expand node. Name:'Expand_33526' Status Message: Expand_33526: left operand cannot broadcast on dim 2 LeftShape: {1,900,4}, RightShape: {1,900,256}
+```
+</summary>
 
-> Missing config : num_masks
+可参考[#389](https://github.com/CVHub520/X-AnyLabeling/issues/389)。
+</details>
 
-**答：** 可参考#515。
+<details>
+<summary>Q: Missing config : num_masks</summary>
 
-> AttributeError: 'int' object has no attribute 'replace'
+可参考[#515](https://github.com/CVHub520/X-AnyLabeling/issues/515)。
+</details>
 
-**答：** 查看配置文件是否有定义纯数字标签。请注意在定义以**纯数字**命名的标签名称时，请务必将其加上单引号 `''`
+<details>
+<summary>Q: AttributeError: 'int' object has no attribute 'replace'</summary>
+查看配置文件是否有定义纯数字标签。请注意在定义以**纯数字**命名的标签名称时，请务必将其加上单引号 `''`
+</details>
 
-## 标签导入导出相关问题
+### 标签导入导出相关问题
 
-> Export mask error: "imageWidth"
+<details>
+<summary>Q: Export mask error: "imageWidth"</summary>
 
-**答：** 可参考#477。
+可参考[#477](https://github.com/CVHub520/X-AnyLabeling/issues/477)。
+</details>
 
-> operands could not be broadcast together with shapes (0,) (1,2)
+<details>
+<summary>Q: operands could not be broadcast together with shapes (0,) (1,2)</summary>
 
-**答：** 可参考#492。
+可参考[#492](https://github.com/CVHub520/X-AnyLabeling/issues/492)。
+</details>
 
-> 导出关键点标签时报错：int0 argument must be a string, a byteslike object or a number, not 'NoneType'
+<details>
+<summary>Q: 导出关键点标签时报错：int0 argument must be a string, a byteslike object or a number, not 'NoneType'</summary>
 
-**答：** `group_id`字段缺失，请确保每个矩形框和关键点都有对应的群组编号。
-
-## 其它
-
-略。
+`group_id`字段缺失，请确保每个矩形框和关键点都有对应的群组编号。
+</details>
