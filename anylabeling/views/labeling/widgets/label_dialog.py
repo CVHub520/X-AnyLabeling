@@ -556,12 +556,11 @@ class LabelDialog(QtWidgets.QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
-            selected_items = self.linking_list.selectedItems()
-            if selected_items:
-                for item in selected_items:
-                    self.linking_list.takeItem(self.linking_list.row(item))
-                if len(self.get_kie_linking) == 0:
-                    self.linking_list.setHidden(True)
+            if hasattr(self, 'linking_list') and self.linking_list is not None:
+                selected_items = self.linking_list.selectedItems()
+                if selected_items:
+                    for item in selected_items:
+                        self.linking_list.takeItem(self.linking_list.row(item))
         else:
             super(LabelDialog, self).keyPressEvent(event)
 
