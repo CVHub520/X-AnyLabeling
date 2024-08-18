@@ -2,9 +2,11 @@
 
 import PIL.Image
 import PIL.ImageEnhance
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage
+
+from .. import utils
 
 
 class BrightnessContrastDialog(QtWidgets.QDialog):
@@ -94,10 +96,8 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         if contrast != 1:
             img = PIL.ImageEnhance.Contrast(img).enhance(contrast)
 
-        img = img.convert("RGB")
-        qimage = QImage(
-            img.tobytes(), img.width, img.height, QImage.Format_RGB888
-        )
+        img_data = utils.img_pil_to_data(img)
+        qimage = QtGui.QImage.fromData(img_data)
         self.callback(qimage)
 
     def reset_values(self):
