@@ -597,7 +597,8 @@ class LabelConverter:
             self.custom_data["imageWidth"] = dic_info["imageWidth"]
 
             output_file = osp.join(
-                output_dir_path, osp.splitext(dic_info["imagePath"])[0] + ".json"
+                output_dir_path,
+                osp.splitext(dic_info["imagePath"])[0] + ".json",
             )
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)

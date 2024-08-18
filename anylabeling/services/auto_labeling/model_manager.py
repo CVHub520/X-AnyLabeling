@@ -46,7 +46,6 @@ class ModelManager(QObject):
         "grounding_dino",
         "yolov5_obb",
         "gold_yolo",
-        "yolov8_track",
         "yolov8_efficientvit_sam",
         "ram",
         "yolov5_seg",
@@ -67,6 +66,10 @@ class ModelManager(QObject):
         "depth_anything_v2",
         "yolow_ram",
         "rtdetrv2",
+        "yolov8_det_track",
+        "yolov8_seg_track",
+        "yolov8_obb_track",
+        "yolov8_pose_track",
     ]
 
     model_configs_changed = pyqtSignal(list)
@@ -1302,11 +1305,11 @@ class ModelManager(QObject):
                     )
                 )
                 return
-        elif model_config["type"] == "yolov5_track":
-            from .yolov5_track import YOLOv5_Tracker
+        elif model_config["type"] == "yolov5_det_track":
+            from .yolov5_det_track import YOLOv5_Det_Tracker
 
             try:
-                model_config["model"] = YOLOv5_Tracker(
+                model_config["model"] = YOLOv5_Det_Tracker(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
@@ -1324,11 +1327,77 @@ class ModelManager(QObject):
                     )
                 )
                 return
-        elif model_config["type"] == "yolov8_track":
-            from .yolov8_track import YOLOv8_Tracker
+        elif model_config["type"] == "yolov8_det_track":
+            from .yolov8_det_track import YOLOv8_Det_Tracker
 
             try:
-                model_config["model"] = YOLOv8_Tracker(
+                model_config["model"] = YOLOv8_Det_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov8_seg_track":
+            from .yolov8_seg_track import YOLOv8_Seg_Tracker
+
+            try:
+                model_config["model"] = YOLOv8_Seg_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov8_obb_track":
+            from .yolov8_obb_track import YOLOv8_Obb_Tracker
+
+            try:
+                model_config["model"] = YOLOv8_Obb_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "yolov8_pose_track":
+            from .yolov8_pose_track import YOLOv8_Pose_Tracker
+
+            try:
+                model_config["model"] = YOLOv8_Pose_Tracker(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
@@ -1419,6 +1488,24 @@ class ModelManager(QObject):
             return
         self.loaded_model_config["model"].set_auto_labeling_marks(marks)
 
+    def set_auto_labeling_reset_tracker(self):
+        """Resets the tracker to its initial state,
+        clearing all tracked objects and internal states.
+        """
+        model_list = [
+            "yolov5_det_track",
+            "yolov8_det_track",
+            "yolov8_obb_track",
+            "yolov8_seg_track",
+            "yolov8_pose_track",
+        ]
+        if (
+            self.loaded_model_config is None
+            or self.loaded_model_config["type"] not in model_list
+        ):
+            return
+        self.loaded_model_config["model"].set_auto_labeling_reset_tracker()
+
     def set_auto_labeling_conf(self, value):
         """Set auto labeling confidences"""
         model_list = [
@@ -1430,14 +1517,17 @@ class ModelManager(QObject):
             "yolo_nas",
             "yolov5_obb",
             "yolov5_seg",
-            "yolov5_track",
+            "yolov5_det_track",
             "yolov5",
             "yolov6",
             "yolov7",
             "yolov8_obb",
             "yolov8_pose",
             "yolov8_seg",
-            "yolov8_track",
+            "yolov8_det_track",
+            "yolov8_seg_track",
+            "yolov8_obb_track",
+            "yolov8_pose_track",
             "yolov8",
             "yolov9",
             "yolov10",
@@ -1459,16 +1549,20 @@ class ModelManager(QObject):
             "yolo_nas",
             "yolov5_obb",
             "yolov5_seg",
-            "yolov5_track",
+            "yolov5_det_track",
             "yolov5",
             "yolov6",
             "yolov7",
             "yolov8_obb",
             "yolov8_pose",
             "yolov8_seg",
-            "yolov8_track",
+            "yolov8_det_track",
+            "yolov8_seg_track",
+            "yolov8_obb_track",
+            "yolov8_pose_track",
             "yolov8",
-            "yolov9" "yolox",
+            "yolov9",
+            "yolox",
         ]
         if (
             self.loaded_model_config is None

@@ -1,2 +1,4 @@
-from .byte_track.bytetracker import ByteTrack
-from .oc_sort.ocsort import OcSort
+from .bot_sort import BOTSORT
+from .byte_tracker import BYTETracker
+
+__all__ = "BOTSORT", "BYTETracker"  # allow simpler import

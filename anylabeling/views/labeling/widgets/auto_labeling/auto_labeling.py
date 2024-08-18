@@ -79,6 +79,7 @@ class AutoLabelingWidget(QWidget):
         self.button_send.clicked.connect(self.run_vl_prediction)
         self.edit_conf.valueChanged.connect(self.on_conf_value_changed)
         self.edit_iou.valueChanged.connect(self.on_iou_value_changed)
+        self.button_reset_tracker.clicked.connect(self.on_reset_tracker)
         self.button_add_point.setShortcut("Q")
         self.button_add_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
@@ -304,6 +305,7 @@ class AutoLabelingWidget(QWidget):
             "output_label",
             "output_select_combobox",
             "toggle_preserve_existing_annotations",
+            "button_reset_tracker",
         ]
         for widget in widgets:
             getattr(self, widget).hide()
@@ -329,3 +331,6 @@ class AutoLabelingWidget(QWidget):
         self.model_manager.set_auto_labeling_preserve_existing_annotations_state(
             state
         )
+
+    def on_reset_tracker(self):
+        self.model_manager.set_auto_labeling_reset_tracker()
