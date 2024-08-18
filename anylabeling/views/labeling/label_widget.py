@@ -3317,7 +3317,7 @@ class LabelingWidget(LabelDialog):
             label_file
         ):
             try:
-                self.label_file = LabelFile(label_file, image_dir)
+                self.label_file = LabelFile(label_file, image_dir, self.hidden_cls)
             except LabelFileError as e:
                 self.error_message(
                     self.tr("Error opening file"),
