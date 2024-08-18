@@ -1,7 +1,7 @@
 <div align="center">
   <p>
     <a href="https://github.com/CVHub520/X-AnyLabeling/" target="_blank">
-      <img width="100%" src="https://user-images.githubusercontent.com/72010077/273420485-bdf4a930-8eca-4544-ae4b-0e15f3ebf095.png"></a>
+      <img alt="X-AnyLabeling" height="200px" src="https://github.com/user-attachments/assets/0714a182-92bd-4b47-b48d-1c5d7c225176"></a>
   </p>
 
 [English](README.md) | [简体中文](README_zh-CN.md)
@@ -18,20 +18,33 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<video src="https://github.com/user-attachments/assets/6e5131af-6946-4586-93c4-d1b8540e9e33" 
-       controls 
-       width="100%" 
-       height="auto" 
-       style="max-width: 720px; height: auto; display: block; object-fit: contain;">
-</video>
+
+<img src="https://github.com/user-attachments/assets/0b1e3c69-a800-4497-9bad-4332c1ce1ebf" width="100%" />
+<div align="center"><strong>Segment Anything v2</strong></div>
+
+</br>
+
+| **Tracking by HBB Detection** | **Tracking by OBB Detection** |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/be67d4f8-eb31-4bb3-887c-d954bb4a5d6d" width="100%" /> | <img src="https://github.com/user-attachments/assets/d85b1102-124a-4971-9332-c51fd2b1c47b" width="100%" /> |
+| **Tracking by Instance Segmentation** | **Tracking by Pose Estimation** | 
+| <img src="https://github.com/user-attachments/assets/8d412dc6-62c7-4bb2-9a1e-026448acf2bf" width="100%" /> | <img src="https://github.com/user-attachments/assets/bab038a7-3023-4097-bdcc-90e5009477c0" width="100%" /> |
+
 
 ## 🥳 What's New
 
 - Aug. 2024:
   - 🤗 Pre-release the latest version [2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0) 🤗
+  - 🔥🔥🔥 Support [tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md) tasks.
   - ✨✨✨ Support [Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2) model! (Recommended)
   - 👏👏👏 Support [Grounding-SAM2](./docs/en/model_zoo.md) model.
   - Support lightweight model for Japanese recognition.
+
+<br>
+
+<details> 
+<summary>Click to view more news.</summary>
+
 - Jul. 2024:
   - Add PPOCR-Recognition and KIE import/export functionality for training PP-OCR task.
   - Add ODVG import/export functionality for training grounding task.
@@ -116,137 +129,88 @@
   - Release [YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face) for face detection and facial landmark detection.
   - Release [SAM](https://arxiv.org/abs/2304.02643) and it's faster version [MobileSAM](https://arxiv.org/abs/2306.14289).
   - Release [YOLOv5](https://github.com/ultralytics/yolov5), [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX).
+</details>
 
+## X-AnyLabeling
 
-## 👋 Brief Introduction
+**X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It’s designed for visual data engineers, offering industrial-grade solutions for complex tasks.
 
-`X-AnyLabeling` stands out as a robust annotation tool seamlessly incorporating an AI inference engine alongside an array of sophisticated features. Tailored for practical applications, it is committed to delivering comprehensive, industrial-grade solutions for image data engineers. This tool excels in swiftly and automatically executing annotations across diverse and intricate tasks.
+## Features
 
+<img src="https://github.com/user-attachments/assets/49a0f01b-71f3-48d5-a06e-05d21c98ece6" width="100%" />
 
-## 🔥 Highlight
+- Processes both `images` and `videos`.
+- Accelerates inference with `GPU` support.
+- Allows custom models and secondary development.
+- Supports one-click inference for all images in the current task.
+- Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR.
+- Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr` and so on.
+- Supports diverse annotation styles: `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 
-### 🗝️Key Features
-
-- Supports inference acceleration using `GPU`.
-- Handles both `image` and `video` processing.
-- Allows single-frame and batch predictions for all tasks.
-- Facilitates customization of models and supports secondary development design.
-- Enables one-click import and export of mainstream label formats such as COCO, VOC, YOLO, DOTA, MOT, and MASK.
-- Covers a range of visual tasks, including `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, and `ocr`.
-- Supports various image annotation styles, including `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, as well as annotations for `text detection`, `recognition`, and `KIE`.
-
-
-### ⛏️Model Zoo
+### Model library
 
 <div align="center">
 
-| **Object Detection** | **SOD with [SAHI](https://github.com/obss/sahi)** | **Facial Landmark Detection** | **2D Pose Estimation** |
+| **Object Detection** | **SOD with [SAHI](https://github.com/obss/sahi)** | **Facial Landmark Detection** | **Pose Estimation** |
 | :---: | :---: | :---: | :---: |
 | <img src='https://user-images.githubusercontent.com/72010077/273488633-fc31da5c-dfdd-434e-b5d0-874892807d95.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206095892-934be83a-f869-4a31-8e52-1074184149d1.jpg' height="126px" width="180px"> |  <img src='https://user-images.githubusercontent.com/61035602/206095684-72f42233-c9c7-4bd8-9195-e34859bd08bf.jpg' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206100220-ab01d347-9ff9-4f17-9718-290ec14d4205.gif' height="126px" width="180px"> |
-|  **2D Lane Detection** | **OCR** | **MOT** | **Instance Segmentation** |
+|  **Lane Detection** | **OCR** | **MOT** | **Instance Segmentation** |
 | <img src='https://user-images.githubusercontent.com/72010077/273764641-65f456ed-27ce-4077-8fce-b30db093b988.jpg' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273421210-30d20e08-3b72-4f4d-8976-05b564e13d87.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206111753-836e7827-968e-4c80-92ef-7a78766892fc.gif' height="126px" width="180px"  > | <img src='https://user-images.githubusercontent.com/61035602/206095831-cc439557-1a23-4a99-b6b0-b6f2e97e8c57.jpg' height="126px" width="180px"> |
-|  **Image Tagging** | **Grounding DINO** | **Recognition** | **Rotation** |
+|  **Tagging** | **Grounding** | **Recognition** | **Rotation** |
 | <img src='https://user-images.githubusercontent.com/72010077/277670825-8797ac7e-e593-45ea-be6a-65c3af17b12b.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277395884-4d500af3-3e4e-4fb3-aace-9a56a09c0595.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277396071-79daec2c-6b0a-4d42-97cf-69fd098b3400.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277395955-aab54ea0-88f5-41af-ab0a-f4158a673f5e.png' height="126px" width="180px"> |
-|  **[SAM](https://segment-anything.com/)** | **BC-SAM** | **Skin-SAM** | **Polyp-SAM** |
+|  **Segment Anything** | **BC-SAM** | **Skin-SAM** | **Polyp-SAM** |
 | <img src='https://user-images.githubusercontent.com/72010077/273421331-2c0858b5-0b92-405b-aae6-d061bc25aa3c.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764259-718dce97-d04d-4629-b6d2-95f17670ce2a.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764288-e26767d1-3c44-45cb-a72e-124efb4e8263.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764318-e8b6a197-e733-478e-a210-e4386bafa1e4.png' height="126px" width="180px"> |
 
 For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 
 </div>
 
-## 📋 Usage [⏏️](#📄-table-of-contents)
+## Docs
 
-- ### 📜Docs
+1. [Installation & Quickstart](./docs/en/get_started.md)
+2. [Usage](./docs/en/user_guide.md)
+3. [Customize a model](./docs/en/custom_model.md)
 
-  - ##### 🔜[Quick Start](./docs/en/get_started.md)
+## Examples
 
-  - ##### 📋[User Guide](./docs/en/user_guide.md)
+- [Classification](./examples/classification/)
+  - [Image-Level](./examples/classification/image-level/README.md)
+  - [Shape-Level](./examples/classification/shape-level/README.md)
+- [Detection](./examples/detection/)
+  - [HBB Object Detection](./examples/detection/hbb/README.md)
+  - [OBB Object Detection](./examples/detection/obb/README.md)
+- [Segmentation](./examples/segmentation/README.md)
+  - [Instance Segmentation](./examples/segmentation/instance_segmentation/)
+  - [Binary Semantic Segmentation](./examples/segmentation/binary_semantic_segmentation/)
+  - [Multiclass Semantic Segmentation](./examples/segmentation/multiclass_semantic_segmentation/)
+- [Description](./examples/description/)
+  - [Tagging](./examples/description/tagging/README.md)
+  - [Captioning](./examples/description/captioning/README.md)
+- [Estimation](./examples/estimation/)
+  - [Pose Estimation](./examples/estimation/pose_estimation/README.md)
+  - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
+- [OCR](./examples/optical_character_recognition/)
+  - [Text Recognition](./examples/optical_character_recognition/text_recognition/)
+  - [Key Information Extraction](./examples/optical_character_recognition/key_information_extraction/README.md)
+- [MOT](./examples/multiple_object_tracking/README.md)
+  - [Tracking by HBB Object Detection](./examples/multiple_object_tracking/README.md)
+  - [Tracking by OBB Object Detection](./examples/multiple_object_tracking/README.md)
+  - [Tracking by Instance Segmentation](./examples/multiple_object_tracking/README.md)
+  - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
 
-  - ##### 🚀[Load Custom Model](./docs/en/custom_model.md)
+## Contact
 
-- ### 🧷Hotkeys
+If you find this project helpful, please give it a ⭐star⭐, and for any questions or issues, feel free to [create an issue](https://github.com/CVHub520/X-AnyLabeling/issues) or email cv_hub@163.com.
 
-<details>
-
-<summary>Click to Expand/Collapse</summary>
-
-| Shortcut          | Function                                |
-|-------------------|-----------------------------------------|
-| d                 | Open next file                          |
-| a                 | Open previous file                      |
-| Ctrl + Shift + d  | Open next labeled file                  |
-| Ctrl + Shift + a  | Open previous labeled file              |
-| p or [Ctrl+n]     | Create polygon                          |
-| o                 | Create rotation                         |
-| r or [Crtl+r]     | Create rectangle                        |
-| i                 | Run model                               |
-| q                 | `positive point` of SAM mode            |
-| e                 | `negative point` of SAM mode            |
-| b                 | Quickly clear points of SAM mode        |
-| f                 | Quickly confirm target of SAM mode      |
-| g                 | Group selected shapes                   |
-| u                 | Ungroup selected shapes                 |
-| s                 | Hide selected shapes                    |
-| w                 | Show selected shapes                    |
-| Ctrl + q          | Quit                                    |
-| Ctrl + i          | Open image file                         |
-| Ctrl + o          | Open video file                         |
-| Ctrl + u          | Load all images from a directory        |
-| Ctrl + e          | Edit label                              |
-| Ctrl + j          | Edit polygon                            |
-| Ctrl + c          | Copy selected shapes                    |
-| Ctrl + v          | Paste selected shapes                   |
-| Ctrl + d          | Duplicate polygon                       |
-| Ctrl + g          | Display overview annotation statistics  |
-| Ctrl + h          | Toggle visibility shapes                |
-| Ctrl + p          | Toggle keep previous mode               |
-| Ctrl + y          | Toggle auto use last label              |
-| Ctrl + m          | Run all images at once                  |
-| Ctrl + a          | Enable auto annotation                  |
-| Ctrl + s          | Save current annotation                 |
-| Ctrl + l          | Toggle visibility Labels                |
-| Ctrl + t          | Toggle visibility Texts                 |
-| Ctrl + Shift + s  | Change output directory                 |
-| Ctrl -            | Zoom out                                |
-| Ctrl + 0          | Zoom to Original                        |
-| [Ctrl++, Ctrl+=]  | Zoom in                                 |
-| Ctrl + f          | Fit window                              |
-| Ctrl + Shift + f  | Fit width                               |
-| Ctrl + z          | Undo the last operation                 |
-| Ctrl + Delete     | Delete file                             |
-| Delete            | Delete polygon                          |
-| Esc               | Cancel the selected object              |
-| Backspace         | Remove selected point                   |
-| ↑→↓←              | Keyboard arrows to move selected object |
-| zxcv              | Keyboard to rotate selected rect box    |
-
-
-</details>
-
-
-## 📧 Contact [⏏️](#📄-table-of-contents)
-
-<p align="center">
-🤗 Enjoying this project? Please give it a star! 🤗
-</p>
-
-If you find this project helpful or interesting, consider starring it to show your support, and if you have any questions or encounter any issues while using this project, feel free to reach out for assistance using the following methods:
-
-- [Create an issue](https://github.com/CVHub520/X-AnyLabeling/issues)
-- Email: cv_hub@163.com
-
-
-## ✅ License [⏏️](#📄-table-of-contents)
+## License
 
 This project is released under the [GPL-3.0 license](./LICENSE).
 
-## 🙏🏻 Acknowledgments [⏏️](#📄-table-of-contents)
+## Acknowledgement
 
-I extend my heartfelt thanks to the developers and contributors of the projects [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelIm), [roLabelImg](https://github.com/cgvict/roLabelImg), [AnyLabeling](https://github.com/vietanhdev/anylabeling), [PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) and [Computer Vision Annotation Tool](https://github.com/opencv/cvat). Their dedication and contributions have played a crucial role in shaping the success of this project.
+I extend my heartfelt thanks to the developers and contributors of [AnyLabeling](https://github.com/vietanhdev/anylabeling), [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelIm), [roLabelImg](https://github.com/cgvict/roLabelImg), [PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) and [CVAT](https://github.com/opencv/cvat), whose work has been crucial to the success of this project.
 
-## 🏷️ Citing [⏏️](#📄-table-of-contents)
-
-### BibTeX
+## Citing
 
 If you use this software in your research, please cite it as below:
 

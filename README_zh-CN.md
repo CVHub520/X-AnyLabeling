@@ -1,7 +1,7 @@
 <div align="center">
   <p>
     <a href="https://github.com/CVHub520/X-AnyLabeling/" target="_blank">
-      <img width="100%" src="https://user-images.githubusercontent.com/72010077/273420485-bdf4a930-8eca-4544-ae4b-0e15f3ebf095.png"></a>
+      <img alt="X-AnyLabeling" height="200px" src="https://github.com/user-attachments/assets/0714a182-92bd-4b47-b48d-1c5d7c225176"></a>
   </p>
 
 [简体中文](README.zh-CN.md) | [English](README.md)
@@ -18,37 +18,32 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<video src="https://github.com/user-attachments/assets/6e5131af-6946-4586-93c4-d1b8540e9e33" 
-       controls 
-       width="100%" 
-       height="auto" 
-       style="max-width: 720px; height: auto; display: block; object-fit: contain;">
-</video>
+<img src="https://github.com/user-attachments/assets/0b1e3c69-a800-4497-9bad-4332c1ce1ebf" width="100%" />
+<div align="center"><strong>Segment Anything v2</strong></div>
 
-## 📄 目录
+</br>
 
-- [🥳 新功能](#🥳-新功能-⏏️)
-- [👋 简介](#👋-简介-⏏️)
-- [🔥 亮点](#🔥-亮点-⏏️)
-  - [🗝️关键功能](#🗝️关键功能-)
-  - [⛏️模型库](#⛏️模型库-)
-- [📋 教程](#📋-教程-⏏️)
-  - [📜 文档](#📜-文档-⏏️)
-    - [🔜快速开始](#🔜-快速开始-⏏️)
-    - [📋用户手册](#📋-用户手册-⏏️)
-    - [🚀加载自定义模型](#🚀-加载自定义模型-⏏️)
-  - [🧷快捷键](#🧷-快捷键-⏏️)
-- [📧 联系](#📧-联系-⏏️)
-- [✅ 许可](#✅-许可-⏏️)
-- [🏷️ 引用](#🏷️-引用-⏏️)
+| **Tracking by HBB Detection** | **Tracking by OBB Detection** |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/be67d4f8-eb31-4bb3-887c-d954bb4a5d6d" width="100%" /> | <img src="https://github.com/user-attachments/assets/d85b1102-124a-4971-9332-c51fd2b1c47b" width="100%" /> |
+| **Tracking by Instance Segmentation** | **Tracking by Pose Estimation** | 
+| <img src="https://github.com/user-attachments/assets/8d412dc6-62c7-4bb2-9a1e-026448acf2bf" width="100%" /> | <img src="https://github.com/user-attachments/assets/bab038a7-3023-4097-bdcc-90e5009477c0" width="100%" /> |
 
-## 🥳 新功能 [⏏️](#📄-目录)
+
+## 🥳 新功能
 
 - 2024年8月:
   - 🤗 预发布[X-AnyLabeling v2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0)最新版本 🤗
+  - 🔥🔥🔥 支持[tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md)任务。
   - ✨✨✨ 支持[Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2)模型。
   - 👏👏👏 支持[Grounding-SAM2](./docs/zh_cn/model_zoo.md)模型。
   - 支持[日文字符识别](./anylabeling/configs/auto_labeling/japan_ppocr.yaml)模型。
+
+<br>
+
+<details> 
+<summary>点击查看历史更新。</summary>
+
 - 2024年7月:
   - 新增 PPOCR 识别和关键信息提取标签导入/导出功能。
   - 新增 ODVG 标签导入/导出功能，以支持 Grounding 模型训练。
@@ -133,27 +128,28 @@
   - 支持用于人脸检测和关键点识别的[YOLOv6-Face](https://github.com/meituan/YOLOv6/tree/yolov6-face)模型。
   - 支持[SAM](https://arxiv.org/abs/2304.02643)及蒸馏版本[MobileSAM](https://arxiv.org/abs/2306.14289)模型。
   - 支持[YOLOv5](https://github.com/ultralytics/yolov5)，[YOLOv6](https://github.com/meituan/YOLOv6)，[YOLOv7](https://github.com/WongKinYiu/yolov7)，[YOLOv8](https://github.com/ultralytics/ultralytics)，[YOLOX](https://github.com/Megvii-BaseDetection/YOLOX)模型。
+</details>
 
 
-## 👋 简介 [⏏️](#📄-目录)
+## 简介
 
-`X-AnyLabeling` 是一款基于AI推理引擎和丰富功能特性于一体的强大辅助标注工具，其专注于实际应用，致力于为图像数据工程师提供工业级的一站式解决方案，可自动快速进行各种复杂任务的标定。
+**X-AnyLabeling** 是一款基于AI推理引擎和丰富功能特性于一体的强大辅助标注工具，其专注于实际应用，致力于为图像数据工程师提供工业级的一站式解决方案，可自动快速进行各种复杂任务的标定。
 
 
-## 🔥 亮点 [⏏️](#📄-目录)
+## 新特性
 
-### 🗝️关键功能
+<img src="https://github.com/user-attachments/assets/49a0f01b-71f3-48d5-a06e-05d21c98ece6" width="100%" />
 
-- 支持`GPU`推理加速；
-- 支持`图像`和`视频`处理；
-- 支持单帧和批量预测所有任务；
-- 支持自定义模型和二次开发设计；
-- 支持一键导入和导出主流的标签格式，如COCO\VOC\YOLO\DOTA\MOT\MASK；
+- 支持`GPU`加速推理。
+- 支持一键预测所有图像。
+- 支持`图像`和`视频`处理。
+- 支持自定义模型和二次开发。
+- 支持一键导入和导出多种标签格式，如 COCO\VOC\YOLO\DOTA\MOT\MASK\PPOCR 等；
 - 支持多种图像标注样式，包括 `多边形`、`矩形`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
-- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`系列等。
+- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`等。
 
 
-### ⛏️模型库
+### 模型库
 
 <div align="center">
 
@@ -167,99 +163,56 @@
 |  **[SAM](https://segment-anything.com/)** | **BC-SAM** | **Skin-SAM** | **Polyp-SAM** |
 | <img src='https://user-images.githubusercontent.com/72010077/273421331-2c0858b5-0b92-405b-aae6-d061bc25aa3c.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764259-718dce97-d04d-4629-b6d2-95f17670ce2a.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764288-e26767d1-3c44-45cb-a72e-124efb4e8263.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764318-e8b6a197-e733-478e-a210-e4386bafa1e4.png' height="126px" width="180px"> |
 
-更多详情，请参考>>>[模型库](./docs/zh_cn/model_zoo.md)
+更多详情，请参考 👉 [模型库](./docs/zh_cn/model_zoo.md) 👈
 
 </div>
 
-## 📋 教程 [⏏️](#📄-目录)
+## 文档
 
-- ### 📜文档
+1. [安装文档](./docs/zh_cn/get_started.md)
+2. [用户手册](./docs/zh_cn/user_guide.md)
+3. [自定义模型](./docs/zh_cn/custom_model.md)
+4. [常见问题答疑](./docs/zh_cn/faq.md)
 
-  - ##### 🔜[快速开始](./docs/zh_cn/get_started.md)
+## 示例
 
-  - ##### 📋[用户手册](./docs/zh_cn/user_guide.md)
-
-  - ##### 🚀[加载自定义模型](./docs/zh_cn/custom_model.md)
-
-- ### 🧷快捷键
-
-<details>
-
-<summary>点击展开/关闭</summary>
-
-| 快捷键            | 功能                                    |
-|-------------------|----------------------------------------|
-| d                 | 打开下一个文件                          |
-| a                 | 打开上一个文件                          |
-| Ctrl + Shift + d  | 打开下一个带标签的文件                 |
-| Ctrl + Shift + a  | 打开上一个带标签的文件                 |
-| p 或 [Ctrl+n]     | 创建多边形                              |
-| o                 | 创建旋转框                              |
-| r 或 [Crtl+r]     | 创建矩形框                              |
-| i                 | 运行模型                                |
-| q                 | `SAM 模式` 的正样本点                   |
-| e                 | `SAM 模式` 的负样本点                    |
-| b                 | `SAM 模式` 快速清除提示点               |
-| f                 | `SAM 模式` 确认目标               |
-| g                 | 组合选定的对象                         |
-| u                 | 取消组合选定的对象                     |
-| s                 | 隐藏选定的对象                         |
-| w                 | 显示选定的对象                         |
-| Ctrl + q          | 退出当前应用程序                        |
-| Ctrl + i          | 打开图像文件                           |
-| Ctrl + o          | 打开视频文件                           |
-| Ctrl + u          | 从目录加载所有图像                    |
-| Ctrl + e          | 编辑标签                               |
-| Ctrl + j          | 编辑多边形                             |
-| Ctrl + c          | 复制选定的对象                         |
-| Ctrl + v          | 粘贴选定的对象                         |
-| Ctrl + d          | 复制多边形                             |
-| Ctrl + g          | 显示当前任务的标注统计                       |
-| Ctrl + h          | 切换可见性对象                         |
-| Ctrl + p          | 切换保留上一个模式                     |
-| Ctrl + y          | 切换自动使用上一个标签                |
-| Ctrl + m          | 唤醒批量标注                       |
-| Ctrl + a          | 启用自动标注                           |
-| Ctrl + s          | 保存当前标注                           |
-| Ctrl + l          | 显示/隐藏标签                       |
-| Ctrl + t          | 显示/隐藏文本                       |
-| Ctrl + Shift + s  | 更改输出目录                           |
-| Ctrl -            | 缩小                                   |
-| Ctrl + 0          | 缩放至原始大小                         |
-| [Ctrl++, Ctrl+=]  | 放大                                   |
-| Ctrl + f          | 适应窗口                               |
-| Ctrl + Shift + f  | 适应宽度                               |
-| Ctrl + z          | 撤销上一操作                           |
-| Ctrl + Delete     | 删除文件                               |
-| Delete            | 删除多边形                             |
-| Esc               | 取消选择的对象                         |
-| Backspace         | 删除选定的点                           |
-| ↑→↓←              | 键盘箭头移动选定的对象                 |
-| zxcv              | 键盘旋转选定的矩形框                   |
+- [Classification](./examples/classification/)
+  - [Image-Level](./examples/classification/image-level/README.md)
+  - [Shape-Level](./examples/classification/shape-level/README.md)
+- [Detection](./examples/detection/)
+  - [HBB Object Detection](./examples/detection/hbb/README.md)
+  - [OBB Object Detection](./examples/detection/obb/README.md)
+- [Segmentation](./examples/segmentation/README.md)
+  - [Instance Segmentation](./examples/segmentation/instance_segmentation/)
+  - [Binary Semantic Segmentation](./examples/segmentation/binary_semantic_segmentation/)
+  - [Multiclass Semantic Segmentation](./examples/segmentation/multiclass_semantic_segmentation/)
+- [Description](./examples/description/)
+  - [Tagging](./examples/description/tagging/README.md)
+  - [Captioning](./examples/description/captioning/README.md)
+- [Estimation](./examples/estimation/)
+  - [Pose Estimation](./examples/estimation/pose_estimation/README.md)
+  - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
+- [OCR](./examples/optical_character_recognition/)
+  - [Text Recognition](./examples/optical_character_recognition/text_recognition/)
+  - [Key Information Extraction](./examples/optical_character_recognition/key_information_extraction/README.md)
+- [MOT](./examples/multiple_object_tracking/README.md)
+  - [Tracking by HBB Object Detection](./examples/multiple_object_tracking/README.md)
+  - [Tracking by OBB Object Detection](./examples/multiple_object_tracking/README.md)
+  - [Tracking by Instance Segmentation](./examples/multiple_object_tracking/README.md)
+  - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
 
 
-</details>
+## 联系
 
-## 📧 联系 [⏏️](#📄-目录)
+如果你觉得这个项目有帮助，请点亮右上角的⭐星标⭐。如有任何问题或疑问，欢迎[创建 issue](https://github.com/CVHub520/X-AnyLabeling/issues) 或发送邮件至 cv_hub@163.com。
 
-<p align="center">
-🤗 亲，给个 Star 支持一下吧！ 🤗
-</p>
+💡洽谈合作事项或想法共创，敬请添加微信: `ww10874` （非诚勿扰）
 
-如果您觉得这个项目有用或有趣，请考虑给它点赞以表示支持。如果您在使用这个项目时遇到任何问题或有任何疑问，请随时使用以下方式寻求帮助：
-
-
-- [创建问题](https://github.com/CVHub520/X-AnyLabeling/issues)
-- 邮箱: cv_hub@163.com
-- 微信: `ww10874` （请在您的消息中包含`X-Anylabeing+问题的简要描述`）
-
-## ✅ 许可 [⏏️](#📄-目录)
+## 许可
 
 本项目采用 [GPL-3.0 开源许可证](./LICENSE)。
 
-## 🏷️ 引用 [⏏️](#📄-目录)
-
-### BibTeX
+## 引用
 
 如果您在研究中使用了这个软件，请按照以下方式引用它：
 
