@@ -137,7 +137,7 @@
 
 ## Features
 
-<img src="https://github.com/user-attachments/assets/49a0f01b-71f3-48d5-a06e-05d21c98ece6" width="100%" />
+<img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
 
 - Processes both `images` and `videos`.
 - Accelerates inference with `GPU` support.
