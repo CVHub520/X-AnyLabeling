@@ -104,7 +104,6 @@ class LabelingWidget(LabelDialog):
         self.current_category = None
         self.selected_polygon_stack = []
         self.supported_shape = Shape.get_supported_shape()
-        self.hidden_cls = []
         self.label_info = {}
         self.image_flags = []
 
@@ -3438,7 +3437,7 @@ class LabelingWidget(LabelDialog):
             label_file
         ):
             try:
-                self.label_file = LabelFile(label_file, image_dir, self.hidden_cls)
+                self.label_file = LabelFile(label_file, image_dir)
             except LabelFileError as e:
                 self.error_message(
                     self.tr("Error opening file"),

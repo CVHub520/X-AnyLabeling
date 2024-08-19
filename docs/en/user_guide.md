@@ -492,7 +492,6 @@ To use the save sub-images feature, follow these steps:
 
 - **Delete Labels**: Remove unnecessary labels.
 - **Rename Labels**: Update label names to align with new classification standards.
-- **Hide/Show Labels**: Control the visibility of labels in the interface.
 - **Change Label Colors**: Adjust label colors to improve distinguishability.
 
 These actions can be accessed through the **Tools** -> **Object Manager** option in the top menu bar, opening the label management window.
