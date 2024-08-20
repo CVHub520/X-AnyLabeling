@@ -1324,6 +1324,75 @@ class LabelConverter:
             for row in mot_structure["gt"]:
                 f.write(",".join(map(str, row)) + "\n")
 
+    def custom_to_mots(self, input_path, save_path):
+        mots_structure = {
+            "sequence": dict(
+                name="MOTS",
+                imDir=osp.basename(save_path),
+                frameRate=30,
+                seqLength=None,
+                imWidth=None,
+                imHeight=None,
+                imExt=None,
+            ),
+            "gt": [],
+        }
+        seg_len, im_widht, im_height, im_ext = 0, None, None, None
+
+        label_file_list = os.listdir(input_path)
+        label_file_list.sort(
+            key=lambda x: int(osp.splitext(x.rsplit("-", 1)[-1])[0])
+            if osp.splitext(x.rsplit("-", 1)[-1])[0].isdigit()
+            else 0
+        )
+
+        for label_file_name in label_file_list:
+            if not label_file_name.endswith("json"):
+                continue
+            label_file = os.path.join(input_path, label_file_name)
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+
+            seg_len += 1
+            if im_widht is None:
+                im_widht = data["imageWidth"]
+            if im_height is None:
+                im_height = data["imageHeight"]
+            if im_ext is None:
+                im_ext = osp.splitext(osp.basename(data["imagePath"]))[-1]
+            frame_id = int(osp.splitext(label_file_name.split("-")[-1])[0])
+            for shape in data["shapes"]:
+                if shape["shape_type"] != "polygon":
+                    continue
+                class_id = int(self.classes.index(shape["label"]))
+                track_id = int(shape["group_id"]) if shape["group_id"] else -1
+                points = shape["points"]
+                gt = [
+                    frame_id,
+                    track_id,
+                    class_id,
+                    im_height,
+                    im_widht,
+                    points,
+                ]
+                mots_structure["gt"].append(gt)
+
+        # Save seqinfo.ini
+        mots_structure["sequence"]["seqLength"] = seg_len
+        mots_structure["sequence"]["imWidth"] = im_widht
+        mots_structure["sequence"]["imHeight"] = im_height
+        mots_structure["sequence"]["imExt"] = im_ext
+        config = configparser.ConfigParser()
+        config.add_section("Sequence")
+        for key, value in mots_structure["sequence"].items():
+            config["Sequence"][key] = str(value)
+        with open(osp.join(save_path, "seqinfo.ini"), "w") as f:
+            config.write(f)
+        # Save gt.txt
+        with open(osp.join(save_path, "custom_gt.txt"), "w", encoding="utf-8") as f:
+            for row in mots_structure["gt"]:
+                f.write(" ".join(map(str, row)) + "\n")
+
     def custom_to_odvg(self, image_list, label_path, save_path):
         # Save label_map.json
         label_map = {}

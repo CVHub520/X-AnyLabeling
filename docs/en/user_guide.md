@@ -419,6 +419,21 @@ Frame number, Track ID, Top-left x-coordinate, Top-left y-coordinate, Width, Hei
 
 The **validity flag** indicates whether the current trajectory is valid, with `0` for invalid data (ignore) and `1` for valid data (activate). Users can set this using the `useDifficult` flag in the label manager, where ☑️ indicates an invalid trajectory.
 
+---
+
+Additionally, for the [MOTS](https://motchallenge.net/data/MOTS/) dataset format, the v2.4.0+ version offers corresponding export settings. The specific steps for implementation are as follows:
+1. Click on the `Export` - `Export MOTS Annotations` button in the top menu bar.
+2. Upload the prepared configuration file.
+3. Select the save path and click 'OK' to proceed.
+
+It is important to note that the default exported mots labels are not in the final official dataset format. Here, we provide the corresponding conversion code for reference:
+```bash
+python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /path/to/your/custom_gt.txt
+```
+
+> [!NOTE]
+> Before executing the conversion, you need to install the `pycocotools` library first.
+
 ### 4.7 PPOCR Annotation
 
 The latest version of X-AnyLabeling (v2.4.0+) supports one-click import/export for the following two PPOCR tasks:

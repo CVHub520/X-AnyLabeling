@@ -416,6 +416,22 @@ imext = .jpg          # 图片文件扩展名
 ```
 这里**有效性标志**表示当前目标轨迹是否有效，`0` 表示无效数据（ignore），`1` 表示有效数据（activate）。用户可通过标签管理器中的 `useDifficult` 标志位来设置，☑️ 代表当前目标轨迹无效。
 
+---
+
+此外，针对 [MOTS](https://motchallenge.net/data/MOTS/) 数据集格式，X-AnyLabeling v2.4.0+ 版本提供对应的导出设置，具体可参考以下步骤实施：
+1. 点击上方菜单栏的 `导出`-`导出 MOTS 标签` 按钮。
+2. 上传准备好的配置文件。
+3. 选择保存路径，点击确定即可。
+
+需要注意的是，默认导出的 mots 标签并非最终官方数据集格式，这里我们提供了对应的转换代码，仅供参考：
+
+```bash
+python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /path/to/your/custom_gt.txt
+```
+
+> [!NOTE]
+> 请执行此脚本之前, 你需要先正确安装对应的 `pycocotools` 库。
+
 ### 4.7 PPOCR标签
 
 当前 X-AnyLabeling 最新版本（v2.4.0+）支持一键导入/导出以下两种 PPOCR 任务的标签：
