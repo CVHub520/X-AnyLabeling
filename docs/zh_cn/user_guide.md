@@ -674,7 +674,7 @@ labels:
 
 ### 8.4 姿态估计
 
-- 关键点检测：[链接](../../examples/pose_estimation/README.md)
+- 关键点检测：[链接](../../examples/estimation/pose_estimation/README.md)
 
 ### 8.5 多目标跟踪
 
@@ -682,7 +682,7 @@ labels:
 
 ### 8.6 深度估计
 
-- 深度估计：[链接](../../examples/depth_estimation/README.md)
+- 深度估计：[链接](../../examples/estimation/depth_estimation/README.md)
 
 ### 8.7 光学字符识别
 

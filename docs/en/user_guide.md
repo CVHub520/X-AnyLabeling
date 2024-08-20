@@ -671,7 +671,7 @@ Note: In `multi-label classification tasks`, if the user manually uploads a prop
 
 #### 8.4 Pose Estimation
 
-- Keypoint Detection: [Link](../../examples/pose_estimation/README.md)
+- Keypoint Detection: [Link](../../examples/estimation/pose_estimation/README.md)
 
 #### 8.5 Multi-Object Tracking
 
@@ -679,7 +679,7 @@ Note: In `multi-label classification tasks`, if the user manually uploads a prop
 
 #### 8.6 Depth Estimation
 
-- Depth Estimation: [Link](../../examples/depth_estimation/README.md)
+- Depth Estimation: [Link](../../examples/estimation/depth_estimation/README.md)
 
 #### 8.7 Optical Character Recognition
 
