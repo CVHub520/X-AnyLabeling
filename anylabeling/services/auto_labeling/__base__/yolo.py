@@ -407,9 +407,6 @@ class YOLO(Model):
                 shape.add_point(QtCore.QPointF(x1, y2))
                 shape.shape_type = "rectangle"
                 shape.closed = True
-                shape.fill_color = "#000000"
-                shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = str(self.classes[int(class_id)])
                 shape.score = float(score)
                 shape.selected = False
@@ -426,9 +423,6 @@ class YOLO(Model):
                     shape.add_point(QtCore.QPointF(int(p[0]), int(p[1])))
                 shape.shape_type = "polygon"
                 shape.closed = True
-                shape.fill_color = "#000000"
-                shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = str(self.classes[int(class_id)])
                 shape.score = float(score)
                 shape.selected = False
@@ -459,9 +453,6 @@ class YOLO(Model):
                     else:
                         shape.group_id = int(i)
                     shape.closed = True
-                    shape.fill_color = "#000000"
-                    shape.line_color = "#000000"
-                    shape.line_width = 1
                     shape.label = keypoint_name[j]
                     shape.score = float(s)
                     shape.selected = False
@@ -481,9 +472,6 @@ class YOLO(Model):
                 shape.shape_type = "rotation"
                 shape.closed = True
                 shape.direction = direction
-                shape.fill_color = "#000000"
-                shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = str(self.classes[int(class_id)])
                 shape.score = float(score)
                 shape.selected = False
