@@ -73,6 +73,11 @@ class AutoLabelingWidget(QWidget):
             lambda: set_enable_tools(True)
         )
 
+        # Init value
+        self.initial_conf_value = 0
+        self.initial_iou_value = 0
+        self.initial_preserve_annotations_state = False
+
         # Auto labeling buttons
         self.button_run.setShortcut("I")
         self.button_run.clicked.connect(self.run_prediction)
@@ -226,6 +231,12 @@ class AutoLabelingWidget(QWidget):
         )
         self.model_select_combobox.setEnabled(True)
 
+        # Reset controls to initial values when the model changes
+        self.on_conf_value_changed(self.initial_conf_value)
+        self.on_iou_value_changed(self.initial_iou_value)
+        self.on_preserve_existing_annotations_state_changed(self.initial_preserve_annotations_state)
+        self.on_reset_tracker()
+
     def on_output_modes_changed(self, output_modes, default_output_mode):
         """Handle output modes changed"""
         # Disconnect onIndexChanged signal to prevent triggering
@@ -322,12 +333,15 @@ class AutoLabelingWidget(QWidget):
         return True
 
     def on_conf_value_changed(self, value):
+        self.initial_conf_value = value
         self.model_manager.set_auto_labeling_conf(value)
 
     def on_iou_value_changed(self, value):
+        self.initial_iou_value = value
         self.model_manager.set_auto_labeling_iou(value)
 
     def on_preserve_existing_annotations_state_changed(self, state):
+        self.initial_preserve_annotations_state = state
         self.model_manager.set_auto_labeling_preserve_existing_annotations_state(
             state
         )

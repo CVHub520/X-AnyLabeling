@@ -58,7 +58,8 @@ class RTDETR(Model):
 
     def set_auto_labeling_conf(self, value):
         """set auto labeling confidence threshold"""
-        self.conf_thres = value
+        if value > 0:
+            self.conf_thres = value
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
         """Toggle the preservation of existing annotations based on the checkbox state."""
