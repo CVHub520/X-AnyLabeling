@@ -33,12 +33,11 @@ class LabelFileError(Exception):
 class LabelFile:
     suffix = ".json"
 
-    def __init__(self, filename=None, image_dir=None, hidden_cls=[]):
+    def __init__(self, filename=None, image_dir=None):
         self.shapes = []
         self.image_path = None
         self.image_data = None
         self.image_dir = image_dir
-        self.hidden_cls = hidden_cls
         if filename is not None:
             self.load(filename)
         self.filename = filename
@@ -125,10 +124,7 @@ class LabelFile:
                 data.get("imageHeight"),
                 data.get("imageWidth"),
             )
-            shapes = [
-                Shape().load_from_dict(s) for s in data["shapes"] 
-                if s["label"] not in self.hidden_cls
-            ]
+            shapes = [Shape().load_from_dict(s) for s in data["shapes"]]
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
 

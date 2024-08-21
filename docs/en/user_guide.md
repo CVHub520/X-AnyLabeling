@@ -419,6 +419,21 @@ Frame number, Track ID, Top-left x-coordinate, Top-left y-coordinate, Width, Hei
 
 The **validity flag** indicates whether the current trajectory is valid, with `0` for invalid data (ignore) and `1` for valid data (activate). Users can set this using the `useDifficult` flag in the label manager, where ☑️ indicates an invalid trajectory.
 
+---
+
+Additionally, for the [MOTS](https://motchallenge.net/data/MOTS/) dataset format, the v2.4.0+ version offers corresponding export settings. The specific steps for implementation are as follows:
+1. Click on the `Export` - `Export MOTS Annotations` button in the top menu bar.
+2. Upload the prepared configuration file.
+3. Select the save path and click 'OK' to proceed.
+
+It is important to note that the default exported mots labels are not in the final official dataset format. Here, we provide the corresponding conversion code for reference:
+```bash
+python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /path/to/your/custom_gt.txt
+```
+
+> [!NOTE]
+> Before executing the conversion, you need to install the `pycocotools` library first.
+
 ### 4.7 PPOCR Annotation
 
 The latest version of X-AnyLabeling (v2.4.0+) supports one-click import/export for the following two PPOCR tasks:
@@ -492,7 +507,6 @@ To use the save sub-images feature, follow these steps:
 
 - **Delete Labels**: Remove unnecessary labels.
 - **Rename Labels**: Update label names to align with new classification standards.
-- **Hide/Show Labels**: Control the visibility of labels in the interface.
 - **Change Label Colors**: Adjust label colors to improve distinguishability.
 
 These actions can be accessed through the **Tools** -> **Object Manager** option in the top menu bar, opening the label management window.
@@ -672,7 +686,7 @@ Note: In `multi-label classification tasks`, if the user manually uploads a prop
 
 #### 8.4 Pose Estimation
 
-- Keypoint Detection: [Link](../../examples/pose_estimation/README.md)
+- Keypoint Detection: [Link](../../examples/estimation/pose_estimation/README.md)
 
 #### 8.5 Multi-Object Tracking
 
@@ -680,7 +694,7 @@ Note: In `multi-label classification tasks`, if the user manually uploads a prop
 
 #### 8.6 Depth Estimation
 
-- Depth Estimation: [Link](../../examples/depth_estimation/README.md)
+- Depth Estimation: [Link](../../examples/estimation/depth_estimation/README.md)
 
 #### 8.7 Optical Character Recognition
 

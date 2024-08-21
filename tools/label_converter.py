@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 import os.path as osp
+import cv2
 import time
 import math
 
@@ -870,17 +871,79 @@ class RotateLabelConverter(BaseLabelConverter):
         return points
 
 
+class MOTSConverter(BaseLabelConverter):
+    def custom_to_gt(self, gt_file):
+        import pycocotools.mask as coco_mask
+
+        with open(gt_file, "r") as f:
+            lines = f.readlines()
+        results = []
+        for line in lines:
+            label = line.strip().split(" ", maxsplit=5)
+            height, width = int(label[3]), int(label[4])
+            polygon = [np.array(eval(label[-1])).flatten()]
+            rle = self.polygon_to_rle(polygon, height, width)
+            label[-1] = rle['counts']
+            results.append(label)
+        save_path = osp.dirname(gt_file)
+        with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
+            for row in results:
+                f.write(" ".join(map(str, row)) + "\n")
+
+    @staticmethod
+    def polygon_to_rle(polygon, height, width):
+        import pycocotools.mask as coco_mask
+
+        rles = coco_mask.frPyObjects(polygon, height, width)
+        rle = coco_mask.merge(rles)
+        return rle
+
+    @staticmethod
+    def rle_to_polygon(rle):
+        import pycocotools.mask as coco_mask
+
+        mask = coco_mask.decode(rle)
+        contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        polygons = [contour.flatten().tolist() for contour in contours]
+        return polygons
+
+    @staticmethod
+    def draw_rle_to_image(image_file, rle):
+        import pycocotools.mask as coco_mask
+        """
+        Draw the RLE encoded mask onto the given image and save the images with contours and masked image.
+
+        Parameters:
+        - image_file: str, the file path of the original image.
+        - rle: dict, a dictionary containing the RLE encoding, typically with 'size' and 'counts' keys.
+
+        Results:
+        - Two image files are saved in the same directory as the original image file:
+            - 'contorus.jpg': The original image with contours drawn on it.
+            - 'masked_image.jpg': The image created using the mask.
+        """
+        image = cv2.imread(image_file)
+        mask = coco_mask.decode(rle)
+        mask = mask.astype(np.uint8)
+        masked_image = cv2.bitwise_and(image, image, mask=mask)
+        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for contour in contours:
+            cv2.drawContours(image, [contour], -1, (0, 255, 0), 3)
+        image_path = osp.dirname(image_file)
+        cv2.imwrite(osp.join(image_path, 'contorus.jpg'), image)
+        cv2.imwrite(osp.join(image_path, 'masked_image.jpg'), masked_image)
+
 def main():
     parser = argparse.ArgumentParser(description="Label Converter")
     parser.add_argument(
         "--task",
         default="rectangle",
-        choices=["rectangle", "polygon", "rotation"],
+        choices=["rectangle", "polygon", "rotation", "mots"],
         help="Choose the type of task to perform",
     )
-    parser.add_argument("--src_path", help="Path to input directory")
-    parser.add_argument("--dst_path", help="Path to output directory")
-    parser.add_argument("--img_path", help="Path to image directory")
+    parser.add_argument("--src_path", help="Path to input file or directory")
+    parser.add_argument("--dst_path", help="Path to output file or directory")
+    parser.add_argument("--img_path", help="Path to image file or directory")
     parser.add_argument(
         "--classes",
         default=None,
@@ -902,6 +965,7 @@ def main():
             "dota2dcoco",
             "dcoco2dota",
             "dxml2dota",
+            "custom_to_gt"
         ],
     )
     args = parser.parse_args()
@@ -945,6 +1009,15 @@ def main():
         assert (
             args.mode in valid_modes
         ), f"Rotation tasks are only supported in {valid_modes} now!"
+    elif args.task == "mots":
+        converter = MOTSConverter()
+        valid_modes = [
+            "custom_to_gt",
+        ]
+        assert (
+            args.mode in valid_modes
+        ), f"MOTS tasks are only supported in {valid_modes} now!"
+
 
     if args.mode == "custom2voc":
         file_list = os.listdir(args.src_path)
@@ -1049,7 +1122,8 @@ def main():
                 args.dst_path, osp.splitext(file_name)[0] + ".txt"
             )
             converter.dxml_to_dota(src_file, dst_file)
-
+    elif args.mode == "custom_to_gt":
+        converter.custom_to_gt(args.src_path)
     end_time = time.time()
     print(f"Conversion completed successfully: {args.dst_path}")
     print(f"Conversion time: {end_time - start_time:.2f} seconds")

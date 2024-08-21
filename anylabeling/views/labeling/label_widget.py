@@ -104,7 +104,6 @@ class LabelingWidget(LabelDialog):
         self.current_category = None
         self.selected_polygon_stack = []
         self.supported_shape = Shape.get_supported_shape()
-        self.hidden_cls = []
         self.label_info = {}
         self.image_flags = []
 
@@ -1084,6 +1083,13 @@ class LabelingWidget(LabelDialog):
             icon="format_mot",
             tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
         )
+        export_mots_annotation = action(
+            self.tr("&Export MOTS Annotations"),
+            self.export_mots_annotation,
+            None,
+            icon="format_mot",
+            tip=self.tr("Export Custom Multi-Object-Tracking-Segmentation Annotations"),
+        )
         export_odvg_annotation = action(
             self.tr("&Export ODVG Annotations"),
             self.export_odvg_annotation,
@@ -1226,6 +1232,7 @@ class LabelingWidget(LabelDialog):
             export_dota_annotation=export_dota_annotation,
             export_mask_annotation=export_mask_annotation,
             export_mot_annotation=export_mot_annotation,
+            export_mots_annotation=export_mots_annotation,
             export_odvg_annotation=export_odvg_annotation,
             export_pporc_rec_annotation=export_pporc_rec_annotation,
             export_pporc_kie_annotation=export_pporc_kie_annotation,
@@ -1425,8 +1432,10 @@ class LabelingWidget(LabelDialog):
                 None,
                 export_dota_annotation,
                 export_mask_annotation,
-                export_mot_annotation,
                 export_odvg_annotation,
+                None,
+                export_mot_annotation,
+                export_mots_annotation,
                 None,
                 export_pporc_rec_annotation,
                 export_pporc_kie_annotation,
@@ -3438,7 +3447,7 @@ class LabelingWidget(LabelDialog):
             label_file
         ):
             try:
-                self.label_file = LabelFile(label_file, image_dir, self.hidden_cls)
+                self.label_file = LabelFile(label_file, image_dir)
             except LabelFileError as e:
                 self.error_message(
                     self.tr("Error opening file"),
@@ -5174,6 +5183,66 @@ class LabelingWidget(LabelDialog):
         converter = LabelConverter(classes_file=self.classes_file)
         try:
             converter.custom_to_mot(label_dir_path, save_path)
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr(
+                    f"Annotation exported successfully!\n"
+                    f"Check the results in: {save_path}."
+                ),
+                QtWidgets.QMessageBox.Ok,
+            )
+        except Exception as e:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr(f"{e}"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+    def export_mots_annotation(self, _value=False, dirpath=None):
+        if not self.may_continue():
+            return
+
+        if not self.filename:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please load an image folder before proceeding!"),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        filter = "Classes Files (*.txt);;All Files (*)"
+        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific classes file"),
+            "",
+            filter,
+        )
+        if not self.classes_file:
+            return
+
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+
+        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
+            self,
+            self.tr("Select a directory to save the mots annotations"),
+            label_dir_path,
+            QtWidgets.QFileDialog.ShowDirsOnly,
+        )
+
+        if not selected_dir:
+            return
+
+        save_path = osp.realpath(osp.join(selected_dir, "gt"))
+        os.makedirs(save_path, exist_ok=True)
+        converter = LabelConverter(classes_file=self.classes_file)
+        try:
+            converter.custom_to_mots(label_dir_path, save_path)
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),
