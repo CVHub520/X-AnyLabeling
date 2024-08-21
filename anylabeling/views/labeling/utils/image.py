@@ -5,7 +5,8 @@ import numpy as np
 import PIL.ExifTags
 import PIL.Image
 import PIL.ImageOps
-
+import numpy as np
+from PyQt5 import QtGui
 
 def img_data_to_pil(img_data):
     f = io.BytesIO()
@@ -31,6 +32,16 @@ def img_pil_to_data(img_pil):
     img_pil.save(f, format="PNG")
     img_data = f.getvalue()
     return img_data
+
+
+def pil_to_qimage(img):
+    """Convert PIL Image to QImage."""
+    img = img.convert("RGBA")  # Ensure image is in RGBA format
+    data = np.array(img)
+    height, width, channel = data.shape
+    bytes_per_line = 4 * width
+    qimage = QtGui.QImage(data, width, height, bytes_per_line, QtGui.QImage.Format_RGBA8888)
+    return qimage
 
 
 def img_arr_to_b64(img_arr):
