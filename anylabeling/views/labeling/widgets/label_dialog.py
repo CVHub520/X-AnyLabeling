@@ -2,7 +2,7 @@ import re
 import json
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont, QColor
+from PyQt5.QtGui import QFont, QColor, QIntValidator
 from PyQt5.QtCore import QCoreApplication, Qt
 from PyQt5.QtWidgets import (
     QColorDialog,
@@ -17,6 +17,153 @@ from ..logger import logger
 
 # TODO(unknown):
 # - Calculate optimal position so as not to go out of screen area.
+
+
+class GroupIDModifyDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super(GroupIDModifyDialog, self).__init__(parent)
+        self.parent = parent
+        self.gid_info = []
+        self.shape_list = parent.get_label_file_list()
+        self.init_gid_info()
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle(self.tr("Group ID Change Manager"))
+        self.setWindowFlags(
+            self.windowFlags()
+            | Qt.WindowMinimizeButtonHint
+            | Qt.WindowMaximizeButtonHint
+        )
+        self.resize(600, 400)
+        self.move_to_center()
+
+        title_list = ["Ori Group-ID", "New Group-ID"]
+        self.table_widget = QTableWidget(self)
+        self.table_widget.setColumnCount(len(title_list))
+        self.table_widget.setHorizontalHeaderLabels(title_list)
+
+        # Set header font and alignment
+        for i in range(len(title_list)):
+            self.table_widget.horizontalHeaderItem(i).setFont(
+                QFont("Arial", 8, QFont.Bold)
+            )
+            self.table_widget.horizontalHeaderItem(i).setTextAlignment(
+                QtCore.Qt.AlignCenter
+            )
+
+        self.buttons_layout = QtWidgets.QHBoxLayout()
+
+        self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"), self)
+        self.cancel_button.clicked.connect(self.reject)
+
+        self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"), self)
+        self.confirm_button.clicked.connect(self.confirm_changes)
+
+        self.buttons_layout.addWidget(self.cancel_button)
+        self.buttons_layout.addWidget(self.confirm_button)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.table_widget)
+        layout.addLayout(self.buttons_layout)
+
+        self.populate_table()
+
+    def move_to_center(self):
+        qr = self.frameGeometry()
+        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+    def populate_table(self):
+        for i, group_id in enumerate(self.gid_info):
+            self.table_widget.insertRow(i)
+
+            old_gid_item = QTableWidgetItem(str(group_id))
+            old_gid_item.setFlags(old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable)
+
+            new_gid_item = QTableWidgetItem("")
+            new_gid_item.setFlags(new_gid_item.flags() | QtCore.Qt.ItemIsEditable)
+
+            # Set QIntValidator to ensure only non-negative integers can be entered
+            validator = QIntValidator(0, 9999, self)
+            line_edit = QtWidgets.QLineEdit(self.table_widget)
+            line_edit.setValidator(validator)
+            self.table_widget.setCellWidget(i, 1, line_edit)
+
+            self.table_widget.setItem(i, 0, old_gid_item)
+
+    def confirm_changes(self):
+        total_num = self.table_widget.rowCount()
+        if total_num == 0:
+            self.reject()
+            return
+
+        # Temporary dictionary to handle changes
+        new_gid_info = []
+        updated_gid_info = {}
+
+        # Iterate over each row to get the old and new group IDs
+        for i in range(total_num):
+            old_gid_item = self.table_widget.item(i, 0)
+            line_edit = self.table_widget.cellWidget(i, 1)
+            new_gid = line_edit.text()
+            old_gid = old_gid_item.text()
+            
+            # Only add to updated_gid_info 
+            # if the new group ID is not empty and different
+            if new_gid and old_gid != new_gid:
+                new_gid_info.append(new_gid)
+                updated_gid_info[int(old_gid)] = {"new_gid": int(new_gid)}
+            else:
+                new_gid_info.append(old_gid)
+        # Update original gid info
+        self.gid_info = new_gid_info
+
+        # Try to modify group IDs
+        if self.modify_group_id(updated_gid_info):
+            QtWidgets.QMessageBox.information(
+                self,
+                "Success",
+                "Group IDs modified successfully!",
+            )
+            self.accept()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Warning",
+                "An error occurred while updating the Group IDs."
+            )
+
+    def modify_group_id(self, updated_gid_info):
+        try:
+            for shape_file in self.shape_list:
+                with open(shape_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                src_shapes, dst_shapes = data["shapes"], []
+                for shape in src_shapes:
+                    group_id = int(shape.get("group_id"))
+                    if group_id in updated_gid_info:
+                        shape["group_id"] = updated_gid_info[group_id]["new_gid"]
+                    dst_shapes.append(shape)
+                data["shapes"] = dst_shapes
+                with open(shape_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
+            return True
+        except Exception as e:
+            print(f"Error occurred while updating Group IDs: {e}")
+            return False
+
+    def init_gid_info(self):
+        for shape_file in self.shape_list:
+            with open(shape_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            shapes = data.get("shapes", [])
+            for shape in shapes:
+                group_id = shape.get("group_id", None)
+                if group_id is not None and group_id not in self.gid_info:
+                    self.gid_info.append(group_id)
+        self.gid_info.sort()
 
 
 class LabelColorButton(QtWidgets.QWidget):

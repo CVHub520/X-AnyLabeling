@@ -573,6 +573,7 @@ The current default keyboard shortcuts in X-AnyLabeling are as follows. Users ca
 | u                  | Ungroup selected objects                      |
 | s                  | Hide selected objects                         |
 | w                  | Show selected objects                         |
+| Alt + g            | Edit group id                                 |
 | Ctrl + q           | Exit the current application                  |
 | Ctrl + i           | Open image file                               |
 | Ctrl + o           | Open video file                               |

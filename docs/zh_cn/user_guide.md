@@ -571,6 +571,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 | u                 | 取消组合选定的对象                     |
 | s                 | 隐藏选定的对象                         |
 | w                 | 显示选定的对象                         |
+| Alt + g           | 修改群组编号                           |
 | Ctrl + q          | 退出当前应用程序                        |
 | Ctrl + i          | 打开图像文件                           |
 | Ctrl + o          | 打开视频文件                           |

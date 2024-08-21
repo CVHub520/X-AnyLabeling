@@ -12,6 +12,7 @@ from .label_dialog import (
     LabelQLineEdit,
     TextInputDialog,
     LabelModifyDialog,
+    GroupIDModifyDialog,
 )
 from .label_list_widget import LabelListWidget, LabelListWidgetItem
 from .overview_dialog import OverviewDialog

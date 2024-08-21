@@ -57,6 +57,7 @@ from .widgets import (
     LabelListWidget,
     LabelListWidgetItem,
     LabelModifyDialog,
+    GroupIDModifyDialog,
     OverviewDialog,
     ToolBar,
     UniqueLabelQListWidget,
@@ -640,7 +641,16 @@ class LabelingWidget(LabelDialog):
             self.label_manager,
             icon="edit",
             tip=self.tr(
-                "Manage Labels: Rename, Delete, Show/Hide, Adjust Color"
+                "Manage Labels: Rename, Delete, Adjust Color"
+            ),
+        )
+        gid_manager = action(
+            self.tr("&Group ID Manager"),
+            self.gid_manager,
+            shortcuts["edit_group_id"],
+            icon="edit",
+            tip=self.tr(
+                "Manage Group ID"
             ),
         )
         union_selection = action(
@@ -1368,6 +1378,7 @@ class LabelingWidget(LabelDialog):
                 save_mask,
                 None,
                 label_manager,
+                gid_manager,
                 None,
                 hbb_to_obb,
                 obb_to_hbb,
@@ -2207,6 +2218,12 @@ class LabelingWidget(LabelDialog):
             parent=self, opacity=LABEL_OPACITY
         )
         result = modify_label_dialog.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            self.load_file(self.filename)
+
+    def gid_manager(self):
+        modify_gid_dialog = GroupIDModifyDialog(parent=self)
+        result = modify_gid_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
             self.load_file(self.filename)
 

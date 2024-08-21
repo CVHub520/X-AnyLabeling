@@ -25,6 +25,9 @@ In this process, the `group_id` field represents the `track_id` of the current t
 > [!WARNING]
 > If object confidence score will be low, i.e lower than track_high_thresh, then there will be no tracks successfully returned and updated.
 
+> [!TIP]
+> You can open the Group ID Manager with Alt+G to modify the group_id. :)
+
 ## Export
 
 For instructions on exporting MOT annotations, please consult the user guide available:
