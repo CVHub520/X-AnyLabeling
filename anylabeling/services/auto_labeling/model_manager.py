@@ -1572,10 +1572,35 @@ class ModelManager(QObject):
         self.loaded_model_config["model"].set_auto_labeling_iou(value)
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        invalid_model_list = []
+        model_list = [
+            "damo_yolo",
+            "gold_yolo",
+            "grounding_dino",
+            "rtdetr",
+            "rtdetrv2",
+            "yolo_nas",
+            "yolov5_obb",
+            "yolov5_seg",
+            "yolov5_det_track",
+            "yolov5",
+            "yolov6",
+            "yolov7",
+            "yolov8_obb",
+            "yolov8_pose",
+            "yolov8_seg",
+            "yolov8_det_track",
+            "yolov8_seg_track",
+            "yolov8_obb_track",
+            "yolov8_pose_track",
+            "yolov8",
+            "yolov9",
+            "yolov10",
+            "yolow",
+            "yolox",
+        ]
         if (
             self.loaded_model_config is not None
-            and self.loaded_model_config["type"] not in invalid_model_list
+            and self.loaded_model_config["type"] in model_list
         ):
             self.loaded_model_config[
                 "model"
