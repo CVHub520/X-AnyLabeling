@@ -105,6 +105,12 @@ class SegmentAnything(Model):
         clip_img_model_path = self.config.get("img_model_path", "")
         if clip_txt_model_path and clip_img_model_path:
             if self.config["model_type"] == "cn_clip":
+                clip_txt_model_path = self.get_model_abs_path(
+                    self.config, "txt_model_path")
+                _ = self.get_model_abs_path(self.config, "txt_extra_path")
+                clip_img_model_path = self.get_model_abs_path(
+                    self.config, "img_model_path")
+                _ = self.get_model_abs_path(self.config, "img_extra_path")
                 model_arch = self.config["model_arch"]
                 self.clip_net = ChineseClipONNX(
                     clip_txt_model_path,
