@@ -883,7 +883,7 @@ class MOTSConverter(BaseLabelConverter):
             height, width = int(label[3]), int(label[4])
             polygon = [np.array(eval(label[-1])).flatten()]
             rle = self.polygon_to_rle(polygon, height, width)
-            label[-1] = rle['counts']
+            label[-1] = rle["counts"]
             results.append(label)
         save_path = osp.dirname(gt_file)
         with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
@@ -903,13 +903,16 @@ class MOTSConverter(BaseLabelConverter):
         import pycocotools.mask as coco_mask
 
         mask = coco_mask.decode(rle)
-        contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(
+            mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
         polygons = [contour.flatten().tolist() for contour in contours]
         return polygons
 
     @staticmethod
     def draw_rle_to_image(image_file, rle):
         import pycocotools.mask as coco_mask
+
         """
         Draw the RLE encoded mask onto the given image and save the images with contours and masked image.
 
@@ -926,12 +929,15 @@ class MOTSConverter(BaseLabelConverter):
         mask = coco_mask.decode(rle)
         mask = mask.astype(np.uint8)
         masked_image = cv2.bitwise_and(image, image, mask=mask)
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(
+            mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
         for contour in contours:
             cv2.drawContours(image, [contour], -1, (0, 255, 0), 3)
         image_path = osp.dirname(image_file)
-        cv2.imwrite(osp.join(image_path, 'contorus.jpg'), image)
-        cv2.imwrite(osp.join(image_path, 'masked_image.jpg'), masked_image)
+        cv2.imwrite(osp.join(image_path, "contorus.jpg"), image)
+        cv2.imwrite(osp.join(image_path, "masked_image.jpg"), masked_image)
+
 
 def main():
     parser = argparse.ArgumentParser(description="Label Converter")
@@ -965,7 +971,7 @@ def main():
             "dota2dcoco",
             "dcoco2dota",
             "dxml2dota",
-            "custom_to_gt"
+            "custom_to_gt",
         ],
     )
     args = parser.parse_args()
@@ -1017,7 +1023,6 @@ def main():
         assert (
             args.mode in valid_modes
         ), f"MOTS tasks are only supported in {valid_modes} now!"
-
 
     if args.mode == "custom2voc":
         file_list = os.listdir(args.src_path)

@@ -8,6 +8,7 @@ import PIL.ImageOps
 import numpy as np
 from PyQt5 import QtGui
 
+
 def img_data_to_pil(img_data):
     f = io.BytesIO()
     f.write(img_data)
@@ -40,7 +41,9 @@ def pil_to_qimage(img):
     data = np.array(img)
     height, width, channel = data.shape
     bytes_per_line = 4 * width
-    qimage = QtGui.QImage(data, width, height, bytes_per_line, QtGui.QImage.Format_RGBA8888)
+    qimage = QtGui.QImage(
+        data, width, height, bytes_per_line, QtGui.QImage.Format_RGBA8888
+    )
     return qimage
 
 

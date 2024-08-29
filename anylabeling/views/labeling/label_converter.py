@@ -1389,7 +1389,9 @@ class LabelConverter:
         with open(osp.join(save_path, "seqinfo.ini"), "w") as f:
             config.write(f)
         # Save gt.txt
-        with open(osp.join(save_path, "custom_gt.txt"), "w", encoding="utf-8") as f:
+        with open(
+            osp.join(save_path, "custom_gt.txt"), "w", encoding="utf-8"
+        ) as f:
             for row in mots_structure["gt"]:
                 f.write(" ".join(map(str, row)) + "\n")
 

@@ -50,7 +50,8 @@ elif [ $system = "linux-gpu" ];then
     else
         echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
     fi
-    
+elif [ $system = "macos" ];then
+    pyinstaller --noconfirm x-anylabeling-macos.spec
 else
     echo "System value '$system' is not recognized."
 fi

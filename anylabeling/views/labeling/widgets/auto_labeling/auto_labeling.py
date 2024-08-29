@@ -234,7 +234,9 @@ class AutoLabelingWidget(QWidget):
         # Reset controls to initial values when the model changes
         self.on_conf_value_changed(self.initial_conf_value)
         self.on_iou_value_changed(self.initial_iou_value)
-        self.on_preserve_existing_annotations_state_changed(self.initial_preserve_annotations_state)
+        self.on_preserve_existing_annotations_state_changed(
+            self.initial_preserve_annotations_state
+        )
         self.on_reset_tracker()
 
     def on_output_modes_changed(self, output_modes, default_output_mode):

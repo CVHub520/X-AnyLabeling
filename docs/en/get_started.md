@@ -171,6 +171,9 @@ bash scripts/build_executable.sh linux-cpu
 
 # Linux-GPU
 bash scripts/build_executable.sh linux-gpu
+
+# macOS
+bash scripts/build_executable.sh macos
 ```
 
 Note: If you encounter permission issues when executing the above commands on Windows, after ensuring the preparation steps above are completed, you can directly execute the following commands as needed:

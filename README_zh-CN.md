@@ -33,7 +33,7 @@
 ## 🥳 新功能
 
 - 2024年8月:
-  - 🤗 预发布[X-AnyLabeling v2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0)最新版本 🤗
+  - 🤗 发布[X-AnyLabeling v2.4.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.1)最新版本 🤗
   - 🔥🔥🔥 支持[tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md)任务。
   - ✨✨✨ 支持[Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2)模型。
   - 👏👏👏 支持[Grounding-SAM2](./docs/zh_cn/model_zoo.md)模型。

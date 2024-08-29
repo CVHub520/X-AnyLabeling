@@ -1,3 +1,4 @@
 -r requirements-macos.txt
 build
 twine
+pyinstaller

@@ -640,18 +640,14 @@ class LabelingWidget(LabelDialog):
             self.tr("&Label Manager"),
             self.label_manager,
             icon="edit",
-            tip=self.tr(
-                "Manage Labels: Rename, Delete, Adjust Color"
-            ),
+            tip=self.tr("Manage Labels: Rename, Delete, Adjust Color"),
         )
         gid_manager = action(
             self.tr("&Group ID Manager"),
             self.gid_manager,
             shortcuts["edit_group_id"],
             icon="edit",
-            tip=self.tr(
-                "Manage Group ID"
-            ),
+            tip=self.tr("Manage Group ID"),
         )
         union_selection = action(
             self.tr("&Union Selection"),
@@ -1098,7 +1094,9 @@ class LabelingWidget(LabelDialog):
             self.export_mots_annotation,
             None,
             icon="format_mot",
-            tip=self.tr("Export Custom Multi-Object-Tracking-Segmentation Annotations"),
+            tip=self.tr(
+                "Export Custom Multi-Object-Tracking-Segmentation Annotations"
+            ),
         )
         export_odvg_annotation = action(
             self.tr("&Export ODVG Annotations"),
@@ -2107,8 +2105,9 @@ class LabelingWidget(LabelDialog):
 
         default_color = QtGui.QColor(114, 114, 114)
         color = QtWidgets.QColorDialog.getColor(
-            default_color, self, 
-            self.tr("Select a color to use for masking the areas")
+            default_color,
+            self,
+            self.tr("Select a color to use for masking the areas"),
         )
         if not color.isValid():
             return
@@ -2162,8 +2161,11 @@ class LabelingWidget(LabelDialog):
                     label = shape["label"]
                     points = shape["points"]
                     shape_type = shape["shape_type"]
-                    if (label != "__mask__" or 
-                        shape_type not in ["rectangle", "polygon", "rotation"]):
+                    if label != "__mask__" or shape_type not in [
+                        "rectangle",
+                        "polygon",
+                        "rotation",
+                    ]:
                         continue
                     if (
                         (shape_type == "polygon" and len(points) < 3)
@@ -2172,16 +2174,24 @@ class LabelingWidget(LabelDialog):
                     ):
                         continue
                     points = np.array(points, dtype=np.int32)
-                    if shape['shape_type'] == 'rectangle':
+                    if shape["shape_type"] == "rectangle":
                         top_left = tuple(points[0])
                         bottom_right = tuple(points[2])
-                        cv2.rectangle(image, top_left, bottom_right, fill_color, thickness=-1)
-                    elif shape['shape_type'] == 'rotation':
+                        cv2.rectangle(
+                            image,
+                            top_left,
+                            bottom_right,
+                            fill_color,
+                            thickness=-1,
+                        )
+                    elif shape["shape_type"] == "rotation":
                         rect = cv2.minAreaRect(points)
                         box = cv2.boxPoints(rect)
                         box = np.int0(box)
-                        cv2.drawContours(image, [box], 0, fill_color, thickness=cv2.FILLED)
-                    elif shape['shape_type'] == 'polygon':
+                        cv2.drawContours(
+                            image, [box], 0, fill_color, thickness=cv2.FILLED
+                        )
+                    elif shape["shape_type"] == "polygon":
                         cv2.fillPoly(image, [points], fill_color)
                 cv2.imwrite(bk_image_file, image)
                 # Update progress bar

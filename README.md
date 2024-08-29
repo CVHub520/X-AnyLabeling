@@ -34,7 +34,7 @@
 ## 🥳 What's New
 
 - Aug. 2024:
-  - 🤗 Pre-release the latest version [2.4.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.0) 🤗
+  - 🤗 Release the latest version [2.4.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.1) 🤗
   - 🔥🔥🔥 Support [tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md) tasks.
   - ✨✨✨ Support [Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2) model! (Recommended)
   - 👏👏👏 Support [Grounding-SAM2](./docs/en/model_zoo.md) model.

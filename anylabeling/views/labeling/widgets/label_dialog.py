@@ -80,10 +80,14 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             self.table_widget.insertRow(i)
 
             old_gid_item = QTableWidgetItem(str(group_id))
-            old_gid_item.setFlags(old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable)
+            old_gid_item.setFlags(
+                old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable
+            )
 
             new_gid_item = QTableWidgetItem("")
-            new_gid_item.setFlags(new_gid_item.flags() | QtCore.Qt.ItemIsEditable)
+            new_gid_item.setFlags(
+                new_gid_item.flags() | QtCore.Qt.ItemIsEditable
+            )
 
             # Set QIntValidator to ensure only non-negative integers can be entered
             validator = QIntValidator(0, 9999, self)
@@ -109,8 +113,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             line_edit = self.table_widget.cellWidget(i, 1)
             new_gid = line_edit.text()
             old_gid = old_gid_item.text()
-            
-            # Only add to updated_gid_info 
+
+            # Only add to updated_gid_info
             # if the new group ID is not empty and different
             if new_gid and old_gid != new_gid:
                 new_gid_info.append(new_gid)
@@ -132,7 +136,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             QtWidgets.QMessageBox.warning(
                 self,
                 "Warning",
-                "An error occurred while updating the Group IDs."
+                "An error occurred while updating the Group IDs.",
             )
 
     def modify_group_id(self, updated_gid_info):
@@ -144,7 +148,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                 for shape in src_shapes:
                     group_id = int(shape.get("group_id"))
                     if group_id in updated_gid_info:
-                        shape["group_id"] = updated_gid_info[group_id]["new_gid"]
+                        shape["group_id"] = updated_gid_info[group_id][
+                            "new_gid"
+                        ]
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
                 with open(shape_file, "w", encoding="utf-8") as f:
@@ -325,7 +331,6 @@ class LabelModifyDialog(QtWidgets.QDialog):
             delete_checkbox.setCheckable(True)
 
     def confirm_changes(self):
-
         total_num = self.table_widget.rowCount()
         if total_num == 0:
             self.reject()
@@ -670,7 +675,7 @@ class LabelDialog(QtWidgets.QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Delete:
-            if hasattr(self, 'linking_list') and self.linking_list is not None:
+            if hasattr(self, "linking_list") and self.linking_list is not None:
                 selected_items = self.linking_list.selectedItems()
                 if selected_items:
                     for item in selected_items:
