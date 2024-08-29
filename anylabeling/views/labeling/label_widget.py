@@ -4184,7 +4184,7 @@ class LabelingWidget(LabelDialog):
             converter = LabelConverter()
             converter.coco_to_custom(
                 input_file=input_file,
-                output_path=output_dir_path,
+                output_dir_path=output_dir_path,
                 mode=mode,
             )
             # update and refresh the current canvas
