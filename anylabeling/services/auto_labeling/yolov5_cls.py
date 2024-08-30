@@ -64,19 +64,5 @@ class YOLOv5_CLS(YOLO):
         blob = self.preprocess(image, upsample_mode="centercrop")
         predictions = self.net.get_ort_inference(blob)
         label = self.postprocess(predictions)
-
-        shapes = []
-        shape = Shape(
-            label=label,
-            shape_type="rectangle",
-        )
-        h, w = image.shape[:2]
-        shape.add_point(QtCore.QPointF(0, 0))
-        shape.add_point(QtCore.QPointF(w, 0))
-        shape.add_point(QtCore.QPointF(w, h))
-        shape.add_point(QtCore.QPointF(0, h))
-        shapes.append(shape)
-
-        result = AutoLabelingResult(shapes, replace=True)
-
+        result = AutoLabelingResult(shapes=[], replace=False, description=label)
         return result

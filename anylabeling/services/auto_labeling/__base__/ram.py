@@ -116,21 +116,7 @@ class RecognizeAnything(Model):
         outs = self.inference(blob)
         tags = self.postprocess(outs)
         description = self.get_results(tags)
-
-        shapes = []
-        shape = Shape(
-            label="tag",
-            description=description,
-            shape_type="rectangle",
-        )
-        h, w = image.shape[:2]
-        shape.add_point(QtCore.QPointF(0, 0))
-        shape.add_point(QtCore.QPointF(w, 0))
-        shape.add_point(QtCore.QPointF(w, h))
-        shape.add_point(QtCore.QPointF(0, h))
-        shapes.append(shape)
-
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes=[], replace=False, description=description)
         return result
 
     @staticmethod
