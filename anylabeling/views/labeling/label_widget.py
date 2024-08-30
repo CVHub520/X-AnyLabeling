@@ -3686,7 +3686,7 @@ class LabelingWidget(LabelDialog):
 
     def open_prev_image(self, _value=False):
         if QtWidgets.QApplication.keyboardModifiers() == (
-            Qt.ControlModifier | Qt.ShiftModifier
+            Qt.ControlModifier | Qt.ShiftModifier | Qt.Key_A
         ):
             self.open_labeled_image(-1, -1)
             return
@@ -3708,7 +3708,7 @@ class LabelingWidget(LabelDialog):
 
     def open_next_image(self, _value=False, load=True):
         if QtWidgets.QApplication.keyboardModifiers() == (
-            Qt.ControlModifier | Qt.ShiftModifier
+            Qt.ControlModifier | Qt.ShiftModifier | Qt.Key_D
         ):
             self.open_labeled_image(self.file_list_widget.count(), 1, load)
             return
@@ -5642,7 +5642,7 @@ class LabelingWidget(LabelDialog):
                 self.load_file(self.filename)
 
     def delete_image_file(self):
-        if len(self.image_list) <= 0:
+        if len(self.image_list) < 2:
             return
 
         mb = QtWidgets.QMessageBox
