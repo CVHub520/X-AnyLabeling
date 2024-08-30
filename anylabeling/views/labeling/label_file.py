@@ -134,7 +134,7 @@ class LabelFile:
                 other_data[key] = value
 
         # Add new fields if not available
-        other_data["text"] = other_data.get("text", "")
+        other_data["description"] = other_data.get("description", "")
 
         # Only replace data after everything is loaded.
         self.flags = flags

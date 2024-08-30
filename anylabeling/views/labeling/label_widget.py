@@ -2969,7 +2969,7 @@ class LabelingWidget(LabelDialog):
         elif self.canvas.editing() and len(self.canvas.selected_shapes) == 1:
             self.canvas.selected_shapes[0].description = description
         else:
-            self.other_data["image_description"] = description
+            self.other_data["description"] = description
         self.set_dirty()
 
     def _update_shape_color(self, shape):
@@ -3498,7 +3498,7 @@ class LabelingWidget(LabelDialog):
             self.other_data = self.label_file.other_data
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText(
-                self.other_data.get("image_description", "")
+                self.other_data.get("description", "")
             )
             self.shape_text_edit.textChanged.connect(self.shape_text_changed)
         else:
@@ -6057,7 +6057,13 @@ class LabelingWidget(LabelDialog):
                     item = self.label_list.find_item_by_shape(shape)
                     self.label_list.remove_item(item)
             self.load_shapes(auto_labeling_result.shapes, replace=False)
-
+        # Set image description
+        if auto_labeling_result.description:
+            description = auto_labeling_result.description
+            self.shape_text_label.setText(self.tr("Image Description"))
+            self.shape_text_edit.setPlainText(description)
+            self.other_data["description"] = description
+            self.shape_text_edit.setDisabled(False)
         self.set_dirty()
 
     def clear_auto_labeling_marks(self):
@@ -6279,7 +6285,7 @@ class LabelingWidget(LabelDialog):
                 self.shape_text_label.setText(self.tr("Image Description"))
                 self.shape_text_edit.textChanged.disconnect()
                 self.shape_text_edit.setPlainText(
-                    self.other_data.get("image_description", "")
+                    self.other_data.get("description", "")
                 )
                 self.shape_text_edit.textChanged.connect(
                     self.shape_text_changed

@@ -1,15 +1,18 @@
 class AutoLabelingResult:
-    def __init__(self, shapes, replace=True):
+    def __init__(self, shapes, replace=True, description=""):
         """Initialize AutoLabelingResult
 
         Args:
             shapes (List[Shape]): List of shapes to add to the canvas.
             replace (bool, optional): Replaces all current shapes with
             new shapes. Defaults to True.
+            description (str, optional): Description of the image.
+            Defaults to "".
         """
 
         self.shapes = shapes
         self.replace = replace
+        self.description = description
 
 
 class AutoLabelingMode:
