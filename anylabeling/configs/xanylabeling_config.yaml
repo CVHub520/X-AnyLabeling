@@ -137,6 +137,7 @@ shortcuts:
   show_texts: Ctrl+T
   show_labels: Ctrl+L
   show_linking: Ctrl+K
+  union_selected_shapes: Ctrl+Shift+M
   toggle_auto_use_last_label: Ctrl+Y
   toggle_visibility_shapes: Ctrl+H
 

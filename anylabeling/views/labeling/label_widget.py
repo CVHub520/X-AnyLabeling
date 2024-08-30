@@ -652,8 +652,10 @@ class LabelingWidget(LabelDialog):
         union_selection = action(
             self.tr("&Union Selection"),
             self.union_selection,
+            shortcuts["union_selected_shapes"],
             icon="union",
             tip=self.tr("Union multiple selected rectangle shapes"),
+            enabled=False,
         )
         hbb_to_obb = action(
             self.tr("&Convert HBB to OBB"),
@@ -1173,7 +1175,7 @@ class LabelingWidget(LabelDialog):
 
         # Label list context menu.
         label_menu = QtWidgets.QMenu()
-        utils.add_actions(label_menu, (edit, delete))
+        utils.add_actions(label_menu, (edit, delete, union_selection))
         self.label_list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.label_list.customContextMenuRequested.connect(
             self.pop_label_list_menu
@@ -1285,6 +1287,7 @@ class LabelingWidget(LabelDialog):
                 undo_last_point,
                 None,
                 remove_point,
+                union_selection,
                 None,
                 keep_prev_mode,
                 auto_use_last_label_mode,
@@ -2513,6 +2516,7 @@ class LabelingWidget(LabelDialog):
         self.actions.undo_last_point.setEnabled(drawing)
         self.actions.undo.setEnabled(not drawing)
         self.actions.delete.setEnabled(not drawing)
+        self.actions.union_selection.setEnabled(not drawing)
 
     def toggle_draw_mode(
         self, edit=True, create_mode="rectangle", disable_auto_labeling=True
