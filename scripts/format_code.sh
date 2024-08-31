@@ -1,1 +1,1 @@
-black -l 79 --exclude="tests/|anylabeling/resources/resources.py" .
+black -l 79 --exclude="tests/|anylabeling/resources/resources.py|venv/" .
