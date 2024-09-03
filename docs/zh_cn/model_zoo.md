@@ -257,3 +257,13 @@
 | depth_anything_v2_vits.onnx | [DepthAnythingV2](https://github.com/DepthAnything/Depth-Anything-V2) | [depth_anything_v2_vit_s.yaml](../../anylabeling/configs/auto_labeling/depth_anything_v2_vit_s.yaml) | 94.77MB | [百度网盘](https://pan.baidu.com/s/1mO8UEWAEgYW2_bDnQFSVpQ?pwd=3sf0) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/depth_anything_v2_vits.onnx) |
 | depth_anything_v2_vitb.onnx | [DepthAnythingV2](https://github.com/DepthAnything/Depth-Anything-V2) | [depth_anything_v2_vit_b.yaml](../../anylabeling/configs/auto_labeling/depth_anything_v2_vit_b.yaml) | 371.20MB | [百度网盘](https://pan.baidu.com/s/1wo8xYJiuMjie5THPjr4DWg?pwd=kcal) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/depth_anything_v2_vitb.onnx) |
 | depth_anything_v2_vitl.onnx | [DepthAnythingV2](https://github.com/DepthAnything/Depth-Anything-V2) | [depth_anything_v2_vit_l.yaml](../../anylabeling/configs/auto_labeling/depth_anything_v2_vit_l.yaml) | 1.25GB | [百度网盘](https://pan.baidu.com/s/134WYgOdhzWeyap_xk0rBhw?pwd=cnqt) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/depth_anything_v2_vitl.onnx) |
+
+
+### 交互式视频目标分割
+
+|名称|描述|配置|大小|链接|
+| --- | --- | --- | --- | --- |
+| sam2_hiera_tiny.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_tiny_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_tiny_video.yaml) | 148.68MB | [百度网盘](https://pan.baidu.com/s/1sIiVHQb5MMrK49x5ngB8ig?pwd=q38g) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_tiny.pt) |
+| sam2_hiera_small.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_small_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_small_video.yaml) | 175.77MB | [百度网盘](https://pan.baidu.com/s/17P5PvRUlT0xYr4wlqqeKVw?pwd=rsim) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt) |
+| sam2_hiera_base_plus.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml) | 308.51MB | [百度网盘](https://pan.baidu.com/s/1nP-ysdw1t7JgUQtIv-adNA?pwd=44u4) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt) |
+| sam2_hiera_large.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_large_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_large_video.yaml) | 856.35MB | [百度网盘](https://pan.baidu.com/s/1hFYQc1IKnEw2l-vW6Eoi2w?pwd=gyby) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt) |

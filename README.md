@@ -33,18 +33,20 @@
 
 ## 🥳 What's New
 
-- Aug. 2024:
-  - 🤗 Release the latest version [2.4.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.1) 🤗
-  - 🔥🔥🔥 Support [tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md) tasks.
-  - ✨✨✨ Support [Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2) model! (Recommended)
-  - 👏👏👏 Support [Grounding-SAM2](./docs/en/model_zoo.md) model.
-  - Support lightweight model for Japanese recognition.
+- Sep. 2024:
+  - 🔥🔥🔥 Added support for interactive video object tracking based on [Segment-Anything-2](https://github.com/CVHub520/segment-anything-2). [[Tutorial](examples/interactive_video_object_segmentation/README.md)]
 
 <br>
 
 <details> 
 <summary>Click to view more news.</summary>
 
+- Aug. 2024:
+  - Release version [2.4.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.1)
+  - Support [tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md) tasks.
+  - Support [Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2) model! (Recommended)
+  - Support [Grounding-SAM2](./docs/en/model_zoo.md) model.
+  - Support lightweight model for Japanese recognition.
 - Jul. 2024:
   - Add PPOCR-Recognition and KIE import/export functionality for training PP-OCR task.
   - Add ODVG import/export functionality for training grounding task.

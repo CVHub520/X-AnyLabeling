@@ -21,6 +21,7 @@ class ModelManager(QObject):
     CUSTOM_MODELS = [
         "segment_anything",
         "segment_anything_2",
+        "segment_anything_2_video"
         "sam_med2d",
         "sam_hq",
         "yolov5",
@@ -967,6 +968,29 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "segment_anything_2_video":
+            try:
+                from .segment_anything_2_video import SegmentAnything2Video
+                model_config["model"] = SegmentAnything2Video(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+            except Exception as e:  # noqa
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "efficientvit_sam":
             from .efficientvit_sam import EfficientViT_SAM
 
@@ -1472,6 +1496,7 @@ class ModelManager(QObject):
         marks_model_list = [
             "segment_anything",
             "segment_anything_2",
+            "segment_anything_2_video",
             "sam_med2d",
             "sam_hq",
             "yolov5_sam",
@@ -1498,6 +1523,7 @@ class ModelManager(QObject):
             "yolov8_obb_track",
             "yolov8_seg_track",
             "yolov8_pose_track",
+            "segment_anything_2_video",
         ]
         if (
             self.loaded_model_config is None
@@ -1606,13 +1632,23 @@ class ModelManager(QObject):
                 "model"
             ].set_auto_labeling_preserve_existing_annotations_state(state)
 
+    def set_auto_labeling_prompt(self):
+        model_list = ['segment_anything_2_video']
+        if (
+            self.loaded_model_config is not None
+            and self.loaded_model_config["type"] in model_list
+        ):
+            self.loaded_model_config[
+                "model"
+            ].set_auto_labeling_prompt()
+
     def unload_model(self):
         """Unload model"""
         if self.loaded_model_config is not None:
             self.loaded_model_config["model"].unload()
             self.loaded_model_config = None
 
-    def predict_shapes(self, image, filename=None, text_prompt=None):
+    def predict_shapes(self, image, filename=None, text_prompt=None, run_tracker=False):
         """Predict shapes.
         NOTE: This function is blocking. The model can take a long time to
         predict. So it is recommended to use predict_shapes_threading instead.
@@ -1624,14 +1660,18 @@ class ModelManager(QObject):
             self.prediction_finished.emit()
             return
         try:
-            if text_prompt is None:
+            if text_prompt is not None:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
-                ].predict_shapes(image, filename)
+                ].predict_shapes(image, filename, text_prompt=text_prompt)
+            elif run_tracker is True:
+                auto_labeling_result = self.loaded_model_config[
+                    "model"
+                ].predict_shapes(image, filename, run_tracker=run_tracker)
             else:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
-                ].predict_shapes(image, filename, text_prompt)
+                ].predict_shapes(image, filename)
             self.new_auto_labeling_result.emit(auto_labeling_result)
             self.new_model_status.emit(
                 self.tr("Finished inferencing AI model. Check the result.")
@@ -1646,7 +1686,7 @@ class ModelManager(QObject):
         self.prediction_finished.emit()
 
     @pyqtSlot()
-    def predict_shapes_threading(self, image, filename=None, text_prompt=None):
+    def predict_shapes_threading(self, image, filename=None, text_prompt=None, run_tracker=False):
         """Predict shapes.
         This function starts a thread to run the prediction.
         """
@@ -1675,13 +1715,17 @@ class ModelManager(QObject):
                 return
 
             self.model_execution_thread = QThread()
-            if text_prompt is None:
+            if text_prompt is not None:
                 self.model_execution_worker = GenericWorker(
-                    self.predict_shapes, image, filename
+                    self.predict_shapes, image, filename, text_prompt=text_prompt
+                )
+            elif run_tracker is True:
+                self.model_execution_worker = GenericWorker(
+                    self.predict_shapes, image, filename, run_tracker=run_tracker
                 )
             else:
                 self.model_execution_worker = GenericWorker(
-                    self.predict_shapes, image, filename, text_prompt
+                    self.predict_shapes, image, filename
                 )
             self.model_execution_worker.finished.connect(
                 self.model_execution_thread.quit

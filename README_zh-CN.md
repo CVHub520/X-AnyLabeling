@@ -32,18 +32,20 @@
 
 ## 🥳 新功能
 
-- 2024年8月:
-  - 🤗 发布[X-AnyLabeling v2.4.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.1)最新版本 🤗
-  - 🔥🔥🔥 支持[tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md)任务。
-  - ✨✨✨ 支持[Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2)模型。
-  - 👏👏👏 支持[Grounding-SAM2](./docs/zh_cn/model_zoo.md)模型。
-  - 支持[日文字符识别](./anylabeling/configs/auto_labeling/japan_ppocr.yaml)模型。
+- 2024年9月:
+  - 🔥🔥🔥 支持基于[Segment-Anything-2](https://github.com/CVHub520/segment-anything-2)交互式视频目标追踪功能。【[教程](examples/interactive_video_object_segmentation/README.md)】
 
 <br>
 
 <details> 
 <summary>点击查看历史更新。</summary>
 
+- 2024年8月:
+  - 发布[X-AnyLabeling v2.4.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.1)版本。
+  - 支持[tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md)任务。
+  - 支持[Segment-Anything-2](https://github.com/facebookresearch/segment-anything-2)模型。
+  - 支持[Grounding-SAM2](./docs/zh_cn/model_zoo.md)模型。
+  - 支持[日文字符识别](./anylabeling/configs/auto_labeling/japan_ppocr.yaml)模型。
 - 2024年7月:
   - 新增 PPOCR 识别和关键信息提取标签导入/导出功能。
   - 新增 ODVG 标签导入/导出功能，以支持 Grounding 模型训练。

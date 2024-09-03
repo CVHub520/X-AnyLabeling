@@ -5783,6 +5783,7 @@ class LabelingWidget(LabelDialog):
             self.current_index = self.image_list.index(self.filename)
             self.image_index = self.current_index
             self.text_prompt = ""
+            self.run_tracker = False
             if self.auto_labeling_widget.model_manager.loaded_model_config[
                 "type"
             ] in [
@@ -5794,6 +5795,13 @@ class LabelingWidget(LabelDialog):
                 self.text_prompt = text_input_dialog.get_input_text()
                 if self.text_prompt:
                     self.show_progress_dialog_and_process()
+            elif self.auto_labeling_widget.model_manager.loaded_model_config[
+                "type"
+            ] in [
+                "segment_anything_2_video",
+            ]:
+                self.run_tracker = True
+                self.show_progress_dialog_and_process()
             else:
                 self.show_progress_dialog_and_process()
 
@@ -5830,7 +5838,11 @@ class LabelingWidget(LabelDialog):
             self.load_file(self.filename)
             if self.text_prompt:
                 self.auto_labeling_widget.model_manager.predict_shapes(
-                    self.image, self.filename, self.text_prompt
+                    self.image, self.filename, text_prompt=self.text_prompt
+                )
+            elif self.run_tracker:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename, run_tracker=self.run_tracker
                 )
             else:
                 self.auto_labeling_widget.model_manager.predict_shapes(
@@ -5858,6 +5870,7 @@ class LabelingWidget(LabelDialog):
         self.filename = self.image_list[self.current_index]
         self.load_file(self.filename)
         del self.text_prompt
+        del self.run_tracker
         del self.image_index
         del self.current_index
         progress_dialog.close()

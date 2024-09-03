@@ -106,6 +106,7 @@ class AutoLabelingWidget(QWidget):
             self.clear_auto_labeling_action_requested
         )
         self.button_clear.setShortcut("B")
+        self.button_finish_object.clicked.connect(self.add_new_prompt)
         self.button_finish_object.clicked.connect(
             self.finish_auto_labeling_object_action_requested
         )
@@ -205,7 +206,7 @@ class AutoLabelingWidget(QWidget):
         """Run visual-language prediction"""
         if self.parent.filename is not None and self.edit_text:
             self.model_manager.predict_shapes_threading(
-                self.parent.image, self.parent.filename, self.edit_text.text()
+                self.parent.image, self.parent.filename, text_prompt=self.edit_text.text()
             )
 
     def unload_and_hide(self):
@@ -350,3 +351,6 @@ class AutoLabelingWidget(QWidget):
 
     def on_reset_tracker(self):
         self.model_manager.set_auto_labeling_reset_tracker()
+
+    def add_new_prompt(self):
+        self.model_manager.set_auto_labeling_prompt()

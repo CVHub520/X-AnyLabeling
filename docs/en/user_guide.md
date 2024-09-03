@@ -49,6 +49,7 @@
       * [8.5 Multi-Object Tracking](#85-multi-object-tracking)
       * [8.6 Depth Estimation](#86-depth-estimation)
       * [8.7 Optical Character Recognition](#87-optical-character-recognition)
+      * [8.8 Interactive Video Object Segmentation](#88-interactive-video-object-segmentation)
    * [9. Models](#9-models)
 
 
@@ -670,31 +671,31 @@ In X-AnyLabeling v2.4.0 and above, the **hover auto-highlight mode** feature is 
 Note: In `multi-label classification tasks`, if the user manually uploads a property file, the `auto_highlight_shape` field will be set to `false` to prevent accidental switching of the property window status bar, thus improving user experience.
 
 
-### 8. Tasks
+## 8. Tasks
 
-#### 8.1 Image Classification
+### 8.1 Image Classification
 
 - Image-level classification: [Link](../../examples/classification/image-level/README.md)
 - Object-level classification: [Link](../../examples/classification/shape-level/README.md)
 
-#### 8.2 Object Detection
+### 8.2 Object Detection
 
 - Horizontal Bounding Box Detection: [Link](../../examples/detection/hbb/README.md)
 - Oriented Bounding Box Detection: [Link](../../examples/detection/obb/README.md)
 
-#### 8.3 Image Segmentation
+### 8.3 Image Segmentation
 
 - Semantic & Instance Segmentation: [Link](../../examples/segmentation/README.md)
 
-#### 8.4 Pose Estimation
+### 8.4 Pose Estimation
 
 - Keypoint Detection: [Link](../../examples/estimation/pose_estimation/README.md)
 
-#### 8.5 Multi-Object Tracking
+### 8.5 Multi-Object Tracking
 
 - Multi-Object Tracking: [Link](../../examples/multiple_object_tracking/README.md)
 
-#### 8.6 Depth Estimation
+### 8.6 Depth Estimation
 
 - Depth Estimation: [Link](../../examples/estimation/depth_estimation/README.md)
 
@@ -702,6 +703,10 @@ Note: In `multi-label classification tasks`, if the user manually uploads a prop
 
 - Text Detection and Recognition: [Link](../../examples/optical_character_recognition/text_recognition/README.md)
 - Key Information Extraction: [Link](../../examples/optical_character_recognition/kie/README.md)
+
+### 8.8 Interactive Video Object Segmentation
+
+- Interactive Video Object Segmentation: [Link](../../examples/interactive_video_object_segmentation/README.md)
 
 
 ## 9. Models

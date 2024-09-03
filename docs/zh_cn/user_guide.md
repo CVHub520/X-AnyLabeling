@@ -49,6 +49,7 @@
       * [8.5 多目标跟踪](#85-多目标跟踪)
       * [8.6 深度估计](#86-深度估计)
       * [8.7 光学字符识别](#87-光学字符识别)
+      * [8.8 交互式视频目标分割](#88-交互式视频目标分割)
    * [9. 模型](#9-模型)
 
 ## 1. 文件
@@ -706,6 +707,10 @@ labels:
 
 - 文本检测与识别：[链接](../../examples/optical_character_recognition/text_recognition/README.md)
 - 关键信息提取：[链接](../../examples/optical_character_recognition/kie/README.md)
+
+### 8.8 交互式视频目标分割
+
+- 交互式视频目标分割: [链接](../../examples/interactive_video_object_segmentation/README.md)
 
 
 ## 9. 模型
