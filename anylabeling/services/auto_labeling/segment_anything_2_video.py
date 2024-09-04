@@ -75,11 +75,11 @@ class SegmentAnything2Video(Model):
             torch.backends.cudnn.allow_tf32 = True
 
         # Load the SAM2 predictor models
-        model_abs_path = self.get_model_abs_path(
+        self.model_abs_path = self.get_model_abs_path(
             self.config, "model_path"
         )
-        if not model_abs_path or not os.path.isfile(
-            model_abs_path
+        if not self.model_abs_path or not os.path.isfile(
+            self.model_abs_path
         ):
             raise FileNotFoundError(
                 QCoreApplication.translate(
@@ -87,10 +87,10 @@ class SegmentAnything2Video(Model):
                     "Could not download or initialize model of Segment Anything 2.",
                 )
             )
-        model_cfg = self.config['model_cfg']
-        sam2_image_model = build_sam2(model_cfg, model_abs_path)
+        self.model_cfg = self.config['model_cfg']
+        sam2_image_model = build_sam2(self.model_cfg, self.model_abs_path)
         self.image_predictor = SAM2ImagePredictor(sam2_image_model)
-        self.video_predictor = build_sam2_camera_predictor(model_cfg, model_abs_path)
+        self.video_predictor = build_sam2_camera_predictor(self.model_cfg, self.model_abs_path)
         self.is_first_init = True
 
         # Initialize marking and prompting structures
@@ -108,11 +108,13 @@ class SegmentAnything2Video(Model):
     def set_auto_labeling_reset_tracker(self):
         """Reset the tracker to its initial state."""
         self.is_first_init = True
-        self.prompts = []
-        try:
-            self.video_predictor.reset_state()
-        except Exception as e:  # noqa
-            print(f'An error occurred while resetting the tracker: {e}')
+        if self.prompts:
+            try:
+                self.video_predictor.reset_state()
+                print(f'Successful: The tracker has been reset to its initial state.')
+            except Exception as e:  # noqa
+                pass
+            self.prompts = []
 
     def set_auto_labeling_prompt(self):
         """Convert marks to prompts for the model."""
@@ -295,14 +297,15 @@ class SegmentAnything2Video(Model):
             tuple: A tuple containing a list of Shape objects and a boolean indicating if the frame was replaced.
         """
         if not self.prompts:
-            return []
+            return [], False
+
+        if not any(filename.endswith(ext) for ext in [".jpg", ".jpeg", ".JPG", ".JPEG"]):
+            print(f"Only JPEG format is supported, but got {filename}")
+            return [], False
 
         if self.is_first_init:
             self.video_predictor.load_first_frame(cv_image)
-            ann_frame_idx = self.get_ann_frame_idx(filename)  # the frame index we interact with
-            if ann_frame_idx == -1:
-                print(f"No .jpg or .jpeg files found in the directory.")
-                return [], False
+            ann_frame_idx = 0
             for i, prompt in enumerate(self.prompts):
                 ann_obj_id = i + 1  # give a unique id to each object we interact with (it can be any integers)
                 if prompt['type'] == 'rectangle':
