@@ -21,7 +21,7 @@ class ModelManager(QObject):
     CUSTOM_MODELS = [
         "segment_anything",
         "segment_anything_2",
-        "segment_anything_2_video"
+        "segment_anything_2_video",
         "sam_med2d",
         "sam_hq",
         "yolov5",
