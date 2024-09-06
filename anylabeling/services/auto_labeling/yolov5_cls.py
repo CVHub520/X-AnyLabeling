@@ -64,5 +64,7 @@ class YOLOv5_CLS(YOLO):
         blob = self.preprocess(image, upsample_mode="centercrop")
         predictions = self.net.get_ort_inference(blob)
         label = self.postprocess(predictions)
-        result = AutoLabelingResult(shapes=[], replace=False, description=label)
+        result = AutoLabelingResult(
+            shapes=[], replace=False, description=label
+        )
         return result

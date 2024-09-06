@@ -17,6 +17,7 @@ def get_output_directory(source_video_path):
     output_dir = os.path.join(video_dir, folder_name)
     return output_dir
 
+
 def ask_overwrite_directory(parent, output_dir):
     if os.path.exists(output_dir):
         reply = QMessageBox.question(
@@ -31,6 +32,7 @@ def ask_overwrite_directory(parent, output_dir):
             shutil.rmtree(output_dir)
     return True
 
+
 def get_frame_interval(parent, fps, total_frames):
     interval, ok = QInputDialog.getInt(
         parent,
@@ -42,8 +44,11 @@ def get_frame_interval(parent, fps, total_frames):
         1,  # step
     )
     if not ok:
-        QMessageBox.warning(parent, "Cancelled", "Frame extraction was cancelled.")
+        QMessageBox.warning(
+            parent, "Cancelled", "Frame extraction was cancelled."
+        )
     return interval if ok else None
+
 
 def extract_frames_from_video(parent, source_video_path):
     output_dir = get_output_directory(source_video_path)
@@ -70,7 +75,7 @@ def extract_frames_from_video(parent, source_video_path):
         parent.tr("Cancel"),
         0,
         total_frames // interval,
-        parent
+        parent,
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle("Progress")
@@ -95,7 +100,9 @@ def extract_frames_from_video(parent, source_video_path):
             break
 
         if frame_count % interval == 0:
-            frame_filename = os.path.join(output_dir, f"{saved_frame_count:05}.jpg")
+            frame_filename = os.path.join(
+                output_dir, f"{saved_frame_count:05}.jpg"
+            )
             cv2.imwrite(frame_filename, frame)
             saved_frame_count += 1
             progress_dialog.setValue(saved_frame_count)

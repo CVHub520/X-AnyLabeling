@@ -206,7 +206,9 @@ class AutoLabelingWidget(QWidget):
         """Run visual-language prediction"""
         if self.parent.filename is not None and self.edit_text:
             self.model_manager.predict_shapes_threading(
-                self.parent.image, self.parent.filename, text_prompt=self.edit_text.text()
+                self.parent.image,
+                self.parent.filename,
+                text_prompt=self.edit_text.text(),
             )
 
     def unload_and_hide(self):

@@ -971,6 +971,7 @@ class ModelManager(QObject):
         elif model_config["type"] == "segment_anything_2_video":
             try:
                 from .segment_anything_2_video import SegmentAnything2Video
+
                 model_config["model"] = SegmentAnything2Video(
                     model_config, on_message=self.new_model_status.emit
                 )
@@ -1633,14 +1634,12 @@ class ModelManager(QObject):
             ].set_auto_labeling_preserve_existing_annotations_state(state)
 
     def set_auto_labeling_prompt(self):
-        model_list = ['segment_anything_2_video']
+        model_list = ["segment_anything_2_video"]
         if (
             self.loaded_model_config is not None
             and self.loaded_model_config["type"] in model_list
         ):
-            self.loaded_model_config[
-                "model"
-            ].set_auto_labeling_prompt()
+            self.loaded_model_config["model"].set_auto_labeling_prompt()
 
     def unload_model(self):
         """Unload model"""
@@ -1648,7 +1647,9 @@ class ModelManager(QObject):
             self.loaded_model_config["model"].unload()
             self.loaded_model_config = None
 
-    def predict_shapes(self, image, filename=None, text_prompt=None, run_tracker=False):
+    def predict_shapes(
+        self, image, filename=None, text_prompt=None, run_tracker=False
+    ):
         """Predict shapes.
         NOTE: This function is blocking. The model can take a long time to
         predict. So it is recommended to use predict_shapes_threading instead.
@@ -1686,7 +1687,9 @@ class ModelManager(QObject):
         self.prediction_finished.emit()
 
     @pyqtSlot()
-    def predict_shapes_threading(self, image, filename=None, text_prompt=None, run_tracker=False):
+    def predict_shapes_threading(
+        self, image, filename=None, text_prompt=None, run_tracker=False
+    ):
         """Predict shapes.
         This function starts a thread to run the prediction.
         """
@@ -1717,11 +1720,17 @@ class ModelManager(QObject):
             self.model_execution_thread = QThread()
             if text_prompt is not None:
                 self.model_execution_worker = GenericWorker(
-                    self.predict_shapes, image, filename, text_prompt=text_prompt
+                    self.predict_shapes,
+                    image,
+                    filename,
+                    text_prompt=text_prompt,
                 )
             elif run_tracker is True:
                 self.model_execution_worker = GenericWorker(
-                    self.predict_shapes, image, filename, run_tracker=run_tracker
+                    self.predict_shapes,
+                    image,
+                    filename,
+                    run_tracker=run_tracker,
                 )
             else:
                 self.model_execution_worker = GenericWorker(

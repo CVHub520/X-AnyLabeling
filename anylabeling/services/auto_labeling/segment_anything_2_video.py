@@ -3,7 +3,8 @@ import os
 import traceback
 
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 import cv2
 import numpy as np
@@ -32,6 +33,7 @@ class SegmentAnything2Video(Model):
 
     class Meta:
         """Meta class to define required configurations and UI elements."""
+
         required_config_names = [
             "type",
             "name",
@@ -69,7 +71,7 @@ class SegmentAnything2Video(Model):
         torch.autocast(device_type="cuda", dtype=torch.bfloat16).__enter__()
 
         if torch.cuda.get_device_properties(0).major >= 8:
-            # turn on tfloat32 for Ampere GPUs 
+            # turn on tfloat32 for Ampere GPUs
             # (https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices)
             torch.backends.cuda.matmul.allow_tf32 = True
             torch.backends.cudnn.allow_tf32 = True
@@ -78,19 +80,19 @@ class SegmentAnything2Video(Model):
         self.model_abs_path = self.get_model_abs_path(
             self.config, "model_path"
         )
-        if not self.model_abs_path or not os.path.isfile(
-            self.model_abs_path
-        ):
+        if not self.model_abs_path or not os.path.isfile(self.model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
                     "Model",
                     "Could not download or initialize model of Segment Anything 2.",
                 )
             )
-        self.model_cfg = self.config['model_cfg']
+        self.model_cfg = self.config["model_cfg"]
         sam2_image_model = build_sam2(self.model_cfg, self.model_abs_path)
         self.image_predictor = SAM2ImagePredictor(sam2_image_model)
-        self.video_predictor = build_sam2_camera_predictor(self.model_cfg, self.model_abs_path)
+        self.video_predictor = build_sam2_camera_predictor(
+            self.model_cfg, self.model_abs_path
+        )
         self.is_first_init = True
 
         # Initialize marking and prompting structures
@@ -111,7 +113,9 @@ class SegmentAnything2Video(Model):
         if self.prompts:
             try:
                 self.video_predictor.reset_state()
-                print(f'Successful: The tracker has been reset to its initial state.')
+                print(
+                    f"Successful: The tracker has been reset to its initial state."
+                )
             except Exception as e:  # noqa
                 pass
             self.prompts = []
@@ -121,17 +125,17 @@ class SegmentAnything2Video(Model):
         point_coords, point_labels, box = self.marks_to_prompts()
         if box:
             promot = {
-                'type': 'rectangle',
-                'data': np.array([[*box[:2]], [*box[2:]]], dtype=np.float32)
+                "type": "rectangle",
+                "data": np.array([[*box[:2]], [*box[2:]]], dtype=np.float32),
             }
             self.prompts.append(promot)
-        elif (point_coords and point_labels):
+        elif point_coords and point_labels:
             promot = {
-                'type': 'point',
-                'data': {
-                    'point_coords': np.array(point_coords, dtype=np.float32),
-                    'point_labels': np.array(point_labels, dtype=np.int32),
-                }
+                "type": "point",
+                "data": {
+                    "point_coords": np.array(point_coords, dtype=np.float32),
+                    "point_labels": np.array(point_labels, dtype=np.int32),
+                },
             }
             self.prompts.append(promot)
 
@@ -139,15 +143,15 @@ class SegmentAnything2Video(Model):
         """Convert marks to prompts for the model."""
         point_coords, point_labels, box = None, None, None
         for marks in self.marks:
-            if marks['type'] == 'rectangle':
-                box = marks['data']
-            elif marks['type'] == 'point':
+            if marks["type"] == "rectangle":
+                box = marks["data"]
+            elif marks["type"] == "point":
                 if point_coords is None and point_labels is None:
-                    point_coords = [marks['data']]
-                    point_labels = [marks['label']]
+                    point_coords = [marks["data"]]
+                    point_labels = [marks["label"]]
                 else:
-                    point_coords.append(marks['data'])
-                    point_labels.append(marks['label'])
+                    point_coords.append(marks["data"])
+                    point_labels.append(marks["label"])
         return point_coords, point_labels, box
 
     def post_process(self, masks, label=None):
@@ -162,7 +166,7 @@ class SegmentAnything2Video(Model):
         """
         # Convert masks to binary format
         masks[masks > 0.0] = 255
-        masks[masks <= 0.] = 0
+        masks[masks <= 0.0] = 0
         masks = masks.astype(np.uint8)
 
         # Find contours of the masks
@@ -302,7 +306,10 @@ class SegmentAnything2Video(Model):
         if not self.prompts:
             return [], False
 
-        if not any(filename.endswith(ext) for ext in [".jpg", ".jpeg", ".JPG", ".JPEG"]):
+        if not any(
+            filename.endswith(ext)
+            for ext in [".jpg", ".jpeg", ".JPG", ".JPEG"]
+        ):
             print(f"Only JPEG format is supported, but got {filename}")
             return [], False
 
@@ -310,17 +317,28 @@ class SegmentAnything2Video(Model):
             self.video_predictor.load_first_frame(cv_image)
             ann_frame_idx = 0
             for i, prompt in enumerate(self.prompts):
-                ann_obj_id = i + 1  # give a unique id to each object we interact with (it can be any integers)
-                if prompt['type'] == 'rectangle':
-                    bbox = prompt['data']
-                    _, out_obj_ids, out_mask_logits = self.video_predictor.add_new_prompt(
-                        frame_idx=ann_frame_idx, obj_id=ann_obj_id, bbox=bbox
+                ann_obj_id = (
+                    i + 1
+                )  # give a unique id to each object we interact with (it can be any integers)
+                if prompt["type"] == "rectangle":
+                    bbox = prompt["data"]
+                    _, out_obj_ids, out_mask_logits = (
+                        self.video_predictor.add_new_prompt(
+                            frame_idx=ann_frame_idx,
+                            obj_id=ann_obj_id,
+                            bbox=bbox,
+                        )
                     )
-                elif prompt['type'] == 'point':
-                    points = prompt['data']['point_coords']
-                    labels = prompt['data']['point_labels']
-                    _, out_obj_ids, out_mask_logits = self.video_predictor.add_new_prompt(
-                        frame_idx=ann_frame_idx, obj_id=ann_obj_id, points=points, labels=labels
+                elif prompt["type"] == "point":
+                    points = prompt["data"]["point_coords"]
+                    labels = prompt["data"]["point_labels"]
+                    _, out_obj_ids, out_mask_logits = (
+                        self.video_predictor.add_new_prompt(
+                            frame_idx=ann_frame_idx,
+                            obj_id=ann_obj_id,
+                            points=points,
+                            labels=labels,
+                        )
                     )
             self.is_first_init = False
             return [], False
@@ -333,10 +351,12 @@ class SegmentAnything2Video(Model):
                     masks = masks[0][0]
                 else:
                     masks = masks[0]
-                shapes.extend(self.post_process(masks, label=f'object{i}'))
+                shapes.extend(self.post_process(masks, label=f"object{i}"))
             return shapes, True
 
-    def predict_shapes(self, image, filename=None, run_tracker=False) -> AutoLabelingResult:
+    def predict_shapes(
+        self, image, filename=None, run_tracker=False
+    ) -> AutoLabelingResult:
         """Predict shapes from an image or video frame.
 
         Args:
@@ -378,7 +398,8 @@ class SegmentAnything2Video(Model):
             int: The index of the frame in the sorted list of frames, or -1 if not found.
         """
         frame_names = [
-            p for p in os.listdir(os.path.dirname(filename))
+            p
+            for p in os.listdir(os.path.dirname(filename))
             if os.path.splitext(p)[-1] in [".jpg", ".jpeg", ".JPG", ".JPEG"]
         ]
         if not frame_names:

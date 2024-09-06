@@ -33,7 +33,8 @@
 ## 🥳 新功能
 
 - 2024年9月:
-  - 🔥🔥🔥 支持基于[Segment-Anything-2](https://github.com/CVHub520/segment-anything-2)交互式视频目标追踪功能。【[教程](examples/interactive_video_object_segmentation/README.md)】
+  - 发布[X-AnyLabeling v2.4.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.2)版本。
+  - 🔥🔥🔥 支持基于[Segment-Anything-2](https://github.com/CVHub520/segment-anything-2)交互式视频目标追踪功能。【[教程](examples/interactive_video_object_segmentation/README.md) | [B站](https://www.bilibili.com/video/BV1kMpwedE8M/)】
 
 <br>
 
@@ -202,7 +203,7 @@
   - [Tracking by OBB Object Detection](./examples/multiple_object_tracking/README.md)
   - [Tracking by Instance Segmentation](./examples/multiple_object_tracking/README.md)
   - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
-
+- [iVOS](./examples/interactive_video_object_segmentation/README.md)
 
 ## 联系
 

@@ -116,7 +116,9 @@ class InternImage_CLS(Model):
         blob = self.preprocess(image)
         predictions = self.net.get_ort_inference(blob, extract=False)
         label = self.postprocess(predictions)
-        result = AutoLabelingResult(shapes=[], replace=False, description=label)
+        result = AutoLabelingResult(
+            shapes=[], replace=False, description=label
+        )
         return result
 
     def unload(self):

@@ -116,7 +116,9 @@ class RecognizeAnything(Model):
         outs = self.inference(blob)
         tags = self.postprocess(outs)
         description = self.get_results(tags)
-        result = AutoLabelingResult(shapes=[], replace=False, description=description)
+        result = AutoLabelingResult(
+            shapes=[], replace=False, description=description
+        )
         return result
 
     @staticmethod

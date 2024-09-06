@@ -16,3 +16,4 @@ pyclipper
 filterpy
 tokenizers
 jsonlines
+importlib_metadata

@@ -882,9 +882,11 @@ class LabelConverter:
                         continue
                     points = list(chain.from_iterable(points))
                     normalized_coords = [
-                        points[i] / image_width
-                        if i % 2 == 0
-                        else points[i] / image_height
+                        (
+                            points[i] / image_width
+                            if i % 2 == 0
+                            else points[i] / image_height
+                        )
                         for i in range(8)
                     ]
                     x0, y0, x1, y1, x2, y2, x3, y3 = normalized_coords
@@ -997,9 +999,9 @@ class LabelConverter:
         ET.SubElement(size, "height").text = str(image_height)
         ET.SubElement(size, "depth").text = str(image_depth)
         source = ET.SubElement(root, "source")
-        ET.SubElement(
-            source, "database"
-        ).text = "https://github.com/CVHub520/X-AnyLabeling"
+        ET.SubElement(source, "database").text = (
+            "https://github.com/CVHub520/X-AnyLabeling"
+        )
         for shape in shapes:
             label = shape["label"]
             points = shape["points"]
@@ -1250,9 +1252,11 @@ class LabelConverter:
 
         label_file_list = os.listdir(input_path)
         label_file_list.sort(
-            key=lambda x: int(osp.splitext(x.rsplit("-", 1)[-1])[0])
-            if osp.splitext(x.rsplit("-", 1)[-1])[0].isdigit()
-            else 0
+            key=lambda x: (
+                int(osp.splitext(x.rsplit("-", 1)[-1])[0])
+                if osp.splitext(x.rsplit("-", 1)[-1])[0].isdigit()
+                else 0
+            )
         )
 
         for label_file_name in label_file_list:
@@ -1341,9 +1345,11 @@ class LabelConverter:
 
         label_file_list = os.listdir(input_path)
         label_file_list.sort(
-            key=lambda x: int(osp.splitext(x.rsplit("-", 1)[-1])[0])
-            if osp.splitext(x.rsplit("-", 1)[-1])[0].isdigit()
-            else 0
+            key=lambda x: (
+                int(osp.splitext(x.rsplit("-", 1)[-1])[0])
+                if osp.splitext(x.rsplit("-", 1)[-1])[0].isdigit()
+                else 0
+            )
         )
 
         for label_file_name in label_file_list:
