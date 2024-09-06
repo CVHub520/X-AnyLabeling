@@ -390,19 +390,19 @@ InternImage introduces a large-scale convolutional neural network (CNN) model, l
 | Affiliation     | Shanghai AI Laboratory, Tsinghua University, Nanjing University, etc. |
 | Published       | CVPR 2023                                                             |
 
-Refer to this [tutorial](../../tools/export_internimage_model_onnx.py).
+Refer to this [tutorial](../../tools/onnx_exporter/export_internimage_model_onnx.py).
 
 ### [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md)
 
 This tutorial provides a way for users to quickly build a lightweight, high-precision, and practical classification model of person attributes using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in pedestrian analysis scenarios, pedestrian tracking scenarios, etc.
 
-Refer to this [tutorial](../../tools/export_pulc_attribute_model_onnx.py).
+Refer to this [tutorial](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py).
 
 ### [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md)
 
 This tutorial provides a way for users to quickly build a lightweight, high-precision, and practical classification model of vehicle attributes using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in vehicle identification, road monitoring, and other scenarios.
 
-Refer to this [tutorial](../../tools/export_pulc_attribute_model_onnx.py).
+Refer to this [tutorial](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py).
 
 
 ## Object Detection
@@ -547,7 +547,7 @@ Refer to this [tutorial](https://github.com/chongzhou96/EdgeSAM/blob/master/scri
 | Affiliation     | IDEA-CVR, IDEA-Research                                       |
 | Published       | Arxiv23                                                        |
 
-Refer to this [tutorial](../../tools/export_grounding_dino_onnx.py).
+Refer to this [tutorial](../../tools/onnx_exporter/export_grounding_dino_onnx.py).
 
 ### [YOLO-World](https://github.com/AILab-CVC/YOLO-World)
 
@@ -577,4 +577,4 @@ $ yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
 | Affiliation     | OPPO Research Institute, IDEA-Research, AI Robotics              |
 | Published       | Arxiv23                                                           |
 
-Refer to this [tutorial](../../tools/export_recognize_anything_model_onnx.py).
+Refer to this [tutorial](../../tools/onnx_exporter/export_recognize_anything_model_onnx.py).

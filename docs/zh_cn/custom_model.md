@@ -388,19 +388,19 @@ InternImage 引入了一个大规模卷积神经网络 (CNN) 模型，利用可�
 | 发表单位       | 上海人工智能实验室，清华大学，南京大学等                              |
 | 发表时间       | CVPR 2023                                                          |
 
-请参考此 [教程](../../tools/export_internimage_model_onnx.py)。
+请参考此 [教程](../../tools/onnx_exporter/export_internimage_model_onnx.py)。
 
 ### [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md)
 
 本教程为用户提供了一种使用 PaddleClas PULC (实用超轻量图像分类) 快速构建轻量、高精度和实用的人员属性分类模型的方法。该模型可广泛用于行人分析场景、行人跟踪场景等。
 
-请参考此 [教程](../../tools/export_pulc_attribute_model_onnx.py)。
+请参考此 [教程](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py)。
 
 ### [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md)
 
 本教程为用户提供了一种使用 PaddleClas PULC (实用超轻量图像分类) 快速构建轻量、高精度和实用的车辆属性分类模型的方法。该模型可广泛用于车辆识别、道路监控等场景。
 
-请参考此 [教程](../../tools/export_pulc_attribute_model_onnx.py)。
+请参考此 [教程](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py)。
 
 ## Object Detection
 
@@ -544,7 +544,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 | 发表单位       | IDEA-CVR，IDEA-Research                                             |
 | 发表时间       | Arxiv23                                                            |
 
-请参考此 [教程](../../tools/export_grounding_dino_onnx.py)。
+请参考此 [教程](../../tools/onnx_exporter/export_grounding_dino_onnx.py)。
 
 ### [YOLO-World](https://github.com/AILab-CVC/YOLO-World)
 
@@ -574,6 +574,6 @@ $ yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
 | 发表单位       | OPPO 研究院，IDEA-Research，AI Robotics                              |
 | 发表时间       | Arxiv23                                                            |
 
-请参考此 [教程](../../tools/export_recognize_anything_model_onnx.py)。
+请参考此 [教程](../../tools/onnx_exporter/export_recognize_anything_model_onnx.py)。
 
 
