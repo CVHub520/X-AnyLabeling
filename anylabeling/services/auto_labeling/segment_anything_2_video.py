@@ -200,6 +200,9 @@ class SegmentAnything2Video(Model):
             ]
             approx_contours = filtered_approx_contours
 
+        if len(approx_contours) < 1:
+            return []
+
         # Convert contours to shapes
         shapes = []
         if self.output_mode == "polygon":
