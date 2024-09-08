@@ -1,13 +1,27 @@
 import os
 import os.path as osp
 import json
-import shutil
+import argparse
+import sys
+import subprocess
 
 import cv2
 import natsort
 import numpy as np
-import supervision as sv
 from tqdm import tqdm
+
+try:
+    import supervision as sv
+except ImportError:
+    print("Supervision library is not installed. Attempting to install...")
+    try:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "supervision"])
+        print("Supervision library installed successfully.")
+        import supervision as sv
+    except Exception as e:
+        print(f"Error occurred while installing Supervision: {e}")
+        print("Please install Supervision manually: pip install supervision")
+        sys.exit(1)
 
 
 def create_video_from_images(image_folder, output_video_path, frame_rate=25):
@@ -68,7 +82,7 @@ def create_video_from_images(image_folder, output_video_path, frame_rate=25):
     print(f"Video saved at {output_video_path}")
 
 
-def draw_masks_from_custom(
+def draw_polygon_from_custom(
     save_dir,
     image_path,
     label_path=None,
@@ -98,10 +112,8 @@ def draw_masks_from_custom(
     if label_path == image_path:
         label_path = None
 
-    # Ensure save directory is clean and recreated
-    if osp.exists(save_dir):
-        shutil.rmtree(save_dir)
-    os.makedirs(save_dir)
+    # Create save directory
+    os.makedirs(save_dir, exist_ok=True)
 
     # Sort and process image files
     image_list = os.listdir(image_path)
@@ -114,12 +126,12 @@ def draw_masks_from_custom(
     for frame_idx, image_name in enumerate(
         tqdm(sorted_image_list, colour="green")
     ):
+        # Skip non-image files
+        if image_name.endswith(".json"):
+            continue
+
         image_file = osp.join(image_path, image_name)
-        # Skip non-image files or JSON annotation files
-        if (
-            image_name.endswith(".json")
-            or osp.splitext(image_name)[-1] not in valid_extensions
-        ):
+        if osp.splitext(image_name)[-1] not in valid_extensions:
             print(f"Invalid image format or JSON file: {image_file}")
             continue
 
@@ -165,7 +177,7 @@ def draw_masks_from_custom(
             xyxy_list.append(sv.polygon_to_xyxy(polygon=points))
             mask_list.append(
                 sv.polygon_to_mask(
-                    polygon=points, img_shape=(image_width, image_height)
+                    polygon=points, resolution_wh=(image_width, image_height)
                 )
             )
 
@@ -205,7 +217,7 @@ def draw_masks_from_custom(
         cv2.imwrite(osp.join(save_dir, save_name), annotated_frame)
 
 
-def draw_boxes_from_custom(
+def draw_rectangle_from_custom(
     save_dir,
     image_path,
     label_path=None,
@@ -214,7 +226,7 @@ def draw_boxes_from_custom(
     keep_ori_fn=False,
 ):
     """
-    Draws bounding boxes on images from custom rectangle annotations and saves the annotated images.
+    Draws horizontal bounding boxes on images from custom rectangle annotations and saves the annotated images.
 
     Args:
         save_dir (str): Directory path to save annotated images.
@@ -233,10 +245,8 @@ def draw_boxes_from_custom(
     if label_path == image_path:
         label_path = None
 
-    # Prepare save directory
-    if osp.exists(save_dir):
-        shutil.rmtree(save_dir)
-    os.makedirs(save_dir)
+    # Create save directory
+    os.makedirs(save_dir, exist_ok=True)
 
     # Retrieve and sort image files
     image_list = os.listdir(image_path)
@@ -249,12 +259,12 @@ def draw_boxes_from_custom(
     for frame_idx, image_name in enumerate(
         tqdm(sorted_image_list, colour="green")
     ):
+        # Skip non-image files
+        if image_name.endswith(".json"):
+            continue
+
         image_file = osp.join(image_path, image_name)
-        # Skip non-image files or JSON annotation files
-        if (
-            image_name.endswith(".json")
-            or osp.splitext(image_name)[-1] not in valid_extensions
-        ):
+        if osp.splitext(image_name)[-1] not in valid_extensions:
             print(f"Invalid image format or JSON file: {image_file}")
             continue
 
@@ -326,3 +336,178 @@ def draw_boxes_from_custom(
 
         # Save the annotated image
         cv2.imwrite(osp.join(save_dir, save_name), annotated_frame)
+
+
+def draw_rotation_from_custom(
+    save_dir,
+    image_path,
+    label_path=None,
+    classes=[],
+    save_label=True,
+    keep_ori_fn=False,
+):
+    """
+    Draws oriented bounding boxes on images from custom rotation annotations and saves the annotated images.
+
+    Args:
+        save_dir (str): Directory path to save annotated images.
+        image_path (str): Path to the directory containing input images.
+        label_path (str, optional): Path to the directory containing label JSON files.
+                                    If None, labels are expected alongside images.
+        classes (list[str]): List of class names to consider for annotation.
+        save_label (bool): Whether to annotate boxes with class labels.
+        keep_ori_fn (bool): If True, keeps the original filename; otherwise, uses a frame index-based naming.
+
+    Raises:
+        FileNotFoundError: If the specified image or label file does not exist.
+        ValueError: If an invalid image format is encountered.
+    """
+    # Adjust label_path if incorrectly set to image_path
+    if label_path == image_path:
+        label_path = None
+
+    # Create save directory
+    os.makedirs(save_dir, exist_ok=True)
+
+    # Retrieve and sort image files
+    image_list = os.listdir(image_path)
+    sorted_image_list = natsort.natsorted(image_list)
+    valid_extensions = [".jpg", ".jpeg", ".JPG", ".JPEG", ".png", ".PNG"]
+
+    # Map class indices to class names
+    id_to_classes = {i: c for i, c in enumerate(classes)}
+
+    for frame_idx, image_name in enumerate(
+        tqdm(sorted_image_list, colour="green")
+    ):
+        # Skip non-image files
+        if image_name.endswith(".json"):
+            continue
+
+        image_file = osp.join(image_path, image_name)
+        if osp.splitext(image_name)[-1] not in valid_extensions:
+            print(f"Invalid image format or JSON file: {image_file}")
+            continue
+
+        # Determine label file path
+        label_name = osp.splitext(image_name)[0] + ".json"
+        label_file = (
+            osp.join(label_path, label_name)
+            if label_path
+            else osp.join(image_path, label_name)
+        )
+
+        # Read the image
+        image = cv2.imread(image_file)
+        save_name = (
+            image_name
+            if keep_ori_fn
+            else f"annotated_frame_{frame_idx:05d}.jpg"
+        )
+
+        # If no label file exists, save the original image and proceed
+        if not osp.exists(label_file):
+            cv2.imwrite(osp.join(save_dir, save_name), image)
+            continue
+
+        # Load and parse annotation data
+        with open(label_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        # Collect bounding box coordinates and class indices
+        xyxyxyxy_list, xyxy_list, cind_list = [], [], []
+        for shape in data["shapes"]:
+            if (
+                shape["shape_type"] != "rotation"
+                or shape["label"] not in classes
+            ):
+                continue
+            label_id = classes.index(shape["label"])
+            cind_list.append(label_id)
+            points = shape["points"]
+            xyxy = sv.polygon_to_xyxy(polygon=points)
+            xyxy_list.append(xyxy)
+            xyxyxyxy = np.array(points, dtype=np.int32)
+            xyxyxyxy_list.append(xyxyxyxy)
+
+        # If no boxes found, save the original image and continue
+        if not xyxyxyxy_list:
+            cv2.imwrite(os.path.join(save_dir, save_name), image)
+            continue
+
+        # Prepare bounding boxes and Detection object
+        xyxy = np.stack(xyxy_list, axis=0)
+        xyxyxyxy = np.stack(xyxyxyxy_list, axis=0)
+        object_ids = np.array(cind_list, dtype=np.int32)
+        detections = sv.Detections(
+            xyxy=xyxy, mask=None, class_id=object_ids,
+            data={'xyxyxyxy': xyxyxyxy}
+        )
+
+        # Annotate the image with boxes and optionally labels
+        annotated_frame = image.copy()
+        oriented_box_annotator = sv.OrientedBoxAnnotator()
+        annotated_frame = oriented_box_annotator.annotate(
+            scene=annotated_frame, detections=detections
+        )
+        if save_label:
+            label_annotator = sv.LabelAnnotator()
+            labels = [id_to_classes[i] for i in object_ids]
+            annotated_frame = label_annotator.annotate(
+                annotated_frame, detections=detections, labels=labels
+            )
+
+        # Save the annotated image
+        cv2.imwrite(osp.join(save_dir, save_name), annotated_frame)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Label drawing tool")
+    parser.add_argument("task", choices=["video", "polygon", "rectangle", "rotation"], help="Task to execute")
+    parser.add_argument("--save_dir", required=True, help="Path to save directory")
+    parser.add_argument("--image_path", required=True, help="Path to image directory")
+    parser.add_argument("--label_path", help="Path to label directory")
+    parser.add_argument("--classes", nargs="+", default=[], help="List of classes or path to classes.txt file")
+    parser.add_argument("--frame_rate", type=int, default=25, help="Video frame rate")
+    parser.add_argument("--save_box", action="store_true", help="Whether to save bounding box")
+    parser.add_argument("--save_label", action="store_true", help="Whether to save label")
+    parser.add_argument("--keep_ori_fn", action="store_true", help="Whether to keep original filename")
+
+    args = parser.parse_args()
+
+    # Process classes argument
+    if len(args.classes) == 1 and args.classes[0].endswith('.txt'):
+        # If a file path is provided, read classes from the file
+        with open(args.classes[0], 'r') as f:
+            args.classes = [line.strip() for line in f if line.strip()]
+    elif not args.classes:
+        print("Warning: No classes specified. All classes will be considered.")
+
+    if args.task == "video":
+        create_video_from_images(args.image_path, args.save_dir, args.frame_rate)
+    elif args.task == "polygon":
+        draw_polygon_from_custom(args.save_dir, args.image_path, args.label_path, args.classes, args.save_box, args.save_label, args.keep_ori_fn)
+    elif args.task == "rectangle":
+        draw_rectangle_from_custom(args.save_dir, args.image_path, args.label_path, args.classes, args.save_label, args.keep_ori_fn)
+    elif args.task == "rotation":
+        draw_rotation_from_custom(args.save_dir, args.image_path, args.label_path, args.classes, args.save_label, args.keep_ori_fn)
+
+
+if __name__ == '__main__':
+    """
+    Usage examples:
+
+    1. Create video:
+    python tools/label_drawer.py video --save_dir output_video.mp4 --image_path <LOCAL-IMAGE_PATH> --frame_rate 30
+
+    2. Draw polygon annotations:
+    python tools/label_drawer.py polygon --save_dir <SAVE-DIR> --image_path <LOCAL-IMAGE_PATH> --label_path <LOCAL-LABEL_PATH> --classes class1 class2 --save_box --save_label
+
+    3. Draw rectangle annotations:
+    python tools/label_drawer.py rectangle --save_dir <SAVE-DIR> --image_path <LOCAL-IMAGE_PATH> --label_path <LOCAL-LABEL_PATH> --classes classes.txt --save_label
+
+    4. Draw rotated box annotations:
+    python tools/label_drawer.py rotation --save_dir <SAVE-DIR> --image_path <LOCAL-IMAGE_PATH> --label_path <LOCAL-LABEL_PATH> --classes classes.txt --save_label
+    """
+    main()
+    
