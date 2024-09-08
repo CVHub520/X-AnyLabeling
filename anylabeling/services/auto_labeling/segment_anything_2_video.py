@@ -322,23 +322,27 @@ class SegmentAnything2Video(Model):
                 )  # give a unique id to each object we interact with (it can be any integers)
                 if prompt["type"] == "rectangle":
                     bbox = prompt["data"]
-                    _, out_obj_ids, out_mask_logits = (
-                        self.video_predictor.add_new_prompt(
-                            frame_idx=ann_frame_idx,
-                            obj_id=ann_obj_id,
-                            bbox=bbox,
-                        )
+                    (
+                        _,
+                        out_obj_ids,
+                        out_mask_logits,
+                    ) = self.video_predictor.add_new_prompt(
+                        frame_idx=ann_frame_idx,
+                        obj_id=ann_obj_id,
+                        bbox=bbox,
                     )
                 elif prompt["type"] == "point":
                     points = prompt["data"]["point_coords"]
                     labels = prompt["data"]["point_labels"]
-                    _, out_obj_ids, out_mask_logits = (
-                        self.video_predictor.add_new_prompt(
-                            frame_idx=ann_frame_idx,
-                            obj_id=ann_obj_id,
-                            points=points,
-                            labels=labels,
-                        )
+                    (
+                        _,
+                        out_obj_ids,
+                        out_mask_logits,
+                    ) = self.video_predictor.add_new_prompt(
+                        frame_idx=ann_frame_idx,
+                        obj_id=ann_obj_id,
+                        points=points,
+                        labels=labels,
                     )
             self.is_first_init = False
             return [], False

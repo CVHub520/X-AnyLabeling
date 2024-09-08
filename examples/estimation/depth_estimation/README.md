@@ -22,7 +22,7 @@ X-AnyLabeling offers a range of depth models for using, including [Depth Anythin
 2. Select and load the Depth-Anything related model, or choose from other available depth estimation models.
 3. Initiate the process by clicking `Run (i)`. Once you've verified that everything is set up correctly, use the keyboard shortcut `Ctrl+M` to process all images in one go.
 
-The output, once completed, will be automatically stored in a `depth` subdirectory within the same folder as your original image.
+The output, once completed, will be automatically stored in a `x-anylabeling-depth` subdirectory within the same folder as your original image.
 
 <div style="display: flex; width: 100%; margin: 0; padding: 0;">
 

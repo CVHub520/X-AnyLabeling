@@ -999,9 +999,9 @@ class LabelConverter:
         ET.SubElement(size, "height").text = str(image_height)
         ET.SubElement(size, "depth").text = str(image_depth)
         source = ET.SubElement(root, "source")
-        ET.SubElement(source, "database").text = (
-            "https://github.com/CVHub520/X-AnyLabeling"
-        )
+        ET.SubElement(
+            source, "database"
+        ).text = "https://github.com/CVHub520/X-AnyLabeling"
         for shape in shapes:
             label = shape["label"]
             points = shape["points"]

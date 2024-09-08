@@ -1,0 +1,4 @@
+type: rmbg
+name: rmbg_v14-r20240908
+display_name: RMBG v1.4 (BRIA AI)
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.3/bria-rmbg-1.4.onnx

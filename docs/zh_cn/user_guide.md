@@ -50,6 +50,7 @@
       * [8.6 深度估计](#86-深度估计)
       * [8.7 光学字符识别](#87-光学字符识别)
       * [8.8 交互式视频目标分割](#88-交互式视频目标分割)
+      * [8.9 抠图](#89-抠图)
    * [9. 模型](#9-模型)
 
 ## 1. 文件
@@ -712,6 +713,9 @@ labels:
 
 - 交互式视频目标分割: [链接](../../examples/interactive_video_object_segmentation/README.md)
 
+### 8.9 抠图
+
+- 图像抠图：[链接](../../examples/matting/image_matting/README.md)
 
 ## 9. 模型
 

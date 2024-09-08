@@ -15,7 +15,9 @@ try:
 except ImportError:
     print("Supervision library is not installed. Attempting to install...")
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "supervision"])
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", "supervision"]
+        )
         print("Supervision library installed successfully.")
         import supervision as sv
     except Exception as e:
@@ -440,8 +442,10 @@ def draw_rotation_from_custom(
         xyxyxyxy = np.stack(xyxyxyxy_list, axis=0)
         object_ids = np.array(cind_list, dtype=np.int32)
         detections = sv.Detections(
-            xyxy=xyxy, mask=None, class_id=object_ids,
-            data={'xyxyxyxy': xyxyxyxy}
+            xyxy=xyxy,
+            mask=None,
+            class_id=object_ids,
+            data={"xyxyxyxy": xyxyxyxy},
         )
 
         # Annotate the image with boxes and optionally labels
@@ -463,37 +467,84 @@ def draw_rotation_from_custom(
 
 def main():
     parser = argparse.ArgumentParser(description="Label drawing tool")
-    parser.add_argument("task", choices=["video", "polygon", "rectangle", "rotation"], help="Task to execute")
-    parser.add_argument("--save_dir", required=True, help="Path to save directory")
-    parser.add_argument("--image_path", required=True, help="Path to image directory")
+    parser.add_argument(
+        "task",
+        choices=["video", "polygon", "rectangle", "rotation"],
+        help="Task to execute",
+    )
+    parser.add_argument(
+        "--save_dir", required=True, help="Path to save directory"
+    )
+    parser.add_argument(
+        "--image_path", required=True, help="Path to image directory"
+    )
     parser.add_argument("--label_path", help="Path to label directory")
-    parser.add_argument("--classes", nargs="+", default=[], help="List of classes or path to classes.txt file")
-    parser.add_argument("--frame_rate", type=int, default=25, help="Video frame rate")
-    parser.add_argument("--save_box", action="store_true", help="Whether to save bounding box")
-    parser.add_argument("--save_label", action="store_true", help="Whether to save label")
-    parser.add_argument("--keep_ori_fn", action="store_true", help="Whether to keep original filename")
+    parser.add_argument(
+        "--classes",
+        nargs="+",
+        default=[],
+        help="List of classes or path to classes.txt file",
+    )
+    parser.add_argument(
+        "--frame_rate", type=int, default=25, help="Video frame rate"
+    )
+    parser.add_argument(
+        "--save_box", action="store_true", help="Whether to save bounding box"
+    )
+    parser.add_argument(
+        "--save_label", action="store_true", help="Whether to save label"
+    )
+    parser.add_argument(
+        "--keep_ori_fn",
+        action="store_true",
+        help="Whether to keep original filename",
+    )
 
     args = parser.parse_args()
 
     # Process classes argument
-    if len(args.classes) == 1 and args.classes[0].endswith('.txt'):
+    if len(args.classes) == 1 and args.classes[0].endswith(".txt"):
         # If a file path is provided, read classes from the file
-        with open(args.classes[0], 'r') as f:
+        with open(args.classes[0], "r") as f:
             args.classes = [line.strip() for line in f if line.strip()]
     elif not args.classes:
         print("Warning: No classes specified. All classes will be considered.")
 
     if args.task == "video":
-        create_video_from_images(args.image_path, args.save_dir, args.frame_rate)
+        create_video_from_images(
+            args.image_path, args.save_dir, args.frame_rate
+        )
     elif args.task == "polygon":
-        draw_polygon_from_custom(args.save_dir, args.image_path, args.label_path, args.classes, args.save_box, args.save_label, args.keep_ori_fn)
+        draw_polygon_from_custom(
+            args.save_dir,
+            args.image_path,
+            args.label_path,
+            args.classes,
+            args.save_box,
+            args.save_label,
+            args.keep_ori_fn,
+        )
     elif args.task == "rectangle":
-        draw_rectangle_from_custom(args.save_dir, args.image_path, args.label_path, args.classes, args.save_label, args.keep_ori_fn)
+        draw_rectangle_from_custom(
+            args.save_dir,
+            args.image_path,
+            args.label_path,
+            args.classes,
+            args.save_label,
+            args.keep_ori_fn,
+        )
     elif args.task == "rotation":
-        draw_rotation_from_custom(args.save_dir, args.image_path, args.label_path, args.classes, args.save_label, args.keep_ori_fn)
+        draw_rotation_from_custom(
+            args.save_dir,
+            args.image_path,
+            args.label_path,
+            args.classes,
+            args.save_label,
+            args.keep_ori_fn,
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     """
     Usage examples:
 
@@ -510,4 +561,3 @@ if __name__ == '__main__':
     python tools/label_drawer.py rotation --save_dir <SAVE-DIR> --image_path <LOCAL-IMAGE_PATH> --label_path <LOCAL-LABEL_PATH> --classes classes.txt --save_label
     """
     main()
-    

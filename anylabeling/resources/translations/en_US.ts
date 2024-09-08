@@ -1975,67 +1975,67 @@ Check the results in: {save_path}.</source>
 <context>
     <name>ModelManager</name>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="176"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="177"/>
         <source>Model loaded. Ready for labeling.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="279"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="280"/>
         <source>No model selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="295"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="296"/>
         <source>Loading model: {model_name}. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1694"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1720"/>
         <source>Model is not loaded. Choose a mode to continue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1676"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1700"/>
         <source>Finished inferencing AI model. Check the result.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1698"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1724"/>
         <source>Inferencing AI model. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1708"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1734"/>
         <source>Another model is being executed. Please wait for it to finish.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="201"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="202"/>
         <source>Error in loading custom model: Invalid path.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="212"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="213"/>
         <source>Error in loading custom model: Invalid config file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="222"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="223"/>
         <source>Error in loading custom model: Invalid config file format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="289"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="290"/>
         <source>Error in loading model: Invalid model name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1473"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1497"/>
         <source>Error in loading model: {error_message}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1681"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1705"/>
         <source>Error in model prediction: {e}. Please check the model.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2253,22 +2253,22 @@ and
 <context>
     <name>parent</name>
     <message>
-        <location filename="../../views/labeling/utils/video.py" line="35"/>
+        <location filename="../../views/labeling/utils/video.py" line="37"/>
         <source>Frame Interval</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/video.py" line="35"/>
+        <location filename="../../views/labeling/utils/video.py" line="37"/>
         <source>Enter the frame interval (FPS: {fps}):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/video.py" line="68"/>
+        <location filename="../../views/labeling/utils/video.py" line="73"/>
         <source>Extracting frames. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/video.py" line="68"/>
+        <location filename="../../views/labeling/utils/video.py" line="73"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>

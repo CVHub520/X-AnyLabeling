@@ -2,6 +2,8 @@
   config_file: ":/sam2_hiera_base.yaml"
 - model_name: "sam2_hiera_large_video-r20240901"
   config_file: ":/sam2_hiera_large_video.yaml"
+- model_name: "rmbg_v14-r20240908"
+  config_file: ":/rmbg_v14.yaml"
 - model_name: "yolov5s-r20230520"
   config_file: ":/yolov5s.yaml"
 - model_name: "yolov5_car_plate-r20230112"

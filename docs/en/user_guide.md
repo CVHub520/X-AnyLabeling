@@ -50,6 +50,7 @@
       * [8.6 Depth Estimation](#86-depth-estimation)
       * [8.7 Optical Character Recognition](#87-optical-character-recognition)
       * [8.8 Interactive Video Object Segmentation](#88-interactive-video-object-segmentation)
+      * [8.9 Matting](#89-matting)
    * [9. Models](#9-models)
 
 
@@ -708,6 +709,9 @@ Note: In `multi-label classification tasks`, if the user manually uploads a prop
 
 - Interactive Video Object Segmentation: [Link](../../examples/interactive_video_object_segmentation/README.md)
 
+### 8.9 Matting
+
+- Image Matting: [Link](../../examples/matting/image_matting/README.md)
 
 ## 9. Models
 

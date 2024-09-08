@@ -11,6 +11,7 @@
 | yolov5s-cls.onnx | [YOLOv5-Cls](https://github.com/ultralytics/yolov5)-ImageNet | [yolov5s_cls.yaml](../../anylabeling/configs/auto_labeling/yolov5s_cls.yaml) | 20.81MB | [百度网盘](https://pan.baidu.com/s/1ftQ-CpbfsBOU1iaRgGsl0A?pwd=k2sm) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/yolov5s-cls.onnx) |
 | yolov8s-cls.onnx | [YOLOv8-Cls](https://github.com/ultralytics/ultralytics)-ImageNet | [yolov8s_cls.yaml](../../anylabeling/configs/auto_labeling/yolov8s_cls.yaml) | 24.28MB | [百度网盘](https://pan.baidu.com/s/1-V_h-LJWbmuooMy9yRKq4g?pwd=klrg) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/yolov8s-cls.onnx) |
 
+
 ### 关键点检测
 
 - 脸部关键点检测
@@ -200,6 +201,13 @@
 | yolov8m-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8m_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8m_seg.yaml)  | 104.23MB  | [百度网盘](https://pan.baidu.com/s/1PmKsiatP2YfHtnDCJEnhRw?pwd=bo85) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8m-seg.onnx) |
 | yolov8s-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8s_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8s_seg.yaml)  | 45.25MB  | [百度网盘](https://pan.baidu.com/s/17aqLyui-FL7nZUX-H4Bepg?pwd=bpe8) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8s-seg.onnx) |
 | yolov8n-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8n_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8n_seg.yaml)  | 13.18MB  | [百度网盘](https://pan.baidu.com/s/1WQmN0yKBnm3PKgXTBFyQ-A?pwd=194i) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n-seg.onnx) |
+
+
+###  图像抠图
+
+|名称|描述|配置|大小|链接|
+| --- | --- | --- | --- | --- |
+| bria-rmbg-1.4.onnx | [RMBG v1.4 (BRIA AI)](https://huggingface.co/briaai/RMBG-1.4) | [rmbg_v14.yaml](../../anylabeling/configs/auto_labeling/rmbg_v14.yaml) | 167.99MB | [百度网盘](https://pan.baidu.com/s/1tVuHF7NsZ7CXeqdQbsOhJg?pwd=9yny) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.3/bria-rmbg-1.4.onnx) |
 
 
 ### 多任务

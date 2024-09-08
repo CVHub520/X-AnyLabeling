@@ -322,7 +322,7 @@ class DepthAnything(Model):
         depth = self.postprocess(output, orig_shape)
 
         image_dir_path = os.path.dirname(image_path)
-        save_path = os.path.join(image_dir_path, "..", "depth")
+        save_path = os.path.join(image_dir_path, "..", "x-anylabeling-depth")
         save_path = os.path.realpath(save_path)
         os.makedirs(save_path, exist_ok=True)
         image_file_name = os.path.basename(image_path)

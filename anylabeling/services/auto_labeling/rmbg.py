@@ -2,6 +2,8 @@ import logging
 import os
 
 import cv2
+import numpy as np
+from PIL import Image
 from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
@@ -11,8 +13,8 @@ from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
 
 
-class DepthAnythingV2(Model):
-    """DepthAnything demo"""
+class RMBG(Model):
+    """A class for removing backgrounds from images using BRIA RMBG 1.4 model."""
 
     class Meta:
         required_config_names = [
@@ -42,55 +44,60 @@ class DepthAnythingV2(Model):
         self.model_path = model_abs_path
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
-        self.render_mode = self.config.get("render_mode", "color")
         self.device = "cuda" if __preferred_device__ == "GPU" else "cpu"
 
-    def preprocess(self, input_image):
+    def preprocess(self, image: np.ndarray) -> np.ndarray:
         """
-        Pre-processes the input image before feeding it to the network.
+        Preprocess the input image for the model.
 
         Args:
-            input_image (numpy.ndarray): The input image to be processed.
+            image (np.ndarray): Input image as a numpy array.
 
         Returns:
-            numpy.ndarray: The pre-processed output.
+            np.ndarray: Preprocessed image.
         """
-        height, width = self.input_shape
-        orig_shape = input_image.shape[:2]
-        image = input_image / 255.0
+        if len(image.shape) < 3:
+            image = np.expand_dims(image, axis=2)
         image = cv2.resize(
-            image, (width, height), interpolation=cv2.INTER_CUBIC
+            image, self.input_shape, interpolation=cv2.INTER_LINEAR
         )
-        image = (image - [0.485, 0.456, 0.406]) / [0.229, 0.224, 0.225]
-        image = image.transpose(2, 0, 1)[None].astype("float32")
-        return image, orig_shape
+        image = image.astype(np.float32) / 255.0
+        image = (image - 0.5) / 1.0
+        image = np.transpose(image, (2, 0, 1))
+        return np.expand_dims(image, axis=0)
 
     def forward(self, blob):
-        return self.net.get_ort_inference(blob, extract=True)
+        return self.net.get_ort_inference(blob, extract=True, squeeze=True)
 
-    def postprocess(self, depth, orig_shape):
+    def postprocess(
+        self, result: np.ndarray, original_size: tuple
+    ) -> np.ndarray:
         """
-        Post-processes the network's output.
+        Postprocess the model output.
 
         Args:
-            depth (numpy.ndarray): The output from the network.
+            result (np.ndarray): Model output.
+            original_size (tuple): Original image size (height, width).
 
         Returns:
-            depth_color: xxx
+            np.ndarray: Postprocessed image as a numpy array.
         """
-        orig_h, orig_w = orig_shape
-        depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
-        depth = depth.transpose(1, 2, 0).astype("uint8")
-        depth = cv2.resize(
-            depth, (orig_w, orig_h), interpolation=cv2.INTER_CUBIC
+        result = cv2.resize(
+            np.squeeze(result),
+            original_size[::-1],
+            interpolation=cv2.INTER_LINEAR,
         )
-        if self.render_mode == "color":
-            return cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
-        return depth
+        max_val, min_val = np.max(result), np.min(result)
+        result = (result - min_val) / (max_val - min_val)
+        return (result * 255).astype(np.uint8)
 
     def predict_shapes(self, image, image_path=None):
         """
-        Predict shapes from image
+        Remove the background from an image and save the result.
+
+        Args:
+            image (np.ndarray): Input image as a numpy array.
+            image_path (str): Path to the input image.
         """
         if image is None:
             return []
@@ -102,18 +109,29 @@ class DepthAnythingV2(Model):
             logging.warning(e)
             return []
 
-        blob, orig_shape = self.preprocess(image)
-        outputs = self.forward(blob)
-        depth = self.postprocess(outputs, orig_shape)
+        blob = self.preprocess(image)
+        output = self.forward(blob)
+        result_image = self.postprocess(output, image.shape[:2])
 
+        # Create the final image with transparent background
+        pil_mask = Image.fromarray(result_image)
+        pil_image = Image.open(image_path)
+        pil_image = pil_image.convert("RGBA")
+        pil_mask = pil_mask.convert("L")
+
+        # Create a new image with an alpha channel
+        output_image = Image.new("RGBA", pil_image.size, (0, 0, 0, 0))
+        output_image.paste(pil_image, (0, 0), pil_mask)
+
+        # Save the result
         image_dir_path = os.path.dirname(image_path)
-        save_path = os.path.join(image_dir_path, "..", "x-anylabeling-depth")
+        save_path = os.path.join(image_dir_path, "..", "x-anylabeling-matting")
         save_path = os.path.realpath(save_path)
         os.makedirs(save_path, exist_ok=True)
         image_file_name = os.path.basename(image_path)
         save_name = os.path.splitext(image_file_name)[0] + ".png"
         save_file = os.path.join(save_path, save_name)
-        cv2.imwrite(save_file, depth)
+        output_image.save(save_file)
 
         return AutoLabelingResult([], replace=False)
 

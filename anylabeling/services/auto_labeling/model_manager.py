@@ -60,10 +60,11 @@ class ModelManager(QObject):
         "yolov8_obb",
         "yolov5_car_plate",
         "rtmdet_pose",
-        "depth_anything",
         "yolov9",
         "yolow",
         "yolov10",
+        "rmbg",
+        "depth_anything",
         "depth_anything_v2",
         "yolow_ram",
         "rtdetrv2",
@@ -1423,6 +1424,28 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv8_Pose_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                print(
+                    "Error in loading model: {error_message}".format(
+                        error_message=str(e)
+                    )
+                )
+                return
+        elif model_config["type"] == "rmbg":
+            from .rmbg import RMBG
+
+            try:
+                model_config["model"] = RMBG(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

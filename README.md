@@ -35,6 +35,7 @@
 
 - Sep. 2024:
   - Release version [2.4.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.2)
+  - 🧸🧸🧸 Added support for image matting based on [RMBG v1.4 model](https://huggingface.co/briaai/RMBG-1.4).
   - 🔥🔥🔥 Added support for interactive video object tracking based on [Segment-Anything-2](https://github.com/CVHub520/segment-anything-2). [[Tutorial](examples/interactive_video_object_segmentation/README.md)]
 
 <br>
@@ -201,6 +202,8 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
   - [Tracking by Instance Segmentation](./examples/multiple_object_tracking/README.md)
   - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
 - [iVOS](./examples/interactive_video_object_segmentation/README.md)
+- [Matting](./examples/matting/)
+  - [Image Matting](./examples/matting/image_matting/README.md)
 
 ## Contact
 

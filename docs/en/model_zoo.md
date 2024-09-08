@@ -204,6 +204,13 @@
 | yolov8n-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8n_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8n_seg.yaml)  | 13.18MB  | [baidu](https://pan.baidu.com/s/1WQmN0yKBnm3PKgXTBFyQ-A?pwd=194i) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n-seg.onnx) |
 
 
+### Image Matting
+
+|Name|Description|Configuration|Size|Link|
+| --- | --- | --- | --- | --- |
+| bria-rmbg-1.4.onnx | [RMBG v1.4 (BRIA AI)](https://huggingface.co/briaai/RMBG-1.4) | [rmbg_v14.yaml](../../anylabeling/configs/auto_labeling/rmbg_v14.yaml) | 167.99MB | [baidu](https://pan.baidu.com/s/1tVuHF7NsZ7CXeqdQbsOhJg?pwd=9yny) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.3/bria-rmbg-1.4.onnx) |
+
+
 ### Union Task
 
 |Name|Description|Configuration|Size|Link|
