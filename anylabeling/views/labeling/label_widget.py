@@ -107,6 +107,7 @@ class LabelingWidget(LabelDialog):
         self.supported_shape = Shape.get_supported_shape()
         self.label_info = {}
         self.image_flags = []
+        self.fn_to_index = {}
 
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
@@ -2734,7 +2735,7 @@ class LabelingWidget(LabelDialog):
         if not self.may_continue():
             return
 
-        current_index = self.image_list.index(str(item.text()))
+        current_index = self.fn_to_index[str(item.text())]
         if current_index < len(self.image_list):
             filename = self.image_list[current_index]
             if filename:
@@ -3251,7 +3252,7 @@ class LabelingWidget(LabelDialog):
         basename = osp.basename(str(self.filename))
         if shape_height > 0 and shape_width > 0:
             if num_images and self.filename in self.image_list:
-                current_index = self.image_list.index(self.filename) + 1
+                current_index = self.fn_to_index[str(self.filename)] + 1
                 self.status(
                     str(self.tr("X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]"))
                     % (
@@ -3271,7 +3272,7 @@ class LabelingWidget(LabelDialog):
                 )
         elif self.image_path:
             if num_images and self.filename in self.image_list:
-                current_index = self.image_list.index(self.filename) + 1
+                current_index = self.fn_to_index[str(self.filename)] + 1
                 self.status(
                     str(self.tr("X: %d, Y: %d [%s: %d/%d]"))
                     % (
@@ -3410,7 +3411,7 @@ class LabelingWidget(LabelDialog):
         current_index = 0
         if filename is not None:
             try:
-                current_index = self.image_list.index(filename)
+                current_index = self.fn_to_index[str(filename)]
             except ValueError:
                 return []
             filenames.append(filename)
@@ -3444,10 +3445,10 @@ class LabelingWidget(LabelDialog):
         # Changing file_list_widget loads file
         if filename in self.image_list and (
             self.file_list_widget.currentRow()
-            != self.image_list.index(filename)
+            != self.fn_to_index[str(filename)]
         ):
             self.file_list_widget.setCurrentRow(
-                self.image_list.index(filename)
+                self.fn_to_index[str(filename)]
             )
             self.file_list_widget.repaint()
             return False
@@ -3595,7 +3596,7 @@ class LabelingWidget(LabelDialog):
         basename = osp.basename(str(filename))
         if self.image_list and filename in self.image_list:
             num_images = len(self.image_list)
-            current_index = self.image_list.index(filename) + 1
+            current_index = self.fn_to_index[str(filename)]
             msg = str(self.tr("Loaded %s [%d/%d]")) % (
                 basename,
                 current_index,
@@ -3700,7 +3701,7 @@ class LabelingWidget(LabelDialog):
         if self.filename is None:
             return
 
-        current_index = self.image_list.index(self.filename)
+        current_index = self.fn_to_index[str(self.filename)]
         if current_index - 1 >= 0:
             filename = self.image_list[current_index - 1]
             if filename:
@@ -3723,7 +3724,7 @@ class LabelingWidget(LabelDialog):
         if self.filename is None:
             filename = self.image_list[0]
         else:
-            current_index = self.image_list.index(self.filename)
+            current_index = self.fn_to_index[str(self.filename)]
             if current_index + 1 < len(self.image_list):
                 filename = self.image_list[current_index + 1]
             else:
@@ -3736,7 +3737,7 @@ class LabelingWidget(LabelDialog):
     def open_labeled_image(self, end_index, step, load=True):
         if not self.may_continue():
             return
-        current_index = self.image_list.index(self.filename)
+        current_index = self.fn_to_index[str(self.filename)]
         for i in range(current_index + step, end_index, step):
             if self.file_list_widget.item(i).checkState() == Qt.Checked:
                 self.filename = self.image_list[i]
@@ -5532,7 +5533,7 @@ class LabelingWidget(LabelDialog):
         if current_filename in self.image_list:
             # retain currently selected file
             self.file_list_widget.setCurrentRow(
-                self.image_list.index(current_filename)
+                self.fn_to_index[str(current_filename)]
             )
             self.file_list_widget.repaint()
 
@@ -5676,7 +5677,7 @@ class LabelingWidget(LabelDialog):
             if self.filename is None:
                 filename = self.image_list[0]
             else:
-                current_index = self.image_list.index(self.filename)
+                current_index = self.fn_to_index[str(self.filename)]
                 if current_index + 1 < len(self.image_list):
                     filename = self.image_list[current_index + 1]
                 else:
@@ -5780,7 +5781,7 @@ class LabelingWidget(LabelDialog):
             QMessageBox.Yes | QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
-            self.current_index = self.image_list.index(self.filename)
+            self.current_index = self.fn_to_index[str(self.filename)]
             self.image_index = self.current_index
             self.text_prompt = ""
             self.run_tracker = False
@@ -6027,6 +6028,7 @@ class LabelingWidget(LabelDialog):
             else:
                 item.setCheckState(Qt.Unchecked)
             self.file_list_widget.addItem(item)
+            self.fn_to_index[filename] = self.file_list_widget.count() - 1
         self.open_next_image(load=load)
 
     def scan_all_images(self, folder_path):
