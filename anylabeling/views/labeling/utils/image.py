@@ -1,5 +1,8 @@
+import os
+import os.path as osp
 import base64
 import io
+import shutil
 
 import numpy as np
 import PIL.ExifTags
@@ -68,6 +71,38 @@ def img_data_to_png_data(img_data):
             img.save(f, "PNG")
             f.seek(0)
             return f.read()
+
+
+def process_image_exif(filename):
+    """Process image EXIF orientation and save if necessary."""
+    with PIL.Image.open(filename) as img:
+        exif_data = None
+        if hasattr(img, "_getexif"):
+            exif_data = img._getexif()
+        if exif_data is not None:
+            for tag, value in exif_data.items():
+                tag_name = PIL.ExifTags.TAGS.get(tag, tag)
+                if tag_name != "Orientation":
+                    continue
+                if value == 3:
+                    img = img.rotate(180, expand=True)
+                    rotation = "180 degrees"
+                elif value == 6:
+                    img = img.rotate(270, expand=True)
+                    rotation = "270 degrees"
+                elif value == 8:
+                    img = img.rotate(90, expand=True)
+                    rotation = "90 degrees"
+                else:
+                    return  # No rotation needed
+                backup_dir = osp.join(osp.dirname(osp.dirname(filename)), 
+                                      "x-anylabeling-exif-backup")
+                os.makedirs(backup_dir, exist_ok=True)
+                backup_filename = osp.join(backup_dir, osp.basename(filename))
+                shutil.copy2(filename, backup_filename)
+                img.save(filename)
+                print(f"Rotated {filename} by {rotation}, saving backup to {backup_filename}")
+                break
 
 
 def apply_exif_orientation(image):

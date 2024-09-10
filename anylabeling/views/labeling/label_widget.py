@@ -3596,7 +3596,7 @@ class LabelingWidget(LabelDialog):
         basename = osp.basename(str(filename))
         if self.image_list and filename in self.image_list:
             num_images = len(self.image_list)
-            current_index = self.fn_to_index[str(filename)]
+            current_index = self.fn_to_index[str(filename)] + 1
             msg = str(self.tr("Loaded %s [%d/%d]")) % (
                 basename,
                 current_index,
@@ -6029,6 +6029,7 @@ class LabelingWidget(LabelDialog):
                 item.setCheckState(Qt.Unchecked)
             self.file_list_widget.addItem(item)
             self.fn_to_index[filename] = self.file_list_widget.count() - 1
+            utils.process_image_exif(filename)
         self.open_next_image(load=load)
 
     def scan_all_images(self, folder_path):
