@@ -225,6 +225,7 @@ class SegmentAnything2Video(Model):
                     point[1] = int(point[1])
                     shape.add_point(QtCore.QPointF(point[0], point[1]))
                 shape.shape_type = "polygon"
+                shape.group_id = int(label[6:]) if label else None
                 shape.closed = True
                 shape.label = "AUTOLABEL_OBJECT" if label is None else label
                 shape.selected = False
@@ -258,6 +259,7 @@ class SegmentAnything2Video(Model):
                 "rectangle" if self.output_mode == "rectangle" else "rotation"
             )
             shape.closed = True
+            shape.group_id = int(label[6:]) if label else None
             shape.label = "AUTOLABEL_OBJECT" if label is None else label
             shape.selected = False
             shapes.append(shape)
