@@ -19,6 +19,10 @@ from ..logger import logger
 # - Calculate optimal position so as not to go out of screen area.
 
 
+def natural_sort_key(s):
+    return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', s)]
+
+
 class GroupIDModifyDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(GroupIDModifyDialog, self).__init__(parent)
@@ -608,7 +612,7 @@ class LabelDialog(QtWidgets.QDialog):
         if labels:
             self.label_list.addItems(labels)
         if self._sort_labels:
-            self.label_list.sortItems()
+            self.sort_labels()
         else:
             self.label_list.setDragDropMode(
                 QtWidgets.QAbstractItemView.InternalMove
@@ -697,16 +701,33 @@ class LabelDialog(QtWidgets.QDialog):
     def get_last_label(self):
         return self._last_label
 
+    def sort_labels(self):
+        items = []
+        for index in range(self.label_list.count()):
+            items.append(self.label_list.item(index).text())
+        
+        items.sort(key=natural_sort_key)
+        
+        self.label_list.clear()
+        self.label_list.addItems(items)
+
     def add_label_history(self, label):
         self._last_label = label
         if self.label_list.findItems(label, QtCore.Qt.MatchExactly):
             return
         self.label_list.addItem(label)
         if self._sort_labels:
-            self.label_list.sortItems()
+            self.sort_labels()
+        items = self.label_list.findItems(label, QtCore.Qt.MatchExactly)
+        if items:
+            self.label_list.setCurrentItem(items[0])
 
     def label_selected(self, item):
-        self.edit.setText(item.text())
+        if item is not None:
+            self.edit.setText(item.text())
+        else:
+            # Clear the edit field if no item is selected
+            self.edit.clear()
 
     def validate(self):
         text = self.edit.text()
