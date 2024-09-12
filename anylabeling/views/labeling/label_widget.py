@@ -3686,11 +3686,11 @@ class LabelingWidget(LabelDialog):
             self.load_file(filename)
 
     def open_prev_image(self, _value=False):
-        if QtWidgets.QApplication.keyboardModifiers() == (
-            Qt.ControlModifier | Qt.ShiftModifier | Qt.Key_A
-        ):
-            self.open_labeled_image(-1, -1)
-            return
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+        if modifiers == (Qt.ControlModifier | Qt.ShiftModifier):
+            if modifiers & Qt.ControlModifier and modifiers & Qt.ShiftModifier and Qt.Key_A:
+                self.open_labeled_image(-1, -1)
+                return
 
         if not self.may_continue():
             return
@@ -3708,11 +3708,11 @@ class LabelingWidget(LabelDialog):
                 self.load_file(filename)
 
     def open_next_image(self, _value=False, load=True):
-        if QtWidgets.QApplication.keyboardModifiers() == (
-            Qt.ControlModifier | Qt.ShiftModifier | Qt.Key_D
-        ):
-            self.open_labeled_image(self.file_list_widget.count(), 1, load)
-            return
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+        if modifiers == (Qt.ControlModifier | Qt.ShiftModifier):
+            if modifiers & Qt.ControlModifier and modifiers & Qt.ShiftModifier and Qt.Key_D:
+                self.open_labeled_image(self.file_list_widget.count(), 1, load)
+                return
 
         if not self.may_continue():
             return
