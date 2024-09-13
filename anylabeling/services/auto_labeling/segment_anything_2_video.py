@@ -97,6 +97,8 @@ class SegmentAnything2Video(Model):
 
         # Initialize marking and prompting structures
         self.marks = []
+        self.labels = []
+        self.group_ids = []
         self.prompts = []
 
     def set_auto_labeling_marks(self, marks):
@@ -106,6 +108,11 @@ class SegmentAnything2Video(Model):
             marks (list): List of marks (points or rectangles).
         """
         self.marks = marks
+
+    def set_cache_auto_label(self, text, gid):
+        """Set cache auto label"""
+        self.labels.append(text)
+        self.group_ids.append(gid)
 
     def set_auto_labeling_reset_tracker(self):
         """Reset the tracker to its initial state."""
@@ -119,6 +126,8 @@ class SegmentAnything2Video(Model):
             except Exception as e:  # noqa
                 pass
             self.prompts = []
+            self.labels = []
+            self.group_ids = []
 
     def set_auto_labeling_prompt(self):
         """Convert marks to prompts for the model."""
@@ -154,12 +163,12 @@ class SegmentAnything2Video(Model):
                     point_labels.append(marks["label"])
         return point_coords, point_labels, box
 
-    def post_process(self, masks, label=None):
+    def post_process(self, masks, index=None):
         """Post-process the masks produced by the model.
 
         Args:
             masks (np.array): The masks to post-process.
-            label (str, optional): Label for the masks. Defaults to None.
+            index (int, optional): The index of the mask. Defaults to None.
 
         Returns:
             list: A list of Shape objects representing the masks.
@@ -227,9 +236,9 @@ class SegmentAnything2Video(Model):
                 break
             # Create Polygon shape
             shape.shape_type = "polygon"
-            shape.group_id = int(label[6:]) if label else None
+            shape.group_id = self.group_ids[index] if index is not None else None
             shape.closed = True
-            shape.label = "AUTOLABEL_OBJECT" if label is None else label
+            shape.label = "AUTOLABEL_OBJECT" if index is None else self.labels[index]
             shape.selected = False
             shapes.append(shape)
         elif self.output_mode in ["rectangle", "rotation"]:
@@ -261,8 +270,8 @@ class SegmentAnything2Video(Model):
                 "rectangle" if self.output_mode == "rectangle" else "rotation"
             )
             shape.closed = True
-            shape.group_id = int(label[6:]) if label else None
-            shape.label = "AUTOLABEL_OBJECT" if label is None else label
+            shape.group_id = self.group_ids[index] if index is not None else None
+            shape.label = "AUTOLABEL_OBJECT" if index is None else self.labels[index]
             shape.selected = False
             shapes.append(shape)
 
@@ -359,7 +368,7 @@ class SegmentAnything2Video(Model):
                     masks = masks[0][0]
                 else:
                     masks = masks[0]
-                shapes.extend(self.post_process(masks, label=f"object{i}"))
+                shapes.extend(self.post_process(masks, i))
             return shapes, True
 
     def predict_shapes(

@@ -108,7 +108,8 @@ class LabelingWidget(LabelDialog):
         self.label_info = {}
         self.image_flags = []
         self.fn_to_index = {}
-
+        self.cache_auto_label = None
+        self.cache_auto_label_group_id = None
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
             config = get_config()
@@ -1579,6 +1580,9 @@ class LabelingWidget(LabelDialog):
         )
         self.auto_labeling_widget.finish_auto_labeling_object_action_requested.connect(
             self.finish_auto_labeling_object
+        )
+        self.auto_labeling_widget.cache_auto_label_changed.connect(
+            self.set_cache_auto_label
         )
         self.auto_labeling_widget.model_manager.prediction_started.connect(
             lambda: self.canvas.set_loading(True, self.tr("Please wait..."))
@@ -6215,6 +6219,11 @@ class LabelingWidget(LabelDialog):
 
         return most_similar_label
 
+    def set_cache_auto_label(self):
+        self.auto_labeling_widget.on_cache_auto_label_changed(
+            self.cache_auto_label, self.cache_auto_label_group_id
+        )
+
     def finish_auto_labeling_object(self):
         """Finish auto labeling object."""
         has_object, cache_label = False, None
@@ -6264,6 +6273,8 @@ class LabelingWidget(LabelDialog):
                 self.label_dialog.edit.setText(previous_text)
                 return
 
+        self.cache_auto_label = text
+        self.cache_auto_label_group_id = group_id
         if not self.validate_label(text):
             self.error_message(
                 self.tr("Invalid label"),

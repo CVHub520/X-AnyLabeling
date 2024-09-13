@@ -1513,6 +1513,17 @@ class ModelManager(QObject):
         self.loaded_model_config = model_config
         return self.loaded_model_config
 
+    def set_cache_auto_label(self, text, gid):
+        """Set cache auto label"""
+        valid_models = [
+            "segment_anything_2_video",
+        ]
+        if (
+            self.loaded_model_config is not None
+            and self.loaded_model_config["type"] in valid_models
+        ):
+            self.loaded_model_config["model"].set_cache_auto_label(text, gid)
+
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks
         (For example, for segment_anything model, it is the marks for)

@@ -16,6 +16,7 @@ class AutoLabelingWidget(QWidget):
     auto_labeling_mode_changed = pyqtSignal(AutoLabelingMode)
     clear_auto_labeling_action_requested = pyqtSignal()
     finish_auto_labeling_object_action_requested = pyqtSignal()
+    cache_auto_label_changed = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__()
@@ -109,6 +110,9 @@ class AutoLabelingWidget(QWidget):
         self.button_finish_object.clicked.connect(self.add_new_prompt)
         self.button_finish_object.clicked.connect(
             self.finish_auto_labeling_object_action_requested
+        )
+        self.button_finish_object.clicked.connect(
+            self.cache_auto_label_changed
         )
         self.button_finish_object.setShortcut("F")
         self.toggle_preserve_existing_annotations.stateChanged.connect(
@@ -353,6 +357,9 @@ class AutoLabelingWidget(QWidget):
 
     def on_reset_tracker(self):
         self.model_manager.set_auto_labeling_reset_tracker()
+
+    def on_cache_auto_label_changed(self, text, gid):
+        self.model_manager.set_cache_auto_label(text, gid)
 
     def add_new_prompt(self):
         self.model_manager.set_auto_labeling_prompt()
