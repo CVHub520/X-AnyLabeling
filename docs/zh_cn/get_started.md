@@ -6,6 +6,9 @@
 
 #### 1.1.1 前置条件
 
+> [!NOTE]
+> 如果你需要使用 Segment-Anything-2 的视频追踪功能, 请先移步至此[文档](../../examples/interactive_video_object_segmentation/README.md)安装相关依赖。
+
 在开始之前，请确保您已安装以下前置条件：
 
 **步骤 0.** 从[官方网站](https://docs.anaconda.com/miniconda/)下载并安装 Miniconda。

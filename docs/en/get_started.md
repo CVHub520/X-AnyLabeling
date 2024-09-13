@@ -6,6 +6,9 @@
 
 #### 1.1.1 Prerequisites
 
+> [!NOTE]
+> If you need to use the video tracking feature of Segment-Anything-2, please first visit [Docs](../../examples/interactive_video_object_segmentation/README.md) to install the relevant dependencies.
+
 Before you start, ensure that you have the following prerequisites installed:
 
 **Step 0.** Download and install Miniconda from the [official website](https://docs.anaconda.com/miniconda/).

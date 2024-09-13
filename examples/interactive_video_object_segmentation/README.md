@@ -102,7 +102,7 @@ Additionally, if you want to use other sizes of SAM2 models or modify the model 
 For the initial frame, you can add prompts such as positive points, negative points, and rectangles (Marks) to guide the tracking of the desired object. Follow these steps:
 
 1. If the segmentation result meets your expectations, click the `Finish Object (f)` button at the top of the screen or press the `f` key to confirm the object. If not, click the `Clear (b)` button or press the `b` key to quickly clear any invalid marks.
-2. We strongly recommend assigning labels like `object0`, `object1`, ..., `objectN` to each added target sequentially.
+2. Then, you can sequentially assign custom labels and track IDs to each added target.
 
 > [!WARNING]
 > If you need to delete a confirmed object, follow these steps:</br>
@@ -139,7 +139,9 @@ Then, repeat the steps in **Step 0** and **Step 1**.
 
 ![rename](https://github.com/user-attachments/assets/04707624-b13d-490f-a75d-7e35d5dee1c7)
 
-Upon completion of all tasks, you can access the `Tool` -> `Label Manager` option from the top menu to assign specific class names.
+After completing all tasks, you can:
+- Use the `Tool` -> `Label Manager` option from the top menu to assign specific class names.
+- Press `Alt+G` to open the GroupIDs manager and modify the track IDs if needed.
 
 > [!NOTE]
 > Just a reminder to click the `Reset Tracker` button at the top of the screen after uploading a new video file to reset the tracker.
