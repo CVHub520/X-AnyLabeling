@@ -329,7 +329,7 @@ class LabelingWidget(LabelDialog):
             shortcuts["open_next"],
             "next",
             self.tr(
-                "Open next (hold Ctrl+Shift to move to the next labeled image)"
+                "Open next image"
             ),
             enabled=False,
         )
@@ -339,7 +339,27 @@ class LabelingWidget(LabelDialog):
             shortcuts["open_prev"],
             "prev",
             self.tr(
-                "Open prev (hold Ctrl+Shift to move to the prev labeled image)"
+                "Open prev image"
+            ),
+            enabled=False,
+        )
+        open_next_unchecked_image = action(
+            self.tr("&Next Unchecked Image"),
+            self.open_next_unchecked_image,
+            shortcuts["open_next_unchecked"],
+            "next",
+            self.tr(
+                "Open next unchecked image"
+            ),
+            enabled=False,
+        )
+        open_prev_unchecked_image = action(
+            self.tr("&Prev Unchecked Image"),
+            self.open_prev_unchecked_image,
+            shortcuts["open_prev_unchecked"],
+            "prev",
+            self.tr(
+                "Open previous unchecked image"
             ),
             enabled=False,
         )
@@ -1267,6 +1287,8 @@ class LabelingWidget(LabelDialog):
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
+            open_next_unchecked_image=open_next_unchecked_image,
+            open_prev_unchecked_image=open_prev_unchecked_image,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1357,6 +1379,8 @@ class LabelingWidget(LabelDialog):
                 open_,
                 open_next_image,
                 open_prev_image,
+                open_next_unchecked_image,
+                open_prev_unchecked_image,
                 opendir,
                 openvideo,
                 self.menus.recent_files,
@@ -3685,12 +3709,50 @@ class LabelingWidget(LabelDialog):
         if self.may_continue():
             self.load_file(filename)
 
+    def open_checked_image(self, end_index, step, load=True):
+        if not self.may_continue():
+            return
+        current_index = self.fn_to_index[str(self.filename)]
+        for i in range(current_index + step, end_index, step):
+            if self.file_list_widget.item(i).checkState() == Qt.Checked:
+                self.filename = self.image_list[i]
+                if self.filename and load:
+                    self.load_file(self.filename)
+                break
+
+    def open_prev_unchecked_image(self):
+        if self._config["switch_to_checked"]:
+            self.open_checked_image(-1, -1)
+            return
+
+        if not self.may_continue() or len(self.image_list) <= 0 or self.filename is None:
+            return
+
+        current_index = self.fn_to_index[str(self.filename)]
+        for i in range(current_index - 1, -1, -1):
+            if self.file_list_widget.item(i).checkState() == Qt.Unchecked:
+                filename = self.image_list[i]
+                if filename:
+                    self.load_file(filename)
+                break
+
+    def open_next_unchecked_image(self, _value=False):
+        if self._config["switch_to_checked"]:
+            self.open_checked_image(self.file_list_widget.count(), 1)
+            return
+
+        if not self.may_continue() or len(self.image_list) <= 0 or self.filename is None:
+            return
+
+        current_index = self.fn_to_index[str(self.filename)]
+        for i in range(current_index + 1, len(self.image_list)):
+            if self.file_list_widget.item(i).checkState() == Qt.Unchecked:
+                filename = self.image_list[i]
+                if filename:
+                    self.load_file(filename)
+                break
+
     def open_prev_image(self, _value=False):
-        modifiers = QtWidgets.QApplication.keyboardModifiers()
-        if modifiers == (Qt.ControlModifier | Qt.ShiftModifier):
-            if modifiers & Qt.ControlModifier and modifiers & Qt.ShiftModifier and Qt.Key_A:
-                self.open_labeled_image(-1, -1)
-                return
 
         if not self.may_continue():
             return
@@ -3708,12 +3770,6 @@ class LabelingWidget(LabelDialog):
                 self.load_file(filename)
 
     def open_next_image(self, _value=False, load=True):
-        modifiers = QtWidgets.QApplication.keyboardModifiers()
-        if modifiers == (Qt.ControlModifier | Qt.ShiftModifier):
-            if modifiers & Qt.ControlModifier and modifiers & Qt.ShiftModifier and Qt.Key_D:
-                self.open_labeled_image(self.file_list_widget.count(), 1, load)
-                return
-
         if not self.may_continue():
             return
 
@@ -3733,17 +3789,6 @@ class LabelingWidget(LabelDialog):
 
         if self.filename and load:
             self.load_file(self.filename)
-
-    def open_labeled_image(self, end_index, step, load=True):
-        if not self.may_continue():
-            return
-        current_index = self.fn_to_index[str(self.filename)]
-        for i in range(current_index + step, end_index, step):
-            if self.file_list_widget.item(i).checkState() == Qt.Checked:
-                self.filename = self.image_list[i]
-                if self.filename and load:
-                    self.load_file(self.filename)
-                break
 
     # Uplaod
     def upload_image_flags_file(self):
@@ -5999,12 +6044,16 @@ class LabelingWidget(LabelDialog):
         if len(self.image_list) > 1:
             self.actions.open_next_image.setEnabled(True)
             self.actions.open_prev_image.setEnabled(True)
+            self.actions.open_next_unchecked_image.setEnabled(True)
+            self.actions.open_prev_unchecked_image.setEnabled(True)
 
         self.open_next_image()
 
     def import_image_folder(self, dirpath, pattern=None, load=True):
         self.actions.open_next_image.setEnabled(True)
         self.actions.open_prev_image.setEnabled(True)
+        self.actions.open_next_unchecked_image.setEnabled(True)
+        self.actions.open_prev_unchecked_image.setEnabled(True)
 
         if not self.may_continue() or not dirpath:
             return

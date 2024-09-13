@@ -72,18 +72,23 @@ X-AnyLabeling currently supports three data import formats:
 
 X-AnyLabeling provides data deletion functionalities as follows:
 
-- **Delete Label File** (Ctrl+D): Deletes the current annotation file. This operation cannot be undone, so please proceed with caution.
-- **Delete Image File** (Ctrl+Shift+D): Deletes the current image file, moving it to the `_delete_` folder within the current image directory.
+- **Delete Label File** (Ctrl+Delete): Deletes the current annotation file. This operation cannot be undone, so please proceed with caution.
+- **Delete Image File** (Ctrl+Shift+Delete): Deletes the current image file, moving it to the `_delete_` folder within the current image directory.
 
 ### 1.3 Image Switching
 
-X-AnyLabeling offers image switching features as follows:
+In X-AnyLabeling, in addition to regular image switching operations, the following methods are also supported:
 
-- **Previous Image** (A): Switches to the previous image.
-- **Next Image** (D): Switches to the next image.
-- **Previous Image with Label File** (Ctrl+Shift+A): Switches to the previous image with a label file.
-- **Next Image with Label File** (Ctrl+Shift+D): Switches to the next image with a label file.
-- **Jump to Specified Image**: Enter the image name in the file search bar at the bottom right of the interface and press Enter to jump to the specified image.
+| Shortcut | switch_to_checked | Description |
+|----------|-------------------|-------------|
+| Ctrl+Shift+A | true | Jump to the previous annotated image |
+| Ctrl+Shift+D | true | Jump to the next annotated image |
+| Ctrl+Shift+A | false | Jump to the previous unannotated image |
+| Ctrl+Shift+D | false | Jump to the next unannotated image |
+
+You can determine the switching mode by modifying the `switch_to_checked` field in the user configuration file.
+
+Additionally, you can jump to a specific image by entering the image name in the file search bar at the bottom right of the interface and pressing Enter.
 
 ### 1.4 Saving Label Data
 
@@ -557,57 +562,57 @@ In this configuration file, you can adjust various user-customized settings, suc
 
 The current default keyboard shortcuts in X-AnyLabeling are as follows. Users can modify them according to their needs to avoid conflicts:
 
-| Shortcut           | Function                                      |
-|--------------------|-----------------------------------------------|
-| d                  | Open the next file                            |
-| a                  | Open the previous file                        |
-| Ctrl + Shift + d   | Open the next labeled file                    |
-| Ctrl + Shift + a   | Open the previous labeled file                |
-| p or Ctrl + n      | Create a polygon                              |
-| o                  | Create a rotated box                          |
-| r or Ctrl + r      | Create a rectangular box                      |
-| i                  | Run the model                                 |
-| q                  | Positive sample point in `SAM Mode`           |
-| e                  | Negative sample point in `SAM Mode`           |
-| b                  | Clear hint points quickly in `SAM Mode`       |
-| f                  | Confirm completion in `SAM Mode`              |
-| g                  | Group selected objects                        |
-| u                  | Ungroup selected objects                      |
-| s                  | Hide selected objects                         |
-| w                  | Show selected objects                         |
-| Alt + g            | Edit group id                                 |
-| Ctrl + q           | Exit the current application                  |
-| Ctrl + i           | Open image file                               |
-| Ctrl + o           | Open video file                               |
-| Ctrl + u           | Load all images from a directory              |
-| Ctrl + e           | Edit labels                                   |
-| Ctrl + j           | Edit polygons                                 |
-| Ctrl + c           | Copy selected objects                         |
-| Ctrl + v           | Paste selected objects                        |
-| Ctrl + d           | Copy polygons                                 |
-| Ctrl + g           | Show annotation statistics for the current task |
-| Ctrl + h           | Show all objects in the current image         |
-| Ctrl + p           | Toggle preserve previous mode                 |
-| Ctrl + y           | Toggle auto-use last label                    |
-| Ctrl + m           | Activate batch annotation                     |
-| Ctrl + a           | Enable auto annotation                        |
-| Ctrl + s           | Save current annotations                      |
-| Ctrl + l           | Show/Hide labels                              |
-| Ctrl + t           | Show/Hide text                                |
-| Ctrl + Shift + s   | Change output directory                       |
-| Ctrl -             | Zoom out                                      |
-| Ctrl + 0           | Zoom to original size                         |
-| Ctrl + + or Ctrl +=| Zoom in                                       |
-| Ctrl + f           | Fit to window                                 |
-| Ctrl + Shift + f   | Fit to width                                  |
-| Ctrl + Shift + m   | Merge selected rectangle shapes               |
-| Ctrl + z           | Undo last action                              |
-| Ctrl + Delete      | Delete file                                   |
-| Delete             | Delete polygon                                |
-| Esc                | Deselect object                               |
-| Backspace          | Delete selected point                         |
-| ↑→↓←               | Move selected object using keyboard arrows    |
-| zxcv               | Rotate selected rectangular box using the keyboard |
+| Shortcut              | Function                                      |
+|-----------------------|-----------------------------------------------|
+| d                     | Open the next file                            |
+| a                     | Open the previous file                        |
+| Ctrl + Shift + d      | Open the next checked/unchecked file          |
+| Ctrl + Shift + a      | Open the previous checked/unchecked file      |
+| p or Ctrl + n         | Create a polygon                              |
+| o                     | Create a rotated box                          |
+| r or Ctrl + r         | Create a rectangular box                      |
+| i                     | Run the model                                 |
+| q                     | Positive sample point in `SAM Mode`           |
+| e                     | Negative sample point in `SAM Mode`           |
+| b                     | Clear hint points quickly in `SAM Mode`       |
+| f                     | Confirm completion in `SAM Mode`              |
+| g                     | Group selected objects                        |
+| u                     | Ungroup selected objects                      |
+| s                     | Hide selected objects                         |
+| w                     | Show selected objects                         |
+| Alt + g               | Edit group id                                 |
+| Ctrl + Delete         | Delete label file                             |
+| Ctrl + Shift + Delete | Delete image file                             |
+| Ctrl + q              | Exit the current application                  |
+| Ctrl + i              | Open image file                               |
+| Ctrl + o              | Open video file                               |
+| Ctrl + u              | Load all images from a directory              |
+| Ctrl + e              | Edit labels                                   |
+| Ctrl + j              | Edit polygons                                 |
+| Ctrl + c              | Copy selected objects                         |
+| Ctrl + v              | Paste selected objects                        |
+| Ctrl + d              | Copy polygons                                 |
+| Ctrl + g              | Show annotation statistics for current task   |
+| Ctrl + h              | Show all objects in current image             |
+| Ctrl + p              | Toggle preserve previous mode                 |
+| Ctrl + y              | Toggle auto-use last label                    |
+| Ctrl + m              | Activate batch annotation                     |
+| Ctrl + a              | Enable auto annotation                        |
+| Ctrl + s              | Save current annotations                      |
+| Ctrl + l              | Show/Hide labels                              |
+| Ctrl + t              | Show/Hide text                                |
+| Ctrl + Shift + s      | Change output directory                       |
+| Ctrl + 0              | Zoom to original size                         |
+| Ctrl + + or Ctrl +=   | Zoom in                                       |
+| Ctrl + f              | Fit to window                                 |
+| Ctrl + Shift + f      | Fit to width                                  |
+| Ctrl + Shift + m      | Merge selected rectangle shapes               |
+| Ctrl + z              | Undo last action                              |
+| Delete                | Delete selected shape                         |
+| Esc                   | Deselect object                               |
+| Backspace             | Delete selected point                         |
+| ↑→↓←                  | Move selected object using keyboard arrows    |
+| zxcv                  | Rotate selected rotation using the keyboard   |
 
 ### 7.2 Customizing Label Colors
 

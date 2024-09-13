@@ -19,6 +19,7 @@ show_linking: true
 logger_level: info
 save_mode: default
 system_clipboard: false
+switch_to_checked: false
 
 flags: null
 label_flags: null
@@ -101,8 +102,10 @@ shortcuts:
   delete_file: Ctrl+Delete
   delete_image_file: Ctrl+Shift+Delete
 
-  open_next: [D, Ctrl+Shift+D]
-  open_prev: [A, Ctrl+Shift+A]
+  open_next: D
+  open_prev: A
+  open_next_unchecked: Ctrl+Shift+D
+  open_prev_unchecked: Ctrl+Shift+A
 
   zoom_in: [Ctrl++, Ctrl+=]
   zoom_out: Ctrl+-
