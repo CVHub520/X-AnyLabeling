@@ -711,8 +711,9 @@ class LabelDialog(QtWidgets.QDialog):
         self.label_list.clear()
         self.label_list.addItems(items)
 
-    def add_label_history(self, label):
-        self._last_label = label
+    def add_label_history(self, label, update_last_label=True):
+        if update_last_label:
+            self._last_label = label
         if self.label_list.findItems(label, QtCore.Qt.MatchExactly):
             return
         self.label_list.addItem(label)

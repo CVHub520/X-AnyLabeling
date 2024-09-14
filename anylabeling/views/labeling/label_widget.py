@@ -2959,7 +2959,7 @@ class LabelingWidget(LabelDialog):
                     self.update_attributes(i)
                     break
 
-    def add_label(self, shape):
+    def add_label(self, shape, update_last_label=True):
         if shape.group_id is None:
             text = shape.label
         else:
@@ -2980,7 +2980,7 @@ class LabelingWidget(LabelDialog):
             AutoLabelingMode.ADD,
             AutoLabelingMode.REMOVE,
         ]:
-            self.label_dialog.add_label_history(shape.label)
+            self.label_dialog.add_label_history(shape.label, update_last_label=update_last_label)
 
         for action in self.actions.on_shapes_present:
             action.setEnabled(True)
@@ -3037,10 +3037,10 @@ class LabelingWidget(LabelDialog):
             self.label_list.remove_item(item)
         self.update_combo_box()
 
-    def load_shapes(self, shapes, replace=True):
+    def load_shapes(self, shapes, replace=True, update_last_label=True):
         self._no_selection_slot = True
         for shape in shapes:
-            self.add_label(shape)
+            self.add_label(shape, update_last_label=update_last_label)
         self.label_list.clearSelection()
         self._no_selection_slot = False
         self.canvas.load_shapes(shapes, replace=replace)
@@ -3570,12 +3570,12 @@ class LabelingWidget(LabelDialog):
                         **shape.flags,
                     }
             self.update_combo_box()
-            self.load_shapes(self.label_file.shapes)
+            self.load_shapes(self.label_file.shapes, update_last_label=False)
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
         self.load_flags(flags)
         if self._config["keep_prev"] and self.no_shape():
-            self.load_shapes(prev_shapes, replace=False)
+            self.load_shapes(prev_shapes, replace=False, update_last_label=False)
             self.set_dirty()
         else:
             self.set_clean()
