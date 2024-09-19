@@ -1,12 +1,25 @@
 import re
+import textwrap
 import platform
 import subprocess
 from importlib_metadata import version as get_package_version
 
 
+def format_bold(text):
+    return f"\033[1m{text}\033[0m"
+
+
+def format_color(text, color_code):
+    return f"\033[{color_code}m{text}\033[0m"
+
+
 def hex_to_rgb(hex_color):
     hex_color = hex_color.lstrip("#")
     return tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
+
+
+def indent_text(text, indent=4):
+    return textwrap.indent(text, ' ' * indent)
 
 
 def is_chinese(s="人工智能"):
