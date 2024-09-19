@@ -3,7 +3,7 @@ name: yolov6lite_m_face-r20230520
 display_name: YOLOv6Lite_m-Face MeiTuan
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_m_face.onnx
 nms_threshold: 0.45
-confidence_threshold: 0.4
+confidence_threshold: 0.25
 classes:
   face:
     - left_eye

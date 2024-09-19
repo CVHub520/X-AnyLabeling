@@ -1581,6 +1581,7 @@ class ModelManager(QObject):
             "yolov5_det_track",
             "yolov5",
             "yolov6",
+            "yolov6_face",
             "yolov7",
             "yolov8_obb",
             "yolov8_pose",

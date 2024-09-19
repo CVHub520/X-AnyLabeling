@@ -20,7 +20,11 @@ class YOLOv6Face(YOLO):
             "display_name",
             "model_path",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf",
+            "edit_conf",
+        ]
         output_modes = {
             "point": QCoreApplication.translate("Model", "Point"),
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
@@ -159,12 +163,17 @@ class YOLOv6Face(YOLO):
 
         shapes = []
         for i, r in enumerate(reversed(results)):
-            xyxy, _, cls_id, lmdks = r[:4], r[4], r[5], r[6:]
+            xyxy, score, cls_id, lmdks = r[:4], r[4], r[5], r[6:]
+            if score < self.conf_thres:
+                continue
             x1, y1, x2, y2 = list(map(int, xyxy))
             lmdks = list(map(int, lmdks))
             label = str(self.classes[int(cls_id)])
             rectangle_shape = Shape(
-                label=label, shape_type="rectangle", group_id=int(i)
+                label=label,
+                shape_type="rectangle",
+                group_id=int(i),
+                score=float(score)
             )
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y1))

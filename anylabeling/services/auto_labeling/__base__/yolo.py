@@ -167,13 +167,17 @@ class YOLO(Model):
             self.task = "pose"
             self.keypoint_name = {}
             self.show_boxes = True
-            self.has_visible = self.config["has_visible"]
+            self.has_visible = self.config.get("has_visible", True)
             self.kpt_thres = self.config.get("kpt_threshold", 0.1)
             self.classes = self.config.get("classes", {})
             for class_name, keypoints in self.classes.items():
                 self.keypoint_name[class_name] = keypoints
             self.classes = list(self.classes.keys())
-            self.kpt_shape = eval(self.net.get_metadata_info("kpt_shape"))
+            kpt_shape_str = self.net.get_metadata_info("kpt_shape")
+            if kpt_shape_str and isinstance(kpt_shape_str, str):
+                self.kpt_shape = eval(kpt_shape_str)
+            else:
+                self.kpt_shape = None
             if self.kpt_shape is None:
                 max_kpts = max(
                     len(num_kpts) for num_kpts in self.keypoint_name.values()
