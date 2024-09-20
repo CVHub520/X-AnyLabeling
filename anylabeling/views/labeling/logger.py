@@ -1,9 +1,6 @@
 import datetime
 import logging
-import os
-
 import termcolor
-
 
 COLORS = {
     "WARNING": "yellow",
@@ -16,10 +13,13 @@ COLORS = {
 
 class ColoredFormatter(logging.Formatter):
     def __init__(self, fmt, use_color=True):
-        logging.Formatter.__init__(self, fmt)
+        super().__init__(fmt)
         self.use_color = use_color
 
     def format(self, record):
+        # Ensure the message is formatted with the provided arguments
+        record.message = record.getMessage()
+
         levelname = record.levelname
         if self.use_color and levelname in COLORS:
 
@@ -31,7 +31,7 @@ class ColoredFormatter(logging.Formatter):
                 )
 
             record.levelname2 = colored(f"{record.levelname:<7}")
-            record.message2 = colored(record.msg)
+            record.message2 = colored(record.message)
 
             asctime2 = datetime.datetime.fromtimestamp(record.created)
             record.asctime2 = termcolor.colored(asctime2, color="green")
@@ -39,7 +39,8 @@ class ColoredFormatter(logging.Formatter):
             record.module2 = termcolor.colored(record.module, color="cyan")
             record.funcName2 = termcolor.colored(record.funcName, color="cyan")
             record.lineno2 = termcolor.colored(record.lineno, color="cyan")
-        return logging.Formatter.format(self, record)
+
+        return super().format(record)
 
 
 class ColoredLogger(logging.Logger):
@@ -48,7 +49,7 @@ class ColoredLogger(logging.Logger):
     )
 
     def __init__(self, name):
-        logging.Logger.__init__(self, name, logging.INFO)
+        super().__init__(name, logging.INFO)
 
         color_formatter = ColoredFormatter(self.FORMAT)
 
@@ -58,5 +59,6 @@ class ColoredLogger(logging.Logger):
         self.addHandler(console)
 
 
+# Ensure logger is an instance of ColoredLogger
+logging.setLoggerClass(ColoredLogger)
 logger = logging.getLogger("X-AnyLabeling")
-logger.__class__ = ColoredLogger
