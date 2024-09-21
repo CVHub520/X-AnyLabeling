@@ -12,18 +12,17 @@ import codecs
 import logging
 
 import sys
-
 sys.path.append(".")
 
 import yaml
 from PyQt5 import QtCore, QtWidgets
 
-from anylabeling.app_info import __appname__
+from anylabeling.app_info import __appname__, __version__, __url__
 from anylabeling.config import get_config, save_config
 from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
-from anylabeling.views.labeling.utils import new_icon
+from anylabeling.views.labeling.utils import new_icon, gradient_text
 from anylabeling.resources import resources
 
 
@@ -126,9 +125,7 @@ def main():
         help="epsilon to find nearest vertex on canvas",
         default=argparse.SUPPRESS,
     )
-    args = parser.parse_args()
-
-    logger.setLevel(getattr(logging, args.logger_level.upper()))
+    args = parser.parse_args()        
 
     if hasattr(args, "flags"):
         if os.path.isfile(args.flags):
@@ -156,8 +153,12 @@ def main():
     filename = config_from_args.pop("filename")
     output = config_from_args.pop("output")
     config_file_or_yaml = config_from_args.pop("config")
+    logger_level = config_from_args.pop("logger_level")
+    logger.setLevel(getattr(logging, logger_level.upper()))
+    logger.info(f"🚀 {gradient_text(f'X-AnyLabeling v{__version__} launched!')}")
+    logger.info(f"⭐ If you like it, give us a star: {__url__}")
     anylabeling_config.current_config_file = config_file_or_yaml
-    config = get_config(config_file_or_yaml, config_from_args)
+    config = get_config(config_file_or_yaml, config_from_args, show_msg=True)
 
     if not config["labels"] and config["validate_label"]:
         logger.error(
@@ -180,11 +181,6 @@ def main():
     loaded_language = translator.load(
         ":/languages/translations/" + language + ".qm"
     )
-
-    # Initialize "save_mode" as "default" in 'config'
-    config["save_mode"] = "default"
-    save_config(config)
-
     # Enable scaling for high dpi screens
     QtWidgets.QApplication.setAttribute(
         QtCore.Qt.AA_EnableHighDpiScaling, True
@@ -198,13 +194,14 @@ def main():
     app.processEvents()
 
     app.setApplicationName(__appname__)
+    app.setApplicationVersion(__version__)
     app.setWindowIcon(new_icon("icon"))
     if loaded_language:
         app.installTranslator(translator)
     else:
         logger.warning(
-            "Failed to load translation for %s. Using default language.",
-            language,
+            f"Failed to load translation for {language}. "
+            "Using default language.",
         )
     win = MainWindow(
         app,
@@ -215,7 +212,7 @@ def main():
     )
 
     if reset_config:
-        logger.info("Resetting Qt config: %s", win.settings.fileName())
+        logger.info(f"Resetting Qt config: {win.settings.fileName()}")
         win.settings.clear()
         sys.exit(0)
 

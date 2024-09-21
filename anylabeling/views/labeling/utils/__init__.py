@@ -1,6 +1,7 @@
 # flake8: noqa
 
 from .general import (
+    gradient_text,
     hex_to_rgb,
     is_chinese,
 )

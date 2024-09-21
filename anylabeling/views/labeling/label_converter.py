@@ -304,7 +304,7 @@ class LabelConverter:
                 dst_img = np.rot90(dst_img)
             return dst_img
         except Exception as e:
-            print(e)
+            logger.error(e)
 
     def yolo_obb_to_custom(self, input_file, output_file, image_file):
         self.reset()
@@ -876,7 +876,7 @@ class LabelConverter:
                         0 <= p[0] < image_width and 0 <= p[1] < image_height
                         for p in points
                     ):
-                        print(
+                        logger.warning(
                             f"{data['imagePath']}: Skip out of bounds coordinates of {points}!"
                         )
                         continue
@@ -1148,7 +1148,7 @@ class LabelConverter:
                 if shape_type != "rotation" or len(points) != 4:
                     continue
                 if not any(0 <= p[0] < w and 0 <= p[1] < h for p in points):
-                    print(
+                    logger.warning(
                         f"{data['imagePath']}: Skip out of bounds coordinates of {points}!"
                     )
                     continue
@@ -1488,7 +1488,7 @@ class LabelConverter:
                     img, np.array(points, np.float32)
                 )
                 if img_crop is None:
-                    print(
+                    logger.warning(
                         f"Can not recognise the detection box in {image_file}. Please change manually"
                     )
                     continue

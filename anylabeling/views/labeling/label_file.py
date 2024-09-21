@@ -48,7 +48,7 @@ class LabelFile:
             with open(filename, "rb") as f:
                 return f.read()
         except:
-            logger.error("Failed opening image file: %s", filename)
+            logger.error(f"Failed opening image file: {filename}")
             return default
 
     def load(self, filename):
@@ -67,7 +67,7 @@ class LabelFile:
             version = data.get("version")
             if version is None:
                 logger.warning(
-                    "Loading JSON file (%s) of unknown version", filename
+                    f"Loading JSON file ({filename}) of unknown version"
                 )
 
             # Deprecated

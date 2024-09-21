@@ -1,8 +1,6 @@
-import logging
 import os
-import traceback
-
 import cv2
+import traceback
 import numpy as np
 
 from PyQt5 import QtCore
@@ -12,6 +10,7 @@ from PyQt5.QtCore import QCoreApplication
 from anylabeling.app_info import __preferred_device__
 from anylabeling.utils import GenericWorker
 from anylabeling.views.labeling.shape import Shape
+from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 
 from .lru_cache import LRUCache
@@ -264,8 +263,8 @@ class EdgeSAM(Model):
             masks = self.model.predict_masks(image_embedding, self.marks)
             shapes = self.post_process(masks, cv_image)
         except Exception as e:  # noqa
-            logging.warning("Could not inference model")
-            logging.warning(e)
+            logger.warning("Could not inference model")
+            logger.warning(e)
             traceback.print_exc()
             return AutoLabelingResult([], replace=False)
 

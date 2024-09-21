@@ -4,6 +4,7 @@ import math
 from PyQt5 import QtCore, QtGui
 
 from . import utils
+from ..labeling.logger import logger
 
 # TODO(unknown):
 # - [opt] Store paths instead of creating new ones at each paint.
@@ -330,7 +331,7 @@ class Shape:
         elif shape == self.P_ROUND:
             path.addEllipse(point, d / 2.0, d / 2.0)
         else:
-            print("Unsupported vertex shape")
+            logger.error("Unsupported vertex shape")
 
     def nearest_vertex(self, point, epsilon):
         """Find the index of the nearest vertex to a point

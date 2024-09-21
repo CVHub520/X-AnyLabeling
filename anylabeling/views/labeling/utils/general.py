@@ -1,7 +1,9 @@
 import re
+import math
 import textwrap
 import platform
 import subprocess
+from typing import Iterator, Tuple
 from importlib_metadata import version as get_package_version
 
 
@@ -11,6 +13,25 @@ def format_bold(text):
 
 def format_color(text, color_code):
     return f"\033[{color_code}m{text}\033[0m"
+
+
+def gradient_text(text: str, 
+                  start_color: Tuple[int, int, int] = (0, 0, 255), 
+                  end_color: Tuple[int, int, int] = (255, 0, 255), 
+                  frequency: float = 1.0) -> str:
+    
+    def color_function(t: float) -> Tuple[int, int, int]:
+        def interpolate(start: float, end: float, t: float) -> float:
+            # Use a sine wave for smooth, periodic interpolation
+            return start + (end - start) * (math.sin(math.pi * t * frequency) + 1) / 2
+
+        return tuple(round(interpolate(s, e, t)) for s, e in zip(start_color, end_color))
+
+    def gradient_gen(length: int) -> Iterator[Tuple[int, int, int]]:
+        return (color_function(i / (length - 1)) for i in range(length))
+
+    gradient = gradient_gen(len(text))
+    return ''.join(f"\033[38;2;{r};{g};{b}m{char}\033[0m" for char, (r, g, b) in zip(text, gradient))  # noqa: E501
 
 
 def hex_to_rgb(hex_color):

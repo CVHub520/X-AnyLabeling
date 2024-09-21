@@ -1,5 +1,3 @@
-import logging
-
 import cv2
 import numpy as np
 from .general import refine_contours

@@ -4385,7 +4385,6 @@ class LabelingWidget(LabelDialog):
                 self.tr("Please select a specific color_map file!"),
                 QtWidgets.QMessageBox.Ok,
             )
-            self._config["save_mode"] = "default"
             return
         with open(color_map_file, "r", encoding="utf-8") as f:
             mapping_table = json.load(f)
@@ -5135,7 +5134,6 @@ class LabelingWidget(LabelDialog):
                 self.tr("Please select a specific color_map file!"),
                 QtWidgets.QMessageBox.Ok,
             )
-            self._config["save_mode"] = "default"
             return
 
         with open(color_map_file, "r", encoding="utf-8") as f:
@@ -5680,7 +5678,7 @@ class LabelingWidget(LabelDialog):
         label_file = self.get_label_file()
         if osp.exists(label_file):
             os.remove(label_file)
-            logger.info("Label file is removed: %s", label_file)
+            logger.info(f"Label file is removed: {label_file}")
 
             item = self.file_list_widget.currentItem()
             item.setCheckState(Qt.Unchecked)
@@ -5711,7 +5709,7 @@ class LabelingWidget(LabelDialog):
             os.makedirs(save_path, exist_ok=True)
             save_file = osp.join(save_path, image_name)
             shutil.move(image_file, save_file)
-            logger.info("Image file is moved to: %s", osp.realpath(save_file))
+            logger.info(f"Image file is moved to: {osp.realpath(save_file)}")
 
             label_dir_path = osp.dirname(self.filename)
             if self.output_dir:
@@ -5720,7 +5718,7 @@ class LabelingWidget(LabelDialog):
             label_file = osp.join(label_dir_path, label_name)
             if osp.exists(label_file):
                 os.remove(label_file)
-                logger.info("Label file is removed: %s", image_file)
+                logger.info(f"Label file is removed: {image_file}")
 
             filename = None
             if self.filename is None:
@@ -5816,6 +5814,9 @@ class LabelingWidget(LabelDialog):
             self.auto_labeling_widget.model_manager.loaded_model_config["type"]
             in marks_model_list
         ):
+            logger.warning(f"The model `{self.auto_labeling_widget.model_manager.loaded_model_config['type']}`"
+                           f" is not supported for this action."
+                           f" Please choose a valid model to execute.")
             self.auto_labeling_widget.model_manager.new_model_status.emit(
                 self.tr(
                     "Invalid model type, please choose a valid model_type to run."
@@ -5830,6 +5831,7 @@ class LabelingWidget(LabelDialog):
             QMessageBox.Yes | QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
+            logger.info(f"Start running all images...")
             self.current_index = self.fn_to_index[str(self.filename)]
             self.image_index = self.current_index
             self.text_prompt = ""
@@ -5986,6 +5988,7 @@ class LabelingWidget(LabelDialog):
             target_dir_path = utils.extract_frames_from_video(
                 self, source_video_path
             )
+            logger.info(f"🔍 Frames have been successfully extracted to {target_dir_path}")
             self.import_image_folder(target_dir_path)
 
     def open_folder_dialog(self, _value=False, dirpath=None):

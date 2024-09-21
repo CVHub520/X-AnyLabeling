@@ -1,4 +1,3 @@
-import logging
 import os
 import pathlib
 import yaml
@@ -25,6 +24,7 @@ from PyQt5.QtCore import QFile, QObject
 from PyQt5.QtGui import QImage
 
 from .types import AutoLabelingResult
+from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
 
 
@@ -94,7 +94,7 @@ class Model(QObject):
             os.rename(old_model_path, new_model_path)
             return True
         except Exception as e:
-            print(f"An error occurred during data migration: {str(e)}")
+            logger.error(f"An error occurred during data migration: {str(e)}")
             return False
 
     def get_model_abs_path(self, model_config, model_path_field_name):
@@ -160,12 +160,12 @@ class Model(QObject):
                 try:
                     onnx.checker.check_model(model_abs_path)
                 except onnx.checker.ValidationError as e:
-                    logging.warning("The model is invalid: %s", str(e))
-                    logging.warning("Action: Delete and redownload...")
+                    logger.error(f"{str(e)}")
+                    logger.warning("Action: Delete and redownload...")
                     try:
                         os.remove(model_abs_path)
                     except Exception as e:  # noqa
-                        logging.warning("Could not delete: %s", str(e))
+                        logger.error(f"Could not delete: {str(e)}")
                 else:
                     return model_abs_path
             else:
@@ -178,8 +178,8 @@ class Model(QObject):
             ellipsis_download_url = (
                 download_url[:20] + "..." + download_url[-20:]
             )
-        logging.info(
-            "Downloading %s to %s", ellipsis_download_url, model_abs_path
+        logger.info(
+            f"Downloading {ellipsis_download_url} to {model_abs_path}"
         )
         try:
             # Download and show progress
@@ -197,7 +197,7 @@ class Model(QObject):
                 download_url, model_abs_path, reporthook=_progress
             )
         except Exception as e:  # noqa
-            print(f"Could not download {download_url}: {e}")
+            logger.error(f"Could not download {download_url}: {e}")
             self.on_message(f"Could not download {download_url}")
             return None
 
@@ -233,14 +233,14 @@ class Model(QObject):
             try:
                 label_file = LabelFile(label_file)
             except LabelFileError as e:
-                logging.error("Error reading {}: {}".format(label_file, e))
+                logger.error("Error reading {}: {}".format(label_file, e))
                 return None, None
             image_data = label_file.image_data
         else:
             image_data = LabelFile.load_image_file(filename)
         image = QImage.fromData(image_data)
         if image.isNull():
-            logging.error("Error reading {}".format(filename))
+            logger.error("Error reading {}".format(filename))
         return image
 
     def on_next_files_changed(self, next_files):

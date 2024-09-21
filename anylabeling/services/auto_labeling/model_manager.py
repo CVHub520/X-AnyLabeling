@@ -1,17 +1,18 @@
 import os
 import copy
 import time
+import yaml
 import importlib.resources as pkg_resources
 from threading import Lock
 
-import yaml
+
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
+from anylabeling.utils import GenericWorker
+from anylabeling.views.labeling.logger import logger
+from anylabeling.config import get_config, save_config
 from anylabeling.configs import auto_labeling as auto_labeling_configs
 from anylabeling.services.auto_labeling.types import AutoLabelingResult
-from anylabeling.utils import GenericWorker
-
-from anylabeling.config import get_config, save_config
 
 
 class ModelManager(QObject):
@@ -192,13 +193,17 @@ class ModelManager(QObject):
             self.model_download_thread is not None
             and self.model_download_thread.isRunning()
         ):
-            print(
+            logger.info(
                 "Another model is being loaded. Please wait for it to finish."
             )
             return
 
         # Check config file path
         if not config_file or not os.path.isfile(config_file):
+            logger.error(
+                f"An error occurred while loading the custom model: "
+                f"The model path is invalid."
+            )
             self.new_model_status.emit(
                 self.tr("Error in loading custom model: Invalid path.")
             )
@@ -210,6 +215,10 @@ class ModelManager(QObject):
             model_config = yaml.safe_load(f)
             model_config["config_file"] = os.path.abspath(config_file)
         if not model_config:
+            logger.error(
+                f"An error occurred while loading the custom model: "
+                f"The config file is invalid."
+            )
             self.new_model_status.emit(
                 self.tr("Error in loading custom model: Invalid config file.")
             )
@@ -220,6 +229,26 @@ class ModelManager(QObject):
             or "name" not in model_config
             or model_config["type"] not in self.CUSTOM_MODELS
         ):
+            if "type" not in model_config:
+                logger.error(
+                    f"An error occurred while loading the custom model: "
+                    f"The 'type' field is missing in the model configuration file."
+                )
+            elif "display_name" not in model_config:
+                logger.error(
+                    f"An error occurred while loading the custom model: "
+                    f"The 'display_name' field is missing in the model configuration file."
+                )
+            elif "name" not in model_config:
+                logger.error(
+                    f"An error occurred while loading the custom model: "
+                    f"The 'name' field is missing in the model configuration file."
+                )
+            else:
+                logger.error(
+                    f"An error occurred while loading the custom model: "
+                    f"The model type {model_config['type']} is not supported."
+                )
             self.new_model_status.emit(
                 self.tr(
                     "Error in loading custom model: Invalid config file format."
@@ -264,7 +293,7 @@ class ModelManager(QObject):
             self.model_download_thread is not None
             and self.model_download_thread.isRunning()
         ):
-            print(
+            logger.info(
                 "Another model is being loaded. Please wait for it to finish."
             )
             return
@@ -287,6 +316,10 @@ class ModelManager(QObject):
                 model_id = i
                 break
         if model_id is None:
+            logger.error(
+                f"An error occurred while loading the model: "
+                f"The model name is invalid."
+            )
             self.new_model_status.emit(
                 self.tr("Error in loading model: Invalid model name.")
             )
@@ -327,6 +360,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -335,11 +369,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov6":
             from .yolov6 import YOLOv6
@@ -349,6 +379,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -357,11 +388,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov7":
             from .yolov7 import YOLOv7
@@ -371,6 +398,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -379,11 +407,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_sahi":
             from .yolov8_sahi import YOLOv8_SAHI
@@ -393,6 +417,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -401,11 +426,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8":
             from .yolov8 import YOLOv8
@@ -415,6 +436,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -423,11 +445,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov9":
             from .yolov9 import YOLOv9
@@ -437,6 +455,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -445,11 +464,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov10":
             from .yolov10 import YOLOv10
@@ -459,6 +474,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -467,11 +483,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolow":
             from .yolow import YOLOW
@@ -481,6 +493,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -489,11 +502,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov5_seg":
             from .yolov5_seg import YOLOv5_Seg
@@ -503,6 +512,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -511,11 +521,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov5_ram":
             from .yolov5_ram import YOLOv5_RAM
@@ -525,6 +531,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -533,11 +540,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolow_ram":
             from .yolow_ram import YOLOW_RAM
@@ -547,6 +550,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -555,11 +559,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_seg":
             from .yolov8_seg import YOLOv8_Seg
@@ -569,6 +569,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -577,11 +578,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_obb":
             from .yolov8_obb import YOLOv8_OBB
@@ -591,6 +588,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -599,11 +597,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_pose":
             from .yolov8_pose import YOLOv8_Pose
@@ -613,6 +607,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -621,11 +616,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolox":
             from .yolox import YOLOX
@@ -635,6 +626,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -643,11 +635,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolo_nas":
             from .yolo_nas import YOLO_NAS
@@ -657,6 +645,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -665,11 +654,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "damo_yolo":
             from .damo_yolo import DAMO_YOLO
@@ -679,6 +664,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -687,11 +673,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "gold_yolo":
             from .gold_yolo import Gold_YOLO
@@ -701,6 +683,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -709,11 +692,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "grounding_dino":
             from .grounding_dino import Grounding_DINO
@@ -723,6 +702,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -731,11 +711,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "ram":
             from .ram import RAM
@@ -745,6 +721,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -753,11 +730,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "internimage_cls":
             from .internimage_cls import InternImage_CLS
@@ -767,6 +740,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -775,11 +749,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "pulc_attribute":
             from .pulc_attribute import PULC_Attribute
@@ -789,6 +759,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -797,11 +768,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov5_sam":
             from .yolov5_sam import YOLOv5SegmentAnything
@@ -811,12 +778,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -835,12 +799,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -859,12 +820,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -883,12 +841,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -907,6 +862,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -915,11 +871,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "segment_anything":
             from .segment_anything import SegmentAnything
@@ -929,12 +881,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -953,12 +902,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -977,12 +923,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -1001,12 +944,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -1025,12 +965,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -1049,12 +986,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -1073,12 +1007,9 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_selected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 self.new_model_status.emit(
                     self.tr(
                         "Error in loading model: {error_message}".format(
@@ -1097,6 +1028,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1105,11 +1037,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "rtdetr":
             from .rtdetr import RTDETR
@@ -1119,6 +1047,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1127,11 +1056,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "rtdetrv2":
             from .rtdetrv2 import RTDETRv2
@@ -1141,6 +1066,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1149,11 +1075,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov6_face":
             from .yolov6_face import YOLOv6Face
@@ -1163,6 +1085,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1171,11 +1094,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolox_dwpose":
             from .yolox_dwpose import YOLOX_DWPose
@@ -1185,6 +1104,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1193,11 +1113,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "rtmdet_pose":
             from .rtmdet_pose import RTMDet_Pose
@@ -1207,6 +1123,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1215,11 +1132,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "clrnet":
             from .clrnet import CLRNet
@@ -1229,6 +1142,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1237,11 +1151,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "ppocr_v4":
             from .ppocr_v4 import PPOCRv4
@@ -1251,6 +1161,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1259,11 +1170,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov5_cls":
             from .yolov5_cls import YOLOv5_CLS
@@ -1273,6 +1180,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1281,11 +1189,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov5_car_plate":
             from .yolov5_car_plate import YOLOv5CarPlateDetRec
@@ -1295,6 +1199,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1303,11 +1208,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_cls":
             from .yolov8_cls import YOLOv8_CLS
@@ -1317,6 +1218,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1325,11 +1227,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov5_det_track":
             from .yolov5_det_track import YOLOv5_Det_Tracker
@@ -1339,6 +1237,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1347,11 +1246,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_det_track":
             from .yolov8_det_track import YOLOv8_Det_Tracker
@@ -1361,6 +1256,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1369,11 +1265,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_seg_track":
             from .yolov8_seg_track import YOLOv8_Seg_Tracker
@@ -1383,6 +1275,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1391,11 +1284,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_obb_track":
             from .yolov8_obb_track import YOLOv8_Obb_Tracker
@@ -1405,6 +1294,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1413,11 +1303,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "yolov8_pose_track":
             from .yolov8_pose_track import YOLOv8_Pose_Tracker
@@ -1427,6 +1313,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1435,11 +1322,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "rmbg":
             from .rmbg import RMBG
@@ -1449,6 +1332,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1457,11 +1341,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "depth_anything":
             from .depth_anything import DepthAnything
@@ -1471,6 +1351,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1479,11 +1360,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         elif model_config["type"] == "depth_anything_v2":
             from .depth_anything_v2 import DepthAnythingV2
@@ -1493,6 +1370,7 @@ class ModelManager(QObject):
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
+                logger.info(f"✅ Model loaded successfully: {model_config['type']}")
             except Exception as e:  # noqa
                 self.new_model_status.emit(
                     self.tr(
@@ -1501,11 +1379,7 @@ class ModelManager(QObject):
                         )
                     )
                 )
-                print(
-                    "Error in loading model: {error_message}".format(
-                        error_message=str(e)
-                    )
-                )
+                logger.error(f"❌ Error in loading model: {model_config['type']} with error: {str(e)}")
                 return
         else:
             raise Exception(f"Unknown model type: {model_config['type']}")
@@ -1713,7 +1587,7 @@ class ModelManager(QObject):
                 self.tr("Finished inferencing AI model. Check the result.")
             )
         except Exception as e:  # noqa
-            print(f"Error in predict_shapes: {e}")
+            logger.error(f"Error in predict_shapes: {e}")
             self.new_model_status.emit(
                 self.tr(
                     f"Error in model prediction: {e}. Please check the model."

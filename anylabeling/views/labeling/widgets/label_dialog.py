@@ -161,7 +161,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                     json.dump(data, f, indent=2, ensure_ascii=False)
             return True
         except Exception as e:
-            print(f"Error occurred while updating Group IDs: {e}")
+            logger.error(f"Error occurred while updating Group IDs: {e}")
             return False
 
     def init_gid_info(self):
@@ -404,7 +404,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
                     json.dump(data, f, indent=2, ensure_ascii=False)
             return True
         except Exception as e:
-            print(f"Error occurred while updating labels: {e}")
+            logger.error(f"Error occurred while updating labels: {e}")
             return False
 
     def init_label_info(self):
@@ -858,7 +858,7 @@ class LabelDialog(QtWidgets.QDialog):
 
         if items:
             if len(items) != 1:
-                logger.warning("Label list has duplicate '%s'", text)
+                logger.warning(f"Label list has duplicate '{text}'")
             self.label_list.setCurrentItem(items[0])
             row = self.label_list.row(items[0])
             self.edit.completer().setCurrentRow(row)

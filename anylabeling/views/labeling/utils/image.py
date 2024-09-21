@@ -11,6 +11,8 @@ import PIL.ImageOps
 import numpy as np
 from PyQt5 import QtGui
 
+from ...labeling.logger import logger
+
 
 def img_data_to_pil(img_data):
     f = io.BytesIO()
@@ -101,7 +103,7 @@ def process_image_exif(filename):
                 backup_filename = osp.join(backup_dir, osp.basename(filename))
                 shutil.copy2(filename, backup_filename)
                 img.save(filename)
-                print(f"Rotated {filename} by {rotation}, saving backup to {backup_filename}")
+                logger.info(f"Rotated {filename} by {rotation}, saving backup to {backup_filename}")
                 break
 
 

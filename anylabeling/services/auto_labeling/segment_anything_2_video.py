@@ -1,18 +1,17 @@
-import logging
-import os
-import traceback
-
 import warnings
-
 warnings.filterwarnings("ignore")
 
+import os
 import cv2
+import traceback
 import numpy as np
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
+from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 
 from .model import Model
@@ -120,7 +119,7 @@ class SegmentAnything2Video(Model):
         if self.prompts:
             try:
                 self.video_predictor.reset_state()
-                print(
+                logger.info(
                     f"Successful: The tracker has been reset to its initial state."
                 )
             except Exception as e:  # noqa
@@ -323,7 +322,7 @@ class SegmentAnything2Video(Model):
             filename.endswith(ext)
             for ext in [".jpg", ".jpeg", ".JPG", ".JPEG"]
         ):
-            print(f"Only JPEG format is supported, but got {filename}")
+            logger.warning(f"Only JPEG format is supported, but got {filename}")
             return [], False
 
         if self.is_first_init:
@@ -397,8 +396,8 @@ class SegmentAnything2Video(Model):
                 shapes = self.image_process(cv_image)
                 result = AutoLabelingResult(shapes, replace=False)
         except Exception as e:  # noqa
-            logging.warning("Could not inference model")
-            logging.warning(e)
+            logger.warning("Could not inference model")
+            logger.warning(e)
             traceback.print_exc()
             return AutoLabelingResult([], replace=False)
 

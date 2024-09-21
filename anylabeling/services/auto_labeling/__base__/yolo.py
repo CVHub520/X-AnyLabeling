@@ -1,6 +1,4 @@
-import logging
 import os
-
 import cv2
 import math
 import numpy as np
@@ -10,6 +8,7 @@ from PyQt5.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
+from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from ..model import Model
 from ..engines import OnnxBaseModel
@@ -127,7 +126,7 @@ class YOLO(Model):
                 self.tracker = BOTSORT(tracker_args, frame_rate=30)
             else:
                 self.tracker = None
-                print(
+                logger.error(
                     "Only 'bytetrack' and 'botsort' are supported for now, "
                     f"but got '{tracker_args.tracker_type}'!"
                 )
@@ -359,8 +358,8 @@ class YOLO(Model):
         try:
             image = qt_img_to_rgb_cv_img(image, image_path)
         except Exception as e:  # noqa
-            logging.warning("Could not inference model")
-            logging.warning(e)
+            logger.warning("Could not inference model")
+            logger.warning(e)
             return []
         self.image_shape = image.shape
         blob = self.preprocess(image, upsample_mode="letterbox")

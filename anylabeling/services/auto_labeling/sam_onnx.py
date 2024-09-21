@@ -1,4 +1,3 @@
-import logging
 from copy import deepcopy
 
 import cv2

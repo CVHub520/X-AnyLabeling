@@ -17,7 +17,6 @@ show_degrees: false
 show_shapes: true
 show_linking: true
 logger_level: info
-save_mode: default
 system_clipboard: false
 switch_to_checked: false
 

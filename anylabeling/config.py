@@ -1,5 +1,6 @@
 import os.path as osp
 import shutil
+import yaml
 
 try:
     import importlib.resources as pkg_resources
@@ -7,23 +8,18 @@ except ImportError:
     # Try backported to PY<37 `importlib_resources`.
     import importlib_resources as pkg_resources
 
-import yaml
-
 from anylabeling import configs as anylabeling_configs
+from anylabeling.views.labeling.logger import logger
 
-from .views.labeling.logger import logger
 
-
-# Save current config file
 current_config_file = None
-
 
 def update_dict(target_dict, new_dict, validate_item=None):
     for key, value in new_dict.items():
         if validate_item:
             validate_item(key, value)
         if key not in target_dict:
-            logger.warning("Skipping unexpected key in config: %s", key)
+            logger.warning(f"Skipping unexpected key in config: {key}")
             continue
         if isinstance(target_dict[key], dict) and isinstance(value, dict):
             update_dict(target_dict[key], value, validate_item=validate_item)
@@ -32,13 +28,12 @@ def update_dict(target_dict, new_dict, validate_item=None):
 
 
 def save_config(config):
-    # Local config file
     user_config_file = osp.join(osp.expanduser("~"), ".xanylabelingrc")
     try:
         with open(user_config_file, "w", encoding="utf-8") as f:
             yaml.safe_dump(config, f, allow_unicode=True)
     except Exception:  # noqa
-        logger.warning("Failed to save config: %s", user_config_file)
+        logger.warning(f"Failed to save config: {user_config_file}")
 
 
 def get_default_config():
@@ -73,27 +68,26 @@ def validate_config_item(key, value):
         )
 
 
-def get_config(config_file_or_yaml=None, config_from_args=None):
-    # 1. default config
+def get_config(config_file_or_yaml=None, config_from_args=None, show_msg=False):
+    # 1. Load default configuration
     config = get_default_config()
 
-    # 2. specified as file or yaml
-    if config_file_or_yaml is None:
+    # 2. Load configuration from file or YAML string
+    if not config_file_or_yaml:
         config_file_or_yaml = current_config_file
-    if config_file_or_yaml is not None:
-        config_from_yaml = yaml.safe_load(config_file_or_yaml)
-        if not isinstance(config_from_yaml, dict):
-            with open(config_from_yaml, encoding="utf-8") as f:
-                logger.info("Loading config file from: %s", config_from_yaml)
-                config_from_yaml = yaml.safe_load(f)
-        update_dict(
-            config, config_from_yaml, validate_item=validate_config_item
-        )
 
-    # 3. command line argument or specified config file
-    if config_from_args is not None:
-        update_dict(
-            config, config_from_args, validate_item=validate_config_item
-        )
+    config_from_yaml = yaml.safe_load(config_file_or_yaml)
+    if not isinstance(config_from_yaml, dict):
+        with open(config_file_or_yaml, encoding="utf-8") as f:
+            config_from_yaml = yaml.safe_load(f)
+    update_dict(config, config_from_yaml, validate_item=validate_config_item)
+    if show_msg:
+        logger.info(f"🔧️ Initializing config from local file: {config_file_or_yaml}")
+
+    # 3. Update configuration with command line arguments
+    if config_from_args:
+        update_dict(config, config_from_args, validate_item=validate_config_item)
+        if show_msg:
+            logger.info(f"🔄 Updated config from CLI arguments: {config_from_args}")
 
     return config
