@@ -1,14 +1,9 @@
-import datetime
 import logging
 import sys
 from functools import wraps
 from typing import Callable, Dict
 
 import termcolor
-
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace", newline="\n")
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace", newline="\n")
 
 
 COLORS: Dict[str, str] = {
