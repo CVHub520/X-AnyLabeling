@@ -1,4 +1,6 @@
 -r requirements-gpu.txt
 build
 twine
+black
+flake8
 pyinstaller
