@@ -150,11 +150,11 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                     data = json.load(f)
                 src_shapes, dst_shapes = data["shapes"], []
                 for shape in src_shapes:
-                    group_id = int(shape.get("group_id"))
-                    if group_id in updated_gid_info:
-                        shape["group_id"] = updated_gid_info[group_id][
-                            "new_gid"
-                        ]
+                    group_id = shape.get("group_id")
+                    if group_id is not None:
+                        group_id = int(group_id)
+                        if group_id in updated_gid_info:
+                            shape["group_id"] = updated_gid_info[group_id]["new_gid"]
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
                 with open(shape_file, "w", encoding="utf-8") as f:
