@@ -2,7 +2,9 @@ import os
 import cv2
 import math
 import numpy as np
+from typing import Union, Tuple, List
 from argparse import Namespace
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
 
@@ -404,35 +406,12 @@ class YOLO(Model):
             zip(boxes, class_ids, scores, points, keypoints, track_ids)
         ):
             if self.task == "det" or self.show_boxes:
-                x1, y1, x2, y2 = box.astype(float)
-                shape = Shape(flags={})
-                shape.add_point(QtCore.QPointF(x1, y1))
-                shape.add_point(QtCore.QPointF(x2, y1))
-                shape.add_point(QtCore.QPointF(x2, y2))
-                shape.add_point(QtCore.QPointF(x1, y2))
-                shape.shape_type = "rectangle"
-                shape.closed = True
-                shape.label = str(self.classes[int(class_id)])
-                shape.score = float(score)
-                shape.selected = False
-                if self.task == "pose":
-                    shape.group_id = int(i)
-                if self.tracker and track_id:
-                    shape.group_id = int(track_id)
+                shape = self.create_rectangle_shape(box, score, i, class_id, track_id)
                 shapes.append(shape)
             if self.task == "seg":
                 if len(point) < 3:
                     continue
-                shape = Shape(flags={})
-                for p in point:
-                    shape.add_point(QtCore.QPointF(int(p[0]), int(p[1])))
-                shape.shape_type = "polygon"
-                shape.closed = True
-                shape.label = str(self.classes[int(class_id)])
-                shape.score = float(score)
-                shape.selected = False
-                if self.tracker and track_id:
-                    shape.group_id = int(track_id)
+                shape = self.create_polygon_shape(point, score, class_id, track_id)
                 shapes.append(shape)
             if self.task == "pose":
                 label = str(self.classes[int(class_id)])
@@ -449,51 +428,191 @@ class YOLO(Model):
                         or s < self.kpt_thres
                     ):
                         continue
-                    shape = Shape(flags={})
-                    shape.add_point(QtCore.QPointF(int(x), int(y)))
-                    shape.shape_type = "point"
-                    shape.difficult = False
-                    if self.tracker and track_id:
-                        shape.group_id = int(track_id)
-                    else:
-                        shape.group_id = int(i)
-                    shape.closed = True
-                    shape.label = keypoint_name[j]
-                    shape.score = float(s)
-                    shape.selected = False
+                    shape = self.create_keypoint_shape((x, y), keypoint_name, s, j, i, track_id)
                     shapes.append(shape)
             if self.task == "obb":
-                poly = xywhr2xyxyxyxy(box)
-                x0, y0 = poly[0]
-                x1, y1 = poly[1]
-                x2, y2 = poly[2]
-                x3, y3 = poly[3]
-                direction = self.calculate_rotation_theta(poly)
-                shape = Shape(flags={})
-                shape.add_point(QtCore.QPointF(x0, y0))
-                shape.add_point(QtCore.QPointF(x1, y1))
-                shape.add_point(QtCore.QPointF(x2, y2))
-                shape.add_point(QtCore.QPointF(x3, y3))
-                shape.shape_type = "rotation"
-                shape.closed = True
-                shape.direction = direction
-                shape.label = str(self.classes[int(class_id)])
-                shape.score = float(score)
-                shape.selected = False
-                if self.tracker and track_id:
-                    shape.group_id = int(track_id)
+                shape = self.create_obb_shape(box, score, class_id, track_id)
                 shapes.append(shape)
         result = AutoLabelingResult(shapes, replace=self.replace)
 
         return result
 
+    def create_rectangle_shape(
+        self,
+        box: np.ndarray,
+        score: Union[float, str],
+        pose_id: Union[int, str],
+        class_id: Union[int, str],
+        track_id: Union[int, str],
+    ) -> Shape:
+        """
+        Create a rectangle shape from a bounding box.
+
+        Args:
+            box (np.ndarray): A numpy array of shape (4,) representing the bounding box.
+                The format of the bounding box is [x1, y1, x2, y2].
+            score (Union[float, str]): The confidence score of the bounding box.
+            pose_id (Union[int, str]): The pose ID of the bounding box.
+            class_id (Union[int, str]): The class ID of the bounding box.
+            track_id (Union[int, str]): The track ID of the bounding box.
+
+        Returns:
+            (Shape): A Shape object representing the rectangle.
+        """
+        x1, y1, x2, y2 = box.astype(float)
+        shape = Shape(flags={})
+        shape.add_point(QtCore.QPointF(x1, y1))
+        shape.add_point(QtCore.QPointF(x2, y1))
+        shape.add_point(QtCore.QPointF(x2, y2))
+        shape.add_point(QtCore.QPointF(x1, y2))
+        shape.shape_type = "rectangle"
+        shape.closed = True
+        shape.label = str(self.classes[int(class_id)])
+        shape.score = float(score)
+        shape.selected = False
+        if self.task == "pose":
+            shape.group_id = int(pose_id)
+        if self.tracker and track_id:
+            shape.group_id = int(track_id)
+        return shape
+
+    def create_polygon_shape(
+        self,
+        point: np.ndarray,
+        score: Union[float, str],
+        class_id: Union[int, str],
+        track_id: Union[int, str],
+    ) -> Shape:
+        """
+        Create a polygon shape from a list of points.
+
+        Args:
+            point (np.ndarray): A numpy array of shape (n, 2) representing the points of the polygon.
+            score (Union[float, str]): The confidence score of the polygon.
+            class_id (Union[int, str]): The class ID of the polygon.
+            track_id (Union[int, str]): The track ID of the polygon.
+
+        Returns:
+            shape (Shape): A Shape object representing the polygon.
+        """
+        shape = Shape(flags={})
+        for p in point:
+            shape.add_point(QtCore.QPointF(int(p[0]), int(p[1])))
+        shape.shape_type = "polygon"
+        shape.closed = True
+        shape.label = str(self.classes[int(class_id)])
+        shape.score = float(score)
+        shape.selected = False
+        if self.tracker and track_id:
+            shape.group_id = int(track_id)
+        return shape
+
+    def create_keypoint_shape(
+        self,
+        keypoint: Tuple[Union[int, float], Union[int, float]],
+        keypoint_name: List[str],
+        score: Union[float, str],
+        pose_id: Union[int, str],
+        class_id: Union[int, str],
+        track_id: Union[int, str],
+    ) -> Shape:
+        """
+        Create a keypoint shape from a keypoint.
+
+        Args:
+            keypoint (Tuple[Union[int, float], Union[int, float]]):
+                A tuple of two integers or floats representing the keypoint.
+            keypoint_name (List[str]): A list of strings representing the keypoint name.
+            score (Union[float, str]): The confidence score of the keypoint.
+            pose_id (Union[int, str]): The pose ID of the keypoint.
+            class_id (Union[int, str]): The class ID of the keypoint.
+            track_id (Union[int, str]): The track ID of the keypoint.
+
+        Returns:
+            (Shape): A Shape object representing the keypoint.
+        """
+        x, y = keypoint
+        shape = Shape(flags={})
+        shape.add_point(QtCore.QPointF(int(x), int(y)))
+        shape.shape_type = "point"
+        shape.difficult = False
+        if self.tracker and track_id:
+            shape.group_id = int(track_id)
+        else:
+            shape.group_id = int(class_id)
+        shape.closed = True
+        shape.label = keypoint_name[int(pose_id)]
+        shape.score = float(score)
+        shape.selected = False
+        return shape
+
+    def create_obb_shape(
+        self,
+        box: np.ndarray,
+        score: Union[float, str],
+        class_id: Union[int, str],
+        track_id: Union[int, str],
+    ) -> Shape:
+        """
+        Create an oriented bounding box shape from a bounding box.
+
+        Args:
+            box (np.ndarray): A numpy array of shape (5,) representing the bounding box.
+                The format of the bounding box is [x1, y1, x2, y2, theta].
+            score (Union[float, str]): The confidence score of the bounding box.
+            class_id (Union[int, str]): The class ID of the bounding box.
+            track_id (Union[int, str]): The track ID of the bounding box.
+
+        Returns:
+            (Shape): A Shape object representing the oriented bounding box.
+        """
+        poly = xywhr2xyxyxyxy(box)
+        x0, y0 = poly[0]
+        x1, y1 = poly[1]
+        x2, y2 = poly[2]
+        x3, y3 = poly[3]
+        direction = self.calculate_rotation_theta(poly)
+        shape = Shape(flags={})
+        shape.add_point(QtCore.QPointF(x0, y0))
+        shape.add_point(QtCore.QPointF(x1, y1))
+        shape.add_point(QtCore.QPointF(x2, y2))
+        shape.add_point(QtCore.QPointF(x3, y3))
+        shape.shape_type = "rotation"
+        shape.closed = True
+        shape.direction = direction
+        shape.label = str(self.classes[int(class_id)])
+        shape.score = float(score)
+        shape.selected = False
+        if self.tracker and track_id:
+            shape.group_id = int(track_id)
+        return shape
+
     @staticmethod
     def make_grid(nx=20, ny=20):
+        """
+        Create a grid of points.
+
+        Args:
+            nx (int): The number of points in the x-direction.
+            ny (int): The number of points in the y-direction.
+
+        Returns:
+            (np.ndarray): A numpy array of shape (nx * ny, 2) representing the grid of points.
+        """
         xv, yv = np.meshgrid(np.arange(ny), np.arange(nx))
         return np.stack((xv, yv), 2).reshape((-1, 2)).astype(np.float32)
 
     @staticmethod
     def calculate_rotation_theta(poly):
+        """
+        Calculate the rotation angle of the polygon.
+
+        Args:
+            poly (np.ndarray): A numpy array of shape (4, 2) representing the polygon.
+
+        Returns:
+            (float): The rotation angle of the polygon in radians.
+        """
         x1, y1 = poly[0]
         x2, y2 = poly[1]
 
@@ -513,6 +632,7 @@ class YOLO(Model):
         return rotation_angle_degrees / 360 * (2 * math.pi)
 
     def scale_grid(self, outs):
+        """Scale the grid of points."""
         outs = outs[0]
         row_ind = 0
         for i in range(self.nl):
@@ -604,11 +724,11 @@ class YOLO(Model):
         It takes a mask and a bounding box, and returns a mask that is cropped to the bounding box.
 
         Args:
-        masks (np.ndarray): [n, h, w] array of masks.
-        boxes (np.ndarray): [n, 4] array of bbox coordinates in relative point form.
+            masks (np.ndarray): [n, h, w] array of masks.
+            boxes (np.ndarray): [n, 4] array of bbox coordinates in relative point form.
 
         Returns:
-        (np.ndarray): The masks are being cropped to the bounding box.
+            (np.ndarray): The masks are being cropped to the bounding box.
         """
         n, h, w = masks.shape
         x1, y1, x2, y2 = np.hsplit(boxes[:, :, None], 4)
@@ -619,6 +739,19 @@ class YOLO(Model):
 
     @staticmethod
     def rescale_coords_v10(boxes, image_shape, input_shape):
+        """
+        Rescale the coordinates of the bounding boxes.
+
+        Args:
+            boxes (np.ndarray): [n, 4] array of bbox coordinates in relative point form.
+            image_shape (tuple): A tuple of integers representing
+                the size of the input image in the format (h, w).
+            input_shape (tuple): A tuple of integers representing
+                the size of the input image in the format (h, w).
+
+        Returns:
+            boxes (np.ndarray): [n, 4] array of bbox coordinates in relative point form.
+        """
         image_height, image_width = image_shape
         input_height, input_width = input_shape
 
