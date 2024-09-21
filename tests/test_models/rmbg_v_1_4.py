@@ -8,6 +8,7 @@ from skimage import io
 from PIL import Image
 import cv2
 
+
 class ImageBackgroundRemover:
     """A class for removing backgrounds from images using an ONNX model."""
 
@@ -85,7 +86,7 @@ class ImageBackgroundRemover:
         pil_image = Image.open(image_path)
         pil_image = pil_image.convert('RGBA')
         pil_mask = pil_mask.convert('L')
-        
+
         # Create a new image with an alpha channel
         output_image = Image.new("RGBA", pil_image.size, (0, 0, 0, 0))
         output_image.paste(pil_image, (0, 0), pil_mask)

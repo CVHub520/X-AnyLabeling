@@ -8,7 +8,7 @@ from ..engines import OnnxBaseModel
 
 """
 The onnxruntime demo of the RTMDet model
-Ref: 
+Ref:
     https://github.com/open-mmlab/mmyolo/tree/dev/configs/rtmdet
     https://platform.openmmlab.com/deploee/onnx-detail?search=rtmdet&tag=&page=1
     https://github.com/Tau-J/rtmlib/blob/main/rtmlib/tools/object_detection/rtmdet.py
@@ -122,50 +122,9 @@ class RTMDet:
 
         if outputs.shape[-1] == 4:
             # onnx without nms module
-
-            grids = []
-            expanded_strides = []
-            strides = [8, 16, 32]
-
-            hsizes = [self.model_input_size[0] // stride for stride in strides]
-            wsizes = [self.model_input_size[1] // stride for stride in strides]
-
-            for hsize, wsize, stride in zip(hsizes, wsizes, strides):
-                xv, yv = np.meshgrid(np.arange(wsize), np.arange(hsize))
-                grid = np.stack((xv, yv), 2).reshape(1, -1, 2)
-                grids.append(grid)
-                shape = grid.shape[:2]
-                expanded_strides.append(np.full((*shape, 1), stride))
-
-            grids = np.concatenate(grids, 1)
-            expanded_strides = np.concatenate(expanded_strides, 1)
-            outputs[..., :2] = (outputs[..., :2] + grids) * expanded_strides
-            outputs[..., 2:4] = np.exp(outputs[..., 2:4]) * expanded_strides
-
-            predictions = outputs[0]
-            boxes = predictions[:, :4]
-            scores = predictions[:, 4:5] * predictions[:, 5:]
-
-            boxes_xyxy = np.ones_like(boxes)
-            boxes_xyxy[:, 0] = boxes[:, 0] - boxes[:, 2] / 2.0
-            boxes_xyxy[:, 1] = boxes[:, 1] - boxes[:, 3] / 2.0
-            boxes_xyxy[:, 2] = boxes[:, 0] + boxes[:, 2] / 2.0
-            boxes_xyxy[:, 3] = boxes[:, 1] + boxes[:, 3] / 2.0
-            boxes_xyxy /= ratio
-            dets = multiclass_nms(
-                boxes_xyxy,
-                scores,
-                nms_thr=self.nms_thr,
-                score_thr=self.score_thr,
+            raise NotImplementedError(
+                "RTMDet without nms module is not supported yet."
             )
-            if dets is not None:
-                pack_dets = (dets[:, :4], dets[:, 4], dets[:, 5])
-                final_boxes, final_scores, final_cls_inds = pack_dets
-                isscore = final_scores > 0.3
-                iscat = final_cls_inds == 0
-                isbbox = [i and j for (i, j) in zip(isscore, iscat)]
-                final_boxes = final_boxes[isbbox]
-
         elif outputs.shape[-1] == 5:
             # onnx contains nms module
             pack_dets = (outputs[0, :, :4], outputs[0, :, 4])

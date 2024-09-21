@@ -8,7 +8,7 @@ import numpy as np
 
 try:
     import pybboxes.functional as pbf
-except:
+except Exception:
     pass
 
 from anylabeling.services.auto_labeling.utils.sahi.models.base import (

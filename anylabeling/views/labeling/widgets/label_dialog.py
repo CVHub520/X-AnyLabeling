@@ -20,7 +20,9 @@ from ..logger import logger
 
 
 def natural_sort_key(s):
-    return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', s)]
+    return [
+        int(c) if c.isdigit() else c.lower() for c in re.split(r"(\d+)", s)
+    ]
 
 
 class GroupIDModifyDialog(QtWidgets.QDialog):
@@ -154,7 +156,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                     if group_id is not None:
                         group_id = int(group_id)
                         if group_id in updated_gid_info:
-                            shape["group_id"] = updated_gid_info[group_id]["new_gid"]
+                            shape["group_id"] = updated_gid_info[group_id][
+                                "new_gid"
+                            ]
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
                 with open(shape_file, "w", encoding="utf-8") as f:
@@ -318,7 +322,6 @@ class LabelModifyDialog(QtWidgets.QDialog):
     def on_delete_checkbox_changed(self, row, state):
         value_item = self.table_widget.item(row, 2)
         delete_checkbox = self.table_widget.cellWidget(row, 1)
-        hidden_checkbox = self.table_widget.cellWidget(row, 3)
 
         if state == QtCore.Qt.Checked:
             value_item.setFlags(value_item.flags() & ~QtCore.Qt.ItemIsEditable)
@@ -668,7 +671,8 @@ class LabelDialog(QtWidgets.QDialog):
                 )  # Show the list when an item is added
             else:
                 raise ValueError
-        except:
+        except Exception as e:
+            logger.error(f"An Error occurred while adding linking pair: {e}")
             QtWidgets.QMessageBox.warning(
                 self,
                 self.tr("Invalid Input"),
@@ -705,9 +709,8 @@ class LabelDialog(QtWidgets.QDialog):
         items = []
         for index in range(self.label_list.count()):
             items.append(self.label_list.item(index).text())
-        
+
         items.sort(key=natural_sort_key)
-        
         self.label_list.clear()
         self.label_list.addItems(items)
 

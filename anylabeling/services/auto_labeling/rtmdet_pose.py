@@ -96,7 +96,7 @@ class RTMDet_Pose(Model):
             img = image[y1:y2, x1:x2]
             try:
                 keypoints, scores = self.pose(img)
-            except:
+            except Exception:
                 keypoints, scores = [], []
             if not self.pose and len(keypoints) == 0:
                 continue

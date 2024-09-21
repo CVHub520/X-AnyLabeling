@@ -141,7 +141,7 @@ class YOLOv5OBB(Model):
             # (n, [poly conf cls])
             results = np.concatenate((pred_poly, det[:, -2:]), axis=1)
             return results
-        except:
+        except Exception:
             return []
 
     def predict_shapes(self, image, image_path=None):

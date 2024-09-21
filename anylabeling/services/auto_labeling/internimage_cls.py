@@ -39,7 +39,7 @@ class InternImage_CLS(Model):
             raise FileNotFoundError(
                 QCoreApplication.translate(
                     "Model",
-                    f"Could not download or initialize InternImage model.",
+                    "Could not download or initialize InternImage model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)

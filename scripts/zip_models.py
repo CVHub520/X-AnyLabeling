@@ -19,7 +19,7 @@ def get_filename_from_url(url):
     return os.path.basename(a.path)
 
 
-for model in model_list:
+for model in model_list:  # noqa: C901
     model_name = model["model_name"]
     config_file = model["config_file"]
     print(f"Zipping {model_name}...")

@@ -12,6 +12,7 @@ import codecs
 import logging
 
 import sys
+
 sys.path.append(".")
 
 import yaml
@@ -125,7 +126,7 @@ def main():
         help="epsilon to find nearest vertex on canvas",
         default=argparse.SUPPRESS,
     )
-    args = parser.parse_args()        
+    args = parser.parse_args()
 
     if hasattr(args, "flags"):
         if os.path.isfile(args.flags):
@@ -155,7 +156,9 @@ def main():
     config_file_or_yaml = config_from_args.pop("config")
     logger_level = config_from_args.pop("logger_level")
     logger.setLevel(getattr(logging, logger_level.upper()))
-    logger.info(f"🚀 {gradient_text(f'X-AnyLabeling v{__version__} launched!')}")
+    logger.info(
+        f"🚀 {gradient_text(f'X-AnyLabeling v{__version__} launched!')}"
+    )
     logger.info(f"⭐ If you like it, give us a star: {__url__}")
     anylabeling_config.current_config_file = config_file_or_yaml
     config = get_config(config_file_or_yaml, config_from_args, show_msg=True)

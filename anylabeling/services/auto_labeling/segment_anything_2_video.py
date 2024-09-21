@@ -1,4 +1,5 @@
 import warnings
+
 warnings.filterwarnings("ignore")
 
 import os
@@ -120,7 +121,7 @@ class SegmentAnything2Video(Model):
             try:
                 self.video_predictor.reset_state()
                 logger.info(
-                    f"Successful: The tracker has been reset to its initial state."
+                    "Successful: The tracker has been reset to its initial state."
                 )
             except Exception as e:  # noqa
                 pass
@@ -235,9 +236,13 @@ class SegmentAnything2Video(Model):
                 break
             # Create Polygon shape
             shape.shape_type = "polygon"
-            shape.group_id = self.group_ids[index] if index is not None else None
+            shape.group_id = (
+                self.group_ids[index] if index is not None else None
+            )
             shape.closed = True
-            shape.label = "AUTOLABEL_OBJECT" if index is None else self.labels[index]
+            shape.label = (
+                "AUTOLABEL_OBJECT" if index is None else self.labels[index]
+            )
             shape.selected = False
             shapes.append(shape)
         elif self.output_mode in ["rectangle", "rotation"]:
@@ -269,8 +274,12 @@ class SegmentAnything2Video(Model):
                 "rectangle" if self.output_mode == "rectangle" else "rotation"
             )
             shape.closed = True
-            shape.group_id = self.group_ids[index] if index is not None else None
-            shape.label = "AUTOLABEL_OBJECT" if index is None else self.labels[index]
+            shape.group_id = (
+                self.group_ids[index] if index is not None else None
+            )
+            shape.label = (
+                "AUTOLABEL_OBJECT" if index is None else self.labels[index]
+            )
             shape.selected = False
             shapes.append(shape)
 
@@ -322,7 +331,9 @@ class SegmentAnything2Video(Model):
             filename.endswith(ext)
             for ext in [".jpg", ".jpeg", ".JPG", ".JPEG"]
         ):
-            logger.warning(f"Only JPEG format is supported, but got {filename}")
+            logger.warning(
+                f"Only JPEG format is supported, but got {filename}"
+            )
             return [], False
 
         if self.is_first_init:

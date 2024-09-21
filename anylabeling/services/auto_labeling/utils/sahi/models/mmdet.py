@@ -229,7 +229,7 @@ class MmdetDetectionModel(DetectionModel):
     @property
     def category_names(self):
         classes = self.model.model.dataset_meta["classes"]
-        if type(classes) == str:
+        if isinstance(classes, str):
             # https://github.com/open-mmlab/mmdetection/pull/4973
             return (classes,)
         else:

@@ -1,4 +1,3 @@
-import os
 import cv2
 import time as time
 import numpy as np
@@ -11,7 +10,7 @@ Written by Wei Wang (CVHub)
         1. Download source code from [huggingface/stevengrove/YOLO-World](https://huggingface.co/spaces/stevengrove/YOLO-World)
         2. cd YOLO-World and pip install -r requirements.txt
         3. export PYTHONPATH=/path/to/your/YOLO-World
-        4. execute `python app.py --config ${your_custom_config.py} --checkpoint ${your_custom_finetune_model_config.py}` 
+        4. execute `python app.py --config ${your_custom_config.py} --checkpoint ${your_custom_finetune_model_config.py}`
         5. Place the current script in this directory
         6. Put the corresponding onnx weight into the specific directory
         7. Run the following command
@@ -19,10 +18,6 @@ Written by Wei Wang (CVHub)
         python ${export_yolow_onnx.py}
         ```
 """
-
-import onnxruntime as ort
-import numpy as np
-import cv2
 
 
 def denormalize_bbox(bbox, input_shape, image_shape):
@@ -137,7 +132,8 @@ def main():
         cv2.imshow("Detected Objects", result_image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-    except:
+    except Exception as e:
+        print(f"Error displaying image: {e}")
         cv2.imwrite("/path/to/save", result_image)
 
 

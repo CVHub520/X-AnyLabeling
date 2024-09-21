@@ -45,12 +45,12 @@ class YOLOv6Face(YOLO):
         """Runs Non-Maximum Suppression (NMS) on inference results.
         Args:
             prediction: (tensor), with shape [N, 15 + num_classes], N is the number of bboxes.
-            multi_label: (bool), when it is set to True, one box can have multi labels, 
-                                                otherwise, one box only huave one label.
+            multi_label: (bool), when it is set to True, one box can have multi labels,
+                otherwise, one box only huave one label.
             max_det:(int), max number of output bboxes.
         Returns:
-            list of detections, echo item is one tensor with shape (num_boxes, 16), 
-                                                16 is for [xyxy, ldmks, conf, cls].
+            list of detections, echo item is one tensor with shape (num_boxes, 16),
+                16 is for [xyxy, ldmks, conf, cls].
         """
         num_classes = prediction.shape[2] - 15  # number of classes
         pred_candidates = np.logical_and(
@@ -173,7 +173,7 @@ class YOLOv6Face(YOLO):
                 label=label,
                 shape_type="rectangle",
                 group_id=int(i),
-                score=float(score)
+                score=float(score),
             )
             rectangle_shape.add_point(QtCore.QPointF(x1, y1))
             rectangle_shape.add_point(QtCore.QPointF(x2, y1))

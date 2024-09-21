@@ -14,6 +14,7 @@ from anylabeling.views.labeling.logger import logger
 
 current_config_file = None
 
+
 def update_dict(target_dict, new_dict, validate_item=None):
     for key, value in new_dict.items():
         if validate_item:
@@ -68,7 +69,9 @@ def validate_config_item(key, value):
         )
 
 
-def get_config(config_file_or_yaml=None, config_from_args=None, show_msg=False):
+def get_config(
+    config_file_or_yaml=None, config_from_args=None, show_msg=False
+):
     # 1. Load default configuration
     config = get_default_config()
 
@@ -82,12 +85,18 @@ def get_config(config_file_or_yaml=None, config_from_args=None, show_msg=False):
             config_from_yaml = yaml.safe_load(f)
     update_dict(config, config_from_yaml, validate_item=validate_config_item)
     if show_msg:
-        logger.info(f"🔧️ Initializing config from local file: {config_file_or_yaml}")
+        logger.info(
+            f"🔧️ Initializing config from local file: {config_file_or_yaml}"
+        )
 
     # 3. Update configuration with command line arguments
     if config_from_args:
-        update_dict(config, config_from_args, validate_item=validate_config_item)
+        update_dict(
+            config, config_from_args, validate_item=validate_config_item
+        )
         if show_msg:
-            logger.info(f"🔄 Updated config from CLI arguments: {config_from_args}")
+            logger.info(
+                f"🔄 Updated config from CLI arguments: {config_from_args}"
+            )
 
     return config

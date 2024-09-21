@@ -124,7 +124,7 @@ class DBPostProcess(object):
             cv2.CHAIN_APPROX_SIMPLE,
         )
         if len(outs) == 3:
-            img, contours, _ = outs[0], outs[1], outs[2]
+            _, contours, _ = outs[0], outs[1], outs[2]
         elif len(outs) == 2:
             contours, _ = outs[0], outs[1]
 

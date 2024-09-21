@@ -806,7 +806,7 @@ class LabelConverter:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     # Export functions
-    def custom_to_yolo(
+    def custom_to_yolo(  # noqa: C901
         self, input_file, output_file, mode, skip_empty_files=False
     ):
         is_empty_file = True
@@ -953,9 +953,9 @@ class LabelConverter:
                         # 0: Invisible, 1: Occluded, 2: Visible
                         if name not in keypoints:
                             if self.has_vasiable:
-                                label += f" 0 0 0"
+                                label += " 0 0 0"
                             else:
-                                label += f" 0 0"
+                                label += " 0 0"
                         else:
                             x, y, visible = keypoints[name]
                             x = round((int(x) / image_width), 6)
@@ -968,9 +968,9 @@ class LabelConverter:
                     # the yolov8-pose model’s training data format requirements
                     for _ in range(max_keypoints - len(kpt_names)):
                         if self.has_vasiable:
-                            label += f" 0 0 0"
+                            label += " 0 0 0"
                         else:
-                            label += f" 0 0"
+                            label += " 0 0"
                     f.write(f"{label}\n")
         return is_empty_file
 
@@ -999,9 +999,9 @@ class LabelConverter:
         ET.SubElement(size, "height").text = str(image_height)
         ET.SubElement(size, "depth").text = str(image_depth)
         source = ET.SubElement(root, "source")
-        ET.SubElement(
-            source, "database"
-        ).text = "https://github.com/CVHub520/X-AnyLabeling"
+        ET.SubElement(source, "database").text = (
+            "https://github.com/CVHub520/X-AnyLabeling"
+        )
         for shape in shapes:
             label = shape["label"]
             points = shape["points"]

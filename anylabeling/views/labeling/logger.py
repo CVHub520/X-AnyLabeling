@@ -7,8 +7,8 @@ from typing import Callable, Dict
 import termcolor
 
 if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace', newline='\n')
-    sys.stderr.reconfigure(encoding='utf-8', errors='replace', newline='\n')
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace", newline="\n")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace", newline="\n")
 
 
 COLORS: Dict[str, str] = {
@@ -19,14 +19,18 @@ COLORS: Dict[str, str] = {
     "ERROR": "red",
 }
 
+
 def singleton(cls):
     instances = {}
+
     @wraps(cls)
     def get_instance(*args, **kwargs):
         if cls not in instances:
             instances[cls] = cls(*args, **kwargs)
         return instances[cls]
+
     return get_instance
+
 
 class ColoredFormatter(logging.Formatter):
     def __init__(self, fmt: str, use_color: bool = True):
@@ -40,16 +44,22 @@ class ColoredFormatter(logging.Formatter):
         return super().format(record)
 
     def _color_record(self, record: logging.LogRecord) -> logging.LogRecord:
-        colored = lambda text, color: termcolor.colored(text, color=color, attrs={"bold": True})
-        
-        record.levelname2 = colored(f"{record.levelname:<7}", COLORS[record.levelname])
+        def colored(text, color):
+            return termcolor.colored(text, color=color, attrs={"bold": True})
+
+        record.levelname2 = colored(
+            f"{record.levelname:<7}", COLORS[record.levelname]
+        )
         record.message2 = colored(record.msg, COLORS[record.levelname])
-        record.asctime2 = termcolor.colored(self.formatTime(record, self.datefmt), color="green")
+        record.asctime2 = termcolor.colored(
+            self.formatTime(record, self.datefmt), color="green"
+        )
         record.module2 = termcolor.colored(record.module, color="cyan")
         record.funcName2 = termcolor.colored(record.funcName, color="cyan")
         record.lineno2 = termcolor.colored(record.lineno, color="cyan")
-        
+
         return record
+
 
 @singleton
 class AppLogger:
@@ -71,5 +81,6 @@ class AppLogger:
 
     def set_level(self, level: str):
         self.logger.setLevel(level)
+
 
 logger = AppLogger()

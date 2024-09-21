@@ -78,7 +78,7 @@ class LabelingWidget(LabelDialog):
     FIT_WINDOW, FIT_WIDTH, MANUAL_ZOOM = 0, 1, 2
     next_files_changed = QtCore.pyqtSignal(list)
 
-    def __init__(
+    def __init__(  # noqa: C901
         self,
         parent=None,
         config=None,
@@ -329,9 +329,7 @@ class LabelingWidget(LabelDialog):
             self.open_next_image,
             shortcuts["open_next"],
             "next",
-            self.tr(
-                "Open next image"
-            ),
+            self.tr("Open next image"),
             enabled=False,
         )
         open_prev_image = action(
@@ -339,9 +337,7 @@ class LabelingWidget(LabelDialog):
             self.open_prev_image,
             shortcuts["open_prev"],
             "prev",
-            self.tr(
-                "Open prev image"
-            ),
+            self.tr("Open prev image"),
             enabled=False,
         )
         open_next_unchecked_image = action(
@@ -349,9 +345,7 @@ class LabelingWidget(LabelDialog):
             self.open_next_unchecked_image,
             shortcuts["open_next_unchecked"],
             "next",
-            self.tr(
-                "Open next unchecked image"
-            ),
+            self.tr("Open next unchecked image"),
             enabled=False,
         )
         open_prev_unchecked_image = action(
@@ -359,9 +353,7 @@ class LabelingWidget(LabelDialog):
             self.open_prev_unchecked_image,
             shortcuts["open_prev_unchecked"],
             "prev",
-            self.tr(
-                "Open previous unchecked image"
-            ),
+            self.tr("Open previous unchecked image"),
             enabled=False,
         )
         save = action(
@@ -2980,7 +2972,9 @@ class LabelingWidget(LabelDialog):
             AutoLabelingMode.ADD,
             AutoLabelingMode.REMOVE,
         ]:
-            self.label_dialog.add_label_history(shape.label, update_last_label=update_last_label)
+            self.label_dialog.add_label_history(
+                shape.label, update_last_label=update_last_label
+            )
 
         for action in self.actions.on_shapes_present:
             action.setEnabled(True)
@@ -3575,7 +3569,9 @@ class LabelingWidget(LabelDialog):
                 flags.update(self.label_file.flags)
         self.load_flags(flags)
         if self._config["keep_prev"] and self.no_shape():
-            self.load_shapes(prev_shapes, replace=False, update_last_label=False)
+            self.load_shapes(
+                prev_shapes, replace=False, update_last_label=False
+            )
             self.set_dirty()
         else:
             self.set_clean()
@@ -3729,7 +3725,11 @@ class LabelingWidget(LabelDialog):
             self.open_checked_image(-1, -1)
             return
 
-        if not self.may_continue() or len(self.image_list) <= 0 or self.filename is None:
+        if (
+            not self.may_continue()
+            or len(self.image_list) <= 0
+            or self.filename is None
+        ):
             return
 
         current_index = self.fn_to_index[str(self.filename)]
@@ -3745,7 +3745,11 @@ class LabelingWidget(LabelDialog):
             self.open_checked_image(self.file_list_widget.count(), 1)
             return
 
-        if not self.may_continue() or len(self.image_list) <= 0 or self.filename is None:
+        if (
+            not self.may_continue()
+            or len(self.image_list) <= 0
+            or self.filename is None
+        ):
             return
 
         current_index = self.fn_to_index[str(self.filename)]
@@ -3916,7 +3920,9 @@ class LabelingWidget(LabelDialog):
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
 
-    def upload_yolo_annotation(self, mode, _value=False, dirpath=None):
+    def upload_yolo_annotation(  # noqa: C901
+        self, mode, _value=False, dirpath=None
+    ):
         if not self.may_continue():
             return
 
@@ -5814,9 +5820,11 @@ class LabelingWidget(LabelDialog):
             self.auto_labeling_widget.model_manager.loaded_model_config["type"]
             in marks_model_list
         ):
-            logger.warning(f"The model `{self.auto_labeling_widget.model_manager.loaded_model_config['type']}`"
-                           f" is not supported for this action."
-                           f" Please choose a valid model to execute.")
+            logger.warning(
+                f"The model `{self.auto_labeling_widget.model_manager.loaded_model_config['type']}`"
+                f" is not supported for this action."
+                f" Please choose a valid model to execute."
+            )
             self.auto_labeling_widget.model_manager.new_model_status.emit(
                 self.tr(
                     "Invalid model type, please choose a valid model_type to run."
@@ -5831,7 +5839,7 @@ class LabelingWidget(LabelDialog):
             QMessageBox.Yes | QMessageBox.No,
         )
         if reply == QMessageBox.Yes:
-            logger.info(f"Start running all images...")
+            logger.info("Start running all images...")
             self.current_index = self.fn_to_index[str(self.filename)]
             self.image_index = self.current_index
             self.text_prompt = ""
@@ -5988,7 +5996,9 @@ class LabelingWidget(LabelDialog):
             target_dir_path = utils.extract_frames_from_video(
                 self, source_video_path
             )
-            logger.info(f"🔍 Frames have been successfully extracted to {target_dir_path}")
+            logger.info(
+                f"🔍 Frames have been successfully extracted to {target_dir_path}"
+            )
             self.import_image_folder(target_dir_path)
 
     def open_folder_dialog(self, _value=False, dirpath=None):

@@ -79,7 +79,7 @@ def _cocoeval_summarize(
     return mean_s
 
 
-def evaluate_core(
+def evaluate_core(  # noqa: C901
     dataset_path,
     result_path,
     metric: str = "bbox",

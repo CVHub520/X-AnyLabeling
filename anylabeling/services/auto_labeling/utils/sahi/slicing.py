@@ -375,7 +375,6 @@ def slice_image(
         overlap_width_ratio=overlap_width_ratio,
     )
 
-    t0 = time.time()
     n_ims = 0
 
     # init images and annotations lists

@@ -8,7 +8,7 @@ import numpy as np
 import PIL.ExifTags
 import PIL.Image
 import PIL.ImageOps
-import numpy as np
+
 from PyQt5 import QtGui
 
 from ...labeling.logger import logger
@@ -97,13 +97,17 @@ def process_image_exif(filename):
                     rotation = "90 degrees"
                 else:
                     return  # No rotation needed
-                backup_dir = osp.join(osp.dirname(osp.dirname(filename)), 
-                                      "x-anylabeling-exif-backup")
+                backup_dir = osp.join(
+                    osp.dirname(osp.dirname(filename)),
+                    "x-anylabeling-exif-backup",
+                )
                 os.makedirs(backup_dir, exist_ok=True)
                 backup_filename = osp.join(backup_dir, osp.basename(filename))
                 shutil.copy2(filename, backup_filename)
                 img.save(filename)
-                logger.info(f"Rotated {filename} by {rotation}, saving backup to {backup_filename}")
+                logger.info(
+                    f"Rotated {filename} by {rotation}, saving backup to {backup_filename}"
+                )
                 break
 
 

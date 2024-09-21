@@ -205,8 +205,8 @@ def greedy_nmm(
 
         # Keep the boxes with IoU/IoS less than thresh_iou
         mask = match_metric_value < match_threshold
-        matched_box_indices = order[np.where(mask == False)[0]]
-        unmatched_indices = order[np.where(mask == True)[0]]
+        matched_box_indices = order[np.where(mask == False)[0]]  # noqa: E712
+        unmatched_indices = order[np.where(mask == True)[0]]  # noqa: E712
 
         # Update box pool
         order = unmatched_indices[np.argsort(scores[unmatched_indices])]
@@ -409,11 +409,11 @@ class NMMPostprocess(PostprocessPredictions):
                     self.match_metric,
                     self.match_threshold,
                 ):
-                    object_prediction_list[
-                        keep_ind
-                    ] = merge_object_prediction_pair(
-                        object_prediction_list[keep_ind].tolist(),
-                        object_prediction_list[merge_ind].tolist(),
+                    object_prediction_list[keep_ind] = (
+                        merge_object_prediction_pair(
+                            object_prediction_list[keep_ind].tolist(),
+                            object_prediction_list[merge_ind].tolist(),
+                        )
                     )
             selected_object_predictions.append(
                 object_prediction_list[keep_ind].tolist()
@@ -451,11 +451,11 @@ class GreedyNMMPostprocess(PostprocessPredictions):
                     self.match_metric,
                     self.match_threshold,
                 ):
-                    object_prediction_list[
-                        keep_ind
-                    ] = merge_object_prediction_pair(
-                        object_prediction_list[keep_ind].tolist(),
-                        object_prediction_list[merge_ind].tolist(),
+                    object_prediction_list[keep_ind] = (
+                        merge_object_prediction_pair(
+                            object_prediction_list[keep_ind].tolist(),
+                            object_prediction_list[merge_ind].tolist(),
+                        )
                     )
             selected_object_predictions.append(
                 object_prediction_list[keep_ind].tolist()

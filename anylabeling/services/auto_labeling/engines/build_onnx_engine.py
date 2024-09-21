@@ -4,7 +4,9 @@ import onnxruntime as ort
 
 
 class OnnxBaseModel:
-    def __init__(self, model_path, device_type: str = "cpu", log_severity_level: int = 0):
+    def __init__(
+        self, model_path, device_type: str = "cpu", log_severity_level: int = 3
+    ):
         self.sess_opts = ort.SessionOptions()
         self.sess_opts.log_severity_level = log_severity_level
         if "OMP_NUM_THREADS" in os.environ:

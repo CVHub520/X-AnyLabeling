@@ -77,7 +77,7 @@ def object_prediction_list_to_torch(
     """
     try:
         import torch
-    except:
+    except Exception:
         torch = None
     num_predictions = len(object_prediction_list)
     torch_predictions = torch.zeros([num_predictions, 6], dtype=torch.float32)

@@ -406,12 +406,16 @@ class YOLO(Model):
             zip(boxes, class_ids, scores, points, keypoints, track_ids)
         ):
             if self.task == "det" or self.show_boxes:
-                shape = self.create_rectangle_shape(box, score, i, class_id, track_id)
+                shape = self.create_rectangle_shape(
+                    box, score, i, class_id, track_id
+                )
                 shapes.append(shape)
             if self.task == "seg":
                 if len(point) < 3:
                     continue
-                shape = self.create_polygon_shape(point, score, class_id, track_id)
+                shape = self.create_polygon_shape(
+                    point, score, class_id, track_id
+                )
                 shapes.append(shape)
             if self.task == "pose":
                 label = str(self.classes[int(class_id)])
@@ -428,7 +432,9 @@ class YOLO(Model):
                         or s < self.kpt_thres
                     ):
                         continue
-                    shape = self.create_keypoint_shape((x, y), keypoint_name, s, j, i, track_id)
+                    shape = self.create_keypoint_shape(
+                        (x, y), keypoint_name, s, j, i, track_id
+                    )
                     shapes.append(shape)
             if self.task == "obb":
                 shape = self.create_obb_shape(box, score, class_id, track_id)

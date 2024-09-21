@@ -939,7 +939,7 @@ class MOTSConverter(BaseLabelConverter):
         cv2.imwrite(osp.join(image_path, "masked_image.jpg"), masked_image)
 
 
-def main():
+def main():  # noqa: C901
     parser = argparse.ArgumentParser(description="Label Converter")
     parser.add_argument(
         "--task",

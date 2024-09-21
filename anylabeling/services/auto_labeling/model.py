@@ -178,9 +178,7 @@ class Model(QObject):
             ellipsis_download_url = (
                 download_url[:20] + "..." + download_url[-20:]
             )
-        logger.info(
-            f"Downloading {ellipsis_download_url} to {model_abs_path}"
-        )
+        logger.info(f"Downloading {ellipsis_download_url} to {model_abs_path}")
         try:
             # Download and show progress
             def _progress(count, block_size, total_size):

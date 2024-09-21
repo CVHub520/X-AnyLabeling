@@ -20,7 +20,7 @@ Written by Wei Wang (CVHub)
         4. Place the current script in this directory.
         5. Download the corresponding tokenizer.json and place it in this dir.
         6. Run the script.
-    
+
         ```bash
         python export_grounding_dino_onnx.py \
             --config_file groundingdino/config/GroundingDINO_SwinB_cfg.py \
@@ -368,7 +368,7 @@ class Grounding_DINO:
 
     @staticmethod
     def get_tokenizer():
-        config_json_file = f"tokenizer.json"
+        config_json_file = "tokenizer.json"
         tokenizer = Tokenizer.from_file(config_json_file)
         return tokenizer
 

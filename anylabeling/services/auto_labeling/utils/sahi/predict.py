@@ -113,9 +113,9 @@ def get_prediction(
         shift_amount=shift_amount,
         full_shape=full_shape,
     )
-    object_prediction_list: List[
-        ObjectPrediction
-    ] = detection_model.object_prediction_list
+    object_prediction_list: List[ObjectPrediction] = (
+        detection_model.object_prediction_list
+    )
 
     # postprocess matching predictions
     if postprocess is not None:
@@ -361,7 +361,7 @@ def agg_prediction(result: PredictionResult, thresh):
     return res
 
 
-def predict(
+def predict(  # noqa: C901
     detection_model: DetectionModel = None,
     model_type: str = "mmdet",
     model_path: str = None,

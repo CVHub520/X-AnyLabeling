@@ -94,7 +94,7 @@ class GroundingSAM2(Model):
             raise FileNotFoundError(
                 QCoreApplication.translate(
                     "Model",
-                    f"Could not download or initialize encoder of SAM2.",
+                    "Could not download or initialize encoder of SAM2.",
                 )
             )
         decoder_model_abs_path = self.get_model_abs_path(

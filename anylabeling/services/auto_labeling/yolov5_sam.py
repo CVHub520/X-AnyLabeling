@@ -54,7 +54,7 @@ class YOLOv5SegmentAnything(YOLO):
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", f"Could not download or initialize YOLOv5 model."
+                    "Model", "Could not download or initialize YOLOv5 model."
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)

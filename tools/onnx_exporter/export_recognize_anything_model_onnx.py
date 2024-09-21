@@ -319,7 +319,7 @@ if __name__ == "__main__":
     for model_path in onnx_file_list:
         if model_path:
             print(f"Inference using {model_path}")
-            print(f"-" * 100)
+            print("-" * 100)
             configs = {
                 "model_path": model_path,
                 "device": "cpu",
@@ -330,7 +330,7 @@ if __name__ == "__main__":
             model = RAM(configs)
             image = cv2.imread(img_path)
             model.predict_shapes(image)
-            print(f"-" * 100)
+            print("-" * 100)
 
     """
     Inference using ram_swin_large_14m.onnx (866M)

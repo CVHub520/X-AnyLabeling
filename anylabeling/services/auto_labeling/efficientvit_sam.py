@@ -421,7 +421,6 @@ class EfficientViT_SAM(Model):
                 image_embedding = cached_data
             else:
                 cv_image = qt_img_to_rgb_cv_img(image, filename)
-                origin_image_size = cv_image.shape[:2]
                 if self.stop_inference:
                     return AutoLabelingResult([], replace=False)
                 image_embedding = self.encoder_model(cv_image)

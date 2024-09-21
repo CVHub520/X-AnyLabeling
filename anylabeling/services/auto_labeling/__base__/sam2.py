@@ -84,7 +84,9 @@ class SAM2ImageEncoder:
             providers = ["CUDAExecutionProvider"]
         sess_options = ort.SessionOptions()
         sess_options.log_severity_level = 3
-        self.session = ort.InferenceSession(path, providers=providers, sess_options=sess_options)
+        self.session = ort.InferenceSession(
+            path, providers=providers, sess_options=sess_options
+        )
 
         # Get model info
         self.get_input_details()
@@ -158,10 +160,12 @@ class SAM2ImageDecoder:
         # Initialize model
         providers = ["CPUExecutionProvider"]
         if device.lower() == "gpu":
-            providers = ["CUDAExecutionProvider"]   
+            providers = ["CUDAExecutionProvider"]
         sess_options = ort.SessionOptions()
         sess_options.log_severity_level = 3
-        self.session = ort.InferenceSession(path, providers=providers, sess_options=sess_options)
+        self.session = ort.InferenceSession(
+            path, providers=providers, sess_options=sess_options
+        )
 
         self.orig_im_size = (
             orig_im_size if orig_im_size is not None else encoder_input_size

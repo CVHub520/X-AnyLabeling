@@ -16,7 +16,7 @@ Written by Wei Wang (CVHub)
         1. git clone https://github.com/OpenGVLab/InternImage
         2. cd InternImage and follow the official tutorial to install package.
         3. before u convert the *pt to *onnx model, remember set the opset_version >= 16 \
-            and modify parameters in the configuration file: 
+            and modify parameters in the configuration file:
             Set CORE_OP to 'DCNv3_pytorch' and USE_CHECKPOINT to false.
         4. Download the weight file and refer to the following running script:
         ```bash
@@ -145,7 +145,7 @@ class Model(OnnxBaseModel):
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum(axis=0)
 
-    def postprocess(self, preds):
+    def postprocess(self, outs):
         """
         Classification: Post-processes the output of the network.
 
@@ -156,7 +156,7 @@ class Model(OnnxBaseModel):
         Returns:
             str: Predicted label.
         """
-        res = softmax(np.array(outs)).tolist()
+        res = self.softmax(np.array(outs)).tolist()
         index = np.argmax(res)
         label = str(self.classes[index])
 

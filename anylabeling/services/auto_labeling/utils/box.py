@@ -118,23 +118,23 @@ def non_max_suppression_v5(
         with support for masks and multiple labels per box.
 
     Arguments:
-        prediction (np.array): 
+        prediction (np.array):
             A tensor of shape (batch_size, num_classes + 4 + num_masks, num_boxes)
-            containing the predicted boxes, classes, and masks. 
+            containing the predicted boxes, classes, and masks.
             The tensor should be in the format output by a model, such as YOLO.
         task: `det` | `seg` | `track`
-        conf_thres (float): 
+        conf_thres (float):
             The confidence threshold below which boxes will be filtered out.
             Valid values are between 0.0 and 1.0.
-        iou_thres (float): 
+        iou_thres (float):
             The IoU threshold below which boxes will be filtered out during NMS.
             Valid values are between 0.0 and 1.0.
         classes (List[int]): A list of class indices to consider.
             If None, all classes will be considered.
-        agnostic (bool): If True, the model is agnostic to the number of classes, 
+        agnostic (bool): If True, the model is agnostic to the number of classes,
             and all classes will be considered as one.
         multi_label (bool): If True, each box may have multiple labels.
-        labels (List[List[Union[int, float, np.array]]]): 
+        labels (List[List[Union[int, float, np.array]]]):
             A list of lists, where each inner list contains the apriori labels \
             for a given image. The list should be in the format output by a dataloader, \
             with each label being a tuple of (class_index, x1, y1, x2, y2).
@@ -146,9 +146,9 @@ def non_max_suppression_v5(
         max_wh (int): The maximum box width and height in pixels
 
     Returns:
-        (List[np.array]): 
+        (List[np.array]):
             A list of length batch_size, where each element is a tensor of
-            shape (num_boxes, 6 + num_masks) containing the kept boxes, 
+            shape (num_boxes, 6 + num_masks) containing the kept boxes,
             with columns (x1, y1, x2, y2, confidence, class, mask1, mask2, ...).
     """
 
@@ -261,23 +261,23 @@ def non_max_suppression_v8(
         with support for masks and multiple labels per box.
 
     Arguments:
-        prediction (np.array): 
+        prediction (np.array):
             A tensor of shape (batch_size, num_classes + 4 + num_masks, num_boxes)
-            containing the predicted boxes, classes, and masks. 
+            containing the predicted boxes, classes, and masks.
             The tensor should be in the format output by a model, such as YOLO.
         task: `det` | `seg` | `track` | `obb`
-        conf_thres (float): 
+        conf_thres (float):
             The confidence threshold below which boxes will be filtered out.
             Valid values are between 0.0 and 1.0.
-        iou_thres (float): 
+        iou_thres (float):
             The IoU threshold below which boxes will be filtered out during NMS.
             Valid values are between 0.0 and 1.0.
         classes (List[int]): A list of class indices to consider.
             If None, all classes will be considered.
-        agnostic (bool): If True, the model is agnostic to the number of classes, 
+        agnostic (bool): If True, the model is agnostic to the number of classes,
             and all classes will be considered as one.
         multi_label (bool): If True, each box may have multiple labels.
-        labels (List[List[Union[int, float, np.array]]]): 
+        labels (List[List[Union[int, float, np.array]]]):
             A list of lists, where each inner list contains the apriori labels \
             for a given image. The list should be in the format output by a dataloader, \
             with each label being a tuple of (class_index, x1, y1, x2, y2).
@@ -289,9 +289,9 @@ def non_max_suppression_v8(
         max_wh (int): The maximum box width and height in pixels
 
     Returns:
-        (List[np.array]): 
+        (List[np.array]):
             A list of length batch_size, where each element is a tensor of
-            shape (num_boxes, 6 + num_masks) containing the kept boxes, 
+            shape (num_boxes, 6 + num_masks) containing the kept boxes,
             with columns (x1, y1, x2, y2, confidence, class, mask1, mask2, ...).
     """
 
@@ -315,9 +315,7 @@ def non_max_suppression_v8(
     mi = 4 + nc  # mask start index
     xc = np.amax(prediction[:, 4:mi], axis=1) > conf_thres  # candidates
 
-    redundant = True  # require redundant detections
     multi_label &= nc > 1  # multiple labels per box (adds 0.5ms/img)
-    merge = False  # use merge-NMS
 
     # shape(1,84,6300) to shape(1,6300,84)
     prediction = np.transpose(prediction, (0, 2, 1))

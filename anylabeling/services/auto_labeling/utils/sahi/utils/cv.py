@@ -131,7 +131,7 @@ def read_large_image(image_path: str):
         # convert to rgb (cv2 reads in bgr)
         img_cv2 = cv2.imread(image_path, 1)
         image0 = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2RGB)
-    except:
+    except Exception:
         try:
             import skimage.io
         except ImportError:
@@ -181,7 +181,7 @@ def read_image_as_pil(
             ).convert("RGB")
             if exif_fix:
                 image_pil = exif_transpose(image_pil)
-        except:  # handle large/tiff image reading
+        except Exception:  # handle large/tiff image reading
             try:
                 import skimage.io
             except ImportError:

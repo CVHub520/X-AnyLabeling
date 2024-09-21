@@ -2,6 +2,7 @@ import unittest
 
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
+
 class TestIsRectangle(unittest.TestCase):
 
     def test_normal_rectangle(self):

@@ -511,7 +511,7 @@ class Canvas(
         self.moving_shape = True  # Save changes
 
     # QT Overload
-    def mousePressEvent(self, ev):
+    def mousePressEvent(self, ev):  # noqa: C901
         """Mouse press event"""
         if self.is_loading:
             return
@@ -1124,7 +1124,7 @@ class Canvas(
             for shape in self.shapes:
                 try:
                     linking_pairs += shape.kie_linking
-                except:
+                except Exception:
                     pass
 
                 if shape.group_id is None or shape.shape_type not in [
