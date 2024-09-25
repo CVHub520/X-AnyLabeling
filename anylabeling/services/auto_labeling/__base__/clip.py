@@ -8,6 +8,7 @@ from typing import List
 from functools import lru_cache
 
 from ..engines import OnnxBaseModel
+from anylabeling.views.labeling.logger import logger
 
 
 _MODEL_INFO = {
@@ -155,9 +156,13 @@ class ChineseClipONNX:
 
 @lru_cache()
 def default_vocab():
-    current_dir = os.path.dirname(__file__)
-    return os.path.join(current_dir, "..", "configs", "clip_vocab.txt")
-
+    import importlib.resources
+    from anylabeling.services.auto_labeling import configs
+    try:
+        with importlib.resources.path(configs.clip, 'clip_vocab.txt') as p:
+            return str(p)
+    except Exception as e:
+       logger.error(f"Error loading default vocab: {e}")
 
 def convert_to_unicode(text):
     """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""

@@ -13,8 +13,10 @@ a = Analysis(
         ('anylabeling/configs/auto_labeling/*.yaml', 'anylabeling/configs/auto_labeling'),
         ('anylabeling/configs/*.yaml', 'anylabeling/configs'),
         ('anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui', 'anylabeling/views/labeling/widgets/auto_labeling'),
-        ('anylabeling/services/auto_labeling/configs/*.json', 'anylabeling/services/auto_labeling/configs'),
-        ('anylabeling/services/auto_labeling/configs/*.txt', 'anylabeling/services/auto_labeling/configs')
+        ('anylabeling/services/auto_labeling/configs/bert/*', 'anylabeling/services/auto_labeling/configs/bert'),
+        ('anylabeling/services/auto_labeling/configs/clip/*', 'anylabeling/services/auto_labeling/configs/clip'),
+        ('anylabeling/services/auto_labeling/configs/ppocr/*', 'anylabeling/services/auto_labeling/configs/ppocr'),
+        ('anylabeling/services/auto_labeling/configs/ram/*', 'anylabeling/services/auto_labeling/configs/ram')
     ],
     hiddenimports=[],
     hookspath=[],

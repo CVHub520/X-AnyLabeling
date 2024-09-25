@@ -121,19 +121,15 @@ class RecognizeAnything(Model):
 
     @staticmethod
     def load_tag_list():
-        current_dir = os.path.dirname(__file__)
-        tag_list_file = os.path.join(
-            current_dir, "..", "configs", "ram_tag_list.txt"
-        )
-        tag_list_chinese_file = os.path.join(
-            current_dir, "..", "configs", "ram_tag_list_chinese.txt"
-        )
+        import importlib.resources as pkg_resources
+        from anylabeling.services.auto_labeling.configs import ram
 
-        with open(tag_list_file, "r", encoding="utf-8") as f:
-            tag_list = f.read().splitlines()
+        with pkg_resources.path(ram, 'ram_tag_list.txt') as p:
+            tag_list = p.read_text().splitlines()
         tag_list = np.array(tag_list)
-        with open(tag_list_chinese_file, "r", encoding="utf-8") as f:
-            tag_list_chinese = f.read().splitlines()
+        
+        with pkg_resources.path(ram, 'ram_tag_list_chinese.txt') as p:
+            tag_list_chinese = p.read_text().splitlines()
         tag_list_chinese = np.array(tag_list_chinese)
 
         return tag_list, tag_list_chinese

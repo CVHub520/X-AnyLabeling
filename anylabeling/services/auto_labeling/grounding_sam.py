@@ -771,11 +771,16 @@ class GroundingSAM(Model):
 
     @staticmethod
     def get_tokenlizer(text_encoder_type):
-        current_dir = os.path.dirname(__file__)
+        import importlib.resources
+        from anylabeling.services.auto_labeling import configs
         cfg_name = text_encoder_type.replace("-", "_") + "_tokenizer.json"
-        cfg_file = os.path.join(current_dir, "configs", cfg_name)
-        tokenizer = Tokenizer.from_file(cfg_file)
-        return tokenizer
+        try:
+            with importlib.resources.path(configs.bert, cfg_name) as p:
+                tokenizer = Tokenizer.from_file(str(p))
+            return tokenizer
+        except Exception as e:
+            logger.error(f"Error loading tokenizer: {e}")
+            return None
 
     @staticmethod
     def get_phrases_from_posmap(

@@ -185,9 +185,6 @@ class EdgeSAM(Model):
                     shape.add_point(QtCore.QPointF(point[0], point[1]))
                 shape.shape_type = "polygon"
                 shape.closed = True
-                shape.fill_color = "#000000"
-                shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = "AUTOLABEL_OBJECT"
                 shape.selected = False
                 shapes.append(shape)
@@ -222,9 +219,6 @@ class EdgeSAM(Model):
                 "rectangle" if self.output_mode == "rectangle" else "rotation"
             )
             shape.closed = True
-            shape.fill_color = "#000000"
-            shape.line_color = "#000000"
-            shape.line_width = 1
             if self.clip_net is not None and self.classes:
                 img = image[y_min:y_max, x_min:x_max]
                 out = self.clip_net(img, self.classes)
