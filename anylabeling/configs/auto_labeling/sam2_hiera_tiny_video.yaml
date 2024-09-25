@@ -2,4 +2,5 @@ type: segment_anything_2_video
 name: sam2_hiera_tiny_video-r20240901
 display_name: Segment Anything 2 Video (Tiny)
 model_cfg: sam2_hiera_t.yaml
+device_type: cuda  # cpu, cuda, mps
 model_path: https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_tiny.pt

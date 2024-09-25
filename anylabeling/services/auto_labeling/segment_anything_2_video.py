@@ -1,5 +1,4 @@
 import warnings
-
 warnings.filterwarnings("ignore")
 
 import os
@@ -67,14 +66,41 @@ class SegmentAnything2Video(Model):
         """
         super().__init__(config_path, on_message)
 
-        # Enable automatic mixed precision for faster computations
-        torch.autocast(device_type="cuda", dtype=torch.bfloat16).__enter__()
+        device_type = self.config.get("device_type", "cuda")
+        if device_type == "cuda" and torch.cuda.is_available():
+            device = torch.device("cuda")
+        elif device_type == "mps" and torch.backends.mps.is_available():
+            device = torch.device("mps")
+            # if using Apple MPS, fall back to CPU for unsupported ops
+            os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+        else:
+            device = torch.device("cpu")
+        logger.info(f"Using device: {device}")
 
-        if torch.cuda.get_device_properties(0).major >= 8:
-            # turn on tfloat32 for Ampere GPUs
-            # (https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices)
-            torch.backends.cuda.matmul.allow_tf32 = True
-            torch.backends.cudnn.allow_tf32 = True
+        if device.type == "cuda":
+            apply_postprocessing = True
+            # Enable automatic mixed precision for faster computations
+            torch.autocast(device_type="cuda", dtype=torch.bfloat16).__enter__()
+            if torch.cuda.get_device_properties(0).major >= 8:
+                # turn on tfloat32 for Ampere GPUs
+                # (https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices)
+                torch.backends.cuda.matmul.allow_tf32 = True
+                torch.backends.cudnn.allow_tf32 = True
+        elif device.type == "mps":
+            apply_postprocessing = True
+            logger.warning(
+                "Support for MPS devices is preliminary. SAM 2 is trained with CUDA and might "
+                "give numerically different outputs and sometimes degraded performance on MPS. "
+                "See e.g. https://github.com/pytorch/pytorch/issues/84936 for a discussion."
+            )
+        elif device.type == "cpu":
+            apply_postprocessing = False
+            logger.warning(
+                "Support for CPU devices is preliminary. SAM 2 is trained with CUDA and might "
+                "give numerically different outputs and sometimes degraded performance on CPU. "
+                "The post-processing step (removing small holes and sprinkles in the output masks) "
+                "will be skipped, but this shouldn't affect the results in most cases."
+            )
 
         # Load the SAM2 predictor models
         self.model_abs_path = self.get_model_abs_path(
@@ -88,10 +114,13 @@ class SegmentAnything2Video(Model):
                 )
             )
         self.model_cfg = self.config["model_cfg"]
-        sam2_image_model = build_sam2(self.model_cfg, self.model_abs_path)
+        sam2_image_model = build_sam2(
+            self.model_cfg, self.model_abs_path, device=device
+        )
         self.image_predictor = SAM2ImagePredictor(sam2_image_model)
         self.video_predictor = build_sam2_camera_predictor(
-            self.model_cfg, self.model_abs_path
+            self.model_cfg, self.model_abs_path,
+            device=device, apply_postprocessing=apply_postprocessing
         )
         self.is_first_init = True
 
