@@ -262,18 +262,17 @@ class SegmentAnything2Video(Model):
                     point[0] = int(point[0])
                     point[1] = int(point[1])
                     shape.add_point(QtCore.QPointF(point[0], point[1]))
-                break
-            # Create Polygon shape
-            shape.shape_type = "polygon"
-            shape.group_id = (
-                self.group_ids[index] if index is not None else None
-            )
-            shape.closed = True
-            shape.label = (
-                "AUTOLABEL_OBJECT" if index is None else self.labels[index]
-            )
-            shape.selected = False
-            shapes.append(shape)
+                # Create Polygon shape
+                shape.shape_type = "polygon"
+                shape.group_id = (
+                    self.group_ids[index] if index is not None else None
+                )
+                shape.closed = True
+                shape.label = (
+                    "AUTOLABEL_OBJECT" if index is None else self.labels[index]
+                )
+                shape.selected = False
+                shapes.append(shape)
         elif self.output_mode in ["rectangle", "rotation"]:
             x_min = 100000000
             y_min = 100000000
@@ -293,24 +292,24 @@ class SegmentAnything2Video(Model):
                     y_min = min(y_min, point[1])
                     x_max = max(x_max, point[0])
                     y_max = max(y_max, point[1])
-            # Create Rectangle shape
-            shape = Shape(flags={})
-            shape.add_point(QtCore.QPointF(x_min, y_min))
-            shape.add_point(QtCore.QPointF(x_max, y_min))
-            shape.add_point(QtCore.QPointF(x_max, y_max))
-            shape.add_point(QtCore.QPointF(x_min, y_max))
-            shape.shape_type = (
-                "rectangle" if self.output_mode == "rectangle" else "rotation"
-            )
-            shape.closed = True
-            shape.group_id = (
-                self.group_ids[index] if index is not None else None
-            )
-            shape.label = (
-                "AUTOLABEL_OBJECT" if index is None else self.labels[index]
-            )
-            shape.selected = False
-            shapes.append(shape)
+                # Create Rectangle shape
+                shape = Shape(flags={})
+                shape.add_point(QtCore.QPointF(x_min, y_min))
+                shape.add_point(QtCore.QPointF(x_max, y_min))
+                shape.add_point(QtCore.QPointF(x_max, y_max))
+                shape.add_point(QtCore.QPointF(x_min, y_max))
+                shape.shape_type = (
+                    "rectangle" if self.output_mode == "rectangle" else "rotation"
+                )
+                shape.closed = True
+                shape.group_id = (
+                    self.group_ids[index] if index is not None else None
+                )
+                shape.label = (
+                    "AUTOLABEL_OBJECT" if index is None else self.labels[index]
+                )
+                shape.selected = False
+                shapes.append(shape)
 
         return shapes
 
