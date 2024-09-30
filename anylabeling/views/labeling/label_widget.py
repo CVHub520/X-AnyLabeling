@@ -305,7 +305,7 @@ class LabelingWidget(LabelDialog):
         # Actions
         action = functools.partial(utils.new_action, self)
         shortcuts = self._config["shortcuts"]
-        print(shortcuts)
+
         open_ = action(
             self.tr("&Open File"),
             self.open_file,
