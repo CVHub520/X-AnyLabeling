@@ -33,7 +33,8 @@
 ## 🥳 新功能
 
 - 2024年9月:
-  - 发布[X-AnyLabeling v2.4.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.3)版本。
+  - 发布[X-AnyLabeling v2.4.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.4)版本。
+  - 🚀🚀🚀 支持[YOLO11-Det/OBB/Pose/Seg/Track](https://github.com/ultralytics/ultralytics)模型。
   - 🧸🧸🧸 支持基于[RMBG v1.4](https://github.com/facebookresearch/segment-anything)的图像抠图功能。
   - 🔥🔥🔥 支持基于[Segment-Anything-2](https://github.com/CVHub520/segment-anything-2)交互式视频目标追踪功能。【[教程](examples/interactive_video_object_segmentation/README.md) | [B站](https://www.bilibili.com/video/BV1kMpwedE8M/)】
 

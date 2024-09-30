@@ -34,7 +34,8 @@
 ## 🥳 What's New
 
 - Sep. 2024:
-  - Release version [2.4.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.3)
+  - Release version [2.4.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.4)
+  - 🚀🚀🚀 Added support for [YOLO11-Det/OBB/Pose/Seg/Track model](https://github.com/ultralytics/ultralytics).
   - 🧸🧸🧸 Added support for image matting based on [RMBG v1.4 model](https://huggingface.co/briaai/RMBG-1.4).
   - 🔥🔥🔥 Added support for interactive video object tracking based on [Segment-Anything-2](https://github.com/CVHub520/segment-anything-2). [[Tutorial](examples/interactive_video_object_segmentation/README.md)]
 

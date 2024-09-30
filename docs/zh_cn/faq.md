@@ -82,6 +82,30 @@ Error in predict_shapes: [ONNXRuntimeError] : 1 : FAIL : Non-zero status code re
 查看配置文件是否有定义纯数字标签。请注意在定义以**纯数字**命名的标签名称时，请务必将其加上单引号 `''`
 </details>
 
+<details>
+<summary>Q: Unsupported model IR version: 10, max supported IR version: 9</summary>
+
+ONNX Runtime 版本过低，请更新：
+
+```shell
+# 安装 CPU 版本
+pip install --upgrade onnxruntime
+
+# 安装 GPU 版本
+pip install --upgrade onnxruntime-gpu
+```
+</details>
+
+<details>
+<summary>Q: Your model ir_version is higher than the checker's.</summary>
+onnx 版本过低，请更新：
+
+```shell
+pip install --upgrade onnx
+```
+</details>
+
+
 ### 标签导入导出相关问题
 
 <details>
