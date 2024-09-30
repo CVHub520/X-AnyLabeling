@@ -1,0 +1,43 @@
+type: yolo11_pose_track
+name: yolo11s_pose_botsort-r20240930
+display_name: YOLO11s-Pose-BoT-SORT
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-pose.onnx
+nms_threshold: 0.6
+confidence_threshold: 0.25
+kpt_threshold: 0.25
+has_visible: true
+show_boxes: True
+tracker:
+  # Base settings
+  tracker_type: botsort # tracker type, ['botsort', 'bytetrack']
+  track_high_thresh: 0.5 # threshold for the first association
+  track_low_thresh: 0.1 # threshold for the second association
+  new_track_thresh: 0.6 # threshold for init new track if the detection does not match any tracks
+  track_buffer: 30 # buffer to calculate the time when to remove tracks
+  match_thresh: 0.8 # threshold for matching tracks
+  fuse_score: True
+  # BoT-SORT settings
+  gmc_method: sparseOptFlow # method of global motion compensation
+  # ReID model related thresh (not supported yet)
+  proximity_thresh: 0.5
+  appearance_thresh: 0.25
+  with_reid: False
+classes:
+  person:
+    - nose
+    - left_eye
+    - right_eye
+    - left_ear
+    - right_ear
+    - left_shoulder
+    - right_shoulder
+    - left_elbow
+    - right_elbow
+    - left_wrist
+    - right_wrist
+    - left_hip
+    - right_hip
+    - left_knee
+    - right_knee
+    - left_ankle
+    - right_ankle

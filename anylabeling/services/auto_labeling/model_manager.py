@@ -73,6 +73,15 @@ class ModelManager(QObject):
         "yolov8_seg_track",
         "yolov8_obb_track",
         "yolov8_pose_track",
+        "yolo11",
+        "yolo11_cls",
+        "yolo11_obb",
+        "yolo11_seg",
+        "yolo11_pose",
+        "yolo11_det_track",
+        "yolo11_seg_track",
+        "yolo11_obb_track",
+        "yolo11_pose_track",
     ]
 
     model_configs_changed = pyqtSignal(list)
@@ -513,6 +522,29 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo11":
+            from .yolo11 import YOLO11
+
+            try:
+                model_config["model"] = YOLO11(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yolow":
             from .yolow import YOLOW
 
@@ -628,6 +660,29 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo11_seg":
+            from .yolo11_seg import YOLO11_Seg
+
+            try:
+                model_config["model"] = YOLO11_Seg(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yolov8_obb":
             from .yolov8_obb import YOLOv8_OBB
 
@@ -651,11 +706,57 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo11_obb":
+            from .yolo11_obb import YOLO11_OBB
+
+            try:
+                model_config["model"] = YOLO11_OBB(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yolov8_pose":
             from .yolov8_pose import YOLOv8_Pose
 
             try:
                 model_config["model"] = YOLOv8_Pose(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
+        elif model_config["type"] == "yolo11_pose":
+            from .yolo11_pose import YOLO11_Pose
+
+            try:
+                model_config["model"] = YOLO11_Pose(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
@@ -1409,6 +1510,29 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo11_cls":
+            from .yolo11_cls import YOLO11_CLS
+
+            try:
+                model_config["model"] = YOLO11_CLS(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yolov5_det_track":
             from .yolov5_det_track import YOLOv5_Det_Tracker
 
@@ -1455,11 +1579,57 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo11_det_track":
+            from .yolo11_det_track import YOLO11_Det_Tracker
+
+            try:
+                model_config["model"] = YOLO11_Det_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yolov8_seg_track":
             from .yolov8_seg_track import YOLOv8_Seg_Tracker
 
             try:
                 model_config["model"] = YOLOv8_Seg_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
+        elif model_config["type"] == "yolo11_seg_track":
+            from .yolo11_seg_track import YOLO11_Seg_Tracker
+
+            try:
+                model_config["model"] = YOLO11_Seg_Tracker(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
@@ -1501,11 +1671,57 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo11_obb_track":
+            from .yolo11_obb_track import YOLO11_Obb_Tracker
+
+            try:
+                model_config["model"] = YOLO11_Obb_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yolov8_pose_track":
             from .yolov8_pose_track import YOLOv8_Pose_Tracker
 
             try:
                 model_config["model"] = YOLOv8_Pose_Tracker(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
+        elif model_config["type"] == "yolo11_pose_track":
+            from .yolo11_pose_track import YOLO11_Pose_Tracker
+
+            try:
+                model_config["model"] = YOLO11_Pose_Tracker(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
@@ -1645,6 +1861,10 @@ class ModelManager(QObject):
             "yolov8_seg_track",
             "yolov8_pose_track",
             "segment_anything_2_video",
+            "yolo11_det_track",
+            "yolo11_seg_track",
+            "yolo11_obb_track",
+            "yolo11_pose_track",
         ]
         if (
             self.loaded_model_config is None
@@ -1679,6 +1899,14 @@ class ModelManager(QObject):
             "yolov8",
             "yolov9",
             "yolov10",
+            "yolo11",
+            "yolo11_obb",
+            "yolo11_seg",
+            "yolo11_pose",
+            "yolo11_det_track",
+            "yolo11_seg_track",
+            "yolo11_obb_track",
+            "yolo11_pose_track",
             "yolow",
             "yolox",
         ]
@@ -1710,6 +1938,14 @@ class ModelManager(QObject):
             "yolov8_pose_track",
             "yolov8",
             "yolov9",
+            "yolo11",
+            "yolo11_obb",
+            "yolo11_seg",
+            "yolo11_pose",
+            "yolo11_det_track",
+            "yolo11_seg_track",
+            "yolo11_obb_track",
+            "yolo11_pose_track",
             "yolox",
         ]
         if (
@@ -1743,6 +1979,14 @@ class ModelManager(QObject):
             "yolov8",
             "yolov9",
             "yolov10",
+            "yolo11",
+            "yolo11_obb",
+            "yolo11_seg",
+            "yolo11_pose",
+            "yolo11_det_track",
+            "yolo11_seg_track",
+            "yolo11_obb_track",
+            "yolo11_pose_track",
             "yolow",
             "yolox",
         ]

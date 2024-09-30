@@ -142,28 +142,36 @@ class YOLO(Model):
             "yolov8",
             "yolov9",
             "yolov10",
+            "yolo11",
             "gold_yolo",
             "yolow",
             "yolow_ram",
             "yolov5_det_track",
             "yolov8_det_track",
+            "yolo11_det_track",
         ]:
             self.task = "det"
         elif self.model_type in [
             "yolov5_seg",
             "yolov8_seg",
             "yolov8_seg_track",
+            "yolo11_seg",
+            "yolo11_seg_track",
         ]:
             self.task = "seg"
         elif self.model_type in [
             "yolov8_obb",
             "yolov8_obb_track",
+            "yolo11_obb",
+            "yolo11_obb_track",
         ]:
             self.task = "obb"
         elif self.model_type in [
             "yolov6_face",
             "yolov8_pose",
             "yolov8_pose_track",
+            "yolo11_pose",
+            "yolo11_pose_track",
         ]:
             self.task = "pose"
             self.keypoint_name = {}
@@ -274,6 +282,7 @@ class YOLO(Model):
             "yolov8_efficientvit_sam",
             "yolov8_seg",
             "yolov8_obb",
+            "yolo11_obb",
             "yolov9",
             "yolow",
             "yolov8_pose",
@@ -282,6 +291,13 @@ class YOLO(Model):
             "yolov8_seg_track",
             "yolov8_obb_track",
             "yolov8_pose_track",
+            "yolo11",
+            "yolo11_seg",
+            "yolo11_pose",
+            "yolo11_det_track",
+            "yolo11_seg_track",
+            "yolo11_obb_track",
+            "yolo11_pose_track",
         ]:
             p = non_max_suppression_v8(
                 preds[0],

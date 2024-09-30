@@ -1,0 +1,27 @@
+type: yolo11_pose
+name: yolo11s-pose-r20240930
+display_name: YOLO11s-Pose Ultralytics
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-pose.onnx
+confidence_threshold: 0.5
+nms_threshold: 0.6
+kpt_threshold: 0.25
+has_visible: true
+classes:
+  person:
+    - nose
+    - left_eye
+    - right_eye
+    - left_ear
+    - right_ear
+    - left_shoulder
+    - right_shoulder
+    - left_elbow
+    - right_elbow
+    - left_wrist
+    - right_wrist
+    - left_hip
+    - right_hip
+    - left_knee
+    - right_knee
+    - left_ankle
+    - right_ankle
