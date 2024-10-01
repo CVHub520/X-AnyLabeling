@@ -2545,14 +2545,16 @@ class LabelingWidget(LabelDialog):
         zoom_scale = 4
 
         self.label_loop_count += 1
-        if self.label_loop_count >= len(self.label_list): #If we go through all the things go back to 100%
-            self.label_loop_count = -1 
+        if self.label_loop_count >= len(self.label_list):
+            #If we go through all the things go back to 100%
+            self.label_loop_count = -1
             self.set_zoom(int(100*self.scale_fit_window()))
             return
         item = self.label_list[self.label_loop_count]
         xs = []
         ys = []
-        for point in item.shape().points: # get all points
+        # loop through all points on this label
+        for point in item.shape().points:
             xs.append(point.x())
             ys.append(point.y())
         label_width = int(max(xs)-min(xs))
@@ -2564,12 +2566,9 @@ class LabelingWidget(LabelDialog):
 
         x_range = self.scroll_bars[Qt.Horizontal].maximum()
         x_range_min = self.scroll_bars[Qt.Horizontal].minimum()
-
         x_step= self.scroll_bars[Qt.Horizontal].pageStep()
 
         y_range = self.scroll_bars[Qt.Vertical].maximum()
-        y_range_min = self.scroll_bars[Qt.Vertical].minimum()
-
         # QT docs says Document length = maximum() - minimum() + pageStep().
         # so there's a weird pageStep thing we gotta add
         y_step= self.scroll_bars[Qt.Vertical].pageStep()
@@ -2583,8 +2582,6 @@ class LabelingWidget(LabelDialog):
         y_scroll = int((y-screen_height/2)/(im_height)*(y_range+y_step))  
         y_scroll = min(max(0, y_scroll), y_range)
 
-        print("zoom "+str(zoom)+"   x_scroll "+str(x_scroll)+"    X range  "+str(x_range)+"    X range min  "+str(x_range_min)+"   x_step  "+str(x_step)+"  im width  "+str(im_width))
-    
         self.set_scroll(Qt.Horizontal, x_scroll)
         self.set_scroll(Qt.Vertical, y_scroll)
 
