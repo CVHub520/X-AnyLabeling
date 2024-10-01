@@ -2557,15 +2557,20 @@ class LabelingWidget(LabelDialog):
         for point in item.shape().points:
             xs.append(point.x())
             ys.append(point.y())
-        label_width = int(max(xs)-min(xs))
-        label_height = int(max(ys)-min(ys))
+
+        # Set minimum label width to 30px this should handle point
+        # lables and very tiny labels gracefully
+        label_width = max(int(max(xs)-min(xs)), 30)
         x = (max(xs)+min(xs))/2
         y = (max(ys)+min(ys))/2
+
         zoom = int(100*width / (zoom_scale*label_width))
+        #Don't go past the max zoom which is 1000
+        zoom = min(1000, zoom)
+
         self.set_zoom(zoom)
 
         x_range = self.scroll_bars[Qt.Horizontal].maximum()
-        x_range_min = self.scroll_bars[Qt.Horizontal].minimum()
         x_step= self.scroll_bars[Qt.Horizontal].pageStep()
 
         y_range = self.scroll_bars[Qt.Vertical].maximum()
