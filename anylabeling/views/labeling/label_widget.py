@@ -2537,17 +2537,23 @@ class LabelingWidget(LabelDialog):
 
     def loop_thru_labels(self):
         width = self.central_widget().width() - 2.0
+        height = self.central_widget().height() - 2.0
+
         im_width = self.canvas.pixmap.width()
         im_height = self.canvas.pixmap.height()
         
+        zoom_scale = 4
+
         self.label_loop_count += 1
         if self.label_loop_count >= len(self.label_list):
+            #If we go through all the things go back to 100%
             self.label_loop_count = -1
             self.set_zoom(int(100*self.scale_fit_window()))
             return
         item = self.label_list[self.label_loop_count]
         xs = []
         ys = []
+        # loop through all points on this label
         for point in item.shape().points:
             xs.append(point.x())
             ys.append(point.y())
@@ -2555,15 +2561,25 @@ class LabelingWidget(LabelDialog):
         label_height = int(max(ys)-min(ys))
         x = (max(xs)+min(xs))/2
         y = (max(ys)+min(ys))/2
-        zoom = int(100*width / (3*label_width))
+        zoom = int(100*width / (zoom_scale*label_width))
         self.set_zoom(zoom)
 
         x_range = self.scroll_bars[Qt.Horizontal].maximum()
-        y_range = self.scroll_bars[Qt.Vertical].maximum()
+        x_range_min = self.scroll_bars[Qt.Horizontal].minimum()
+        x_step= self.scroll_bars[Qt.Horizontal].pageStep()
 
-        x_scroll = int((x - 1.5*label_width)*x_range/(im_width-3*label_width))
+        y_range = self.scroll_bars[Qt.Vertical].maximum()
+        # QT docs says Document length = maximum() - minimum() + pageStep().
+        # so there's a weird pageStep thing we gotta add
+        y_step= self.scroll_bars[Qt.Vertical].pageStep()
+        screen_width= width/(zoom/100)
+        #add half a screen to this
+        x_scroll = int((x-screen_width/2)/im_width*(x_range+x_step)) 
         x_scroll = min(max(0, x_scroll), x_range)
-        y_scroll = int((y - 1.5*label_height)*y_range/(im_height-3*label_height))
+
+        screen_height= height/(zoom/100)
+
+        y_scroll = int((y-screen_height/2)/(im_height)*(y_range+y_step))  
         y_scroll = min(max(0, y_scroll), y_range)
 
         self.set_scroll(Qt.Horizontal, x_scroll)
