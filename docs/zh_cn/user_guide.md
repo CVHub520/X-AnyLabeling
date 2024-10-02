@@ -606,6 +606,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 | Ctrl + f              | 适应窗口                               |
 | Ctrl + Shift + f      | 适应宽度                               |
 | Ctrl + Shift + m      | 合并选定的对象                         |
+| Ctrl + Shift + n      | 遍历标签对象                           |
 | Ctrl + z              | 撤销上一操作                           |
 | Delete                | 删除选中对象                          |
 | Esc                   | 取消选择的对象                         |

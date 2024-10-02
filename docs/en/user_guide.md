@@ -607,6 +607,7 @@ The current default keyboard shortcuts in X-AnyLabeling are as follows. Users ca
 | Ctrl + f              | Fit to window                                 |
 | Ctrl + Shift + f      | Fit to width                                  |
 | Ctrl + Shift + m      | Merge selected rectangle shapes               |
+| Ctrl + Shift + n      | Loop through shapes                           |
 | Ctrl + z              | Undo last action                              |
 | Delete                | Delete selected shape                         |
 | Esc                   | Deselect object                               |

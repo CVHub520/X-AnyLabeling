@@ -724,7 +724,7 @@ class LabelingWidget(LabelDialog):
             shortcut=shortcuts["loop_thru_labels"],
             icon="loop",
             tip=self.tr("Loop through labels"),
-            enabled=True
+            enabled=False
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -1353,13 +1353,13 @@ class LabelingWidget(LabelDialog):
                 create_line_strip_mode,
                 edit_mode,
                 brightness_contrast,
+                loop_thru_labels,
             ),
             on_shapes_present=(save_as,),
             hide_selected_polygons=hide_selected_polygons,
             show_hidden_polygons=show_hidden_polygons,
             group_selected_shapes=group_selected_shapes,
             ungroup_selected_shapes=ungroup_selected_shapes,
-            loop_thru_labels=loop_thru_labels,
         )
 
         self.canvas.vertex_selected.connect(
@@ -1494,10 +1494,12 @@ class LabelingWidget(LabelDialog):
                 None,
                 fill_drawing,
                 None,
+                loop_thru_labels,
                 None,
                 zoom_in,
                 zoom_out,
                 zoom_org,
+                None,
                 keep_prev_scale,
                 keep_prev_brightness,
                 keep_prev_contrast,
@@ -1517,8 +1519,6 @@ class LabelingWidget(LabelDialog):
                 show_hidden_polygons,
                 group_selected_shapes,
                 ungroup_selected_shapes,
-                None,
-                loop_thru_labels,
             ),
         )
 
@@ -1551,16 +1551,16 @@ class LabelingWidget(LabelDialog):
             self.actions.create_line_mode,
             self.actions.create_point_mode,
             self.actions.create_line_strip_mode,
+            None,
             edit_mode,
             delete,
             undo,
+            loop_thru_labels,
             None,
             zoom,
             fit_width,
             toggle_auto_labeling_widget,
             run_all_images,
-            None,
-            loop_thru_labels,
         )
 
         layout = QHBoxLayout()
@@ -2536,6 +2536,13 @@ class LabelingWidget(LabelDialog):
         info_box.exec_()
 
     def loop_thru_labels(self):
+        self.label_loop_count += 1
+        if len(self.label_list) == 0 or self.label_loop_count >= len(self.label_list):
+            # If we go through all the things go back to 100%
+            self.label_loop_count = -1
+            self.set_zoom(int(100*self.scale_fit_window()))
+            return
+
         width = self.central_widget().width() - 2.0
         height = self.central_widget().height() - 2.0
 
@@ -2544,12 +2551,6 @@ class LabelingWidget(LabelDialog):
         
         zoom_scale = 4
 
-        self.label_loop_count += 1
-        if self.label_loop_count >= len(self.label_list):
-            #If we go through all the things go back to 100%
-            self.label_loop_count = -1
-            self.set_zoom(int(100*self.scale_fit_window()))
-            return
         item = self.label_list[self.label_loop_count]
         xs = []
         ys = []
@@ -3601,6 +3602,10 @@ class LabelingWidget(LabelDialog):
             if self.image_data:
                 self.image_path = filename
             self.label_file = None
+        
+        # Reset the label loop count
+        self.label_loop_count = -1
+
         image = QtGui.QImage.fromData(self.image_data)
 
         if image.isNull():
