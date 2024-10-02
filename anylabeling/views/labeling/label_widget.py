@@ -116,6 +116,8 @@ class LabelingWidget(LabelDialog):
         self._config = config
         self.label_flags = self._config["label_flags"]
 
+        self.label_loop_count = -1
+
         # set default shape colors
         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
         Shape.fill_color = QtGui.QColor(*self._config["shape"]["fill_color"])
@@ -303,6 +305,7 @@ class LabelingWidget(LabelDialog):
         # Actions
         action = functools.partial(utils.new_action, self)
         shortcuts = self._config["shortcuts"]
+
         open_ = action(
             self.tr("&Open File"),
             self.open_file,
@@ -713,6 +716,15 @@ class LabelingWidget(LabelDialog):
             self.information,
             icon="help",
             tip=self.tr("Show system information"),
+        )
+
+        loop_thru_labels = action(
+            self.tr("&Loop through labels"),
+            self.loop_thru_labels,
+            shortcut=shortcuts["loop_thru_labels"],
+            icon="loop",
+            tip=self.tr("Loop through labels"),
+            enabled=True
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -1347,6 +1359,7 @@ class LabelingWidget(LabelDialog):
             show_hidden_polygons=show_hidden_polygons,
             group_selected_shapes=group_selected_shapes,
             ungroup_selected_shapes=ungroup_selected_shapes,
+            loop_thru_labels=loop_thru_labels,
         )
 
         self.canvas.vertex_selected.connect(
@@ -1504,6 +1517,8 @@ class LabelingWidget(LabelDialog):
                 show_hidden_polygons,
                 group_selected_shapes,
                 ungroup_selected_shapes,
+                None,
+                loop_thru_labels,
             ),
         )
 
@@ -1544,6 +1559,8 @@ class LabelingWidget(LabelDialog):
             fit_width,
             toggle_auto_labeling_widget,
             run_all_images,
+            None,
+            loop_thru_labels,
         )
 
         layout = QHBoxLayout()
@@ -2517,6 +2534,61 @@ class LabelingWidget(LabelDialog):
         info_box.addButton(copy_button, QMessageBox.ActionRole)
 
         info_box.exec_()
+
+    def loop_thru_labels(self):
+        width = self.central_widget().width() - 2.0
+        height = self.central_widget().height() - 2.0
+
+        im_width = self.canvas.pixmap.width()
+        im_height = self.canvas.pixmap.height()
+        
+        zoom_scale = 4
+
+        self.label_loop_count += 1
+        if self.label_loop_count >= len(self.label_list):
+            #If we go through all the things go back to 100%
+            self.label_loop_count = -1
+            self.set_zoom(int(100*self.scale_fit_window()))
+            return
+        item = self.label_list[self.label_loop_count]
+        xs = []
+        ys = []
+        # loop through all points on this label
+        for point in item.shape().points:
+            xs.append(point.x())
+            ys.append(point.y())
+
+        # Set minimum label width to 30px this should handle point
+        # lables and very tiny labels gracefully
+        label_width = max(int(max(xs)-min(xs)), 30)
+        x = (max(xs)+min(xs))/2
+        y = (max(ys)+min(ys))/2
+
+        zoom = int(100*width / (zoom_scale*label_width))
+        #Don't go past the max zoom which is 1000
+        zoom = min(1000, zoom)
+
+        self.set_zoom(zoom)
+
+        x_range = self.scroll_bars[Qt.Horizontal].maximum()
+        x_step= self.scroll_bars[Qt.Horizontal].pageStep()
+
+        y_range = self.scroll_bars[Qt.Vertical].maximum()
+        # QT docs says Document length = maximum() - minimum() + pageStep().
+        # so there's a weird pageStep thing we gotta add
+        y_step= self.scroll_bars[Qt.Vertical].pageStep()
+        screen_width= width/(zoom/100)
+        #add half a screen to this
+        x_scroll = int((x-screen_width/2)/im_width*(x_range+x_step)) 
+        x_scroll = min(max(0, x_scroll), x_range)
+
+        screen_height= height/(zoom/100)
+
+        y_scroll = int((y-screen_height/2)/(im_height)*(y_range+y_step))  
+        y_scroll = min(max(0, y_scroll), y_range)
+
+        self.set_scroll(Qt.Horizontal, x_scroll)
+        self.set_scroll(Qt.Vertical, y_scroll)
 
     def copy_to_clipboard(self, text):
         clipboard = QtWidgets.QApplication.clipboard()
