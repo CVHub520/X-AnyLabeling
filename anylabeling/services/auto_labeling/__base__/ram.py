@@ -67,6 +67,7 @@ class RecognizeAnything(Model):
         """
         h, w = input_shape
         image = cv2.resize(input_image, (w, h))
+        image /= 255.0
         mean = np.array([0.485, 0.456, 0.406])
         std = np.array([0.229, 0.224, 0.225])
         image = (image - mean) / std
