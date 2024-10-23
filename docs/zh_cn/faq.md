@@ -125,3 +125,9 @@ pip install --upgrade onnx
 
 `group_id`字段缺失，请确保每个矩形框和关键点都有对应的群组编号。
 </details>
+
+<details>
+<summary>Q: 'NoneType' object has no attribute 'shape'</summary>
+
+检查文件路径是否包含**中文字符**。
+</details>
