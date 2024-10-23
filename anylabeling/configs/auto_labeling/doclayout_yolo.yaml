@@ -1,0 +1,16 @@
+type: doclayout_yolo
+name: doclayout_yolo-r20241024
+display_name: DocLayout-YOLO
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/doclayout_yolo_docstructbench_imgsz1024.onnx
+confidence_threshold: 0.25
+classes:
+  - title
+  - plain text
+  - abandon
+  - figure
+  - figure_caption
+  - table
+  - table_caption
+  - table_footnote
+  - isolate_formula
+  - formula_caption

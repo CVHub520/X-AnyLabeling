@@ -142,6 +142,7 @@ class YOLO(Model):
             "yolov8",
             "yolov9",
             "yolov10",
+            "doclayout_yolo",
             "yolo11",
             "gold_yolo",
             "yolow",
@@ -309,7 +310,7 @@ class YOLO(Model):
                 multi_label=False,
                 nc=self.nc,
             )
-        elif self.model_type == "yolov10":
+        elif self.model_type in ["yolov10", "doclayout_yolo"]:
             p = self.postprocess_v10(
                 preds[0][0],
                 conf_thres=self.conf_thres,

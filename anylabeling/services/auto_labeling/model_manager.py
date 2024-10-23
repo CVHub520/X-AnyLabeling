@@ -20,6 +20,7 @@ class ModelManager(QObject):
 
     MAX_NUM_CUSTOM_MODELS = 5
     CUSTOM_MODELS = [
+        "doclayout_yolo",
         "open_vision",
         "segment_anything",
         "segment_anything_2",
@@ -1085,6 +1086,29 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "doclayout_yolo":
+            from .doclayout_yolo import DocLayoutYOLO
+
+            try:
+                model_config["model"] = DocLayoutYOLO(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
         elif model_config["type"] == "yolov5_obb":
             from .yolov5_obb import YOLOv5OBB
 
@@ -1936,6 +1960,7 @@ class ModelManager(QObject):
             "yolo11_pose_track",
             "yolow",
             "yolox",
+            "doclayout_yolo",
         ]
         if (
             self.loaded_model_config is None
@@ -2016,6 +2041,7 @@ class ModelManager(QObject):
             "yolo11_pose_track",
             "yolow",
             "yolox",
+            "doclayout_yolo",
         ]
         if (
             self.loaded_model_config is not None

@@ -10,7 +10,12 @@ from .db_postprocess import *
 from .rec_postprocess import *
 from .cls_postprocess import *
 
-__all__ = ["TextSystem"]
+__all__ = [
+    "TextSystem",
+    "TextDetector",
+    "TextRecognizer",
+    "TextClassifier",
+]
 
 
 class TextDetector(object):
@@ -958,14 +963,14 @@ class TextSystem(object):
     def __call__(self, img, cls=True):
         if img is None:
             # logger.debug("no valid image provided")
-            return None, None
+            return None, None, None
 
         ori_im = img.copy()
         dt_boxes = self.text_detector(img)
 
         if dt_boxes is None:
             # logger.debug("no dt_boxes found, elapsed : {}".format(elapse))
-            return None, None
+            return None, None, None
         else:
             pass
             # logger.debug("dt_boxes num : {}, elapsed : {}".format(len(dt_boxes), elapse))

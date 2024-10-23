@@ -32,6 +32,8 @@
 
 ## 🥳 新功能
 
+- 2024年10月:
+  - ✨✨✨ 支持基于[DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md)的文档版面分析模型。
 - 2024年9月:
   - 发布[X-AnyLabeling v2.4.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.4)版本。
   - 🚀🚀🚀 支持[YOLO11-Det/OBB/Pose/Seg/Track](https://github.com/ultralytics/ultralytics)模型。

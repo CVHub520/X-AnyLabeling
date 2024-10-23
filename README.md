@@ -33,6 +33,8 @@
 
 ## 🥳 What's New
 
+- Oct. 2024:
+  - ✨✨✨ Added support for [DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md) model.
 - Sep. 2024:
   - Release version [2.4.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.4)
   - 🚀🚀🚀 Added support for [YOLO11-Det/OBB/Pose/Seg/Track model](https://github.com/ultralytics/ultralytics).

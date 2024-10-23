@@ -1,3 +1,5 @@
+- model_name: "doclayout_yolo-r20241024"
+  config_file: ":/doclayout_yolo.yaml"
 - model_name: "open_vision-r20241010"
   config_file: ":/open_vision.yaml"
 - model_name: "sam2_hiera_base-r20240801"
