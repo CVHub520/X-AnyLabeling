@@ -17,9 +17,13 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
 
-import torch
-from sam2.build_sam import build_sam2, build_sam2_camera_predictor
-from sam2.sam2_image_predictor import SAM2ImagePredictor
+try:
+    import torch
+    from sam2.build_sam import build_sam2, build_sam2_camera_predictor
+    from sam2.sam2_image_predictor import SAM2ImagePredictor
+    SAM2_VIDEO_AVAILABLE = True
+except ImportError:
+    SAM2_VIDEO_AVAILABLE = False
 
 
 class SegmentAnything2Video(Model):
@@ -64,6 +68,11 @@ class SegmentAnything2Video(Model):
             config_path (str): Path to the configuration file.
             on_message (callable): Callback for logging messages.
         """
+
+        if not SAM2_VIDEO_AVAILABLE:
+            message = "SegmentAnything2Video model will not be available. Please install related packages and try again."
+            raise ImportError(message)
+
         super().__init__(config_path, on_message)
 
         device_type = self.config.get("device_type", "cuda")

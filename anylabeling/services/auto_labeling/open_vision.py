@@ -3,7 +3,6 @@ warnings.filterwarnings('ignore')
 
 import os
 import cv2
-import torch
 import argparse
 import traceback
 import numpy as np
@@ -25,10 +24,15 @@ from .types import AutoLabelingResult
 from .lru_cache import LRUCache
 from .__base__.sam2 import SegmentAnything2ONNX
 
-from .visualgd.datasets import transforms as T
-from .visualgd.registry import MODULE_BUILD_FUNCS
-from .visualgd.util.misc import nested_tensor_from_tensor_list
-from .visualgd.config.cfg_handler import ConfigurationHandler
+try:
+    import torch
+    from .visualgd.datasets import transforms as T
+    from .visualgd.registry import MODULE_BUILD_FUNCS
+    from .visualgd.util.misc import nested_tensor_from_tensor_list
+    from .visualgd.config.cfg_handler import ConfigurationHandler
+    OPEN_VISION_AVAILABLE = True
+except ImportError:
+    OPEN_VISION_AVAILABLE = False
 
 
 class OpenVision(Model):
@@ -62,6 +66,11 @@ class OpenVision(Model):
         default_output_mode = "rectangle"
 
     def __init__(self, model_config, on_message) -> None:
+
+        if not OPEN_VISION_AVAILABLE:
+            message = "OpenVision model will not be available. Please install related packages and try again."
+            raise ImportError(message)
+
         # Run the parent class's init method
         super().__init__(model_config, on_message)
 
