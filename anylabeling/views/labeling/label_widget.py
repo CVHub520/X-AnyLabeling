@@ -5891,6 +5891,7 @@ class LabelingWidget(LabelDialog):
             "sam_hq",
             "efficientvit_sam",
             "edge_sam",
+            "open_vision",
         ]
 
         if (

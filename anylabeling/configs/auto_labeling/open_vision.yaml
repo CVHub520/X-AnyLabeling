@@ -1,0 +1,10 @@
+type: open_vision
+name: open_vision-r20241010
+display_name: Open Vision
+# text_encoder_type: path/to/bert-base-uncased
+text_encoder_type: /home/cvhub/workspace/projects/python/multi-modal/CountGD/XGD/checkpoints/bert-base-uncased
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/open_vision_fsc147.pth
+box_threshold: 0.3
+# Segment-Anything-2 (large)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/sam2_hiera_large.encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/sam2_hiera_large.decoder.onnx

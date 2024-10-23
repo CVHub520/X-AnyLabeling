@@ -1,3 +1,5 @@
+- model_name: "open_vision-r20241010"
+  config_file: ":/open_vision.yaml"
 - model_name: "sam2_hiera_base-r20240801"
   config_file: ":/sam2_hiera_base.yaml"
 - model_name: "sam2_hiera_large_video-r20240901"

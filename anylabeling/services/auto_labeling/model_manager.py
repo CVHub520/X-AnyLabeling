@@ -20,6 +20,7 @@ class ModelManager(QObject):
 
     MAX_NUM_CUSTOM_MODELS = 5
     CUSTOM_MODELS = [
+        "open_vision",
         "segment_anything",
         "segment_anything_2",
         "segment_anything_2_video",
@@ -1059,6 +1060,31 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "open_vision":
+            from .open_vision import OpenVision
+
+            try:
+                model_config["model"] = OpenVision(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                return
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
         elif model_config["type"] == "yolov5_obb":
             from .yolov5_obb import YOLOv5OBB
 
@@ -1841,6 +1867,7 @@ class ModelManager(QObject):
             "yolov8_efficientvit_sam",
             "grounding_sam",
             "grounding_sam2",
+            "open_vision",
             "edge_sam",
         ]
         if (
