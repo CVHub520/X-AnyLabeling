@@ -5,6 +5,7 @@ import os
 import cv2
 import traceback
 import numpy as np
+import natsort
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -468,7 +469,7 @@ class SegmentAnything2Video(Model):
         ]
         if not frame_names:
             return -1
-        frame_names.sort(key=lambda p: int(os.path.splitext(p)[0]))
+        frame_names = natsort.natsorted(frame_names)
         return frame_names.index(os.path.basename(filename))
 
     def unload(self):
