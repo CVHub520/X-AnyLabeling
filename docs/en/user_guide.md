@@ -41,6 +41,7 @@
       * [7.3 Loading Predefined Labels](#73-loading-predefined-labels)
       * [7.4 Auto-Switch to Edit Mode](#74-auto-switch-to-edit-mode)
       * [7.5 Hover Auto-Highlight Mode](#75-hover-auto-highlight-mode)
+      * [7.6 Shape Property Customization](#76-shape-property-customization)
   * [8. Tasks](#8-tasks)
       * [8.1 Image Classification](#81-image-classification)
       * [8.2 Object Detection](#82-object-detection)
@@ -677,6 +678,27 @@ In X-AnyLabeling v2.4.0 and above, the **hover auto-highlight mode** feature is 
 
 Note: In `multi-label classification tasks`, if the user manually uploads a property file, the `auto_highlight_shape` field will be set to `false` to prevent accidental switching of the property window status bar, thus improving user experience.
 
+### 7.6 Shape Property Customization
+
+a. Open the configuration file `.xanylabelingrc` in your user directory.
+
+b. Find the `shape` field in the configuration file, and modify the corresponding field values as needed.
+
+```YAML
+...
+shape:
+  # drawing
+  line_color: [0, 255, 0, 128]
+  fill_color: [220, 220, 220, 150]
+  vertex_fill_color: [0, 255, 0, 255]
+  # selecting / hovering
+  select_line_color: [255, 255, 255, 255]
+  select_fill_color: [0, 255, 0, 155]
+  hvertex_fill_color: [255, 255, 255, 255]
+  point_size: 10
+  line_width: 4
+...
+```
 
 ## 8. Tasks
 
