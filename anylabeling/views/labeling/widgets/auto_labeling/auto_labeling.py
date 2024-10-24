@@ -81,7 +81,8 @@ class AutoLabelingWidget(QWidget):
 
         # Auto labeling buttons
         self.button_run.setShortcut("I")
-        self.button_run.clicked.connect(self.run_prediction)
+        # self.button_run.clicked.connect(self.run_prediction)
+        self.button_run.clicked.connect(lambda: self.run_prediction(True))
         self.button_send.clicked.connect(self.run_vl_prediction)
         self.edit_conf.valueChanged.connect(self.on_conf_value_changed)
         self.edit_iou.valueChanged.connect(self.on_iou_value_changed)
@@ -199,11 +200,17 @@ class AutoLabelingWidget(QWidget):
             self.auto_labeling_mode = AutoLabelingMode(edit_mode, shape_type)
         self.auto_labeling_mode_changed.emit(self.auto_labeling_mode)
 
-    def run_prediction(self):
+    def run_prediction(self, run_tracker=False):
         """Run prediction"""
+        if self.model_manager.loaded_model_config[
+            "type"
+        ] not in [
+            "segment_anything_2_video",
+        ]:
+            run_tracker = False
         if self.parent.filename is not None:
             self.model_manager.predict_shapes_threading(
-                self.parent.image, self.parent.filename
+                self.parent.image, self.parent.filename, run_tracker=run_tracker
             )
 
     def run_vl_prediction(self):
