@@ -54,6 +54,7 @@ class SegmentAnything2Video(Model):
             "button_clear",
             "button_finish_object",
             "button_reset_tracker",
+            "button_run",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
