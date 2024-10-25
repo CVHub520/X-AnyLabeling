@@ -31,6 +31,7 @@ from transformers import (
     RobertaTokenizerFast,
 )
 from transformers import logging as transformers_logging
+
 transformers_logging.set_verbosity_error()
 
 from ..util import box_ops, get_tokenlizer
@@ -66,9 +67,13 @@ from ..util.visualizer import renorm
 
 def numpy_2_cv2(np_img):
     if np.min(np_img) < 0:
-        raise Exception("image min is less than 0. Img min: " + str(np.min(np_img)))
+        raise Exception(
+            "image min is less than 0. Img min: " + str(np.min(np_img))
+        )
     if np.max(np_img) > 1:
-        raise Exception("image max is greater than 1. Img max: " + str(np.max(np_img)))
+        raise Exception(
+            "image max is greater than 1. Img max: " + str(np.max(np_img))
+        )
     np_img = (np_img * 255).astype(np.uint8)
     # Need to somehow ensure image is in RGB format. Note this line shows up in SAM demo: image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     cv2_image = np.asarray(np_img)
@@ -140,7 +145,9 @@ class GroundingDINO(nn.Module):
         assert query_dim == 4
 
         # visual exemplar cropping
-        self.feature_map_proj = nn.Conv2d((256 + 512 + 1024), hidden_dim, kernel_size=1)
+        self.feature_map_proj = nn.Conv2d(
+            (256 + 512 + 1024), hidden_dim, kernel_size=1
+        )
 
         # for dn training
         self.num_patterns = num_patterns
@@ -151,7 +158,9 @@ class GroundingDINO(nn.Module):
 
         # bert
         self.tokenizer = get_tokenlizer.get_tokenlizer(text_encoder_type)
-        self.bert = get_tokenlizer.get_pretrained_language_model(text_encoder_type)
+        self.bert = get_tokenlizer.get_pretrained_language_model(
+            text_encoder_type
+        )
         self.bert.pooler.dense.weight.requires_grad_(False)
         self.bert.pooler.dense.bias.requires_grad_(False)
         self.bert = BertModelWarper(bert_model=self.bert)
@@ -184,7 +193,11 @@ class GroundingDINO(nn.Module):
                 input_proj_list.append(
                     nn.Sequential(
                         nn.Conv2d(
-                            in_channels, hidden_dim, kernel_size=3, stride=2, padding=1
+                            in_channels,
+                            hidden_dim,
+                            kernel_size=3,
+                            stride=2,
+                            padding=1,
                         ),
                         nn.GroupNorm(32, hidden_dim),
                     )
@@ -198,7 +211,11 @@ class GroundingDINO(nn.Module):
             self.input_proj = nn.ModuleList(
                 [
                     nn.Sequential(
-                        nn.Conv2d(backbone.num_channels[-1], hidden_dim, kernel_size=1),
+                        nn.Conv2d(
+                            backbone.num_channels[-1],
+                            hidden_dim,
+                            kernel_size=1,
+                        ),
                         nn.GroupNorm(32, hidden_dim),
                     )
                 ]
@@ -248,13 +265,17 @@ class GroundingDINO(nn.Module):
                 assert dec_pred_bbox_embed_share
                 self.transformer.enc_out_bbox_embed = _bbox_embed
             else:
-                self.transformer.enc_out_bbox_embed = copy.deepcopy(_bbox_embed)
+                self.transformer.enc_out_bbox_embed = copy.deepcopy(
+                    _bbox_embed
+                )
 
             if two_stage_class_embed_share:
                 assert dec_pred_bbox_embed_share
                 self.transformer.enc_out_class_embed = _class_embed
             else:
-                self.transformer.enc_out_class_embed = copy.deepcopy(_class_embed)
+                self.transformer.enc_out_class_embed = copy.deepcopy(
+                    _class_embed
+                )
 
             self.refpoint_embed = None
 
@@ -269,7 +290,9 @@ class GroundingDINO(nn.Module):
     def init_ref_points(self, use_num_queries):
         self.refpoint_embed = nn.Embedding(use_num_queries, self.query_dim)
 
-    def add_exemplar_tokens(self, tokenized, text_dict, exemplar_tokens, labels):
+    def add_exemplar_tokens(
+        self, tokenized, text_dict, exemplar_tokens, labels
+    ):
         input_ids = tokenized["input_ids"]
 
         device = input_ids.device
@@ -290,7 +313,10 @@ class GroundingDINO(nn.Module):
                 input_id = input_ids[sample_ind][token_ind]
                 if (input_id not in self.specical_tokens) and (
                     token_ind == 0
-                    or (input_ids[sample_ind][token_ind - 1] in self.specical_tokens)
+                    or (
+                        input_ids[sample_ind][token_ind - 1]
+                        in self.specical_tokens
+                    )
                 ):
                     label_count += 1
                 if label_count == label:
@@ -406,9 +432,9 @@ class GroundingDINO(nn.Module):
 
         # encoder texts
 
-        tokenized = self.tokenizer(captions, padding="longest", return_tensors="pt").to(
-            samples.device
-        )
+        tokenized = self.tokenizer(
+            captions, padding="longest", return_tensors="pt"
+        ).to(samples.device)
 
         one_hot_token = tokenized
 
@@ -425,7 +451,9 @@ class GroundingDINO(nn.Module):
                 :, : self.max_text_len, : self.max_text_len
             ]
             position_ids = position_ids[:, : self.max_text_len]
-            tokenized["input_ids"] = tokenized["input_ids"][:, : self.max_text_len]
+            tokenized["input_ids"] = tokenized["input_ids"][
+                :, : self.max_text_len
+            ]
             tokenized["attention_mask"] = tokenized["attention_mask"][
                 :, : self.max_text_len
             ]
@@ -493,7 +521,6 @@ class GroundingDINO(nn.Module):
             else:
                 exemplar_tokens = None
 
-
         else:
             features, poss = self.backbone(samples)
             (h, w) = (
@@ -547,7 +574,8 @@ class GroundingDINO(nn.Module):
             features_exemp, _ = self.backbone(exemp_imgs)
             combined_features = self.combine_features(features_exemp)
             new_exemplars = [
-                torch.tensor(exemp).unsqueeze(0).to(samples.device) for exemp in new_exemplars
+                torch.tensor(exemp).unsqueeze(0).to(samples.device)
+                for exemp in new_exemplars
             ]
 
             # Get visual exemplar tokens.
@@ -596,7 +624,13 @@ class GroundingDINO(nn.Module):
 
         input_query_bbox = input_query_label = attn_mask = dn_meta = None
         hs, reference, hs_enc, ref_enc, init_box_proposal = self.transformer(
-            srcs, masks, input_query_bbox, poss, input_query_label, attn_mask, text_dict
+            srcs,
+            masks,
+            input_query_bbox,
+            poss,
+            input_query_label,
+            attn_mask,
+            text_dict,
         )
 
         # deformable-detr-like anchor update
@@ -605,7 +639,9 @@ class GroundingDINO(nn.Module):
             zip(reference[:-1], self.bbox_embed, hs)
         ):
             layer_delta_unsig = layer_bbox_embed(layer_hs)
-            layer_outputs_unsig = layer_delta_unsig + inverse_sigmoid(layer_ref_sig)
+            layer_outputs_unsig = layer_delta_unsig + inverse_sigmoid(
+                layer_ref_sig
+            )
             layer_outputs_unsig = layer_outputs_unsig.sigmoid()
             outputs_coord_list.append(layer_outputs_unsig)
         outputs_coord_list = torch.stack(outputs_coord_list)
@@ -617,13 +653,16 @@ class GroundingDINO(nn.Module):
             ]
         )
 
-        out = {"pred_logits": outputs_class[-1], "pred_boxes": outputs_coord_list[-1]}
+        out = {
+            "pred_logits": outputs_class[-1],
+            "pred_boxes": outputs_coord_list[-1],
+        }
 
         # Used to calculate losses
         bs, len_td = text_dict["text_token_mask"].shape
-        out["text_mask"] = torch.zeros(bs, self.max_text_len, dtype=torch.bool).to(
-            samples.device
-        )
+        out["text_mask"] = torch.zeros(
+            bs, self.max_text_len, dtype=torch.bool
+        ).to(samples.device)
         for b in range(bs):
             for j in range(len_td):
                 if text_dict["text_token_mask"][b][j] == True:
@@ -631,13 +670,17 @@ class GroundingDINO(nn.Module):
 
         # for intermediate outputs
         if self.aux_loss:
-            out["aux_outputs"] = self._set_aux_loss(outputs_class, outputs_coord_list)
+            out["aux_outputs"] = self._set_aux_loss(
+                outputs_class, outputs_coord_list
+            )
         out["token"] = one_hot_token
         # # for encoder output
         if hs_enc is not None:
             # prepare intermediate outputs
             interm_coord = ref_enc[-1]
-            interm_class = self.transformer.enc_out_class_embed(hs_enc[-1], text_dict)
+            interm_class = self.transformer.enc_out_class_embed(
+                hs_enc[-1], text_dict
+            )
             out["interm_outputs"] = {
                 "pred_logits": interm_class,
                 "pred_boxes": interm_coord,
@@ -716,7 +759,9 @@ class SetCriterion(nn.Module):
             [len(v["labels"]) for v in targets], device=device
         )
         # Count the number of predictions that are NOT "no-object" (which is the last class)
-        card_pred = (pred_logits.argmax(-1) != pred_logits.shape[-1] - 1).sum(1)
+        card_pred = (pred_logits.argmax(-1) != pred_logits.shape[-1] - 1).sum(
+            1
+        )
         card_err = F.l1_loss(card_pred.float(), tgt_lengths.float())
         losses = {"cardinality_error": card_err}
         return losses
@@ -733,7 +778,9 @@ class SetCriterion(nn.Module):
             [t["boxes"][i] for t, (_, i) in zip(targets, indices)], dim=0
         )
 
-        loss_bbox = F.l1_loss(src_boxes[:, :2], target_boxes[:, :2], reduction="none")
+        loss_bbox = F.l1_loss(
+            src_boxes[:, :2], target_boxes[:, :2], reduction="none"
+        )
 
         losses = {}
         losses["loss_bbox"] = loss_bbox.sum() / num_boxes
@@ -753,7 +800,9 @@ class SetCriterion(nn.Module):
 
         return losses
 
-    def token_sigmoid_binary_focal_loss(self, outputs, targets, indices, num_boxes):
+    def token_sigmoid_binary_focal_loss(
+        self, outputs, targets, indices, num_boxes
+    ):
         pred_logits = outputs["pred_logits"]
         new_targets = outputs["one_hot"].to(pred_logits.device)
         text_mask = outputs["text_mask"]
@@ -767,7 +816,9 @@ class SetCriterion(nn.Module):
         if text_mask is not None:
             # ODVG: each sample has different mask
             text_mask = text_mask.repeat(1, pred_logits.size(1)).view(
-                outputs["text_mask"].shape[0], -1, outputs["text_mask"].shape[1]
+                outputs["text_mask"].shape[0],
+                -1,
+                outputs["text_mask"].shape[1],
             )
             pred_logits = torch.masked_select(pred_logits, text_mask)
             new_targets = torch.masked_select(new_targets, text_mask)
@@ -818,7 +869,9 @@ class SetCriterion(nn.Module):
         assert loss in loss_map, f"do you really want to compute {loss} loss?"
         return loss_map[loss](outputs, targets, indices, num_boxes, **kwargs)
 
-    def forward(self, outputs, targets, cat_list, caption, return_indices=False):
+    def forward(
+        self, outputs, targets, cat_list, caption, return_indices=False
+    ):
         """This performs the loss computation.
         Parameters:
              outputs: dict of tensors, see the output specification of the model for the format
@@ -863,7 +916,9 @@ class SetCriterion(nn.Module):
         # len(tgt_ids) == bs
         for i in range(len(indices)):
             tgt_ids[i] = tgt_ids[i][indices[i][1]]
-            one_hot[i, indices[i][0]] = label_map_list[i][tgt_ids[i]].to(torch.long)
+            one_hot[i, indices[i][0]] = label_map_list[i][tgt_ids[i]].to(
+                torch.long
+            )
         outputs["one_hot"] = one_hot
         if return_indices:
             indices0_copy = indices
@@ -872,7 +927,9 @@ class SetCriterion(nn.Module):
         # Compute the average number of target boxes accross all nodes, for normalization purposes
         num_boxes_list = [len(t["labels"]) for t in targets]
         num_boxes = sum(num_boxes_list)
-        num_boxes = torch.as_tensor([num_boxes], dtype=torch.float, device=device)
+        num_boxes = torch.as_tensor(
+            [num_boxes], dtype=torch.float, device=device
+        )
         if is_dist_avail_and_initialized():
             torch.distributed.all_reduce(num_boxes)
         num_boxes = torch.clamp(num_boxes / get_world_size(), min=1).item()
@@ -880,7 +937,9 @@ class SetCriterion(nn.Module):
         # Compute all the requested losses
         losses = {}
         for loss in self.losses:
-            losses.update(self.get_loss(loss, outputs, targets, indices, num_boxes))
+            losses.update(
+                self.get_loss(loss, outputs, targets, indices, num_boxes)
+            )
 
         # In case of auxiliary losses, we repeat this process with the output of each intermediate layer.
         if "aux_outputs" in outputs:
@@ -888,8 +947,12 @@ class SetCriterion(nn.Module):
                 indices = []
                 for j in range(len(cat_list)):  # bs
                     aux_output_single = {
-                        "pred_logits": aux_outputs["pred_logits"][j].unsqueeze(0),
-                        "pred_boxes": aux_outputs["pred_boxes"][j].unsqueeze(0),
+                        "pred_logits": aux_outputs["pred_logits"][j].unsqueeze(
+                            0
+                        ),
+                        "pred_boxes": aux_outputs["pred_boxes"][j].unsqueeze(
+                            0
+                        ),
                     }
                     inds = self.matcher(
                         aux_output_single, [targets[j]], label_map_list[j]
@@ -901,9 +964,9 @@ class SetCriterion(nn.Module):
                 tgt_ids = [v["labels"].cpu() for v in targets]
                 for i in range(len(indices)):
                     tgt_ids[i] = tgt_ids[i][indices[i][1]]
-                    one_hot_aux[i, indices[i][0]] = label_map_list[i][tgt_ids[i]].to(
-                        torch.long
-                    )
+                    one_hot_aux[i, indices[i][0]] = label_map_list[i][
+                        tgt_ids[i]
+                    ].to(torch.long)
                 aux_outputs["one_hot"] = one_hot_aux
                 aux_outputs["text_mask"] = outputs["text_mask"]
                 if return_indices:
@@ -911,7 +974,12 @@ class SetCriterion(nn.Module):
                 for loss in self.losses:
                     kwargs = {}
                     l_dict = self.get_loss(
-                        loss, aux_outputs, targets, indices, num_boxes, **kwargs
+                        loss,
+                        aux_outputs,
+                        targets,
+                        indices,
+                        num_boxes,
+                        **kwargs,
                     )
                     l_dict = {k + f"_{idx}": v for k, v in l_dict.items()}
                     losses.update(l_dict)
@@ -922,20 +990,24 @@ class SetCriterion(nn.Module):
             indices = []
             for j in range(len(cat_list)):  # bs
                 interm_output_single = {
-                    "pred_logits": interm_outputs["pred_logits"][j].unsqueeze(0),
+                    "pred_logits": interm_outputs["pred_logits"][j].unsqueeze(
+                        0
+                    ),
                     "pred_boxes": interm_outputs["pred_boxes"][j].unsqueeze(0),
                 }
                 inds = self.matcher(
                     interm_output_single, [targets[j]], label_map_list[j]
                 )
                 indices.extend(inds)
-            one_hot_aux = torch.zeros(outputs["pred_logits"].size(), dtype=torch.int64)
+            one_hot_aux = torch.zeros(
+                outputs["pred_logits"].size(), dtype=torch.int64
+            )
             tgt_ids = [v["labels"].cpu() for v in targets]
             for i in range(len(indices)):
                 tgt_ids[i] = tgt_ids[i][indices[i][1]]
-                one_hot_aux[i, indices[i][0]] = label_map_list[i][tgt_ids[i]].to(
-                    torch.long
-                )
+                one_hot_aux[i, indices[i][0]] = label_map_list[i][
+                    tgt_ids[i]
+                ].to(torch.long)
             interm_outputs["one_hot"] = one_hot_aux
             interm_outputs["text_mask"] = outputs["text_mask"]
             if return_indices:
@@ -978,7 +1050,9 @@ class PostProcess(nn.Module):
         else:
             cat_list = args.label_list
         caption = " . ".join(cat_list) + " ."
-        tokenized = self.tokenizer(caption, padding="longest", return_tensors="pt")
+        tokenized = self.tokenizer(
+            caption, padding="longest", return_tensors="pt"
+        )
         label_list = torch.arange(len(cat_list))
         pos_map = create_positive_map(tokenized, label_list, cat_list, caption)
         # build a mapping from label_id to pos_map
@@ -1089,7 +1163,9 @@ class PostProcess(nn.Module):
         pos_maps = self.positive_map.to(prob_to_token.device)
         for label_ind in range(len(pos_maps)):
             if pos_maps[label_ind].sum() != 0:
-                pos_maps[label_ind] = pos_maps[label_ind] / pos_maps[label_ind].sum()
+                pos_maps[label_ind] = (
+                    pos_maps[label_ind] / pos_maps[label_ind].sum()
+                )
 
         prob_to_label = prob_to_token @ pos_maps.T
 
@@ -1101,7 +1177,9 @@ class PostProcess(nn.Module):
             prob.view(prob.shape[0], -1), num_select, dim=1
         )
         scores = topk_values
-        topk_boxes = torch.div(topk_indexes, prob.shape[2], rounding_mode="trunc")
+        topk_boxes = torch.div(
+            topk_indexes, prob.shape[2], rounding_mode="trunc"
+        )
         labels = topk_indexes % prob.shape[2]
         if not_to_xyxy:
             boxes = out_bbox
@@ -1111,7 +1189,9 @@ class PostProcess(nn.Module):
         # if test:
         #     assert not not_to_xyxy
         #     boxes[:,:,2:] = boxes[:,:,2:] - boxes[:,:,:2]
-        boxes = torch.gather(boxes, 1, topk_boxes.unsqueeze(-1).repeat(1, 1, 4))
+        boxes = torch.gather(
+            boxes, 1, topk_boxes.unsqueeze(-1).repeat(1, 1, 4)
+        )
 
         # and from relative [0, 1] to absolute [0, height] coordinates
         img_h, img_w = target_sizes.unbind(1)
@@ -1176,7 +1256,10 @@ def build_groundingdino(args):
     matcher = build_matcher(args)
 
     # prepare weight dict
-    weight_dict = {"loss_ce": args.cls_loss_coef, "loss_bbox": args.bbox_loss_coef}
+    weight_dict = {
+        "loss_ce": args.cls_loss_coef,
+        "loss_bbox": args.bbox_loss_coef,
+    }
     weight_dict["loss_giou"] = args.giou_loss_coef
     clean_weight_dict_wo_dn = copy.deepcopy(weight_dict)
 

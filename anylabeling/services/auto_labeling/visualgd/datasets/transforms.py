@@ -30,13 +30,15 @@ def crop(image, target, region):
     # Shift exemplars to cropped region.
     cropped_exemplars = exemplars - torch.as_tensor([j, i, j, i])
     # Correct exemplar regions that go past new image boundary (too far right).
-    cropped_exemplars = torch.min(cropped_exemplars.reshape(-1, 2, 2), max_size)
+    cropped_exemplars = torch.min(
+        cropped_exemplars.reshape(-1, 2, 2), max_size
+    )
     # Correct exemplar regions that go past new image boundary (too far left).
     cropped_exemplars = cropped_exemplars.clamp(min=0)
     # Get new exemplar areas.
-    area_exemplars = (cropped_exemplars[:, 1, :] - cropped_exemplars[:, 0, :]).prod(
-        dim=1
-    )
+    area_exemplars = (
+        cropped_exemplars[:, 1, :] - cropped_exemplars[:, 0, :]
+    ).prod(dim=1)
     # Update [target] with cropped exemplars.
     target["exemplars"] = cropped_exemplars.reshape(-1, 4)
     if "boxes" in target:
@@ -65,7 +67,9 @@ def crop(image, target, region):
         # this is compatible with previous implementation
         if "boxes" in target:
             cropped_boxes = target["boxes"].reshape(-1, 2, 2)
-            keep = torch.all(cropped_boxes[:, 1, :] > cropped_boxes[:, 0, :], dim=1)
+            keep = torch.all(
+                cropped_boxes[:, 1, :] > cropped_boxes[:, 0, :], dim=1
+            )
         else:
             keep = target["masks"].flatten(1).any(1)
 
@@ -112,7 +116,9 @@ def resize(image, target, size, max_size=None):
             min_original_size = float(min((w, h)))
             max_original_size = float(max((w, h)))
             if max_original_size / min_original_size * size > max_size:
-                size = int(round(max_size * min_original_size / max_original_size))
+                size = int(
+                    round(max_size * min_original_size / max_original_size)
+                )
 
         if (w <= h and w == size) or (h <= w and h == size):
             return (h, w)
@@ -142,7 +148,8 @@ def resize(image, target, size, max_size=None):
         return rescaled_image, None
 
     ratios = tuple(
-        float(s) / float(s_orig) for s, s_orig in zip(rescaled_image.size, image.size)
+        float(s) / float(s_orig)
+        for s, s_orig in zip(rescaled_image.size, image.size)
     )
     ratio_width, ratio_height = ratios
 
@@ -176,7 +183,9 @@ def resize(image, target, size, max_size=None):
 
     if "masks" in target:
         target["masks"] = (
-            interpolate(target["masks"][:, None].float(), size, mode="nearest")[:, 0]
+            interpolate(
+                target["masks"][:, None].float(), size, mode="nearest"
+            )[:, 0]
             > 0.5
         )
 
@@ -236,7 +245,9 @@ class CenterCrop(object):
         crop_height, crop_width = self.size
         crop_top = int(round((image_height - crop_height) / 2.0))
         crop_left = int(round((image_width - crop_width) / 2.0))
-        return crop(img, target, (crop_top, crop_left, crop_height, crop_width))
+        return crop(
+            img, target, (crop_top, crop_left, crop_height, crop_width)
+        )
 
 
 class RandomHorizontalFlip(object):

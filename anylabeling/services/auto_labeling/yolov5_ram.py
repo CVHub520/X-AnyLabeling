@@ -182,10 +182,14 @@ class YOLOv5_RAM(YOLO):
         from anylabeling.services.auto_labeling import configs
 
         try:
-            tag_list = pkg_resources.read_text(configs.ram, 'ram_tag_list.txt').splitlines()
+            tag_list = pkg_resources.read_text(
+                configs.ram, "ram_tag_list.txt"
+            ).splitlines()
             tag_list = np.array(tag_list)
-            
-            tag_list_chinese = pkg_resources.read_text(configs.ram, 'ram_tag_list_chinese.txt').splitlines()
+
+            tag_list_chinese = pkg_resources.read_text(
+                configs.ram, "ram_tag_list_chinese.txt"
+            ).splitlines()
             tag_list_chinese = np.array(tag_list_chinese)
         except Exception as e:
             logger.error(f"Error loading tag list: {e}")

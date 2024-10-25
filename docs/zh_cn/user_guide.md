@@ -315,9 +315,12 @@ X-AnyLabeling 支持对当前图片进行色彩调整。具体操作如下：
 
 ### 4.3 COCO标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出目标检测和实例分割任务相关的 COCO 标签文件（*.json）。
+当前 X-AnyLabeling 最新版本支持一键导入/导出目标检测、实例分割、关键点检测任务相关的 COCO 标签文件（*.json）。
 
-在导入/导出 COCO 标注文件之前，需要准备好一份标签配置文件，具体可参考 [classes.txt](../../assets/classes.txt)，其中每一行代表一个类别，编号从上至下依次递增。
+在导入/导出 COCO 标注文件之前，需要准备一份标签配置文件，具体如下：
+
+1. 对于 COCO 目标检测、实例分割任务，请参考 [classes.txt](../../assets/classes.txt) 准备配置文件，其中每一行代表一个类别，编号从上至下依次递增。
+2. 对于 COCO 关键点检测任务，请参考 [yolov8_pose.yaml](../../assets/yolov8_pose.yaml) 进行准备，其中 `has_visible` 参数请参考[官方定义](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format)。
 
 **导入任务**：
 1. 点击上方菜单栏的 `导入` 按钮。
@@ -327,8 +330,9 @@ X-AnyLabeling 支持对当前图片进行色彩调整。具体操作如下：
 
 **导出任务**：
 1. 点击上方菜单栏的 `导出` 按钮。
-2. 上传准备好的配置文件。
-3. 点击确定即可。
+2. 选择对应的任务。
+3. 上传准备好的配置文件。
+4. 点击确定即可。
 
 导出路径默认保存在当前图片目录的同级目录下的 `annotations` 文件夹内。
 

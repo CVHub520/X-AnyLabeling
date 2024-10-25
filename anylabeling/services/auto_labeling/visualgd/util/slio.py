@@ -58,7 +58,9 @@ class PickleHandler(BaseFileHandler):
         return pickle.load(file, **kwargs)
 
     def load_from_path(self, filepath, **kwargs):
-        return super(PickleHandler, self).load_from_path(filepath, mode="rb", **kwargs)
+        return super(PickleHandler, self).load_from_path(
+            filepath, mode="rb", **kwargs
+        )
 
     def dump_to_str(self, obj, **kwargs):
         kwargs.setdefault("protocol", 2)
@@ -69,7 +71,9 @@ class PickleHandler(BaseFileHandler):
         pickle.dump(obj, file, **kwargs)
 
     def dump_to_path(self, obj, filepath, **kwargs):
-        super(PickleHandler, self).dump_to_path(obj, filepath, mode="wb", **kwargs)
+        super(PickleHandler, self).dump_to_path(
+            obj, filepath, mode="wb", **kwargs
+        )
 
 
 class YamlHandler(BaseFileHandler):
@@ -162,7 +166,9 @@ def sldump(obj, file=None, file_format=None, **kwargs):
         if is_str(file):
             file_format = file.split(".")[-1]
         elif file is None:
-            raise ValueError("file_format must be specified since file is None")
+            raise ValueError(
+                "file_format must be specified since file is None"
+            )
     if file_format not in file_handlers:
         raise TypeError(f"Unsupported format: {file_format}")
 

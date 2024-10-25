@@ -323,12 +323,15 @@ def draw_rectangle_from_custom(
                 xyxy = np.array([x1, y1, x2, y2], dtype=np.float32)
             elif len(points) == 4:
                 # If there are four points, take the top-left and bottom-right points
-                xyxy = np.array([
-                    min(p[0] for p in points),
-                    min(p[1] for p in points),
-                    max(p[0] for p in points),
-                    max(p[1] for p in points)
-                ], dtype=np.float32)
+                xyxy = np.array(
+                    [
+                        min(p[0] for p in points),
+                        min(p[1] for p in points),
+                        max(p[0] for p in points),
+                        max(p[1] for p in points),
+                    ],
+                    dtype=np.float32,
+                )
             else:
                 print(f"Warning: Skipping invalid rectangle: {points}")
                 continue

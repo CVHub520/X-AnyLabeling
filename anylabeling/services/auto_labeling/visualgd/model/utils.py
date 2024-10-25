@@ -38,15 +38,24 @@ def get_sine_pos_embed(
         pos_embed (torch.Tensor): shape: [..., n*num_pos_feats].
     """
     scale = 2 * math.pi
-    dim_t = torch.arange(num_pos_feats, dtype=torch.float32, device=pos_tensor.device)
-    dim_t = temperature ** (2 * torch.div(dim_t, 2, rounding_mode="floor") / num_pos_feats)
+    dim_t = torch.arange(
+        num_pos_feats, dtype=torch.float32, device=pos_tensor.device
+    )
+    dim_t = temperature ** (
+        2 * torch.div(dim_t, 2, rounding_mode="floor") / num_pos_feats
+    )
 
     def sine_func(x: torch.Tensor):
         sin_x = x * scale / dim_t
-        sin_x = torch.stack((sin_x[..., 0::2].sin(), sin_x[..., 1::2].cos()), dim=3).flatten(2)
+        sin_x = torch.stack(
+            (sin_x[..., 0::2].sin(), sin_x[..., 1::2].cos()), dim=3
+        ).flatten(2)
         return sin_x
 
-    pos_res = [sine_func(x) for x in pos_tensor.split([1] * pos_tensor.shape[-1], dim=-1)]
+    pos_res = [
+        sine_func(x)
+        for x in pos_tensor.split([1] * pos_tensor.shape[-1], dim=-1)
+    ]
     if exchange_xy:
         pos_res[0], pos_res[1] = pos_res[1], pos_res[0]
     pos_res = torch.cat(pos_res, dim=-1)
@@ -54,7 +63,10 @@ def get_sine_pos_embed(
 
 
 def gen_encoder_output_proposals(
-    memory: Tensor, memory_padding_mask: Tensor, spatial_shapes: Tensor, learnedwh=None
+    memory: Tensor,
+    memory_padding_mask: Tensor,
+    spatial_shapes: Tensor,
+    learnedwh=None,
 ):
     """
     Input:
@@ -70,19 +82,29 @@ def gen_encoder_output_proposals(
     proposals = []
     _cur = 0
     for lvl, (H_, W_) in enumerate(spatial_shapes):
-        mask_flatten_ = memory_padding_mask[:, _cur : (_cur + H_ * W_)].view(N_, H_, W_, 1)
+        mask_flatten_ = memory_padding_mask[:, _cur : (_cur + H_ * W_)].view(
+            N_, H_, W_, 1
+        )
         valid_H = torch.sum(~mask_flatten_[:, :, 0, 0], 1)
         valid_W = torch.sum(~mask_flatten_[:, 0, :, 0], 1)
 
         # import ipdb; ipdb.set_trace()
 
         grid_y, grid_x = torch.meshgrid(
-            torch.linspace(0, H_ - 1, H_, dtype=torch.float32, device=memory.device),
-            torch.linspace(0, W_ - 1, W_, dtype=torch.float32, device=memory.device),
+            torch.linspace(
+                0, H_ - 1, H_, dtype=torch.float32, device=memory.device
+            ),
+            torch.linspace(
+                0, W_ - 1, W_, dtype=torch.float32, device=memory.device
+            ),
         )
-        grid = torch.cat([grid_x.unsqueeze(-1), grid_y.unsqueeze(-1)], -1)  # H_, W_, 2
+        grid = torch.cat(
+            [grid_x.unsqueeze(-1), grid_y.unsqueeze(-1)], -1
+        )  # H_, W_, 2
 
-        scale = torch.cat([valid_W.unsqueeze(-1), valid_H.unsqueeze(-1)], 1).view(N_, 1, 1, 2)
+        scale = torch.cat(
+            [valid_W.unsqueeze(-1), valid_H.unsqueeze(-1)], 1
+        ).view(N_, 1, 1, 2)
         grid = (grid.unsqueeze(0).expand(N_, -1, -1, -1) + 0.5) / scale
 
         if learnedwh is not None:
@@ -99,16 +121,26 @@ def gen_encoder_output_proposals(
         _cur += H_ * W_
     # import ipdb; ipdb.set_trace()
     output_proposals = torch.cat(proposals, 1)
-    output_proposals_valid = ((output_proposals > 0.01) & (output_proposals < 0.99)).all(
-        -1, keepdim=True
+    output_proposals_valid = (
+        (output_proposals > 0.01) & (output_proposals < 0.99)
+    ).all(-1, keepdim=True)
+    output_proposals = torch.log(
+        output_proposals / (1 - output_proposals)
+    )  # unsigmoid
+    output_proposals = output_proposals.masked_fill(
+        memory_padding_mask.unsqueeze(-1), float("inf")
     )
-    output_proposals = torch.log(output_proposals / (1 - output_proposals))  # unsigmoid
-    output_proposals = output_proposals.masked_fill(memory_padding_mask.unsqueeze(-1), float("inf"))
-    output_proposals = output_proposals.masked_fill(~output_proposals_valid, float("inf"))
+    output_proposals = output_proposals.masked_fill(
+        ~output_proposals_valid, float("inf")
+    )
 
     output_memory = memory
-    output_memory = output_memory.masked_fill(memory_padding_mask.unsqueeze(-1), float(0))
-    output_memory = output_memory.masked_fill(~output_proposals_valid, float(0))
+    output_memory = output_memory.masked_fill(
+        memory_padding_mask.unsqueeze(-1), float(0)
+    )
+    output_memory = output_memory.masked_fill(
+        ~output_proposals_valid, float(0)
+    )
 
     # output_memory = output_memory.masked_fill(memory_padding_mask.unsqueeze(-1), float('inf'))
     # output_memory = output_memory.masked_fill(~output_proposals_valid, float('inf'))
@@ -118,7 +150,11 @@ def gen_encoder_output_proposals(
 
 class RandomBoxPerturber:
     def __init__(
-        self, x_noise_scale=0.2, y_noise_scale=0.2, w_noise_scale=0.2, h_noise_scale=0.2
+        self,
+        x_noise_scale=0.2,
+        y_noise_scale=0.2,
+        w_noise_scale=0.2,
+        h_noise_scale=0.2,
     ) -> None:
         self.noise_scale = torch.Tensor(
             [x_noise_scale, y_noise_scale, w_noise_scale, h_noise_scale]
@@ -136,7 +172,12 @@ class RandomBoxPerturber:
 
 
 def sigmoid_focal_loss(
-    inputs, targets, num_boxes, alpha: float = 0.25, gamma: float = 2, no_reduction=False
+    inputs,
+    targets,
+    num_boxes,
+    alpha: float = 0.25,
+    gamma: float = 2,
+    no_reduction=False,
 ):
     """
     Loss used in RetinaNet for dense detection: https://arxiv.org/abs/1708.02002.
@@ -154,7 +195,9 @@ def sigmoid_focal_loss(
         Loss tensor
     """
     prob = inputs.sigmoid()
-    ce_loss = F.binary_cross_entropy_with_logits(inputs, targets, reduction="none")
+    ce_loss = F.binary_cross_entropy_with_logits(
+        inputs, targets, reduction="none"
+    )
     p_t = prob * targets + (1 - prob) * (1 - targets)
     loss = ce_loss * ((1 - p_t) ** gamma)
 
@@ -206,27 +249,37 @@ def gen_sineembed_for_position(pos_tensor):
     # sineembed_tensor = torch.zeros(n_query, bs, 256)
     scale = 2 * math.pi
     dim_t = torch.arange(128, dtype=torch.float32, device=pos_tensor.device)
-    dim_t = 10000 ** (2 * (torch.div(dim_t, 2, rounding_mode='floor')) / 128)
+    dim_t = 10000 ** (2 * (torch.div(dim_t, 2, rounding_mode="floor")) / 128)
     x_embed = pos_tensor[:, :, 0] * scale
     y_embed = pos_tensor[:, :, 1] * scale
     pos_x = x_embed[:, :, None] / dim_t
     pos_y = y_embed[:, :, None] / dim_t
-    pos_x = torch.stack((pos_x[:, :, 0::2].sin(), pos_x[:, :, 1::2].cos()), dim=3).flatten(2)
-    pos_y = torch.stack((pos_y[:, :, 0::2].sin(), pos_y[:, :, 1::2].cos()), dim=3).flatten(2)
+    pos_x = torch.stack(
+        (pos_x[:, :, 0::2].sin(), pos_x[:, :, 1::2].cos()), dim=3
+    ).flatten(2)
+    pos_y = torch.stack(
+        (pos_y[:, :, 0::2].sin(), pos_y[:, :, 1::2].cos()), dim=3
+    ).flatten(2)
     if pos_tensor.size(-1) == 2:
         pos = torch.cat((pos_y, pos_x), dim=2)
     elif pos_tensor.size(-1) == 4:
         w_embed = pos_tensor[:, :, 2] * scale
         pos_w = w_embed[:, :, None] / dim_t
-        pos_w = torch.stack((pos_w[:, :, 0::2].sin(), pos_w[:, :, 1::2].cos()), dim=3).flatten(2)
+        pos_w = torch.stack(
+            (pos_w[:, :, 0::2].sin(), pos_w[:, :, 1::2].cos()), dim=3
+        ).flatten(2)
 
         h_embed = pos_tensor[:, :, 3] * scale
         pos_h = h_embed[:, :, None] / dim_t
-        pos_h = torch.stack((pos_h[:, :, 0::2].sin(), pos_h[:, :, 1::2].cos()), dim=3).flatten(2)
+        pos_h = torch.stack(
+            (pos_h[:, :, 0::2].sin(), pos_h[:, :, 1::2].cos()), dim=3
+        ).flatten(2)
 
         pos = torch.cat((pos_y, pos_x, pos_w, pos_h), dim=2)
     else:
-        raise ValueError("Unknown pos_tensor shape(-1):{}".format(pos_tensor.size(-1)))
+        raise ValueError(
+            "Unknown pos_tensor shape(-1):{}".format(pos_tensor.size(-1))
+        )
     return pos
 
 
@@ -258,16 +311,19 @@ class ContrastiveEmbed(nn.Module):
         # print(text_dict)
 
         # import pdb;pdb.set_trace()
-        y = text_dict["encoded_text"]  #torch.Size([2, 195, 256])
+        y = text_dict["encoded_text"]  # torch.Size([2, 195, 256])
         text_token_mask = text_dict["text_token_mask"]
 
         res = x @ y.transpose(-1, -2)
         res.masked_fill_(~text_token_mask[:, None, :], float("-inf"))
         # 接着，对res进行掩码操作，将未使用的文本token（即padding的token）对应的得分置为负无穷float("-inf")。这是为了在计算相似度时，排除padding部分的影响。
 
-
         # padding to max_text_len
-        new_res = torch.full((*res.shape[:-1], self.max_text_len), float("-inf"), device=res.device)
-        new_res[..., : res.shape[-1]] = res  #torch.Size([2, 16320, 195])
+        new_res = torch.full(
+            (*res.shape[:-1], self.max_text_len),
+            float("-inf"),
+            device=res.device,
+        )
+        new_res[..., : res.shape[-1]] = res  # torch.Size([2, 16320, 195])
 
         return new_res

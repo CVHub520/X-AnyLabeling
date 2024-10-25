@@ -158,11 +158,13 @@ class ChineseClipONNX:
 def default_vocab():
     import importlib.resources
     from anylabeling.services.auto_labeling import configs
+
     try:
-        with importlib.resources.path(configs.clip, 'clip_vocab.txt') as p:
+        with importlib.resources.path(configs.clip, "clip_vocab.txt") as p:
             return str(p)
     except Exception as e:
-       logger.error(f"Error loading default vocab: {e}")
+        logger.error(f"Error loading default vocab: {e}")
+
 
 def convert_to_unicode(text):
     """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""

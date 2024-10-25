@@ -25,18 +25,23 @@ from torch.autograd import Function
 from torch.autograd.function import once_differentiable
 from torch.nn.init import constant_, xavier_uniform_
 
-#try:
+# try:
 #    from groundingdino import _C
 #    import MultiScaleDeformableAttention as _C
 import MultiScaleDeformableAttention as _C
-#except:
+
+# except:
 #    warnings.warn("Failed to load custom C++ ops. Running on CPU mode Only!")
 
 
 # helpers
 def _is_power_of_2(n):
     if (not isinstance(n, int)) or (n < 0):
-        raise ValueError("invalid input for _is_power_of_2: {} (type: {})".format(n, type(n)))
+        raise ValueError(
+            "invalid input for _is_power_of_2: {} (type: {})".format(
+                n, type(n)
+            )
+        )
     return (n & (n - 1) == 0) and n != 0
 
 
@@ -79,7 +84,11 @@ class MultiScaleDeformableAttnFunction(Function):
             sampling_locations,
             attention_weights,
         ) = ctx.saved_tensors
-        grad_value, grad_sampling_loc, grad_attn_weight = _C.ms_deform_attn_backward(
+        (
+            grad_value,
+            grad_sampling_loc,
+            grad_attn_weight,
+        ) = _C.ms_deform_attn_backward(
             value,
             value_spatial_shapes,
             value_level_start_index,
@@ -89,7 +98,14 @@ class MultiScaleDeformableAttnFunction(Function):
             ctx.im2col_step,
         )
 
-        return grad_value, None, None, grad_sampling_loc, grad_attn_weight, None
+        return (
+            grad_value,
+            None,
+            None,
+            grad_sampling_loc,
+            grad_attn_weight,
+            None,
+        )
 
 
 def multi_scale_deformable_attn_pytorch(
@@ -98,10 +114,18 @@ def multi_scale_deformable_attn_pytorch(
     sampling_locations: torch.Tensor,
     attention_weights: torch.Tensor,
 ) -> torch.Tensor:
-
     bs, _, num_heads, embed_dims = value.shape
-    _, num_queries, num_heads, num_levels, num_points, _ = sampling_locations.shape
-    value_list = value.split([H_ * W_ for H_, W_ in value_spatial_shapes], dim=1)
+    (
+        _,
+        num_queries,
+        num_heads,
+        num_levels,
+        num_points,
+        _,
+    ) = sampling_locations.shape
+    value_list = value.split(
+        [H_ * W_ for H_, W_ in value_spatial_shapes], dim=1
+    )
     sampling_grids = 2 * sampling_locations - 1
     sampling_value_list = []
     for level, (H_, W_) in enumerate(value_spatial_shapes):
@@ -110,15 +134,24 @@ def multi_scale_deformable_attn_pytorch(
         # bs, num_heads*embed_dims, H_*W_ ->
         # bs*num_heads, embed_dims, H_, W_
         value_l_ = (
-            value_list[level].flatten(2).transpose(1, 2).reshape(bs * num_heads, embed_dims, H_, W_)
+            value_list[level]
+            .flatten(2)
+            .transpose(1, 2)
+            .reshape(bs * num_heads, embed_dims, H_, W_)
         )
         # bs, num_queries, num_heads, num_points, 2 ->
         # bs, num_heads, num_queries, num_points, 2 ->
         # bs*num_heads, num_queries, num_points, 2
-        sampling_grid_l_ = sampling_grids[:, :, :, level].transpose(1, 2).flatten(0, 1)
+        sampling_grid_l_ = (
+            sampling_grids[:, :, :, level].transpose(1, 2).flatten(0, 1)
+        )
         # bs*num_heads, embed_dims, num_queries, num_points
         sampling_value_l_ = F.grid_sample(
-            value_l_, sampling_grid_l_, mode="bilinear", padding_mode="zeros", align_corners=False
+            value_l_,
+            sampling_grid_l_,
+            mode="bilinear",
+            padding_mode="zeros",
+            align_corners=False,
         )
         sampling_value_list.append(sampling_value_l_)
     # (bs, num_queries, num_heads, num_levels, num_points) ->
@@ -128,7 +161,10 @@ def multi_scale_deformable_attn_pytorch(
         bs * num_heads, 1, num_queries, num_levels * num_points
     )
     output = (
-        (torch.stack(sampling_value_list, dim=-2).flatten(-2) * attention_weights)
+        (
+            torch.stack(sampling_value_list, dim=-2).flatten(-2)
+            * attention_weights
+        )
         .sum(-1)
         .view(bs, num_heads * embed_dims, num_queries)
     )
@@ -186,8 +222,12 @@ class MultiScaleDeformableAttention(nn.Module):
         self.num_heads = num_heads
         self.num_levels = num_levels
         self.num_points = num_points
-        self.sampling_offsets = nn.Linear(embed_dim, num_heads * num_levels * num_points * 2)
-        self.attention_weights = nn.Linear(embed_dim, num_heads * num_levels * num_points)
+        self.sampling_offsets = nn.Linear(
+            embed_dim, num_heads * num_levels * num_points * 2
+        )
+        self.attention_weights = nn.Linear(
+            embed_dim, num_heads * num_levels * num_points
+        )
         self.value_proj = nn.Linear(embed_dim, embed_dim)
         self.output_proj = nn.Linear(embed_dim, embed_dim)
 
@@ -241,7 +281,6 @@ class MultiScaleDeformableAttention(nn.Module):
         level_start_index: Optional[torch.Tensor] = None,
         **kwargs
     ) -> torch.Tensor:
-
         """Forward Function of MultiScaleDeformableAttention
 
         Args:
@@ -307,10 +346,13 @@ class MultiScaleDeformableAttention(nn.Module):
 
         # bs, num_query, num_heads, num_levels, num_points, 2
         if reference_points.shape[-1] == 2:
-            offset_normalizer = torch.stack([spatial_shapes[..., 1], spatial_shapes[..., 0]], -1)
+            offset_normalizer = torch.stack(
+                [spatial_shapes[..., 1], spatial_shapes[..., 0]], -1
+            )
             sampling_locations = (
                 reference_points[:, :, None, :, None, :]
-                + sampling_offsets / offset_normalizer[None, None, None, :, None, :]
+                + sampling_offsets
+                / offset_normalizer[None, None, None, :, None, :]
             )
         elif reference_points.shape[-1] == 4:
             sampling_locations = (
@@ -326,7 +368,7 @@ class MultiScaleDeformableAttention(nn.Module):
                     reference_points.shape[-1]
                 )
             )
-    
+
         if torch.cuda.is_available() and value.is_cuda:
             halffloat = False
             if value.dtype == torch.float16:
@@ -371,7 +413,9 @@ def create_dummy_class(klass, dependency, message=""):
     Returns:
         class: a class object
     """
-    err = "Cannot import '{}', therefore '{}' is not available.".format(dependency, klass)
+    err = "Cannot import '{}', therefore '{}' is not available.".format(
+        dependency, klass
+    )
     if message:
         err = err + " " + message
 
@@ -400,7 +444,9 @@ def create_dummy_func(func, dependency, message=""):
     Returns:
         function: a function object
     """
-    err = "Cannot import '{}', therefore '{}' is not available.".format(dependency, func)
+    err = "Cannot import '{}', therefore '{}' is not available.".format(
+        dependency, func
+    )
     if message:
         err = err + " " + message
 

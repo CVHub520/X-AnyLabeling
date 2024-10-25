@@ -52,7 +52,11 @@ class CocoGroundingEvaluator(object):
             # suppress pycocotools prints
             with open(os.devnull, "w") as devnull:
                 with contextlib.redirect_stdout(devnull):
-                    coco_dt = COCO.loadRes(self.coco_gt, results) if results else COCO()
+                    coco_dt = (
+                        COCO.loadRes(self.coco_gt, results)
+                        if results
+                        else COCO()
+                    )
 
             coco_eval = self.coco_eval[iou_type]
 
@@ -65,8 +69,14 @@ class CocoGroundingEvaluator(object):
 
     def synchronize_between_processes(self):
         for iou_type in self.iou_types:
-            self.eval_imgs[iou_type] = np.concatenate(self.eval_imgs[iou_type], 2)
-            create_common_coco_eval(self.coco_eval[iou_type], self.img_ids, self.eval_imgs[iou_type])
+            self.eval_imgs[iou_type] = np.concatenate(
+                self.eval_imgs[iou_type], 2
+            )
+            create_common_coco_eval(
+                self.coco_eval[iou_type],
+                self.img_ids,
+                self.eval_imgs[iou_type],
+            )
 
     def accumulate(self):
         for coco_eval in self.coco_eval.values():
@@ -127,7 +137,11 @@ class CocoGroundingEvaluator(object):
             labels = prediction["labels"].tolist()
 
             rles = [
-                mask_util.encode(np.array(mask[0, :, :, np.newaxis], dtype=np.uint8, order="F"))[0] 
+                mask_util.encode(
+                    np.array(
+                        mask[0, :, :, np.newaxis], dtype=np.uint8, order="F"
+                    )
+                )[0]
                 for mask in masks
             ]
             for rle in rles:
@@ -229,7 +243,11 @@ def evaluate(self):
     # add backward compatibility if useSegm is specified in params
     if p.useSegm is not None:
         p.iouType = "segm" if p.useSegm == 1 else "bbox"
-        print("useSegm (deprecated) is not None. Running {} evaluation".format(p.iouType))
+        print(
+            "useSegm (deprecated) is not None. Running {} evaluation".format(
+                p.iouType
+            )
+        )
     # print('Evaluate annotation type *{}*'.format(p.iouType))
     p.imgIds = list(np.unique(p.imgIds))
     if p.useCats:
@@ -246,20 +264,23 @@ def evaluate(self):
     elif p.iouType == "keypoints":
         computeIoU = self.computeOks
     self.ious = {
-        (imgId, catId): computeIoU(imgId, catId) 
-        for imgId in p.imgIds 
-        for catId in catIds}
+        (imgId, catId): computeIoU(imgId, catId)
+        for imgId in p.imgIds
+        for catId in catIds
+    }
 
     evaluateImg = self.evaluateImg
     maxDet = p.maxDets[-1]
     evalImgs = [
-        evaluateImg(imgId, catId, areaRng, maxDet) 
-        for catId in catIds 
-        for areaRng in p.areaRng 
+        evaluateImg(imgId, catId, areaRng, maxDet)
+        for catId in catIds
+        for areaRng in p.areaRng
         for imgId in p.imgIds
     ]
     # this is NOT in the pycocotools code, but could be done outside
-    evalImgs = np.asarray(evalImgs).reshape(len(catIds), len(p.areaRng), len(p.imgIds))
+    evalImgs = np.asarray(evalImgs).reshape(
+        len(catIds), len(p.areaRng), len(p.imgIds)
+    )
     self._paramsEval = copy.deepcopy(self.params)
     # toc = time.time()
     # print('DONE (t={:0.2f}s).'.format(toc-tic))

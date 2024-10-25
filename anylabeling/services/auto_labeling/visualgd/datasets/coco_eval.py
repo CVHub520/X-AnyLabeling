@@ -43,9 +43,13 @@ class CocoEvaluator(object):
             results = self.prepare(predictions, iou_type)
 
             # suppress pycocotools prints
-            with open(os.devnull, 'w') as devnull:
+            with open(os.devnull, "w") as devnull:
                 with contextlib.redirect_stdout(devnull):
-                    coco_dt = COCO.loadRes(self.coco_gt, results) if results else COCO()
+                    coco_dt = (
+                        COCO.loadRes(self.coco_gt, results)
+                        if results
+                        else COCO()
+                    )
             coco_eval = self.coco_eval[iou_type]
 
             coco_eval.cocoDt = coco_dt
@@ -57,8 +61,14 @@ class CocoEvaluator(object):
 
     def synchronize_between_processes(self):
         for iou_type in self.iou_types:
-            self.eval_imgs[iou_type] = np.concatenate(self.eval_imgs[iou_type], 2)
-            create_common_coco_eval(self.coco_eval[iou_type], self.img_ids, self.eval_imgs[iou_type])
+            self.eval_imgs[iou_type] = np.concatenate(
+                self.eval_imgs[iou_type], 2
+            )
+            create_common_coco_eval(
+                self.coco_eval[iou_type],
+                self.img_ids,
+                self.eval_imgs[iou_type],
+            )
 
     def accumulate(self):
         for coco_eval in self.coco_eval.values():
@@ -96,7 +106,6 @@ class CocoEvaluator(object):
             else:
                 labels = prediction["labels"]
 
-        
             try:
                 coco_results.extend(
                     [
@@ -110,7 +119,9 @@ class CocoEvaluator(object):
                     ]
                 )
             except:
-                import ipdb; ipdb.set_trace()
+                import ipdb
+
+                ipdb.set_trace()
         return coco_results
 
     def prepare_for_coco_segmentation(self, predictions):
@@ -129,7 +140,11 @@ class CocoEvaluator(object):
             labels = prediction["labels"].tolist()
 
             rles = [
-                mask_util.encode(np.array(mask[0, :, :, np.newaxis], dtype=np.uint8, order="F"))[0]
+                mask_util.encode(
+                    np.array(
+                        mask[0, :, :, np.newaxis], dtype=np.uint8, order="F"
+                    )
+                )[0]
                 for mask in masks
             ]
             for rle in rles:
@@ -166,7 +181,7 @@ class CocoEvaluator(object):
                     {
                         "image_id": original_id,
                         "category_id": labels[k],
-                        'keypoints': keypoint,
+                        "keypoints": keypoint,
                         "score": scores[k],
                     }
                     for k, keypoint in enumerate(keypoints)
@@ -219,15 +234,19 @@ def create_common_coco_eval(coco_eval, img_ids, eval_imgs):
 
 
 def evaluate(self):
-    '''
+    """
     Run per image evaluation on given images and store results (a list of dict) in self.evalImgs
     :return: None
-    '''
+    """
     p = self.params
     # add backward compatibility if useSegm is specified in params
     if p.useSegm is not None:
-        p.iouType = 'segm' if p.useSegm == 1 else 'bbox'
-        print('useSegm (deprecated) is not None. Running {} evaluation'.format(p.iouType))
+        p.iouType = "segm" if p.useSegm == 1 else "bbox"
+        print(
+            "useSegm (deprecated) is not None. Running {} evaluation".format(
+                p.iouType
+            )
+        )
     p.imgIds = list(np.unique(p.imgIds))
     if p.useCats:
         p.catIds = list(np.unique(p.catIds))
@@ -238,14 +257,15 @@ def evaluate(self):
     # loop through images, area range, max detection number
     catIds = p.catIds if p.useCats else [-1]
 
-    if p.iouType == 'segm' or p.iouType == 'bbox':
+    if p.iouType == "segm" or p.iouType == "bbox":
         computeIoU = self.computeIoU
-    elif p.iouType == 'keypoints':
+    elif p.iouType == "keypoints":
         computeIoU = self.computeOks
     self.ious = {
         (imgId, catId): computeIoU(imgId, catId)
         for imgId in p.imgIds
-        for catId in catIds}
+        for catId in catIds
+    }
 
     evaluateImg = self.evaluateImg
     maxDet = p.maxDets[-1]
@@ -256,10 +276,13 @@ def evaluate(self):
         for imgId in p.imgIds
     ]
     # this is NOT in the pycocotools code, but could be done outside
-    evalImgs = np.asarray(evalImgs).reshape(len(catIds), len(p.areaRng), len(p.imgIds))
+    evalImgs = np.asarray(evalImgs).reshape(
+        len(catIds), len(p.areaRng), len(p.imgIds)
+    )
     self._paramsEval = copy.deepcopy(self.params)
 
     return p.imgIds, evalImgs
+
 
 #################################################################
 # end of straight copy from pycocotools, just removing the prints

@@ -11,8 +11,8 @@ import io
 
 
 class TSVDataset(Dataset):
-    """ TSV dataset for ImageNet 1K training
-    """    
+    """TSV dataset for ImageNet 1K training"""
+
     def __init__(self, tsv_file, transform=None, target_transform=None):
         self.tsv = TSVFile(tsv_file)
         self.transform = transform
@@ -28,7 +28,7 @@ class TSVDataset(Dataset):
         row = self.tsv.seek(index)
         image_data = base64.b64decode(row[-1])
         image = Image.open(io.BytesIO(image_data))
-        image = image.convert('RGB')
+        image = image.convert("RGB")
         target = int(row[1])
 
         if self.transform is not None:

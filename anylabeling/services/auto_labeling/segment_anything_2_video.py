@@ -1,4 +1,5 @@
 import warnings
+
 warnings.filterwarnings("ignore")
 
 import os
@@ -21,6 +22,7 @@ try:
     import torch
     from sam2.build_sam import build_sam2, build_sam2_camera_predictor
     from sam2.sam2_image_predictor import SAM2ImagePredictor
+
     SAM2_VIDEO_AVAILABLE = True
 except ImportError:
     SAM2_VIDEO_AVAILABLE = False
@@ -89,7 +91,9 @@ class SegmentAnything2Video(Model):
         if device.type == "cuda":
             apply_postprocessing = True
             # Enable automatic mixed precision for faster computations
-            torch.autocast(device_type="cuda", dtype=torch.bfloat16).__enter__()
+            torch.autocast(
+                device_type="cuda", dtype=torch.bfloat16
+            ).__enter__()
             if torch.cuda.get_device_properties(0).major >= 8:
                 # turn on tfloat32 for Ampere GPUs
                 # (https://pytorch.org/docs/stable/notes/cuda.html#tensorfloat-32-tf32-on-ampere-devices)
@@ -128,8 +132,10 @@ class SegmentAnything2Video(Model):
         )
         self.image_predictor = SAM2ImagePredictor(sam2_image_model)
         self.video_predictor = build_sam2_camera_predictor(
-            self.model_cfg, self.model_abs_path,
-            device=device, apply_postprocessing=apply_postprocessing
+            self.model_cfg,
+            self.model_abs_path,
+            device=device,
+            apply_postprocessing=apply_postprocessing,
         )
         self.is_first_init = True
 
@@ -308,7 +314,9 @@ class SegmentAnything2Video(Model):
                 shape.add_point(QtCore.QPointF(x_max, y_max))
                 shape.add_point(QtCore.QPointF(x_min, y_max))
                 shape.shape_type = (
-                    "rectangle" if self.output_mode == "rectangle" else "rotation"
+                    "rectangle"
+                    if self.output_mode == "rectangle"
+                    else "rotation"
                 )
                 shape.closed = True
                 shape.group_id = (

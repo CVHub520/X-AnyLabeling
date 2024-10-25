@@ -2,13 +2,12 @@ from torch import nn
 
 
 class MLP(nn.Module):
-
     def __init__(
         self,
         input_dim: int,
         hidden_dim: int,
         dropout: float,
-        activation: nn.Module
+        activation: nn.Module,
     ):
         super(MLP, self).__init__()
 
@@ -18,6 +17,4 @@ class MLP(nn.Module):
         self.activation = activation()
 
     def forward(self, x):
-        return (
-            self.linear2(self.dropout(self.activation(self.linear1(x))))
-        )
+        return self.linear2(self.dropout(self.activation(self.linear1(x))))

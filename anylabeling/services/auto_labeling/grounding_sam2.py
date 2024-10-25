@@ -553,6 +553,7 @@ class GroundingSAM2(Model):
     def get_tokenlizer(text_encoder_type):
         import importlib.resources
         from anylabeling.services.auto_labeling import configs
+
         cfg_name = text_encoder_type.replace("-", "_") + "_tokenizer.json"
         try:
             with importlib.resources.path(configs.bert, cfg_name) as p:

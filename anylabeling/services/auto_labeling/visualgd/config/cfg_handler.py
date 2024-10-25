@@ -3,7 +3,6 @@ from ..util.slconfig import SLConfig
 
 
 class ConfigurationHandler:
-
     @staticmethod
     def get_config(filename=None):
         if filename is None:
@@ -14,8 +13,7 @@ class ConfigurationHandler:
     @staticmethod
     def __get_default_cfg():
         cfg_fsc147_dict = {
-            k: v for k, v in vars(cfg_fsc147).items() 
-            if not k.startswith('__')
+            k: v for k, v in vars(cfg_fsc147).items() if not k.startswith("__")
         }
         return SLConfig(cfg_dict=cfg_fsc147_dict)
 

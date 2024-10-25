@@ -15,9 +15,10 @@ def get_coco_api_from_dataset(dataset):
 
 
 def build_dataset(image_set, args, datasetinfo):
-    if datasetinfo["dataset_mode"] == 'coco':
+    if datasetinfo["dataset_mode"] == "coco":
         return build_coco(image_set, args, datasetinfo)
-    if datasetinfo["dataset_mode"] == 'odvg':
+    if datasetinfo["dataset_mode"] == "odvg":
         from .odvg import build_odvg
+
         return build_odvg(image_set, args, datasetinfo)
-    raise ValueError(f'dataset {args.dataset_file} not supported')
+    raise ValueError(f"dataset {args.dataset_file} not supported")

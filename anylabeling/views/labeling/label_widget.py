@@ -724,7 +724,7 @@ class LabelingWidget(LabelDialog):
             shortcut=shortcuts["loop_thru_labels"],
             icon="loop",
             tip=self.tr("Loop through labels"),
-            enabled=False
+            enabled=False,
         )
 
         zoom = QtWidgets.QWidgetAction(self)
@@ -988,6 +988,13 @@ class LabelingWidget(LabelDialog):
             icon="format_coco",
             tip=self.tr("Upload Custom COCO Segmentation Annotations"),
         )
+        upload_coco_pose_annotation = action(
+            self.tr("&Upload COCO Keypoint Annotations"),
+            lambda: self.upload_coco_annotation("pose"),
+            None,
+            icon="format_coco",
+            tip=self.tr("Upload Custom COCO Keypoint Annotations"),
+        )
         upload_dota_annotation = action(
             self.tr("&Upload DOTA Annotations"),
             self.upload_dota_annotation,
@@ -1095,6 +1102,13 @@ class LabelingWidget(LabelDialog):
             None,
             icon="format_coco",
             tip=self.tr("Export Custom COCO Segmentation Annotations"),
+        )
+        export_coco_pose_annotation = action(
+            self.tr("&Export COCO Keypoint Annotations"),
+            lambda: self.export_coco_annotation("pose"),
+            None,
+            icon="format_coco",
+            tip=self.tr("Export Custom COCO Keypoint Annotations"),
         )
         export_dota_annotation = action(
             self.tr("&Export DOTA Annotations"),
@@ -1251,6 +1265,7 @@ class LabelingWidget(LabelDialog):
             upload_voc_seg_annotation=upload_voc_seg_annotation,
             upload_coco_det_annotation=upload_coco_det_annotation,
             upload_coco_seg_annotation=upload_coco_seg_annotation,
+            upload_coco_pose_annotation=upload_coco_pose_annotation,
             upload_dota_annotation=upload_dota_annotation,
             upload_mask_annotation=upload_mask_annotation,
             upload_mot_annotation=upload_mot_annotation,
@@ -1265,6 +1280,7 @@ class LabelingWidget(LabelDialog):
             export_voc_seg_annotation=export_voc_seg_annotation,
             export_coco_det_annotation=export_coco_det_annotation,
             export_coco_seg_annotation=export_coco_seg_annotation,
+            export_coco_pose_annotation=export_coco_pose_annotation,
             export_dota_annotation=export_dota_annotation,
             export_mask_annotation=export_mask_annotation,
             export_mot_annotation=export_mot_annotation,
@@ -1449,6 +1465,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 upload_coco_det_annotation,
                 upload_coco_seg_annotation,
+                upload_coco_pose_annotation,
                 None,
                 upload_dota_annotation,
                 upload_mask_annotation,
@@ -1472,6 +1489,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 export_coco_det_annotation,
                 export_coco_seg_annotation,
+                export_coco_pose_annotation,
                 None,
                 export_dota_annotation,
                 export_mask_annotation,
@@ -2537,10 +2555,12 @@ class LabelingWidget(LabelDialog):
 
     def loop_thru_labels(self):
         self.label_loop_count += 1
-        if len(self.label_list) == 0 or self.label_loop_count >= len(self.label_list):
+        if len(self.label_list) == 0 or self.label_loop_count >= len(
+            self.label_list
+        ):
             # If we go through all the things go back to 100%
             self.label_loop_count = -1
-            self.set_zoom(int(100*self.scale_fit_window()))
+            self.set_zoom(int(100 * self.scale_fit_window()))
             return
 
         width = self.central_widget().width() - 2.0
@@ -2548,7 +2568,7 @@ class LabelingWidget(LabelDialog):
 
         im_width = self.canvas.pixmap.width()
         im_height = self.canvas.pixmap.height()
-        
+
         zoom_scale = 4
 
         item = self.label_list[self.label_loop_count]
@@ -2561,31 +2581,33 @@ class LabelingWidget(LabelDialog):
 
         # Set minimum label width to 30px this should handle point
         # lables and very tiny labels gracefully
-        label_width = max(int(max(xs)-min(xs)), 30)
-        x = (max(xs)+min(xs))/2
-        y = (max(ys)+min(ys))/2
+        label_width = max(int(max(xs) - min(xs)), 30)
+        x = (max(xs) + min(xs)) / 2
+        y = (max(ys) + min(ys)) / 2
 
-        zoom = int(100*width / (zoom_scale*label_width))
-        #Don't go past the max zoom which is 1000
+        zoom = int(100 * width / (zoom_scale * label_width))
+        # Don't go past the max zoom which is 1000
         zoom = min(1000, zoom)
 
         self.set_zoom(zoom)
 
         x_range = self.scroll_bars[Qt.Horizontal].maximum()
-        x_step= self.scroll_bars[Qt.Horizontal].pageStep()
+        x_step = self.scroll_bars[Qt.Horizontal].pageStep()
 
         y_range = self.scroll_bars[Qt.Vertical].maximum()
         # QT docs says Document length = maximum() - minimum() + pageStep().
         # so there's a weird pageStep thing we gotta add
-        y_step= self.scroll_bars[Qt.Vertical].pageStep()
-        screen_width= width/(zoom/100)
-        #add half a screen to this
-        x_scroll = int((x-screen_width/2)/im_width*(x_range+x_step)) 
+        y_step = self.scroll_bars[Qt.Vertical].pageStep()
+        screen_width = width / (zoom / 100)
+        # add half a screen to this
+        x_scroll = int((x - screen_width / 2) / im_width * (x_range + x_step))
         x_scroll = min(max(0, x_scroll), x_range)
 
-        screen_height= height/(zoom/100)
+        screen_height = height / (zoom / 100)
 
-        y_scroll = int((y-screen_height/2)/(im_height)*(y_range+y_step))  
+        y_scroll = int(
+            (y - screen_height / 2) / (im_height) * (y_range + y_step)
+        )
         y_scroll = min(max(0, y_scroll), y_range)
 
         self.set_scroll(Qt.Horizontal, x_scroll)
@@ -3602,7 +3624,7 @@ class LabelingWidget(LabelDialog):
             if self.image_data:
                 self.image_path = filename
             self.label_file = None
-        
+
         # Reset the label loop count
         self.label_loop_count = -1
 
@@ -3838,7 +3860,6 @@ class LabelingWidget(LabelDialog):
                 break
 
     def open_prev_image(self, _value=False):
-
         if not self.may_continue():
             return
 
@@ -3902,6 +3923,7 @@ class LabelingWidget(LabelDialog):
             msg_box.setWindowTitle(self.tr("Information"))
             msg_box.exec_()
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
             error_dialog.setText(
@@ -3944,6 +3966,7 @@ class LabelingWidget(LabelDialog):
             msg_box.setWindowTitle(self.tr("Information"))
             msg_box.exec_()
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
             error_dialog.setText(
@@ -3988,6 +4011,7 @@ class LabelingWidget(LabelDialog):
             msg_box.setWindowTitle(self.tr("Information"))
             msg_box.exec_()
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
             error_dialog.setText(
@@ -4161,6 +4185,7 @@ class LabelingWidget(LabelDialog):
             self.load_file(self.filename)
 
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
@@ -4267,6 +4292,7 @@ class LabelingWidget(LabelDialog):
             self.load_file(self.filename)
 
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
@@ -4327,6 +4353,7 @@ class LabelingWidget(LabelDialog):
             # update and refresh the current canvas
             self.load_file(self.filename)
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
             error_dialog.setText(
@@ -4431,6 +4458,7 @@ class LabelingWidget(LabelDialog):
             self.load_file(self.filename)
 
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
@@ -4565,6 +4593,7 @@ class LabelingWidget(LabelDialog):
             self.load_file(self.filename)
 
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
@@ -4638,6 +4667,7 @@ class LabelingWidget(LabelDialog):
             # update and refresh the current canvas
             self.load_file(self.filename)
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
             error_dialog.setText(
@@ -4688,6 +4718,7 @@ class LabelingWidget(LabelDialog):
             # update and refresh the current canvas
             self.load_file(self.filename)
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
             error_dialog.setText(
@@ -4756,6 +4787,7 @@ class LabelingWidget(LabelDialog):
             # update and refresh the current canvas
             self.load_file(self.filename)
         except Exception as e:
+            logger.error(f"Error occurred while uploading annotations: {e}")
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
             error_dialog.setText(
@@ -4918,6 +4950,7 @@ class LabelingWidget(LabelDialog):
             msg_box.exec_()
 
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
@@ -5071,28 +5104,46 @@ class LabelingWidget(LabelDialog):
             )
             return
 
-        filter = "Classes Files (*.txt);;All Files (*)"
-        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific classes file"),
-            "",
-            filter,
-        )
-        if not self.classes_file:
-            QtWidgets.QMessageBox.warning(
+        if mode == "pose":
+            filter = "Classes Files (*.yaml);;All Files (*)"
+            self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self,
-                self.tr("Warning"),
-                self.tr("Please select a specific classes file!"),
-                QtWidgets.QMessageBox.Ok,
+                self.tr("Select a specific coco-pose config file"),
+                "",
+                filter,
             )
-            return
+            if not self.yaml_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific config file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+            converter = LabelConverter(pose_cfg_file=self.yaml_file)
+        elif mode in ["hbb", "seg"]:
+            filter = "Classes Files (*.txt);;All Files (*)"
+            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select a specific classes file"),
+                "",
+                filter,
+            )
+            if not self.classes_file:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Please select a specific classes file!"),
+                    QtWidgets.QMessageBox.Ok,
+                )
+                return
+            converter = LabelConverter(classes_file=self.classes_file)
 
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
         save_path = osp.realpath(osp.join(label_dir_path, "..", "annotations"))
         os.makedirs(save_path, exist_ok=True)
-        converter = LabelConverter(classes_file=self.classes_file)
 
         try:
             converter.custom_to_coco(label_dir_path, save_path, mode)
@@ -5106,6 +5157,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             QtWidgets.QMessageBox.warning(
                 self,
                 self.tr("Error"),
@@ -5189,6 +5241,7 @@ class LabelingWidget(LabelDialog):
             msg_box.exec_()
 
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
@@ -5292,6 +5345,7 @@ class LabelingWidget(LabelDialog):
             msg_box.exec_()
 
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
@@ -5355,6 +5409,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             QtWidgets.QMessageBox.warning(
                 self,
                 self.tr("Error"),
@@ -5415,6 +5470,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             QtWidgets.QMessageBox.warning(
                 self,
                 self.tr("Error"),
@@ -5478,6 +5534,7 @@ class LabelingWidget(LabelDialog):
                 QtWidgets.QMessageBox.Ok,
             )
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             QtWidgets.QMessageBox.warning(
                 self,
                 self.tr("Error"),
@@ -5594,6 +5651,7 @@ class LabelingWidget(LabelDialog):
             msg_box.exec_()
 
         except Exception as e:
+            logger.error(f"Error occurred while exporting annotations: {e}")
             progress_dialog.close()
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)

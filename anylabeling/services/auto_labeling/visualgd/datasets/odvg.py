@@ -80,7 +80,9 @@ class ODVGDataset(VisionDataset):
             neg_labels = self.label_index.difference(pos_labels)
 
             vg_labels = list(pos_labels)
-            num_to_add = min(len(neg_labels), self.max_labels - len(pos_labels))
+            num_to_add = min(
+                len(neg_labels), self.max_labels - len(pos_labels)
+            )
             if num_to_add > 0:
                 vg_labels.extend(random.sample(neg_labels, num_to_add))
 
@@ -90,11 +92,14 @@ class ODVGDataset(VisionDataset):
                 vg_labels[i], vg_labels[j] = vg_labels[j], vg_labels[i]
 
             caption_list = [self.label_map[lb] for lb in vg_labels]
-            caption_dict = {item: index for index, item in enumerate(caption_list)}
+            caption_dict = {
+                item: index for index, item in enumerate(caption_list)
+            }
 
             caption = " . ".join(caption_list) + " ."
             classes = [
-                caption_dict[self.label_map[str(obj["label"])]] for obj in instances
+                caption_dict[self.label_map[str(obj["label"])]]
+                for obj in instances
             ]
             boxes = torch.as_tensor(boxes, dtype=torch.float32).reshape(-1, 4)
             classes = torch.tensor(classes, dtype=torch.int64)
@@ -140,9 +145,14 @@ class ODVGDataset(VisionDataset):
         return len(self.metas)
 
 
-def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None):
+def make_coco_transforms(
+    image_set, fix_size=False, strong_aug=False, args=None
+):
     normalize = T.Compose(
-        [T.ToTensor(), T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
+        [
+            T.ToTensor(),
+            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
     )
 
     # config the params for data aug
@@ -163,7 +173,9 @@ def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None)
         data_aug_scale_overlap = float(data_aug_scale_overlap)
         scales = [int(i * data_aug_scale_overlap) for i in scales]
         max_size = int(max_size * data_aug_scale_overlap)
-        scales2_resize = [int(i * data_aug_scale_overlap) for i in scales2_resize]
+        scales2_resize = [
+            int(i * data_aug_scale_overlap) for i in scales2_resize
+        ]
         scales2_crop = [int(i * data_aug_scale_overlap) for i in scales2_crop]
 
     # datadict_for_print = {
@@ -231,7 +243,9 @@ def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None)
 
     if image_set in ["val", "eval_debug", "train_reg", "test"]:
         if os.environ.get("GFLOPS_DEBUG_SHILONG", False) == "INFO":
-            print("Under debug mode for flops calculation only!!!!!!!!!!!!!!!!")
+            print(
+                "Under debug mode for flops calculation only!!!!!!!!!!!!!!!!"
+            )
             return T.Compose(
                 [
                     T.ResizeDebug((1280, 800)),
@@ -252,7 +266,9 @@ def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None)
 def build_odvg(image_set, args, datasetinfo):
     img_folder = datasetinfo["root"]
     ann_file = datasetinfo["anno"]
-    label_map = datasetinfo["label_map"] if "label_map" in datasetinfo else None
+    label_map = (
+        datasetinfo["label_map"] if "label_map" in datasetinfo else None
+    )
     try:
         strong_aug = args.strong_aug
     except:

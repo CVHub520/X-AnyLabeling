@@ -115,7 +115,9 @@ class label2compat:
             "89": 79,
             "90": 80,
         }
-        self.category_map = {int(k): v for k, v in self.category_map_str.items()}
+        self.category_map = {
+            int(k): v for k, v in self.category_map_str.items()
+        }
 
     def __call__(self, target, img=None):
         labels = target["labels"]
@@ -205,7 +207,12 @@ class RandomSelectBoxlabels:
     def set_state(
         self, prob_first_item, prob_random_item, prob_last_item, prob_stop_sign
     ):
-        sum_prob = prob_first_item + prob_random_item + prob_last_item + prob_stop_sign
+        sum_prob = (
+            prob_first_item
+            + prob_random_item
+            + prob_last_item
+            + prob_stop_sign
+        )
         assert sum_prob - 1 < 1e-6, (
             f"Sum up all prob = {sum_prob}. prob_first_item:{prob_first_item}"
             + f"prob_random_item:{prob_random_item}, prob_last_item:{prob_last_item}"
@@ -265,24 +272,30 @@ class RandomSelectBoxlabels:
         dice_number = random.random()
 
         if dice_number < self.prob_first_item:
-            box_label_known, box_label_unknown = self.sample_for_pred_first_item(
-                box_label
-            )
+            (
+                box_label_known,
+                box_label_unknown,
+            ) = self.sample_for_pred_first_item(box_label)
         elif dice_number < self.prob_first_item + self.prob_random_item:
-            box_label_known, box_label_unknown = self.sample_for_pred_random_item(
-                box_label
-            )
+            (
+                box_label_known,
+                box_label_unknown,
+            ) = self.sample_for_pred_random_item(box_label)
         elif (
             dice_number
-            < self.prob_first_item + self.prob_random_item + self.prob_last_item
+            < self.prob_first_item
+            + self.prob_random_item
+            + self.prob_last_item
         ):
-            box_label_known, box_label_unknown = self.sample_for_pred_last_item(
-                box_label
-            )
+            (
+                box_label_known,
+                box_label_unknown,
+            ) = self.sample_for_pred_last_item(box_label)
         else:
-            box_label_known, box_label_unknown = self.sample_for_pred_stop_sign(
-                box_label
-            )
+            (
+                box_label_known,
+                box_label_unknown,
+            ) = self.sample_for_pred_stop_sign(box_label)
 
         target["label_onehot_known"] = label2onehot(
             box_label_known[:, -1], self.num_classes
@@ -319,7 +332,9 @@ class BboxPertuber:
     def generate_pertube_samples(self):
         import torch
 
-        samples = (torch.rand(self.generate_samples, 5) - 0.5) * 2 * self.max_ratio
+        samples = (
+            (torch.rand(self.generate_samples, 5) - 0.5) * 2 * self.max_ratio
+        )
         return samples
 
     def __call__(self, target, img):
@@ -361,10 +376,14 @@ class RandomCutout:
         known_box_add[:, :5] = unknown_box
         known_box_add[:, 5].uniform_(0.5, 1)
 
-        known_box_add[:, :2] += known_box_add[:, 2:4] * (torch.rand(Ku, 2) - 0.5) / 2
+        known_box_add[:, :2] += (
+            known_box_add[:, 2:4] * (torch.rand(Ku, 2) - 0.5) / 2
+        )
         known_box_add[:, 2:4] /= 2
 
-        target["box_label_known_pertube"] = torch.cat((known_box, known_box_add))
+        target["box_label_known_pertube"] = torch.cat(
+            (known_box, known_box_add)
+        )
         return target, img
 
 
@@ -383,7 +402,8 @@ class RandomSelectBoxes:
             label = labels[idx].item()
             boxs_list[label].append(item)
         boxs_list_tensor = [
-            torch.stack(i) if len(i) > 0 else torch.Tensor(0, 4) for i in boxs_list
+            torch.stack(i) if len(i) > 0 else torch.Tensor(0, 4)
+            for i in boxs_list
         ]
 
         # random selection
@@ -456,7 +476,12 @@ dataset_hook_register = {
 
 class CocoDetection(torchvision.datasets.CocoDetection):
     def __init__(
-        self, img_folder, ann_file, transforms, return_masks, aux_target_hacks=None
+        self,
+        img_folder,
+        ann_file,
+        transforms,
+        return_masks,
+        aux_target_hacks=None,
     ):
         super(CocoDetection, self).__init__(img_folder, ann_file)
         self._transforms = transforms
@@ -554,7 +579,9 @@ class ConvertCocoPolysToMask(object):
 
         anno = target["annotations"]
 
-        anno = [obj for obj in anno if "iscrowd" not in obj or obj["iscrowd"] == 0]
+        anno = [
+            obj for obj in anno if "iscrowd" not in obj or obj["iscrowd"] == 0
+        ]
 
         boxes = [obj["bbox"] for obj in anno]
         # guard against no boxes via resizing
@@ -609,9 +636,14 @@ class ConvertCocoPolysToMask(object):
         return image, target
 
 
-def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None):
+def make_coco_transforms(
+    image_set, fix_size=False, strong_aug=False, args=None
+):
     normalize = T.Compose(
-        [T.ToTensor(), T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
+        [
+            T.ToTensor(),
+            T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+        ]
     )
 
     # config the params for data aug
@@ -632,7 +664,9 @@ def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None)
         data_aug_scale_overlap = float(data_aug_scale_overlap)
         scales = [int(i * data_aug_scale_overlap) for i in scales]
         max_size = int(max_size * data_aug_scale_overlap)
-        scales2_resize = [int(i * data_aug_scale_overlap) for i in scales2_resize]
+        scales2_resize = [
+            int(i * data_aug_scale_overlap) for i in scales2_resize
+        ]
         scales2_crop = [int(i * data_aug_scale_overlap) for i in scales2_crop]
 
     datadict_for_print = {
@@ -701,7 +735,9 @@ def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None)
 
     if image_set in ["val", "eval_debug", "train_reg", "test"]:
         if os.environ.get("GFLOPS_DEBUG_SHILONG", False) == "INFO":
-            print("Under debug mode for flops calculation only!!!!!!!!!!!!!!!!")
+            print(
+                "Under debug mode for flops calculation only!!!!!!!!!!!!!!!!"
+            )
             return T.Compose(
                 [
                     T.ResizeDebug((1280, 800)),

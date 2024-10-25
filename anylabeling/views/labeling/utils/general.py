@@ -21,7 +21,6 @@ def gradient_text(
     end_color: Tuple[int, int, int] = (255, 0, 255),
     frequency: float = 1.0,
 ) -> str:
-
     def color_function(t: float) -> Tuple[int, int, int]:
         def interpolate(start: float, end: float, t: float) -> float:
             # Use a sine wave for smooth, periodic interpolation

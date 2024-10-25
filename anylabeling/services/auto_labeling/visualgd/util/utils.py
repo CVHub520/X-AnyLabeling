@@ -36,11 +36,15 @@ def clean_state_dict(state_dict):
 
 
 def renorm(
-    img: torch.FloatTensor, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
+    img: torch.FloatTensor,
+    mean=[0.485, 0.456, 0.406],
+    std=[0.229, 0.224, 0.225],
 ) -> torch.FloatTensor:
     # img: tensor(3,H,W) or tensor(B,3,H,W)
     # return: same as img
-    assert img.dim() == 3 or img.dim() == 4, "img.dim() should be 3 or 4 but %d" % img.dim()
+    assert img.dim() == 3 or img.dim() == 4, (
+        "img.dim() should be 3 or 4 but %d" % img.dim()
+    )
     if img.dim() == 3:
         assert img.size(0) == 3, 'img.size(0) shoule be 3 but "%d". (%s)' % (
             img.size(0),
@@ -147,8 +151,12 @@ class CocoClassMapper:
             "89": 79,
             "90": 80,
         }
-        self.origin2compact_mapper = {int(k): v - 1 for k, v in self.category_map_str.items()}
-        self.compact2origin_mapper = {int(v - 1): int(k) for k, v in self.category_map_str.items()}
+        self.origin2compact_mapper = {
+            int(k): v - 1 for k, v in self.category_map_str.items()
+        }
+        self.compact2origin_mapper = {
+            int(v - 1): int(k) for k, v in self.category_map_str.items()
+        }
 
     def origin2compact(self, idx):
         return self.origin2compact_mapper[int(idx)]
@@ -166,7 +174,9 @@ def to_device(item, device):
         return {k: to_device(v, device) for k, v in item.items()}
     else:
         raise NotImplementedError(
-            "Call Shilong if you use other containers! type: {}".format(type(item))
+            "Call Shilong if you use other containers! type: {}".format(
+                type(item)
+            )
         )
 
 
@@ -238,11 +248,15 @@ class Embedder:
         if self.kwargs["log_sampling"]:
             freq_bands = 2.0 ** torch.linspace(0.0, max_freq, steps=N_freqs)
         else:
-            freq_bands = torch.linspace(2.0**0.0, 2.0**max_freq, steps=N_freqs)
+            freq_bands = torch.linspace(
+                2.0**0.0, 2.0**max_freq, steps=N_freqs
+            )
 
         for freq in freq_bands:
             for p_fn in self.kwargs["periodic_fns"]:
-                embed_fns.append(lambda x, p_fn=p_fn, freq=freq: p_fn(x * freq))
+                embed_fns.append(
+                    lambda x, p_fn=p_fn, freq=freq: p_fn(x * freq)
+                )
                 out_dim += d
 
         self.embed_fns = embed_fns
@@ -379,7 +393,9 @@ class NiceRepr:
             return str(len(self))
         else:
             # In all other cases force the subclass to overload __nice__
-            raise NotImplementedError(f"Define the __nice__ method for {self.__class__!r}")
+            raise NotImplementedError(
+                f"Define the __nice__ method for {self.__class__!r}"
+            )
 
     def __repr__(self):
         """str: the string of the module"""
@@ -480,7 +496,9 @@ class ModelEma(torch.nn.Module):
         # import ipdb; ipdb.set_trace()
 
         self.decay = decay
-        self.device = device  # perform ema on different device from model if set
+        self.device = (
+            device  # perform ema on different device from model if set
+        )
         if self.device is not None:
             self.module.to(device=device)
 
@@ -494,7 +512,10 @@ class ModelEma(torch.nn.Module):
                 ema_v.copy_(update_fn(ema_v, model_v))
 
     def update(self, model):
-        self._update(model, update_fn=lambda e, m: self.decay * e + (1.0 - self.decay) * m)
+        self._update(
+            model,
+            update_fn=lambda e, m: self.decay * e + (1.0 - self.decay) * m,
+        )
 
     def set(self, model):
         self._update(model, update_fn=lambda e, m: m)
@@ -563,7 +584,9 @@ class BestMetricHolder:
 
         res = {}
         res.update({f"all_{k}": v for k, v in self.best_all.summary().items()})
-        res.update({f"regular_{k}": v for k, v in self.best_regular.summary().items()})
+        res.update(
+            {f"regular_{k}": v for k, v in self.best_regular.summary().items()}
+        )
         res.update({f"ema_{k}": v for k, v in self.best_ema.summary().items()})
         return res
 
@@ -592,16 +615,24 @@ def targets_to(targets: List[Dict[str, Any]], device):
         "dataset_type",
     ]
     return [
-        {k: v.to(device) if k not in excluded_keys else v for k, v in t.items()} for t in targets
+        {
+            k: v.to(device) if k not in excluded_keys else v
+            for k, v in t.items()
+        }
+        for t in targets
     ]
 
 
 def get_phrases_from_posmap(
-    posmap: torch.BoolTensor, tokenized: Dict, tokenizer: AutoTokenizer, left_idx: int = 0, right_idx: int = 255
+    posmap: torch.BoolTensor,
+    tokenized: Dict,
+    tokenizer: AutoTokenizer,
+    left_idx: int = 0,
+    right_idx: int = 255,
 ):
     assert isinstance(posmap, torch.Tensor), "posmap must be torch.Tensor"
     if posmap.dim() == 1:
-        posmap[0: left_idx + 1] = False
+        posmap[0 : left_idx + 1] = False
         posmap[right_idx:] = False
         non_zero_idx = posmap.nonzero(as_tuple=True)[0].tolist()
         token_ids = [tokenized["input_ids"][i] for i in non_zero_idx]

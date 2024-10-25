@@ -1,5 +1,6 @@
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 import os
 import cv2
@@ -30,6 +31,7 @@ try:
     from .visualgd.registry import MODULE_BUILD_FUNCS
     from .visualgd.util.misc import nested_tensor_from_tensor_list
     from .visualgd.config.cfg_handler import ConfigurationHandler
+
     OPEN_VISION_AVAILABLE = True
 except ImportError:
     OPEN_VISION_AVAILABLE = False
@@ -66,7 +68,6 @@ class OpenVision(Model):
         default_output_mode = "rectangle"
 
     def __init__(self, model_config, on_message) -> None:
-
         if not OPEN_VISION_AVAILABLE:
             message = "OpenVision model will not be available. Please install related packages and try again."
             raise ImportError(message)
@@ -84,20 +85,23 @@ class OpenVision(Model):
                 )
             )
 
-        if (torch.cuda.is_available() 
-            and __preferred_device__ == "GPU"):
+        if torch.cuda.is_available() and __preferred_device__ == "GPU":
             self.device = "cuda"
         else:
             self.device = "cpu"
         self.keywords = self.config.get("keywords", "")
         self.box_threshold = self.config.get("box_threshold", 0.3)
-        self.text_encoder_type = self.config.get("text_encoder_type", "bert-base-uncased")
+        self.text_encoder_type = self.config.get(
+            "text_encoder_type", "bert-base-uncased"
+        )
 
         model_config = dict(
             keywords=self.keywords,
             conf_threshold=self.box_threshold,
             pretrain_model_path=model_abs_path,
-            device="cuda" if torch.cuda.is_available() and __preferred_device__ == "GPU" else "cpu",
+            device="cuda"
+            if torch.cuda.is_available() and __preferred_device__ == "GPU"
+            else "cpu",
         )
         self.net = self.build_model(model_config)
         self.net.to(self.device)
@@ -152,7 +156,10 @@ class OpenVision(Model):
 
     def build_transforms(self):
         normalize = T.Compose(
-            [T.ToTensor(), T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])]
+            [
+                T.ToTensor(),
+                T.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+            ]
         )
         data_transform = T.Compose(
             [
@@ -181,7 +188,9 @@ class OpenVision(Model):
         build_func = MODULE_BUILD_FUNCS.get(args.modelname)
         model, _, _ = build_func(args)
 
-        checkpoint = torch.load(args.pretrain_model_path, map_location="cpu")["model"]
+        checkpoint = torch.load(args.pretrain_model_path, map_location="cpu")[
+            "model"
+        ]
         model.load_state_dict(checkpoint, strict=False)
 
         model.eval()
@@ -285,7 +294,9 @@ class OpenVision(Model):
                 shape.add_point(QtCore.QPointF(x_max, y_max))
                 shape.add_point(QtCore.QPointF(x_min, y_max))
                 shape.shape_type = (
-                    "rectangle" if self.output_mode == "rectangle" else "rotation"
+                    "rectangle"
+                    if self.output_mode == "rectangle"
+                    else "rotation"
                 )
                 shape.closed = True
                 shape.label = "AUTOLABEL_OBJECT" if label is None else label
@@ -301,7 +312,7 @@ class OpenVision(Model):
                 visual_prompt.append(mark["data"])
         return visual_prompt
 
-    def get_boxes(self, cv_image: np.ndarray, text_prompt: str = ''):
+    def get_boxes(self, cv_image: np.ndarray, text_prompt: str = ""):
         image = Image.fromarray(cv_image)
         visual_prompt = self.get_visual_prompt()
 
@@ -316,10 +327,13 @@ class OpenVision(Model):
 
         with torch.no_grad():
             model_output = self.net(
-                nested_tensor_from_tensor_list(input_image),    
+                nested_tensor_from_tensor_list(input_image),
                 nested_tensor_from_tensor_list(exemplar_images),
                 exemplars,
-                [torch.tensor([0]).to(self.device) for _ in range(len(input_image))],
+                [
+                    torch.tensor([0]).to(self.device)
+                    for _ in range(len(input_image))
+                ],
                 captions=[text_prompt + " ."] * len(input_image),
             )
 
@@ -329,7 +343,9 @@ class OpenVision(Model):
         logits = model_output["pred_logits"].sigmoid()[0][:, ind_to_filter]
         boxes = model_output["pred_boxes"][0]
         if len(self.keywords.strip()) > 0:
-            box_mask = (logits > self.box_threshold).sum(dim=-1) == len(ind_to_filter)
+            box_mask = (logits > self.box_threshold).sum(dim=-1) == len(
+                ind_to_filter
+            )
         else:
             box_mask = logits.max(dim=-1).values > self.box_threshold
         logits = logits[box_mask, :].cpu().numpy()
@@ -416,10 +432,10 @@ class OpenVision(Model):
         width, height = image.size
         for box in boxes:
             x_center, y_center, w, h = box
-            x1 = (x_center - w/2) * width
-            y1 = (y_center - h/2) * height
-            x2 = (x_center + w/2) * width
-            y2 = (y_center + h/2) * height
+            x1 = (x_center - w / 2) * width
+            y1 = (y_center - h / 2) * height
+            x2 = (x_center + w / 2) * width
+            y2 = (y_center + h / 2) * height
             converted_boxes.append([x1, y1, x2, y2])
         return np.array(converted_boxes, dtype=int)
 

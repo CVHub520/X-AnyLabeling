@@ -33,7 +33,9 @@ class PositionEmbeddingSine(nn.Module):
     used by the Attention is all you need paper, generalized to work on images.
     """
 
-    def __init__(self, num_pos_feats=64, temperature=10000, normalize=False, scale=None):
+    def __init__(
+        self, num_pos_feats=64, temperature=10000, normalize=False, scale=None
+    ):
         super().__init__()
         self.num_pos_feats = num_pos_feats
         self.temperature = temperature
@@ -60,7 +62,9 @@ class PositionEmbeddingSine(nn.Module):
             y_embed = y_embed / (y_embed[:, -1:, :] + eps) * self.scale
             x_embed = x_embed / (x_embed[:, :, -1:] + eps) * self.scale
 
-        dim_t = torch.arange(self.num_pos_feats, dtype=torch.float32, device=x.device)
+        dim_t = torch.arange(
+            self.num_pos_feats, dtype=torch.float32, device=x.device
+        )
         dim_t = self.temperature ** (2 * (dim_t // 2) / self.num_pos_feats)
 
         pos_x = x_embed[:, :, :, None] / dim_t
@@ -82,7 +86,12 @@ class PositionEmbeddingSineHW(nn.Module):
     """
 
     def __init__(
-        self, num_pos_feats=64, temperatureH=10000, temperatureW=10000, normalize=False, scale=None
+        self,
+        num_pos_feats=64,
+        temperatureH=10000,
+        temperatureW=10000,
+        normalize=False,
+        scale=None,
     ):
         super().__init__()
         self.num_pos_feats = num_pos_feats
@@ -110,12 +119,24 @@ class PositionEmbeddingSineHW(nn.Module):
             y_embed = y_embed / (y_embed[:, -1:, :] + eps) * self.scale
             x_embed = x_embed / (x_embed[:, :, -1:] + eps) * self.scale
 
-        dim_tx = torch.arange(self.num_pos_feats, dtype=torch.float32, device=x.device)
-        dim_tx = self.temperatureW ** (2 * (torch.div(dim_tx, 2, rounding_mode='floor')) / self.num_pos_feats)
+        dim_tx = torch.arange(
+            self.num_pos_feats, dtype=torch.float32, device=x.device
+        )
+        dim_tx = self.temperatureW ** (
+            2
+            * (torch.div(dim_tx, 2, rounding_mode="floor"))
+            / self.num_pos_feats
+        )
         pos_x = x_embed[:, :, :, None] / dim_tx
 
-        dim_ty = torch.arange(self.num_pos_feats, dtype=torch.float32, device=x.device)
-        dim_ty = self.temperatureH ** (2 * (torch.div(dim_ty, 2, rounding_mode='floor')) / self.num_pos_feats)
+        dim_ty = torch.arange(
+            self.num_pos_feats, dtype=torch.float32, device=x.device
+        )
+        dim_ty = self.temperatureH ** (
+            2
+            * (torch.div(dim_ty, 2, rounding_mode="floor"))
+            / self.num_pos_feats
+        )
         pos_y = y_embed[:, :, :, None] / dim_ty
 
         pos_x = torch.stack(

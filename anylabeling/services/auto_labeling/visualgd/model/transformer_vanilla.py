@@ -31,7 +31,14 @@ from .utils import (
 
 
 class TextTransformer(nn.Module):
-    def __init__(self, num_layers, d_model=256, nheads=8, dim_feedforward=2048, dropout=0.1):
+    def __init__(
+        self,
+        num_layers,
+        d_model=256,
+        nheads=8,
+        dim_feedforward=2048,
+        dropout=0.1,
+    ):
         super().__init__()
         self.num_layers = num_layers
         self.d_model = d_model
@@ -40,11 +47,16 @@ class TextTransformer(nn.Module):
         self.norm = None
 
         single_encoder_layer = TransformerEncoderLayer(
-            d_model=d_model, nhead=nheads, dim_feedforward=dim_feedforward, dropout=dropout
+            d_model=d_model,
+            nhead=nheads,
+            dim_feedforward=dim_feedforward,
+            dropout=dropout,
         )
         self.layers = _get_clones(single_encoder_layer, num_layers)
 
-    def forward(self, memory_text: torch.Tensor, text_attention_mask: torch.Tensor):
+    def forward(
+        self, memory_text: torch.Tensor, text_attention_mask: torch.Tensor
+    ):
         """
 
         Args:

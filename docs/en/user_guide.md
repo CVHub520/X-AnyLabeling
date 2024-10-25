@@ -313,9 +313,9 @@ The export path defaults to the `Annotations` folder in the same directory as th
 
 ### 4.3 COCO Annotation
 
-The latest version of X-AnyLabeling supports one-click import/export for COCO label files (*.json) related to object detection and instance segmentation tasks.
+The latest version of X-AnyLabeling supports one-click import/export for COCO label files (*.json) related to object detection, instance segmentation, and keypoint detection tasks.
 
-Before importing/exporting COCO label files, prepare a label configuration file, referring to [classes.txt](../../assets/classes.txt), where each line represents a class, with numbers incrementing from 0.
+Before importing or exporting COCO label files, ensure you have a label configuration file prepared. For object detection and instance segmentation tasks, refer to [classes.txt](../../assets/classes.txt), and for keypoint detection tasks, refer to [yolov8_pose.yaml](../../assets/yolov8_pose.yaml).
 
 **Import Task**:
 1. Click the `Upload` button in the top menu bar.
@@ -325,8 +325,9 @@ Before importing/exporting COCO label files, prepare a label configuration file,
 
 **Export Task**:
 1. Click the `Export` button in the top menu bar.
-2. Upload the prepared configuration file.
-3. Click OK.
+2. Select the corresponding task.
+3. Upload the prepared configuration file.
+4. Click OK.
 
 The export path defaults to the `annotations` folder in the same directory as the current image directory.
 
