@@ -5121,7 +5121,7 @@ class LabelingWidget(LabelDialog):
                 )
                 return
             converter = LabelConverter(pose_cfg_file=self.yaml_file)
-        elif mode in ["hbb", "seg"]:
+        elif mode in ["rectangle", "polygon"]:
             filter = "Classes Files (*.txt);;All Files (*)"
             self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
                 self,
