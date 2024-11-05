@@ -5139,6 +5139,9 @@ class LabelingWidget(LabelDialog):
                 return
             converter = LabelConverter(classes_file=self.classes_file)
 
+        image_list = self.image_list
+        if not image_list:
+            image_list = [self.filename]
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
@@ -5146,7 +5149,7 @@ class LabelingWidget(LabelDialog):
         os.makedirs(save_path, exist_ok=True)
 
         try:
-            converter.custom_to_coco(label_dir_path, save_path, mode)
+            converter.custom_to_coco(image_list, label_dir_path, save_path, mode)
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),

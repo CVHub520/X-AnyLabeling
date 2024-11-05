@@ -1130,7 +1130,7 @@ class LabelConverter:
 
         return is_emtpy_file
 
-    def custom_to_coco(self, input_path, output_path, mode):
+    def custom_to_coco(self, image_list, input_path, output_path, mode):
         coco_data = self.get_coco_data()
 
         if mode in ["rectangle", "polygon"]:
@@ -1155,18 +1155,19 @@ class LabelConverter:
         if mode == "pose":
             pose_data = {}
 
-        label_file_list = os.listdir(input_path)
-        for file_name in label_file_list:
-            if not file_name.endswith(".json"):
+        for image_file in image_list:
+            image_name = osp.basename(image_file)
+            label_name = osp.splitext(image_name)[0] + ".json"
+            label_file = osp.join(input_path, label_name)
+            if not osp.exists(label_file):
                 continue
             image_id += 1
-            input_file = osp.join(input_path, file_name)
-            with open(input_file, "r", encoding="utf-8") as f:
+            with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             coco_data["images"].append(
                 {
                     "id": image_id,
-                    "file_name": data["imagePath"],
+                    "file_name": image_name,
                     "width": data["imageWidth"],
                     "height": data["imageHeight"],
                     "license": 0,
