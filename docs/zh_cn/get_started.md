@@ -39,7 +39,10 @@ pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.
 > 对于 GPU 加速，请按照以下说明，确保您本地的 CUDA 和 cuDNN 版本与 ONNX Runtime 版本兼容，并安装需要依赖库，以确保 GPU 加速推理正常：</br>
 > Ⅰ. [CUDA Execution Provider](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)</br>
 > Ⅱ. [Get started with ONNX Runtime in Python](https://onnxruntime.ai/docs/get-started/with-python.html)</br>
-> Ⅲ. ONNX Runtime 版本需大于等于 1.16.0.
+> Ⅲ. [ONNX Runtime Compatibility](https://onnxruntime.ai/docs/reference/compatibility.html)
+
+> [!NOTE]
+> 请注意，ONNX Runtime 的版本需大于等于 1.16.0。
 
 **步骤 1.** 克隆代码仓库。
 

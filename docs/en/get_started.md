@@ -39,7 +39,10 @@ pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.
 > For GPU acceleration, please follow the instructions below to ensure that your local CUDA and cuDNN versions are compatible with your ONNX Runtime version. Additionally, install the required dependency libraries to ensure normal GPU-accelerated inference:</br>
 > Ⅰ. [CUDA Execution Provider](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)</br>
 > Ⅱ. [Get started with ONNX Runtime in Python](https://onnxruntime.ai/docs/get-started/with-python.html)</br>
-> Ⅲ. The ONNX Runtime version must be greater than or equal to 1.16.0.
+> Ⅲ. [ONNX Runtime Compatibility](https://onnxruntime.ai/docs/reference/compatibility.html)
+
+> [!NOTE]
+> The ONNX Runtime version must be greater than or equal to 1.16.0.
 
 **Step 1.** Git clone repository.
 
