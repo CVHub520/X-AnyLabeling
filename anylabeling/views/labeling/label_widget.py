@@ -4811,6 +4811,7 @@ class LabelingWidget(LabelDialog):
             )
             return
 
+        # Handle config/classes file selection based on mode
         if mode == "pose":
             filter = "Classes Files (*.yaml);;All Files (*)"
             self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -4846,18 +4847,45 @@ class LabelingWidget(LabelDialog):
                 return
             converter = LabelConverter(classes_file=self.classes_file)
 
+        # Create options dialog with additional export path selection
         dialog = QtWidgets.QDialog()
-        dialog.setWindowTitle(self.tr("Options"))
-
+        dialog.setWindowTitle(self.tr("Export Options"))
         layout = QVBoxLayout()
 
+        # Add export path selection
+        path_layout = QHBoxLayout()
+        path_label = QtWidgets.QLabel(self.tr("Export Path:"))
+        path_edit = QtWidgets.QLineEdit()
+        path_button = QtWidgets.QPushButton(self.tr("Browse"))
+        
+        # Set default path
+        label_dir_path = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path = self.output_dir
+        default_save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
+        path_edit.setText(default_save_path)
+        
+        def browse_export_path():
+            path = QtWidgets.QFileDialog.getExistingDirectory(
+                self,
+                self.tr("Select Export Directory"),
+                path_edit.text(),
+            )
+            if path:
+                path_edit.setText(path)
+        
+        path_button.clicked.connect(browse_export_path)
+        path_layout.addWidget(path_label)
+        path_layout.addWidget(path_edit)
+        path_layout.addWidget(path_button)
+        layout.addLayout(path_layout)
+
+        # Add other options
         save_images_checkbox = QtWidgets.QCheckBox(self.tr("Save images?"))
         save_images_checkbox.setChecked(False)
         layout.addWidget(save_images_checkbox)
 
-        skip_empty_files_checkbox = QtWidgets.QCheckBox(
-            self.tr("Skip empty labels?")
-        )
+        skip_empty_files_checkbox = QtWidgets.QCheckBox(self.tr("Skip empty labels?"))
         skip_empty_files_checkbox.setChecked(False)
         layout.addWidget(skip_empty_files_checkbox)
 
@@ -4866,35 +4894,39 @@ class LabelingWidget(LabelDialog):
         layout.addWidget(button_box)
 
         dialog.setLayout(layout)
-        dialog.exec_()
+        result = dialog.exec_()
+        
+        if not result:
+            return
 
         save_images = save_images_checkbox.isChecked()
         skip_empty_files = skip_empty_files_checkbox.isChecked()
+        save_path = path_edit.text()
 
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        image_list = self.image_list
-        if not image_list:
-            image_list = [self.filename]
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
-
+        # Check if export directory exists and handle overwrite
         if osp.exists(save_path):
             response = QtWidgets.QMessageBox.warning(
                 self,
-                self.tr("Output Directory Exist!"),
+                self.tr("Output Directory Exists!"),
                 self.tr(
-                    "You are going to export new annotations to this task. Continue?"
+                    "Directory already exists. Choose an action:\n"
+                    "Yes - Merge with existing files\n"
+                    "No - Delete existing directory\n"
+                    "Cancel - Abort export"
                 ),
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
             )
 
-            if response != QtWidgets.QMessageBox.Ok:
+            if response == QtWidgets.QMessageBox.Cancel:
                 return
-            else:
+            elif response == QtWidgets.QMessageBox.No:
                 shutil.rmtree(save_path)
-        os.makedirs(save_path, exist_ok=True)
+                os.makedirs(save_path)
+        else:
+            os.makedirs(save_path)
 
+        # Setup progress dialog
+        image_list = self.image_list if self.image_list else [self.filename]
         progress_dialog = QProgressDialog(
             self.tr("Exporting..."),
             self.tr("Cancel"),
@@ -4905,41 +4937,44 @@ class LabelingWidget(LabelDialog):
         progress_dialog.setWindowTitle(self.tr("Progress"))
         progress_dialog.setStyleSheet(
             """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
+            QProgressDialog QProgressBar {
+                border: 1px solid grey;
+                border-radius: 5px;
+                text-align: center;
+            }
+            QProgressDialog QProgressBar::chunk {
+                background-color: orange;
+            }
+            """
         )
 
         try:
+            # Process files
             for i, image_file in enumerate(image_list):
                 image_file_name = osp.basename(image_file)
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
                 src_file = osp.join(label_dir_path, label_file_name)
-                is_emtpy_file = converter.custom_to_yolo(
+                
+                is_empty_file = converter.custom_to_yolo(
                     src_file, dst_file, mode, skip_empty_files
                 )
-                if save_images and not (skip_empty_files and is_emtpy_file):
+                
+                if save_images and not (skip_empty_files and is_empty_file):
                     image_dst = osp.join(save_path, image_file_name)
                     shutil.copy(image_file, image_dst)
-                if skip_empty_files and is_emtpy_file and osp.exists(dst_file):
+                    
+                if skip_empty_files and is_empty_file and osp.exists(dst_file):
                     os.remove(dst_file)
-                # Update progress bar
+                    
                 progress_dialog.setValue(i)
                 if progress_dialog.wasCanceled():
                     break
-            # Hide the progress dialog after processing is done
+
             progress_dialog.close()
 
-            # # Show success message
-            save_path = osp.realpath(save_path)
+            # Show success message
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Exporting annotations successfully!"))
