@@ -972,6 +972,13 @@ class LabelConverter:
                 elif mode == "pose":
                     if shape_type not in ["rectangle", "point"]:
                         continue
+                    if shape["group_id"] is None:
+                        logger.error(
+                            f"group_id is None for {shape} in {input_file}."
+                        )
+                        raise ValueError(
+                            f"group_id is None for {shape} in {input_file}."
+                        )
                     label = shape["label"]
                     points = shape["points"]
                     group_id = int(shape["group_id"])
