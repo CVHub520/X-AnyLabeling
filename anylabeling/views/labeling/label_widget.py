@@ -1371,7 +1371,7 @@ class LabelingWidget(LabelDialog):
                 brightness_contrast,
                 loop_thru_labels,
             ),
-            on_shapes_present=(save_as,),
+            on_shapes_present=(save_as, delete),
             hide_selected_polygons=hide_selected_polygons,
             show_hidden_polygons=show_hidden_polygons,
             group_selected_shapes=group_selected_shapes,
