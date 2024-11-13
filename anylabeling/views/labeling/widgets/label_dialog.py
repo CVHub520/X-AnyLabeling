@@ -1,3 +1,4 @@
+import os
 import re
 import json
 
@@ -210,15 +211,33 @@ class LabelColorButton(QtWidgets.QWidget):
 
 
 class LabelModifyDialog(QtWidgets.QDialog):
+    """A dialog for modifying labels across multiple files.
+
+    This dialog allows users to:
+    - Change label names
+    - Delete labels
+    - Modify label colors
+    - Select file range for applying changes
+    """
+
     def __init__(self, parent=None, opacity=128):
+        """Initialize the dialog.
+
+        Args:
+            parent: Parent widget. Defaults to None.
+            opacity: Opacity value for colors. Defaults to 128.
+        """
         super(LabelModifyDialog, self).__init__(parent)
         self.parent = parent
         self.opacity = opacity
-        self.label_file_list = parent.get_label_file_list()
+        self.image_file_list = self.get_image_file_list()
+        self.start_index = 1
+        self.end_index = len(self.image_file_list)
         self.init_label_info()
         self.init_ui()
 
     def init_ui(self):
+        """Initialize the user interface."""
         self.setWindowTitle(self.tr("Label Change Manager"))
         self.setWindowFlags(
             self.windowFlags()
@@ -242,22 +261,49 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 QtCore.Qt.AlignCenter
             )
 
-        self.buttons_layout = QtWidgets.QHBoxLayout()
+        # Add input fields for range selection
+        range_layout = QtWidgets.QHBoxLayout()
+        # Add stretch to center the widgets
+        range_layout.addStretch(1)
 
-        self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"), self)
-        self.cancel_button.clicked.connect(self.reject)
+        from_label = QtWidgets.QLabel("From:")
+        self.from_input = QtWidgets.QSpinBox()
+        self.from_input.setMinimum(1)
+        self.from_input.setMaximum(len(self.image_file_list))
+        self.from_input.setSingleStep(1)
+        self.from_input.setValue(self.start_index)
+        range_layout.addWidget(from_label)
+        range_layout.addWidget(self.from_input)
 
-        self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"), self)
-        self.confirm_button.clicked.connect(self.confirm_changes)
+        to_label = QtWidgets.QLabel("To:")
+        self.to_input = QtWidgets.QSpinBox()
+        self.to_input.setMinimum(1)
+        self.to_input.setMaximum(len(self.image_file_list))
+        self.to_input.setSingleStep(1)
+        self.to_input.setValue(len(self.image_file_list))
+        range_layout.addWidget(to_label)
+        range_layout.addWidget(self.to_input)
 
-        self.buttons_layout.addWidget(self.cancel_button)
-        self.buttons_layout.addWidget(self.confirm_button)
+        self.range_button = QtWidgets.QPushButton("Go")
+        range_layout.addWidget(self.range_button)
+        self.range_button.clicked.connect(self.update_range)
+
+        # Add stretch to center the widgets
+        range_layout.addStretch(1)
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.table_widget)
-        layout.addLayout(self.buttons_layout)
+        layout.addLayout(range_layout)
 
         self.populate_table()
+
+    def get_image_file_list(self):
+        image_file_list = []
+        count = self.parent.file_list_widget.count()
+        for c in range(count):
+            image_file = self.parent.file_list_widget.item(c).text()
+            image_file_list.append(image_file)
+        return image_file_list
 
     def move_to_center(self):
         qr = self.frameGeometry()
@@ -337,7 +383,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
         else:
             delete_checkbox.setCheckable(True)
 
-    def confirm_changes(self):
+    def confirm_changes(self, start_index: int = -1, end_index: int = -1):
         total_num = self.table_widget.rowCount()
         if total_num == 0:
             self.reject()
@@ -374,9 +420,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             else:
                 updated_label_info[label] = self.parent.label_info[label]
 
-        # Try to modify labels
-        if self.modify_label():
-            # If modification is successful, update self.parent.label_info
+        if self.modify_label(start_index, end_index):
             self.parent.label_info = updated_label_info
             QtWidgets.QMessageBox.information(
                 self,
@@ -389,9 +433,23 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 self, "Warning", "An error occurred while updating the labels."
             )
 
-    def modify_label(self):
+    def modify_label(self, start_index: int = -1, end_index: int = -1):
         try:
-            for label_file in self.label_file_list:
+            if start_index == -1:
+                start_index = self.start_index
+            if end_index == -1:
+                end_index = self.end_index
+            for i, image_file in enumerate(self.image_file_list):
+                if i < start_index - 1 or i > end_index - 1:
+                    continue
+                label_dir, filename = os.path.split(image_file)
+                if self.parent.output_dir:
+                    label_dir = self.parent.output_dir
+                label_file = os.path.join(
+                    label_dir, os.path.splitext(filename)[0] + ".json"
+                )
+                if not os.path.exists(label_file):
+                    continue
                 with open(label_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 src_shapes, dst_shapes = data["shapes"], []
@@ -413,7 +471,15 @@ class LabelModifyDialog(QtWidgets.QDialog):
     def init_label_info(self):
         classes = set()
 
-        for label_file in self.label_file_list:
+        for image_file in self.image_file_list:
+            label_dir, filename = os.path.split(image_file)
+            if self.parent.output_dir:
+                label_dir = self.parent.output_dir
+            label_file = os.path.join(
+                label_dir, os.path.splitext(filename)[0] + ".json"
+            )
+            if not os.path.exists(label_file):
+                continue
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             shapes = data.get("shapes", [])
@@ -453,6 +519,34 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 color=color,
                 opacity=opacity,
             )
+
+    def update_range(self):
+        from_value = (
+            int(self.from_input.text())
+            if self.from_input.text()
+            else self.start_index
+        )
+        to_value = (
+            int(self.to_input.text())
+            if self.to_input.text()
+            else self.end_index
+        )
+        if (
+            (from_value > to_value)
+            or (from_value < 1)
+            or (to_value > len(self.image_file_list))
+        ):
+            self.from_input.setValue(1)
+            self.to_input.setValue(len(self.image_file_list))
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Invalid Range"),
+                self.tr("Please enter a valid range."),
+            )
+        else:
+            self.start_index = from_value
+            self.end_index = to_value
+            self.confirm_changes(self.start_index, self.end_index)
 
 
 class TextInputDialog(QtWidgets.QDialog):
