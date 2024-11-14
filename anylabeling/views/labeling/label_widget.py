@@ -2037,11 +2037,12 @@ class LabelingWidget(LabelDialog):
             )
             if osp.exists(label_file):
                 label_dir_path = dir_path
-        elif self.image_list and not self.output_dir and self.filename:
+        elif self.image_list and self.filename:
             image_file_list = self.image_list
-            label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
+        else:
+            label_dir_path = osp.dirname(self.filename)
         save_path = osp.join(
             osp.dirname(self.filename), "..", "x-anylabeling-crops"
         )
