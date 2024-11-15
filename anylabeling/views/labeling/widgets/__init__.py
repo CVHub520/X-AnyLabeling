@@ -7,6 +7,7 @@ from .color_dialog import ColorDialog
 from .file_dialog_preview import FileDialogPreview
 from .filter_label_widget import LabelFilterComboBox
 from .general_dialog import CrosshairSettingsDialog
+from .image_dialog import ImageCropperDialog
 from .label_dialog import (
     LabelDialog,
     LabelQLineEdit,

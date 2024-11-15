@@ -52,6 +52,7 @@ from .widgets import (
     CrosshairSettingsDialog,
     FileDialogPreview,
     TextInputDialog,
+    ImageCropperDialog,
     LabelDialog,
     LabelFilterComboBox,
     LabelListWidget,
@@ -2025,139 +2026,7 @@ class LabelingWidget(LabelDialog):
             OverviewDialog(parent=self)
 
     def save_crop(self):
-        if not self.filename:
-            return
-
-        image_file_list, label_dir_path = [], ""
-        if not self.image_list and self.filename:
-            image_file_list = [self.filename]
-            dir_path, filename = osp.split(self.filename)
-            label_file = osp.join(
-                dir_path, osp.splitext(filename)[0] + ".json"
-            )
-            if osp.exists(label_file):
-                label_dir_path = dir_path
-        elif self.image_list and self.filename:
-            image_file_list = self.image_list
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        else:
-            label_dir_path = osp.dirname(self.filename)
-        save_path = osp.join(
-            osp.dirname(self.filename), "..", "x-anylabeling-crops"
-        )
-        if osp.exists(save_path):
-            shutil.rmtree(save_path)
-
-        progress_dialog = QProgressDialog(
-            self.tr("Processing..."),
-            self.tr("Cancel"),
-            0,
-            len(image_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-        label_to_count = {}
-        try:
-            for i, image_file in enumerate(image_file_list):
-                image_name = osp.basename(image_file)
-                label_name = osp.splitext(image_name)[0] + ".json"
-                label_file = osp.join(label_dir_path, label_name)
-                if not osp.exists(label_file):
-                    continue
-
-                with open(label_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                shapes = data["shapes"]
-                for shape in shapes:
-                    label = shape["label"]
-                    points = shape["points"]
-                    shape_type = shape["shape_type"]
-                    if shape_type not in ["rectangle", "polygon", "rotation"]:
-                        continue
-                    if (
-                        (shape_type == "polygon" and len(points) < 3)
-                        or (shape_type == "rotation" and len(points) != 4)
-                        or (shape_type == "rectangle" and len(points) != 4)
-                    ):
-                        progress_dialog.close()
-                        error_dialog = QMessageBox()
-                        error_dialog.setIcon(QMessageBox.Critical)
-                        error_dialog.setText(
-                            self.tr("Existing invalid shape!")
-                        )
-                        error_dialog.setInformativeText(label_file)
-                        error_dialog.setWindowTitle(self.tr("Critical"))
-                        error_dialog.exec_()
-                        progress_dialog.close()
-                        return
-
-                    points = np.array(points).astype(np.int32)
-                    x, y, w, h = cv2.boundingRect(points)
-                    xmin = int(x)
-                    ymin = int(y)
-                    xmax = int(w) + xmin
-                    ymax = int(h) + ymin
-
-                    dst_path = osp.join(save_path, label)
-                    if not osp.exists(dst_path):
-                        label_to_count[label] = 0
-                        os.makedirs(dst_path)
-                    else:
-                        label_to_count[label] += 1
-
-                    image = cv2.imread(image_file)
-                    height, width = image.shape[:2]
-                    xmin, ymin, xmax, ymax = map(int, [xmin, ymin, xmax, ymax])
-                    xmin = max(0, min(xmin, width))
-                    ymin = max(0, min(ymin, height))
-                    xmax = max(xmin, min(xmax, width))
-                    ymax = max(ymin, min(ymax, height))
-                    crop_image = image[ymin:ymax, xmin:xmax]
-                    dst_file = osp.join(
-                        dst_path, f"{label_to_count[label]}-{shape_type}.jpg"
-                    )
-                    cv2.imencode(".jpg", crop_image)[1].tofile(dst_file)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-
-            # # Show success message
-            save_path = osp.realpath(save_path)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Cropping completed successfully!"))
-            msg_box.setInformativeText(
-                self.tr(f"Cropped images have been saved to:\n{save_path}")
-            )
-            msg_box.setWindowTitle(self.tr("Success"))
-            msg_box.exec_()
-
-        except Exception as e:
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while saving cropped image.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
+        ImageCropperDialog(self.filename, self.image_list, self.output_dir, parent=self)
 
     def save_mask(self):
         if not self.filename or not self.image_list:
