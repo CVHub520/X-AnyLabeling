@@ -11,11 +11,11 @@ from .model import Model
 from .types import AutoLabelingResult
 
 from .utils.sahi.predict import get_sliced_prediction
-from .utils.sahi.models.yolov8_onnx import Yolov8OnnxDetectionModel
+from .utils.sahi.models.yolov5_onnx import Yolov5OnnxDetectionModel
 
 
-class YOLOv8_SAHI(Model):
-    """Object detection model using YOLOv8 with SAHI"""
+class YOLOv5_SAHI(Model):
+    """Object detection model using YOLOv5 with SAHI"""
 
     class Meta:
         required_config_names = [
@@ -52,7 +52,7 @@ class YOLOv8_SAHI(Model):
             str(ind): category_name
             for ind, category_name in enumerate(self.config["classes"])
         }
-        self.net = Yolov8OnnxDetectionModel(
+        self.net = Yolov5OnnxDetectionModel(
             model_path=model_abs_path,
             nms_threshold=self.config["nms_threshold"],
             confidence_threshold=self.config["confidence_threshold"],

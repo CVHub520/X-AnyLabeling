@@ -32,6 +32,8 @@
 
 ## 🥳 新功能
 
+- 2024年11月:
+  - 🌟🌟🌟 支持[YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml)模型。
 - 2024年10月:
   - ✨✨✨ 支持基于[DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md)的文档版面分析模型。
 - 2024年9月:
@@ -174,12 +176,14 @@
 
 </div>
 
+
 ## 文档
 
 1. [安装文档](./docs/zh_cn/get_started.md)
 2. [用户手册](./docs/zh_cn/user_guide.md)
 3. [自定义模型](./docs/zh_cn/custom_model.md)
 4. [常见问题答疑](./docs/zh_cn/faq.md)
+
 
 ## 示例
 
@@ -211,11 +215,23 @@
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
 
+
 ## 联系
 
 如果你觉得这个项目有帮助，请点亮右上角的⭐星标⭐。如有任何问题或疑问，欢迎[创建 issue](https://github.com/CVHub520/X-AnyLabeling/issues) 或发送邮件至 cv_hub@163.com。
 
 💡洽谈合作事项或想法共创，敬请添加微信: `ww10874` （非诚勿扰）
+
+
+## 赞助
+
+| **微信支付** | **支付宝** |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/0178cf76-3627-426e-8432-ec031c9278ae" width="200px" /> | <img src="https://github.com/user-attachments/assets/87544ff8-3560-4696-b035-1fd26ecd162b" width="200px" /> |
+
+
+感谢您的支持！
+
 
 ## 许可
 

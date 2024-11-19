@@ -21,7 +21,7 @@ from anylabeling.services.auto_labeling.engines.build_onnx_engine import (
 from anylabeling.views.labeling.logger import logger
 
 
-class Yolov8ONNX(object):
+class Yolov5ONNX(object):
     def __init__(
         self, model_path: str, device: str, conf_thres: float, nms_thres: float
     ):
@@ -58,31 +58,35 @@ class Yolov8ONNX(object):
         """
         Post-process the network's output, to get the bounding boxes and
         their confidence scores.
+        Expects output shape: (1, 25200, 85) where 85 = 4(xywh) + 1(obj_conf) + 80(class_scores)
         """
-        outputs = np.transpose(outputs, (0, 2, 1))
-
-        # Lists to hold respective values while unwrapping.
+        # Lists to hold respective values while unwrapping
         _class_ids = []
         _confidences = []
         _boxes = []
 
-        # Rows.
+        # Get number of rows (predictions)
         rows = outputs.shape[1]
 
         image_height, image_width = img_size
         _, _, input_height, input_width = self.net.get_input_shape()
 
-        # Resizing factor.
+        # Resizing factor
         x_factor = image_width / input_width
         y_factor = image_height / input_height
 
-        # Iterate through 8400 rows.
+        # Iterate through all predictions
         for r in range(rows):
             row = outputs[0][r]
-            classes_scores = row[4:]
+            # First 4 elements are box coordinates (cx, cy, w, h)
+            # Element at index 4 is objectness score
+            # Remaining elements are class scores
+            classes_scores = row[5:]  # Changed from 4 to 5
+            obj_conf = row[4]  # Get objectness confidence
 
-            # Get the index of max class score and confidence.
+            # Get the index of max class score and confidence
             _, confidence, _, (_, class_id) = cv2.minMaxLoc(classes_scores)
+            confidence *= obj_conf  # Multiply by objectness confidence
 
             # Discard confidence lower than threshold
             if confidence >= self.conf_thres:
@@ -118,7 +122,7 @@ class Yolov8ONNX(object):
         return np.array(bboxes), np.array(scores), np.array(class_ids)
 
 
-class Yolov8OnnxDetectionModel(DetectionModel):
+class Yolov5OnnxDetectionModel(DetectionModel):
     def check_dependencies(self) -> None:
         check_requirements(["onnxruntime"])
 
@@ -130,7 +134,7 @@ class Yolov8OnnxDetectionModel(DetectionModel):
         self.nms_thres = self.nms_threshold
 
         # set model
-        self.model = Yolov8ONNX(
+        self.model = Yolov5ONNX(
             model_path=self.model_path,
             device=self.device,
             conf_thres=self.conf_thres,

@@ -192,6 +192,8 @@
   config_file: ":/yolov5s_obb_csl_dotav10.yaml"
 - model_name: "yolov5s_resnet50-r20230520"
   config_file: ":/yolov5s_resnet50.yaml"
+- model_name: "yolov5s_sahi-r20241118"
+  config_file: ":/yolov5s_sahi.yaml"
 - model_name: "yolov5x-r20230520"
   config_file: ":/yolov5x.yaml"
 - model_name: "yolov6l_mbla-r20230520"

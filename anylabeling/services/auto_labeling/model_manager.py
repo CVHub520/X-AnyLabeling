@@ -44,6 +44,7 @@ class ModelManager(QObject):
         "efficientvit_sam",
         "yolov5_track",
         "damo_yolo",
+        "yolov5_sahi",
         "yolov8_sahi",
         "grounding_sam",
         "grounding_sam2",
@@ -414,6 +415,29 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = YOLOv7(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
+        elif model_config["type"] == "yolov5_sahi":
+            from .yolov5_sahi import YOLOv5_SAHI
+
+            try:
+                model_config["model"] = YOLOv5_SAHI(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()

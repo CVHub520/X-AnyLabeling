@@ -33,6 +33,8 @@
 
 ## 🥳 What's New
 
+- Nov. 2024:
+  - 🌟🌟🌟 Added support for [YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml).
 - Oct. 2024:
   - ✨✨✨ Added support for [DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md) model.
 - Sep. 2024:
@@ -138,6 +140,7 @@
   - Release [YOLOv5](https://github.com/ultralytics/yolov5), [YOLOv6](https://github.com/meituan/YOLOv6), [YOLOv7](https://github.com/WongKinYiu/yolov7), [YOLOv8](https://github.com/ultralytics/ultralytics), [YOLOX](https://github.com/Megvii-BaseDetection/YOLOX).
 </details>
 
+
 ## X-AnyLabeling
 
 **X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It’s designed for visual data engineers, offering industrial-grade solutions for complex tasks.
@@ -153,6 +156,7 @@
 - Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR.
 - Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
+
 
 ### Model library
 
@@ -171,6 +175,7 @@
 For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 
 </div>
+
 
 ## Docs
 
@@ -208,17 +213,21 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
 
+
 ## Contact
 
 If you find this project helpful, please give it a ⭐star⭐, and for any questions or issues, feel free to [create an issue](https://github.com/CVHub520/X-AnyLabeling/issues) or email cv_hub@163.com.
+
 
 ## License
 
 This project is released under the [GPL-3.0 license](./LICENSE).
 
+
 ## Acknowledgement
 
 I extend my heartfelt thanks to the developers and contributors of [AnyLabeling](https://github.com/vietanhdev/anylabeling), [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelIm), [roLabelImg](https://github.com/cgvict/roLabelImg), [PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) and [CVAT](https://github.com/opencv/cvat), whose work has been crucial to the success of this project.
+
 
 ## Citing
 
