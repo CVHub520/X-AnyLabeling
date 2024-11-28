@@ -85,6 +85,7 @@ class ModelManager(QObject):
         "yolo11_seg_track",
         "yolo11_obb_track",
         "yolo11_pose_track",
+        "upn",
     ]
 
     model_configs_changed = pyqtSignal(list)
@@ -1883,6 +1884,29 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "upn":
+            from .upn import UPN
+
+            try:
+                model_config["model"] = UPN(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error in loading model: {error_message}".format(
+                            error_message=str(e)
+                        )
+                    )
+                )
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         else:
             raise Exception(f"Unknown model type: {model_config['type']}")
 
@@ -1951,6 +1975,7 @@ class ModelManager(QObject):
     def set_auto_labeling_conf(self, value):
         """Set auto labeling confidences"""
         model_list = [
+            "upn",
             "damo_yolo",
             "gold_yolo",
             "grounding_dino",
@@ -1996,6 +2021,7 @@ class ModelManager(QObject):
     def set_auto_labeling_iou(self, value):
         """Set auto labeling iou"""
         model_list = [
+            "upn",
             "damo_yolo",
             "gold_yolo",
             "yolo_nas",

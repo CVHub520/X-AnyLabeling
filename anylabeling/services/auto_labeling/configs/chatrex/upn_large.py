@@ -1,0 +1,73 @@
+transformer_cfg = dict(
+    type="DeformableTransformer",
+    num_queries=900,
+    encoder_cfg=dict(
+        type="UPNEncoder",
+        encoder_layer_cfg=dict(
+            type="DeformableTransformerEncoderLayer",
+            activation="relu",
+            d_model=256,
+            dropout=0.0,
+            d_ffn=2048,
+            n_heads=8,
+            n_levels=5,
+        ),
+        d_model=256,
+        num_layers=6,
+        use_checkpoint=False,
+        use_transformer_ckpt=False,
+    ),
+    decoder_cfg=dict(
+        type="UPNDecoder",
+        decoder_layer_cfg=dict(
+            type="DeformableTransformerDecoderLayer",
+            activation="relu",
+            d_model=256,
+            n_heads=8,
+            dropout=0.0,
+            d_ffn=2048,
+            n_levels=5,
+        ),
+        d_model=256,
+        return_intermediate=True,
+        num_layers=6,
+        rm_dec_query_scale=True,
+        use_detached_boxes_dec_out=False,
+    ),
+    learnable_tgt_init=True,
+    random_refpoints_xy=False,
+    num_feature_levels=5,
+    two_stage_bbox_embed_share=False,
+    two_stage_class_embed_share=False,
+    two_stage_keep_all_tokens=False,
+    two_stage_learn_wh=False,
+    two_stage_type="standard",
+    binary_query_selection=False,
+)
+
+vision_backbone = dict(
+    type="SwinWrapper",
+    backbone_cfg="swin_L_384_22k",
+    lr_backbone=1e-05,
+    dilation=False,
+    return_interm_indices=[0, 1, 2, 3],
+    backbone_freeze_keywords=None,
+    backbone_ckpt_path=None,
+    use_checkpoint=False,
+    position_embedding_cfg=dict(
+        type="PositionEmbeddingSineHW",
+        normalize=True,
+        num_pos_feats=128,
+        temperatureH=20,
+        temperatureW=20,
+    ),
+)
+
+model = dict(
+    type="UPN",
+    vision_backbone_cfg=vision_backbone,
+    transformer_cfg=transformer_cfg,
+    num_queries=900,
+    dec_pred_bbox_embed_share=True,
+    dec_pred_class_embed_share=True,
+)

@@ -33,6 +33,7 @@
 ## 🥳 新功能
 
 - 2024年11月:
+  - 🎯🎯🎯 支持基于[UPN](./examples/detection/hbb/README.md)的目标候选框生成模型。
   - 🌟🌟🌟 支持[YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml)模型。
 - 2024年10月:
   - ✨✨✨ 支持基于[DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md)的文档版面分析模型。

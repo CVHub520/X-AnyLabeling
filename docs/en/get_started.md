@@ -6,14 +6,11 @@
 
 #### 1.1.1 Prerequisites
 
-> [!NOTE]
-> If you need to use the video tracking feature of Segment-Anything-2, please first visit [Docs](../../examples/interactive_video_object_segmentation/README.md) to install the relevant dependencies.
-
 Before you start, ensure that you have the following prerequisites installed:
 
 **Step 0.** Download and install Miniconda from the [official website](https://docs.anaconda.com/miniconda/).
 
-**Step 1.** Create a new conda environment with Python version 3.8 or higher, and activate it.
+**Step 1.** Create a new conda environment with Python version 3.9 or higher, and activate it.
 
 ```bash
 conda create --name x-anylabeling python=3.9 -y
@@ -21,6 +18,14 @@ conda activate x-anylabeling
 ```
 
 #### 1.1.2 Installation
+
+**Optional Features Installation**
+
+> [!NOTE]
+> If you need to use the following advanced features, please refer to the corresponding documentation to install additional dependencies.
+> 
+> 1. Video object tracking based on Segment-Anything-2: [Installation Guide](../../examples/interactive_video_object_segmentation/README.md)
+> 2. Object proposal generation based on UPN: [Installation Guide](../../examples/detection/hbb/README.md)
 
 **Step 0.** Install [ONNX Runtime](https://onnxruntime.ai/).
 

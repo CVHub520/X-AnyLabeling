@@ -64,6 +64,7 @@
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
+| upn_large.pth | [UPN-Large](../../examples/detection/hbb/README.md) | [upn.yaml](../../anylabeling/configs/auto_labeling/upn.yaml) | 834.23MB | [百度网盘](https://pan.baidu.com/s/1e092YPQthvAFV49YXlPLdg?pwd=2hbp) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/upn_large.pth) |
 | damoyolo_tinynasL20_T_420.onnx | [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)-COCO  | [damo_yolo_t.yaml](../../anylabeling/configs/auto_labeling/damo_yolo_t.yaml)  | 32.45MB  | [百度网盘](https://pan.baidu.com/s/1V3yWsdOqPhYQYsguW_672A?pwd=b8vv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/damoyolo_tinynasL20_T_420.onnx) |
 | damoyolo_tinynasL25_S_460.onnx | [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)-COCO  | [damo_yolo_s.yaml](../../anylabeling/configs/auto_labeling/damo_yolo_s.yaml)  | 62.09MB  | [百度网盘](https://pan.baidu.com/s/1NfHl2dQAwJer0yFprovnuA?pwd=ml1m) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/damoyolo_tinynasL25_S_460.onnx) |
 | damoyolo_tinynasL35_M_492.onnx | [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)-COCO  | [damo_yolo_m.yaml](../../anylabeling/configs/auto_labeling/damo_yolo_m.yaml)  | 107.58MB  | [百度网盘](https://pan.baidu.com/s/1XX0eUJ9idLRFfscjDHkXnQ?pwd=591v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/damoyolo_tinynasL35_M_492.onnx) |

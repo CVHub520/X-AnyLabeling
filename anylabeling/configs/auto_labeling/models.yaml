@@ -1,3 +1,5 @@
+- model_name: "upn-r20241128"
+  config_file: ":/upn.yaml"
 - model_name: "doclayout_yolo-r20241024"
   config_file: ":/doclayout_yolo.yaml"
 - model_name: "open_vision-r20241010"

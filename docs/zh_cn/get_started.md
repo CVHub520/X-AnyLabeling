@@ -6,14 +6,11 @@
 
 #### 1.1.1 前置条件
 
-> [!NOTE]
-> 如果你需要使用 Segment-Anything-2 的视频追踪功能, 请先移步至此[文档](../../examples/interactive_video_object_segmentation/README.md)安装相关依赖。
-
 在开始之前，请确保您已安装以下前置条件：
 
 **步骤 0.** 从[官方网站](https://docs.anaconda.com/miniconda/)下载并安装 Miniconda。
 
-**步骤 1.** 创建一个 Python 版本为 3.8 或更高版本的 conda 环境，并激活它。
+**步骤 1.** 创建一个 Python 3.8+ 版本的 conda 环境，并激活它。
 
 ```bash
 conda create --name x-anylabeling python=3.9 -y
@@ -21,6 +18,14 @@ conda activate x-anylabeling
 ```
 
 #### 1.1.2 安装
+
+**可选功能安装**
+
+> [!NOTE]
+> 如需使用以下高级功能，请参考相应文档安装额外依赖。
+>
+> 1. 基于 Segment-Anything-2 的视频目标追踪：[安装指南](../../examples/interactive_video_object_segmentation/README.md)
+> 2. 基于 UPN 的目标候选框生成：[安装指南](../../examples/detection/hbb/README.md)
 
 **步骤 0.** 安装 [ONNX Runtime](https://onnxruntime.ai/)。
 

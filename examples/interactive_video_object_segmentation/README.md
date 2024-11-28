@@ -37,14 +37,10 @@ Finally, install the necessary dependencies for X-AnyLabeling (v2.4.2+):
 cd ..
 git clone https://github.com/CVHub520/X-AnyLabeling
 cd X-AnyLabeling
-
-# For Windows or Linux
-pip install -r requirements.txt
-
-# For macOS
-pip install -r requirements-macos.txt
-conda install -c conda-forge pyqt=5.15.9
 ```
+
+Now, you can back to the installation guide ([简体中文](../../docs/zh_cn/get_started.md) | [English](../../docs/en/get_started.md)) to install the remaining dependencies.
+
 
 ## Getting Started
 
