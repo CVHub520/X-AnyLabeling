@@ -2236,3 +2236,15 @@ class ModelManager(QObject):
             return
 
         self.loaded_model_config["model"].on_next_files_changed(next_files)
+
+    def set_upn_mode(self, mode):
+        """Set UPN mode"""
+        if self.loaded_model_config is None:
+            return
+
+        if self.loaded_model_config["type"] not in [
+            "upn",
+        ]:
+            return
+
+        self.loaded_model_config["model"].set_upn_mode(mode)

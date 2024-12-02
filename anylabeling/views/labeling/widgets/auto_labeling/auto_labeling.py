@@ -54,6 +54,9 @@ class AutoLabelingWidget(QWidget):
                 self.output_select_combobox.currentData()
             )
         )
+        self.upn_select_combobox.currentIndexChanged.connect(
+            self.on_upn_mode_changed
+        )
 
         self.update_model_configs(self.model_manager.get_model_configs())
 
@@ -61,6 +64,7 @@ class AutoLabelingWidget(QWidget):
         def set_enable_tools(enable):
             self.model_select_combobox.setEnabled(enable)
             self.output_select_combobox.setEnabled(enable)
+            self.upn_select_combobox.setEnabled(enable)
             self.button_add_point.setEnabled(enable)
             self.button_remove_point.setEnabled(enable)
             self.button_add_rect.setEnabled(enable)
@@ -132,6 +136,21 @@ class AutoLabelingWidget(QWidget):
         self.auto_labeling_mode_changed.connect(self.update_button_colors)
         self.auto_labeling_mode = AutoLabelingMode.NONE
         self.auto_labeling_mode_changed.emit(self.auto_labeling_mode)
+
+        # Populate UPN select combobox with modes
+        self.populate_upn_combobox()
+
+    def populate_upn_combobox(self):
+        """Populate UPN combobox with available modes"""
+        self.upn_select_combobox.clear()
+        # Define modes with display names
+        modes = {
+            "coarse_grained_prompt": self.tr("Coarse Grained"),
+            "fine_grained_prompt": self.tr("Fine Grained"),
+        }
+        # Add modes to combobox
+        for mode, display_name in modes.items():
+            self.upn_select_combobox.addItem(display_name, userData=mode)
 
     def update_model_configs(self, model_list):
         """Update model list"""
@@ -246,6 +265,17 @@ class AutoLabelingWidget(QWidget):
         )
         self.on_reset_tracker()
 
+        # Update UPN mode in UI if UPN model is loaded
+        if model_config.get("type") == "upn":
+            self.update_upn_mode_ui()
+
+    def update_upn_mode_ui(self):
+        """Update UPN mode combobox to reflect current backend state"""
+        current_mode = self.model_manager.loaded_model_config["model"].prompt_type
+        index = self.upn_select_combobox.findData(current_mode)
+        if index != -1:
+            self.upn_select_combobox.setCurrentIndex(index)
+
     def on_output_modes_changed(self, output_modes, default_output_mode):
         """Handle output modes changed"""
         # Disconnect onIndexChanged signal to prevent triggering
@@ -324,6 +354,7 @@ class AutoLabelingWidget(QWidget):
             "input_iou",
             "output_label",
             "output_select_combobox",
+            "upn_select_combobox",
             "toggle_preserve_existing_annotations",
             "button_reset_tracker",
         ]
@@ -363,3 +394,9 @@ class AutoLabelingWidget(QWidget):
 
     def add_new_prompt(self):
         self.model_manager.set_auto_labeling_prompt()
+
+    @pyqtSlot()
+    def on_upn_mode_changed(self):
+        """Handle UPN mode change"""
+        mode = self.upn_select_combobox.currentData()
+        self.model_manager.set_upn_mode(mode)

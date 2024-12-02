@@ -67,6 +67,8 @@ Here's how to set up for the UPN job:
 2. Select and load the `Universal Proposal Network (IDEA)` model from the model list
 3. Click `Run (i)` to start processing. After verifying the results are satisfactory, use `Ctrl+M` to batch process all images
 
-Specifically, you can configure these modes in the [upn.yaml](../../../anylabeling/configs/auto_labeling/upn.yaml) configuration file. By default, the `fine_grained_prompt` mode is selected. 
+Additionally, you can adjust the following parameters to filter detection results directly from the GUI:
 
-Additionally, you can adjust the confidence threshold and IoU (Intersection over Union) threshold either through the GUI interface or in the configuration file to filter detection results.
+- Detection Mode: Switch between `Coarse Grained` and `Fine Grained` modes using the dropdown menu next to the model selection
+- Confidence Threshold: Adjust the confidence score (0-1) using the "Confidence" spinner control
+- IoU Threshold: Control the Non-Maximum Suppression (NMS) threshold (0-1) using the "IoU" spinner control

@@ -98,6 +98,23 @@
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="upn_select_combobox">
+        <property name="currentIndex">
+            <number>0</number>
+        </property>
+       <item>
+        <property name="text">
+         <string>coarse_grained_prompt</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>fine_grained_prompt</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Vertical</enum>

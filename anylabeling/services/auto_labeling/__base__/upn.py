@@ -31,10 +31,10 @@ class UPNWrapper:
     """
 
     def __init__(self, ckpt_path: str, device: str):
-
         self.model = build_model(ckpt_path)
         self.model.eval()
         self.model.to(device)
+        self.device = device
 
     def inference(
         self,
@@ -76,7 +76,7 @@ class UPNWrapper:
                     in cxcywh format
         """
         input_images = nested_tensor_from_tensor_list(input_images)
-        input_images = input_images.to("cuda")
+        input_images = input_images.to(self.device)
         with torch.no_grad():
             outputs = self.model(input_images, prompt_type)
         return outputs

@@ -13,12 +13,12 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
-from .__base__.sam import SegmentAnythingONNX
 from .__base__.upn import UPNWrapper
 
 
 class UPN(Model):
-    """Universal Proposal Network (UPN) is a robust object proposal model for comprehensive object detection across diverse domains"""
+    """Universal Proposal Network (UPN) is a robust object proposal model
+    for comprehensive object detection across diverse domains"""
 
     class Meta:
         required_config_names = [
@@ -31,6 +31,7 @@ class UPN(Model):
         ]
         widgets = [
             "button_run",
+            "upn_select_combobox",
             "input_conf",
             "edit_conf",
             "input_iou",
@@ -53,9 +54,10 @@ class UPN(Model):
                     f"Could not download or initialize {model_name} model.",
                 )
             )
-        device = "cpu" if __preferred_device__ == "cpu" else "cuda"
-        self.net = UPNWrapper(model_abs_path, device)
-        self.prompt_type = self.config.get("prompt_type", "fine_grained_prompt")
+
+        # TODO: Add CPU support for UPN
+        self.net = UPNWrapper(model_abs_path, "cuda")
+        self.prompt_type = "coarse_grained_prompt"
         self.conf_thres = self.config.get("confidence_threshold", 0.3)
         self.nms_thres = self.config.get("nms_threshold", 0.8)
         self._check_prompt_type()
@@ -64,8 +66,14 @@ class UPN(Model):
         """Check if the prompt type is valid"""
         valid_prompt_types = ["fine_grained_prompt", "coarse_grained_prompt"]
         if self.prompt_type not in valid_prompt_types:
-            logger.warning(f"⚠️ Invalid prompt type: {self.prompt_type}. Please use one of the following: {valid_prompt_types}.")
-            self.prompt_type = "fine_grained_prompt"
+            logger.warning(f"""
+                            ⚠️ Invalid prompt type: {self.prompt_type}. 
+                            Please use one of the following: {valid_prompt_types}.
+                            """)
+
+    def set_upn_mode(self, mode):
+        """Set UPN mode"""
+        self.prompt_type = mode
 
     def set_auto_labeling_conf(self, value):
         """set auto labeling confidence threshold"""
@@ -91,7 +99,7 @@ class UPN(Model):
             logger.warning(e)
             return []
 
-        proposals = self.net.inference(Image.fromarray(image), prompt_type=self.prompt_type)
+        proposals = self.net.inference(Image.fromarray(image), self.prompt_type)
         results = self.net.filter(proposals, min_score=self.conf_thres, nms_value=self.nms_thres)
         if not results["original_xyxy_boxes"] or not results["scores"]:
             return AutoLabelingResult([], replace=True)

@@ -4,4 +4,3 @@ display_name: Universal Proposal Network (IDEA)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/upn_large.pth
 confidence_threshold: 0.3
 nms_threshold: 0.8
-prompt_type: fine_grained_prompt  # "fine_grained_prompt" or "coarse_grained_prompt"
