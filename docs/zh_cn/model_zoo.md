@@ -144,7 +144,6 @@
 | japan_PP-OCRv3_rec_infer.onnx | 超轻量日文[识别模型](https://paddleocr.bj.bcebos.com/PP-OCRv3/multilingual/japan_PP-OCRv3_rec_infer.tar) | [japan_ppocr.yaml](../../anylabeling/configs/auto_labeling/japan_ppocr.yaml) | 9.62MB | [百度网盘](https://pan.baidu.com/s/1sMPb-b1w8m_WohB7JHcOxw?pwd=d058) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/japan_PP-OCRv3_rec_infer.onnx) |
 
 
-
 ### 分割一切模型
 
 - 通用场景
@@ -201,7 +200,6 @@
 | sam_model_best_large_ssl_isiconlytrain.decoder.onnx | [LVMSAM](https://arxiv.org/abs/2306.11925)-[皮肤镜病灶分割模型](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/isic) ViT-base decoder  | [lvm_sam_ssk_isic_vit_b.yaml](../../anylabeling/configs/auto_labeling/lvm_sam_ssk_isic_vit_b.yaml)  | 15.74MB  | [百度网盘](https://pan.baidu.com/s/1G9QW1FIro-cNouCiFJeeWQ?pwd=m11f) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_model_best_large_ssl_isiconlytrain.decoder.onnx) |
 | sam_model_best_large_ssl_kvasir.encoder.onnx | [LVMSAM](https://arxiv.org/abs/2306.11925)-[结直肠息肉分割模型](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir) ViT-base encoder  | [lvm_sam_ssk_kvasir_vit_b.yaml](../../anylabeling/configs/auto_labeling/lvm_sam_ssk_kvasir_vit_b.yaml)  | 342.58MB  | [百度网盘](https://pan.baidu.com/s/1vEfTU6FZcH3qDWET8SoQAA?pwd=3vjv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_model_best_large_ssl_kvasir.encoder.onnx) |
 | sam_model_best_large_ssl_kvasir.decoder.onnx | [LVMSAM](https://arxiv.org/abs/2306.11925)-[结直肠息肉分割模型](https://github.com/CVHub520/X-AnyLabeling/tree/main/assets/examples/kvasir) ViT-base decoder  | [lvm_sam_ssk_kvasir_vit_b.yaml](../../anylabeling/configs/auto_labeling/lvm_sam_ssk_kvasir_vit_b.yaml)  | 15.74MB  | [百度网盘](https://pan.baidu.com/s/1HIVGrs9xptAyhDH2C4pUpg?pwd=g1cb) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_model_best_large_ssl_kvasir.decoder.onnx) |
-
 
 
 ### 图像分割
@@ -289,3 +287,8 @@
 | sam2_hiera_small.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_small_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_small_video.yaml) | 175.77MB | [百度网盘](https://pan.baidu.com/s/17P5PvRUlT0xYr4wlqqeKVw?pwd=rsim) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt) |
 | sam2_hiera_base_plus.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml) | 308.51MB | [百度网盘](https://pan.baidu.com/s/1nP-ysdw1t7JgUQtIv-adNA?pwd=44u4) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt) |
 | sam2_hiera_large.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_large_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_large_video.yaml) | 856.35MB | [百度网盘](https://pan.baidu.com/s/1hFYQc1IKnEw2l-vW6Eoi2w?pwd=gyby) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt) |
+
+
+### 多模态
+
+- [Florence 2](../../examples/multimodal/florence2/README.md)

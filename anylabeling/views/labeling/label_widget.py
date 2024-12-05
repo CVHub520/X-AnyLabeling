@@ -6287,6 +6287,7 @@ class LabelingWidget(LabelDialog):
         for shape in self.canvas.shapes:
             if shape.label == AutoLabelingMode.OBJECT:
                 cache_label = shape.cache_label
+                cache_description = shape.cache_description
                 has_object = True
                 break
 
@@ -6308,6 +6309,7 @@ class LabelingWidget(LabelDialog):
             text = last_label
         elif cache_label is not None:
             text = cache_label
+            description = cache_description
         else:
             previous_text = self.label_dialog.edit.text()
             (

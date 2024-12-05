@@ -115,6 +115,83 @@
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="florence2_select_combobox">
+        <property name="currentIndex">
+            <number>0</number>
+        </property>
+       <item>
+        <property name="text">
+         <string>caption</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>detailed_cap</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>more_detailed_cap</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>od</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>region_proposal</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>dense_region_cap</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>cap_to_pg</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>refer_exp_seg</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>region_to_seg</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ovd</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>region_to_cat</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>region_to_desc</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ocr</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ocr_with_region</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Vertical</enum>

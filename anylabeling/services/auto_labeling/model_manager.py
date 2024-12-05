@@ -13,6 +13,7 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.config import get_config, save_config
 from anylabeling.configs import auto_labeling as auto_labeling_configs
 from anylabeling.services.auto_labeling.types import AutoLabelingResult
+from anylabeling.services.auto_labeling.utils import TimeoutContext
 
 
 class ModelManager(QObject):
@@ -20,6 +21,7 @@ class ModelManager(QObject):
 
     MAX_NUM_CUSTOM_MODELS = 5
     CUSTOM_MODELS = [
+        "florence2",
         "doclayout_yolo",
         "open_vision",
         "segment_anything",
@@ -1118,7 +1120,7 @@ class ModelManager(QObject):
                 model_config["model"] = DocLayoutYOLO(
                     model_config, on_message=self.new_model_status.emit
                 )
-                self.auto_segmentation_model_selected.emit()
+                self.auto_segmentation_model_unselected.emit()
                 logger.info(
                     f"✅ Model loaded successfully: {model_config['type']}"
                 )
@@ -1907,6 +1909,34 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "florence2":
+            from .florence2 import Florence2
+
+            def _load_florence2():
+                logger.info(f"⌛ Loading model: {model_config['type']}")
+                model_config["model"] = Florence2(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+
+            try:
+                with TimeoutContext(
+                    timeout=300,
+                    timeout_message="""Model loading timeout! Please check your network connection.
+                                    Alternatively, you can try to load the model from local directory.""",
+                ) as ctx:
+                    _ = ctx.run(_load_florence2)
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(f"Error in loading model: {str(e)}")
+                )
+                logger.error(
+                    f"❌ Error in loading model `{model_config['type']}` with error: {str(e)}"
+                )
+                return
         else:
             raise Exception(f"Unknown model type: {model_config['type']}")
 
@@ -1941,6 +1971,7 @@ class ModelManager(QObject):
             "grounding_sam2",
             "open_vision",
             "edge_sam",
+            "florence2",
         ]
         if (
             self.loaded_model_config is None
@@ -2092,6 +2123,7 @@ class ModelManager(QObject):
             "yolow",
             "yolox",
             "doclayout_yolo",
+            "florence2",
         ]
         if (
             self.loaded_model_config is not None
@@ -2248,3 +2280,15 @@ class ModelManager(QObject):
             return
 
         self.loaded_model_config["model"].set_upn_mode(mode)
+
+    def set_florence2_mode(self, mode):
+        """Set Florence2 mode"""
+        if self.loaded_model_config is None:
+            return
+
+        if self.loaded_model_config["type"] not in [
+            "florence2",
+        ]:
+            return
+
+        self.loaded_model_config["model"].set_florence2_mode(mode)

@@ -33,6 +33,7 @@
 ## 🥳 新功能
 
 - 2024年11月:
+  - 🤗🤗🤗 支持[Florence-2](./examples/multimodal/florence2/README.md)多模态模型。
   - 🎯🎯🎯 支持基于[UPN](./examples/detection/hbb/README.md)的目标候选框生成模型。
   - 🌟🌟🌟 支持[YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml)模型。
 - 2024年10月:

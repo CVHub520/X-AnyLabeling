@@ -1,3 +1,5 @@
+- model_name: "florence2_large_ft"
+  config_file: ":/florence2_large_ft.yaml"
 - model_name: "upn-r20241128"
   config_file: ":/upn.yaml"
 - model_name: "doclayout_yolo-r20241024"

@@ -131,7 +131,6 @@
 | yolo11s-obb.onnx | [YOLO11s-Obb](https://github.com/ultralytics/ultralytics)-DOTA-v1.0  | [yolo11s_obb.yaml](../../anylabeling/configs/auto_labeling/yolo11s_obb.yaml) | 37.36MB | [baidu](https://pan.baidu.com/s/1caHKHZvVnyuAqrXaTvklLA?pwd=x2v7) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-obb.onnx) |
 
 
-
 ### OCR
 
 |Name|Description|Configuration|Size|Link|
@@ -288,3 +287,8 @@
 | sam2_hiera_small.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_small_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_small_video.yaml) | 175.77MB | [baidu](https://pan.baidu.com/s/17P5PvRUlT0xYr4wlqqeKVw?pwd=rsim) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_small.pt) |
 | sam2_hiera_base_plus.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml) | 308.51MB | [baidu](https://pan.baidu.com/s/1nP-ysdw1t7JgUQtIv-adNA?pwd=44u4) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt) |
 | sam2_hiera_large.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_large_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_large_video.yaml) | 856.35MB | [baidu](https://pan.baidu.com/s/1hFYQc1IKnEw2l-vW6Eoi2w?pwd=gyby) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt) |
+
+
+### Multimodal
+
+- [Florence 2](../../examples/multimodal/florence2/README.md)

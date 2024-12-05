@@ -34,6 +34,7 @@
 ## 🥳 What's New
 
 - Nov. 2024:
+  - 🤗🤗🤗 Added support for [Florence-2](./examples/multimodal/florence2/README.md), a unified vision foundation model for multi-modal tasks.
   - 🎯🎯🎯 Added support for the [UPN](./examples/detection/hbb/README.md) model to generate proposal boxes.
   - 🌟🌟🌟 Added support for [YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml).
 - Oct. 2024:
