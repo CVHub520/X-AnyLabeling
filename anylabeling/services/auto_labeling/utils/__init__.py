@@ -19,6 +19,7 @@ class TimeoutContext:
 
     def __enter__(self):
         import queue
+
         self.result_queue = queue.Queue()
         return self
 

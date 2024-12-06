@@ -1375,13 +1375,20 @@ class LabelConverter:
             # Initialize binary_mask
             binary_mask = np.zeros(image_shape, dtype=np.uint8)
             # Sort polygons by area to handle overlapping (larger areas first)
-            polygons.sort(key=lambda x: cv2.contourArea(np.array(x["polygon"])), reverse=True)
+            polygons.sort(
+                key=lambda x: cv2.contourArea(np.array(x["polygon"])),
+                reverse=True,
+            )
 
             for item in polygons:
                 label, polygon = item["label"], item["polygon"]
                 if label in mapping_color:
                     mask = np.zeros(image_shape, dtype=np.uint8)
-                    cv2.fillPoly(mask, [np.array(polygon, dtype=np.int32)], mapping_color[label])
+                    cv2.fillPoly(
+                        mask,
+                        [np.array(polygon, dtype=np.int32)],
+                        mapping_color[label],
+                    )
                     # Only update unassigned pixels (where binary_mask is still 0)
                     binary_mask = np.where(binary_mask == 0, mask, binary_mask)
 
@@ -1389,8 +1396,13 @@ class LabelConverter:
 
         elif output_format == "rgb" and polygons:
             # Initialize rgb_mask
-            color_mask = np.zeros((image_height, image_width, 3), dtype=np.uint8)
-            polygons.sort(key=lambda x: cv2.contourArea(np.array(x["polygon"])), reverse=True)
+            color_mask = np.zeros(
+                (image_height, image_width, 3), dtype=np.uint8
+            )
+            polygons.sort(
+                key=lambda x: cv2.contourArea(np.array(x["polygon"])),
+                reverse=True,
+            )
 
             for item in polygons:
                 label, polygon = item["label"], item["polygon"]
@@ -1398,12 +1410,16 @@ class LabelConverter:
                     color = mapping_color[label]
                     # Create mask for current polygon
                     curr_mask = np.zeros(image_shape[:2], dtype=np.uint8)
-                    cv2.fillPoly(curr_mask, [np.array(polygon, dtype=np.int32)], 1)
+                    cv2.fillPoly(
+                        curr_mask, [np.array(polygon, dtype=np.int32)], 1
+                    )
                     # Only update pixels that haven't been assigned yet
                     unassigned = np.all(color_mask == 0, axis=2)
                     color_mask[curr_mask.astype(bool) & unassigned] = color
 
-            cv2.imencode(".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))[1].tofile(output_file)
+            cv2.imencode(".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))[
+                1
+            ].tofile(output_file)
 
     def custom_to_mot(self, input_path, save_path):
         mot_structure = {

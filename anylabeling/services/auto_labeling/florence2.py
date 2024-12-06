@@ -1,4 +1,5 @@
 import warnings
+
 warnings.filterwarnings("ignore")
 
 import gc
@@ -23,25 +24,26 @@ try:
 except ImportError:
     FLORENCE2_AVAILABLE = False
 
+
 class Florence2(Model):
     """Visual-Language model using Florence2"""
 
     # Task mapping from user-friendly names to model tokens
     TASK_MAPPING = {
-        'caption': '<CAPTION>',
-        'detailed_cap': '<DETAILED_CAPTION>',
-        'more_detailed_cap': '<MORE_DETAILED_CAPTION>',
-        'od': '<OD>',
-        'region_proposal': '<REGION_PROPOSAL>',
-        'dense_region_cap': '<DENSE_REGION_CAPTION>',
-        'cap_to_pg': '<CAPTION_TO_PHRASE_GROUNDING>',
-        'refer_exp_seg': '<REFERRING_EXPRESSION_SEGMENTATION>',
-        'region_to_seg': '<REGION_TO_SEGMENTATION>',
-        'ovd': '<OPEN_VOCABULARY_DETECTION>',
-        'region_to_cat': '<REGION_TO_CATEGORY>',
-        'region_to_desc': '<REGION_TO_DESCRIPTION>',
-        'ocr': '<OCR>',
-        'ocr_with_region': '<OCR_WITH_REGION>'
+        "caption": "<CAPTION>",
+        "detailed_cap": "<DETAILED_CAPTION>",
+        "more_detailed_cap": "<MORE_DETAILED_CAPTION>",
+        "od": "<OD>",
+        "region_proposal": "<REGION_PROPOSAL>",
+        "dense_region_cap": "<DENSE_REGION_CAPTION>",
+        "cap_to_pg": "<CAPTION_TO_PHRASE_GROUNDING>",
+        "refer_exp_seg": "<REFERRING_EXPRESSION_SEGMENTATION>",
+        "region_to_seg": "<REGION_TO_SEGMENTATION>",
+        "ovd": "<OPEN_VOCABULARY_DETECTION>",
+        "region_to_cat": "<REGION_TO_CATEGORY>",
+        "region_to_desc": "<REGION_TO_DESCRIPTION>",
+        "ocr": "<OCR>",
+        "ocr_with_region": "<OCR_WITH_REGION>",
     }
 
     class Meta:
@@ -68,7 +70,9 @@ class Florence2(Model):
         trust_remote_code = self.config.get("trust_remote_code", True)
 
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        torch_dtype = (
+            torch.float16 if torch.cuda.is_available() else torch.float32
+        )
 
         self.marks = []
         self.prompt_type = "caption"
@@ -108,16 +112,20 @@ class Florence2(Model):
         prompt = task_token
 
         # Only the last mark is used for bbox prompt
-        if task_token in [
-            "<REGION_TO_SEGMENTATION>",
-            "<REGION_TO_CATEGORY>",
-            "<REGION_TO_DESCRIPTION>",
-        ] and len(self.marks) > 0:
+        if (
+            task_token
+            in [
+                "<REGION_TO_SEGMENTATION>",
+                "<REGION_TO_CATEGORY>",
+                "<REGION_TO_DESCRIPTION>",
+            ]
+            and len(self.marks) > 0
+        ):
             # Normalize coordinates from pixel space to [0,999] range
             w, h = orig_img.size
             bbox = self.marks[-1]["data"]
             bbox_prompt = [
-                int(bbox[0] * 999 / w),  # x1 
+                int(bbox[0] * 999 / w),  # x1
                 int(bbox[1] * 999 / h),  # y1
                 int(bbox[2] * 999 / w),  # x2
                 int(bbox[3] * 999 / h),  # y2
@@ -130,27 +138,32 @@ class Florence2(Model):
             )
             prompt += bbox_prompt
 
-        if task_token in [
-            "<CAPTION_TO_PHRASE_GROUNDING>",
-            "<REFERRING_EXPRESSION_SEGMENTATION>",
-            "<OPEN_VOCABULARY_DETECTION>",
-        ] and text_prompt:
+        if (
+            task_token
+            in [
+                "<CAPTION_TO_PHRASE_GROUNDING>",
+                "<REFERRING_EXPRESSION_SEGMENTATION>",
+                "<OPEN_VOCABULARY_DETECTION>",
+            ]
+            and text_prompt
+        ):
             prompt += text_prompt
 
         logger.debug(f"Prompt: {prompt}")
 
         # Process inputs through processor
         inputs = self.processor(
-            text=prompt,
-            images=orig_img,
-            return_tensors="pt"
+            text=prompt, images=orig_img, return_tensors="pt"
         )
 
         # Move inputs to device and match model dtype
         model_dtype = next(self.model.parameters()).dtype
-        inputs = {k: v.to(device=self.device, dtype=model_dtype) 
-                  if torch.is_floating_point(v) else v.to(self.device) 
-                  for k, v in inputs.items()}
+        inputs = {
+            k: v.to(device=self.device, dtype=model_dtype)
+            if torch.is_floating_point(v)
+            else v.to(self.device)
+            for k, v in inputs.items()
+        }
 
         return inputs
 
@@ -175,9 +188,7 @@ class Florence2(Model):
     def postprocess(self, outputs, orig_img, task_token):
         """Postprocess model outputs."""
         outputs = self.processor.post_process_generation(
-            outputs,
-            task=task_token,
-            image_size=orig_img.size
+            outputs, task=task_token, image_size=orig_img.size
         )
 
         return outputs
@@ -200,12 +211,18 @@ class Florence2(Model):
         # Convert friendly task name to token
         task_token = self.TASK_MAPPING[self.prompt_type]
 
-        if task_token in [
-            "<CAPTION_TO_PHRASE_GROUNDING>",
-            "<REFERRING_EXPRESSION_SEGMENTATION>",
-            "<OVD>",
-        ] and not text_prompt:
-            logger.warning(f"Could not inference model without text prompt for {task_token}")
+        if (
+            task_token
+            in [
+                "<CAPTION_TO_PHRASE_GROUNDING>",
+                "<REFERRING_EXPRESSION_SEGMENTATION>",
+                "<OVD>",
+            ]
+            and not text_prompt
+        ):
+            logger.warning(
+                f"Could not inference model without text prompt for {task_token}"
+            )
             return []
 
         orig_img = Image.fromarray(image).convert("RGB")
@@ -216,21 +233,30 @@ class Florence2(Model):
 
         logger.debug(f"Results: {results}")
 
-        if task_token in [
-            "<CAPTION>",
-            "<DETAILED_CAPTION>",
-            "<MORE_DETAILED_CAPTION>",
-            "<OCR>",
-        ] and task_token in results:
+        if (
+            task_token
+            in [
+                "<CAPTION>",
+                "<DETAILED_CAPTION>",
+                "<MORE_DETAILED_CAPTION>",
+                "<OCR>",
+            ]
+            and task_token in results
+        ):
             description = results[task_token]
-            result = AutoLabelingResult([], replace=self.replace, description=description)
-        elif task_token in [
-            "<OD>",
-            "<REGION_PROPOSAL>", 
-            "<DENSE_REGION_CAPTION>",
-            "<CAPTION_TO_PHRASE_GROUNDING>",
-        ] and task_token in results:
-
+            result = AutoLabelingResult(
+                [], replace=self.replace, description=description
+            )
+        elif (
+            task_token
+            in [
+                "<OD>",
+                "<REGION_PROPOSAL>",
+                "<DENSE_REGION_CAPTION>",
+                "<CAPTION_TO_PHRASE_GROUNDING>",
+            ]
+            and task_token in results
+        ):
             shapes = []
 
             # Handle bounding boxes
@@ -258,15 +284,19 @@ class Florence2(Model):
                     shape_type="polygon",
                 )
                 for i in range(0, len(points), 2):
-                    shape.add_point(QtCore.QPointF(points[i], points[i+1]))
+                    shape.add_point(QtCore.QPointF(points[i], points[i + 1]))
                 shape.closed = True
                 shapes.append(shape)
 
             result = AutoLabelingResult(shapes, replace=self.replace)
-        elif task_token in [
-            "<OCR_WITH_REGION>",
-            "<REFERRING_EXPRESSION_SEGMENTATION>",
-        ] and task_token in results:
+        elif (
+            task_token
+            in [
+                "<OCR_WITH_REGION>",
+                "<REFERRING_EXPRESSION_SEGMENTATION>",
+            ]
+            and task_token in results
+        ):
             shapes = []
             if task_token == "<OCR_WITH_REGION>":
                 points_list = results[task_token].get("quad_boxes", [])
@@ -283,7 +313,9 @@ class Florence2(Model):
                 labels = [text_prompt for _ in range(len(points_list))]
                 descriptions = [None for _ in labels]
 
-            for points_data, label, description in zip(points_list, labels, descriptions):
+            for points_data, label, description in zip(
+                points_list, labels, descriptions
+            ):
                 shape = Shape(
                     label=label,
                     shape_type="polygon",
@@ -291,13 +323,17 @@ class Florence2(Model):
                 )
                 if task_token == "<OCR_WITH_REGION>":
                     points_len = len(points_data)
-                    points = [(points_data[i], points_data[i+1])
-                             for i in range(0, points_len, 2)]
+                    points = [
+                        (points_data[i], points_data[i + 1])
+                        for i in range(0, points_len, 2)
+                    ]
                 else:
                     # Handle nested polygon points array
                     points_data = points_data[0] if points_data else []
-                    points = [(points_data[i], points_data[i+1])
-                             for i in range(0, len(points_data), 2)]
+                    points = [
+                        (points_data[i], points_data[i + 1])
+                        for i in range(0, len(points_data), 2)
+                    ]
 
                 for x, y in points:
                     shape.add_point(QtCore.QPointF(x, y))
@@ -305,10 +341,14 @@ class Florence2(Model):
                 shape.closed = True
                 shapes.append(shape)
             result = AutoLabelingResult(shapes, replace=self.replace)
-        elif task_token in [
-            "<REGION_TO_CATEGORY>",
-            "<REGION_TO_DESCRIPTION>",
-        ] and task_token in results:
+        elif (
+            task_token
+            in [
+                "<REGION_TO_CATEGORY>",
+                "<REGION_TO_DESCRIPTION>",
+            ]
+            and task_token in results
+        ):
             shapes = []
             result_str = results[task_token]
 
@@ -325,15 +365,21 @@ class Florence2(Model):
                 label=AutoLabelingMode.OBJECT,
                 shape_type="rectangle",
             )
-            shape.cache_label = label if task_token == "<REGION_TO_CATEGORY>" else "N/A"
-            shape.cache_description = label if task_token == "<REGION_TO_DESCRIPTION>" else None
+            shape.cache_label = (
+                label if task_token == "<REGION_TO_CATEGORY>" else "N/A"
+            )
+            shape.cache_description = (
+                label if task_token == "<REGION_TO_DESCRIPTION>" else None
+            )
             shape.add_point(QtCore.QPointF(coords[0], coords[1]))
             shape.add_point(QtCore.QPointF(coords[2], coords[1]))
             shape.add_point(QtCore.QPointF(coords[2], coords[3]))
             shape.add_point(QtCore.QPointF(coords[0], coords[3]))
             shapes.append(shape)
             result = AutoLabelingResult(shapes, replace=self.replace)
-        elif task_token == "<REGION_TO_SEGMENTATION>" and task_token in results:
+        elif (
+            task_token == "<REGION_TO_SEGMENTATION>" and task_token in results
+        ):
             polygons = results[task_token].get("polygons", [[]])[0]
             shapes = []
             for polygon in polygons:
@@ -342,16 +388,20 @@ class Florence2(Model):
                     shape_type="polygon",
                 )
                 # [x1, y1, x2, y2, ...]
-                points = [(polygon[i], polygon[i+1]) 
-                         for i in range(0, len(polygon), 2)]
+                points = [
+                    (polygon[i], polygon[i + 1])
+                    for i in range(0, len(polygon), 2)
+                ]
                 for x, y in points:
                     shape.add_point(QtCore.QPointF(x, y))
                 shape.add_point(QtCore.QPointF(points[0][0], points[0][1]))
                 shape.closed = True
                 shapes.append(shape)
             result = AutoLabelingResult(shapes, replace=self.replace)
-        elif task_token == "<OPEN_VOCABULARY_DETECTION>" and task_token in results:
-
+        elif (
+            task_token == "<OPEN_VOCABULARY_DETECTION>"
+            and task_token in results
+        ):
             shapes = []
 
             bboxes = results[task_token].get("bboxes", [])
@@ -377,7 +427,7 @@ class Florence2(Model):
                 )
                 points = polygon[0] if polygon else []
                 for i in range(0, len(points), 2):
-                    shape.add_point(QtCore.QPointF(points[i], points[i+1]))
+                    shape.add_point(QtCore.QPointF(points[i], points[i + 1]))
                 shape.add_point(QtCore.QPointF(points[0][0], points[0][1]))
                 shape.closed = True
                 shapes.append(shape)

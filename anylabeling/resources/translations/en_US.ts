@@ -4,18 +4,98 @@
 <context>
     <name>AutoLabelingWidget</name>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="140"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="189"/>
         <source>No Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="141"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="190"/>
         <source>...Load Custom Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="145"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="194"/>
         <source>(User) </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="154"/>
+        <source>Coarse Grained</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="155"/>
+        <source>Fine Grained</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="166"/>
+        <source>Caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="167"/>
+        <source>Detailed Caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="168"/>
+        <source>More Detailed Caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="169"/>
+        <source>Object Detection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="170"/>
+        <source>Region Proposal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="171"/>
+        <source>Dense Region Caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="172"/>
+        <source>Refer-Exp Segmentation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="173"/>
+        <source>Region to Segmentation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="174"/>
+        <source>OVD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="175"/>
+        <source>Caption to Parse Grounding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="176"/>
+        <source>Region to Category</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="177"/>
+        <source>Region to Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="178"/>
+        <source>OCR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="179"/>
+        <source>OCR with Region</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -194,17 +274,17 @@
 <context>
     <name>GroupIDModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="39"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="50"/>
         <source>Group ID Change Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="64"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="118"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="67"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="138"/>
         <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
@@ -212,52 +292,52 @@
 <context>
     <name>LabelDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="613"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="712"/>
         <source>Enter object label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="629"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="728"/>
         <source>Group ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="638"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="737"/>
         <source>useDifficult</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="643"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="742"/>
         <source>Enter linking, e.g., [0,1]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="657"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="756"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="688"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="787"/>
         <source>Label description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="756"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="855"/>
         <source>Duplicate Entry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="756"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="855"/>
         <source>This linking pair already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="770"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="869"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="770"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="869"/>
         <source>Please enter a valid list of linking pairs like [1,2].</source>
         <translation type="unfinished"></translation>
     </message>
@@ -265,17 +345,17 @@
 <context>
     <name>LabelModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="241"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="340"/>
         <source>Label Change Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="541"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="640"/>
         <source>Invalid Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="541"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="640"/>
         <source>Please enter a valid range.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -763,12 +843,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6336"/>
+        <location filename="../../views/labeling/label_widget.py" line="6338"/>
         <source>Invalid label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6336"/>
+        <location filename="../../views/labeling/label_widget.py" line="6338"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1114,17 +1194,17 @@ Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6409"/>
+        <location filename="../../views/labeling/label_widget.py" line="6411"/>
         <source>Object Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6418"/>
+        <location filename="../../views/labeling/label_widget.py" line="6420"/>
         <source>Image Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6429"/>
+        <location filename="../../views/labeling/label_widget.py" line="6431"/>
         <source>Switch to Edit mode for description editing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2095,68 +2175,73 @@ Cancel - Abort export</source>
 <context>
     <name>ModelManager</name>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="189"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="193"/>
         <source>Model loaded. Ready for labeling.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="320"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="324"/>
         <source>No model selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="340"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="344"/>
         <source>Loading model: {model_name}. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2115"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2197"/>
         <source>Model is not loaded. Choose a mode to continue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2095"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2177"/>
         <source>Finished inferencing AI model. Check the result.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2119"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2201"/>
         <source>Inferencing AI model. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2129"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2211"/>
         <source>Another model is being executed. Please wait for it to finish.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="218"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="222"/>
         <source>Error in loading custom model: Invalid path.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="233"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="237"/>
         <source>Error in loading custom model: Invalid config file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="263"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="267"/>
         <source>Error in loading custom model: Invalid config file format.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="334"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="338"/>
         <source>Error in loading model: Invalid model name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1851"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1901"/>
         <source>Error in loading model: {error_message}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2100"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2182"/>
         <source>Error in model prediction: {e}. Please check the model.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1933"/>
+        <source>Error in loading model: {str(e)}</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2234,22 +2319,22 @@ and
 <context>
     <name>TextInputDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="555"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="654"/>
         <source>Text Input Dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="559"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="658"/>
         <source>Enter the text prompt below:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="562"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="661"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="563"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="662"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2265,108 +2350,188 @@ and
 <context>
     <name>auto_labeling_form</name>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="141"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="165"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="142"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="166"/>
         <source>Auto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="143"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="167"/>
         <source>No Model</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="144"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="168"/>
         <source>Output</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="145"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="169"/>
         <source>polygon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="146"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="170"/>
         <source>rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="148"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="188"/>
         <source>Run (i)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="154"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="194"/>
         <source>Point (q)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="155"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="195"/>
         <source>Point (e)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="156"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="196"/>
         <source>+Rect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="158"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="198"/>
         <source>Finish Object (f)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="161"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="201"/>
         <source>Ready!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="147"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="171"/>
         <source>rotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="157"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="197"/>
         <source>Clear (b)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="149"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="189"/>
         <source>Enter text prompt here, e.g., person.car.bicycle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="150"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="190"/>
         <source>Send</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="151"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="191"/>
         <source>Box threshold</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="152"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="192"/>
         <source>Confidence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="153"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="193"/>
         <source>IoU</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="159"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="199"/>
         <source>Preserve existing annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="160"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="200"/>
         <source>Reset Tracker</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="172"/>
+        <source>coarse_grained_prompt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="173"/>
+        <source>fine_grained_prompt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="174"/>
+        <source>caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="175"/>
+        <source>detailed_cap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="176"/>
+        <source>more_detailed_cap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="177"/>
+        <source>od</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="178"/>
+        <source>region_proposal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="179"/>
+        <source>dense_region_cap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="180"/>
+        <source>cap_to_pg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="181"/>
+        <source>refer_exp_seg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="182"/>
+        <source>region_to_seg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="183"/>
+        <source>ovd</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="184"/>
+        <source>region_to_cat</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="185"/>
+        <source>region_to_desc</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="186"/>
+        <source>ocr</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="187"/>
+        <source>ocr_with_region</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

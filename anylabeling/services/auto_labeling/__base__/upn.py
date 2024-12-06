@@ -13,7 +13,9 @@ from chatrex.upn.models.module import nested_tensor_from_tensor_list
 
 
 def build_model(ckpt_path: str):
-    config_path = "anylabeling/services/auto_labeling/configs/chatrex/upn_large.py"
+    config_path = (
+        "anylabeling/services/auto_labeling/configs/chatrex/upn_large.py"
+    )
     model_cfg = Config.fromfile(config_path).model
     model = build_architecture(model_cfg)
     checkpoint = torch.load(ckpt_path, map_location="cpu")
@@ -137,7 +139,9 @@ class UPNWrapper:
     ):
         boxes = outputs["pred_boxes"].cpu()
         scores = (
-            outputs["pred_logits"].sigmoid().cpu() if "pred_logits" in outputs else None
+            outputs["pred_logits"].sigmoid().cpu()
+            if "pred_logits" in outputs
+            else None
         )
         normalized_xyxy_boxes = []
         original_xyxy_boxes = []
@@ -169,7 +173,9 @@ class UPNWrapper:
             scores_i = scores[i] if scores is not None else None
             # sort in descending order
             sorted_indices = scores_i.squeeze(-1).argsort(descending=True)
-            sorted_original_boxes.append(original_xyxy_boxes[i][sorted_indices])
+            sorted_original_boxes.append(
+                original_xyxy_boxes[i][sorted_indices]
+            )
             sorted_scores.append(scores_i[sorted_indices])
 
         original_xyxy_boxes = np.stack(sorted_original_boxes)
@@ -228,7 +234,9 @@ class UPNWrapper:
             filtered_scores = [round(score, 2) for score in filtered_scores]
 
             # Store the filtered boxes and scores in the result dictionary
-            filtered_result["original_xyxy_boxes"].append(filtered_boxes.tolist())
+            filtered_result["original_xyxy_boxes"].append(
+                filtered_boxes.tolist()
+            )
             filtered_result["scores"].append(filtered_scores)
 
         return filtered_result

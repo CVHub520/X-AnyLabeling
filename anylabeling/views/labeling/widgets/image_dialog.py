@@ -27,7 +27,8 @@ class ConfigurationDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Cropped Image Settings"))
         self.setModal(True)
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QDialog {
                 background-color: #ffffff;
                 border-radius: 10px;
@@ -89,7 +90,8 @@ class ConfigurationDialog(QDialog):
             QPushButton#cancel {
                 background-color: #868e96;
             }
-        """)
+        """
+        )
 
         # Save directory setting
         self.save_dir = default_dir
@@ -104,18 +106,18 @@ class ConfigurationDialog(QDialog):
         self.min_width_spin = QSpinBox()
         self.min_width_spin.setRange(0, 9999)
         self.min_width_spin.setValue(0)
-        
+
         self.min_height_label = QLabel(self.tr("Minimum Height:"))
         self.min_height_spin = QSpinBox()
         self.min_height_spin.setRange(0, 9999)
         self.min_height_spin.setValue(0)
-        
+
         # Max size settings
         self.max_width_label = QLabel(self.tr("Maximum Width:"))
         self.max_width_spin = QSpinBox()
         self.max_width_spin.setRange(1, 9999)
         self.max_width_spin.setValue(9999)
-        
+
         self.max_height_label = QLabel(self.tr("Maximum Height:"))
         self.max_height_spin = QSpinBox()
         self.max_height_spin.setRange(1, 9999)
@@ -145,16 +147,16 @@ class ConfigurationDialog(QDialog):
 
         # Size limits section
         size_group = QVBoxLayout()
-        
+
         # Minimum size layout
         min_size_layout = QHBoxLayout()
         min_width_group = QVBoxLayout()
         min_width_group.addWidget(self.min_width_label)
         min_width_group.addWidget(self.min_width_spin)
         min_size_layout.addLayout(min_width_group)
-        
+
         min_size_layout.addSpacing(20)  # Add spacing between width and height
-        
+
         min_height_group = QVBoxLayout()
         min_height_group.addWidget(self.min_height_label)
         min_height_group.addWidget(self.min_height_spin)
@@ -168,16 +170,16 @@ class ConfigurationDialog(QDialog):
         max_width_group.addWidget(self.max_width_label)
         max_width_group.addWidget(self.max_width_spin)
         max_size_layout.addLayout(max_width_group)
-        
+
         max_size_layout.addSpacing(20)  # Add spacing between width and height
-        
+
         max_height_group = QVBoxLayout()
         max_height_group.addWidget(self.max_height_label)
         max_height_group.addWidget(self.max_height_spin)
         max_size_layout.addLayout(max_height_group)
         max_size_layout.addStretch()
         size_group.addLayout(max_size_layout)
-        
+
         layout.addLayout(size_group)
 
         # Buttons section
@@ -202,14 +204,16 @@ class ConfigurationDialog(QDialog):
         return (
             self.dir_line_edit.text(),
             (self.min_width_spin.value(), self.min_height_spin.value()),
-            (self.max_width_spin.value(), self.max_height_spin.value())
+            (self.max_width_spin.value(), self.max_height_spin.value()),
         )
 
 
 class ImageCropperDialog:
     """A class to crop labeled regions from images based on shape labels and save them to a specified directory."""
 
-    def __init__(self, filename, image_list=None, output_dir=None, parent=None):
+    def __init__(
+        self, filename, image_list=None, output_dir=None, parent=None
+    ):
         """Initializes the ImageCropper class with the main image file and options."""
         self.filename = filename
         self.image_list = image_list or []
@@ -222,7 +226,9 @@ class ImageCropperDialog:
 
     def configure_settings(self):
         """Opens a unified dialog to set the save directory and crop size limits."""
-        default_save_dir = osp.realpath(osp.join(osp.dirname(self.filename), "..", "x-anylabeling-crops"))
+        default_save_dir = osp.realpath(
+            osp.join(osp.dirname(self.filename), "..", "x-anylabeling-crops")
+        )
         config_dialog = ConfigurationDialog(default_save_dir)
         if config_dialog.exec_() == QDialog.Accepted:
             self.save_dir, min_size, max_size = config_dialog.get_values()
@@ -240,9 +246,11 @@ class ImageCropperDialog:
                 return
 
         # Initialize processing paths and file lists
-        image_file_list = [self.filename] if not self.image_list else self.image_list
+        image_file_list = (
+            [self.filename] if not self.image_list else self.image_list
+        )
         label_dir_path = self.output_dir or osp.dirname(self.filename)
-        
+
         # Prepare save directory
         save_path = self.save_dir
         if osp.exists(save_path):
@@ -251,25 +259,38 @@ class ImageCropperDialog:
 
         # Initialize progress dialog
         progress_dialog = QProgressDialog(
-            self.parent.tr("Processing..."), self.parent.tr("Cancel"), 0, len(image_file_list)
+            self.parent.tr("Processing..."),
+            self.parent.tr("Cancel"),
+            0,
+            len(image_file_list),
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.parent.tr("Progress"))
         progress_dialog.setStyleSheet(self._progress_dialog_stylesheet())
 
         # Perform cropping operation on images
-        self._save_cropped_images(image_file_list, label_dir_path, save_path, progress_dialog)
+        self._save_cropped_images(
+            image_file_list, label_dir_path, save_path, progress_dialog
+        )
 
-    def _save_cropped_images(self, image_file_list, label_dir_path, save_path, progress_dialog):
+    def _save_cropped_images(
+        self, image_file_list, label_dir_path, save_path, progress_dialog
+    ):
         """Saves cropped images from labeled shapes in the images."""
         label_to_count = {}
-        (min_width, min_height), (max_width, max_height) = self.size_limits if self.size_limits else ((None, None), (None, None))
+        (min_width, min_height), (max_width, max_height) = (
+            self.size_limits
+            if self.size_limits
+            else ((None, None), (None, None))
+        )
 
         try:
             for i, image_file in enumerate(image_file_list):
                 image_name = osp.basename(image_file)
-                label_file = osp.join(label_dir_path, osp.splitext(image_name)[0] + ".json")
-                
+                label_file = osp.join(
+                    label_dir_path, osp.splitext(image_name)[0] + ".json"
+                )
+
                 if not osp.exists(label_file):
                     continue
 
@@ -283,7 +304,10 @@ class ImageCropperDialog:
                     points = np.array(shape.get("points", [])).astype(np.int32)
                     shape_type = shape.get("shape_type", "")
 
-                    if shape_type not in ["rectangle", "polygon", "rotation"] or len(points) < 3:
+                    if (
+                        shape_type not in ["rectangle", "polygon", "rotation"]
+                        or len(points) < 3
+                    ):
                         continue
 
                     # Calculate and validate bounding rectangle
@@ -298,7 +322,14 @@ class ImageCropperDialog:
                         continue
 
                     # Crop and save image
-                    self._crop_and_save(image_file, label, points, save_path, label_to_count, shape_type)
+                    self._crop_and_save(
+                        image_file,
+                        label,
+                        points,
+                        save_path,
+                        label_to_count,
+                        shape_type,
+                    )
 
                 # Update the progress dialog
                 progress_dialog.setValue(i + 1)
@@ -312,7 +343,9 @@ class ImageCropperDialog:
             progress_dialog.close()
             self._show_error_message(str(e))
 
-    def _crop_and_save(self, image_file, label, points, save_path, label_to_count, shape_type):
+    def _crop_and_save(
+        self, image_file, label, points, save_path, label_to_count, shape_type
+    ):
         """Crops the image to the specified region and saves it."""
         x, y, w, h = cv2.boundingRect(points)
         xmin, ymin, xmax, ymax = x, y, x + w, y + h
@@ -325,9 +358,11 @@ class ImageCropperDialog:
         crop_image = image[ymin:ymax, xmin:xmax]
         dst_path = osp.join(save_path, label)
         os.makedirs(dst_path, exist_ok=True)
-        
+
         label_to_count[label] = label_to_count.get(label, 0) + 1
-        dst_file = osp.join(dst_path, f"{label_to_count[label]}-{shape_type}.jpg")
+        dst_file = osp.join(
+            dst_path, f"{label_to_count[label]}-{shape_type}.jpg"
+        )
         cv2.imwrite(dst_file, crop_image)
 
     def _show_completion_message(self, save_path):
@@ -344,7 +379,9 @@ class ImageCropperDialog:
         """Displays an error message if the cropping operation fails."""
         error_dialog = QMessageBox()
         error_dialog.setIcon(QMessageBox.Critical)
-        error_dialog.setText(self.parent.tr("Error occurred while saving cropped image."))
+        error_dialog.setText(
+            self.parent.tr("Error occurred while saving cropped image.")
+        )
         error_dialog.setInformativeText(error_message)
         error_dialog.setWindowTitle(self.parent.tr("Error"))
         error_dialog.exec_()

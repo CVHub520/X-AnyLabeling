@@ -1,4 +1,5 @@
 import warnings
+
 warnings.filterwarnings("ignore")
 
 import os
@@ -66,10 +67,12 @@ class UPN(Model):
         """Check if the prompt type is valid"""
         valid_prompt_types = ["fine_grained_prompt", "coarse_grained_prompt"]
         if self.prompt_type not in valid_prompt_types:
-            logger.warning(f"""
+            logger.warning(
+                f"""
                             ⚠️ Invalid prompt type: {self.prompt_type}. 
                             Please use one of the following: {valid_prompt_types}.
-                            """)
+                            """
+            )
 
     def set_upn_mode(self, mode):
         """Set UPN mode"""
@@ -99,8 +102,12 @@ class UPN(Model):
             logger.warning(e)
             return []
 
-        proposals = self.net.inference(Image.fromarray(image), self.prompt_type)
-        results = self.net.filter(proposals, min_score=self.conf_thres, nms_value=self.nms_thres)
+        proposals = self.net.inference(
+            Image.fromarray(image), self.prompt_type
+        )
+        results = self.net.filter(
+            proposals, min_score=self.conf_thres, nms_value=self.nms_thres
+        )
         if not results["original_xyxy_boxes"] or not results["scores"]:
             return AutoLabelingResult([], replace=True)
 

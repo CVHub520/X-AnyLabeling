@@ -304,14 +304,18 @@ class AutoLabelingWidget(QWidget):
 
     def update_upn_mode_ui(self):
         """Update UPN mode combobox to reflect current backend state"""
-        current_mode = self.model_manager.loaded_model_config["model"].prompt_type
+        current_mode = self.model_manager.loaded_model_config[
+            "model"
+        ].prompt_type
         index = self.upn_select_combobox.findData(current_mode)
         if index != -1:
             self.upn_select_combobox.setCurrentIndex(index)
 
     def update_florence2_mode_ui(self):
         """Update Florence2 mode combobox to reflect current backend state"""
-        current_mode = self.model_manager.loaded_model_config["model"].prompt_type
+        current_mode = self.model_manager.loaded_model_config[
+            "model"
+        ].prompt_type
         index = self.florence2_select_combobox.findData(current_mode)
         if index != -1:
             self.florence2_select_combobox.setCurrentIndex(index)
@@ -453,8 +457,11 @@ class AutoLabelingWidget(QWidget):
     def update_florence2_widgets(self, mode):
         """Update widget visibility based on Florence2 mode"""
         # Check if Florence2 model is loaded
-        if not self.model_manager.loaded_model_config or \
-        self.model_manager.loaded_model_config.get("type") != "florence2":
+        if (
+            not self.model_manager.loaded_model_config
+            or self.model_manager.loaded_model_config.get("type")
+            != "florence2"
+        ):
             return
 
         # Define which widgets are needed for each mode
@@ -468,12 +475,22 @@ class AutoLabelingWidget(QWidget):
             "od": ["button_run"],
             "region_proposal": ["button_run"],
             "dense_region_cap": ["button_run"],
-
             # Region-based modes need rectangle tools
-            "region_to_cat": ["button_add_rect", "button_clear", "button_finish_object"],
-            "region_to_desc": ["button_add_rect", "button_clear", "button_finish_object"],
-            "region_to_seg": ["button_add_rect", "button_clear", "button_finish_object"],
-
+            "region_to_cat": [
+                "button_add_rect",
+                "button_clear",
+                "button_finish_object",
+            ],
+            "region_to_desc": [
+                "button_add_rect",
+                "button_clear",
+                "button_finish_object",
+            ],
+            "region_to_seg": [
+                "button_add_rect",
+                "button_clear",
+                "button_finish_object",
+            ],
             # Other modes
             "refer_exp_seg": ["edit_text", "button_send"],
             "cap_to_pg": ["edit_text", "button_send"],
@@ -487,7 +504,6 @@ class AutoLabelingWidget(QWidget):
             "region_to_desc": True,
             "region_to_seg": True,
             "refer_exp_seg": True,
-
             # Modes that should replace existing annotations (replace=True)
             "caption": False,
             "detailed_cap": False,
@@ -503,10 +519,10 @@ class AutoLabelingWidget(QWidget):
 
         # Hide all widgets first
         widgets_to_manage = [
-            "edit_text", 
+            "edit_text",
             "button_run",
             "button_send",
-            "button_add_rect", 
+            "button_add_rect",
             "button_clear",
             "button_finish_object",
         ]
@@ -529,10 +545,14 @@ class AutoLabelingWidget(QWidget):
                 # Temporarily disconnect the signal to avoid triggering the callback
                 self.toggle_preserve_existing_annotations.stateChanged.disconnect()
                 # Set the state
-                self.toggle_preserve_existing_annotations.setChecked(preserve_annotations_modes[mode])
+                self.toggle_preserve_existing_annotations.setChecked(
+                    preserve_annotations_modes[mode]
+                )
                 # Reconnect the signal
                 self.toggle_preserve_existing_annotations.stateChanged.connect(
                     self.on_preserve_existing_annotations_state_changed
                 )
                 # Manually trigger the state change to update the model
-                self.on_preserve_existing_annotations_state_changed(preserve_annotations_modes[mode])
+                self.on_preserve_existing_annotations_state_changed(
+                    preserve_annotations_modes[mode]
+                )

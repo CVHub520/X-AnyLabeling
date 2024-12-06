@@ -2026,7 +2026,9 @@ class LabelingWidget(LabelDialog):
             OverviewDialog(parent=self)
 
     def save_crop(self):
-        ImageCropperDialog(self.filename, self.image_list, self.output_dir, parent=self)
+        ImageCropperDialog(
+            self.filename, self.image_list, self.output_dir, parent=self
+        )
 
     def save_mask(self):
         if not self.filename or not self.image_list:
@@ -4727,14 +4729,16 @@ class LabelingWidget(LabelDialog):
         path_label = QtWidgets.QLabel(self.tr("Export Path:"))
         path_edit = QtWidgets.QLineEdit()
         path_button = QtWidgets.QPushButton(self.tr("Browse"))
-        
+
         # Set default path
         label_dir_path = osp.dirname(self.filename)
         if self.output_dir:
             label_dir_path = self.output_dir
-        default_save_path = osp.realpath(osp.join(label_dir_path, "..", "labels"))
+        default_save_path = osp.realpath(
+            osp.join(label_dir_path, "..", "labels")
+        )
         path_edit.setText(default_save_path)
-        
+
         def browse_export_path():
             path = QtWidgets.QFileDialog.getExistingDirectory(
                 self,
@@ -4743,7 +4747,7 @@ class LabelingWidget(LabelDialog):
             )
             if path:
                 path_edit.setText(path)
-        
+
         path_button.clicked.connect(browse_export_path)
         path_layout.addWidget(path_label)
         path_layout.addWidget(path_edit)
@@ -4755,7 +4759,9 @@ class LabelingWidget(LabelDialog):
         save_images_checkbox.setChecked(False)
         layout.addWidget(save_images_checkbox)
 
-        skip_empty_files_checkbox = QtWidgets.QCheckBox(self.tr("Skip empty labels?"))
+        skip_empty_files_checkbox = QtWidgets.QCheckBox(
+            self.tr("Skip empty labels?")
+        )
         skip_empty_files_checkbox.setChecked(False)
         layout.addWidget(skip_empty_files_checkbox)
 
@@ -4765,7 +4771,7 @@ class LabelingWidget(LabelDialog):
 
         dialog.setLayout(layout)
         result = dialog.exec_()
-        
+
         if not result:
             return
 
@@ -4784,7 +4790,9 @@ class LabelingWidget(LabelDialog):
                     "No - Delete existing directory\n"
                     "Cancel - Abort export"
                 ),
-                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel,
+                QtWidgets.QMessageBox.Yes
+                | QtWidgets.QMessageBox.No
+                | QtWidgets.QMessageBox.Cancel,
             )
 
             if response == QtWidgets.QMessageBox.Cancel:
@@ -4826,18 +4834,18 @@ class LabelingWidget(LabelDialog):
                 dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
                 src_file = osp.join(label_dir_path, label_file_name)
-                
+
                 is_empty_file = converter.custom_to_yolo(
                     src_file, dst_file, mode, skip_empty_files
                 )
-                
+
                 if save_images and not (skip_empty_files and is_empty_file):
                     image_dst = osp.join(save_path, image_file_name)
                     shutil.copy(image_file, image_dst)
-                    
+
                 if skip_empty_files and is_empty_file and osp.exists(dst_file):
                     os.remove(dst_file)
-                    
+
                 progress_dialog.setValue(i)
                 if progress_dialog.wasCanceled():
                     break
@@ -5054,7 +5062,9 @@ class LabelingWidget(LabelDialog):
         os.makedirs(save_path, exist_ok=True)
 
         try:
-            converter.custom_to_coco(image_list, label_dir_path, save_path, mode)
+            converter.custom_to_coco(
+                image_list, label_dir_path, save_path, mode
+            )
             QtWidgets.QMessageBox.information(
                 self,
                 self.tr("Success"),

@@ -4,19 +4,99 @@
 <context>
     <name>AutoLabelingWidget</name>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="140"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="189"/>
         <source>No Model</source>
         <translation>没有模型</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="141"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="190"/>
         <source>...Load Custom Model</source>
         <translation>...加载自定义模型</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="145"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="194"/>
         <source>(User) </source>
         <translation>(用户)</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="154"/>
+        <source>Coarse Grained</source>
+        <translation>粗粒度检测</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="155"/>
+        <source>Fine Grained</source>
+        <translation>细粒度检测</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="166"/>
+        <source>Caption</source>
+        <translation>Caption</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="167"/>
+        <source>Detailed Caption</source>
+        <translation>Detailed Caption</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="168"/>
+        <source>More Detailed Caption</source>
+        <translation>More Detailed Caption</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="169"/>
+        <source>Object Detection</source>
+        <translation>Object Detection</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="170"/>
+        <source>Region Proposal</source>
+        <translation>Region Proposal</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="171"/>
+        <source>Dense Region Caption</source>
+        <translation>Dense Region Caption</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="172"/>
+        <source>Refer-Exp Segmentation</source>
+        <translation>Refer-Exp Segmentation</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="173"/>
+        <source>Region to Segmentation</source>
+        <translation>Region to Segmentation</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="174"/>
+        <source>OVD</source>
+        <translation>OVD</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="175"/>
+        <source>Caption to Parse Grounding</source>
+        <translation>Caption to Parse Grounding</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="176"/>
+        <source>Region to Category</source>
+        <translation>Region to Category</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="177"/>
+        <source>Region to Description</source>
+        <translation>Region to Description</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="178"/>
+        <source>OCR</source>
+        <translation>OCR</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="179"/>
+        <source>OCR with Region</source>
+        <translation>OCR with Region</translation>
     </message>
 </context>
 <context>
@@ -219,17 +299,17 @@
 <context>
     <name>GroupIDModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="39"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="50"/>
         <source>Group ID Change Manager</source>
         <translation>群组编号管理器</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="64"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="118"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="67"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="138"/>
         <source>Confirm</source>
         <translation>确认</translation>
     </message>
@@ -237,52 +317,52 @@
 <context>
     <name>LabelDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="613"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="712"/>
         <source>Enter object label</source>
         <translation>输入对象标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="629"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="728"/>
         <source>Group ID</source>
         <translation>群组编号</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="638"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="737"/>
         <source>useDifficult</source>
         <translation>困难标志</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="643"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="742"/>
         <source>Enter linking, e.g., [0,1]</source>
         <translation>输入链接，如：[0,1]</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="657"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="756"/>
         <source>Add</source>
         <translation>新增</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="688"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="787"/>
         <source>Label description</source>
         <translation>标签描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="756"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="855"/>
         <source>Duplicate Entry</source>
         <translation>重复输入</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="756"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="855"/>
         <source>This linking pair already exists.</source>
         <translation>当前链接已存在。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="770"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="869"/>
         <source>Invalid Input</source>
         <translation>无效输入</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="770"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="869"/>
         <source>Please enter a valid list of linking pairs like [1,2].</source>
         <translation>请输入有效链接，如：[1,2]</translation>
     </message>
@@ -290,7 +370,7 @@
 <context>
     <name>LabelModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="241"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="340"/>
         <source>Label Change Manager</source>
         <translation>标签管理器</translation>
     </message>
@@ -305,12 +385,12 @@
         <translation type="obsolete">确认</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="541"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="640"/>
         <source>Invalid Range</source>
         <translation>无效范围</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="541"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="640"/>
         <source>Please enter a valid range.</source>
         <translation>请输入有效范围。</translation>
     </message>
@@ -865,12 +945,12 @@ Polygons</source>
         <translation type="obsolete">多边形：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6336"/>
+        <location filename="../../views/labeling/label_widget.py" line="6338"/>
         <source>Invalid label</source>
         <translation>无效标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6336"/>
+        <location filename="../../views/labeling/label_widget.py" line="6338"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation>无效标签'{}'，验证类型'{}'</translation>
     </message>
@@ -1361,17 +1441,17 @@ Reset the label as {}.</source>
         <translation>您将要上传新的标签到此任务。是否覆盖？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6409"/>
+        <location filename="../../views/labeling/label_widget.py" line="6411"/>
         <source>Object Description</source>
         <translation>对象文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6418"/>
+        <location filename="../../views/labeling/label_widget.py" line="6420"/>
         <source>Image Description</source>
         <translation>图像文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="6429"/>
+        <location filename="../../views/labeling/label_widget.py" line="6431"/>
         <source>Switch to Edit mode for description editing</source>
         <translation>切换到编辑模式以进行文本编辑</translation>
     </message>
@@ -2555,47 +2635,47 @@ Cancel - Abort export</source>
 <context>
     <name>ModelManager</name>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="189"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="193"/>
         <source>Model loaded. Ready for labeling.</source>
         <translation>模型已加载。准备好进行数据标注。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="218"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="222"/>
         <source>Error in loading custom model: Invalid path.</source>
         <translation>加载自定义模型时出错：无效路径。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="233"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="237"/>
         <source>Error in loading custom model: Invalid config file.</source>
         <translation>加载自定义模型时出错：无效的配置文件。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="263"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="267"/>
         <source>Error in loading custom model: Invalid config file format.</source>
         <translation>加载自定义模型时出错：无效的配置文件格式。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="320"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="324"/>
         <source>No model selected.</source>
         <translation>未选择模型。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="334"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="338"/>
         <source>Error in loading model: Invalid model name.</source>
         <translation>加载模型时出错：无效的模型名称。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="340"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="344"/>
         <source>Loading model: {model_name}. Please wait...</source>
         <translation>加载模型 {model_name} 中，请稍等。。。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1851"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1901"/>
         <source>Error in loading model: {error_message}</source>
         <translation>加载模型时出错：{error_message}。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2115"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2197"/>
         <source>Model is not loaded. Choose a mode to continue.</source>
         <translation>模型尚未加载。选择一个模式以继续。</translation>
     </message>
@@ -2605,24 +2685,29 @@ Cancel - Abort export</source>
         <translation type="obsolete">模型预测出错。请检查模型。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2095"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2177"/>
         <source>Finished inferencing AI model. Check the result.</source>
         <translation>完成 AI 模型推理，请检查结果。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2119"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2201"/>
         <source>Inferencing AI model. Please wait...</source>
         <translation>正在进行 AI 模型推理，请稍等...</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2129"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2211"/>
         <source>Another model is being executed. Please wait for it to finish.</source>
         <translation>另一个模型正在执行，请耐心等待。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2100"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2182"/>
         <source>Error in model prediction: {e}. Please check the model.</source>
         <translation>模型推理失败：{e}. 请检查模型。</translation>
+    </message>
+    <message>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1933"/>
+        <source>Error in loading model: {str(e)}</source>
+        <translation>加载模型时出错：{str(e)}。</translation>
     </message>
 </context>
 <context>
@@ -2702,22 +2787,22 @@ and
 <context>
     <name>TextInputDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="555"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="654"/>
         <source>Text Input Dialog</source>
         <translation>文本输入窗口</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="559"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="658"/>
         <source>Enter the text prompt below:</source>
         <translation>输入文本提示词：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="562"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="661"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="563"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="662"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
@@ -2733,52 +2818,52 @@ and
 <context>
     <name>auto_labeling_form</name>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="141"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="165"/>
         <source>Form</source>
         <translation>表格</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="142"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="166"/>
         <source>Auto</source>
         <translation>自动</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="143"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="167"/>
         <source>No Model</source>
         <translation>没有模型</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="144"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="168"/>
         <source>Output</source>
         <translation>输出</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="145"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="169"/>
         <source>polygon</source>
         <translation>多边形</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="146"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="170"/>
         <source>rectangle</source>
         <translation>矩形</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="148"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="188"/>
         <source>Run (i)</source>
         <translation>运行（i）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="154"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="194"/>
         <source>Point (q)</source>
         <translation>+点</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="155"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="195"/>
         <source>Point (e)</source>
         <translation>-点</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="156"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="196"/>
         <source>+Rect</source>
         <translation>+矩形</translation>
     </message>
@@ -2788,59 +2873,139 @@ and
         <translation type="obsolete">清除</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="158"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="198"/>
         <source>Finish Object (f)</source>
         <translation>完成对象（f）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="161"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="201"/>
         <source>Ready!</source>
         <translation>准备好了！</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="147"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="171"/>
         <source>rotation</source>
         <translation>旋转框</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="157"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="197"/>
         <source>Clear (b)</source>
         <translation>清除对象（b）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="149"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="189"/>
         <source>Enter text prompt here, e.g., person.car.bicycle</source>
         <translation>在此输入文本提示，例如：person.car.bicycle</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="150"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="190"/>
         <source>Send</source>
         <translation>发送</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="151"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="191"/>
         <source>Box threshold</source>
         <translation>边框阈值</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="152"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="192"/>
         <source>Confidence</source>
         <translation>置信度</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="153"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="193"/>
         <source>IoU</source>
         <translation>交并比</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="159"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="199"/>
         <source>Preserve existing annotations</source>
         <translation>保留现有标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="160"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="200"/>
         <source>Reset Tracker</source>
         <translation>重置跟踪器</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="172"/>
+        <source>coarse_grained_prompt</source>
+        <translation>coarse_grained_prompt</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="173"/>
+        <source>fine_grained_prompt</source>
+        <translation>fine_grained_prompt</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="174"/>
+        <source>caption</source>
+        <translation>caption</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="175"/>
+        <source>detailed_cap</source>
+        <translation>detailed_cap</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="176"/>
+        <source>more_detailed_cap</source>
+        <translation>more_detailed_cap</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="177"/>
+        <source>od</source>
+        <translation>od</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="178"/>
+        <source>region_proposal</source>
+        <translation>region_proposal</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="179"/>
+        <source>dense_region_cap</source>
+        <translation>dense_region_cap</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="180"/>
+        <source>cap_to_pg</source>
+        <translation>cap_to_pg</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="181"/>
+        <source>refer_exp_seg</source>
+        <translation>refer_exp_seg</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="182"/>
+        <source>region_to_seg</source>
+        <translation>region_to_seg</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="183"/>
+        <source>ovd</source>
+        <translation>ovd</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="184"/>
+        <source>region_to_cat</source>
+        <translation>region_to_cat</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="185"/>
+        <source>region_to_desc</source>
+        <translation>region_to_desc</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="186"/>
+        <source>ocr</source>
+        <translation>ocr</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="187"/>
+        <source>ocr_with_region</source>
+        <translation>ocr_with_region</translation>
     </message>
 </context>
 <context>

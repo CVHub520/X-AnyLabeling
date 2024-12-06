@@ -49,8 +49,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
     def init_ui(self):
         self.setWindowTitle(self.tr("Group ID Change Manager"))
         self.setWindowFlags(
-            self.windowFlags() 
-            | Qt.WindowMinimizeButtonHint 
+            self.windowFlags()
+            | Qt.WindowMinimizeButtonHint
             | Qt.WindowMaximizeButtonHint
         )
 
@@ -70,11 +70,14 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
 
         # Set table to be adaptive
         self.table_widget.horizontalHeader().setStretchLastSection(True)
-        self.table_widget.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Fixed)
+        self.table_widget.horizontalHeader().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.Fixed
+        )
         self.table_widget.setColumnWidth(0, 240)
 
         # Table style
-        self.table_widget.setStyleSheet("""
+        self.table_widget.setStyleSheet(
+            """
             QTableWidget {
                 border: none;
                 border-radius: 8px;
@@ -108,7 +111,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             QTableWidget QLineEdit:focus {
                 border: 2px solid #0071e3;
             }
-        """)
+        """
+        )
 
         # Buttons layout
         self.buttons_layout = QtWidgets.QHBoxLayout()
@@ -118,7 +122,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"), self)
         self.cancel_button.setFixedSize(120, 36)
         self.cancel_button.clicked.connect(self.reject)
-        self.cancel_button.setStyleSheet("""
+        self.cancel_button.setStyleSheet(
+            """
             QPushButton {
                 background-color: #f5f5f7;
                 color: #1d1d1f;
@@ -132,13 +137,15 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             QPushButton:pressed {
                 background-color: #d5d5d5;
             }
-        """)
+        """
+        )
 
         # Confirm button
         self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"), self)
         self.confirm_button.setFixedSize(120, 36)
         self.confirm_button.clicked.connect(self.confirm_changes)
-        self.confirm_button.setStyleSheet("""
+        self.confirm_button.setStyleSheet(
+            """
             QPushButton {
                 background-color: rgb(255, 148, 1);
                 color: white;
@@ -152,7 +159,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             QPushButton:pressed {
                 background-color: rgb(235, 128, 1);
             }
-        """)
+        """
+        )
 
         self.buttons_layout.addStretch()
         self.buttons_layout.addWidget(self.cancel_button)
@@ -176,7 +184,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             # Ori Group-ID
             old_gid_item = QTableWidgetItem(str(group_id))
             old_gid_item.setTextAlignment(Qt.AlignCenter)
-            old_gid_item.setFlags(old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable)
+            old_gid_item.setFlags(
+                old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable
+            )
 
             # New Group-ID
             line_edit = QtWidgets.QLineEdit(self.table_widget)
@@ -192,7 +202,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             layout.setAlignment(Qt.AlignCenter)
             layout.addWidget(line_edit)
 
-            line_edit.setStyleSheet("""
+            line_edit.setStyleSheet(
+                """
                 QLineEdit {
                     padding: 2px 8px;
                     margin: 2px 4px;
@@ -205,7 +216,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                 QLineEdit:focus {
                     border: 2px solid #0071e3;
                 }
-            """)
+            """
+            )
 
             self.table_widget.setItem(i, 0, old_gid_item)
             self.table_widget.setCellWidget(i, 1, container)
