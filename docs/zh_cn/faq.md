@@ -15,6 +15,12 @@
 可参考[#500](https://github.com/CVHub520/X-AnyLabeling/issues/500)。
 </details>
 
+<details>
+<summary>Q: QStandardPaths: wrong permissions on runtime directory /run/user/1000/, 0755 instead of 0700</summary>
+
+添加 `chmod 0700 /run/user/1000/` 到 `.bashrc` 文件中激活并重新启动应用即可。
+</details>
+
 
 ### 界面交互相关问题
 
