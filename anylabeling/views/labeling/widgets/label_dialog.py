@@ -30,47 +30,134 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(GroupIDModifyDialog, self).__init__(parent)
         self.parent = parent
-        self.gid_info = []
         self.shape_list = parent.get_label_file_list()
-        self.init_gid_info()
+        self.gid_info = self.get_gid_info()
         self.init_ui()
+
+    def get_gid_info(self):
+        gid_info = set()
+        for shape_file in self.shape_list:
+            with open(shape_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            shapes = data.get("shapes", [])
+            for shape in shapes:
+                group_id = shape.get("group_id", None)
+                if group_id is not None:
+                    gid_info.add(group_id)
+        return sorted(list(gid_info))
 
     def init_ui(self):
         self.setWindowTitle(self.tr("Group ID Change Manager"))
         self.setWindowFlags(
-            self.windowFlags()
-            | Qt.WindowMinimizeButtonHint
+            self.windowFlags() 
+            | Qt.WindowMinimizeButtonHint 
             | Qt.WindowMaximizeButtonHint
         )
-        self.resize(600, 400)
+
+        self.resize(640, 480)
         self.move_to_center()
 
+        # Widget layout
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(20)
+
+        # Table settings
         title_list = ["Ori Group-ID", "New Group-ID"]
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(len(title_list))
         self.table_widget.setHorizontalHeaderLabels(title_list)
 
-        # Set header font and alignment
-        for i in range(len(title_list)):
-            self.table_widget.horizontalHeaderItem(i).setFont(
-                QFont("Arial", 8, QFont.Bold)
-            )
-            self.table_widget.horizontalHeaderItem(i).setTextAlignment(
-                QtCore.Qt.AlignCenter
-            )
+        # Set table to be adaptive
+        self.table_widget.horizontalHeader().setStretchLastSection(True)
+        self.table_widget.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Fixed)
+        self.table_widget.setColumnWidth(0, 240)
 
+        # Table style
+        self.table_widget.setStyleSheet("""
+            QTableWidget {
+                border: none;
+                border-radius: 8px;
+                background-color: #f5f5f7;
+                selection-background-color: #e3f2fd;
+            }
+            QTableWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #e5e5e5;
+            }
+            QTableWidget::item:selected {
+                background-color: #e3f2fd;
+                color: #000000;
+            }
+            QHeaderView::section {
+                background-color: #f5f5f7;
+                padding: 12px 8px;
+                border: none;
+                font-weight: 600;
+                color: #1d1d1f;
+            }
+            QTableWidget QLineEdit {
+                padding: 6px 8px;
+                margin: 2px 4px;
+                border: 1px solid #d2d2d7;
+                border-radius: 6px;
+                background: white;
+                selection-background-color: #0071e3;
+                min-width: 200px;
+            }
+            QTableWidget QLineEdit:focus {
+                border: 2px solid #0071e3;
+            }
+        """)
+
+        # Buttons layout
         self.buttons_layout = QtWidgets.QHBoxLayout()
+        self.buttons_layout.setSpacing(12)
 
+        # Cancel button
         self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"), self)
+        self.cancel_button.setFixedSize(120, 36)
         self.cancel_button.clicked.connect(self.reject)
+        self.cancel_button.setStyleSheet("""
+            QPushButton {
+                background-color: #f5f5f7;
+                color: #1d1d1f;
+                border: none;
+                border-radius: 6px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: #e5e5e5;
+            }
+            QPushButton:pressed {
+                background-color: #d5d5d5;
+            }
+        """)
 
+        # Confirm button
         self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"), self)
+        self.confirm_button.setFixedSize(120, 36)
         self.confirm_button.clicked.connect(self.confirm_changes)
+        self.confirm_button.setStyleSheet("""
+            QPushButton {
+                background-color: rgb(255, 148, 1);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: rgb(255, 158, 11);
+            }
+            QPushButton:pressed {
+                background-color: rgb(235, 128, 1);
+            }
+        """)
 
+        self.buttons_layout.addStretch()
         self.buttons_layout.addWidget(self.cancel_button)
         self.buttons_layout.addWidget(self.confirm_button)
 
-        layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(self.table_widget)
         layout.addLayout(self.buttons_layout)
 
@@ -86,23 +173,45 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         for i, group_id in enumerate(self.gid_info):
             self.table_widget.insertRow(i)
 
+            # Ori Group-ID
             old_gid_item = QTableWidgetItem(str(group_id))
-            old_gid_item.setFlags(
-                old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable
-            )
+            old_gid_item.setTextAlignment(Qt.AlignCenter)
+            old_gid_item.setFlags(old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable)
 
-            new_gid_item = QTableWidgetItem("")
-            new_gid_item.setFlags(
-                new_gid_item.flags() | QtCore.Qt.ItemIsEditable
-            )
-
-            # Set QIntValidator to ensure only non-negative integers can be entered
-            validator = QIntValidator(0, 9999, self)
+            # New Group-ID
             line_edit = QtWidgets.QLineEdit(self.table_widget)
-            line_edit.setValidator(validator)
-            self.table_widget.setCellWidget(i, 1, line_edit)
+            line_edit.setValidator(QIntValidator(0, 9999, self))
+            line_edit.setPlaceholderText("Enter new ID")
+            line_edit.setAlignment(Qt.AlignCenter)
+            line_edit.setFixedHeight(28)
+
+            # Create a widget to hold the line edit and center it vertically
+            container = QtWidgets.QWidget()
+            layout = QtWidgets.QHBoxLayout(container)
+            layout.setContentsMargins(4, 4, 4, 4)
+            layout.setAlignment(Qt.AlignCenter)
+            layout.addWidget(line_edit)
+
+            line_edit.setStyleSheet("""
+                QLineEdit {
+                    padding: 2px 8px;
+                    margin: 2px 4px;
+                    border: 1px solid #d2d2d7;
+                    border-radius: 6px;
+                    background: white;
+                    font-size: 14px;
+                    min-width: 200px;
+                }
+                QLineEdit:focus {
+                    border: 2px solid #0071e3;
+                }
+            """)
 
             self.table_widget.setItem(i, 0, old_gid_item)
+            self.table_widget.setCellWidget(i, 1, container)
+
+            # Set row height
+            self.table_widget.setRowHeight(i, 50)
 
     def confirm_changes(self):
         total_num = self.table_widget.rowCount()
@@ -117,7 +226,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         # Iterate over each row to get the old and new group IDs
         for i in range(total_num):
             old_gid_item = self.table_widget.item(i, 0)
-            line_edit = self.table_widget.cellWidget(i, 1)
+            container = self.table_widget.cellWidget(i, 1)
+            line_edit = container.layout().itemAt(0).widget()
             new_gid = line_edit.text()
             old_gid = old_gid_item.text()
 
@@ -168,17 +278,6 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         except Exception as e:
             logger.error(f"Error occurred while updating Group IDs: {e}")
             return False
-
-    def init_gid_info(self):
-        for shape_file in self.shape_list:
-            with open(shape_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            shapes = data.get("shapes", [])
-            for shape in shapes:
-                group_id = shape.get("group_id", None)
-                if group_id is not None and group_id not in self.gid_info:
-                    self.gid_info.append(group_id)
-        self.gid_info.sort()
 
 
 class LabelColorButton(QtWidgets.QWidget):
