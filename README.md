@@ -20,7 +20,7 @@
 
 
 <img src="https://github.com/user-attachments/assets/0b1e3c69-a800-4497-9bad-4332c1ce1ebf" width="100%" />
-<div align="center"><strong>Segment Anything v2</strong></div>
+<div align="center"><strong>Segment Anything 2.1</strong></div>
 
 </br>
 
@@ -33,23 +33,23 @@
 
 ## 🥳 What's New
 
-- Nov. 2024:
+- Dec. 2024:
+  - 🔥🔥🔥 Added support for [Segment Anything 2.1](./docs/en/model_zoo.md) model.
   - 🤗🤗🤗 Added support for [Florence-2](./examples/multimodal/florence2/README.md), a unified vision foundation model for multi-modal tasks.
+- Nov. 2024:
   - 🎯🎯🎯 Added support for the [UPN](./examples/detection/hbb/README.md) model to generate proposal boxes.
   - 🌟🌟🌟 Added support for [YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml).
 - Oct. 2024:
   - ✨✨✨ Added support for [DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md) model.
-- Sep. 2024:
-  - Release version [2.4.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.4)
-  - 🚀🚀🚀 Added support for [YOLO11-Det/OBB/Pose/Seg/Track model](https://github.com/ultralytics/ultralytics).
-  - 🧸🧸🧸 Added support for image matting based on [RMBG v1.4 model](https://huggingface.co/briaai/RMBG-1.4).
-  - 🔥🔥🔥 Added support for interactive video object tracking based on [Segment-Anything-2](https://github.com/CVHub520/segment-anything-2). [[Tutorial](examples/interactive_video_object_segmentation/README.md)]
-
 <br>
 
 <details> 
 <summary>Click to view more news.</summary>
-
+- Sep. 2024:
+  - Release version [2.4.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.4)
+  - Added support for [YOLO11-Det/OBB/Pose/Seg/Track model](https://github.com/ultralytics/ultralytics).
+  - Added support for image matting based on [RMBG v1.4 model](https://huggingface.co/briaai/RMBG-1.4).
+  - Added support for interactive video object tracking based on [Segment-Anything-2](https://github.com/CVHub520/segment-anything-2). [[Tutorial](examples/interactive_video_object_segmentation/README.md)]
 - Aug. 2024:
   - Release version [2.4.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.1)
   - Support [tracking-by-det/obb/seg/pose](./examples/multiple_object_tracking/README.md) tasks.

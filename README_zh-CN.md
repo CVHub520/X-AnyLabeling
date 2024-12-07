@@ -19,7 +19,7 @@
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
 <img src="https://github.com/user-attachments/assets/0b1e3c69-a800-4497-9bad-4332c1ce1ebf" width="100%" />
-<div align="center"><strong>Segment Anything v2</strong></div>
+<div align="center"><strong>Segment Anything 2.1</strong></div>
 
 </br>
 
@@ -32,8 +32,10 @@
 
 ## 🥳 新功能
 
-- 2024年11月:
+- 2024年12月:
+  - 🔥🔥🔥 支持[Segment Anything 2.1](./docs/zh_cn/model_zoo.md)模型。
   - 🤗🤗🤗 支持[Florence-2](./examples/multimodal/florence2/README.md)多模态模型。
+- 2024年11月:
   - 🎯🎯🎯 支持基于[UPN](./examples/detection/hbb/README.md)的目标候选框生成模型。
   - 🌟🌟🌟 支持[YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml)模型。
 - 2024年10月:

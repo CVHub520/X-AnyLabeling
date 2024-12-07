@@ -6,5 +6,5 @@ text_encoder_type: /home/cvhub/workspace/projects/python/multi-modal/CountGD/XGD
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/open_vision_fsc147.pth
 box_threshold: 0.3
 # Segment-Anything-2 (large)
-encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/sam2_hiera_large.encoder.onnx
-decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/sam2_hiera_large.decoder.onnx
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_large.encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_large.decoder.onnx
