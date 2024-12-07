@@ -3500,6 +3500,9 @@ class LabelingWidget(LabelDialog):
         # Reset the label loop count
         self.label_loop_count = -1
 
+        # TODO(jack): icc profile issue warning
+        # - qt.gui.icc: fromIccProfile: failed minimal tag size sanity
+        # - qt.gui.icc: fromIccProfile: invalid tag offset alignment
         image = QtGui.QImage.fromData(self.image_data)
 
         if image.isNull():
@@ -6153,19 +6156,31 @@ class LabelingWidget(LabelDialog):
         self.open_next_image(load=load)
 
     def scan_all_images(self, folder_path):
-        extensions = [
-            f".{fmt.data().decode().lower()}"
-            for fmt in QtGui.QImageReader.supportedImageFormats()
-        ]
+        try:
+            extensions = [
+                f".{fmt.data().decode().lower()}"
+                for fmt in QtGui.QImageReader.supportedImageFormats()
+            ]
 
-        images = []
-        for root, _, files in os.walk(folder_path):
-            for file in files:
-                if file.lower().endswith(tuple(extensions)):
-                    relative_path = osp.join(root, file)
-                    images.append(relative_path)
-        images = natsort.os_sorted(images)
-        return images
+            images = []
+            folder_path = osp.normpath(osp.abspath(folder_path))
+
+            for root, _, files in os.walk(folder_path):
+                for file in files:
+                    if file.lower().endswith(tuple(extensions)):
+                        relative_path = osp.normpath(osp.join(root, file))
+                        relative_path = str(relative_path)
+                        images.append(relative_path)
+
+            try:
+                return natsort.os_sorted(images)
+            except (OSError, ValueError) as e:
+                logger.warning(f"Warning: Natural sort failed, falling back to regular sort: {e}")
+                return sorted(images)
+        except Exception as e:
+            logger.error(f"Error scanning images: {e}")
+            return []
+        
 
     def toggle_auto_labeling_widget(self):
         """Toggle auto labeling widget visibility."""
