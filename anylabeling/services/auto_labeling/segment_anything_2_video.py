@@ -293,40 +293,40 @@ class SegmentAnything2Video(Model):
             y_min = 100000000
             x_max = 0
             y_max = 0
+            # Find min/max coordinates across all contours
             for approx in approx_contours:
-                # Scale points
                 points = approx.reshape(-1, 2)
-                points[:, 0] = points[:, 0]
+                points[:, 0] = points[:, 0] 
                 points[:, 1] = points[:, 1]
                 points = points.tolist()
                 if len(points) < 3:
                     continue
-                # Get min/max
                 for point in points:
                     x_min = min(x_min, point[0])
-                    y_min = min(y_min, point[1])
+                    y_min = min(y_min, point[1]) 
                     x_max = max(x_max, point[0])
                     y_max = max(y_max, point[1])
-                # Create Rectangle shape
-                shape = Shape(flags={})
-                shape.add_point(QtCore.QPointF(x_min, y_min))
-                shape.add_point(QtCore.QPointF(x_max, y_min))
-                shape.add_point(QtCore.QPointF(x_max, y_max))
-                shape.add_point(QtCore.QPointF(x_min, y_max))
-                shape.shape_type = (
-                    "rectangle"
-                    if self.output_mode == "rectangle"
-                    else "rotation"
-                )
-                shape.closed = True
-                shape.group_id = (
-                    self.group_ids[index] if index is not None else None
-                )
-                shape.label = (
-                    "AUTOLABEL_OBJECT" if index is None else self.labels[index]
-                )
-                shape.selected = False
-                shapes.append(shape)
+            
+            # Create single bounding box shape containing all contours
+            shape = Shape(flags={})
+            shape.add_point(QtCore.QPointF(x_min, y_min))
+            shape.add_point(QtCore.QPointF(x_max, y_min))
+            shape.add_point(QtCore.QPointF(x_max, y_max))
+            shape.add_point(QtCore.QPointF(x_min, y_max))
+            shape.shape_type = (
+                "rectangle" 
+                if self.output_mode == "rectangle"
+                else "rotation"
+            )
+            shape.closed = True
+            shape.group_id = (
+                self.group_ids[index] if index is not None else None
+            )
+            shape.label = (
+                "AUTOLABEL_OBJECT" if index is None else self.labels[index]
+            )
+            shape.selected = False
+            shapes.append(shape)
 
         return shapes
 
