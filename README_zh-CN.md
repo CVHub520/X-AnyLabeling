@@ -21,6 +21,11 @@
 <img src="https://github.com/user-attachments/assets/0b1e3c69-a800-4497-9bad-4332c1ce1ebf" width="100%" />
 <div align="center"><strong>Segment Anything 2.1</strong></div>
 
+<br>
+
+[![Open Vision](https://github.com/user-attachments/assets/b2c1419b-540b-44fb-988e-a48572268df7)](https://www.bilibili.com/video/BV1jyqrYyE74)
+<div align="center"><strong>Interactive Visual-Text Prompting for Generic Vision Tasks</strong></div>
+
 </br>
 
 | **Tracking by HBB Detection** | **Tracking by OBB Detection** |
@@ -33,18 +38,20 @@
 ## 🥳 新功能
 
 - 2024年12月:
-  - 🔥🔥🔥 支持[Segment Anything 2.1](./docs/zh_cn/model_zoo.md)模型。
-  - 🤗🤗🤗 支持[Florence-2](./examples/multimodal/florence2/README.md)多模态模型。
+  - 🎉🎉🎉 发布[X-AnyLabeling v2.5.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.0)版本。
+  - 🤡🤡🤡 支持基于文本-视觉提示的[Open Vsion](./examples/detection/hbb/README.md)模型。[[Youtube](https://www.youtube.com/watch?v=QtoVMiTwXqk) | [Bilibili](https://www.bilibili.com/video/BV1jyqrYyE74)]
+  - 👻👻👻 支持[Segment Anything 2.1](./docs/zh_cn/model_zoo.md)模型。
+  - 🤗🤗🤗 支持[Florence-2](./examples/vision_language/florence2/README.md)视觉-语言模型。
 - 2024年11月:
-  - 🎯🎯🎯 支持基于[UPN](./examples/detection/hbb/README.md)的目标候选框生成模型。
+  - ✨✨✨ 支持基于[UPN](./examples/detection/hbb/README.md)的目标候选框生成模型。
   - 🌟🌟🌟 支持[YOLOv5-SAHI](./anylabeling/configs/auto_labeling/yolov5s_sahi.yaml)模型。
 - 2024年10月:
-  - ✨✨✨ 支持基于[DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md)的文档版面分析模型。
+  - 🎯🎯🎯 支持基于[DocLayout-YOLO](examples/optical_character_recognition/document_layout_analysis/README.md)的文档版面分析模型。
 - 2024年9月:
   - 发布[X-AnyLabeling v2.4.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.4.4)版本。
-  - 🚀🚀🚀 支持[YOLO11-Det/OBB/Pose/Seg/Track](https://github.com/ultralytics/ultralytics)模型。
+  - 🐻‍❄️🐻‍❄️🐻‍❄️ 支持[YOLO11-Det/OBB/Pose/Seg/Track](https://github.com/ultralytics/ultralytics)模型。
   - 🧸🧸🧸 支持基于[RMBG v1.4](https://github.com/facebookresearch/segment-anything)的图像抠图功能。
-  - 🔥🔥🔥 支持基于[Segment-Anything-2](https://github.com/CVHub520/segment-anything-2)交互式视频目标追踪功能。【[教程](examples/interactive_video_object_segmentation/README.md) | [B站](https://www.bilibili.com/video/BV1kMpwedE8M/)】
+  - 🦄🦄🦄 支持基于[Segment-Anything-2](https://github.com/CVHub520/segment-anything-2)交互式视频目标追踪功能。【[教程](examples/interactive_video_object_segmentation/README.md) | [B站](https://www.bilibili.com/video/BV1kMpwedE8M/)】
 
 <br>
 
@@ -218,6 +225,8 @@
 - [iVOS](./examples/interactive_video_object_segmentation/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
+- [Vision-Language](./examples/vision_language/)
+  - [Florence 2](./examples/vision_language/florence2/README.md)
 
 
 ## 联系

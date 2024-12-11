@@ -1,5 +1,6 @@
 # Object Detection Example
 
+
 ## Introduction
 
 Object detection is a computer vision solution that identifies objects, and their locations, in an image.
@@ -15,6 +16,17 @@ Here's how to set up for the object detection job:
 - Finally, type in the matching name in the label dialog.
 
 ## Advanced Usage
+
+### Object Detection
+
+<img src="https://github.com/ultralytics/docs/releases/download/0/object-detection-examples.avif" width="100%" />
+
+1. Import your image (`Ctrl+I` or `Ctrl+U`) or video (`Ctrl+O`) file into the X-AnyLabeling.
+2. Select and load the `YOLO11` model, or choose from other available object detection models.
+3. Initiate the process by clicking `Run (i)`. Once you've verified that everything is set up correctly, use the keyboard shortcut `Ctrl+M` to process all images in one go.
+
+
+### Region Proposal
 
 <img src=".data/upn.jpg" width="100%" />
 
@@ -72,3 +84,42 @@ Additionally, you can adjust the following parameters to filter detection result
 - Detection Mode: Switch between `Coarse Grained` and `Fine Grained` modes using the dropdown menu next to the model selection
 - Confidence Threshold: Adjust the confidence score (0-1) using the "Confidence" spinner control
 - IoU Threshold: Control the Non-Maximum Suppression (NMS) threshold (0-1) using the "IoU" spinner control
+
+
+### Text-Visual Prompting Grounding
+
+The [OpenVision](../../../anylabeling/configs/auto_labeling/open_vision.yaml) model demonstrates advanced usage with dual-granularity prompt tuning for comprehensive object detection at both instance and part levels.
+
+Before starting, please install the required [CountGD](https://github.com/niki-amini-naieni/CountGD) dependencies.
+
+
+For a demonstration of the workflow, watch the demo video below:
+
+[![Open Vision](https://github.com/user-attachments/assets/b2c1419b-540b-44fb-988e-a48572268df7)](https://www.youtube.com/watch?v=QtoVMiTwXqk)
+
+
+X-AnyLabeling supports three different prompting modes for object detection and annotation:
+
+- **Point Prompting Mode**: 
+  - Uses the Segment Anything Model (SAM) to generate high-precision segmentation masks
+  - Activated by clicking points on the target object
+  - Best for detailed object segmentation and boundary detection
+  - Ideal for irregular shapes and precise annotations
+
+- **Rectangle Prompting Mode**: 
+  - Leverages the CountGD model to detect visually similar objects
+  - Activated by drawing a bounding box around an example object
+  - Automatically finds and annotates similar objects in the image
+  - Optimal for batch detection of multiple similar objects
+
+- **Text Prompting Mode**: 
+  - Powered by Grounding DINO for text-guided object detection
+  - Activated by entering natural language descriptions
+  - Locates objects based on textual descriptions
+  - Perfect for finding objects by their semantic description
+
+> [!NOTE]
+> Please note that the current model is experimental and may not perform as expected, and it may have the following limitations:
+> - The model weights are trained on [FSC-147](https://github.com/cvlab-stonybrook/LearningToCountEverything), which may not perform well on out-of-distribution objects.
+> - The model inference is very resource-intensive, as it is designed as a two-stage pipeline.
+> - The current model is not able to effectively distinguish between similar objects, which may lead to some false positives.

@@ -289,6 +289,6 @@
 | sam2_hiera_large.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_large_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_large_video.yaml) | 856.35MB | [百度网盘](https://pan.baidu.com/s/1hFYQc1IKnEw2l-vW6Eoi2w?pwd=gyby) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt) |
 
 
-### 多模态
+### 视觉-语言模型
 
-- [Florence 2](../../examples/multimodal/florence2/README.md)
+- [Florence 2](../../examples/vision_language/florence2/README.md)

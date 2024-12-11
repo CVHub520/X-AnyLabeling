@@ -52,7 +52,7 @@
       * [8.7 Optical Character Recognition](#87-optical-character-recognition)
       * [8.8 Interactive Video Object Segmentation](#88-interactive-video-object-segmentation)
       * [8.9 Matting](#89-matting)
-      * [8.10 Multimodal](#810-multimodal)
+      * [8.10 Vision-Language](#810-vision-language)
    * [9. Models](#9-models)
 
 
@@ -743,9 +743,9 @@ shape:
 
 - Image Matting: [Link](../../examples/matting/image_matting/README.md)
 
-### 8.10 Multimodal
+### 8.10 Vision-Language
 
-- Multimodal: [Link](../../examples/multimodal)
+- Florence 2: [Link](../../examples/vision_language/florence2/README.md)
 
 ## 9. Models
 
