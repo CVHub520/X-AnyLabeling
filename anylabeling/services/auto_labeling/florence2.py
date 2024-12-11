@@ -4,7 +4,7 @@ warnings.filterwarnings("ignore")
 
 import gc
 from PIL import Image
-from typing import List, Tuple, Union
+from unittest.mock import patch
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -19,6 +19,7 @@ from .types import AutoLabelingResult, AutoLabelingMode
 try:
     import torch
     from transformers import AutoModelForCausalLM, AutoProcessor
+    from transformers.dynamic_module_utils import get_imports
 
     FLORENCE2_AVAILABLE = True
 except ImportError:
@@ -69,10 +70,8 @@ class Florence2(Model):
         model_path = self.config.get("model_path", None)
         trust_remote_code = self.config.get("trust_remote_code", True)
 
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        torch_dtype = (
-            torch.float16 if torch.cuda.is_available() else torch.float32
-        )
+        device_map= "cuda:0" if torch.cuda.is_available() else "cpu"
+        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
 
         self.marks = []
         self.prompt_type = "caption"
@@ -81,18 +80,28 @@ class Florence2(Model):
         self.do_sample = self.config.get("do_sample", False)
         self.num_beams = self.config.get("num_beams", 3)
 
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_path,
-            torch_dtype=torch_dtype,
-            trust_remote_code=trust_remote_code,
-        )
-        self.processor = AutoProcessor.from_pretrained(
-            model_path,
-            trust_remote_code=trust_remote_code,
-        )
-        self.model = self.model.to(self.device)
+        # Add patch for flash attention on CPU
+        def fixed_get_imports(filename):
+            imports = get_imports(filename)
+            if not torch.cuda.is_available() and "flash_attn" in imports:
+                imports.remove("flash_attn")
+            return imports
+
+        # Load model with patched imports
+        with patch("transformers.dynamic_module_utils.get_imports", fixed_get_imports):
+            self.model = AutoModelForCausalLM.from_pretrained(
+                model_path,
+                torch_dtype=torch_dtype,
+                device_map=device_map,
+                trust_remote_code=trust_remote_code,
+            )
+            self.processor = AutoProcessor.from_pretrained(
+                model_path,
+                trust_remote_code=trust_remote_code,
+            )
 
         self.replace = True
+        self.device = device_map
 
     def set_florence2_mode(self, mode):
         """Set Florence2 mode"""
