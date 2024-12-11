@@ -26,6 +26,7 @@ conda activate x-anylabeling
 > 
 > 1. Video object tracking based on Segment-Anything-2: [Installation Guide](../../examples/interactive_video_object_segmentation/README.md)
 > 2. Object proposal generation based on UPN: [Installation Guide](../../examples/detection/hbb/README.md)
+> 3. Interactive visual-text prompting for generic vision tasks: [Installation Guide](../../examples/detection/hbb/README.md)
 
 **Step 0.** Install [ONNX Runtime](https://onnxruntime.ai/).
 
