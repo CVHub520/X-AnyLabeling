@@ -178,7 +178,6 @@ class LabelingWidget(LabelDialog):
             "QDockWidget::title {"
             "text-align: center;"
             "padding: 0px;"
-            "background-color: #f0f0f0;"
             "}"
         )
 
@@ -197,7 +196,6 @@ class LabelingWidget(LabelDialog):
             "QDockWidget::title {"
             "text-align: center;"
             "padding: 0px;"
-            "background-color: #f0f0f0;"
             "}"
         )
         self.shape_dock.setTitleBarWidget(QtWidgets.QWidget())
@@ -224,9 +222,9 @@ class LabelingWidget(LabelDialog):
             "QDockWidget::title {"
             "text-align: center;"
             "padding: 0px;"
-            "background-color: #f0f0f0;"
             "}"
         )
+
         self.file_search = QtWidgets.QLineEdit()
         self.file_search.setPlaceholderText(self.tr("Search Filename"))
         self.file_search.textChanged.connect(self.file_search_changed)
@@ -248,7 +246,6 @@ class LabelingWidget(LabelDialog):
             "QDockWidget::title {"
             "text-align: center;"
             "padding: 0px;"
-            "background-color: #f0f0f0;"
             "}"
         )
 
@@ -6459,3 +6456,7 @@ class LabelingWidget(LabelDialog):
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText("")
             self.shape_text_edit.textChanged.connect(self.shape_text_changed)
+        font = QtGui.QFont()
+        font.setPointSize(10)
+        self.shape_text_edit.setFont(font)
+        self.shape_text_label.setFont(font)

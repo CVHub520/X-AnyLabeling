@@ -210,6 +210,8 @@ class AutoLabelingWidget(QWidget):
             border-radius: 5px;
             padding: 4px 8px;
             border: 1px solid #999999;
+            color: #000000;  /* black */
+            background-color: #e0e0e0;  /* light gray */
         """
 
         for button in [
@@ -219,25 +221,22 @@ class AutoLabelingWidget(QWidget):
             self.button_clear,
             self.button_finish_object,
         ]:
-            button.setStyleSheet(style_sheet + "background-color: #ffffff;")
+            button.setStyleSheet(style_sheet)
         if self.auto_labeling_mode == AutoLabelingMode.NONE:
             return
         if self.auto_labeling_mode.edit_mode == AutoLabelingMode.ADD:
             if self.auto_labeling_mode.shape_type == AutoLabelingMode.POINT:
                 self.button_add_point.setStyleSheet(
-                    style_sheet + "background-color: #00ff00;"
+                    style_sheet + "background-color: #90EE90;"  # light green color
                 )
-            elif (
-                self.auto_labeling_mode.shape_type
-                == AutoLabelingMode.RECTANGLE
-            ):
+            elif self.auto_labeling_mode.shape_type == AutoLabelingMode.RECTANGLE:
                 self.button_add_rect.setStyleSheet(
-                    style_sheet + "background-color: #00ff00;"
+                    style_sheet + "background-color: #90EE90;"  # light green color
                 )
         elif self.auto_labeling_mode.edit_mode == AutoLabelingMode.REMOVE:
             if self.auto_labeling_mode.shape_type == AutoLabelingMode.POINT:
                 self.button_remove_point.setStyleSheet(
-                    style_sheet + "background-color: #ff0000;"
+                    style_sheet + "background-color: #FFB6C1;"  # light red color
                 )
 
     def set_auto_labeling_mode(self, edit_mode, shape_type=None):
