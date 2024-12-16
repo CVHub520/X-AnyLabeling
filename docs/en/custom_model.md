@@ -388,7 +388,7 @@ InternImage introduces a large-scale convolutional neural network (CNN) model, l
 |-----------------|------------------------------------------------------------------------|
 | Paper Title     | InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions |
 | Affiliation     | Shanghai AI Laboratory, Tsinghua University, Nanjing University, etc. |
-| Published       | CVPR 2023                                                             |
+| Published       | CVPR'23    |
 
 Refer to this [tutorial](../../tools/onnx_exporter/export_internimage_model_onnx.py).
 
@@ -432,7 +432,7 @@ python export.py --weights yolov7.pt --img-size 640 --grid
 |-----------------|----------------------------------------|
 | Paper Title     | Efficient object detectors including Gold-YOLO |
 | Affiliation     | huawei-noah                            |
-| Published       | NeurIPS23                              |
+| Published       | NeurIPS'23                              |
 
 ```bash
 $ git clone https://github.com/huawei-noah/Efficient-Computing.git
@@ -451,7 +451,7 @@ $ python deploy/ONNX/export_onnx.py --weights Gold_n_dist.pt --simplify --ort
 |-----------------|---------------------------------------|
 | Paper Title     | DAMO-YOLO: A Report on Real-Time Object Detection |
 | Affiliation     | Alibaba Group                         |
-| Published       | Arxiv22                               |
+| Published       | Arxiv'22                               |
 
 ```bash
 $ git clone https://github.com/tinyvision/DAMO-YOLO.git
@@ -467,9 +467,40 @@ Real-Time DEtection TRansformer (`RT-DETR`, aka RTDETR) is the first real-time e
 |-----------------|---------------------------------------------|
 | Paper Title     | RT-DETR: DETRs Beat YOLOs on Real-time Object Detection |
 | Affiliation     | Baidu                                       |
-| Published       | Arxiv22                                     |
+| Published       | Arxiv'22                                     |
 
 Refer to this [article](https://zhuanlan.zhihu.com/p/628660998).
+
+### [Hyper-YOLO](https://github.com/iMoonLab/Hyper-YOLO)
+
+Hyper-YOLO represents a groundbreaking advancement in object detection by leveraging hypergraph computation to model sophisticated relationships between visual features. At its core is the innovative Hypergraph Computing Enhanced Semantic Collection and Scattering (HGC-SCS) framework, which transforms visual features into semantic spaces and constructs hypergraphs to enable rich high-order information flow.
+
+| Attribute       | Value                                       |
+|-----------------|---------------------------------------------|
+| Paper Title     | Hyper-YOLO: When Visual Object Detection Meets Hypergraph Computation |
+| Affiliation     | Tsinghua University, Xi'an Jiaotong University |
+| Published       | TAPMI'25                                      |
+
+To get started, first download the model and install the required dependencies. Then modify the `Hyper-YOLO/ultralytics/export.py` file with the following configuration to set `batch=1` and `half=False`:
+
+```bash
+import sys
+import os
+sys.path.append(os.getcwd())
+from pathlib import Path
+from ultralytics import YOLO
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+import torch
+torch.cuda.device_count.cache_clear()
+```
+
+Then run the following command to export:
+
+```bash
+python3 ultralytics/utils/export_onnx.py
+```
 
 
 ## Segment Anything
@@ -482,7 +513,7 @@ The Segment Anything Model (`SAM`) produces high-quality object masks from input
 |-----------------|---------------------------------------------|
 | Paper Title     | Segment Anything                             |
 | Affiliation     | Meta AI Research, FAIR                      |
-| Published       | ICCV23                                      |
+| Published       | ICCV'23                                      |
 
 Refer to these [steps](https://github.com/vietanhdev/samexporter#sam-exporter).
 
@@ -494,7 +525,7 @@ Refer to these [steps](https://github.com/vietanhdev/samexporter#sam-exporter).
 |-----------------|--------------------------------------------------------------|
 | Paper Title     | EfficientViT: Multi-Scale Linear Attention for High-Resolution Dense Prediction |
 | Affiliation     | MIT                                                           |
-| Published       | ICCV23                                                        |
+| Published       | ICCV'23      |
 
 Refer to these [steps](https://github.com/CVHub520/efficientvit#benchmarking-with-onnxruntime).
 
@@ -506,7 +537,7 @@ Refer to these [steps](https://github.com/CVHub520/efficientvit#benchmarking-wit
 |-----------------|----------------------|
 | Paper Title     | SAM-Med2D            |
 | Affiliation     | OpenGVLab            |
-| Published       | Arxiv23              |
+| Published       | Arxiv'23              |
 
 Refer to these [steps](https://github.com/CVHub520/SAM-Med2D#-deploy).
 
@@ -518,7 +549,7 @@ Refer to these [steps](https://github.com/CVHub520/SAM-Med2D#-deploy).
 |-----------------|---------------------------------------------|
 | Paper Title     | Segment Anything in High Quality            |
 | Affiliation     | ETH Zurich & HKUST                          |
-| Published       | NeurIPS 2023                                |
+| Published       | NeurIPS'23                                |
 
 Refer to this [tutorial](https://github.com/CVHub520/sam-hq).
 
@@ -530,7 +561,7 @@ Refer to this [tutorial](https://github.com/CVHub520/sam-hq).
 |-----------------|-------------------------------------------------------------------------------------------|
 | Paper Title     | Prompt-In-the-Loop Distillation for On-Device Deployment of SAM                           |
 | Affiliation     | S-Lab, Nanyang Technological University, Shanghai Artificial Intelligence Laboratory.      |
-| Published       | Arxiv 2023                                                                                 |
+| Published       | Arxiv'23    |
 
 
 Refer to this [tutorial](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py).
@@ -545,7 +576,7 @@ Refer to this [tutorial](https://github.com/chongzhou96/EdgeSAM/blob/master/scri
 |-----------------|--------------------------------------------------------------|
 | Paper Title     | Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection |
 | Affiliation     | IDEA-CVR, IDEA-Research                                       |
-| Published       | Arxiv23                                                        |
+| Published       | Arxiv'23      |
 
 Refer to this [tutorial](../../tools/onnx_exporter/export_grounding_dino_onnx.py).
 
@@ -557,7 +588,7 @@ Refer to this [tutorial](../../tools/onnx_exporter/export_grounding_dino_onnx.py
 |-----------------|------------------------------------------------------------------------------------------------|
 | Paper Title     | Real-Time Open-Vocabulary Object Detection                                                    |
 | Affiliation     | Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology.          |
-| Published       | Arxiv 2024                                                                                     |
+| Published       | Arxiv'24    |
 
 ```bash
 $ git clone https://github.com/ultralytics/ultralytics.git
@@ -575,6 +606,6 @@ $ yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
 |-----------------|-------------------------------------------------------------------|
 | Paper Title     | Recognize Anything: A Strong Image Tagging Model                  |
 | Affiliation     | OPPO Research Institute, IDEA-Research, AI Robotics              |
-| Published       | Arxiv23                                                           |
+| Published       | Arxiv'23      |
 
 Refer to this [tutorial](../../tools/onnx_exporter/export_recognize_anything_model_onnx.py).

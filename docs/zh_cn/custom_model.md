@@ -386,7 +386,7 @@ InternImage 引入了一个大规模卷积神经网络 (CNN) 模型，利用可�
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions |
 | 发表单位       | 上海人工智能实验室，清华大学，南京大学等                              |
-| 发表时间       | CVPR 2023                                                          |
+| 发表时间       | CVPR'23                                                          |
 
 请参考此 [教程](../../tools/onnx_exporter/export_internimage_model_onnx.py)。
 
@@ -429,7 +429,7 @@ python export.py --weights yolov7.pt --img-size 640 --grid
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | Efficient object detectors including Gold-YOLO                     |
 | 发表单位       | 华为诺亚                                                           |
-| 发表时间       | NeurIPS23                                                          |
+| 发表时间       | NeurIPS'23                                                          |
 
 ```bash
 $ git clone https://github.com/huawei-noah/Efficient-Computing.git
@@ -448,7 +448,7 @@ $ python deploy/ONNX/export_onnx.py --weights Gold_n_dist.pt --simplify --ort
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | DAMO-YOLO: A Report on Real-Time Object Detection                  |
 | 发表单位       | 阿里巴巴集团                                                       |
-| 发表时间       | Arxiv22                                                            |
+| 发表时间       | Arxiv'22                                                            |
 
 ```bash
 $ git clone https://github.com/tinyvision/DAMO-YOLO.git
@@ -464,9 +464,47 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | RT-DETR: DETRs Beat YOLOs on Real-time Object Detection            |
 | 发表单位       | 百度                                                               |
-| 发表时间       | Arxiv22                                                            |
+| 发表时间       | Arxiv'22                                                            |
 
 请参考此 [文章](https://zhuanlan.zhihu.com/p/628660998)。
+
+### [Hyper-YOLO](https://github.com/iMoonLab/Hyper-YOLO)
+
+Hyper-YOLO 是一种新型目标检测方法，通过集成超图计算来捕获视觉特征之间的复杂高阶关联。该模型引入了超图计算增强的语义收集和散射（HGC-SCS）框架，将视觉特征图转换到语义空间并构建超图以进行高阶信息传播。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Hyper-YOLO: When Visual Object Detection Meets Hypergraph Computation |
+| 发表单位       | 清华大学，西安交通大学                                              |
+| 发表时间       | TAPMI'25                                                            |
+
+下载模型，安装依赖后，修改`Hyper-YOLO/ultralytics/export.py`文件，设置`batch=1`和`half=False`：
+
+```bash
+import sys
+import os
+sys.path.append(os.getcwd())
+from pathlib import Path
+from ultralytics import YOLO
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+import torch
+torch.cuda.device_count.cache_clear()
+
+if __name__ == '__main__':
+    model = 'hyper-yolon-seg.pt'
+    if isinstance(model, (str, Path)):
+        model = YOLO(model)
+    filename = model.export(imgsz=640, batch=1, format='ONNX', int8=False, half=False, device="0", verbose=False)
+```
+
+然后运行以下命令导出即可：
+
+```bash
+python3 ultralytics/utils/export_onnx.py
+```
+
 
 ## Segment Anything
 
@@ -478,7 +516,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | Segment Anything                                                  |
 | 发表单位       | Meta AI 研究院，FAIR                                                |
-| 发表时间       | ICCV23                                                            |
+| 发表时间       | ICCV'23                                                            |
 
 请参考这些 [步骤](https://github.com/vietanhdev/samexporter#sam-exporter)。
 
@@ -490,7 +528,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | EfficientViT: Multi-Scale Linear Attention for High-Resolution Dense Prediction |
 | 发表单位       | 麻省理工学院                                                        |
-| 发表时间       | ICCV23                                                            |
+| 发表时间       | ICCV'23                                                            |
 
 请参考这些 [步骤](https://github.com/CVHub520/efficientvit#benchmarking-with-onnxruntime)。
 
@@ -502,7 +540,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | SAM-Med2D                                                          |
 | 发表单位       | OpenGVLab                                                         |
-| 发表时间       | Arxiv23                                                            |
+| 发表时间       | Arxiv'23                                                            |
 
 请参考这些 [步骤](https://github.com/CVHub520/SAM-Med2D#-deploy)。
 
@@ -514,7 +552,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | Segment Anything in High Quality                                  |
 | 发表单位       | 苏黎世联邦理工学院和香港科技大学                                    |
-| 发表时间       | NeurIPS 2023                                                      |
+| 发表时间       | NeurIPS'23                                                      |
 
 请参考此 [教程](https://github.com/CVHub520/sam-hq)。
 
@@ -528,7 +566,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | Prompt-In-the-Loop Distillation for On-Device Deployment of SAM   |
 | 发表单位       | 南洋理工大学 S-Lab，上海人工智能实验室                               |
-| 发表时间       | Arxiv 2023                                                        |
+| 发表时间       | Arxiv'23                                                        |
 
 请参考此 [教程](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py)。
 
@@ -542,7 +580,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection |
 | 发表单位       | IDEA-CVR，IDEA-Research                                             |
-| 发表时间       | Arxiv23                                                            |
+| 发表时间       | Arxiv'23                                                            |
 
 请参考此 [教程](../../tools/onnx_exporter/export_grounding_dino_onnx.py)。
 
@@ -554,7 +592,7 @@ $ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tiny
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | Real-Time Open-Vocabulary Object Detection                        |
 | 发表单位       | 腾讯人工智能实验室，ARC 实验室，腾讯 PCG，华中科技大学                |
-| 发表时间       | Arxiv 2024                                                        |
+| 发表时间       | Arxiv'24                                                        |
 
 ```bash
 $ git clone https://github.com/ultralytics/ultralytics.git
@@ -572,8 +610,6 @@ $ yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
 |----------------|--------------------------------------------------------------------|
 | 论文标题       | Recognize Anything: A Strong Image Tagging Model                  |
 | 发表单位       | OPPO 研究院，IDEA-Research，AI Robotics                              |
-| 发表时间       | Arxiv23                                                            |
+| 发表时间       | Arxiv'23                                                            |
 
 请参考此 [教程](../../tools/onnx_exporter/export_recognize_anything_model_onnx.py)。
-
-

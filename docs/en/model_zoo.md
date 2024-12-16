@@ -117,7 +117,11 @@
 | yolov10l.onnx | [YOLOv10](https://github.com/THU-MIG/yolov10)-COCO | [yolov10l.yaml](../../anylabeling/configs/auto_labeling/yolov10l.yaml) | 93.20MB | [baidu](https://pan.baidu.com/s/1dJGVhtPRC31ssbnhQWpztw?pwd=13ax) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.6/yolov10l.onnx) |
 | yolov10x.onnx | [YOLOv10](https://github.com/THU-MIG/yolov10)-COCO | [yolov10x.yaml](../../anylabeling/configs/auto_labeling/yolov10x.yaml) | 112.68MB | [baidu](https://pan.baidu.com/s/1o6rCcq-NyIBe4ftcOJlKzQ?pwd=c73x) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.6/yolov10x.onnx) |
 | yolo11s.onnx | [YOLO11](https://github.com/ultralytics/ultralytics)-COCO | [yolo11s.yaml](../../anylabeling/configs/auto_labeling/yolo11s.yaml) | 36.27MB | [baidu](https://pan.baidu.com/s/1a3H-cMRzP-YFSLsKMRXTKA?pwd=uyrw) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s.onnx) |
-
+| hyper-yolot.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolot.yaml | 12.19MB | [baidu](https://pan.baidu.com/s/1e29ZhbO6zWqeLXpSEeO5VA?pwd=bqqq) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolot.onnx) |
+| hyper-yolon.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolon.yaml | 15.80MB | [baidu](https://pan.baidu.com/s/1NWlrd8VvhwCBsdKFRl5-ig?pwd=j7hq) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolon.onnx) |
+| hyper-yolos.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | [hyper-yolos.yaml](../../anylabeling/configs/auto_labeling/hyper_yolos.yaml) | 56.83MB | [baidu](https://pan.baidu.com/s/1xFFqlpqScL3_R4unKzRWtA?pwd=ddg7) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolos.onnx) |
+| hyper-yolom.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolom.yaml | 127.56MB | [baidu](https://pan.baidu.com/s/1rY3I0I5N6hBKkRfZh8AXuA?pwd=t4fm) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolom.onnx) |
+| hyper-yolol.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolol.yaml | 215.12MB | [baidu](https://pan.baidu.com/s/1895I4MgBKYTo5MHeL4VvPA?pwd=wr3n) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolol.onnx) |
 
 - Oriented Bounding Box
 
@@ -213,6 +217,9 @@
 | yolov8s-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8s_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8s_seg.yaml)  | 45.25MB | [baidu](https://pan.baidu.com/s/17aqLyui-FL7nZUX-H4Bepg?pwd=bpe8) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8s-seg.onnx) |
 | yolov8n-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8n_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8n_seg.yaml)  | 13.18MB | [baidu](https://pan.baidu.com/s/1WQmN0yKBnm3PKgXTBFyQ-A?pwd=194i) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n-seg.onnx) |
 | yolo11s-seg.onnx | [YOLO11](https://github.com/ultralytics/ultralytics)-COCO | [yolo11s_seg.yaml](../../anylabeling/configs/auto_labeling/yolo11s_seg.yaml) | 38.77MB | [baidu](https://pan.baidu.com/s/11O7b0qUMQb1SQPoSYOsf9A?pwd=tthu) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-seg.onnx) |
+| hyper-yolon-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolon-seg.yaml | 16.77MB | [baidu](https://pan.baidu.com/s/1o-LIV0z6OFQXGbSbJ_HsVw?pwd=dxex) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolon-seg.onnx) |
+| hyper-yolos-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | [hyper-yolos-seg.yaml](../../anylabeling/configs/auto_labeling/hyper_yolos_seg.yaml) | 59.34MB | [baidu](https://pan.baidu.com/s/1NsGVI5FQIYuoAVNrZF2VNg?pwd=bptv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolos-seg.onnx) |
+| hyper-yolom-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolom-seg.yaml | 132.85MB | [baidu](https://pan.baidu.com/s/1ObhO04dF6JEpvrtzLse6hg?pwd=q5hn) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolom-seg.onnx) |
 
 
 ### Image Matting

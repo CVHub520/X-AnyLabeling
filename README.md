@@ -39,6 +39,7 @@
 ## 🥳 What's New
 
 - Dec. 2024:
+  - 🍊🍊🍊 Added support for [Hyper-YOLO](https://github.com/iMoonLab/Hyper-YOLO) model.
   - 🎉🎉🎉 Release version [2.5.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.0).
   - 🤡🤡🤡 Added support for [Open Vision](./examples/detection/hbb/README.md) model. [[Youtube](https://www.youtube.com/watch?v=QtoVMiTwXqk) | [Bilibili](https://www.bilibili.com/video/BV1jyqrYyE74)]
   - 👻👻👻 Added support for [Segment Anything 2.1](./docs/en/model_zoo.md) model.

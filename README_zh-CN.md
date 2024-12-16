@@ -38,6 +38,7 @@
 ## 🥳 新功能
 
 - 2024年12月:
+  - 🍊🍊🍊 支持[Hyper-YOLO](https://github.com/iMoonLab/Hyper-YOLO)模型。
   - 🎉🎉🎉 发布[X-AnyLabeling v2.5.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.0)版本。
   - 🤡🤡🤡 支持基于文本-视觉提示的[Open Vsion](./examples/detection/hbb/README.md)模型。[[Youtube](https://www.youtube.com/watch?v=QtoVMiTwXqk) | [Bilibili](https://www.bilibili.com/video/BV1jyqrYyE74)]
   - 👻👻👻 支持[Segment Anything 2.1](./docs/zh_cn/model_zoo.md)模型。
