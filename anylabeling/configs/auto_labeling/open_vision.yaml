@@ -1,8 +1,7 @@
 type: open_vision
 name: open_vision-r20241010
 display_name: Open Vision
-# text_encoder_type: path/to/bert-base-uncased
-text_encoder_type: /home/cvhub/workspace/projects/python/multi-modal/CountGD/XGD/checkpoints/bert-base-uncased
+text_encoder_type: bert-base-uncased  # modify this path to your own path
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/open_vision_fsc147.pth
 box_threshold: 0.3
 # Segment-Anything-2 (large)
