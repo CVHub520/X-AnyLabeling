@@ -921,9 +921,16 @@ class LabelConverter:
                     width = abs(points[2][0] - points[0][0]) / image_width
                     height = abs(points[2][1] - points[0][1]) / image_height
 
-                    f.write(
-                        f"{class_index} {x_center} {y_center} {width} {height}\n"
-                    )
+                    # 原始代码
+                    # f.write(f"{class_index} {x_center} {y_center} {width} {height}\n")
+
+                    # 对齐到小数点后六位
+                    x_center_formatted = format(x_center, '.6f')
+                    y_center_formatted = format(y_center, '.6f')
+                    width_formatted = format(width, '.6f')
+                    height_formatted = format(height, '.6f')
+                    f.write(f"{class_index} {x_center_formatted} {y_center_formatted} {width_formatted} {height_formatted}\n")
+
                     is_empty_file = False
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
