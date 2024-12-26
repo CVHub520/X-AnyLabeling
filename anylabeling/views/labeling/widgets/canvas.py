@@ -1003,6 +1003,9 @@ class Canvas(
             super().paintEvent(event)
             return
 
+        if self.is_auto_labeling: #自动标注时, 为提速不绘制
+            return
+
         p = self._painter
         p.begin(self)
         p.setRenderHint(QtGui.QPainter.Antialiasing)

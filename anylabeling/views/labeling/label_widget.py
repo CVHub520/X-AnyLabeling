@@ -3006,8 +3006,9 @@ class LabelingWidget(LabelDialog):
 
     def load_shapes(self, shapes, replace=True, update_last_label=True):
         self._no_selection_slot = True
-        for shape in shapes:
-            self.add_label(shape, update_last_label=update_last_label)
+        if not self.canvas.is_auto_labeling: #自动标注时, 为提速不绘制
+            for shape in shapes:
+                self.add_label(shape, update_last_label=update_last_label)
         self.label_list.clearSelection()
         self._no_selection_slot = False
         self.canvas.load_shapes(shapes, replace=replace)
@@ -5976,6 +5977,7 @@ class LabelingWidget(LabelDialog):
             #self.load_file(self.filename)  # 发现根本不需要调用load_file函数, 只要执行下面五句就行了
             self.image_path = filename
             self.clear_auto_labeling_marks()
+            self.canvas.set_auto_labeling(True)
             self.label_file = LabelFile(osp.splitext(filename)[0] + ".json", osp.dirname(filename), False)
             self.label_list.clear()
             self.load_shapes(self.label_file.shapes, update_last_label=False)
@@ -6000,7 +6002,8 @@ class LabelingWidget(LabelDialog):
 
             # Update the progress dialog
             infer_start = time.time()
-            #progress_dialog.setValue(self.image_index)
+            if self.image_index % 16 == 0:
+                progress_dialog.setValue(self.image_index)
             infer_time = time.time() - infer_start
             #print(f"更新对话框的耗时: {infer_time * 1000:.2f}ms")
 
