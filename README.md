@@ -1,11 +1,12 @@
-## 问题记录
+# 问题记录
 
-1) 加快推理速度(方案: 并行计算, 不显图片)
-2) 检验时找出重叠框(原标签中的重叠框, 检测出来的重叠框)
-3) 标签不同的框(检测出来的 与 原始标签的 中框重叠, 但签不同的)
+1. 将各个步骤的耗时, 追加到状态栏的文件名后面
+2. 让推理时也可以切子图, 方便标签的验证和矫正
+3. 导出路径, 改成当前目录的同级目录(train和val)
+4. 
+5. 
 
-
-## 修改说明
+# 修改说明
 
   记录我对这个开源库做的一些修改。
 
@@ -22,7 +23,39 @@
 4) 将 保留现有标签 改成了 提取疑错标签, 还不能用, 可能需要做本地化处理  
 5) 涉及到的文件: label_widget.py, zh_CN.ts
 
-## 三.与GPU有关的修改
+## 三.与保存子图的修改
+
+1. 保存子图时, 文件名中应该包含原图像的文件名, 方便后续的子图和原图的对应
+2. 保存子图时, 不支持中文路径的问题
+3. 涉及到的文件: image_dialog.py
+
+## 四.推理加速的修改
+
+1. 增加了一些耗时打印, 通过这些打印发现: 耗时主要在load_file()和to_rgb_cv_img()两个函数中  
+2. 通过测试发现: 推理时, 发现根本不需要调用load_file函数, 只需执行其中的五句就行了
+3. 通过测试发现: 推理时, 发现根本不需要调用progress_dialog.setValue()函数
+4. 保存label时, 若没有图片数据, 则基于图片路径读取宽和高; 否则, 使用图片数据的宽高
+5. 涉及到的文件: label_widget.py, yolo.py
+
+run_all_images									
+	show_progress_dialog_and_process
+		process_next_image(递归)											138ms
+			load_file											88ms	
+			model_manager.predict_shapes()						45ms
+					predict_shapes        
+						to_rgb_cv_img	 				 30ms
+						preprocess						   5ms
+						inference						   9ms
+						postprocess						   0ms
+					self.new_auto_labeling_result.emit
+					== AutoLabelingWidget的new_shapes_from_auto_labeling方法, 计算IOU并做判定
+						new_shapes_from_auto_labeling() 
+							set_dirty()	按要求保存label
+								save_labels(label_file)
+									label_file.save()
+			progress_dialog.setValue()							3.7ms
+
+## 五.与GPU有关的修改
 
 1) 查看CUDA和Python版本  
     NVIDIA-SMI 560.94  

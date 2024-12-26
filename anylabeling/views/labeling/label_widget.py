@@ -11,6 +11,7 @@ import re
 import yaml
 import webbrowser
 from difflib import SequenceMatcher
+import time
 
 import imgviz
 import natsort
@@ -3059,13 +3060,24 @@ class LabelingWidget(LabelDialog):
             )
             if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
                 os.makedirs(osp.dirname(filename))
+
+            # 若没有图片数据, 则基于图片路径读取宽和高; 否则, 使用图片数据的宽高
+            if image_data is None:
+                with open(self.image_path, 'rb') as f:
+                    f.read(163)
+                    h = int.from_bytes(f.read(2), 'big')
+                    w = int.from_bytes(f.read(2), 'big')
+            else:
+                h = self.image.height()
+                w = self.image.width()
+            
             label_file.save(
                 filename=filename,
                 shapes=shapes,
                 image_path=image_path,
                 image_data=image_data,
-                image_height=self.image.height(),
-                image_width=self.image.width(),
+                image_height=h,
+                image_width=w,
                 other_data=self.other_data,
                 flags=flags,
             )
@@ -5954,10 +5966,23 @@ class LabelingWidget(LabelDialog):
         self.process_next_image(progress_dialog)
 
     def process_next_image(self, progress_dialog):
+        infer_start1 = time.time()
+
         if self.image_index < len(self.image_list):
             filename = self.image_list[self.image_index]
             self.filename = filename
-            self.load_file(self.filename)
+
+            infer_start = time.time()
+            #self.load_file(self.filename)  # 发现根本不需要调用load_file函数, 只要执行下面五句就行了
+            self.image_path = filename
+            self.clear_auto_labeling_marks()
+            self.label_file = LabelFile(osp.splitext(filename)[0] + ".json", osp.dirname(filename), False)
+            self.label_list.clear()
+            self.load_shapes(self.label_file.shapes, update_last_label=False)
+            infer_time = time.time() - infer_start
+            #print(f"\n图片加载的耗时: {infer_time * 1000:.2f}ms")
+
+            infer_start = time.time()
             if self.text_prompt:
                 self.auto_labeling_widget.model_manager.predict_shapes(
                     self.image, self.filename, text_prompt=self.text_prompt
@@ -5970,9 +5995,14 @@ class LabelingWidget(LabelDialog):
                 self.auto_labeling_widget.model_manager.predict_shapes(
                     self.image, self.filename
                 )
+            infer_time = time.time() - infer_start
+            #print(f"目标预测的耗时: {infer_time * 1000:.2f}ms")
 
             # Update the progress dialog
-            progress_dialog.setValue(self.image_index)
+            infer_start = time.time()
+            #progress_dialog.setValue(self.image_index)
+            infer_time = time.time() - infer_start
+            #print(f"更新对话框的耗时: {infer_time * 1000:.2f}ms")
 
             self.image_index += 1
             if not self.cancel_processing:
@@ -5984,6 +6014,9 @@ class LabelingWidget(LabelDialog):
                 self.cancel_operation()
         else:
             self.finish_processing(progress_dialog)
+
+        infer_time = time.time() - infer_start1
+        print(f"{self.filename} 耗时: {infer_time * 1000:.2f}ms")
 
     def cancel_operation(self):
         self.cancel_processing = True
@@ -6225,13 +6258,14 @@ class LabelingWidget(LabelDialog):
             a = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
             flag = 0
             for shape2 in self.canvas.shapes:
-                points = shape2.points
-                b = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
-                iou = calculate_iou(a, b)
-                if iou > 0.80:
-                    flag = 1
-                elif iou > 0.05:
-                    flag = 2
+                if shape1.label == shape2.label: # 只在类型一样时才比较iou, 否则都按[多/少]来处理
+                    points = shape2.points
+                    b = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
+                    iou = calculate_iou(a, b)
+                    if iou > 0.80:
+                        flag = 1
+                    elif iou > 0.05:
+                        flag = 2
             count[flag] += 1 #0-多识少标, 1-标定OK, 2-标定偏了
             if flag != 1: # 收集 0-多识少标 和 2-标定偏了
                 badResultShapes.append(shape1)
