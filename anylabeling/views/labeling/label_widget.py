@@ -3063,10 +3063,21 @@ class LabelingWidget(LabelDialog):
 
             # 若没有图片数据, 则基于图片路径读取宽和高; 否则, 使用图片数据的宽高
             if image_data is None:
-                with open(self.image_path, 'rb') as f:
-                    f.read(163)
-                    h = int.from_bytes(f.read(2), 'big')
-                    w = int.from_bytes(f.read(2), 'big')
+                with open(self.image_path, 'rb') as file:
+                    while True:
+                        # 读取2字节缓冲区
+                        buffer = file.read(2)
+                        # 检查是否找到 SOF0 标记 (0xFF, 0xC0)
+                        if buffer[0] == 0xFF and buffer[1] == 0xC0:
+                            # 跳过3字节
+                            file.seek(3, 1)  # SEEK_CUR = 1
+                            # 读取高度 (2字节)
+                            buffer = file.read(2)
+                            h = buffer[0] * 256 + buffer[1]
+                            # 读取宽度 (2字节)
+                            buffer = file.read(2)
+                            w = buffer[0] * 256 + buffer[1]
+                            break
             else:
                 h = self.image.height()
                 w = self.image.width()
@@ -5977,9 +5988,11 @@ class LabelingWidget(LabelDialog):
             self.image_path = filename
             self.clear_auto_labeling_marks()
             self.canvas.set_auto_labeling(True)
-            self.label_file = LabelFile(osp.splitext(filename)[0] + ".json", osp.dirname(filename), False)
             self.label_list.clear()
-            self.load_shapes(self.label_file.shapes, update_last_label=False)
+            label_path = osp.splitext(filename)[0] + ".json"
+            if os.path.exists(label_path):
+                self.label_file = LabelFile(label_path, osp.dirname(filename), False)
+                self.load_shapes(self.label_file.shapes, update_last_label=False)
             infer_time = time.time() - infer_start
             #print(f"\n图片加载的耗时: {infer_time * 1000:.2f}ms")
 
