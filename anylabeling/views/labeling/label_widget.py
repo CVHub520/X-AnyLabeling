@@ -3006,9 +3006,8 @@ class LabelingWidget(LabelDialog):
 
     def load_shapes(self, shapes, replace=True, update_last_label=True):
         self._no_selection_slot = True
-        if not self.canvas.is_auto_labeling: #自动标注时, 为提速不绘制
-            for shape in shapes:
-                self.add_label(shape, update_last_label=update_last_label)
+        for shape in shapes:
+            self.add_label(shape, update_last_label=update_last_label)
         self.label_list.clearSelection()
         self._no_selection_slot = False
         self.canvas.load_shapes(shapes, replace=replace)
@@ -6002,7 +6001,7 @@ class LabelingWidget(LabelDialog):
 
             # Update the progress dialog
             infer_start = time.time()
-            if self.image_index % 16 == 0:
+            if self.image_index < 10 or self.image_index % 16 == 0:
                 progress_dialog.setValue(self.image_index)
             infer_time = time.time() - infer_start
             #print(f"更新对话框的耗时: {infer_time * 1000:.2f}ms")
@@ -6015,8 +6014,10 @@ class LabelingWidget(LabelDialog):
                 )
             else:
                 self.cancel_operation()
+                self.canvas.set_auto_labeling(False)
         else:
             self.finish_processing(progress_dialog)
+            self.canvas.set_auto_labeling(False)
 
         infer_time = time.time() - infer_start1
         print(f"{self.filename} 耗时: {infer_time * 1000:.2f}ms")
