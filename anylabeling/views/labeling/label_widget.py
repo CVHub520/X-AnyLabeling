@@ -5984,7 +5984,7 @@ class LabelingWidget(LabelDialog):
             self.filename = filename
 
             infer_start = time.time()
-            #self.load_file(self.filename)  # 发现根本不需要调用load_file函数, 只要执行下面五句就行了
+            #self.load_file(self.filename)  # 发现根本不需要调用load_file函数, 只要执行下面几句就行了
             self.image_path = filename
             self.clear_auto_labeling_marks()
             self.canvas.set_auto_labeling(True)
@@ -6033,7 +6033,8 @@ class LabelingWidget(LabelDialog):
             self.canvas.set_auto_labeling(False)
 
         infer_time = time.time() - infer_start1
-        print(f"{self.filename} 耗时: {infer_time * 1000:.2f}ms")
+        if self.image_index < 10 or self.image_index % 16 == 0:
+            print(f"进度{self.image_index}/{len(self.image_list)}, 耗时{infer_time * 1000:.2f}ms, {self.filename}")
 
     def cancel_operation(self):
         self.cancel_processing = True

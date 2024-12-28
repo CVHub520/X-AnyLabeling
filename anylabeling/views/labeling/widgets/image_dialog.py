@@ -302,6 +302,7 @@ class ImageCropperDialog:
                 for shape in shapes:
                     label = shape.get("label", "")
                     points = np.array(shape.get("points", [])).astype(np.int32)
+                    score = shape.get("score", "")
                     shape_type = shape.get("shape_type", "")
 
                     if (
@@ -328,7 +329,7 @@ class ImageCropperDialog:
                         points,
                         save_path,
                         label_to_count,
-                        shape_type,
+                        score,
                     )
 
                 # Update the progress dialog
@@ -343,42 +344,8 @@ class ImageCropperDialog:
             progress_dialog.close()
             self._show_error_message(str(e))
 
-    def _crop_and_save1(
-        self, image_file, label, points, save_path, label_to_count, shape_type
-    ):
-        """
-        Crops the image to the specified region and saves it.
-        Uses original filename as prefix for cropped images.
-        """
-        # Get original filename without extension
-        orig_filename = osp.splitext(osp.basename(image_file))[0]
-
-        # Calculate crop coordinates
-        x, y, w, h = cv2.boundingRect(points)
-        xmin, ymin, xmax, ymax = x, y, x + w, y + h
-
-        # Read and crop image
-        image = cv2.imread(image_file)
-        height, width = image.shape[:2]
-        xmin, ymin = max(0, xmin), max(0, ymin)
-        xmax, ymax = min(width, xmax), min(height, ymax)
-        crop_image = image[ymin:ymax, xmin:xmax]
-
-        # Create label directory
-        dst_path = osp.join(save_path, label)
-        os.makedirs(dst_path, exist_ok=True)
-
-        # Update counter and create filename
-        label_to_count[label] = label_to_count.get(label, 0) + 1
-        dst_file = osp.join(
-            dst_path,
-            f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
-        )
-
-        cv2.imwrite(dst_file, crop_image)
-
     def _crop_and_save(
-        self, image_file, label, points, save_path, label_to_count, shape_type
+        self, image_file, label, points, save_path, label_to_count, score
     ):
         """
         Crops the image to the specified region and saves it.
@@ -399,17 +366,19 @@ class ImageCropperDialog:
         except Exception as e:
             print(f"读取图片失败: {str(e)}")
             return
-            # 裁剪图片
+        # 裁剪图片
         height, width = image.shape[:2]
         xmin, ymin = max(0, xmin), max(0, ymin)
         xmax, ymax = min(width, xmax), min(height, ymax)
         crop_image = image[ymin:ymax, xmin:xmax]
         # 创建保存目录
-        dst_path = Path(save_path) / label
+        score = float(score) if score is not None else 0.99
+        subPath = f"0.{int(10*score)}至0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9至1.0"
+        dst_path = Path(save_path) / label / subPath
         dst_path.mkdir(parents=True, exist_ok=True)
         # 更新计数并创建文件名
         label_to_count[label] = label_to_count.get(label, 0) + 1
-        dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
+        dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{format(score, '.2f')}.jpg"
         # 使用 imencode 保存图片，避免中文路径问题
         try:
             is_success, buf = cv2.imencode(".jpg", crop_image)
