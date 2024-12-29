@@ -302,7 +302,8 @@ class ImageCropperDialog:
                 for shape in shapes:
                     label = shape.get("label", "")
                     points = np.array(shape.get("points", [])).astype(np.int32)
-                    score = shape.get("score", "")
+                    score = shape.get("score", 0.99)
+                    score = score if score is not None else 0.99
                     shape_type = shape.get("shape_type", "")
 
                     if (
@@ -372,7 +373,6 @@ class ImageCropperDialog:
         xmax, ymax = min(width, xmax), min(height, ymax)
         crop_image = image[ymin:ymax, xmin:xmax]
         # 创建保存目录
-        score = float(score) if score is not None else 0.99
         subPath = f"0.{int(10*score)}至0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9至1.0"
         dst_path = Path(save_path) / label / subPath
         dst_path.mkdir(parents=True, exist_ok=True)
