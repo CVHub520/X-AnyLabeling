@@ -4,7 +4,6 @@ import math
 import numpy as np
 from typing import Union, Tuple, List
 from argparse import Namespace
-import time
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -381,9 +380,7 @@ class YOLO(Model):
             logger.warning("Could not inference model")
             logger.warning(e)
             return []
-
         self.image_shape = image.shape
-
         blob = self.preprocess(image, upsample_mode="letterbox")
         outputs = self.inference(blob)
         boxes, class_ids, scores, masks, keypoints = self.postprocess(outputs)

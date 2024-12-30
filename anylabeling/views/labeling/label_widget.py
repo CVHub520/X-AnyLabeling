@@ -6300,7 +6300,7 @@ class LabelingWidget(LabelDialog):
         if auto_labeling_result.replace:
             self.set_dirty()
         else:
-            # 只转存那些可能有问题的标签
+            # Only transfer tags that may have issues
             if countA != countB or countA != count[1]:
                 if count[0] > 0:
                     self.set_dirty(1)
