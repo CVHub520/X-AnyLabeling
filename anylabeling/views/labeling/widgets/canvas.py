@@ -64,6 +64,7 @@ class Canvas(
         # Initialise local state.
         self.mode = self.EDIT
         self.is_auto_labeling = False
+        self.is_painting = True
         self.auto_labeling_mode: AutoLabelingMode = None
         self.shapes = []
         self.shapes_backups = []
@@ -1003,7 +1004,8 @@ class Canvas(
             super().paintEvent(event)
             return
 
-        if self.is_auto_labeling: #自动标注时, 为提速不绘制
+        # NOTE: Disable drawing when auto labeling for speed up
+        if not self.is_painting:
             return
 
         p = self._painter

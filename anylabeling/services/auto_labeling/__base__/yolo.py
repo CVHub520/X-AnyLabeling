@@ -220,17 +220,11 @@ class YOLO(Model):
 
     def inference(self, blob):
         if self.engine == "dnn" and self.task in ["det", "seg", "track"]:
-            infer_start = time.time()
             outputs = self.net.get_dnn_inference(blob=blob, extract=False)
-            infer_time = time.time() - infer_start
-            #print(f"DNN推理耗时: {infer_time * 1000:.2f}ms")
             if self.task == "det" and not isinstance(outputs, (tuple, list)):
                 outputs = [outputs]
         else:
-            infer_start = time.time()
             outputs = self.net.get_ort_inference(blob=blob, extract=False)
-            infer_time = time.time() - infer_start
-            #print(f"ONNX推理耗时: {infer_time * 1000:.2f}ms")
         return outputs
 
     def preprocess(self, image, upsample_mode="letterbox"):
@@ -382,30 +376,17 @@ class YOLO(Model):
             return []
 
         try:
-            infer_start = time.time()
             image = qt_img_to_rgb_cv_img(image, image_path)
-            infer_time = time.time() - infer_start
-            #print(f"---格式转换的耗时: {infer_time * 1000:.2f}ms")
         except Exception as e:  # noqa
             logger.warning("Could not inference model")
             logger.warning(e)
             return []
+
         self.image_shape = image.shape
 
-        infer_start = time.time()
         blob = self.preprocess(image, upsample_mode="letterbox")
-        infer_time = time.time() - infer_start
-        #print(f"---前处理耗时: {infer_time * 1000:.2f}ms")
-
-        infer_start = time.time()
         outputs = self.inference(blob)
-        infer_time = time.time() - infer_start
-        #print(f"---推理的耗时: {infer_time * 1000:.2f}ms")
-
-        infer_start = time.time()
         boxes, class_ids, scores, masks, keypoints = self.postprocess(outputs)
-        infer_time = time.time() - infer_start
-        #print(f"---后处理耗时: {infer_time * 1000:.2f}ms")
 
         points = [[] for _ in range(len(boxes))]
         if self.task == "seg" and masks is not None:

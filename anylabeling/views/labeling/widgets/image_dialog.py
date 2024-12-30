@@ -1,10 +1,12 @@
+import json
 import os
 import os.path as osp
-import json
-import cv2
-import numpy as np
 import shutil
 from pathlib import Path
+
+import cv2
+import numpy as np
+
 from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -18,6 +20,8 @@ from PyQt5.QtWidgets import (
     QProgressDialog,
 )
 from PyQt5.QtCore import Qt
+
+from anylabeling.views.labeling.logger import logger
 
 
 class ConfigurationDialog(QDialog):
@@ -348,46 +352,61 @@ class ImageCropperDialog:
     def _crop_and_save(
         self, image_file, label, points, save_path, label_to_count, score
     ):
+        """Crops and saves a region from an image.
+        
+        Args:
+            image_file (str): Path to the source image file
+            label (str): Label for the cropped region
+            points (np.ndarray): Points defining the region to crop
+            save_path (str): Base directory to save cropped images
+            label_to_count (dict): Counter for each label type
+            score (float): Confidence level of label recognition
+            
+        The cropped image is saved using the original filename as a prefix.
         """
-        Crops the image to the specified region and saves it.
-        Uses original filename as prefix for cropped images.
-        """
-        # 使用 Path 处理文件名
         image_path = Path(image_file)
         orig_filename = image_path.stem
-        # 计算裁剪坐标
+
+        # Calculate crop coordinates
         x, y, w, h = cv2.boundingRect(points)
         xmin, ymin, xmax, ymax = x, y, x + w, y + h
-        # 读取图片
+
+        # Read image safely handling non-ASCII paths
         try:
-            # 使用 np.fromfile 读取图片，避免中文路径问题
-            image = cv2.imdecode(np.fromfile(str(image_path), dtype=np.uint8), cv2.IMREAD_COLOR)
+            image = cv2.imdecode(
+                np.fromfile(str(image_path), dtype=np.uint8), 
+                cv2.IMREAD_COLOR
+            )
             if image is None:
-                raise ValueError(f"无法读取图片: {image_file}")
+                raise ValueError(f"Failed to read image: {image_file}")
         except Exception as e:
-            print(f"读取图片失败: {str(e)}")
+            logger.error(f"Error reading image: {str(e)}")
             return
-        # 裁剪图片
+
+        # Crop image with bounds checking
         height, width = image.shape[:2]
-        xmin, ymin = max(0, xmin), max(0, ymin)
+        xmin, ymin = max(0, xmin), max(0, ymin) 
         xmax, ymax = min(width, xmax), min(height, ymax)
         crop_image = image[ymin:ymax, xmin:xmax]
-        # 创建保存目录
+
+        # Create output directory
         subPath = f"0.{int(10*score)}至0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9至1.0"
         dst_path = Path(save_path) / label / subPath
         dst_path.mkdir(parents=True, exist_ok=True)
-        # 更新计数并创建文件名
+
+        # Update counter and create output filename
         label_to_count[label] = label_to_count.get(label, 0) + 1
         dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{format(score, '.2f')}.jpg"
-        # 使用 imencode 保存图片，避免中文路径问题
+
+        # Save image safely handling non-ASCII paths
         try:
             is_success, buf = cv2.imencode(".jpg", crop_image)
             if is_success:
                 buf.tofile(str(dst_file))
             else:
-                raise ValueError(f"保存图片失败: {dst_file}")
+                raise ValueError(f"Failed to save image: {dst_file}")
         except Exception as e:
-            print(f"保存图片失败: {str(e)}")
+            logger.error(f"Error saving image: {str(e)}")
 
     def _show_completion_message(self, save_path):
         """Displays a message box upon successful completion of the cropping operation."""

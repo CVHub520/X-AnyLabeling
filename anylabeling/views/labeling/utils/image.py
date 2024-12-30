@@ -75,6 +75,33 @@ def img_data_to_png_data(img_data):
             return f.read()
 
 
+def get_pil_img_dim(img_path):
+    """
+    Get the dimensions of a PIL image.
+
+    Args:
+        img_path (str or bytes or PIL.Image.Image): The path to the image file or the image data.
+
+    Returns:
+        tuple: The dimensions of the image (width, height).
+    """
+    try:
+        if isinstance(img_path, str):
+            with PIL.Image.open(img_path) as img:
+                return img.size[0], img.size[1]
+        elif isinstance(img_path, bytes):
+            with PIL.Image.open(io.BytesIO(img_path)) as img:
+                return img.size[0], img.size[1]
+        elif isinstance(img_path, PIL.Image.Image):
+            return img_path.size[0], img_path.size[1]
+        else:
+            raise ValueError(f"Invalid image path type: {type(img_path)}")
+
+    except Exception as e:
+        logger.error(f"Error reading image dimensions from {img_path}: {str(e)}")
+        raise
+
+
 def process_image_exif(filename):
     """Process image EXIF orientation and save if necessary."""
     with PIL.Image.open(filename) as img:

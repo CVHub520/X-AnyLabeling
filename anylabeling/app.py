@@ -12,18 +12,20 @@ import codecs
 import logging
 
 import sys
-
-sys.path.append(".")
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import yaml
 from PyQt5 import QtCore, QtWidgets
 
 from anylabeling.app_info import __appname__, __version__, __url__
-from anylabeling.config import get_config, save_config
+from anylabeling.config import get_config
 from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils import new_icon, gradient_text
+
+# NOTE: Do not remove this import, it is required for loading translations
 from anylabeling.resources import resources
 
 
