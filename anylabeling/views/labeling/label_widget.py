@@ -1861,7 +1861,7 @@ class LabelingWidget(LabelDialog):
                 dirname, filename = os.path.split(label_file)
                 label_file = dirname + "/{:}/".format(flag) + filename
             self.save_labels(label_file)
-            if flag > 0:# 拷贝图片到这个目录中
+            if flag > 0:
                 dirname, filename = os.path.split(self.image_path)
                 pic_file = dirname + "/{:}/".format(flag) + filename
                 shutil.copy(self.image_path, pic_file)
@@ -6017,7 +6017,6 @@ class LabelingWidget(LabelDialog):
             self.finish_processing(progress_dialog)
             self.canvas.is_painting = True
 
-
     def cancel_operation(self):
         self.cancel_processing = True
 
@@ -6237,17 +6236,17 @@ class LabelingWidget(LabelDialog):
 
         #----------------------------------------------------------------------------------
         def calculate_iou(box1, box2):
-            # 计算交集区域
+            # Calculate the intersection area
             xi1 = max(box1[0], box2[0])
             yi1 = max(box1[1], box2[1])
             xi2 = min(box1[2], box2[2])
             yi2 = min(box1[3], box2[3])
             inter_area = max(xi2 - xi1, 0) * max(yi2 - yi1, 0)
-            # 计算并集区域
+            # Calculate the union region
             box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
             box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
             union_area = box1_area + box2_area - inter_area
-            # 计算IOU
+            # Calculate IOU
             iou = inter_area / union_area if union_area > 0 else 0
             return iou
 
@@ -6258,7 +6257,8 @@ class LabelingWidget(LabelDialog):
             a = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
             flag = 0
             for shape2 in self.canvas.shapes:
-                if shape1.label == shape2.label: # 只在类型一样时才比较iou, 否则都按[多/少]来处理
+                # Only compare iou when the labels are the same, otherwise handle them as [more/less]
+                if shape1.label == shape2.label:
                     points = shape2.points
                     b = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
                     iou = calculate_iou(a, b)
@@ -6266,14 +6266,14 @@ class LabelingWidget(LabelDialog):
                         flag = 1
                     elif iou > 0.05:
                         flag = 2
-            count[flag] += 1 #0-多识少标, 1-标定OK, 2-标定偏了
-            if flag != 1: # 收集 0-多识少标 和 2-标定偏了
+            count[flag] += 1 #0-More recognition and less labeling, 1-labeling OK, 2-labeling Bias
+            if flag != 1: # Collect suspected problematic shapes
                 badResultShapes.append(shape1)
 
         countA = len(auto_labeling_result.shapes)
         countB = len(self.canvas.shapes)
         if countA < countB:
-            count[3] += 1 #3-少识多标
+            count[3] += 1 #3-More labeling and less recognition
         # ----------------------------------------------------------------------------------
 
         # Clear existing shapes

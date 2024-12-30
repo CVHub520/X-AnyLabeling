@@ -390,7 +390,7 @@ class ImageCropperDialog:
         crop_image = image[ymin:ymax, xmin:xmax]
 
         # Create output directory
-        subPath = f"0.{int(10*score)}至0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9至1.0"
+        subPath = f"0.{int(10*score)}~0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9~1.0"
         dst_path = Path(save_path) / label / subPath
         dst_path.mkdir(parents=True, exist_ok=True)
 
