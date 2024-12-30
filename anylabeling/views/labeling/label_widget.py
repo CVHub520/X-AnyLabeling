@@ -6234,48 +6234,6 @@ class LabelingWidget(LabelDialog):
         if not self.image or not self.image_path:
             return
 
-        #----------------------------------------------------------------------------------
-        def calculate_iou(box1, box2):
-            # Calculate the intersection area
-            xi1 = max(box1[0], box2[0])
-            yi1 = max(box1[1], box2[1])
-            xi2 = min(box1[2], box2[2])
-            yi2 = min(box1[3], box2[3])
-            inter_area = max(xi2 - xi1, 0) * max(yi2 - yi1, 0)
-            # Calculate the union region
-            box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
-            box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
-            union_area = box1_area + box2_area - inter_area
-            # Calculate IOU
-            iou = inter_area / union_area if union_area > 0 else 0
-            return iou
-
-        count = [0,0,0,0]
-        badResultShapes = []
-        for shape1 in auto_labeling_result.shapes:
-            points = shape1.points
-            a = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
-            flag = 0
-            for shape2 in self.canvas.shapes:
-                # Only compare iou when the labels are the same, otherwise handle them as [more/less]
-                if shape1.label == shape2.label:
-                    points = shape2.points
-                    b = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
-                    iou = calculate_iou(a, b)
-                    if iou > 0.80:
-                        flag = 1
-                    elif iou > 0.05:
-                        flag = 2
-            count[flag] += 1 #0-More recognition and less labeling, 1-labeling OK, 2-labeling Bias
-            if flag != 1: # Collect suspected problematic shapes
-                badResultShapes.append(shape1)
-
-        countA = len(auto_labeling_result.shapes)
-        countB = len(self.canvas.shapes)
-        if countA < countB:
-            count[3] += 1 #3-More labeling and less recognition
-        # ----------------------------------------------------------------------------------
-
         # Clear existing shapes
         if auto_labeling_result.replace:
             self.load_shapes([], replace=True)
@@ -6287,8 +6245,8 @@ class LabelingWidget(LabelDialog):
                 if shape.label == AutoLabelingMode.OBJECT:
                     item = self.label_list.find_item_by_shape(shape)
                     self.label_list.remove_item(item)
-            # self.load_shapes(auto_labeling_result.shapes, replace=False)
-            self.load_shapes(badResultShapes, replace=False)
+            self.load_shapes(auto_labeling_result.shapes, replace=False)
+
         # Set image description
         if auto_labeling_result.description:
             description = auto_labeling_result.description
@@ -6297,17 +6255,7 @@ class LabelingWidget(LabelDialog):
             self.other_data["description"] = description
             self.shape_text_edit.setDisabled(False)
 
-        if auto_labeling_result.replace:
-            self.set_dirty()
-        else:
-            # Only transfer tags that may have issues
-            if countA != countB or countA != count[1]:
-                if count[0] > 0:
-                    self.set_dirty(1)
-                elif count[3] > 0:
-                    self.set_dirty(3)
-                elif count[2] > 0:
-                    self.set_dirty(2)
+        self.set_dirty()
 
     def clear_auto_labeling_marks(self):
         """Clear auto labeling marks from the current image."""

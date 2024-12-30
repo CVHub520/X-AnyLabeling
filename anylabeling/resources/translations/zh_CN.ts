@@ -2920,7 +2920,7 @@ and
     <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="199"/>
         <source>Preserve existing annotations</source>
-        <translation>提取疑错标签</translation>
+        <translation>保留现有标签</translation>
     </message>
     <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="200"/>

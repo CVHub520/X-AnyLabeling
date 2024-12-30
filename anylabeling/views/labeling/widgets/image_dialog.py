@@ -306,8 +306,6 @@ class ImageCropperDialog:
                 for shape in shapes:
                     label = shape.get("label", "")
                     points = np.array(shape.get("points", [])).astype(np.int32)
-                    score = shape.get("score", 0.99)
-                    score = score if score is not None else 0.99
                     shape_type = shape.get("shape_type", "")
 
                     if (
@@ -334,7 +332,7 @@ class ImageCropperDialog:
                         points,
                         save_path,
                         label_to_count,
-                        score,
+                        shape_type,
                     )
 
                 # Update the progress dialog
@@ -350,7 +348,7 @@ class ImageCropperDialog:
             self._show_error_message(str(e))
 
     def _crop_and_save(
-        self, image_file, label, points, save_path, label_to_count, score
+        self, image_file, label, points, save_path, label_to_count, shape_type
     ):
         """Crops and saves a region from an image.
         
@@ -360,7 +358,7 @@ class ImageCropperDialog:
             points (np.ndarray): Points defining the region to crop
             save_path (str): Base directory to save cropped images
             label_to_count (dict): Counter for each label type
-            score (float): Confidence level of label recognition
+            shape_type (str): Type of shape used for cropping
             
         The cropped image is saved using the original filename as a prefix.
         """
@@ -390,13 +388,12 @@ class ImageCropperDialog:
         crop_image = image[ymin:ymax, xmin:xmax]
 
         # Create output directory
-        subPath = f"0.{int(10*score)}~0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9~1.0"
-        dst_path = Path(save_path) / label / subPath
+        dst_path = Path(save_path) / label
         dst_path.mkdir(parents=True, exist_ok=True)
 
         # Update counter and create output filename
         label_to_count[label] = label_to_count.get(label, 0) + 1
-        dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{format(score, '.2f')}.jpg"
+        dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
 
         # Save image safely handling non-ASCII paths
         try:
