@@ -1848,7 +1848,7 @@ class LabelingWidget(LabelDialog):
         )
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
 
-    def set_dirty(self, flag=0):
+    def set_dirty(self):
         # Even if we autosave the file, we keep the ability to undo
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
@@ -1857,16 +1857,8 @@ class LabelingWidget(LabelDialog):
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
                 label_file = self.output_dir + "/" + label_file_without_path
-            elif flag > 0:
-                dirname, filename = os.path.split(label_file)
-                label_file = dirname + "/{:}/".format(flag) + filename
             self.save_labels(label_file)
-            if flag > 0:
-                dirname, filename = os.path.split(self.image_path)
-                pic_file = dirname + "/{:}/".format(flag) + filename
-                shutil.copy(self.image_path, pic_file)
             return
-
         self.dirty = True
         self.actions.save.setEnabled(True)
         title = __appname__

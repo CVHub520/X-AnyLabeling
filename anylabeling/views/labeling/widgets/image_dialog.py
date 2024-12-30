@@ -383,7 +383,7 @@ class ImageCropperDialog:
 
         # Crop image with bounds checking
         height, width = image.shape[:2]
-        xmin, ymin = max(0, xmin), max(0, ymin) 
+        xmin, ymin = max(0, xmin), max(0, ymin)
         xmax, ymax = min(width, xmax), min(height, ymax)
         crop_image = image[ymin:ymax, xmin:xmax]
 
