@@ -64,6 +64,7 @@ class Canvas(
         # Initialise local state.
         self.mode = self.EDIT
         self.is_auto_labeling = False
+        self.is_painting = True
         self.auto_labeling_mode: AutoLabelingMode = None
         self.shapes = []
         self.shapes_backups = []
@@ -1001,6 +1002,10 @@ class Canvas(
             or self.pixmap.height() == 0
         ):
             super().paintEvent(event)
+            return
+
+        # NOTE: Disable drawing when auto labeling for speed up
+        if not self.is_painting:
             return
 
         p = self._painter

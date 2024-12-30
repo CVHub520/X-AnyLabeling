@@ -1,16 +1,18 @@
 import functools
 import html
-import math
 import json
+import math
 import os
 import os.path as osp
-import shutil
 import pathlib
-import cv2
 import re
-import yaml
+import shutil
+import time
 import webbrowser
+
+import cv2
 from difflib import SequenceMatcher
+import yaml
 
 import imgviz
 import natsort
@@ -3051,13 +3053,20 @@ class LabelingWidget(LabelDialog):
             )
             if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
                 os.makedirs(osp.dirname(filename))
+
+            if image_data is None:
+                w, h = utils.get_pil_img_dim(self.image_path)
+            else:
+                h = self.image.height()
+                w = self.image.width()
+
             label_file.save(
                 filename=filename,
                 shapes=shapes,
                 image_path=image_path,
                 image_data=image_data,
-                image_height=self.image.height(),
-                image_width=self.image.width(),
+                image_height=h,
+                image_width=w,
                 other_data=self.other_data,
                 flags=flags,
             )
@@ -5946,10 +5955,21 @@ class LabelingWidget(LabelDialog):
         self.process_next_image(progress_dialog)
 
     def process_next_image(self, progress_dialog):
-        if self.image_index < len(self.image_list):
+        total_images = len(self.image_list)
+
+        if self.image_index < total_images:
             filename = self.image_list[self.image_index]
             self.filename = filename
-            self.load_file(self.filename)
+
+            self.image_path = filename
+            self.clear_auto_labeling_marks()
+            self.canvas.set_auto_labeling(True)
+            self.label_list.clear()
+            label_path = osp.splitext(filename)[0] + ".json"
+            if os.path.exists(label_path):
+                self.label_file = LabelFile(label_path, osp.dirname(filename), False)
+                self.load_shapes(self.label_file.shapes, update_last_label=False)
+
             if self.text_prompt:
                 self.auto_labeling_widget.model_manager.predict_shapes(
                     self.image, self.filename, text_prompt=self.text_prompt
@@ -5964,18 +5984,30 @@ class LabelingWidget(LabelDialog):
                 )
 
             # Update the progress dialog
-            progress_dialog.setValue(self.image_index)
+            if total_images <= 100:
+                update_flag = True
+            else:
+                update_interval = max(1, total_images // 100)
+                update_flag = self.image_index % update_interval == 0
+            # Ensure more frequent updates near the start and end
+            if self.image_index < 10 or self.image_index >= total_images - 10:
+                update_flag = True
+            if update_flag:
+                progress_dialog.setValue(self.image_index)
 
             self.image_index += 1
             if not self.cancel_processing:
                 delay_ms = 1
+                self.canvas.is_painting = False
                 QtCore.QTimer.singleShot(
                     delay_ms, lambda: self.process_next_image(progress_dialog)
                 )
             else:
                 self.cancel_operation()
+                self.canvas.is_painting = True
         else:
             self.finish_processing(progress_dialog)
+            self.canvas.is_painting = True
 
     def cancel_operation(self):
         self.cancel_processing = True
@@ -6193,6 +6225,7 @@ class LabelingWidget(LabelDialog):
         """Apply auto labeling results to the current image."""
         if not self.image or not self.image_path:
             return
+
         # Clear existing shapes
         if auto_labeling_result.replace:
             self.load_shapes([], replace=True)
@@ -6205,6 +6238,7 @@ class LabelingWidget(LabelDialog):
                     item = self.label_list.find_item_by_shape(shape)
                     self.label_list.remove_item(item)
             self.load_shapes(auto_labeling_result.shapes, replace=False)
+
         # Set image description
         if auto_labeling_result.description:
             description = auto_labeling_result.description
@@ -6212,6 +6246,7 @@ class LabelingWidget(LabelDialog):
             self.shape_text_edit.setPlainText(description)
             self.other_data["description"] = description
             self.shape_text_edit.setDisabled(False)
+
         self.set_dirty()
 
     def clear_auto_labeling_marks(self):

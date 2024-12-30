@@ -921,9 +921,8 @@ class LabelConverter:
                     width = abs(points[2][0] - points[0][0]) / image_width
                     height = abs(points[2][1] - points[0][1]) / image_height
 
-                    f.write(
-                        f"{class_index} {x_center} {y_center} {width} {height}\n"
-                    )
+                    f.write(f"{class_index} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
+
                     is_empty_file = False
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
