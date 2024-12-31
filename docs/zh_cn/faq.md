@@ -36,7 +36,12 @@
 <details>
 <summary>Q: 下载完的模型每次重新启动应用时都被自动删除重新下载</summary>
 
-注意模型路径不得有中文字符，否则会有异常。（[#600](https://github.com/CVHub520/X-AnyLabeling/issues/600)）
+- 注意模型路径不得有中文字符，否则会有异常。（[#600](https://github.com/CVHub520/X-AnyLabeling/issues/600)）
+- 如提示`Unsupported model IR version: 10, max supported IR version: 9`，则说明模型 IR 版本过高，请更新 onnx 版本：
+
+```bash
+pip install --upgrade onnx
+```
 </details>
 
 <details>
