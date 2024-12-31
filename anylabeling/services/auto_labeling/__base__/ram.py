@@ -66,13 +66,19 @@ class RecognizeAnything(Model):
         Pre-processes the input image before feeding it to the network.
         """
         h, w = input_shape
-        image = cv2.resize(input_image, (w, h))
+        # Convert to float32 before normalization
+        image = cv2.resize(input_image, (w, h)).astype(np.float32)
+        # Normalize the image
         image /= 255.0
-        mean = np.array([0.485, 0.456, 0.406])
-        std = np.array([0.229, 0.224, 0.225])
+        # standardize
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+        std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
         image = (image - mean) / std
+        # transpose
         image = np.transpose(image, (2, 0, 1))
-        image = np.expand_dims(image, 0).astype(np.float32)
+        # expand
+        image = np.expand_dims(image, 0)
+
         return image
 
     def inference(self, blob):
