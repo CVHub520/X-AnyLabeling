@@ -179,21 +179,15 @@ class YOLOv5_RAM(YOLO):
     @staticmethod
     def load_tag_list():
         import importlib.resources as pkg_resources
-        from anylabeling.services.auto_labeling import configs
+        from anylabeling.services.auto_labeling.configs import ram
 
-        try:
-            tag_list = pkg_resources.read_text(
-                configs.ram, "ram_tag_list.txt"
-            ).splitlines()
-            tag_list = np.array(tag_list)
+        with pkg_resources.path(ram, "ram_tag_list.txt") as p:
+            tag_list = p.read_text(encoding="utf-8").splitlines()
+        tag_list = np.array(tag_list)
 
-            tag_list_chinese = pkg_resources.read_text(
-                configs.ram, "ram_tag_list_chinese.txt"
-            ).splitlines()
-            tag_list_chinese = np.array(tag_list_chinese)
-        except Exception as e:
-            logger.error(f"Error loading tag list: {e}")
-            return np.array([]), np.array([])
+        with pkg_resources.path(ram, "ram_tag_list_chinese.txt") as p:
+            tag_list_chinese = p.read_text(encoding="utf-8").splitlines()
+        tag_list_chinese = np.array(tag_list_chinese)
 
         return tag_list, tag_list_chinese
 

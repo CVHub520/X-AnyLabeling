@@ -132,11 +132,11 @@ class RecognizeAnything(Model):
         from anylabeling.services.auto_labeling.configs import ram
 
         with pkg_resources.path(ram, "ram_tag_list.txt") as p:
-            tag_list = p.read_text().splitlines()
+            tag_list = p.read_text(encoding="utf-8").splitlines()
         tag_list = np.array(tag_list)
 
         with pkg_resources.path(ram, "ram_tag_list_chinese.txt") as p:
-            tag_list_chinese = p.read_text().splitlines()
+            tag_list_chinese = p.read_text(encoding="utf-8").splitlines()
         tag_list_chinese = np.array(tag_list_chinese)
 
         return tag_list, tag_list_chinese
