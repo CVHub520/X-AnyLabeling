@@ -88,14 +88,56 @@ Additionally, you can adjust the following parameters to filter detection result
 
 ### Text-Visual Prompting Grounding
 
-The [OpenVision](../../../anylabeling/configs/auto_labeling/open_vision.yaml) model demonstrates advanced usage with dual-granularity prompt tuning for comprehensive object detection at both instance and part levels.
+The [OpenVision](../../../anylabeling/configs/auto_labeling/open_vision.yaml) model demonstrates advanced usage with dual-granularity prompt tuning for comprehensive object detection at both instance and part levels. It combines the [CountGD](https://github.com/niki-amini-naieni/CountGD) model for counting-based detection and the [Segment Anything Model](https://github.com/facebookresearch/segment-anything) for precise segmentation, enabling both coarse and fine-grained object analysis.
 
-Before starting, please install the required [CountGD](https://github.com/niki-amini-naieni/CountGD) dependencies.
+---
 
+Follow these step-by-step instructions to install the environment:
 
-For a demonstration of the workflow, watch the demo video below:
+1. Create and activate the environment:
+   ```bash
+   conda create -n countgd python=3.9.19 -y
+   conda activate countgd
+   ```
 
-[![Open Vision](https://github.com/user-attachments/assets/b2c1419b-540b-44fb-988e-a48572268df7)](https://www.youtube.com/watch?v=QtoVMiTwXqk)
+2. Downgrade the NVIDIA driver to version 12.1 and reinstall it if necessary:
+   ```bash
+   pip install torch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 --index-url https://download.pytorch.org/whl/cu121
+   ```
+   Alternatively, you can follow [this method](https://blog.csdn.net/Slience_me/article/details/139860610) to manage multiple CUDA environments.
+
+3. Clone the CountGD repository and navigate to it:
+   ```bash
+   git clone https://github.com/niki-amini-naieni/CountGD.git
+   cd CountGD
+   ```
+
+4. Install dependencies and set up GroundingDINO:
+   ```bash
+   pip install -r requirements.txt
+   export CC=/usr/bin/gcc-11  # Ensure GCC 11 is used for compilation
+   cd models/GroundingDINO/ops
+   python setup.py build install
+   python test.py
+   ```
+
+5. Clone the X-AnyLabeling repository and navigate to the project directory:
+   ```bash
+   cd /path/to/x-anylabeling/project
+   git clone https://github.com/CVHub520/X-AnyLabeling
+   cd X-AnyLabeling
+   ```
+
+6. Follow the [instructions](https://github.com/CVHub520/X-AnyLabeling/blob/main/docs/zh_cn/get_started.md#112-%E5%AE%89%E8%A3%85) to install the required packages, ensuring compatibility with your local CUDA version.
+
+7. Run the application:
+   ```bash
+   python anylabeling/app.py
+   ```
+
+---
+
+For a demonstration of the workflow, watch the demo video here: [[Youtube](https://www.youtube.com/watch?v=QtoVMiTwXqk) | [Bilibili](https://www.bilibili.com/video/BV1jyqrYyE74)]
 
 
 X-AnyLabeling supports three different prompting modes for object detection and annotation:
