@@ -177,10 +177,7 @@ class LabelingWidget(LabelDialog):
         self.flag_dock.setWidget(self.flag_widget)
         self.flag_widget.itemChanged.connect(self.set_dirty)
         self.flag_dock.setStyleSheet(
-            "QDockWidget::title {"
-            "text-align: center;"
-            "padding: 0px;"
-            "}"
+            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
 
         # Create and add combobox for showing unique labels in group
@@ -195,10 +192,7 @@ class LabelingWidget(LabelDialog):
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Objects"), self)
         self.shape_dock.setWidget(self.label_list)
         self.shape_dock.setStyleSheet(
-            "QDockWidget::title {"
-            "text-align: center;"
-            "padding: 0px;"
-            "}"
+            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
         self.shape_dock.setTitleBarWidget(QtWidgets.QWidget())
 
@@ -221,10 +215,7 @@ class LabelingWidget(LabelDialog):
         self.label_dock.setObjectName("Labels")
         self.label_dock.setWidget(self.unique_label_list)
         self.label_dock.setStyleSheet(
-            "QDockWidget::title {"
-            "text-align: center;"
-            "padding: 0px;"
-            "}"
+            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
 
         self.file_search = QtWidgets.QLineEdit()
@@ -245,10 +236,7 @@ class LabelingWidget(LabelDialog):
         file_list_widget.setLayout(file_list_layout)
         self.file_dock.setWidget(file_list_widget)
         self.file_dock.setStyleSheet(
-            "QDockWidget::title {"
-            "text-align: center;"
-            "padding: 0px;"
-            "}"
+            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
 
         self.zoom_widget = ZoomWidget()
@@ -5967,8 +5955,12 @@ class LabelingWidget(LabelDialog):
             self.label_list.clear()
             label_path = osp.splitext(filename)[0] + ".json"
             if os.path.exists(label_path):
-                self.label_file = LabelFile(label_path, osp.dirname(filename), False)
-                self.load_shapes(self.label_file.shapes, update_last_label=False)
+                self.label_file = LabelFile(
+                    label_path, osp.dirname(filename), False
+                )
+                self.load_shapes(
+                    self.label_file.shapes, update_last_label=False
+                )
 
             if self.text_prompt:
                 self.auto_labeling_widget.model_manager.predict_shapes(
@@ -6204,12 +6196,13 @@ class LabelingWidget(LabelDialog):
             try:
                 return natsort.os_sorted(images)
             except (OSError, ValueError) as e:
-                logger.warning(f"Warning: Natural sort failed, falling back to regular sort: {e}")
+                logger.warning(
+                    f"Warning: Natural sort failed, falling back to regular sort: {e}"
+                )
                 return sorted(images)
         except Exception as e:
             logger.error(f"Error scanning images: {e}")
             return []
-        
 
     def toggle_auto_labeling_widget(self):
         """Toggle auto labeling widget visibility."""

@@ -296,17 +296,17 @@ class SegmentAnything2Video(Model):
             # Find min/max coordinates across all contours
             for approx in approx_contours:
                 points = approx.reshape(-1, 2)
-                points[:, 0] = points[:, 0] 
+                points[:, 0] = points[:, 0]
                 points[:, 1] = points[:, 1]
                 points = points.tolist()
                 if len(points) < 3:
                     continue
                 for point in points:
                     x_min = min(x_min, point[0])
-                    y_min = min(y_min, point[1]) 
+                    y_min = min(y_min, point[1])
                     x_max = max(x_max, point[0])
                     y_max = max(y_max, point[1])
-            
+
             # Create single bounding box shape containing all contours
             shape = Shape(flags={})
             shape.add_point(QtCore.QPointF(x_min, y_min))
@@ -314,9 +314,7 @@ class SegmentAnything2Video(Model):
             shape.add_point(QtCore.QPointF(x_max, y_max))
             shape.add_point(QtCore.QPointF(x_min, y_max))
             shape.shape_type = (
-                "rectangle" 
-                if self.output_mode == "rectangle"
-                else "rotation"
+                "rectangle" if self.output_mode == "rectangle" else "rotation"
             )
             shape.closed = True
             shape.group_id = (

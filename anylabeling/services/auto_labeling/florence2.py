@@ -70,8 +70,10 @@ class Florence2(Model):
         model_path = self.config.get("model_path", None)
         trust_remote_code = self.config.get("trust_remote_code", True)
 
-        device_map= "cuda:0" if torch.cuda.is_available() else "cpu"
-        torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+        device_map = "cuda:0" if torch.cuda.is_available() else "cpu"
+        torch_dtype = (
+            torch.float16 if torch.cuda.is_available() else torch.float32
+        )
 
         self.marks = []
         self.prompt_type = "caption"
@@ -88,7 +90,9 @@ class Florence2(Model):
             return imports
 
         # Load model with patched imports
-        with patch("transformers.dynamic_module_utils.get_imports", fixed_get_imports):
+        with patch(
+            "transformers.dynamic_module_utils.get_imports", fixed_get_imports
+        ):
             self.model = AutoModelForCausalLM.from_pretrained(
                 model_path,
                 torch_dtype=torch_dtype,

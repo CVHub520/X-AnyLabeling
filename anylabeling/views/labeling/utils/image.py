@@ -98,7 +98,9 @@ def get_pil_img_dim(img_path):
             raise ValueError(f"Invalid image path type: {type(img_path)}")
 
     except Exception as e:
-        logger.error(f"Error reading image dimensions from {img_path}: {str(e)}")
+        logger.error(
+            f"Error reading image dimensions from {img_path}: {str(e)}"
+        )
         raise
 
 

@@ -351,7 +351,7 @@ class ImageCropperDialog:
         self, image_file, label, points, save_path, label_to_count, shape_type
     ):
         """Crops and saves a region from an image.
-        
+
         Args:
             image_file (str): Path to the source image file
             label (str): Label for the cropped region
@@ -359,7 +359,7 @@ class ImageCropperDialog:
             save_path (str): Base directory to save cropped images
             label_to_count (dict): Counter for each label type
             shape_type (str): Type of shape used for cropping
-            
+
         The cropped image is saved using the original filename as a prefix.
         """
         image_path = Path(image_file)
@@ -372,8 +372,7 @@ class ImageCropperDialog:
         # Read image safely handling non-ASCII paths
         try:
             image = cv2.imdecode(
-                np.fromfile(str(image_path), dtype=np.uint8), 
-                cv2.IMREAD_COLOR
+                np.fromfile(str(image_path), dtype=np.uint8), cv2.IMREAD_COLOR
             )
             if image is None:
                 raise ValueError(f"Failed to read image: {image_file}")
@@ -393,7 +392,10 @@ class ImageCropperDialog:
 
         # Update counter and create output filename
         label_to_count[label] = label_to_count.get(label, 0) + 1
-        dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
+        dst_file = (
+            dst_path
+            / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
+        )
 
         # Save image safely handling non-ASCII paths
         try:
