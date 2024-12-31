@@ -5948,20 +5948,7 @@ class LabelingWidget(LabelDialog):
         if self.image_index < total_images:
             filename = self.image_list[self.image_index]
             self.filename = filename
-
-            self.image_path = filename
-            self.clear_auto_labeling_marks()
-            self.canvas.set_auto_labeling(True)
-            self.label_list.clear()
-            label_path = osp.splitext(filename)[0] + ".json"
-            if os.path.exists(label_path):
-                self.label_file = LabelFile(
-                    label_path, osp.dirname(filename), False
-                )
-                self.load_shapes(
-                    self.label_file.shapes, update_last_label=False
-                )
-
+            self.load_file(self.filename)
             if self.text_prompt:
                 self.auto_labeling_widget.model_manager.predict_shapes(
                     self.image, self.filename, text_prompt=self.text_prompt
