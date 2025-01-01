@@ -5945,10 +5945,12 @@ class LabelingWidget(LabelDialog):
     def process_next_image(self, progress_dialog):
         total_images = len(self.image_list)
 
-        if self.image_index < total_images:
+        if (self.image_index < total_images) and (not self.cancel_processing):
             filename = self.image_list[self.image_index]
             self.filename = filename
-            self.load_file(self.filename)
+            self.image_path = filename
+            self.label_list.clear()
+
             if self.text_prompt:
                 self.auto_labeling_widget.model_manager.predict_shapes(
                     self.image, self.filename, text_prompt=self.text_prompt
@@ -5976,13 +5978,12 @@ class LabelingWidget(LabelDialog):
 
             self.image_index += 1
             if not self.cancel_processing:
-                delay_ms = 1
+                delay_ms = 0.1
                 self.canvas.is_painting = False
                 QtCore.QTimer.singleShot(
                     delay_ms, lambda: self.process_next_image(progress_dialog)
                 )
             else:
-                self.cancel_operation()
                 self.canvas.is_painting = True
         else:
             self.finish_processing(progress_dialog)
