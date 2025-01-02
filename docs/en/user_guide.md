@@ -494,15 +494,35 @@ Before importing/exporting ODVG label files, you need to prepare a label configu
 
 ### 5.1 Data Statistics
 
-`X-AnyLabeling` includes a data statistics feature, allowing users to easily access an overview of the current task's data. By selecting the **Tools** dropdown in the top menu bar and clicking on **Overview**, users can view the current data status. This feature supports the following:
+`X-AnyLabeling` includes a data statistics feature, allowing users to easily access an overview of the current task's data. By selecting **Tools** -> **Overview** in the top menu bar, users can view the current data status. It supports the following features:
 
-- One-click export of statistical reports
-- Statistics for a specified range of data
-- Label statistics for both image and object dimensions
+- Data Export Functionality
+  - Export statistical reports in CSV format
+  - Automatically generate a zip file containing label information, shape statistics and class list
+  - Export files include:
+    - label_infos.csv: Label count statistics
+    - shape_infos.csv: Annotation shape statistics  
+    - classes.txt: List of all classes
+
+- Flexible Statistics Range
+  - Support selecting specific range of images for statistics
+  - View statistics for single or multiple images
+  - Real-time statistics updates
+
+- Multi-dimensional Data Analysis
+  - By label category: Shows annotation count for each class
+  - By shape type: Including polygon, rectangle, rotated box, point, line, circle etc.
+  - Overall data overview: Shows dataset distribution
 
 <p align="center">
   <img src="../../assets/resources/overview.png" alt="Overview">
 </p>
+
+> Usage Instructions:
+> 1. Click "Tools" -> "Overview" in the top menu bar
+> 2. View data distribution in the statistics window
+> 3. Optionally select specific image range for statistics
+> 4. Click "Export" button to save statistics as zip file
 
 ### 5.2 Save Sub-Images
 

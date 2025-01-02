@@ -1,6 +1,7 @@
 import os
 import csv
 import json
+import zipfile
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
@@ -310,9 +311,18 @@ class OverviewDialog(QtWidgets.QDialog):
             return
 
         try:
-            # Export label_infos
+            # Get data
             label_infos = self.get_total_infos(1, len(self.image_file_list))
+            _, shape_infos = self.get_label_infos(1, len(self.image_file_list))
+            headers, shape_infos_data = self.get_shape_infos_table(shape_infos)
+
+            # Create temporary files
             label_infos_path = os.path.join(directory, "label_infos.csv")
+            shape_infos_path = os.path.join(directory, "shape_infos.csv")
+            classes_path = os.path.join(directory, "classes.txt")
+            zip_path = os.path.join(directory, "export_data.zip")
+
+            # Write label_infos.csv
             with open(
                 label_infos_path, "w", newline="", encoding="utf-8"
             ) as csvfile:
@@ -320,10 +330,7 @@ class OverviewDialog(QtWidgets.QDialog):
                 for row in label_infos:
                     writer.writerow(row)
 
-            # Export shape_infos
-            _, shape_infos = self.get_label_infos(1, len(self.image_file_list))
-            headers, shape_infos_data = self.get_shape_infos_table(shape_infos)
-            shape_infos_path = os.path.join(directory, "shape_infos.csv")
+            # Write shape_infos.csv
             with open(
                 shape_infos_path, "w", newline="", encoding="utf-8"
             ) as csvfile:
@@ -332,16 +339,33 @@ class OverviewDialog(QtWidgets.QDialog):
                 for row in shape_infos_data:
                     writer.writerow(row)
 
+            # Write classes.txt
+            classes = [
+                row[0] for row in label_infos[1:-1]
+            ]  # Exclude header and total
+            with open(classes_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(classes))
+
+            # Create zip file
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.write(label_infos_path, os.path.basename(label_infos_path))
+                zf.write(shape_infos_path, os.path.basename(shape_infos_path))
+                zf.write(classes_path, os.path.basename(classes_path))
+
+            # Clean up temporary files
+            os.remove(label_infos_path)
+            os.remove(shape_infos_path)
+            os.remove(classes_path)
+
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Information)
             msg_box.setText(self.tr("Exporting successfully!"))
             msg_box.setInformativeText(
-                self.tr(
-                    f"Results have been saved to:\n{label_infos_path}\nand\n{shape_infos_path}"
-                )
+                self.tr(f"Results have been saved to: {zip_path}")
             )
             msg_box.setWindowTitle(self.tr("Success"))
             msg_box.exec_()
+
         except Exception as e:
             error_dialog = QMessageBox()
             error_dialog.setIcon(QMessageBox.Critical)
