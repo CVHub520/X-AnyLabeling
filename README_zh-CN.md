@@ -37,6 +37,8 @@
 
 ## 🥳 新功能
 
+- 2025年1月:
+  - 🚀🚀🚀 发布[X-AnyLabeling v2.5.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.2)版本。
 - 2024年12月:
   - 🍊🍊🍊 支持[Hyper-YOLO](https://github.com/iMoonLab/Hyper-YOLO)模型。
   - 🎉🎉🎉 发布[X-AnyLabeling v2.5.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.0)版本。
