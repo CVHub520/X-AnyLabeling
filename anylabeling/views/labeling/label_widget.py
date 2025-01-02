@@ -5942,7 +5942,7 @@ class LabelingWidget(LabelDialog):
         progress_dialog.canceled.connect(self.cancel_operation)
         self.process_next_image(progress_dialog)
 
-    def process_next_image(self, progress_dialog):
+        def process_next_image(self, progress_dialog):
         total_images = len(self.image_list)
 
         if (self.image_index < total_images) and (not self.cancel_processing):
@@ -5980,8 +5980,9 @@ class LabelingWidget(LabelDialog):
             if not self.cancel_processing:
                 delay_ms = 0.1
                 self.canvas.is_painting = False
+                # The fix is here: convert delay_ms to an integer
                 QtCore.QTimer.singleShot(
-                    delay_ms, lambda: self.process_next_image(progress_dialog)
+                    int(delay_ms*1000), lambda: self.process_next_image(progress_dialog)
                 )
             else:
                 self.canvas.is_painting = True
