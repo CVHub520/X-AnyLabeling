@@ -5978,7 +5978,7 @@ class LabelingWidget(LabelDialog):
 
             self.image_index += 1
             if not self.cancel_processing:
-                delay_ms = 0.1
+                delay_ms = 1
                 self.canvas.is_painting = False
                 QtCore.QTimer.singleShot(
                     delay_ms, lambda: self.process_next_image(progress_dialog)
