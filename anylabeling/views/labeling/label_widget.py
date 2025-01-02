@@ -3042,19 +3042,13 @@ class LabelingWidget(LabelDialog):
             if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
                 os.makedirs(osp.dirname(filename))
 
-            if image_data is None:
-                w, h = utils.get_pil_img_dim(self.image_path)
-            else:
-                h = self.image.height()
-                w = self.image.width()
-
             label_file.save(
                 filename=filename,
                 shapes=shapes,
                 image_path=image_path,
                 image_data=image_data,
-                image_height=h,
-                image_width=w,
+                image_height=self.image.height(),
+                image_width=self.image.width(),
                 other_data=self.other_data,
                 flags=flags,
             )
