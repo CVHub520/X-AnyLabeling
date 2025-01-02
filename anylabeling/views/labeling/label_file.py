@@ -33,12 +33,11 @@ class LabelFileError(Exception):
 class LabelFile:
     suffix = ".json"
 
-    def __init__(self, filename=None, image_dir=None, loadimg=True):
+    def __init__(self, filename=None, image_dir=None):
         self.shapes = []
         self.image_path = None
         self.image_data = None
         self.image_dir = image_dir
-        self.load_label_only = not loadimg
         if filename is not None:
             self.load(filename)
         self.filename = filename
@@ -96,18 +95,14 @@ class LabelFile:
                     image_path = osp.join(
                         osp.dirname(filename), data["imagePath"]
                     )
-                if not self.load_label_only:
-                    image_data = self.load_image_file(image_path)
-                else:
-                    image_data = None
+                image_data = self.load_image_file(image_path)
             flags = data.get("flags") or {}
             image_path = data["imagePath"]
-            if image_data is not None:
-                self._check_image_height_and_width(
-                    base64.b64encode(image_data).decode("utf-8"),
-                    data.get("imageHeight"),
-                    data.get("imageWidth"),
-                )
+            self._check_image_height_and_width(
+                base64.b64encode(image_data).decode("utf-8"),
+                data.get("imageHeight"),
+                data.get("imageWidth"),
+            )
             shapes = [Shape().load_from_dict(s) for s in data["shapes"]]
         except Exception as e:  # noqa
             raise LabelFileError(e) from e

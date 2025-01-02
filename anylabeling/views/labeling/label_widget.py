@@ -5943,6 +5943,9 @@ class LabelingWidget(LabelDialog):
             filename = self.image_list[self.image_index]
             self.filename = filename
             self.image_path = filename
+            label_file = LabelFile()
+            image_data = label_file.load_image_file(filename)
+            self.image = QtGui.QImage.fromData(image_data)
             self.label_list.clear()
 
             if self.text_prompt:
