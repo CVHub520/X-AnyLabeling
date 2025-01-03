@@ -5936,17 +5936,124 @@ class LabelingWidget(LabelDialog):
         progress_dialog.canceled.connect(self.cancel_operation)
         self.process_next_image(progress_dialog)
 
+    def batch_load_file(self, filename=None) -> None:
+        """Load file for batch processing in run_all_images task.
+        
+        This is a specialized version of load_file() that skips UI updates
+        and other interactive features when processing multiple images in batch.
+        
+        Args:
+            filename: Path to the image file to load. If None, loads the last opened file.
+        
+        Note:
+            This method is not suitable for interactive labeling tasks.
+        """
+
+        self.reset_state()
+        self.canvas.setEnabled(False)
+
+        label_file = osp.splitext(filename)[0] + ".json"
+        image_dir = None
+        if self.output_dir:
+            image_dir = osp.dirname(filename)
+            label_file_without_path = osp.basename(label_file)
+            label_file = self.output_dir + "/" + label_file_without_path
+
+        if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
+            label_file
+        ):
+            try:
+                self.label_file = LabelFile(label_file, image_dir)
+            except LabelFileError as e:
+                self.error_message(
+                    self.tr("Error opening file"),
+                    self.tr(
+                        "<p><b>%s</b></p>"
+                        "<p>Make sure <i>%s</i> is a valid label file."
+                    )
+                    % (e, label_file),
+                )
+                self.status(self.tr("Error reading %s") % label_file)
+                return False
+            self.image_data = self.label_file.image_data
+            self.image_path = osp.join(
+                osp.dirname(label_file),
+                self.label_file.image_path,
+            )
+            self.other_data = self.label_file.other_data
+            self.shape_text_edit.textChanged.disconnect()
+            self.shape_text_edit.setPlainText(
+                self.other_data.get("description", "")
+            )
+            self.shape_text_edit.textChanged.connect(self.shape_text_changed)
+        else:
+            self.image_data = LabelFile.load_image_file(filename)
+            if self.image_data:
+                self.image_path = filename
+            self.label_file = None
+
+        # TODO(jack): icc profile issue warning
+        # - qt.gui.icc: fromIccProfile: failed minimal tag size sanity
+        # - qt.gui.icc: fromIccProfile: invalid tag offset alignment
+        image = QtGui.QImage.fromData(self.image_data)
+        if image.isNull():
+            formats = [
+                f"*.{fmt.data().decode()}"
+                for fmt in QtGui.QImageReader.supportedImageFormats()
+            ]
+            self.error_message(
+                self.tr("Error opening file"),
+                self.tr(
+                    "<p>Make sure <i>{0}</i> is a valid image file.<br/>"
+                    "Supported image formats: {1}</p>"
+                ).format(filename, ",".join(formats)),
+            )
+            self.status(self.tr("Error reading %s") % filename)
+            return False
+        self.image = image
+        self.filename = filename
+        if self._config["keep_prev"]:
+            prev_shapes = self.canvas.shapes
+        self.canvas.load_pixmap(QtGui.QPixmap.fromImage(image))
+        flags = {k: False for k in self.image_flags or []}
+        if self.label_file:
+            for shape in self.label_file.shapes:
+                default_flags = {}
+                if self._config["label_flags"]:
+                    for pattern, keys in self._config["label_flags"].items():
+                        if re.match(pattern, shape.label):
+                            for key in keys:
+                                default_flags[key] = False
+                    shape.flags = {
+                        **default_flags,
+                        **shape.flags,
+                    }
+            self.update_combo_box()
+            self.load_shapes(self.label_file.shapes, update_last_label=False)
+            if self.label_file.flags is not None:
+                flags.update(self.label_file.flags)
+        self.load_flags(flags)
+        if self._config["keep_prev"] and self.no_shape():
+            self.load_shapes(
+                prev_shapes, replace=False, update_last_label=False
+            )
+            self.set_dirty()
+        else:
+            self.set_clean()
+        self.canvas.setEnabled(True)
+
+        self.paint_canvas()
+        self.toggle_actions(True)
+
+        return True
+
     def process_next_image(self, progress_dialog):
         total_images = len(self.image_list)
 
         if (self.image_index < total_images) and (not self.cancel_processing):
             filename = self.image_list[self.image_index]
             self.filename = filename
-            self.image_path = filename
-            label_file = LabelFile()
-            image_data = label_file.load_image_file(filename)
-            self.image = QtGui.QImage.fromData(image_data)
-            self.label_list.clear()
+            self.batch_load_file(self.filename)
 
             if self.text_prompt:
                 self.auto_labeling_widget.model_manager.predict_shapes(
