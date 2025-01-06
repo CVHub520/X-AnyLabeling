@@ -6068,6 +6068,23 @@ class LabelingWidget(LabelDialog):
                     self.image, self.filename
                 )
 
+            # Enable painting for tracking models and time-consuming models
+            model_type = self.auto_labeling_widget.model_manager.loaded_model_config["type"]
+            is_painting = model_type in [
+                "segment_anything_2_video",
+                "grounding_dino",
+                "grounding_sam",
+                "grounding_sam2",
+                "yolov8_det_track",
+                "yolov8_seg_track",
+                "yolov8_obb_track",
+                "yolov8_pose_track",
+                "yolo11_det_track",
+                "yolo11_seg_track",
+                "yolo11_obb_track",
+                "yolo11_pose_track",
+            ]
+
             # Update the progress dialog
             if total_images <= 100:
                 update_flag = True
@@ -6083,12 +6100,12 @@ class LabelingWidget(LabelDialog):
             self.image_index += 1
             if not self.cancel_processing:
                 delay_ms = 1
-                self.canvas.is_painting = False
+                self.canvas.is_painting = is_painting
                 QtCore.QTimer.singleShot(
                     delay_ms, lambda: self.process_next_image(progress_dialog)
                 )
             else:
-                self.canvas.is_painting = True
+                self.canvas.is_painting = is_painting
         else:
             self.finish_processing(progress_dialog)
             self.canvas.is_painting = True
