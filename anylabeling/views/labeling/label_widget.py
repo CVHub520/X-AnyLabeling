@@ -1608,9 +1608,10 @@ class LabelingWidget(LabelDialog):
         self.next_files_changed.connect(
             self.auto_labeling_widget.model_manager.on_next_files_changed
         )
-        self.auto_labeling_widget.model_manager.request_next_files_requested.connect(
-            lambda: self.inform_next_files(self.filename)
-        )
+        # NOTE(jack): this is not needed for now
+        # self.auto_labeling_widget.model_manager.request_next_files_requested.connect(
+        #     lambda: self.inform_next_files(self.filename)
+        # )
         self.auto_labeling_widget.hide()  # Hide by default
         central_layout.addWidget(self.label_instruction)
         central_layout.addWidget(self.auto_labeling_widget)
@@ -3413,11 +3414,14 @@ class LabelingWidget(LabelDialog):
     def load_file(self, filename=None):  # noqa: C901
         """Load the specified file, or the last opened file if None."""
 
-        save_config(self._config)
+        # NOTE(jack): Does we need to save the config here?
+        # save_config(self._config)
+
         # For auto labeling, clear the previous marks
         # and inform the next files to be annotated
-        self.clear_auto_labeling_marks()
-        self.inform_next_files(filename)
+        # NOTE(jack): this is not needed for now
+        # self.clear_auto_labeling_marks()
+        # self.inform_next_files(filename)
 
         # Changing file_list_widget loads file
         if filename in self.image_list and (
@@ -3512,6 +3516,8 @@ class LabelingWidget(LabelDialog):
         if self._config["keep_prev"]:
             prev_shapes = self.canvas.shapes
         self.canvas.load_pixmap(QtGui.QPixmap.fromImage(image))
+
+        # load label flags
         flags = {k: False for k in self.image_flags or []}
         if self.label_file:
             for shape in self.label_file.shapes:
@@ -3530,6 +3536,8 @@ class LabelingWidget(LabelDialog):
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
         self.load_flags(flags)
+
+        # load shapes
         if self._config["keep_prev"] and self.no_shape():
             self.load_shapes(
                 prev_shapes, replace=False, update_last_label=False
@@ -3579,17 +3587,7 @@ class LabelingWidget(LabelDialog):
         self.add_recent_file(self.filename)
         self.toggle_actions(True)
         self.canvas.setFocus()
-        basename = osp.basename(str(filename))
-        if self.image_list and filename in self.image_list:
-            num_images = len(self.image_list)
-            current_index = self.fn_to_index[str(filename)] + 1
-            msg = str(self.tr("Loaded %s [%d/%d]")) % (
-                basename,
-                current_index,
-                num_images,
-            )
-        else:
-            msg = str(self.tr("Loaded %s")) % basename
+        msg = str(self.tr("Loaded %s")) % osp.basename(str(filename))
         self.status(msg)
         return True
 
