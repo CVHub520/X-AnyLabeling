@@ -39,7 +39,7 @@
 ## 🥳 What's New
 
 - Jan. 2025:
-  - 🚀🚀🚀 Release version [2.5.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.2).
+  - 🚀🚀🚀 Release version [2.5.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.3).
 - Dec. 2024:
   - 🍊🍊🍊 Added support for [Hyper-YOLO](https://github.com/iMoonLab/Hyper-YOLO) model.
   - 🎉🎉🎉 Release version [2.5.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.0).
