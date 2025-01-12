@@ -1160,10 +1160,12 @@ class LabelConverter:
 
         image_id = 0
         annotation_id = 0
-        if mode == "pose":
-            pose_data = {}
 
         for image_file in image_list:
+            # Reset pose_data for each new image when in pose mode
+            if mode == "pose":
+                pose_data = {}
+
             image_name = osp.basename(image_file)
             label_name = osp.splitext(image_name)[0] + ".json"
             label_file = osp.join(input_path, label_name)
