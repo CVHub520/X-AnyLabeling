@@ -28,7 +28,7 @@ from torch.nn.init import constant_, xavier_uniform_
 # try:
 #    from groundingdino import _C
 #    import MultiScaleDeformableAttention as _C
-import MultiScaleDeformableAttention as _C
+# import MultiScaleDeformableAttention as _C
 
 # except:
 #    warnings.warn("Failed to load custom C++ ops. Running on CPU mode Only!")
