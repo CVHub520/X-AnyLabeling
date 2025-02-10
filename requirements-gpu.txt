@@ -17,3 +17,7 @@ filterpy
 tokenizers
 jsonlines
 importlib_metadata
+transformers
+addict
+yapf
+pycocotools
