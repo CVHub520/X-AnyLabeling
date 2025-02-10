@@ -31,9 +31,10 @@ try:
     from .visualgd.registry import MODULE_BUILD_FUNCS
     from .visualgd.util.misc import nested_tensor_from_tensor_list
     from .visualgd.config.cfg_handler import ConfigurationHandler
-
+    
     OPEN_VISION_AVAILABLE = True
-except ImportError:
+except ImportError as e:
+    print(f"ImportError: {e}")
     OPEN_VISION_AVAILABLE = False
 
 
