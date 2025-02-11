@@ -541,6 +541,19 @@ To use the save sub-images feature, follow these steps:
 
 These actions can be accessed through the **Tools** -> **Object Manager** option in the top menu bar, opening the label management window.
 
+Also, to quickly select all annotation shapes on the canvas, follow these steps:
+
+1. **Switch to Edit Mode**  
+   Click the corresponding icon in the left toolbar (or press `Ctrl+E`) to enter edit mode
+
+2. **Activate Label List**  
+   In the right shape label panel, left-click on any target label
+
+3. **Execute Select All**  
+   While holding down the `Shift` key:
+   - First press `Home` to select all objects above the current label
+   - Then press `End` to select all objects below the current label
+
 ### 5.4 Shape Type Conversion
 
 `X-AnyLabeling` provides a shape type conversion feature, allowing users to change shape types through the **Tools** option in the top menu bar. The supported conversions include:
