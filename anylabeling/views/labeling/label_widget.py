@@ -6103,7 +6103,8 @@ class LabelingWidget(LabelDialog):
                     delay_ms, lambda: self.process_next_image(progress_dialog)
                 )
             else:
-                self.canvas.is_painting = is_painting
+                self.finish_processing(progress_dialog)
+                self.canvas.is_painting = True
         else:
             self.finish_processing(progress_dialog)
             self.canvas.is_painting = True
