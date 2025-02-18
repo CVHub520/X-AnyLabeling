@@ -5936,13 +5936,13 @@ class LabelingWidget(LabelDialog):
 
     def batch_load_file(self, filename=None) -> None:
         """Load file for batch processing in run_all_images task.
-        
+
         This is a specialized version of load_file() that skips UI updates
         and other interactive features when processing multiple images in batch.
-        
+
         Args:
             filename: Path to the image file to load. If None, loads the last opened file.
-        
+
         Note:
             This method is not suitable for interactive labeling tasks.
         """
@@ -6067,7 +6067,11 @@ class LabelingWidget(LabelDialog):
                 )
 
             # Enable painting for tracking models and time-consuming models
-            model_type = self.auto_labeling_widget.model_manager.loaded_model_config["type"]
+            model_type = (
+                self.auto_labeling_widget.model_manager.loaded_model_config[
+                    "type"
+                ]
+            )
             is_painting = model_type in [
                 "segment_anything_2_video",
                 "grounding_dino",

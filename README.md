@@ -39,6 +39,7 @@
 ## 🥳 What's New
 
 - Feb. 2025:
+  - 🚀🚀🚀 Release version [2.5.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.4).
   - ✈️️✈️✈️ Added support for [YOLOv8-SAM2](./anylabeling/configs/auto_labeling/yolov8s_sam2_hiera_base.yaml) model for instance segmentation, combining YOLOv8's detection with SAM2.1's precise segmentation.
 - Jan. 2025:
   - 🚀🚀🚀 Release version [2.5.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.3).
