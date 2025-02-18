@@ -244,8 +244,6 @@
   config_file: ":/yolov8m_worldv2.yaml"
 - model_name: "yolov8m-r20230520"
   config_file: ":/yolov8m.yaml"
-- model_name: "yolov8n_efficientvit_sam_l0_vit_h-r20231020"
-  config_file: ":/yolov8n_efficientvit_sam_l0_vit_h.yaml"
 - model_name: "yolov8n-oiv7-r20240529"
   config_file: ":/yolov8n_oiv7.yaml"
 - model_name: "yolov8n-pose-r20231103"

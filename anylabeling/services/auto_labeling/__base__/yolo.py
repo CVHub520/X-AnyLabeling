@@ -280,7 +280,6 @@ class YOLO(Model):
             )
         elif self.model_type in [
             "yolov8",
-            "yolov8_efficientvit_sam",
             "yolov8_seg",
             "yolov8_obb",
             "yolo11_obb",

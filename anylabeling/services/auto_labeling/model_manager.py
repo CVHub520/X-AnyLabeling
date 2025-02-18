@@ -54,7 +54,6 @@ class ModelManager(QObject):
         "grounding_dino",
         "yolov5_obb",
         "gold_yolo",
-        "yolov8_efficientvit_sam",
         "ram",
         "yolov5_seg",
         "yolov5_ram",
@@ -1039,31 +1038,6 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
-        elif model_config["type"] == "yolov8_efficientvit_sam":
-            from .yolov8_efficientvit_sam import YOLOv8_EfficientViT_SAM
-
-            try:
-                model_config["model"] = YOLOv8_EfficientViT_SAM(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                self.new_model_status.emit(
-                    self.tr(
-                        "Error in loading model: {error_message}".format(
-                            error_message=str(e)
-                        )
-                    )
-                )
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
         elif model_config["type"] == "grounding_sam":
             from .grounding_sam import GroundingSAM
 
@@ -1992,7 +1966,6 @@ class ModelManager(QObject):
             "sam_hq",
             "yolov5_sam",
             "efficientvit_sam",
-            "yolov8_efficientvit_sam",
             "grounding_sam",
             "grounding_sam2",
             "open_vision",
@@ -2290,7 +2263,6 @@ class ModelManager(QObject):
             "yolov5_sam",
             "yolov8_sam2",
             "efficientvit_sam",
-            "yolov8_efficientvit_sam",
             "grounding_sam",
             "grounding_sam2",
             "edge_sam",

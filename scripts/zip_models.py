@@ -41,7 +41,6 @@ for model in model_list:  # noqa: C901
         download_links.append(model_config["decoder_model_path"])
     elif model_config["type"] in [
         "yolov5_sam",
-        "yolov8_efficientvit_sam",
         "grounding_sam",
         "grounding_sam2",
     ]:
@@ -88,7 +87,6 @@ for model in model_list:  # noqa: C901
         )
     elif model_config["type"] in [
         "yolov5_sam",
-        "yolov8_efficientvit_sam",
         "grounding_sam",
         "grounding_sam2",
     ]:
