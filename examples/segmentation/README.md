@@ -70,6 +70,8 @@ For both methods, refer to the provided [binary mask](./binary_semantic_segmenta
 
 ## Instance Segmentation
 
+For instance segmentation models, we strongly recommend using [YOLOv8-SAM2.1](../../anylabeling/configs/auto_labeling/yolov8s_sam2_hiera_base.yaml) as it provides significantly better performance compared to the original model in terms of accuracy. The model combines YOLOv8's robust object detection capabilities with SAM2.1's precise segmentation abilities.
+
 To export your instance segmentation annotations, proceed with the following steps:
 1. Click on the `Export` button located in the menu bar at the top.
 2. Select the `Export YOLO-Seg Annotations` option.

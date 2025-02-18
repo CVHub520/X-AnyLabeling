@@ -58,6 +58,8 @@
   config_file: ":/yolov8s_oiv7.yaml"
 - model_name: "yolov8s_sahi-r20231008"
   config_file: ":/yolov8s_sahi.yaml"
+- model_name: "yolov8s_sam2_hiera_base-r20250218"
+  config_file: ":/yolov8s_sam2_hiera_base.yaml"
 - model_name: "yolov8n_obb_botsort-r20240816"
   config_file: ":/yolov8n_obb_botsort.yaml"
 - model_name: "yolov8s_det_botsort-r20240816"

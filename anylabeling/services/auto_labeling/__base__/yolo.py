@@ -287,6 +287,7 @@ class YOLO(Model):
             "yolov9",
             "yolow",
             "yolov8_pose",
+            "yolov8_sam2",
             "yolow_ram",
             "yolov8_det_track",
             "yolov8_seg_track",
