@@ -7,6 +7,9 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["OMP_NUM_THREADS"] = "1"
 
+# Suppress ICC profile warnings
+os.environ['QT_LOGGING_RULES'] = '*.debug=false;qt.gui.icc=false'
+
 import argparse
 import codecs
 import logging
