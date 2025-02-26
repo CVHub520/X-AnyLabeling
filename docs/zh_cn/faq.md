@@ -30,6 +30,12 @@
 此问题暂时无解。 
 </details>
 
+<details>
+<summary>Q: 无法打开 *.jpg、*.png 等格式的图片？</summary>
+
+可参考[#823](https://github.com/CVHub520/X-AnyLabeling/issues/823)。
+</details>
+
 
 ### 模型相关问题
 
