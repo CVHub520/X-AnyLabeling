@@ -3,6 +3,7 @@
 from .auto_labeling import AutoLabelingWidget
 from .brightness_contrast_dialog import BrightnessContrastDialog
 from .canvas import Canvas
+from .chatbot_dialog import ChatbotDialog
 from .color_dialog import ColorDialog
 from .file_dialog_preview import FileDialogPreview
 from .filter_label_widget import LabelFilterComboBox

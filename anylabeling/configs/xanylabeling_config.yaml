@@ -94,6 +94,7 @@ shortcuts:
   open: Ctrl+I
   open_video: Ctrl+O
   open_dir: Ctrl+U
+  open_chatbot: Ctrl+B
   quit: Ctrl+Q
   save: Ctrl+S
   save_as: Ctrl+Shift+S
