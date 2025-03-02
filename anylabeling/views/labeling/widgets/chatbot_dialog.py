@@ -1032,19 +1032,7 @@ class ChatbotDialog(QDialog):
         if not user_message:
             return
 
-        # Check API configuration first
-        api_address = self.api_address.text()
-        api_key = self.api_key.text()
-        model_name = self.model_name.text()
-
-        if not all([api_address, api_key, model_name]):
-            # Display error message without adding to chat history
-            self.add_message("assistant", 
-                             "Please fill in API address, API key, and model name.", 
-                             delete_last_message=True)
-            return
-
-        # Only add user message to chat history if API configuration is valid
+        # Add user message to chat history first
         self.add_message("user", user_message)
         self.message_input.clear()
 
@@ -1065,7 +1053,7 @@ class ChatbotDialog(QDialog):
         # Start streaming in a separate thread
         self.stream_thread = threading.Thread(
             target=self.stream_generation,
-            args=(api_address, api_key)
+            args=(self.api_address.text(), self.api_key.text())
         )
         self.stream_thread.start()
 
@@ -1158,7 +1146,7 @@ class ChatbotDialog(QDialog):
         # Start loading animation
         self.loading_timer = QTimer(self)
         self.loading_timer.timeout.connect(self.update_loading_animation)
-        self.loading_timer.start(500)  # Update every 500ms
+        self.loading_timer.start(200)  # Update every 200ms
         
         # Scroll to bottom
         QTimer.singleShot(100, self.scroll_to_bottom)

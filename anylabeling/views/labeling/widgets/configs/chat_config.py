@@ -74,34 +74,6 @@ def set_left_widget(left_panel):
     return left_widget
 
 
-def set_button_style(btn: QPushButton, theme: Dict[str, str]) -> str:
-    btn.setFixedSize(150, 36)  # Uniform size
-    btn.setStyleSheet(f"""
-        QPushButton {{
-            background-color: {theme["primary"]};
-            color: white;
-            border: none;
-            border-radius: {BORDER_RADIUS};
-            padding: 8px 16px;
-            font-family: {FONT_FAMILY};
-            font-size: {FONT_SIZE_NORMAL};
-            font-weight: 500;
-            transition: background-color {ANIMATION_DURATION} ease;
-        }}
-        QPushButton:hover {{
-            background-color: {theme["primary_hover"]};
-        }}
-        QPushButton:pressed {{
-            background-color: {theme["primary"]};
-            opacity: 0.8;
-        }}
-        QPushButton:disabled {{
-            background-color: {theme["border"]};
-            color: {theme["text_secondary"]};
-        }}
-    """)
-
-
 # Style configurations
 def get_dialog_style(theme: Dict[str, str]) -> str:
     return f"""
