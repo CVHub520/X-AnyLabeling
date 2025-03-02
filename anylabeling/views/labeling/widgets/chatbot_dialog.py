@@ -1326,16 +1326,16 @@ class ChatbotDialog(QDialog):
                 logger.debug(f"Loaded chat history with {len(self.parent().other_data['chat_history'])} messages")
         except Exception as e:
             logger.error(f"Error loading chat for current image: {e}")
-    
+
     def eventFilter(self, obj, event):
         """Event filter for handling Enter key in message input"""
         if obj == self.message_input and event.type() == event.KeyPress:
-            if event.key() == Qt.Key_Return and not event.modifiers() & Qt.ShiftModifier:
-                # Enter without Shift sends the message
+            if event.key() == Qt.Key_Return and event.modifiers() & Qt.ShiftModifier:
+                # Shift+Enter sends the message
                 self.start_generation()
                 return True
-            elif event.key() == Qt.Key_Return and event.modifiers() & Qt.ShiftModifier:
-                # Shift+Enter adds a new line
+            elif event.key() == Qt.Key_Return and not event.modifiers() & Qt.ShiftModifier:
+                # Enter without Shift adds a new line
                 return False
         return super().eventFilter(obj, event)
     
