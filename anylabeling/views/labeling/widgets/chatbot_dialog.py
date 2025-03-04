@@ -2,7 +2,7 @@ import base64
 import threading
 from openai import OpenAI
 
-from PyQt5.QtCore import QObject, pyqtSignal, QPropertyAnimation, QEasingCurve, QTimer
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -12,251 +12,50 @@ from PyQt5.QtWidgets import (
     QTextEdit,
     QVBoxLayout,
     QWidget,
-    QGraphicsDropShadowEffect,
     QButtonGroup,
     QApplication,
     QScrollArea,
     QFrame,
     QSplitter,
 )
-from PyQt5.QtGui import QIcon, QColor, QPixmap
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtCore import QSize, Qt
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
-from anylabeling.views.labeling.widgets.configs.chat_config import *
-
-
-class StreamingHandler(QObject):
-    """Handler for streaming text updates"""
-    text_update = pyqtSignal(str)
-    finished = pyqtSignal(bool)
-    loading = pyqtSignal(bool)  # Signal for loading state
-    typing = pyqtSignal(bool)   # Signal for typing animation
-    error_occurred = pyqtSignal(str)  # Signal for error messages
-    
-    def __init__(self):
-        super().__init__()
-        self.current_message = ""
-        
-    def reset(self):
-        """Reset the current message buffer"""
-        self.current_message = ""
-        
-    def append_text(self, text):
-        """Append text to current message and emit update"""
-        self.current_message += text
-        self.text_update.emit(text)
-        
-    def get_current_message(self):
-        """Get the complete current message"""
-        return self.current_message
-        
-    def start_loading(self):
-        """Indicate loading state has started"""
-        self.loading.emit(True)
-        
-    def stop_loading(self):
-        """Indicate loading state has stopped"""
-        self.loading.emit(False)
-        
-    def start_typing(self):
-        """Indicate typing animation should start"""
-        self.typing.emit(True)
-        
-    def stop_typing(self):
-        """Indicate typing animation should stop"""
-        self.typing.emit(False)
-        
-    def report_error(self, error_message):
-        """Report an error that occurred during streaming"""
-        self.error_occurred.emit(error_message)
-
-
-class ChatMessage(QFrame):
-    """Custom widget for a single chat message"""
-    
-    def __init__(self, role, content, parent=None, is_error=False):
-        super().__init__(parent)
-        self.role = role
-        self.content = content
-        self.is_error = is_error
-        
-        # Set up layout
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-
-        # Create message container with appropriate styling
-        is_user = role == "user"
-        bubble_color = THEME["user_bubble"] if is_user else THEME["bot_bubble"]
-        
-        # Apply shadows for depth
-        shadow = QGraphicsDropShadowEffect(self)
-        shadow.setBlurRadius(12)
-        shadow.setColor(QColor(0, 0, 0, 20))
-        shadow.setOffset(0, 2)
-        self.setGraphicsEffect(shadow)
-        
-        # Create bubble with smooth corners
-        self.bubble = QWidget(self)
-        self.bubble.setObjectName("messageBubble")
-        self.bubble.setStyleSheet(f"""
-            QWidget#messageBubble {{
-                background-color: {bubble_color};
-                border-radius: {BORDER_RADIUS};
-                padding: 4px;
-            }}
-        """)
-        
-        bubble_layout = QVBoxLayout(self.bubble)
-        bubble_layout.setContentsMargins(12, 12, 12, 12)
-        
-        # Add header with role and timestamp
-        header_layout = QHBoxLayout()
-        role_label = QLabel(self.tr("User") if is_user else self.tr("Assistant"))
-        role_label.setStyleSheet(f"""
-            QLabel {{
-                font-weight: bold;
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_SMALL};
-            }}
-        """)
-
-        # Add copy button to header
-        copy_btn = QPushButton()
-        copy_btn.setIcon(QIcon("anylabeling/resources/images/copy.svg"))
-        copy_btn.setFixedSize(16, 16)
-        copy_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 8px;
-            }
-        """)
-        copy_btn.setToolTip(self.tr("Copy message"))
-        copy_btn.setCursor(Qt.PointingHandCursor)
-        copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(copy_btn))
-
-        if is_user:
-            header_layout.addStretch()
-            header_layout.addWidget(role_label)
-            header_layout.addWidget(copy_btn)
-        else:
-            header_layout.addWidget(role_label)
-            header_layout.addWidget(copy_btn)
-            header_layout.addStretch()
-        
-        bubble_layout.addLayout(header_layout)
-        
-        # Add message content
-        content_label = QLabel(content)
-        content_label.setWordWrap(True)
-        content_label.setTextFormat(Qt.PlainText)
-        
-        # Set text color based on whether this is an error message
-        text_color = THEME["error"] if self.is_error else THEME["text"]
-        
-        content_label.setStyleSheet(f"""
-            QLabel {{
-                color: {text_color};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
-                background-color: transparent;
-                padding: 4px 0px;
-            }}
-        """)
-        
-        # Set minimum and maximum width for proper wrapping
-        content_label.setMinimumWidth(100)
-        content_label.setMaximumWidth(1999)
-        
-        bubble_layout.addWidget(content_label)
-        
-        # Add bubble to main layout with appropriate alignment
-        if is_user:
-            layout.setAlignment(Qt.AlignRight)
-        else:
-            layout.setAlignment(Qt.AlignLeft)
-        
-        # Set maximum width for the bubble
-        self.bubble.setMaximumWidth(2000)
-        layout.addWidget(self.bubble)
-
-        # Add animation when first appearing
-        self.setMaximumHeight(0)
-        self.animation = QPropertyAnimation(self, b"maximumHeight")
-        self.animation.setDuration(int(ANIMATION_DURATION[:-2]))  # Convert "200ms" to 200
-        self.animation.setStartValue(0)
-        self.animation.setEndValue(self.sizeHint().height())
-        self.animation.setEasingCurve(QEasingCurve.OutCubic)
-        self.animation.start()
-    
-    def copy_content_to_clipboard(self, button):
-        """Copy message content to clipboard with visual feedback"""
-        # Copy the content to clipboard
-        clipboard = QApplication.clipboard()
-        clipboard.setText(self.content)
-
-        # Change the button icon to a checkmark
-        button.setIcon(QIcon("anylabeling/resources/images/check.svg"))
-
-        # Reset the button after a delay
-        QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
-
-    def reset_copy_button(self, button):
-        """Reset the copy button to its original state"""
-        button.setIcon(QIcon("anylabeling/resources/images/copy.svg"))
-        button.setToolTip(self.tr("Copy message"))
-        button.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 8px;
-            }
-        """)
+from anylabeling.views.labeling.chatbot import *
 
 
 class ChatbotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowTitle(self.tr("Chatbot"))
-        self.resize(1200, 700)  # Wider to accommodate three columns
-        self.setWindowIcon(QIcon("anylabeling/resources/images/chat.svg"))
-        
+        self.setWindowTitle(DEFAULT_WINDOW_TITLE)
+        self.resize(*DEFAULT_WINDOW_SIZE)  # Wider to accommodate three columns
+        self.setWindowIcon(QIcon(set_icon_path("chat")))
+
         # Apply global styles
-        self.setStyleSheet(get_dialog_style(THEME))
-        
+        self.setStyleSheet(ChatbotDialogStyle.get_dialog_style())
+
         # Initialize cache for storing image-text mappings and chat history
         self.chat_history = []  # Store chat history
-        
+
         # Streaming handler setup
         self.stream_handler = StreamingHandler()
         self.stream_handler.text_update.connect(self.update_output)
         self.stream_handler.finished.connect(self.on_stream_finished)
         self.stream_handler.loading.connect(self.handle_loading_state)
         self.stream_handler.error_occurred.connect(self.handle_error)
-        
+
         # Main horizontal layout with splitters
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
-        
+
         # Create main splitter for three columns
         self.main_splitter = QSplitter(Qt.Horizontal)
         self.main_splitter.setHandleWidth(1)
-        self.main_splitter.setStyleSheet(f"""
-            QSplitter::handle {{
-                background-color: {THEME["border"]};
-            }}
-        """)
-        
+        self.main_splitter.setStyleSheet(ChatbotDialogStyle.get_main_splitter_style())
+
         ################################
         # Left panel - Model Providers #
         ################################
@@ -267,7 +66,7 @@ class ChatbotDialog(QDialog):
 
         # Create button group for providers
         provider_group = QButtonGroup(self)
-        
+
         # Set provider buttons
         providers = PROVIDER_CONFIGS.keys()
         for provider in providers:
@@ -277,150 +76,86 @@ class ChatbotDialog(QDialog):
             btn.setFixedHeight(40)
             # Set icon size and text alignment
             btn.setIconSize(QSize(20, 20))
-            btn.setStyleSheet(get_provider_button_style(THEME))
+            btn.setStyleSheet(ChatbotDialogStyle.get_provider_button_style())
             # Connect button to switch provider using a default argument
             btn.clicked.connect(lambda checked, p=provider: self.switch_provider(p))
             provider_group.addButton(btn)  # Add button to group
             setattr(self, f"{provider}_btn", btn)
             left_panel.addWidget(btn)
-        
+
         # Set default fields
         getattr(self, f"{DEFAULT_PROVIDER}_btn").setChecked(True)
 
         # Add stretch to push everything to the top
         left_panel.addStretch()
-        
+
         # Styling for the left panel
-        self.left_widget.setStyleSheet(f"""
-            QWidget {{
-                background-color: {THEME["sidebar"]};
-                border-right: 1px solid {THEME["border"]};
-            }}
-        """)
+        self.left_widget.setStyleSheet(ChatbotDialogStyle.get_left_widget_style())
         self.left_widget.setMinimumWidth(200)
         self.left_widget.setMaximumWidth(250)
-        
+
         #################################
         # Middle panel - Chat interface #
+        #   - chat_layout (85%)         #
+        #   - input_layout (15%)        #
         #################################
         self.middle_widget = QWidget()
-        self.middle_widget.setStyleSheet(f"""
-            QWidget {{
-                background-color: {THEME["background"]};
-            }}
-        """)
-
+        self.middle_widget.setStyleSheet(ChatbotDialogStyle.get_middle_widget_style())
         middle_panel = QVBoxLayout(self.middle_widget)
         middle_panel.setContentsMargins(0, 0, 0, 0)
         middle_panel.setSpacing(0)
-        
+
         # Chat area - takes 90% of the vertical space
         chat_container = QWidget()
-        chat_container.setStyleSheet(f"""
-            QWidget {{
-                background-color: {THEME["background"]};
-            }}
-        """)
-        
+        chat_container.setStyleSheet(ChatbotDialogStyle.get_chat_container_style())
         chat_layout = QVBoxLayout(chat_container)
         chat_layout.setContentsMargins(24, 20, 24, 20)
         chat_layout.setSpacing(16)
-        
+
         # Scroll area for chat messages
         self.chat_scroll_area = QScrollArea()
         self.chat_scroll_area.setWidgetResizable(True)
         self.chat_scroll_area.setFrameShape(QFrame.NoFrame)
         self.chat_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.chat_scroll_area.setStyleSheet(f"""
-            QScrollArea {{
-                background-color: {THEME["background"]};
-                border: none;
-            }}
-        """)
-        
+        self.chat_scroll_area.setStyleSheet(ChatbotDialogStyle.get_chat_scroll_area_style())
+
         # Widget to contain all chat messages
         self.chat_container = QWidget()
-        self.chat_container.setStyleSheet(f"""
-            QWidget {{
-                background-color: {THEME["background"]};
-            }}
-        """)
-        
+        self.chat_container.setStyleSheet(ChatbotDialogStyle.get_chat_container_style())
         self.chat_messages_layout = QVBoxLayout(self.chat_container)
         self.chat_messages_layout.setContentsMargins(0, 0, 0, 0)
         self.chat_messages_layout.setSpacing(16)
         self.chat_messages_layout.addStretch()
-        
+
         self.chat_scroll_area.setWidget(self.chat_container)
         chat_layout.addWidget(self.chat_scroll_area)
-        
+
         # Input area with simplified design
         input_container = QWidget()
-        input_container.setStyleSheet(f"""
-            QWidget {{
-                background-color: {THEME["background"]};
-                border-top: 1px solid {THEME["border"]};
-            }}
-        """)
-        
+        input_container.setStyleSheet(ChatbotDialogStyle.get_input_container_style())
         input_layout = QVBoxLayout(input_container)
         input_layout.setContentsMargins(24, 12, 24, 12)
         input_layout.setSpacing(0)
-        
+
         # Create a container for the input field with embedded send button
         input_frame = QFrame()
         input_frame.setObjectName("inputFrame")
-        input_frame.setStyleSheet(f"""
-            QFrame#inputFrame {{
-                border: 1px solid {THEME["border"]};
-                border-radius: {BORDER_RADIUS};
-                background-color: {THEME["input_bg"]};
-            }}
-            QFrame#inputFrame:focus-within {{
-                border: 1px solid {THEME["primary"]};
-            }}
-        """)
-        
+        input_frame.setStyleSheet(ChatbotDialogStyle.get_input_frame_style())
+
         # Use a relative layout for the input frame
         input_frame_layout = QVBoxLayout(input_frame)
         input_frame_layout.setContentsMargins(12, 8, 12, 8)
         input_frame_layout.setSpacing(0)
-        
+
         # Create the message input
         self.message_input = QTextEdit()
         self.message_input.setPlaceholderText(self.tr("Type your message here..."))
-        self.message_input.setStyleSheet(f"""
-            QTextEdit {{
-                border: none;
-                background-color: transparent;
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
-                padding: 0px;
-            }}
-            QTextEdit::frame {{
-                border: none;
-            }}
-            QTextEdit::viewport {{
-                border: none;
-                background-color: transparent;
-            }}
-            QScrollBar:vertical {{
-                width: 8px;
-                background: transparent;
-            }}
-            QScrollBar::handle:vertical {{
-                background: {THEME["border"]};
-                border-radius: 4px;
-            }}
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
-                height: 0px;
-            }}
-        """)
+        self.message_input.setStyleSheet(ChatbotDialogStyle.get_message_input_style())
         self.message_input.setAcceptRichText(False)
-        self.message_input.setMinimumHeight(24)
-        self.message_input.setMaximumHeight(80)  # Allow for multiple lines but limit height
+        self.message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
+        self.message_input.setMaximumHeight(MAX_MSG_INPUT_HEIGHT)
         self.message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.message_input.setFrameShape(QFrame.NoFrame)  # Remove the frame completely
+        self.message_input.setFrameShape(QFrame.NoFrame)
         self.message_input.setFrameShadow(QFrame.Plain)
         self.message_input.setLineWrapMode(QTextEdit.WidgetWidth)
 
@@ -428,7 +163,7 @@ class ChatbotDialog(QDialog):
         document = self.message_input.document()
         document.setDocumentMargin(0)
         self.message_input.setDocument(document)
-        
+
         # Set text format to remove any block margins
         cursor = self.message_input.textCursor()
         format = cursor.blockFormat()
@@ -436,54 +171,41 @@ class ChatbotDialog(QDialog):
         format.setTopMargin(0)
         cursor.setBlockFormat(format)
         self.message_input.setTextCursor(cursor)
-        
+
         # Connect textChanged to dynamically resize input
         self.message_input.textChanged.connect(self.resize_input)
-        
+        self.message_input.installEventFilter(self)  # For Enter key handling
+
+        # Initialize the input size
+        self.resize_input()
+
         # Create a container for the input and send button
         input_with_button = QWidget()
         input_with_button_layout = QHBoxLayout(input_with_button)
         input_with_button_layout.setContentsMargins(0, 0, 0, 0)
         input_with_button_layout.setSpacing(0)
-        
+        input_with_button_layout.setAlignment(Qt.AlignVCenter)
+
         # Add the message input to the layout
-        input_with_button_layout.addWidget(self.message_input)
-        
+        input_with_button_layout.addWidget(self.message_input, 1, Qt.AlignVCenter)
+
         # Create the send button
         self.send_btn = QPushButton()
-        self.send_btn.setIcon(QIcon("anylabeling/resources/images/send.svg"))
+        self.send_btn.setIcon(QIcon(set_icon_path("send")))
         self.send_btn.setIconSize(QSize(20, 20))
-        self.send_btn.setStyleSheet(f"""
-            QPushButton {{
-                border: none;
-                background-color: transparent;
-                padding: 0px;
-                margin: 0px;
-            }}
-            QPushButton:hover {{
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 10px;
-            }}
-            QPushButton:disabled {{
-                opacity: 0.5;
-            }}
-        """)
+        self.send_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
         self.send_btn.setCursor(Qt.PointingHandCursor)
         self.send_btn.setFixedSize(24, 24)
-        
+        self.send_btn.clicked.connect(self.start_generation)
+
         # Add the send button to the layout
         input_with_button_layout.addWidget(self.send_btn, 0, Qt.AlignRight | Qt.AlignBottom)
-
-        # Add the input with button to the input frame
         input_frame_layout.addWidget(input_with_button)
-
-        # Add the input frame to the input container
         input_layout.addWidget(input_frame)
-        
+
         # Add the chat container and input container to the middle panel
-        # Chat takes 90% of the space
-        middle_panel.addWidget(chat_container, 90)
-        middle_panel.addWidget(input_container, 10)
+        middle_panel.addWidget(chat_container, 88)
+        middle_panel.addWidget(input_container, 12)
 
         ############################################
         # Right panel - Image preview and settings #
@@ -497,95 +219,57 @@ class ChatbotDialog(QDialog):
         image_panel = QWidget()
         image_layout = QVBoxLayout(image_panel)
         image_layout.setContentsMargins(24, 24, 24, 16)
-        
+
         # Image preview
         self.image_preview = QLabel()
-        self.image_preview.setStyleSheet(get_image_preview_style(THEME))
+        self.image_preview.setStyleSheet(ChatbotDialogStyle.get_image_preview_style())
         self.image_preview.setMinimumHeight(200)
         self.image_preview.setAlignment(Qt.AlignCenter)
         self.image_preview.setScaledContents(False)
-        
         image_layout.addWidget(self.image_preview)
 
-        # Navigation buttons with modern styling
+        # Navigation buttons
         nav_layout = QHBoxLayout()
-        
+
         self.prev_image_btn = QPushButton()
-        self.prev_image_btn.setIcon(QIcon("anylabeling/resources/images/arrow-left.svg"))
-        self.prev_image_btn.setFixedSize(32, 32)
-        self.prev_image_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 16px;
-            }
-        """)
+        self.prev_image_btn.setIcon(QIcon(set_icon_path("arrow-left")))
+        self.prev_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.prev_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.prev_image_btn.setToolTip(self.tr("Previous Image"))
         self.prev_image_btn.setCursor(Qt.PointingHandCursor)
-        
+        self.prev_image_btn.clicked.connect(self.link_previous_image)
+
         self.next_image_btn = QPushButton()
-        self.next_image_btn.setIcon(QIcon("anylabeling/resources/images/arrow-right.svg"))
-        self.next_image_btn.setFixedSize(32, 32)
-        self.next_image_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 16px;
-            }
-        """)
+        self.next_image_btn.setIcon(QIcon(set_icon_path("arrow-right")))
+        self.next_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.next_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.next_image_btn.setToolTip(self.tr("Next Image"))
         self.next_image_btn.setCursor(Qt.PointingHandCursor)
-        
+        self.next_image_btn.clicked.connect(self.link_next_image)
         nav_layout.addWidget(self.prev_image_btn)
         nav_layout.addStretch()
-        
+
         # Add image and video buttons for importing media
         self.open_image_btn = QPushButton()
-        self.open_image_btn.setIcon(QIcon("anylabeling/resources/images/image.svg"))
-        self.open_image_btn.setFixedSize(32, 32)
-        self.open_image_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 16px;
-            }
-        """)
+        self.open_image_btn.setIcon(QIcon(set_icon_path("image")))
+        self.open_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.open_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.open_image_btn.setToolTip(self.tr("Open Image Folder"))
         self.open_image_btn.setCursor(Qt.PointingHandCursor)
         self.open_image_btn.clicked.connect(self.open_image_folder)
-        
+        nav_layout.addWidget(self.open_image_btn)
+
         self.open_video_btn = QPushButton()
-        self.open_video_btn.setIcon(QIcon("anylabeling/resources/images/video.svg"))
-        self.open_video_btn.setFixedSize(32, 32)
-        self.open_video_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 16px;
-            }
-        """)
+        self.open_video_btn.setIcon(QIcon(set_icon_path("video")))
+        self.open_video_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.open_video_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.open_video_btn.setToolTip(self.tr("Open Video File"))
         self.open_video_btn.setCursor(Qt.PointingHandCursor)
         self.open_video_btn.clicked.connect(self.open_video_file)
-        
-        nav_layout.addWidget(self.open_image_btn)
         nav_layout.addWidget(self.open_video_btn)
         nav_layout.addStretch()
-        
-        nav_layout.addWidget(self.next_image_btn)
 
+        nav_layout.addWidget(self.next_image_btn)
         image_layout.addLayout(nav_layout)
 
         # Settings panel
@@ -597,40 +281,21 @@ class ChatbotDialog(QDialog):
         # API Address with help icon
         api_address_container = QHBoxLayout()
         api_address_label = QLabel(self.tr("API Address"))
-        api_address_label.setStyleSheet(f"""
-            QLabel {{
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_SMALL};
-                margin-top: 16px;
-            }}
-        """)
+        api_address_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
 
         # Create a container for label and help button
         label_with_help = QWidget()
         label_help_layout = QHBoxLayout(label_with_help)
         label_help_layout.setContentsMargins(0, 0, 0, 0)
-        label_help_layout.setSpacing(4)
-        
+
         api_help_btn = QPushButton()
         api_help_btn.setObjectName("api_help_btn")
-        api_help_btn.setIcon(QIcon("anylabeling/resources/images/help-circle.svg"))
-        api_help_btn.setFixedSize(16, 16)  # Smaller size
-        api_help_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 6px;
-            }
-        """)
+        api_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        api_help_btn.setFixedSize(*ICON_SIZE_SMALL)
+        api_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_help_btn.setToolTip(self.tr("View API documentation"))
         api_help_btn.setCursor(Qt.PointingHandCursor)
-        api_help_btn.clicked.connect(
-            lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_docs_url"])
-        )
+        api_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_docs_url"]))
 
         label_help_layout.addWidget(api_address_label)
         label_help_layout.addWidget(api_help_btn)
@@ -641,216 +306,110 @@ class ChatbotDialog(QDialog):
         settings_layout.addLayout(api_address_container)
 
         self.api_address = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_address"])
-        self.api_address.setStyleSheet(f"""
-            QLineEdit {{
-                border: 1px solid {THEME["border"]};
-                border-radius: {BORDER_RADIUS};
-                padding: 8px;
-                background-color: {THEME["input_bg"]};
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
-            }}
-            QLineEdit:focus {{
-                border: 1px solid {THEME["primary"]};
-                background-color: {THEME["input_bg"]};
-            }}
-        """)
+        self.api_address.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         settings_layout.addWidget(self.api_address)
         
         # Model Name with help icon
         model_name_container = QHBoxLayout()
         model_name_label = QLabel(self.tr("Model Name"))
-        model_name_label.setStyleSheet(f"""
-            QLabel {{
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_SMALL};
-                margin-top: 16px;
-            }}
-        """)
-        
+        model_name_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+
         # Create a container for label and help button
         model_label_with_help = QWidget()
         model_label_help_layout = QHBoxLayout(model_label_with_help)
         model_label_help_layout.setContentsMargins(0, 0, 0, 0)
-        model_label_help_layout.setSpacing(4)
-        
+
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
-        model_help_btn.setIcon(QIcon("anylabeling/resources/images/help-circle.svg"))
-        model_help_btn.setFixedSize(16, 16)  # Smaller size
-        model_help_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 6px;
-            }
-        """)
+        model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
+        model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         model_help_btn.setToolTip(self.tr("View model details"))
         model_help_btn.setCursor(Qt.PointingHandCursor)
-        model_help_btn.clicked.connect(
-            lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"])
-        )
-        
+        model_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
+
         model_label_help_layout.addWidget(model_name_label)
         model_label_help_layout.addWidget(model_help_btn)
         model_label_help_layout.addStretch()
-        
+
         model_name_container.addWidget(model_label_with_help)
         model_name_container.addStretch()
         settings_layout.addLayout(model_name_container)
         
         self.model_name = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_name"])
-        self.model_name.setStyleSheet(f"""
-            QLineEdit {{
-                border: 1px solid {THEME["border"]};
-                border-radius: {BORDER_RADIUS};
-                padding: 8px;
-                background-color: {THEME["input_bg"]};
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
-            }}
-            QLineEdit:focus {{
-                border: 1px solid {THEME["primary"]};
-                background-color: {THEME["input_bg"]};
-            }}
-        """)
+        self.model_name.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         settings_layout.addWidget(self.model_name)
-        
+
         # API Key with help icon
         api_key_container = QHBoxLayout()
         api_key_label = QLabel(self.tr("API Key"))
-        api_key_label.setStyleSheet(f"""
-            QLabel {{
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_SMALL};
-                margin-top: 16px;
-            }}
-        """)
-        
+        api_key_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+
         # Create a container for label and help button
         key_label_with_help = QWidget()
         key_label_help_layout = QHBoxLayout(key_label_with_help)
         key_label_help_layout.setContentsMargins(0, 0, 0, 0)
-        key_label_help_layout.setSpacing(4)
         
         api_key_help_btn = QPushButton()
         api_key_help_btn.setObjectName("api_key_help_btn")
-        api_key_help_btn.setIcon(QIcon("anylabeling/resources/images/help-circle.svg"))
-        api_key_help_btn.setFixedSize(16, 16)  # Smaller size
-        api_key_help_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-            QPushButton:hover {
-                background-color: rgba(0, 0, 0, 0.05);
-                border-radius: 6px;
-            }
-        """)
+        api_key_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        api_key_help_btn.setFixedSize(*ICON_SIZE_SMALL)
+        api_key_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_key_help_btn.setToolTip(self.tr("Get API key"))
         api_key_help_btn.setCursor(Qt.PointingHandCursor)
-        api_key_help_btn.clicked.connect(
-            lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key_url"])
-        )
+        api_key_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key_url"]))
 
         key_label_help_layout.addWidget(api_key_label)
         key_label_help_layout.addWidget(api_key_help_btn)
         key_label_help_layout.addStretch()
-        
+
         api_key_container.addWidget(key_label_with_help)
         api_key_container.addStretch()
         settings_layout.addLayout(api_key_container)
-        
+
         # API key input with toggle visibility
         api_key_container = QHBoxLayout()
 
         self.api_key = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key"])
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setPlaceholderText(self.tr("Enter API key"))
-        self.api_key.setStyleSheet(f"""
-            QLineEdit {{
-                border: 1px solid {THEME["border"]};
-                border-radius: {BORDER_RADIUS};
-                padding: 8px;
-                background-color: {THEME["input_bg"]};
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
-            }}
-            QLineEdit:focus {{
-                border: 1px solid {THEME["primary"]};
-                background-color: {THEME["input_bg"]};
-            }}
-        """)
-        
+        self.api_key.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+
         self.toggle_visibility_btn = QPushButton()
-        self.toggle_visibility_btn.setFixedSize(32, 32)
-        self.toggle_visibility_btn.setIcon(QIcon("anylabeling/resources/images/eye-off.svg"))
+        self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
         self.toggle_visibility_btn.setCheckable(True)
-        self.toggle_visibility_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-        """)
+        self.toggle_visibility_btn.setStyleSheet(ChatbotDialogStyle.get_toggle_visibility_btn_style())
         self.toggle_visibility_btn.clicked.connect(self.toggle_api_key_visibility)
-        
+
         api_key_container.addWidget(self.api_key)
         api_key_container.addWidget(self.toggle_visibility_btn)
         settings_layout.addLayout(api_key_container)
-        
-        # Add stretch to push everything to the top
         settings_layout.addStretch()
-        
+
         # Create a splitter for the right panel to separate image and settings
         right_splitter = QSplitter(Qt.Vertical)
         right_splitter.setHandleWidth(1)
-        right_splitter.setStyleSheet(f"""
-            QSplitter::handle {{
-                background-color: {THEME["border"]};
-            }}
-        """)
-        
+        right_splitter.setStyleSheet(ChatbotDialogStyle.get_right_splitter_style())
+
         right_splitter.addWidget(image_panel)
         right_splitter.addWidget(settings_panel)
-        
+
         # Set initial sizes for right splitter (40% image, 60% settings)
         right_splitter.setSizes([300, 400])
-        
         right_panel.addWidget(right_splitter)
-        
+
         # Styling for the right panel
-        self.right_widget.setStyleSheet(f"""
-            QWidget {{
-                background-color: {THEME["background"]};
-                border-left: 1px solid {THEME["border"]};
-            }}
-        """)
+        self.right_widget.setStyleSheet(ChatbotDialogStyle.get_right_widget_style())
         self.right_widget.setMinimumWidth(300)
         self.right_widget.setMaximumWidth(400)
-        
+
         # Add panels to main splitter
         self.main_splitter.addWidget(self.left_widget)
         self.main_splitter.addWidget(self.middle_widget)
         self.main_splitter.addWidget(self.right_widget)
-        
-        # Set initial sizes for main splitter
         self.main_splitter.setSizes([200, 600, 350])
-        
         main_layout.addWidget(self.main_splitter)
-        
-        # Connect buttons
-        self.send_btn.clicked.connect(self.start_generation)
-        self.message_input.installEventFilter(self)  # For Enter key handling
-        self.prev_image_btn.clicked.connect(self.link_previous_image)
-        self.next_image_btn.clicked.connect(self.link_next_image)
 
         # Streaming state
         self.streaming = False
@@ -866,40 +425,77 @@ class ChatbotDialog(QDialog):
 
         # After initializing UI components, load initial data if available
         self.load_initial_data()
-    
+
+    def switch_provider(self, provider):
+        """Switch between different model providers"""
+        if provider in PROVIDER_CONFIGS:
+            self.api_address.setText(PROVIDER_CONFIGS[provider]["api_address"])
+            api_docs_url = PROVIDER_CONFIGS[provider]["api_docs_url"]
+            api_help_btn = self.findChild(QPushButton, "api_help_btn")
+            if api_help_btn:
+                if api_docs_url:
+                    # Show the help button and update its click handler
+                    api_help_btn.setVisible(True)
+                    api_help_btn.clicked.disconnect()
+                    api_help_btn.clicked.connect(lambda: open_url(api_docs_url))
+                else:
+                    # Hide the help button if there's no API docs URL
+                    api_help_btn.setVisible(False)
+
+            self.model_name.setText(PROVIDER_CONFIGS[provider]["model_name"])
+            model_docs_url = PROVIDER_CONFIGS[provider]["model_docs_url"]
+            model_help_btn = self.findChild(QPushButton, "model_help_btn")
+            if model_help_btn:
+                if model_docs_url:
+                    model_help_btn.setVisible(True)
+                    model_help_btn.clicked.disconnect()
+                    model_help_btn.clicked.connect(lambda: open_url(model_docs_url))
+                else:
+                    model_help_btn.setVisible(False)
+
+            api_key_url = PROVIDER_CONFIGS[provider]["api_key_url"]
+            api_key_help_btn = self.findChild(QPushButton, "api_key_help_btn")
+            if api_key_help_btn:
+                if api_key_url:
+                    api_key_help_btn.setVisible(True)
+                    api_key_help_btn.clicked.disconnect()
+                    api_key_help_btn.clicked.connect(lambda: open_url(api_key_url))
+                else:
+                    api_key_help_btn.setVisible(False)
+
     def resize_input(self):
         """Dynamically resize input based on content"""
         # Calculate required height
         document = self.message_input.document()
         doc_height = document.size().height()
         margins = self.message_input.contentsMargins()
-        
+
         # Calculate total height needed
         total_height = doc_height + margins.top() + margins.bottom() + 4
-        
+
         # Set a maximum height limit
-        max_height = 80
-        
+        max_height = MAX_MSG_INPUT_HEIGHT
+
         # Determine if we need scrollbars
         needs_scrollbar = total_height > max_height
-        
+
         # Set the appropriate height
         if needs_scrollbar:
             # Use maximum height and enable scrollbar
             self.message_input.setMinimumHeight(max_height)
             self.message_input.setMaximumHeight(max_height)
             self.message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-            
+
             # Ensure cursor is visible by scrolling to it
             cursor = self.message_input.textCursor()
             self.message_input.ensureCursorVisible()
         else:
             # Use calculated height and disable scrollbar
-            actual_height = max(total_height, 24)  # Minimum height of 24px
+            actual_height = max(total_height, MIN_MSG_INPUT_HEIGHT)
             self.message_input.setMinimumHeight(actual_height)
             self.message_input.setMaximumHeight(actual_height)
             self.message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        
+
         # Force update to ensure changes take effect immediately
         self.message_input.updateGeometry()
         QApplication.processEvents()
@@ -908,12 +504,12 @@ class ChatbotDialog(QDialog):
         """Update the image preview when switching images"""
         if self.parent().filename:
             pixmap = QPixmap(self.parent().filename)
-            
+
             # If pixmap is valid
             if not pixmap.isNull():
                 # Calculate scaled size while maintaining aspect ratio
                 preview_size = self.image_preview.size()
-                
+
                 # Only scale if the preview has a valid size (width and height > 0)
                 if preview_size.width() > 0 and preview_size.height() > 0:
                     scaled_pixmap = pixmap.scaled(
@@ -922,7 +518,7 @@ class ChatbotDialog(QDialog):
                         Qt.KeepAspectRatio,
                         Qt.SmoothTransformation
                     )
-                    
+
                     self.image_preview.setPixmap(scaled_pixmap)
                     self.image_preview.setAlignment(Qt.AlignCenter)
                 else:
@@ -948,7 +544,7 @@ class ChatbotDialog(QDialog):
 
             # Add a slight delay to ensure the widget is fully rendered before scaling the image
             QTimer.singleShot(100, self.update_image_preview)
-            
+
         # Update visibility of import buttons based on whether files are loaded
         self.update_import_buttons_visibility()
     
@@ -1076,12 +672,11 @@ class ChatbotDialog(QDialog):
         bubble.setObjectName("messageBubble")
         bubble.setStyleSheet(f"""
             QWidget#messageBubble {{
-                background-color: {THEME["bot_bubble"]};
                 border-radius: {BORDER_RADIUS};
                 padding: 4px;
             }}
         """)
-        
+
         bubble_layout = QVBoxLayout(bubble)
         bubble_layout.setContentsMargins(12, 12, 12, 12)
         
@@ -1330,12 +925,12 @@ class ChatbotDialog(QDialog):
     def eventFilter(self, obj, event):
         """Event filter for handling Enter key in message input"""
         if obj == self.message_input and event.type() == event.KeyPress:
-            if event.key() == Qt.Key_Return and event.modifiers() & Qt.ShiftModifier:
-                # Shift+Enter sends the message
+            if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
+                # Ctrl+Enter sends the message
                 self.start_generation()
                 return True
-            elif event.key() == Qt.Key_Return and not event.modifiers() & Qt.ShiftModifier:
-                # Enter without Shift adds a new line
+            elif event.key() == Qt.Key_Return and not event.modifiers() & Qt.ControlModifier:
+                # Enter without Ctrl adds a new line
                 return False
         return super().eventFilter(obj, event)
     
@@ -1432,58 +1027,6 @@ class ChatbotDialog(QDialog):
             self.message_input.setCursor(Qt.IBeamCursor)
         else:
             self.message_input.setCursor(Qt.ForbiddenCursor)
-    
-    def switch_provider(self, provider):
-        """Switch between different model providers"""
-        if provider in PROVIDER_CONFIGS:
-            # Update API address
-            self.api_address.setText(PROVIDER_CONFIGS[provider]["api_address"])
-
-            # Update model name
-            self.model_name.setText(PROVIDER_CONFIGS[provider]["model_name"])
-
-            # Update help button links
-            api_docs_url = PROVIDER_CONFIGS[provider]["api_docs_url"]
-            api_help_btn = self.findChild(QPushButton, "api_help_btn")
-            if api_help_btn:
-                if api_docs_url:
-                    # Show the help button and update its click handler
-                    api_help_btn.setVisible(True)
-                    api_help_btn.clicked.disconnect()
-                    api_help_btn.clicked.connect(
-                        lambda: open_url(api_docs_url)
-                    )
-                else:
-                    # Hide the help button if there's no API docs URL
-                    api_help_btn.setVisible(False)
-
-            model_docs_url = PROVIDER_CONFIGS[provider]["model_docs_url"]
-            model_help_btn = self.findChild(QPushButton, "model_help_btn")
-            if model_help_btn:
-                if model_docs_url:
-                    # Show the help button and update its click handler
-                    model_help_btn.setVisible(True)
-                    model_help_btn.clicked.disconnect()
-                    model_help_btn.clicked.connect(
-                        lambda: open_url(model_docs_url)
-                    )
-                else:
-                    # Hide the help button if there's no model docs URL
-                    model_help_btn.setVisible(False)
-
-            api_key_url = PROVIDER_CONFIGS[provider]["api_key_url"]
-            api_key_help_btn = self.findChild(QPushButton, "api_key_help_btn")
-            if api_key_help_btn:
-                if api_key_url:
-                    # Show the help button and update its click handler
-                    api_key_help_btn.setVisible(True)
-                    api_key_help_btn.clicked.disconnect()
-                    api_key_help_btn.clicked.connect(
-                        lambda: open_url(api_key_url)
-                    )
-                else:
-                    # Hide the help button if there's no API key URL
-                    api_key_help_btn.setVisible(False)
 
     def handle_error(self, error_message):
         """Handle error messages from the streaming thread"""
