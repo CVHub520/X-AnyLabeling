@@ -177,7 +177,7 @@ class ChatMessage(QFrame):
         button.setIcon(QIcon(set_icon_path("check")))
 
         # Start a timer to reset the button after a delay
-        QTimer.singleShot(2000, lambda: self.reset_copy_button(button))
+        QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
 
     def update_width_constraint(self):
         """Update width constraint based on parent width"""
