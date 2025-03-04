@@ -409,6 +409,12 @@ class ChatbotDialog(QDialog):
         self.main_splitter.addWidget(self.middle_widget)
         self.main_splitter.addWidget(self.right_widget)
         self.main_splitter.setSizes([200, 600, 350])
+
+        # Set stretch factors to ensure middle panel gets priority when resizing
+        self.main_splitter.setStretchFactor(0, 0)
+        self.main_splitter.setStretchFactor(1, 1)
+        self.main_splitter.setStretchFactor(2, 0)
+
         main_layout.addWidget(self.main_splitter)
 
         # Streaming state
@@ -1042,3 +1048,18 @@ class ChatbotDialog(QDialog):
 
             # Add error message but don't add it to chat history
             self.add_message("assistant", f"Error: {error_message}", delete_last_message=True)
+
+    def resizeEvent(self, event):
+        """Handle window resize event, update message layout constraints"""
+        super().resizeEvent(event)
+
+        for i in range(self.chat_messages_layout.count()):
+            item = self.chat_messages_layout.itemAt(i)
+            if item and item.widget():
+                widget = item.widget()
+                if hasattr(widget, 'update_width_constraint'):
+                    widget.update_width_constraint()
+
+        self.chat_container.updateGeometry()
+        QApplication.processEvents()
+        QTimer.singleShot(100, self.scroll_to_bottom)
