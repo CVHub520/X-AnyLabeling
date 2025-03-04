@@ -408,7 +408,7 @@ class ChatbotDialog(QDialog):
         self.main_splitter.addWidget(self.left_widget)
         self.main_splitter.addWidget(self.middle_widget)
         self.main_splitter.addWidget(self.right_widget)
-        self.main_splitter.setSizes([200, 600, 350])
+        self.main_splitter.setSizes([200, 700, 300])
 
         # Set stretch factors to ensure middle panel gets priority when resizing
         self.main_splitter.setStretchFactor(0, 0)

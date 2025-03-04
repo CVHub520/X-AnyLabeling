@@ -15,6 +15,7 @@ DEFAULT_WINDOW_SIZE = (1200, 700)  # Width and height
 DEFAULT_PROVIDER = "ollama"
 MIN_MSG_INPUT_HEIGHT = 20
 MAX_MSG_INPUT_HEIGHT = 300
+MAX_USER_MSG_WIDTH = 70 # 70% of the layout width
 
 
 # Theme configuration
@@ -29,7 +30,7 @@ THEME = {
     "success": "#30D158",           # Softer green
     "warning": "#FF9F0A",           # Warm orange
     "error": "#FF453A",             # Refined red
-    "user_bubble": "#E8F2FF",       # Lighter, softer blue for user messages
+    "user_bubble": "#f6f2f2",       # Lighter, softer blue for user messages
     "input_bg": "#F4F4F5",          # Slightly off-white for input
     "hover": "#F2F2F7",             # Subtle hover state
 }

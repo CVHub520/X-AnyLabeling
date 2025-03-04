@@ -37,11 +37,10 @@ class ChatMessage(QFrame):
         self.bubble.setStyleSheet(ChatMessageStyle.get_bubble_style(is_user))
 
         if is_user:
-            h_container.addStretch(30)
-            h_container.addWidget(self.bubble, 70)
+            h_container.addStretch(100 - MAX_USER_MSG_WIDTH)
+            h_container.addWidget(self.bubble, MAX_USER_MSG_WIDTH)
         else:
-            h_container.addWidget(self.bubble, 70)
-            h_container.addStretch(30)
+            h_container.addWidget(self.bubble, 100)
 
         bubble_layout = QVBoxLayout(self.bubble)
         bubble_layout.setContentsMargins(10, 8, 10, 8)
@@ -82,22 +81,25 @@ class ChatMessage(QFrame):
                     processed_content += "\u200B"  # Zero-width space, allows line breaks but is invisible
         else:
             processed_content = content
-            
+
         # Create label with processed content
         content_label = QLabel(processed_content)
         content_label.setWordWrap(True)
         
+        # Force minimum width to ensure correct wrapping
+        content_label.setMinimumWidth(200)
+
         # To ensure long content displays correctly, we use RichText format
-        if "\u200B" in processed_content:
+        if "\u200B" in processed_content or is_error:
             content_label.setTextFormat(Qt.RichText)
         else:
             content_label.setTextFormat(Qt.PlainText)
-            
+
         content_label.setStyleSheet(ChatMessageStyle.get_content_label_style(self.is_error))
-        
+
         # Add text copy selection combination flag
         content_label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
-        
+
         # Use a more appropriate size policy to avoid excessive vertical space
         content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         
@@ -108,7 +110,7 @@ class ChatMessage(QFrame):
         # Set alignment
         content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         
-        # Set minimum and maximum height to avoid excessive height
+        # Set minimum height to avoid excessive height
         content_label.setMinimumHeight(10)
 
         self.content_label = content_label
@@ -120,11 +122,24 @@ class ChatMessage(QFrame):
         if parent:
             parent_width = parent.width()
             if parent_width > 0:
-                max_width = int(parent_width * 0.7)
+                # Different width constraints for user vs assistant
+                if self.role == "user":
+                    max_width = int(parent_width * MAX_USER_MSG_WIDTH / 100)
+                else:
+                    max_width = int(parent_width)
+                
                 if max_width > 0:
-                    content_label.setMaximumWidth(max_width - 20)
+                    if hasattr(self, 'content_label'):
+                        self.content_label.setMaximumWidth(max_width - 20)
+
                     self.bubble.setMaximumWidth(max_width)
-                    
+
+                    if hasattr(self, 'content_label') and hasattr(self, 'adjust_height_after_animation'):
+                        self.adjust_height_after_animation()
+
+                    self.updateGeometry()
+                    self.bubble.updateGeometry()
+
         layout.addLayout(h_container)
 
         # Add animation when first appearing
@@ -160,7 +175,7 @@ class ChatMessage(QFrame):
 
         # Change the button icon to a checkmark
         button.setIcon(QIcon(set_icon_path("check")))
-        
+
         # Start a timer to reset the button after a delay
         QTimer.singleShot(2000, lambda: self.reset_copy_button(button))
 
@@ -169,7 +184,11 @@ class ChatMessage(QFrame):
         if self.parent():
             parent_width = self.parent().width()
             if parent_width > 0:
-                max_width = int(parent_width * 0.7)
+                if self.role == "user":
+                    max_width = int(parent_width * MAX_USER_MSG_WIDTH / 100)
+                else:
+                    max_width = int(parent_width)
+
                 if max_width > 0:
                     if hasattr(self, 'content_label'):
                         self.content_label.setMaximumWidth(max_width - 20)
