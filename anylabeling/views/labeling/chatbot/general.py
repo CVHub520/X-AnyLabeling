@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QEasingCurve, QTimer, QPropertyAnimation
+from PyQt5.QtCore import Qt, QEasingCurve, QEvent, QTimer, QPropertyAnimation
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit
@@ -392,3 +392,21 @@ class ChatMessage(QFrame):
             QApplication.processEvents()
         finally:
             self.resize_in_progress = False
+
+
+# Custom event classes for thread communication
+class UpdateModelsEvent(QEvent):
+    """Custom event for updating models dropdown"""
+    EVENT_TYPE = QEvent.Type(QEvent.registerEventType())
+    
+    def __init__(self, models):
+        super().__init__(self.EVENT_TYPE)
+        self.models = models
+
+
+class EnableRefreshButtonEvent(QEvent):
+    """Custom event for enabling refresh button"""
+    EVENT_TYPE = QEvent.Type(QEvent.registerEventType())
+    
+    def __init__(self):
+        super().__init__(self.EVENT_TYPE)

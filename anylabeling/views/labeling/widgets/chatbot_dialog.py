@@ -2,7 +2,7 @@ import base64
 import threading
 from openai import OpenAI
 
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import QTimer, Qt, QSize, QEvent
 from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -17,9 +17,9 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QFrame,
     QSplitter,
+    QComboBox,
 )
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtCore import QSize, Qt
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
@@ -306,38 +306,6 @@ class ChatbotDialog(QDialog):
         self.api_address.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         self.api_address.installEventFilter(self)
         settings_layout.addWidget(self.api_address)
-        
-        # Model Name with help icon
-        model_name_container = QHBoxLayout()
-        model_name_label = QLabel(self.tr("Model Name"))
-        model_name_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
-
-        # Create a container for label and help button
-        model_label_with_help = QWidget()
-        model_label_help_layout = QHBoxLayout(model_label_with_help)
-        model_label_help_layout.setContentsMargins(0, 0, 0, 0)
-
-        model_help_btn = QPushButton()
-        model_help_btn.setObjectName("model_help_btn")
-        model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
-        model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
-        model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        model_help_btn.setToolTip(self.tr("View model details"))
-        model_help_btn.setCursor(Qt.PointingHandCursor)
-        model_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
-
-        model_label_help_layout.addWidget(model_name_label)
-        model_label_help_layout.addWidget(model_help_btn)
-        model_label_help_layout.addStretch()
-
-        model_name_container.addWidget(model_label_with_help)
-        model_name_container.addStretch()
-        settings_layout.addLayout(model_name_container)
-        
-        self.model_name = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_name"])
-        self.model_name.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
-        self.model_name.installEventFilter(self)
-        settings_layout.addWidget(self.model_name)
 
         # API Key with help icon
         api_key_container = QHBoxLayout()
@@ -385,6 +353,50 @@ class ChatbotDialog(QDialog):
         api_key_container.addWidget(self.api_key)
         api_key_container.addWidget(self.toggle_visibility_btn)
         settings_layout.addLayout(api_key_container)
+
+        # Model Name with help icon
+        model_name_container = QHBoxLayout()
+        model_name_label = QLabel(self.tr("Model Name"))
+        model_name_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+
+        # Create a container for label and help button
+        model_label_with_help = QWidget()
+        model_label_help_layout = QHBoxLayout(model_label_with_help)
+        model_label_help_layout.setContentsMargins(0, 0, 0, 0)
+
+        model_help_btn = QPushButton()
+        model_help_btn.setObjectName("model_help_btn")
+        model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
+        model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
+        model_help_btn.setToolTip(self.tr("View model details"))
+        model_help_btn.setCursor(Qt.PointingHandCursor)
+        model_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
+
+        model_label_help_layout.addWidget(model_name_label)
+        model_label_help_layout.addWidget(model_help_btn)
+        model_label_help_layout.addStretch()
+
+        model_name_container.addWidget(model_label_with_help)
+        
+        # Add a refresh button for models
+        self.refresh_models_btn = QPushButton()
+        self.refresh_models_btn.setIcon(QIcon(set_icon_path("refresh")))
+        self.refresh_models_btn.setFixedSize(*ICON_SIZE_SMALL)
+        self.refresh_models_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
+        self.refresh_models_btn.setToolTip(self.tr("Refresh available models"))
+        self.refresh_models_btn.setCursor(Qt.PointingHandCursor)
+        self.refresh_models_btn.clicked.connect(self.fetch_models)
+
+        model_name_container.addWidget(self.refresh_models_btn)
+        model_name_container.addStretch()
+        settings_layout.addLayout(model_name_container)
+
+        # Create ComboBox for model selection
+        self.model_name = QComboBox()
+        self.model_name.setStyleSheet(ChatbotDialogStyle.get_combobox_style(set_icon_path("chevron-down")))
+        self.model_name.setMinimumHeight(38)
+        settings_layout.addWidget(self.model_name)
         settings_layout.addStretch()
 
         # Create a splitter for the right panel to separate image and settings
@@ -431,6 +443,9 @@ class ChatbotDialog(QDialog):
 
         # After initializing UI components, load initial data if available
         self.load_initial_data()
+        
+        # Fetch available models
+        self.fetch_models()
 
         self.message_input.setFocus()
 
@@ -450,7 +465,12 @@ class ChatbotDialog(QDialog):
                     # Hide the help button if there's no API docs URL
                     api_help_btn.setVisible(False)
 
-            self.model_name.setText(PROVIDER_CONFIGS[provider]["model_name"])
+            # Clear the model dropdown
+            self.model_name.clear()
+            
+            # Fetch models for the new provider
+            self.fetch_models()
+            
             model_docs_url = PROVIDER_CONFIGS[provider]["model_docs_url"]
             model_help_btn = self.findChild(QPushButton, "model_help_btn")
             if model_help_btn:
@@ -919,8 +939,11 @@ class ChatbotDialog(QDialog):
         try:
             # Signal loading state
             self.stream_handler.start_loading()
-            
-            model_name = self.model_name.text()
+
+            if self.model_name.currentText():
+                model_name = self.model_name.currentText()
+            else:
+                raise ValueError("No model selected. Please refresh the models list.")
             
             # Prepare messages
             messages = []
@@ -1100,3 +1123,51 @@ class ChatbotDialog(QDialog):
         
         # Force update layout
         QApplication.processEvents()
+
+    def fetch_models(self):
+        """Fetch available models from the API and populate the dropdown"""
+        try:
+            self.refresh_models_btn.setEnabled(False)
+
+            # Start in a separate thread to avoid blocking UI
+            threading.Thread(target=self._fetch_models_thread).start()
+
+        except Exception as e:
+            logger.error(f"Error fetching models: {e}")
+            self.refresh_models_btn.setEnabled(True)
+
+    def _fetch_models_thread(self):
+        """Thread function to fetch models"""
+        try:
+            models_list = get_models_list(self.api_address.text(), self.api_key.text())
+
+            # Update UI in the main thread
+            QApplication.instance().postEvent(self, UpdateModelsEvent(models_list))
+
+        except Exception as e:
+            logger.error(f"Error in model fetch thread: {e}")
+            # Re-enable refresh button in main thread
+            QApplication.instance().postEvent(self, EnableRefreshButtonEvent())
+    
+    def event(self, event):
+        """Handle custom events"""
+        if isinstance(event, UpdateModelsEvent):
+            # Update the dropdown with fetched models
+            self.model_name.clear()
+            
+            for model_id in event.models:
+                self.model_name.addItem(model_id)
+            
+            # Select first item if available
+            if self.model_name.count() > 0:
+                self.model_name.setCurrentIndex(0)
+            
+            # Re-enable refresh button
+            self.refresh_models_btn.setEnabled(True)
+            return True
+            
+        elif isinstance(event, EnableRefreshButtonEvent):
+            self.refresh_models_btn.setEnabled(True)
+            return True
+            
+        return super().event(event)

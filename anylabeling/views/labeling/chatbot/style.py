@@ -302,6 +302,47 @@ class ChatbotDialogStyle:
             }}
         """
 
+    def get_combobox_style(img_url, theme: Dict[str, str] = None) -> str:
+        theme = theme or THEME
+        return f"""
+            QComboBox {{
+                border: 1px solid {theme["border"]};
+                border-radius: {BORDER_RADIUS};
+                padding: 8px 12px;
+                background-color: {theme["input_bg"]};
+                color: {theme["text"]};
+                font-family: {FONT_FAMILY};
+                font-size: {FONT_SIZE_NORMAL};
+                min-height: 20px;
+            }}
+            QComboBox:focus {{
+                border: 1px solid {theme["primary"]};
+                background-color: {theme["input_bg"]};
+            }}
+            QComboBox::drop-down {{
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 25px;
+                border-left: 1px solid {theme["border"]};
+                border-top-right-radius: {BORDER_RADIUS};
+                border-bottom-right-radius: {BORDER_RADIUS};
+            }}
+            QComboBox::down-arrow {{
+                image: url("{img_url}");
+                width: 16px;
+                height: 16px;
+            }}
+            QComboBox QAbstractItemView {{
+                border: 1px solid {theme["border"]};
+                border-radius: {BORDER_RADIUS};
+                background-color: {theme["input_bg"]};
+                selection-background-color: {theme["primary"]};
+                selection-color: white;
+                outline: none;
+            }}
+        """
+
+
 class ChatMessageStyle:
     def get_bubble_style(is_user: bool, theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
