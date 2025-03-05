@@ -679,7 +679,7 @@ class ChatbotDialog(QDialog):
         # Create bubble with smooth corners
         bubble = QWidget(self.loading_message)
         bubble.setObjectName("messageBubble")
-        bubble.setStyleSheet(ChatMessageStyle.get_bubble_style())
+        bubble.setStyleSheet(ChatMessageStyle.get_bubble_style(is_user=False))
 
         bubble_layout = QVBoxLayout(bubble)
         bubble_layout.setContentsMargins(12, 12, 12, 12)
@@ -704,7 +704,7 @@ class ChatbotDialog(QDialog):
         
         # Add loading text
         self.loading_text = QLabel(self.tr("Thinking..."))
-        self.loading_text.setStyleSheet(ChatMessageStyle.get_content_label_style())
+        self.loading_text.setStyleSheet(ChatMessageStyle.get_content_label_style(is_error=False))
         bubble_layout.addWidget(self.loading_text)
 
         # Set maximum width for the bubble
