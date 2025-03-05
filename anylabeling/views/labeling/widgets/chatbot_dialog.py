@@ -679,12 +679,7 @@ class ChatbotDialog(QDialog):
         # Create bubble with smooth corners
         bubble = QWidget(self.loading_message)
         bubble.setObjectName("messageBubble")
-        bubble.setStyleSheet(f"""
-            QWidget#messageBubble {{
-                border-radius: {BORDER_RADIUS};
-                padding: 4px;
-            }}
-        """)
+        bubble.setStyleSheet(ChatMessageStyle.get_bubble_style())
 
         bubble_layout = QVBoxLayout(bubble)
         bubble_layout.setContentsMargins(12, 12, 12, 12)
@@ -692,27 +687,14 @@ class ChatbotDialog(QDialog):
         # Add header
         header_layout = QHBoxLayout()
         role_label = QLabel(self.tr("Assistant"))
-        role_label.setStyleSheet(f"""
-            QLabel {{
-                font-weight: bold;
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_SMALL};
-            }}
-        """)
+        role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
 
         # Add copy button (disabled during loading)
         copy_btn = QPushButton()
-        copy_btn.setIcon(QIcon("anylabeling/resources/images/copy.svg"))
-        copy_btn.setFixedSize(16, 16)
+        copy_btn.setIcon(QIcon(set_icon_path("copy")))
+        copy_btn.setFixedSize(*ICON_SIZE_SMALL)
         copy_btn.setEnabled(False)
-        copy_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-                opacity: 0.5;
-            }
-        """)
+        copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
 
         header_layout.addWidget(role_label)
         header_layout.addWidget(copy_btn)
@@ -721,23 +703,15 @@ class ChatbotDialog(QDialog):
         bubble_layout.addLayout(header_layout)
         
         # Add loading text
-        self.loading_text = QLabel("Thinking...")
-        self.loading_text.setStyleSheet(f"""
-            QLabel {{
-                color: {THEME["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
-                background-color: transparent;
-                padding: 4px 0px;
-            }}
-        """)
+        self.loading_text = QLabel(self.tr("Thinking..."))
+        self.loading_text.setStyleSheet(ChatMessageStyle.get_content_label_style())
         bubble_layout.addWidget(self.loading_text)
-        
+
         # Set maximum width for the bubble
         bubble.setMaximumWidth(2000)
         loading_layout.addWidget(bubble)
         loading_layout.setAlignment(Qt.AlignLeft)
-        
+
         # Store bubble reference for later updates
         self.loading_message.bubble = bubble
         
@@ -750,7 +724,7 @@ class ChatbotDialog(QDialog):
         # Start loading animation
         self.loading_timer = QTimer(self)
         self.loading_timer.timeout.connect(self.update_loading_animation)
-        self.loading_timer.start(200)  # Update every 200ms
+        self.loading_timer.start(int(ANIMATION_DURATION[:-2]))
         
         # Scroll to bottom
         QTimer.singleShot(100, self.scroll_to_bottom)
@@ -787,15 +761,7 @@ class ChatbotDialog(QDialog):
                 self.loading_message.content_label = QLabel("")
                 self.loading_message.content_label.setWordWrap(True)
                 self.loading_message.content_label.setTextFormat(Qt.PlainText)
-                self.loading_message.content_label.setStyleSheet(f"""
-                    QLabel {{
-                        color: {THEME["text"]};
-                        font-family: {FONT_FAMILY};
-                        font-size: {FONT_SIZE_NORMAL};
-                        background-color: transparent;
-                        padding: 4px 0px;
-                    }}
-                """)
+                self.loading_message.content_label.setStyleSheet(ChatMessageStyle.get_content_label_style())
                 
                 # Set minimum and maximum width for proper wrapping
                 self.loading_message.content_label.setMinimumWidth(100)
@@ -852,10 +818,10 @@ class ChatbotDialog(QDialog):
         """Toggle visibility of API key"""
         if self.api_key.echoMode() == QLineEdit.Password:
             self.api_key.setEchoMode(QLineEdit.Normal)
-            self.toggle_visibility_btn.setIcon(QIcon("anylabeling/resources/images/eye.svg"))
+            self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye")))
         else:
             self.api_key.setEchoMode(QLineEdit.Password)
-            self.toggle_visibility_btn.setIcon(QIcon("anylabeling/resources/images/eye-off.svg"))
+            self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
     
     def link_previous_image(self):
         """Navigate to previous image and load its chat history"""
