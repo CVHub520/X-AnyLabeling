@@ -146,7 +146,7 @@ class ChatbotDialog(QDialog):
 
         # Create the message input
         self.message_input = QTextEdit()
-        self.message_input.setPlaceholderText(self.tr("Type your message here..."))
+        self.message_input.setPlaceholderText(self.tr("Type something"))
         self.message_input.setStyleSheet(ChatbotDialogStyle.get_message_input_style())
         self.message_input.setAcceptRichText(False)
         self.message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
