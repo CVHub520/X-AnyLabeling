@@ -307,6 +307,7 @@ class ChatbotDialog(QDialog):
 
         self.api_address = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_address"])
         self.api_address.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        self.api_address.installEventFilter(self)
         settings_layout.addWidget(self.api_address)
         
         # Model Name with help icon
@@ -338,6 +339,7 @@ class ChatbotDialog(QDialog):
         
         self.model_name = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_name"])
         self.model_name.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        self.model_name.installEventFilter(self)
         settings_layout.addWidget(self.model_name)
 
         # API Key with help icon
@@ -374,6 +376,7 @@ class ChatbotDialog(QDialog):
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setPlaceholderText(self.tr("Enter API key"))
         self.api_key.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        self.api_key.installEventFilter(self)
 
         self.toggle_visibility_btn = QPushButton()
         self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
@@ -929,7 +932,7 @@ class ChatbotDialog(QDialog):
             logger.error(f"Error loading chat for current image: {e}")
 
     def eventFilter(self, obj, event):
-        """Event filter for handling Enter key in message input"""
+        """Event filter for handling Enter key in message input and preventing it in settings fields"""
         if obj == self.message_input and event.type() == event.KeyPress:
             if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
                 # Ctrl+Enter sends the message
@@ -938,6 +941,11 @@ class ChatbotDialog(QDialog):
             elif event.key() == Qt.Key_Return and not event.modifiers() & Qt.ControlModifier:
                 # Enter without Ctrl adds a new line
                 return False
+        # Prevent Enter key from triggering buttons when in settings fields
+        elif obj in [self.api_address, self.model_name, self.api_key] and event.type() == event.KeyPress:
+            if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+                # Consume the Enter key event to prevent it from triggering buttons
+                return True
         return super().eventFilter(obj, event)
     
     def stream_generation(self, api_address, api_key):
