@@ -68,18 +68,15 @@ class ChatbotDialog(QDialog):
         provider_group = QButtonGroup(self)
 
         # Set provider buttons
-        providers = PROVIDER_CONFIGS.keys()
-        for provider in providers:
+        for provider in PROVIDER_CONFIGS.keys():
             btn = QPushButton(self.tr(provider.capitalize()))
-            btn.setIcon(QIcon(PROVIDER_CONFIGS[provider]["icon"]))
+            btn.setIcon(QIcon(set_icon_path(provider)))
             btn.setCheckable(True)
             btn.setFixedHeight(40)
-            # Set icon size and text alignment
-            btn.setIconSize(QSize(20, 20))
+            btn.setIconSize(QSize(*ICON_SIZE_SMALL))
             btn.setStyleSheet(ChatbotDialogStyle.get_provider_button_style())
-            # Connect button to switch provider using a default argument
             btn.clicked.connect(lambda checked, p=provider: self.switch_provider(p))
-            provider_group.addButton(btn)  # Add button to group
+            provider_group.addButton(btn)
             setattr(self, f"{provider}_btn", btn)
             left_panel.addWidget(btn)
 
@@ -437,6 +434,7 @@ class ChatbotDialog(QDialog):
 
     def switch_provider(self, provider):
         """Switch between different model providers"""
+        logger.debug(f"provider: {provider}")
         if provider in PROVIDER_CONFIGS:
             self.api_address.setText(PROVIDER_CONFIGS[provider]["api_address"])
             api_docs_url = PROVIDER_CONFIGS[provider]["api_docs_url"]
@@ -901,19 +899,19 @@ class ChatbotDialog(QDialog):
         """Event filter for handling Enter key in message input and preventing it in settings fields"""
         if obj == self.message_input and event.type() == event.KeyPress:
             if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
-                # Ctrl+Enter sends the message
                 self.start_generation()
                 return True
             elif event.key() == Qt.Key_Return and not event.modifiers() & Qt.ControlModifier:
                 # Enter without Ctrl adds a new line
                 return False
         # Prevent Enter key from triggering buttons when in settings fields
-        elif obj in [self.api_address, self.model_name, self.api_key] and event.type() == event.KeyPress:
-            if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-                # Consume the Enter key event to prevent it from triggering buttons
-                return True
+        elif hasattr(self, 'api_address') and hasattr(self, 'model_name') and hasattr(self, 'api_key'):
+            if obj in [self.api_address, self.model_name, self.api_key] and event.type() == event.KeyPress:
+                if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+                    # Consume the Enter key event to prevent it from triggering buttons
+                    return True
         return super().eventFilter(obj, event)
-    
+
     def stream_generation(self, api_address, api_key):
         """Generate streaming response from the API"""
         try:

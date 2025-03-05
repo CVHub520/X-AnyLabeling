@@ -38,7 +38,6 @@ THEME = {
 # Provider configurations
 PROVIDER_CONFIGS = {
     "deepseek": {
-        "icon": "anylabeling/resources/images/deepseek.svg",
         "api_address": "https://api.deepseek.com/v1",
         "api_key" : None,
         "model_name": "deepseek-vision",
@@ -47,7 +46,6 @@ PROVIDER_CONFIGS = {
         "model_docs_url": "https://platform.deepseek.com/models"
     },
     "ollama": {
-        "icon": "anylabeling/resources/images/ollama.svg",
         "api_address": "http://localhost:11434/v1",
         "model_name": "llava",
         "api_key": "ollama",
@@ -56,7 +54,6 @@ PROVIDER_CONFIGS = {
         "model_docs_url": "https://ollama.com/search"
     },
     "qwen": {
-        "icon": "anylabeling/resources/images/qwen.svg",
         "api_address": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "model_name": "qwen-vl-max-latest",
         "api_key": None,
