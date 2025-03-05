@@ -352,3 +352,45 @@ class ChatMessageStyle:
                 font-weight: normal;
             }}
         """
+
+    def get_edit_button_wdiget_style():
+        """Style for edit buttons widget"""
+        return """
+            QWidget {
+               border: none;
+                background: transparent;
+            }
+        """
+
+    def get_cancel_button_style(theme: Dict[str, str] = None):
+        """Style for edit message cancel button"""
+        theme = theme or THEME
+        return f"""
+            QPushButton {{
+                background-color: transparent;
+                font-size: {FONT_SIZE_SMALL};
+            }}
+            QPushButton:hover {{
+                background-color: {theme["background"]};
+                border: 1px solid {theme["border"]};
+                border-radius: 4px;
+                padding: 4px 10px;
+            }}
+        """
+
+    def get_save_button_style(theme: Dict[str, str] = None):
+        """Style for edit message save button"""
+        theme = theme or THEME
+        return f"""
+            QPushButton {{
+                background-color: {theme["primary_hover"]};
+                border: 1px solid {theme["primary_hover"]};
+                border-radius: 4px;
+                padding: 4px 10px;
+                color: white;
+                font-size: {FONT_SIZE_SMALL};
+            }}
+            QPushButton:hover {{
+                background-color: {theme["primary"]};
+            }}
+        """

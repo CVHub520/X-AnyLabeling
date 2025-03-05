@@ -1037,3 +1037,66 @@ class ChatbotDialog(QDialog):
         self.chat_container.updateGeometry()
         QApplication.processEvents()
         QTimer.singleShot(100, self.scroll_to_bottom)
+
+    def resubmit_edited_message(self, message_widget, new_content):
+        """Handle resubmission of an edited message"""
+        # Find the index of the message in the chat history
+        message_widgets = []
+        for i in range(self.chat_messages_layout.count()):
+            item = self.chat_messages_layout.itemAt(i)
+            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                message_widgets.append(item.widget())
+        
+        if message_widget in message_widgets:
+            message_index = message_widgets.index(message_widget)
+            
+            # Clear all messages after and including this one
+            self.clear_messages_after(message_index)
+            
+            # Set the edited text to the message input
+            self.message_input.setPlainText(new_content)
+            
+            # Trigger generation with the new content
+            self.start_generation()
+    
+    def clear_messages_after(self, index):
+        """Clear all messages after and including the specified index"""
+        # Find all message widgets
+        message_widgets = []
+        for i in range(self.chat_messages_layout.count()):
+            item = self.chat_messages_layout.itemAt(i)
+            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                message_widgets.append((i, item.widget()))
+        
+        # Identify which items to remove (in reverse order to avoid index issues)
+        to_remove = []
+        for i, (layout_index, widget) in enumerate(message_widgets):
+            if i >= index:
+                to_remove.append((layout_index, widget))
+        
+        # Remove widgets in reverse order
+        for layout_index, widget in reversed(to_remove):
+            # Remove from layout
+            self.chat_messages_layout.removeWidget(widget)
+            widget.setParent(None)
+            widget.deleteLater()
+        
+        # Update chat history to match
+        if len(to_remove) > 0:
+            self.chat_history = self.chat_history[:index]
+        
+        # Make sure we still have a stretch at the end
+        # First, check if there's already a stretch
+        has_stretch = False
+        for i in range(self.chat_messages_layout.count()):
+            item = self.chat_messages_layout.itemAt(i)
+            if item and item.spacerItem():
+                has_stretch = True
+                break
+        
+        # If no stretch, add one
+        if not has_stretch:
+            self.chat_messages_layout.addStretch()
+        
+        # Force update layout
+        QApplication.processEvents()

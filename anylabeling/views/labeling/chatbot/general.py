@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt, QEasingCurve, QTimer, QPropertyAnimation
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy
+    QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit
 )
 
 from anylabeling.views.labeling.chatbot.config import *
@@ -17,6 +17,10 @@ class ChatMessage(QFrame):
         self.role = role
         self.content = content
         self.is_error = is_error
+        self.is_editing = False
+        self.resize_in_progress = False  # Flag to prevent recursion
+        self.animation_min_height = 40
+        self.edit_area_min_height = 80
 
         # Create message container with appropriate styling
         is_user = role == "user"
@@ -60,10 +64,21 @@ class ChatMessage(QFrame):
         copy_btn.setCursor(Qt.PointingHandCursor)
         copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(copy_btn))
 
+        # Add edit button for user messages
+        self.edit_btn = None
         if is_user:
+            self.edit_btn = QPushButton()
+            self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
+            self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
+            self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
+            self.edit_btn.setToolTip(self.tr("Edit message"))
+            self.edit_btn.setCursor(Qt.PointingHandCursor)
+            self.edit_btn.clicked.connect(self.enter_edit_mode)
+
             header_layout.addStretch()
             header_layout.addWidget(role_label)
             header_layout.addWidget(copy_btn)
+            header_layout.addWidget(self.edit_btn)
         else:
             header_layout.addWidget(role_label)
             header_layout.addWidget(copy_btn)
@@ -116,6 +131,46 @@ class ChatMessage(QFrame):
         self.content_label = content_label
         
         bubble_layout.addWidget(content_label)
+        
+        # Create an edit area for user messages (hidden by default)
+        self.edit_area = QTextEdit()
+        self.edit_area.setPlainText(content)
+        self.edit_area.setStyleSheet(ChatMessageStyle.get_content_label_style(False))
+        self.edit_area.setFrameShape(QFrame.NoFrame)
+        self.edit_area.setFrameShadow(QFrame.Plain)
+        self.edit_area.setWordWrapMode(True)
+        self.edit_area.setMinimumHeight(self.edit_area_min_height)
+        self.edit_area.setVisible(False)
+        bubble_layout.addWidget(self.edit_area)
+        
+        # Create buttons for edit mode (hidden by default)
+        self.edit_buttons_widget = QWidget()
+        edit_buttons_layout = QHBoxLayout(self.edit_buttons_widget)
+        edit_buttons_layout.setContentsMargins(0, 8, 0, 0)
+        edit_buttons_layout.setSpacing(8)
+
+        # Add stretch to push buttons to the right
+        edit_buttons_layout.addStretch()
+        
+        # Cancel button
+        self.cancel_btn = QPushButton(self.tr("Cancel"))
+        self.cancel_btn.setStyleSheet(ChatMessageStyle.get_cancel_button_style())
+        self.cancel_btn.setCursor(Qt.PointingHandCursor)
+        self.cancel_btn.clicked.connect(self.exit_edit_mode)
+
+        # Save button
+        self.save_btn = QPushButton(self.tr("Save"))
+        self.save_btn.setStyleSheet(ChatMessageStyle.get_save_button_style())
+        self.save_btn.setCursor(Qt.PointingHandCursor)
+        self.save_btn.clicked.connect(self.save_edit)
+        
+        edit_buttons_layout.addWidget(self.cancel_btn)
+        edit_buttons_layout.addWidget(self.save_btn)
+        
+        # Add edit buttons to bubble layout but keep hidden
+        self.edit_buttons_widget.setStyleSheet(ChatMessageStyle.get_edit_button_wdiget_style())
+        self.edit_buttons_widget.setVisible(False)
+        bubble_layout.addWidget(self.edit_buttons_widget)
 
         self.bubble.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         
@@ -131,11 +186,17 @@ class ChatMessage(QFrame):
                 if max_width > 0:
                     if hasattr(self, 'content_label'):
                         self.content_label.setMaximumWidth(max_width - 20)
+                    
+                    if hasattr(self, 'edit_area'):
+                        self.edit_area.setMaximumWidth(max_width - 20)
 
                     self.bubble.setMaximumWidth(max_width)
 
                     if hasattr(self, 'content_label') and hasattr(self, 'adjust_height_after_animation'):
                         self.adjust_height_after_animation()
+                        
+                    if self.is_editing and hasattr(self, 'adjust_height_during_edit'):
+                        self.adjust_height_during_edit()
 
                     self.updateGeometry()
                     self.bubble.updateGeometry()
@@ -155,8 +216,7 @@ class ChatMessage(QFrame):
                                          30)
         
         # Set minimum height to avoid excessive height
-        min_height = 40
-        anim_end_height = max(min_height, bubble_height)
+        anim_end_height = max(self.animation_min_height, bubble_height)
 
         # Set end value and easing curve
         self.animation.setEndValue(anim_end_height)
@@ -181,30 +241,44 @@ class ChatMessage(QFrame):
 
     def update_width_constraint(self):
         """Update width constraint based on parent width"""
-        if self.parent():
-            parent_width = self.parent().width()
-            if parent_width > 0:
-                if self.role == "user":
-                    max_width = int(parent_width * MAX_USER_MSG_WIDTH / 100)
-                else:
-                    max_width = int(parent_width)
+        # Prevent recursion
+        if self.resize_in_progress:
+            return
+            
+        self.resize_in_progress = True
+        try:
+            if self.parent():
+                parent_width = self.parent().width()
+                if parent_width > 0:
+                    if self.role == "user":
+                        max_width = int(parent_width * MAX_USER_MSG_WIDTH / 100)
+                    else:
+                        max_width = int(parent_width)
 
-                if max_width > 0:
-                    if hasattr(self, 'content_label'):
-                        self.content_label.setMaximumWidth(max_width - 20)
+                    if max_width > 0:
+                        if hasattr(self, 'content_label'):
+                            self.content_label.setMaximumWidth(max_width - 20)
+                        
+                        if hasattr(self, 'edit_area'):
+                            self.edit_area.setMaximumWidth(max_width - 20)
 
-                    self.bubble.setMaximumWidth(max_width)
+                        self.bubble.setMaximumWidth(max_width)
 
-                    if hasattr(self, 'content_label') and hasattr(self, 'adjust_height_after_animation'):
-                        self.adjust_height_after_animation()
-
-                    self.updateGeometry()
-                    self.bubble.updateGeometry()
+                        if hasattr(self, 'content_label') and hasattr(self, 'adjust_height_after_animation'):
+                            if not self.is_editing:
+                                self.adjust_height_after_animation()
+                        
+                        self.updateGeometry()
+                        self.bubble.updateGeometry()
+        finally:
+            self.resize_in_progress = False
 
     def resizeEvent(self, event):
         """Handle resize events"""
         super().resizeEvent(event)
-        self.update_width_constraint()
+        # Only update width constraint if not already in progress
+        if not self.resize_in_progress:
+            self.update_width_constraint()
 
     def reset_copy_button(self, button):
         """Reset the copy button to its original state"""
@@ -214,14 +288,107 @@ class ChatMessage(QFrame):
 
     def adjust_height_after_animation(self):
         """Adjust height after animation"""
-        # Get the actual height needed for the content
-        content_height = self.content_label.heightForWidth(self.content_label.width())
-        # If the height cannot be obtained correctly, use sizeHint
-        if content_height <= 0:
-            content_height = self.content_label.sizeHint().height()
+        # Prevent recursion
+        if self.resize_in_progress:
+            return
+            
+        self.resize_in_progress = True
+        try:
+            # Get the actual height needed for the content
+            content_height = self.content_label.heightForWidth(self.content_label.width())
+            # If the height cannot be obtained correctly, use sizeHint
+            if content_height <= 0:
+                content_height = self.content_label.sizeHint().height()
+            
+            # Add extra space for the header and padding
+            total_height = content_height + self.animation_min_height
+            
+            # Set a reasonable maximum height, slightly larger than the calculated height
+            self.setMaximumHeight(total_height + 10)
+        finally:
+            self.resize_in_progress = False
+
+    def enter_edit_mode(self):
+        """Enter edit mode for user messages"""
+        if self.role != "user":
+            return
+            
+        self.is_editing = True
         
-        # Add extra space for the header and padding
-        total_height = content_height + 40
+        # Hide the normal content and show the edit area
+        self.content_label.setVisible(False)
+        self.edit_area.setVisible(True)
+        self.edit_area.setPlainText(self.content)
+        self.edit_buttons_widget.setVisible(True)
         
-        # Set a reasonable maximum height, slightly larger than the calculated height
-        self.setMaximumHeight(total_height + 10)
+        # Set focus to the edit area
+        self.edit_area.setFocus()
+        
+        # Adjust the widget height
+        self.adjust_height_during_edit()
+    
+    def exit_edit_mode(self):
+        """Exit edit mode without saving changes"""
+        self.is_editing = False
+        
+        # Show the normal content and hide the edit area
+        self.content_label.setVisible(True)
+        self.edit_area.setVisible(False)
+        self.edit_buttons_widget.setVisible(False)
+        
+        # Reset the edit area text
+        self.edit_area.setPlainText(self.content)
+        
+        # Adjust the widget height
+        self.adjust_height_after_animation()
+    
+    def save_edit(self):
+        """Save edited content and resubmit the message"""
+        # Get edited content
+        edited_content = self.edit_area.toPlainText().strip()
+        
+        # Only proceed if content has changed and is not empty
+        if edited_content and edited_content != self.content:
+            # Get the dialog
+            dialog = self.window()
+            if hasattr(dialog, 'clear_messages_after') and hasattr(dialog, 'message_input'):
+                # Exit edit mode first to return to normal view
+                self.is_editing = False
+                self.content_label.setVisible(True)
+                self.edit_area.setVisible(False)
+                self.edit_buttons_widget.setVisible(False)
+                
+                # Call the dialog method to handle deletion and resubmission
+                dialog.resubmit_edited_message(self, edited_content)
+            else:
+                # Just update the content if we can't find the dialog methods
+                self.content = edited_content
+                self.content_label.setText(edited_content)
+                self.exit_edit_mode()
+        else:
+            # No changes or empty content, just exit edit mode
+            self.exit_edit_mode()
+    
+    def adjust_height_during_edit(self):
+        """Adjust widget height during edit mode"""
+        # Prevent recursion
+        if self.resize_in_progress:
+            return
+            
+        self.resize_in_progress = True
+        try:
+            # Get the height needed for the edit area
+            edit_height = self.edit_area.document().size().height() + 20
+            buttons_height = self.edit_buttons_widget.sizeHint().height() + 10
+            
+            # Calculate total height needed
+            total_height = edit_height + buttons_height + self.edit_area_min_height
+
+            # Set a reasonable height for the edit mode
+            self.setMaximumHeight(total_height + 20)
+            
+            # Force update layout
+            self.updateGeometry()
+            QApplication.processEvents()
+        finally:
+            self.resize_in_progress = False
