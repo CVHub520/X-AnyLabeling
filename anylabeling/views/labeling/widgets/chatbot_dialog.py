@@ -75,7 +75,7 @@ class ChatbotDialog(QDialog):
             btn.setFixedHeight(40)
             btn.setIconSize(QSize(*ICON_SIZE_SMALL))
             btn.setStyleSheet(ChatbotDialogStyle.get_provider_button_style())
-            btn.clicked.connect(lambda checked, p=provider: self.switch_provider(p))
+            btn.clicked.connect(lambda checked, p=provider: self.switch_provider(p) if checked else None)
             provider_group.addButton(btn)
             setattr(self, f"{provider}_btn", btn)
             left_panel.addWidget(btn)
@@ -432,9 +432,10 @@ class ChatbotDialog(QDialog):
         # After initializing UI components, load initial data if available
         self.load_initial_data()
 
+        self.message_input.setFocus()
+
     def switch_provider(self, provider):
         """Switch between different model providers"""
-        logger.debug(f"provider: {provider}")
         if provider in PROVIDER_CONFIGS:
             self.api_address.setText(PROVIDER_CONFIGS[provider]["api_address"])
             api_docs_url = PROVIDER_CONFIGS[provider]["api_docs_url"]
@@ -759,7 +760,8 @@ class ChatbotDialog(QDialog):
                 self.loading_message.content_label = QLabel("")
                 self.loading_message.content_label.setWordWrap(True)
                 self.loading_message.content_label.setTextFormat(Qt.PlainText)
-                self.loading_message.content_label.setStyleSheet(ChatMessageStyle.get_content_label_style())
+                self.loading_message.content_label.setStyleSheet(
+                    ChatMessageStyle.get_content_label_style(is_error=False))
                 
                 # Set minimum and maximum width for proper wrapping
                 self.loading_message.content_label.setMinimumWidth(100)
