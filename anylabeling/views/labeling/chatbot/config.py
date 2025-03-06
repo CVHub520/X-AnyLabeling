@@ -13,6 +13,8 @@ ICON_SIZE_SMALL = (16, 16)
 DEFAULT_WINDOW_TITLE = "Chatbot"
 DEFAULT_WINDOW_SIZE = (1200, 700)  # Width and height
 DEFAULT_PROVIDER = "ollama"
+CHAT_PANEL_PERCENTAGE = 88
+INPUT_PANEL_PERCENTAGE = 12
 MIN_MSG_INPUT_HEIGHT = 20
 MAX_MSG_INPUT_HEIGHT = 300
 MAX_USER_MSG_WIDTH = 70 # 70% of the layout width
@@ -40,14 +42,12 @@ PROVIDER_CONFIGS = {
     "deepseek": {
         "api_address": "https://api.deepseek.com/v1",
         "api_key" : None,
-        "model_name": "deepseek-vision",
         "api_key_url": "https://platform.deepseek.com/api_keys",
         "api_docs_url": "https://platform.deepseek.com/docs",
         "model_docs_url": "https://platform.deepseek.com/models"
     },
     "ollama": {
         "api_address": "http://localhost:11434/v1",
-        "model_name": "llava",
         "api_key": "ollama",
         "api_key_url": None,
         "api_docs_url": "https://github.com/ollama/ollama/blob/main/docs/api.md",
@@ -55,7 +55,6 @@ PROVIDER_CONFIGS = {
     },
     "qwen": {
         "api_address": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        "model_name": "qwen-vl-max-latest",
         "api_key": None,
         "api_key_url": "https://bailian.console.aliyun.com/?apiKey=1#/api-key",
         "api_docs_url": "https://help.aliyun.com/document_detail/2590237.html",

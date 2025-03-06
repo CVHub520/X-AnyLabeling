@@ -93,8 +93,6 @@ class ChatbotDialog(QDialog):
 
         #################################
         # Middle panel - Chat interface #
-        #   - chat_layout (85%)         #
-        #   - input_layout (15%)        #
         #################################
         self.middle_widget = QWidget()
         self.middle_widget.setStyleSheet(ChatbotDialogStyle.get_middle_widget_style())
@@ -102,7 +100,7 @@ class ChatbotDialog(QDialog):
         middle_panel.setContentsMargins(0, 0, 0, 0)
         middle_panel.setSpacing(0)
 
-        # Chat area - takes 90% of the vertical space
+        # Chat area
         chat_container = QWidget()
         chat_container.setStyleSheet(ChatbotDialogStyle.get_chat_container_style())
         chat_layout = QVBoxLayout(chat_container)
@@ -189,10 +187,10 @@ class ChatbotDialog(QDialog):
         # Create the send button
         self.send_btn = QPushButton()
         self.send_btn.setIcon(QIcon(set_icon_path("send")))
-        self.send_btn.setIconSize(QSize(20, 20))
+        self.send_btn.setIconSize(QSize(*ICON_SIZE_NORMAL))
         self.send_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
         self.send_btn.setCursor(Qt.PointingHandCursor)
-        self.send_btn.setFixedSize(24, 24)
+        self.send_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.send_btn.clicked.connect(self.start_generation)
 
         # Add the send button to the layout
@@ -201,8 +199,8 @@ class ChatbotDialog(QDialog):
         input_layout.addWidget(input_frame)
 
         # Add the chat container and input container to the middle panel
-        middle_panel.addWidget(chat_container, 88)
-        middle_panel.addWidget(input_container, 12)
+        middle_panel.addWidget(chat_container, CHAT_PANEL_PERCENTAGE)
+        middle_panel.addWidget(input_container, INPUT_PANEL_PERCENTAGE)
 
         ############################################
         # Right panel - Image preview and settings #
@@ -253,7 +251,7 @@ class ChatbotDialog(QDialog):
         self.open_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.open_image_btn.setToolTip(self.tr("Open Image Folder"))
         self.open_image_btn.setCursor(Qt.PointingHandCursor)
-        self.open_image_btn.clicked.connect(self.open_image_folder)
+        self.open_image_btn.clicked.connect(lambda: self.open_image_folder_or_video_file(is_video=False))
         nav_layout.addWidget(self.open_image_btn)
 
         self.open_video_btn = QPushButton()
@@ -262,7 +260,7 @@ class ChatbotDialog(QDialog):
         self.open_video_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.open_video_btn.setToolTip(self.tr("Open Video File"))
         self.open_video_btn.setCursor(Qt.PointingHandCursor)
-        self.open_video_btn.clicked.connect(self.open_video_file)
+        self.open_video_btn.clicked.connect(lambda: self.open_image_folder_or_video_file(is_video=True))
         nav_layout.addWidget(self.open_video_btn)
         nav_layout.addStretch()
 
@@ -336,7 +334,6 @@ class ChatbotDialog(QDialog):
 
         # API key input with toggle visibility
         api_key_container = QHBoxLayout()
-
         self.api_key = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key"])
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setPlaceholderText(self.tr("Enter API key"))
@@ -376,9 +373,8 @@ class ChatbotDialog(QDialog):
         model_label_help_layout.addWidget(model_name_label)
         model_label_help_layout.addWidget(model_help_btn)
         model_label_help_layout.addStretch()
-
         model_name_container.addWidget(model_label_with_help)
-        
+
         # Add a refresh button for models
         self.refresh_models_btn = QPushButton()
         self.refresh_models_btn.setIcon(QIcon(set_icon_path("refresh")))
@@ -395,7 +391,7 @@ class ChatbotDialog(QDialog):
         # Create ComboBox for model selection
         self.model_name = QComboBox()
         self.model_name.setStyleSheet(ChatbotDialogStyle.get_combobox_style(set_icon_path("chevron-down")))
-        self.model_name.setMinimumHeight(38)
+        self.model_name.setMinimumHeight(40)
         settings_layout.addWidget(self.model_name)
         settings_layout.addStretch()
 
@@ -538,7 +534,7 @@ class ChatbotDialog(QDialog):
                     self.image_preview.setAlignment(Qt.AlignCenter)
                 else:
                     # If the preview size isn't valid yet, schedule another update
-                    QTimer.singleShot(200, self.update_image_preview)
+                    QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.update_image_preview)
             else:
                 self.image_preview.setText(self.tr("Image not available"))
     
@@ -558,7 +554,7 @@ class ChatbotDialog(QDialog):
             self.update_image_preview()
 
             # Add a slight delay to ensure the widget is fully rendered before scaling the image
-            QTimer.singleShot(100, self.update_image_preview)
+            QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.update_image_preview)
 
         # Update visibility of import buttons based on whether files are loaded
         self.update_import_buttons_visibility()
@@ -570,32 +566,18 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn.setVisible(has_images)
         self.next_image_btn.setVisible(has_images)
     
-    def open_image_folder(self):
-        """Open an image folder"""
-        if hasattr(self.parent(), 'open_folder_dialog'):
-            self.parent().open_folder_dialog()
-            # Check if images were successfully loaded
-            if self.parent().image_list:
-                # Update image preview
-                self.update_image_preview()
-                # Load initial data
-                self.load_initial_data()
-                # Update button visibility
-                self.update_import_buttons_visibility()
-    
-    def open_video_file(self):
-        """Open a video file"""
-        if hasattr(self.parent(), 'open_video_file'):
+    def open_image_folder_or_video_file(self, is_video=False):
+        """Open an image folder or a video file"""
+        if is_video:
             self.parent().open_video_file()
-            # Check if frames were successfully extracted
-            if self.parent().image_list:
-                # Update image preview
-                self.update_image_preview()
-                # Load initial data
-                self.load_initial_data()
-                # Update button visibility
-                self.update_import_buttons_visibility()
-    
+        else:
+            self.parent().open_folder_dialog()
+        if self.parent().image_list:
+            logger.debug("Updating image preview")
+            self.update_image_preview()
+            self.load_initial_data()
+            self.update_import_buttons_visibility()
+
     def add_message(self, role, content, delete_last_message=False):
         """Add a new message to the chat area"""
         # Remove the stretch item if it exists
@@ -620,7 +602,7 @@ class ChatbotDialog(QDialog):
             self.chat_history.append({"role": role, "content": content})
 
         # Scroll to bottom - use a longer delay to ensure layout is updated
-        QTimer.singleShot(200, self.scroll_to_bottom)
+        QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.scroll_to_bottom)
         
         # Update parent data
         if role == "assistant" and self.parent().filename and not delete_last_message:
@@ -930,8 +912,8 @@ class ChatbotDialog(QDialog):
             if self.model_name.currentText():
                 model_name = self.model_name.currentText()
             else:
-                raise ValueError("No model selected. Please refresh the models list.")
-            
+                raise ValueError("No model selected. Check API address/key, then refresh the models list.")
+
             # Prepare messages
             messages = []
             for msg in self.chat_history:
