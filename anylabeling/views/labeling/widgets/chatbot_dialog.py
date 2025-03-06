@@ -246,23 +246,22 @@ class ChatbotDialog(QDialog):
         nav_layout.addStretch()
 
         # Add image and video buttons for importing media
-        self.open_image_btn = QPushButton()
-        self.open_image_btn.setIcon(QIcon(set_icon_path("image")))
-        self.open_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.open_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
-        self.open_image_btn.setToolTip(self.tr("Open Image Folder"))
-        self.open_image_btn.setCursor(Qt.PointingHandCursor)
-        self.open_image_btn.clicked.connect(lambda: self.open_image_folder_or_video_file(is_video=False))
-        nav_layout.addWidget(self.open_image_btn)
-
-        self.open_video_btn = QPushButton()
-        self.open_video_btn.setIcon(QIcon(set_icon_path("video")))
-        self.open_video_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.open_video_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
-        self.open_video_btn.setToolTip(self.tr("Open Video File"))
-        self.open_video_btn.setCursor(Qt.PointingHandCursor)
-        self.open_video_btn.clicked.connect(lambda: self.open_image_folder_or_video_file(is_video=True))
-        nav_layout.addWidget(self.open_video_btn)
+        import_media_btn_modes = ["image", "folder", "video"]
+        import_media_btn_names = ["open_image_file_btn", "open_image_folder_btn", "open_video_btn"]
+        import_media_btn_tooltips = ["Open Image File", "Open Image Folder", "Open Video File"]
+        for btn_mode, btn_name, btn_tooltip in zip(
+            import_media_btn_modes, import_media_btn_names, import_media_btn_tooltips
+        ):
+            btn = QPushButton()
+            btn.setIcon(QIcon(set_icon_path(btn_mode)))
+            btn.setFixedSize(*ICON_SIZE_NORMAL)
+            btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
+            btn.setToolTip(self.tr(btn_tooltip))
+            btn.setCursor(Qt.PointingHandCursor)
+            btn.clicked.connect(lambda checked=False, mode=btn_mode: 
+                               self.open_image_folder_or_video_file(mode=mode))
+            nav_layout.addWidget(btn)
+            setattr(self, btn_name, btn)  # Store reference as class attribute
         nav_layout.addStretch()
 
         nav_layout.addWidget(self.next_image_btn)
@@ -567,16 +566,21 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn.setVisible(has_images)
         self.next_image_btn.setVisible(has_images)
     
-    def open_image_folder_or_video_file(self, is_video=False):
-        """Open an image folder or a video file"""
-        if is_video:
-            self.parent().open_video_file()
+    def open_image_folder_or_video_file(self, mode="image"):
+        """Open an image file or image folder or a video file"""
+        if mode == "image":
+            self.parent().open_file()
+            if self.parent().filename:
+                self.load_chat_for_current_image()
+                self.update_import_buttons_visibility()
         else:
-            self.parent().open_folder_dialog()
-        if self.parent().image_list:
-            self.update_image_preview()
-            self.load_chat_for_current_image()
-            self.update_import_buttons_visibility()
+            if mode == "video":
+                self.parent().open_video_file()
+            else:
+                self.parent().open_folder_dialog()
+            if self.parent().image_list:
+                self.load_chat_for_current_image()
+                self.update_import_buttons_visibility()
 
     def add_message(self, role, content, delete_last_message=False):
         """Add a new message to the chat area"""
