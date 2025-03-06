@@ -386,7 +386,7 @@ class ChatbotDialog(QDialog):
         self.refresh_models_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         self.refresh_models_btn.setToolTip(self.tr("Refresh available models"))
         self.refresh_models_btn.setCursor(Qt.PointingHandCursor)
-        self.refresh_models_btn.clicked.connect(self.fetch_models)
+        self.refresh_models_btn.clicked.connect(lambda: self.fetch_models(log_errors=True))
 
         model_name_container.addWidget(self.refresh_models_btn)
         model_name_container.addStretch()
@@ -1121,19 +1121,23 @@ class ChatbotDialog(QDialog):
         # Force update layout
         QApplication.processEvents()
 
-    def fetch_models(self):
-        """Fetch available models from the API and populate the dropdown"""
+    def fetch_models(self, log_errors=False):
+        """Fetch available models from the API and populate the dropdown
+
+        Args:
+            log_errors: Whether to log errors that occur during model fetching
+        """
         try:
             self.refresh_models_btn.setEnabled(False)
 
             # Start in a separate thread to avoid blocking UI
-            threading.Thread(target=self._fetch_models_thread).start()
+            threading.Thread(target=self._fetch_models_thread, kwargs={"log_errors": log_errors}).start()
 
         except Exception as e:
             logger.error(f"Error fetching models: {e}")
             self.refresh_models_btn.setEnabled(True)
 
-    def _fetch_models_thread(self):
+    def _fetch_models_thread(self, log_errors=False):
         """Thread function to fetch models"""
         try:
             models_list = get_models_list(self.api_address.text(), self.api_key.text())
@@ -1142,7 +1146,8 @@ class ChatbotDialog(QDialog):
             QApplication.instance().postEvent(self, UpdateModelsEvent(models_list))
 
         except Exception as e:
-            logger.error(f"Error in model fetch thread: {e}")
+            if log_errors:
+                logger.error(f"Error in model fetch thread: {e}")
             # Re-enable refresh button in main thread
             QApplication.instance().postEvent(self, EnableRefreshButtonEvent())
     
