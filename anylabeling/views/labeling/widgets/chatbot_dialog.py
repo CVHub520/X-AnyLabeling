@@ -2,7 +2,7 @@ import base64
 import threading
 from openai import OpenAI
 
-from PyQt5.QtCore import QTimer, Qt, QSize, QEvent
+from PyQt5.QtCore import QTimer, Qt, QSize
 from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -467,10 +467,10 @@ class ChatbotDialog(QDialog):
 
             # Clear the model dropdown
             self.model_name.clear()
-            
+
             # Fetch models for the new provider
             self.fetch_models()
-            
+
             model_docs_url = PROVIDER_CONFIGS[provider]["model_docs_url"]
             model_help_btn = self.findChild(QPushButton, "model_help_btn")
             if model_help_btn:

@@ -3,7 +3,6 @@ from typing import Dict
 from anylabeling.views.labeling.chatbot.config import *
 
 
-
 class ChatbotDialogStyle:
     def get_dialog_style(theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
@@ -308,12 +307,17 @@ class ChatbotDialogStyle:
             QComboBox {{
                 border: 1px solid {theme["border"]};
                 border-radius: {BORDER_RADIUS};
-                padding: 8px 12px;
+                padding: 8px 16px;
                 background-color: {theme["input_bg"]};
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 min-height: 20px;
+                margin-top: 4px;
+                margin-bottom: 8px;
+            }}
+            QComboBox:hover {{
+                border: 1px solid {theme["primary_hover"]};
             }}
             QComboBox:focus {{
                 border: 1px solid {theme["primary"]};
@@ -322,8 +326,8 @@ class ChatbotDialogStyle:
             QComboBox::drop-down {{
                 subcontrol-origin: padding;
                 subcontrol-position: top right;
-                width: 25px;
-                border-left: 1px solid {theme["border"]};
+                width: 30px;
+                border-left: 1px solid transparent;
                 border-top-right-radius: {BORDER_RADIUS};
                 border-bottom-right-radius: {BORDER_RADIUS};
             }}
@@ -331,14 +335,6 @@ class ChatbotDialogStyle:
                 image: url("{img_url}");
                 width: 16px;
                 height: 16px;
-            }}
-            QComboBox QAbstractItemView {{
-                border: 1px solid {theme["border"]};
-                border-radius: {BORDER_RADIUS};
-                background-color: {theme["input_bg"]};
-                selection-background-color: {theme["primary"]};
-                selection-color: white;
-                outline: none;
             }}
         """
 
