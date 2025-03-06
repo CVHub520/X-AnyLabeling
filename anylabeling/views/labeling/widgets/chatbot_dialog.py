@@ -782,13 +782,16 @@ class ChatbotDialog(QDialog):
             if hasattr(self.loading_message, 'content_label'):
                 final_text = self.loading_message.content_label.text()
             
-            # Remove the loading message
-            self.loading_message.setParent(None)
-            self.loading_message.deleteLater()
+            # Store reference to loading message for removal
+            loading_message_to_remove = self.loading_message
             self.loading_message = None
             
-            # Add the final message
+            # Add the final message first
             self.add_message("assistant", final_text)
+            
+            # Then remove the loading message after adding the final message
+            loading_message_to_remove.setParent(None)
+            loading_message_to_remove.deleteLater()
 
             # Set dirty flag
             if self.parent().image_list:
