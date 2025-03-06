@@ -574,9 +574,8 @@ class ChatbotDialog(QDialog):
         else:
             self.parent().open_folder_dialog()
         if self.parent().image_list:
-            logger.debug("Updating image preview")
             self.update_image_preview()
-            self.load_initial_data()
+            self.load_chat_for_current_image()
             self.update_import_buttons_visibility()
 
     def add_message(self, role, content, delete_last_message=False):
@@ -866,8 +865,6 @@ class ChatbotDialog(QDialog):
             # Load data for current image
             self.load_initial_data()
 
-            if "chat_history" in self.parent().other_data:
-                logger.debug(f"Loaded chat history with {len(self.parent().other_data['chat_history'])} messages")
         except Exception as e:
             logger.error(f"Error loading chat for current image: {e}")
 
