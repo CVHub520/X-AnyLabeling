@@ -144,7 +144,7 @@ class ChatbotDialog(QDialog):
 
         # Create the message input
         self.message_input = QTextEdit()
-        self.message_input.setPlaceholderText(self.tr("Type something"))
+        self.message_input.setPlaceholderText(self.tr("Type something, add @image to include an image"))
         self.message_input.setStyleSheet(ChatbotDialogStyle.get_message_input_style())
         self.message_input.setAcceptRichText(False)
         self.message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
@@ -923,24 +923,30 @@ class ChatbotDialog(QDialog):
                 except Exception as e:
                     logger.error(f"Error reading image file: {e}")
 
-            # Add image to the message if available
+            # Add image to the message if available and requested
             if image_data:
                 # Find the last user message
                 for i in range(len(messages) - 1, -1, -1):
                     if messages[i]["role"] == "user":
-                        # Add image to content
-                        messages[i]["content"] = [
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{image_data}"
+                        user_content = messages[i]["content"]
+                        # Check if the message contains the image tag
+                        if "@image" in user_content:
+                            # Remove the @image tag from the message
+                            user_content = user_content.replace("@image", "").strip()
+                            
+                            # Add image to content
+                            messages[i]["content"] = [
+                                {
+                                    "type": "image_url",
+                                    "image_url": {
+                                        "url": f"data:image/jpeg;base64,{image_data}"
+                                    }
+                                },
+                                {
+                                    "type": "text",
+                                    "text": user_content
                                 }
-                            },
-                            {
-                                "type": "text",
-                                "text": messages[i]["content"]
-                            }
-                        ]
+                            ]
                         break
             
             # Make API call with streaming
