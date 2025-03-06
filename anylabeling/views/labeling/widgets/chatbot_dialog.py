@@ -1134,3 +1134,43 @@ class ChatbotDialog(QDialog):
             return True
             
         return super().event(event)
+
+    def regenerate_response(self, message_widget):
+        """Regenerate the assistant's response"""
+        if self.streaming:
+            return
+
+        # Find all message widgets
+        message_widgets = []
+        for i in range(self.chat_messages_layout.count()):
+            item = self.chat_messages_layout.itemAt(i)
+            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                message_widgets.append((i, item.widget()))
+
+        # Find the index of the message in the list
+        message_index = None
+        for i, (_, widget) in enumerate(message_widgets):
+            if widget == message_widget:
+                message_index = i
+                break
+
+        if message_index is not None:
+            # Remove this assistant message and any messages after it
+            self.clear_messages_after(message_index)
+
+            # Start generation process
+            self.streaming = True
+            self.set_components_enabled(False)
+
+            # Create loading message
+            self.add_loading_message()
+
+            # Reset stream handler
+            self.stream_handler.reset()
+
+            # Start streaming in a separate thread
+            self.stream_thread = threading.Thread(
+                target=self.stream_generation,
+                args=(self.api_address.text(), self.api_key.text())
+            )
+            self.stream_thread.start()

@@ -64,6 +64,9 @@ class ChatMessage(QFrame):
         copy_btn.setCursor(Qt.PointingHandCursor)
         copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(copy_btn))
 
+        # Add regenerate button for assistant messages
+        self.regenerate_btn = None
+
         # Add edit button for user messages
         self.edit_btn = None
         if is_user:
@@ -71,7 +74,7 @@ class ChatMessage(QFrame):
             self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
             self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-            self.edit_btn.setToolTip(self.tr("Edit message"))
+            self.edit_btn.setToolTip(self.tr("Edit"))
             self.edit_btn.setCursor(Qt.PointingHandCursor)
             self.edit_btn.clicked.connect(self.enter_edit_mode)
 
@@ -80,8 +83,17 @@ class ChatMessage(QFrame):
             header_layout.addWidget(copy_btn)
             header_layout.addWidget(self.edit_btn)
         else:
+            self.regenerate_btn = QPushButton()
+            self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
+            self.regenerate_btn.setFixedSize(*ICON_SIZE_SMALL)
+            self.regenerate_btn.setStyleSheet(ChatMessageStyle.get_button_style())
+            self.regenerate_btn.setToolTip(self.tr("Regenerate"))
+            self.regenerate_btn.setCursor(Qt.PointingHandCursor)
+            self.regenerate_btn.clicked.connect(self.regenerate_response)
             header_layout.addWidget(role_label)
             header_layout.addWidget(copy_btn)
+            if self.regenerate_btn:
+                header_layout.addWidget(self.regenerate_btn)
             header_layout.addStretch()
 
         bubble_layout.addLayout(header_layout)
@@ -393,8 +405,13 @@ class ChatMessage(QFrame):
         finally:
             self.resize_in_progress = False
 
+    def regenerate_response(self):
+        """Regenerate the assistant's response"""
+        dialog = self.window()
+        if hasattr(dialog, 'regenerate_response'):
+            dialog.regenerate_response(self)
 
-# Custom event classes for thread communication
+
 class UpdateModelsEvent(QEvent):
     """Custom event for updating models dropdown"""
     EVENT_TYPE = QEvent.Type(QEvent.registerEventType())
