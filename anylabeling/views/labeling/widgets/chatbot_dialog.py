@@ -695,7 +695,7 @@ class ChatbotDialog(QDialog):
         bubble_layout.addLayout(header_layout)
         
         # Add loading text
-        self.loading_text = QLabel(self.tr("Thinking..."))
+        self.loading_text = QLabel(self.tr("Generating..."))
         self.loading_text.setStyleSheet(ChatMessageStyle.get_content_label_style(is_error=False))
         bubble_layout.addWidget(self.loading_text)
 
@@ -727,7 +727,7 @@ class ChatbotDialog(QDialog):
             try:
                 self.loading_dots = (self.loading_dots + 1) % 4
                 dots = "." * self.loading_dots
-                self.loading_text.setText(f"Thinking{dots}")
+                self.loading_text.setText(f"Generating{dots}")
             except RuntimeError:
                 # The QLabel has been deleted, stop the timer
                 if self.loading_timer and self.loading_timer.isActive():
