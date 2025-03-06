@@ -167,8 +167,8 @@ class ChatbotDialog(QDialog):
         cursor.setBlockFormat(format)
         self.message_input.setTextCursor(cursor)
 
-        # Connect textChanged to dynamically resize input
-        self.message_input.textChanged.connect(self.resize_input)
+        # Connect textChanged to dynamically resize input and highlight @image tag
+        self.message_input.textChanged.connect(self.on_text_changed)
         self.message_input.installEventFilter(self)  # For Enter key handling
 
         # Initialize the input size
@@ -591,9 +591,14 @@ class ChatbotDialog(QDialog):
                 self.chat_messages_layout.removeItem(item)
                 break
 
-        # Create and add the message widget
+        # Remove @image tag from user messages
+        clean_content = content
+        if role == "user":
+            clean_content = content.replace("@image", "").strip()
+
+        # Create and add the message widget with cleaned content
         is_error = True if delete_last_message else False
-        message_widget = ChatMessage(role, content, self.chat_container, is_error=is_error)
+        message_widget = ChatMessage(role, clean_content, self.chat_container, is_error=is_error)
         self.chat_messages_layout.addWidget(message_widget)
         
         # Add the stretch back
@@ -603,7 +608,7 @@ class ChatbotDialog(QDialog):
         if delete_last_message:
             self.chat_history = self.chat_history[:-1]  # roll back the last message
         else:
-            self.chat_history.append({"role": role, "content": content})
+            self.chat_history.append({"role": role, "content": clean_content})
 
         # Scroll to bottom - use a longer delay to ensure layout is updated
         QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.scroll_to_bottom)
@@ -631,7 +636,10 @@ class ChatbotDialog(QDialog):
 
         # Add user message to chat history first
         self.add_message("user", user_message)
+        
+        # Clear input and reset to plain text mode
         self.message_input.clear()
+        self.message_input.setPlainText("")  # Ensure we're back to plain text mode
 
         # Reset input box size to initial height
         self.message_input.setMinimumHeight(24)
@@ -938,9 +946,7 @@ class ChatbotDialog(QDialog):
                             messages[i]["content"] = [
                                 {
                                     "type": "image_url",
-                                    "image_url": {
-                                        "url": f"data:image/jpeg;base64,{image_data}"
-                                    }
+                                    "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
                                 },
                                 {
                                     "type": "text",
@@ -1180,3 +1186,34 @@ class ChatbotDialog(QDialog):
                 args=(self.api_address.text(), self.api_key.text())
             )
             self.stream_thread.start()
+
+    def on_text_changed(self):
+        """Handle text changes in the message input, resize and highlight @image tag"""
+        self.resize_input()
+
+        # Check for @image tag and highlight it
+        current_text = self.message_input.toPlainText()
+        if "@image" in current_text:
+            # Save cursor position
+            cursor_pos = self.message_input.textCursor().position()
+
+            # Create a new document with highlighted text
+            highlighted_text = current_text.replace("@image", "<span style='color: #2196F3; font-weight: bold;'>@image</span>")
+
+            # Temporarily disconnect to avoid recursion
+            self.message_input.textChanged.disconnect(self.on_text_changed)
+
+            # Set HTML content
+            self.message_input.setHtml(highlighted_text)
+
+            # Restore cursor position
+            cursor = self.message_input.textCursor()
+            cursor.setPosition(cursor_pos)
+            self.message_input.setTextCursor(cursor)
+
+            # Reconnect signal
+            self.message_input.textChanged.connect(self.on_text_changed)
+
+            # Show image preview if available
+            if self.parent().filename:
+                self.update_image_preview()
