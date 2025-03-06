@@ -457,19 +457,11 @@ class ChatbotDialog(QDialog):
             api_help_btn = self.findChild(QPushButton, "api_help_btn")
             if api_help_btn:
                 if api_docs_url:
-                    # Show the help button and update its click handler
                     api_help_btn.setVisible(True)
                     api_help_btn.clicked.disconnect()
                     api_help_btn.clicked.connect(lambda: open_url(api_docs_url))
                 else:
-                    # Hide the help button if there's no API docs URL
                     api_help_btn.setVisible(False)
-
-            # Clear the model dropdown
-            self.model_name.clear()
-
-            # Fetch models for the new provider
-            self.fetch_models()
 
             model_docs_url = PROVIDER_CONFIGS[provider]["model_docs_url"]
             model_help_btn = self.findChild(QPushButton, "model_help_btn")
@@ -481,6 +473,7 @@ class ChatbotDialog(QDialog):
                 else:
                     model_help_btn.setVisible(False)
 
+            self.api_key.setText(PROVIDER_CONFIGS[provider]["api_key"])
             api_key_url = PROVIDER_CONFIGS[provider]["api_key_url"]
             api_key_help_btn = self.findChild(QPushButton, "api_key_help_btn")
             if api_key_help_btn:
@@ -490,6 +483,10 @@ class ChatbotDialog(QDialog):
                     api_key_help_btn.clicked.connect(lambda: open_url(api_key_url))
                 else:
                     api_key_help_btn.setVisible(False)
+
+            # Clear the model dropdown and fetch models for the new provider
+            self.model_name.clear()
+            self.fetch_models()
 
     def resize_input(self):
         """Dynamically resize input based on content"""
