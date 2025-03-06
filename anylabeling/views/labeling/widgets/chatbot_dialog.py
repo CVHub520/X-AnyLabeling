@@ -232,7 +232,7 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.prev_image_btn.setToolTip(self.tr("Previous Image"))
         self.prev_image_btn.setCursor(Qt.PointingHandCursor)
-        self.prev_image_btn.clicked.connect(self.link_previous_image)
+        self.prev_image_btn.clicked.connect(lambda: self.navigate_image(direction="prev"))
 
         self.next_image_btn = QPushButton()
         self.next_image_btn.setIcon(QIcon(set_icon_path("arrow-right")))
@@ -240,7 +240,8 @@ class ChatbotDialog(QDialog):
         self.next_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
         self.next_image_btn.setToolTip(self.tr("Next Image"))
         self.next_image_btn.setCursor(Qt.PointingHandCursor)
-        self.next_image_btn.clicked.connect(self.link_next_image)
+        self.next_image_btn.clicked.connect(lambda: self.navigate_image(direction="next"))
+
         nav_layout.addWidget(self.prev_image_btn)
         nav_layout.addStretch()
 
@@ -812,50 +813,34 @@ class ChatbotDialog(QDialog):
             self.api_key.setEchoMode(QLineEdit.Password)
             self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
     
-    def link_previous_image(self):
-        """Navigate to previous image and load its chat history"""
+    def navigate_image(self, direction="next"):
+        """Navigate to previous or next image and load its chat history
+
+        Args:
+            direction (str): Direction to navigate, either "next" or "prev"
+        """
         try:
             if self.parent().image_list:
                 current_index = self.parent().image_list.index(self.parent().filename)
-                if current_index > 0:
-                    prev_index = current_index - 1
-                    prev_file = self.parent().image_list[prev_index]
-                    self.parent().load_file(prev_file)
-                    
-                    # Force UI update
-                    QApplication.processEvents()
-                    
-                    # Update image and chat
-                    self.update_image_preview()
-                    self.load_chat_for_current_image()
-                    
-                    # Update import buttons visibility
-                    self.update_import_buttons_visibility()
+
+                if direction == "prev" and current_index > 0:
+                    new_index = current_index - 1
+                elif direction == "next" and current_index < len(self.parent().image_list) - 1:
+                    new_index = current_index + 1
+                else:
+                    return
+
+                new_file = self.parent().image_list[new_index]
+                self.parent().load_file(new_file)
+
+                # Force UI and data updates
+                QApplication.processEvents()
+                self.update_image_preview()
+                self.load_chat_for_current_image()
+                self.update_import_buttons_visibility()
         except Exception as e:
-            logger.error(f"Error navigating to previous image: {e}")
-    
-    def link_next_image(self):
-        """Navigate to next image and load its chat history"""
-        try:
-            if self.parent().image_list:
-                current_index = self.parent().image_list.index(self.parent().filename)
-                if current_index < len(self.parent().image_list) - 1:
-                    next_index = current_index + 1
-                    next_file = self.parent().image_list[next_index]
-                    self.parent().load_file(next_file)
-                    
-                    # Force UI update
-                    QApplication.processEvents()
-                    
-                    # Update image and chat
-                    self.update_image_preview()
-                    self.load_chat_for_current_image()
-                    
-                    # Update import buttons visibility
-                    self.update_import_buttons_visibility()
-        except Exception as e:
-            logger.error(f"Error navigating to next image: {e}")
-    
+            logger.error(f"Error navigating to {direction} image: {e}")
+
     def load_chat_for_current_image(self):
         """Load chat history for the current image"""
         try:
