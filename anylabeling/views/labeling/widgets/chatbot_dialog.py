@@ -452,41 +452,31 @@ class ChatbotDialog(QDialog):
     def switch_provider(self, provider):
         """Switch between different model providers"""
         if provider in PROVIDER_CONFIGS:
+            # set api address and key
             self.api_address.setText(PROVIDER_CONFIGS[provider]["api_address"])
-            api_docs_url = PROVIDER_CONFIGS[provider]["api_docs_url"]
-            api_help_btn = self.findChild(QPushButton, "api_help_btn")
-            if api_help_btn:
-                if api_docs_url:
-                    api_help_btn.setVisible(True)
-                    api_help_btn.clicked.disconnect()
-                    api_help_btn.clicked.connect(lambda: open_url(api_docs_url))
-                else:
-                    api_help_btn.setVisible(False)
-
-            model_docs_url = PROVIDER_CONFIGS[provider]["model_docs_url"]
-            model_help_btn = self.findChild(QPushButton, "model_help_btn")
-            if model_help_btn:
-                if model_docs_url:
-                    model_help_btn.setVisible(True)
-                    model_help_btn.clicked.disconnect()
-                    model_help_btn.clicked.connect(lambda: open_url(model_docs_url))
-                else:
-                    model_help_btn.setVisible(False)
-
             self.api_key.setText(PROVIDER_CONFIGS[provider]["api_key"])
-            api_key_url = PROVIDER_CONFIGS[provider]["api_key_url"]
-            api_key_help_btn = self.findChild(QPushButton, "api_key_help_btn")
-            if api_key_help_btn:
-                if api_key_url:
-                    api_key_help_btn.setVisible(True)
-                    api_key_help_btn.clicked.disconnect()
-                    api_key_help_btn.clicked.connect(lambda: open_url(api_key_url))
-                else:
-                    api_key_help_btn.setVisible(False)
 
-            # Clear the model dropdown and fetch models for the new provider
+            # clear model dropdown and fetch models
             self.model_name.clear()
             self.fetch_models()
+
+            # update help button urls
+            button_url_mapping = [
+                {"button_name": "api_help_btn", "url_key": "api_docs_url"},
+                {"button_name": "model_help_btn", "url_key": "model_docs_url"},
+                {"button_name": "api_key_help_btn", "url_key": "api_key_url"}
+            ]
+            for mapping in button_url_mapping:
+                button_name, url_key = mapping["button_name"], mapping["url_key"]
+                button = self.findChild(QPushButton, button_name)
+                url = PROVIDER_CONFIGS[provider][url_key]
+                if button:
+                    if url:
+                        button.setVisible(True)
+                        button.clicked.disconnect()
+                        button.clicked.connect(lambda checked=False, u=url: open_url(u))
+                    else:
+                        button.setVisible(False)
 
     def resize_input(self):
         """Dynamically resize input based on content"""
