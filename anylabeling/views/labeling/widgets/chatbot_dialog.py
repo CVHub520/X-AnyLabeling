@@ -926,6 +926,9 @@ class ChatbotDialog(QDialog):
         # Reset streaming state
         self.streaming = False
         self.set_components_enabled(True)
+        
+        # Auto focus on message input after generation
+        self.message_input.setFocus()
     
     def handle_loading_state(self, is_loading):
         """Handle loading state changes"""
