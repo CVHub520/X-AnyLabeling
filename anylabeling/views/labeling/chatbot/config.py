@@ -2,6 +2,7 @@
 ANIMATION_DURATION = "200ms"
 BORDER_RADIUS = "16px"
 FONT_FAMILY = "SF Pro Text, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif"
+FONT_SIZE_TINY = "8px"
 FONT_SIZE_SMALL = "12px"
 FONT_SIZE_NORMAL = "13px"
 FONT_SIZE_LARGE = "15px"
@@ -18,7 +19,7 @@ INPUT_PANEL_PERCENTAGE = 12
 MIN_MSG_INPUT_HEIGHT = 20
 MAX_MSG_INPUT_HEIGHT = 300
 MAX_USER_MSG_WIDTH = 70 # 70% of the layout width
-
+DEFAULT_TEMPERATURE_VALUE = 1
 
 # Theme configuration
 THEME = {

@@ -18,6 +18,8 @@ from PyQt5.QtWidgets import (
     QFrame,
     QSplitter,
     QComboBox,
+    QTabWidget,
+    QSlider,
 )
 from PyQt5.QtGui import QIcon, QPixmap
 
@@ -267,12 +269,25 @@ class ChatbotDialog(QDialog):
         nav_layout.addWidget(self.next_image_btn)
         image_layout.addLayout(nav_layout)
 
-        # Settings panel
+        # Settings panel with tabs
         settings_panel = QWidget()
         settings_layout = QVBoxLayout(settings_panel)
-        settings_layout.setContentsMargins(24, 24, 24, 24)
-        settings_layout.setSpacing(12)
-
+        settings_layout.setContentsMargins(0, 0, 0, 0)
+        settings_layout.setSpacing(0)
+        
+        # Create tab widget
+        self.settings_tabs = QTabWidget()
+        self.settings_tabs.setStyleSheet(ChatbotDialogStyle.get_tab_widget_style())
+        self.settings_tabs.setUsesScrollButtons(False)
+        self.settings_tabs.setDocumentMode(True)
+        self.settings_tabs.setElideMode(Qt.ElideNone)
+        
+        # First tab - API Settings
+        api_settings_tab = QWidget()
+        api_settings_layout = QVBoxLayout(api_settings_tab)
+        api_settings_layout.setContentsMargins(24, 24, 24, 24)
+        api_settings_layout.setSpacing(12)
+        
         # API Address with help icon
         api_address_container = QHBoxLayout()
         api_address_label = QLabel(self.tr("API Address"))
@@ -298,12 +313,12 @@ class ChatbotDialog(QDialog):
 
         api_address_container.addWidget(label_with_help)
         api_address_container.addStretch()
-        settings_layout.addLayout(api_address_container)
+        api_settings_layout.addLayout(api_address_container)
 
         self.api_address = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_address"])
         self.api_address.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         self.api_address.installEventFilter(self)
-        settings_layout.addWidget(self.api_address)
+        api_settings_layout.addWidget(self.api_address)
 
         # API Key with help icon
         api_key_container = QHBoxLayout()
@@ -330,7 +345,7 @@ class ChatbotDialog(QDialog):
 
         api_key_container.addWidget(key_label_with_help)
         api_key_container.addStretch()
-        settings_layout.addLayout(api_key_container)
+        api_settings_layout.addLayout(api_key_container)
 
         # API key input with toggle visibility
         api_key_container = QHBoxLayout()
@@ -349,7 +364,7 @@ class ChatbotDialog(QDialog):
 
         api_key_container.addWidget(self.api_key)
         api_key_container.addWidget(self.toggle_visibility_btn)
-        settings_layout.addLayout(api_key_container)
+        api_settings_layout.addLayout(api_key_container)
 
         # Model Name with help icon
         model_name_container = QHBoxLayout()
@@ -386,14 +401,111 @@ class ChatbotDialog(QDialog):
 
         model_name_container.addWidget(self.refresh_models_btn)
         model_name_container.addStretch()
-        settings_layout.addLayout(model_name_container)
+        api_settings_layout.addLayout(model_name_container)
 
         # Create ComboBox for model selection
         self.model_name = QComboBox()
         self.model_name.setStyleSheet(ChatbotDialogStyle.get_combobox_style(set_icon_path("chevron-down")))
         self.model_name.setMinimumHeight(40)
-        settings_layout.addWidget(self.model_name)
-        settings_layout.addStretch()
+        api_settings_layout.addWidget(self.model_name)
+        api_settings_layout.addStretch()
+        
+        # Second tab - Model Parameters
+        model_params_tab = QWidget()
+        model_params_layout = QVBoxLayout(model_params_tab)
+        model_params_layout.setContentsMargins(24, 24, 24, 24)
+        model_params_layout.setSpacing(16)
+        
+        # System prompt section
+        system_prompt_label = QLabel(self.tr("System instruction"))
+        system_prompt_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        model_params_layout.addWidget(system_prompt_label)
+        
+        # System prompt input
+        system_prompt_container = QHBoxLayout()
+        self.system_prompt_input = QLineEdit()
+        self.system_prompt_input.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        system_prompt_container.addWidget(self.system_prompt_input)
+        model_params_layout.addLayout(system_prompt_container)
+        
+        # Temperature parameter with info icon
+        temp_header = QHBoxLayout()
+        temp_label = QLabel(self.tr("Temperature"))
+        temp_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        
+        temp_info_btn = QPushButton()
+        temp_info_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        temp_info_btn.setFixedSize(*ICON_SIZE_SMALL)
+        temp_info_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
+        temp_info_btn.setToolTip(self.tr("""Recommended values:\n
+        Coding / Math:                 0
+        Data Cleaning / Data Analysis: 1
+        General Conversation:          1.3
+        Translation:                   1.3
+        Creative Writing / Poetry:     1.5"""))
+        temp_info_btn.setCursor(Qt.PointingHandCursor)
+        self.temp_value = QLabel(f"{DEFAULT_TEMPERATURE_VALUE/10:.1f}")
+        self.temp_value.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        self.temp_value.setAlignment(Qt.AlignRight)
+
+        temp_header.addWidget(temp_label)
+        temp_header.addWidget(temp_info_btn)
+        temp_header.addStretch()
+        temp_header.addWidget(self.temp_value)
+        model_params_layout.addLayout(temp_header)
+
+        # Temperature slider
+        self.temp_slider = QSlider(Qt.Horizontal)
+        self.temp_slider.setMinimum(0)
+        self.temp_slider.setMaximum(20)  # 0.0 to 2.0 with step of 0.1
+        self.temp_slider.setValue(DEFAULT_TEMPERATURE_VALUE)
+        self.temp_slider.setStyleSheet(ChatbotDialogStyle.get_slider_style())
+        self.temp_slider.valueChanged.connect(lambda v: self.temp_value.setText(f"{v/10:.1f}"))
+        model_params_layout.addWidget(self.temp_slider)
+
+        # Temperature labels
+        temp_labels_layout = QHBoxLayout()
+
+        precise_label = QLabel(self.tr("Precise"))
+        precise_label.setStyleSheet(ChatbotDialogStyle.get_temperature_label_style())
+        precise_label.setAlignment(Qt.AlignLeft)
+
+        neutral_label = QLabel(self.tr("Neutral"))
+        neutral_label.setStyleSheet(ChatbotDialogStyle.get_temperature_label_style())
+        neutral_label.setAlignment(Qt.AlignCenter)
+
+        creative_label = QLabel(self.tr("Creative"))
+        creative_label.setStyleSheet(ChatbotDialogStyle.get_temperature_label_style())
+        creative_label.setAlignment(Qt.AlignRight)
+
+        temp_labels_layout.addWidget(precise_label)
+        temp_labels_layout.addWidget(neutral_label)
+        temp_labels_layout.addWidget(creative_label)
+        
+        model_params_layout.addLayout(temp_labels_layout)
+        model_params_layout.addSpacing(16)
+
+        # Maximum output length
+        max_length_label = QLabel(self.tr("Max output tokens"))
+        max_length_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        model_params_layout.addWidget(max_length_label)
+
+        self.max_length_input = QLineEdit()
+        self.max_length_input.setPlaceholderText(self.tr("Default"))
+        self.max_length_input.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        model_params_layout.addWidget(self.max_length_input)
+
+        # Add stretch to push everything to the top
+        model_params_layout.addStretch()
+
+        # Add tabs to tab widget
+        self.settings_tabs.addTab(api_settings_tab, self.tr("Backend"))
+        self.settings_tabs.addTab(model_params_tab, self.tr("Generation"))
+        self.settings_tabs.tabBar().setExpanding(True)
+        self.settings_tabs.tabBar().setStyleSheet(ChatbotDialogStyle.get_settings_tabs_style())
+
+        # Add tab widget to settings layout
+        settings_layout.addWidget(self.settings_tabs)
 
         # Create a splitter for the right panel to separate image and settings
         right_splitter = QSplitter(Qt.Vertical)
@@ -911,8 +1023,28 @@ class ChatbotDialog(QDialog):
             else:
                 raise ValueError("No model selected. Check API address/key, then refresh the models list.")
 
+            # Get temperature value from slider
+            temperature = self.temp_slider.value() / 10.0
+            
+            # Get system prompt if provided
+            system_prompt = self.system_prompt_input.text().strip()
+            
+            # Get max tokens if provided
+            max_tokens = None
+            if hasattr(self, 'max_length_input') and self.max_length_input.text().strip():
+                try:
+                    max_tokens = int(self.max_length_input.text().strip())
+                except ValueError:
+                    pass
+
             # Prepare messages
             messages = []
+            
+            # Add system message if provided
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+                
+            # Add conversation history
             for msg in self.chat_history:
                 messages.append({"role": msg["role"], "content": msg["content"]})
             
@@ -939,6 +1071,7 @@ class ChatbotDialog(QDialog):
                         user_content = messages[i]["content"]
                         # Check if the message contains the image tag
                         if "@image" in user_content:
+                            logger.debug(f"Found image tag in user content")
                             # Remove the @image tag from the message
                             user_content = user_content.replace("@image", "").strip()
                             
@@ -955,12 +1088,20 @@ class ChatbotDialog(QDialog):
                             ]
                         break
             
+            # Prepare API call parameters
+            api_params = {
+                "model": model_name,
+                "messages": messages,
+                "temperature": temperature,
+                "stream": True  # Don't change this to False, it will break the streaming
+            }
+
+            # Add max_tokens if provided
+            if max_tokens:
+                api_params["max_tokens"] = max_tokens
+            
             # Make API call with streaming
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=messages,
-                stream=True
-            )
+            response = client.chat.completions.create(**api_params)
 
             # Process streaming response
             for chunk in response:

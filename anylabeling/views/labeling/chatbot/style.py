@@ -12,12 +12,6 @@ class ChatbotDialogStyle:
             border: none;
             font-family: {FONT_FAMILY};
         }}
-        QLabel {{
-            color: {theme["text"]};
-            font-size: {FONT_SIZE_NORMAL};
-            font-weight: 500;
-            margin-bottom: 4px;
-        }}
         QLineEdit, QTextEdit {{
             border: 1px solid {theme["border"]};
             border-radius: {BORDER_RADIUS};
@@ -237,9 +231,6 @@ class ChatbotDialogStyle:
         theme = theme or THEME
         return f"""
             QLabel {{
-                color: {theme["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_SMALL};
                 background-color: transparent;
             }}
         """
@@ -338,6 +329,84 @@ class ChatbotDialogStyle:
             }}
         """
 
+    def get_temperature_label_style():
+        return """
+        QLabel {{
+            background-color: transparent;
+            font-size: FONT_SIZE_TINY;
+            color: #727273;
+        }}
+        """
+
+    def get_tab_widget_style():
+        return """
+        QTabWidget::pane {
+            border: none;
+            background: transparent;
+        }
+        
+        QTabWidget::tab-bar {
+            alignment: left;
+        }
+        
+        QTabBar::tab {
+            background: #f5f5f5;
+            color: #333;
+            padding: 8px 16px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            min-width: 100px;
+        }
+        
+        QTabBar::tab:selected {
+            background: #ffffff;
+            border-bottom: 2px solid #2196F3;
+            color: #2196F3;
+        }
+        
+        QTabBar::tab:hover:!selected {
+            background: #e0e0e0;
+        }
+        """
+
+    def get_slider_style():
+        return """
+        QSlider {
+            height: 24px;
+        }
+        
+        QSlider::groove:horizontal {
+            border: none;
+            height: 4px;
+            background: #e0e0e0;
+            margin: 0px;
+            border-radius: 2px;
+        }
+        
+        QSlider::handle:horizontal {
+            background: #2196F3;
+            border: none;
+            width: 16px;
+            height: 16px;
+            margin: -6px 0;
+            border-radius: 8px;
+        }
+        
+        QSlider::sub-page:horizontal {
+            background: #2196F3;
+            border-radius: 2px;
+        }
+        """
+
+    def get_settings_tabs_style():
+        return """
+        QTabBar::tab {
+            text-align: center;
+            padding-left: 0px;
+            padding-right: 0px;
+        }
+        """
+    
 
 class ChatMessageStyle:
     def get_bubble_style(is_user: bool, theme: Dict[str, str] = None) -> str:
