@@ -40,6 +40,7 @@ class ChatbotDialog(QDialog):
 
         # Initialize cache for storing image-text mappings and chat history
         self.chat_history = []  # Store chat history
+        self.attach_image_to_chat = False
 
         # Streaming handler setup
         self.stream_handler = StreamingHandler()
@@ -703,24 +704,25 @@ class ChatbotDialog(QDialog):
                 self.chat_messages_layout.removeItem(item)
                 break
 
-        # Remove @image tag from user messages
-        clean_content = content
+        # Check for special token in user messages
         if role == "user":
-            clean_content = content.replace("@image", "").strip()
+            if "@image" in content:
+                self.attach_image_to_chat = True
+            content = content.replace("@image", "", 1).strip()
 
-        # Create and add the message widget with cleaned content
+        # Create and add the message widget
         is_error = True if delete_last_message else False
-        message_widget = ChatMessage(role, clean_content, self.chat_container, is_error=is_error)
+        message_widget = ChatMessage(role, content, self.chat_container, is_error=is_error)
         self.chat_messages_layout.addWidget(message_widget)
-        
+
         # Add the stretch back
         self.chat_messages_layout.addStretch()
-        
+
         # Store message in chat history
         if delete_last_message:
             self.chat_history = self.chat_history[:-1]  # roll back the last message
         else:
-            self.chat_history.append({"role": role, "content": clean_content})
+            self.chat_history.append({"role": role, "content": content})
 
         # Scroll to bottom - use a longer delay to ensure layout is updated
         QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.scroll_to_bottom)
@@ -748,7 +750,7 @@ class ChatbotDialog(QDialog):
 
         # Add user message to chat history first
         self.add_message("user", user_message)
-        
+
         # Clear input and reset to plain text mode
         self.message_input.clear()
         self.message_input.setPlainText("")  # Ensure we're back to plain text mode
@@ -1064,30 +1066,23 @@ class ChatbotDialog(QDialog):
                     logger.error(f"Error reading image file: {e}")
 
             # Add image to the message if available and requested
-            if image_data:
+            if image_data and self.attach_image_to_chat:
                 # Find the last user message
                 for i in range(len(messages) - 1, -1, -1):
                     if messages[i]["role"] == "user":
                         user_content = messages[i]["content"]
-                        # Check if the message contains the image tag
-                        if "@image" in user_content:
-                            logger.debug(f"Found image tag in user content")
-                            # Remove the @image tag from the message
-                            user_content = user_content.replace("@image", "").strip()
-                            
-                            # Add image to content
-                            messages[i]["content"] = [
-                                {
-                                    "type": "image_url",
-                                    "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
-                                },
-                                {
-                                    "type": "text",
-                                    "text": user_content
-                                }
-                            ]
+                        messages[i]["content"] = [
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
+                            },
+                            {
+                                "type": "text",
+                                "text": user_content
+                            }
+                        ]
                         break
-            
+
             # Prepare API call parameters
             api_params = {
                 "model": model_name,
@@ -1354,7 +1349,3 @@ class ChatbotDialog(QDialog):
 
             # Reconnect signal
             self.message_input.textChanged.connect(self.on_text_changed)
-
-            # Show image preview if available
-            if self.parent().filename:
-                self.update_image_preview()
