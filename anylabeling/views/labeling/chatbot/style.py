@@ -509,13 +509,14 @@ class ChatMessageStyle:
         return f"""
             QPushButton {{
                 background-color: transparent;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                padding: 4px 10px;
                 font-size: {FONT_SIZE_SMALL};
             }}
             QPushButton:hover {{
                 background-color: {theme["background"]};
                 border: 1px solid {theme["border"]};
-                border-radius: 4px;
-                padding: 4px 10px;
             }}
         """
 
