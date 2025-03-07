@@ -12,6 +12,10 @@ class ChatbotDialogStyle:
             border: none;
             font-family: {FONT_FAMILY};
         }}
+        QLabel {{
+            border: none;
+            border-left: none;
+        }}
         QLineEdit, QTextEdit {{
             border: 1px solid {theme["border"]};
             border-radius: {BORDER_RADIUS};
@@ -232,6 +236,7 @@ class ChatbotDialogStyle:
         return f"""
             QLabel {{
                 background-color: transparent;
+                border-left: none;
             }}
         """
 
@@ -288,7 +293,7 @@ class ChatbotDialogStyle:
         return f"""
             QWidget {{
                 background-color: {theme["background"]};
-                border-left: 1px solid {theme["border"]};
+                border-left: none;
             }}
         """
 
@@ -347,6 +352,7 @@ class ChatbotDialogStyle:
         
         QTabWidget::tab-bar {
             alignment: left;
+            border-left: none;
         }
         
         QTabBar::tab {
@@ -354,6 +360,7 @@ class ChatbotDialogStyle:
             color: #333;
             padding: 8px 16px;
             border: none;
+            border-left: none;
             border-bottom: 2px solid transparent;
             min-width: 100px;
         }
@@ -361,6 +368,7 @@ class ChatbotDialogStyle:
         QTabBar::tab:selected {
             background: #ffffff;
             border-bottom: 2px solid #2196F3;
+            border-left: none;
             color: #2196F3;
         }
         
@@ -404,6 +412,7 @@ class ChatbotDialogStyle:
             text-align: center;
             padding-left: 0px;
             padding-right: 0px;
+            border-left: none;
         }
         """
 
