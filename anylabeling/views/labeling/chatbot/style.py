@@ -406,6 +406,32 @@ class ChatbotDialogStyle:
             padding-right: 0px;
         }
         """
+
+    def get_spinbox_style(theme: Dict[str, str] = None) -> str:
+        theme = theme or THEME
+        return f"""
+            QSpinBox {{
+                border: 1px solid {theme["border"]};
+                border-radius: {BORDER_RADIUS};
+                padding: 8px;
+                background-color: {theme["input_bg"]};
+                color: {theme["text"]};
+                font-family: {FONT_FAMILY};
+                font-size: {FONT_SIZE_NORMAL};
+            }}
+            QSpinBox:focus {{
+                border: 1px solid {theme["primary"]};
+                background-color: {theme["input_bg"]};
+            }}
+            QSpinBox::up-button, QSpinBox::down-button {{
+                width: 20px;
+                border: none;
+                background: transparent;
+            }}
+            QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
+                background-color: {theme["hover"]};
+            }}
+        """
     
 
 class ChatMessageStyle:

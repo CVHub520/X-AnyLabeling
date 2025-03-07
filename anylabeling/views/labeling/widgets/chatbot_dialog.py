@@ -20,6 +20,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QTabWidget,
     QSlider,
+    QSpinBox,
 )
 from PyQt5.QtGui import QIcon, QPixmap
 
@@ -491,9 +492,12 @@ class ChatbotDialog(QDialog):
         max_length_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
         model_params_layout.addWidget(max_length_label)
 
-        self.max_length_input = QLineEdit()
-        self.max_length_input.setPlaceholderText(self.tr("Default"))
-        self.max_length_input.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        self.max_length_input = QSpinBox()
+        self.max_length_input.setMinimum(0)
+        self.max_length_input.setMaximum(9999999)
+        self.max_length_input.setButtonSymbols(QSpinBox.UpDownArrows)
+        self.max_length_input.setStyleSheet(ChatbotDialogStyle.get_spinbox_style())
+        self.max_length_input.setFixedHeight(40)
         model_params_layout.addWidget(self.max_length_input)
 
         # Add stretch to push everything to the top
