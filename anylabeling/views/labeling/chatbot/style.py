@@ -266,7 +266,7 @@ class ChatbotDialogStyle:
                 font-size: {FONT_SIZE_NORMAL};
             }}
             QLineEdit:focus {{
-                border: 1px solid {theme["primary"]};
+                border: 3px solid {theme["primary_hover"]};
                 background-color: {theme["input_bg"]};
             }}
         """
@@ -303,34 +303,28 @@ class ChatbotDialogStyle:
             QComboBox {{
                 border: 1px solid {theme["border"]};
                 border-radius: {BORDER_RADIUS};
-                padding: 8px 16px;
+                padding: 4px 10px;
                 background-color: {theme["input_bg"]};
                 color: {theme["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
-                min-height: 20px;
-                margin-top: 4px;
-                margin-bottom: 8px;
             }}
             QComboBox:hover {{
-                border: 1px solid {theme["primary_hover"]};
+                border: 3px solid {theme["primary_hover"]};
             }}
             QComboBox:focus {{
-                border: 1px solid {theme["primary"]};
                 background-color: {theme["input_bg"]};
+            }}
+            QComboBox::down-arrow {{
+                image: url("{img_url}");
+                width: 24px;
+                height: 24px;
             }}
             QComboBox::drop-down {{
                 subcontrol-origin: padding;
                 subcontrol-position: top right;
-                width: 30px;
+                width: 24px;
                 border-left: 1px solid transparent;
-                border-top-right-radius: {BORDER_RADIUS};
-                border-bottom-right-radius: {BORDER_RADIUS};
-            }}
-            QComboBox::down-arrow {{
-                image: url("{img_url}");
-                width: 16px;
-                height: 16px;
+                border-top-right-radius: 4px;
+                border-bottom-right-radius: 4px;
             }}
         """
 
@@ -429,7 +423,7 @@ class ChatbotDialogStyle:
                 font-size: {FONT_SIZE_NORMAL};
             }}
             QSpinBox:focus {{
-                border: 1px solid {theme["primary"]};
+                border: 3px solid {theme["primary_hover"]};
                 background-color: {theme["input_bg"]};
             }}
             QSpinBox::up-button, QSpinBox::down-button {{

@@ -407,7 +407,7 @@ class ChatbotDialog(QDialog):
 
         # Create ComboBox for model selection
         self.model_name = QComboBox()
-        self.model_name.setStyleSheet(ChatbotDialogStyle.get_combobox_style(set_icon_path("chevron-down")))
+        self.model_name.setStyleSheet(ChatbotDialogStyle.get_combobox_style(set_icon_path("chevron-down_blue")))
         self.model_name.setMinimumHeight(40)
         api_settings_layout.addWidget(self.model_name)
         api_settings_layout.addStretch()

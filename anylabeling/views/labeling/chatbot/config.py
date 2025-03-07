@@ -1,6 +1,6 @@
 # Global design system
 ANIMATION_DURATION = "200ms"
-BORDER_RADIUS = "16px"
+BORDER_RADIUS = "8px"
 FONT_FAMILY = "SF Pro Text, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif"
 FONT_SIZE_TINY = "8px"
 FONT_SIZE_SMALL = "12px"
@@ -24,7 +24,7 @@ DEFAULT_TEMPERATURE_VALUE = 1
 # Theme configuration
 THEME = {
     "primary": "#007AFF",           # Modern iOS blue
-    "primary_hover": "#2B8FFF",     # Slightly lighter primary
+    "primary_hover": "#60a5fa",     # Tailwind CSS blue-500
     "background": "#FFFFFF",        # Clean white background
     "sidebar": "#F8F8FA",           # Light gray for sidebar
     "border": "#E5E5EA",            # Subtle border color
