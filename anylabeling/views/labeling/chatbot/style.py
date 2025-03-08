@@ -1,6 +1,78 @@
-from typing import Dict
+from typing import Dict, List, Tuple
+
+from PyQt5.QtWidgets import (
+    QWidget,
+    QFrame,
+    QVBoxLayout,
+    QLabel,
+    QGridLayout,
+)
+from PyQt5.QtCore import Qt
 
 from anylabeling.views.labeling.chatbot.config import *
+
+
+class CustomTooltip(QWidget):
+    """Custom tooltip widget with Mac-style appearance"""
+    def __init__(self,
+                 parent=None,
+                 text_color: str = "#7f7f88",
+                 background_color: str = "#ffffff",
+                 title: str = None,
+                 value_pairs: List[Tuple[str, str]] = None,
+                 ):
+        super().__init__(parent)
+        self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
+        self.setAttribute(Qt.WA_ShowWithoutActivating)
+
+        self.container = QFrame(self)
+        self.container.setObjectName("tooltip_container")
+
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
+        main_layout.addWidget(self.container)
+
+        layout = QVBoxLayout(self.container)
+        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setSpacing(8)
+
+        self.title_label = QLabel(title)
+        self.title_label.setStyleSheet(f"color: {text_color};")
+        layout.addWidget(self.title_label)
+
+        if value_pairs:
+            grid_layout = QGridLayout()
+            grid_layout.setHorizontalSpacing(20)
+            grid_layout.setVerticalSpacing(4)
+            for i, (label, value) in enumerate(value_pairs):
+                name_label = QLabel(label)
+                name_label.setStyleSheet(f"color: {text_color};")
+                value_label = QLabel(value)
+                value_label.setStyleSheet(f"color: {text_color};")
+                value_label.setAlignment(Qt.AlignRight)
+                grid_layout.addWidget(name_label, i, 0)
+                grid_layout.addWidget(value_label, i, 1)
+
+            layout.addLayout(grid_layout)
+
+        self.setStyleSheet(f"""
+            QWidget {{
+                background-color: transparent;
+            }}
+            #tooltip_container {{
+                background-color: {background_color}; 
+                border-radius: 16px;
+                border: 1px solid rgba(0, 0, 0, 0.1);
+            }}
+        """)
+
+    def show_at(self, pos):
+        """Show tooltip at specified position"""
+        self.move(pos)
+        self.adjustSize()
+        self.show()
 
 
 class ChatbotDialogStyle:

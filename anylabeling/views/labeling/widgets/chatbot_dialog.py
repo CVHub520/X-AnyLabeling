@@ -2,7 +2,7 @@ import base64
 import threading
 from openai import OpenAI
 
-from PyQt5.QtCore import QTimer, Qt, QSize
+from PyQt5.QtCore import QTimer, Qt, QSize, QPoint, QEvent
 from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -33,14 +33,12 @@ class ChatbotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
-        self.resize(*DEFAULT_WINDOW_SIZE)  # Wider to accommodate three columns
+        self.resize(*DEFAULT_WINDOW_SIZE)
         self.setWindowIcon(QIcon(set_icon_path("chat")))
-
-        # Apply global styles
         self.setStyleSheet(ChatbotDialogStyle.get_dialog_style())
 
-        # Initialize cache for storing image-text mappings and chat history
-        self.chat_history = []  # Store chat history
+        # Initialize
+        self.chat_history = []
         self.attach_image_to_chat = False
 
         # Streaming handler setup
@@ -439,14 +437,10 @@ class ChatbotDialog(QDialog):
         temp_info_btn.setIcon(QIcon(set_icon_path("help-circle")))
         temp_info_btn.setFixedSize(*ICON_SIZE_SMALL)
         temp_info_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        temp_info_btn.setToolTip(self.tr("""Recommended values:
-
-Coding / Math                 0
-Data Cleaning / Data Analysis 1
-General Conversation          1.3
-Translation                   1.3
-Creative Writing / Poetry     1.5"""))
         temp_info_btn.setCursor(Qt.PointingHandCursor)
+        temp_info_btn.installEventFilter(self)
+        temp_info_btn.setObjectName("temperature_info_btn")
+
         self.temp_value = QLabel(f"{DEFAULT_TEMPERATURE_VALUE/10:.1f}")
         self.temp_value.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
         self.temp_value.setAlignment(Qt.AlignRight)
@@ -562,6 +556,17 @@ Creative Writing / Poetry     1.5"""))
         self.fetch_models()
 
         self.message_input.setFocus()
+
+        self.temperature_tooltip = CustomTooltip(
+            title="Recommended values:",
+            value_pairs=[
+                ("Coding / Math", "0"),
+                ("Data Cleaning / Data Analysis", "1"),
+                ("General Conversation", "1.3"),
+                ("Translation", "1.3"),
+                ("Creative Writing / Poetry", "1.5")
+            ]
+        )
 
     def switch_provider(self, provider):
         """Switch between different model providers"""
@@ -1006,7 +1011,23 @@ Creative Writing / Poetry     1.5"""))
             logger.error(f"Error loading chat for current image: {e}")
 
     def eventFilter(self, obj, event):
-        """Event filter for handling Enter key in message input and preventing it in settings fields"""
+        """Event filter for handling events"""
+        if obj.objectName() == "temperature_info_btn":
+            if event.type() == QEvent.Enter:
+                button_pos = obj.mapToGlobal(QPoint(0, 0))
+                self.temperature_tooltip.move(button_pos)
+                self.temperature_tooltip.adjustSize()
+                tooltip_width = self.temperature_tooltip.width()
+                tooltip_height = self.temperature_tooltip.height()
+                target_x = button_pos.x() - tooltip_width + 5
+                target_y = button_pos.y() - tooltip_height - 5
+                self.temperature_tooltip.move(target_x, target_y)
+                self.temperature_tooltip.show()
+                return True
+            elif event.type() == QEvent.Leave:
+                self.temperature_tooltip.hide()
+                return True
+
         if obj == self.message_input and event.type() == event.KeyPress:
             if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
                 self.start_generation()
@@ -1018,7 +1039,6 @@ Creative Writing / Poetry     1.5"""))
         elif hasattr(self, 'api_address') and hasattr(self, 'model_name') and hasattr(self, 'api_key'):
             if obj in [self.api_address, self.model_name, self.api_key] and event.type() == event.KeyPress:
                 if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
-                    # Consume the Enter key event to prevent it from triggering buttons
                     return True
         return super().eventFilter(obj, event)
 
