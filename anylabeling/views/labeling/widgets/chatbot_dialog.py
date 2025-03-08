@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import (
     QSlider,
     QSpinBox,
 )
-from PyQt5.QtGui import QIcon, QPixmap
+from PyQt5.QtGui import QCursor, QIcon, QPixmap
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
@@ -52,6 +52,13 @@ class ChatbotDialog(QDialog):
                 ("Creative Writing / Poetry", "1.5")
             ]
         )
+        self.refresh_models_tooltip = CustomTooltip(
+            title="Refresh available models",
+        )
+
+        pixmap = QPixmap(set_icon_path("click"))
+        scaled_pixmap = pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.click_cursor = QCursor(scaled_pixmap)
 
         # Streaming handler setup
         self.stream_handler = StreamingHandler()
@@ -315,7 +322,7 @@ class ChatbotDialog(QDialog):
         api_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         api_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        api_help_btn.setCursor(Qt.PointingHandCursor)
+        api_help_btn.setCursor(self.click_cursor)
         api_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_docs_url"]))
 
         label_help_layout.addWidget(api_address_label)
@@ -346,7 +353,7 @@ class ChatbotDialog(QDialog):
         api_key_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         api_key_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_key_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        api_key_help_btn.setCursor(Qt.PointingHandCursor)
+        api_key_help_btn.setCursor(self.click_cursor)
         api_key_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key_url"]))
 
         key_label_help_layout.addWidget(api_key_label)
@@ -392,7 +399,7 @@ class ChatbotDialog(QDialog):
         model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        model_help_btn.setCursor(Qt.PointingHandCursor)
+        model_help_btn.setCursor(self.click_cursor)
         model_help_btn.clicked.connect(lambda: open_url(
             PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
 
@@ -400,9 +407,10 @@ class ChatbotDialog(QDialog):
         self.refresh_models_btn.setIcon(QIcon(set_icon_path("refresh")))
         self.refresh_models_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.refresh_models_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        self.refresh_models_btn.setToolTip(self.tr("Refresh available models"))
         self.refresh_models_btn.setCursor(Qt.PointingHandCursor)
         self.refresh_models_btn.clicked.connect(lambda: self.fetch_models(log_errors=True))
+        self.refresh_models_btn.installEventFilter(self)
+        self.refresh_models_btn.setObjectName("refresh_btn")
 
         model_label_help_layout.addWidget(model_name_label)
         model_label_help_layout.addWidget(model_help_btn)
@@ -1012,6 +1020,7 @@ class ChatbotDialog(QDialog):
         # Tooltip handler for multiple buttons
         tooltip_buttons = {
             "temperature_btn": self.temperature_tooltip,
+            "refresh_btn": self.refresh_models_tooltip,
         }
         for btn_name, tooltip in tooltip_buttons.items():
             if obj.objectName() == btn_name:
