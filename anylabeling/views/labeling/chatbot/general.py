@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt, QEasingCurve, QEvent, QTimer, QPropertyAnimation
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit
+    QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit, QMessageBox
 )
 
 from anylabeling.views.labeling.chatbot.config import *
@@ -60,9 +60,18 @@ class ChatMessage(QFrame):
         copy_btn.setIcon(QIcon(set_icon_path("copy")))
         copy_btn.setFixedSize(*ICON_SIZE_SMALL)
         copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-        copy_btn.setToolTip(self.tr("Copy message"))
+        copy_btn.setToolTip(self.tr("Copy"))
         copy_btn.setCursor(Qt.PointingHandCursor)
         copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(copy_btn))
+
+        # Add delete button
+        self.delete_btn = QPushButton()
+        self.delete_btn.setIcon(QIcon(set_icon_path("trash")))
+        self.delete_btn.setFixedSize(*ICON_SIZE_SMALL)
+        self.delete_btn.setStyleSheet(ChatMessageStyle.get_button_style())
+        self.delete_btn.setToolTip(self.tr("Delete"))
+        self.delete_btn.setCursor(Qt.PointingHandCursor)
+        self.delete_btn.clicked.connect(self.confirm_delete_message)
 
         # Add regenerate button for assistant messages
         self.regenerate_btn = None
@@ -77,11 +86,11 @@ class ChatMessage(QFrame):
             self.edit_btn.setToolTip(self.tr("Edit"))
             self.edit_btn.setCursor(Qt.PointingHandCursor)
             self.edit_btn.clicked.connect(self.enter_edit_mode)
-
             header_layout.addStretch()
-            header_layout.addWidget(role_label)
+            # header_layout.addWidget(role_label)
             header_layout.addWidget(copy_btn)
             header_layout.addWidget(self.edit_btn)
+            header_layout.addWidget(self.delete_btn)
         else:
             self.regenerate_btn = QPushButton()
             self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
@@ -90,10 +99,10 @@ class ChatMessage(QFrame):
             self.regenerate_btn.setToolTip(self.tr("Regenerate"))
             self.regenerate_btn.setCursor(Qt.PointingHandCursor)
             self.regenerate_btn.clicked.connect(self.regenerate_response)
-            header_layout.addWidget(role_label)
+            # header_layout.addWidget(role_label)
             header_layout.addWidget(copy_btn)
-            if self.regenerate_btn:
-                header_layout.addWidget(self.regenerate_btn)
+            header_layout.addWidget(self.regenerate_btn)
+            header_layout.addWidget(self.delete_btn)
             header_layout.addStretch()
 
         bubble_layout.addLayout(header_layout)
@@ -410,6 +419,56 @@ class ChatMessage(QFrame):
         dialog = self.window()
         if hasattr(dialog, 'regenerate_response'):
             dialog.regenerate_response(self)
+
+    def confirm_delete_message(self):
+        """Show confirmation dialog before deleting message"""
+        # Create confirmation dialog
+        confirm_dialog = QMessageBox(self.window())
+        confirm_dialog.setText(self.tr("Are you sure to delete this message forever?"))
+        confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        confirm_dialog.setDefaultButton(QMessageBox.No)
+        confirm_dialog.setIcon(QMessageBox.Warning)
+
+        # Show dialog and handle response
+        response = confirm_dialog.exec_()
+        if response == QMessageBox.Yes:
+            self.delete_message()
+
+    def delete_message(self):
+        """Delete this message and update chat history"""
+        # Find the main dialog
+        dialog = self.window()
+
+        # Find this message's index in the chat messages layout
+        message_widgets = []
+        for i in range(dialog.chat_messages_layout.count()):
+            item = dialog.chat_messages_layout.itemAt(i)
+            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                message_widgets.append(item.widget())
+
+        if self in message_widgets:
+            message_index = message_widgets.index(self)
+
+            # Remove this message from the layout
+            dialog.chat_messages_layout.removeWidget(self)
+
+            # Update chat history
+            if hasattr(dialog, 'chat_history') and 0 <= message_index < len(dialog.chat_history):
+                dialog.chat_history.pop(message_index)
+
+                # If this is a file-based chat, update the stored data
+                if hasattr(dialog, 'parent') and callable(dialog.parent) and dialog.parent():
+                    parent = dialog.parent()
+                    if hasattr(parent, 'other_data') and hasattr(parent, 'filename'):
+                        if parent.filename and 'chat_history' in parent.other_data:
+                            parent.other_data['chat_history'] = dialog.chat_history
+                            # Mark as dirty to ensure changes are saved
+                            if hasattr(parent, 'set_dirty'):
+                                parent.set_dirty()
+
+            # Delete the widget
+            self.setParent(None)
+            self.deleteLater()
 
 
 class UpdateModelsEvent(QEvent):
