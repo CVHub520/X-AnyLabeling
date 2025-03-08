@@ -553,7 +553,7 @@ class ChatMessageStyle:
                 font-weight: bold;
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_SMALL};
+                font-size: {FONT_SIZE_NORMAL};
                 background-color: transparent;
             }}
         """

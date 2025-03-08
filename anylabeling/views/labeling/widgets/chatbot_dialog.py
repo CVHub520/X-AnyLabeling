@@ -822,15 +822,7 @@ class ChatbotDialog(QDialog):
         role_label = QLabel(self.tr("Assistant"))
         role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
 
-        # Add copy button (disabled during loading)
-        copy_btn = QPushButton()
-        copy_btn.setIcon(QIcon(set_icon_path("copy")))
-        copy_btn.setFixedSize(*ICON_SIZE_SMALL)
-        copy_btn.setEnabled(False)
-        copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-
         header_layout.addWidget(role_label)
-        header_layout.addWidget(copy_btn)
         header_layout.addStretch()
 
         bubble_layout.addLayout(header_layout)

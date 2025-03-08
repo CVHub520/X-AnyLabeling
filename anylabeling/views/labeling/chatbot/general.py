@@ -86,7 +86,6 @@ class ChatMessage(QFrame):
             self.edit_btn.setCursor(Qt.PointingHandCursor)
             self.edit_btn.clicked.connect(self.enter_edit_mode)
             self.edit_btn.setVisible(False)
-            header_layout.addWidget(role_label)
         else:
             self.regenerate_btn = QPushButton()
             self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
@@ -161,7 +160,8 @@ class ChatMessage(QFrame):
             action_buttons_layout.addWidget(self.delete_btn)
 
         # Store buttons for hover events
-        self.action_buttons = [btn for btn in [self.copy_btn, self.edit_btn, self.regenerate_btn, self.delete_btn] if btn]
+        self.action_buttons = [btn for btn in [
+            self.copy_btn, self.edit_btn, self.regenerate_btn, self.delete_btn] if btn]
 
         # Add the action buttons layout to the bubble
         bubble_layout.addLayout(action_buttons_layout)
