@@ -41,8 +41,8 @@ class ChatMessage(QFrame):
         self.bubble.setStyleSheet(ChatMessageStyle.get_bubble_style(is_user))
 
         if is_user:
-            h_container.addStretch(100 - MAX_USER_MSG_WIDTH)
-            h_container.addWidget(self.bubble, MAX_USER_MSG_WIDTH)
+            h_container.addStretch(100 - USER_MESSAGE_MAX_WIDTH_PERCENT)
+            h_container.addWidget(self.bubble, USER_MESSAGE_MAX_WIDTH_PERCENT)
         else:
             h_container.addWidget(self.bubble, 100)
 
@@ -191,7 +191,7 @@ class ChatMessage(QFrame):
             if parent_width > 0:
                 # Different width constraints for user vs assistant
                 if self.role == "user":
-                    max_width = int(parent_width * MAX_USER_MSG_WIDTH / 100)
+                    max_width = int(parent_width * USER_MESSAGE_MAX_WIDTH_PERCENT / 100)
                 else:
                     max_width = int(parent_width)
                 
@@ -263,7 +263,7 @@ class ChatMessage(QFrame):
                 parent_width = self.parent().width()
                 if parent_width > 0:
                     if self.role == "user":
-                        max_width = int(parent_width * MAX_USER_MSG_WIDTH / 100)
+                        max_width = int(parent_width * USER_MESSAGE_MAX_WIDTH_PERCENT / 100)
                     else:
                         max_width = int(parent_width)
 

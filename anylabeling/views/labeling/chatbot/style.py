@@ -76,6 +76,30 @@ class CustomTooltip(QWidget):
 
 
 class ChatbotDialogStyle:
+    def get_menu_style(theme: Dict[str, str] = None) -> str:
+        theme = theme or THEME
+        return f"""
+            QMenu {{
+                background-color: {theme["background_secondary"]};
+                border: none;
+                border-radius: {BORDER_RADIUS};
+            }}
+            QMenu::item {{
+                padding: 8px 20px 8px 20px;
+                margin: 0px;
+                color: {theme["text"]};
+                font-family: {FONT_FAMILY};
+                font-size: {FONT_SIZE_NORMAL};
+            }}
+            QMenu::item:selected {{
+                background-color: {theme["background_secondary"]};
+                color: {theme["text"]};
+            }}
+            QMenu::separator {{
+                background-color: {theme["border"]};
+            }}
+        """
+
     def get_dialog_style(theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
         return f"""
@@ -92,7 +116,7 @@ class ChatbotDialogStyle:
             border: 1px solid {theme["border"]};
             border-radius: {BORDER_RADIUS};
             padding: 10px;
-            background-color: {theme["input_bg"]};
+            background-color: {theme["background_secondary"]};
             selection-background-color: {theme["primary"]};
             font-family: {FONT_FAMILY};
             font-size: {FONT_SIZE_NORMAL};
@@ -111,7 +135,7 @@ class ChatbotDialogStyle:
             transition: all {ANIMATION_DURATION} ease;
         }}
         QPushButton:hover {{
-            background-color: {theme["primary_hover"]};
+            background-color: {theme["primary"]};
         }}
         QScrollBar:vertical {{
             border: none;
@@ -172,7 +196,7 @@ class ChatbotDialogStyle:
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }}
             QPushButton:hover:!checked {{
-                background-color: {theme["hover"]};
+                background-color: {theme["background_secondary"]};
             }}
         """
 
@@ -180,7 +204,7 @@ class ChatbotDialogStyle:
         theme = theme or THEME
         return f"""
             QWidget {{
-                background-color: {theme["sidebar"]};
+                background-color: {theme["background_secondary"]};
                 border-right: 1px solid {theme["border"]};
             }}
         """
@@ -224,7 +248,7 @@ class ChatbotDialogStyle:
             QFrame#inputFrame {{
                 border: 1px solid {theme["border"]};
                 border-radius: {BORDER_RADIUS};
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
             }}
             QFrame#inputFrame:focus-within {{
                 border: 1px solid {theme["primary"]};
@@ -236,7 +260,7 @@ class ChatbotDialogStyle:
         return f"""
             QTextEdit {{
                 border: none;
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 padding: 0px;
@@ -246,11 +270,11 @@ class ChatbotDialogStyle:
             }}
             QTextEdit::viewport {{
                 border: none;
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
             }}
             QScrollBar:vertical {{
                 width: 8px;
-                background: {theme["input_bg"]};
+                background: {theme["background_secondary"]};
             }}
             QScrollBar::handle:vertical {{
                 background: {theme["border"]};
@@ -266,12 +290,12 @@ class ChatbotDialogStyle:
         return f"""
             QPushButton {{
                 border: none;
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
                 padding: 0px;
                 margin: 0px;
             }}
             QPushButton:hover {{
-                background-color: {theme["hover"]};
+                background-color: {theme["background_secondary"]};
                 border-radius: 10px;
             }}
             QPushButton:disabled {{
@@ -298,7 +322,7 @@ class ChatbotDialogStyle:
                 background: transparent;
             }}
             QPushButton:hover {{
-                background-color: {theme["hover"]};
+                background-color: {theme["background_secondary"]};
                 border-radius: {BORDER_RADIUS};
             }}
         """
@@ -320,7 +344,7 @@ class ChatbotDialogStyle:
                 background: transparent;
             }}
             QPushButton:hover {{
-                background-color: {theme["hover"]};
+                background-color: {theme["background_secondary"]};
                 border-radius: {BORDER_RADIUS};
             }}
         """
@@ -332,14 +356,14 @@ class ChatbotDialogStyle:
                 border: 1px solid {theme["border"]};
                 border-radius: {BORDER_RADIUS};
                 padding: 8px;
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
             }}
             QLineEdit:focus {{
-                border: 3px solid {theme["primary_hover"]};
-                background-color: {theme["input_bg"]};
+                border: 3px solid {theme["primary"]};
+                background-color: {theme["background_secondary"]};
             }}
         """
 
@@ -376,14 +400,14 @@ class ChatbotDialogStyle:
                 border: 1px solid {theme["border"]};
                 border-radius: {BORDER_RADIUS};
                 padding: 4px 10px;
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
                 color: {theme["text"]};
             }}
             QComboBox:hover {{
-                border: 3px solid {theme["primary_hover"]};
+                border: 3px solid {theme["primary"]};
             }}
             QComboBox:focus {{
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
             }}
             QComboBox::down-arrow {{
                 image: url("{img_url}");
@@ -443,33 +467,34 @@ class ChatbotDialogStyle:
         }
         """
 
-    def get_slider_style():
-        return """
-        QSlider {
-            height: 24px;
-        }
-        
-        QSlider::groove:horizontal {
+    def get_slider_style(theme: Dict[str, str] = None):
+        theme = theme or THEME
+        return f"""
+        QSlider {{
+            height: {TEMPERATURE_SLIDER_HEIGHT}px;
+        }}
+
+        QSlider::groove:horizontal {{
             border: none;
             height: 4px;
-            background: #e0e0e0;
+            background: {theme["border"]};
             margin: 0px;
             border-radius: 2px;
-        }
-        
-        QSlider::handle:horizontal {
-            background: #2196F3;
+        }}
+
+        QSlider::handle:horizontal {{
+            background: {theme["primary"]};
             border: none;
             width: 16px;
             height: 16px;
             margin: -6px 0;
-            border-radius: 8px;
-        }
-        
-        QSlider::sub-page:horizontal {
-            background: #2196F3;
+            border-radius: {BORDER_RADIUS};
+        }}
+
+        QSlider::sub-page:horizontal {{
+            background: {theme["primary"]};
             border-radius: 2px;
-        }
+        }}
         """
 
     def get_settings_tabs_style():
@@ -489,14 +514,14 @@ class ChatbotDialogStyle:
                 border: 1px solid {theme["border"]};
                 border-radius: {BORDER_RADIUS};
                 padding: 8px;
-                background-color: {theme["input_bg"]};
+                background-color: {theme["background_secondary"]};
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
             }}
             QSpinBox:focus {{
-                border: 3px solid {theme["primary_hover"]};
-                background-color: {theme["input_bg"]};
+                border: 3px solid {theme["primary"]};
+                background-color: {theme["background_secondary"]};
             }}
             QSpinBox::up-button, QSpinBox::down-button {{
                 width: 20px;
@@ -504,7 +529,7 @@ class ChatbotDialogStyle:
                 background: transparent;
             }}
             QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
-                background-color: {theme["hover"]};
+                background-color: {theme["background_secondary"]};
             }}
         """
     
@@ -512,7 +537,7 @@ class ChatbotDialogStyle:
 class ChatMessageStyle:
     def get_bubble_style(is_user: bool, theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
-        bubble_color = theme["user_bubble"] if is_user else None
+        bubble_color = theme["background_secondary"] if is_user else None
         return f"""
             QWidget#messageBubble {{
                 background-color: {bubble_color};
@@ -541,7 +566,7 @@ class ChatMessageStyle:
                 background: transparent;
             }}
             QPushButton:hover {{
-                background-color: {theme["hover"]};
+                background-color: {theme["background_secondary"]};
                 border-radius: {BORDER_RADIUS};
             }}
         """
@@ -591,8 +616,8 @@ class ChatMessageStyle:
         theme = theme or THEME
         return f"""
             QPushButton {{
-                background-color: {theme["primary_hover"]};
-                border: 1px solid {theme["primary_hover"]};
+                background-color: {theme["primary"]};
+                border: 1px solid {theme["primary"]};
                 border-radius: 4px;
                 padding: 4px 10px;
                 color: white;

@@ -2,40 +2,35 @@
 ANIMATION_DURATION = "200ms"
 BORDER_RADIUS = "8px"
 FONT_FAMILY = "SF Pro Text, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif"
-FONT_SIZE_TINY = "8px"
-FONT_SIZE_SMALL = "12px"
+FONT_SIZE_TINY = "9px"
+FONT_SIZE_SMALL = "11px"
 FONT_SIZE_NORMAL = "13px"
-FONT_SIZE_LARGE = "15px"
+FONT_SIZE_LARGE = "16px"
 ICON_SIZE_NORMAL = (32, 32)
 ICON_SIZE_SMALL = (16, 16)
 
-
 # Initialization parameters
 DEFAULT_WINDOW_TITLE = "Chatbot (Beta)"
-DEFAULT_WINDOW_SIZE = (1200, 700)  # Width and height
+DEFAULT_WINDOW_SIZE = (1200, 700)  # (w, h)
 DEFAULT_PROVIDER = "ollama"
 CHAT_PANEL_PERCENTAGE = 88
 INPUT_PANEL_PERCENTAGE = 12
 MIN_MSG_INPUT_HEIGHT = 20
 MAX_MSG_INPUT_HEIGHT = 300
-MAX_USER_MSG_WIDTH = 70 # 70% of the layout width
+USER_MESSAGE_MAX_WIDTH_PERCENT = 70
 DEFAULT_TEMPERATURE_VALUE = 1
+TEMPERATURE_SLIDER_HEIGHT = 20
 
 # Theme configuration
 THEME = {
-    "primary": "#007AFF",           # Modern iOS blue
-    "primary_hover": "#60a5fa",     # Tailwind CSS blue-500
-    "background": "#FFFFFF",        # Clean white background
-    "sidebar": "#F8F8FA",           # Light gray for sidebar
-    "border": "#E5E5EA",            # Subtle border color
-    "text": "#2C2C2E",              # Dark gray for better readability
-    "text_secondary": "#8E8E93",    # Balanced gray for secondary text
-    "success": "#30D158",           # Softer green
-    "warning": "#FF9F0A",           # Warm orange
-    "error": "#FF453A",             # Refined red
-    "user_bubble": "#f6f2f2",       # Lighter, softer blue for user messages
-    "input_bg": "#F4F4F5",          # Light gray for input background
-    "hover": "#F2F2F7",             # Subtle hover state
+    "primary": "#60A5FA",               # Tailwind CSS blue-500
+    "background": "#FFFFFF",            # Clean white background
+    "background_secondary": "#F9F9F9",  # Light gray for sidebar
+    "border": "#E5E5E5",                # Subtle border color
+    "text": "#2C2C2E",                  # Dark gray for better readability
+    "success": "#30D158",               # Softer green
+    "warning": "#FF9F0A",               # Warm orange
+    "error": "#FF453A",                 # Refined red
 }
 
 # Provider configurations

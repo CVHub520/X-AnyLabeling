@@ -35,7 +35,11 @@ class ChatbotDialog(QDialog):
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
         self.resize(*DEFAULT_WINDOW_SIZE)
         self.setWindowIcon(QIcon(set_icon_path("chat")))
-        self.setStyleSheet(ChatbotDialogStyle.get_dialog_style())
+
+        dialog_style = ChatbotDialogStyle.get_dialog_style()
+        menu_style = ChatbotDialogStyle.get_menu_style()
+        combined_style = dialog_style + menu_style
+        self.setStyleSheet(combined_style)
 
         # Initialize
         self.chat_history = []
