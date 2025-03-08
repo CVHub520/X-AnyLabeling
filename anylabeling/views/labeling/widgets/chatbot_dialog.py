@@ -381,10 +381,11 @@ class ChatbotDialog(QDialog):
         model_name_label = QLabel(self.tr("Model Name"))
         model_name_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
 
-        # Create a container for label and help button
+        # Create a container for label and buttons
         model_label_with_help = QWidget()
         model_label_help_layout = QHBoxLayout(model_label_with_help)
         model_label_help_layout.setContentsMargins(0, 0, 0, 0)
+        model_label_help_layout.setSpacing(4)
 
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
@@ -392,14 +393,9 @@ class ChatbotDialog(QDialog):
         model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         model_help_btn.setCursor(Qt.PointingHandCursor)
-        model_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
+        model_help_btn.clicked.connect(lambda: open_url(
+            PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
 
-        model_label_help_layout.addWidget(model_name_label)
-        model_label_help_layout.addWidget(model_help_btn)
-        model_label_help_layout.addStretch()
-        model_name_container.addWidget(model_label_with_help)
-
-        # Add a refresh button for models
         self.refresh_models_btn = QPushButton()
         self.refresh_models_btn.setIcon(QIcon(set_icon_path("refresh")))
         self.refresh_models_btn.setFixedSize(*ICON_SIZE_SMALL)
@@ -408,7 +404,10 @@ class ChatbotDialog(QDialog):
         self.refresh_models_btn.setCursor(Qt.PointingHandCursor)
         self.refresh_models_btn.clicked.connect(lambda: self.fetch_models(log_errors=True))
 
-        model_name_container.addWidget(self.refresh_models_btn)
+        model_label_help_layout.addWidget(model_name_label)
+        model_label_help_layout.addWidget(model_help_btn)
+        model_label_help_layout.addWidget(self.refresh_models_btn)
+        model_name_container.addWidget(model_label_with_help)
         model_name_container.addStretch()
         api_settings_layout.addLayout(model_name_container)
 
