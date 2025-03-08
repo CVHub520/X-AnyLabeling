@@ -41,6 +41,18 @@ class ChatbotDialog(QDialog):
         self.chat_history = []
         self.attach_image_to_chat = False
 
+        # Create all tooltips first to ensure they exist before any event filtering
+        self.temperature_tooltip = CustomTooltip(
+            title="Recommended values:",
+            value_pairs=[
+                ("Coding / Math", "0"),
+                ("Data Cleaning / Data Analysis", "1"),
+                ("General Conversation", "1.3"),
+                ("Translation", "1.3"),
+                ("Creative Writing / Poetry", "1.5")
+            ]
+        )
+
         # Streaming handler setup
         self.stream_handler = StreamingHandler()
         self.stream_handler.text_update.connect(self.update_output)
@@ -303,7 +315,6 @@ class ChatbotDialog(QDialog):
         api_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         api_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        api_help_btn.setToolTip(self.tr("View API documentation"))
         api_help_btn.setCursor(Qt.PointingHandCursor)
         api_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_docs_url"]))
 
@@ -335,7 +346,6 @@ class ChatbotDialog(QDialog):
         api_key_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         api_key_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_key_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        api_key_help_btn.setToolTip(self.tr("Get API key"))
         api_key_help_btn.setCursor(Qt.PointingHandCursor)
         api_key_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key_url"]))
 
@@ -381,7 +391,6 @@ class ChatbotDialog(QDialog):
         model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        model_help_btn.setToolTip(self.tr("View model details"))
         model_help_btn.setCursor(Qt.PointingHandCursor)
         model_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
 
@@ -439,7 +448,7 @@ class ChatbotDialog(QDialog):
         temp_info_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         temp_info_btn.setCursor(Qt.PointingHandCursor)
         temp_info_btn.installEventFilter(self)
-        temp_info_btn.setObjectName("temperature_info_btn")
+        temp_info_btn.setObjectName("temperature_btn")
 
         self.temp_value = QLabel(f"{DEFAULT_TEMPERATURE_VALUE/10:.1f}")
         self.temp_value.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
@@ -556,17 +565,6 @@ class ChatbotDialog(QDialog):
         self.fetch_models()
 
         self.message_input.setFocus()
-
-        self.temperature_tooltip = CustomTooltip(
-            title="Recommended values:",
-            value_pairs=[
-                ("Coding / Math", "0"),
-                ("Data Cleaning / Data Analysis", "1"),
-                ("General Conversation", "1.3"),
-                ("Translation", "1.3"),
-                ("Creative Writing / Poetry", "1.5")
-            ]
-        )
 
     def switch_provider(self, provider):
         """Switch between different model providers"""
@@ -1012,21 +1010,26 @@ class ChatbotDialog(QDialog):
 
     def eventFilter(self, obj, event):
         """Event filter for handling events"""
-        if obj.objectName() == "temperature_info_btn":
-            if event.type() == QEvent.Enter:
-                button_pos = obj.mapToGlobal(QPoint(0, 0))
-                self.temperature_tooltip.move(button_pos)
-                self.temperature_tooltip.adjustSize()
-                tooltip_width = self.temperature_tooltip.width()
-                tooltip_height = self.temperature_tooltip.height()
-                target_x = button_pos.x() - tooltip_width + 5
-                target_y = button_pos.y() - tooltip_height - 5
-                self.temperature_tooltip.move(target_x, target_y)
-                self.temperature_tooltip.show()
-                return True
-            elif event.type() == QEvent.Leave:
-                self.temperature_tooltip.hide()
-                return True
+        # Tooltip handler for multiple buttons
+        tooltip_buttons = {
+            "temperature_btn": self.temperature_tooltip,
+        }
+        for btn_name, tooltip in tooltip_buttons.items():
+            if obj.objectName() == btn_name:
+                if event.type() == QEvent.Enter:
+                    button_pos = obj.mapToGlobal(QPoint(0, 0))
+                    tooltip.move(button_pos)
+                    tooltip.adjustSize()
+                    tooltip_width = tooltip.width()
+                    tooltip_height = tooltip.height()
+                    target_x = button_pos.x() - tooltip_width + 5
+                    target_y = button_pos.y() - tooltip_height - 5
+                    tooltip.move(target_x, target_y)
+                    tooltip.show()
+                    return True
+                elif event.type() == QEvent.Leave:
+                    tooltip.hide()
+                    return True
 
         if obj == self.message_input and event.type() == event.KeyPress:
             if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
