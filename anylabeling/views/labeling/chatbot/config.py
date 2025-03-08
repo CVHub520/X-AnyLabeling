@@ -11,7 +11,7 @@ ICON_SIZE_SMALL = (16, 16)
 
 
 # Initialization parameters
-DEFAULT_WINDOW_TITLE = "Chatbot"
+DEFAULT_WINDOW_TITLE = "Chatbot (Beta)"
 DEFAULT_WINDOW_SIZE = (1200, 700)  # Width and height
 DEFAULT_PROVIDER = "ollama"
 CHAT_PANEL_PERCENTAGE = 88

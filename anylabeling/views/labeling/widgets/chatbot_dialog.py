@@ -439,12 +439,13 @@ class ChatbotDialog(QDialog):
         temp_info_btn.setIcon(QIcon(set_icon_path("help-circle")))
         temp_info_btn.setFixedSize(*ICON_SIZE_SMALL)
         temp_info_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        temp_info_btn.setToolTip(self.tr("""Recommended values:\n
-        Coding / Math:                 0
-        Data Cleaning / Data Analysis: 1
-        General Conversation:          1.3
-        Translation:                   1.3
-        Creative Writing / Poetry:     1.5"""))
+        temp_info_btn.setToolTip(self.tr("""Recommended values:
+
+Coding / Math                 0
+Data Cleaning / Data Analysis 1
+General Conversation          1.3
+Translation                   1.3
+Creative Writing / Poetry     1.5"""))
         temp_info_btn.setCursor(Qt.PointingHandCursor)
         self.temp_value = QLabel(f"{DEFAULT_TEMPERATURE_VALUE/10:.1f}")
         self.temp_value.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
