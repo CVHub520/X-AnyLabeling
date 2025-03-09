@@ -191,12 +191,12 @@ class ChatbotDialogStyle:
                 transition: all {ANIMATION_DURATION} ease;
             }}
             QPushButton:checked {{
-                background-color: {theme["primary"]};
+                background-color: #d1d0d4;
                 color: white;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }}
             QPushButton:hover:!checked {{
-                background-color: {theme["background_secondary"]};
+                background-color: #dcdbdf;
             }}
         """
 
@@ -204,7 +204,7 @@ class ChatbotDialogStyle:
         theme = theme or THEME
         return f"""
             QWidget {{
-                background-color: {theme["background_secondary"]};
+                background-color: #e3e2e6;
                 border-right: 1px solid {theme["border"]};
             }}
         """
@@ -537,7 +537,7 @@ class ChatbotDialogStyle:
 class ChatMessageStyle:
     def get_bubble_style(is_user: bool, theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
-        bubble_color = theme["background_secondary"] if is_user else None
+        bubble_color = "#f6f2f2" if is_user else None
         return f"""
             QWidget#messageBubble {{
                 background-color: {bubble_color};
