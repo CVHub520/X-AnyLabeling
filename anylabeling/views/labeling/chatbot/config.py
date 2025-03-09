@@ -28,6 +28,7 @@ THEME = {
     "background_secondary": "#F9F9F9",  # Light gray for sidebar
     "border": "#E5E5E5",                # Subtle border color
     "text": "#2C2C2E",                  # Dark gray for better readability
+    "highlight_text": "#2196F3",        # Highlight text color
     "success": "#30D158",               # Softer green
     "warning": "#FF9F0A",               # Warm orange
     "error": "#FF453A",                 # Refined red

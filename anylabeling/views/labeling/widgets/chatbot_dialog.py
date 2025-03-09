@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import (
     QTabWidget,
     QSlider,
     QSpinBox,
+    QMessageBox,
 )
 from PyQt5.QtGui import QCursor, QIcon, QPixmap
 
@@ -236,13 +237,11 @@ class ChatbotDialog(QDialog):
         self.send_btn.setCursor(Qt.PointingHandCursor)
         self.send_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.send_btn.clicked.connect(self.start_generation)
+        self.send_btn.setEnabled(False)
 
         # Add send button to layout
         button_bar_layout.addWidget(self.send_btn, 0, Qt.AlignBottom)
-
-        # Add the button bar to the bottom of input widget
         input_with_button_layout.addWidget(button_bar, 0, Qt.AlignBottom)
-
         input_frame_layout.addWidget(input_with_button)
         input_layout.addWidget(input_frame)
 
@@ -910,7 +909,8 @@ class ChatbotDialog(QDialog):
                 self.loading_message.content_label.setWordWrap(True)
                 self.loading_message.content_label.setTextFormat(Qt.PlainText)
                 self.loading_message.content_label.setStyleSheet(
-                    ChatMessageStyle.get_content_label_style(is_error=False))
+                    ChatMessageStyle.get_content_label_style(is_error=False)
+                )
                 
                 # Set minimum and maximum width for proper wrapping
                 self.loading_message.content_label.setMinimumWidth(100)
@@ -1384,15 +1384,20 @@ class ChatbotDialog(QDialog):
     def on_text_changed(self):
         """Handle text changes in the message input, resize and highlight @image tag"""
         self.resize_input()
+        
+        # Update send button state based on whether input is empty
+        current_text = self.message_input.toPlainText().strip()
+        self.send_btn.setEnabled(bool(current_text))
 
         # Check for @image tag and highlight it
-        current_text = self.message_input.toPlainText()
         if "@image" in current_text:
             # Save cursor position
             cursor_pos = self.message_input.textCursor().position()
 
             # Create a new document with highlighted text
-            highlighted_text = current_text.replace("@image", "<span style='color: #2196F3; font-weight: bold;'>@image</span>")
+            highlighted_text = current_text.replace(
+                "@image", f"<span style='color: {THEME['highlight_text']}; font-weight: bold;'>@image</span>"
+            )
 
             # Temporarily disconnect to avoid recursion
             self.message_input.textChanged.disconnect(self.on_text_changed)
@@ -1410,23 +1415,33 @@ class ChatbotDialog(QDialog):
 
     def clear_conversation(self):
         """Clear all chat messages and reset history"""
-        # Clear chat messages from the layout
-        while self.chat_messages_layout.count() > 0:
-            item = self.chat_messages_layout.takeAt(0)
-            if item and item.widget():
-                widget = item.widget()
-                widget.setParent(None)
-                widget.deleteLater()
-            elif item:
-                self.chat_messages_layout.removeItem(item)
-        
-        # Reset chat history
-        self.chat_history = []
-        
-        # Add stretch
-        self.chat_messages_layout.addStretch()
-        
-        # Update parent data if applicable
-        if self.parent().filename:
-            self.parent().other_data["chat_history"] = self.chat_history
-            self.parent().set_dirty()  # Mark as dirty/modified
+        # Show confirmation dialog
+        confirm_dialog = QMessageBox(self)
+        confirm_dialog.setText(self.tr("Are you sure you want to clear the entire conversation?"))
+        confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        confirm_dialog.setDefaultButton(QMessageBox.No)
+        confirm_dialog.setIcon(QMessageBox.Warning)
+
+        # Show dialog and handle response
+        response = confirm_dialog.exec_()
+        if response == QMessageBox.Yes:
+            # Clear chat messages from the layout
+            while self.chat_messages_layout.count() > 0:
+                item = self.chat_messages_layout.takeAt(0)
+                if item and item.widget():
+                    widget = item.widget()
+                    widget.setParent(None)
+                    widget.deleteLater()
+                elif item:
+                    self.chat_messages_layout.removeItem(item)
+            
+            # Reset chat history
+            self.chat_history = []
+            
+            # Add stretch
+            self.chat_messages_layout.addStretch()
+            
+            # Update parent data if applicable
+            if self.parent().filename:
+                self.parent().other_data["chat_history"] = self.chat_history
+                self.parent().set_dirty()  # Mark as dirty/modified
