@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QEasingCurve, QEvent, QTimer, QPropertyAnimation
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QTextCursor
 from PyQt5.QtWidgets import (
     QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit, QMessageBox
 )
@@ -244,17 +244,14 @@ class ChatMessage(QFrame):
                                          bubble_layout.contentsMargins().bottom() + 
                                          bubble_layout.spacing() + 
                                          30)
-        
-        # Set minimum height to avoid excessive height
-        anim_end_height = max(self.animation_min_height, bubble_height)
 
         # Set end value and easing curve
+        anim_end_height = max(self.animation_min_height, bubble_height)
         self.animation.setEndValue(anim_end_height)
         self.animation.setEasingCurve(QEasingCurve.OutCubic)
-        
+
         # After animation, adjust height to a reasonable value
         self.animation.finished.connect(self.adjust_height_after_animation)
-
         self.animation.start()
 
     def copy_content_to_clipboard(self, button):
@@ -342,44 +339,44 @@ class ChatMessage(QFrame):
         """Enter edit mode for user messages"""
         if self.role != "user":
             return
-            
-        self.is_editing = True
-        
-        # Hide the normal content and show the edit area
+
+        # Hide the normal content
         self.content_label.setVisible(False)
+        self.copy_btn.setVisible(False)
+        self.edit_btn.setVisible(False)
+        self.delete_btn.setVisible(False)
+
+        # Show the edit area
         self.edit_area.setVisible(True)
         self.edit_area.setPlainText(self.content)
-        self.edit_buttons_widget.setVisible(True)
-        
-        # Set focus to the edit area
         self.edit_area.setFocus()
-        
-        # Adjust the widget height
+        self.edit_area.moveCursor(QTextCursor.End)
+        self.edit_buttons_widget.setVisible(True)
+
+        # Set the editing flag and adjust the widget height
+        self.is_editing = True
         self.adjust_height_during_edit()
-    
+
     def exit_edit_mode(self):
         """Exit edit mode without saving changes"""
-        self.is_editing = False
-        
         # Show the normal content and hide the edit area
         self.content_label.setVisible(True)
         self.edit_area.setVisible(False)
         self.edit_buttons_widget.setVisible(False)
-        
+
         # Reset the edit area text
         self.edit_area.setPlainText(self.content)
-        
-        # Adjust the widget height
+
+        # Set the editing flag and adjust the widget height
+        self.is_editing = False
         self.adjust_height_after_animation()
     
     def save_edit(self):
         """Save edited content and resubmit the message"""
-        # Get edited content
         edited_content = self.edit_area.toPlainText().strip()
-        
+
         # Only proceed if content has changed and is not empty
         if edited_content and edited_content != self.content:
-            # Get the dialog
             dialog = self.window()
             if hasattr(dialog, 'clear_messages_after') and hasattr(dialog, 'message_input'):
                 # Exit edit mode first to return to normal view
@@ -387,7 +384,7 @@ class ChatMessage(QFrame):
                 self.content_label.setVisible(True)
                 self.edit_area.setVisible(False)
                 self.edit_buttons_widget.setVisible(False)
-                
+
                 # Call the dialog method to handle deletion and resubmission
                 dialog.resubmit_edited_message(self, edited_content)
             else:
@@ -398,19 +395,19 @@ class ChatMessage(QFrame):
         else:
             # No changes or empty content, just exit edit mode
             self.exit_edit_mode()
-    
+
     def adjust_height_during_edit(self):
         """Adjust widget height during edit mode"""
         # Prevent recursion
         if self.resize_in_progress:
             return
-            
         self.resize_in_progress = True
+
         try:
             # Get the height needed for the edit area
             edit_height = self.edit_area.document().size().height() + 20
             buttons_height = self.edit_buttons_widget.sizeHint().height() + 10
-            
+
             # Calculate total height needed
             total_height = edit_height + buttons_height + self.edit_area_min_height
 
@@ -445,7 +442,6 @@ class ChatMessage(QFrame):
 
     def delete_message(self):
         """Delete this message and update chat history"""
-        # Find the main dialog
         dialog = self.window()
 
         # Find this message's index in the chat messages layout
@@ -479,19 +475,23 @@ class ChatMessage(QFrame):
             self.setParent(None)
             self.deleteLater()
 
-    # Add mouse hover events to show/hide buttons
     def enterEvent(self, event):
         """Show action buttons when mouse enters the message"""
+        if self.is_editing:
+            return
+
         # First make buttons visible
         for button in self.action_buttons:
             button.setVisible(True)
-
         # Then adjust bubble height to accommodate the buttons
         self.adjust_height_for_buttons(True)
         super().enterEvent(event)
 
     def leaveEvent(self, event):
         """Hide action buttons when mouse leaves the message"""
+        if self.is_editing:
+            return
+
         # First hide buttons
         for button in self.action_buttons:
             button.setVisible(False)
