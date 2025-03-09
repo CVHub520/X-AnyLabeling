@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (
     QSpinBox,
     QMessageBox,
 )
-from PyQt5.QtGui import QCursor, QIcon, QPixmap, QColor, QFont, QTextCursor, QTextCharFormat
+from PyQt5.QtGui import QCursor, QIcon, QPixmap, QColor, QTextCursor, QTextCharFormat
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
@@ -1180,15 +1180,15 @@ class ChatbotDialog(QDialog):
     def set_components_enabled(self, enabled):
         """Enable or disable UI components during streaming"""
         self.message_input.setEnabled(enabled)
-        self.send_btn.setEnabled(enabled)
+        self.send_btn.setEnabled(False)
         self.prev_image_btn.setEnabled(enabled)
         self.next_image_btn.setEnabled(enabled)
-        
+
         # Also disable provider switching during streaming
         for provider in PROVIDER_CONFIGS.keys():
             if hasattr(self, f"{provider}_btn"):
                 getattr(self, f"{provider}_btn").setEnabled(enabled)
-        
+
         # Update cursor for input
         if enabled:
             self.message_input.setCursor(Qt.IBeamCursor)
