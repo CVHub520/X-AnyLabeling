@@ -56,13 +56,13 @@ class ChatMessage(QFrame):
         role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
 
         # Create custom tooltips
-        self.copy_tooltip = CustomTooltip(title="Copy message to clipboard")
-        self.delete_tooltip = CustomTooltip(title="Delete this message")
+        self.copy_tooltip = CustomTooltip(title="Copy")
+        self.delete_tooltip = CustomTooltip(title="Delete")
         
         if is_user:
-            self.edit_tooltip = CustomTooltip(title="Edit your message")
+            self.edit_tooltip = CustomTooltip(title="Edit")
         else:
-            self.regenerate_tooltip = CustomTooltip(title="Regenerate this response")
+            self.regenerate_tooltip = CustomTooltip(title="Regenerate")
 
         # Create copy button
         self.copy_btn = QPushButton()
@@ -203,7 +203,6 @@ class ChatMessage(QFrame):
         if parent:
             parent_width = parent.width()
             if parent_width > 0:
-                # Different width constraints for user vs assistant
                 if self.role == "user":
                     max_width = int(parent_width * USER_MESSAGE_MAX_WIDTH_PERCENT / 100)
                 else:
@@ -545,15 +544,34 @@ class ChatMessage(QFrame):
         for btn_name, tooltip in tooltip_buttons.items():
             if obj.objectName() == btn_name:
                 if event.type() == QEvent.Enter:
+                    # Get button geometry
                     button_pos = obj.mapToGlobal(QPoint(0, 0))
-                    tooltip.move(button_pos)
+                    button_width = obj.width()
+                    button_height = obj.height()
+                    
+                    # Show tooltip first to ensure proper size calculation
+                    tooltip.show()
                     tooltip.adjustSize()
+                    
+                    # Get tooltip dimensions
                     tooltip_width = tooltip.width()
                     tooltip_height = tooltip.height()
-                    target_x = button_pos.x() - tooltip_width + 5
+                    
+                    # Calculate position centered above the button
+                    target_x = button_pos.x() + (button_width - tooltip_width) // 2
                     target_y = button_pos.y() - tooltip_height - 5
+                    
+                    # Ensure tooltip stays within screen boundaries
+                    screen = QApplication.desktop().screenGeometry()
+                    if target_x + tooltip_width > screen.width():
+                        target_x = screen.width() - tooltip_width - 5
+                    if target_x < 0:
+                        target_x = 5
+                    if target_y < 0:
+                        # If not enough space above, show below the button
+                        target_y = button_pos.y() + button_height + 5
+                    
                     tooltip.move(target_x, target_y)
-                    tooltip.show()
                     return True
                 elif event.type() == QEvent.Leave:
                     tooltip.hide()
