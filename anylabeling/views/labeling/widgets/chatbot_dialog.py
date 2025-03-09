@@ -1178,17 +1178,28 @@ class ChatbotDialog(QDialog):
             
             # Signal completion with failure
             self.stream_handler.finished.emit(False)
-        
+
         finally:
             # Signal loading state ended
             self.stream_handler.stop_loading()
-    
+            self.send_btn.setEnabled(False)
+
     def set_components_enabled(self, enabled):
         """Enable or disable UI components during streaming"""
         self.message_input.setEnabled(enabled)
-        self.send_btn.setEnabled(False)
         self.prev_image_btn.setEnabled(enabled)
         self.next_image_btn.setEnabled(enabled)
+        self.open_image_file_btn.setEnabled(enabled)
+        self.open_image_folder_btn.setEnabled(enabled)
+        self.open_video_btn.setEnabled(enabled)
+        self.clear_context_btn.setEnabled(enabled)
+        self.refresh_models_btn.setEnabled(enabled)
+        self.temp_slider.setEnabled(enabled)
+        self.system_prompt_input.setEnabled(enabled)
+        self.max_length_input.setEnabled(enabled)
+        self.api_address.setEnabled(enabled)
+        self.api_key.setEnabled(enabled)
+        self.model_name.setEnabled(enabled)
 
         # Also disable provider switching during streaming
         for provider in PROVIDER_CONFIGS.keys():
@@ -1200,6 +1211,18 @@ class ChatbotDialog(QDialog):
             self.message_input.setCursor(Qt.IBeamCursor)
         else:
             self.message_input.setCursor(Qt.ForbiddenCursor)
+
+        # Update chat message buttons
+        self.set_chat_message_buttons_enabled(enabled)
+
+    def set_chat_message_buttons_enabled(self, enabled):
+        """Enable or disable all buttons in chat messages"""
+        for i in range(self.chat_messages_layout.count()):
+            item = self.chat_messages_layout.itemAt(i)
+            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                message_widget = item.widget()
+                if hasattr(message_widget, 'set_action_buttons_enabled'):
+                    message_widget.set_action_buttons_enabled(enabled)
 
     def handle_error(self, error_message):
         """Handle error messages from the streaming thread"""

@@ -282,6 +282,11 @@ class ChatMessage(QFrame):
         
         return content_label
 
+    def set_action_buttons_enabled(self, enabled):
+        """Enable or disable all action buttons"""
+        for button in self.action_buttons:
+            button.setEnabled(enabled)
+
     def update_width_constraint(self):
         """Update width constraint based on parent width"""
         # Prevent recursion
