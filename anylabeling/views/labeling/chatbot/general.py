@@ -572,11 +572,12 @@ class ChatMessage(QFrame):
                         target_y = button_pos.y() + button_height + 5
                     
                     tooltip.move(target_x, target_y)
+                    QTimer.singleShot(3000, tooltip.hide)
                     return True
-                elif event.type() == QEvent.Leave:
+                elif event.type() == QEvent.Leave or event.type() == QEvent.Wheel:
                     tooltip.hide()
                     return True
-        
+
         return False  # Let the event continue to be processed
 
 

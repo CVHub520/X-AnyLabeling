@@ -1053,8 +1053,11 @@ class ChatbotDialog(QDialog):
                     target_y = button_pos.y() - tooltip_height - 5
                     tooltip.move(target_x, target_y)
                     tooltip.show()
+
+                    # Set a timer to hide tooltip after 3 seconds as a safety measure
+                    QTimer.singleShot(3000, tooltip.hide)
                     return True
-                elif event.type() == QEvent.Leave:
+                elif event.type() == QEvent.Leave or event.type() == QEvent.Wheel:
                     tooltip.hide()
                     return True
 
@@ -1456,3 +1459,39 @@ class ChatbotDialog(QDialog):
             if self.parent().filename:
                 self.parent().other_data["chat_history"] = self.chat_history
                 self.parent().set_dirty()  # Mark as dirty/modified
+
+    def hideAllTooltips(self):
+        """Hide all tooltips as a safety measure"""
+        if hasattr(self, 'temperature_tooltip'):
+            self.temperature_tooltip.hide()
+        if hasattr(self, 'refresh_models_tooltip'):
+            self.refresh_models_tooltip.hide()
+
+        # Find and hide all tooltips in chat messages
+        for i in range(self.chat_messages_layout.count()):
+            item = self.chat_messages_layout.itemAt(i)
+            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                message = item.widget()
+                for tooltip_name in ['copy_tooltip', 'delete_tooltip', 'edit_tooltip', 'regenerate_tooltip']:
+                    if hasattr(message, tooltip_name):
+                        tooltip = getattr(message, tooltip_name)
+                        if tooltip:
+                            tooltip.hide()
+
+    def closeEvent(self, event):
+        """Handle dialog close event properly"""
+        # Hide all tooltips before closing
+        self.hideAllTooltips()
+
+        # Stop any ongoing timers
+        if self.loading_timer and self.loading_timer.isActive():
+            self.loading_timer.stop()
+
+        # Call parent close event
+        super().closeEvent(event)
+
+    def wheelEvent(self, event):
+        """Handle wheel events at dialog level"""
+        # Hide all tooltips when scrolling anywhere in the dialog
+        self.hideAllTooltips()
+        super().wheelEvent(event)
