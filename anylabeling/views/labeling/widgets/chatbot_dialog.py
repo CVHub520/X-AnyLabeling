@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import (
     QSpinBox,
     QMessageBox,
 )
-from PyQt5.QtGui import QCursor, QIcon, QPixmap
+from PyQt5.QtGui import QCursor, QIcon, QPixmap, QColor, QFont, QTextCursor, QTextCharFormat
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
@@ -1389,29 +1389,40 @@ class ChatbotDialog(QDialog):
         current_text = self.message_input.toPlainText().strip()
         self.send_btn.setEnabled(bool(current_text))
 
-        # Check for @image tag and highlight it
-        if "@image" in current_text:
-            # Save cursor position
-            cursor_pos = self.message_input.textCursor().position()
+        # Highlight @image tag
+        cursor = self.message_input.textCursor()
+        current_position = cursor.position()
+        document = self.message_input.document()
+        text = document.toPlainText()
+        
+        # Block signals temporarily to prevent recursive calls
+        self.message_input.blockSignals(True)
 
-            # Create a new document with highlighted text
-            highlighted_text = current_text.replace(
-                "@image", f"<span style='color: {THEME['highlight_text']}; font-weight: bold;'>@image</span>"
-            )
+        # Reset formatting
+        cursor.select(QTextCursor.Document)
+        format = QTextCharFormat()
+        cursor.setCharFormat(format)
 
-            # Temporarily disconnect to avoid recursion
-            self.message_input.textChanged.disconnect(self.on_text_changed)
+        # Find and highlight @image
+        tag = "@image"
+        start_index = text.find(tag)
+        if start_index != -1:
+            # Set highlight format
+            highlight_format = QTextCharFormat()
+            highlight_format.setBackground(QColor("#E3F2FD"))  # Light blue background
+            highlight_format.setForeground(QColor("#1976D2"))  # Darker blue text
 
-            # Set HTML content
-            self.message_input.setHtml(highlighted_text)
+            # Select and format the tag
+            cursor.setPosition(start_index)
+            cursor.setPosition(start_index + len(tag), QTextCursor.KeepAnchor)
+            cursor.setCharFormat(highlight_format)
 
             # Restore cursor position
-            cursor = self.message_input.textCursor()
-            cursor.setPosition(cursor_pos)
+            cursor.setPosition(current_position)
             self.message_input.setTextCursor(cursor)
 
-            # Reconnect signal
-            self.message_input.textChanged.connect(self.on_text_changed)
+        # Unblock signals
+        self.message_input.blockSignals(False)
 
     def clear_conversation(self):
         """Clear all chat messages and reset history"""
