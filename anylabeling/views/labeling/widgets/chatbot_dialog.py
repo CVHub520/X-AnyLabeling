@@ -217,12 +217,12 @@ class ChatbotDialog(QDialog):
 
         # Add clear context button (left side)
         self.clear_context_btn = QPushButton()
-        self.clear_context_btn.setIcon(QIcon(set_icon_path("trash")))
+        self.clear_context_btn.setIcon(QIcon(set_icon_path("clear")))
         self.clear_context_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.clear_context_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
         self.clear_context_btn.setCursor(Qt.PointingHandCursor)
         self.clear_context_btn.setFixedSize(*ICON_SIZE_SMALL)
-        self.clear_context_btn.setToolTip(self.tr("Clear Conversation"))
+        self.clear_context_btn.setToolTip(self.tr("Clear Chat"))
         self.clear_context_btn.clicked.connect(self.clear_conversation)
 
         # Add buttons to layout
