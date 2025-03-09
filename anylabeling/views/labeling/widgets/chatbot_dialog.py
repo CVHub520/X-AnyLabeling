@@ -1,4 +1,5 @@
 import base64
+import re
 import threading
 from openai import OpenAI
 
@@ -749,7 +750,9 @@ class ChatbotDialog(QDialog):
         if role == "user":
             if "@image" in content:
                 self.attach_image_to_chat = True
-            content = content.replace("@image", "", 1).strip()
+                content = re.sub(r'@image\s+', '<image>', content).strip()
+            else:
+                self.attach_image_to_chat = False
 
         # Create and add the message widget
         is_error = True if delete_last_message else False
