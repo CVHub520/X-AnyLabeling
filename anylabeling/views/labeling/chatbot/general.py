@@ -89,6 +89,7 @@ class ChatMessage(QFrame):
         self.edit_btn = None
         self.regenerate_btn = None
         if is_user:
+            # Create edit button
             self.edit_btn = QPushButton()
             self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
             self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
@@ -99,6 +100,7 @@ class ChatMessage(QFrame):
             self.edit_btn.installEventFilter(self)
             self.edit_btn.setObjectName("edit_btn")
         else:
+            # Create regenerate button
             self.regenerate_btn = QPushButton()
             self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
             self.regenerate_btn.setFixedSize(*ICON_SIZE_SMALL)
@@ -113,40 +115,13 @@ class ChatMessage(QFrame):
         bubble_layout.addLayout(header_layout)
 
         # Add message content
-        processed_content = ""
-        if len(content) > 50 and " " not in content:
-            chunk_size = 50
-            for i in range(0, len(content), chunk_size):
-                processed_content += content[i:i+chunk_size]
-                if i + chunk_size < len(content):
-                    processed_content += "\u200B"  # Zero-width space, allows line breaks but is invisible
-        else:
-            processed_content = content
+        processed_content = self._process_content(content)
 
         # Create label with processed content
-        content_label = QLabel(processed_content)
-        content_label.setWordWrap(True)
-
-        # Force minimum width to ensure correct wrapping
-        content_label.setMinimumWidth(200)
-
-        # To ensure long content displays correctly, we use RichText format
-        if "\u200B" in processed_content or is_error:
-            content_label.setTextFormat(Qt.RichText)
-        else:
-            content_label.setTextFormat(Qt.PlainText)
-
-        content_label.setStyleSheet(ChatMessageStyle.get_content_label_style(self.is_error))
-
-        # Add text copy selection combination flag
-        content_label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
+        content_label = self._create_content_label(processed_content)
 
         # Use a more appropriate size policy to avoid excessive vertical space
         content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-
-        # Ensure consistent font display across all platforms
-        default_font = content_label.font()
-        content_label.setFont(default_font)
 
         # Set alignment and minimum height to avoid excessive height
         content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
@@ -270,6 +245,43 @@ class ChatMessage(QFrame):
         # After animation, adjust height to a reasonable value
         self.animation.finished.connect(self.adjust_height_after_animation)
         self.animation.start()
+
+    def _process_content(self, content):
+        """Process message content for better display handling"""
+        if len(content) > 50 and " " not in content:
+            chunk_size = 50
+            processed_content = ""
+            for i in range(0, len(content), chunk_size):
+                processed_content += content[i:i+chunk_size]
+                if i + chunk_size < len(content):
+                    processed_content += "\u200B"  # Zero-width space, allows line breaks but is invisible
+            return processed_content
+        return content
+
+    def _create_content_label(self, processed_content):
+        """Create and configure the content label for the message"""
+        content_label = QLabel(processed_content)
+        content_label.setWordWrap(True)
+        content_label.setMinimumWidth(200)
+        
+        # Set text format based on content
+        if "\u200B" in processed_content or self.is_error:
+            content_label.setTextFormat(Qt.RichText)
+        else:
+            content_label.setTextFormat(Qt.PlainText)
+        
+        content_label.setStyleSheet(ChatMessageStyle.get_content_label_style(self.is_error))
+        content_label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
+        content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        
+        # Ensure consistent font display
+        default_font = content_label.font()
+        content_label.setFont(default_font)
+        
+        content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        content_label.setMinimumHeight(10)
+        
+        return content_label
 
     def update_width_constraint(self):
         """Update width constraint based on parent width"""
