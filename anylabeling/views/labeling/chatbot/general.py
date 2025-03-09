@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, QEasingCurve, QEvent, QTimer, QPropertyAnimation
+from PyQt5.QtCore import Qt, QEasingCurve, QEvent, QTimer, QPropertyAnimation, QPoint
 from PyQt5.QtGui import QIcon, QTextCursor
 from PyQt5.QtWidgets import (
     QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit, QMessageBox
@@ -55,25 +55,36 @@ class ChatMessage(QFrame):
         role_label = QLabel(self.tr("User") if is_user else self.tr("Assistant"))
         role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
 
+        # Create custom tooltips
+        self.copy_tooltip = CustomTooltip(title="Copy message to clipboard")
+        self.delete_tooltip = CustomTooltip(title="Delete this message")
+        
+        if is_user:
+            self.edit_tooltip = CustomTooltip(title="Edit your message")
+        else:
+            self.regenerate_tooltip = CustomTooltip(title="Regenerate this response")
+
         # Create copy button
         self.copy_btn = QPushButton()
         self.copy_btn.setIcon(QIcon(set_icon_path("copy")))
         self.copy_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-        self.copy_btn.setToolTip(self.tr("Copy"))
         self.copy_btn.setCursor(Qt.PointingHandCursor)
         self.copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(self.copy_btn))
         self.copy_btn.setVisible(False)
+        self.copy_btn.installEventFilter(self)
+        self.copy_btn.setObjectName("copy_btn")
 
         # Create delete button
         self.delete_btn = QPushButton()
         self.delete_btn.setIcon(QIcon(set_icon_path("trash")))
         self.delete_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.delete_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-        self.delete_btn.setToolTip(self.tr("Delete"))
         self.delete_btn.setCursor(Qt.PointingHandCursor)
         self.delete_btn.clicked.connect(self.confirm_delete_message)
         self.delete_btn.setVisible(False)
+        self.delete_btn.installEventFilter(self)
+        self.delete_btn.setObjectName("delete_btn")
 
         self.edit_btn = None
         self.regenerate_btn = None
@@ -82,19 +93,21 @@ class ChatMessage(QFrame):
             self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
             self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-            self.edit_btn.setToolTip(self.tr("Edit"))
             self.edit_btn.setCursor(Qt.PointingHandCursor)
             self.edit_btn.clicked.connect(self.enter_edit_mode)
             self.edit_btn.setVisible(False)
+            self.edit_btn.installEventFilter(self)
+            self.edit_btn.setObjectName("edit_btn")
         else:
             self.regenerate_btn = QPushButton()
             self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
             self.regenerate_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.regenerate_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-            self.regenerate_btn.setToolTip(self.tr("Regenerate"))
             self.regenerate_btn.setCursor(Qt.PointingHandCursor)
             self.regenerate_btn.clicked.connect(self.regenerate_response)
             self.regenerate_btn.setVisible(False)
+            self.regenerate_btn.installEventFilter(self)
+            self.regenerate_btn.setObjectName("regenerate_btn")
             header_layout.addWidget(role_label)
 
         bubble_layout.addLayout(header_layout)
@@ -146,6 +159,13 @@ class ChatMessage(QFrame):
         action_buttons_layout.setContentsMargins(0, 4, 0, 0)
         action_buttons_layout.setSpacing(4)
 
+        # Set a container for the action buttons
+        buttons_container = QWidget()
+        buttons_container.setMinimumHeight(20)
+        buttons_container.setStyleSheet("background-color: transparent;")
+        buttons_container.setLayout(action_buttons_layout)
+        bubble_layout.addWidget(buttons_container)
+
         # Add stretch to push buttons to the right
         action_buttons_layout.addStretch()
 
@@ -162,9 +182,6 @@ class ChatMessage(QFrame):
         # Store buttons for hover events
         self.action_buttons = [btn for btn in [
             self.copy_btn, self.edit_btn, self.regenerate_btn, self.delete_btn] if btn]
-
-        # Add the action buttons layout to the bubble
-        bubble_layout.addLayout(action_buttons_layout)
 
         # Create an edit area for user messages (hidden by default)
         self.edit_area = QTextEdit()
@@ -236,7 +253,7 @@ class ChatMessage(QFrame):
         # Add animation when first appearing
         self.setMaximumHeight(0)
         self.animation = QPropertyAnimation(self, b"maximumHeight")
-        self.animation.setDuration(int(ANIMATION_DURATION[:-2]))  # Convert "200ms" to 200
+        self.animation.setDuration(int(ANIMATION_DURATION[:-2]))
         self.animation.setStartValue(0)
 
         content_height = self.content_label.sizeHint().height()
@@ -254,25 +271,13 @@ class ChatMessage(QFrame):
         self.animation.finished.connect(self.adjust_height_after_animation)
         self.animation.start()
 
-    def copy_content_to_clipboard(self, button):
-        """Copy message content to clipboard with visual feedback"""
-        # Copy the content to clipboard
-        clipboard = QApplication.clipboard()
-        clipboard.setText(self.content)
-
-        # Change the button icon to a checkmark
-        button.setIcon(QIcon(set_icon_path("check")))
-
-        # Start a timer to reset the button after a delay
-        QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
-
     def update_width_constraint(self):
         """Update width constraint based on parent width"""
         # Prevent recursion
         if self.resize_in_progress:
             return
-            
         self.resize_in_progress = True
+
         try:
             if self.parent():
                 parent_width = self.parent().width()
@@ -307,6 +312,18 @@ class ChatMessage(QFrame):
         if not self.resize_in_progress:
             self.update_width_constraint()
 
+    def copy_content_to_clipboard(self, button):
+        """Copy message content to clipboard with visual feedback"""
+        # Copy the content to clipboard
+        clipboard = QApplication.clipboard()
+        clipboard.setText(self.content)
+
+        # Change the button icon to a checkmark
+        button.setIcon(QIcon(set_icon_path("check")))
+
+        # Start a timer to reset the button after a delay
+        QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
+
     def reset_copy_button(self, button):
         """Reset the copy button to its original state"""
         button.setIcon(QIcon(set_icon_path("copy")))
@@ -318,7 +335,7 @@ class ChatMessage(QFrame):
         # Prevent recursion
         if self.resize_in_progress:
             return
-            
+
         self.resize_in_progress = True
         try:
             # Get the actual height needed for the content
@@ -326,12 +343,17 @@ class ChatMessage(QFrame):
             # If the height cannot be obtained correctly, use sizeHint
             if content_height <= 0:
                 content_height = self.content_label.sizeHint().height()
-            
-            # Add extra space for the header and padding
-            total_height = content_height + self.animation_min_height
-            
-            # Set a reasonable maximum height, slightly larger than the calculated height
-            self.setMaximumHeight(total_height + 10)
+
+            # Add extra space for the header, padding and buttons (even when not visible)
+            button_space = 30  # Typical button height + padding
+            total_height = content_height + self.animation_min_height + button_space
+
+            # Set a reasonable maximum height with some buffer
+            self.setMaximumHeight(total_height)
+
+            # Force update
+            self.updateGeometry()
+            QApplication.processEvents()
         finally:
             self.resize_in_progress = False
 
@@ -480,11 +502,8 @@ class ChatMessage(QFrame):
         if self.is_editing:
             return
 
-        # First make buttons visible
         for button in self.action_buttons:
             button.setVisible(True)
-        # Then adjust bubble height to accommodate the buttons
-        self.adjust_height_for_buttons(True)
         super().enterEvent(event)
 
     def leaveEvent(self, event):
@@ -492,45 +511,43 @@ class ChatMessage(QFrame):
         if self.is_editing:
             return
 
-        # First hide buttons
         for button in self.action_buttons:
             button.setVisible(False)
-
-        # Then restore original height
-        self.adjust_height_for_buttons(False)
         super().leaveEvent(event)
 
-    def adjust_height_for_buttons(self, show_buttons):
-        """Adjust the message height when buttons appear/disappear"""
-        # Prevent recursion
-        if self.resize_in_progress:
-            return
-
-        self.resize_in_progress = True
-        try:
-            # Get the actual height needed for the content
-            content_height = self.content_label.heightForWidth(self.content_label.width())
-            if content_height <= 0:
-                content_height = self.content_label.sizeHint().height()
-
-            # Add extra space for the header and padding
-            total_height = content_height + self.animation_min_height
-
-            # Add extra space for buttons if they're showing
-            if show_buttons:
-                # Get button height + padding
-                button_space = 30  # Typical button height + padding
-                total_height += button_space
-
-            # Set the maximum height with a small buffer
-            self.setMaximumHeight(total_height + 10)
-            
-            # Force update
-            self.updateGeometry()
-            self.bubble.updateGeometry()
-            QApplication.processEvents()
-        finally:
-            self.resize_in_progress = False
+    def eventFilter(self, obj, event):
+        """Event filter for handling custom tooltips"""
+        # Map button object names to their tooltips
+        tooltip_buttons = {
+            "copy_btn": self.copy_tooltip,
+            "delete_btn": self.delete_tooltip,
+        }
+        
+        if hasattr(self, "edit_btn") and self.edit_btn:
+            tooltip_buttons["edit_btn"] = self.edit_tooltip
+        
+        if hasattr(self, "regenerate_btn") and self.regenerate_btn:
+            tooltip_buttons["regenerate_btn"] = self.regenerate_tooltip
+        
+        # Handle tooltip display
+        for btn_name, tooltip in tooltip_buttons.items():
+            if obj.objectName() == btn_name:
+                if event.type() == QEvent.Enter:
+                    button_pos = obj.mapToGlobal(QPoint(0, 0))
+                    tooltip.move(button_pos)
+                    tooltip.adjustSize()
+                    tooltip_width = tooltip.width()
+                    tooltip_height = tooltip.height()
+                    target_x = button_pos.x() - tooltip_width + 5
+                    target_y = button_pos.y() - tooltip_height - 5
+                    tooltip.move(target_x, target_y)
+                    tooltip.show()
+                    return True
+                elif event.type() == QEvent.Leave:
+                    tooltip.hide()
+                    return True
+        
+        return False  # Let the event continue to be processed
 
 
 class UpdateModelsEvent(QEvent):
