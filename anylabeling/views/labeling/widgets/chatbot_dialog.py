@@ -201,25 +201,48 @@ class ChatbotDialog(QDialog):
 
         # Create a container for the input and send button
         input_with_button = QWidget()
-        input_with_button_layout = QHBoxLayout(input_with_button)
+        input_with_button_layout = QVBoxLayout(input_with_button)
         input_with_button_layout.setContentsMargins(0, 0, 0, 0)
         input_with_button_layout.setSpacing(0)
-        input_with_button_layout.setAlignment(Qt.AlignVCenter)
 
-        # Add the message input to the layout
-        input_with_button_layout.addWidget(self.message_input, 1, Qt.AlignVCenter)
+        # Add the message input to the layout (at the top)
+        input_with_button_layout.addWidget(self.message_input, 1)
 
-        # Create the send button
+        # Create a button bar container for the bottom
+        button_bar = QWidget()
+        button_bar_layout = QHBoxLayout(button_bar)
+        button_bar_layout.setContentsMargins(0, 4, 0, 0)  # Add a small top margin
+        button_bar_layout.setSpacing(8)  # Spacing between buttons
+
+        # Add clear context button (left side)
+        self.clear_context_btn = QPushButton()
+        self.clear_context_btn.setIcon(QIcon(set_icon_path("trash")))
+        self.clear_context_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
+        self.clear_context_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
+        self.clear_context_btn.setCursor(Qt.PointingHandCursor)
+        self.clear_context_btn.setFixedSize(*ICON_SIZE_SMALL)
+        self.clear_context_btn.setToolTip(self.tr("Clear Conversation"))
+        self.clear_context_btn.clicked.connect(self.clear_conversation)
+
+        # Add buttons to layout
+        button_bar_layout.addWidget(self.clear_context_btn, 0, Qt.AlignBottom)
+        button_bar_layout.addStretch(1)  # Push buttons to left and right edges
+
+        # Create the send button (right side)
         self.send_btn = QPushButton()
         self.send_btn.setIcon(QIcon(set_icon_path("send")))
-        self.send_btn.setIconSize(QSize(*ICON_SIZE_NORMAL))
+        self.send_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.send_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
         self.send_btn.setCursor(Qt.PointingHandCursor)
-        self.send_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.send_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.send_btn.clicked.connect(self.start_generation)
 
-        # Add the send button to the layout
-        input_with_button_layout.addWidget(self.send_btn, 0, Qt.AlignRight | Qt.AlignBottom)
+        # Add send button to layout
+        button_bar_layout.addWidget(self.send_btn, 0, Qt.AlignBottom)
+
+        # Add the button bar to the bottom of input widget
+        input_with_button_layout.addWidget(button_bar, 0, Qt.AlignBottom)
+
         input_frame_layout.addWidget(input_with_button)
         input_layout.addWidget(input_frame)
 
@@ -1384,3 +1407,26 @@ class ChatbotDialog(QDialog):
 
             # Reconnect signal
             self.message_input.textChanged.connect(self.on_text_changed)
+
+    def clear_conversation(self):
+        """Clear all chat messages and reset history"""
+        # Clear chat messages from the layout
+        while self.chat_messages_layout.count() > 0:
+            item = self.chat_messages_layout.takeAt(0)
+            if item and item.widget():
+                widget = item.widget()
+                widget.setParent(None)
+                widget.deleteLater()
+            elif item:
+                self.chat_messages_layout.removeItem(item)
+        
+        # Reset chat history
+        self.chat_history = []
+        
+        # Add stretch
+        self.chat_messages_layout.addStretch()
+        
+        # Update parent data if applicable
+        if self.parent().filename:
+            self.parent().other_data["chat_history"] = self.chat_history
+            self.parent().set_dirty()  # Mark as dirty/modified
