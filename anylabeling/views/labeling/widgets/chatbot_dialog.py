@@ -45,7 +45,6 @@ class ChatbotDialog(QDialog):
 
         # Initialize
         self.chat_history = []
-        self.attach_image_to_chat = False
 
         # Create all tooltips first to ensure they exist before any event filtering
         self.temperature_tooltip = CustomTooltip(
@@ -697,21 +696,16 @@ class ChatbotDialog(QDialog):
         """Load initial data from parent's other_data if available"""
         if self.parent().filename:
             other_data = self.parent().other_data
-
-            # If we have chat history
             if "chat_history" in other_data and isinstance(other_data["chat_history"], list):
-                # Load chat history and display messages
                 for message in other_data["chat_history"]:
                     if "role" in message and "content" in message:
                         self.add_message(message["role"], message["content"])
 
-            # Update image preview
             self.update_image_preview()
 
             # Add a slight delay to ensure the widget is fully rendered before scaling the image
             QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.update_image_preview)
 
-        # Update visibility of import buttons based on whether files are loaded
         self.update_import_buttons_visibility()
     
     def update_import_buttons_visibility(self):
@@ -747,12 +741,11 @@ class ChatbotDialog(QDialog):
                 break
 
         # Check for special token in user messages
-        if role == "user":
-            if "@image" in content:
-                self.attach_image_to_chat = True
-                content = re.sub(r'@image\s+', '<image>', content).strip()
-            else:
-                self.attach_image_to_chat = False
+        image = None
+        if role == "user" and ("@image" in content or "<image>" in content):
+            pattern = r'@image\s*(?=\S|$)'
+            content = re.sub(pattern, "<image>", content).strip()
+            image = self.parent().filename
 
         # Create and add the message widget
         is_error = True if delete_last_message else False
@@ -766,20 +759,20 @@ class ChatbotDialog(QDialog):
         if delete_last_message:
             self.chat_history = self.chat_history[:-1]  # roll back the last message
         else:
-            self.chat_history.append({"role": role, "content": content})
+            self.chat_history.append({"role": role, "content": content, "image": image})
 
         # Scroll to bottom - use a longer delay to ensure layout is updated
         QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.scroll_to_bottom)
-        
+
         # Update parent data
         if role == "assistant" and self.parent().filename and not delete_last_message:
             self.parent().other_data["chat_history"] = self.chat_history
-    
+
     def scroll_to_bottom(self):
         """Scroll chat area to the bottom"""
         scrollbar = self.chat_scroll_area.verticalScrollBar()
         scrollbar.setValue(scrollbar.maximum())
-        
+
         # Force update to ensure scrolling takes effect
         QApplication.processEvents()
     
@@ -822,18 +815,17 @@ class ChatbotDialog(QDialog):
 
     def add_loading_message(self):
         """Add a loading message that will be replaced with the actual response"""
-        # Remove stretch
         while self.chat_messages_layout.count() > 0:
             item = self.chat_messages_layout.itemAt(self.chat_messages_layout.count()-1)
             if item and item.spacerItem():
                 self.chat_messages_layout.removeItem(item)
                 break
-                
+
         # Create a loading message widget
         self.loading_message = QFrame(self.chat_container)
         loading_layout = QVBoxLayout(self.loading_message)
         loading_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         # Create bubble with smooth corners
         bubble = QWidget(self.loading_message)
         bubble.setObjectName("messageBubble")
@@ -841,7 +833,7 @@ class ChatbotDialog(QDialog):
 
         bubble_layout = QVBoxLayout(bubble)
         bubble_layout.setContentsMargins(12, 12, 12, 12)
-        
+
         # Add header
         header_layout = QHBoxLayout()
         role_label = QLabel(self.tr("Assistant"))
@@ -849,9 +841,8 @@ class ChatbotDialog(QDialog):
 
         header_layout.addWidget(role_label)
         header_layout.addStretch()
-
         bubble_layout.addLayout(header_layout)
-        
+
         # Add loading text
         self.loading_text = QLabel(self.tr("Generating..."))
         self.loading_text.setStyleSheet(ChatMessageStyle.get_content_label_style(is_error=False))
@@ -864,18 +855,18 @@ class ChatbotDialog(QDialog):
 
         # Store bubble reference for later updates
         self.loading_message.bubble = bubble
-        
+
         # Add to chat layout
         self.chat_messages_layout.addWidget(self.loading_message)
-        
+
         # Add stretch back
         self.chat_messages_layout.addStretch()
-        
+
         # Start loading animation
         self.loading_timer = QTimer(self)
         self.loading_timer.timeout.connect(self.update_loading_animation)
         self.loading_timer.start(int(ANIMATION_DURATION[:-2]))
-        
+
         # Scroll to bottom
         QTimer.singleShot(100, self.scroll_to_bottom)
     
@@ -1081,20 +1072,19 @@ class ChatbotDialog(QDialog):
     def stream_generation(self, api_address, api_key):
         """Generate streaming response from the API"""
         try:
-            # Signal loading state
             self.stream_handler.start_loading()
 
             if self.model_name.currentText():
                 model_name = self.model_name.currentText()
             else:
-                raise ValueError("No model selected. Check API address/key, then refresh the models list.")
+                raise ValueError(self.tr("No model selected. Check API address/key, then refresh the models list."))
 
             # Get temperature value from slider
             temperature = self.temp_slider.value() / 10.0
-            
+
             # Get system prompt if provided
             system_prompt = self.system_prompt_input.text().strip()
-            
+
             # Get max tokens if provided
             max_tokens = None
             if hasattr(self, 'max_length_input') and self.max_length_input.text().strip():
@@ -1105,60 +1095,38 @@ class ChatbotDialog(QDialog):
 
             # Prepare messages
             messages = []
-            
+
             # Add system message if provided
             if system_prompt:
                 messages.append({"role": "system", "content": system_prompt})
-                
+
             # Add conversation history
             for msg in self.chat_history:
-                messages.append({"role": msg["role"], "content": msg["content"]})
-            
-            # Create client
-            client = OpenAI(
-                base_url=api_address,
-                api_key=api_key
-            )
-            
-            # Get image data if available
-            image_data = None
-            if self.parent().filename:
-                try:
-                    with open(self.parent().filename, "rb") as image_file:
-                        image_data = base64.b64encode(image_file.read()).decode('utf-8')
-                except Exception as e:
-                    logger.error(f"Error reading image file: {e}")
+                if msg["image"]:
+                    try:
+                        with open(msg["image"], "rb") as image_file:
+                            image_data = base64.b64encode(image_file.read()).decode('utf-8')
+                            messages.append({"role": msg["role"], "content": [
+                                {
+                                    "type": "image_url",
+                                    "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
+                                },
+                                {"type": "text", "text": msg["content"]}
+                            ]})
+                    except Exception as e:
+                        logger.error(f"Error reading image file: {e}")
+                else:
+                    messages.append({"role": msg["role"], "content": msg["content"]})
 
-            # Add image to the message if available and requested
-            if image_data and self.attach_image_to_chat:
-                # Find the last user message
-                for i in range(len(messages) - 1, -1, -1):
-                    if messages[i]["role"] == "user":
-                        user_content = messages[i]["content"]
-                        messages[i]["content"] = [
-                            {
-                                "type": "image_url",
-                                "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
-                            },
-                            {
-                                "type": "text",
-                                "text": user_content
-                            }
-                        ]
-                        break
-
-            # Prepare API call parameters
+            # Create client and prepare API call parameters
+            client = OpenAI(base_url=api_address, api_key=api_key)
             api_params = {
-                "model": model_name,
-                "messages": messages,
-                "temperature": temperature,
-                "stream": True  # Don't change this to False, it will break the streaming
+                "model": model_name, "messages": messages, 
+                "temperature": temperature, "stream": True
             }
-
-            # Add max_tokens if provided
             if max_tokens:
                 api_params["max_tokens"] = max_tokens
-            
+
             # Make API call with streaming
             response = client.chat.completions.create(**api_params)
 
@@ -1167,20 +1135,15 @@ class ChatbotDialog(QDialog):
                 if hasattr(chunk.choices[0].delta, "content") and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
                     self.stream_handler.append_text(content)
-            
-            # Signal completion
+
             self.stream_handler.finished.emit(True)
-            
+
         except Exception as e:
             logger.error(f"Error in streaming generation: {e}")
-            # Signal error through the handler instead of directly updating UI
             self.stream_handler.report_error(str(e))
-            
-            # Signal completion with failure
             self.stream_handler.finished.emit(False)
 
         finally:
-            # Signal loading state ended
             self.stream_handler.stop_loading()
             self.send_btn.setEnabled(False)
 
@@ -1283,37 +1246,33 @@ class ChatbotDialog(QDialog):
             item = self.chat_messages_layout.itemAt(i)
             if item and item.widget() and isinstance(item.widget(), ChatMessage):
                 message_widgets.append((i, item.widget()))
-        
+
         # Identify which items to remove (in reverse order to avoid index issues)
         to_remove = []
         for i, (layout_index, widget) in enumerate(message_widgets):
             if i >= index:
                 to_remove.append((layout_index, widget))
-        
+
         # Remove widgets in reverse order
         for layout_index, widget in reversed(to_remove):
-            # Remove from layout
             self.chat_messages_layout.removeWidget(widget)
             widget.setParent(None)
             widget.deleteLater()
-        
+
         # Update chat history to match
         if len(to_remove) > 0:
             self.chat_history = self.chat_history[:index]
-        
+
         # Make sure we still have a stretch at the end
-        # First, check if there's already a stretch
         has_stretch = False
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
             if item and item.spacerItem():
                 has_stretch = True
                 break
-        
-        # If no stretch, add one
         if not has_stretch:
             self.chat_messages_layout.addStretch()
-        
+
         # Force update layout
         QApplication.processEvents()
 
@@ -1465,7 +1424,6 @@ class ChatbotDialog(QDialog):
         # Show dialog and handle response
         response = confirm_dialog.exec_()
         if response == QMessageBox.Yes:
-            # Clear chat messages from the layout
             while self.chat_messages_layout.count() > 0:
                 item = self.chat_messages_layout.takeAt(0)
                 if item and item.widget():
@@ -1474,17 +1432,15 @@ class ChatbotDialog(QDialog):
                     widget.deleteLater()
                 elif item:
                     self.chat_messages_layout.removeItem(item)
-            
-            # Reset chat history
+
+            # Reset chat history and add stretch
             self.chat_history = []
-            
-            # Add stretch
             self.chat_messages_layout.addStretch()
-            
+
             # Update parent data if applicable
             if self.parent().filename:
-                self.parent().other_data["chat_history"] = self.chat_history
-                self.parent().set_dirty()  # Mark as dirty/modified
+                self.parent().other_data["chat_history"] = []
+                self.parent().set_dirty()
 
     def hideAllTooltips(self):
         """Hide all tooltips as a safety measure"""
@@ -1513,11 +1469,9 @@ class ChatbotDialog(QDialog):
         if self.loading_timer and self.loading_timer.isActive():
             self.loading_timer.stop()
 
-        # Call parent close event
         super().closeEvent(event)
 
     def wheelEvent(self, event):
         """Handle wheel events at dialog level"""
-        # Hide all tooltips when scrolling anywhere in the dialog
         self.hideAllTooltips()
         super().wheelEvent(event)

@@ -505,9 +505,7 @@ class ChatMessage(QFrame):
                     if hasattr(parent, 'other_data') and hasattr(parent, 'filename'):
                         if parent.filename and 'chat_history' in parent.other_data:
                             parent.other_data['chat_history'] = dialog.chat_history
-                            # Mark as dirty to ensure changes are saved
-                            if hasattr(parent, 'set_dirty'):
-                                parent.set_dirty()
+                            parent.set_dirty()
 
             # Delete the widget
             self.setParent(None)
