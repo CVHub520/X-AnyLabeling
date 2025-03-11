@@ -136,7 +136,7 @@ class ChatMessage(QFrame):
         # Create a layout for the action buttons at the bottom right
         action_buttons_layout = QHBoxLayout()
         action_buttons_layout.setContentsMargins(0, 4, 0, 0)
-        action_buttons_layout.setSpacing(4)
+        action_buttons_layout.setSpacing(12)
 
         # Set a container for the action buttons
         buttons_container = QWidget()

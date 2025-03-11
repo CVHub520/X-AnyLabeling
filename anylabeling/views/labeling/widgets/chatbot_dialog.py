@@ -480,6 +480,7 @@ class ChatbotDialog(QDialog):
         
         # Temperature parameter with info icon
         temp_header = QHBoxLayout()
+        temp_header.setSpacing(4)
         temp_label = QLabel(self.tr("Temperature"))
         temp_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
         
