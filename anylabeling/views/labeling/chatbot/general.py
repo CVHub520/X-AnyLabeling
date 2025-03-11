@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt, QEasingCurve, QEvent, QTimer, QPropertyAnimation, QPoint
 from PyQt5.QtGui import QIcon, QTextCursor
 from PyQt5.QtWidgets import (
-    QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit, QMessageBox
+    QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit, QMessageBox, QMenu
 )
 
 from anylabeling.views.labeling.chatbot.config import *
@@ -21,6 +21,10 @@ class ChatMessage(QFrame):
         self.resize_in_progress = False  # Flag to prevent recursion
         self.animation_min_height = 40
         self.edit_area_min_height = 80
+
+        # Enable context menu policy for the frame
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
         # Create message container with appropriate styling
         is_user = role == "user"
@@ -582,6 +586,26 @@ class ChatMessage(QFrame):
                     return True
 
         return False  # Let the event continue to be processed
+
+    def show_context_menu(self, position):
+        """Show custom context menu for the message bubble"""
+        context_menu = QMenu(self)
+        context_menu.setStyleSheet(ChatbotDialogStyle.get_menu_style())
+
+        copy_action = context_menu.addAction(self.tr("Copy message"))
+        copy_action.triggered.connect(lambda: self.copy_content_to_clipboard(None))
+        context_menu.addSeparator()
+        if self.role == "user":
+            edit_action = context_menu.addAction(self.tr("Edit message"))
+            edit_action.triggered.connect(self.enter_edit_mode)
+        else:
+            regenerate_action = context_menu.addAction(self.tr("Regenerate response"))
+            regenerate_action.triggered.connect(self.regenerate_response)
+        context_menu.addSeparator()
+        delete_action = context_menu.addAction(self.tr("Delete message"))
+        delete_action.triggered.connect(self.confirm_delete_message)
+
+        context_menu.exec_(self.mapToGlobal(position))
 
 
 class UpdateModelsEvent(QEvent):

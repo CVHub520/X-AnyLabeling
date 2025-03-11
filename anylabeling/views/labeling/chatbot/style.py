@@ -80,25 +80,22 @@ class ChatbotDialogStyle:
         theme = theme or THEME
         return f"""
             QMenu {{
-                background-color: {theme["background_secondary"]};
-                border: 1px solid {theme["border"]};
+                background-color: #FFFFFF;
+                border: 1px solid #E0E0E0;
                 border-radius: 4px;
-                padding: 4px;
+                padding: 2px;
             }}
             QMenu::item {{
-                padding: 6px 24px 6px 12px;
-                color: {theme["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
+                padding: 6px 28px;
+                border-radius: 4px;
             }}
             QMenu::item:selected {{
-                background-color: {theme["background_secondary"]};
-                color: {theme["text"]};
+                background-color: #F5F5F5;
             }}
             QMenu::separator {{
                 height: 1px;
-                background-color: {theme["border"]};
-                margin: 4px 0px;
+                background-color: #E0E0E0;
+                margin: 4px 2px;
             }}
         """
 
@@ -626,6 +623,6 @@ class ChatMessageStyle:
                 font-size: {FONT_SIZE_SMALL};
             }}
             QPushButton:hover {{
-                background-color: {theme["primary"]};
+                background-coldfor: {theme["primary"]};
             }}
         """
