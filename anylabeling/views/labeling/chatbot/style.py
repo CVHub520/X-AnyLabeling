@@ -81,12 +81,12 @@ class ChatbotDialogStyle:
         return f"""
             QMenu {{
                 background-color: {theme["background_secondary"]};
-                border: none;
-                border-radius: {BORDER_RADIUS};
+                border: 1px solid {theme["border"]};
+                border-radius: 4px;
+                padding: 4px;
             }}
             QMenu::item {{
-                padding: 8px 20px 8px 20px;
-                margin: 0px;
+                padding: 6px 24px 6px 12px;
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
@@ -96,7 +96,9 @@ class ChatbotDialogStyle:
                 color: {theme["text"]};
             }}
             QMenu::separator {{
+                height: 1px;
                 background-color: {theme["border"]};
+                margin: 4px 0px;
             }}
         """
 

@@ -179,6 +179,8 @@ class ChatbotDialog(QDialog):
         self.message_input.setFrameShape(QFrame.NoFrame)
         self.message_input.setFrameShadow(QFrame.Plain)
         self.message_input.setLineWrapMode(QTextEdit.WidgetWidth)
+        self.message_input.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.message_input.customContextMenuRequested.connect(self.show_message_input_context_menu)
 
         # Completely remove any internal frame or border
         document = self.message_input.document()
@@ -1475,3 +1477,9 @@ class ChatbotDialog(QDialog):
         """Handle wheel events at dialog level"""
         self.hideAllTooltips()
         super().wheelEvent(event)
+
+    def show_message_input_context_menu(self, position):
+        """Show a custom styled context menu for the message input."""
+        menu = self.message_input.createStandardContextMenu()
+        menu.setStyleSheet(ChatbotDialogStyle.get_menu_style())
+        menu.exec_(self.message_input.mapToGlobal(position))
