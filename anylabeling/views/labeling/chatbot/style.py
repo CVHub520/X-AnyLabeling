@@ -432,19 +432,20 @@ class ChatbotDialogStyle:
         }}
         """
 
-    def get_tab_widget_style():
-        return """
-        QTabWidget::pane {
+    def get_tab_widget_style(theme: Dict[str, str] = None):
+        theme = theme or THEME
+        return f"""
+        QTabWidget::pane {{
             border: none;
             background: transparent;
-        }
+        }}
         
-        QTabWidget::tab-bar {
+        QTabWidget::tab-bar {{
             alignment: left;
             border-left: none;
-        }
+        }}
         
-        QTabBar::tab {
+        QTabBar::tab {{
             background: #f5f5f5;
             color: #333;
             padding: 8px 16px;
@@ -452,18 +453,19 @@ class ChatbotDialogStyle:
             border-left: none;
             border-bottom: 2px solid transparent;
             min-width: 100px;
-        }
+            font-weight: 500;
+        }}
         
-        QTabBar::tab:selected {
+        QTabBar::tab:selected {{
             background: #ffffff;
-            border-bottom: 2px solid #2196F3;
+            border-bottom: 3px solid {theme["primary"]};
             border-left: none;
-            color: #2196F3;
-        }
+            color: {theme["primary"]};
+        }}
         
-        QTabBar::tab:hover:!selected {
+        QTabBar::tab:hover:!selected {{
             background: #e0e0e0;
-        }
+        }}
         """
 
     def get_slider_style(theme: Dict[str, str] = None):

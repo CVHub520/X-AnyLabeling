@@ -16,4 +16,4 @@ def get_models_list(base_url: str, api_key: str) -> list:
 
 def set_icon_path(icon_name: str) -> str:
     """Set the path to the icon"""
-    return f"anylabeling/resources/images/{icon_name}.svg"
+    return f"anylabeling/resources/icons/{icon_name}.svg"
