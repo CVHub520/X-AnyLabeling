@@ -36,7 +36,8 @@ class ChatbotDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
         self.resize(*DEFAULT_WINDOW_SIZE)
-        self.setWindowIcon(QIcon(set_icon_path("chat")))
+        # TODO: Add window icon
+        # self.setWindowIcon(QIcon(set_icon_path("chat")))
 
         dialog_style = ChatbotDialogStyle.get_dialog_style()
         menu_style = ChatbotDialogStyle.get_menu_style()
@@ -345,17 +346,19 @@ class ChatbotDialog(QDialog):
         label_help_layout = QHBoxLayout(label_with_help)
         label_help_layout.setContentsMargins(0, 0, 0, 0)
 
+        api_docs_url = PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_docs_url"]
         api_help_btn = QPushButton()
         api_help_btn.setObjectName("api_help_btn")
         api_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         api_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_help_btn.setCursor(self.click_cursor)
-        api_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_docs_url"]))
-
+        api_help_btn.clicked.connect(lambda: open_url(api_docs_url))
         label_help_layout.addWidget(api_address_label)
         label_help_layout.addWidget(api_help_btn)
         label_help_layout.addStretch()
+        if not api_docs_url:
+            api_help_btn.setVisible(False)
 
         api_address_container.addWidget(label_with_help)
         api_address_container.addStretch()
@@ -375,16 +378,17 @@ class ChatbotDialog(QDialog):
         key_label_with_help = QWidget()
         key_label_help_layout = QHBoxLayout(key_label_with_help)
         key_label_help_layout.setContentsMargins(0, 0, 0, 0)
-        
+        key_label_help_layout.addWidget(api_key_label)
+        api_key_url = PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key_url"]
         api_key_help_btn = QPushButton()
         api_key_help_btn.setObjectName("api_key_help_btn")
         api_key_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         api_key_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_key_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_key_help_btn.setCursor(self.click_cursor)
-        api_key_help_btn.clicked.connect(lambda: open_url(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key_url"]))
-
-        key_label_help_layout.addWidget(api_key_label)
+        api_key_help_btn.clicked.connect(lambda: open_url(api_key_url))
+        if not api_key_url:
+            api_key_help_btn.setVisible(False)
         key_label_help_layout.addWidget(api_key_help_btn)
         key_label_help_layout.addStretch()
 
@@ -422,14 +426,16 @@ class ChatbotDialog(QDialog):
         model_label_help_layout.setContentsMargins(0, 0, 0, 0)
         model_label_help_layout.setSpacing(4)
 
+        model_docs_url = PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
         model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
         model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         model_help_btn.setCursor(self.click_cursor)
-        model_help_btn.clicked.connect(lambda: open_url(
-            PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]))
+        model_help_btn.clicked.connect(lambda: open_url(model_docs_url))
+        if not model_docs_url:
+            model_help_btn.setVisible(False)
 
         self.refresh_models_btn = QPushButton()
         self.refresh_models_btn.setIcon(QIcon(set_icon_path("refresh")))
