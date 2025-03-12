@@ -126,15 +126,11 @@ class ChatbotDialogStyle:
         }}
         QPushButton {{
             border: none;
-            border-radius: {BORDER_RADIUS};
-            padding: 8px 16px;
-            font-family: {FONT_FAMILY};
-            font-size: {FONT_SIZE_NORMAL};
-            font-weight: 500;
-            transition: all {ANIMATION_DURATION} ease;
+            background: transparent;
         }}
         QPushButton:hover {{
-            background-color: {theme["primary"]};
+            background-color: {theme["background_secondary"]};
+            border-radius: {BORDER_RADIUS};
         }}
         QScrollBar:vertical {{
             border: none;
@@ -313,7 +309,7 @@ class ChatbotDialogStyle:
             }}
         """
 
-    def get_navigation_btn_style(theme: Dict[str, str] = None) -> str:
+    def get_button_style(theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
         return f"""
             QPushButton {{
@@ -321,7 +317,7 @@ class ChatbotDialogStyle:
                 background: transparent;
             }}
             QPushButton:hover {{
-                background-color: {theme["background_secondary"]};
+                background-color: {theme["background_hover"]};
                 border-radius: {BORDER_RADIUS};
             }}
         """
@@ -565,10 +561,6 @@ class ChatMessageStyle:
             QPushButton {{
                 border: none;
                 background: transparent;
-            }}
-            QPushButton:hover {{
-                background-color: {theme["background_secondary"]};
-                border-radius: {BORDER_RADIUS};
             }}
         """
 

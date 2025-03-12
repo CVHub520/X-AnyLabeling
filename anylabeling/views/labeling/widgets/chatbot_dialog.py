@@ -259,7 +259,7 @@ class ChatbotDialog(QDialog):
         right_panel = QVBoxLayout(self.right_widget)
         right_panel.setContentsMargins(0, 0, 0, 0)
         right_panel.setSpacing(0)
-        
+
         # Image preview panel
         image_panel = QWidget()
         image_layout = QVBoxLayout(image_panel)
@@ -279,7 +279,7 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn = QPushButton()
         self.prev_image_btn.setIcon(QIcon(set_icon_path("arrow-left")))
         self.prev_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.prev_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
+        self.prev_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
         self.prev_image_btn.setToolTip(self.tr("Previous Image"))
         self.prev_image_btn.setCursor(Qt.PointingHandCursor)
         self.prev_image_btn.clicked.connect(lambda: self.navigate_image(direction="prev"))
@@ -287,7 +287,7 @@ class ChatbotDialog(QDialog):
         self.next_image_btn = QPushButton()
         self.next_image_btn.setIcon(QIcon(set_icon_path("arrow-right")))
         self.next_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.next_image_btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
+        self.next_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
         self.next_image_btn.setToolTip(self.tr("Next Image"))
         self.next_image_btn.setCursor(Qt.PointingHandCursor)
         self.next_image_btn.clicked.connect(lambda: self.navigate_image(direction="next"))
@@ -305,7 +305,7 @@ class ChatbotDialog(QDialog):
             btn = QPushButton()
             btn.setIcon(QIcon(set_icon_path(btn_mode)))
             btn.setFixedSize(*ICON_SIZE_NORMAL)
-            btn.setStyleSheet(ChatbotDialogStyle.get_navigation_btn_style())
+            btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
             btn.setToolTip(self.tr(btn_tooltip))
             btn.setCursor(Qt.PointingHandCursor)
             btn.clicked.connect(lambda checked=False, mode=btn_mode: 
