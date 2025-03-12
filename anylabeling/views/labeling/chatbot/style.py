@@ -573,7 +573,7 @@ class ChatMessageStyle:
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 background-color: transparent;
-                padding: 4px 0px;
+                padding: 0px 0px;
                 font-weight: normal;
             }}
         """

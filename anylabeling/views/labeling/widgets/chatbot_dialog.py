@@ -877,7 +877,7 @@ class ChatbotDialog(QDialog):
         self.loading_timer.start(int(ANIMATION_DURATION[:-2]))
 
         # Scroll to bottom
-        QTimer.singleShot(100, self.scroll_to_bottom)
+        QTimer.singleShot(0, self.scroll_to_bottom)
     
     def update_loading_animation(self):
         """Update the loading animation dots"""
