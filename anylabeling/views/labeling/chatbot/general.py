@@ -165,7 +165,7 @@ class ChatMessage(QFrame):
         # Create an edit area for user messages (hidden by default)
         self.edit_area = QTextEdit()
         self.edit_area.setPlainText(content)
-        self.edit_area.setStyleSheet(ChatMessageStyle.get_content_label_style(False))
+        self.edit_area.setStyleSheet(ChatMessageStyle.get_edit_area_style())
         self.edit_area.setFrameShape(QFrame.NoFrame)
         self.edit_area.setFrameShadow(QFrame.Plain)
         self.edit_area.setWordWrapMode(True)
@@ -332,17 +332,18 @@ class ChatMessage(QFrame):
         if not self.resize_in_progress:
             self.update_width_constraint()
 
-    def copy_content_to_clipboard(self, button):
+    def copy_content_to_clipboard(self, button = None):
         """Copy message content to clipboard with visual feedback"""
         # Copy the content to clipboard
         clipboard = QApplication.clipboard()
         clipboard.setText(self.content)
 
         # Change the button icon to a checkmark
-        button.setIcon(QIcon(set_icon_path("check")))
+        if button:
+            button.setIcon(QIcon(set_icon_path("check")))
 
-        # Start a timer to reset the button after a delay
-        QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
+            # Start a timer to reset the button after a delay
+            QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
 
     def reset_copy_button(self, button):
         """Reset the copy button to its original state"""

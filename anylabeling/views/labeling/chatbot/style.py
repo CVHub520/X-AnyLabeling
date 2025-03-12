@@ -586,6 +586,19 @@ class ChatMessageStyle:
             }}
         """
 
+    def get_edit_area_style(theme: Dict[str, str] = None):
+        theme = theme or THEME
+        return f"""
+            QTextEdit {{
+                border: 3px solid {theme["primary"]};
+                border-radius: {BORDER_RADIUS};
+                padding: 4px 2px;
+                color: {theme["text"]};
+                font-family: {FONT_FAMILY};
+                font-size: {FONT_SIZE_NORMAL};
+            }}
+        """
+
     def get_edit_button_wdiget_style():
         """Style for edit buttons widget"""
         return """
