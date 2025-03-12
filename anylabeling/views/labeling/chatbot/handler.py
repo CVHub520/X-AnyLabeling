@@ -12,6 +12,7 @@ class StreamingHandler(QObject):
     def __init__(self):
         super().__init__()
         self.current_message = ""
+        self.stop_requested = False
 
     def reset(self):
         """Reset the current message buffer"""
@@ -33,6 +34,7 @@ class StreamingHandler(QObject):
     def stop_loading(self):
         """Indicate loading state has stopped"""
         self.loading.emit(False)
+        self.stop_requested = False
 
     def start_typing(self):
         """Indicate typing animation should start"""

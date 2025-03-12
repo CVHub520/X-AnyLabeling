@@ -677,7 +677,14 @@ class ChatbotDialog(QDialog):
         # Force update to ensure changes take effect immediately
         self.message_input.updateGeometry()
         QApplication.processEvents()
-    
+
+    def restore_send_button(self):
+        """Restore the send button to its original state"""
+        self.send_btn.setIcon(QIcon(set_icon_path("send")))
+        self.send_btn.setEnabled(False)
+        self.send_btn.clicked.disconnect()
+        self.send_btn.clicked.connect(self.start_generation)
+
     def update_image_preview(self):
         """Update the image preview when switching images"""
         if self.parent().filename:
@@ -813,6 +820,12 @@ class ChatbotDialog(QDialog):
         self.streaming = True
         self.set_components_enabled(False)
 
+        # Change send button to stop button
+        self.send_btn.setIcon(QIcon(set_icon_path("stop")))
+        self.send_btn.setEnabled(True)
+        self.send_btn.clicked.disconnect()
+        self.send_btn.clicked.connect(self.stop_generation)
+
         # Create loading message
         self.add_loading_message()
 
@@ -824,7 +837,12 @@ class ChatbotDialog(QDialog):
             target=self.stream_generation,
             args=(self.api_address.text(), self.api_key.text())
         )
+        self.stream_thread.daemon = True  # Make thread daemonic so it can be interrupted
         self.stream_thread.start()
+
+    def stop_generation(self):
+        """Stop the ongoing generation process"""
+        self.stream_handler.stop_requested = True
 
     def add_loading_message(self):
         """Add a loading message that will be replaced with the actual response"""
@@ -1162,6 +1180,9 @@ class ChatbotDialog(QDialog):
 
             # Process streaming response
             for chunk in response:
+                if self.stream_handler.stop_requested:
+                    break
+
                 if hasattr(chunk.choices[0].delta, "content") and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
                     self.stream_handler.append_text(content)
@@ -1175,7 +1196,7 @@ class ChatbotDialog(QDialog):
 
         finally:
             self.stream_handler.stop_loading()
-            self.send_btn.setEnabled(False)
+            self.restore_send_button()
 
     def set_components_enabled(self, enabled):
         """Enable or disable UI components during streaming"""
