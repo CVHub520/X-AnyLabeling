@@ -547,11 +547,16 @@ class ChatMessageStyle:
         theme = theme or THEME
         return f"""
             QLabel {{
-                font-weight: bold;
-                color: {theme["text"]};
-                font-family: {FONT_FAMILY};
-                font-size: {FONT_SIZE_NORMAL};
                 background-color: transparent;
+            }}
+        """
+
+    def get_role_label_background_style() -> str:
+        return f"""
+            #roleLabelContainer {{
+                background-color: #D1D0D4;
+                border-radius: 8px;
+                padding: 4px;
             }}
         """
 

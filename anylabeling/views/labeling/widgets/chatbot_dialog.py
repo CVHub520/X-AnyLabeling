@@ -46,6 +46,7 @@ class ChatbotDialog(QDialog):
 
         # Initialize
         self.chat_history = []
+        self.current_provider = DEFAULT_PROVIDER  # Store current provider as instance variable
 
         # Create all tooltips first to ensure they exist before any event filtering
         self.temperature_tooltip = CustomTooltip(
@@ -611,6 +612,9 @@ class ChatbotDialog(QDialog):
     def switch_provider(self, provider):
         """Switch between different model providers"""
         if provider in PROVIDER_CONFIGS:
+            # Update current provider
+            self.current_provider = provider
+
             # set api address and key
             self.api_address.setText(PROVIDER_CONFIGS[provider]["api_address"])
             self.api_key.setText(PROVIDER_CONFIGS[provider]["api_key"])
@@ -758,7 +762,7 @@ class ChatbotDialog(QDialog):
 
         # Create and add the message widget
         is_error = True if delete_last_message else False
-        message_widget = ChatMessage(role, content, self.chat_container, is_error=is_error)
+        message_widget = ChatMessage(role, content, self.current_provider, self.chat_container, is_error=is_error)
         self.chat_messages_layout.addWidget(message_widget)
 
         # Add the stretch back
@@ -845,10 +849,27 @@ class ChatbotDialog(QDialog):
 
         # Add header
         header_layout = QHBoxLayout()
-        role_label = QLabel(self.tr("Assistant"))
+        
+        # Create a container frame for the icon with rounded background
+        icon_container = QFrame()
+        icon_container.setObjectName("roleLabelContainer")
+        icon_container.setStyleSheet(ChatMessageStyle.get_role_label_background_style())
+
+        # Create fixed-size layout for the container
+        icon_container_layout = QHBoxLayout(icon_container)
+        icon_container_layout.setContentsMargins(2, 2, 2, 2)
+        icon_container_layout.setSpacing(0)
+
+        # Create the icon label
+        role_label = QLabel()
+        icon_pixmap = QPixmap(set_icon_path(self.current_provider))
+        scaled_icon = icon_pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        role_label.setPixmap(scaled_icon)
         role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
 
-        header_layout.addWidget(role_label)
+        # Add to layout
+        icon_container_layout.addWidget(role_label)
+        header_layout.addWidget(icon_container)
         header_layout.addStretch()
         bubble_layout.addLayout(header_layout)
 

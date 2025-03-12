@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt, QEasingCurve, QEvent, QTimer, QPropertyAnimation, QPoint
-from PyQt5.QtGui import QIcon, QTextCursor
+from PyQt5.QtGui import QIcon, QPixmap, QTextCursor
 from PyQt5.QtWidgets import (
     QApplication, QFrame, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QPushButton, QSizePolicy, QTextEdit, QMessageBox, QMenu
 )
@@ -12,10 +12,11 @@ from anylabeling.views.labeling.chatbot.utils import *
 class ChatMessage(QFrame):
     """Custom widget for a single chat message"""
 
-    def __init__(self, role, content, parent=None, is_error=False):
+    def __init__(self, role, content, provider, parent=None, is_error=False):
         super().__init__(parent)
         self.role = role
         self.content = content
+        self.provider = provider
         self.is_error = is_error
         self.is_editing = False
         self.resize_in_progress = False  # Flag to prevent recursion
@@ -55,9 +56,25 @@ class ChatMessage(QFrame):
         bubble_layout.setSpacing(4)
 
         # Add header with role
-        header_layout = QHBoxLayout()
-        role_label = QLabel(self.tr("User") if is_user else self.tr("Assistant"))
-        role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
+        if not is_user:
+            header_layout = QHBoxLayout()
+            icon_container = QFrame()
+            icon_container.setObjectName("roleLabelContainer")
+            icon_container.setStyleSheet(ChatMessageStyle.get_role_label_background_style())
+            icon_container_layout = QHBoxLayout(icon_container)
+            icon_container_layout.setContentsMargins(2, 2, 2, 2)
+            icon_container_layout.setSpacing(0)
+
+            role_label = QLabel()
+            icon_pixmap = QPixmap(set_icon_path(self.provider))
+            scaled_icon = icon_pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            role_label.setPixmap(scaled_icon)
+            role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
+
+            icon_container_layout.addWidget(role_label)
+            header_layout.addWidget(icon_container)
+            header_layout.addStretch()
+            bubble_layout.addLayout(header_layout)
 
         # Create custom tooltips
         self.copy_tooltip = CustomTooltip(title="Copy")
@@ -114,9 +131,6 @@ class ChatMessage(QFrame):
             self.regenerate_btn.setVisible(False)
             self.regenerate_btn.installEventFilter(self)
             self.regenerate_btn.setObjectName("regenerate_btn")
-            header_layout.addWidget(role_label)
-
-        bubble_layout.addLayout(header_layout)
 
         # Add message content
         processed_content = self._process_content(content)
@@ -366,8 +380,9 @@ class ChatMessage(QFrame):
                 content_height = self.content_label.sizeHint().height()
 
             # Add extra space for the header, padding and buttons (even when not visible)
-            button_space = 30  # Typical button height + padding
-            total_height = content_height + self.animation_min_height + button_space
+            button_space = 40
+            padding_space = 20
+            total_height = content_height + self.animation_min_height + button_space + padding_space
 
             # Set a reasonable maximum height with some buffer
             self.setMaximumHeight(total_height)
