@@ -17,3 +17,4 @@ filterpy
 tokenizers
 jsonlines
 importlib_metadata
+torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
