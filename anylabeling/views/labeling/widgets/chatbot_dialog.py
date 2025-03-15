@@ -533,8 +533,12 @@ class ChatbotDialog(QDialog):
         self.max_length_input = QSpinBox()
         self.max_length_input.setMinimum(0)
         self.max_length_input.setMaximum(9999999)
+        self.max_length_input.setSingleStep(1)
         self.max_length_input.setButtonSymbols(QSpinBox.UpDownArrows)
-        self.max_length_input.setStyleSheet(ChatbotDialogStyle.get_spinbox_style())
+        self.max_length_input.setStyleSheet(ChatbotDialogStyle.get_spinbox_style(
+            up_arrow_url=set_icon_path("caret-up"),
+            down_arrow_url=set_icon_path("caret-down")
+        ))
         self.max_length_input.setFixedHeight(40)
         model_params_layout.addWidget(self.max_length_input)
 

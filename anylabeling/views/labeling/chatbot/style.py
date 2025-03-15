@@ -494,32 +494,68 @@ class ChatbotDialogStyle:
         }
         """
 
-    def get_spinbox_style(theme: Dict[str, str] = None) -> str:
+    def get_spinbox_style(up_arrow_url: str, down_arrow_url: str, theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
         return f"""
             QSpinBox {{
                 border: 1px solid {theme["border"]};
                 border-radius: {BORDER_RADIUS};
-                padding: 8px;
+                padding: 2px 30px 2px 8px;
                 background-color: {theme["background_secondary"]};
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
+                min-height: 36px;
+            }}
+            QSpinBox:hover {{
+                background-color: {theme["background_hover"]};
             }}
             QSpinBox:focus {{
-                border: 3px solid {theme["primary"]};
+                border: 2px solid {theme["primary"]};
                 background-color: {theme["background_secondary"]};
             }}
-            QSpinBox::up-button, QSpinBox::down-button {{
-                width: 20px;
+            QSpinBox::up-button {{
+                subcontrol-origin: border;
+                subcontrol-position: top right;
+                top: 5px;
+                width: 22px;
+                height: 18px;
+                background-color: transparent;
                 border: none;
-                background: transparent;
+                margin: 0px;
+                margin-right: 10px;
+            }}
+            QSpinBox::down-button {{
+                subcontrol-origin: border;
+                subcontrol-position: bottom right;
+                bottom: 5px;
+                width: 22px;
+                height: 18px;
+                background-color: transparent;
+                border: none;
+                margin: 0px;
+                margin-right: 10px;
+            }}
+            QSpinBox::up-arrow {{
+                width: 22px;
+                height: 16px;
+                image: url({up_arrow_url});
+            }}
+            QSpinBox::down-arrow {{
+                width: 22px;
+                height: 16px;
+                image: url({down_arrow_url});
             }}
             QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
-                background-color: {theme["background_secondary"]};
+                background-color: rgba(0, 0, 0, 0.1);
+                border-radius: 3px;
+            }}
+            QSpinBox:disabled {{
+                color: {theme["border"]};
+                background-color: {theme["background"]};
             }}
         """
-    
+
 
 class ChatMessageStyle:
     def get_bubble_style(is_user: bool, theme: Dict[str, str] = None) -> str:
