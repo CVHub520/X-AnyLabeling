@@ -170,10 +170,10 @@ class ProviderSection(QFrame):
         header = QHBoxLayout()
         icon = QLabel()
         if provider_name == "Favorites":
-            display_name = "starred"
+            icon_name = "starred"
         elif Path(set_icon_path(provider_name.lower())).exists():
-            display_name = provider_name.lower()
-        icon.setPixmap(QIcon(set_icon_path(display_name)).pixmap(QSize(*ICON_SIZE_SMALL)))
+            icon_name = provider_name.lower()
+        icon.setPixmap(QIcon(set_icon_path(icon_name)).pixmap(QSize(*ICON_SIZE_SMALL)))
         header.addWidget(icon)
 
         label = QLabel(provider_name)
