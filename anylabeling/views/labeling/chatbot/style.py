@@ -114,7 +114,7 @@ class ChatbotDialogStyle:
         QLineEdit, QTextEdit {{
             border: 1px solid {theme["border"]};
             border-radius: {BORDER_RADIUS};
-            padding: 10px;
+            padding: 8px;
             background-color: {theme["background_secondary"]};
             selection-background-color: {theme["primary"]};
             font-family: {FONT_FAMILY};
@@ -178,7 +178,7 @@ class ChatbotDialogStyle:
                 border: none;
                 border-radius: {BORDER_RADIUS};
                 text-align: left;
-                padding: 14px 18px;
+                padding: 8px;
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
@@ -406,37 +406,6 @@ class ChatbotDialogStyle:
             QWidget {{
                 background-color: {theme["background"]};
                 border-left: none;
-            }}
-        """
-
-    def get_combobox_style(img_url, theme: Dict[str, str] = None) -> str:
-        theme = theme or THEME
-        return f"""
-            QComboBox {{
-                border: 1px solid {theme["border"]};
-                border-radius: {BORDER_RADIUS};
-                padding: 4px 10px;
-                background-color: {theme["background_secondary"]};
-                color: {theme["text"]};
-            }}
-            QComboBox:hover {{
-                border: 3px solid {theme["primary"]};
-            }}
-            QComboBox:focus {{
-                background-color: {theme["background_secondary"]};
-            }}
-            QComboBox::down-arrow {{
-                image: url("{img_url}");
-                width: 24px;
-                height: 24px;
-            }}
-            QComboBox::drop-down {{
-                subcontrol-origin: padding;
-                subcontrol-position: top right;
-                width: 24px;
-                border-left: 1px solid transparent;
-                border-top-right-radius: 4px;
-                border-bottom-right-radius: 4px;
             }}
         """
 
