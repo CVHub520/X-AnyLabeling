@@ -593,7 +593,7 @@ class ChatbotDialog(QDialog):
 
         # After initializing UI components, load initial data if available
         self.load_initial_data()
-        
+
         # Fetch available models
         models_data = get_models_data(
             DEFAULT_PROVIDER, 
@@ -604,6 +604,7 @@ class ChatbotDialog(QDialog):
         self.model_dropdown = ModelDropdown(models_data)
         self.model_dropdown.hide()
         self.model_dropdown.modelSelected.connect(self.on_model_selected)
+        self.model_dropdown.providerSelected.connect(self.on_provider_selected)
         self.model_button.clicked.connect(self.show_model_dropdown)
 
         # Set focus to the message input
@@ -633,6 +634,11 @@ class ChatbotDialog(QDialog):
         """Handle the model selected event"""
         self.selected_model = model_name
         self.model_button.setText(model_name)
+
+    def on_provider_selected(self, provider):
+        """Handle the provider selected event"""
+        getattr(self, f"{provider}_btn").setChecked(True)
+        self.switch_provider(provider)
 
     def switch_provider(self, provider):
         """Switch between different model providers"""

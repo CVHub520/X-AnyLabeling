@@ -1,5 +1,4 @@
 import json
-import os
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -170,10 +169,11 @@ class ProviderSection(QFrame):
         # Provider header
         header = QHBoxLayout()
         icon = QLabel()
-        if Path(set_icon_path(provider_name.lower())).exists():
-            icon.setPixmap(QIcon(set_icon_path(provider_name.lower())).pixmap(QSize(*ICON_SIZE_SMALL)))
-        else:
-            icon.setPixmap(QIcon(set_icon_path("custom")).pixmap(QSize(*ICON_SIZE_SMALL)))
+        if provider_name == "Favorites":
+            display_name = "starred"
+        elif Path(set_icon_path(provider_name.lower())).exists():
+            display_name = provider_name.lower()
+        icon.setPixmap(QIcon(set_icon_path(display_name)).pixmap(QSize(*ICON_SIZE_SMALL)))
         header.addWidget(icon)
 
         label = QLabel(provider_name)
@@ -198,6 +198,7 @@ class ProviderSection(QFrame):
 
 class ModelDropdown(QWidget):
     modelSelected = pyqtSignal(str)
+    providerSelected = pyqtSignal(str)
 
     def __init__(self, models_data: dict = {}, parent=None):
         super().__init__(parent)
@@ -356,12 +357,13 @@ class ModelDropdown(QWidget):
                     self.model_items[name].update_selection(False)
 
         # Select the clicked model
-        for _, models in self.models_data.items():
+        for provider, models in self.models_data.items():
             if model_name in models:
                 models[model_name]["selected"] = True
                 self.model_items[model_name].update_selection(True)
                 break
 
+        self.providerSelected.emit(provider)
         self.modelSelected.emit(model_name)
         self.save_models_data() 
         self.close()

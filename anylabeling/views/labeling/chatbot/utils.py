@@ -7,7 +7,9 @@ from openai import OpenAI
 from anylabeling.views.labeling.chatbot.config import (
     MODELS_CONFIG_PATH,
     PROVIDERS_CONFIG_PATH,
-    REFRESH_INTERVAL
+    REFRESH_INTERVAL,
+    DEFAULT_PROVIDERS_DATA,
+    SUPPORTED_VISION_MODELS,
 )
 from anylabeling.views.labeling.logger import logger
 
@@ -59,59 +61,41 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
     Returns:
         dict: Models data
     """
-    provider_display_name_map = {
-        "deepseek": "DeepSeek",
-        "ollama": "Ollama",
-        "qwen": "Qwen",
-    }
-
-    supported_vision_models = [
-        "bakllava",
-        "granite3.2-vision",
-        "minicpm-v",
-        "moondream",
-        "llava",
-        "llava-llama3",
-        "llava-phi3",
-        "llama3.2-vision",
-    ]
-
     config_path = MODELS_CONFIG_PATH
     if not os.path.exists(config_path):
-        total_data = {"models_data": {}, "supported_vision_models": supported_vision_models}
+        total_data = {"models_data": {}, "supported_vision_models": SUPPORTED_VISION_MODELS}
     else:
         with open(config_path, "r") as f:
             total_data = json.load(f)
 
-    provider_display_name = provider_display_name_map.get(provider, provider)
+    api_call_tracker.increment(provider)
+    if time.time() - api_call_tracker.timer[provider] > REFRESH_INTERVAL:
+        api_call_tracker.reset(provider)
+        api_call_tracker.increment(provider)
 
-    api_call_tracker.increment(provider_display_name)
-    if time.time() - api_call_tracker.timer[provider_display_name] > REFRESH_INTERVAL:
-        api_call_tracker.reset(provider_display_name)
-        api_call_tracker.increment(provider_display_name)
-
-    call_times = api_call_tracker.get_count(provider_display_name)
+    call_times = api_call_tracker.get_count(provider)
     if call_times > 1 and \
-        provider_display_name != "Ollama" and \
-        provider_display_name in total_data["models_data"]:
+        provider != "Ollama" and \
+        provider in total_data["models_data"]:
         return total_data["models_data"]
 
     thread = threading.Thread(
         target=fetch_models_async,
-        args=(provider_display_name, base_url, api_key, total_data, config_path, supported_vision_models)
+        args=(provider, base_url, api_key, total_data, config_path)
     )
     thread.daemon = True
     thread.start()
 
-    if provider_display_name not in total_data["models_data"]:
-        total_data["models_data"][provider_display_name] = {}
+    if provider not in total_data["models_data"]:
+        total_data["models_data"][provider] = {}
 
     return total_data["models_data"]
 
 
-def fetch_models_async(provider_display_name, base_url, api_key, total_data, config_path, supported_vision_models):
+def fetch_models_async(provider_display_name, base_url, api_key, total_data, config_path):
     """Fetch models data asynchronously"""
     try:
+        supported_vision_models = total_data["supported_vision_models"]
         models_id_list = get_models_id_list(base_url, api_key, timeout=5)
 
         if provider_display_name not in total_data["models_data"]:
@@ -160,29 +144,7 @@ def get_selected_model_id() -> str:
 
 def get_providers_data() -> dict:
     """Get the providers configs"""
-    default_providers_data = {
-        "deepseek": {
-            "api_address": "https://api.deepseek.com/v1",
-            "api_key" : None,
-            "api_key_url": "https://platform.deepseek.com/api_keys",
-            "api_docs_url": "https://platform.deepseek.com/docs",
-            "model_docs_url": "https://platform.deepseek.com/models"
-        },
-        "ollama": {
-            "api_address": "http://localhost:11434/v1",
-            "api_key": "ollama",
-            "api_key_url": None,
-            "api_docs_url": "https://github.com/ollama/ollama/blob/main/docs/api.md",
-            "model_docs_url": "https://ollama.com/search"
-        },
-        "qwen": {
-            "api_address": "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            "api_key": None,
-            "api_key_url": "https://bailian.console.aliyun.com/?apiKey=1#/api-key",
-            "api_docs_url": "https://help.aliyun.com/document_detail/2590237.html",
-            "model_docs_url": "https://help.aliyun.com/document_detail/2590257.html"
-        },
-    }
+    default_providers_data = DEFAULT_PROVIDERS_DATA
 
     if not os.path.exists(PROVIDERS_CONFIG_PATH):
         save_providers_data(default_providers_data)

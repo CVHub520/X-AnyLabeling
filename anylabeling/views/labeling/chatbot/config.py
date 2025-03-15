@@ -44,3 +44,46 @@ THEME = {
     "warning": "#FF9F0A",               # Warm orange
     "error": "#FF453A",                 # Refined red
 }
+
+
+# Providers config
+DEFAULT_PROVIDERS_DATA = {
+    "deepseek": {
+        "api_address": "https://api.deepseek.com/v1",
+        "api_key" : None,
+        "api_key_url": "https://platform.deepseek.com/api_keys",
+        "api_docs_url": "https://platform.deepseek.com/docs",
+        "model_docs_url": "https://platform.deepseek.com/models"
+    },
+    "ollama": {
+        "api_address": "http://localhost:11434/v1",
+        "api_key": "ollama",
+        "api_key_url": None,
+        "api_docs_url": "https://github.com/ollama/ollama/blob/main/docs/api.md",
+        "model_docs_url": "https://ollama.com/search"
+    },
+    "qwen": {
+        "api_address": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+        "api_key": None,
+        "api_key_url": "https://bailian.console.aliyun.com/?apiKey=1#/api-key",
+        "api_docs_url": "https://help.aliyun.com/document_detail/2590237.html",
+        "model_docs_url": "https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm"
+    },
+}
+
+SUPPORTED_VISION_MODELS = [
+    # Ollama
+    "bakllava",
+    "granite3.2-vision",
+    "minicpm-v",
+    "moondream",
+    "llava",
+    "llava-llama3",
+    "llava-phi3",
+    "llama3.2-vision",
+    # Qwen
+    "qwen-vl-ocr-latest",
+    "qwen-vl-ocr",
+    "qwen-vl-max",
+    "qwen-vl-plus",
+]
