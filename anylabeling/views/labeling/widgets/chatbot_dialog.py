@@ -46,7 +46,8 @@ class ChatbotDialog(QDialog):
 
         # Initialize
         self.chat_history = []
-        self.current_provider = DEFAULT_PROVIDER  # Store current provider as instance variable
+        self.providers = get_providers_data()
+        self.current_provider = DEFAULT_PROVIDER
 
         # Create all tooltips first to ensure they exist before any event filtering
         self.temperature_tooltip = CustomTooltip(
@@ -93,7 +94,7 @@ class ChatbotDialog(QDialog):
         provider_group = QButtonGroup(self)
 
         # Set provider buttons
-        for provider in PROVIDER_CONFIGS.keys():
+        for provider in self.providers.keys():
             btn = QPushButton(self.tr(provider.capitalize()))
             btn.setIcon(QIcon(set_icon_path(provider)))
             btn.setCheckable(True)
@@ -344,7 +345,7 @@ class ChatbotDialog(QDialog):
         label_help_layout = QHBoxLayout(label_with_help)
         label_help_layout.setContentsMargins(0, 0, 0, 0)
 
-        api_docs_url = PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_docs_url"]
+        api_docs_url = self.providers[DEFAULT_PROVIDER]["api_docs_url"]
         api_help_btn = QPushButton()
         api_help_btn.setObjectName("api_help_btn")
         api_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
@@ -362,9 +363,10 @@ class ChatbotDialog(QDialog):
         api_address_container.addStretch()
         api_settings_layout.addLayout(api_address_container)
 
-        self.api_address = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_address"])
+        self.api_address = QLineEdit(self.providers[DEFAULT_PROVIDER]["api_address"])
         self.api_address.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         self.api_address.installEventFilter(self)
+        self.api_address.textChanged.connect(self.on_api_address_changed)
         api_settings_layout.addWidget(self.api_address)
 
         # API Key with help icon
@@ -377,7 +379,7 @@ class ChatbotDialog(QDialog):
         key_label_help_layout = QHBoxLayout(key_label_with_help)
         key_label_help_layout.setContentsMargins(0, 0, 0, 0)
         key_label_help_layout.addWidget(api_key_label)
-        api_key_url = PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key_url"]
+        api_key_url = self.providers[DEFAULT_PROVIDER]["api_key_url"]
         api_key_help_btn = QPushButton()
         api_key_help_btn.setObjectName("api_key_help_btn")
         api_key_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
@@ -396,11 +398,12 @@ class ChatbotDialog(QDialog):
 
         # API key input with toggle visibility
         api_key_container = QHBoxLayout()
-        self.api_key = QLineEdit(PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key"])
+        self.api_key = QLineEdit(self.providers[DEFAULT_PROVIDER]["api_key"])
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setPlaceholderText(self.tr("Enter API key"))
         self.api_key.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         self.api_key.installEventFilter(self)
+        self.api_key.textChanged.connect(self.on_api_key_changed)
 
         self.toggle_visibility_btn = QPushButton()
         self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
@@ -424,7 +427,7 @@ class ChatbotDialog(QDialog):
         model_label_help_layout.setContentsMargins(0, 0, 0, 0)
         model_label_help_layout.setSpacing(4)
 
-        model_docs_url = PROVIDER_CONFIGS[DEFAULT_PROVIDER]["model_docs_url"]
+        model_docs_url = self.providers[DEFAULT_PROVIDER]["model_docs_url"]
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
         model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
@@ -594,8 +597,8 @@ class ChatbotDialog(QDialog):
         # Fetch available models
         models_data = get_models_data(
             DEFAULT_PROVIDER, 
-            PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_address"], 
-            PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key"]
+            self.providers[DEFAULT_PROVIDER]["api_address"], 
+            self.providers[DEFAULT_PROVIDER]["api_key"]
         )
         self.selected_model = None
         self.model_dropdown = ModelDropdown(models_data)
@@ -626,22 +629,18 @@ class ChatbotDialog(QDialog):
 
     def switch_provider(self, provider):
         """Switch between different model providers"""
-        if provider in PROVIDER_CONFIGS:
+        if provider in self.providers:
             # Update current provider
             self.current_provider = provider
 
             # set api address and key
-            api_address = PROVIDER_CONFIGS[provider]["api_address"]
-            api_key = PROVIDER_CONFIGS[provider]["api_key"]
+            api_address = self.providers[provider]["api_address"]
+            api_key = self.providers[provider]["api_key"]
             self.api_address.setText(api_address)
             self.api_key.setText(api_key)
 
             # fetch models
-            models_data = get_models_data(
-                provider, 
-                api_address, 
-                api_key
-            )
+            models_data = get_models_data(provider, api_address, api_key)
             self.model_dropdown.update_models_data(models_data)
 
             # update help button urls
@@ -653,7 +652,7 @@ class ChatbotDialog(QDialog):
             for mapping in button_url_mapping:
                 button_name, url_key = mapping["button_name"], mapping["url_key"]
                 button = self.findChild(QPushButton, button_name)
-                url = PROVIDER_CONFIGS[provider][url_key]
+                url = self.providers[provider][url_key]
                 if button:
                     if url:
                         button.setVisible(True)
@@ -661,6 +660,16 @@ class ChatbotDialog(QDialog):
                         button.clicked.connect(lambda checked=False, u=url: open_url(u))
                     else:
                         button.setVisible(False)
+
+    def on_api_address_changed(self):
+        """Handle the API address changed event"""
+        self.providers[self.current_provider]["api_address"] = self.api_address.text()
+        save_providers_data(self.providers)
+
+    def on_api_key_changed(self):
+        """Handle the API key changed event"""
+        self.providers[self.current_provider]["api_key"] = self.api_key.text()
+        save_providers_data(self.providers)
 
     def resize_input(self):
         """Dynamically resize input based on content"""
@@ -1227,7 +1236,7 @@ class ChatbotDialog(QDialog):
         self.model_button.setEnabled(enabled)
 
         # Also disable provider switching during streaming
-        for provider in PROVIDER_CONFIGS.keys():
+        for provider in self.providers.keys():
             if hasattr(self, f"{provider}_btn"):
                 getattr(self, f"{provider}_btn").setEnabled(enabled)
 
