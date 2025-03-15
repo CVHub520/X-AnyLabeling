@@ -611,6 +611,13 @@ class ChatbotDialog(QDialog):
 
     def show_model_dropdown(self):
         """Show the model dropdown"""
+        models_data = get_models_data(
+            self.current_provider, 
+            self.providers[self.current_provider]["api_address"], 
+            self.providers[self.current_provider]["api_key"]
+        )
+        self.model_dropdown.update_models_data(models_data)
+
         button_rect = self.model_button.rect()
         button_pos = self.model_button.mapToGlobal(QPoint(0, 0))
         button_center_x = button_pos.x() + button_rect.width() / 2

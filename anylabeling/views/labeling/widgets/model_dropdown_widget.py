@@ -270,6 +270,7 @@ class ModelDropdown(QWidget):
 
     def update_models_data(self, models_data: dict):
         self.models_data = models_data
+        self.setup_model_list()
 
     def save_models_data(self):
         """Save models data to the config file"""

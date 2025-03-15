@@ -1,5 +1,6 @@
 import json
 import os
+import threading
 from openai import OpenAI
 
 from anylabeling.views.labeling.chatbot.config import MODELS_CONFIG_PATH, PROVIDERS_CONFIG_PATH
@@ -45,6 +46,21 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
     if provider_display_name in total_data["models_data"]:
         return total_data["models_data"]
 
+    thread = threading.Thread(
+        target=fetch_models_async,
+        args=(provider_display_name, base_url, api_key, total_data, config_path, supported_vision_models)
+    )
+    thread.daemon = True
+    thread.start()
+
+    if provider_display_name not in total_data["models_data"]:
+        total_data["models_data"][provider_display_name] = {}
+
+    return total_data["models_data"]
+
+
+def fetch_models_async(provider_display_name, base_url, api_key, total_data, config_path, supported_vision_models):
+    """Fetch models data asynchronously"""
     try:
         models_id_list = get_models_id_list(base_url, api_key, timeout=5)
 
@@ -59,19 +75,17 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
                 models_data[model_id] = dict(vision=is_vision, selected=False, favorite=False)
         total_data["models_data"][provider_display_name] = models_data
 
+        os.makedirs(os.path.dirname(config_path), exist_ok=True)
+        with open(config_path, "w") as f:
+            json.dump(total_data, f, indent=4)
+            
     except Exception as e:
         logger.debug(f"Error updating models: {e}")
 
-    os.makedirs(os.path.dirname(config_path), exist_ok=True)
-    with open(config_path, "w") as f:
-        json.dump(total_data, f, indent=4)
 
-    return total_data["models_data"]
-
-
-def get_models_id_list(base_url: str, api_key: str, **kwargs) -> list:
+def get_models_id_list(base_url: str, api_key: str, timeout: int = 5) -> list:
     """Get models id list from the API"""
-    client = OpenAI(base_url=base_url, api_key=api_key, **kwargs)
+    client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
     return [model.id for model in client.models.list()]
 
 
