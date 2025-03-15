@@ -1,10 +1,51 @@
 import json
 import os
 import threading
+import time
 from openai import OpenAI
 
-from anylabeling.views.labeling.chatbot.config import MODELS_CONFIG_PATH, PROVIDERS_CONFIG_PATH
+from anylabeling.views.labeling.chatbot.config import (
+    MODELS_CONFIG_PATH,
+    PROVIDERS_CONFIG_PATH,
+    REFRESH_INTERVAL
+)
 from anylabeling.views.labeling.logger import logger
+
+
+class ApiCallTracker:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(ApiCallTracker, cls).__new__(cls)
+            cls._instance.counters = {}
+            cls._instance.timer = {}
+        return cls._instance
+
+    def increment(self, counter_name):
+        if counter_name not in self.counters:
+            self.counters[counter_name] = 0
+        self.counters[counter_name] += 1
+        if counter_name not in self.timer:
+            self.timer[counter_name] = time.time()
+        return self.counters[counter_name]
+
+    def get_count(self, counter_name):
+        return self.counters.get(counter_name, 0)
+
+    def get_all_counts(self):
+        return self.counters.copy()
+
+    def reset(self, counter_name=None):
+        if counter_name is None:
+            self.counters = {}
+            self.timer = {}
+        elif counter_name in self.counters:
+            self.counters[counter_name] = 0
+            self.timer[counter_name] = 0
+
+
+api_call_tracker = ApiCallTracker()
 
 
 def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
@@ -43,7 +84,16 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
             total_data = json.load(f)
 
     provider_display_name = provider_display_name_map.get(provider, provider)
-    if provider_display_name in total_data["models_data"]:
+
+    api_call_tracker.increment(provider_display_name)
+    if time.time() - api_call_tracker.timer[provider_display_name] > REFRESH_INTERVAL:
+        api_call_tracker.reset(provider_display_name)
+        api_call_tracker.increment(provider_display_name)
+
+    call_times = api_call_tracker.get_count(provider_display_name)
+    if call_times > 1 and \
+        provider_display_name != "Ollama" and \
+        provider_display_name in total_data["models_data"]:
         return total_data["models_data"]
 
     thread = threading.Thread(

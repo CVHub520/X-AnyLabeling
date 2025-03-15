@@ -489,7 +489,7 @@ class ChatbotDialogStyle:
         theme = theme or THEME
         return f"""
         QSlider {{
-            height: {TEMPERATURE_SLIDER_HEIGHT}px;
+            height: 20px;
         }}
 
         QSlider::groove:horizontal {{
