@@ -322,6 +322,23 @@ class ChatbotDialogStyle:
             }}
         """
 
+    def get_model_button_style(theme: Dict[str, str] = None) -> str:
+        theme = theme or THEME
+        return f"""
+            QPushButton {{
+                background-color: {theme["background_secondary"]};
+                border-radius: {BORDER_RADIUS};
+                border: 1px solid {theme["border"]};
+                padding: 8px;
+                color: {theme["text"]};
+                font-size: {FONT_SIZE_NORMAL};
+            }}
+            QPushButton:hover {{
+                background-color: {theme["background_hover"]};
+                border-radius: {BORDER_RADIUS};
+            }}
+        """
+
     def get_settings_label_style(theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
         return f"""
@@ -355,6 +372,10 @@ class ChatbotDialogStyle:
                 color: {theme["text"]};
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
+            }}
+            QLineEdit:hover {{
+                background-color: {theme["background_hover"]};
+                border-radius: {BORDER_RADIUS};
             }}
             QLineEdit:focus {{
                 border: 3px solid {theme["primary"]};

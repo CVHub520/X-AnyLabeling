@@ -18,7 +18,6 @@ from PyQt5.QtWidgets import (
     QScrollArea,
     QFrame,
     QSplitter,
-    QComboBox,
     QTabWidget,
     QSlider,
     QSpinBox,
@@ -26,9 +25,10 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QCursor, QIcon, QPixmap, QColor, QTextCursor, QTextCharFormat
 
+from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
-from anylabeling.views.labeling.chatbot import *
+from anylabeling.views.labeling.widgets.model_dropdown_widget import ModelDropdown
 
 
 class ChatbotDialog(QDialog):
@@ -58,9 +58,6 @@ class ChatbotDialog(QDialog):
                 ("Translation", "1.3"),
                 ("Creative Writing / Poetry", "1.5")
             ]
-        )
-        self.refresh_models_tooltip = CustomTooltip(
-            title="Refresh available models",
         )
 
         pixmap = QPixmap(set_icon_path("click"))
@@ -438,27 +435,18 @@ class ChatbotDialog(QDialog):
         if not model_docs_url:
             model_help_btn.setVisible(False)
 
-        self.refresh_models_btn = QPushButton()
-        self.refresh_models_btn.setIcon(QIcon(set_icon_path("refresh")))
-        self.refresh_models_btn.setFixedSize(*ICON_SIZE_SMALL)
-        self.refresh_models_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        self.refresh_models_btn.setCursor(Qt.PointingHandCursor)
-        self.refresh_models_btn.clicked.connect(lambda: self.fetch_models(log_errors=True))
-        self.refresh_models_btn.installEventFilter(self)
-        self.refresh_models_btn.setObjectName("refresh_btn")
-
         model_label_help_layout.addWidget(model_name_label)
         model_label_help_layout.addWidget(model_help_btn)
-        model_label_help_layout.addWidget(self.refresh_models_btn)
         model_name_container.addWidget(model_label_with_help)
         model_name_container.addStretch()
         api_settings_layout.addLayout(model_name_container)
 
         # Create ComboBox for model selection
-        self.model_name = QComboBox()
-        self.model_name.setStyleSheet(ChatbotDialogStyle.get_combobox_style(set_icon_path("chevron-down")))
-        self.model_name.setMinimumHeight(40)
-        api_settings_layout.addWidget(self.model_name)
+        self.model_button = QPushButton()
+        self.model_button.setStyleSheet(ChatbotDialogStyle.get_model_button_style())
+        self.model_button.setMinimumHeight(40)
+        self.model_button.setText(get_selected_model_id())
+        api_settings_layout.addWidget(self.model_button)
         api_settings_layout.addStretch()
         
         # Second tab - Model Parameters
@@ -573,8 +561,7 @@ class ChatbotDialog(QDialog):
 
         # Styling for the right panel
         self.right_widget.setStyleSheet(ChatbotDialogStyle.get_right_widget_style())
-        self.right_widget.setMinimumWidth(300)
-        self.right_widget.setMaximumWidth(400)
+        self.right_widget.setFixedWidth(360)
 
         # Add panels to main splitter
         self.main_splitter.addWidget(self.left_widget)
@@ -605,9 +592,37 @@ class ChatbotDialog(QDialog):
         self.load_initial_data()
         
         # Fetch available models
-        self.fetch_models()
+        models_data = get_models_data(
+            DEFAULT_PROVIDER, 
+            PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_address"], 
+            PROVIDER_CONFIGS[DEFAULT_PROVIDER]["api_key"]
+        )
+        self.selected_model = None
+        self.model_dropdown = ModelDropdown(models_data)
+        self.model_dropdown.hide()
+        self.model_dropdown.modelSelected.connect(self.on_model_selected)
+        self.model_button.clicked.connect(self.show_model_dropdown)
 
+        # Set focus to the message input
         self.message_input.setFocus()
+
+    def show_model_dropdown(self):
+        """Show the model dropdown"""
+        button_rect = self.model_button.rect()
+        button_pos = self.model_button.mapToGlobal(QPoint(0, 0))
+        button_center_x = button_pos.x() + button_rect.width() / 2
+        dropdown_x = button_center_x - (self.model_dropdown.width() / 2)
+        right_panel_top = self.right_widget.mapToGlobal(QPoint(0, 0)).y()
+        available_height = button_pos.y() - right_panel_top
+        self.model_dropdown.resize(self.right_widget.width(), available_height)
+        dropdown_y = button_pos.y() - self.model_dropdown.height()
+        self.model_dropdown.move(dropdown_x, dropdown_y)
+        self.model_dropdown.show()
+
+    def on_model_selected(self, model_name):
+        """Handle the model selected event"""
+        self.selected_model = model_name
+        self.model_button.setText(model_name)
 
     def switch_provider(self, provider):
         """Switch between different model providers"""
@@ -616,12 +631,18 @@ class ChatbotDialog(QDialog):
             self.current_provider = provider
 
             # set api address and key
-            self.api_address.setText(PROVIDER_CONFIGS[provider]["api_address"])
-            self.api_key.setText(PROVIDER_CONFIGS[provider]["api_key"])
+            api_address = PROVIDER_CONFIGS[provider]["api_address"]
+            api_key = PROVIDER_CONFIGS[provider]["api_key"]
+            self.api_address.setText(api_address)
+            self.api_key.setText(api_key)
 
-            # clear model dropdown and fetch models
-            self.model_name.clear()
-            self.fetch_models()
+            # fetch models
+            models_data = get_models_data(
+                provider, 
+                api_address, 
+                api_key
+            )
+            self.model_dropdown.update_models_data(models_data)
 
             # update help button urls
             button_url_mapping = [
@@ -1081,7 +1102,6 @@ class ChatbotDialog(QDialog):
         # Tooltip handler for multiple buttons
         tooltip_buttons = {
             "temperature_btn": self.temperature_tooltip,
-            "refresh_btn": self.refresh_models_tooltip,
         }
         for btn_name, tooltip in tooltip_buttons.items():
             if obj.objectName() == btn_name:
@@ -1111,8 +1131,8 @@ class ChatbotDialog(QDialog):
                 # Enter without Ctrl adds a new line
                 return False
         # Prevent Enter key from triggering buttons when in settings fields
-        elif hasattr(self, 'api_address') and hasattr(self, 'model_name') and hasattr(self, 'api_key'):
-            if obj in [self.api_address, self.model_name, self.api_key] and event.type() == event.KeyPress:
+        elif hasattr(self, 'api_address') and hasattr(self, 'model_button') and hasattr(self, 'api_key'):
+            if obj in [self.api_address, self.model_button, self.api_key] and event.type() == event.KeyPress:
                 if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
                     return True
         return super().eventFilter(obj, event)
@@ -1121,11 +1141,6 @@ class ChatbotDialog(QDialog):
         """Generate streaming response from the API"""
         try:
             self.stream_handler.start_loading()
-
-            if self.model_name.currentText():
-                model_name = self.model_name.currentText()
-            else:
-                raise ValueError(self.tr("No model selected. Check API address/key, then refresh the models list."))
 
             # Get temperature value from slider
             temperature = self.temp_slider.value() / 10.0
@@ -1169,7 +1184,7 @@ class ChatbotDialog(QDialog):
             # Create client and prepare API call parameters
             client = OpenAI(base_url=api_address, api_key=api_key)
             api_params = {
-                "model": model_name, "messages": messages, 
+                "model": self.selected_model, "messages": messages, 
                 "temperature": temperature, "stream": True
             }
             if max_tokens:
@@ -1190,7 +1205,7 @@ class ChatbotDialog(QDialog):
             self.stream_handler.finished.emit(True)
 
         except Exception as e:
-            logger.error(f"Error in streaming generation: {e}")
+            logger.debug(f"Error in streaming generation: {e}")
             self.stream_handler.report_error(str(e))
             self.stream_handler.finished.emit(False)
 
@@ -1207,10 +1222,9 @@ class ChatbotDialog(QDialog):
         self.open_image_folder_btn.setEnabled(enabled)
         self.open_video_btn.setEnabled(enabled)
         self.clear_context_btn.setEnabled(enabled)
-        self.refresh_models_btn.setEnabled(enabled)
         self.api_address.setEnabled(enabled)
         self.api_key.setEnabled(enabled)
-        self.model_name.setEnabled(enabled)
+        self.model_button.setEnabled(enabled)
 
         # Also disable provider switching during streaming
         for provider in PROVIDER_CONFIGS.keys():
@@ -1323,59 +1337,6 @@ class ChatbotDialog(QDialog):
 
         # Force update layout
         QApplication.processEvents()
-
-    def fetch_models(self, log_errors=False):
-        """Fetch available models from the API and populate the dropdown
-
-        Args:
-            log_errors: Whether to log errors that occur during model fetching
-        """
-        try:
-            self.refresh_models_btn.setEnabled(False)
-
-            # Start in a separate thread to avoid blocking UI
-            threading.Thread(target=self._fetch_models_thread, kwargs={"log_errors": log_errors}).start()
-
-        except Exception as e:
-            logger.error(f"Error fetching models: {e}")
-            self.refresh_models_btn.setEnabled(True)
-
-    def _fetch_models_thread(self, log_errors=False):
-        """Thread function to fetch models"""
-        try:
-            models_list = get_models_list(self.api_address.text(), self.api_key.text())
-
-            # Update UI in the main thread
-            QApplication.instance().postEvent(self, UpdateModelsEvent(models_list))
-
-        except Exception as e:
-            if log_errors:
-                logger.error(f"Error in model fetch thread: {e}")
-            # Re-enable refresh button in main thread
-            QApplication.instance().postEvent(self, EnableRefreshButtonEvent())
-    
-    def event(self, event):
-        """Handle custom events"""
-        if isinstance(event, UpdateModelsEvent):
-            # Update the dropdown with fetched models
-            self.model_name.clear()
-            
-            for model_id in event.models:
-                self.model_name.addItem(model_id)
-            
-            # Select first item if available
-            if self.model_name.count() > 0:
-                self.model_name.setCurrentIndex(0)
-            
-            # Re-enable refresh button
-            self.refresh_models_btn.setEnabled(True)
-            return True
-            
-        elif isinstance(event, EnableRefreshButtonEvent):
-            self.refresh_models_btn.setEnabled(True)
-            return True
-            
-        return super().event(event)
 
     def regenerate_response(self, message_widget):
         """Regenerate the assistant's response"""
@@ -1494,8 +1455,6 @@ class ChatbotDialog(QDialog):
         """Hide all tooltips as a safety measure"""
         if hasattr(self, 'temperature_tooltip'):
             self.temperature_tooltip.hide()
-        if hasattr(self, 'refresh_models_tooltip'):
-            self.refresh_models_tooltip.hide()
 
         # Find and hide all tooltips in chat messages
         for i in range(self.chat_messages_layout.count()):

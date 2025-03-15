@@ -1,3 +1,12 @@
+import os
+
+# Chatbot config path
+home_dir = os.path.expanduser("~")
+root_dir = os.path.join(home_dir, "xanylabeling_data/chatbot")
+MODELS_CONFIG_PATH = os.path.join(root_dir, "models.json")
+SETTINGS_CONFIG_PATH = os.path.join(root_dir, "settings.json")
+PROVIDERS_CONFIG_PATH = os.path.join(root_dir, "providers.json")
+
 # Global design system
 ANIMATION_DURATION = "200ms"
 BORDER_RADIUS = "8px"
@@ -13,6 +22,7 @@ ICON_SIZE_SMALL = (16, 16)
 DEFAULT_WINDOW_TITLE = "Chatbot (Beta)"
 DEFAULT_WINDOW_SIZE = (1200, 700)  # (w, h)
 DEFAULT_PROVIDER = "ollama"
+DEFAULT_FIXED_HEIGHT = 32
 CHAT_PANEL_PERCENTAGE = 88
 INPUT_PANEL_PERCENTAGE = 12
 MIN_MSG_INPUT_HEIGHT = 20
