@@ -35,9 +35,8 @@ class ChatbotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
+        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
         self.resize(*DEFAULT_WINDOW_SIZE)
-        # TODO: Add window icon
-        # self.setWindowIcon(QIcon(set_icon_path("chat")))
 
         dialog_style = ChatbotDialogStyle.get_dialog_style()
         menu_style = ChatbotDialogStyle.get_menu_style()

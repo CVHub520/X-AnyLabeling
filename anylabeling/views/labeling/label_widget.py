@@ -2388,7 +2388,8 @@ class LabelingWidget(LabelDialog):
 
     def open_chatbot(self):
         dialog = ChatbotDialog(self)
-        dialog.exec_()
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.show()
 
     # Help
     def documentation(self):
