@@ -306,6 +306,7 @@ class ImageCropperDialog:
                 for shape in shapes:
                     label = shape.get("label", "")
                     points = np.array(shape.get("points", [])).astype(np.int32)
+                    score = shape.get("score", 0.99)
                     shape_type = shape.get("shape_type", "")
 
                     if (
@@ -332,8 +333,16 @@ class ImageCropperDialog:
                         points,
                         save_path,
                         label_to_count,
-                        shape_type,
+                        score,
                     )
+
+                if len(shapes) == 0: # 将背景图收集到一起(子图用于发现标定错误的, 背景图用于发现没有标定的)
+                    image_path = Path(image_file)
+                    orig_filename = image_path.stem
+                    dst_path = Path(save_path) / "background"
+                    dst_path.mkdir(parents=True, exist_ok=True)
+                    dst_file = dst_path / f"{orig_filename}.jpg"
+                    shutil.copy(image_path, dst_file)
 
                 # Update the progress dialog
                 progress_dialog.setValue(i + 1)
@@ -348,7 +357,7 @@ class ImageCropperDialog:
             self._show_error_message(str(e))
 
     def _crop_and_save(
-        self, image_file, label, points, save_path, label_to_count, shape_type
+        self, image_file, label, points, save_path, label_to_count, score
     ):
         """Crops and saves a region from an image.
 
@@ -358,7 +367,7 @@ class ImageCropperDialog:
             points (np.ndarray): Points defining the region to crop
             save_path (str): Base directory to save cropped images
             label_to_count (dict): Counter for each label type
-            shape_type (str): Type of shape used for cropping
+            score (float): Confidence level of label recognition
 
         The cropped image is saved using the original filename as a prefix.
         """
@@ -387,15 +396,15 @@ class ImageCropperDialog:
         crop_image = image[ymin:ymax, xmin:xmax]
 
         # Create output directory
-        dst_path = Path(save_path) / label
+        score = score if score is not None else 0.99
+        subPath = f"0.{int(10*score)}~0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9~1.0"
+        dst_path = Path(save_path) / label / subPath
         dst_path.mkdir(parents=True, exist_ok=True)
 
         # Update counter and create output filename
         label_to_count[label] = label_to_count.get(label, 0) + 1
-        dst_file = (
-            dst_path
-            / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
-        )
+        #dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{format(score, '.2f')}.jpg"
+        dst_file = dst_path / f"{orig_filename}.jpg"
 
         # Save image safely handling non-ASCII paths
         try:
