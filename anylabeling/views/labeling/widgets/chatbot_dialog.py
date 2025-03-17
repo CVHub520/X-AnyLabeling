@@ -821,8 +821,6 @@ class ChatbotDialog(QDialog):
 
     def add_message(self, role, content, delete_last_message=False):
         """Add a new message to the chat area"""
-        logger.debug(f"{role}\n{content}\n")
-
         # Remove the stretch item if it exists
         while self.chat_messages_layout.count() > 0:
             item = self.chat_messages_layout.itemAt(self.chat_messages_layout.count()-1)
@@ -1190,6 +1188,7 @@ class ChatbotDialog(QDialog):
         """Generate streaming response from the API"""
         try:
             self.stream_handler.start_loading()
+            logger.debug(f"Invoking model {self.selected_model}({self.default_provider}) with base URL {api_address}")
 
             # Get temperature value from slider
             temperature = self.temp_slider.value() / 10.0
@@ -1232,7 +1231,6 @@ class ChatbotDialog(QDialog):
 
             # Create client and prepare API call parameters
             client = OpenAI(base_url=api_address, api_key=api_key)
-            logger.debug(f"Invoking model {self.selected_model} ({self.default_provider}) with base URL {api_address}")
             api_params = {
                 "model": self.selected_model, "messages": messages, 
                 "temperature": temperature, "stream": True
@@ -1251,6 +1249,9 @@ class ChatbotDialog(QDialog):
                 if hasattr(chunk.choices[0].delta, "content") and chunk.choices[0].delta.content:
                     content = chunk.choices[0].delta.content
                     self.stream_handler.append_text(content)
+
+            logger.debug(f"User\n{messages[-1]['content']}")
+            logger.debug(f"Assistant\n{self.stream_handler.get_current_message()}\n")
 
             self.stream_handler.finished.emit(True)
 
