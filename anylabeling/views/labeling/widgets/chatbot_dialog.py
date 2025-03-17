@@ -811,6 +811,8 @@ class ChatbotDialog(QDialog):
 
     def add_message(self, role, content, delete_last_message=False):
         """Add a new message to the chat area"""
+        logger.debug(f"{role}\n{content}")
+
         # Remove the stretch item if it exists
         while self.chat_messages_layout.count() > 0:
             item = self.chat_messages_layout.itemAt(self.chat_messages_layout.count()-1)
