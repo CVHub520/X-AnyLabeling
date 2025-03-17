@@ -62,6 +62,12 @@ class ChatbotDialog(QDialog):
                 ("Creative Writing / Poetry", "1.5")
             ]
         )
+        self.clear_context_tooltip = CustomTooltip(title="Clear Chat")
+        self.open_image_folder_tooltip = CustomTooltip(title="Open Image Folder")
+        self.open_video_tooltip = CustomTooltip(title="Open Video File")
+        self.open_image_file_tooltip = CustomTooltip(title="Open Image File")
+        self.prev_image_tooltip = CustomTooltip(title="Previous Image")
+        self.next_image_tooltip = CustomTooltip(title="Next Image")
 
         pixmap = QPixmap(set_icon_path("click"))
         scaled_pixmap = pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -225,8 +231,9 @@ class ChatbotDialog(QDialog):
         self.clear_context_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.clear_context_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
         self.clear_context_btn.setFixedSize(*ICON_SIZE_SMALL)
-        self.clear_context_btn.setToolTip(self.tr("Clear Chat"))
         self.clear_context_btn.clicked.connect(self.clear_conversation)
+        self.clear_context_btn.installEventFilter(self)
+        self.clear_context_btn.setObjectName("clear_context_btn")
 
         # Add buttons to layout
         button_bar_layout.addWidget(self.clear_context_btn, 0, Qt.AlignBottom)
@@ -279,15 +286,17 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn.setIcon(QIcon(set_icon_path("arrow-left")))
         self.prev_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.prev_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
-        self.prev_image_btn.setToolTip(self.tr("Previous Image"))
         self.prev_image_btn.clicked.connect(lambda: self.navigate_image(direction="prev"))
+        self.prev_image_btn.installEventFilter(self)
+        self.prev_image_btn.setObjectName("prev_image_btn")
 
         self.next_image_btn = QPushButton()
         self.next_image_btn.setIcon(QIcon(set_icon_path("arrow-right")))
         self.next_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.next_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
-        self.next_image_btn.setToolTip(self.tr("Next Image"))
         self.next_image_btn.clicked.connect(lambda: self.navigate_image(direction="next"))
+        self.next_image_btn.installEventFilter(self)
+        self.next_image_btn.setObjectName("next_image_btn")
 
         nav_layout.addWidget(self.prev_image_btn)
         nav_layout.addStretch()
@@ -295,17 +304,15 @@ class ChatbotDialog(QDialog):
         # Add image and video buttons for importing media
         import_media_btn_modes = ["image", "folder", "video"]
         import_media_btn_names = ["open_image_file_btn", "open_image_folder_btn", "open_video_btn"]
-        import_media_btn_tooltips = ["Open Image File", "Open Image Folder", "Open Video File"]
-        for btn_mode, btn_name, btn_tooltip in zip(
-            import_media_btn_modes, import_media_btn_names, import_media_btn_tooltips
-        ):
+        for btn_mode, btn_name in zip(import_media_btn_modes, import_media_btn_names):
             btn = QPushButton()
             btn.setIcon(QIcon(set_icon_path(btn_mode)))
             btn.setFixedSize(*ICON_SIZE_NORMAL)
             btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
-            btn.setToolTip(self.tr(btn_tooltip))
             btn.clicked.connect(lambda checked=False, mode=btn_mode: 
                                self.open_image_folder_or_video_file(mode=mode))
+            btn.installEventFilter(self)
+            btn.setObjectName(btn_name)
             nav_layout.addWidget(btn)
             setattr(self, btn_name, btn)  # Store reference as class attribute
         nav_layout.addStretch()
@@ -1142,6 +1149,12 @@ class ChatbotDialog(QDialog):
         # Tooltip handler for multiple buttons
         tooltip_buttons = {
             "temperature_btn": self.temperature_tooltip,
+            "clear_context_btn": self.clear_context_tooltip,
+            "open_image_file_btn": self.open_image_file_tooltip,
+            "open_image_folder_btn": self.open_image_folder_tooltip,
+            "open_video_btn": self.open_video_tooltip,
+            "prev_image_btn": self.prev_image_tooltip,
+            "next_image_btn": self.next_image_tooltip,
         }
         for btn_name, tooltip in tooltip_buttons.items():
             if obj.objectName() == btn_name:
@@ -1155,9 +1168,6 @@ class ChatbotDialog(QDialog):
                     target_y = button_pos.y() - tooltip_height - 5
                     tooltip.move(target_x, target_y)
                     tooltip.show()
-
-                    # Set a timer to hide tooltip after 3 seconds as a safety measure
-                    QTimer.singleShot(3000, tooltip.hide)
                     return True
                 elif event.type() == QEvent.Leave or event.type() == QEvent.Wheel:
                     tooltip.hide()
@@ -1497,8 +1507,18 @@ class ChatbotDialog(QDialog):
 
     def hideAllTooltips(self):
         """Hide all tooltips as a safety measure"""
-        if hasattr(self, 'temperature_tooltip'):
-            self.temperature_tooltip.hide()
+        tooltips = [
+            self.temperature_tooltip,
+            self.clear_context_tooltip,
+            self.open_image_file_tooltip,
+            self.open_image_folder_tooltip,
+            self.open_video_tooltip,
+            self.prev_image_tooltip,
+            self.next_image_tooltip,
+        ]
+        for tooltip in tooltips:
+            if tooltip:
+                tooltip.hide()
 
         # Find and hide all tooltips in chat messages
         for i in range(self.chat_messages_layout.count()):
