@@ -47,6 +47,8 @@ class ChatbotDialog(QDialog):
         # Initialize
         _model_settings = init_model_config()
         self.chat_history = []
+        self.current_api_key = None
+        self.current_api_address = None
         self.default_provider = _model_settings["provider"]
         self.providers = get_providers_data()
 
@@ -369,6 +371,7 @@ class ChatbotDialog(QDialog):
         self.api_address.installEventFilter(self)
         self.api_address.textChanged.connect(self.on_api_address_changed)
         api_settings_layout.addWidget(self.api_address)
+        self.current_api_address = self.api_address.text()
 
         # API Key with help icon
         api_key_container = QHBoxLayout()
@@ -405,6 +408,7 @@ class ChatbotDialog(QDialog):
         self.api_key.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         self.api_key.installEventFilter(self)
         self.api_key.textChanged.connect(self.on_api_key_changed)
+        self.current_api_key = self.api_key.text()
 
         self.toggle_visibility_btn = QPushButton()
         self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
@@ -619,12 +623,15 @@ class ChatbotDialog(QDialog):
 
     def show_model_dropdown(self):
         """Show the model dropdown"""
-        models_data = get_models_data(
-            self.default_provider, 
-            self.providers[self.default_provider]["api_address"], 
-            self.providers[self.default_provider]["api_key"]
-        )
-        self.model_dropdown.update_models_data(models_data)
+        for provider in self.providers:
+            if getattr(self, f"{provider}_btn").isChecked():
+                models_data = get_models_data(
+                    provider, 
+                    self.providers[provider]["api_address"], 
+                    self.providers[provider]["api_key"]
+                )
+                self.model_dropdown.update_models_data(models_data)
+                break
 
         button_rect = self.model_button.rect()
         button_pos = self.model_button.mapToGlobal(QPoint(0, 0))
@@ -646,9 +653,13 @@ class ChatbotDialog(QDialog):
         model_config["settings"]["model_id"] = model_name
         save_json(model_config, MODELS_CONFIG_PATH)
 
+        self.current_api_address = self.providers[self.default_provider]["api_address"]
+        self.current_api_key = self.providers[self.default_provider]["api_key"]
+
     def on_provider_selected(self, provider):
         """Handle the provider selected event"""
         getattr(self, f"{provider}_btn").setChecked(True)
+        self.default_provider = provider
         self.switch_provider(provider)
 
         model_config = load_json(MODELS_CONFIG_PATH)
@@ -658,16 +669,12 @@ class ChatbotDialog(QDialog):
     def switch_provider(self, provider):
         """Switch between different model providers"""
         if provider in self.providers:
-            # Update current provider
-            self.default_provider = provider
-
             # set api address and key
             api_address = self.providers[provider]["api_address"]
             api_key = self.providers[provider]["api_key"]
             self.api_address.setText(api_address)
             self.api_key.setText(api_key)
 
-            # fetch models
             models_data = get_models_data(provider, api_address, api_key)
             self.model_dropdown.update_models_data(models_data)
 
@@ -691,13 +698,25 @@ class ChatbotDialog(QDialog):
 
     def on_api_address_changed(self):
         """Handle the API address changed event"""
-        self.providers[self.default_provider]["api_address"] = self.api_address.text()
-        save_json(self.providers, PROVIDERS_CONFIG_PATH)
+        for provider in self.providers:
+            if getattr(self, f"{provider}_btn").isChecked():
+                self.providers[provider]["api_address"] = self.api_address.text()
+                save_json(self.providers, PROVIDERS_CONFIG_PATH)
+
+                if provider == self.default_provider:
+                    self.current_api_address = self.api_address.text()
+                break
 
     def on_api_key_changed(self):
         """Handle the API key changed event"""
-        self.providers[self.default_provider]["api_key"] = self.api_key.text()
-        save_json(self.providers, PROVIDERS_CONFIG_PATH)
+        for provider in self.providers:
+            if getattr(self, f"{provider}_btn").isChecked():
+                self.providers[provider]["api_key"] = self.api_key.text()
+                save_json(self.providers, PROVIDERS_CONFIG_PATH)
+
+                if provider == self.default_provider:
+                    self.current_api_key = self.api_key.text()
+                break
 
     def resize_input(self):
         """Dynamically resize input based on content"""
@@ -895,7 +914,7 @@ class ChatbotDialog(QDialog):
         # Start streaming in a separate thread
         self.stream_thread = threading.Thread(
             target=self.stream_generation,
-            args=(self.api_address.text(), self.api_key.text())
+            args=(self.current_api_address, self.current_api_key)
         )
         self.stream_thread.daemon = True  # Make thread daemonic so it can be interrupted
         self.stream_thread.start()
@@ -1222,6 +1241,7 @@ class ChatbotDialog(QDialog):
 
             # Create client and prepare API call parameters
             client = OpenAI(base_url=api_address, api_key=api_key)
+            logger.debug(f"Calling model {self.selected_model} with base_url {api_address} and api_key {api_key}")
             api_params = {
                 "model": self.selected_model, "messages": messages, 
                 "temperature": temperature, "stream": True
@@ -1413,7 +1433,7 @@ class ChatbotDialog(QDialog):
             # Start streaming in a separate thread
             self.stream_thread = threading.Thread(
                 target=self.stream_generation,
-                args=(self.api_address.text(), self.api_key.text())
+                args=(self.current_api_address, self.current_api_key)
             )
             self.stream_thread.start()
 

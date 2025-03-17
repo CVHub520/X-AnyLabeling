@@ -47,7 +47,7 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
 
     call_times = api_call_tracker.get_count(provider)
     if call_times > 1 and \
-        provider != "Ollama" and \
+        provider.lower() != "ollama" and \
         provider in total_data["models_data"]:
         return total_data["models_data"]
 
