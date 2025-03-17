@@ -224,7 +224,6 @@ class ChatbotDialog(QDialog):
         self.clear_context_btn.setIcon(QIcon(set_icon_path("clear")))
         self.clear_context_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.clear_context_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
-        self.clear_context_btn.setCursor(Qt.PointingHandCursor)
         self.clear_context_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.clear_context_btn.setToolTip(self.tr("Clear Chat"))
         self.clear_context_btn.clicked.connect(self.clear_conversation)
@@ -238,7 +237,6 @@ class ChatbotDialog(QDialog):
         self.send_btn.setIcon(QIcon(set_icon_path("send")))
         self.send_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.send_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
-        self.send_btn.setCursor(Qt.PointingHandCursor)
         self.send_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.send_btn.clicked.connect(self.start_generation)
         self.send_btn.setEnabled(False)
@@ -282,7 +280,6 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.prev_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
         self.prev_image_btn.setToolTip(self.tr("Previous Image"))
-        self.prev_image_btn.setCursor(Qt.PointingHandCursor)
         self.prev_image_btn.clicked.connect(lambda: self.navigate_image(direction="prev"))
 
         self.next_image_btn = QPushButton()
@@ -290,7 +287,6 @@ class ChatbotDialog(QDialog):
         self.next_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.next_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
         self.next_image_btn.setToolTip(self.tr("Next Image"))
-        self.next_image_btn.setCursor(Qt.PointingHandCursor)
         self.next_image_btn.clicked.connect(lambda: self.navigate_image(direction="next"))
 
         nav_layout.addWidget(self.prev_image_btn)
@@ -308,7 +304,6 @@ class ChatbotDialog(QDialog):
             btn.setFixedSize(*ICON_SIZE_NORMAL)
             btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
             btn.setToolTip(self.tr(btn_tooltip))
-            btn.setCursor(Qt.PointingHandCursor)
             btn.clicked.connect(lambda checked=False, mode=btn_mode: 
                                self.open_image_folder_or_video_file(mode=mode))
             nav_layout.addWidget(btn)
@@ -484,7 +479,6 @@ class ChatbotDialog(QDialog):
         temp_info_btn.setIcon(QIcon(set_icon_path("help-circle")))
         temp_info_btn.setFixedSize(*ICON_SIZE_SMALL)
         temp_info_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
-        temp_info_btn.setCursor(Qt.PointingHandCursor)
         temp_info_btn.installEventFilter(self)
         temp_info_btn.setObjectName("temperature_btn")
 

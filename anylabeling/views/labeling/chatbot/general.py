@@ -90,7 +90,6 @@ class ChatMessage(QFrame):
         self.copy_btn.setIcon(QIcon(set_icon_path("copy")))
         self.copy_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-        self.copy_btn.setCursor(Qt.PointingHandCursor)
         self.copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(self.copy_btn))
         self.copy_btn.setVisible(False)
         self.copy_btn.installEventFilter(self)
@@ -101,7 +100,6 @@ class ChatMessage(QFrame):
         self.delete_btn.setIcon(QIcon(set_icon_path("trash")))
         self.delete_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.delete_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-        self.delete_btn.setCursor(Qt.PointingHandCursor)
         self.delete_btn.clicked.connect(self.confirm_delete_message)
         self.delete_btn.setVisible(False)
         self.delete_btn.installEventFilter(self)
@@ -115,7 +113,6 @@ class ChatMessage(QFrame):
             self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
             self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-            self.edit_btn.setCursor(Qt.PointingHandCursor)
             self.edit_btn.clicked.connect(self.enter_edit_mode)
             self.edit_btn.setVisible(False)
             self.edit_btn.installEventFilter(self)
@@ -126,7 +123,6 @@ class ChatMessage(QFrame):
             self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
             self.regenerate_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.regenerate_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-            self.regenerate_btn.setCursor(Qt.PointingHandCursor)
             self.regenerate_btn.clicked.connect(self.regenerate_response)
             self.regenerate_btn.setVisible(False)
             self.regenerate_btn.installEventFilter(self)
@@ -199,13 +195,11 @@ class ChatMessage(QFrame):
         # Cancel button
         self.cancel_btn = QPushButton(self.tr("Cancel"))
         self.cancel_btn.setStyleSheet(ChatMessageStyle.get_cancel_button_style())
-        self.cancel_btn.setCursor(Qt.PointingHandCursor)
         self.cancel_btn.clicked.connect(self.exit_edit_mode)
 
         # Save button
         self.save_btn = QPushButton(self.tr("Save"))
         self.save_btn.setStyleSheet(ChatMessageStyle.get_save_button_style())
-        self.save_btn.setCursor(Qt.PointingHandCursor)
         self.save_btn.clicked.connect(self.save_edit)
 
         edit_buttons_layout.addWidget(self.cancel_btn)
