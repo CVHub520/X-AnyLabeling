@@ -453,7 +453,7 @@ class ChatbotDialog(QDialog):
         self.model_button = QPushButton()
         self.model_button.setStyleSheet(ChatbotDialogStyle.get_model_button_style())
         self.model_button.setMinimumHeight(40)
-        self.model_button.setText(get_default_model_id())
+        self.model_button.setText(get_default_model_id(self.default_provider))
         api_settings_layout.addWidget(self.model_button)
         api_settings_layout.addStretch()
 
@@ -647,7 +647,7 @@ class ChatbotDialog(QDialog):
     def on_model_selected(self, model_name):
         """Handle the model selected event"""
         self.selected_model = model_name
-        self.model_button.setText(model_name)
+        self.model_button.setText(model_name + f" ({self.default_provider})")
 
         model_config = load_json(MODELS_CONFIG_PATH)
         model_config["settings"]["model_id"] = model_name
@@ -830,7 +830,7 @@ class ChatbotDialog(QDialog):
 
     def add_message(self, role, content, delete_last_message=False):
         """Add a new message to the chat area"""
-        logger.debug(f"{role}\n{content}")
+        logger.debug(f"{role}\n{content}\n")
 
         # Remove the stretch item if it exists
         while self.chat_messages_layout.count() > 0:
@@ -1241,7 +1241,7 @@ class ChatbotDialog(QDialog):
 
             # Create client and prepare API call parameters
             client = OpenAI(base_url=api_address, api_key=api_key)
-            logger.debug(f"Calling model {self.selected_model} with base_url {api_address} and api_key {api_key}")
+            logger.debug(f"Invoking model {self.selected_model} ({self.default_provider}) with base URL {api_address}")
             api_params = {
                 "model": self.selected_model, "messages": messages, 
                 "temperature": temperature, "stream": True

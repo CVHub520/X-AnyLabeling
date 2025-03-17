@@ -93,18 +93,17 @@ def get_models_id_list(base_url: str, api_key: str, timeout: int = 5) -> list:
     return [model.id for model in client.models.list()]
 
 
-def get_default_model_id() -> str:
+def get_default_model_id(provider: str) -> str:
     """Get the default model id"""
     default_model_id = "Select Model"
 
     if not os.path.exists(MODELS_CONFIG_PATH):
         return default_model_id
 
-    with open(MODELS_CONFIG_PATH, "r") as f:
-        model_config = json.load(f)
+    model_config = load_json(MODELS_CONFIG_PATH)
 
     if model_config["settings"]["model_id"]:
-        return model_config["settings"]["model_id"]
+        return model_config["settings"]["model_id"] + f" ({provider})"
 
     return default_model_id
 
