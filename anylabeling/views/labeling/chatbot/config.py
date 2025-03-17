@@ -79,6 +79,10 @@ DEFAULT_PROVIDERS_DATA = {
 
 SUPPORTED_VISION_MODELS = [
     # Ollama
+    "gemma3",
+    "gemma3:4b",
+    "gemma3:12b",
+    "gemma3:27b",
     "bakllava",
     "granite3.2-vision",
     "minicpm-v",

@@ -607,7 +607,7 @@ class ChatbotDialog(QDialog):
             self.providers[self.default_provider]["api_address"], 
             self.providers[self.default_provider]["api_key"]
         )
-        self.selected_model = None
+        self.selected_model = _model_settings["model_id"]
         self.model_dropdown = ModelDropdown(models_data)
         self.model_dropdown.hide()
         self.model_dropdown.modelSelected.connect(self.on_model_selected)
