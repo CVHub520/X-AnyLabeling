@@ -272,11 +272,16 @@ class ModelDropdown(QWidget):
         self.models_data = models_data
         self.setup_model_list()
 
-    def save_models_data(self):
+    def save_models_data(self, provider: str = None, model_id: str = None):
         """Save models data to the config file"""
         try:
             model_config = load_json(MODELS_CONFIG_PATH)
             model_config["models_data"] = self.models_data
+
+            if provider and model_id:
+                model_config["settings"]["provider"] = provider
+                model_config["settings"]["model_id"] = model_id
+
             save_json(model_config, MODELS_CONFIG_PATH)
 
         except Exception as e:
@@ -347,11 +352,12 @@ class ModelDropdown(QWidget):
 
     def select_model(self, model_name):
         # Unselect all models
-        for _, models in self.models_data.items():
+        for provider, models in self.models_data.items():
             for name, data in models.items():
                 data["selected"] = False
                 if name in self.model_items:
                     self.model_items[name].update_selection(False)
+                    self.models_data[provider][name]["selected"] = False
 
         # Select the clicked model
         for provider, models in self.models_data.items():
@@ -359,11 +365,11 @@ class ModelDropdown(QWidget):
                 models[model_name]["selected"] = True
                 self.model_items[model_name].update_selection(True)
                 self.models_data[provider][model_name]["selected"] = True
+                self.save_models_data(provider, model_name)
+                self.providerSelected.emit(provider)
+                self.modelSelected.emit(model_name)
                 break
 
-        self.save_models_data() 
-        self.providerSelected.emit(provider)
-        self.modelSelected.emit(model_name)
         self.close()
 
     def toggle_favorite(self, model_name, is_favorite):

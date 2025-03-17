@@ -648,11 +648,6 @@ class ChatbotDialog(QDialog):
         """Handle the model selected event"""
         self.selected_model = model_name
         self.model_button.setText(model_name + f" ({self.default_provider})")
-
-        model_config = load_json(MODELS_CONFIG_PATH)
-        model_config["settings"]["model_id"] = model_name
-        save_json(model_config, MODELS_CONFIG_PATH)
-
         self.current_api_address = self.providers[self.default_provider]["api_address"]
         self.current_api_key = self.providers[self.default_provider]["api_key"]
 
@@ -661,10 +656,6 @@ class ChatbotDialog(QDialog):
         getattr(self, f"{provider}_btn").setChecked(True)
         self.default_provider = provider
         self.switch_provider(provider)
-
-        model_config = load_json(MODELS_CONFIG_PATH)
-        model_config["settings"]["provider"] = provider
-        save_json(model_config, MODELS_CONFIG_PATH)
 
     def switch_provider(self, provider):
         """Switch between different model providers"""
