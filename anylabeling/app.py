@@ -188,7 +188,7 @@ def main():
     language = config.get("language", QtCore.QLocale.system().name())
     translator = QtCore.QTranslator()
     loaded_language = translator.load(
-        ":/languages/translations/" + language + ".qm"
+        "./resources/translations/" + language + ".qm"
     )
     # Enable scaling for high dpi screens
     QtWidgets.QApplication.setAttribute(
