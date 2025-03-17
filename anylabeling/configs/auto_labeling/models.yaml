@@ -296,3 +296,5 @@
   config_file: ":/yolox_l_dwpose_ucoco.yaml"
 - model_name: "yolox_s-r20230520"
   config_file: ":/yolox_s.yaml"
+- model_name: "geco_sam_hq_vit_h-r250317"
+  config_file: ":/geco_sam_hq_vit_h.yaml"
