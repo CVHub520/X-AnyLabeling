@@ -1060,16 +1060,16 @@ class ChatbotDialog(QDialog):
             loading_message_to_remove.deleteLater()
 
             # Set dirty flag
-            if self.parent().image_list:
+            if self.parent().filename:
                 self.parent().set_dirty()
-        
+
         # Reset streaming state
         self.streaming = False
         self.set_components_enabled(True)
-        
+
         # Auto focus on message input after generation
         self.message_input.setFocus()
-    
+
     def handle_loading_state(self, is_loading):
         """Handle loading state changes"""
         if is_loading:
@@ -1078,7 +1078,7 @@ class ChatbotDialog(QDialog):
         else:
             # Re-enable UI components after loading
             self.set_components_enabled(True)
-    
+
     def toggle_api_key_visibility(self):
         """Toggle visibility of API key"""
         if self.api_key.echoMode() == QLineEdit.Password:
@@ -1087,7 +1087,7 @@ class ChatbotDialog(QDialog):
         else:
             self.api_key.setEchoMode(QLineEdit.Password)
             self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
-    
+
     def navigate_image(self, direction="next"):
         """Navigate to previous or next image and load its chat history
 
