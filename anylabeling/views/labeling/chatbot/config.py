@@ -21,9 +21,7 @@ ICON_SIZE_SMALL = (16, 16)
 # Initialization parameters
 DEFAULT_WINDOW_TITLE = "Chatbot (Beta)"
 DEFAULT_WINDOW_SIZE = (1200, 700)  # (w, h)
-DEFAULT_PROVIDER = "ollama"
 DEFAULT_FIXED_HEIGHT = 32
-DEFAULT_TEMPERATURE_VALUE = 10
 CHAT_PANEL_PERCENTAGE = 88
 INPUT_PANEL_PERCENTAGE = 12
 MIN_MSG_INPUT_HEIGHT = 20
@@ -47,6 +45,14 @@ THEME = {
 
 
 # Providers config
+DEFAULT_SETTINGS = {
+    "provider": "ollama",
+    "model_id": None,
+    "temperature": 10,
+    "max_length": None,
+    "system_prompt": None,
+}
+
 DEFAULT_PROVIDERS_DATA = {
     "deepseek": {
         "api_address": "https://api.deepseek.com/v1",

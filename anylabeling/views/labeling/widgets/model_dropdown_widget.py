@@ -1,4 +1,3 @@
-import json
 from difflib import SequenceMatcher
 from pathlib import Path
 
@@ -16,7 +15,7 @@ from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from PyQt5.QtGui import QIcon
 
 from anylabeling.views.labeling.chatbot.config import *
-from anylabeling.views.labeling.chatbot.utils import set_icon_path
+from anylabeling.views.labeling.chatbot.utils import load_json, save_json, set_icon_path
 from anylabeling.views.labeling.logger import logger
 
 
@@ -276,11 +275,9 @@ class ModelDropdown(QWidget):
     def save_models_data(self):
         """Save models data to the config file"""
         try:
-            with open(MODELS_CONFIG_PATH, 'r') as f:
-                config = json.load(f)
-            config["models_data"] = self.models_data
-            with open(MODELS_CONFIG_PATH, 'w') as f:
-                json.dump(config, f, indent=4)
+            model_config = load_json(MODELS_CONFIG_PATH)
+            model_config["models_data"] = self.models_data
+            save_json(model_config, MODELS_CONFIG_PATH)
 
         except Exception as e:
             logger.error(f"Failed to save models data: {e}")
@@ -361,21 +358,22 @@ class ModelDropdown(QWidget):
             if model_name in models:
                 models[model_name]["selected"] = True
                 self.model_items[model_name].update_selection(True)
+                self.models_data[provider][model_name]["selected"] = True
                 break
 
+        self.save_models_data() 
         self.providerSelected.emit(provider)
         self.modelSelected.emit(model_name)
-        self.save_models_data() 
         self.close()
 
     def toggle_favorite(self, model_name, is_favorite):
-        for _, models in self.models_data.items():
+        for provider, models in self.models_data.items():
             if model_name in models:
-                models[model_name]["favorite"] = is_favorite
+                self.models_data[provider][model_name]["favorite"] = is_favorite
                 break
 
         # Rebuild the entire list to reflect changes
-        self.save_models_data() 
+        self.save_models_data()
         self.setup_model_list()
 
     def filter_models(self, search_text, match_threshold=0.4):

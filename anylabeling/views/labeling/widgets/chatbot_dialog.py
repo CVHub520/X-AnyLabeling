@@ -45,9 +45,10 @@ class ChatbotDialog(QDialog):
         self.setStyleSheet(combined_style)
 
         # Initialize
+        _model_settings = init_model_config()
         self.chat_history = []
+        self.default_provider = _model_settings["provider"]
         self.providers = get_providers_data()
-        self.current_provider = DEFAULT_PROVIDER
 
         # Create all tooltips first to ensure they exist before any event filtering
         self.temperature_tooltip = CustomTooltip(
@@ -107,7 +108,7 @@ class ChatbotDialog(QDialog):
             left_panel.addWidget(btn)
 
         # Set default fields
-        getattr(self, f"{DEFAULT_PROVIDER}_btn").setChecked(True)
+        getattr(self, f"{self.default_provider}_btn").setChecked(True)
 
         # Add stretch to push everything to the top
         left_panel.addStretch()
@@ -345,7 +346,7 @@ class ChatbotDialog(QDialog):
         label_help_layout = QHBoxLayout(label_with_help)
         label_help_layout.setContentsMargins(0, 0, 0, 0)
 
-        api_docs_url = self.providers[DEFAULT_PROVIDER]["api_docs_url"]
+        api_docs_url = self.providers[self.default_provider]["api_docs_url"]
         api_help_btn = QPushButton()
         api_help_btn.setObjectName("api_help_btn")
         api_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
@@ -363,7 +364,7 @@ class ChatbotDialog(QDialog):
         api_address_container.addStretch()
         api_settings_layout.addLayout(api_address_container)
 
-        self.api_address = QLineEdit(self.providers[DEFAULT_PROVIDER]["api_address"])
+        self.api_address = QLineEdit(self.providers[self.default_provider]["api_address"])
         self.api_address.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         self.api_address.installEventFilter(self)
         self.api_address.textChanged.connect(self.on_api_address_changed)
@@ -379,7 +380,7 @@ class ChatbotDialog(QDialog):
         key_label_help_layout = QHBoxLayout(key_label_with_help)
         key_label_help_layout.setContentsMargins(0, 0, 0, 0)
         key_label_help_layout.addWidget(api_key_label)
-        api_key_url = self.providers[DEFAULT_PROVIDER]["api_key_url"]
+        api_key_url = self.providers[self.default_provider]["api_key_url"]
         api_key_help_btn = QPushButton()
         api_key_help_btn.setObjectName("api_key_help_btn")
         api_key_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
@@ -398,7 +399,7 @@ class ChatbotDialog(QDialog):
 
         # API key input with toggle visibility
         api_key_container = QHBoxLayout()
-        self.api_key = QLineEdit(self.providers[DEFAULT_PROVIDER]["api_key"])
+        self.api_key = QLineEdit(self.providers[self.default_provider]["api_key"])
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setPlaceholderText(self.tr("Enter API key"))
         self.api_key.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
@@ -427,7 +428,7 @@ class ChatbotDialog(QDialog):
         model_label_help_layout.setContentsMargins(0, 0, 0, 0)
         model_label_help_layout.setSpacing(4)
 
-        model_docs_url = self.providers[DEFAULT_PROVIDER]["model_docs_url"]
+        model_docs_url = self.providers[self.default_provider]["model_docs_url"]
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
         model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
@@ -448,34 +449,34 @@ class ChatbotDialog(QDialog):
         self.model_button = QPushButton()
         self.model_button.setStyleSheet(ChatbotDialogStyle.get_model_button_style())
         self.model_button.setMinimumHeight(40)
-        self.model_button.setText(get_selected_model_id())
+        self.model_button.setText(get_default_model_id())
         api_settings_layout.addWidget(self.model_button)
         api_settings_layout.addStretch()
-        
+
         # Second tab - Model Parameters
         model_params_tab = QWidget()
         model_params_layout = QVBoxLayout(model_params_tab)
         model_params_layout.setContentsMargins(24, 24, 24, 24)
         model_params_layout.setSpacing(16)
-        
+
         # System prompt section
         system_prompt_label = QLabel(self.tr("System instruction"))
         system_prompt_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
         model_params_layout.addWidget(system_prompt_label)
-        
+
         # System prompt input
         system_prompt_container = QHBoxLayout()
         self.system_prompt_input = QLineEdit()
         self.system_prompt_input.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
         system_prompt_container.addWidget(self.system_prompt_input)
         model_params_layout.addLayout(system_prompt_container)
-        
+
         # Temperature parameter with info icon
         temp_header = QHBoxLayout()
         temp_header.setSpacing(4)
         temp_label = QLabel(self.tr("Temperature"))
         temp_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
-        
+
         temp_info_btn = QPushButton()
         temp_info_btn.setIcon(QIcon(set_icon_path("help-circle")))
         temp_info_btn.setFixedSize(*ICON_SIZE_SMALL)
@@ -484,7 +485,7 @@ class ChatbotDialog(QDialog):
         temp_info_btn.installEventFilter(self)
         temp_info_btn.setObjectName("temperature_btn")
 
-        self.temp_value = QLabel(f"{DEFAULT_TEMPERATURE_VALUE/10:.1f}")
+        self.temp_value = QLabel(f"{_model_settings['temperature']/10:.1f}")
         self.temp_value.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
         self.temp_value.setAlignment(Qt.AlignRight)
 
@@ -498,7 +499,7 @@ class ChatbotDialog(QDialog):
         self.temp_slider = QSlider(Qt.Horizontal)
         self.temp_slider.setMinimum(0)
         self.temp_slider.setMaximum(20)  # 0.0 to 2.0 with step of 0.1
-        self.temp_slider.setValue(DEFAULT_TEMPERATURE_VALUE)
+        self.temp_slider.setValue(_model_settings["temperature"])
         self.temp_slider.setStyleSheet(ChatbotDialogStyle.get_slider_style())
         self.temp_slider.valueChanged.connect(lambda v: self.temp_value.setText(f"{v/10:.1f}"))
         model_params_layout.addWidget(self.temp_slider)
@@ -521,7 +522,7 @@ class ChatbotDialog(QDialog):
         temp_labels_layout.addWidget(precise_label)
         temp_labels_layout.addWidget(neutral_label)
         temp_labels_layout.addWidget(creative_label)
-        
+
         model_params_layout.addLayout(temp_labels_layout)
         model_params_layout.addSpacing(16)
 
@@ -540,6 +541,8 @@ class ChatbotDialog(QDialog):
             down_arrow_url=set_icon_path("caret-down")
         ))
         self.max_length_input.setFixedHeight(40)
+        if _model_settings["max_length"]:
+            self.max_length_input.setValue(_model_settings["max_length"])
         model_params_layout.addWidget(self.max_length_input)
 
         # Add stretch to push everything to the top
@@ -600,9 +603,9 @@ class ChatbotDialog(QDialog):
 
         # Fetch available models
         models_data = get_models_data(
-            DEFAULT_PROVIDER, 
-            self.providers[DEFAULT_PROVIDER]["api_address"], 
-            self.providers[DEFAULT_PROVIDER]["api_key"]
+            self.default_provider,
+            self.providers[self.default_provider]["api_address"], 
+            self.providers[self.default_provider]["api_key"]
         )
         self.selected_model = None
         self.model_dropdown = ModelDropdown(models_data)
@@ -617,9 +620,9 @@ class ChatbotDialog(QDialog):
     def show_model_dropdown(self):
         """Show the model dropdown"""
         models_data = get_models_data(
-            self.current_provider, 
-            self.providers[self.current_provider]["api_address"], 
-            self.providers[self.current_provider]["api_key"]
+            self.default_provider, 
+            self.providers[self.default_provider]["api_address"], 
+            self.providers[self.default_provider]["api_key"]
         )
         self.model_dropdown.update_models_data(models_data)
 
@@ -639,16 +642,24 @@ class ChatbotDialog(QDialog):
         self.selected_model = model_name
         self.model_button.setText(model_name)
 
+        model_config = load_json(MODELS_CONFIG_PATH)
+        model_config["settings"]["model_id"] = model_name
+        save_json(model_config, MODELS_CONFIG_PATH)
+
     def on_provider_selected(self, provider):
         """Handle the provider selected event"""
         getattr(self, f"{provider}_btn").setChecked(True)
         self.switch_provider(provider)
 
+        model_config = load_json(MODELS_CONFIG_PATH)
+        model_config["settings"]["provider"] = provider
+        save_json(model_config, MODELS_CONFIG_PATH)
+
     def switch_provider(self, provider):
         """Switch between different model providers"""
         if provider in self.providers:
             # Update current provider
-            self.current_provider = provider
+            self.default_provider = provider
 
             # set api address and key
             api_address = self.providers[provider]["api_address"]
@@ -680,13 +691,13 @@ class ChatbotDialog(QDialog):
 
     def on_api_address_changed(self):
         """Handle the API address changed event"""
-        self.providers[self.current_provider]["api_address"] = self.api_address.text()
-        save_providers_data(self.providers)
+        self.providers[self.default_provider]["api_address"] = self.api_address.text()
+        save_json(self.providers, PROVIDERS_CONFIG_PATH)
 
     def on_api_key_changed(self):
         """Handle the API key changed event"""
-        self.providers[self.current_provider]["api_key"] = self.api_key.text()
-        save_providers_data(self.providers)
+        self.providers[self.default_provider]["api_key"] = self.api_key.text()
+        save_json(self.providers, PROVIDERS_CONFIG_PATH)
 
     def resize_input(self):
         """Dynamically resize input based on content"""
@@ -816,7 +827,7 @@ class ChatbotDialog(QDialog):
 
         # Create and add the message widget
         is_error = True if delete_last_message else False
-        message_widget = ChatMessage(role, content, self.current_provider, self.chat_container, is_error=is_error)
+        message_widget = ChatMessage(role, content, self.default_provider, self.chat_container, is_error=is_error)
         self.chat_messages_layout.addWidget(message_widget)
 
         # Add the stretch back
@@ -927,7 +938,7 @@ class ChatbotDialog(QDialog):
 
         # Create the icon label
         role_label = QLabel()
-        icon_pixmap = QPixmap(set_icon_path(self.current_provider))
+        icon_pixmap = QPixmap(set_icon_path(self.default_provider))
         scaled_icon = icon_pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         role_label.setPixmap(scaled_icon)
         role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
@@ -1417,7 +1428,7 @@ class ChatbotDialog(QDialog):
         current_position = cursor.position()
         document = self.message_input.document()
         text = document.toPlainText()
-        
+
         # Block signals temporarily to prevent recursive calls
         self.message_input.blockSignals(True)
 
