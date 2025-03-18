@@ -311,6 +311,36 @@
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="DealFun_combobox">
+       <property name="currentText">
+        <string>0-原(批量标定)</string>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>0-原(批量标定)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>1-新(批量标定)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>2-提取疑错标签</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>3-极小样本擦除</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="toggle_preserve_existing_annotations">
           <property name="text">
               <string>Preserve existing annotations</string>
