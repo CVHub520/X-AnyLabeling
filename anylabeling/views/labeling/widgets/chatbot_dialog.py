@@ -972,10 +972,7 @@ class ChatbotDialog(QDialog):
         # Store bubble reference for later updates
         self.loading_message.bubble = bubble
 
-        # Add to chat layout
         self.chat_messages_layout.addWidget(self.loading_message)
-
-        # Add stretch back
         self.chat_messages_layout.addStretch()
 
         # Start loading animation
@@ -1356,7 +1353,6 @@ class ChatbotDialog(QDialog):
     
     def clear_messages_after(self, index):
         """Clear all messages after and including the specified index"""
-        # Find all message widgets
         message_widgets = []
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
@@ -1397,7 +1393,6 @@ class ChatbotDialog(QDialog):
         if self.streaming:
             return
 
-        # Find all message widgets
         message_widgets = []
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
@@ -1412,20 +1407,15 @@ class ChatbotDialog(QDialog):
                 break
 
         if message_index is not None:
-            # Remove this assistant message and any messages after it
             self.clear_messages_after(message_index)
 
             # Start generation process
             self.streaming = True
             self.set_components_enabled(False)
-
-            # Create loading message
             self.add_loading_message()
 
-            # Reset stream handler
-            self.stream_handler.reset()
-
             # Start streaming in a separate thread
+            self.stream_handler.reset()
             self.stream_thread = threading.Thread(
                 target=self.stream_generation,
                 args=(self.current_api_address, self.current_api_key)
@@ -1435,7 +1425,7 @@ class ChatbotDialog(QDialog):
     def on_text_changed(self):
         """Handle text changes in the message input, resize and highlight @image tag"""
         self.resize_input()
-        
+
         # Update send button state based on whether input is empty
         current_text = self.message_input.toPlainText().strip()
         self.send_btn.setEnabled(bool(current_text))
@@ -1477,7 +1467,6 @@ class ChatbotDialog(QDialog):
 
     def clear_conversation(self):
         """Clear all chat messages and reset history"""
-        # Show confirmation dialog
         confirm_dialog = QMessageBox(self)
         confirm_dialog.setText(self.tr("Are you sure you want to clear the entire conversation?"))
         confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -1516,9 +1505,7 @@ class ChatbotDialog(QDialog):
             self.prev_image_tooltip,
             self.next_image_tooltip,
         ]
-        for tooltip in tooltips:
-            if tooltip:
-                tooltip.hide()
+        [tooltip.hide() for tooltip in tooltips if tooltip]
 
         # Find and hide all tooltips in chat messages
         for i in range(self.chat_messages_layout.count()):
@@ -1533,7 +1520,6 @@ class ChatbotDialog(QDialog):
 
     def closeEvent(self, event):
         """Handle dialog close event properly"""
-        # Hide all tooltips before closing
         self.hideAllTooltips()
 
         # Stop any ongoing timers
