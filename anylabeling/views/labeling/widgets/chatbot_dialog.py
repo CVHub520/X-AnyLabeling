@@ -1238,6 +1238,7 @@ class ChatbotDialog(QDialog):
         progress_dialog.setStyleSheet(ChatbotDialogStyle.get_progress_dialog_style())
         progress_dialog.setFixedSize(400, 150)
         progress_dialog.setWindowFlags(progress_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        progress_dialog.setMinimumDuration(0)
 
         center_point = self.mapToGlobal(self.rect().center())
         dialog_rect = progress_dialog.rect()
@@ -1245,6 +1246,8 @@ class ChatbotDialog(QDialog):
                            center_point.y() - dialog_rect.height() // 2)
 
         progress_dialog.canceled.connect(self.cancel_operation)
+        progress_dialog.show()
+        QApplication.processEvents()
         self.process_next_image(progress_dialog, prompt)
 
     def process_next_image(self, progress_dialog, prompt):
