@@ -1133,7 +1133,6 @@ class ChatbotDialog(QDialog):
     def load_chat_for_current_image(self):
         """Load chat history for the current image"""
         try:
-            # Clear current chat messages
             while self.chat_messages_layout.count() > 0:
                 item = self.chat_messages_layout.takeAt(0)
                 if item and item.widget():
@@ -1143,16 +1142,9 @@ class ChatbotDialog(QDialog):
                 elif item:
                     self.chat_messages_layout.removeItem(item)
 
-            # Reset chat history
             self.chat_history = []
-
-            # Add stretch
             self.chat_messages_layout.addStretch()
-
-            # Process the UI events to prevent freezing
             QApplication.processEvents()
-
-            # Load data for current image
             self.load_initial_data()
 
         except Exception as e:
@@ -1163,72 +1155,12 @@ class ChatbotDialog(QDialog):
         if len(self.parent().image_list) <= 0:
             return
 
-        batch_dialog = QDialog(self)
-        batch_dialog.setWindowTitle(self.tr("Batch Process All Images"))
-        batch_dialog.setMinimumWidth(400)
-        batch_dialog.setStyleSheet(ChatbotDialogStyle.get_dialog_style())
-
-        # Main layout
-        dialog_layout = QVBoxLayout(batch_dialog)
-        dialog_layout.setContentsMargins(24, 20, 24, 20)
-        dialog_layout.setSpacing(16)
-
-        # Add instruction label
-        instruction_label = QLabel(self.tr("Enter the prompt to apply to all images:"))
-        instruction_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
-        dialog_layout.addWidget(instruction_label)
-
-        # Add text input area
-        batch_message_input = QTextEdit()
-        batch_message_input.setPlaceholderText(self.tr("Type your prompt here and use `@image` to reference the image."))
-        batch_message_input.setStyleSheet(ChatbotDialogStyle.get_message_input_style())
-        batch_message_input.setAcceptRichText(False)
-        batch_message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
-        batch_message_input.setMaximumHeight(MAX_MSG_INPUT_HEIGHT)
-        batch_message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        batch_message_input.setFrameShape(QFrame.NoFrame)
-        dialog_layout.addWidget(batch_message_input)
-
-        # Add buttons in a horizontal layout
-        button_layout = QHBoxLayout()
-        button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.setSpacing(8)
-
-        # Add spacer to push buttons to the right
-        button_layout.addStretch()
-
-        # Cancel button
-        cancel_btn = QPushButton(self.tr("Cancel"))
-        cancel_btn.setStyleSheet(ChatMessageStyle.get_cancel_button_style())
-        cancel_btn.setMinimumHeight(20)
-        cancel_btn.clicked.connect(batch_dialog.reject)
-
-        # Confirm button
-        confirm_btn = QPushButton(self.tr("Confirm"))
-        confirm_btn.setStyleSheet(ChatMessageStyle.get_save_button_style())
-        confirm_btn.setMinimumHeight(20)
-        confirm_btn.clicked.connect(batch_dialog.accept)
-
-        button_layout.addWidget(cancel_btn)
-        button_layout.addWidget(confirm_btn)
-        dialog_layout.addLayout(button_layout)
-
-        batch_dialog.adjustSize()
-        center_point = self.mapToGlobal(self.rect().center())
-        dialog_rect = batch_dialog.rect()
-        batch_dialog.move(center_point.x() - dialog_rect.width() // 2, 
-                          center_point.y() - dialog_rect.height() // 2)
-
-        # Show dialog and get result
-        result = batch_dialog.exec_()
-
-        prompt = batch_message_input.toPlainText().strip()
-        if result == QDialog.Rejected or not prompt:
-            return
-
-        self.current_index = self.parent().fn_to_index[str(self.parent().filename)]
-        self.image_index = self.current_index
-        self.show_progress_dialog_and_process(prompt)
+        batch_dialog = BatchProcessDialog(self)
+        prompt = batch_dialog.exec_()
+        if prompt:
+            self.current_index = self.parent().fn_to_index[str(self.parent().filename)]
+            self.image_index = self.current_index
+            self.show_progress_dialog_and_process(prompt)
 
     def show_progress_dialog_and_process(self, prompt):
         self.cancel_processing = False
