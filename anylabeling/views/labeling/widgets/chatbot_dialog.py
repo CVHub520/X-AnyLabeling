@@ -1213,6 +1213,12 @@ class ChatbotDialog(QDialog):
         button_layout.addWidget(confirm_btn)
         dialog_layout.addLayout(button_layout)
 
+        batch_dialog.adjustSize()
+        center_point = self.mapToGlobal(self.rect().center())
+        dialog_rect = batch_dialog.rect()
+        batch_dialog.move(center_point.x() - dialog_rect.width() // 2, 
+                          center_point.y() - dialog_rect.height() // 2)
+
         # Show dialog and get result
         result = batch_dialog.exec_()
 
