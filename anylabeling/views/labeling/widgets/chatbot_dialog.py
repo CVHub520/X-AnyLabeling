@@ -1254,6 +1254,8 @@ class ChatbotDialog(QDialog):
         total_images = len(self.parent().image_list)
 
         if (self.image_index < total_images) and (not self.cancel_processing):
+            progress_dialog.setLabelText(self.tr(f"Processing image {self.image_index+1}/{total_images}..."))
+
             filename = self.parent().image_list[self.image_index]
             self.parent().filename = filename
 
@@ -1296,7 +1298,7 @@ class ChatbotDialog(QDialog):
             ]
             self.parent().set_dirty()
 
-            progress_dialog.setValue(self.image_index)
+            progress_dialog.setValue(self.image_index + 1)
             self.image_index += 1
             self.navigate_image()
 
