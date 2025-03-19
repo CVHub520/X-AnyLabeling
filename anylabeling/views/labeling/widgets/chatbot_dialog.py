@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QSlider,
     QSpinBox,
     QMessageBox,
+    QProgressDialog,
 )
 from PyQt5.QtGui import QCursor, QIcon, QPixmap, QColor, QTextCursor, QTextCharFormat
 
@@ -68,6 +69,7 @@ class ChatbotDialog(QDialog):
         self.open_image_file_tooltip = CustomTooltip(title="Open Image File")
         self.prev_image_tooltip = CustomTooltip(title="Previous Image")
         self.next_image_tooltip = CustomTooltip(title="Next Image")
+        self.run_all_images_tooltip = CustomTooltip(title="Run All Images")
 
         pixmap = QPixmap(set_icon_path("click"))
         scaled_pixmap = pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -315,8 +317,18 @@ class ChatbotDialog(QDialog):
             btn.setObjectName(btn_name)
             nav_layout.addWidget(btn)
             setattr(self, btn_name, btn)  # Store reference as class attribute
-        nav_layout.addStretch()
 
+        self.run_all_images_btn = QPushButton()
+        self.run_all_images_btn.setIcon(QIcon(set_icon_path("run")))
+        self.run_all_images_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.run_all_images_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
+        self.run_all_images_btn.clicked.connect(self.run_all_images)
+        self.run_all_images_btn.installEventFilter(self)
+        self.run_all_images_btn.setObjectName("run_all_images_btn")
+        self.run_all_images_btn.setVisible(False)
+        nav_layout.addWidget(self.run_all_images_btn)
+
+        nav_layout.addStretch()
         nav_layout.addWidget(self.next_image_btn)
         image_layout.addLayout(nav_layout)
 
@@ -818,6 +830,7 @@ class ChatbotDialog(QDialog):
             if self.parent().image_list:
                 self.load_chat_for_current_image()
                 self.update_import_buttons_visibility()
+                self.run_all_images_btn.setVisible(True)
 
     def add_message(self, role, content, delete_last_message=False):
         """Add a new message to the chat area"""
@@ -1085,11 +1098,12 @@ class ChatbotDialog(QDialog):
             self.api_key.setEchoMode(QLineEdit.Password)
             self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
 
-    def navigate_image(self, direction="next"):
+    def navigate_image(self, direction="next", index=None):
         """Navigate to previous or next image and load its chat history
 
         Args:
             direction (str): Direction to navigate, either "next" or "prev"
+            index (int): Index of the image to navigate to
         """
         try:
             if self.parent().image_list:
@@ -1101,6 +1115,9 @@ class ChatbotDialog(QDialog):
                     new_index = current_index + 1
                 else:
                     return
+
+                if index is not None:
+                    new_index = index
 
                 new_file = self.parent().image_list[new_index]
                 self.parent().load_file(new_file)
@@ -1141,6 +1158,165 @@ class ChatbotDialog(QDialog):
         except Exception as e:
             logger.error(f"Error loading chat for current image: {e}")
 
+    def run_all_images(self):
+        """Run all images with the same prompt for batch processing"""
+        if len(self.parent().image_list) <= 0:
+            return
+
+        batch_dialog = QDialog(self)
+        batch_dialog.setWindowTitle(self.tr("Batch Process All Images"))
+        batch_dialog.setMinimumWidth(400)
+        batch_dialog.setStyleSheet(ChatbotDialogStyle.get_dialog_style())
+
+        # Main layout
+        dialog_layout = QVBoxLayout(batch_dialog)
+        dialog_layout.setContentsMargins(24, 20, 24, 20)
+        dialog_layout.setSpacing(16)
+
+        # Add instruction label
+        instruction_label = QLabel(self.tr("Enter the prompt to apply to all images:"))
+        instruction_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        dialog_layout.addWidget(instruction_label)
+
+        # Add text input area
+        batch_message_input = QTextEdit()
+        batch_message_input.setPlaceholderText(self.tr("Type your prompt here and use `@image` to reference the image."))
+        batch_message_input.setStyleSheet(ChatbotDialogStyle.get_message_input_style())
+        batch_message_input.setAcceptRichText(False)
+        batch_message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
+        batch_message_input.setMaximumHeight(MAX_MSG_INPUT_HEIGHT)
+        batch_message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        batch_message_input.setFrameShape(QFrame.NoFrame)
+        dialog_layout.addWidget(batch_message_input)
+
+        # Add buttons in a horizontal layout
+        button_layout = QHBoxLayout()
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.setSpacing(8)
+
+        # Add spacer to push buttons to the right
+        button_layout.addStretch()
+
+        # Cancel button
+        cancel_btn = QPushButton(self.tr("Cancel"))
+        cancel_btn.setStyleSheet(ChatMessageStyle.get_cancel_button_style())
+        cancel_btn.setMinimumHeight(20)
+        cancel_btn.clicked.connect(batch_dialog.reject)
+
+        # Confirm button
+        confirm_btn = QPushButton(self.tr("Confirm"))
+        confirm_btn.setStyleSheet(ChatMessageStyle.get_save_button_style())
+        confirm_btn.setMinimumHeight(20)
+        confirm_btn.clicked.connect(batch_dialog.accept)
+
+        button_layout.addWidget(cancel_btn)
+        button_layout.addWidget(confirm_btn)
+        dialog_layout.addLayout(button_layout)
+
+        # Show dialog and get result
+        result = batch_dialog.exec_()
+
+        prompt = batch_message_input.toPlainText().strip()
+        if result == QDialog.Rejected or not prompt:
+            return
+
+        self.current_index = self.parent().fn_to_index[str(self.parent().filename)]
+        self.image_index = self.current_index
+        self.show_progress_dialog_and_process(prompt)
+
+    def show_progress_dialog_and_process(self, prompt):
+        self.cancel_processing = False
+        progress_dialog = QProgressDialog(
+            self.tr("Inferencing..."),
+            self.tr("Cancel"),
+            self.image_index,
+            len(self.parent().image_list),
+            self,
+        )
+        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowTitle(self.tr("Progress"))
+        progress_dialog.setStyleSheet(ChatbotDialogStyle.get_progress_dialog_style())
+        progress_dialog.setFixedSize(400, 150)
+        progress_dialog.setWindowFlags(progress_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+
+        center_point = self.mapToGlobal(self.rect().center())
+        dialog_rect = progress_dialog.rect()
+        progress_dialog.move(center_point.x() - dialog_rect.width() // 2, 
+                           center_point.y() - dialog_rect.height() // 2)
+
+        progress_dialog.canceled.connect(self.cancel_operation)
+        self.process_next_image(progress_dialog, prompt)
+
+    def process_next_image(self, progress_dialog, prompt):
+        total_images = len(self.parent().image_list)
+
+        if (self.image_index < total_images) and (not self.cancel_processing):
+            filename = self.parent().image_list[self.image_index]
+            self.parent().filename = filename
+
+            temperature = self.temp_slider.value() / 10.0
+            system_prompt = self.system_prompt_input.text().strip()
+            max_tokens = int(self.max_length_input.text().strip())
+
+            messages = []
+            if system_prompt:
+                messages.append({"role": "system", "content": system_prompt})
+
+            if "@image" in prompt or "<image>" in prompt:
+                pattern = r"@image\s*(?=\S|$)"
+                prompt = re.sub(pattern, "<image>", prompt).strip()
+                with open(self.parent().filename, "rb") as f:
+                    image_data = base64.b64encode(f.read()).decode('utf-8')
+                messages.append({"role": "user", "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
+                    },
+                    {"type": "text", "text": prompt}
+                ]})
+            else:
+                messages.append({"role": "user", "content": prompt})
+
+            client = OpenAI(base_url=self.current_api_address, api_key=self.current_api_key)
+            response = client.chat.completions.create(
+                model=self.selected_model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                stream=False
+            )
+            content = response.choices[0].message.content
+
+            self.parent().other_data["chat_history"] = [
+                {"role": "user", "content": prompt, "image": self.parent().filename},
+                {"role": "assistant", "content": content, "image": None}
+            ]
+            self.parent().set_dirty()
+
+            progress_dialog.setValue(self.image_index)
+            self.image_index += 1
+            self.navigate_image()
+
+            if not self.cancel_processing:
+                delay_ms = 0
+                QTimer.singleShot(
+                    delay_ms, lambda: self.process_next_image(progress_dialog, prompt)
+                )
+            else:
+                self.finish_processing(progress_dialog)
+        else:
+            self.finish_processing(progress_dialog)
+
+    def cancel_operation(self):
+        self.cancel_processing = True
+
+    def finish_processing(self, progress_dialog):
+        self.parent().filename = self.parent().image_list[self.current_index]
+        self.navigate_image(index=self.current_index)
+        del self.image_index
+        del self.current_index
+        progress_dialog.close()
+
     def eventFilter(self, obj, event):
         """Event filter for handling events"""
         # Tooltip handler for multiple buttons
@@ -1152,6 +1328,7 @@ class ChatbotDialog(QDialog):
             "open_video_btn": self.open_video_tooltip,
             "prev_image_btn": self.prev_image_tooltip,
             "next_image_btn": self.next_image_tooltip,
+            "run_all_images_btn": self.run_all_images_tooltip,
         }
         for btn_name, tooltip in tooltip_buttons.items():
             if obj.objectName() == btn_name:

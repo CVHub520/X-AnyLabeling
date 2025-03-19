@@ -556,6 +556,62 @@ class ChatbotDialogStyle:
             }}
         """
 
+    def get_progress_dialog_style(theme: Dict[str, str] = None):
+        theme = theme or THEME
+        return f"""
+            QProgressDialog {{
+                background-color: {theme["background"]};
+                border: 1px solid {theme["border"]};
+                border-radius: 12px;
+                min-width: 350px;
+                min-height: 120px;
+                padding: 10px;
+                font-family: {FONT_FAMILY};
+            }}
+
+            QProgressDialog QLabel {{
+                color: {theme["text"]};
+                font-size: {FONT_SIZE_NORMAL};
+                font-weight: 500;
+                margin-bottom: 10px;
+            }}
+
+            QProgressDialog QProgressBar {{
+                border: none;
+                border-radius: 8px;
+                background-color: {theme["background_secondary"]};
+                text-align: center;
+                color: {theme["text"]};
+                font-weight: 500;
+                height: 16px;
+                min-width: 300px;
+                margin: 16px 0;
+            }}
+
+            QProgressDialog QProgressBar::chunk {{
+                background-color: {theme["primary"]};
+                border-radius: 8px;
+            }}
+
+            QProgressDialog QPushButton {{
+                border: 1px solid {theme["border"]};
+                border-radius: {BORDER_RADIUS};
+                padding: 8px 16px;
+                background-color: {theme["background_secondary"]};
+                color: {theme["text"]};
+                font-weight: 500;
+                min-width: 100px;
+            }}
+
+            QProgressDialog QPushButton:hover {{
+                background-color: {theme["background_hover"]};
+            }}
+
+            QProgressDialog QPushButton:pressed {{
+                background-color: {theme["border"]};
+            }}
+        """
+
 
 class ChatMessageStyle:
     def get_bubble_style(is_user: bool, theme: Dict[str, str] = None) -> str:
