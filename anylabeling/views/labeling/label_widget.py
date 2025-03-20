@@ -99,6 +99,8 @@ class LabelingWidget(LabelDialog):
                 output_file = output
 
         self.guibinglabels = []
+        self.start_time_all = 0.0
+        self.image_tuple = ()
 
         self.filename = None
         self.image_path = None
@@ -3072,6 +3074,35 @@ class LabelingWidget(LabelDialog):
             )
             return False
 
+    def save_labels_autolabeling(self, filename):
+        label_file = LabelFile()
+
+        shapes = [shape.to_dict()
+                  for shape in self.canvas.shapes]
+
+        try:
+            image_path = osp.relpath(self.image_path, osp.dirname(filename))
+            if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
+                os.makedirs(osp.dirname(filename))
+            w, h = utils.get_pil_img_dim(self.image_path)
+            label_file.save(
+                filename=filename,
+                shapes=shapes,
+                image_path=image_path,
+                image_data=None,
+                image_height=h,
+                image_width=w,
+                other_data=self.other_data,
+                flags=None,
+            )
+            self.label_file = label_file
+            return True
+        except LabelFileError as e:
+            self.error_message(
+                self.tr("Error saving label data"), self.tr("<b>%s</b>") % e
+            )
+            return False
+
     def duplicate_selected_shape(self):
         added_shapes = self.canvas.duplicate_selected_shapes()
         self.label_list.clearSelection()
@@ -5847,6 +5878,9 @@ class LabelingWidget(LabelDialog):
         if len(self.image_list) <= 0:
             return
 
+        self.image_tuple = tuple(self.image_list)
+        self.start_time_all = time.time()
+
         if self.auto_labeling_widget.model_manager.loaded_model_config is None:
             self.auto_labeling_widget.model_manager.new_model_status.emit(
                 self.tr("Model is not loaded. Choose a mode to continue.")
@@ -6050,33 +6084,14 @@ class LabelingWidget(LabelDialog):
         return True
 
     def process_next_image(self, progress_dialog):
-        total_images = len(self.image_list)
+        total_images = len(self.image_tuple) #list太慢了, 1万张耗时约10ms, 为了加速换成了tuple
 
         if (self.image_index < total_images) and (not self.cancel_processing):
-            filename = self.image_list[self.image_index]
-            self.filename = filename
-            self.batch_load_file(self.filename)
+            t1_start = time.time()
 
-            if self.text_prompt:
-                self.auto_labeling_widget.model_manager.predict_shapes(
-                    self.image, self.filename, text_prompt=self.text_prompt
-                )
-            elif self.run_tracker:
-                self.auto_labeling_widget.model_manager.predict_shapes(
-                    self.image, self.filename, run_tracker=self.run_tracker
-                )
-            else:
-                self.auto_labeling_widget.model_manager.predict_shapes(
-                    self.image, self.filename
-                )
-
-            # Enable painting for tracking models and time-consuming models
-            model_type = (
-                self.auto_labeling_widget.model_manager.loaded_model_config[
-                    "type"
-                ]
-            )
-            is_painting = model_type in [
+            # Unenable speed up for tracking models and time-consuming models
+            model_type = self.auto_labeling_widget.model_manager.loaded_model_config["type"]
+            is_speed_up = model_type not in [
                 "segment_anything_2_video",
                 "grounding_dino",
                 "grounding_sam",
@@ -6090,6 +6105,30 @@ class LabelingWidget(LabelDialog):
                 "yolo11_obb_track",
                 "yolo11_pose_track",
             ]
+
+            self.filename = self.image_tuple[self.image_index] #list太慢了, 1万张耗时约10ms, 为了加速换成了tuple
+            if is_speed_up:
+                self.image_path = self.filename
+                self.canvas.set_auto_labeling(True)
+                label_path = osp.splitext(self.filename)[0] + ".json"
+                if os.path.exists(label_path):
+                    self.label_file = LabelFile(label_path, osp.dirname(self.filename), False)
+                    self.canvas.load_shapes(self.label_file.shapes, replace=True)
+            else:
+                self.batch_load_file(self.filename)
+
+            if self.text_prompt:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename, text_prompt=self.text_prompt
+                )
+            elif self.run_tracker:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename, run_tracker=self.run_tracker
+                )
+            else:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename
+                )
 
             # Update the progress dialog
             if total_images <= 100:
@@ -6106,13 +6145,20 @@ class LabelingWidget(LabelDialog):
             self.image_index += 1
             if not self.cancel_processing:
                 delay_ms = 1
-                self.canvas.is_painting = is_painting
+                self.canvas.is_painting = not is_speed_up
                 QtCore.QTimer.singleShot(
                     delay_ms, lambda: self.process_next_image(progress_dialog)
                 )
             else:
                 self.finish_processing(progress_dialog)
                 self.canvas.is_painting = True
+
+            # 进度和耗时打印
+            if self.image_index < 10 or self.image_index % 16 == 0:
+                t1 = 1000 * (time.time() - t1_start)
+                tall = (time.time() - self.start_time_all)
+                tshy = tall * (total_images - self.image_index) / self.image_index
+                print(f"进度{self.image_index}/{total_images}, 已耗时{tall:.2f}s, 还剩余{tshy:.2f}s, 耗时{t1:.2f}ms, {self.filename}")
         else:
             self.finish_processing(progress_dialog)
             self.canvas.is_painting = True
@@ -6406,34 +6452,19 @@ class LabelingWidget(LabelDialog):
             if shape.label.find("(gbl)") == -1:
                 wgbResultShapes.append(shape)
 
-        # Clear existing shapes
-        if auto_labeling_result.replace:
-            self.load_shapes([], replace=True)
-            self.label_list.clear()
-            self.load_shapes(wgbResultShapes, replace=True)
-        else:  # Just update existing shapes
-            # Remove shapes with label AutoLabelingMode.OBJECT
-            for shape in self.canvas.shapes:
-                if shape.label == AutoLabelingMode.OBJECT:
-                    item = self.label_list.find_item_by_shape(shape)
-                    self.label_list.remove_item(item)
-            self.load_shapes(wgbResultShapes, replace=False)
+        # 将新检测的标签追加到标签列表中
+        self.canvas.load_shapes(wgbResultShapes, replace=auto_labeling_result.replace)
 
-        # Set image description
-        if auto_labeling_result.description:
-            description = auto_labeling_result.description
-            self.shape_text_label.setText(self.tr("Image Description"))
-            self.shape_text_edit.setPlainText(description)
-            self.other_data["description"] = description
-            self.shape_text_edit.setDisabled(False)
+        # 生成标签文件
+        label_file = osp.splitext(self.image_path)[0] + ".json"
+        self.save_labels_autolabeling(label_file)
 
-        self.set_dirty()
-
-        # Crop and save image
+        # 提取子图, 保存到指定文件夹中
         for shape in auto_labeling_result.shapes:
             if shape.score < 0.9:
                 self.crop_and_save(self.image_path, shape.label, shape.points, shape.score)
 
+        # 提取背景图, 保存到background中
         backFlag = 0
         if auto_labeling_result.replace:
             # 若没有标定, 只有新检测, 则将新检测是背景的全收集到一起
@@ -6446,7 +6477,6 @@ class LabelingWidget(LabelDialog):
             # 将原标定不是背景, 新检测却是背景的图收集到一起
             if len(auto_labeling_result.shapes) == 0 and len(self.canvas.shapes) > 0:
                 backFlag = 1
-
         if backFlag:
             imgPath = pathlib.Path(self.image_path)
             dst_path = pathlib.Path(self.last_open_dir) / "background"
@@ -6556,31 +6586,22 @@ class LabelingWidget(LabelDialog):
         if countA < countB and countB > 0:
             count[6] += 1       #少检的
 
-        self.load_shapes(badResultShapes, replace=False)
-
-        # Set image description
-        if auto_labeling_result.description:
-            description = auto_labeling_result.description
-            self.shape_text_label.setText(self.tr("Image Description"))
-            self.shape_text_edit.setPlainText(description)
-            self.other_data["description"] = description
-            self.shape_text_edit.setDisabled(False)
-
-        # Even if we autosave the file, we keep the ability to undo
-        self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
+        # 追加疑似错误标签到标签列表中
+        self.canvas.load_shapes(badResultShapes, replace=False)
 
         # Only transfer tags that may have issues
-        if countA != countB or countA != count[0] or count[3] > 0:
-            for i in range(1, 6, 1):
-                if count[i] > 0:
-                    dirname, filename = os.path.split(self.image_path)
-                    pic_file = pathlib.Path(self.last_open_dir).joinpath(flagStr[i])
-                    pic_file.mkdir(parents=True, exist_ok=True)
-                    shutil.copy(self.image_path, pic_file / filename)
-                    label_file = osp.splitext(self.image_path)[0] + ".json"
-                    dirname, filename = os.path.split(label_file)
-                    label_file = pathlib.Path(self.last_open_dir).joinpath(flagStr[i], filename)
-                    self.save_labels(label_file)
+        for i in range(1, 6, 1):
+            if count[i] > 0 and (countA != countB or countA != count[0] or count[3] > 0):
+                # 保存图片文件
+                dirname, filename = os.path.split(self.image_path)
+                pic_file = pathlib.Path(self.last_open_dir).joinpath(flagStr[i])
+                pic_file.mkdir(parents=True, exist_ok=True)
+                shutil.copy(self.image_path, pic_file / filename)
+                # 保存标签文件
+                label_file = osp.splitext(self.image_path)[0] + ".json"
+                dirname, filename = os.path.split(label_file)
+                label_file = pathlib.Path(self.last_open_dir).joinpath(flagStr[i], filename)
+                self.save_labels_autolabeling(label_file)
 
         # Crop and save image
         for shape in auto_labeling_result.shapes:
