@@ -1,7 +1,13 @@
 import base64
+import datetime
+import json
+import os
 import re
+import shutil
 import threading
+import zipfile
 from openai import OpenAI
+from PIL import Image
 
 from PyQt5.QtCore import QTimer, Qt, QSize, QPoint, QEvent
 from PyQt5.QtWidgets import (
@@ -23,9 +29,11 @@ from PyQt5.QtWidgets import (
     QSpinBox,
     QMessageBox,
     QProgressDialog,
+    QFileDialog,
 )
 from PyQt5.QtGui import QCursor, QIcon, QPixmap, QColor, QTextCursor, QTextCharFormat
 
+from anylabeling.app_info import __version__
 from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
@@ -70,6 +78,7 @@ class ChatbotDialog(QDialog):
         self.prev_image_tooltip = CustomTooltip(title="Previous Image")
         self.next_image_tooltip = CustomTooltip(title="Next Image")
         self.run_all_images_tooltip = CustomTooltip(title="Run All Images")
+        self.import_export_tooltip = CustomTooltip(title="Import/Export Dataset")
 
         pixmap = QPixmap(set_icon_path("click"))
         scaled_pixmap = pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
@@ -327,6 +336,16 @@ class ChatbotDialog(QDialog):
         self.run_all_images_btn.setObjectName("run_all_images_btn")
         self.run_all_images_btn.setVisible(False)
         nav_layout.addWidget(self.run_all_images_btn)
+
+        self.import_export_btn = QPushButton()
+        self.import_export_btn.setIcon(QIcon(set_icon_path("import-export")))
+        self.import_export_btn.setFixedSize(*ICON_SIZE_NORMAL)
+        self.import_export_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
+        self.import_export_btn.clicked.connect(self.import_export_dataset)
+        self.import_export_btn.installEventFilter(self)
+        self.import_export_btn.setObjectName("import_export_btn")
+        self.import_export_btn.setVisible(False)
+        nav_layout.addWidget(self.import_export_btn)
 
         nav_layout.addStretch()
         nav_layout.addWidget(self.next_image_btn)
@@ -831,6 +850,7 @@ class ChatbotDialog(QDialog):
                 self.load_chat_for_current_image()
                 self.update_import_buttons_visibility()
                 self.run_all_images_btn.setVisible(True)
+                self.import_export_btn.setVisible(True)
 
     def add_message(self, role, content, delete_last_message=False):
         """Add a new message to the chat area"""
@@ -1107,16 +1127,16 @@ class ChatbotDialog(QDialog):
         """
         try:
             if self.parent().image_list:
-                current_index = self.parent().image_list.index(self.parent().filename)
+                if index is None:
+                    current_index = self.parent().image_list.index(self.parent().filename)
 
-                if direction == "prev" and current_index > 0:
-                    new_index = current_index - 1
-                elif direction == "next" and current_index < len(self.parent().image_list) - 1:
-                    new_index = current_index + 1
+                    if direction == "prev" and current_index > 0:
+                        new_index = current_index - 1
+                    elif direction == "next" and current_index < len(self.parent().image_list) - 1:
+                        new_index = current_index + 1
+                    else:
+                        return
                 else:
-                    return
-
-                if index is not None:
                     new_index = index
 
                 new_file = self.parent().image_list[new_index]
@@ -1260,6 +1280,255 @@ class ChatbotDialog(QDialog):
         del self.current_index
         progress_dialog.close()
 
+    def import_export_dataset(self):
+        """Import/Export the dataset"""
+        option_dialog = QDialog(self)
+        option_dialog.setWindowTitle(self.tr("Dataset Operations"))
+        option_dialog.setFixedSize(400, 200)
+        option_dialog.setStyleSheet(ChatbotDialogStyle.get_option_dialog_style())
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setSpacing(20)
+        layout.setAlignment(Qt.AlignCenter)
+
+        import_btn = QPushButton(self.tr("Import Dataset"))
+        import_btn.setCursor(Qt.PointingHandCursor)
+
+        export_btn = QPushButton(self.tr("Export Dataset"))
+        export_btn.setCursor(Qt.PointingHandCursor)
+
+        layout.addWidget(import_btn)
+        layout.addWidget(export_btn)
+        option_dialog.setLayout(layout)
+
+        def export_dataset():
+            option_dialog.accept()
+
+            if not self.parent().filename:
+                QMessageBox.warning(self, self.tr("Export Error"), self.tr("No file is currently open."))
+                return
+
+            current_dir = os.path.dirname(self.parent().filename)
+            export_dir = QFileDialog.getExistingDirectory(
+                self, self.tr("Select Export Directory"), 
+                current_dir,
+                QFileDialog.ShowDirsOnly
+            )
+
+            if not export_dir:
+                return
+
+            # Create timestamp for filenames
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            export_filename = f"sharegpt_mllm_data_{timestamp}"
+            zip_filename = f"{export_filename}.zip"
+            zip_path = os.path.join(export_dir, zip_filename)
+
+            # Create temporary directory structure
+            temp_dir = os.path.join(os.path.expanduser("~"), ".temp_export")
+            temp_images_dir = os.path.join(temp_dir, "images")
+
+            # Clean previous temp dir if exists
+            if os.path.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+            os.makedirs(temp_images_dir, exist_ok=True)
+            
+            try:
+                json_files = [f for f in os.listdir(current_dir) if f.endswith('.json')]
+
+                if not json_files:
+                    QMessageBox.warning(self, self.tr("Export Error"), self.tr("No labeling files found in the current directory."))
+                    return
+
+                export_data = []
+                for json_file in json_files:
+                    file_path = os.path.join(current_dir, json_file)
+
+                    try:
+                        with open(file_path, 'r', encoding='utf-8') as f:
+                            data = json.load(f)
+
+                        if not data.get('chat_history'):
+                            continue
+
+                        image_filename = data.get('imagePath')
+                        if not image_filename:
+                            continue
+
+                        image_path = os.path.join(current_dir, image_filename)
+                        if os.path.exists(image_path):
+                            shutil.copy(image_path, os.path.join(temp_images_dir, image_filename))
+
+                        messages, images = [], []
+                        for msg in data.get('chat_history', []):
+                            message = {
+                                "role": msg.get('role'),
+                                "content": msg.get('content')
+                            }
+                            messages.append(message)
+
+                            # Track images
+                            if msg.get('image'):
+                                rel_path = f"images/{image_filename}"
+                                if rel_path not in images:
+                                    images.append(rel_path)
+
+                        if messages:
+                            export_data.append({
+                                "messages": messages,
+                                "images": images
+                            })
+
+                    except Exception as e:
+                        logger.error(self.tr(f"Error processing {json_file}: {str(e)}"))
+
+                if not export_data:
+                    QMessageBox.warning(self, self.tr("Export Error"), self.tr("No valid chat data found to export."))
+                    return
+
+                dataset_json_path = os.path.join(temp_dir, f"{export_filename}.json")
+                with open(dataset_json_path, 'w', encoding='utf-8') as f:
+                    json.dump(export_data, f, ensure_ascii=False, indent=2)
+
+                # Create zip file
+                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                    zipf.write(dataset_json_path, arcname=f"{export_filename}.json")
+                    for img in os.listdir(temp_images_dir):
+                        img_path = os.path.join(temp_images_dir, img)
+                        zipf.write(img_path, arcname=f"images/{img}")
+
+                shutil.rmtree(temp_dir)
+                QMessageBox.information(
+                    self, 
+                    self.tr("Export Successful"), 
+                    self.tr(f"Dataset exported successfully to:\n{zip_path}")
+                )
+                
+            except Exception as e:
+                logger.error(self.tr(f"An error occurred during export:\n{str(e)}"))
+                QMessageBox.critical(self, self.tr("Export Error"), self.tr(f"An error occurred during export:\n{str(e)}"))
+                if os.path.exists(temp_dir):
+                    shutil.rmtree(temp_dir)
+
+        def import_dataset():
+            option_dialog.accept()
+
+            if not self.parent().filename:
+                QMessageBox.warning(self, self.tr("Import Error"), self.tr("No file is currently open."))
+                return
+
+            current_dir = os.path.dirname(self.parent().filename)
+            import_file, _ = QFileDialog.getOpenFileName(
+                self, self.tr("Select Dataset File"),
+                current_dir,
+                "JSON Files (*.json)"
+            )
+
+            if not import_file:
+                return
+
+            try:
+                with open(import_file, 'r', encoding='utf-8') as f:
+                    import_data = json.load(f)
+
+                if not isinstance(import_data, list):
+                    QMessageBox.warning(self, self.tr("Import Error"), self.tr("Invalid dataset format. Expected a list of records."))
+                    return
+
+                import_base_dir = os.path.dirname(import_file)
+                imported_count = 0
+                for item in import_data:
+                    messages = item.get('messages', [])
+                    images = item.get('images', [])
+
+                    if not messages or not images:
+                        continue
+
+                    for image_path in images:
+                        image_filename = os.path.basename(image_path)
+
+                        # Check if image exists locally or in the import directory
+                        local_image_path = os.path.join(current_dir, image_filename)
+                        import_image_path = os.path.join(import_base_dir, image_path)
+                        import_image_dir_path = os.path.join(import_base_dir, os.path.dirname(image_path), image_filename)
+
+                        # Find the actual image file
+                        found_image = False
+                        for img_path in [local_image_path, import_image_path, import_image_dir_path]:
+                            if os.path.exists(img_path):
+                                if img_path != local_image_path:
+                                    shutil.copy(img_path, local_image_path)
+                                found_image = True
+                                break
+
+                        if not found_image:
+                            continue
+
+                        json_filename = os.path.splitext(image_filename)[0] + '.json'
+                        json_path = os.path.join(current_dir, json_filename)
+
+                        # Prepare chat history
+                        chat_history = []
+                        for msg in messages:
+                            chat_entry = {
+                                "role": msg.get('role', ''),
+                                "content": msg.get('content', ''),
+                                "image": None
+                            }
+
+                            # Set image path for user messages that contain <image> tag
+                            if chat_entry["role"] == "user" and "<image>" in chat_entry["content"]:
+                                chat_entry["image"] = local_image_path
+
+                            chat_history.append(chat_entry)
+
+                        # Parse image data
+                        width, height = 0, 0
+                        with Image.open(local_image_path) as img:
+                            width, height = img.size
+
+                        json_content = {
+                            "version": __version__,
+                            "flags": {},
+                            "shapes": [],
+                            "imagePath": image_filename,
+                            "imageData": None,
+                            "imageHeight": height,
+                            "imageWidth": width,
+                            "chat_history": chat_history,
+                            "description": ""
+                        }
+
+                        with open(json_path, 'w', encoding='utf-8') as f:
+                            json.dump(json_content, f, ensure_ascii=False, indent=2)
+
+                        imported_count += 1
+                        break  # (NOTE) Only support one image per file
+
+                if imported_count > 0:
+                    QMessageBox.information(
+                        self, 
+                        self.tr("Import Successful"), 
+                        self.tr(f"Successfully imported {imported_count} items to:\n{current_dir}")
+                    )
+                    self.navigate_image(index=self.parent().image_list.index(self.parent().filename))
+                else:
+                    QMessageBox.warning(
+                        self, 
+                        self.tr("Import Notice"), 
+                        self.tr("No valid items were found to import. Make sure images are available.")
+                    )
+
+            except Exception as e:
+                logger.error(self.tr(f"An error occurred during import:\n{str(e)}"))
+                QMessageBox.critical(self, self.tr("Import Error"), self.tr(f"An error occurred during import:\n{str(e)}"))
+
+        import_btn.clicked.connect(import_dataset)
+        export_btn.clicked.connect(export_dataset)
+
+        option_dialog.exec_()
+
     def eventFilter(self, obj, event):
         """Event filter for handling events"""
         # Tooltip handler for multiple buttons
@@ -1272,6 +1541,7 @@ class ChatbotDialog(QDialog):
             "prev_image_btn": self.prev_image_tooltip,
             "next_image_btn": self.next_image_tooltip,
             "run_all_images_btn": self.run_all_images_tooltip,
+            "import_export_btn": self.import_export_tooltip,
         }
         for btn_name, tooltip in tooltip_buttons.items():
             if obj.objectName() == btn_name:
@@ -1281,8 +1551,12 @@ class ChatbotDialog(QDialog):
                     tooltip.adjustSize()
                     tooltip_width = tooltip.width()
                     tooltip_height = tooltip.height()
-                    target_x = button_pos.x() - tooltip_width + 5
-                    target_y = button_pos.y() - tooltip_height - 5
+                    if btn_name in ["temperature_btn"]:
+                        target_x = button_pos.x() - tooltip_width + 5
+                        target_y = button_pos.y() - tooltip_height - 5
+                    else:
+                        target_x = button_pos.x() - tooltip_width // 2 + 10
+                        target_y = button_pos.y() - tooltip_height - 5
                     tooltip.move(target_x, target_y)
                     tooltip.show()
                     return True

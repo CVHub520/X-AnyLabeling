@@ -613,6 +613,32 @@ class ChatbotDialogStyle:
         """
 
 
+    def get_option_dialog_style(theme: Dict[str, str] = None):
+        theme = theme or THEME
+        return f"""
+            QDialog {{
+                background-color: {theme["background"]};
+                border-radius: {BORDER_RADIUS};
+                font-family: {FONT_FAMILY};
+            }}
+            QPushButton {{
+                background-color: {theme["primary"]};
+                color: white;
+                border: none;
+                border-radius: {BORDER_RADIUS};
+                padding: 8px 16px;
+                font-size: {FONT_SIZE_NORMAL};
+                min-width: 150px;
+            }}
+            QPushButton:hover {{
+                background-color: {theme["primary"]};
+            }}
+            QPushButton:pressed {{
+                background-color: #3D7FE3;
+            }}
+            """
+
+
 class ChatMessageStyle:
     def get_bubble_style(is_user: bool, theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
