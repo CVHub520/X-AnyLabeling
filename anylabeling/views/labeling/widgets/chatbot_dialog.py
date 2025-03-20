@@ -1666,6 +1666,8 @@ class ChatbotDialog(QDialog):
         self.open_image_file_btn.setEnabled(enabled)
         self.open_image_folder_btn.setEnabled(enabled)
         self.open_video_btn.setEnabled(enabled)
+        self.run_all_images_btn.setEnabled(enabled)
+        self.import_export_btn.setEnabled(enabled)
         self.clear_context_btn.setEnabled(enabled)
         self.api_address.setEnabled(enabled)
         self.api_key.setEnabled(enabled)
