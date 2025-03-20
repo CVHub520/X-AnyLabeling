@@ -713,6 +713,24 @@ class ChatMessageStyle:
             }
         """
 
+    def get_resend_button_style(theme: Dict[str, str] = None):
+        """Style for edit message resend button"""
+        theme = theme or THEME
+        return f"""
+            QPushButton {{
+                background-color: transparent;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                padding: 4px 10px;
+                font-size: {FONT_SIZE_SMALL};
+            }}
+            QPushButton:hover {{
+                background-color: {theme["background"]};
+                border: 1px solid {theme["border"]};
+                color: {theme["primary"]};
+            }}
+        """
+
     def get_cancel_button_style(theme: Dict[str, str] = None):
         """Style for edit message cancel button"""
         theme = theme or THEME
@@ -743,6 +761,6 @@ class ChatMessageStyle:
                 font-size: {FONT_SIZE_SMALL};
             }}
             QPushButton:hover {{
-                background-coldfor: {theme["primary"]};
+                background-color: {theme["primary"]};
             }}
         """

@@ -368,7 +368,11 @@ class ChatMessage(QFrame):
         edit_buttons_layout.setContentsMargins(0, 8, 0, 0)
         edit_buttons_layout.setSpacing(8)
 
-        # Add stretch to push buttons to the right
+        # Resend button
+        self.resend_btn = QPushButton(self.tr("Resend"))
+        self.resend_btn.setStyleSheet(ChatMessageStyle.get_resend_button_style())
+        self.resend_btn.clicked.connect(self.resend_message)
+        edit_buttons_layout.addWidget(self.resend_btn)
         edit_buttons_layout.addStretch()
 
         # Cancel button
@@ -588,6 +592,41 @@ class ChatMessage(QFrame):
         self.is_editing = True
         self.adjust_height_during_edit()
 
+    def save_edit(self):
+        """Save edited content only if it has changed"""
+        edited_content = self.edit_area.toPlainText().strip()
+
+        # Only proceed if content is not empty
+        if edited_content:
+            self.content = edited_content
+            self.content_label.setText(edited_content)
+
+            dialog = self.window()
+
+            # Find this message's index in the chat messages layout
+            message_widgets = []
+            for i in range(dialog.chat_messages_layout.count()):
+                item = dialog.chat_messages_layout.itemAt(i)
+                if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                    message_widgets.append(item.widget())
+
+            if self in message_widgets:
+                message_index = message_widgets.index(self)
+
+                # Update chat history at this index
+                if hasattr(dialog, 'chat_history') and 0 <= message_index < len(dialog.chat_history):
+                    dialog.chat_history[message_index]['content'] = edited_content
+
+                    # If this is a file-based chat, update the stored data
+                    if hasattr(dialog, 'parent') and callable(dialog.parent) and dialog.parent():
+                        parent = dialog.parent()
+                        if hasattr(parent, 'other_data') and hasattr(parent, 'filename'):
+                            if parent.filename:
+                                parent.other_data['chat_history'] = dialog.chat_history
+                                parent.set_dirty()
+
+        self.exit_edit_mode()
+
     def exit_edit_mode(self):
         """Exit edit mode without saving changes"""
         # Show the normal content and hide the edit area
@@ -602,7 +641,7 @@ class ChatMessage(QFrame):
         self.is_editing = False
         self.adjust_height_after_animation()
     
-    def save_edit(self):
+    def resend_message(self):
         """Save edited content and resubmit the message"""
         edited_content = self.edit_area.toPlainText().strip()
 
