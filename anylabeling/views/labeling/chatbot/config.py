@@ -68,6 +68,13 @@ DEFAULT_PROVIDERS_DATA = {
         "api_docs_url": "https://github.com/ollama/ollama/blob/main/docs/api.md",
         "model_docs_url": "https://ollama.com/search"
     },
+    "openai": {
+        "api_address": "https://api.openai.com/v1",
+        "api_key": None,
+        "api_key_url": "https://platform.openai.com/api-keys",
+        "api_docs_url": "https://platform.openai.com/docs",
+        "model_docs_url": "https://platform.openai.com/docs/models"
+    },
     "qwen": {
         "api_address": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "api_key": None,
@@ -79,21 +86,13 @@ DEFAULT_PROVIDERS_DATA = {
 
 SUPPORTED_VISION_MODELS = [
     # Ollama
-    "gemma3",
-    "gemma3:4b",
-    "gemma3:12b",
-    "gemma3:27b",
-    "bakllava",
-    "granite3.2-vision",
-    "minicpm-v",
-    "moondream",
-    "llava",
-    "llava-llama3",
-    "llava-phi3",
-    "llama3.2-vision",
+    "gemma3", "gemma3:4b", "gemma3:12b", "gemma3:27b",
+    "bakllava", "granite3.2-vision",
+    "minicpm-v", "moondream",
+    "llava", "llava-llama3", "llava-phi3", "llama3.2-vision",
     # Qwen
-    "qwen-vl-ocr-latest",
-    "qwen-vl-ocr",
-    "qwen-vl-max",
-    "qwen-vl-plus",
+    "qwen-vl-ocr-latest", "qwen-vl-ocr", "qwen-vl-max", "qwen-vl-plus",
+    # OpenAI
+    "gpt-4.5-preview", "gpt-4.5-preview-2025-02-27",
+    "gpt-4o", "gpt-4o-mini", "gpt-4o-mini-audio-preview-2024-12-17",
 ]
