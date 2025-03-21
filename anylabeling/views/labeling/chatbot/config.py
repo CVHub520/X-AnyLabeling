@@ -68,6 +68,13 @@ DEFAULT_PROVIDERS_DATA = {
         "api_docs_url": "https://platform.deepseek.com/docs",
         "model_docs_url": "https://platform.deepseek.com/models"
     },
+    "gemini": {
+        "api_address": "https://generativelanguage.googleapis.com/v1beta/openai/",
+        "api_key": None,
+        "api_key_url": "https://aistudio.google.com/app/apikey",
+        "api_docs_url": "https://ai.google.dev/gemini-api/docs",
+        "model_docs_url": "https://ai.google.dev/gemini-api/docs/models"
+    },
     "ollama": {
         "api_address": "http://localhost:11434/v1",
         "api_key": "ollama",
@@ -95,6 +102,12 @@ SUPPORTED_VISION_MODELS = [
     # Anthropic
     "claude-3-7-sonnet-20250219",
     "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-5-sonnet-20240620",
+    # Google AI
+    "models/gemini-2.0-flash", "models/gemini-2.0-flash-exp",
+    "models/gemini-2.0-pro-exp", "models/gemini-2.0-pro-exp-02-05",
+    "models/gemini-2.0-flash-thinking-exp",
+    "models/gemini-2.0-flash-thinking-exp-1219",
+    "models/gemini-2.0-flash-thinking-exp-01-21",
     # Ollama
     "gemma3", "gemma3:4b", "gemma3:12b", "gemma3:27b",
     "bakllava", "granite3.2-vision",
