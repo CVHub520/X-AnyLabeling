@@ -54,12 +54,13 @@ class ModelItem(QFrame):
     clicked = pyqtSignal(str)
     favoriteToggled = pyqtSignal(str, bool)
 
-    def __init__(self, model_name, model_data, parent=None):
+    def __init__(self, model_name, model_data, parent=None, in_favorites_section=False):
         super().__init__(parent)
         self.model_name = model_name
         self.model_data = model_data
         self.is_selected = model_data.get("selected", False)
         self.is_favorite = model_data.get("favorite", False)
+        self.in_favorites_section = in_favorites_section
 
         self.setFixedHeight(DEFAULT_FIXED_HEIGHT)
         self.setFrameShape(QFrame.NoFrame)
@@ -91,6 +92,8 @@ class ModelItem(QFrame):
         """)
         if self.is_favorite:
             self.star_icon.setIcon(QIcon(set_icon_path("starred")))
+            if self.in_favorites_section:
+                self.star_icon.setVisible(False)
         else:
             self.star_icon.setIcon(QIcon(set_icon_path("star")))
             self.star_icon.setVisible(False)
@@ -119,7 +122,7 @@ class ModelItem(QFrame):
         super().enterEvent(event)
 
     def leaveEvent(self, event):
-        if not self.is_favorite:
+        if self.in_favorites_section or not self.is_favorite:
             self.star_icon.setVisible(False)
         super().leaveEvent(event)
 
@@ -169,7 +172,7 @@ class ProviderSection(QFrame):
         header = QHBoxLayout()
         icon = QLabel()
         if provider_name == "Favorites":
-            icon_name = "starred"
+            icon_name = "star-black"
         elif Path(set_icon_path(provider_name.lower())).exists():
             icon_name = provider_name.lower()
         icon.setPixmap(QIcon(set_icon_path(icon_name)).pixmap(QSize(*ICON_SIZE_SMALL)))
@@ -312,7 +315,7 @@ class ModelDropdown(QWidget):
             self.container_layout.addWidget(fav_section)
 
             for provider, model_name, model_data in favorites:
-                model_item = ModelItem(model_name, model_data)
+                model_item = ModelItem(model_name, model_data, in_favorites_section=True)
                 model_item.clicked.connect(self.select_model)
                 model_item.favoriteToggled.connect(self.toggle_favorite)
                 fav_section.add_model_item(model_item)
