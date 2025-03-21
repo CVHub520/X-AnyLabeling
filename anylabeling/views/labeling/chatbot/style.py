@@ -383,15 +383,6 @@ class ChatbotDialogStyle:
             }}
         """
 
-    def get_toggle_visibility_btn_style(theme: Dict[str, str] = None) -> str:
-        theme = theme or THEME
-        return f"""
-            QPushButton {{
-                border: none;
-                background: transparent;
-            }}
-        """
-
     def get_right_splitter_style(theme: Dict[str, str] = None) -> str:
         theme = theme or THEME
         return f"""

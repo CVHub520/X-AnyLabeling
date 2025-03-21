@@ -446,7 +446,7 @@ class ChatbotDialog(QDialog):
         self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
         self.toggle_visibility_btn.setCheckable(True)
-        self.toggle_visibility_btn.setStyleSheet(ChatbotDialogStyle.get_toggle_visibility_btn_style())
+        self.toggle_visibility_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
         self.toggle_visibility_btn.clicked.connect(self.toggle_api_key_visibility)
 
         api_key_container.addWidget(self.api_key)
