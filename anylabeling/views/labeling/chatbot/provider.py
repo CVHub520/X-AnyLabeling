@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 import threading
 import time
 
@@ -89,8 +90,18 @@ def fetch_models_async(provider_display_name, base_url, api_key, total_data, con
 
 def get_models_id_list(base_url: str, api_key: str, timeout: int = 5) -> list:
     """Get models id list from the API"""
-    client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
-    return [model.id for model in client.models.list()]
+    if "anthropic" in base_url:
+        url = f'curl https://api.anthropic.com/v1/models --header "x-api-key:{api_key}" --header "anthropic-version: 2023-06-01"'
+        response = subprocess.run(url, shell=True, capture_output=True, text=True)
+        try:
+            response_data = json.loads(response.stdout)
+            return [model["id"] for model in response_data.get("data", [])]
+        except Exception as e:
+            logger.debug(f"Response: {response.stdout}")
+            return []
+    else:
+        client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
+        return [model.id for model in client.models.list()]
 
 
 def get_default_model_id(provider: str) -> str:

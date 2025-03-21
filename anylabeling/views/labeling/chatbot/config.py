@@ -54,6 +54,13 @@ DEFAULT_SETTINGS = {
 }
 
 DEFAULT_PROVIDERS_DATA = {
+    "anthropic": {
+        "api_address": "https://api.anthropic.com/v1/",
+        "api_key": None,
+        "api_key_url": "https://console.anthropic.com/settings/keys",
+        "api_docs_url": "https://docs.anthropic.com/en/docs",
+        "model_docs_url": "https://docs.anthropic.com/en/docs/about-claude/models/all-models"
+    },
     "deepseek": {
         "api_address": "https://api.deepseek.com/v1",
         "api_key" : None,
@@ -85,6 +92,9 @@ DEFAULT_PROVIDERS_DATA = {
 }
 
 SUPPORTED_VISION_MODELS = [
+    # Anthropic
+    "claude-3-7-sonnet-20250219",
+    "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-5-sonnet-20240620",
     # Ollama
     "gemma3", "gemma3:4b", "gemma3:12b", "gemma3:27b",
     "bakllava", "granite3.2-vision",
