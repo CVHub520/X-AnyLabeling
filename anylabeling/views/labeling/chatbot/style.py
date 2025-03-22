@@ -43,11 +43,11 @@ class CustomTooltip(QWidget):
         main_layout.addWidget(self.container)
 
         layout = QVBoxLayout(self.container)
-        layout.setContentsMargins(12, 12, 12, 12)
+        layout.setContentsMargins(8, 8, 8, 8)
         layout.setSpacing(8)
 
         self.title_label = QLabel(title)
-        self.title_label.setStyleSheet(f"color: {text_color};")
+        self.title_label.setStyleSheet(f"color: #000000;")
         layout.addWidget(self.title_label)
 
         if value_pairs:
