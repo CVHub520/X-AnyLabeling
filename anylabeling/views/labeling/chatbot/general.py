@@ -613,11 +613,9 @@ class ChatMessage(QFrame):
             
             # Ensure height is a valid value
             if height and height > 0:
-                button_space = 40
-                padding_space = 10
-                
-                self.content_label.setFixedHeight(height + 5)
-                total_height = height + self.animation_min_height + button_space + padding_space
+                button_space = self.edit_buttons_widget.sizeHint().height()
+                total_height = height + self.animation_min_height + button_space
+                self.content_label.setFixedHeight(height)
                 self.setMaximumHeight(total_height)
 
                 self.updateGeometry()
