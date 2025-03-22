@@ -163,7 +163,7 @@ class ChatbotDialog(QDialog):
         self.chat_container = QWidget()
         self.chat_container.setStyleSheet(ChatbotDialogStyle.get_chat_container_style())
         self.chat_messages_layout = QVBoxLayout(self.chat_container)
-        self.chat_messages_layout.setContentsMargins(0, 0, 0, 0)
+        self.chat_messages_layout.setContentsMargins(24, 12, 24, 12)
         self.chat_messages_layout.setSpacing(16)
         self.chat_messages_layout.addStretch()
 

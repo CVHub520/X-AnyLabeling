@@ -212,7 +212,7 @@ class ChatMessage(QFrame):
 
         # Set up layout
         layout = QVBoxLayout(self)
-        layout.setContentsMargins(24, 0, 24, 0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
 
         # Create a horizontal layout to position the bubble
