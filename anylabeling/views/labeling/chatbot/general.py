@@ -8,6 +8,7 @@ from PyQt5.QtCore import (
     pyqtSignal,
 )
 from PyQt5.QtGui import QIcon, QPixmap, QTextCursor
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
@@ -229,6 +230,7 @@ class ChatMessage(QFrame):
             h_container.addWidget(self.bubble, USER_MESSAGE_MAX_WIDTH_PERCENT)
         else:
             h_container.addWidget(self.bubble, 100)
+            # h_container.addStretch()
 
         bubble_layout = QVBoxLayout(self.bubble)
         bubble_layout.setContentsMargins(10, 8, 10, 8)
@@ -328,7 +330,9 @@ class ChatMessage(QFrame):
         content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         # Set alignment and minimum height to avoid excessive height
-        content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        if self.role == "user":
+            content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
         content_label.setMinimumHeight(10)
         self.content_label = content_label
         bubble_layout.addWidget(content_label)
@@ -466,28 +470,39 @@ class ChatMessage(QFrame):
 
     def _create_content_label(self, processed_content):
         """Create and configure the content label for the message"""
-        content_label = QLabel(processed_content)
-        content_label.setWordWrap(True)
-        content_label.setMinimumWidth(200)
+        if self.role == "user":
+            content_label = QLabel(processed_content)
+            content_label.setWordWrap(True)
+            content_label.setMinimumWidth(200)
+            
+            # Set text format based on content
+            if "\u200B" in processed_content or self.is_error:
+                content_label.setTextFormat(Qt.RichText)
+            else:
+                content_label.setTextFormat(Qt.PlainText)
+            
+            content_label.setStyleSheet(ChatMessageStyle.get_content_label_style(self.is_error))
+            content_label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
+            content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+            
+            # Ensure consistent font display
+            default_font = content_label.font()
+            content_label.setFont(default_font)
+            
+            content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            content_label.setMinimumHeight(10)
+            
+            return content_label
         
-        # Set text format based on content
-        if "\u200B" in processed_content or self.is_error:
-            content_label.setTextFormat(Qt.RichText)
+        # For assistant messages, use QWebEngineView to render markdown
         else:
-            content_label.setTextFormat(Qt.PlainText)
-        
-        content_label.setStyleSheet(ChatMessageStyle.get_content_label_style(self.is_error))
-        content_label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
-        content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        
-        # Ensure consistent font display
-        default_font = content_label.font()
-        content_label.setFont(default_font)
-        
-        content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        content_label.setMinimumHeight(10)
-        
-        return content_label
+            web_view = QWebEngineView()
+            web_view.setMinimumWidth(200)
+            web_view.setMinimumHeight(10)
+            web_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
+            web_view.loadFinished.connect(lambda ok: self.adjust_height_after_animation() if ok else None)
+            web_view.setHtml(set_html_style(processed_content))
+            return web_view
 
     def set_action_buttons_enabled(self, enabled):
         """Enable or disable all action buttons"""
@@ -562,7 +577,13 @@ class ChatMessage(QFrame):
 
         self.resize_in_progress = True
         try:
-            # Get the actual height needed for the content
+            if isinstance(self.content_label, QWebEngineView):
+                self.content_label.page().runJavaScript(
+                    "document.body.scrollHeight;",
+                    self.apply_webview_height
+                )
+                return
+
             content_height = self.content_label.heightForWidth(self.content_label.width())
             # If the height cannot be obtained correctly, use sizeHint
             if content_height <= 0:
@@ -579,6 +600,29 @@ class ChatMessage(QFrame):
             # Force update
             self.updateGeometry()
             QApplication.processEvents()
+        finally:
+            self.resize_in_progress = False
+
+    def apply_webview_height(self, height):
+        """(Callback func) Apply the height from JavaScript"""
+        if not isinstance(self.content_label, QWebEngineView) or self.resize_in_progress:
+            return
+        
+        try:
+            self.resize_in_progress = True
+            
+            # Ensure height is a valid value
+            if height and height > 0:
+                button_space = 40
+                padding_space = 10
+                
+                self.content_label.setFixedHeight(height + 5)
+                total_height = height + self.animation_min_height + button_space + padding_space
+                self.setMaximumHeight(total_height)
+
+                self.updateGeometry()
+                self.bubble.updateGeometry()
+                QApplication.processEvents()
         finally:
             self.resize_in_progress = False
 
@@ -618,7 +662,10 @@ class ChatMessage(QFrame):
         # Only proceed if content is not empty
         if edited_content:
             self.content = edited_content
-            self.content_label.setText(edited_content)
+            if isinstance(self.content_label, QLabel):
+                self.content_label.setText(edited_content)
+            else:
+                self.content_label.setHtml(set_html_style(edited_content))
 
             dialog = self.window()
 

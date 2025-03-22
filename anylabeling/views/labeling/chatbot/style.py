@@ -1,5 +1,11 @@
 from typing import Dict, List, Tuple
 
+import markdown
+import markdown.extensions.fenced_code
+import markdown.extensions.codehilite
+import markdown.extensions.tables
+import markdown.extensions.toc
+
 from PyQt5.QtWidgets import (
     QWidget,
     QFrame,
@@ -759,3 +765,272 @@ class ChatMessageStyle:
                 background-color: {theme["primary"]};
             }}
         """
+
+def set_html_style(content):
+    """Set the HTML style for the content label"""
+    extension_configs = {
+        'codehilite': {
+            'linenums': False,
+            'guess_lang': False
+        }
+    }
+
+    # Convert markdown to HTML with extensions
+    html = markdown.markdown(
+        content, 
+        extensions=[
+            'fenced_code',
+            'codehilite',
+            'tables', 
+            'toc'
+        ],
+        extension_configs=extension_configs
+    )
+
+    return f"""
+    <html>
+    <head>
+        <style>
+            /* GitHub-like styling */
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+                font-size: 16px;
+                line-height: 1.5;
+                color: #24292e;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+            }}
+            
+            h1, h2, h3, h4, h5, h6 {{
+                margin-top: 24px;
+                margin-bottom: 16px;
+                font-weight: 600;
+                line-height: 1.25;
+            }}
+            
+            /* Remove border-bottom from h1 and h2 as requested */
+            h1 {{ font-size: 2em; padding-bottom: 0.3em; }}
+            h2 {{ font-size: 1.5em; padding-bottom: 0.3em; }}
+            
+            a {{ color: #0366d6; text-decoration: none; }}
+            a:hover {{ text-decoration: underline; }}
+            
+            code {{
+                font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
+                background-color: rgba(27, 31, 35, 0.05);
+                padding: 0.2em 0.4em;
+                border-radius: 3px;
+                font-size: 85%;
+            }}
+            
+            pre {{
+                word-wrap: normal;
+                position: relative;
+                margin: 0;
+            }}
+            
+            .code-block {{
+                margin-bottom: 16px;
+                background-color: #f6f8fa;
+                border-radius: 6px;
+                overflow: hidden;
+            }}
+            
+            .code-header {{
+                position: relative;
+                padding: 8px 16px;
+                color: #24292e;
+                background-color: #f6f8fa;
+                border-bottom: 1px solid #e1e4e8;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+                font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+                font-size: 85%;
+                line-height: 1.4;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }}
+            
+            .language-label {{
+                color: #24292e;
+                font-weight: 600;
+            }}
+            
+            .copy-btn {{
+                position: relative;
+                display: inline-block;
+                cursor: pointer;
+                background: none;
+                border: 0;
+                color: #586069;
+                padding: 2px 6px;
+            }}
+            
+            .copy-btn:hover {{
+                color: #0366d6;
+            }}
+            
+            .copy-btn svg {{
+                fill: currentColor;
+                display: inline-block;
+                vertical-align: text-top;
+                overflow: visible;
+            }}
+            
+            pre > code {{
+                padding: 16px;
+                display: block;
+                overflow: auto;
+                line-height: 1.45;
+                background-color: #f6f8fa;
+                border-radius: 0;
+                border-bottom-left-radius: 6px;
+                border-bottom-right-radius: 6px;
+                font-size: 85%;
+            }}
+            
+            blockquote {{
+                padding: 0 1em;
+                color: #6a737d;
+                border-left: 0.25em solid #dfe2e5;
+                margin: 0 0 16px 0;
+            }}
+            
+            hr {{ height: 0.25em; padding: 0; margin: 24px 0; background-color: #e1e4e8; border: 0; }}
+            
+            table {{
+                border-spacing: 0;
+                border-collapse: collapse;
+                margin-top: 0;
+                margin-bottom: 16px;
+                width: 100%;
+                overflow: auto;
+            }}
+            
+            table th {{
+                font-weight: 600;
+                padding: 6px 13px;
+                border: 1px solid #dfe2e5;
+            }}
+            
+            table td {{
+                padding: 6px 13px;
+                border: 1px solid #dfe2e5;
+            }}
+            
+            table tr {{
+                background-color: #fff;
+                border-top: 1px solid #c6cbd1;
+            }}
+            
+            table tr:nth-child(2n) {{
+                background-color: #f6f8fa;
+            }}
+            
+            img {{ max-width: 100%; box-sizing: content-box; }}
+            
+            ul, ol {{
+                padding-left: 2em;
+                margin-top: 0;
+                margin-bottom: 16px;
+            }}
+            
+            li + li {{ margin-top: 0.25em; }}
+            
+            /* Additional styling for code blocks with syntax highlighting */
+            .codehilite {{ margin-bottom: 0; }}
+            .codehilite pre {{ margin-bottom: 0; }}
+        </style>
+        
+        <!-- MathJax for formula rendering -->
+        <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+        </script>
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({{
+                tex2jax: {{
+                    inlineMath: [['$','$'], ['\\\\(','\\\\)']],
+                    displayMath: [['$$','$$'], ['\\\\[','\\\\]']],
+                    processEscapes: true
+                }},
+                "HTML-CSS": {{ fonts: ["TeX"] }}
+            }});
+        </script>
+        
+        <!-- JavaScript for copy button functionality -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {{
+                // Wrap all code blocks and add copy button
+                document.querySelectorAll('pre > code').forEach((codeBlock, index) => {{
+                    const pre = codeBlock.parentNode;
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'code-block';
+                    
+                    // Get language if available
+                    let language = 'Text';
+                    if (codeBlock.className) {{
+                        const match = codeBlock.className.match(/language-([\\w-]+)/);
+                        if (match) language = match[1].charAt(0).toUpperCase() + match[1].slice(1);
+                    }}
+                    
+                    // Create header with language label and copy button
+                    const header = document.createElement('div');
+                    header.className = 'code-header';
+                    
+                    const languageLabel = document.createElement('span');
+                    languageLabel.className = 'language-label';
+                    languageLabel.textContent = language;
+                    
+                    const copyButton = document.createElement('button');
+                    copyButton.className = 'copy-btn';
+                    copyButton.setAttribute('data-index', index);
+                    copyButton.title = 'Copy code to clipboard';
+                    
+                    // Create SVG icon for copy button
+                    copyButton.innerHTML = `
+                        <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+                            <path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                            <path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                        </svg>
+                    `;
+                    
+                    header.appendChild(languageLabel);
+                    header.appendChild(copyButton);
+                    
+                    // Replace pre with wrapper and move pre inside wrapper
+                    pre.parentNode.insertBefore(wrapper, pre);
+                    wrapper.appendChild(header);
+                    wrapper.appendChild(pre);
+                    
+                    // Add click event for copy button
+                    copyButton.addEventListener('click', () => {{
+                        const textarea = document.createElement('textarea');
+                        textarea.value = codeBlock.textContent;
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textarea);
+                        
+                        // Change the icon to a checkmark temporarily
+                        const originalInnerHTML = copyButton.innerHTML;
+                        copyButton.innerHTML = `
+                            <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16">
+                                <path fill-rule="evenodd" d="M13.78 4.22a.75.75 0 010 1.06l-7.25 7.25a.75.75 0 01-1.06 0L2.22 9.28a.75.75 0 011.06-1.06L6 10.94l6.72-6.72a.75.75 0 011.06 0z"></path>
+                            </svg>
+                        `;
+                        
+                        setTimeout(() => {{
+                            copyButton.innerHTML = originalInnerHTML;
+                        }}, 2000);
+                    }});
+                }});
+            }});
+        </script>
+    </head>
+    <body>
+        {html}
+    </body>
+    </html>
+    """
