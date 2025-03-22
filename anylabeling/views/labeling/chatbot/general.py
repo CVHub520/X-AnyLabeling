@@ -263,6 +263,7 @@ class ChatMessage(QFrame):
             self.edit_tooltip = CustomTooltip(title="Edit")
         else:
             self.regenerate_tooltip = CustomTooltip(title="Regenerate")
+            self.edit_tooltip = CustomTooltip(title="Edit")
 
         # Create copy button
         self.copy_btn = QPushButton()
@@ -307,6 +308,16 @@ class ChatMessage(QFrame):
             self.regenerate_btn.installEventFilter(self)
             self.regenerate_btn.setObjectName("regenerate_btn")
 
+            # Create edit button
+            self.edit_btn = QPushButton()
+            self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
+            self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
+            self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
+            self.edit_btn.clicked.connect(self.enter_edit_mode)
+            self.edit_btn.setVisible(False)
+            self.edit_btn.installEventFilter(self)
+            self.edit_btn.setObjectName("edit_btn")
+
         # Add message content
         processed_content = self._process_content(content)
 
@@ -344,6 +355,7 @@ class ChatMessage(QFrame):
             action_buttons_layout.addWidget(self.delete_btn)
         else:
             action_buttons_layout.addWidget(self.copy_btn)
+            action_buttons_layout.addWidget(self.edit_btn)
             action_buttons_layout.addWidget(self.regenerate_btn)
             action_buttons_layout.addWidget(self.delete_btn)
 
@@ -571,15 +583,16 @@ class ChatMessage(QFrame):
             self.resize_in_progress = False
 
     def enter_edit_mode(self):
-        """Enter edit mode for user messages"""
-        if self.role != "user":
-            return
-
+        """Enter edit mode for chat messages"""
         # Hide the normal content
         self.content_label.setVisible(False)
         self.copy_btn.setVisible(False)
         self.edit_btn.setVisible(False)
         self.delete_btn.setVisible(False)
+
+        # Hide regenerate button if it exists (for assistant messages)
+        if hasattr(self, 'regenerate_btn') and self.regenerate_btn:
+            self.regenerate_btn.setVisible(False)
 
         # Show the edit area
         self.edit_area.setVisible(True)
@@ -587,6 +600,12 @@ class ChatMessage(QFrame):
         self.edit_area.setFocus()
         self.edit_area.moveCursor(QTextCursor.End)
         self.edit_buttons_widget.setVisible(True)
+
+        # Hide the Resend button for assistant messages
+        if self.role != "user":
+            self.resend_btn.setVisible(False)
+        else:
+            self.resend_btn.setVisible(True)
 
         # Set the editing flag and adjust the widget height
         self.is_editing = True
@@ -822,12 +841,15 @@ class ChatMessage(QFrame):
         copy_action = context_menu.addAction(self.tr("Copy message"))
         copy_action.triggered.connect(lambda: self.copy_content_to_clipboard(None))
         context_menu.addSeparator()
-        if self.role == "user":
-            edit_action = context_menu.addAction(self.tr("Edit message"))
-            edit_action.triggered.connect(self.enter_edit_mode)
-        else:
+
+        edit_action = context_menu.addAction(self.tr("Edit message"))
+        edit_action.triggered.connect(self.enter_edit_mode)
+
+        # Only add regenerate for assistant messages
+        if self.role != "user":
             regenerate_action = context_menu.addAction(self.tr("Regenerate response"))
             regenerate_action.triggered.connect(self.regenerate_response)
+
         context_menu.addSeparator()
         delete_action = context_menu.addAction(self.tr("Delete message"))
         delete_action.triggered.connect(self.confirm_delete_message)
