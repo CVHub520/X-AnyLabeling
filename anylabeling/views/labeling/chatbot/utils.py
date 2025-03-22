@@ -1,4 +1,5 @@
 import json
+import os
 import time
 
 
@@ -43,6 +44,9 @@ def load_json(file_path: str) -> dict:
 
 def save_json(data: dict, file_path: str):
     """Save the json file"""
+    if not os.path.exists(file_path):
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
     with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4)
 
