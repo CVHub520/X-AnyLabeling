@@ -5,6 +5,8 @@ import markdown.extensions.fenced_code
 import markdown.extensions.codehilite
 import markdown.extensions.tables
 import markdown.extensions.toc
+import markdown.extensions.attr_list
+import markdown.extensions.smarty
 
 from PyQt5.QtWidgets import (
     QWidget,
@@ -766,6 +768,7 @@ class ChatMessageStyle:
             }}
         """
 
+
 def set_html_style(content):
     """Set the HTML style for the content label with GitHub-style markdown rendering and LaTeX support"""
     extension_configs = {
@@ -785,7 +788,9 @@ def set_html_style(content):
             'fenced_code',
             'codehilite',
             'tables', 
-            'toc'
+            'toc',
+            'attr_list',
+            'smarty'
         ],
         extension_configs=extension_configs
     )
