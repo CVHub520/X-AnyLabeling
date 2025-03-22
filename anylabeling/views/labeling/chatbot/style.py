@@ -350,6 +350,10 @@ class ChatbotDialogStyle:
                 background-color: {theme["background_hover"]};
                 border-radius: {BORDER_RADIUS};
             }}
+            QPushButton:focus {{
+                outline: none;
+                border: none;
+            }}
         """
 
     def get_settings_label_style(theme: Dict[str, str] = None) -> str:
