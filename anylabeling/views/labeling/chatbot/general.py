@@ -257,16 +257,6 @@ class ChatMessage(QFrame):
             header_layout.addStretch()
             bubble_layout.addLayout(header_layout)
 
-        # Create custom tooltips
-        self.copy_tooltip = CustomTooltip(title="Copy")
-        self.delete_tooltip = CustomTooltip(title="Delete")
-        
-        if is_user:
-            self.edit_tooltip = CustomTooltip(title="Edit")
-        else:
-            self.regenerate_tooltip = CustomTooltip(title="Regenerate")
-            self.edit_tooltip = CustomTooltip(title="Edit")
-
         # Create copy button
         self.copy_btn = QPushButton()
         self.copy_btn.setIcon(QIcon(set_icon_path("copy")))
@@ -274,8 +264,6 @@ class ChatMessage(QFrame):
         self.copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
         self.copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(self.copy_btn))
         self.copy_btn.setVisible(False)
-        self.copy_btn.installEventFilter(self)
-        self.copy_btn.setObjectName("copy_btn")
 
         # Create delete button
         self.delete_btn = QPushButton()
@@ -284,8 +272,6 @@ class ChatMessage(QFrame):
         self.delete_btn.setStyleSheet(ChatMessageStyle.get_button_style())
         self.delete_btn.clicked.connect(self.confirm_delete_message)
         self.delete_btn.setVisible(False)
-        self.delete_btn.installEventFilter(self)
-        self.delete_btn.setObjectName("delete_btn")
 
         self.edit_btn = None
         self.regenerate_btn = None
@@ -297,8 +283,6 @@ class ChatMessage(QFrame):
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
             self.edit_btn.clicked.connect(self.enter_edit_mode)
             self.edit_btn.setVisible(False)
-            self.edit_btn.installEventFilter(self)
-            self.edit_btn.setObjectName("edit_btn")
         else:
             # Create regenerate button
             self.regenerate_btn = QPushButton()
@@ -307,8 +291,6 @@ class ChatMessage(QFrame):
             self.regenerate_btn.setStyleSheet(ChatMessageStyle.get_button_style())
             self.regenerate_btn.clicked.connect(self.regenerate_response)
             self.regenerate_btn.setVisible(False)
-            self.regenerate_btn.installEventFilter(self)
-            self.regenerate_btn.setObjectName("regenerate_btn")
 
             # Create edit button
             self.edit_btn = QPushButton()
@@ -317,8 +299,6 @@ class ChatMessage(QFrame):
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
             self.edit_btn.clicked.connect(self.enter_edit_mode)
             self.edit_btn.setVisible(False)
-            self.edit_btn.installEventFilter(self)
-            self.edit_btn.setObjectName("edit_btn")
 
         # Add message content
         processed_content = self._process_content(content)
@@ -824,59 +804,6 @@ class ChatMessage(QFrame):
         for button in self.action_buttons:
             button.setVisible(False)
         super().leaveEvent(event)
-
-    def eventFilter(self, obj, event):
-        """Event filter for handling custom tooltips"""
-        # Map button object names to their tooltips
-        tooltip_buttons = {
-            "copy_btn": self.copy_tooltip,
-            "delete_btn": self.delete_tooltip,
-        }
-        
-        if hasattr(self, "edit_btn") and self.edit_btn:
-            tooltip_buttons["edit_btn"] = self.edit_tooltip
-        
-        if hasattr(self, "regenerate_btn") and self.regenerate_btn:
-            tooltip_buttons["regenerate_btn"] = self.regenerate_tooltip
-        
-        # Handle tooltip display
-        for btn_name, tooltip in tooltip_buttons.items():
-            if obj.objectName() == btn_name:
-                if event.type() == QEvent.Enter:
-                    # Get button geometry
-                    button_pos = obj.mapToGlobal(QPoint(0, 0))
-                    button_width = obj.width()
-                    button_height = obj.height()
-                    
-                    # Show tooltip first to ensure proper size calculation
-                    tooltip.show()
-                    tooltip.adjustSize()
-                    
-                    # Get tooltip dimensions
-                    tooltip_width = tooltip.width()
-                    tooltip_height = tooltip.height()
-                    
-                    # Calculate position centered above the button
-                    target_x = button_pos.x() + (button_width - tooltip_width) // 2
-                    target_y = button_pos.y() - tooltip_height - 5
-                    
-                    # Ensure tooltip stays within screen boundaries
-                    screen = QApplication.desktop().screenGeometry()
-                    if target_x + tooltip_width > screen.width():
-                        target_x = screen.width() - tooltip_width - 5
-                    if target_x < 0:
-                        target_x = 5
-                    if target_y < 0:
-                        # If not enough space above, show below the button
-                        target_y = button_pos.y() + button_height + 5
-                    
-                    tooltip.move(target_x, target_y)
-                    return True
-                elif event.type() == QEvent.Leave or event.type() == QEvent.Wheel:
-                    tooltip.hide()
-                    return True
-
-        return False  # Let the event continue to be processed
 
     def show_context_menu(self, position):
         """Show custom context menu for the message bubble"""
