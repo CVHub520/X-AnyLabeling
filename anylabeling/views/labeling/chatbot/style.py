@@ -271,6 +271,7 @@ class ChatbotDialogStyle:
                 font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 padding: 0px;
+                color: {theme["text"]};  /* Set text color */
             }}
             QTextEdit::frame {{
                 border: none;

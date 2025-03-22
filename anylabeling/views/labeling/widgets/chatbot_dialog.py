@@ -189,7 +189,7 @@ class ChatbotDialog(QDialog):
 
         # Create the message input
         self.message_input = QTextEdit()
-        self.message_input.setPlaceholderText(self.tr("Type something, add @image to include an image"))
+        self.message_input.setPlaceholderText(self.tr("Type something and Ctrl+↩︎ to send. Use @image to add an image."))
         self.message_input.setStyleSheet(ChatbotDialogStyle.get_message_input_style())
         self.message_input.setAcceptRichText(False)
         self.message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
@@ -238,7 +238,7 @@ class ChatbotDialog(QDialog):
 
         # Add clear context button (left side)
         self.clear_context_btn = QPushButton()
-        self.clear_context_btn.setIcon(QIcon(set_icon_path("clear")))
+        self.clear_context_btn.setIcon(QIcon(set_icon_path("eraser")))
         self.clear_context_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.clear_context_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
         self.clear_context_btn.setFixedSize(*ICON_SIZE_SMALL)

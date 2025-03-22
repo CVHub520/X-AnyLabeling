@@ -34,7 +34,7 @@ THEME = {
     "primary": "#60A5FA",               # Tailwind CSS blue-500
     "background": "#FFFFFF",            # Clean white background
     "background_secondary": "#F9F9F9",  # Light gray background
-    "background_hover": "#DBDBDB",     # Light gray for hover
+    "background_hover": "#DBDBDB",      # Light gray for hover
     "border": "#E5E5E5",                # Subtle border color
     "text": "#2C2C2E",                  # Dark gray for better readability
     "highlight_text": "#2196F3",        # Highlight text color
