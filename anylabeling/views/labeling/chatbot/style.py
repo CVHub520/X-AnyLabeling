@@ -185,6 +185,10 @@ class ChatbotDialogStyle:
                 font-weight: 450;
                 transition: all {ANIMATION_DURATION} ease;
             }}
+            QPushButton:focus {{
+                outline: none;
+                border: none;
+            }}
             QPushButton:checked {{
                 background-color: #d1d0d4;
                 color: white;
