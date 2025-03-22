@@ -149,7 +149,7 @@ class ChatbotDialog(QDialog):
         chat_container = QWidget()
         chat_container.setStyleSheet(ChatbotDialogStyle.get_chat_container_style())
         chat_layout = QVBoxLayout(chat_container)
-        chat_layout.setContentsMargins(24, 20, 24, 20)
+        chat_layout.setContentsMargins(0, 20, 0, 20)
         chat_layout.setSpacing(16)
 
         # Scroll area for chat messages
