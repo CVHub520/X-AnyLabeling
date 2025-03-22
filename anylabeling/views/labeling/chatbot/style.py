@@ -1060,6 +1060,10 @@ def set_html_style(content):
 
         <script>
             document.addEventListener('DOMContentLoaded', function() {{
+                hljs.configure({{
+                    ignoreUnescapedHTML: true
+                }});
+
                 // Add copy buttons to code blocks
                 document.querySelectorAll('pre').forEach(function(codeBlock) {{
                     if (!codeBlock.querySelector('.copy-button')) {{
