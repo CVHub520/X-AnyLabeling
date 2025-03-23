@@ -68,7 +68,7 @@ DEFAULT_PROVIDERS_DATA = {
         "api_docs_url": "https://platform.deepseek.com/docs",
         "model_docs_url": "https://platform.deepseek.com/models"
     },
-    "gemini": {
+    "google": {
         "api_address": "https://generativelanguage.googleapis.com/v1beta/openai/",
         "api_key": None,
         "api_key_url": "https://aistudio.google.com/app/apikey",
