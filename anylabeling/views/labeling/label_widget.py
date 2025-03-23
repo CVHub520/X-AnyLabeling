@@ -1304,6 +1304,7 @@ class LabelingWidget(LabelDialog):
             open_prev_image=open_prev_image,
             open_next_unchecked_image=open_next_unchecked_image,
             open_prev_unchecked_image=open_prev_unchecked_image,
+            open_chatbot=open_chatbot,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1425,8 +1426,6 @@ class LabelingWidget(LabelDialog):
                 hbb_to_obb,
                 obb_to_hbb,
                 polygon_to_hbb,
-                None,
-                open_chatbot,
             ),
         )
         utils.add_actions(
@@ -1573,6 +1572,7 @@ class LabelingWidget(LabelDialog):
             None,
             zoom,
             fit_width,
+            open_chatbot,
             toggle_auto_labeling_widget,
             run_all_images,
         )
