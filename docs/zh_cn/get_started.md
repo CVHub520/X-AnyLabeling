@@ -10,10 +10,10 @@
 
 **步骤 0.** 从[官方网站](https://docs.anaconda.com/miniconda/)下载并安装 Miniconda。
 
-**步骤 1.** 创建一个 Python 3.8+ 版本的 conda 环境，并激活它。
+**步骤 1.** 创建一个 Python 3.10+ 版本的 conda 环境，并激活它。
 
 ```bash
-conda create --name x-anylabeling python=3.9 -y
+conda create --name x-anylabeling python=3.10 -y
 conda activate x-anylabeling
 ```
 

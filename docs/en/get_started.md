@@ -10,10 +10,10 @@ Before you start, ensure that you have the following prerequisites installed:
 
 **Step 0.** Download and install Miniconda from the [official website](https://docs.anaconda.com/miniconda/).
 
-**Step 1.** Create a new conda environment with Python version 3.9 or higher, and activate it.
+**Step 1.** Create a new conda environment with Python version 3.10 or higher, and activate it.
 
 ```bash
-conda create --name x-anylabeling python=3.9 -y
+conda create --name x-anylabeling python=3.10 -y
 conda activate x-anylabeling
 ```
 
