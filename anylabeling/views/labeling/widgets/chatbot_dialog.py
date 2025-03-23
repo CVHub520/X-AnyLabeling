@@ -71,7 +71,7 @@ class ChatbotDialog(QDialog):
                 ("Creative Writing / Poetry", "1.5")
             ]
         )
-        self.clear_context_tooltip = CustomTooltip(title=self.tr("Clear Chat"))
+        self.clear_chat_tooltip = CustomTooltip(title=self.tr("Clear Chat"))
         self.open_image_folder_tooltip = CustomTooltip(title=self.tr("Open Image Folder"))
         self.open_video_tooltip = CustomTooltip(title=self.tr("Open Video File"))
         self.open_image_file_tooltip = CustomTooltip(title=self.tr("Open Image File"))
@@ -237,17 +237,17 @@ class ChatbotDialog(QDialog):
         button_bar_layout.setSpacing(8)  # Spacing between buttons
 
         # Add clear context button (left side)
-        self.clear_context_btn = QPushButton()
-        self.clear_context_btn.setIcon(QIcon(set_icon_path("eraser")))
-        self.clear_context_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
-        self.clear_context_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
-        self.clear_context_btn.setFixedSize(*ICON_SIZE_SMALL)
-        self.clear_context_btn.clicked.connect(self.clear_conversation)
-        self.clear_context_btn.installEventFilter(self)
-        self.clear_context_btn.setObjectName("clear_context_btn")
+        self.clear_chat_btn = QPushButton()
+        self.clear_chat_btn.setIcon(QIcon(set_icon_path("eraser")))
+        self.clear_chat_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
+        self.clear_chat_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
+        self.clear_chat_btn.setFixedSize(*ICON_SIZE_SMALL)
+        self.clear_chat_btn.clicked.connect(self.clear_conversation)
+        self.clear_chat_btn.installEventFilter(self)
+        self.clear_chat_btn.setObjectName("clear_chat_btn")
 
         # Add buttons to layout
-        button_bar_layout.addWidget(self.clear_context_btn, 0, Qt.AlignBottom)
+        button_bar_layout.addWidget(self.clear_chat_btn, 0, Qt.AlignBottom)
         button_bar_layout.addStretch(1)  # Push buttons to left and right edges
 
         # Create the send button (right side)
@@ -1534,7 +1534,7 @@ class ChatbotDialog(QDialog):
         # Tooltip handler for multiple buttons
         tooltip_buttons = {
             "temperature_btn": self.temperature_tooltip,
-            "clear_context_btn": self.clear_context_tooltip,
+            "clear_chat_btn": self.clear_chat_tooltip,
             "open_image_file_btn": self.open_image_file_tooltip,
             "open_image_folder_btn": self.open_image_folder_tooltip,
             "open_video_btn": self.open_video_tooltip,
@@ -1668,7 +1668,7 @@ class ChatbotDialog(QDialog):
         self.open_video_btn.setEnabled(enabled)
         self.run_all_images_btn.setEnabled(enabled)
         self.import_export_btn.setEnabled(enabled)
-        self.clear_context_btn.setEnabled(enabled)
+        self.clear_chat_btn.setEnabled(enabled)
         self.api_address.setEnabled(enabled)
         self.api_key.setEnabled(enabled)
         self.model_button.setEnabled(enabled)
@@ -1894,7 +1894,7 @@ class ChatbotDialog(QDialog):
         """Hide all tooltips as a safety measure"""
         tooltips = [
             self.temperature_tooltip,
-            self.clear_context_tooltip,
+            self.clear_chat_tooltip,
             self.open_image_file_tooltip,
             self.open_image_folder_tooltip,
             self.open_video_tooltip,
