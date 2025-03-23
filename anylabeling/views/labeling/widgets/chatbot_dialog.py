@@ -366,6 +366,7 @@ class ChatbotDialog(QDialog):
         )
         self.prev_image_btn.installEventFilter(self)
         self.prev_image_btn.setObjectName("prev_image_btn")
+        self.prev_image_btn.setVisible(False)
 
         self.next_image_btn = QPushButton()
         self.next_image_btn.setIcon(QIcon(set_icon_path("arrow-right")))
@@ -378,6 +379,7 @@ class ChatbotDialog(QDialog):
         )
         self.next_image_btn.installEventFilter(self)
         self.next_image_btn.setObjectName("next_image_btn")
+        self.next_image_btn.setVisible(False)
 
         nav_layout.addWidget(self.prev_image_btn)
         nav_layout.addStretch()
@@ -763,9 +765,6 @@ class ChatbotDialog(QDialog):
 
         # Current assistant message for streaming updates
         self.current_assistant_message = None
-
-        # After initializing UI components, load initial data if available
-        self.load_initial_data()
 
         # Fetch available models
         models_data = get_models_data(
