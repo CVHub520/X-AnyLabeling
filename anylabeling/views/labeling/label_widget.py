@@ -7,8 +7,6 @@ import os.path as osp
 import pathlib
 import re
 import shutil
-import time
-import webbrowser
 
 import cv2
 from difflib import SequenceMatcher
@@ -51,6 +49,7 @@ from .widgets import (
     AutoLabelingWidget,
     BrightnessContrastDialog,
     Canvas,
+    ChatbotDialog,
     CrosshairSettingsDialog,
     FileDialogPreview,
     TextInputDialog,
@@ -686,6 +685,13 @@ class LabelingWidget(LabelDialog):
                 "Perform conversion from polygon to horizontal bounding box"
             ),
         )
+        open_chatbot = action(
+            self.tr("ChatBot"),
+            self.open_chatbot,
+            shortcuts["open_chatbot"],
+            icon="chatbot",
+            tip=self.tr("Open chatbot dialog"),
+        )
 
         documentation = action(
             self.tr("&Documentation"),
@@ -1298,6 +1304,7 @@ class LabelingWidget(LabelDialog):
             open_prev_image=open_prev_image,
             open_next_unchecked_image=open_next_unchecked_image,
             open_prev_unchecked_image=open_prev_unchecked_image,
+            open_chatbot=open_chatbot,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1565,6 +1572,7 @@ class LabelingWidget(LabelDialog):
             None,
             zoom,
             fit_width,
+            open_chatbot,
             toggle_auto_labeling_widget,
             run_all_images,
         )
@@ -1765,6 +1773,7 @@ class LabelingWidget(LabelDialog):
     def get_labeling_instruction(self):
         text_mode = self.tr("Mode:")
         text_shortcuts = self.tr("Shortcuts:")
+        text_chatbot = self.tr("Chatbot")
         text_previous = self.tr("Previous")
         text_next = self.tr("Next")
         text_rectangle = self.tr("Rectangle")
@@ -1773,6 +1782,7 @@ class LabelingWidget(LabelDialog):
         return (
             f"<b>{text_mode}</b> {self.canvas.get_mode()} | "
             f"<b>{text_shortcuts}</b>"
+            f" {text_chatbot}(<b>Ctrl+B</b>),"
             f" {text_previous}(<b>A</b>),"
             f" {text_next}(<b>D</b>),"
             f" {text_rectangle}(<b>R</b>),"
@@ -2376,16 +2386,21 @@ class LabelingWidget(LabelDialog):
             error_dialog.setWindowTitle(self.tr("Error"))
             error_dialog.exec_()
 
+    def open_chatbot(self):
+        dialog = ChatbotDialog(self)
+        dialog.setAttribute(Qt.WA_DeleteOnClose)
+        dialog.show()
+
     # Help
     def documentation(self):
         url = (
             "https://github.com/CVHub520/X-AnyLabeling/tree/main/docs"  # NOQA
         )
-        webbrowser.open(url)
+        utils.general.open_url(url)
 
     def contact(self):
         url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/"  # NOQA
-        webbrowser.open(url)
+        utils.general.open_url(url)
 
     def information(self):
         app_info = (
@@ -2939,16 +2954,6 @@ class LabelingWidget(LabelDialog):
         label_list_item.setText("{}".format(html.escape(text)))
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         self.update_combo_box()
-
-    def shape_text_changed(self):
-        description = self.shape_text_edit.toPlainText()
-        if self.canvas.current is not None:
-            self.canvas.current.description = description
-        elif self.canvas.editing() and len(self.canvas.selected_shapes) == 1:
-            self.canvas.selected_shapes[0].description = description
-        else:
-            self.other_data["description"] = description
-        self.set_dirty()
 
     def _update_shape_color(self, shape):
         r, g, b = self._get_rgb_by_label(shape.label)
@@ -6564,6 +6569,16 @@ class LabelingWidget(LabelDialog):
 
         if updated_shapes:
             self.set_dirty()
+
+    def shape_text_changed(self):
+        description = self.shape_text_edit.toPlainText()
+        if self.canvas.current is not None:
+            self.canvas.current.description = description
+        elif self.canvas.editing() and len(self.canvas.selected_shapes) == 1:
+            self.canvas.selected_shapes[0].description = description
+        else:
+            self.other_data["description"] = description
+        self.set_dirty()
 
     def set_text_editing(self, enable):
         """Set text editing."""

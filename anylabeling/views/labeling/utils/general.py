@@ -3,6 +3,7 @@ import math
 import textwrap
 import platform
 import subprocess
+import webbrowser
 from typing import Iterator, Tuple
 from importlib_metadata import version as get_package_version
 
@@ -144,3 +145,30 @@ def get_gpu_info():
         return ", ".join(smi_output.strip().split("\n"))
     except Exception:
         return None
+
+
+def open_url(url: str) -> None:
+    """Open URL in browser while suppressing TTY warnings"""
+    try:
+        if platform.system() == "Linux":
+            # Check if running in WSL
+            with open("/proc/version", "r") as f:
+                if "microsoft" in f.read().lower():
+                    # Use powershell.exe for WSL
+                    subprocess.run(
+                        [
+                            "powershell.exe",
+                            "-Command",
+                            f'Start-Process "{url}"',
+                        ]
+                    )
+                else:
+                    # For native Linux, use xdg-open
+                    subprocess.run(
+                        ["xdg-open", url], stderr=subprocess.DEVNULL
+                    )
+        else:
+            webbrowser.open(url)
+    except Exception:
+        # Fallback to regular webbrowser.open
+        webbrowser.open(url)
