@@ -7,7 +7,11 @@ from PyQt5.QtCore import QCoreApplication
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.logger import logger
-from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
+from anylabeling.views.labeling.utils.opencv import (
+    get_bounding_boxes,
+    qt_img_to_rgb_cv_img,
+)
+
 
 from .types import AutoLabelingResult
 from .__base__.yolo import YOLO
@@ -177,33 +181,14 @@ class YOLOv5SegmentAnything(YOLO):
                 shape.selected = False
                 shapes.append(shape)
         elif self.output_mode == "rectangle":
-            x_min = 100000000
-            y_min = 100000000
-            x_max = 0
-            y_max = 0
-            for approx in approx_contours:
-                # Scale points
-                points = approx.reshape(-1, 2)
-                points[:, 0] = points[:, 0]
-                points[:, 1] = points[:, 1]
-                points = points.tolist()
-                if len(points) < 3:
-                    continue
-
-                # Get min/max
-                for point in points:
-                    x_min = min(x_min, point[0])
-                    y_min = min(y_min, point[1])
-                    x_max = max(x_max, point[0])
-                    y_max = max(y_max, point[1])
-
-            # Create shape
             shape = Shape(flags={})
-            shape.add_point(QtCore.QPointF(x_min, y_min))
-            shape.add_point(QtCore.QPointF(x_max, y_min))
-            shape.add_point(QtCore.QPointF(x_max, y_max))
-            shape.add_point(QtCore.QPointF(x_min, y_max))
-            shape.shape_type = "rectangle"
+            rectangle_box, _ = get_bounding_boxes(approx_contours[0])
+            xmin, ymin, xmax, ymax = rectangle_box
+            shape.add_point(QtCore.QPointF(int(xmin), int(ymin)))
+            shape.add_point(QtCore.QPointF(int(xmax), int(ymin)))
+            shape.add_point(QtCore.QPointF(int(xmax), int(ymax)))
+            shape.add_point(QtCore.QPointF(int(xmin), int(ymax)))
+            shape.shape_type = self.output_mode
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
