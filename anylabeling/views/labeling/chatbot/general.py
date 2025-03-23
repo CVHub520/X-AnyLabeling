@@ -546,7 +546,6 @@ class ChatMessage(QFrame):
     def reset_copy_button(self, button):
         """Reset the copy button to its original state"""
         button.setIcon(QIcon(set_icon_path("copy")))
-        button.setToolTip(self.tr("Copy"))
         button.setStyleSheet(ChatMessageStyle.get_button_style())
 
     def adjust_height_after_animation(self):

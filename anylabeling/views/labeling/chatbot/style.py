@@ -43,7 +43,7 @@ class CustomTooltip(QWidget):
         main_layout.addWidget(self.container)
 
         layout = QVBoxLayout(self.container)
-        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setContentsMargins(10, 10, 10, 10)
         layout.setSpacing(8)
 
         self.title_label = QLabel(title)
