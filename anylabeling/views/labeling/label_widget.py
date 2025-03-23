@@ -528,7 +528,7 @@ class LabelingWidget(LabelDialog):
         )
         group_selected_shapes = action(
             self.tr("Group Selected Shapes"),
-            self.canvas.group_selected_shapes,
+            self.group_selected_shapes,
             shortcuts["group_selected_shapes"],
             None,
             self.tr("Group shapes by assigning a same group_id"),
@@ -536,7 +536,7 @@ class LabelingWidget(LabelDialog):
         )
         ungroup_selected_shapes = action(
             self.tr("Ungroup Selected Shapes"),
-            self.canvas.ungroup_selected_shapes,
+            self.ungroup_selected_shapes,
             shortcuts["ungroup_selected_shapes"],
             None,
             self.tr("Ungroup shapes"),
@@ -6615,3 +6615,12 @@ class LabelingWidget(LabelDialog):
         font.setPointSize(10)
         self.shape_text_edit.setFont(font)
         self.shape_text_label.setFont(font)
+    
+    def group_selected_shapes(self):
+        self.canvas.group_selected_shapes()
+        self.set_dirty()
+
+
+    def ungroup_selected_shapes(self):
+        self.canvas.ungroup_selected_shapes()
+        self.set_dirty()
