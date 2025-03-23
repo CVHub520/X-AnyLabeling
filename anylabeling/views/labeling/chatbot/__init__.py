@@ -1,3 +1,4 @@
+from .animation import *
 from .config import *
 from .general import *
 from .handler import *

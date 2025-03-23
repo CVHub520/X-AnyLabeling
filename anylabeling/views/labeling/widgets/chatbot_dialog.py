@@ -992,10 +992,19 @@ class ChatbotDialog(QDialog):
         header_layout.addStretch()
         bubble_layout.addLayout(header_layout)
 
-        # Add loading text
-        self.loading_text = QLabel(self.tr("Generating..."))
-        self.loading_text.setStyleSheet(ChatMessageStyle.get_content_label_style(is_error=False))
-        bubble_layout.addWidget(self.loading_text)
+        # Create layout for loading indicator and text
+        loading_indicator_layout = QHBoxLayout()
+
+        # Add pulsating dot animation
+        self.pulsating_dot = PulsatingDot(
+            bubble,
+            size_range=(8, 16),
+            color_range=((30, 30, 30), (150, 150, 150)),
+            duration=500
+        )
+        loading_indicator_layout.addWidget(self.pulsating_dot)
+        loading_indicator_layout.addStretch()
+        bubble_layout.addLayout(loading_indicator_layout)
 
         # Set maximum width for the bubble
         bubble.setMaximumWidth(2000)
@@ -1007,65 +1016,34 @@ class ChatbotDialog(QDialog):
 
         self.chat_messages_layout.addWidget(self.loading_message)
         self.chat_messages_layout.addStretch()
-
-        # Start loading animation
-        self.loading_timer = QTimer(self)
-        self.loading_timer.timeout.connect(self.update_loading_animation)
-        self.loading_timer.start(int(ANIMATION_DURATION[:-2]))
-
-        # Scroll to bottom
         QTimer.singleShot(0, self.scroll_to_bottom)
-    
-    def update_loading_animation(self):
-        """Update the loading animation dots"""
-        if hasattr(self, 'loading_text') and self.loading_text:
-            try:
-                self.loading_dots = (self.loading_dots + 1) % 4
-                dots = "." * self.loading_dots
-                self.loading_text.setText(f"Generating{dots}")
-            except RuntimeError:
-                # The QLabel has been deleted, stop the timer
-                if self.loading_timer and self.loading_timer.isActive():
-                    self.loading_timer.stop()
-                self.loading_text = None
-    
+
     def update_output(self, text):
         """Update the output text with streaming content"""
         if self.loading_message:
-            # Stop the loading animation
-            if self.loading_timer and self.loading_timer.isActive():
-                self.loading_timer.stop()
-            
-            # If this is the first update, replace the loading text with a QLabel for content
+            # Stop the pulsating dot animation
+            if hasattr(self, 'pulsating_dot') and self.pulsating_dot:
+                self.pulsating_dot.stop_animation()
+                self.pulsating_dot.setParent(None)
+                self.pulsating_dot.deleteLater()
+                self.pulsating_dot = None
+
+            # If this is the first update, create a content label
             if not hasattr(self.loading_message, 'content_label'):
-                # Remove the loading text
-                if hasattr(self, 'loading_text') and self.loading_text:
-                    self.loading_text.setParent(None)
-                    self.loading_text.deleteLater()
-                    self.loading_text = None
-                
-                # Create content label
                 self.loading_message.content_label = QLabel("")
                 self.loading_message.content_label.setWordWrap(True)
                 self.loading_message.content_label.setTextFormat(Qt.PlainText)
                 self.loading_message.content_label.setStyleSheet(
                     ChatMessageStyle.get_content_label_style(is_error=False)
                 )
-                
-                # Set minimum and maximum width for proper wrapping
                 self.loading_message.content_label.setMinimumWidth(100)
                 self.loading_message.content_label.setMaximumWidth(1999)
-
-                # Add to bubble layout
                 self.loading_message.bubble.layout().addWidget(self.loading_message.content_label)
-            
-            # Update the content
+
             current_text = self.loading_message.content_label.text()
             self.loading_message.content_label.setText(current_text + text)
-            
-            # Scroll chat area to bottom
             self.scroll_to_bottom()
-    
+
     def on_stream_finished(self, success):
         """Handle completion of streaming"""
         # Stop the loading timer if it's still active
