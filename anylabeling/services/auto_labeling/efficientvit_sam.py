@@ -341,7 +341,6 @@ class EfficientViT_SAM(Model):
                 shape.closed = True
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = "AUTOLABEL_OBJECT"
                 shape.selected = False
                 shapes.append(shape)
@@ -378,7 +377,6 @@ class EfficientViT_SAM(Model):
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
-            shape.line_width = 1
             shape.label = "AUTOLABEL_OBJECT"
             shape.selected = False
             shapes.append(shape)

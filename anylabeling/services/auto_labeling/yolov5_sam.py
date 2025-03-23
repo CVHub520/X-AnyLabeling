@@ -173,7 +173,6 @@ class YOLOv5SegmentAnything(YOLO):
                 shape.closed = True
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = "AUTOLABEL_OBJECT" if label is None else label
                 shape.selected = False
                 shapes.append(shape)
@@ -208,7 +207,6 @@ class YOLOv5SegmentAnything(YOLO):
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
-            shape.line_width = 1
             shape.label = "AUTOLABEL_OBJECT" if label is None else label
             shape.selected = False
             shapes.append(shape)

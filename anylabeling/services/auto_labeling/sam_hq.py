@@ -390,7 +390,6 @@ class SAM_HQ(Model):
                 shape.closed = True
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = "AUTOLABEL_OBJECT"
                 shape.selected = False
                 shapes.append(shape)
@@ -427,7 +426,6 @@ class SAM_HQ(Model):
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
-            shape.line_width = 1
             if self.clip_net is not None and self.classes:
                 img = image[y_min:y_max, x_min:x_max]
                 out = self.clip_net(img, self.classes)
