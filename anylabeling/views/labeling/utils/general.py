@@ -146,18 +146,27 @@ def get_gpu_info():
     except Exception:
         return None
 
+
 def open_url(url: str) -> None:
     """Open URL in browser while suppressing TTY warnings"""
     try:
-        if platform.system() == 'Linux':
+        if platform.system() == "Linux":
             # Check if running in WSL
-            with open('/proc/version', 'r') as f:
-                if 'microsoft' in f.read().lower():
+            with open("/proc/version", "r") as f:
+                if "microsoft" in f.read().lower():
                     # Use powershell.exe for WSL
-                    subprocess.run(['powershell.exe', '-Command', f'Start-Process "{url}"'])
+                    subprocess.run(
+                        [
+                            "powershell.exe",
+                            "-Command",
+                            f'Start-Process "{url}"',
+                        ]
+                    )
                 else:
                     # For native Linux, use xdg-open
-                    subprocess.run(['xdg-open', url], stderr=subprocess.DEVNULL)
+                    subprocess.run(
+                        ["xdg-open", url], stderr=subprocess.DEVNULL
+                    )
         else:
             webbrowser.open(url)
     except Exception:

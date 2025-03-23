@@ -30,6 +30,7 @@ from anylabeling.views.labeling.chatbot.utils import *
 
 class BatchProcessDialog(QDialog):
     """Batch processing dialog class"""
+
     promptReady = pyqtSignal(str)
 
     def __init__(self, parent=None):
@@ -41,12 +42,14 @@ class BatchProcessDialog(QDialog):
 
     def setup_ui(self):
         """Set up the UI interface"""
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QDialog {
                 background-color: white;
                 border-radius: 8px;
             }
-        """)
+        """
+        )
 
         # Main layout
         dialog_layout = QVBoxLayout(self)
@@ -54,22 +57,29 @@ class BatchProcessDialog(QDialog):
         dialog_layout.setSpacing(20)
 
         # Instruction label
-        instruction_label = QLabel(self.tr("Enter the prompt to apply to all images:"))
-        instruction_label.setStyleSheet("""
+        instruction_label = QLabel(
+            self.tr("Enter the prompt to apply to all images:")
+        )
+        instruction_label.setStyleSheet(
+            """
             QLabel {
                 font-size: 14px;
                 color: #374151;
                 font-weight: 500;
             }
-        """)
+        """
+        )
         dialog_layout.addWidget(instruction_label)
 
         # Input box design
         self.batch_message_input = QTextEdit()
         self.batch_message_input.setPlaceholderText(
-            self.tr("Type your prompt here and use `@image` to reference the image.")
+            self.tr(
+                "Type your prompt here and use `@image` to reference the image."
+            )
         )
-        self.batch_message_input.setStyleSheet("""
+        self.batch_message_input.setStyleSheet(
+            """
             QTextEdit {
                 border: 1px solid #E5E7EB;
                 border-radius: 8px;
@@ -94,11 +104,14 @@ class BatchProcessDialog(QDialog):
             QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
                 height: 0px;
             }
-        """)
+        """
+        )
         self.batch_message_input.setAcceptRichText(False)
         self.batch_message_input.setMinimumHeight(160)
         self.batch_message_input.setMaximumHeight(200)
-        self.batch_message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.batch_message_input.setVerticalScrollBarPolicy(
+            Qt.ScrollBarAsNeeded
+        )
         dialog_layout.addWidget(self.batch_message_input)
 
         # Button layout
@@ -109,7 +122,8 @@ class BatchProcessDialog(QDialog):
 
         # Cancel button
         cancel_btn = QPushButton(self.tr("Cancel"))
-        cancel_btn.setStyleSheet("""
+        cancel_btn.setStyleSheet(
+            """
             QPushButton {
                 background-color: white;
                 color: #4B5563;
@@ -127,14 +141,16 @@ class BatchProcessDialog(QDialog):
             QPushButton:pressed {
                 background-color: #F3F4F6;
             }
-        """)
+        """
+        )
         cancel_btn.setMinimumHeight(36)
         cancel_btn.setCursor(Qt.PointingHandCursor)
         cancel_btn.clicked.connect(self.reject)
 
         # Confirm button
         confirm_btn = QPushButton(self.tr("Confirm"))
-        confirm_btn.setStyleSheet("""
+        confirm_btn.setStyleSheet(
+            """
             QPushButton {
                 background-color: #4F46E5;
                 color: white;
@@ -151,7 +167,8 @@ class BatchProcessDialog(QDialog):
             QPushButton:pressed {
                 background-color: #3730A3;
             }
-        """)
+        """
+        )
         confirm_btn.setMinimumHeight(36)
         confirm_btn.setCursor(Qt.PointingHandCursor)
         confirm_btn.clicked.connect(self.accept)
@@ -168,8 +185,10 @@ class BatchProcessDialog(QDialog):
         if self.parent:
             center_point = self.parent.mapToGlobal(self.parent.rect().center())
             dialog_rect = self.rect()
-            self.move(center_point.x() - dialog_rect.width() // 2, 
-                      center_point.y() - dialog_rect.height() // 2)
+            self.move(
+                center_point.x() - dialog_rect.width() // 2,
+                center_point.y() - dialog_rect.height() // 2,
+            )
 
     def get_prompt(self):
         """Get the user input prompt"""
@@ -241,14 +260,18 @@ class ChatMessage(QFrame):
             header_layout = QHBoxLayout()
             icon_container = QFrame()
             icon_container.setObjectName("roleLabelContainer")
-            icon_container.setStyleSheet(ChatMessageStyle.get_role_label_background_style())
+            icon_container.setStyleSheet(
+                ChatMessageStyle.get_role_label_background_style()
+            )
             icon_container_layout = QHBoxLayout(icon_container)
             icon_container_layout.setContentsMargins(2, 2, 2, 2)
             icon_container_layout.setSpacing(0)
 
             role_label = QLabel()
             icon_pixmap = QPixmap(set_icon_path(self.provider))
-            scaled_icon = icon_pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_icon = icon_pixmap.scaled(
+                *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            )
             role_label.setPixmap(scaled_icon)
             role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
 
@@ -262,7 +285,9 @@ class ChatMessage(QFrame):
         self.copy_btn.setIcon(QIcon(set_icon_path("copy")))
         self.copy_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
-        self.copy_btn.clicked.connect(lambda: self.copy_content_to_clipboard(self.copy_btn))
+        self.copy_btn.clicked.connect(
+            lambda: self.copy_content_to_clipboard(self.copy_btn)
+        )
         self.copy_btn.setVisible(False)
 
         # Create delete button
@@ -288,7 +313,9 @@ class ChatMessage(QFrame):
             self.regenerate_btn = QPushButton()
             self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
             self.regenerate_btn.setFixedSize(*ICON_SIZE_SMALL)
-            self.regenerate_btn.setStyleSheet(ChatMessageStyle.get_button_style())
+            self.regenerate_btn.setStyleSheet(
+                ChatMessageStyle.get_button_style()
+            )
             self.regenerate_btn.clicked.connect(self.regenerate_response)
             self.regenerate_btn.setVisible(False)
 
@@ -307,7 +334,9 @@ class ChatMessage(QFrame):
         content_label = self._create_content_label(processed_content)
 
         # Use a more appropriate size policy to avoid excessive vertical space
-        content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        content_label.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Preferred
+        )
 
         # Set alignment and minimum height to avoid excessive height
         if self.role == "user":
@@ -344,8 +373,16 @@ class ChatMessage(QFrame):
             action_buttons_layout.addWidget(self.delete_btn)
 
         # Store buttons for hover events
-        self.action_buttons = [btn for btn in [
-            self.copy_btn, self.edit_btn, self.regenerate_btn, self.delete_btn] if btn]
+        self.action_buttons = [
+            btn
+            for btn in [
+                self.copy_btn,
+                self.edit_btn,
+                self.regenerate_btn,
+                self.delete_btn,
+            ]
+            if btn
+        ]
 
         # Create an edit area for user messages (hidden by default)
         self.edit_area = QTextEdit()
@@ -357,7 +394,7 @@ class ChatMessage(QFrame):
         self.edit_area.setMinimumHeight(self.edit_area_min_height)
         self.edit_area.setVisible(False)
         bubble_layout.addWidget(self.edit_area)
-        
+
         # Create buttons for edit mode (hidden by default)
         self.edit_buttons_widget = QWidget()
         edit_buttons_layout = QHBoxLayout(self.edit_buttons_widget)
@@ -366,14 +403,18 @@ class ChatMessage(QFrame):
 
         # Resend button
         self.resend_btn = QPushButton(self.tr("Resend"))
-        self.resend_btn.setStyleSheet(ChatMessageStyle.get_resend_button_style())
+        self.resend_btn.setStyleSheet(
+            ChatMessageStyle.get_resend_button_style()
+        )
         self.resend_btn.clicked.connect(self.resend_message)
         edit_buttons_layout.addWidget(self.resend_btn)
         edit_buttons_layout.addStretch()
 
         # Cancel button
         self.cancel_btn = QPushButton(self.tr("Cancel"))
-        self.cancel_btn.setStyleSheet(ChatMessageStyle.get_cancel_button_style())
+        self.cancel_btn.setStyleSheet(
+            ChatMessageStyle.get_cancel_button_style()
+        )
         self.cancel_btn.clicked.connect(self.exit_edit_mode)
 
         # Save button
@@ -385,7 +426,9 @@ class ChatMessage(QFrame):
         edit_buttons_layout.addWidget(self.save_btn)
 
         # Add edit buttons to bubble layout but keep hidden
-        self.edit_buttons_widget.setStyleSheet(ChatMessageStyle.get_edit_button_wdiget_style())
+        self.edit_buttons_widget.setStyleSheet(
+            ChatMessageStyle.get_edit_button_wdiget_style()
+        )
         self.edit_buttons_widget.setVisible(False)
         bubble_layout.addWidget(self.edit_buttons_widget)
 
@@ -395,19 +438,25 @@ class ChatMessage(QFrame):
             parent_width = parent.width()
             if parent_width > 0:
                 if self.role == "user":
-                    max_width = int(parent_width * USER_MESSAGE_MAX_WIDTH_PERCENT / 100)
+                    max_width = int(
+                        parent_width * USER_MESSAGE_MAX_WIDTH_PERCENT / 100
+                    )
                 else:
                     max_width = int(parent_width)
 
                 if max_width > 0:
-                    if hasattr(self, 'content_label'):
+                    if hasattr(self, "content_label"):
                         self.content_label.setMaximumWidth(max_width - 20)
-                    if hasattr(self, 'edit_area'):
+                    if hasattr(self, "edit_area"):
                         self.edit_area.setMaximumWidth(max_width - 20)
                     self.bubble.setMaximumWidth(max_width)
-                    if hasattr(self, 'content_label') and hasattr(self, 'adjust_height_after_animation'):
+                    if hasattr(self, "content_label") and hasattr(
+                        self, "adjust_height_after_animation"
+                    ):
                         self.adjust_height_after_animation()
-                    if self.is_editing and hasattr(self, 'adjust_height_during_edit'):
+                    if self.is_editing and hasattr(
+                        self, "adjust_height_during_edit"
+                    ):
                         self.adjust_height_during_edit()
 
                     self.updateGeometry()
@@ -422,10 +471,12 @@ class ChatMessage(QFrame):
         self.animation.setStartValue(0)
 
         content_height = self.content_label.sizeHint().height()
-        bubble_height = content_height + (bubble_layout.contentsMargins().top() + 
-                                         bubble_layout.contentsMargins().bottom() + 
-                                         bubble_layout.spacing() + 
-                                         30)
+        bubble_height = content_height + (
+            bubble_layout.contentsMargins().top()
+            + bubble_layout.contentsMargins().bottom()
+            + bubble_layout.spacing()
+            + 30
+        )
 
         # Set end value and easing curve
         anim_end_height = max(self.animation_min_height, bubble_height)
@@ -442,7 +493,7 @@ class ChatMessage(QFrame):
             chunk_size = 50
             processed_content = ""
             for i in range(0, len(content), chunk_size):
-                processed_content += content[i:i+chunk_size]
+                processed_content += content[i : i + chunk_size]
                 if i + chunk_size < len(content):
                     processed_content += "\u200B"  # Zero-width space, allows line breaks but is invisible
             return processed_content
@@ -454,33 +505,43 @@ class ChatMessage(QFrame):
             content_label = QLabel(processed_content)
             content_label.setWordWrap(True)
             content_label.setMinimumWidth(200)
-            
+
             # Set text format based on content
             if "\u200B" in processed_content or self.is_error:
                 content_label.setTextFormat(Qt.RichText)
             else:
                 content_label.setTextFormat(Qt.PlainText)
-            
-            content_label.setStyleSheet(ChatMessageStyle.get_content_label_style(self.is_error))
-            content_label.setTextInteractionFlags(Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard)
-            content_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-            
+
+            content_label.setStyleSheet(
+                ChatMessageStyle.get_content_label_style(self.is_error)
+            )
+            content_label.setTextInteractionFlags(
+                Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard
+            )
+            content_label.setSizePolicy(
+                QSizePolicy.Expanding, QSizePolicy.Preferred
+            )
+
             # Ensure consistent font display
             default_font = content_label.font()
             content_label.setFont(default_font)
-            
+
             content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
             content_label.setMinimumHeight(10)
-            
+
             return content_label
-        
+
         # For assistant messages, use QWebEngineView to render markdown
         else:
             web_view = QWebEngineView()
             web_view.setMinimumWidth(200)
             web_view.setMinimumHeight(10)
-            web_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
-            web_view.loadFinished.connect(lambda ok: self.adjust_height_after_animation() if ok else None)
+            web_view.setSizePolicy(
+                QSizePolicy.Expanding, QSizePolicy.MinimumExpanding
+            )
+            web_view.loadFinished.connect(
+                lambda ok: self.adjust_height_after_animation() if ok else None
+            )
             web_view.setHtml(set_html_style(processed_content))
             return web_view
 
@@ -501,23 +562,27 @@ class ChatMessage(QFrame):
                 parent_width = self.parent().width()
                 if parent_width > 0:
                     if self.role == "user":
-                        max_width = int(parent_width * USER_MESSAGE_MAX_WIDTH_PERCENT / 100)
+                        max_width = int(
+                            parent_width * USER_MESSAGE_MAX_WIDTH_PERCENT / 100
+                        )
                     else:
                         max_width = int(parent_width)
 
                     if max_width > 0:
-                        if hasattr(self, 'content_label'):
+                        if hasattr(self, "content_label"):
                             self.content_label.setMaximumWidth(max_width - 20)
-                        
-                        if hasattr(self, 'edit_area'):
+
+                        if hasattr(self, "edit_area"):
                             self.edit_area.setMaximumWidth(max_width - 20)
 
                         self.bubble.setMaximumWidth(max_width)
 
-                        if hasattr(self, 'content_label') and hasattr(self, 'adjust_height_after_animation'):
+                        if hasattr(self, "content_label") and hasattr(
+                            self, "adjust_height_after_animation"
+                        ):
                             if not self.is_editing:
                                 self.adjust_height_after_animation()
-                        
+
                         self.updateGeometry()
                         self.bubble.updateGeometry()
         finally:
@@ -530,7 +595,7 @@ class ChatMessage(QFrame):
         if not self.resize_in_progress:
             self.update_width_constraint()
 
-    def copy_content_to_clipboard(self, button = None):
+    def copy_content_to_clipboard(self, button=None):
         """Copy message content to clipboard with visual feedback"""
         # Copy the content to clipboard
         clipboard = QApplication.clipboard()
@@ -558,12 +623,13 @@ class ChatMessage(QFrame):
         try:
             if isinstance(self.content_label, QWebEngineView):
                 self.content_label.page().runJavaScript(
-                    "document.body.scrollHeight;",
-                    self.apply_webview_height
+                    "document.body.scrollHeight;", self.apply_webview_height
                 )
                 return
 
-            content_height = self.content_label.heightForWidth(self.content_label.width())
+            content_height = self.content_label.heightForWidth(
+                self.content_label.width()
+            )
             # If the height cannot be obtained correctly, use sizeHint
             if content_height <= 0:
                 content_height = self.content_label.sizeHint().height()
@@ -571,7 +637,12 @@ class ChatMessage(QFrame):
             # Add extra space for the header, padding and buttons (even when not visible)
             button_space = 40
             padding_space = 20
-            total_height = content_height + self.animation_min_height + button_space + padding_space
+            total_height = (
+                content_height
+                + self.animation_min_height
+                + button_space
+                + padding_space
+            )
 
             # Set a reasonable maximum height with some buffer
             self.setMaximumHeight(total_height)
@@ -584,16 +655,21 @@ class ChatMessage(QFrame):
 
     def apply_webview_height(self, height):
         """(Callback func) Apply the height from JavaScript"""
-        if not isinstance(self.content_label, QWebEngineView) or self.resize_in_progress:
+        if (
+            not isinstance(self.content_label, QWebEngineView)
+            or self.resize_in_progress
+        ):
             return
-        
+
         try:
             self.resize_in_progress = True
-            
+
             # Ensure height is a valid value
             if height and height > 0:
                 button_space = self.edit_buttons_widget.sizeHint().height()
-                total_height = height + self.animation_min_height + button_space
+                total_height = (
+                    height + self.animation_min_height + button_space
+                )
                 self.content_label.setFixedHeight(height)
                 self.setMaximumHeight(total_height)
 
@@ -612,7 +688,7 @@ class ChatMessage(QFrame):
         self.delete_btn.setVisible(False)
 
         # Hide regenerate button if it exists (for assistant messages)
-        if hasattr(self, 'regenerate_btn') and self.regenerate_btn:
+        if hasattr(self, "regenerate_btn") and self.regenerate_btn:
             self.regenerate_btn.setVisible(False)
 
         # Show the edit area
@@ -650,22 +726,38 @@ class ChatMessage(QFrame):
             message_widgets = []
             for i in range(dialog.chat_messages_layout.count()):
                 item = dialog.chat_messages_layout.itemAt(i)
-                if item and item.widget() and isinstance(item.widget(), ChatMessage):
+                if (
+                    item
+                    and item.widget()
+                    and isinstance(item.widget(), ChatMessage)
+                ):
                     message_widgets.append(item.widget())
 
             if self in message_widgets:
                 message_index = message_widgets.index(self)
 
                 # Update chat history at this index
-                if hasattr(dialog, 'chat_history') and 0 <= message_index < len(dialog.chat_history):
-                    dialog.chat_history[message_index]['content'] = edited_content
+                if hasattr(
+                    dialog, "chat_history"
+                ) and 0 <= message_index < len(dialog.chat_history):
+                    dialog.chat_history[message_index][
+                        "content"
+                    ] = edited_content
 
                     # If this is a file-based chat, update the stored data
-                    if hasattr(dialog, 'parent') and callable(dialog.parent) and dialog.parent():
+                    if (
+                        hasattr(dialog, "parent")
+                        and callable(dialog.parent)
+                        and dialog.parent()
+                    ):
                         parent = dialog.parent()
-                        if hasattr(parent, 'other_data') and hasattr(parent, 'filename'):
+                        if hasattr(parent, "other_data") and hasattr(
+                            parent, "filename"
+                        ):
                             if parent.filename:
-                                parent.other_data['chat_history'] = dialog.chat_history
+                                parent.other_data[
+                                    "chat_history"
+                                ] = dialog.chat_history
                                 parent.set_dirty()
 
         self.exit_edit_mode()
@@ -683,7 +775,7 @@ class ChatMessage(QFrame):
         # Set the editing flag and adjust the widget height
         self.is_editing = False
         self.adjust_height_after_animation()
-    
+
     def resend_message(self):
         """Save edited content and resubmit the message"""
         edited_content = self.edit_area.toPlainText().strip()
@@ -691,7 +783,9 @@ class ChatMessage(QFrame):
         # Only proceed if content has changed and is not empty
         if edited_content and edited_content != self.content:
             dialog = self.window()
-            if hasattr(dialog, 'clear_messages_after') and hasattr(dialog, 'message_input'):
+            if hasattr(dialog, "clear_messages_after") and hasattr(
+                dialog, "message_input"
+            ):
                 # Exit edit mode first to return to normal view
                 self.is_editing = False
                 self.content_label.setVisible(True)
@@ -722,11 +816,13 @@ class ChatMessage(QFrame):
             buttons_height = self.edit_buttons_widget.sizeHint().height() + 10
 
             # Calculate total height needed
-            total_height = edit_height + buttons_height + self.edit_area_min_height
+            total_height = (
+                edit_height + buttons_height + self.edit_area_min_height
+            )
 
             # Set a reasonable height for the edit mode
             self.setMaximumHeight(total_height + 20)
-            
+
             # Force update layout
             self.updateGeometry()
             QApplication.processEvents()
@@ -736,14 +832,16 @@ class ChatMessage(QFrame):
     def regenerate_response(self):
         """Regenerate the assistant's response"""
         dialog = self.window()
-        if hasattr(dialog, 'regenerate_response'):
+        if hasattr(dialog, "regenerate_response"):
             dialog.regenerate_response(self)
 
     def confirm_delete_message(self):
         """Show confirmation dialog before deleting message"""
         # Create confirmation dialog
         confirm_dialog = QMessageBox(self.window())
-        confirm_dialog.setText(self.tr("Are you sure to delete this message forever?"))
+        confirm_dialog.setText(
+            self.tr("Are you sure to delete this message forever?")
+        )
         confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         confirm_dialog.setDefaultButton(QMessageBox.No)
         confirm_dialog.setIcon(QMessageBox.Warning)
@@ -761,7 +859,11 @@ class ChatMessage(QFrame):
         message_widgets = []
         for i in range(dialog.chat_messages_layout.count()):
             item = dialog.chat_messages_layout.itemAt(i)
-            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+            if (
+                item
+                and item.widget()
+                and isinstance(item.widget(), ChatMessage)
+            ):
                 message_widgets.append(item.widget())
 
         if self in message_widgets:
@@ -771,15 +873,28 @@ class ChatMessage(QFrame):
             dialog.chat_messages_layout.removeWidget(self)
 
             # Update chat history
-            if hasattr(dialog, 'chat_history') and 0 <= message_index < len(dialog.chat_history):
+            if hasattr(dialog, "chat_history") and 0 <= message_index < len(
+                dialog.chat_history
+            ):
                 dialog.chat_history.pop(message_index)
 
                 # If this is a file-based chat, update the stored data
-                if hasattr(dialog, 'parent') and callable(dialog.parent) and dialog.parent():
+                if (
+                    hasattr(dialog, "parent")
+                    and callable(dialog.parent)
+                    and dialog.parent()
+                ):
                     parent = dialog.parent()
-                    if hasattr(parent, 'other_data') and hasattr(parent, 'filename'):
-                        if parent.filename and 'chat_history' in parent.other_data:
-                            parent.other_data['chat_history'] = dialog.chat_history
+                    if hasattr(parent, "other_data") and hasattr(
+                        parent, "filename"
+                    ):
+                        if (
+                            parent.filename
+                            and "chat_history" in parent.other_data
+                        ):
+                            parent.other_data[
+                                "chat_history"
+                            ] = dialog.chat_history
                             parent.set_dirty()
 
             # Delete the widget
@@ -810,7 +925,9 @@ class ChatMessage(QFrame):
         context_menu.setStyleSheet(ChatbotDialogStyle.get_menu_style())
 
         copy_action = context_menu.addAction(self.tr("Copy message"))
-        copy_action.triggered.connect(lambda: self.copy_content_to_clipboard(None))
+        copy_action.triggered.connect(
+            lambda: self.copy_content_to_clipboard(None)
+        )
         context_menu.addSeparator()
 
         edit_action = context_menu.addAction(self.tr("Edit message"))
@@ -818,7 +935,9 @@ class ChatMessage(QFrame):
 
         # Only add regenerate for assistant messages
         if self.role != "user":
-            regenerate_action = context_menu.addAction(self.tr("Regenerate response"))
+            regenerate_action = context_menu.addAction(
+                self.tr("Regenerate response")
+            )
             regenerate_action.triggered.connect(self.regenerate_response)
 
         context_menu.addSeparator()
@@ -830,8 +949,9 @@ class ChatMessage(QFrame):
 
 class UpdateModelsEvent(QEvent):
     """Custom event for updating models dropdown"""
+
     EVENT_TYPE = QEvent.Type(QEvent.registerEventType())
-    
+
     def __init__(self, models):
         super().__init__(self.EVENT_TYPE)
         self.models = models
@@ -839,7 +959,8 @@ class UpdateModelsEvent(QEvent):
 
 class EnableRefreshButtonEvent(QEvent):
     """Custom event for enabling refresh button"""
+
     EVENT_TYPE = QEvent.Type(QEvent.registerEventType())
-    
+
     def __init__(self):
         super().__init__(self.EVENT_TYPE)

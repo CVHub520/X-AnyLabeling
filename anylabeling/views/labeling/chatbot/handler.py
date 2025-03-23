@@ -3,10 +3,11 @@ from PyQt5.QtCore import QObject, pyqtSignal
 
 class StreamingHandler(QObject):
     """Handler for streaming text updates"""
+
     text_update = pyqtSignal(str)
     finished = pyqtSignal(bool)
     loading = pyqtSignal(bool)
-    typing = pyqtSignal(bool)   # Signal for typing animation
+    typing = pyqtSignal(bool)  # Signal for typing animation
     error_occurred = pyqtSignal(str)
 
     def __init__(self):

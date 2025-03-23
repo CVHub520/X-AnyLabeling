@@ -31,20 +31,34 @@ from PyQt5.QtWidgets import (
     QProgressDialog,
     QFileDialog,
 )
-from PyQt5.QtGui import QCursor, QIcon, QPixmap, QColor, QTextCursor, QTextCharFormat
+from PyQt5.QtGui import (
+    QCursor,
+    QIcon,
+    QPixmap,
+    QColor,
+    QTextCursor,
+    QTextCharFormat,
+)
 
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
-from anylabeling.views.labeling.widgets.model_dropdown_widget import ModelDropdown
+from anylabeling.views.labeling.widgets.model_dropdown_widget import (
+    ModelDropdown,
+)
 
 
 class ChatbotDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
-        self.setWindowFlags(Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint)
+        self.setWindowFlags(
+            Qt.Window
+            | Qt.WindowMinimizeButtonHint
+            | Qt.WindowMaximizeButtonHint
+            | Qt.WindowCloseButtonHint
+        )
         self.resize(*DEFAULT_WINDOW_SIZE)
 
         dialog_style = ChatbotDialogStyle.get_dialog_style()
@@ -68,20 +82,34 @@ class ChatbotDialog(QDialog):
                 ("Data Cleaning / Data Analysis", "1"),
                 ("General Conversation", "1.3"),
                 ("Translation", "1.3"),
-                ("Creative Writing / Poetry", "1.5")
-            ]
+                ("Creative Writing / Poetry", "1.5"),
+            ],
         )
         self.clear_chat_tooltip = CustomTooltip(title=self.tr("Clear Chat"))
-        self.open_image_folder_tooltip = CustomTooltip(title=self.tr("Open Image Folder"))
-        self.open_video_tooltip = CustomTooltip(title=self.tr("Open Video File"))
-        self.open_image_file_tooltip = CustomTooltip(title=self.tr("Open Image File"))
-        self.prev_image_tooltip = CustomTooltip(title=self.tr("Previous Image"))
+        self.open_image_folder_tooltip = CustomTooltip(
+            title=self.tr("Open Image Folder")
+        )
+        self.open_video_tooltip = CustomTooltip(
+            title=self.tr("Open Video File")
+        )
+        self.open_image_file_tooltip = CustomTooltip(
+            title=self.tr("Open Image File")
+        )
+        self.prev_image_tooltip = CustomTooltip(
+            title=self.tr("Previous Image")
+        )
         self.next_image_tooltip = CustomTooltip(title=self.tr("Next Image"))
-        self.run_all_images_tooltip = CustomTooltip(title=self.tr("Run All Images"))
-        self.import_export_tooltip = CustomTooltip(title=self.tr("Import/Export Dataset"))
+        self.run_all_images_tooltip = CustomTooltip(
+            title=self.tr("Run All Images")
+        )
+        self.import_export_tooltip = CustomTooltip(
+            title=self.tr("Import/Export Dataset")
+        )
 
         pixmap = QPixmap(set_icon_path("click"))
-        scaled_pixmap = pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        scaled_pixmap = pixmap.scaled(
+            *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        )
         self.click_cursor = QCursor(scaled_pixmap)
 
         # Streaming handler setup
@@ -99,7 +127,9 @@ class ChatbotDialog(QDialog):
         # Create main splitter for three columns
         self.main_splitter = QSplitter(Qt.Horizontal)
         self.main_splitter.setHandleWidth(1)
-        self.main_splitter.setStyleSheet(ChatbotDialogStyle.get_main_splitter_style())
+        self.main_splitter.setStyleSheet(
+            ChatbotDialogStyle.get_main_splitter_style()
+        )
 
         ################################
         # Left panel - Model Providers #
@@ -120,7 +150,11 @@ class ChatbotDialog(QDialog):
             btn.setFixedHeight(40)
             btn.setIconSize(QSize(*ICON_SIZE_SMALL))
             btn.setStyleSheet(ChatbotDialogStyle.get_provider_button_style())
-            btn.clicked.connect(lambda checked, p=provider: self.switch_provider(p) if checked else None)
+            btn.clicked.connect(
+                lambda checked, p=provider: self.switch_provider(p)
+                if checked
+                else None
+            )
             provider_group.addButton(btn)
             setattr(self, f"{provider}_btn", btn)
             left_panel.addWidget(btn)
@@ -132,7 +166,9 @@ class ChatbotDialog(QDialog):
         left_panel.addStretch()
 
         # Styling for the left panel
-        self.left_widget.setStyleSheet(ChatbotDialogStyle.get_left_widget_style())
+        self.left_widget.setStyleSheet(
+            ChatbotDialogStyle.get_left_widget_style()
+        )
         self.left_widget.setMinimumWidth(200)
         self.left_widget.setMaximumWidth(250)
 
@@ -140,14 +176,18 @@ class ChatbotDialog(QDialog):
         # Middle panel - Chat interface #
         #################################
         self.middle_widget = QWidget()
-        self.middle_widget.setStyleSheet(ChatbotDialogStyle.get_middle_widget_style())
+        self.middle_widget.setStyleSheet(
+            ChatbotDialogStyle.get_middle_widget_style()
+        )
         middle_panel = QVBoxLayout(self.middle_widget)
         middle_panel.setContentsMargins(0, 0, 0, 0)
         middle_panel.setSpacing(0)
 
         # Chat area
         chat_container = QWidget()
-        chat_container.setStyleSheet(ChatbotDialogStyle.get_chat_container_style())
+        chat_container.setStyleSheet(
+            ChatbotDialogStyle.get_chat_container_style()
+        )
         chat_layout = QVBoxLayout(chat_container)
         chat_layout.setContentsMargins(0, 20, 0, 20)
         chat_layout.setSpacing(16)
@@ -156,12 +196,18 @@ class ChatbotDialog(QDialog):
         self.chat_scroll_area = QScrollArea()
         self.chat_scroll_area.setWidgetResizable(True)
         self.chat_scroll_area.setFrameShape(QFrame.NoFrame)
-        self.chat_scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.chat_scroll_area.setStyleSheet(ChatbotDialogStyle.get_chat_scroll_area_style())
+        self.chat_scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarAlwaysOff
+        )
+        self.chat_scroll_area.setStyleSheet(
+            ChatbotDialogStyle.get_chat_scroll_area_style()
+        )
 
         # Widget to contain all chat messages
         self.chat_container = QWidget()
-        self.chat_container.setStyleSheet(ChatbotDialogStyle.get_chat_container_style())
+        self.chat_container.setStyleSheet(
+            ChatbotDialogStyle.get_chat_container_style()
+        )
         self.chat_messages_layout = QVBoxLayout(self.chat_container)
         self.chat_messages_layout.setContentsMargins(24, 12, 24, 12)
         self.chat_messages_layout.setSpacing(16)
@@ -172,7 +218,9 @@ class ChatbotDialog(QDialog):
 
         # Input area with simplified design
         input_container = QWidget()
-        input_container.setStyleSheet(ChatbotDialogStyle.get_input_container_style())
+        input_container.setStyleSheet(
+            ChatbotDialogStyle.get_input_container_style()
+        )
         input_layout = QVBoxLayout(input_container)
         input_layout.setContentsMargins(24, 12, 24, 12)
         input_layout.setSpacing(0)
@@ -189,8 +237,14 @@ class ChatbotDialog(QDialog):
 
         # Create the message input
         self.message_input = QTextEdit()
-        self.message_input.setPlaceholderText(self.tr("Type something and Ctrl+↩︎ to send. Use @image to add an image."))
-        self.message_input.setStyleSheet(ChatbotDialogStyle.get_message_input_style())
+        self.message_input.setPlaceholderText(
+            self.tr(
+                "Type something and Ctrl+↩︎ to send. Use @image to add an image."
+            )
+        )
+        self.message_input.setStyleSheet(
+            ChatbotDialogStyle.get_message_input_style()
+        )
         self.message_input.setAcceptRichText(False)
         self.message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
         self.message_input.setMaximumHeight(MAX_MSG_INPUT_HEIGHT)
@@ -199,7 +253,9 @@ class ChatbotDialog(QDialog):
         self.message_input.setFrameShadow(QFrame.Plain)
         self.message_input.setLineWrapMode(QTextEdit.WidgetWidth)
         self.message_input.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.message_input.customContextMenuRequested.connect(self.show_message_input_context_menu)
+        self.message_input.customContextMenuRequested.connect(
+            self.show_message_input_context_menu
+        )
 
         # Completely remove any internal frame or border
         document = self.message_input.document()
@@ -233,14 +289,18 @@ class ChatbotDialog(QDialog):
         # Create a button bar container for the bottom
         button_bar = QWidget()
         button_bar_layout = QHBoxLayout(button_bar)
-        button_bar_layout.setContentsMargins(0, 4, 0, 0)  # Add a small top margin
+        button_bar_layout.setContentsMargins(
+            0, 4, 0, 0
+        )  # Add a small top margin
         button_bar_layout.setSpacing(8)  # Spacing between buttons
 
         # Add clear context button (left side)
         self.clear_chat_btn = QPushButton()
         self.clear_chat_btn.setIcon(QIcon(set_icon_path("eraser")))
         self.clear_chat_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
-        self.clear_chat_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
+        self.clear_chat_btn.setStyleSheet(
+            ChatbotDialogStyle.get_send_button_style()
+        )
         self.clear_chat_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.clear_chat_btn.clicked.connect(self.clear_conversation)
         self.clear_chat_btn.installEventFilter(self)
@@ -284,7 +344,9 @@ class ChatbotDialog(QDialog):
 
         # Image preview
         self.image_preview = QLabel()
-        self.image_preview.setStyleSheet(ChatbotDialogStyle.get_image_preview_style())
+        self.image_preview.setStyleSheet(
+            ChatbotDialogStyle.get_image_preview_style()
+        )
         self.image_preview.setMinimumHeight(200)
         self.image_preview.setAlignment(Qt.AlignCenter)
         self.image_preview.setScaledContents(False)
@@ -296,16 +358,24 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn = QPushButton()
         self.prev_image_btn.setIcon(QIcon(set_icon_path("arrow-left")))
         self.prev_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.prev_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
-        self.prev_image_btn.clicked.connect(lambda: self.navigate_image(direction="prev"))
+        self.prev_image_btn.setStyleSheet(
+            ChatbotDialogStyle.get_button_style()
+        )
+        self.prev_image_btn.clicked.connect(
+            lambda: self.navigate_image(direction="prev")
+        )
         self.prev_image_btn.installEventFilter(self)
         self.prev_image_btn.setObjectName("prev_image_btn")
 
         self.next_image_btn = QPushButton()
         self.next_image_btn.setIcon(QIcon(set_icon_path("arrow-right")))
         self.next_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.next_image_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
-        self.next_image_btn.clicked.connect(lambda: self.navigate_image(direction="next"))
+        self.next_image_btn.setStyleSheet(
+            ChatbotDialogStyle.get_button_style()
+        )
+        self.next_image_btn.clicked.connect(
+            lambda: self.navigate_image(direction="next")
+        )
         self.next_image_btn.installEventFilter(self)
         self.next_image_btn.setObjectName("next_image_btn")
 
@@ -314,14 +384,23 @@ class ChatbotDialog(QDialog):
 
         # Add image and video buttons for importing media
         import_media_btn_modes = ["image", "folder", "video"]
-        import_media_btn_names = ["open_image_file_btn", "open_image_folder_btn", "open_video_btn"]
-        for btn_mode, btn_name in zip(import_media_btn_modes, import_media_btn_names):
+        import_media_btn_names = [
+            "open_image_file_btn",
+            "open_image_folder_btn",
+            "open_video_btn",
+        ]
+        for btn_mode, btn_name in zip(
+            import_media_btn_modes, import_media_btn_names
+        ):
             btn = QPushButton()
             btn.setIcon(QIcon(set_icon_path(btn_mode)))
             btn.setFixedSize(*ICON_SIZE_NORMAL)
             btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
-            btn.clicked.connect(lambda checked=False, mode=btn_mode: 
-                               self.open_image_folder_or_video_file(mode=mode))
+            btn.clicked.connect(
+                lambda checked=False, mode=btn_mode: self.open_image_folder_or_video_file(
+                    mode=mode
+                )
+            )
             btn.installEventFilter(self)
             btn.setObjectName(btn_name)
             nav_layout.addWidget(btn)
@@ -330,7 +409,9 @@ class ChatbotDialog(QDialog):
         self.run_all_images_btn = QPushButton()
         self.run_all_images_btn.setIcon(QIcon(set_icon_path("run")))
         self.run_all_images_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.run_all_images_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
+        self.run_all_images_btn.setStyleSheet(
+            ChatbotDialogStyle.get_button_style()
+        )
         self.run_all_images_btn.clicked.connect(self.run_all_images)
         self.run_all_images_btn.installEventFilter(self)
         self.run_all_images_btn.setObjectName("run_all_images_btn")
@@ -340,7 +421,9 @@ class ChatbotDialog(QDialog):
         self.import_export_btn = QPushButton()
         self.import_export_btn.setIcon(QIcon(set_icon_path("import-export")))
         self.import_export_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.import_export_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
+        self.import_export_btn.setStyleSheet(
+            ChatbotDialogStyle.get_button_style()
+        )
         self.import_export_btn.clicked.connect(self.import_export_dataset)
         self.import_export_btn.installEventFilter(self)
         self.import_export_btn.setObjectName("import_export_btn")
@@ -356,24 +439,28 @@ class ChatbotDialog(QDialog):
         settings_layout = QVBoxLayout(settings_panel)
         settings_layout.setContentsMargins(0, 0, 0, 0)
         settings_layout.setSpacing(0)
-        
+
         # Create tab widget
         self.settings_tabs = QTabWidget()
-        self.settings_tabs.setStyleSheet(ChatbotDialogStyle.get_tab_widget_style())
+        self.settings_tabs.setStyleSheet(
+            ChatbotDialogStyle.get_tab_widget_style()
+        )
         self.settings_tabs.setUsesScrollButtons(False)
         self.settings_tabs.setDocumentMode(True)
         self.settings_tabs.setElideMode(Qt.ElideNone)
-        
+
         # First tab - API Settings
         api_settings_tab = QWidget()
         api_settings_layout = QVBoxLayout(api_settings_tab)
         api_settings_layout.setContentsMargins(24, 24, 24, 24)
         api_settings_layout.setSpacing(12)
-        
+
         # API Address with help icon
         api_address_container = QHBoxLayout()
         api_address_label = QLabel(self.tr("API Address"))
-        api_address_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        api_address_label.setStyleSheet(
+            ChatbotDialogStyle.get_settings_label_style()
+        )
 
         # Create a container for label and help button
         label_with_help = QWidget()
@@ -398,8 +485,12 @@ class ChatbotDialog(QDialog):
         api_address_container.addStretch()
         api_settings_layout.addLayout(api_address_container)
 
-        self.api_address = QLineEdit(self.providers[self.default_provider]["api_address"])
-        self.api_address.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        self.api_address = QLineEdit(
+            self.providers[self.default_provider]["api_address"]
+        )
+        self.api_address.setStyleSheet(
+            ChatbotDialogStyle.get_settings_edit_style()
+        )
         self.api_address.installEventFilter(self)
         self.api_address.textChanged.connect(self.on_api_address_changed)
         api_settings_layout.addWidget(self.api_address)
@@ -408,7 +499,9 @@ class ChatbotDialog(QDialog):
         # API Key with help icon
         api_key_container = QHBoxLayout()
         api_key_label = QLabel(self.tr("API Key"))
-        api_key_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        api_key_label.setStyleSheet(
+            ChatbotDialogStyle.get_settings_label_style()
+        )
 
         # Create a container for label and help button
         key_label_with_help = QWidget()
@@ -434,10 +527,14 @@ class ChatbotDialog(QDialog):
 
         # API key input with toggle visibility
         api_key_container = QHBoxLayout()
-        self.api_key = QLineEdit(self.providers[self.default_provider]["api_key"])
+        self.api_key = QLineEdit(
+            self.providers[self.default_provider]["api_key"]
+        )
         self.api_key.setEchoMode(QLineEdit.Password)
         self.api_key.setPlaceholderText(self.tr("Enter API key"))
-        self.api_key.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        self.api_key.setStyleSheet(
+            ChatbotDialogStyle.get_settings_edit_style()
+        )
         self.api_key.installEventFilter(self)
         self.api_key.textChanged.connect(self.on_api_key_changed)
         self.current_api_key = self.api_key.text()
@@ -446,8 +543,12 @@ class ChatbotDialog(QDialog):
         self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
         self.toggle_visibility_btn.setCheckable(True)
-        self.toggle_visibility_btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
-        self.toggle_visibility_btn.clicked.connect(self.toggle_api_key_visibility)
+        self.toggle_visibility_btn.setStyleSheet(
+            ChatbotDialogStyle.get_button_style()
+        )
+        self.toggle_visibility_btn.clicked.connect(
+            self.toggle_api_key_visibility
+        )
 
         api_key_container.addWidget(self.api_key)
         api_key_container.addWidget(self.toggle_visibility_btn)
@@ -456,7 +557,9 @@ class ChatbotDialog(QDialog):
         # Model Name with help icon
         model_name_container = QHBoxLayout()
         model_name_label = QLabel(self.tr("Model Name"))
-        model_name_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        model_name_label.setStyleSheet(
+            ChatbotDialogStyle.get_settings_label_style()
+        )
 
         # Create a container for label and buttons
         model_label_with_help = QWidget()
@@ -464,7 +567,9 @@ class ChatbotDialog(QDialog):
         model_label_help_layout.setContentsMargins(0, 0, 0, 0)
         model_label_help_layout.setSpacing(4)
 
-        model_docs_url = self.providers[self.default_provider]["model_docs_url"]
+        model_docs_url = self.providers[self.default_provider][
+            "model_docs_url"
+        ]
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
         model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
@@ -483,7 +588,9 @@ class ChatbotDialog(QDialog):
 
         # Create ComboBox for model selection
         self.model_button = QPushButton()
-        self.model_button.setStyleSheet(ChatbotDialogStyle.get_model_button_style())
+        self.model_button.setStyleSheet(
+            ChatbotDialogStyle.get_model_button_style()
+        )
         self.model_button.setMinimumHeight(40)
         self.model_button.setText(get_default_model_id(self.default_provider))
         api_settings_layout.addWidget(self.model_button)
@@ -497,13 +604,17 @@ class ChatbotDialog(QDialog):
 
         # System prompt section
         system_prompt_label = QLabel(self.tr("System instruction"))
-        system_prompt_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        system_prompt_label.setStyleSheet(
+            ChatbotDialogStyle.get_settings_label_style()
+        )
         model_params_layout.addWidget(system_prompt_label)
 
         # System prompt input
         system_prompt_container = QHBoxLayout()
         self.system_prompt_input = QLineEdit()
-        self.system_prompt_input.setStyleSheet(ChatbotDialogStyle.get_settings_edit_style())
+        self.system_prompt_input.setStyleSheet(
+            ChatbotDialogStyle.get_settings_edit_style()
+        )
         system_prompt_container.addWidget(self.system_prompt_input)
         model_params_layout.addLayout(system_prompt_container)
 
@@ -521,7 +632,9 @@ class ChatbotDialog(QDialog):
         temp_info_btn.setObjectName("temperature_btn")
 
         self.temp_value = QLabel(f"{_model_settings['temperature']/10:.1f}")
-        self.temp_value.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        self.temp_value.setStyleSheet(
+            ChatbotDialogStyle.get_settings_label_style()
+        )
         self.temp_value.setAlignment(Qt.AlignRight)
 
         temp_header.addWidget(temp_label)
@@ -536,22 +649,30 @@ class ChatbotDialog(QDialog):
         self.temp_slider.setMaximum(20)  # 0.0 to 2.0 with step of 0.1
         self.temp_slider.setValue(_model_settings["temperature"])
         self.temp_slider.setStyleSheet(ChatbotDialogStyle.get_slider_style())
-        self.temp_slider.valueChanged.connect(lambda v: self.temp_value.setText(f"{v/10:.1f}"))
+        self.temp_slider.valueChanged.connect(
+            lambda v: self.temp_value.setText(f"{v/10:.1f}")
+        )
         model_params_layout.addWidget(self.temp_slider)
 
         # Temperature labels
         temp_labels_layout = QHBoxLayout()
 
         precise_label = QLabel(self.tr("Precise"))
-        precise_label.setStyleSheet(ChatbotDialogStyle.get_temperature_label_style())
+        precise_label.setStyleSheet(
+            ChatbotDialogStyle.get_temperature_label_style()
+        )
         precise_label.setAlignment(Qt.AlignLeft)
 
         neutral_label = QLabel(self.tr("Neutral"))
-        neutral_label.setStyleSheet(ChatbotDialogStyle.get_temperature_label_style())
+        neutral_label.setStyleSheet(
+            ChatbotDialogStyle.get_temperature_label_style()
+        )
         neutral_label.setAlignment(Qt.AlignCenter)
 
         creative_label = QLabel(self.tr("Creative"))
-        creative_label.setStyleSheet(ChatbotDialogStyle.get_temperature_label_style())
+        creative_label.setStyleSheet(
+            ChatbotDialogStyle.get_temperature_label_style()
+        )
         creative_label.setAlignment(Qt.AlignRight)
 
         temp_labels_layout.addWidget(precise_label)
@@ -563,7 +684,9 @@ class ChatbotDialog(QDialog):
 
         # Maximum output length
         max_length_label = QLabel(self.tr("Max output tokens"))
-        max_length_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
+        max_length_label.setStyleSheet(
+            ChatbotDialogStyle.get_settings_label_style()
+        )
         model_params_layout.addWidget(max_length_label)
 
         self.max_length_input = QSpinBox()
@@ -571,10 +694,12 @@ class ChatbotDialog(QDialog):
         self.max_length_input.setMaximum(9999999)
         self.max_length_input.setSingleStep(1)
         self.max_length_input.setButtonSymbols(QSpinBox.UpDownArrows)
-        self.max_length_input.setStyleSheet(ChatbotDialogStyle.get_spinbox_style(
-            up_arrow_url=set_icon_path("caret-up"),
-            down_arrow_url=set_icon_path("caret-down")
-        ))
+        self.max_length_input.setStyleSheet(
+            ChatbotDialogStyle.get_spinbox_style(
+                up_arrow_url=set_icon_path("caret-up"),
+                down_arrow_url=set_icon_path("caret-down"),
+            )
+        )
         self.max_length_input.setFixedHeight(40)
         if _model_settings["max_length"]:
             self.max_length_input.setValue(_model_settings["max_length"])
@@ -587,7 +712,9 @@ class ChatbotDialog(QDialog):
         self.settings_tabs.addTab(api_settings_tab, self.tr("Backend"))
         self.settings_tabs.addTab(model_params_tab, self.tr("Generation"))
         self.settings_tabs.tabBar().setExpanding(True)
-        self.settings_tabs.tabBar().setStyleSheet(ChatbotDialogStyle.get_settings_tabs_style())
+        self.settings_tabs.tabBar().setStyleSheet(
+            ChatbotDialogStyle.get_settings_tabs_style()
+        )
 
         # Add tab widget to settings layout
         settings_layout.addWidget(self.settings_tabs)
@@ -595,7 +722,9 @@ class ChatbotDialog(QDialog):
         # Create a splitter for the right panel to separate image and settings
         right_splitter = QSplitter(Qt.Vertical)
         right_splitter.setHandleWidth(1)
-        right_splitter.setStyleSheet(ChatbotDialogStyle.get_right_splitter_style())
+        right_splitter.setStyleSheet(
+            ChatbotDialogStyle.get_right_splitter_style()
+        )
 
         right_splitter.addWidget(image_panel)
         right_splitter.addWidget(settings_panel)
@@ -605,7 +734,9 @@ class ChatbotDialog(QDialog):
         right_panel.addWidget(right_splitter)
 
         # Styling for the right panel
-        self.right_widget.setStyleSheet(ChatbotDialogStyle.get_right_widget_style())
+        self.right_widget.setStyleSheet(
+            ChatbotDialogStyle.get_right_widget_style()
+        )
         self.right_widget.setFixedWidth(360)
 
         # Add panels to main splitter
@@ -639,8 +770,8 @@ class ChatbotDialog(QDialog):
         # Fetch available models
         models_data = get_models_data(
             self.default_provider,
-            self.providers[self.default_provider]["api_address"], 
-            self.providers[self.default_provider]["api_key"]
+            self.providers[self.default_provider]["api_address"],
+            self.providers[self.default_provider]["api_key"],
         )
         self.selected_model = _model_settings["model_id"]
         self.model_dropdown = ModelDropdown(models_data)
@@ -657,9 +788,9 @@ class ChatbotDialog(QDialog):
         for provider in self.providers:
             if getattr(self, f"{provider}_btn").isChecked():
                 models_data = get_models_data(
-                    provider, 
-                    self.providers[provider]["api_address"], 
-                    self.providers[provider]["api_key"]
+                    provider,
+                    self.providers[provider]["api_address"],
+                    self.providers[provider]["api_key"],
                 )
                 self.model_dropdown.update_models_data(models_data)
                 break
@@ -679,7 +810,9 @@ class ChatbotDialog(QDialog):
         """Handle the model selected event"""
         self.selected_model = model_name
         self.model_button.setText(model_name + f" ({self.default_provider})")
-        self.current_api_address = self.providers[self.default_provider]["api_address"]
+        self.current_api_address = self.providers[self.default_provider][
+            "api_address"
+        ]
         self.current_api_key = self.providers[self.default_provider]["api_key"]
 
     def on_provider_selected(self, provider):
@@ -704,17 +837,22 @@ class ChatbotDialog(QDialog):
             button_url_mapping = [
                 {"button_name": "api_help_btn", "url_key": "api_docs_url"},
                 {"button_name": "model_help_btn", "url_key": "model_docs_url"},
-                {"button_name": "api_key_help_btn", "url_key": "api_key_url"}
+                {"button_name": "api_key_help_btn", "url_key": "api_key_url"},
             ]
             for mapping in button_url_mapping:
-                button_name, url_key = mapping["button_name"], mapping["url_key"]
+                button_name, url_key = (
+                    mapping["button_name"],
+                    mapping["url_key"],
+                )
                 button = self.findChild(QPushButton, button_name)
                 url = self.providers[provider][url_key]
                 if button:
                     if url:
                         button.setVisible(True)
                         button.clicked.disconnect()
-                        button.clicked.connect(lambda checked=False, u=url: open_url(u))
+                        button.clicked.connect(
+                            lambda checked=False, u=url: open_url(u)
+                        )
                     else:
                         button.setVisible(False)
 
@@ -722,7 +860,9 @@ class ChatbotDialog(QDialog):
         """Handle the API address changed event"""
         for provider in self.providers:
             if getattr(self, f"{provider}_btn").isChecked():
-                self.providers[provider]["api_address"] = self.api_address.text()
+                self.providers[provider][
+                    "api_address"
+                ] = self.api_address.text()
                 save_json(self.providers, PROVIDERS_CONFIG_PATH)
 
                 if provider == self.default_provider:
@@ -771,7 +911,9 @@ class ChatbotDialog(QDialog):
             actual_height = max(total_height, MIN_MSG_INPUT_HEIGHT)
             self.message_input.setMinimumHeight(actual_height)
             self.message_input.setMaximumHeight(actual_height)
-            self.message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.message_input.setVerticalScrollBarPolicy(
+                Qt.ScrollBarAlwaysOff
+            )
 
         # Force update to ensure changes take effect immediately
         self.message_input.updateGeometry()
@@ -800,22 +942,26 @@ class ChatbotDialog(QDialog):
                         preview_size.width(),
                         preview_size.height(),
                         Qt.KeepAspectRatio,
-                        Qt.SmoothTransformation
+                        Qt.SmoothTransformation,
                     )
 
                     self.image_preview.setPixmap(scaled_pixmap)
                     self.image_preview.setAlignment(Qt.AlignCenter)
                 else:
                     # If the preview size isn't valid yet, schedule another update
-                    QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.update_image_preview)
+                    QTimer.singleShot(
+                        int(ANIMATION_DURATION[:-2]), self.update_image_preview
+                    )
             else:
                 self.image_preview.setText(self.tr("Image not available"))
-    
+
     def load_initial_data(self):
         """Load initial data from parent's other_data if available"""
         if self.parent().filename:
             other_data = self.parent().other_data
-            if "chat_history" in other_data and isinstance(other_data["chat_history"], list):
+            if "chat_history" in other_data and isinstance(
+                other_data["chat_history"], list
+            ):
                 for message in other_data["chat_history"]:
                     if "role" in message and "content" in message:
                         self.add_message(message["role"], message["content"])
@@ -823,17 +969,19 @@ class ChatbotDialog(QDialog):
             self.update_image_preview()
 
             # Add a slight delay to ensure the widget is fully rendered before scaling the image
-            QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.update_image_preview)
+            QTimer.singleShot(
+                int(ANIMATION_DURATION[:-2]), self.update_image_preview
+            )
 
         self.update_import_buttons_visibility()
-    
+
     def update_import_buttons_visibility(self):
         """Update visibility of import buttons based on whether files are loaded"""
         has_images = bool(self.parent().image_list)
         # Show navigation buttons only when images are loaded
         self.prev_image_btn.setVisible(has_images)
         self.next_image_btn.setVisible(has_images)
-    
+
     def open_image_folder_or_video_file(self, mode="image"):
         """Open an image file or image folder or a video file"""
         if mode == "image":
@@ -856,7 +1004,9 @@ class ChatbotDialog(QDialog):
         """Add a new message to the chat area"""
         # Remove the stretch item if it exists
         while self.chat_messages_layout.count() > 0:
-            item = self.chat_messages_layout.itemAt(self.chat_messages_layout.count()-1)
+            item = self.chat_messages_layout.itemAt(
+                self.chat_messages_layout.count() - 1
+            )
             if item and item.spacerItem():
                 self.chat_messages_layout.removeItem(item)
                 break
@@ -864,13 +1014,19 @@ class ChatbotDialog(QDialog):
         # Check for special token in user messages
         image = None
         if role == "user" and ("@image" in content or "<image>" in content):
-            pattern = r'@image\s*(?=\S|$)'
+            pattern = r"@image\s*(?=\S|$)"
             content = re.sub(pattern, "<image>", content).strip()
             image = self.parent().filename
 
         # Create and add the message widget
         is_error = True if delete_last_message else False
-        message_widget = ChatMessage(role, content, self.default_provider, self.chat_container, is_error=is_error)
+        message_widget = ChatMessage(
+            role,
+            content,
+            self.default_provider,
+            self.chat_container,
+            is_error=is_error,
+        )
         self.chat_messages_layout.addWidget(message_widget)
 
         # Add the stretch back
@@ -878,15 +1034,23 @@ class ChatbotDialog(QDialog):
 
         # Store message in chat history
         if delete_last_message:
-            self.chat_history = self.chat_history[:-1]  # roll back the last message
+            self.chat_history = self.chat_history[
+                :-1
+            ]  # roll back the last message
         else:
-            self.chat_history.append({"role": role, "content": content, "image": image})
+            self.chat_history.append(
+                {"role": role, "content": content, "image": image}
+            )
 
         # Scroll to bottom - use a longer delay to ensure layout is updated
         QTimer.singleShot(int(ANIMATION_DURATION[:-2]), self.scroll_to_bottom)
 
         # Update parent data
-        if role == "assistant" and self.parent().filename and not delete_last_message:
+        if (
+            role == "assistant"
+            and self.parent().filename
+            and not delete_last_message
+        ):
             self.parent().other_data["chat_history"] = self.chat_history
 
     def scroll_to_bottom(self):
@@ -896,7 +1060,7 @@ class ChatbotDialog(QDialog):
 
         # Force update to ensure scrolling takes effect
         QApplication.processEvents()
-    
+
     def start_generation(self):
         """Start generating a response"""
         if self.streaming:
@@ -911,7 +1075,9 @@ class ChatbotDialog(QDialog):
 
         # Clear input and reset to plain text mode
         self.message_input.clear()
-        self.message_input.setPlainText("")  # Ensure we're back to plain text mode
+        self.message_input.setPlainText(
+            ""
+        )  # Ensure we're back to plain text mode
 
         # Reset input box size to initial height
         self.message_input.setMinimumHeight(24)
@@ -936,9 +1102,11 @@ class ChatbotDialog(QDialog):
         # Start streaming in a separate thread
         self.stream_thread = threading.Thread(
             target=self.stream_generation,
-            args=(self.current_api_address, self.current_api_key)
+            args=(self.current_api_address, self.current_api_key),
         )
-        self.stream_thread.daemon = True  # Make thread daemonic so it can be interrupted
+        self.stream_thread.daemon = (
+            True  # Make thread daemonic so it can be interrupted
+        )
         self.stream_thread.start()
 
     def stop_generation(self):
@@ -948,7 +1116,9 @@ class ChatbotDialog(QDialog):
     def add_loading_message(self):
         """Add a loading message that will be replaced with the actual response"""
         while self.chat_messages_layout.count() > 0:
-            item = self.chat_messages_layout.itemAt(self.chat_messages_layout.count()-1)
+            item = self.chat_messages_layout.itemAt(
+                self.chat_messages_layout.count() - 1
+            )
             if item and item.spacerItem():
                 self.chat_messages_layout.removeItem(item)
                 break
@@ -968,11 +1138,13 @@ class ChatbotDialog(QDialog):
 
         # Add header
         header_layout = QHBoxLayout()
-        
+
         # Create a container frame for the icon with rounded background
         icon_container = QFrame()
         icon_container.setObjectName("roleLabelContainer")
-        icon_container.setStyleSheet(ChatMessageStyle.get_role_label_background_style())
+        icon_container.setStyleSheet(
+            ChatMessageStyle.get_role_label_background_style()
+        )
 
         # Create fixed-size layout for the container
         icon_container_layout = QHBoxLayout(icon_container)
@@ -982,7 +1154,9 @@ class ChatbotDialog(QDialog):
         # Create the icon label
         role_label = QLabel()
         icon_pixmap = QPixmap(set_icon_path(self.default_provider))
-        scaled_icon = icon_pixmap.scaled(*ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        scaled_icon = icon_pixmap.scaled(
+            *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        )
         role_label.setPixmap(scaled_icon)
         role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
 
@@ -1000,7 +1174,7 @@ class ChatbotDialog(QDialog):
             bubble,
             size_range=(8, 16),
             color_range=((30, 30, 30), (150, 150, 150)),
-            duration=500
+            duration=500,
         )
         loading_indicator_layout.addWidget(self.pulsating_dot)
         loading_indicator_layout.addStretch()
@@ -1022,14 +1196,14 @@ class ChatbotDialog(QDialog):
         """Update the output text with streaming content"""
         if self.loading_message:
             # Stop the pulsating dot animation
-            if hasattr(self, 'pulsating_dot') and self.pulsating_dot:
+            if hasattr(self, "pulsating_dot") and self.pulsating_dot:
                 self.pulsating_dot.stop_animation()
                 self.pulsating_dot.setParent(None)
                 self.pulsating_dot.deleteLater()
                 self.pulsating_dot = None
 
             # If this is the first update, create a content label
-            if not hasattr(self.loading_message, 'content_label'):
+            if not hasattr(self.loading_message, "content_label"):
                 self.loading_message.content_label = QLabel("")
                 self.loading_message.content_label.setWordWrap(True)
                 self.loading_message.content_label.setTextFormat(Qt.PlainText)
@@ -1038,7 +1212,9 @@ class ChatbotDialog(QDialog):
                 )
                 self.loading_message.content_label.setMinimumWidth(100)
                 self.loading_message.content_label.setMaximumWidth(1999)
-                self.loading_message.bubble.layout().addWidget(self.loading_message.content_label)
+                self.loading_message.bubble.layout().addWidget(
+                    self.loading_message.content_label
+                )
 
             current_text = self.loading_message.content_label.text()
             self.loading_message.content_label.setText(current_text + text)
@@ -1049,20 +1225,20 @@ class ChatbotDialog(QDialog):
         # Stop the loading timer if it's still active
         if self.loading_timer and self.loading_timer.isActive():
             self.loading_timer.stop()
-        
+
         if success and self.loading_message:
             # Get the final text
             final_text = ""
-            if hasattr(self.loading_message, 'content_label'):
+            if hasattr(self.loading_message, "content_label"):
                 final_text = self.loading_message.content_label.text()
-            
+
             # Store reference to loading message for removal
             loading_message_to_remove = self.loading_message
             self.loading_message = None
-            
+
             # Add the final message first
             self.add_message("assistant", final_text)
-            
+
             # Then remove the loading message after adding the final message
             loading_message_to_remove.setParent(None)
             loading_message_to_remove.deleteLater()
@@ -1106,11 +1282,16 @@ class ChatbotDialog(QDialog):
         try:
             if self.parent().image_list:
                 if index is None:
-                    current_index = self.parent().image_list.index(self.parent().filename)
+                    current_index = self.parent().image_list.index(
+                        self.parent().filename
+                    )
 
                     if direction == "prev" and current_index > 0:
                         new_index = current_index - 1
-                    elif direction == "next" and current_index < len(self.parent().image_list) - 1:
+                    elif (
+                        direction == "next"
+                        and current_index < len(self.parent().image_list) - 1
+                    ):
                         new_index = current_index + 1
                     else:
                         return
@@ -1156,7 +1337,9 @@ class ChatbotDialog(QDialog):
         batch_dialog = BatchProcessDialog(self)
         prompt = batch_dialog.exec_()
         if prompt:
-            self.current_index = self.parent().fn_to_index[str(self.parent().filename)]
+            self.current_index = self.parent().fn_to_index[
+                str(self.parent().filename)
+            ]
             self.image_index = self.current_index
             self.show_progress_dialog_and_process(prompt)
 
@@ -1171,15 +1354,21 @@ class ChatbotDialog(QDialog):
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(ChatbotDialogStyle.get_progress_dialog_style())
+        progress_dialog.setStyleSheet(
+            ChatbotDialogStyle.get_progress_dialog_style()
+        )
         progress_dialog.setFixedSize(400, 150)
-        progress_dialog.setWindowFlags(progress_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        progress_dialog.setWindowFlags(
+            progress_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint
+        )
         progress_dialog.setMinimumDuration(0)
 
         center_point = self.mapToGlobal(self.rect().center())
         dialog_rect = progress_dialog.rect()
-        progress_dialog.move(center_point.x() - dialog_rect.width() // 2, 
-                           center_point.y() - dialog_rect.height() // 2)
+        progress_dialog.move(
+            center_point.x() - dialog_rect.width() // 2,
+            center_point.y() - dialog_rect.height() // 2,
+        )
 
         progress_dialog.canceled.connect(self.cancel_operation)
         progress_dialog.show()
@@ -1190,7 +1379,11 @@ class ChatbotDialog(QDialog):
         total_images = len(self.parent().image_list)
 
         if (self.image_index < total_images) and (not self.cancel_processing):
-            progress_dialog.setLabelText(self.tr(f"Processing image {self.image_index+1}/{total_images}..."))
+            progress_dialog.setLabelText(
+                self.tr(
+                    f"Processing image {self.image_index+1}/{total_images}..."
+                )
+            )
 
             filename = self.parent().image_list[self.image_index]
             self.parent().filename = filename
@@ -1207,30 +1400,43 @@ class ChatbotDialog(QDialog):
                 pattern = r"@image\s*(?=\S|$)"
                 prompt = re.sub(pattern, "<image>", prompt).strip()
                 with open(self.parent().filename, "rb") as f:
-                    image_data = base64.b64encode(f.read()).decode('utf-8')
-                messages.append({"role": "user", "content": [
+                    image_data = base64.b64encode(f.read()).decode("utf-8")
+                messages.append(
                     {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
-                    },
-                    {"type": "text", "text": prompt}
-                ]})
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/jpeg;base64,{image_data}"
+                                },
+                            },
+                            {"type": "text", "text": prompt},
+                        ],
+                    }
+                )
             else:
                 messages.append({"role": "user", "content": prompt})
 
-            client = OpenAI(base_url=self.current_api_address, api_key=self.current_api_key)
+            client = OpenAI(
+                base_url=self.current_api_address, api_key=self.current_api_key
+            )
             response = client.chat.completions.create(
                 model=self.selected_model,
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                stream=False
+                stream=False,
             )
             content = response.choices[0].message.content
 
             self.parent().other_data["chat_history"] = [
-                {"role": "user", "content": prompt, "image": self.parent().filename},
-                {"role": "assistant", "content": content, "image": None}
+                {
+                    "role": "user",
+                    "content": prompt,
+                    "image": self.parent().filename,
+                },
+                {"role": "assistant", "content": content, "image": None},
             ]
             self.parent().set_dirty()
 
@@ -1241,7 +1447,8 @@ class ChatbotDialog(QDialog):
             if not self.cancel_processing:
                 delay_ms = 0
                 QTimer.singleShot(
-                    delay_ms, lambda: self.process_next_image(progress_dialog, prompt)
+                    delay_ms,
+                    lambda: self.process_next_image(progress_dialog, prompt),
                 )
             else:
                 self.finish_processing(progress_dialog)
@@ -1263,7 +1470,9 @@ class ChatbotDialog(QDialog):
         option_dialog = QDialog(self)
         option_dialog.setWindowTitle(self.tr("Dataset Operations"))
         option_dialog.setFixedSize(400, 200)
-        option_dialog.setStyleSheet(ChatbotDialogStyle.get_option_dialog_style())
+        option_dialog.setStyleSheet(
+            ChatbotDialogStyle.get_option_dialog_style()
+        )
 
         layout = QVBoxLayout()
         layout.setContentsMargins(40, 40, 40, 40)
@@ -1284,14 +1493,19 @@ class ChatbotDialog(QDialog):
             option_dialog.accept()
 
             if not self.parent().filename:
-                QMessageBox.warning(self, self.tr("Export Error"), self.tr("No file is currently open."))
+                QMessageBox.warning(
+                    self,
+                    self.tr("Export Error"),
+                    self.tr("No file is currently open."),
+                )
                 return
 
             current_dir = os.path.dirname(self.parent().filename)
             export_dir = QFileDialog.getExistingDirectory(
-                self, self.tr("Select Export Directory"), 
+                self,
+                self.tr("Select Export Directory"),
                 current_dir,
-                QFileDialog.ShowDirsOnly
+                QFileDialog.ShowDirsOnly,
             )
 
             if not export_dir:
@@ -1311,12 +1525,20 @@ class ChatbotDialog(QDialog):
             if os.path.exists(temp_dir):
                 shutil.rmtree(temp_dir)
             os.makedirs(temp_images_dir, exist_ok=True)
-            
+
             try:
-                json_files = [f for f in os.listdir(current_dir) if f.endswith('.json')]
+                json_files = [
+                    f for f in os.listdir(current_dir) if f.endswith(".json")
+                ]
 
                 if not json_files:
-                    QMessageBox.warning(self, self.tr("Export Error"), self.tr("No labeling files found in the current directory."))
+                    QMessageBox.warning(
+                        self,
+                        self.tr("Export Error"),
+                        self.tr(
+                            "No labeling files found in the current directory."
+                        ),
+                    )
                     return
 
                 export_data = []
@@ -1324,68 +1546,88 @@ class ChatbotDialog(QDialog):
                     file_path = os.path.join(current_dir, json_file)
 
                     try:
-                        with open(file_path, 'r', encoding='utf-8') as f:
+                        with open(file_path, "r", encoding="utf-8") as f:
                             data = json.load(f)
 
-                        if not data.get('chat_history'):
+                        if not data.get("chat_history"):
                             continue
 
-                        image_filename = data.get('imagePath')
+                        image_filename = data.get("imagePath")
                         if not image_filename:
                             continue
 
                         image_path = os.path.join(current_dir, image_filename)
                         if os.path.exists(image_path):
-                            shutil.copy(image_path, os.path.join(temp_images_dir, image_filename))
+                            shutil.copy(
+                                image_path,
+                                os.path.join(temp_images_dir, image_filename),
+                            )
 
                         messages, images = [], []
-                        for msg in data.get('chat_history', []):
+                        for msg in data.get("chat_history", []):
                             message = {
-                                "role": msg.get('role'),
-                                "content": msg.get('content')
+                                "role": msg.get("role"),
+                                "content": msg.get("content"),
                             }
                             messages.append(message)
 
                             # Track images
-                            if msg.get('image'):
+                            if msg.get("image"):
                                 rel_path = f"images/{image_filename}"
                                 if rel_path not in images:
                                     images.append(rel_path)
 
                         if messages:
-                            export_data.append({
-                                "messages": messages,
-                                "images": images
-                            })
+                            export_data.append(
+                                {"messages": messages, "images": images}
+                            )
 
                     except Exception as e:
-                        logger.error(self.tr(f"Error processing {json_file}: {str(e)}"))
+                        logger.error(
+                            self.tr(f"Error processing {json_file}: {str(e)}")
+                        )
 
                 if not export_data:
-                    QMessageBox.warning(self, self.tr("Export Error"), self.tr("No valid chat data found to export."))
+                    QMessageBox.warning(
+                        self,
+                        self.tr("Export Error"),
+                        self.tr("No valid chat data found to export."),
+                    )
                     return
 
-                dataset_json_path = os.path.join(temp_dir, f"{export_filename}.json")
-                with open(dataset_json_path, 'w', encoding='utf-8') as f:
+                dataset_json_path = os.path.join(
+                    temp_dir, f"{export_filename}.json"
+                )
+                with open(dataset_json_path, "w", encoding="utf-8") as f:
                     json.dump(export_data, f, ensure_ascii=False, indent=2)
 
                 # Create zip file
-                with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-                    zipf.write(dataset_json_path, arcname=f"{export_filename}.json")
+                with zipfile.ZipFile(
+                    zip_path, "w", zipfile.ZIP_DEFLATED
+                ) as zipf:
+                    zipf.write(
+                        dataset_json_path, arcname=f"{export_filename}.json"
+                    )
                     for img in os.listdir(temp_images_dir):
                         img_path = os.path.join(temp_images_dir, img)
                         zipf.write(img_path, arcname=f"images/{img}")
 
                 shutil.rmtree(temp_dir)
                 QMessageBox.information(
-                    self, 
-                    self.tr("Export Successful"), 
-                    self.tr(f"Dataset exported successfully to:\n{zip_path}")
+                    self,
+                    self.tr("Export Successful"),
+                    self.tr(f"Dataset exported successfully to:\n{zip_path}"),
                 )
-                
+
             except Exception as e:
-                logger.error(self.tr(f"An error occurred during export:\n{str(e)}"))
-                QMessageBox.critical(self, self.tr("Export Error"), self.tr(f"An error occurred during export:\n{str(e)}"))
+                logger.error(
+                    self.tr(f"An error occurred during export:\n{str(e)}")
+                )
+                QMessageBox.critical(
+                    self,
+                    self.tr("Export Error"),
+                    self.tr(f"An error occurred during export:\n{str(e)}"),
+                )
                 if os.path.exists(temp_dir):
                     shutil.rmtree(temp_dir)
 
@@ -1393,32 +1635,43 @@ class ChatbotDialog(QDialog):
             option_dialog.accept()
 
             if not self.parent().filename:
-                QMessageBox.warning(self, self.tr("Import Error"), self.tr("No file is currently open."))
+                QMessageBox.warning(
+                    self,
+                    self.tr("Import Error"),
+                    self.tr("No file is currently open."),
+                )
                 return
 
             current_dir = os.path.dirname(self.parent().filename)
             import_file, _ = QFileDialog.getOpenFileName(
-                self, self.tr("Select Dataset File"),
+                self,
+                self.tr("Select Dataset File"),
                 current_dir,
-                "JSON Files (*.json)"
+                "JSON Files (*.json)",
             )
 
             if not import_file:
                 return
 
             try:
-                with open(import_file, 'r', encoding='utf-8') as f:
+                with open(import_file, "r", encoding="utf-8") as f:
                     import_data = json.load(f)
 
                 if not isinstance(import_data, list):
-                    QMessageBox.warning(self, self.tr("Import Error"), self.tr("Invalid dataset format. Expected a list of records."))
+                    QMessageBox.warning(
+                        self,
+                        self.tr("Import Error"),
+                        self.tr(
+                            "Invalid dataset format. Expected a list of records."
+                        ),
+                    )
                     return
 
                 import_base_dir = os.path.dirname(import_file)
                 imported_count = 0
                 for item in import_data:
-                    messages = item.get('messages', [])
-                    images = item.get('images', [])
+                    messages = item.get("messages", [])
+                    images = item.get("images", [])
 
                     if not messages or not images:
                         continue
@@ -1427,13 +1680,25 @@ class ChatbotDialog(QDialog):
                         image_filename = os.path.basename(image_path)
 
                         # Check if image exists locally or in the import directory
-                        local_image_path = os.path.join(current_dir, image_filename)
-                        import_image_path = os.path.join(import_base_dir, image_path)
-                        import_image_dir_path = os.path.join(import_base_dir, os.path.dirname(image_path), image_filename)
+                        local_image_path = os.path.join(
+                            current_dir, image_filename
+                        )
+                        import_image_path = os.path.join(
+                            import_base_dir, image_path
+                        )
+                        import_image_dir_path = os.path.join(
+                            import_base_dir,
+                            os.path.dirname(image_path),
+                            image_filename,
+                        )
 
                         # Find the actual image file
                         found_image = False
-                        for img_path in [local_image_path, import_image_path, import_image_dir_path]:
+                        for img_path in [
+                            local_image_path,
+                            import_image_path,
+                            import_image_dir_path,
+                        ]:
                             if os.path.exists(img_path):
                                 if img_path != local_image_path:
                                     shutil.copy(img_path, local_image_path)
@@ -1443,20 +1708,25 @@ class ChatbotDialog(QDialog):
                         if not found_image:
                             continue
 
-                        json_filename = os.path.splitext(image_filename)[0] + '.json'
+                        json_filename = (
+                            os.path.splitext(image_filename)[0] + ".json"
+                        )
                         json_path = os.path.join(current_dir, json_filename)
 
                         # Prepare chat history
                         chat_history = []
                         for msg in messages:
                             chat_entry = {
-                                "role": msg.get('role', ''),
-                                "content": msg.get('content', ''),
-                                "image": None
+                                "role": msg.get("role", ""),
+                                "content": msg.get("content", ""),
+                                "image": None,
                             }
 
                             # Set image path for user messages that contain <image> tag
-                            if chat_entry["role"] == "user" and "<image>" in chat_entry["content"]:
+                            if (
+                                chat_entry["role"] == "user"
+                                and "<image>" in chat_entry["content"]
+                            ):
                                 chat_entry["image"] = local_image_path
 
                             chat_history.append(chat_entry)
@@ -1475,32 +1745,48 @@ class ChatbotDialog(QDialog):
                             "imageHeight": height,
                             "imageWidth": width,
                             "chat_history": chat_history,
-                            "description": ""
+                            "description": "",
                         }
 
-                        with open(json_path, 'w', encoding='utf-8') as f:
-                            json.dump(json_content, f, ensure_ascii=False, indent=2)
+                        with open(json_path, "w", encoding="utf-8") as f:
+                            json.dump(
+                                json_content, f, ensure_ascii=False, indent=2
+                            )
 
                         imported_count += 1
                         break  # (NOTE) Only support one image per file
 
                 if imported_count > 0:
                     QMessageBox.information(
-                        self, 
-                        self.tr("Import Successful"), 
-                        self.tr(f"Successfully imported {imported_count} items to:\n{current_dir}")
+                        self,
+                        self.tr("Import Successful"),
+                        self.tr(
+                            f"Successfully imported {imported_count} items to:\n{current_dir}"
+                        ),
                     )
-                    self.navigate_image(index=self.parent().image_list.index(self.parent().filename))
+                    self.navigate_image(
+                        index=self.parent().image_list.index(
+                            self.parent().filename
+                        )
+                    )
                 else:
                     QMessageBox.warning(
-                        self, 
-                        self.tr("Import Notice"), 
-                        self.tr("No valid items were found to import. Make sure images are available.")
+                        self,
+                        self.tr("Import Notice"),
+                        self.tr(
+                            "No valid items were found to import. Make sure images are available."
+                        ),
                     )
 
             except Exception as e:
-                logger.error(self.tr(f"An error occurred during import:\n{str(e)}"))
-                QMessageBox.critical(self, self.tr("Import Error"), self.tr(f"An error occurred during import:\n{str(e)}"))
+                logger.error(
+                    self.tr(f"An error occurred during import:\n{str(e)}")
+                )
+                QMessageBox.critical(
+                    self,
+                    self.tr("Import Error"),
+                    self.tr(f"An error occurred during import:\n{str(e)}"),
+                )
 
         import_btn.clicked.connect(import_dataset)
         export_btn.clicked.connect(export_dataset)
@@ -1538,20 +1824,36 @@ class ChatbotDialog(QDialog):
                     tooltip.move(target_x, target_y)
                     tooltip.show()
                     return True
-                elif event.type() == QEvent.Leave or event.type() == QEvent.Wheel:
+                elif (
+                    event.type() == QEvent.Leave
+                    or event.type() == QEvent.Wheel
+                ):
                     tooltip.hide()
                     return True
 
         if obj == self.message_input and event.type() == event.KeyPress:
-            if event.key() == Qt.Key_Return and event.modifiers() & Qt.ControlModifier:
+            if (
+                event.key() == Qt.Key_Return
+                and event.modifiers() & Qt.ControlModifier
+            ):
                 self.start_generation()
                 return True
-            elif event.key() == Qt.Key_Return and not event.modifiers() & Qt.ControlModifier:
+            elif (
+                event.key() == Qt.Key_Return
+                and not event.modifiers() & Qt.ControlModifier
+            ):
                 # Enter without Ctrl adds a new line
                 return False
         # Prevent Enter key from triggering buttons when in settings fields
-        elif hasattr(self, 'api_address') and hasattr(self, 'model_button') and hasattr(self, 'api_key'):
-            if obj in [self.api_address, self.model_button, self.api_key] and event.type() == event.KeyPress:
+        elif (
+            hasattr(self, "api_address")
+            and hasattr(self, "model_button")
+            and hasattr(self, "api_key")
+        ):
+            if (
+                obj in [self.api_address, self.model_button, self.api_key]
+                and event.type() == event.KeyPress
+            ):
                 if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
                     return True
         return super().eventFilter(obj, event)
@@ -1560,7 +1862,9 @@ class ChatbotDialog(QDialog):
         """Generate streaming response from the API"""
         try:
             self.stream_handler.start_loading()
-            logger.debug(f"Invoking model {self.selected_model}({self.default_provider}) with base URL {api_address}")
+            logger.debug(
+                f"Invoking model {self.selected_model}({self.default_provider}) with base URL {api_address}"
+            )
 
             # Get temperature value from slider
             temperature = self.temp_slider.value() / 10.0
@@ -1570,7 +1874,10 @@ class ChatbotDialog(QDialog):
 
             # Get max tokens if provided
             max_tokens = None
-            if hasattr(self, 'max_length_input') and self.max_length_input.text().strip():
+            if (
+                hasattr(self, "max_length_input")
+                and self.max_length_input.text().strip()
+            ):
                 try:
                     max_tokens = int(self.max_length_input.text().strip())
                 except ValueError:
@@ -1588,24 +1895,40 @@ class ChatbotDialog(QDialog):
                 if msg["image"]:
                     try:
                         with open(msg["image"], "rb") as image_file:
-                            image_data = base64.b64encode(image_file.read()).decode('utf-8')
-                            messages.append({"role": msg["role"], "content": [
+                            image_data = base64.b64encode(
+                                image_file.read()
+                            ).decode("utf-8")
+                            messages.append(
                                 {
-                                    "type": "image_url",
-                                    "image_url": {"url": f"data:image/jpeg;base64,{image_data}"}
-                                },
-                                {"type": "text", "text": msg["content"]}
-                            ]})
+                                    "role": msg["role"],
+                                    "content": [
+                                        {
+                                            "type": "image_url",
+                                            "image_url": {
+                                                "url": f"data:image/jpeg;base64,{image_data}"
+                                            },
+                                        },
+                                        {
+                                            "type": "text",
+                                            "text": msg["content"],
+                                        },
+                                    ],
+                                }
+                            )
                     except Exception as e:
                         logger.error(f"Error reading image file: {e}")
                 else:
-                    messages.append({"role": msg["role"], "content": msg["content"]})
+                    messages.append(
+                        {"role": msg["role"], "content": msg["content"]}
+                    )
 
             # Create client and prepare API call parameters
             client = OpenAI(base_url=api_address, api_key=api_key)
             api_params = {
-                "model": self.selected_model, "messages": messages, 
-                "temperature": temperature, "stream": True
+                "model": self.selected_model,
+                "messages": messages,
+                "temperature": temperature,
+                "stream": True,
             }
             if max_tokens:
                 api_params["max_tokens"] = max_tokens
@@ -1618,12 +1941,17 @@ class ChatbotDialog(QDialog):
                 if self.stream_handler.stop_requested:
                     break
 
-                if hasattr(chunk.choices[0].delta, "content") and chunk.choices[0].delta.content:
+                if (
+                    hasattr(chunk.choices[0].delta, "content")
+                    and chunk.choices[0].delta.content
+                ):
                     content = chunk.choices[0].delta.content
                     self.stream_handler.append_text(content)
 
             logger.debug(f"User\n{messages[-1]['content']}")
-            logger.debug(f"Assistant\n{self.stream_handler.get_current_message()}\n")
+            logger.debug(
+                f"Assistant\n{self.stream_handler.get_current_message()}\n"
+            )
 
             self.stream_handler.finished.emit(True)
 
@@ -1669,9 +1997,13 @@ class ChatbotDialog(QDialog):
         """Enable or disable all buttons in chat messages"""
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
-            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+            if (
+                item
+                and item.widget()
+                and isinstance(item.widget(), ChatMessage)
+            ):
                 message_widget = item.widget()
-                if hasattr(message_widget, 'set_action_buttons_enabled'):
+                if hasattr(message_widget, "set_action_buttons_enabled"):
                     message_widget.set_action_buttons_enabled(enabled)
 
     def handle_error(self, error_message):
@@ -1679,7 +2011,7 @@ class ChatbotDialog(QDialog):
         # Stop the loading timer if it's still active
         if self.loading_timer and self.loading_timer.isActive():
             self.loading_timer.stop()
-        
+
         if self.loading_message:
             # Remove the loading message
             self.loading_message.setParent(None)
@@ -1687,7 +2019,11 @@ class ChatbotDialog(QDialog):
             self.loading_message = None
 
             # Add error message but don't add it to chat history
-            self.add_message("assistant", f"Error: {error_message}", delete_last_message=True)
+            self.add_message(
+                "assistant",
+                f"Error: {error_message}",
+                delete_last_message=True,
+            )
 
     def resizeEvent(self, event):
         """Handle window resize event, update message layout constraints"""
@@ -1697,7 +2033,7 @@ class ChatbotDialog(QDialog):
             item = self.chat_messages_layout.itemAt(i)
             if item and item.widget():
                 widget = item.widget()
-                if hasattr(widget, 'update_width_constraint'):
+                if hasattr(widget, "update_width_constraint"):
                     widget.update_width_constraint()
 
         self.chat_container.updateGeometry()
@@ -1710,27 +2046,35 @@ class ChatbotDialog(QDialog):
         message_widgets = []
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
-            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+            if (
+                item
+                and item.widget()
+                and isinstance(item.widget(), ChatMessage)
+            ):
                 message_widgets.append(item.widget())
-        
+
         if message_widget in message_widgets:
             message_index = message_widgets.index(message_widget)
-            
+
             # Clear all messages after and including this one
             self.clear_messages_after(message_index)
-            
+
             # Set the edited text to the message input
             self.message_input.setPlainText(new_content)
-            
+
             # Trigger generation with the new content
             self.start_generation()
-    
+
     def clear_messages_after(self, index):
         """Clear all messages after and including the specified index"""
         message_widgets = []
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
-            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+            if (
+                item
+                and item.widget()
+                and isinstance(item.widget(), ChatMessage)
+            ):
                 message_widgets.append((i, item.widget()))
 
         # Identify which items to remove (in reverse order to avoid index issues)
@@ -1770,7 +2114,11 @@ class ChatbotDialog(QDialog):
         message_widgets = []
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
-            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+            if (
+                item
+                and item.widget()
+                and isinstance(item.widget(), ChatMessage)
+            ):
                 message_widgets.append((i, item.widget()))
 
         # Find the index of the message in the list
@@ -1792,7 +2140,7 @@ class ChatbotDialog(QDialog):
             self.stream_handler.reset()
             self.stream_thread = threading.Thread(
                 target=self.stream_generation,
-                args=(self.current_api_address, self.current_api_key)
+                args=(self.current_api_address, self.current_api_key),
             )
             self.stream_thread.start()
 
@@ -1824,8 +2172,12 @@ class ChatbotDialog(QDialog):
         if start_index != -1:
             # Set highlight format
             highlight_format = QTextCharFormat()
-            highlight_format.setBackground(QColor("#E3F2FD"))  # Light blue background
-            highlight_format.setForeground(QColor("#1976D2"))  # Darker blue text
+            highlight_format.setBackground(
+                QColor("#E3F2FD")
+            )  # Light blue background
+            highlight_format.setForeground(
+                QColor("#1976D2")
+            )  # Darker blue text
 
             # Select and format the tag
             cursor.setPosition(start_index)
@@ -1842,7 +2194,9 @@ class ChatbotDialog(QDialog):
     def clear_conversation(self):
         """Clear all chat messages and reset history"""
         confirm_dialog = QMessageBox(self)
-        confirm_dialog.setText(self.tr("Are you sure you want to clear the entire conversation?"))
+        confirm_dialog.setText(
+            self.tr("Are you sure you want to clear the entire conversation?")
+        )
         confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         confirm_dialog.setDefaultButton(QMessageBox.No)
         confirm_dialog.setIcon(QMessageBox.Warning)
@@ -1884,9 +2238,18 @@ class ChatbotDialog(QDialog):
         # Find and hide all tooltips in chat messages
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
-            if item and item.widget() and isinstance(item.widget(), ChatMessage):
+            if (
+                item
+                and item.widget()
+                and isinstance(item.widget(), ChatMessage)
+            ):
                 message = item.widget()
-                for tooltip_name in ['copy_tooltip', 'delete_tooltip', 'edit_tooltip', 'regenerate_tooltip']:
+                for tooltip_name in [
+                    "copy_tooltip",
+                    "delete_tooltip",
+                    "edit_tooltip",
+                    "regenerate_tooltip",
+                ]:
                     if hasattr(message, tooltip_name):
                         tooltip = getattr(message, tooltip_name)
                         if tooltip:

@@ -15,7 +15,11 @@ from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from PyQt5.QtGui import QIcon
 
 from anylabeling.views.labeling.chatbot.config import *
-from anylabeling.views.labeling.chatbot.utils import load_json, save_json, set_icon_path
+from anylabeling.views.labeling.chatbot.utils import (
+    load_json,
+    save_json,
+    set_icon_path,
+)
 from anylabeling.views.labeling.logger import logger
 
 
@@ -24,7 +28,8 @@ class SearchBar(QLineEdit):
         super().__init__(parent)
         self.setPlaceholderText("Search models")
         self.setFixedHeight(DEFAULT_FIXED_HEIGHT)
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QLineEdit {{
                 background-color: #d4d4d8;
                 border-radius: {BORDER_RADIUS};
@@ -34,10 +39,13 @@ class SearchBar(QLineEdit):
             QLineEdit:focus {{
                 border: 3px solid #60A5FA;
             }}
-        """)
+        """
+        )
 
         self.search_icon = QLabel(self)
-        self.search_icon.setPixmap(QIcon(set_icon_path("search")).pixmap(QSize(*ICON_SIZE_SMALL)))
+        self.search_icon.setPixmap(
+            QIcon(set_icon_path("search")).pixmap(QSize(*ICON_SIZE_SMALL))
+        )
         self.search_icon.setFixedSize(self.search_icon.pixmap().size())
         self.search_icon.setStyleSheet("background-color: transparent;")
         self.resizeEvent = self.on_resize
@@ -54,7 +62,9 @@ class ModelItem(QFrame):
     clicked = pyqtSignal(str)
     favoriteToggled = pyqtSignal(str, bool)
 
-    def __init__(self, model_name, model_data, parent=None, in_favorites_section=False):
+    def __init__(
+        self, model_name, model_data, parent=None, in_favorites_section=False
+    ):
         super().__init__(parent)
         self.model_name = model_name
         self.model_data = model_data
@@ -69,27 +79,33 @@ class ModelItem(QFrame):
         layout.setContentsMargins(8, 0, 8, 0)
 
         self.name_label = QLabel(model_name)
-        self.name_label.setStyleSheet(f"""
+        self.name_label.setStyleSheet(
+            f"""
             font-size: {FONT_SIZE_SMALL};
-        """)
+        """
+        )
         layout.addWidget(self.name_label)
         layout.addStretch()
 
         # Checkmark for selected item
         self.check_icon = QLabel()
         if self.is_selected:
-            self.check_icon.setPixmap(QIcon(set_icon_path("check")).pixmap(QSize(*ICON_SIZE_SMALL)))
+            self.check_icon.setPixmap(
+                QIcon(set_icon_path("check")).pixmap(QSize(*ICON_SIZE_SMALL))
+            )
         layout.addWidget(self.check_icon)
 
         # Favorite star (initially hidden, shows on hover)
         self.star_icon = QPushButton()
         self.star_icon.setFixedSize(*ICON_SIZE_SMALL)
-        self.star_icon.setStyleSheet("""
+        self.star_icon.setStyleSheet(
+            """
             QPushButton {
                 border: none;
                 background-color: transparent;
             }
-        """)
+        """
+        )
         if self.is_favorite:
             self.star_icon.setIcon(QIcon(set_icon_path("starred")))
             if self.in_favorites_section:
@@ -104,10 +120,13 @@ class ModelItem(QFrame):
         # Vision icon if applicable
         if model_data.get("vision", False):
             vision_icon = QLabel()
-            vision_icon.setPixmap(QIcon(set_icon_path("vision")).pixmap(QSize(*ICON_SIZE_SMALL)))
+            vision_icon.setPixmap(
+                QIcon(set_icon_path("vision")).pixmap(QSize(*ICON_SIZE_SMALL))
+            )
             layout.addWidget(vision_icon)
 
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             ModelItem {{
                 background-color: transparent;
                 border-radius: 4px;
@@ -115,8 +134,9 @@ class ModelItem(QFrame):
             ModelItem:hover {{
                 background-color: #d1d0d4;
             }}
-        """)
-        
+        """
+        )
+
     def enterEvent(self, event):
         self.star_icon.setVisible(True)
         super().enterEvent(event)
@@ -141,17 +161,23 @@ class ModelItem(QFrame):
     def update_selection(self, is_selected):
         self.is_selected = is_selected
         if is_selected:
-            self.check_icon.setPixmap(QIcon(set_icon_path("check")).pixmap(QSize(*ICON_SIZE_SMALL)))
-            self.setStyleSheet("""
+            self.check_icon.setPixmap(
+                QIcon(set_icon_path("check")).pixmap(QSize(*ICON_SIZE_SMALL))
+            )
+            self.setStyleSheet(
+                """
                 background-color: #d1d0d4;
                 border-radius: 4px;
-            """)
+            """
+            )
         else:
             self.check_icon.clear()
-            self.setStyleSheet("""
+            self.setStyleSheet(
+                """
                 background-color: transparent;
                 border-radius: 4px;
-            """)
+            """
+            )
 
     def update_favorite(self, is_favorite):
         self.is_favorite = is_favorite
@@ -175,16 +201,20 @@ class ProviderSection(QFrame):
             icon_name = "star-black"
         elif Path(set_icon_path(provider_name.lower())).exists():
             icon_name = provider_name.lower()
-        icon.setPixmap(QIcon(set_icon_path(icon_name)).pixmap(QSize(*ICON_SIZE_SMALL)))
+        icon.setPixmap(
+            QIcon(set_icon_path(icon_name)).pixmap(QSize(*ICON_SIZE_SMALL))
+        )
         header.addWidget(icon)
 
         label = QLabel(provider_name)
-        label.setStyleSheet("""
+        label.setStyleSheet(
+            """
             font-family: "sans-serif";
             font-weight: 700;
             font-size: 13px;
             color: black;
-        """)
+        """
+        )
         header.addWidget(label)
         header.addStretch()
         layout.addLayout(header)
@@ -207,7 +237,8 @@ class ModelDropdown(QWidget):
         self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
         self.resize(360, 500)
 
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             ModelDropdown {{
                 background-color: #e3e2e6;
                 border-radius: 8px;
@@ -242,7 +273,8 @@ class ModelDropdown(QWidget):
                 color: #e5e5e8;
                 max-height: 1px;
             }}
-        """)
+        """
+        )
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(12, 12, 12, 12)
@@ -292,7 +324,7 @@ class ModelDropdown(QWidget):
 
     def setup_model_list(self):
         # Clear existing widgets
-        for i in reversed(range(self.container_layout.count())): 
+        for i in reversed(range(self.container_layout.count())):
             item = self.container_layout.itemAt(i)
             if item:
                 widget = item.widget()
@@ -315,7 +347,9 @@ class ModelDropdown(QWidget):
             self.container_layout.addWidget(fav_section)
 
             for provider, model_name, model_data in favorites:
-                model_item = ModelItem(model_name, model_data, in_favorites_section=True)
+                model_item = ModelItem(
+                    model_name, model_data, in_favorites_section=True
+                )
                 model_item.clicked.connect(self.select_model)
                 model_item.favoriteToggled.connect(self.toggle_favorite)
                 fav_section.add_model_item(model_item)
@@ -348,7 +382,7 @@ class ModelDropdown(QWidget):
 
         # Add stretch at the end to push content to the top
         self.container_layout.addStretch()
-        
+
         # Force layout update
         self.container_layout.update()
         self.container_layout.parentWidget().adjustSize()
@@ -378,7 +412,9 @@ class ModelDropdown(QWidget):
     def toggle_favorite(self, model_name, is_favorite):
         for provider, models in self.models_data.items():
             if model_name in models:
-                self.models_data[provider][model_name]["favorite"] = is_favorite
+                self.models_data[provider][model_name][
+                    "favorite"
+                ] = is_favorite
                 break
 
         # Rebuild the entire list to reflect changes
@@ -409,7 +445,9 @@ class ModelDropdown(QWidget):
 
         # Check if any models match the search
         for name, item in self.model_items.items():
-            similarity = SequenceMatcher(None, search_text, name.lower()).ratio()
+            similarity = SequenceMatcher(
+                None, search_text, name.lower()
+            ).ratio()
             if search_text in name.lower() or similarity >= match_threshold:
                 item.setVisible(True)
                 found_any = True
@@ -425,11 +463,13 @@ class ModelDropdown(QWidget):
 
             no_results = QLabel(empty_text)
             no_results.setAlignment(Qt.AlignCenter)
-            no_results.setStyleSheet("""
+            no_results.setStyleSheet(
+                """
                 color: #09090b;
                 font-size: 14px;
                 padding: 20px;
-            """)
+            """
+            )
 
             self.container_layout.addWidget(no_results)
         else:
@@ -438,15 +478,30 @@ class ModelDropdown(QWidget):
                 if isinstance(widget, ProviderSection):
                     has_visible_models = False
                     for j in range(widget.models_container.count()):
-                        model_widget = widget.models_container.itemAt(j).widget()
+                        model_widget = widget.models_container.itemAt(
+                            j
+                        ).widget()
                         if model_widget and model_widget.isVisible():
                             has_visible_models = True
                             break
                     widget.setVisible(has_visible_models)
-                elif isinstance(widget, QFrame) and widget.frameShape() == QFrame.HLine:
-                    prev_widget = self.container_layout.itemAt(i-1).widget() if i > 0 else None
-                    next_widget = self.container_layout.itemAt(i+1).widget() if i < self.container_layout.count()-1 else None                    
+                elif (
+                    isinstance(widget, QFrame)
+                    and widget.frameShape() == QFrame.HLine
+                ):
+                    prev_widget = (
+                        self.container_layout.itemAt(i - 1).widget()
+                        if i > 0
+                        else None
+                    )
+                    next_widget = (
+                        self.container_layout.itemAt(i + 1).widget()
+                        if i < self.container_layout.count() - 1
+                        else None
+                    )
                     should_be_visible = False
                     if prev_widget is not None and next_widget is not None:
-                        should_be_visible = prev_widget.isVisible() and next_widget.isVisible()
+                        should_be_visible = (
+                            prev_widget.isVisible() and next_widget.isVisible()
+                        )
                     widget.setVisible(should_be_visible)

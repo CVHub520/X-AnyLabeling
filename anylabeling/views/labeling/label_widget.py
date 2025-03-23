@@ -690,7 +690,7 @@ class LabelingWidget(LabelDialog):
             self.open_chatbot,
             shortcuts["open_chatbot"],
             icon="chatbot",
-            tip=self.tr("Open chatbot dialog")
+            tip=self.tr("Open chatbot dialog"),
         )
 
         documentation = action(

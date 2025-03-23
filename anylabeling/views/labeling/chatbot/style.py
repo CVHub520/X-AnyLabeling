@@ -22,13 +22,15 @@ from anylabeling.views.labeling.chatbot.config import *
 
 class CustomTooltip(QWidget):
     """Custom tooltip widget with Mac-style appearance"""
-    def __init__(self,
-                 parent=None,
-                 text_color: str = "#7f7f88",
-                 background_color: str = "#ffffff",
-                 title: str = None,
-                 value_pairs: List[Tuple[str, str]] = None,
-                 ):
+
+    def __init__(
+        self,
+        parent=None,
+        text_color: str = "#7f7f88",
+        background_color: str = "#ffffff",
+        title: str = None,
+        value_pairs: List[Tuple[str, str]] = None,
+    ):
         super().__init__(parent)
         self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
@@ -65,7 +67,8 @@ class CustomTooltip(QWidget):
 
             layout.addLayout(grid_layout)
 
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QWidget {{
                 background-color: transparent;
             }}
@@ -74,7 +77,8 @@ class CustomTooltip(QWidget):
                 border-radius: 16px;
                 border: 1px solid rgba(0, 0, 0, 0.1);
             }}
-        """)
+        """
+        )
 
     def show_at(self, pos):
         """Show tooltip at specified position"""
@@ -502,7 +506,9 @@ class ChatbotDialogStyle:
         }
         """
 
-    def get_spinbox_style(up_arrow_url: str, down_arrow_url: str, theme: Dict[str, str] = None) -> str:
+    def get_spinbox_style(
+        up_arrow_url: str, down_arrow_url: str, theme: Dict[str, str] = None
+    ) -> str:
         theme = theme or THEME
         return f"""
             QSpinBox {{
@@ -619,7 +625,6 @@ class ChatbotDialogStyle:
                 background-color: {theme["border"]};
             }}
         """
-
 
     def get_option_dialog_style(theme: Dict[str, str] = None):
         theme = theme or THEME
@@ -777,27 +782,22 @@ class ChatMessageStyle:
 def set_html_style(content):
     """Set the HTML style for the content label with GitHub-style markdown rendering and LaTeX support"""
     extension_configs = {
-        'codehilite': {
-            'linenums': False,
-            'guess_lang': False
-        },
-        'fenced_code': {
-            'lang_prefix': 'language-'
-        }
+        "codehilite": {"linenums": False, "guess_lang": False},
+        "fenced_code": {"lang_prefix": "language-"},
     }
 
     # Convert markdown to HTML with extensions
     html_content = markdown.markdown(
-        content, 
+        content,
         extensions=[
-            'fenced_code',
-            'codehilite',
-            'tables', 
-            'toc',
-            'attr_list',
-            'smarty'
+            "fenced_code",
+            "codehilite",
+            "tables",
+            "toc",
+            "attr_list",
+            "smarty",
         ],
-        extension_configs=extension_configs
+        extension_configs=extension_configs,
     )
 
     return f"""

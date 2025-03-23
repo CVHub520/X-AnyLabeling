@@ -4,10 +4,16 @@ from PyQt5.QtGui import QPainter, QColor, QBrush
 
 
 class PulsatingDot(QWidget):
-    def __init__(self, parent=None, size_range=(10, 30), color_range=((0, 0, 0), (120, 120, 120)), duration=1000):
+    def __init__(
+        self,
+        parent=None,
+        size_range=(10, 30),
+        color_range=((0, 0, 0), (120, 120, 120)),
+        duration=1000,
+    ):
         """
         Create a pulsating dot animation widget
-        
+
         Args:
             parent: Parent widget
             size_range: Tuple of (min_size, max_size) in pixels
@@ -52,14 +58,20 @@ class PulsatingDot(QWidget):
 
     def _toggle_size_animation(self):
         """Toggle the direction of the size animation"""
-        start_val, end_val = self._size_animation.endValue(), self._size_animation.startValue()
+        start_val, end_val = (
+            self._size_animation.endValue(),
+            self._size_animation.startValue(),
+        )
         self._size_animation.setStartValue(start_val)
         self._size_animation.setEndValue(end_val)
         self._size_animation.start()
 
     def _toggle_color_animation(self):
         """Toggle the direction of the color animation"""
-        start_val, end_val = self._color_animation.endValue(), self._color_animation.startValue()
+        start_val, end_val = (
+            self._color_animation.endValue(),
+            self._color_animation.startValue(),
+        )
         self._color_animation.setStartValue(start_val)
         self._color_animation.setEndValue(end_val)
         self._color_animation.start()
@@ -85,9 +97,18 @@ class PulsatingDot(QWidget):
         self._color_progress = progress
 
         # Interpolate between min and max colors
-        r = self._min_color[0] + (self._max_color[0] - self._min_color[0]) * progress / 100
-        g = self._min_color[1] + (self._max_color[1] - self._min_color[1]) * progress / 100
-        b = self._min_color[2] + (self._max_color[2] - self._min_color[2]) * progress / 100
+        r = (
+            self._min_color[0]
+            + (self._max_color[0] - self._min_color[0]) * progress / 100
+        )
+        g = (
+            self._min_color[1]
+            + (self._max_color[1] - self._min_color[1]) * progress / 100
+        )
+        b = (
+            self._min_color[2]
+            + (self._max_color[2] - self._min_color[2]) * progress / 100
+        )
 
         self._current_color = QColor(int(r), int(g), int(b))
         self.update()
@@ -107,14 +128,16 @@ class PulsatingDot(QWidget):
         # Draw dot
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(self._current_color))
-        painter.drawEllipse(center_x - self._current_size // 2, 
-                           center_y - self._current_size // 2,
-                           self._current_size, 
-                           self._current_size)
+        painter.drawEllipse(
+            center_x - self._current_size // 2,
+            center_y - self._current_size // 2,
+            self._current_size,
+            self._current_size,
+        )
 
     def stop_animation(self):
         """Stop all animations"""
-        if hasattr(self, '_size_animation'):
+        if hasattr(self, "_size_animation"):
             self._size_animation.stop()
-        if hasattr(self, '_color_animation'):
+        if hasattr(self, "_color_animation"):
             self._color_animation.stop()
