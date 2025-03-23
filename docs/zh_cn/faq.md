@@ -122,6 +122,11 @@ pip install --upgrade onnx
 ```
 </details>
 
+<details>
+<summary>Q: 如何在 MacOS 上使用 Segment-Anthing Video 功能？</summary>
+
+可参考[#865](https://github.com/CVHub520/X-AnyLabeling/issues/865)。
+</details>
 
 ### 标签导入导出相关问题
 
