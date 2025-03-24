@@ -330,7 +330,17 @@ class Shape:
         if shape == self.P_SQUARE:
             path.addRect(point.x() - d / 2, point.y() - d / 2, d, d)
         elif shape == self.P_ROUND:
-            path.addEllipse(point, d / 2.0, d / 2.0)
+            if self.difficult:
+                scale_factor = 1.5
+                triangle_path = QtGui.QPainterPath()
+                triangle_path.moveTo(point.x(), point.y() - d * scale_factor / 2)
+                triangle_path.lineTo(point.x() - d * scale_factor / 2, point.y() + d * scale_factor / 2)
+                triangle_path.lineTo(point.x() + d * scale_factor / 2, point.y() + d * scale_factor / 2)
+                triangle_path.closeSubpath()
+                path.addPath(triangle_path)
+                path.addPath(triangle_path)
+            else:
+                path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             logger.error("Unsupported vertex shape")
 
