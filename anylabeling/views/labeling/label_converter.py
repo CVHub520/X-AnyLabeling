@@ -167,6 +167,23 @@ class LabelConverter:
                 results.append(result_item)
         return results
 
+    @staticmethod
+    def clamp_points(points, image_width, image_height):
+        """Clamp points to ensure they are within image boundaries.
+
+        Args:
+            points (list): List of points to be clamped.
+            image_width (int): Width of the image.
+            image_height (int): Height of the image.
+
+        Returns:
+            list: Clamped points within the image boundaries.
+        """
+        return [
+            [max(0, min(p[0], image_width - 1)), max(0, min(p[1], image_height - 1))]
+            for p in points
+        ]
+
     def get_coco_data(self):
         coco_data = {
             "info": {
@@ -902,7 +919,7 @@ class LabelConverter:
                 shape_type = shape["shape_type"]
                 if mode == "hbb" and shape_type == "rectangle":
                     label = shape["label"]
-                    points = shape["points"]
+                    points = self.clamp_points(shape["points"], image_width, image_height)
                     if len(points) == 2:
                         logger.warning(
                             "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -928,7 +945,7 @@ class LabelConverter:
                     is_empty_file = False
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
-                    points = np.array(shape["points"])
+                    points = np.array(self.clamp_points(shape["points"]), image_width, image_height)
                     if len(points) < 3:
                         continue
                     class_index = self.classes.index(label)
@@ -981,7 +998,7 @@ class LabelConverter:
                             f"group_id is None for {shape} in {input_file}."
                         )
                     label = shape["label"]
-                    points = shape["points"]
+                    points = self.clamp_points(shape["points"], image_width, image_height)
                     group_id = int(shape["group_id"])
                     if group_id not in pose_data:
                         pose_data[group_id] = {
@@ -1087,7 +1104,7 @@ class LabelConverter:
         ).text = "https://github.com/CVHub520/X-AnyLabeling"
         for shape in shapes:
             label = shape["label"]
-            points = shape["points"]
+            points = self.clamp_points(shape["points"], image_width, image_height)
             difficult = shape.get("difficult", False)
             object_elem = ET.SubElement(root, "object")
             ET.SubElement(object_elem, "name").text = label
@@ -1174,12 +1191,14 @@ class LabelConverter:
             image_id += 1
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
+            image_width = data["imageWidth"]
+            image_height = data["imageHeight"]
             coco_data["images"].append(
                 {
                     "id": image_id,
                     "file_name": image_name,
-                    "width": data["imageWidth"],
-                    "height": data["imageHeight"],
+                    "width": image_width,
+                    "height": image_height,
                     "license": 0,
                     "flickr_url": "",
                     "coco_url": "",
@@ -1188,15 +1207,13 @@ class LabelConverter:
             )
             for shape in data["shapes"]:
                 label = shape["label"]
-                points = shape["points"]
+                points = self.clamp_points(shape["points"], image_width, image_height)
                 difficult = shape.get("difficult", False)
                 bbox, segmentation, area = [], [], 0
                 shape_type = shape["shape_type"]
 
                 if mode == "pose":
                     if shape_type in ["point", "rectangle"]:
-                        label = shape["label"]
-                        points = shape["points"]
                         group_id = int(shape["group_id"])
                         if group_id not in pose_data:
                             pose_data[group_id] = {
@@ -1358,7 +1375,7 @@ class LabelConverter:
             shape_type = shape["shape_type"]
             if shape_type != "polygon":
                 continue
-            points = shape["points"]
+            points = self.clamp_points(shape["points"], image_width, image_height)
             polygon = []
             for point in points:
                 x, y = point
@@ -1470,7 +1487,7 @@ class LabelConverter:
                 diccicult = shape.get("diccicult", False)
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
-                points = shape["points"]
+                points = self.clamp_points(shape["points"], im_widht, im_height)
                 if len(points) == 2:
                     logger.warning(
                         "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -1562,7 +1579,7 @@ class LabelConverter:
                     continue
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
-                points = shape["points"]
+                points = self.clamp_points(shape["points"], im_widht, im_height)
                 gt = [
                     frame_id,
                     track_id,
@@ -1616,7 +1633,7 @@ class LabelConverter:
                     or shape["label"] not in self.classes
                 ):
                     continue
-                points = shape["points"]
+                points = self.clamp_points(shape["points"], width, height)
                 xmin = float(points[0][0])
                 ymin = float(points[0][1])
                 xmax = float(points[2][0])
@@ -1650,6 +1667,8 @@ class LabelConverter:
         img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
         with open(label_file, "r", encoding="utf-8") as f:
             data = json.load(f)
+        image_width = data["imageWidth"]
+        image_height = data["imageHeight"]
 
         if mode == "rec":
             crop_img_count, rec_gt, annotations = 0, [], []
@@ -1663,7 +1682,7 @@ class LabelConverter:
                     continue
                 transcription = shape["description"]
                 difficult = shape.get("difficult", False)
-                points = [list(map(int, p)) for p in shape["points"]]
+                points = [list(map(int, p)) for p in self.clamp_points(shape["points"], image_width, image_height)]
                 annotations.append(
                     dict(
                         transcription=transcription,
