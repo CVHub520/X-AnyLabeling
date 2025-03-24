@@ -6619,8 +6619,9 @@ class LabelingWidget(LabelDialog):
     def group_selected_shapes(self):
         self.canvas.group_selected_shapes()
         self.set_dirty()
-
+        self.load_file(self.filename)
 
     def ungroup_selected_shapes(self):
         self.canvas.ungroup_selected_shapes()
         self.set_dirty()
+        self.load_file(self.filename)
