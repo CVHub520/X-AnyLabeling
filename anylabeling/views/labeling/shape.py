@@ -288,7 +288,7 @@ class Shape:
                         self.draw_vertex(vrtx_path, i)
             elif self.shape_type == "point":
                 assert len(self.points) == 1
-                self.draw_vertex(vrtx_path, 0)
+                self.draw_vertex(vrtx_path, 0, True)
             else:
                 line_path.moveTo(self.points[0])
                 # Uncommenting the following line will draw 2 paths
@@ -315,7 +315,7 @@ class Shape:
                 )
                 painter.fillPath(line_path, color)
 
-    def draw_vertex(self, path, i):
+    def draw_vertex(self, path, i, show_difficult=False):
         """Draw a vertex"""
         d = self.point_size / self.scale
         shape = self.point_type
@@ -327,10 +327,8 @@ class Shape:
             self._vertex_fill_color = self.hvertex_fill_color
         else:
             self._vertex_fill_color = self.vertex_fill_color
-        if shape == self.P_SQUARE:
-            path.addRect(point.x() - d / 2, point.y() - d / 2, d, d)
-        elif shape == self.P_ROUND:
-            if self.difficult:
+        if shape in (self.P_SQUARE, self.P_ROUND):
+            if self.difficult and show_difficult:
                 scale_factor = 1.5
                 triangle_path = QtGui.QPainterPath()
                 triangle_path.moveTo(point.x(), point.y() - d * scale_factor / 2)
@@ -338,9 +336,13 @@ class Shape:
                 triangle_path.lineTo(point.x() + d * scale_factor / 2, point.y() + d * scale_factor / 2)
                 triangle_path.closeSubpath()
                 path.addPath(triangle_path)
-                path.addPath(triangle_path)
+                if shape == self.P_ROUND:
+                    path.addPath(triangle_path)
             else:
-                path.addEllipse(point, d / 2.0, d / 2.0)
+                if shape == self.P_SQUARE:
+                    path.addRect(point.x() - d / 2, point.y() - d / 2, d, d)
+                elif shape == self.P_ROUND:
+                    path.addEllipse(point, d / 2.0, d / 2.0)
         else:
             logger.error("Unsupported vertex shape")
 
