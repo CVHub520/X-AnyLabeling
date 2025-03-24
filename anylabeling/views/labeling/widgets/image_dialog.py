@@ -216,7 +216,7 @@ class ImageCropperDialog:
     """A class to crop labeled regions from images based on shape labels and save them to a specified directory."""
 
     def __init__(
-        self, filename, image_list=None, output_dir=None, parent=None
+        self, filename, typeflag, image_list=None, output_dir=None, parent=None
     ):
         """Initializes the ImageCropper class with the main image file and options."""
         self.filename = filename
@@ -225,6 +225,8 @@ class ImageCropperDialog:
         self.parent = parent
         self.save_dir = None
         self.size_limits = None
+
+        self.typeflag = typeflag
 
         self.process_images()
 
@@ -333,6 +335,7 @@ class ImageCropperDialog:
                         points,
                         save_path,
                         label_to_count,
+                        shape_type,
                         score,
                     )
 
@@ -357,7 +360,7 @@ class ImageCropperDialog:
             self._show_error_message(str(e))
 
     def _crop_and_save(
-        self, image_file, label, points, save_path, label_to_count, score
+        self, image_file, label, points, save_path, label_to_count, shape_type, score
     ):
         """Crops and saves a region from an image.
 
@@ -367,6 +370,7 @@ class ImageCropperDialog:
             points (np.ndarray): Points defining the region to crop
             save_path (str): Base directory to save cropped images
             label_to_count (dict): Counter for each label type
+            shape_type (str): Type of shape used for cropping
             score (float): Confidence level of label recognition
 
         The cropped image is saved using the original filename as a prefix.
@@ -396,15 +400,29 @@ class ImageCropperDialog:
         crop_image = image[ymin:ymax, xmin:xmax]
 
         # Create output directory
-        score = score if score is not None else 0.99
-        subPath = f"0.{int(10*score)}~0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9~1.0"
-        dst_path = Path(save_path) / label / subPath
+        if self.typeflag == 0:
+            dst_path = Path(save_path) / label
+        elif self.typeflag == 1: # 基于检测权重划分二级文件夹
+            score = score if score is not None else 0.99
+            subPath = f"0.{int(10*score)}~0.{int(10*(score+0.1))}" if int(10*score) < 9 else f"0.9~1.0"
+            dst_path = Path(save_path) / label / subPath
+        else: # 基于相对尺寸划分二级文件夹
+            score = max(1.0*(xmax-xmin+1)/width, 1.0*(ymax-ymin+1)/height)
+            subPath = f"0.{int(10*score)}0~0.{int(10*(score+0.1))}0" if int(10*score) < 9 else f"0.9~1.0"
+            subPath = f"0.0{int(100*score)}~0.0{int(100*(score+0.01))}" if int(10*score) < 1 else subPath
+            dst_path = Path(save_path) / label / subPath
         dst_path.mkdir(parents=True, exist_ok=True)
 
         # Update counter and create output filename
         label_to_count[label] = label_to_count.get(label, 0) + 1
-        #dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{format(score, '.2f')}.jpg"
-        dst_file = dst_path / f"{orig_filename}.jpg"
+        if self.typeflag == 0:
+            dst_file = dst_path / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
+        elif self.typeflag == 1: # 基于检测权重划分二级文件夹
+            #dst_file = dst_path / f"{orig_filename}_{format(score, '.2f')}.jpg"
+            dst_file = dst_path / f"{orig_filename}.jpg"
+        else: # 基于相对尺寸划分二级文件夹
+            #dst_file = dst_path / f"{orig_filename}_{format(score, '.2f')}.jpg"
+            dst_file = dst_path / f"{orig_filename}.jpg"
 
         # Save image safely handling non-ASCII paths
         try:

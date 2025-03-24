@@ -637,6 +637,22 @@ class LabelingWidget(LabelDialog):
                 "Save cropped image. (Support rectangle/rotation/polygon shape_type)"
             ),
         )
+        save_crop_conf = action(
+            self.tr("&Save Cropped Image Group by Conf"),
+            self.save_crop_conf,
+            icon="crop",
+            tip=self.tr(
+                "Save minmax image Group by Conf. (Support rectangle/rotation/polygon shape_type)"
+            ),
+        )
+        save_crop_size = action(
+            self.tr("&Save Cropped Image Group by Size"),
+            self.save_crop_size,
+            icon="crop",
+            tip=self.tr(
+                "Save minmax image Group by Size. (Support rectangle/rotation/polygon shape_type)"
+            ),
+        )
         save_mask = action(
             self.tr("&Save Masked Image"),
             self.save_mask,
@@ -1415,6 +1431,8 @@ class LabelingWidget(LabelDialog):
                 overview,
                 None,
                 save_crop,
+                save_crop_conf,
+                save_crop_size,
                 save_mask,
                 None,
                 label_manager,
@@ -2019,7 +2037,17 @@ class LabelingWidget(LabelDialog):
 
     def save_crop(self):
         ImageCropperDialog(
-            self.filename, self.image_list, self.output_dir, parent=self
+            self.filename, 0, self.image_list, self.output_dir, parent=self
+        )
+
+    def save_crop_conf(self):
+        ImageCropperDialog(
+            self.filename, 1, self.image_list, self.output_dir, parent=self
+        )
+
+    def save_crop_size(self):
+        ImageCropperDialog(
+            self.filename, 2, self.image_list, self.output_dir, parent=self
         )
 
     def save_mask(self):
@@ -6422,7 +6450,7 @@ class LabelingWidget(LabelDialog):
         # Create output directory
         subPath = f"0.{int(10 * score)}~0.{int(10 * (score + 0.1))}" if int(10 * score) < 9 else f"0.9~1.0"
         if flagStr is None:
-            dst_path = pathlib.Path(image_path.parent) / label / subPath
+            dst_path = pathlib.Path(self.last_open_dir) / label / subPath
         else:
             dst_path = pathlib.Path(self.last_open_dir) / flagStr / label / subPath
         dst_path.mkdir(parents=True, exist_ok=True)
