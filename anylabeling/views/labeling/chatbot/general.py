@@ -645,7 +645,7 @@ class ChatMessage(QFrame):
             )
 
             # Set a reasonable maximum height with some buffer
-            self.setMaximumHeight(total_height)
+            self.setMaximumHeight(int(total_height))
 
             # Force update
             self.updateGeometry()
@@ -671,7 +671,7 @@ class ChatMessage(QFrame):
                     height + self.animation_min_height + button_space
                 )
                 self.content_label.setFixedHeight(height)
-                self.setMaximumHeight(total_height)
+                self.setMaximumHeight(int(total_height))
 
                 self.updateGeometry()
                 self.bubble.updateGeometry()
@@ -821,7 +821,7 @@ class ChatMessage(QFrame):
             )
 
             # Set a reasonable height for the edit mode
-            self.setMaximumHeight(total_height + 20)
+            self.setMaximumHeight(int(total_height) + 20)
 
             # Force update layout
             self.updateGeometry()

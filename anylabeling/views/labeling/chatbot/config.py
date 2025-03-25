@@ -10,7 +10,6 @@ PROVIDERS_CONFIG_PATH = os.path.join(root_dir, "providers.json")
 # Global design system
 ANIMATION_DURATION = "200ms"
 BORDER_RADIUS = "8px"
-FONT_FAMILY = "SF Pro Text, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif"
 FONT_SIZE_TINY = "9px"
 FONT_SIZE_SMALL = "11px"
 FONT_SIZE_NORMAL = "13px"

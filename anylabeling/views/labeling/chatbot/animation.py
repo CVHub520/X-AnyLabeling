@@ -129,10 +129,10 @@ class PulsatingDot(QWidget):
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(self._current_color))
         painter.drawEllipse(
-            center_x - self._current_size // 2,
-            center_y - self._current_size // 2,
-            self._current_size,
-            self._current_size,
+            int(center_x - self._current_size // 2),
+            int(center_y - self._current_size // 2),
+            int(self._current_size),
+            int(self._current_size),
         )
 
     def stop_animation(self):

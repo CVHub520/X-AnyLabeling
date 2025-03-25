@@ -117,7 +117,6 @@ class ChatbotDialogStyle:
         QDialog {{
             background-color: {theme["background"]};
             border: none;
-            font-family: {FONT_FAMILY};
         }}
         QLabel {{
             border: none;
@@ -129,7 +128,6 @@ class ChatbotDialogStyle:
             padding: 8px;
             background-color: {theme["background_secondary"]};
             selection-background-color: {theme["primary"]};
-            font-family: {FONT_FAMILY};
             font-size: {FONT_SIZE_NORMAL};
             transition: border {ANIMATION_DURATION} ease;
         }}
@@ -192,7 +190,6 @@ class ChatbotDialogStyle:
                 text-align: left;
                 padding: 8px;
                 color: {theme["text"]};
-                font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 font-weight: 450;
                 transition: all {ANIMATION_DURATION} ease;
@@ -272,7 +269,6 @@ class ChatbotDialogStyle:
             QTextEdit {{
                 border: none;
                 background-color: {theme["background_secondary"]};
-                font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 padding: 0px;
                 color: {theme["text"]};  /* Set text color */
@@ -391,7 +387,6 @@ class ChatbotDialogStyle:
                 padding: 8px;
                 background-color: {theme["background_secondary"]};
                 color: {theme["text"]};
-                font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
             }}
             QLineEdit:hover {{
@@ -517,7 +512,6 @@ class ChatbotDialogStyle:
                 padding: 2px 30px 2px 8px;
                 background-color: {theme["background_secondary"]};
                 color: {theme["text"]};
-                font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 min-height: 36px;
             }}
@@ -580,7 +574,6 @@ class ChatbotDialogStyle:
                 min-width: 350px;
                 min-height: 120px;
                 padding: 10px;
-                font-family: {FONT_FAMILY};
             }}
 
             QProgressDialog QLabel {{
@@ -632,7 +625,6 @@ class ChatbotDialogStyle:
             QDialog {{
                 background-color: {theme["background"]};
                 border-radius: {BORDER_RADIUS};
-                font-family: {FONT_FAMILY};
             }}
             QPushButton {{
                 background-color: {theme["primary"]};
@@ -696,7 +688,6 @@ class ChatMessageStyle:
         return f"""
             QLabel {{
                 color: {text_color};
-                font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
                 background-color: transparent;
                 padding: 0px 0px;
@@ -712,7 +703,6 @@ class ChatMessageStyle:
                 border-radius: {BORDER_RADIUS};
                 padding: 4px 2px;
                 color: {theme["text"]};
-                font-family: {FONT_FAMILY};
                 font-size: {FONT_SIZE_NORMAL};
             }}
         """

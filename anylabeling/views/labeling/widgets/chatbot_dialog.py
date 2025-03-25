@@ -802,7 +802,7 @@ class ChatbotDialog(QDialog):
         available_height = button_pos.y() - right_panel_top
         self.model_dropdown.resize(self.right_widget.width(), available_height)
         dropdown_y = button_pos.y() - self.model_dropdown.height()
-        self.model_dropdown.move(dropdown_x, dropdown_y)
+        self.model_dropdown.move(int(dropdown_x), int(dropdown_y))
         self.model_dropdown.show()
 
     def on_model_selected(self, model_name):
@@ -898,8 +898,8 @@ class ChatbotDialog(QDialog):
         # Set the appropriate height
         if needs_scrollbar:
             # Use maximum height and enable scrollbar
-            self.message_input.setMinimumHeight(max_height)
-            self.message_input.setMaximumHeight(max_height)
+            self.message_input.setMinimumHeight(int(max_height))
+            self.message_input.setMaximumHeight(int(max_height))
             self.message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
             # Ensure cursor is visible by scrolling to it
@@ -908,8 +908,8 @@ class ChatbotDialog(QDialog):
         else:
             # Use calculated height and disable scrollbar
             actual_height = max(total_height, MIN_MSG_INPUT_HEIGHT)
-            self.message_input.setMinimumHeight(actual_height)
-            self.message_input.setMaximumHeight(actual_height)
+            self.message_input.setMinimumHeight(int(actual_height))
+            self.message_input.setMaximumHeight(int(actual_height))
             self.message_input.setVerticalScrollBarPolicy(
                 Qt.ScrollBarAlwaysOff
             )
