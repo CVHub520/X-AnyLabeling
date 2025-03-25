@@ -1,18 +1,27 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QGraphicsDropShadowEffect
+from PyQt5.QtWidgets import (
+    QWidget,
+    QLabel,
+    QVBoxLayout,
+    QGraphicsDropShadowEffect,
+)
 from PyQt5.QtCore import Qt, QTimer, QRectF
 from PyQt5.QtGui import QPainter, QPainterPath, QColor
 
 
 class Popup(QWidget):
     def __init__(self, text, parent=None, msec=5000):
-        super().__init__(parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        super().__init__(
+            parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        )
 
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QWidget {
                 background-color: #f2edec;
                 border-radius: 16px;
             }
-        """)
+        """
+        )
 
         layout = QVBoxLayout()
 

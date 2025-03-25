@@ -65,7 +65,9 @@ def get_bounding_boxes(contours):
 
     # Sort corner points in clockwise order
     cx, cy = np.mean(corner_points, axis=0)
-    corner_points = sorted(corner_points, key=lambda p: np.arctan2(p[1] - cy, p[0] - cx))
+    corner_points = sorted(
+        corner_points, key=lambda p: np.arctan2(p[1] - cy, p[0] - cx)
+    )
     rotation_box = np.int64(corner_points)
 
     return rectangle_box, rotation_box

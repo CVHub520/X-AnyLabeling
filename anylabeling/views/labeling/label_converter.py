@@ -180,7 +180,10 @@ class LabelConverter:
             list: Clamped points within the image boundaries.
         """
         return [
-            [max(0, min(p[0], image_width - 1)), max(0, min(p[1], image_height - 1))]
+            [
+                max(0, min(p[0], image_width - 1)),
+                max(0, min(p[1], image_height - 1)),
+            ]
             for p in points
         ]
 
@@ -919,7 +922,9 @@ class LabelConverter:
                 shape_type = shape["shape_type"]
                 if mode == "hbb" and shape_type == "rectangle":
                     label = shape["label"]
-                    points = self.clamp_points(shape["points"], image_width, image_height)
+                    points = self.clamp_points(
+                        shape["points"], image_width, image_height
+                    )
                     if len(points) == 2:
                         logger.warning(
                             "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -945,7 +950,11 @@ class LabelConverter:
                     is_empty_file = False
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
-                    points = np.array(self.clamp_points(shape["points"]), image_width, image_height)
+                    points = np.array(
+                        self.clamp_points(shape["points"]),
+                        image_width,
+                        image_height,
+                    )
                     if len(points) < 3:
                         continue
                     class_index = self.classes.index(label)
@@ -998,7 +1007,9 @@ class LabelConverter:
                             f"group_id is None for {shape} in {input_file}."
                         )
                     label = shape["label"]
-                    points = self.clamp_points(shape["points"], image_width, image_height)
+                    points = self.clamp_points(
+                        shape["points"], image_width, image_height
+                    )
                     group_id = int(shape["group_id"])
                     if group_id not in pose_data:
                         pose_data[group_id] = {
@@ -1104,7 +1115,9 @@ class LabelConverter:
         ).text = "https://github.com/CVHub520/X-AnyLabeling"
         for shape in shapes:
             label = shape["label"]
-            points = self.clamp_points(shape["points"], image_width, image_height)
+            points = self.clamp_points(
+                shape["points"], image_width, image_height
+            )
             difficult = shape.get("difficult", False)
             object_elem = ET.SubElement(root, "object")
             ET.SubElement(object_elem, "name").text = label
@@ -1207,7 +1220,9 @@ class LabelConverter:
             )
             for shape in data["shapes"]:
                 label = shape["label"]
-                points = self.clamp_points(shape["points"], image_width, image_height)
+                points = self.clamp_points(
+                    shape["points"], image_width, image_height
+                )
                 difficult = shape.get("difficult", False)
                 bbox, segmentation, area = [], [], 0
                 shape_type = shape["shape_type"]
@@ -1375,7 +1390,9 @@ class LabelConverter:
             shape_type = shape["shape_type"]
             if shape_type != "polygon":
                 continue
-            points = self.clamp_points(shape["points"], image_width, image_height)
+            points = self.clamp_points(
+                shape["points"], image_width, image_height
+            )
             polygon = []
             for point in points:
                 x, y = point
@@ -1487,7 +1504,9 @@ class LabelConverter:
                 diccicult = shape.get("diccicult", False)
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
-                points = self.clamp_points(shape["points"], im_widht, im_height)
+                points = self.clamp_points(
+                    shape["points"], im_widht, im_height
+                )
                 if len(points) == 2:
                     logger.warning(
                         "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
@@ -1579,7 +1598,9 @@ class LabelConverter:
                     continue
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
-                points = self.clamp_points(shape["points"], im_widht, im_height)
+                points = self.clamp_points(
+                    shape["points"], im_widht, im_height
+                )
                 gt = [
                     frame_id,
                     track_id,
@@ -1682,7 +1703,12 @@ class LabelConverter:
                     continue
                 transcription = shape["description"]
                 difficult = shape.get("difficult", False)
-                points = [list(map(int, p)) for p in self.clamp_points(shape["points"], image_width, image_height)]
+                points = [
+                    list(map(int, p))
+                    for p in self.clamp_points(
+                        shape["points"], image_width, image_height
+                    )
+                ]
                 annotations.append(
                     dict(
                         transcription=transcription,

@@ -331,9 +331,17 @@ class Shape:
             if self.difficult and show_difficult:
                 scale_factor = 1.5
                 triangle_path = QtGui.QPainterPath()
-                triangle_path.moveTo(point.x(), point.y() - d * scale_factor / 2)
-                triangle_path.lineTo(point.x() - d * scale_factor / 2, point.y() + d * scale_factor / 2)
-                triangle_path.lineTo(point.x() + d * scale_factor / 2, point.y() + d * scale_factor / 2)
+                triangle_path.moveTo(
+                    point.x(), point.y() - d * scale_factor / 2
+                )
+                triangle_path.lineTo(
+                    point.x() - d * scale_factor / 2,
+                    point.y() + d * scale_factor / 2,
+                )
+                triangle_path.lineTo(
+                    point.x() + d * scale_factor / 2,
+                    point.y() + d * scale_factor / 2,
+                )
                 triangle_path.closeSubpath()
                 path.addPath(triangle_path)
                 if shape == self.P_ROUND:

@@ -15,7 +15,7 @@
    * [3. View](#3-view)
       * [3.1 Canvas Visualization](#31-canvas-visualization)
       * [3.2 Image Visualization](#32-image-visualization)
-      * [3.3 Object Visualization](#33-object-visualization)
+      * [3.3 Shape Visualization](#33-shape-visualization)
       * [3.4 Crosshair](#34-crosshair)
    * [4. Annotation Import and Export](#4-annotation-import-and-export)
       * [4.1 YOLO Annotation](#41-yolo-annotation)
@@ -249,11 +249,19 @@ X-AnyLabeling supports color adjustment for the current image. Operations includ
 
 Additionally, as the cursor moves, the information bar at the bottom of the GUI displays the current image's filename and annotation progress in real time.
 
-### 3.3 Object Visualization
+### 3.3 Shape Visualization
 
-Object visualization features include displaying text descriptions (Ctrl+T), label names (Ctrl+L), group IDs, rotation angles, and prediction scores of annotated objects in the current image. Users can set these through shortcuts or the corresponding options in the `View` dropdown menu at the top of the interface.
+Shape visualization features display text descriptions of labeled shapes (Ctrl+T), label names (Ctrl+L), group IDs, rotation angles, prediction scores, and more.
 
-Furthermore, when the cursor hovers over an object of interest, the information bar at the bottom of the GUI displays the current object's width, height, and other details.
+Configure these display options using the indicated keyboard shortcuts or by selecting them in the `View` dropdown menu at the top.
+
+Hovering your cursor over a shape will dynamically display its width and height in the GUI's bottom information bar.
+
+<p align="center">
+  <img src="../../assets/resources/filter.png" alt="Brightness-Contrast">
+</p>
+
+The right-middle panel of the GUI provides `Label Filters` and `Group ID Filters` for easily displaying shapes with specific labels or group IDs
 
 ### 3.4 Crosshair
 

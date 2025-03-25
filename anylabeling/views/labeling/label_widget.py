@@ -52,6 +52,7 @@ from .widgets import (
     ChatbotDialog,
     CrosshairSettingsDialog,
     FileDialogPreview,
+    GroupIDFilterComboBox,
     TextInputDialog,
     ImageCropperDialog,
     LabelDialog,
@@ -179,8 +180,9 @@ class LabelingWidget(LabelDialog):
             "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
 
-        # Create and add combobox for showing unique labels in group
+        # Create and add combobox for showing unique labels or group ids in group
         self.label_filter_combobox = LabelFilterComboBox(self)
+        self.gid_filter_combobox = GroupIDFilterComboBox(self)
 
         self.label_list.item_selection_changed.connect(
             self.label_selection_changed
@@ -1665,7 +1667,13 @@ class LabelingWidget(LabelDialog):
         right_sidebar_layout.addWidget(self.shape_text_edit)
         right_sidebar_layout.addWidget(self.flag_dock)
         right_sidebar_layout.addWidget(self.label_dock)
-        right_sidebar_layout.addWidget(self.label_filter_combobox)
+
+        # Create a horizontal layout for the filters
+        filter_layout = QHBoxLayout()
+        filter_layout.addWidget(self.label_filter_combobox, 90)
+        filter_layout.addWidget(self.gid_filter_combobox, 10)
+        right_sidebar_layout.addLayout(filter_layout)
+
         right_sidebar_layout.addWidget(self.shape_dock)
         right_sidebar_layout.addWidget(self.file_dock)
         self.file_dock.setFeatures(QDockWidget.DockWidgetFloatable)
@@ -1907,7 +1915,8 @@ class LabelingWidget(LabelDialog):
         self.label_file = None
         self.other_data = {}
         self.canvas.reset_state()
-        self.label_filter_combobox.combo_box.clear()
+        self.label_filter_combobox.text_box.clear()
+        self.gid_filter_combobox.gid_box.clear()
 
     def reset_attribute(self, text):
         valid_labels = list(self.attributes.keys())
@@ -1981,9 +1990,7 @@ class LabelingWidget(LabelDialog):
                 xmax, ymax = (points[2].x(), points[2].y())
                 rectangle_shapes.append([xmin, ymin, xmax, ymax])
             else:
-                polygon_shapes.append(
-                    [(p.x(), p.y()) for p in points]
-                )
+                polygon_shapes.append([(p.x(), p.y()) for p in points])
 
         union_shape = shape.copy()
 
@@ -2015,7 +2022,9 @@ class LabelingWidget(LabelDialog):
             # Draw all polygons on the mask
             for polygon in polygon_shapes:
                 contour = np.array(polygon, dtype=np.int32)
-                shifted_contour = contour - np.array([min_x - 5, min_y - 5], dtype=np.int32)
+                shifted_contour = contour - np.array(
+                    [min_x - 5, min_y - 5], dtype=np.int32
+                )
                 shifted_contour = shifted_contour.reshape((-1, 1, 2))
                 cv2.fillPoly(mask, [shifted_contour], 255)
 
@@ -2026,9 +2035,16 @@ class LabelingWidget(LabelDialog):
             if merged_contours:
                 largest_contour = max(merged_contours, key=cv2.contourArea)
                 epsilon = 0.001 * cv2.arcLength(largest_contour, True)
-                approx_contour = cv2.approxPolyDP(largest_contour, epsilon, True)
-                approx_contour = approx_contour.reshape(-1, 2) + np.array([min_x - 5, min_y - 5], dtype=np.int32)
-                union_shape.points = [QtCore.QPointF(float(x), float(y)) for x, y in approx_contour]
+                approx_contour = cv2.approxPolyDP(
+                    largest_contour, epsilon, True
+                )
+                approx_contour = approx_contour.reshape(-1, 2) + np.array(
+                    [min_x - 5, min_y - 5], dtype=np.int32
+                )
+                union_shape.points = [
+                    QtCore.QPointF(float(x), float(y))
+                    for x, y in approx_contour
+                ]
 
         # Append merged shape and remove selected shapes
         self.add_label(union_shape)
@@ -2730,6 +2746,7 @@ class LabelingWidget(LabelDialog):
             item.setText(f"{shape.label} ({shape.group_id})")
         self.set_dirty()
         self.update_combo_box()
+        self.update_gid_box()
 
     def file_search_changed(self):
         self.import_image_folder(
@@ -2933,9 +2950,11 @@ class LabelingWidget(LabelDialog):
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected == 1)
         self.actions.union_selection.setEnabled(
-            not all(value > 0 for value in allow_merge_shape_type.values()) and (
-            allow_merge_shape_type["rectangle"] > 1 or
-            allow_merge_shape_type["polygon"] > 1)
+            not all(value > 0 for value in allow_merge_shape_type.values())
+            and (
+                allow_merge_shape_type["rectangle"] > 1
+                or allow_merge_shape_type["polygon"] > 1
+            )
         )
         self.set_text_editing(True)
         if self.attributes:
@@ -2978,6 +2997,7 @@ class LabelingWidget(LabelDialog):
         label_list_item.setText("{}".format(html.escape(text)))
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         self.update_combo_box()
+        self.update_gid_box()
 
     def _update_shape_color(self, shape):
         r, g, b = self._get_rgb_by_label(shape.label)
@@ -3014,6 +3034,7 @@ class LabelingWidget(LabelDialog):
             item = self.label_list.find_item_by_shape(shape)
             self.label_list.remove_item(item)
         self.update_combo_box()
+        self.update_gid_box()
 
     def load_shapes(self, shapes, replace=True, update_last_label=True):
         self._no_selection_slot = True
@@ -3043,6 +3064,20 @@ class LabelingWidget(LabelDialog):
         unique_labels_list.append("")
         unique_labels_list.sort()
         self.label_filter_combobox.update_items(unique_labels_list)
+
+    def update_gid_box(self):
+        # Get the unique group ids and add them to the Combobox.
+        gid_list = []
+        for item in self.label_list:
+            gid = item.shape().group_id
+            if gid is not None:
+                gid_list.append(str(gid))
+        unique_gid_list = list(set(gid_list))
+
+        # Add a null row for showing all the labels
+        unique_gid_list.append("-1")
+        unique_gid_list.sort()
+        self.gid_filter_combobox.update_items(unique_gid_list)
 
     def save_labels(self, filename):
         label_file = LabelFile()
@@ -3144,10 +3179,22 @@ class LabelingWidget(LabelDialog):
             ]
             self.actions.paste.setEnabled(len(self._copied_shapes) > 0)
 
-    def combo_selection_changed(self, index):
-        label = self.label_filter_combobox.combo_box.itemText(index)
+    def text_selection_changed(self, index):
+        label = self.label_filter_combobox.text_box.itemText(index)
         for item in self.label_list:
             if label in ["", item.shape().label]:
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
+
+    def gid_selection_changed(self, index):
+        gid = self.gid_filter_combobox.gid_box.itemText(index)
+        for item in self.label_list:
+            if item.shape().group_id is not None:
+                checked_gid = ["-1", str(item.shape().group_id)]
+            else:
+                checked_gid = ["-1"]
+            if str(gid) in checked_gid:
                 item.setCheckState(Qt.Checked)
             else:
                 item.setCheckState(Qt.Unchecked)
@@ -3562,6 +3609,7 @@ class LabelingWidget(LabelDialog):
                         **shape.flags,
                     }
             self.update_combo_box()
+            self.update_gid_box()
             self.load_shapes(self.label_file.shapes, update_last_label=False)
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
@@ -6058,6 +6106,7 @@ class LabelingWidget(LabelDialog):
                         **shape.flags,
                     }
             self.update_combo_box()
+            self.update_gid_box()
             self.load_shapes(self.label_file.shapes, update_last_label=False)
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
@@ -6641,7 +6690,7 @@ class LabelingWidget(LabelDialog):
         font.setPointSize(10)
         self.shape_text_edit.setFont(font)
         self.shape_text_label.setFont(font)
-    
+
     def group_selected_shapes(self):
         self.canvas.group_selected_shapes()
         self.set_dirty()

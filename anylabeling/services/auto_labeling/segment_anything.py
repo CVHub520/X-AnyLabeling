@@ -199,7 +199,9 @@ class SegmentAnything(Model):
                 shapes.append(shape)
         elif self.output_mode in ["rectangle", "rotation"]:
             shape = Shape(flags={})
-            rectangle_box, rotation_box = get_bounding_boxes(approx_contours[0])
+            rectangle_box, rotation_box = get_bounding_boxes(
+                approx_contours[0]
+            )
             xmin, ymin, xmax, ymax = rectangle_box
             if self.output_mode == "rectangle":
                 shape.add_point(QtCore.QPointF(int(xmin), int(ymin)))
@@ -208,13 +210,15 @@ class SegmentAnything(Model):
                 shape.add_point(QtCore.QPointF(int(xmin), int(ymax)))
             else:
                 for point in rotation_box:
-                    shape.add_point(QtCore.QPointF(int(point[0]), int(point[1])))
+                    shape.add_point(
+                        QtCore.QPointF(int(point[0]), int(point[1]))
+                    )
             shape.shape_type = self.output_mode
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
             if self.clip_net is not None and self.classes:
-                img = image[ymin: ymax, xmin: xmax]
+                img = image[ymin:ymax, xmin:xmax]
                 out = self.clip_net(img, self.classes)
                 shape.cache_label = self.classes[int(np.argmax(out))]
             shape.label = "AUTOLABEL_OBJECT"

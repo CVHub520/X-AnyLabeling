@@ -21,7 +21,9 @@ For each object, all associated keypoints and the corresponding rectangle should
 <img src=".data/annotated_pose_task.png" width="100%" />
 
 > [!TIP]
-> You can press the `s` key to show or the `w` key to hide the selected shape.
+> - Press `S` to show or `W` to hide the selected shape.
+> - Use the group ID filter to easily check labeled shapes. For more details, see [Section 3.3](../../../docs/en/user_guide.md).
+> - Select multiple shapes and press `G` to automatically assign sequential group IDs; press `U` to remove group IDs from all selected shapes.
 
 ## Export
 
