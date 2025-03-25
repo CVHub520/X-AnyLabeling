@@ -908,8 +908,8 @@ class ChatbotDialog(QDialog):
         else:
             # Use calculated height and disable scrollbar
             actual_height = max(total_height, MIN_MSG_INPUT_HEIGHT)
-            self.message_input.setMinimumHeight(actual_height)
-            self.message_input.setMaximumHeight(actual_height)
+            self.message_input.setMinimumHeight(int(actual_height))
+            self.message_input.setMaximumHeight(int(actual_height))
             self.message_input.setVerticalScrollBarPolicy(
                 Qt.ScrollBarAlwaysOff
             )
