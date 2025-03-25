@@ -1058,6 +1058,8 @@ class Canvas(
             p.setPen(pen)
             grouped_shapes = {}
             for shape in self.shapes:
+                if not shape.visible:
+                    continue
                 if shape.group_id is None:
                     continue
                 if shape.group_id not in grouped_shapes:
@@ -1127,6 +1129,9 @@ class Canvas(
             linking_pairs = []
             group_color = (255, 128, 0)
             for shape in self.shapes:
+                if not shape.visible:
+                    continue
+
                 try:
                     linking_pairs += shape.kie_linking
                 except Exception:
@@ -1266,6 +1271,8 @@ class Canvas(
             pen = QtGui.QPen(QtGui.QColor(background_color), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
+                if not shape.visible:
+                    continue
                 description = shape.description
                 if description:
                     bbox = shape.bounding_rect()
@@ -1286,6 +1293,8 @@ class Canvas(
             pen = QtGui.QPen(QtGui.QColor(text_color), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
+                if not shape.visible:
+                    continue
                 description = shape.description
                 if description:
                     bbox = shape.bounding_rect()
@@ -1304,6 +1313,8 @@ class Canvas(
             )
             labels = []
             for shape in self.shapes:
+                if not shape.visible:
+                    continue
                 d_react = shape.point_size / shape.scale
                 d_text = 1.5
                 if not shape.visible:
@@ -1371,11 +1382,15 @@ class Canvas(
             pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape, rect, _, _ in labels:
+                if not shape.visible:
+                    continue
                 p.fillRect(rect, shape.line_color)
 
             pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 8, Qt.SolidLine)
             p.setPen(pen)
             for _, _, text_pos, label_text in labels:
+                if not shape.visible:
+                    continue
                 p.drawText(text_pos, label_text)
 
         # Draw mouse coordinates

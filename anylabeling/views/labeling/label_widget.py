@@ -3166,6 +3166,7 @@ class LabelingWidget(LabelDialog):
 
     def label_item_changed(self, item):
         shape = item.shape()
+        shape.visible = item.checkState() == Qt.Checked
         self.canvas.set_shape_visible(shape, item.checkState() == Qt.Checked)
 
     def label_order_changed(self):
@@ -5864,8 +5865,9 @@ class LabelingWidget(LabelDialog):
         return osp.dirname(str(self.filename)) if self.filename else "."
 
     def toggle_visibility_shapes(self, value):
-        for item in self.label_list:
+        for index, item in enumerate(self.label_list):
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
+            self.label_list[index].shape().visible = True if value else False
         self._config["show_shapes"] = value
 
     def run_all_images(self):
