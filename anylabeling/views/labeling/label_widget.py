@@ -62,6 +62,7 @@ from .widgets import (
     LabelModifyDialog,
     GroupIDModifyDialog,
     OverviewDialog,
+    Popup,
     ToolBar,
     UniqueLabelQListWidget,
     ZoomWidget,
@@ -2455,16 +2456,8 @@ class LabelingWidget(LabelDialog):
         )
         msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
 
-        info_box = QMessageBox()
-        info_box.setIcon(QMessageBox.Information)
-        info_box.setText(msg)
-        info_box.setWindowTitle(self.tr("Information"))
-
-        copy_button = QtWidgets.QPushButton(self.tr("Copy"))
-        copy_button.clicked.connect(lambda: self.copy_to_clipboard(msg))
-        info_box.addButton(copy_button, QMessageBox.ActionRole)
-
-        info_box.exec_()
+        popup = Popup(self.tr("Copied!"), self)
+        popup.show_popup(self, copy_msg=msg)
 
     def loop_thru_labels(self):
         self.label_loop_count += 1
