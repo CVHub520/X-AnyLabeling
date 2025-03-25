@@ -197,7 +197,7 @@ class AutoLabelingWidget(QWidget):
                     if model_config.get("is_custom_model", False)
                     else ""
                 )
-                + model_config["display_name"],
+                + str(model_config["display_name"]),
                 userData=model_config["config_file"],
             )
 
