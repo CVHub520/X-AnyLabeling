@@ -18,6 +18,7 @@ from .label_dialog import (
 )
 from .label_list_widget import LabelListWidget, LabelListWidgetItem
 from .overview_dialog import OverviewDialog
+from .popup import Popup
 from .toolbar import ToolBar
 from .unique_label_qlist_widget import UniqueLabelQListWidget
 from .zoom_widget import ZoomWidget
