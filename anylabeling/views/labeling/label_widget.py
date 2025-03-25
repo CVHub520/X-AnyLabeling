@@ -1973,43 +1973,65 @@ class LabelingWidget(LabelDialog):
         """
         Merges selected shapes into one shape.
         """
-        if len(self.canvas.selected_shapes) < 2:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please select at least two shapes to perform union."),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        # Get rectangle of all selected shapes
-        rectangle_shapes = []
+        rectangle_shapes, polygon_shapes = [], []
         for shape in self.canvas.selected_shapes:
             points = shape.points
-            # Convert QPointF objects to tuples
-            xmin, ymin = (points[0].x(), points[0].y())
-            xmax, ymax = (points[2].x(), points[2].y())
-            rectangle_shapes.append([xmin, ymin, xmax, ymax])
+            if shape.shape_type == "rectangle":
+                xmin, ymin = (points[0].x(), points[0].y())
+                xmax, ymax = (points[2].x(), points[2].y())
+                rectangle_shapes.append([xmin, ymin, xmax, ymax])
+            else:
+                polygon_shapes.append(
+                    [(p.x(), p.y()) for p in points]
+                )
 
-        # Calculate the rectangle
-        min_x = min([bbox[0] for bbox in rectangle_shapes])
-        min_y = min([bbox[1] for bbox in rectangle_shapes])
-        max_x = max([bbox[2] for bbox in rectangle_shapes])
-        max_y = max([bbox[3] for bbox in rectangle_shapes])
-
-        # Create a new rectangle shape representing the union
         union_shape = shape.copy()
-        union_shape.points[0].setX(min_x)
-        union_shape.points[0].setY(min_y)
-        union_shape.points[1].setX(max_x)
-        union_shape.points[1].setY(min_y)
-        union_shape.points[2].setX(max_x)
-        union_shape.points[2].setY(max_y)
-        union_shape.points[3].setX(min_x)
-        union_shape.points[3].setY(max_y)
-        self.add_label(union_shape)
 
-        # clear selected shapes
+        if len(rectangle_shapes) > 0:
+            min_x = min([bbox[0] for bbox in rectangle_shapes])
+            min_y = min([bbox[1] for bbox in rectangle_shapes])
+            max_x = max([bbox[2] for bbox in rectangle_shapes])
+            max_y = max([bbox[3] for bbox in rectangle_shapes])
+
+            union_shape.points[0].setX(min_x)
+            union_shape.points[0].setY(min_y)
+            union_shape.points[1].setX(max_x)
+            union_shape.points[1].setY(min_y)
+            union_shape.points[2].setX(max_x)
+            union_shape.points[2].setY(max_y)
+            union_shape.points[3].setX(min_x)
+            union_shape.points[3].setY(max_y)
+        else:
+            # Create a blank mask
+            min_x = min([min(p[0] for p in poly) for poly in polygon_shapes])
+            min_y = min([min(p[1] for p in poly) for poly in polygon_shapes])
+            max_x = max([max(p[0] for p in poly) for poly in polygon_shapes])
+            max_y = max([max(p[1] for p in poly) for poly in polygon_shapes])
+
+            width = int(max_x - min_x + 10)
+            height = int(max_y - min_y + 10)
+            mask = np.zeros((height, width), dtype=np.uint8)
+
+            # Draw all polygons on the mask
+            for polygon in polygon_shapes:
+                contour = np.array(polygon, dtype=np.int32)
+                shifted_contour = contour - np.array([min_x - 5, min_y - 5], dtype=np.int32)
+                shifted_contour = shifted_contour.reshape((-1, 1, 2))
+                cv2.fillPoly(mask, [shifted_contour], 255)
+
+            # Find contours of the merged shape
+            merged_contours, _ = cv2.findContours(
+                mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            if merged_contours:
+                largest_contour = max(merged_contours, key=cv2.contourArea)
+                epsilon = 0.001 * cv2.arcLength(largest_contour, True)
+                approx_contour = cv2.approxPolyDP(largest_contour, epsilon, True)
+                approx_contour = approx_contour.reshape(-1, 2) + np.array([min_x - 5, min_y - 5], dtype=np.int32)
+                union_shape.points = [QtCore.QPointF(float(x), float(y)) for x, y in approx_contour]
+
+        # Append merged shape and remove selected shapes
+        self.add_label(union_shape)
         self.remove_labels(self.canvas.delete_selected())
         self.set_dirty()
 
@@ -2894,11 +2916,11 @@ class LabelingWidget(LabelDialog):
             shape.selected = False
         self.label_list.clearSelection()
         self.canvas.selected_shapes = selected_shapes
-        is_mergeable = True
+        allow_merge_shape_type = {"rectangle": 0, "polygon": 0}
         for shape in self.canvas.selected_shapes:
             shape.selected = True
-            if shape.shape_type != "rectangle":
-                is_mergeable = False
+            if shape.shape_type in ["rectangle", "polygon"]:
+                allow_merge_shape_type[shape.shape_type] += 1
             item = self.label_list.find_item_by_shape(shape)
             # NOTE: Handle the case when the shape is not found
             if item is not None:
@@ -2911,7 +2933,9 @@ class LabelingWidget(LabelDialog):
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected == 1)
         self.actions.union_selection.setEnabled(
-            is_mergeable and n_selected > 1
+            not all(value > 0 for value in allow_merge_shape_type.values()) and (
+            allow_merge_shape_type["rectangle"] > 1 or
+            allow_merge_shape_type["polygon"] > 1)
         )
         self.set_text_editing(True)
         if self.attributes:
