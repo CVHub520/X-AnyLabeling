@@ -80,7 +80,7 @@ class Popup(QWidget):
             else:
                 # Use Qt clipboard for Windows/other environments
                 clipboard = QApplication.clipboard()
-                clipboard.setText(self.copy_msg)
+                clipboard.setText(copy_msg)
             self.close()
 
         # Calculate the position to place the popup at the top center
