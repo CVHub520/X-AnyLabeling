@@ -36,7 +36,7 @@ class ChatMessage(QFrame):
         self.is_error = is_error
         self.is_editing = False
         self.resize_in_progress = False  # Flag to prevent recursion
-        self.animation_min_height = 40
+        self.animation_min_height = 16
         self.edit_area_min_height = 80
 
         # Enable context menu policy for the frame
@@ -454,13 +454,10 @@ class ChatMessage(QFrame):
                 content_height = self.content_label.sizeHint().height()
 
             # Add extra space for the header, padding and buttons (even when not visible)
-            button_space = 40
-            padding_space = 20
             total_height = (
                 content_height
                 + self.animation_min_height
-                + button_space
-                + padding_space
+                + self.edit_buttons_widget.sizeHint().height()
             )
 
             # Set a reasonable maximum height with some buffer
