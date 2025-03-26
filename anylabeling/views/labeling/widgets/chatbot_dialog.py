@@ -1974,14 +1974,6 @@ class ChatbotDialog(QDialog):
         self.run_all_images_btn.setEnabled(enabled)
         self.import_export_btn.setEnabled(enabled)
         self.clear_chat_btn.setEnabled(enabled)
-        self.api_address.setEnabled(enabled)
-        self.api_key.setEnabled(enabled)
-        self.model_button.setEnabled(enabled)
-
-        # Also disable provider switching during streaming
-        for provider in self.providers.keys():
-            if hasattr(self, f"{provider}_btn"):
-                getattr(self, f"{provider}_btn").setEnabled(enabled)
 
         # Update cursor for input
         if enabled:
