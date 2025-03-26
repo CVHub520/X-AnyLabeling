@@ -1,5 +1,4 @@
 from PyQt5.QtCore import (
-    QPoint,
     QEvent,
     QEasingCurve,
     QPropertyAnimation,
@@ -7,7 +6,7 @@ from PyQt5.QtCore import (
     Qt,
     pyqtSignal,
 )
-from PyQt5.QtGui import QIcon, QPixmap, QTextCursor
+from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QDesktopServices
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import (
     QApplication,
@@ -24,6 +23,7 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.views.labeling.chatbot.config import *
+from anylabeling.views.labeling.chatbot.render import *
 from anylabeling.views.labeling.chatbot.style import *
 from anylabeling.views.labeling.chatbot.utils import *
 
@@ -542,7 +542,9 @@ class ChatMessage(QFrame):
             web_view.loadFinished.connect(
                 lambda ok: self.adjust_height_after_animation() if ok else None
             )
-            web_view.setHtml(set_html_style(processed_content))
+            self.original_content = processed_content
+            web_view.page().urlChanged.connect(self.handle_external_link)
+            web_view.setHtml(convert_markdown_to_html(processed_content))
             return web_view
 
     def set_action_buttons_enabled(self, enabled):
@@ -718,7 +720,7 @@ class ChatMessage(QFrame):
             if isinstance(self.content_label, QLabel):
                 self.content_label.setText(edited_content)
             else:
-                self.content_label.setHtml(set_html_style(edited_content))
+                self.content_label.setHtml(convert_markdown_to_html(edited_content))
 
             dialog = self.window()
 
@@ -945,6 +947,14 @@ class ChatMessage(QFrame):
         delete_action.triggered.connect(self.confirm_delete_message)
 
         context_menu.exec_(self.mapToGlobal(position))
+
+    def handle_external_link(self, url):
+        """Handle the external url"""
+        url_string = url.toString()
+        if url_string.startswith('http://') or url_string.startswith('https://'):
+            self.sender().parent().stop()
+            QDesktopServices.openUrl(url)
+            self.sender().parent().setHtml(convert_markdown_to_html(self.original_content))
 
 
 class UpdateModelsEvent(QEvent):
