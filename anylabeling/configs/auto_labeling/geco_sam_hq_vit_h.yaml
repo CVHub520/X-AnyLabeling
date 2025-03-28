@@ -1,0 +1,7 @@
+type: geco
+name: geco_sam_hq_vit_h-r20250317
+display_name: GECO (ViT-huge Quant)
+encoder_model_path: 
+decoder_model_path: 
+input_size: 1024
+box_threshold: 4

@@ -88,6 +88,7 @@ class ModelManager(QObject):
         "yolo11_obb_track",
         "yolo11_pose_track",
         "upn",
+        "geco"
     ]
 
     model_configs_changed = pyqtSignal(list)
@@ -1937,6 +1938,34 @@ class ModelManager(QObject):
                     f"❌ Error in loading model `{model_config['type']}` with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "geco":
+            from .geco import GeCo
+
+            def _load_geco():
+                logger.info(f"⌛ Loading model: {model_config['type']}")
+                model_config["model"] = GeCo(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+
+            try:
+                with TimeoutContext(
+                    timeout=300,
+                    timeout_message="""Model loading timeout! Please check your network connection.
+                                    Alternatively, you can try to load the model from local directory.""",
+                ) as ctx:
+                    _ = ctx.run(_load_geco)
+            except Exception as e:  # noqa
+                self.new_model_status.emit(
+                    self.tr(f"Error in loading model: {str(e)}")
+                )
+                logger.error(
+                    f"❌ Error in loading model `{model_config['type']}` with error: {str(e)}"
+                )
+                return
         else:
             raise Exception(f"Unknown model type: {model_config['type']}")
 
@@ -1971,6 +2000,7 @@ class ModelManager(QObject):
             "open_vision",
             "edge_sam",
             "florence2",
+            "geco"
         ]
         if (
             self.loaded_model_config is None
@@ -2266,6 +2296,7 @@ class ModelManager(QObject):
             "grounding_sam",
             "grounding_sam2",
             "edge_sam",
+            "geco"
         ]:
             return
 

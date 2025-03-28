@@ -5929,6 +5929,7 @@ class LabelingWidget(LabelDialog):
             "efficientvit_sam",
             "edge_sam",
             "open_vision",
+            "geco"
         ]
 
         if (
