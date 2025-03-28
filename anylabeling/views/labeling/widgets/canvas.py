@@ -1347,15 +1347,17 @@ class Canvas(
                         bbox = shape.bounding_rect()
                     except IndexError:
                         continue
+					# 原位置容易遮挡视线，不容易看清边界，故做了调整
+                    pyl = int(bound_rect.height())+5 if bbox.y() > bound_rect.height()+5 else -5
                     rect = QtCore.QRect(
                         int(bbox.x()),
-                        int(bbox.y()),
+                        int(bbox.y() - pyl),
                         int(bound_rect.width()),
                         int(bound_rect.height()),
                     )
                     text_pos = QtCore.QPoint(
                         int(bbox.x()),
-                        int(bbox.y() + bound_rect.height() - d_text),
+                        int(bbox.y() - pyl + bound_rect.height() - d_text),
                     )
                 elif shape.shape_type in [
                     "circle",
