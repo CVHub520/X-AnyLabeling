@@ -1,7 +1,9 @@
 type: geco
-name: geco_sam_hq_vit_h-r20250317
-display_name: GECO (ViT-huge Quant)
-encoder_model_path: 
-decoder_model_path: 
+name: geco_sam_hq_vit_h-r20250330
+display_name: GECO (ViT-huge)
+encoder_data_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder_data.bin
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder.onnx
+# encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder_quant.onnx  (quantized)/
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_decoder.onnx
 input_size: 1024
 box_threshold: 4

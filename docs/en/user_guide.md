@@ -53,6 +53,7 @@
       * [8.8 Interactive Video Object Segmentation](#88-interactive-video-object-segmentation)
       * [8.9 Matting](#89-matting)
       * [8.10 Vision-Language](#810-vision-language)
+      * [8.11 Zero-shot Counting by Detection and Segmentation](#811-zero-shot-counting-by-detection-and-segmentation)
    * [9. Models](#9-models)
 
 
@@ -787,6 +788,10 @@ shape:
 ### 8.10 Vision-Language
 
 - Florence 2: [Link](../../examples/vision_language/florence2/README.md)
+
+### 8.11 Zero-shot Counting by Detection and Segmentation
+
+- GeCo: [Link](../../examples/counting/geco/README.md)
 
 ## 9. Models
 

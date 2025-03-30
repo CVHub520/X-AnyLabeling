@@ -37,6 +37,8 @@
 
 ## 🥳 新功能
 
+- 2025年3月：
+  - 💫💫💫 支持基于检测与分割零样本计数模型[GeCo](./examples/counting/geco/README.md)。
 - 2025年2月:
   - 🚀🚀🚀 发布[X-AnyLabeling v2.5.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.4)版本。
   - ✈️✈️✈️ 支持基于[YOLOv8-SAM2](./anylabeling/configs/auto_labeling/yolov8s_sam2_hiera_base.yaml)的实例分割模型，结合了YOLOv8的目标检测能力和SAM2.1的精确分割能力。
@@ -233,6 +235,8 @@
   - [Image Matting](./examples/matting/image_matting/README.md)
 - [Vision-Language](./examples/vision_language/)
   - [Florence 2](./examples/vision_language/florence2/README.md)
+- [Counting](./examples/counting/)
+  - [GeCo](./examples/counting/geco/README.md)
 
 
 ## 联系

@@ -101,31 +101,40 @@ class GeCo:
 
         self.target_size = self.config["input_size"]
 
-
     def preprocess(self, image):
         # Resize the image
         scale_x = self.target_size / image.shape[1]
         scale_y = self.target_size / image.shape[0]
         scale_factor = min(scale_x, scale_y)
 
-        new_H = int(scale_factor*image.shape[0])
-        new_W = int(scale_factor*image.shape[1])
+        new_H = int(scale_factor * image.shape[0])
+        new_W = int(scale_factor * image.shape[1])
 
-        image = cv2.resize(image,(new_W,new_H),interpolation=cv2.INTER_LINEAR) 
+        image = cv2.resize(
+            image, (new_W, new_H), interpolation=cv2.INTER_LINEAR
+        )
 
         top = 0
         bottom = self.target_size - new_H
         left = 0
         right = self.target_size - new_W
 
-        image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(0,0,0))  # add border  
-        image = np.transpose(image / 255.0,axes=(2,0,1))[None].astype(np.float32)
+        image = cv2.copyMakeBorder(
+            image,
+            top,
+            bottom,
+            left,
+            right,
+            cv2.BORDER_CONSTANT,
+            value=(0, 0, 0),
+        )  # add border
+        image = np.transpose(image / 255.0, axes=(2, 0, 1))[None].astype(
+            np.float32
+        )
 
         return image, scale_factor
 
-    def postprocess(
-        self, outputs, scale_factor
-    ):
+    def postprocess(self, outputs, scale_factor):
         pred_bboxes, box_v = outputs[0][0], outputs[1][0]
 
         keep = box_v > box_v.max() / self.box_threshold
@@ -134,18 +143,24 @@ class GeCo:
         box_v = box_v[keep]
 
         xywh = pred_bboxes.copy()  # xyxy
-        xywh[:,:2] = pred_bboxes[:,:2]
-        xywh[:,2:] = pred_bboxes[:,2:] - pred_bboxes[:,:2]
+        xywh[:, :2] = pred_bboxes[:, :2]
+        xywh[:, 2:] = pred_bboxes[:, 2:] - pred_bboxes[:, :2]
 
-        keep = cv2.dnn.NMSBoxes(xywh.tolist(),box_v.tolist(),0,0.6) 
+        keep = cv2.dnn.NMSBoxes(xywh.tolist(), box_v.tolist(), 0, 0.6)
 
         pred_bboxes = pred_bboxes[keep]
-        box_v = box_v[keep] 
+        box_v = box_v[keep]
 
-        pred_bboxes = np.clip(pred_bboxes, 0, 1)    
+        pred_bboxes = np.clip(pred_bboxes, 0, 1)
 
-        pred_bboxes = pred_bboxes / np.array([scale_factor, scale_factor, scale_factor, scale_factor]) * self.target_size
-    
+        pred_bboxes = (
+            pred_bboxes
+            / np.array(
+                [scale_factor, scale_factor, scale_factor, scale_factor]
+            )
+            * self.target_size
+        )
+
         return pred_bboxes
 
     def predict_shapes(self, image, box_prompt, image_path=None):
@@ -159,27 +174,29 @@ class GeCo:
         image, scale_factor = self.preprocess(image)
         start_time = time.time()
         image_embeddings, hq_features = self.encoder.get_ort_inference(
-            image, inputs={"input_image":image}, extract=False
+            image, inputs={"input_image": image}, extract=False
         )
 
-        prompt_bboxes = np.array([box_prompt]) # n,4
-        prompt_bboxes = prompt_bboxes * np.array([scale_factor, scale_factor, scale_factor, scale_factor])
-        prompt_bboxes = prompt_bboxes[None].astype(np.float32)  
+        prompt_bboxes = np.array([box_prompt])  # n,4
+        prompt_bboxes = prompt_bboxes * np.array(
+            [scale_factor, scale_factor, scale_factor, scale_factor]
+        )
+        prompt_bboxes = prompt_bboxes[None].astype(np.float32)
 
         decoder_inputs = {
             "image_embeddings": image_embeddings,
             "hq_features": hq_features,
-            "bboxes": prompt_bboxes
+            "bboxes": prompt_bboxes,
         }
 
         outputs = self.decoder.get_ort_inference(
             None, inputs=decoder_inputs, extract=False
-        )           
+        )
 
         end_time = time.time()
         print("Inference time: {:.3f}s".format(end_time - start_time))
 
-        pred_bboxes = self.postprocess(outputs,scale_factor)
+        pred_bboxes = self.postprocess(outputs, scale_factor)
 
         shapes = []
         for box in pred_bboxes:
@@ -192,29 +209,32 @@ class GeCo:
         del self.encoder
         del self.decoder
 
-def export_onnx(model, output_encoder_file, output_decoder_file, is_quantize):
 
+def export_onnx(model, output_encoder_file, output_decoder_file, is_quantize):
     # export encoder
     tmp_dir = mkdtemp()
     tmp_model_path = os.path.join(tmp_dir, f"encoder.onnx")
 
     with torch.no_grad():
-        
-        torch.onnx.export(model.backbone,
-                        torch.randn(1, 3, 1024, 1024, dtype=torch.float),
-                        tmp_model_path,
-                        input_names=['input_image'],
-                        output_names=['image_embeddings', 'hq_features'],
-                        export_params=True,
-                        do_constant_folding=True,
-                        verbose=True)
+        torch.onnx.export(
+            model.backbone,
+            torch.randn(1, 3, 1024, 1024, dtype=torch.float),
+            tmp_model_path,
+            input_names=["input_image"],
+            output_names=["image_embeddings", "hq_features"],
+            export_params=True,
+            do_constant_folding=True,
+            verbose=True,
+        )
 
     # Combine the weights into a single file
     onnx_model = onnx.load(tmp_model_path)
     convert_model_to_external_data(
         onnx_model,
         all_tensors_to_one_file=True,
-        location=osp.basename(output_encoder_file).replace(".onnx","_data.bin"),
+        location=osp.basename(output_encoder_file).replace(
+            ".onnx", "_data.bin"
+        ),
         size_threshold=1024,
         convert_attribute=False,
     )
@@ -254,25 +274,35 @@ def export_onnx(model, output_encoder_file, output_decoder_file, is_quantize):
             image_embeddings=src,
             image_pe=self.prompt_encoder.get_dense_pe(),
             prototype_embeddings=prototype_embeddings,
-            hq_features=src_hq
+            hq_features=src_hq,
         )
 
         # Predict class [fg, bg] and l,r,t,b
         bs, c, w, h = adapted_f.shape
         adapted_f = adapted_f.view(bs, self.emb_dim, -1).permute(0, 2, 1)
-        centerness = self.class_embed(adapted_f).view(bs, w, h, 1).permute(0, 3, 1, 2)
-        outputs_coord = self.bbox_embed(adapted_f).sigmoid().view(bs, w, h, 4).permute(0, 3, 1, 2)
-        outputs, ref_points = boxes_with_scores(centerness, outputs_coord, batch_thresh=0.001)
+        centerness = (
+            self.class_embed(adapted_f).view(bs, w, h, 1).permute(0, 3, 1, 2)
+        )
+        outputs_coord = (
+            self.bbox_embed(adapted_f)
+            .sigmoid()
+            .view(bs, w, h, 4)
+            .permute(0, 3, 1, 2)
+        )
+        outputs, ref_points = boxes_with_scores(
+            centerness, outputs_coord, batch_thresh=0.001
+        )
 
-        return outputs[0]["pred_boxes"], outputs[0]["box_v"]  #, ref_points, centerness, outputs_coord, masks, prototype_embeddings
+        return (
+            outputs[0]["pred_boxes"],
+            outputs[0]["box_v"],
+        )  # , ref_points, centerness, outputs_coord, masks, prototype_embeddings
 
-
-    model.forward = MethodType(decoder_forward,model)
-
+    model.forward = MethodType(decoder_forward, model)
 
     dummy_inputs = {
         "image_embeddings": torch.randn(1, 256, 64, 64, dtype=torch.float),
-        "hq_features": torch.randn(1, 32,256, 256, dtype=torch.float),
+        "hq_features": torch.randn(1, 32, 256, 256, dtype=torch.float),
         "bboxes": torch.randn(size=(1, 1, 4), dtype=torch.float),
     }
 
@@ -281,16 +311,17 @@ def export_onnx(model, output_encoder_file, output_decoder_file, is_quantize):
     }
 
     with torch.no_grad():
-        
-        torch.onnx.export(model,
-                        tuple(dummy_inputs.values()),
-                        output_decoder_file,
-                        input_names=list(dummy_inputs.keys()),
-                        output_names=['pred_boxes', 'box_v'],
-                        dynamic_axes=dynamic_axes,
-                        export_params=True,
-                        do_constant_folding=True,
-                        verbose=True)
+        torch.onnx.export(
+            model,
+            tuple(dummy_inputs.values()),
+            output_decoder_file,
+            input_names=list(dummy_inputs.keys()),
+            output_names=["pred_boxes", "box_v"],
+            dynamic_axes=dynamic_axes,
+            export_params=True,
+            do_constant_folding=True,
+            verbose=True,
+        )
 
     print("Done!")
 
@@ -330,8 +361,8 @@ if __name__ == "__main__":
         "--box_prompt",
         "-b",
         type=float,
-        nargs=4, 
-        default=[243.,74.,280.,103.],
+        nargs=4,
+        default=[243.0, 74.0, 280.0, 103.0],
         help="box prompt [x1,y1,x2,y2]",
     )
     parser.add_argument(
@@ -347,15 +378,19 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # cfg
-    ckpt_file = args.ckpt_file 
+    ckpt_file = args.ckpt_file
     output_dir = args.output_dir
     is_quantize = args.is_quantize
     img_path = args.img_path
     device = args.device
     box_threshold = args.box_threshold
 
-    onnx_encoder_file = osp.splitext(osp.basename(ckpt_file))[0] + "_encoder.onnx"
-    onnx_decoder_file = osp.splitext(osp.basename(ckpt_file))[0] + "_decoder.onnx"
+    onnx_encoder_file = (
+        osp.splitext(osp.basename(ckpt_file))[0] + "_encoder.onnx"
+    )
+    onnx_decoder_file = (
+        osp.splitext(osp.basename(ckpt_file))[0] + "_decoder.onnx"
+    )
     # make dir
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
@@ -369,28 +404,31 @@ if __name__ == "__main__":
         from utils.box_ops import boxes_with_scores
 
         # load model
-        model = GeCo_pytorch(image_size=1024,
-                             num_objects=3,
-                             emb_dim=256,
-                             num_heads=8,
-                             kernel_dim=1,
-                             train_backbone=False,
-                             reduction=16,
-                             zero_shot=False,
-                             model_path=None,
-                             return_masks=False)
+        model = GeCo_pytorch(
+            image_size=1024,
+            num_objects=3,
+            emb_dim=256,
+            num_heads=8,
+            kernel_dim=1,
+            train_backbone=False,
+            reduction=16,
+            zero_shot=False,
+            model_path=None,
+            return_masks=False,
+        )
 
         # 加载并处理检查点
-        checkpoint = torch.load(args.ckpt_file, map_location='cpu')
-        state_dict = checkpoint['model']
+        checkpoint = torch.load(args.ckpt_file, map_location="cpu")
+        state_dict = checkpoint["model"]
 
         new_state_dict = OrderedDict()
         for k, v in state_dict.items():
-            new_k = k.replace('module.', '', 1)
+            new_k = k.replace("module.", "", 1)
             new_state_dict[new_k] = v
 
         model.load_state_dict(
-            new_state_dict, strict=False,
+            new_state_dict,
+            strict=False,
         )
 
         model.eval()
@@ -408,8 +446,9 @@ if __name__ == "__main__":
     }
 
     if is_quantize:
-        configs["encoder_path"] = osp.splitext(onnx_encoder_file)[0] + "_quant.onnx"
-
+        configs["encoder_path"] = (
+            osp.splitext(onnx_encoder_file)[0] + "_quant.onnx"
+        )
 
     model = GeCo(configs)
     image = cv2.imread(img_path, cv2.IMREAD_COLOR)

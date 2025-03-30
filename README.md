@@ -38,6 +38,8 @@
 
 ## 🥳 What's New
 
+- Mar. 2025:
+  - 💫💫💫 Added support for the zero-shot counting model based on detection and segmentation, [GeCo](./examples/counting/geco/README.md).
 - Feb. 2025:
   - 🚀🚀🚀 Release version [2.5.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v2.5.4).
   - ✈️️✈️✈️ Added support for [YOLOv8-SAM2](./anylabeling/configs/auto_labeling/yolov8s_sam2_hiera_base.yaml) model for instance segmentation, combining YOLOv8's detection with SAM2.1's precise segmentation.
@@ -231,6 +233,8 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
   - [Image Matting](./examples/matting/image_matting/README.md)
 - [Vision-Language](./examples/vision_language/)
   - [Florence 2](./examples/vision_language/florence2/README.md)
+- [Counting](./examples/counting/)
+  - [GeCo](./examples/counting/geco/README.md)
 
 
 ## Contact

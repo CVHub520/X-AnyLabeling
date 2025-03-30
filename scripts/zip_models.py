@@ -36,7 +36,7 @@ for model in model_list:  # noqa: C901
         "sam_hq",
         "efficientvit_sam",
         "edge_sam",
-        "geco"
+        "geco",
     ]:
         download_links.append(model_config["encoder_model_path"])
         download_links.append(model_config["decoder_model_path"])
@@ -79,7 +79,7 @@ for model in model_list:  # noqa: C901
         "sam_hq",
         "efficientvit_sam",
         "edeg_sam",
-        "geco"
+        "geco",
     ]:
         model_config["encoder_model_path"] = get_filename_from_url(
             model_config["encoder_model_path"]

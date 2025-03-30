@@ -88,7 +88,7 @@ class ModelManager(QObject):
         "yolo11_obb_track",
         "yolo11_pose_track",
         "upn",
-        "geco"
+        "geco",
     ]
 
     model_configs_changed = pyqtSignal(list)
@@ -2000,7 +2000,7 @@ class ModelManager(QObject):
             "open_vision",
             "edge_sam",
             "florence2",
-            "geco"
+            "geco",
         ]
         if (
             self.loaded_model_config is None
@@ -2296,7 +2296,7 @@ class ModelManager(QObject):
             "grounding_sam",
             "grounding_sam2",
             "edge_sam",
-            "geco"
+            "geco",
         ]:
             return
 

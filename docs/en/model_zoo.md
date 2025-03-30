@@ -299,6 +299,16 @@
 | sam2_hiera_large.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_large_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_large_video.yaml) | 856.35MB | [baidu](https://pan.baidu.com/s/1hFYQc1IKnEw2l-vW6Eoi2w?pwd=gyby) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt) |
 
 
+### Zero-shot Counting by Detection and Segmentation
+
+|Name|Description|Configuration|Size|Link|
+| --- | --- | --- | --- | --- |
+| GeCo_encoder_data.bin | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 2.38GB | [baidu](https://pan.baidu.com/s/1ZuTizr4N4eZk0Z4BKtueSg?pwd=x3r3) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder_data.bin) |
+| GeCo_encoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.78MB | [baidu](https://pan.baidu.com/s/1X_D_tHZGbZKPgjDcQf5Q6A?pwd=n3vs) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder.onnx) |
+| GeCo_decoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.83MB | [baidu](https://pan.baidu.com/s/1kfCFyt7ffpuREAGUjM5RKQ?pwd=feh9) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_decoder.onnx) |
+| GeCo_encoder_quant.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 646.48MB | [baidu](https://pan.baidu.com/s/1R7mInx4N9t7eXgAUFY15eg?pwd=yyd6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder_quant.onnx) |
+
+
 ### Vision-Language
 
 - [Florence 2](../../examples/vision_language/florence2/README.md)
