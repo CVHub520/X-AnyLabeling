@@ -379,7 +379,7 @@ class OpenVision(Model):
 
                 shapes = []
                 for box in boxes:
-                    label = "OBJECT"
+                    label = "AUTOLABEL_OBJECT"
                     marks = [
                         {
                             "data": box,
@@ -394,7 +394,7 @@ class OpenVision(Model):
                         masks = masks[0]
                     shape = self.post_process(masks, label=label)
                     shapes.append(shape)
-                result = AutoLabelingResult(shapes, replace=True)
+                result = AutoLabelingResult(shapes, replace=False)
             else:
                 masks = self.model.predict_masks(image_embedding, self.marks)
                 if len(masks.shape) == 4:
