@@ -2427,8 +2427,7 @@ class LabelingWidget(LabelDialog):
 
     def open_chatbot(self):
         dialog = ChatbotDialog(self)
-        dialog.setAttribute(Qt.WA_DeleteOnClose)
-        dialog.show()
+        _ = dialog.exec_()
 
     # Help
     def documentation(self):
@@ -2456,7 +2455,7 @@ class LabelingWidget(LabelDialog):
         )
         msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
 
-        popup = Popup(self.tr("Copied!"), self)
+        popup = Popup(self.tr("Copied!"), self, icon="anylabeling/resources/icons/copy-green.svg")
         popup.show_popup(self, copy_msg=msg)
 
     def loop_thru_labels(self):

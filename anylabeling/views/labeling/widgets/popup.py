@@ -3,12 +3,14 @@ import os
 from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
+    QHBoxLayout,
     QVBoxLayout,
     QGraphicsDropShadowEffect,
     QApplication,
+    QSizePolicy,
 )
-from PyQt5.QtCore import Qt, QTimer, QRectF
-from PyQt5.QtGui import QPainter, QPainterPath, QColor
+from PyQt5.QtCore import Qt, QTimer, QRectF, QSize
+from PyQt5.QtGui import QPainter, QPainterPath, QColor, QIcon
 
 
 def is_wsl():
@@ -21,7 +23,7 @@ def is_wsl():
 
 
 class Popup(QWidget):
-    def __init__(self, text, parent=None, msec=5000):
+    def __init__(self, text, parent=None, msec=5000, icon=None):
         super().__init__(
             parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
         )
@@ -35,12 +37,28 @@ class Popup(QWidget):
         """
         )
 
-        layout = QVBoxLayout()
-
+        # Use horizontal layout to place icon and text side by side
+        hbox = QHBoxLayout()
+        hbox.setContentsMargins(12, 8, 12, 8)  # Add spacing on both sides
+        
+        # Add icon if provided
+        self.icon_label = None
+        if icon:
+            self.icon_label = QLabel()
+            self.icon_label.setPixmap(QIcon(icon).pixmap(QSize(16, 16)))
+            self.icon_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            hbox.addWidget(self.icon_label)
+            hbox.addSpacing(1)  # Space between icon and text
+        
+        # Add text label
         self.label = QLabel(text)
-        self.label.setAlignment(Qt.AlignCenter | Qt.AlignLeft)
-        layout.addWidget(self.label)
-
+        self.label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        hbox.addWidget(self.label)
+        
+        # Main layout
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addLayout(hbox)
         self.setLayout(layout)
 
         # Set window properties
@@ -70,8 +88,7 @@ class Popup(QWidget):
 
         painter.fillPath(path, QColor("#f2edec"))
 
-    def show_popup(self, parent_widget, copy_msg="", popup_width=350, popup_height=50):
-
+    def show_popup(self, parent_widget, copy_msg="", popup_height=36):
         if copy_msg:
             if is_wsl():
                 # Use clip.exe for WSL environment
@@ -85,6 +102,10 @@ class Popup(QWidget):
 
         # Calculate the position to place the popup at the top center
         parent_geo = parent_widget.geometry()
+        
+        # Auto-adjust width based on content
+        self.adjustSize()
+        popup_width = self.sizeHint().width()
 
         # Position popup at the top center with a small margin from the top
         x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
