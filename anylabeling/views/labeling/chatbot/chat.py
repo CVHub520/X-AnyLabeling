@@ -36,7 +36,7 @@ class ChatMessage(QFrame):
         self.is_error = is_error
         self.is_editing = False
         self.resize_in_progress = False  # Flag to prevent recursion
-        self.animation_min_height = 16
+        self.animation_min_height = 32
         self.edit_area_min_height = 80
 
         # Enable context menu policy for the frame
@@ -85,7 +85,7 @@ class ChatMessage(QFrame):
             icon_container_layout.setSpacing(0)
 
             role_label = QLabel()
-            icon_pixmap = QPixmap(set_icon_path(self.provider))
+            icon_pixmap = QPixmap(set_icon_path(self.provider, format="png"))
             scaled_icon = icon_pixmap.scaled(
                 *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
             )

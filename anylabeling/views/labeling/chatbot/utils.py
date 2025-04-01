@@ -51,6 +51,11 @@ def save_json(data: dict, file_path: str):
         json.dump(data, f, indent=4)
 
 
-def set_icon_path(icon_name: str) -> str:
-    """Set the path to the icon"""
-    return f"anylabeling/resources/icons/{icon_name}.svg"
+def set_icon_path(icon_name: str, format: str = "svg") -> str:
+    """Set the path to the icon
+    
+    Args:
+        icon_name: Name of the icon file without extension
+        format: File format extension (default: 'svg')
+    """
+    return f"anylabeling/resources/icons/{icon_name}.{format}"

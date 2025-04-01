@@ -145,7 +145,7 @@ class ChatbotDialog(QDialog):
         # Set provider buttons
         for provider in self.providers.keys():
             btn = QPushButton(self.tr(provider.capitalize()))
-            btn.setIcon(QIcon(set_icon_path(provider)))
+            btn.setIcon(QIcon(set_icon_path(provider, format="png")))
             btn.setCheckable(True)
             btn.setFixedHeight(40)
             btn.setIconSize(QSize(*ICON_SIZE_SMALL))
@@ -1152,7 +1152,7 @@ class ChatbotDialog(QDialog):
 
         # Create the icon label
         role_label = QLabel()
-        icon_pixmap = QPixmap(set_icon_path(self.default_provider))
+        icon_pixmap = QPixmap(set_icon_path(self.default_provider, format="png"))
         scaled_icon = icon_pixmap.scaled(
             *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
         )
