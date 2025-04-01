@@ -1921,8 +1921,6 @@ class ChatbotDialog(QDialog):
                         {"role": msg["role"], "content": msg["content"]}
                     )
 
-            # Create client and prepare API call parameters
-            client = OpenAI(base_url=api_address, api_key=api_key)
             api_params = {
                 "model": self.selected_model,
                 "messages": messages,
@@ -1932,7 +1930,28 @@ class ChatbotDialog(QDialog):
             if max_tokens:
                 api_params["max_tokens"] = max_tokens
 
-            # Make API call with streaming
+            # Create client and prepare API call parameters
+            client = OpenAI(base_url=api_address, api_key=api_key, timeout=10)
+
+            # Create a secondary thread to periodically check for cancellation
+            stop_event = threading.Event()
+
+            def check_for_cancellation():
+                while not stop_event.is_set():
+                    if self.stream_handler.stop_requested:
+                        stop_event.set()
+                        if not self.stream_handler.get_current_message():
+                            self.stream_handler.report_error("Request cancelled by user")
+                        self.stream_handler.finished.emit(False)
+                        self.stream_handler.stop_loading()
+                        self.restore_send_button()
+                        break
+                    time.sleep(0.1)
+
+            cancel_thread = threading.Thread(target=check_for_cancellation)
+            cancel_thread.daemon = True
+            cancel_thread.start()
+
             response = client.chat.completions.create(**api_params)
 
             # Process streaming response
@@ -1953,15 +1972,13 @@ class ChatbotDialog(QDialog):
             )
 
             self.stream_handler.finished.emit(True)
+            self.stream_handler.stop_loading()
+            self.restore_send_button()
 
         except Exception as e:
             logger.debug(f"Error in streaming generation: {e}")
             self.stream_handler.report_error(str(e))
             self.stream_handler.finished.emit(False)
-
-        finally:
-            self.stream_handler.stop_loading()
-            self.restore_send_button()
 
     def set_components_enabled(self, enabled):
         """Enable or disable UI components during streaming"""
