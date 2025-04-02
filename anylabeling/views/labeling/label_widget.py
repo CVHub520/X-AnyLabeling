@@ -5024,7 +5024,7 @@ class LabelingWidget(LabelDialog):
                 image_file_name = osp.basename(image_file)
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 dst_file_name = osp.splitext(image_file_name)[0] + ".xml"
-                src_file = osp.join(label_dir_path, label_file_name)
+                src_file = osp.join(osp.dirname(image_file), label_file_name)
                 dst_file = osp.join(save_path, dst_file_name)
                 is_emtpy_file = converter.custom_to_voc(
                     image_file, src_file, dst_file, mode, skip_empty_files
@@ -5165,7 +5165,6 @@ class LabelingWidget(LabelDialog):
         save_path = osp.realpath(osp.join(label_dir_path, "..", "labelTxt"))
         os.makedirs(save_path, exist_ok=True)
         converter = LabelConverter(classes_file=self.classes_file)
-        label_file_list = os.listdir(label_dir_path)
 
         progress_dialog = QProgressDialog(
             self.tr("Exporting..."),
@@ -5194,10 +5193,10 @@ class LabelingWidget(LabelDialog):
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
-                if label_file_name not in label_file_list:
+                src_file = osp.join(osp.dirname(image_file), label_file_name)
+                if not osp.exists(src_file):
                     pathlib.Path(dst_file).touch()
                 else:
-                    src_file = osp.join(label_dir_path, label_file_name)
                     converter.custom_to_dota(src_file, dst_file)
                 # Update progress bar
                 progress_dialog.setValue(i)
@@ -5593,7 +5592,7 @@ class LabelingWidget(LabelDialog):
             for i, image_file in enumerate(image_list):
                 image_file_name = osp.basename(image_file)
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
-                label_file = osp.join(label_dir_path, label_file_name)
+                label_file = osp.join(osp.dirname(image_file), label_file_name)
                 if mode == "rec":
                     converter.custom_to_ppocr(
                         image_file, label_file, save_path, mode
@@ -5834,6 +5833,8 @@ class LabelingWidget(LabelDialog):
                 label_dir_path = self.output_dir
             label_name = osp.splitext(image_name)[0] + ".json"
             label_file = osp.join(label_dir_path, label_name)
+            if not osp.exists(label_file):
+                label_file = osp.join(osp.dirname(image_file), label_name)
             if osp.exists(label_file):
                 os.remove(label_file)
                 logger.info(f"Label file is removed: {image_file}")

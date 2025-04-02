@@ -1198,7 +1198,9 @@ class LabelConverter:
             label_name = osp.splitext(image_name)[0] + ".json"
             label_file = osp.join(input_path, label_name)
             if not osp.exists(label_file):
-                continue
+                label_file = osp.join(osp.dirname(image_file), label_name)
+                if not osp.exists(label_file):
+                    continue
             image_id += 1
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -1641,6 +1643,8 @@ class LabelConverter:
             image_name = osp.basename(image_file)
             label_name = osp.splitext(image_name)[0] + ".json"
             label_file = osp.join(label_path, label_name)
+            if not osp.exists(label_file):
+                label_file = osp.join(osp.dirname(image_file), label_name)
             img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
             height, width = img.shape[:2]
             with open(label_file, "r", encoding="utf-8") as f:
