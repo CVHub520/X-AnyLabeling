@@ -4892,7 +4892,7 @@ class LabelingWidget(LabelDialog):
                 label_file_name = osp.splitext(image_file_name)[0] + ".json"
                 dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
                 dst_file = osp.join(save_path, dst_file_name)
-                src_file = osp.join(label_dir_path, label_file_name)
+                src_file = osp.join(osp.dirname(image_file), label_file_name)
 
                 is_empty_file = converter.custom_to_yolo(
                     src_file, dst_file, mode, skip_empty_files
