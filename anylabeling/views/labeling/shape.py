@@ -88,6 +88,9 @@ class Shape:
         self.cache_description = None
         self.visible = True
 
+        self.errorTypeStr = None
+        self.my_index = None
+
         # Rotation setting
         self.direction = direction
         self.center = None

@@ -99,6 +99,10 @@ class LabelingWidget(LabelDialog):
             if output_file is None:
                 output_file = output
 
+        self.guibinglabels = []
+        self.start_time_all = 0.0
+        self.image_tuple = ()
+
         self.filename = None
         self.image_path = None
         self.image_data = None
@@ -633,6 +637,22 @@ class LabelingWidget(LabelDialog):
             icon="crop",
             tip=self.tr(
                 "Save cropped image. (Support rectangle/rotation/polygon shape_type)"
+            ),
+        )
+        save_crop_conf = action(
+            self.tr("&Save Cropped Image Group by Conf"),
+            self.save_crop_conf,
+            icon="crop",
+            tip=self.tr(
+                "Save minmax image Group by Conf. (Support rectangle/rotation/polygon shape_type)"
+            ),
+        )
+        save_crop_size = action(
+            self.tr("&Save Cropped Image Group by Size"),
+            self.save_crop_size,
+            icon="crop",
+            tip=self.tr(
+                "Save minmax image Group by Size. (Support rectangle/rotation/polygon shape_type)"
             ),
         )
         save_mask = action(
@@ -1421,6 +1441,8 @@ class LabelingWidget(LabelDialog):
                 overview,
                 None,
                 save_crop,
+                save_crop_conf,
+                save_crop_size,
                 save_mask,
                 None,
                 label_manager,
@@ -2064,7 +2086,17 @@ class LabelingWidget(LabelDialog):
 
     def save_crop(self):
         ImageCropperDialog(
-            self.filename, self.image_list, self.output_dir, parent=self
+            self.filename, 0, self.image_list, self.output_dir, parent=self
+        )
+
+    def save_crop_conf(self):
+        ImageCropperDialog(
+            self.filename, 1, self.image_list, self.output_dir, parent=self
+        )
+
+    def save_crop_size(self):
+        ImageCropperDialog(
+            self.filename, 2, self.image_list, self.output_dir, parent=self
         )
 
     def save_mask(self):
@@ -3126,6 +3158,35 @@ class LabelingWidget(LabelDialog):
             )
             return False
 
+    def save_labels_autolabeling(self, filename):
+        label_file = LabelFile()
+
+        shapes = [shape.to_dict()
+                  for shape in self.canvas.shapes]
+
+        try:
+            image_path = osp.relpath(self.image_path, osp.dirname(filename))
+            if osp.dirname(filename) and not osp.exists(osp.dirname(filename)):
+                os.makedirs(osp.dirname(filename))
+            w, h = utils.get_pil_img_dim(self.image_path)
+            label_file.save(
+                filename=filename,
+                shapes=shapes,
+                image_path=image_path,
+                image_data=None,
+                image_height=h,
+                image_width=w,
+                other_data=self.other_data,
+                flags=None,
+            )
+            self.label_file = label_file
+            return True
+        except LabelFileError as e:
+            self.error_message(
+                self.tr("Error saving label data"), self.tr("<b>%s</b>") % e
+            )
+            return False
+
     def duplicate_selected_shape(self):
         added_shapes = self.canvas.duplicate_selected_shapes()
         self.label_list.clearSelection()
@@ -4083,7 +4144,9 @@ class LabelingWidget(LabelDialog):
                 label_filename = osp.splitext(image_filename)[0] + ".txt"
                 data_filename = osp.splitext(image_filename)[0] + ".json"
                 if label_filename not in label_file_list:
-                    continue
+                   # 创建一个空文件(因yolo训练时,背景图也需要有对应的标注文件)
+                   f = open(osp.join(label_dir_path, label_filename), 'w')
+                   f.close()
                 input_file = osp.join(label_dir_path, label_filename)
                 output_file = osp.join(output_dir_path, data_filename)
                 image_file = osp.join(image_dir_path, image_filename)
@@ -5915,6 +5978,9 @@ class LabelingWidget(LabelDialog):
         if len(self.image_list) <= 0:
             return
 
+        self.image_tuple = tuple(self.image_list)
+        self.start_time_all = time.time()
+
         if self.auto_labeling_widget.model_manager.loaded_model_config is None:
             self.auto_labeling_widget.model_manager.new_model_status.emit(
                 self.tr("Model is not loaded. Choose a mode to continue.")
@@ -6120,33 +6186,14 @@ class LabelingWidget(LabelDialog):
         return True
 
     def process_next_image(self, progress_dialog):
-        total_images = len(self.image_list)
+        total_images = len(self.image_tuple) #list太慢了, 1万张耗时约10ms, 为了加速换成了tuple
 
         if (self.image_index < total_images) and (not self.cancel_processing):
-            filename = self.image_list[self.image_index]
-            self.filename = filename
-            self.batch_load_file(self.filename)
+            t1_start = time.time()
 
-            if self.text_prompt:
-                self.auto_labeling_widget.model_manager.predict_shapes(
-                    self.image, self.filename, text_prompt=self.text_prompt
-                )
-            elif self.run_tracker:
-                self.auto_labeling_widget.model_manager.predict_shapes(
-                    self.image, self.filename, run_tracker=self.run_tracker
-                )
-            else:
-                self.auto_labeling_widget.model_manager.predict_shapes(
-                    self.image, self.filename
-                )
-
-            # Enable painting for tracking models and time-consuming models
-            model_type = (
-                self.auto_labeling_widget.model_manager.loaded_model_config[
-                    "type"
-                ]
-            )
-            is_painting = model_type in [
+            # Unenable speed up for tracking models and time-consuming models
+            model_type = self.auto_labeling_widget.model_manager.loaded_model_config["type"]
+            is_speed_up = model_type not in [
                 "segment_anything_2_video",
                 "grounding_dino",
                 "grounding_sam",
@@ -6160,6 +6207,30 @@ class LabelingWidget(LabelDialog):
                 "yolo11_obb_track",
                 "yolo11_pose_track",
             ]
+
+            self.filename = self.image_tuple[self.image_index] #list太慢了, 1万张耗时约10ms, 为了加速换成了tuple
+            if is_speed_up:
+                self.image_path = self.filename
+                self.canvas.set_auto_labeling(True)
+                label_path = osp.splitext(self.filename)[0] + ".json"
+                if os.path.exists(label_path):
+                    self.label_file = LabelFile(label_path, osp.dirname(self.filename), False)
+                    self.canvas.load_shapes(self.label_file.shapes, replace=True)
+            else:
+                self.batch_load_file(self.filename)
+
+            if self.text_prompt:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename, text_prompt=self.text_prompt
+                )
+            elif self.run_tracker:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename, run_tracker=self.run_tracker
+                )
+            else:
+                self.auto_labeling_widget.model_manager.predict_shapes(
+                    self.image, self.filename
+                )
 
             # Update the progress dialog
             if total_images <= 100:
@@ -6176,13 +6247,20 @@ class LabelingWidget(LabelDialog):
             self.image_index += 1
             if not self.cancel_processing:
                 delay_ms = 1
-                self.canvas.is_painting = is_painting
+                self.canvas.is_painting = not is_speed_up
                 QtCore.QTimer.singleShot(
                     delay_ms, lambda: self.process_next_image(progress_dialog)
                 )
             else:
                 self.finish_processing(progress_dialog)
                 self.canvas.is_painting = True
+
+            # 进度和耗时打印
+            if self.image_index < 10 or self.image_index % 16 == 0:
+                t1 = 1000 * (time.time() - t1_start)
+                tall = (time.time() - self.start_time_all)
+                tshy = tall * (total_images - self.image_index) / self.image_index
+                print(f"进度{self.image_index}/{total_images}, 已耗时{tall:.2f}s, 还剩余{tshy:.2f}s, 耗时{t1:.2f}ms, {self.filename}")
         else:
             self.finish_processing(progress_dialog)
             self.canvas.is_painting = True
@@ -6427,6 +6505,231 @@ class LabelingWidget(LabelDialog):
             self.shape_text_edit.setDisabled(False)
 
         self.set_dirty()
+
+    def crop_and_save(self, image_file, label, points, score, flagStr=None):
+        image_path = pathlib.Path(image_file)
+        orig_filename = image_path.stem
+        # Calculate crop coordinates
+        xmin = int(points[0].x())
+        ymin = int(points[0].y())
+        xmax = int(points[2].x())
+        ymax = int(points[2].y())
+        # Read image safely handling non-ASCII paths
+        image = cv2.imdecode(np.fromfile(str(image_path), dtype=np.uint8), cv2.IMREAD_COLOR)
+        # Crop image with bounds checking
+        height, width = image.shape[:2]
+        xmin, ymin = max(0, xmin), max(0, ymin)
+        xmax, ymax = min(width, xmax), min(height, ymax)
+        crop_image = image[ymin:ymax, xmin:xmax]
+        # Create output directory
+        subPath = f"0.{int(10 * score)}~0.{int(10 * (score + 0.1))}" if int(10 * score) < 9 else f"0.9~1.0"
+        if flagStr is None:
+            dst_path = pathlib.Path(self.last_open_dir) / label / subPath
+        else:
+            dst_path = pathlib.Path(self.last_open_dir) / flagStr / label / subPath
+        dst_path.mkdir(parents=True, exist_ok=True)
+        # create output filename
+        dst_file = dst_path / f"{orig_filename}_{format(score, '.2f')}.jpg"
+        # Save image safely handling non-ASCII paths
+        is_success, buf = cv2.imencode(".jpg", crop_image)
+        if is_success:
+            buf.tofile(str(dst_file))
+
+    # 新写了批量自动标定
+    #   新增了: 移除归并类的逻辑（需要在*.yaml文件中, 给模型中给归并类的描述添加"(gbl)"后缀）
+    #          说明：模型中可能会有归并类（动物 = 猫 + 狗)， 人工标定时无需关心归并类， 故不保存归并类
+    #   新增了: 将权重小于0.9的子图, 按权重分文件夹保存(用于发现标定错的)；
+    #          说明：权重大于0.9的占比很大，且99.9%都是正确，无需人工查看， 故不用保存子图
+    #   新增了: 将所有未检到目标的原图收集到background(用于发现未标定的)
+    #          若没有原标定, 只有新检测, 则将新检测是背景的全收集到一起
+    #          若即有原标定, 又有新检测, 则将 原标定 和 新检测 中仅有一个是背景的收集到一起
+    @pyqtSlot()
+    def new_shapes_from_auto_labeling_Extend(self, auto_labeling_result):
+        """Apply auto labeling results to the current image."""
+        if not self.image or not self.image_path:
+            return
+
+        wgbResultShapes = [] # 移除归并类
+        for shape in auto_labeling_result.shapes:
+            if shape.label.find("(gbl)") == -1:
+                wgbResultShapes.append(shape)
+
+        # 将新检测的标签追加到标签列表中
+        self.canvas.load_shapes(wgbResultShapes, replace=auto_labeling_result.replace)
+
+        # 生成标签文件
+        label_file = osp.splitext(self.image_path)[0] + ".json"
+        self.save_labels_autolabeling(label_file)
+
+        # 提取子图, 保存到指定文件夹中
+        for shape in auto_labeling_result.shapes:
+            if shape.score < 0.9:
+                self.crop_and_save(self.image_path, shape.label, shape.points, shape.score)
+
+        # 提取背景图, 保存到background中
+        backFlag = 0
+        if auto_labeling_result.replace:
+            # 若没有标定, 只有新检测, 则将新检测是背景的全收集到一起
+            if len(auto_labeling_result.shapes) == 0:
+                backFlag = 1
+        else:
+            # 将原标定是背景, 新检测却不是背景的图收集到一起
+            if len(auto_labeling_result.shapes) > 0 and len(self.canvas.shapes) == 0:
+                backFlag = 1
+            # 将原标定不是背景, 新检测却是背景的图收集到一起
+            if len(auto_labeling_result.shapes) == 0 and len(self.canvas.shapes) > 0:
+                backFlag = 1
+        if backFlag:
+            imgPath = pathlib.Path(self.image_path)
+            dst_path = pathlib.Path(self.last_open_dir) / "background"
+            dst_path.mkdir(parents=True, exist_ok=True)
+            dst_file = dst_path / f"{imgPath.stem}.jpg"
+            shutil.copy(self.image_path, dst_file)
+
+	# 提取疑错标签:
+    #   功能1: 对比已有标签和新检测标签, 细分为7个类别: 正确的, 多检的, 位置偏, 仅归并, 难区分, 无归并, 少检的
+    #   功能2: 将疑似错误的标签和原图提取出来, 存到指定文件夹中(功能1定义的7个类别名称)
+    #   功能3: 保存子图时, 先按疑似错误类别分一级文件夹, 然后再按权重分二级文件夹, 更有利于人工挑错
+    #   功能4: 保存子图时, 也保存背景图(子图用于发现标错的, 背景图用于发现没标的)
+    @pyqtSlot()
+    def new_shapes_from_auto_labeling_FindErr(self, auto_labeling_result):
+        """Apply auto labeling results to the current image."""
+        if not self.image or not self.image_path:
+            return
+
+        def calculate_iou(box1, box2):
+            # Calculate the intersection area
+            xi1 = max(box1[0], box2[0])
+            yi1 = max(box1[1], box2[1])
+            xi2 = min(box1[2], box2[2])
+            yi2 = min(box1[3], box2[3])
+            inter_area = max(xi2 - xi1, 0) * max(yi2 - yi1, 0)
+            # Calculate the union region
+            box1_area = (box1[2] - box1[0]) * (box1[3] - box1[1])
+            box2_area = (box2[2] - box2[0]) * (box2[3] - box2[1])
+            union_area = box1_area + box2_area - inter_area
+            # Calculate IOU
+            iou = inter_area / union_area if union_area > 0 else 0
+            return iou
+
+        flagStr = ["正确的", "多检的", "位置偏", "仅归并", "难区分", "无归并", "少检的"]
+        count = [0,0,0,0,0,0,0]
+        badResultShapes = []
+        guibingShapes = []
+        pos = 0
+        for shape1 in auto_labeling_result.shapes:
+            shape1.errorTypeStr = flagStr[0]
+            pos = pos + 1
+            points = shape1.points
+            a = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
+            flag = 1        #多检的
+            for shape2 in self.canvas.shapes:
+                points = shape2.points
+                b = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
+                iou = calculate_iou(a, b)
+                if iou > 0.85:
+                    # 仅在标签相同时比较iou，否则将其视为[多检的/少检的]
+                    if shape1.label == shape2.label:
+                        flag = 0    #正确的
+                    else:
+                        flag = 4    #难区分
+                elif iou > 0.35:
+                    flag = 2        #位置偏
+            if flag != 1 and shape1.label.find("(gbl)") != -1: # 收集归并类
+                guibingShapes.append(shape1)
+                guibingShapes[-1].my_index = pos - 1
+            else:
+                shape1.errorTypeStr = flagStr[flag]
+                count[flag] += 1 # 0-正确的，1-多检的，2-位置偏，4-难区分
+                if flag != 0: #收集疑似错误的标签
+                    badResultShapes.append(shape1)
+
+        # 归并类的处理1: 0 0 5 NO;   3 0 5 OK;   0 4 5 OK;   3 4 5 NO
+        for shape2 in guibingShapes:
+            points = shape2.points
+            a = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
+            flag = 0
+            for shape1 in auto_labeling_result.shapes:
+                if shape1.label.find("(gbl)") != -1:
+                    continue
+                points = shape1.points
+                b = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
+                iou = calculate_iou(a, b)
+                if iou > 0.85:
+                    flag += 1
+                    if shape1.label not in self.guibinglabels:
+                        self.guibinglabels.append(shape1.label)
+            if flag == 0:
+                count[3] += 1   #仅归并
+                auto_labeling_result.shapes[shape2.my_index].errorTypeStr = flagStr[3]
+                badResultShapes.append(shape2)
+            if flag >= 2:
+                count[4] += 1   #难区分
+                auto_labeling_result.shapes[shape2.my_index].errorTypeStr = flagStr[4]
+
+        #归并类的处理2: 3 0 0 NO;  0 4 0 NO;   3 4 0 NO
+        for shape1 in auto_labeling_result.shapes:
+            if shape1.label.find("(gbl)") != -1:
+                continue
+            points = shape1.points
+            a = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
+            flag = 0
+            for shape2 in guibingShapes:
+                points = shape2.points
+                b = [points[0].x(), points[0].y(), points[2].x(), points[2].y()]
+                iou = calculate_iou(a, b)
+                if iou > 0.85:
+                    flag += 1
+            if flag == 0 and (shape1.label in self.guibinglabels):
+                count[5] += 1   #无归并
+
+        countA = len(auto_labeling_result.shapes) - len(guibingShapes)
+        countB = len(self.canvas.shapes)
+        if countA < countB and countB > 0:
+            count[6] += 1       #少检的
+
+        # 追加疑似错误标签到标签列表中
+        self.canvas.load_shapes(badResultShapes, replace=False)
+
+        # Only transfer tags that may have issues
+        for i in range(1, 6, 1):
+            if count[i] > 0 and (countA != countB or countA != count[0] or count[3] > 0):
+                # 保存图片文件
+                dirname, filename = os.path.split(self.image_path)
+                pic_file = pathlib.Path(self.last_open_dir).joinpath(flagStr[i])
+                pic_file.mkdir(parents=True, exist_ok=True)
+                shutil.copy(self.image_path, pic_file / filename)
+                # 保存标签文件
+                label_file = osp.splitext(self.image_path)[0] + ".json"
+                dirname, filename = os.path.split(label_file)
+                label_file = pathlib.Path(self.last_open_dir).joinpath(flagStr[i], filename)
+                self.save_labels_autolabeling(label_file)
+
+        # Crop and save image
+        for shape in auto_labeling_result.shapes:
+            if shape.score < 0.9 or shape.errorTypeStr != flagStr[0]:
+                self.crop_and_save(self.image_path, shape.label, shape.points, shape.score, shape.errorTypeStr)
+
+        # 若即有原标定, 又有新检测, 则将 原标定 和 新检测 中仅有一个是背景的收集到一起
+        if ((len(auto_labeling_result.shapes) > 0 and len(self.canvas.shapes) == 0)
+                or (len(auto_labeling_result.shapes) == 0 and len(self.canvas.shapes) > 0)):
+            imgPath = pathlib.Path(self.image_path)
+            dst_path = pathlib.Path(self.last_open_dir) / "background"
+            dst_path.mkdir(parents=True, exist_ok=True)
+            dst_file = dst_path / f"{imgPath.stem}.jpg"
+            shutil.copy(self.image_path, dst_file)
+
+    # 极小样本擦除:
+    #   功能1: 根据规则, 直接擦除;
+    #   功能2: 每发现一个弹框询问一次, 人为决定是否擦除
+    def new_shapes_from_auto_labeling_Erase(self, auto_labeling_result):
+        """Apply auto labeling results to the current image."""
+        if not self.image or not self.image_path:
+            return
+
+        # todo
+
+
 
     def clear_auto_labeling_marks(self):
         """Clear auto labeling marks from the current image."""

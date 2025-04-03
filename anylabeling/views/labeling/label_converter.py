@@ -449,6 +449,11 @@ class LabelConverter:
             line = line.strip().split(" ")
             class_index = int(line[0])
             label = self.classes[class_index]
+
+            # 由于标定时无需对归并类(gbl)做处理, 故导入时需将归并类去除掉
+            if label.find("(gbl)") != -1:
+                continue
+
             if mode == "hbb":
                 shape_type = "rectangle"
                 cx = float(line[1])
@@ -946,6 +951,17 @@ class LabelConverter:
                     f.write(
                         f"{class_index} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n"
                     )
+
+                    # 由于标定时并未对归并类(gbl)做处理; 导出时需将归并类补充上
+                    # 归并类的处理(lunALL(gbl) = lunSingle + lunDouble)
+                    if label == "lunSingle" or label == "lunDouble":
+                        f.write(f"{5} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
+                    # 归并类的处理(SinglePlate(gbl) = 蓝 + 绿 + 黄 + 黄绿 + 白 + 黑)
+                    if label == "Blue" or label == "Green" or label == "Yellow" or label == "YellowGreen" or label == "White" or label == "Black":
+                        f.write(f"{9} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
+                    # 归并类的处理(DoublePlate(gbl) = YellowDouble + WhiteDouble)
+                    if label == "YellowDouble" or label == "WhiteDouble":
+                        f.write(f"{10} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}\n")
 
                     is_empty_file = False
                 elif mode == "seg" and shape_type == "polygon":

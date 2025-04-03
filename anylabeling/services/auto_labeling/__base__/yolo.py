@@ -44,6 +44,7 @@ class YOLO(Model):
             "edit_conf",
             "input_iou",
             "edit_iou",
+            "DealFun_combobox",
             "toggle_preserve_existing_annotations",
             "button_reset_tracker",
         ]
