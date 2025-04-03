@@ -26,6 +26,7 @@ from ..utils import (
     xywhr2xyxyxyxy,
     non_max_suppression_v5,
     non_max_suppression_v8,
+    calculate_rotation_theta,
 )
 
 
@@ -594,7 +595,7 @@ class YOLO(Model):
         x1, y1 = poly[1]
         x2, y2 = poly[2]
         x3, y3 = poly[3]
-        direction = self.calculate_rotation_theta(poly)
+        direction = calculate_rotation_theta(poly)
         shape = Shape(flags={})
         shape.add_point(QtCore.QPointF(x0, y0))
         shape.add_point(QtCore.QPointF(x1, y1))
@@ -624,35 +625,6 @@ class YOLO(Model):
         """
         xv, yv = np.meshgrid(np.arange(ny), np.arange(nx))
         return np.stack((xv, yv), 2).reshape((-1, 2)).astype(np.float32)
-
-    @staticmethod
-    def calculate_rotation_theta(poly):
-        """
-        Calculate the rotation angle of the polygon.
-
-        Args:
-            poly (np.ndarray): A numpy array of shape (4, 2) representing the polygon.
-
-        Returns:
-            (float): The rotation angle of the polygon in radians.
-        """
-        x1, y1 = poly[0]
-        x2, y2 = poly[1]
-
-        # Calculate one of the diagonal vectors (after rotation)
-        diagonal_vector_x = x2 - x1
-        diagonal_vector_y = y2 - y1
-
-        # Calculate the rotation angle in radians
-        rotation_angle = math.atan2(diagonal_vector_y, diagonal_vector_x)
-
-        # Convert radians to degrees
-        rotation_angle_degrees = math.degrees(rotation_angle)
-
-        if rotation_angle_degrees < 0:
-            rotation_angle_degrees += 360
-
-        return rotation_angle_degrees / 360 * (2 * math.pi)
 
     def scale_grid(self, outs):
         """Scale the grid of points."""

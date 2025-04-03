@@ -20,6 +20,7 @@ from anylabeling.views.labeling.utils.opencv import (
     get_bounding_boxes,
     qt_img_to_rgb_cv_img,
 )
+from anylabeling.services.auto_labeling.utils import calculate_rotation_theta
 
 from .model import Model
 from .types import AutoLabelingResult
@@ -525,6 +526,7 @@ class GroundingSAM(Model):
                     shape.add_point(
                         QtCore.QPointF(int(point[0]), int(point[1]))
                     )
+                shape.direction = calculate_rotation_theta(rotation_box)
             shape.shape_type = self.output_mode
             shape.closed = True
             shape.fill_color = "#000000"

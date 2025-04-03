@@ -18,6 +18,7 @@ from anylabeling.views.labeling.utils.opencv import (
     get_bounding_boxes,
     qt_img_to_rgb_cv_img,
 )
+from anylabeling.services.auto_labeling.utils import calculate_rotation_theta
 
 from .lru_cache import LRUCache
 from .model import Model
@@ -279,7 +280,7 @@ class EfficientViT_SAM(Model):
         """Set auto labeling marks"""
         self.marks = marks
 
-    def post_process(self, masks):
+    def post_process(self, masks, image=None):
         """
         Post process masks
         """
@@ -363,6 +364,7 @@ class EfficientViT_SAM(Model):
                     shape.add_point(
                         QtCore.QPointF(int(point[0]), int(point[1]))
                     )
+                shape.direction = calculate_rotation_theta(rotation_box)
             shape.shape_type = self.output_mode
             shape.closed = True
             shape.fill_color = "#000000"
@@ -434,7 +436,7 @@ class EfficientViT_SAM(Model):
                 masks = masks[0][0]
             else:
                 masks = masks[0]
-            shapes = self.post_process(masks)
+            shapes = self.post_process(masks, cv_image)
         except Exception as e:  # noqa
             logger.warning("Could not inference model")
             logger.warning(e)
