@@ -14,10 +14,10 @@ from PyQt5.QtGui import QPainter, QPainterPath, QColor, QIcon
 
 
 def is_wsl():
-    """ Check if running in WSL """
-    if os.path.exists('/proc/version'):
-        with open('/proc/version', 'r') as f:
-            if 'microsoft' in f.read().lower():
+    """Check if running in WSL"""
+    if os.path.exists("/proc/version"):
+        with open("/proc/version", "r") as f:
+            if "microsoft" in f.read().lower():
                 return True
     return False
 
@@ -40,7 +40,7 @@ class Popup(QWidget):
         # Use horizontal layout to place icon and text side by side
         hbox = QHBoxLayout()
         hbox.setContentsMargins(12, 8, 12, 8)  # Add spacing on both sides
-        
+
         # Add icon if provided
         self.icon_label = None
         if icon:
@@ -49,12 +49,12 @@ class Popup(QWidget):
             self.icon_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             hbox.addWidget(self.icon_label)
             hbox.addSpacing(1)  # Space between icon and text
-        
+
         # Add text label
         self.label = QLabel(text)
         self.label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         hbox.addWidget(self.label)
-        
+
         # Main layout
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -88,7 +88,9 @@ class Popup(QWidget):
 
         painter.fillPath(path, QColor("#f2edec"))
 
-    def show_popup(self, parent_widget, copy_msg="", popup_height=36):
+    def show_popup(
+        self, parent_widget, copy_msg="", popup_height=36, position="default"
+    ):
         if copy_msg:
             if is_wsl():
                 # Use clip.exe for WSL environment
@@ -100,16 +102,23 @@ class Popup(QWidget):
                 clipboard.setText(copy_msg)
             self.close()
 
-        # Calculate the position to place the popup at the top center
+        # Calculate position based on preference
         parent_geo = parent_widget.geometry()
-        
+
         # Auto-adjust width based on content
         self.adjustSize()
         popup_width = self.sizeHint().width()
 
-        # Position popup at the top center with a small margin from the top
-        x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
-        y = parent_geo.y() + 20
+        # Set position based on specified option
+        if position == "center":
+            x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
+            y = parent_geo.y() + (parent_geo.height() - popup_height) // 2
+        elif position == "bottom":
+            x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
+            y = parent_geo.y() + parent_geo.height() - popup_height - 20
+        else:  # "default" - top position
+            x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
+            y = parent_geo.y() + 20
 
         self.setGeometry(x, y, popup_width, popup_height)
         self.show()

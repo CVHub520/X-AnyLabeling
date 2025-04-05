@@ -14,11 +14,9 @@ def convert_markdown_to_html(content):
             "linenums": False,
             "guess_lang": True,
             "use_pygments": True,
-            "css_class": "highlight"
+            "css_class": "highlight",
         },
-        "fenced_code": {
-            "lang_prefix": "language-"
-        },
+        "fenced_code": {"lang_prefix": "language-"},
     }
 
     # Convert markdown to HTML with extensions

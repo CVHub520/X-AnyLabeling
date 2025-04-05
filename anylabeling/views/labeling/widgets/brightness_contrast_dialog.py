@@ -16,9 +16,12 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         self.setModal(True)
         self.setWindowTitle(self.tr("Brightness/Contrast"))
         self.setFixedSize(350, 160)
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowContextHelpButtonHint
+        )
 
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QDialog {
                 background-color: #f5f5f7;
                 border-radius: 10px;
@@ -47,7 +50,8 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
                 background: #0071e3;
                 border-radius: 2px;
             }
-        """)
+        """
+        )
 
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(20, 20, 20, 20)
@@ -56,37 +60,43 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         # Brightness slider and label
         brightness_layout = QtWidgets.QHBoxLayout()
         brightness_layout.setSpacing(10)
-        
+
         brightness_label = QtWidgets.QLabel(self.tr("Brightness:"))
         brightness_label.setMinimumWidth(85)
         brightness_layout.addWidget(brightness_label)
-        
+
         self.slider_brightness = self._create_slider()
         brightness_layout.addWidget(self.slider_brightness)
-        
-        self.brightness_label = QtWidgets.QLabel(f"{self.slider_brightness.value() / 50:.2f}")
+
+        self.brightness_label = QtWidgets.QLabel(
+            f"{self.slider_brightness.value() / 50:.2f}"
+        )
         self.brightness_label.setFixedWidth(40)
         self.brightness_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         brightness_layout.addWidget(self.brightness_label)
-        
-        self.slider_brightness.valueChanged.connect(self.update_brightness_label)
-        
+
+        self.slider_brightness.valueChanged.connect(
+            self.update_brightness_label
+        )
+
         # Contrast slider and label
         contrast_layout = QtWidgets.QHBoxLayout()
         contrast_layout.setSpacing(10)
-        
+
         contrast_label = QtWidgets.QLabel(self.tr("Contrast:"))
         contrast_label.setMinimumWidth(85)
         contrast_layout.addWidget(contrast_label)
-        
+
         self.slider_contrast = self._create_slider()
         contrast_layout.addWidget(self.slider_contrast)
-        
-        self.contrast_label = QtWidgets.QLabel(f"{self.slider_contrast.value() / 50:.2f}")
+
+        self.contrast_label = QtWidgets.QLabel(
+            f"{self.slider_contrast.value() / 50:.2f}"
+        )
         self.contrast_label.setFixedWidth(40)
         self.contrast_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         contrast_layout.addWidget(self.contrast_label)
-        
+
         self.slider_contrast.valueChanged.connect(self.update_contrast_label)
 
         # Add layouts to main layout
@@ -97,12 +107,13 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         # Buttons layout
         buttons_layout = QtWidgets.QHBoxLayout()
         buttons_layout.setSpacing(8)
-        
+
         # Reset button
         self.reset_button = QtWidgets.QPushButton(self.tr("Reset"))
         self.reset_button.setFixedSize(100, 32)
         self.reset_button.clicked.connect(self.reset_values)
-        self.reset_button.setStyleSheet("""
+        self.reset_button.setStyleSheet(
+            """
             QPushButton {
                 background-color: #f5f5f7;
                 color: #1d1d1f;
@@ -116,13 +127,15 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
             QPushButton:pressed {
                 background-color: #d5d5d5;
             }
-        """)
-        
+        """
+        )
+
         # Confirm button
         self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"))
         self.confirm_button.setFixedSize(100, 32)
         self.confirm_button.clicked.connect(self.confirm_values)
-        self.confirm_button.setStyleSheet("""
+        self.confirm_button.setStyleSheet(
+            """
             QPushButton {
                 background-color: #0071e3;
                 color: white;
@@ -136,19 +149,20 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
             QPushButton:pressed {
                 background-color: #0068D0;
             }
-        """)
-        
+        """
+        )
+
         buttons_layout.addStretch()
         buttons_layout.addWidget(self.reset_button)
         buttons_layout.addWidget(self.confirm_button)
-        
+
         main_layout.addLayout(buttons_layout)
         self.setLayout(main_layout)
 
         assert isinstance(img, PIL.Image.Image)
         self.img = img
         self.callback = callback
-        
+
         # Center the dialog on the screen
         self.move_to_center()
 

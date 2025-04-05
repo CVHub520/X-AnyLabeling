@@ -951,7 +951,9 @@ class LabelConverter:
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
                     points = np.array(
-                        self.clamp_points(shape["points"], image_width, image_height)
+                        self.clamp_points(
+                            shape["points"], image_width, image_height
+                        )
                     )
                     if len(points) < 3:
                         continue

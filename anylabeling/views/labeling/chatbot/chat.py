@@ -534,7 +534,9 @@ class ChatMessage(QFrame):
             if isinstance(self.content_label, QLabel):
                 self.content_label.setText(edited_content)
             else:
-                self.content_label.setHtml(convert_markdown_to_html(edited_content))
+                self.content_label.setHtml(
+                    convert_markdown_to_html(edited_content)
+                )
 
             dialog = self.window()
 
@@ -765,7 +767,11 @@ class ChatMessage(QFrame):
     def handle_external_link(self, url):
         """Handle the external url"""
         url_string = url.toString()
-        if url_string.startswith('http://') or url_string.startswith('https://'):
+        if url_string.startswith("http://") or url_string.startswith(
+            "https://"
+        ):
             self.sender().parent().stop()
             QDesktopServices.openUrl(url)
-            self.sender().parent().setHtml(convert_markdown_to_html(self.original_content))
+            self.sender().parent().setHtml(
+                convert_markdown_to_html(self.original_content)
+            )

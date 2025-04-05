@@ -4,13 +4,11 @@ import json
 import math
 import os
 import os.path as osp
-import pathlib
 import re
 import shutil
 
 import cv2
 from difflib import SequenceMatcher
-import yaml
 
 import imgviz
 import natsort
@@ -906,28 +904,28 @@ class LabelingWidget(LabelDialog):
         # Upload
         upload_image_flags_file = action(
             self.tr("&Upload Image Flags File"),
-            self.upload_image_flags_file,
+            lambda: utils.upload_image_flags_file(self),
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Image Flags File"),
         )
         upload_label_flags_file = action(
             self.tr("&Upload Label Flags File"),
-            self.upload_label_flags_file,
+            lambda: utils.upload_label_flags_file(self, LABEL_OPACITY),
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Label Flags File"),
         )
         upload_shape_attrs_file = action(
             self.tr("&Upload Attributes File"),
-            self.upload_shape_attrs_file,
+            lambda: utils.upload_shape_attrs_file(self, LABEL_OPACITY),
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Attributes File"),
         )
         upload_yolo_hbb_annotation = action(
             self.tr("&Upload YOLO-Hbb Annotations"),
-            lambda: self.upload_yolo_annotation("hbb"),
+            lambda: utils.upload_yolo_annotation(self, "hbb", LABEL_OPACITY),
             None,
             icon="format_yolo",
             tip=self.tr(
@@ -936,7 +934,7 @@ class LabelingWidget(LabelDialog):
         )
         upload_yolo_obb_annotation = action(
             self.tr("&Upload YOLO-Obb Annotations"),
-            lambda: self.upload_yolo_annotation("obb"),
+            lambda: utils.upload_yolo_annotation(self, "obb", LABEL_OPACITY),
             None,
             icon="format_yolo",
             tip=self.tr(
@@ -945,77 +943,77 @@ class LabelingWidget(LabelDialog):
         )
         upload_yolo_seg_annotation = action(
             self.tr("&Upload YOLO-Seg Annotations"),
-            lambda: self.upload_yolo_annotation("seg"),
+            lambda: utils.upload_yolo_annotation(self, "seg", LABEL_OPACITY),
             None,
             icon="format_yolo",
             tip=self.tr("Upload Custom YOLO Segmentation Annotations"),
         )
         upload_yolo_pose_annotation = action(
             self.tr("&Upload YOLO-Pose Annotations"),
-            lambda: self.upload_yolo_annotation("pose"),
+            lambda: utils.upload_yolo_annotation(self, "pose", LABEL_OPACITY),
             None,
             icon="format_yolo",
             tip=self.tr("Upload Custom YOLO Pose Annotations"),
         )
         upload_voc_det_annotation = action(
             self.tr("&Upload VOC Detection Annotations"),
-            lambda: self.upload_voc_annotation("rectangle"),
+            lambda: utils.upload_voc_annotation(self, "rectangle"),
             None,
             icon="format_voc",
             tip=self.tr("Upload Custom Pascal VOC Detection Annotations"),
         )
         upload_voc_seg_annotation = action(
             self.tr("&Upload VOC Segmentation Annotations"),
-            lambda: self.upload_voc_annotation("polygon"),
+            lambda: utils.upload_voc_annotation(self, "polygon"),
             None,
             icon="format_voc",
             tip=self.tr("Upload Custom Pascal VOC Segmentation Annotations"),
         )
         upload_coco_det_annotation = action(
             self.tr("&Upload COCO Detection Annotations"),
-            lambda: self.upload_coco_annotation("rectangle"),
+            lambda: utils.upload_coco_annotation(self, "rectangle"),
             None,
             icon="format_coco",
             tip=self.tr("Upload Custom COCO Detection Annotations"),
         )
         upload_coco_seg_annotation = action(
             self.tr("&Upload COCO Segmentation Annotations"),
-            lambda: self.upload_coco_annotation("polygon"),
+            lambda: utils.upload_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
             tip=self.tr("Upload Custom COCO Segmentation Annotations"),
         )
         upload_coco_pose_annotation = action(
             self.tr("&Upload COCO Keypoint Annotations"),
-            lambda: self.upload_coco_annotation("pose"),
+            lambda: utils.upload_coco_annotation(self, "pose"),
             None,
             icon="format_coco",
             tip=self.tr("Upload Custom COCO Keypoint Annotations"),
         )
         upload_dota_annotation = action(
             self.tr("&Upload DOTA Annotations"),
-            self.upload_dota_annotation,
+            lambda: utils.upload_dota_annotation(self),
             None,
             icon="format_dota",
             tip=self.tr("Upload Custom DOTA Annotations"),
         )
         upload_mask_annotation = action(
             self.tr("&Upload MASK Annotations"),
-            self.upload_mask_annotation,
+            lambda: utils.upload_mask_annotation(self, LABEL_OPACITY),
             None,
             icon="format_mask",
             tip=self.tr("Upload Custom MASK Annotations"),
         )
         upload_mot_annotation = action(
             self.tr("&Upload MOT Annotations"),
-            self.upload_mot_annotation,
+            lambda: utils.upload_mot_annotation(self, LABEL_OPACITY),
             None,
             icon="format_mot",
             tip=self.tr("Upload Custom Multi-Object-Tracking Annotations"),
         )
         upload_odvg_annotation = action(
             self.tr("&Upload ODVG Annotations"),
-            self.upload_odvg_annotation,
+            lambda: utils.upload_odvg_annotation(self),
             None,
             icon="format_odvg",
             tip=self.tr(
@@ -1024,14 +1022,14 @@ class LabelingWidget(LabelDialog):
         )
         upload_ppocr_rec_annotation = action(
             self.tr("&Upload PPOCR-Rec Annotations"),
-            lambda: self.upload_ppocr_annotation("rec"),
+            lambda: utils.upload_ppocr_annotation(self, "rec"),
             None,
             icon="format_ppocr",
             tip=self.tr("Upload Custom PPOCR Recognition Annotations"),
         )
         upload_ppocr_kie_annotation = action(
             self.tr("&Upload PPOCR-KIE Annotations"),
-            lambda: self.upload_ppocr_annotation("kie"),
+            lambda: utils.upload_ppocr_annotation(self, "kie"),
             None,
             icon="format_ppocr",
             tip=self.tr(
@@ -1042,7 +1040,7 @@ class LabelingWidget(LabelDialog):
         # Export
         export_yolo_hbb_annotation = action(
             self.tr("&Export YOLO-Hbb Annotations"),
-            lambda: self.export_yolo_annotation("hbb"),
+            lambda: utils.export_yolo_annotation(self, "hbb"),
             None,
             icon="format_yolo",
             tip=self.tr(
@@ -1051,7 +1049,7 @@ class LabelingWidget(LabelDialog):
         )
         export_yolo_obb_annotation = action(
             self.tr("&Export YOLO-Obb Annotations"),
-            lambda: self.export_yolo_annotation("obb"),
+            lambda: utils.export_yolo_annotation(self, "obb"),
             None,
             icon="format_yolo",
             tip=self.tr(
@@ -1060,77 +1058,77 @@ class LabelingWidget(LabelDialog):
         )
         export_yolo_seg_annotation = action(
             self.tr("&Export YOLO-Seg Annotations"),
-            lambda: self.export_yolo_annotation("seg"),
+            lambda: utils.export_yolo_annotation(self, "seg"),
             None,
             icon="format_yolo",
             tip=self.tr("Export Custom YOLO Segmentation Annotations"),
         )
         export_yolo_pose_annotation = action(
             self.tr("&Export YOLO-Pose Annotations"),
-            lambda: self.export_yolo_annotation("pose"),
+            lambda: utils.export_yolo_annotation(self, "pose"),
             None,
             icon="format_yolo",
             tip=self.tr("Export Custom YOLO Pose Annotations"),
         )
         export_voc_det_annotation = action(
             self.tr("&Export VOC Detection Annotations"),
-            lambda: self.export_voc_annotation("rectangle"),
+            lambda: utils.export_voc_annotation(self, "rectangle"),
             None,
             icon="format_voc",
             tip=self.tr("Export Custom PASCAL VOC Detection Annotations"),
         )
         export_voc_seg_annotation = action(
             self.tr("&Export VOC Segmentation Annotations"),
-            lambda: self.export_voc_annotation("polygon"),
+            lambda: utils.export_voc_annotation(self, "polygon"),
             None,
             icon="format_voc",
             tip=self.tr("Export Custom PASCAL VOC Segmentation Annotations"),
         )
         export_coco_det_annotation = action(
             self.tr("&Export COCO Detection Annotations"),
-            lambda: self.export_coco_annotation("rectangle"),
+            lambda: utils.export_coco_annotation(self, "rectangle"),
             None,
             icon="format_coco",
             tip=self.tr("Export Custom COCO Rectangle Annotations"),
         )
         export_coco_seg_annotation = action(
             self.tr("&Export COCO Segmentation Annotations"),
-            lambda: self.export_coco_annotation("polygon"),
+            lambda: utils.export_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
             tip=self.tr("Export Custom COCO Segmentation Annotations"),
         )
         export_coco_pose_annotation = action(
             self.tr("&Export COCO Keypoint Annotations"),
-            lambda: self.export_coco_annotation("pose"),
+            lambda: utils.export_coco_annotation(self, "pose"),
             None,
             icon="format_coco",
             tip=self.tr("Export Custom COCO Keypoint Annotations"),
         )
         export_dota_annotation = action(
             self.tr("&Export DOTA Annotations"),
-            self.export_dota_annotation,
+            lambda: utils.export_dota_annotation(self),
             None,
             icon="format_dota",
             tip=self.tr("Export Custom DOTA Annotations"),
         )
         export_mask_annotation = action(
             self.tr("&Export MASK Annotations"),
-            self.export_mask_annotation,
+            lambda: utils.export_mask_annotation(self),
             None,
             icon="format_mask",
             tip=self.tr("Export Custom MASK Annotations - RGB/Gray"),
         )
         export_mot_annotation = action(
             self.tr("&Export MOT Annotations"),
-            self.export_mot_annotation,
+            lambda: utils.export_mot_annotation(self, "mot"),
             None,
             icon="format_mot",
             tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
         )
         export_mots_annotation = action(
             self.tr("&Export MOTS Annotations"),
-            self.export_mots_annotation,
+            lambda: utils.export_mot_annotation(self, "mots"),
             None,
             icon="format_mot",
             tip=self.tr(
@@ -1139,7 +1137,7 @@ class LabelingWidget(LabelDialog):
         )
         export_odvg_annotation = action(
             self.tr("&Export ODVG Annotations"),
-            self.export_odvg_annotation,
+            lambda: utils.export_odvg_annotation(self),
             None,
             icon="format_odvg",
             tip=self.tr(
@@ -1148,14 +1146,14 @@ class LabelingWidget(LabelDialog):
         )
         export_pporc_rec_annotation = action(
             self.tr("&Export PPOCR-Rec Annotations"),
-            lambda: self.export_pporc_annotation("rec"),
+            lambda: utils.export_pporc_annotation(self, "rec"),
             None,
             icon="format_ppocr",
             tip=self.tr("Export Custom PPOCR Recognition Annotations"),
         )
         export_pporc_kie_annotation = action(
             self.tr("&Export PPOCR-KIE Annotations"),
-            lambda: self.export_pporc_annotation("kie"),
+            lambda: utils.export_pporc_annotation(self, "kie"),
             None,
             icon="format_ppocr",
             tip=self.tr(
@@ -2455,7 +2453,11 @@ class LabelingWidget(LabelDialog):
         )
         msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
 
-        popup = Popup(self.tr("Copied!"), self, icon="anylabeling/resources/icons/copy-green.svg")
+        popup = Popup(
+            self.tr("Copied!"),
+            self,
+            icon="anylabeling/resources/icons/copy-green.svg",
+        )
         popup.show_popup(self, copy_msg=msg)
 
     def loop_thru_labels(self):
@@ -3826,1817 +3828,6 @@ class LabelingWidget(LabelDialog):
 
         if self.filename and load:
             self.load_file(self.filename)
-
-    # Uplaod
-    def upload_image_flags_file(self):
-        filter = "Image Flags Files (*.txt);;All Files (*)"
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific flags file"),
-            "",
-            filter,
-        )
-        if not file_path:
-            return
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                # Each line in the file is an image-level flag
-                self.image_flags = f.read().splitlines()
-                self.load_flags({k: False for k in self.image_flags})
-            self.flag_dock.show()
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Success!"))
-            msg_box.setInformativeText(self.tr("Uploading successfully!"))
-            msg_box.setWindowTitle(self.tr("Information"))
-            msg_box.exec_()
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading flags.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_label_flags_file(self):
-        filter = "Label Flags Files (*.yaml);;All Files (*)"
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific flags file"),
-            "",
-            filter,
-        )
-        if not file_path:
-            return
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                # Each line in the file is an flag-level flag
-                self.label_flags = yaml.safe_load(f)
-                for label in list(self.label_flags.keys()):
-                    if not self.unique_label_list.find_items_by_label(label):
-                        item = self.unique_label_list.create_item_from_label(
-                            label
-                        )
-                        self.unique_label_list.addItem(item)
-                        rgb = self._get_rgb_by_label(label)
-                        self.unique_label_list.set_item_label(
-                            item, label, rgb, LABEL_OPACITY
-                        )
-            self.label_dialog.upload_flags(self.label_flags)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Success!"))
-            msg_box.setInformativeText(self.tr("Uploading successfully!"))
-            msg_box.setWindowTitle(self.tr("Information"))
-            msg_box.exec_()
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading flags.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_shape_attrs_file(self):
-        filter = "Attribute Files (*.json);;All Files (*)"
-        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific attributes file"),
-            "",
-            filter,
-        )
-        if not file_path:
-            return
-
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                self.attributes = json.load(f)
-                for label in list(self.attributes.keys()):
-                    if not self.unique_label_list.find_items_by_label(label):
-                        item = self.unique_label_list.create_item_from_label(
-                            label
-                        )
-                        self.unique_label_list.addItem(item)
-                        rgb = self._get_rgb_by_label(label)
-                        self.unique_label_list.set_item_label(
-                            item, label, rgb, LABEL_OPACITY
-                        )
-            self.shape_attributes.show()
-            self.scroll_area.show()
-            self.canvas.h_shape_is_hovered = False
-            self.canvas.mode_changed.disconnect(self.set_edit_mode)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Success!"))
-            msg_box.setInformativeText(self.tr("Uploading successfully!"))
-            msg_box.setWindowTitle(self.tr("Information"))
-            msg_box.exec_()
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading attributes.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_yolo_annotation(  # noqa: C901
-        self, mode, _value=False, dirpath=None
-    ):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        if mode == "pose":
-            filter = "Classes Files (*.yaml);;All Files (*)"
-            self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific yolo-pose config file"),
-                "",
-                filter,
-            )
-            if not self.yaml_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific config file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return
-            labels = []
-            with open(self.yaml_file, "r", encoding="utf-8") as f:
-                import yaml
-
-                data = yaml.safe_load(f)
-                for class_name, keypoint_name in data["classes"].items():
-                    labels.append(class_name)
-                    labels.extend(keypoint_name)
-            converter = LabelConverter(pose_cfg_file=self.yaml_file)
-        elif mode in ["hbb", "obb", "seg"]:
-            filter = "Classes Files (*.txt);;All Files (*)"
-            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific classes file"),
-                "",
-                filter,
-            )
-            if not self.classes_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific classes file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return
-            with open(self.classes_file, "r", encoding="utf-8") as f:
-                labels = f.read().splitlines()
-            converter = LabelConverter(classes_file=self.classes_file)
-
-        # Initialize unique labels
-        for label in labels:
-            if not self.unique_label_list.find_items_by_label(label):
-                item = self.unique_label_list.create_item_from_label(label)
-                self.unique_label_list.addItem(item)
-                rgb = self._get_rgb_by_label(label)
-                self.unique_label_list.set_item_label(
-                    item, label, rgb, LABEL_OPACITY
-                )
-
-        default_open_dir_path = dirpath if dirpath else "."
-        if self.last_open_dir and osp.exists(self.last_open_dir):
-            default_open_dir_path = self.last_open_dir
-        else:
-            default_open_dir_path = (
-                osp.dirname(self.filename) if self.filename else "."
-            )
-        image_dir_path = osp.dirname(self.filename)
-        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("%s - Open Directory") % __appname__,
-            default_open_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks,
-        )
-
-        response = QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be lost"),
-            self.tr(
-                "You are going to upload new annotations to this task. Continue?"
-            ),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        )
-        if response != QtWidgets.QMessageBox.Ok:
-            return
-
-        image_file_list = os.listdir(image_dir_path)
-        label_file_list = os.listdir(label_dir_path)
-        output_dir_path = image_dir_path
-        if self.output_dir:
-            output_dir_path = self.output_dir
-
-        progress_dialog = QProgressDialog(
-            self.tr("Uploading..."),
-            self.tr("Cancel"),
-            0,
-            len(image_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, image_filename in enumerate(image_file_list):
-                if image_filename.endswith(".json"):
-                    continue
-                label_filename = osp.splitext(image_filename)[0] + ".txt"
-                data_filename = osp.splitext(image_filename)[0] + ".json"
-                if label_filename not in label_file_list:
-                    continue
-                input_file = osp.join(label_dir_path, label_filename)
-                output_file = osp.join(output_dir_path, data_filename)
-                image_file = osp.join(image_dir_path, image_filename)
-                if mode in ["hbb", "seg"]:
-                    converter.yolo_to_custom(
-                        input_file=input_file,
-                        output_file=output_file,
-                        image_file=image_file,
-                        mode=mode,
-                    )
-                elif mode == "obb":
-                    converter.yolo_obb_to_custom(
-                        input_file=input_file,
-                        output_file=output_file,
-                        image_file=image_file,
-                    )
-                elif mode == "pose":
-                    converter.yolo_pose_to_custom(
-                        input_file=input_file,
-                        output_file=output_file,
-                        image_file=image_file,
-                    )
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_voc_annotation(self, mode, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        default_open_dir_path = dirpath if dirpath else "."
-        if self.last_open_dir and osp.exists(self.last_open_dir):
-            default_open_dir_path = self.last_open_dir
-        else:
-            default_open_dir_path = (
-                osp.dirname(self.filename) if self.filename else "."
-            )
-        image_dir_path = osp.dirname(self.filename)
-        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("%s - Open Directory") % __appname__,
-            default_open_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks,
-        )
-
-        response = QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be lost"),
-            self.tr(
-                "You are going to upload new annotations to this task. Continue?"
-            ),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        )
-
-        if response != QtWidgets.QMessageBox.Ok:
-            return
-
-        converter = LabelConverter(classes_file=self.classes_file)
-        image_file_list = os.listdir(image_dir_path)
-        label_file_list = os.listdir(label_dir_path)
-        output_dir_path = image_dir_path
-        if self.output_dir:
-            output_dir_path = self.output_dir
-
-        progress_dialog = QProgressDialog(
-            self.tr("Uploading..."),
-            self.tr("Cancel"),
-            0,
-            len(image_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, image_filename in enumerate(image_file_list):
-                if image_filename.endswith(".json"):
-                    continue
-                label_filename = osp.splitext(image_filename)[0] + ".xml"
-                data_filename = osp.splitext(image_filename)[0] + ".json"
-                if label_filename not in label_file_list:
-                    continue
-                input_file = osp.join(label_dir_path, label_filename)
-                output_file = osp.join(output_dir_path, data_filename)
-                converter.voc_to_custom(
-                    input_file=input_file,
-                    output_file=output_file,
-                    image_filename=image_filename,
-                    mode=mode,
-                )
-
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_coco_annotation(self, mode, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        filter = "Attribute Files (*.json);;All Files (*)"
-        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a custom coco annotation file"),
-            "",
-            filter,
-        )
-
-        if (
-            not input_file
-            or QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Current annotation will be lost"),
-                self.tr(
-                    "You are going to upload new annotations to this task. Continue?"
-                ),
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-            )
-            != QtWidgets.QMessageBox.Ok
-        ):
-            return
-
-        image_dir_path = osp.dirname(self.filename)
-        output_dir_path = image_dir_path
-        if self.output_dir:
-            output_dir_path = self.output_dir
-
-        try:
-            converter = LabelConverter()
-            converter.coco_to_custom(
-                input_file=input_file,
-                output_dir_path=output_dir_path,
-                mode=mode,
-            )
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_dota_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        default_open_dir_path = dirpath if dirpath else "."
-        if self.last_open_dir and osp.exists(self.last_open_dir):
-            default_open_dir_path = self.last_open_dir
-        else:
-            default_open_dir_path = (
-                osp.dirname(self.filename) if self.filename else "."
-            )
-        image_dir_path = osp.dirname(self.filename)
-        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("%s - Open Directory") % __appname__,
-            default_open_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks,
-        )
-
-        response = QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be lost"),
-            self.tr(
-                "You are going to upload new annotations to this task. Continue?"
-            ),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        )
-
-        if response != QtWidgets.QMessageBox.Ok:
-            return
-
-        converter = LabelConverter()
-        image_file_list = os.listdir(image_dir_path)
-        label_file_list = os.listdir(label_dir_path)
-        output_dir_path = image_dir_path
-        if self.output_dir:
-            output_dir_path = self.output_dir
-
-        progress_dialog = QProgressDialog(
-            self.tr("Exporting..."),
-            self.tr("Cancel"),
-            0,
-            len(image_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, image_filename in enumerate(image_file_list):
-                if image_filename.endswith(".json"):
-                    continue
-                label_filename = osp.splitext(image_filename)[0] + ".txt"
-                data_filename = osp.splitext(image_filename)[0] + ".json"
-                if label_filename not in label_file_list:
-                    continue
-                input_file = osp.join(label_dir_path, label_filename)
-                output_file = osp.join(output_dir_path, data_filename)
-                image_file = osp.join(image_dir_path, image_filename)
-                converter.dota_to_custom(
-                    input_file=input_file,
-                    output_file=output_file,
-                    image_file=image_file,
-                )
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_mask_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        filter = "JSON Files (*.json);;All Files (*)"
-        color_map_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific color_map file"),
-            "",
-            filter,
-        )
-        if not color_map_file:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please select a specific color_map file!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-        with open(color_map_file, "r", encoding="utf-8") as f:
-            mapping_table = json.load(f)
-            classes = list(mapping_table["colors"].keys())
-            for label in classes:
-                if not self.unique_label_list.find_items_by_label(label):
-                    item = self.unique_label_list.create_item_from_label(label)
-                    self.unique_label_list.addItem(item)
-                    rgb = self._get_rgb_by_label(label)
-                    self.unique_label_list.set_item_label(
-                        item, label, rgb, LABEL_OPACITY
-                    )
-
-        default_open_dir_path = dirpath if dirpath else "."
-        if self.last_open_dir and osp.exists(self.last_open_dir):
-            default_open_dir_path = self.last_open_dir
-        else:
-            default_open_dir_path = (
-                osp.dirname(self.filename) if self.filename else "."
-            )
-        image_dir_path = osp.dirname(self.filename)
-        label_dir_path = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("%s - Open Directory") % __appname__,
-            default_open_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks,
-        )
-
-        response = QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be lost"),
-            self.tr(
-                "You are going to upload new annotations to this task. Continue?"
-            ),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        )
-
-        if response != QtWidgets.QMessageBox.Ok:
-            return
-
-        converter = LabelConverter()
-        image_file_list = os.listdir(image_dir_path)
-        label_file_list = os.listdir(label_dir_path)
-        output_dir_path = image_dir_path
-        if self.output_dir:
-            output_dir_path = self.output_dir
-
-        progress_dialog = QProgressDialog(
-            self.tr("Uploading..."),
-            self.tr("Cancel"),
-            0,
-            len(image_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, image_filename in enumerate(image_file_list):
-                if image_filename.endswith(".json"):
-                    continue
-                label_filename = osp.splitext(image_filename)[0] + ".png"
-                data_filename = osp.splitext(image_filename)[0] + ".json"
-                if label_filename not in label_file_list:
-                    continue
-                input_file = osp.join(label_dir_path, label_filename)
-                output_file = osp.join(output_dir_path, data_filename)
-                image_file = osp.join(image_dir_path, image_filename)
-                converter.mask_to_custom(
-                    input_file=input_file,
-                    output_file=output_file,
-                    image_file=image_file,
-                    mapping_table=mapping_table,
-                )
-
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_mot_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            return
-
-        filter = "Classes Files (*.txt);;All Files (*)"
-        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific classes file"),
-            "",
-            filter,
-        )
-        if not self.classes_file:
-            return
-        with open(self.classes_file, "r", encoding="utf-8") as f:
-            labels = f.read().splitlines()
-            for label in labels:
-                if not self.unique_label_list.find_items_by_label(label):
-                    item = self.unique_label_list.create_item_from_label(label)
-                    self.unique_label_list.addItem(item)
-                    rgb = self._get_rgb_by_label(label)
-                    self.unique_label_list.set_item_label(
-                        item, label, rgb, LABEL_OPACITY
-                    )
-
-        filter = "Attribute Files (*.txt);;All Files (*)"
-        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a custom mot annotation file (gt.txt)"),
-            "",
-            filter,
-        )
-
-        if (
-            not input_file
-            or QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Current annotation will be lost"),
-                self.tr(
-                    "You are going to upload new annotations to this task. Continue?"
-                ),
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-            )
-            != QtWidgets.QMessageBox.Ok
-        ):
-            return
-
-        try:
-            image_dir_path = osp.dirname(self.filename)
-            output_dir_path = image_dir_path
-            if self.output_dir:
-                output_dir_path = self.output_dir
-            converter = LabelConverter(classes_file=self.classes_file)
-            converter.mot_to_custom(
-                input_file=input_file,
-                output_path=output_dir_path,
-                image_path=image_dir_path,
-            )
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_odvg_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            return
-
-        filter = "OD Files (*.json *.jsonl);;All Files (*)"
-        input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific OD file"),
-            "",
-            filter,
-        )
-
-        if (
-            not input_file
-            or QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Current annotation will be lost"),
-                self.tr(
-                    "You are going to upload new annotations to this task. Continue?"
-                ),
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-            )
-            != QtWidgets.QMessageBox.Ok
-        ):
-            return
-
-        try:
-            output_dir_path = osp.dirname(self.filename)
-            if self.output_dir:
-                output_dir_path = self.output_dir
-            converter = LabelConverter()
-            converter.odvg_to_custom(
-                input_file=input_file,
-                output_path=output_dir_path,
-            )
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def upload_ppocr_annotation(self, mode, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        if mode == "rec":
-            filter = "Attribute Files (*.txt);;All Files (*)"
-            input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a custom annotation file (Label.txt)"),
-                "",
-                filter,
-            )
-        elif mode == "kie":
-            filter = "Attribute Files (*.json);;All Files (*)"
-            input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a custom annotation file (ppocr_kie.json)"),
-                "",
-                filter,
-            )
-
-        if (
-            not input_file
-            or QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Current annotation will be lost"),
-                self.tr(
-                    "You are going to upload new annotations to this task. Continue?"
-                ),
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-            )
-            != QtWidgets.QMessageBox.Ok
-        ):
-            return
-
-        try:
-            image_dir_path = osp.dirname(self.filename)
-            output_dir_path = image_dir_path
-            if self.output_dir:
-                output_dir_path = self.output_dir
-            converter = LabelConverter(classes_file=self.classes_file)
-            converter.ppocr_to_custom(
-                input_file=input_file,
-                output_path=output_dir_path,
-                image_path=image_dir_path,
-                mode=mode,
-            )
-            # update and refresh the current canvas
-            self.load_file(self.filename)
-        except Exception as e:
-            logger.error(f"Error occurred while uploading annotations: {e}")
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while uploading annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    # Export
-    def export_yolo_annotation(self, mode, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        # Handle config/classes file selection based on mode
-        if mode == "pose":
-            filter = "Classes Files (*.yaml);;All Files (*)"
-            self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific yolo-pose config file"),
-                "",
-                filter,
-            )
-            if not self.yaml_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific config file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return
-            converter = LabelConverter(pose_cfg_file=self.yaml_file)
-        elif mode in ["hbb", "obb", "seg"]:
-            filter = "Classes Files (*.txt);;All Files (*)"
-            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific classes file"),
-                "",
-                filter,
-            )
-            if not self.classes_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific classes file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return
-            converter = LabelConverter(classes_file=self.classes_file)
-
-        # Create options dialog with additional export path selection
-        dialog = QtWidgets.QDialog()
-        dialog.setWindowTitle(self.tr("Export Options"))
-        layout = QVBoxLayout()
-
-        # Add export path selection
-        path_layout = QHBoxLayout()
-        path_label = QtWidgets.QLabel(self.tr("Export Path:"))
-        path_edit = QtWidgets.QLineEdit()
-        path_button = QtWidgets.QPushButton(self.tr("Browse"))
-
-        # Set default path
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        default_save_path = osp.realpath(
-            osp.join(label_dir_path, "..", "labels")
-        )
-        path_edit.setText(default_save_path)
-
-        def browse_export_path():
-            path = QtWidgets.QFileDialog.getExistingDirectory(
-                self,
-                self.tr("Select Export Directory"),
-                path_edit.text(),
-            )
-            if path:
-                path_edit.setText(path)
-
-        path_button.clicked.connect(browse_export_path)
-        path_layout.addWidget(path_label)
-        path_layout.addWidget(path_edit)
-        path_layout.addWidget(path_button)
-        layout.addLayout(path_layout)
-
-        # Add other options
-        save_images_checkbox = QtWidgets.QCheckBox(self.tr("Save images?"))
-        save_images_checkbox.setChecked(False)
-        layout.addWidget(save_images_checkbox)
-
-        skip_empty_files_checkbox = QtWidgets.QCheckBox(
-            self.tr("Skip empty labels?")
-        )
-        skip_empty_files_checkbox.setChecked(False)
-        layout.addWidget(skip_empty_files_checkbox)
-
-        button_box = QtWidgets.QPushButton(self.tr("OK"))
-        button_box.clicked.connect(dialog.accept)
-        layout.addWidget(button_box)
-
-        dialog.setLayout(layout)
-        result = dialog.exec_()
-
-        if not result:
-            return
-
-        save_images = save_images_checkbox.isChecked()
-        skip_empty_files = skip_empty_files_checkbox.isChecked()
-        save_path = path_edit.text()
-
-        # Check if export directory exists and handle overwrite
-        if osp.exists(save_path):
-            response = QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Output Directory Exists!"),
-                self.tr(
-                    "Directory already exists. Choose an action:\n"
-                    "Yes - Merge with existing files\n"
-                    "No - Delete existing directory\n"
-                    "Cancel - Abort export"
-                ),
-                QtWidgets.QMessageBox.Yes
-                | QtWidgets.QMessageBox.No
-                | QtWidgets.QMessageBox.Cancel,
-            )
-
-            if response == QtWidgets.QMessageBox.Cancel:
-                return
-            elif response == QtWidgets.QMessageBox.No:
-                shutil.rmtree(save_path)
-                os.makedirs(save_path)
-        else:
-            os.makedirs(save_path)
-
-        # Setup progress dialog
-        image_list = self.image_list if self.image_list else [self.filename]
-        progress_dialog = QProgressDialog(
-            self.tr("Exporting..."),
-            self.tr("Cancel"),
-            0,
-            len(image_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-            QProgressDialog QProgressBar {
-                border: 1px solid grey;
-                border-radius: 5px;
-                text-align: center;
-            }
-            QProgressDialog QProgressBar::chunk {
-                background-color: orange;
-            }
-            """
-        )
-
-        try:
-            # Process files
-            for i, image_file in enumerate(image_list):
-                image_file_name = osp.basename(image_file)
-                label_file_name = osp.splitext(image_file_name)[0] + ".json"
-                dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
-                dst_file = osp.join(save_path, dst_file_name)
-                src_file = osp.join(osp.dirname(image_file), label_file_name)
-
-                is_empty_file = converter.custom_to_yolo(
-                    src_file, dst_file, mode, skip_empty_files
-                )
-
-                if save_images and not (skip_empty_files and is_empty_file):
-                    image_dst = osp.join(save_path, image_file_name)
-                    shutil.copy(image_file, image_dst)
-
-                if skip_empty_files and is_empty_file and osp.exists(dst_file):
-                    os.remove(dst_file)
-
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-
-            progress_dialog.close()
-
-            # Show success message
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(
-                self.tr(f"Results have been saved to:\n{save_path}")
-            )
-            msg_box.setWindowTitle(self.tr("Success"))
-            msg_box.exec_()
-
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while exporting annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def export_voc_annotation(self, mode, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        dialog = QtWidgets.QDialog()
-        dialog.setWindowTitle(self.tr("Options"))
-
-        layout = QVBoxLayout()
-
-        save_images_checkbox = QtWidgets.QCheckBox(self.tr("Save images?"))
-        save_images_checkbox.setChecked(False)
-        layout.addWidget(save_images_checkbox)
-
-        skip_empty_files_checkbox = QtWidgets.QCheckBox(
-            self.tr("Skip empty labels?")
-        )
-        skip_empty_files_checkbox.setChecked(False)
-        layout.addWidget(skip_empty_files_checkbox)
-
-        button_box = QtWidgets.QPushButton(self.tr("OK"))
-        button_box.clicked.connect(dialog.accept)
-        layout.addWidget(button_box)
-
-        dialog.setLayout(layout)
-        dialog.exec_()
-
-        save_images = save_images_checkbox.isChecked()
-        skip_empty_files = skip_empty_files_checkbox.isChecked()
-
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        image_list = self.image_list
-        if not image_list:
-            image_list = [self.filename]
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "Annotations"))
-
-        if osp.exists(save_path):
-            response = QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Output Directory Exist!"),
-                self.tr(
-                    "You are going to export new annotations to this task. Continue?"
-                ),
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-            )
-
-            if response != QtWidgets.QMessageBox.Ok:
-                return
-            else:
-                shutil.rmtree(save_path)
-        os.makedirs(save_path, exist_ok=True)
-
-        converter = LabelConverter()
-        label_file_list = os.listdir(label_dir_path)
-
-        progress_dialog = QProgressDialog(
-            self.tr("Exporting..."),
-            self.tr("Cancel"),
-            0,
-            len(label_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, image_file in enumerate(image_list):
-                image_file_name = osp.basename(image_file)
-                label_file_name = osp.splitext(image_file_name)[0] + ".json"
-                dst_file_name = osp.splitext(image_file_name)[0] + ".xml"
-                src_file = osp.join(osp.dirname(image_file), label_file_name)
-                dst_file = osp.join(save_path, dst_file_name)
-                is_emtpy_file = converter.custom_to_voc(
-                    image_file, src_file, dst_file, mode, skip_empty_files
-                )
-                if save_images and not (skip_empty_files and is_emtpy_file):
-                    image_dst = osp.join(save_path, image_file_name)
-                    shutil.copyfile(image_file, image_dst)
-                if skip_empty_files and is_emtpy_file and osp.exists(dst_file):
-                    os.remove(dst_file)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-
-            # # Show success message
-            save_path = osp.realpath(save_path)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(
-                self.tr(f"Results have been saved to:\n{save_path}")
-            )
-            msg_box.setWindowTitle(self.tr("Success"))
-            msg_box.exec_()
-
-        except Exception as e:
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while exporting annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def export_coco_annotation(self, mode, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        if mode == "pose":
-            filter = "Classes Files (*.yaml);;All Files (*)"
-            self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific coco-pose config file"),
-                "",
-                filter,
-            )
-            if not self.yaml_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific config file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return
-            converter = LabelConverter(pose_cfg_file=self.yaml_file)
-        elif mode in ["rectangle", "polygon"]:
-            filter = "Classes Files (*.txt);;All Files (*)"
-            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific classes file"),
-                "",
-                filter,
-            )
-            if not self.classes_file:
-                QtWidgets.QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Please select a specific classes file!"),
-                    QtWidgets.QMessageBox.Ok,
-                )
-                return
-            converter = LabelConverter(classes_file=self.classes_file)
-
-        image_list = self.image_list
-        if not image_list:
-            image_list = [self.filename]
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "annotations"))
-        os.makedirs(save_path, exist_ok=True)
-
-        try:
-            converter.custom_to_coco(
-                image_list, label_dir_path, save_path, mode
-            )
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("Success"),
-                self.tr(
-                    f"Annotation exported successfully!\n"
-                    f"Check the results in: {save_path}."
-                ),
-                QtWidgets.QMessageBox.Ok,
-            )
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Error"),
-                self.tr(f"{e}"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-    def export_dota_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        image_list = self.image_list
-        if not image_list:
-            image_list = [self.filename]
-        save_path = osp.realpath(osp.join(label_dir_path, "..", "labelTxt"))
-        os.makedirs(save_path, exist_ok=True)
-        converter = LabelConverter(classes_file=self.classes_file)
-
-        progress_dialog = QProgressDialog(
-            self.tr("Exporting..."),
-            self.tr("Cancel"),
-            0,
-            len(image_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, image_file in enumerate(image_list):
-                image_file_name = osp.basename(image_file)
-                label_file_name = osp.splitext(image_file_name)[0] + ".json"
-                dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
-                dst_file = osp.join(save_path, dst_file_name)
-                src_file = osp.join(osp.dirname(image_file), label_file_name)
-                if not osp.exists(src_file):
-                    pathlib.Path(dst_file).touch()
-                else:
-                    converter.custom_to_dota(src_file, dst_file)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-
-            # # Show success message
-            save_path = osp.realpath(save_path)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(
-                self.tr(f"Results have been saved to:\n{save_path}")
-            )
-            msg_box.setWindowTitle(self.tr("Success"))
-            msg_box.exec_()
-
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while exporting annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def export_mask_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        filter = "JSON Files (*.json);;All Files (*)"
-        color_map_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific color_map file"),
-            "",
-            filter,
-        )
-        if not color_map_file:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please select a specific color_map file!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        with open(color_map_file, "r", encoding="utf-8") as f:
-            mapping_table = json.load(f)
-
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("Select a directory to save the mask annotations"),
-            label_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly,
-        )
-
-        if not selected_dir:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("No directory selected! Operation cancelled."),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-        save_path = osp.realpath(selected_dir)
-        converter = LabelConverter(classes_file=self.classes_file)
-        label_file_list = os.listdir(label_dir_path)
-
-        progress_dialog = QProgressDialog(
-            self.tr("Exporting..."),
-            self.tr("Cancel"),
-            0,
-            len(label_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, src_file_name in enumerate(label_file_list):
-                if not src_file_name.endswith(".json"):
-                    continue
-                dst_file_name = osp.splitext(src_file_name)[0] + ".png"
-                src_file = osp.join(label_dir_path, src_file_name)
-                dst_file = osp.join(save_path, dst_file_name)
-                converter.custom_to_mask(src_file, dst_file, mapping_table)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-
-            # # Show success message
-            save_path = osp.realpath(save_path)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(
-                self.tr(f"Results have been saved to:\n{save_path}")
-            )
-            msg_box.setWindowTitle(self.tr("Success"))
-            msg_box.exec_()
-
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while exporting annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def export_mot_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        if not self.classes_file:
-            filter = "Classes Files (*.txt);;All Files (*)"
-            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific classes file"),
-                "",
-                filter,
-            )
-            if not self.classes_file:
-                return
-
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-
-        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("Select a directory to save the mot annotations"),
-            label_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly,
-        )
-
-        if not selected_dir:
-            return
-
-        save_path = osp.realpath(selected_dir)
-        os.makedirs(save_path, exist_ok=True)
-        converter = LabelConverter(classes_file=self.classes_file)
-        try:
-            converter.custom_to_mot(label_dir_path, save_path)
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("Success"),
-                self.tr(
-                    f"Annotation exported successfully!\n"
-                    f"Check the results in: {save_path}."
-                ),
-                QtWidgets.QMessageBox.Ok,
-            )
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Error"),
-                self.tr(f"{e}"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-    def export_mots_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        filter = "Classes Files (*.txt);;All Files (*)"
-        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select a specific classes file"),
-            "",
-            filter,
-        )
-        if not self.classes_file:
-            return
-
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-
-        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("Select a directory to save the mots annotations"),
-            label_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly,
-        )
-
-        if not selected_dir:
-            return
-
-        save_path = osp.realpath(osp.join(selected_dir, "gt"))
-        os.makedirs(save_path, exist_ok=True)
-        converter = LabelConverter(classes_file=self.classes_file)
-        try:
-            converter.custom_to_mots(label_dir_path, save_path)
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("Success"),
-                self.tr(
-                    f"Annotation exported successfully!\n"
-                    f"Check the results in: {save_path}."
-                ),
-                QtWidgets.QMessageBox.Ok,
-            )
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Error"),
-                self.tr(f"{e}"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-    def export_odvg_annotation(self, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        if not self.classes_file:
-            filter = "Classes Files (*.txt);;All Files (*)"
-            self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-                self,
-                self.tr("Select a specific classes file"),
-                "",
-                filter,
-            )
-            if not self.classes_file:
-                return
-
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-
-        selected_dir = QtWidgets.QFileDialog.getExistingDirectory(
-            self,
-            self.tr("Select a directory to save the odvg annotations"),
-            label_dir_path,
-            QtWidgets.QFileDialog.ShowDirsOnly,
-        )
-        if not selected_dir:
-            return
-
-        save_path = osp.realpath(selected_dir)
-        image_list = self.image_list
-        if not image_list:
-            image_list = [self.filename]
-        os.makedirs(save_path, exist_ok=True)
-        converter = LabelConverter(classes_file=self.classes_file)
-        try:
-            converter.custom_to_odvg(image_list, label_dir_path, save_path)
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("Success"),
-                self.tr(
-                    f"Annotation exported successfully!\n"
-                    f"Check the results in: {save_path}."
-                ),
-                QtWidgets.QMessageBox.Ok,
-            )
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Error"),
-                self.tr(f"{e}"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-    def export_pporc_annotation(self, mode, _value=False, dirpath=None):
-        if not self.may_continue():
-            return
-
-        if not self.filename:
-            QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr("Please load an image folder before proceeding!"),
-                QtWidgets.QMessageBox.Ok,
-            )
-            return
-
-        converter = LabelConverter(classes_file=self.classes_file)
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        image_list = self.image_list
-        if not image_list:
-            image_list = [self.filename]
-        save_path = osp.realpath(
-            osp.join(label_dir_path, "..", f"ppocr-{mode}")
-        )
-
-        if osp.exists(save_path):
-            response = QtWidgets.QMessageBox.warning(
-                self,
-                self.tr("Output Directory Exist!"),
-                self.tr(
-                    "You are going to export new annotations to this task. Continue?"
-                ),
-                QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-            )
-
-            if response != QtWidgets.QMessageBox.Ok:
-                return
-            else:
-                shutil.rmtree(save_path)
-        os.makedirs(save_path, exist_ok=True)
-        if mode == "rec":
-            save_crop_img_path = osp.join(save_path, "crop_img")
-            if osp.exists(save_crop_img_path):
-                shutil.rmtree(save_crop_img_path)
-            os.makedirs(save_crop_img_path, exist_ok=True)
-        elif mode == "kie":
-            total_class_set = set()
-            class_list_file = osp.join(save_path, "class_list.txt")
-
-        progress_dialog = QProgressDialog(
-            self.tr("Exporting..."),
-            self.tr("Cancel"),
-            0,
-            len(image_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, image_file in enumerate(image_list):
-                image_file_name = osp.basename(image_file)
-                label_file_name = osp.splitext(image_file_name)[0] + ".json"
-                label_file = osp.join(osp.dirname(image_file), label_file_name)
-                if mode == "rec":
-                    converter.custom_to_ppocr(
-                        image_file, label_file, save_path, mode
-                    )
-                elif mode == "kie":
-                    class_set = converter.custom_to_ppocr(
-                        image_file, label_file, save_path, mode
-                    )
-                    total_class_set = total_class_set.union(class_set)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-
-            if mode == "kie":
-                with open(class_list_file, "w") as f:
-                    for c in total_class_set:
-                        f.writelines(f"{c.upper()}\n")
-
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-
-            # # Show success message
-            save_path = osp.realpath(save_path)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Exporting annotations successfully!"))
-            msg_box.setInformativeText(
-                self.tr(f"Results have been saved to:\n{save_path}")
-            )
-            msg_box.setWindowTitle(self.tr("Success"))
-            msg_box.exec_()
-
-        except Exception as e:
-            logger.error(f"Error occurred while exporting annotations: {e}")
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while exporting annotations.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
 
     # File
     def open_file(self, _value=False):

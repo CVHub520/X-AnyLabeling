@@ -1152,7 +1152,9 @@ class ChatbotDialog(QDialog):
 
         # Create the icon label
         role_label = QLabel()
-        icon_pixmap = QPixmap(set_icon_path(self.default_provider, format="png"))
+        icon_pixmap = QPixmap(
+            set_icon_path(self.default_provider, format="png")
+        )
         scaled_icon = icon_pixmap.scaled(
             *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
         )
@@ -1941,7 +1943,9 @@ class ChatbotDialog(QDialog):
                     if self.stream_handler.stop_requested:
                         stop_event.set()
                         if not self.stream_handler.get_current_message():
-                            self.stream_handler.report_error("Request cancelled by user")
+                            self.stream_handler.report_error(
+                                "Request cancelled by user"
+                            )
                         self.stream_handler.finished.emit(False)
                         self.stream_handler.stop_loading()
                         self.restore_send_button()
