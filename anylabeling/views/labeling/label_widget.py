@@ -3446,6 +3446,12 @@ class LabelingWidget(LabelDialog):
         return True
 
     # QT Overload
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            event.accept()
+            return
+        super(LabelingWidget, self).keyPressEvent(event)
+
     def resizeEvent(self, _):
         if (
             self.canvas
