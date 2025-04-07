@@ -40,7 +40,6 @@ from ...app_info import (
 from . import utils
 from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
-from .label_converter import LabelConverter
 from .logger import logger
 from .shape import Shape
 from .widgets import (
@@ -51,7 +50,6 @@ from .widgets import (
     CrosshairSettingsDialog,
     FileDialogPreview,
     GroupIDFilterComboBox,
-    TextInputDialog,
     ImageCropperDialog,
     LabelDialog,
     LabelFilterComboBox,
@@ -664,7 +662,7 @@ class LabelingWidget(LabelDialog):
         )
         hbb_to_obb = action(
             self.tr("&Convert HBB to OBB"),
-            self.hbb_to_obb,
+            lambda: utils.shape_conversion(self, "hbb_to_obb"),
             icon="convert",
             tip=self.tr(
                 "Perform conversion from horizontal bounding box to oriented bounding box"
@@ -672,7 +670,7 @@ class LabelingWidget(LabelDialog):
         )
         obb_to_hbb = action(
             self.tr("&Convert OBB to HBB"),
-            self.obb_to_hbb,
+            lambda: utils.shape_conversion(self, "obb_to_hbb"),
             icon="convert",
             tip=self.tr(
                 "Perform conversion from oriented bounding box to horizontal bounding box"
@@ -680,10 +678,18 @@ class LabelingWidget(LabelDialog):
         )
         polygon_to_hbb = action(
             self.tr("&Convert Polygon to HBB"),
-            self.polygon_to_hbb,
+            lambda: utils.shape_conversion(self, "polygon_to_hbb"),
             icon="convert",
             tip=self.tr(
                 "Perform conversion from polygon to horizontal bounding box"
+            ),
+        )
+        polygon_to_obb = action(
+            self.tr("&Convert Polygon to OBB"),
+            lambda: utils.shape_conversion(self, "polygon_to_obb"),
+            icon="convert",
+            tip=self.tr(
+                "Perform conversion from polygon to oriented bounding box"
             ),
         )
         open_chatbot = action(
@@ -1427,6 +1433,7 @@ class LabelingWidget(LabelDialog):
                 hbb_to_obb,
                 obb_to_hbb,
                 polygon_to_hbb,
+                polygon_to_obb,
             ),
         )
         utils.add_actions(
@@ -2202,226 +2209,6 @@ class LabelingWidget(LabelDialog):
         result = modify_gid_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
             self.load_file(self.filename)
-
-    def hbb_to_obb(self):
-        label_file_list = self.get_label_file_list()
-        if len(label_file_list) == 0:
-            return
-
-        response = QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be changed"),
-            self.tr("You are about to start a transformation. Continue?"),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        )
-        if response != QtWidgets.QMessageBox.Ok:
-            return
-
-        progress_dialog = QProgressDialog(
-            self.tr("Converting..."),
-            self.tr("Cancel"),
-            0,
-            len(label_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, label_file in enumerate(label_file_list):
-                with open(label_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                for j in range(len(data["shapes"])):
-                    if data["shapes"][j]["shape_type"] == "rectangle":
-                        data["shapes"][j]["shape_type"] = "rotation"
-                        data["shapes"][j]["direction"] = 0
-                with open(label_file, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # Reload the file after processing all label files
-            self.load_file(self.filename)
-
-        except Exception as e:
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while updating labels.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def obb_to_hbb(self):
-        label_file_list = self.get_label_file_list()
-        if len(label_file_list) == 0:
-            return
-
-        response = QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be changed"),
-            self.tr("You are about to start a transformation. Continue?"),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        )
-        if response != QtWidgets.QMessageBox.Ok:
-            return
-
-        progress_dialog = QProgressDialog(
-            self.tr("Converting..."),
-            self.tr("Cancel"),
-            0,
-            len(label_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, label_file in enumerate(label_file_list):
-                with open(label_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                for j in range(len(data["shapes"])):
-                    if data["shapes"][j]["shape_type"] == "rotation":
-                        del data["shapes"][j]["direction"]
-                        data["shapes"][j]["shape_type"] = "rectangle"
-                        points = np.array(data["shapes"][j]["points"])
-                        if len(points) != 4:
-                            continue
-                        xmin = int(np.min(points[:, 0]))
-                        ymin = int(np.min(points[:, 1]))
-                        xmax = int(np.max(points[:, 0]))
-                        ymax = int(np.max(points[:, 1]))
-                        data["shapes"][j]["points"] = [
-                            [xmin, ymin],
-                            [xmax, ymin],
-                            [xmax, ymax],
-                            [xmin, ymax],
-                        ]
-                with open(label_file, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # Reload the file after processing all label files
-            self.load_file(self.filename)
-
-        except Exception as e:
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while updating labels.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
-    def polygon_to_hbb(self):
-        label_file_list = self.get_label_file_list()
-        if len(label_file_list) == 0:
-            return
-
-        response = QtWidgets.QMessageBox.warning(
-            self,
-            self.tr("Current annotation will be changed"),
-            self.tr("You are about to start a transformation. Continue?"),
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok,
-        )
-        if response != QtWidgets.QMessageBox.Ok:
-            return
-
-        progress_dialog = QProgressDialog(
-            self.tr("Converting..."),
-            self.tr("Cancel"),
-            0,
-            len(label_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-
-        try:
-            for i, label_file in enumerate(label_file_list):
-                with open(label_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                for j in range(len(data["shapes"])):
-                    if data["shapes"][j]["shape_type"] == "polygon":
-                        data["shapes"][j]["shape_type"] = "rectangle"
-                        points = np.array(data["shapes"][j]["points"])
-                        if len(points) < 3:
-                            continue
-                        xmin = int(np.min(points[:, 0]))
-                        ymin = int(np.min(points[:, 1]))
-                        xmax = int(np.max(points[:, 0]))
-                        ymax = int(np.max(points[:, 1]))
-                        data["shapes"][j]["points"] = [
-                            [xmin, ymin],
-                            [xmax, ymin],
-                            [xmax, ymax],
-                            [xmin, ymax],
-                        ]
-                with open(label_file, "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # Reload the file after processing all label files
-            self.load_file(self.filename)
-
-        except Exception as e:
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while updating labels.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
 
     def open_chatbot(self):
         dialog = ChatbotDialog(self)

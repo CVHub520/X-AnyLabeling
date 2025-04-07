@@ -1,3 +1,4 @@
+import json
 import math
 import uuid
 
@@ -5,7 +6,118 @@ import numpy as np
 import PIL.Image
 import PIL.ImageDraw
 
-from ..logger import logger
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QProgressDialog
+
+from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils.opencv import get_bounding_boxes
+from anylabeling.views.labeling.widgets import Popup
+from anylabeling.views.labeling.utils.style import *
+from anylabeling.services.auto_labeling.utils import calculate_rotation_theta
+
+
+def shape_conversion(self, mode):
+    label_file_list = self.get_label_file_list()
+    if len(label_file_list) == 0:
+        return
+
+    response = QtWidgets.QMessageBox()
+    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setWindowTitle(self.tr("Warning"))
+    response.setText(self.tr("Current annotation will be changed"))
+    response.setInformativeText(
+        self.tr("Are you sure you want to perform this conversion?")
+    )
+    response.setStandardButtons(
+        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+    )
+    response.setStyleSheet(get_msg_box_style())
+
+    if response.exec_() != QtWidgets.QMessageBox.Ok:
+        return
+
+    progress_dialog = QProgressDialog(
+        self.tr("Converting..."), self.tr("Cancel"), 0, 0, self
+    )
+    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowTitle(self.tr("Progress"))
+    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumHeight(150)
+    progress_dialog.setStyleSheet(get_progress_dialog_style())
+    progress_dialog.show()
+
+    try:
+        for i, label_file in enumerate(label_file_list):
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            
+            for j in range(len(data["shapes"])):
+
+                if mode == "hbb_to_obb" and (data["shapes"][j]["shape_type"] == "rectangle"):
+                    data["shapes"][j]["shape_type"] = "rotation"
+                    data["shapes"][j]["direction"] = 0
+
+                elif mode == "obb_to_hbb" and (data["shapes"][j]["shape_type"] == "rotation"):
+                    del data["shapes"][j]["direction"]
+                    data["shapes"][j]["shape_type"] = "rectangle"
+                    points = np.array(data["shapes"][j]["points"])
+                    if len(points) != 4:
+                        continue
+                    xmin = int(np.min(points[:, 0]))
+                    ymin = int(np.min(points[:, 1]))
+                    xmax = int(np.max(points[:, 0]))
+                    ymax = int(np.max(points[:, 1]))
+                    data["shapes"][j]["points"] = [
+                        [xmin, ymin],
+                        [xmax, ymin],
+                        [xmax, ymax],
+                        [xmin, ymax],
+                    ]
+
+                elif mode == "polygon_to_hbb" and (data["shapes"][j]["shape_type"] == "polygon"):
+                    data["shapes"][j]["shape_type"] = "rectangle"
+                    points = np.array(data["shapes"][j]["points"])
+                    if len(points) < 3:
+                        continue
+                    xmin = int(np.min(points[:, 0]))
+                    ymin = int(np.min(points[:, 1]))
+                    xmax = int(np.max(points[:, 0]))
+                    ymax = int(np.max(points[:, 1]))
+                    data["shapes"][j]["points"] = [
+                        [xmin, ymin],
+                        [xmax, ymin],
+                        [xmax, ymax],
+                        [xmin, ymax],
+                    ]
+
+                elif mode == "polygon_to_obb" and (data["shapes"][j]["shape_type"] == "polygon"):
+                    points = np.array(data["shapes"][j]["points"])
+                    contours = points.reshape((-1, 1, 2)).astype(np.float32)
+                    _, rotation_box = get_bounding_boxes(contours)
+                    data["shapes"][j]["shape_type"] = "rotation"
+                    data["shapes"][j]["points"] = rotation_box.tolist()
+                    data["shapes"][j]["direction"] = calculate_rotation_theta(rotation_box)
+
+            with open(label_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+
+            progress_dialog.setValue(i)
+            if progress_dialog.wasCanceled():
+                break
+
+        progress_dialog.close()
+        popup = Popup(self.tr("Conversion completed successfully!"), 
+                      self, msec=1000, icon="anylabeling/resources/icons/copy-green.svg")
+        popup.show_popup(self, popup_height=65, position="center")
+
+        self.load_file(self.filename)
+
+    except Exception as e:
+        logger.error(f"Error occurred while converting shapes: {e}")
+        popup = Popup(self.tr("Error occurred while converting shapes!"), 
+                      self, msec=1000, icon="anylabeling/resources/icons/error.svg")
+        popup.show_popup(self, position="center")
 
 
 def polygons_to_mask(img_shape, polygons, shape_type=None):
