@@ -64,18 +64,19 @@ class LabelFile:
         try:
             with io_open(filename, "r") as f:
                 data = json.load(f)
-            version = data.get("version")
-            if version is None:
+
+            if data.get("version") is None:
                 logger.warning(
                     f"Loading JSON file ({filename}) of unknown version"
                 )
 
-            # Deprecated
             if data["shapes"]:
                 for i in range(len(data["shapes"])):
-                    shape_type = data["shapes"][i]["shape_type"]
                     shape_points = data["shapes"][i]["points"]
-                    if shape_type == "rectangle" and len(shape_points) == 2:
+                    if (
+                        data["shapes"][i]["shape_type"] == "rectangle"
+                        and len(shape_points) == 2
+                    ):
                         logger.warning(
                             "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
                             "Please update your code to accommodate the new four-point mode."
@@ -96,14 +97,18 @@ class LabelFile:
                         osp.dirname(filename), data["imagePath"]
                     )
                 image_data = self.load_image_file(image_path)
-            flags = data.get("flags") or {}
+
+            flags = data.get("flags", {})
             image_path = data["imagePath"]
+
             self._check_image_height_and_width(
                 base64.b64encode(image_data).decode("utf-8"),
                 data.get("imageHeight"),
                 data.get("imageWidth"),
             )
+
             shapes = [Shape().load_from_dict(s) for s in data["shapes"]]
+
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
 

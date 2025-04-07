@@ -1,5 +1,6 @@
 # flake8: noqa
 
+from .batch import run_all_images
 from .general import (
     gradient_text,
     hex_to_rgb,

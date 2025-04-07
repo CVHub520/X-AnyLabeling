@@ -2180,7 +2180,12 @@ class ModelManager(QObject):
             self.loaded_model_config = None
 
     def predict_shapes(
-        self, image, filename=None, text_prompt=None, run_tracker=False
+        self,
+        image,
+        filename=None,
+        text_prompt=None,
+        run_tracker=False,
+        batch=False,
     ):
         """Predict shapes.
         NOTE: This function is blocking. The model can take a long time to
@@ -2192,6 +2197,7 @@ class ModelManager(QObject):
             )
             self.prediction_finished.emit()
             return
+
         try:
             if text_prompt is not None:
                 auto_labeling_result = self.loaded_model_config[
@@ -2205,10 +2211,15 @@ class ModelManager(QObject):
                 auto_labeling_result = self.loaded_model_config[
                     "model"
                 ].predict_shapes(image, filename)
-            self.new_auto_labeling_result.emit(auto_labeling_result)
-            self.new_model_status.emit(
-                self.tr("Finished inferencing AI model. Check the result.")
-            )
+
+            if batch:
+                return auto_labeling_result
+            else:
+                self.new_auto_labeling_result.emit(auto_labeling_result)
+                self.new_model_status.emit(
+                    self.tr("Finished inferencing AI model. Check the result.")
+                )
+
         except Exception as e:  # noqa
             logger.error(f"Error in predict_shapes: {e}")
             self.new_model_status.emit(
