@@ -1,6 +1,7 @@
 # flake8: noqa
 
 from .batch import run_all_images
+from .crop import save_crop
 from .general import (
     gradient_text,
     hex_to_rgb,

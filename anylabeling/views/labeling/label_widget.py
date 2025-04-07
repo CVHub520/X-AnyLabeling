@@ -47,7 +47,6 @@ from .widgets import (
     CrosshairSettingsDialog,
     FileDialogPreview,
     GroupIDFilterComboBox,
-    ImageCropperDialog,
     LabelDialog,
     LabelFilterComboBox,
     LabelListWidget,
@@ -622,7 +621,7 @@ class LabelingWidget(LabelDialog):
         )
         save_crop = action(
             self.tr("&Save Cropped Image"),
-            self.save_crop,
+            lambda: utils.save_crop(self),
             icon="crop",
             tip=self.tr(
                 "Save cropped image. (Support rectangle/rotation/polygon shape_type)"
@@ -2061,11 +2060,6 @@ class LabelingWidget(LabelDialog):
     def overview(self):
         if self.filename:
             OverviewDialog(parent=self)
-
-    def save_crop(self):
-        ImageCropperDialog(
-            self.filename, self.image_list, self.output_dir, parent=self
-        )
 
     def save_mask(self):
         if not self.filename or not self.image_list:
