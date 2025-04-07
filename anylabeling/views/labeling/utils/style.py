@@ -1,6 +1,6 @@
-def get_progress_dialog_style():
-    return """
-        QProgressDialog {
+def get_progress_dialog_style(color=None, height=None):
+    return f"""
+        QProgressDialog {{
             background-color: rgba(255, 255, 255, 0.95);
             border-radius: 12px;
             min-width: 280px;
@@ -9,37 +9,37 @@ def get_progress_dialog_style():
             backdrop-filter: blur(20px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08),
                         0 2px 6px rgba(0, 0, 0, 0.04);
-        }
-        QProgressBar {
+        }}
+        QProgressBar {{
             border: none;
             border-radius: 4px;
             background-color: rgba(0, 0, 0, 0.05);
             text-align: center;
-            color: transparent;
+            color: {"transparent" if color is None else color};
             font-size: 13px;
-            min-height: 6px;
-            max-height: 6px;
+            min-height: {6 if height is None else height}px;
+            max-height: {6 if height is None else height}px;
             margin: 16px 0;
-        }
-        QProgressBar::chunk {
+        }}
+        QProgressBar::chunk {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
                 stop:0 #0066FF,
                 stop:0.5 #00A6FF,
                 stop:1 #0066FF);
             border-radius: 3px;
-        }
-        QLabel#progressLabel {
+        }}
+        QLabel#progressLabel {{
             color: #1d1d1f;
             font-size: 13px;
             font-weight: 500;
             margin-bottom: 8px;
-        }
-        QLabel#detailLabel {
+        }}
+        QLabel#detailLabel {{
             color: #86868b;
             font-size: 11px;
             margin-top: 4px;
-        }
-        QPushButton {
+        }}
+        QPushButton {{
             background-color: rgba(255, 255, 255, 0.8);
             border: 0.5px solid rgba(0, 0, 0, 0.1);
             border-radius: 6px;
@@ -50,13 +50,13 @@ def get_progress_dialog_style():
             height: 36px;
             padding: 0 16px;
             margin-top: 16px;
-        }
-        QPushButton:hover {
+        }}
+        QPushButton:hover {{
             background-color: rgba(0, 0, 0, 0.05);
-        }
-        QPushButton:pressed {
+        }}
+        QPushButton:pressed {{
             background-color: rgba(0, 0, 0, 0.08);
-        }
+        }}
     """
 
 

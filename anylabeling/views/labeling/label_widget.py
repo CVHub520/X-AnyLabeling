@@ -8,10 +8,7 @@ import re
 import shutil
 
 import cv2
-from difflib import SequenceMatcher
-
 import imgviz
-import natsort
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSlot
@@ -301,7 +298,7 @@ class LabelingWidget(LabelDialog):
         )
         openvideo = action(
             self.tr("&Open Video"),
-            self.open_video_file,
+            lambda: utils.open_video_file(self),
             shortcuts["open_video"],
             "video",
             self.tr("Open video file"),
@@ -1927,9 +1924,7 @@ class LabelingWidget(LabelDialog):
     def reset_attribute(self, text):
         valid_labels = list(self.attributes.keys())
         if text not in valid_labels:
-            most_similar_label = self.find_most_similar_label(
-                text, valid_labels
-            )
+            most_similar_label = utils.find_most_similar_label(text, valid_labels)
             self.error_message(
                 self.tr("Invalid label"),
                 self.tr(
@@ -3918,43 +3913,6 @@ class LabelingWidget(LabelDialog):
         self.canvas.end_move(copy=False)
         self.set_dirty()
 
-    def open_video_file(self, _value=False):
-        if not self.may_continue():
-            return
-        default_open_video_path = (
-            osp.dirname(str(self.filename)) if self.filename else "."
-        )
-        supportedVideoFormats = (
-            "*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv"
-        )
-        source_video_path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self,
-            self.tr("%s - Open Video file") % __appname__,
-            default_open_video_path,
-            supportedVideoFormats,
-        )
-
-        # Check if the path contains Chinese characters
-        if utils.is_chinese(source_video_path):
-            QMessageBox.warning(
-                self,
-                self.tr("Warning"),
-                self.tr(
-                    "File path contains Chinese characters, invalid path!"
-                ),
-                QMessageBox.Ok,
-            )
-            return
-
-        if osp.exists(source_video_path):
-            target_dir_path = utils.extract_frames_from_video(
-                self, source_video_path
-            )
-            logger.info(
-                f"🔍 Frames have been successfully extracted to {target_dir_path}"
-            )
-            self.import_image_folder(target_dir_path)
-
     def open_folder_dialog(self, _value=False, dirpath=None):
         if not self.may_continue():
             return
@@ -4032,7 +3990,7 @@ class LabelingWidget(LabelDialog):
         self.last_open_dir = dirpath
         self.filename = None
         self.file_list_widget.clear()
-        for filename in self.scan_all_images(dirpath):
+        for filename in utils.scan_all_images(dirpath):
             if pattern and pattern not in filename:
                 continue
             label_file = osp.splitext(filename)[0] + ".json"
@@ -4051,34 +4009,6 @@ class LabelingWidget(LabelDialog):
             self.fn_to_index[filename] = self.file_list_widget.count() - 1
             utils.process_image_exif(filename)
         self.open_next_image(load=load)
-
-    def scan_all_images(self, folder_path):
-        try:
-            extensions = [
-                f".{fmt.data().decode().lower()}"
-                for fmt in QtGui.QImageReader.supportedImageFormats()
-            ]
-
-            images = []
-            folder_path = osp.normpath(osp.abspath(folder_path))
-
-            for root, _, files in os.walk(folder_path):
-                for file in files:
-                    if file.lower().endswith(tuple(extensions)):
-                        relative_path = osp.normpath(osp.join(root, file))
-                        relative_path = str(relative_path)
-                        images.append(relative_path)
-
-            try:
-                return natsort.os_sorted(images)
-            except (OSError, ValueError) as e:
-                logger.warning(
-                    f"Warning: Natural sort failed, falling back to regular sort: {e}"
-                )
-                return sorted(images)
-        except Exception as e:
-            logger.error(f"Error scanning images: {e}")
-            return []
 
     def toggle_auto_labeling_widget(self):
         """Toggle auto labeling widget visibility."""
@@ -4188,19 +4118,6 @@ class LabelingWidget(LabelDialog):
 
         # No label is found
         return ""
-
-    @staticmethod
-    def find_most_similar_label(text, valid_labels):
-        max_similarity = 0
-        most_similar_label = valid_labels[0]
-
-        for label in valid_labels:
-            similarity = SequenceMatcher(None, text, label).ratio()
-            if similarity > max_similarity:
-                max_similarity = similarity
-                most_similar_label = label
-
-        return most_similar_label
 
     def set_cache_auto_label(self):
         self.auto_labeling_widget.on_cache_auto_label_changed(

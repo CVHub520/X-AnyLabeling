@@ -1,10 +1,41 @@
+import natsort
+import os
 import os.path as osp
 from math import sqrt
 
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-here = osp.dirname(osp.abspath(__file__))
+from anylabeling.views.labeling.logger import logger
+
+
+def scan_all_images(folder_path):
+    try:
+        extensions = [
+            f".{fmt.data().decode().lower()}"
+            for fmt in QtGui.QImageReader.supportedImageFormats()
+        ]
+
+        images = []
+        folder_path = osp.normpath(osp.abspath(folder_path))
+
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                if file.lower().endswith(tuple(extensions)):
+                    relative_path = osp.normpath(osp.join(root, file))
+                    relative_path = str(relative_path)
+                    images.append(relative_path)
+
+        try:
+            return natsort.os_sorted(images)
+        except (OSError, ValueError) as e:
+            logger.warning(
+                f"Warning: Natural sort failed, falling back to regular sort: {e}"
+            )
+            return sorted(images)
+    except Exception as e:
+        logger.error(f"Error scanning images: {e}")
+        return []
 
 
 def new_icon(icon):

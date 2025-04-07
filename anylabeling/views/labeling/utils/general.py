@@ -4,8 +4,9 @@ import textwrap
 import platform
 import subprocess
 import webbrowser
-from typing import Iterator, Tuple
+from difflib import SequenceMatcher
 from importlib_metadata import version as get_package_version
+from typing import Iterator, Tuple
 
 
 def format_bold(text):
@@ -108,6 +109,19 @@ def collect_system_info():
     }
 
     return system_info, pkg_info
+
+
+def find_most_similar_label(text, valid_labels):
+    max_similarity = 0
+    most_similar_label = valid_labels[0]
+
+    for label in valid_labels:
+        similarity = SequenceMatcher(None, text, label).ratio()
+        if similarity > max_similarity:
+            max_similarity = similarity
+            most_similar_label = label
+
+    return most_similar_label
 
 
 def get_installed_package_version(package_name):

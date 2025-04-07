@@ -168,6 +168,8 @@ def upload_ppocr_annotation(self, mode):
                 self,
                 icon="anylabeling/resources/icons/warning.svg",
             )
+            popup.show_popup(self, position="center")
+            return
 
     response = QtWidgets.QMessageBox()
     response.setIcon(QtWidgets.QMessageBox.Warning)
@@ -594,7 +596,9 @@ def upload_mask_annotation(self, LABEL_OPACITY):
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style())
+    progress_dialog.setStyleSheet(get_progress_dialog_style(
+        color="#1d1d1f", height=20
+    ))
 
     try:
         for i, image_filename in enumerate(image_file_list):
@@ -749,7 +753,9 @@ def upload_dota_annotation(self):
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style())
+    progress_dialog.setStyleSheet(get_progress_dialog_style(
+        color="#1d1d1f", height=20
+    ))
 
     try:
         for i, image_path in enumerate(image_list):
@@ -1000,7 +1006,9 @@ def upload_voc_annotation(self, mode):
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style())
+    progress_dialog.setStyleSheet(get_progress_dialog_style(
+        color="#1d1d1f", height=20
+    ))
 
     try:
         for i, image_path in enumerate(image_list):
@@ -1203,7 +1211,9 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style())
+    progress_dialog.setStyleSheet(get_progress_dialog_style(
+        color="#1d1d1f", height=20
+    ))
 
     try:
         for i, image_filename in enumerate(image_file_list):
