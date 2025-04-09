@@ -23,7 +23,6 @@ from PyQt5.QtWidgets import (
     QWhatsThis,
     QWidget,
     QMessageBox,
-    QProgressDialog,
     QScrollArea,
 )
 
@@ -40,6 +39,7 @@ from .label_file import LabelFile, LabelFileError
 from .logger import logger
 from .shape import Shape
 from .widgets import (
+    AboutDialog,
     AutoLabelingWidget,
     BrightnessContrastDialog,
     Canvas,
@@ -627,14 +627,6 @@ class LabelingWidget(LabelDialog):
                 "Save cropped image. (Support rectangle/rotation/polygon shape_type)"
             ),
         )
-        save_mask = action(
-            self.tr("&Save Masked Image"),
-            self.save_mask,
-            icon="crop",
-            tip=self.tr(
-                "Save masked image. (Support rectangle/rotation/polygon shape_type)"
-            ),
-        )
         label_manager = action(
             self.tr("&Label Manager"),
             self.label_manager,
@@ -702,17 +694,11 @@ class LabelingWidget(LabelDialog):
             icon="docs",
             tip=self.tr("Show documentation"),
         )
-        contact = action(
-            self.tr("&Contact me"),
-            self.contact,
-            icon="contact",
-            tip=self.tr("Show contact page"),
-        )
-        information = action(
-            self.tr("&Information"),
-            self.information,
+        about = action(
+            self.tr("&About"),
+            self.about,
             icon="help",
-            tip=self.tr("Show system information"),
+            tip=self.tr("Open about dialog"),
         )
 
         loop_thru_labels = action(
@@ -1421,7 +1407,6 @@ class LabelingWidget(LabelDialog):
                 overview,
                 None,
                 save_crop,
-                save_mask,
                 None,
                 label_manager,
                 gid_manager,
@@ -1436,8 +1421,8 @@ class LabelingWidget(LabelDialog):
             self.menus.help,
             (
                 documentation,
-                contact,
-                information,
+                None,
+                about,
             ),
         )
         utils.add_actions(
@@ -2061,130 +2046,6 @@ class LabelingWidget(LabelDialog):
         if self.filename:
             OverviewDialog(parent=self)
 
-    def save_mask(self):
-        if not self.filename or not self.image_list:
-            return
-
-        default_color = QtGui.QColor(114, 114, 114)
-        color = QtWidgets.QColorDialog.getColor(
-            default_color,
-            self,
-            self.tr("Select a color to use for masking the areas"),
-        )
-        if not color.isValid():
-            return
-        else:
-            fill_color = color.getRgb()[:3]
-
-        image_file_list, label_dir_path = self.image_list, ""
-        label_dir_path = osp.dirname(self.filename)
-        if self.output_dir:
-            label_dir_path = self.output_dir
-        save_path = osp.join(
-            osp.dirname(self.filename), "..", "x-anylabeling-mask-image"
-        )
-        if osp.exists(save_path):
-            shutil.rmtree(save_path)
-        os.makedirs(save_path)
-
-        progress_dialog = QProgressDialog(
-            self.tr("Processing..."),
-            self.tr("Cancel"),
-            0,
-            len(image_file_list),
-        )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
-            """
-        QProgressDialog QProgressBar {
-            border: 1px solid grey;
-            border-radius: 5px;
-            text-align: center;
-        }
-        QProgressDialog QProgressBar::chunk {
-            background-color: orange;
-        }
-        """
-        )
-        try:
-            for i, image_file in enumerate(image_file_list):
-                image_name = osp.basename(image_file)
-                label_name = osp.splitext(image_name)[0] + ".json"
-                label_file = osp.join(label_dir_path, label_name)
-                if not osp.exists(label_file):
-                    continue
-                bk_image_file = osp.join(save_path, image_name)
-                image = cv2.imread(image_file)
-                with open(label_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                shapes = data["shapes"]
-                for shape in shapes:
-                    label = shape["label"]
-                    points = shape["points"]
-                    shape_type = shape["shape_type"]
-                    if label != "__mask__" or shape_type not in [
-                        "rectangle",
-                        "polygon",
-                        "rotation",
-                    ]:
-                        continue
-                    if (
-                        (shape_type == "polygon" and len(points) < 3)
-                        or (shape_type == "rotation" and len(points) != 4)
-                        or (shape_type == "rectangle" and len(points) != 4)
-                    ):
-                        continue
-                    points = np.array(points, dtype=np.int32)
-                    if shape["shape_type"] == "rectangle":
-                        top_left = tuple(points[0])
-                        bottom_right = tuple(points[2])
-                        cv2.rectangle(
-                            image,
-                            top_left,
-                            bottom_right,
-                            fill_color,
-                            thickness=-1,
-                        )
-                    elif shape["shape_type"] == "rotation":
-                        rect = cv2.minAreaRect(points)
-                        box = cv2.boxPoints(rect)
-                        box = np.int0(box)
-                        cv2.drawContours(
-                            image, [box], 0, fill_color, thickness=cv2.FILLED
-                        )
-                    elif shape["shape_type"] == "polygon":
-                        cv2.fillPoly(image, [points], fill_color)
-                cv2.imwrite(bk_image_file, image)
-                # Update progress bar
-                progress_dialog.setValue(i)
-                if progress_dialog.wasCanceled():
-                    break
-
-            # Hide the progress dialog after processing is done
-            progress_dialog.close()
-            # Show success message
-            save_path = osp.realpath(save_path)
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText(self.tr("Masking completed successfully!"))
-            msg_box.setInformativeText(
-                self.tr(f"Results have been saved to:\n{save_path}")
-            )
-            msg_box.setWindowTitle(self.tr("Success"))
-            msg_box.exec_()
-
-        except Exception as e:
-            progress_dialog.close()
-            error_dialog = QMessageBox()
-            error_dialog.setIcon(QMessageBox.Critical)
-            error_dialog.setText(
-                self.tr("Error occurred while masking image.")
-            )
-            error_dialog.setInformativeText(str(e))
-            error_dialog.setWindowTitle(self.tr("Error"))
-            error_dialog.exec_()
-
     def label_manager(self):
         modify_label_dialog = LabelModifyDialog(
             parent=self, opacity=LABEL_OPACITY
@@ -2210,31 +2071,9 @@ class LabelingWidget(LabelDialog):
         )
         utils.general.open_url(url)
 
-    def contact(self):
-        url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/"  # NOQA
-        utils.general.open_url(url)
-
-    def information(self):
-        app_info = (
-            f"App name: {__appname__}\n"
-            f"App version: {__version__}\n"
-            f"Device: {__preferred_device__}\n"
-        )
-        system_info, pkg_info = utils.general.collect_system_info()
-        system_info_str = "\n".join(
-            [f"{key}: {value}" for key, value in system_info.items()]
-        )
-        pkg_info_str = "\n".join(
-            [f"{key}: {value}" for key, value in pkg_info.items()]
-        )
-        msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
-
-        popup = Popup(
-            self.tr("Copied!"),
-            self,
-            icon="anylabeling/resources/icons/copy-green.svg",
-        )
-        popup.show_popup(self, copy_msg=msg)
+    def about(self):
+        about_dialog = AboutDialog(self)
+        _ = about_dialog.exec_()
 
     def loop_thru_labels(self):
         self.label_loop_count += 1

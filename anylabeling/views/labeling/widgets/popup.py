@@ -23,7 +23,7 @@ def is_wsl():
 
 
 class Popup(QWidget):
-    def __init__(self, text, parent=None, msec=5000, icon=None):
+    def __init__(self, text, parent=None, msec=3000, icon=None):
         super().__init__(
             parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
         )
@@ -100,7 +100,6 @@ class Popup(QWidget):
                 # Use Qt clipboard for Windows/other environments
                 clipboard = QApplication.clipboard()
                 clipboard.setText(copy_msg)
-            self.close()
 
         # Calculate position based on preference
         parent_geo = parent_widget.geometry()
@@ -118,7 +117,7 @@ class Popup(QWidget):
             y = parent_geo.y() + parent_geo.height() - popup_height - 20
         else:  # "default" - top position
             x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
-            y = parent_geo.y() + 20
+            y = parent_geo.y() + 100
 
         self.setGeometry(x, y, popup_width, popup_height)
         self.show()

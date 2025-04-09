@@ -1,5 +1,6 @@
 # flake8: noqa
 
+from .about_dialog import AboutDialog
 from .auto_labeling import AutoLabelingWidget
 from .brightness_contrast_dialog import BrightnessContrastDialog
 from .canvas import Canvas

@@ -4,7 +4,6 @@ import os
 import os.path as osp
 import shutil
 from pathlib import Path
-from tqdm import tqdm
 
 import cv2
 import numpy as np

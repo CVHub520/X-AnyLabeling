@@ -1,0 +1,629 @@
+# X-AnyLabeling Changelog
+
+
+## `v2.5.4` (Feb 18, 2024)
+
+### 🚀 New Features
+
+- Support `YOLOv8-SAM2.1` instance segmentation model
+
+### 🐛 Bug Fixes
+
+- Improve canvas painting state management during image processing
+- Reset `pose_data` for each new image in pose mode (#791)
+
+### 🛠️ Improvements
+
+- Add guide for selecting all annotation shapes (#759)
+- Remove `YOLOv8-EfficientViT-SAM` model support
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @aiyou9, @CVHub520
+
+
+## `v2.5.3` (Jan 12, 2024)
+
+### 🐛 Bug Fixes
+
+- Fix loading mistake in batch processing (#777)
+- Reset `pose_data` for each new image in pose mode (#791)
+
+### 🛠️ Improvements
+
+- Optimize performance for large files (#743)
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.5.2` (Jan 02, 2024)
+
+### 🚀 New Features
+
+- Enhance export functionality with `classes.txt` and zip output (#775)
+
+### 🐛 Bug Fixes
+
+- Fix image dimension validation errors (#762)
+
+### 🛠️ Improvements
+
+- Update downloads badges in `README`
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.5.1` (Jan 01, 2024)
+
+### 🚀 New Features
+
+- Optimize inference efficiency during batch task execution
+- Support `Hyper-YOLO`
+- Add CPU support and optimize model loading for `Florence-2`
+
+### 🐛 Bug Fixes
+
+- Fix GBK codec decoding error in `RAM` model loading process
+- Fix dtype casting in `RAM` model preprocessing
+- Fix `text_encoder_type` path in `open_vision.yaml`
+
+### 🛠️ Improvements
+
+- Improve visibility in dark mode for MacOS
+- Update `OpenVision` `README` with new installation instructions
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @chevydream, @CVHub520
+
+
+## `v2.5.0` (Oct 15, 2023)
+
+### 🚀 New Features
+
+- Support interactive visual-text prompting for generic vision tasks
+- Optimize rectangle mode in auto-labeling to use minimum bounding box
+- Support `SAM2.1` model
+- Support `Florence-2` model (#679)
+- Support `UPN` model for proposal box generation
+- Support `YOLOv5-SAHI` model
+- Add range selection for label batch modification (#708)
+- Add options dialog with additional export path selection (#702)
+- Support importing/exporting COCO keypoint annotations (#190)
+- Support `DocLayout-YOLO` model
+- Add option to color bounding boxes by category or instance
+- Add action to loop through each label
+
+### 🐛 Bug Fixes
+
+- Handle invalid file paths in natural sort during import (#734)
+- Improve mask overlapping handling in `custom_to_mask` method during export
+- Fix path parsing error of `save_crop` function
+- Disable delete action when no shapes present
+- Fix image normalization in `Recognize-Anything-Model` preprocessing (#657)
+
+### 🛠️ Improvements
+
+- Add ONNX Runtime compatibility information to installation docs
+- Modernize `GroupIDModifyDialog` with improved styling
+
+### 🌟 Contributors
+
+A total of 3 developers contributed to this release.
+
+Thank @julianstirling, @CVHub520, @wpNZC
+
+
+## `v2.4.4` (Sep 30, 2023)
+
+### 🚀 New Features
+
+- Support `YOLOv11` Det/OBB/Pose/Seg/Track models (integrating Ultralytics v8.3.0)
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.4.3` (Sep 08, 2023)
+
+### 🚀 New Features
+
+- Support `RMBG v1.4` model for image matting
+
+### 🐛 Bug Fixes
+
+- Ensure integer values for shape dimensions in `show_shape` signal
+- Fix model loading error for `YOLOv6lite` face models (#638)
+
+### 🛠️ Improvements
+
+- Enhance logging with bold and colored headers
+- Modify indexing operations to improve file navigation efficiency
+- Improve EXIF orientation handling with backup and logging
+- Implement natural sorting for `QListWidget` labels (#627)
+- Support user-defined labels and track IDs (#629)
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.4.2` (Sep 06, 2023)
+
+### 🚀 New Features
+
+- Support interactive video object tracking by `SAM2` (#602)
+- Implement functionality to visualize drawing results
+
+### 🐛 Bug Fixes
+
+- Fix typo in `upload_coco_annotation` function
+
+### 🛠️ Improvements
+
+- Add vscode configuration files for module debugging and profiling
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.4.1` (Aug 29, 2023)
+
+### 🚀 New Features
+
+- Add dialog for modifying `group_id`
+- Support exporting MOTS annotations
+
+### 🐛 Bug Fixes
+
+- Fix patch memory leak in image caching during image transitions
+- Retain labels during switch model instances
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.4.0` (Jul 14, 2023)
+
+### 🚀 New Features
+
+- Implement masked image saving functionality
+- Support tracking by HBB/OBB/SEG/POSE task
+- Support `GroundingSAM2` model
+- Support lightweight model for Japanese recognition
+- Support `Segment-Anything-2` model
+- Enable `move_mode` parameter in `label_dialog`
+- Add `use_system_clipboard` action
+- Enable import/export of ODVG annotations (`Grounding DINO` dataset)
+- Support `RT-DETRv2` model
+- Support `RAM++` and `YOLOW-RAM++` models
+- Implement feature to draw KIE linking lines with arrowheads
+- Support displaying and exporting shape-level information
+- Enable `Depth-Anything` model prediction (color/grayscale)
+- Add import/export functionality for PPOCR-KIE annotations
+- Support annotating KIE linking field
+- Support annotating out-of-pixmap rotation shapes
+- Support `depth-anything-v2` model
+- Add import/export functionality for PPOCR label
+- Add toggle for continuous drawing mode
+- Support union of multiple selected rectangle shapes
+- Add system clipboard copy mode
+- Add ability to delete label items based on checkbox selection
+- Enable opening previous/next labeled image
+- Implement crosshair and marking box style customization
+- Add widget for converting polygon to HBB
+- Add `YOLO-Pose` import/export functionality
+- Enable exporting VOC-format annotations for polygon shape
+- Add preserve existing annotations checkbox and real-time confidence adjustment
+- Add visibility feature for keypoint detection task
+- Support `YOLOv8-World` and `YOLOv8-OIV7` models
+- Add feature to display confidence score
+
+### 🐛 Bug Fixes
+
+- Fix image distortion issue during brightness/contrast adjustment
+- Fix `TypeError` in `fillRect` for higher Python versions
+- Fix `too many values to unpack` error during YOLO class post-process
+- Fix `invalid literal for int()` with base issue
+- Avoid `directory not empty` error when loading model
+- Prevent crash when switching from image directory to imported image
+- Fix BMP image loading issue (missing `_getexif` attribute)
+
+### 🛠️ Improvements
+
+- Refresh X-Anything app icon
+- Implement structured `ISSUE_TEMPLATE`
+- Add `SECURITY.md` file
+- Optimize code related to "actions"
+- Add extensive documentation examples for various tasks (OCR, MOT, Pose, Segmentation, Detection, Depth, Description, Classification)
+- Add `faq.md` file
+
+### 🌟 Contributors
+
+A total of 3 developers contributed to this release.
+
+Thank @UnlimitedWand, @PairZhu, @CVHub520
+
+
+## `v2.3.7` (May 29, 2023) - *Pre-release*
+
+### 🚀 New Features
+
+- Support `YOLOv8-World` and `YOLOv8-OIV7` models
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.3.6` (May 25, 2023)
+
+### 🐛 Bug Fixes
+
+- Fix `TypeError` in YOLO model (ensure `setText` accepts only strings)
+- Fix `ValueError` by adding a check for selected shape existence (#388)
+- Fix `list index out of range` when exporting DOTA annotations
+
+### 🛠️ Improvements
+
+- Optimize brightness and contrast adjustment performance
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.3.5` (Apr 01, 2023)
+
+### 🚀 New Features
+
+- Enhance image cropping: polygon and rotation `shape_type` support (#331)
+- Add widget for converting OBB to HBB
+
+### 🐛 Bug Fixes
+
+- Fix `TypeError` in YOLO model (ensure `setText` accepts only strings)
+- Fix `IndexError` in Canvas widget's shape module (#332)
+- Fix invalid path issue when loading JSON file in Windows environment
+
+### 🛠️ Improvements
+
+- Refine canvas reset behavior to prevent unintended blank canvas
+- Improve performance for loading large image files
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.3.4` (Mar 16, 2023)
+
+### 🚀 New Features
+
+- Support `YOLO-World` model
+- Enable label display feature
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.3.3` (Feb 27, 2023)
+
+### 🚀 New Features
+
+- Add expanded sub-image save feature
+- Support converting YOLO-HBB/OBB/SEG labels to custom format
+
+### 🛠️ Improvements
+
+- Add real-time progress bar for mask annotation uploads
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.3.2` (Feb 24, 2023)
+
+### 🚀 New Features
+
+- Support `YOLOv9` model
+- Support converting horizontal bounding box (HBB) to rotated bounding box (OBB)
+- Support label deletion and renaming
+- Support quick tag correction
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.3.1` (Jan 31, 2023)
+
+### 🚀 New Features
+
+- Support saving cropped rectangle shapes
+- Combine `CLIP` and `SAM` models
+- Support `Depth Anything` model for depth estimation
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.3.0` (Jan 13, 2023)
+
+### 🚀 New Features
+
+- Support `YOLOv8-OBB` model
+- Support `RTMDet` and `RTMO` models
+- Release Chinese license plate detection and recognition model based on `YOLOv5`
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.2.0` (Dec 26, 2022)
+
+### 🚀 New Features
+
+- Add label background color rendering
+- Add one-click clear point prompts in SAM annotation mode
+- Extend rectangle box editing to four-point editing mode
+- Support automatically switching to editing mode on hover
+- Implement one-click export for segmented mask images
+- Add one-click import/export for YOLO/VOC/COCO/DOTA/MASK/MOT labels
+- Introduce data statistics for the current task
+- Add functionality to hide/show selected objects
+- Add real-time preview of filename and annotation progress
+- Support "Difficult" label
+- Add bottom status bar displaying mouse coordinates and selected object dimensions
+- Enable direct modification of object text descriptions in the label editing box
+
+### 🛠️ Improvements
+
+- Remove confirmation dialog for object deletion
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.1.0` (Nov 24, 2022)
+
+- Support `InternImage` classification model
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v2.0.0` (Nov 13, 2022)
+
+### 🚀 New Features
+
+- Support `Grounding-SAM` (`GroundingDINO` + `HQ-SAM`)
+- Enhance support for `HQ-SAM` model
+- Support `PersonAttribute` and `VehicleAttribute` models for multi-label classification
+- Introduce multi-label attribute annotation functionality
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v1.1.0` (Nov 06, 2022)
+
+### 🚀 New Features
+
+- Support pose estimation: `YOLOv8-Pose` (#103)
+- Support object-level tagging with `yolov5_ram`
+- Add capability to adjust `keep_prev_brightness` and `keep_prev_contrast` (#104)
+- Add feature for batch labeling arbitrary unknown categories based on `Grounding-DINO`
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v1.0.0` (Oct 25, 2022)
+
+### 🚀 New Features
+
+- Release X-AnyLabeling `v1.0.0`
+- Add rotation box annotation feature
+- Support `YOLOv5-OBB` with `DroneVehicle` and `DOTA` models
+- Add `GroundingDINO` model for zero-shot object detection
+- Add `Recognize Anything` model for image tagging
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.3.0` (Oct 10, 2022)
+
+### 🚀 New Features
+
+- Release `Gold-YOLO` and `DAMO-YOLO` models
+- Release MOT algorithm: `OC_Sort` (CVPR'23)
+- Add feature for small object detection using `SAHI`
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.2.4` (Sep 20, 2022)
+
+### 🚀 New Features
+
+- Support `EfficientViT-SAM` model
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.2.3` (Sep 18, 2022)
+
+### 🚀 New Features
+
+- Support `YOLOv5-SAM` model
+
+### 🐛 Bug Fixes
+
+- Fix issues #51, #60, #62
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.2.2` (Sep 14, 2022)
+
+### 🚀 New Features
+
+- Support `PP-OCRv4` model
+- Add Model Lists
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.2.1` (Sep 06, 2022)
+
+*No specific changes listed for this release tag.*
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.2.0` (Aug 09, 2022)
+
+### 🚀 New Features
+
+- Add `MobileSAM`, `MedSAM`, `SAM-Med2D` models
+- Add `LVM-Med` model (Kvasir, ISIC, BUID segmentation)
+- Add `CLRNet` model for lane detection
+- Add `DWPose` model for whole-body pose estimation
+
+### �� Bug Fixes
+
+- Fix `YOLOv8` issue
+- Fix GPU inference result exception
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.1.2` (Jun 20, 2022)
+
+### 🚀 New Features
+
+- Add `YOLO-NAS` model (v3.1.1)
+- Add `YOLOv8-Seg` model
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.1.1` (May 25, 2022)
+
+*Update executable files.*
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
+
+## `v0.1.0` (May 23, 2022)
+
+### 🚀 New Features
+
+- Release initial public version of X-AnyLabeling
+- Support `YOLOv5` (v7.0)
+- Support `YOLOv6` (v0.4.0)
+- Support `YOLOv6Face` (v0.4.0)
+- Support `YOLOv7` (main)
+- Support `YOLOv8` (main)
+- Support `YOLOX` (main)
+- Support `YOLO-NAS` (v3.1.1)
+- Support `YOLOv8-Seg` (main)
+- Support `Mobile-SAM`
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520

@@ -220,9 +220,7 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
 
     except Exception as e:
         logger.error(
-            "Failed to save auto labeling result for image file '%s': %s",
-            image_file,
-            str(e),
+            f"Failed to save auto labeling result for image file '{image_file}': {str(e)}"
         )
 
 
