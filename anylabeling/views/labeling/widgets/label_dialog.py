@@ -12,8 +12,9 @@ from PyQt5.QtWidgets import (
     QCheckBox,
 )
 
-from .. import utils
-from ..logger import logger
+from anylabeling.views.labeling import utils
+from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.widgets.popup import Popup
 
 
 # TODO(unknown):
@@ -27,26 +28,47 @@ def natural_sort_key(s):
 
 
 class GroupIDModifyDialog(QtWidgets.QDialog):
+    """A dialog for modifying group IDs across multiple files."""
+
     def __init__(self, parent=None):
+        """Initialize the dialog.
+
+        Args:
+            parent: The parent widget.
+        """
         super(GroupIDModifyDialog, self).__init__(parent)
+
         self.parent = parent
         self.shape_list = parent.get_label_file_list()
         self.gid_info = self.get_gid_info()
+
         self.init_ui()
 
     def get_gid_info(self):
+        """Get the group IDs from the shape files.
+
+        Returns:
+            list: A list of group IDs.
+        """
+
         gid_info = set()
+
         for shape_file in self.shape_list:
             with open(shape_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
+
             shapes = data.get("shapes", [])
             for shape in shapes:
                 group_id = shape.get("group_id", None)
                 if group_id is not None:
                     gid_info.add(group_id)
+
         return sorted(list(gid_info))
 
     def init_ui(self):
+        """Initialize the UI.
+        """
+
         self.setWindowTitle(self.tr("Group ID Change Manager"))
         self.setWindowFlags(
             self.windowFlags()
@@ -57,12 +79,10 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.resize(640, 480)
         self.move_to_center()
 
-        # Widget layout
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(20)
 
-        # Table settings
         title_list = ["Ori Group-ID", "New Group-ID"]
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(len(title_list))
@@ -81,38 +101,70 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             QTableWidget {
                 border: none;
                 border-radius: 8px;
-                background-color: #f5f5f7;
-                selection-background-color: #e3f2fd;
+                background-color: #FAFAFA;
+                outline: none;
+                selection-background-color: transparent;
+                show-decoration-selected: 0;
+                gridline-color: #EBEBEB;
             }
             QTableWidget::item {
                 padding: 8px;
-                border-bottom: 1px solid #e5e5e5;
+                border-bottom: 1px solid #EBEBEB;
             }
             QTableWidget::item:selected {
-                background-color: #e3f2fd;
+                background-color: transparent;
                 color: #000000;
+                border: none;
+            }
+            QTableWidget::item:focus {
+                border: none;
+                outline: none;
+                background-color: transparent;
+            }
+            QTableWidget::focus {
+                outline: none;
             }
             QHeaderView::section {
-                background-color: #f5f5f7;
+                background-color: #F5F5F7;
                 padding: 12px 8px;
                 border: none;
                 font-weight: 600;
                 color: #1d1d1f;
             }
             QTableWidget QLineEdit {
-                padding: 6px 8px;
+                padding: 2px 8px;
                 margin: 2px 4px;
-                border: 1px solid #d2d2d7;
+                border: 1px solid #D8D8D8;
                 border-radius: 6px;
                 background: white;
                 selection-background-color: #0071e3;
                 min-width: 200px;
             }
             QTableWidget QLineEdit:focus {
-                border: 2px solid #0071e3;
+                border: 3px solid #60A5FA;
+                outline: none;
             }
-        """
+            QTableView QTableCornerButton::section {
+                background-color: #FAFAFA;
+                border: none;
+            }
+            QHeaderView {
+                background-color: #FAFAFA;
+            }
+            QHeaderView::section:vertical {
+                background-color: #FAFAFA;
+                color: #666666;
+                font-weight: 500;
+                padding: 8px;
+                border: none;
+                border-right: 1px solid #EBEBEB;
+            }
+            """
         )
+
+        self.table_widget.verticalHeader().setStyleSheet("color: #666666; font-size: 13px;")
+        self.table_widget.verticalHeader().setDefaultAlignment(Qt.AlignCenter)
+        self.table_widget.verticalHeader().setFixedWidth(30)
 
         # Buttons layout
         self.buttons_layout = QtWidgets.QHBoxLayout()
@@ -125,17 +177,17 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.cancel_button.setStyleSheet(
             """
             QPushButton {
-                background-color: #f5f5f7;
+                background-color: #F5F5F7;
                 color: #1d1d1f;
                 border: none;
                 border-radius: 6px;
                 font-weight: 500;
             }
             QPushButton:hover {
-                background-color: #e5e5e5;
+                background-color: #EBEBEB;
             }
             QPushButton:pressed {
-                background-color: #d5d5d5;
+                background-color: #DEDEDE;
             }
         """
         )
@@ -147,17 +199,17 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.confirm_button.setStyleSheet(
             """
             QPushButton {
-                background-color: rgb(255, 148, 1);
+                background-color: #0071e3;
                 color: white;
                 border: none;
                 border-radius: 6px;
                 font-weight: 500;
             }
             QPushButton:hover {
-                background-color: rgb(255, 158, 11);
+                background-color: #0077ED;
             }
             QPushButton:pressed {
-                background-color: rgb(235, 128, 1);
+                background-color: #0068D0;
             }
         """
         )
@@ -172,12 +224,17 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.populate_table()
 
     def move_to_center(self):
+        """Move the dialog to the center of the screen.
+        """
         qr = self.frameGeometry()
         cp = QtWidgets.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
+
         self.move(qr.topLeft())
 
     def populate_table(self):
+        """Populate the table with the group IDs.
+        """
         for i, group_id in enumerate(self.gid_info):
             self.table_widget.insertRow(i)
 
@@ -202,23 +259,6 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             layout.setAlignment(Qt.AlignCenter)
             layout.addWidget(line_edit)
 
-            line_edit.setStyleSheet(
-                """
-                QLineEdit {
-                    padding: 2px 8px;
-                    margin: 2px 4px;
-                    border: 1px solid #d2d2d7;
-                    border-radius: 6px;
-                    background: white;
-                    font-size: 14px;
-                    min-width: 200px;
-                }
-                QLineEdit:focus {
-                    border: 2px solid #0071e3;
-                }
-            """
-            )
-
             self.table_widget.setItem(i, 0, old_gid_item)
             self.table_widget.setCellWidget(i, 1, container)
 
@@ -226,6 +266,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             self.table_widget.setRowHeight(i, 50)
 
     def confirm_changes(self):
+        """Confirm the changes.
+        """
         total_num = self.table_widget.rowCount()
         if total_num == 0:
             self.reject()
@@ -250,29 +292,35 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                 updated_gid_info[int(old_gid)] = {"new_gid": int(new_gid)}
             else:
                 new_gid_info.append(old_gid)
+
         # Update original gid info
         self.gid_info = new_gid_info
 
         # Try to modify group IDs
         if self.modify_group_id(updated_gid_info):
-            QtWidgets.QMessageBox.information(
-                self,
-                "Success",
-                "Group IDs modified successfully!",
+            popup = Popup(
+                self.parent.tr("Group IDs modified successfully!"),
+                self.parent,
+                icon="anylabeling/resources/icons/copy-green.svg",
             )
+            popup.show_popup(self.parent)
             self.accept()
         else:
-            QtWidgets.QMessageBox.warning(
-                self,
-                "Warning",
-                "An error occurred while updating the Group IDs.",
+            popup = Popup(
+                self.parent.tr("An error occurred while updating the Group IDs."),
+                self.parent,
+                icon="anylabeling/resources/icons/copy-red.svg",
             )
+            popup.show_popup(self.parent)
 
     def modify_group_id(self, updated_gid_info):
+        """Modify the group IDs.
+        """
         try:
             for shape_file in self.shape_list:
                 with open(shape_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
+
                 src_shapes, dst_shapes = data["shapes"], []
                 for shape in src_shapes:
                     group_id = shape.get("group_id")
@@ -284,9 +332,12 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                             ]
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
+
                 with open(shape_file, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
+
             return True
+
         except Exception as e:
             logger.error(f"Error occurred while updating Group IDs: {e}")
             return False
