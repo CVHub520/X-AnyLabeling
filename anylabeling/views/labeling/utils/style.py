@@ -163,3 +163,34 @@ def get_export_option_style():
             image: url("anylabeling/resources/icons/checkmark.svg");
         }
     """
+
+
+def get_spinbox_style():
+    return """
+        QSpinBox {
+            padding: 5px 8px;
+            background: white;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            min-height: 24px;
+            selection-background-color: #0071e3;
+        }
+        QSpinBox::up-button, QSpinBox::down-button {
+            width: 20px;
+            border: none;
+            background: #f0f0f0;
+        }
+        QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+            background: #e0e0e0;
+        }
+        QSpinBox::up-arrow {
+            image: url("anylabeling/resources/icons/caret-up.svg");
+            width: 12px;
+            height: 12px;
+        }
+        QSpinBox::down-arrow {
+            image: url("anylabeling/resources/icons/caret-down.svg");
+            width: 12px;
+            height: 12px;
+        }
+    """

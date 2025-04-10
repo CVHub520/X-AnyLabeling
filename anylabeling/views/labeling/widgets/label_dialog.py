@@ -15,7 +15,10 @@ from PyQt5.QtWidgets import (
 from anylabeling.views.labeling import utils
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets.popup import Popup
-
+from anylabeling.views.labeling.utils.style import (
+    get_ok_btn_style,
+    get_spinbox_style,
+)
 
 # TODO(unknown):
 # - Calculate optimal position so as not to go out of screen area.
@@ -309,7 +312,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             popup = Popup(
                 self.parent.tr("An error occurred while updating the Group IDs."),
                 self.parent,
-                icon="anylabeling/resources/icons/copy-red.svg",
+                icon="anylabeling/resources/icons/error.svg",
             )
             popup.show_popup(self.parent)
 
@@ -434,6 +437,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.from_input.setMaximum(len(self.image_file_list))
         self.from_input.setSingleStep(1)
         self.from_input.setValue(self.start_index)
+        self.from_input.setStyleSheet(get_spinbox_style())
         range_layout.addWidget(from_label)
         range_layout.addWidget(self.from_input)
 
@@ -443,10 +447,12 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.to_input.setMaximum(len(self.image_file_list))
         self.to_input.setSingleStep(1)
         self.to_input.setValue(len(self.image_file_list))
+        self.to_input.setStyleSheet(get_spinbox_style())
         range_layout.addWidget(to_label)
         range_layout.addWidget(self.to_input)
 
         self.range_button = QtWidgets.QPushButton("Go")
+        self.range_button.setStyleSheet(get_ok_btn_style())
         range_layout.addWidget(self.range_button)
         self.range_button.clicked.connect(self.update_range)
 
@@ -584,16 +590,20 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
         if self.modify_label(start_index, end_index):
             self.parent.label_info = updated_label_info
-            QtWidgets.QMessageBox.information(
-                self,
-                "Success",
-                "Labels modified successfully!",
+            popup = Popup(
+                self.tr("Labels modified successfully!"),
+                self.parent,
+                icon="anylabeling/resources/icons/copy-green.svg",
             )
+            popup.show_popup(self.parent)
             self.accept()
         else:
-            QtWidgets.QMessageBox.warning(
-                self, "Warning", "An error occurred while updating the labels."
+            popup = Popup(
+                self.tr("An error occurred while updating the labels."),
+                self.parent,
+                icon="anylabeling/resources/icons/error.svg",
             )
+            popup.show_popup(self.parent)
 
     def modify_label(self, start_index: int = -1, end_index: int = -1):
         try:
