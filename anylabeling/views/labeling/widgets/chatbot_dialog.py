@@ -741,16 +741,23 @@ class ChatbotDialog(QDialog):
         )
         self.right_widget.setFixedWidth(360)
 
+        # Create wrapper for middle widget to handle centering when maximized
+        self.middle_wrapper_widget = QWidget()
+        self.middle_wrapper_layout = QHBoxLayout(self.middle_wrapper_widget)
+        self.middle_wrapper_layout.setContentsMargins(0, 0, 0, 0)
+        self.middle_wrapper_layout.setSpacing(0)
+        self.middle_wrapper_layout.addWidget(self.middle_widget)
+
         # Add panels to main splitter
         self.main_splitter.addWidget(self.left_widget)
-        self.main_splitter.addWidget(self.middle_widget)
+        self.main_splitter.addWidget(self.middle_wrapper_widget)
         self.main_splitter.addWidget(self.right_widget)
         self.main_splitter.setSizes([200, 700, 300])
 
-        # Set stretch factors to ensure middle panel gets priority when resizing
-        self.main_splitter.setStretchFactor(0, 0)
-        self.main_splitter.setStretchFactor(1, 1)
-        self.main_splitter.setStretchFactor(2, 0)
+        # Set stretch factors to ensure middle panel gets priority when resizing (initially)
+        self.main_splitter.setStretchFactor(0, 0) # Left panel fixed size initially
+        self.main_splitter.setStretchFactor(1, 1) # Middle wrapper takes extra space initially
+        self.main_splitter.setStretchFactor(2, 0) # Right panel fixed size initially
 
         main_layout.addWidget(self.main_splitter)
 
@@ -2039,6 +2046,39 @@ class ChatbotDialog(QDialog):
         """Handle window resize event, update message layout constraints"""
         super().resizeEvent(event)
 
+        # Initialize flag if not present
+        if not hasattr(self, '_middle_is_centered'):
+            self._middle_is_centered = False
+
+        is_maximized = self.isMaximized()
+
+        if is_maximized and not self._middle_is_centered:
+            while self.middle_wrapper_layout.count():
+                item = self.middle_wrapper_layout.takeAt(0)
+                if item.widget():
+                    item.widget().setParent(None)
+
+            # Add centered layout: stretch, widget, stretch
+            self.middle_wrapper_layout.addStretch(1)
+            self.middle_wrapper_layout.addWidget(self.middle_widget)
+            self.middle_wrapper_layout.addStretch(1)
+            self.middle_widget.setFixedWidth(700)
+            self._middle_is_centered = True
+            self.main_splitter.setStretchFactor(1, 1)
+
+        elif not is_maximized and self._middle_is_centered:
+            while self.middle_wrapper_layout.count():
+                item = self.middle_wrapper_layout.takeAt(0)
+                if item.widget():
+                    item.widget().setParent(None)
+
+            self.middle_wrapper_layout.addWidget(self.middle_widget)
+            self.middle_widget.setMinimumWidth(0)
+            self.middle_widget.setMaximumWidth(16777215) # QWIDGETSIZE_MAX
+            self._middle_is_centered = False
+            self.main_splitter.setStretchFactor(1, 1)
+
+        # Always update chat message constraints based on middle_widget's current width
         for i in range(self.chat_messages_layout.count()):
             item = self.chat_messages_layout.itemAt(i)
             if item and item.widget():
@@ -2046,6 +2086,7 @@ class ChatbotDialog(QDialog):
                 if hasattr(widget, "update_width_constraint"):
                     widget.update_width_constraint()
 
+        # Update geometries and scroll if needed
         self.chat_container.updateGeometry()
         QApplication.processEvents()
         QTimer.singleShot(100, self.scroll_to_bottom)
