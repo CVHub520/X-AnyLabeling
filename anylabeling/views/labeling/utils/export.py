@@ -259,10 +259,14 @@ def export_yolo_annotation(self, mode):
                 break
 
         progress_dialog.close()
+        template = self.tr(
+            "Exporting annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % save_path
         popup = Popup(
-            self.tr(
-                f"Exporting annotations successfully!\nResults have been saved to:\n{save_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )
@@ -443,10 +447,14 @@ def export_voc_annotation(self, mode):
                 break
 
         progress_dialog.close()
+        template = self.tr(
+            "Exporting annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % save_path
         popup = Popup(
-            self.tr(
-                f"Exporting annotations successfully!\nResults have been saved to:\n{save_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )
@@ -625,10 +633,14 @@ def export_coco_annotation(self, mode):
     def on_export_finished(success, error_msg):
         progress_dialog.close()
         if success:
+            template = self.tr(
+                "Exporting annotations successfully!\n"
+                "Results have been saved to:\n"
+                "%s"
+            )
+            message_text = template % save_path
             popup = Popup(
-                self.tr(
-                    f"Exporting annotations successfully!\nResults have been saved to:\n{save_path}"
-                ),
+                message_text,
                 self,
                 icon="anylabeling/resources/icons/copy-green.svg",
             )
@@ -812,10 +824,14 @@ def export_dota_annotation(self):
                 break
 
         progress_dialog.close()
+        template = self.tr(
+            "Exporting annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % save_path
         popup = Popup(
-            self.tr(
-                f"Exporting annotations successfully!\nResults have been saved to:\n{save_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )
@@ -980,10 +996,14 @@ def export_mask_annotation(self):
                 break
 
         progress_dialog.close()
+        template = self.tr(
+            "Exporting annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % save_path
         popup = Popup(
-            self.tr(
-                f"Exporting annotations successfully!\nResults have been saved to:\n{save_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )
@@ -1142,10 +1162,14 @@ def export_mot_annotation(self, mode):
     def on_export_finished(success, error_msg):
         progress_dialog.close()
         if success:
+            template = self.tr(
+                "Exporting annotations successfully!\n"
+                "Results have been saved to:\n"
+                "%s"
+            )
+            message_text = template % save_path
             popup = Popup(
-                self.tr(
-                    f"Exporting annotations successfully!\nResults have been saved to:\n{save_path}"
-                ),
+                message_text,
                 self,
                 icon="anylabeling/resources/icons/copy-green.svg",
             )
@@ -1330,10 +1354,15 @@ def export_pporc_annotation(self, mode):
                     f.writelines(f"{c.upper()}\n")
 
         progress_dialog.close()
+
+        template = self.tr(
+            "Exporting annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % save_path
         popup = Popup(
-            self.tr(
-                f"Exporting annotations successfully!\nResults have been saved to:\n{save_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )

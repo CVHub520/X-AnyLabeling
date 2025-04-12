@@ -316,9 +316,10 @@ class AboutDialog(QDialog):
         
         layout = QVBoxLayout(dialog)
 
-        title_label = QLabel(
-            self.tr(f"A new version {update_info['latest_version']} is available!")
-        )
+        template = "A new version {version} is available!"
+        translated_template = self.tr(template)
+        display_text = translated_template.format(version=update_info['latest_version'])
+        title_label = QLabel(display_text)
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("""
             font-size: 16px;

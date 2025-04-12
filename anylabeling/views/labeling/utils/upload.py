@@ -622,11 +622,14 @@ def upload_mask_annotation(self, LABEL_OPACITY):
             if progress_dialog.wasCanceled():
                 break
 
-        progress_dialog.close()
+        template = self.tr(
+            "Uploading annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % output_dir_path
         popup = Popup(
-            self.tr(
-                f"Uploading annotations successfully!\nResults have been saved to:\n{output_dir_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )
@@ -781,10 +784,14 @@ def upload_dota_annotation(self):
                 break
 
         progress_dialog.close()
+        template = self.tr(
+            "Uploading annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % output_dir_path
         popup = Popup(
-            self.tr(
-                f"Uploading annotations successfully!\nResults have been saved to:\n{output_dir_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )
@@ -1033,10 +1040,14 @@ def upload_voc_annotation(self, mode):
                 break
 
         progress_dialog.close()
+        template = self.tr(
+            "Uploading annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % output_dir_path
         popup = Popup(
-            self.tr(
-                f"Uploading annotations successfully!\nResults have been saved to:\n{output_dir_path}"
-            ),
+            message_text,
             self,
             icon="anylabeling/resources/icons/copy-green.svg",
         )

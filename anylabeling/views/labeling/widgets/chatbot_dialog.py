@@ -1380,11 +1380,9 @@ class ChatbotDialog(QDialog):
         total_images = len(self.parent().image_list)
 
         if (self.image_index < total_images) and (not self.cancel_processing):
-            progress_dialog.setLabelText(
-                self.tr(
-                    f"Processing image {self.image_index+1}/{total_images}..."
-                )
-            )
+            template = self.tr("Processing image %d/%d...")
+            display_text = template % (self.image_index + 1, total_images)
+            progress_dialog.setLabelText(display_text)
 
             filename = self.parent().image_list[self.image_index]
             self.parent().filename = filename
@@ -1758,12 +1756,12 @@ class ChatbotDialog(QDialog):
                         break  # (NOTE) Only support one image per file
 
                 if imported_count > 0:
+                    template = self.tr("Successfully imported {0} items to:\n{1}")
+                    message_text = template.format(imported_count, current_dir)
                     QMessageBox.information(
                         self,
                         self.tr("Import Successful"),
-                        self.tr(
-                            f"Successfully imported {imported_count} items to:\n{current_dir}"
-                        ),
+                        message_text
                     )
                     self.navigate_image(
                         index=self.parent().image_list.index(

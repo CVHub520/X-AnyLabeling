@@ -20,7 +20,7 @@
 3. ✏️ Drawing and labeling:
    - 📦 Click the `Rect` tool to start
    - 🎯 Draw one or more bounding boxes around objects of interest
-   - ✅ Press `F` or click `Finish Object` when done
+   - ✅ Press `F` or click `Finish` when done
    - 🏷️ Enter the class name for the labeled object
    - ↩️ Made a mistake? Press `B` or click `Clear` to undo
 

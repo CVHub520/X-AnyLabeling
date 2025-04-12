@@ -446,14 +446,18 @@ class OverviewDialog(QtWidgets.QDialog):
             os.remove(shape_infos_path)
             os.remove(classes_path)
 
+            template = self.tr(
+                "Exporting annotations successfully!\n"
+                "Results have been saved to:\n"
+                "%s"
+            )
+            message_text = template % zip_path
             popup = Popup(
-                self.tr(
-                    f"Exporting annotations successfully!\nResults have been saved to:\n{zip_path}"
-                ),
-                self.parent, msec=5000,
+                message_text,
+                self, msec=5000,
                 icon="anylabeling/resources/icons/copy-green.svg",
             )
-            popup.show_popup(self.parent, popup_height=65)
+            popup.show_popup(self, popup_height=65, position="center")
 
         except Exception as e:
             logger.error(f"Error occurred while exporting file: {e}")

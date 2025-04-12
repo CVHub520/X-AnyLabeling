@@ -46,7 +46,8 @@ class FrameExtractionDialog(QDialog):
 
         # Interval input
         interval_layout = QHBoxLayout()
-        interval_label = QLabel(self.tr(f"Extract every N frames (fps: {self.fps:.2f}):"))
+        template = self.tr("Extract every N frames (fps: %.2f):")
+        interval_label = QLabel(template % self.fps)
         self.interval_spin = QSpinBox()
         self.interval_spin.setRange(1, max(1, self.total_frames))
         self.interval_spin.setValue(1)
@@ -113,7 +114,8 @@ class FrameExtractionDialog(QDialog):
 
     def update_example(self):
         example = f"{self.prefix_edit.text()}{str(1).zfill(self.seq_spin.value())}.jpg"
-        self.example_label.setText(self.tr(f"Example output: {example}"))
+        template = self.tr("Example output: {example}")
+        self.example_label.setText(template.format(example=example))
 
     def get_values(self):
         return (
@@ -387,7 +389,7 @@ def open_video_file(self):
     input_file, _ = QFileDialog.getOpenFileName(
         self,
         self.tr("Open Video file"),
-        "", # Start directory (can be customized)
+        "",
         filter,
     )
 
@@ -405,9 +407,11 @@ def open_video_file(self):
         response.setIcon(QMessageBox.Warning)
         response.setWindowTitle(self.tr("Warning"))
         response.setText(self.tr("Directory Already Exists"))
-        response.setInformativeText(
-            self.tr("Directory '{}' already exists. Do you want to overwrite it?").format(osp.basename(out_dir))
-        )
+
+        template = "Directory '{}' already exists. Do you want to overwrite it?"
+        translated_template = self.tr(template)
+        final_text = translated_template.format(osp.basename(out_dir))
+        response.setInformativeText(final_text)
         response.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
         response.setDefaultButton(QMessageBox.Ok)
         response.setStyleSheet(get_msg_box_style())

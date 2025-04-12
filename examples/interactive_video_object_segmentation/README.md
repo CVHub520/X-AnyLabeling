@@ -93,11 +93,11 @@ Additionally, if you want to use other sizes of SAM2 models or modify the model 
 > - **Point (e):** Add a negative point.
 > - **+Rect:** Draw a rectangle around the object.
 > - **Clear (b):** Erase all added marks.
-> - **Finish Object (f):** Confirm the object.
+> - **Finish (f):** Confirm the object.
 
 For the initial frame, you can add prompts such as positive points, negative points, and rectangles (Marks) to guide the tracking of the desired object. Follow these steps:
 
-1. If the segmentation result meets your expectations, click the `Finish Object (f)` button at the top of the screen or press the `f` key to confirm the object. If not, click the `Clear (b)` button or press the `b` key to quickly clear any invalid marks.
+1. If the segmentation result meets your expectations, click the `Finish (f)` button at the top of the screen or press the `f` key to confirm the object. If not, click the `Clear (b)` button or press the `b` key to quickly clear any invalid marks.
 2. Then, you can sequentially assign custom labels and track IDs to each added target.
 
 > [!WARNING]

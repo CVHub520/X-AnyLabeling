@@ -165,12 +165,12 @@ class AutoLabelingWidget(QWidget):
         self.toggle_preserve_existing_annotations.setChecked(False)
         self.toggle_preserve_existing_annotations.setCheckable(True)
         self.toggle_preserve_existing_annotations.setStyleSheet(get_toggle_button_style())
-        tooltip_on = "Existing shapes will be preserved during updates. Click to switch to overwriting."
-        tooltip_off = "Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving."
+        tooltip_on = self.tr("Existing shapes will be preserved during updates. Click to switch to overwriting.")
+        tooltip_off = self.tr("Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving.")
         self.toggle_preserve_existing_annotations.clicked.connect(
             lambda checked: (
                 self.toggle_preserve_existing_annotations.setToolTip(tooltip_on if checked else tooltip_off),
-                self.toggle_preserve_existing_annotations.setText("Keep Shapes" if checked else "Overwrite Shapes")
+                self.toggle_preserve_existing_annotations.setText(self.tr("Keep Shapes") if checked else self.tr("Overwrite Shapes"))
             )
         )
         self.toggle_preserve_existing_annotations.toggled.connect(
