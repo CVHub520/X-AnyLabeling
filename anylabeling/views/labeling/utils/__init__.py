@@ -65,5 +65,4 @@ from .shape import (
     rectangle_from_diagonal,
     shape_conversion,
 )
-from .style import get_lineedit_style
 from .video import open_video_file

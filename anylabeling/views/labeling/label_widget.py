@@ -54,7 +54,7 @@ from .widgets import (
     LabelModifyDialog,
     GroupIDModifyDialog,
     OverviewDialog,
-    Popup,
+    SearchBar,
     ToolBar,
     UniqueLabelQListWidget,
     ZoomWidget,
@@ -212,8 +212,7 @@ class LabelingWidget(LabelDialog):
             "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
 
-        self.file_search = QtWidgets.QLineEdit()
-        self.file_search.setStyleSheet(utils.get_lineedit_style())
+        self.file_search = SearchBar()
         self.file_search.setPlaceholderText(self.tr("Search Filename"))
         self.file_search.textChanged.connect(self.file_search_changed)
         self.file_list_widget = QtWidgets.QListWidget()

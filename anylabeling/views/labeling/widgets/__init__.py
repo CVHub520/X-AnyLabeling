@@ -15,6 +15,7 @@ from .label_dialog import (
     LabelModifyDialog,
     GroupIDModifyDialog,
 )
+from .model_dropdown_widget import SearchBar
 from .label_list_widget import LabelListWidget, LabelListWidgetItem
 from .overview_dialog import OverviewDialog
 from .popup import Popup
