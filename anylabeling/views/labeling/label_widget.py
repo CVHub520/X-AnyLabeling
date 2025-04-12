@@ -213,6 +213,7 @@ class LabelingWidget(LabelDialog):
         )
 
         self.file_search = QtWidgets.QLineEdit()
+        self.file_search.setStyleSheet(utils.get_lineedit_style())
         self.file_search.setPlaceholderText(self.tr("Search Filename"))
         self.file_search.textChanged.connect(self.file_search_changed)
         self.file_list_widget = QtWidgets.QListWidget()
@@ -220,18 +221,16 @@ class LabelingWidget(LabelDialog):
             self.file_selection_changed
         )
         file_list_layout = QtWidgets.QVBoxLayout()
-        file_list_layout.setContentsMargins(0, 0, 0, 0)
-        file_list_layout.setSpacing(0)
+        file_list_layout.setContentsMargins(0, 4, 0, 0)
+        file_list_layout.setSpacing(4)
         file_list_layout.addWidget(self.file_search)
         file_list_layout.addWidget(self.file_list_widget)
-        self.file_dock = QtWidgets.QDockWidget(self.tr("Files"), self)
+        self.file_dock = QtWidgets.QDockWidget("", self)
         self.file_dock.setObjectName("Files")
+        self.file_dock.setTitleBarWidget(QtWidgets.QWidget(self))
         file_list_widget = QtWidgets.QWidget()
         file_list_widget.setLayout(file_list_layout)
         self.file_dock.setWidget(file_list_widget)
-        self.file_dock.setStyleSheet(
-            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
-        )
 
         self.zoom_widget = ZoomWidget()
         self.setAcceptDrops(True)

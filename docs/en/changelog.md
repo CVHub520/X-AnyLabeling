@@ -1,7 +1,7 @@
 # X-AnyLabeling Changelog
 
 
-## `v2.5.4` (Feb 18, 2024)
+## `v2.5.4` (Feb 18, 2025)
 
 ### 🚀 New Features
 
@@ -24,7 +24,7 @@ A total of 2 developers contributed to this release.
 Thank @aiyou9, @CVHub520
 
 
-## `v2.5.3` (Jan 12, 2024)
+## `v2.5.3` (Jan 12, 2025)
 
 ### 🐛 Bug Fixes
 
@@ -42,7 +42,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.5.2` (Jan 02, 2024)
+## `v2.5.2` (Jan 02, 2025)
 
 ### 🚀 New Features
 
@@ -89,7 +89,7 @@ A total of 2 developers contributed to this release.
 Thank @chevydream, @CVHub520
 
 
-## `v2.5.0` (Oct 15, 2023)
+## `v2.5.0` (Oct 15, 2024)
 
 ### 🚀 New Features
 
@@ -126,7 +126,7 @@ A total of 3 developers contributed to this release.
 Thank @julianstirling, @CVHub520, @wpNZC
 
 
-## `v2.4.4` (Sep 30, 2023)
+## `v2.4.4` (Sep 30, 2024)
 
 ### 🚀 New Features
 
@@ -139,7 +139,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.4.3` (Sep 08, 2023)
+## `v2.4.3` (Sep 08, 2024)
 
 ### 🚀 New Features
 
@@ -165,7 +165,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.4.2` (Sep 06, 2023)
+## `v2.4.2` (Sep 06, 2024)
 
 ### 🚀 New Features
 
@@ -187,7 +187,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.4.1` (Aug 29, 2023)
+## `v2.4.1` (Aug 29, 2024)
 
 ### 🚀 New Features
 
@@ -206,7 +206,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.4.0` (Jul 14, 2023)
+## `v2.4.0` (Jul 14, 2024)
 
 ### 🚀 New Features
 
@@ -268,7 +268,7 @@ A total of 3 developers contributed to this release.
 Thank @UnlimitedWand, @PairZhu, @CVHub520
 
 
-## `v2.3.7` (May 29, 2023) - *Pre-release*
+## `v2.3.7` (May 29, 2024) - *Pre-release*
 
 ### 🚀 New Features
 
@@ -281,7 +281,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.3.6` (May 25, 2023)
+## `v2.3.6` (May 25, 2024)
 
 ### 🐛 Bug Fixes
 
@@ -300,7 +300,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.3.5` (Apr 01, 2023)
+## `v2.3.5` (Apr 01, 2024)
 
 ### 🚀 New Features
 
@@ -325,7 +325,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.3.4` (Mar 16, 2023)
+## `v2.3.4` (Mar 16, 2024)
 
 ### 🚀 New Features
 
@@ -339,7 +339,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.3.3` (Feb 27, 2023)
+## `v2.3.3` (Feb 27, 2024)
 
 ### 🚀 New Features
 
@@ -357,7 +357,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.3.2` (Feb 24, 2023)
+## `v2.3.2` (Feb 24, 2024)
 
 ### 🚀 New Features
 
@@ -373,7 +373,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.3.1` (Jan 31, 2023)
+## `v2.3.1` (Jan 31, 2024)
 
 ### 🚀 New Features
 
@@ -388,7 +388,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.3.0` (Jan 13, 2023)
+## `v2.3.0` (Jan 13, 2024)
 
 ### 🚀 New Features
 
@@ -403,7 +403,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.2.0` (Dec 26, 2022)
+## `v2.2.0` (Dec 26, 2023)
 
 ### 🚀 New Features
 
@@ -431,7 +431,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.1.0` (Nov 24, 2022)
+## `v2.1.0` (Nov 24, 2023)
 
 - Support `InternImage` classification model
 
@@ -442,7 +442,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v2.0.0` (Nov 13, 2022)
+## `v2.0.0` (Nov 13, 2023)
 
 ### 🚀 New Features
 
@@ -458,7 +458,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v1.1.0` (Nov 06, 2022)
+## `v1.1.0` (Nov 06, 2023)
 
 ### 🚀 New Features
 
@@ -474,7 +474,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v1.0.0` (Oct 25, 2022)
+## `v1.0.0` (Oct 25, 2023)
 
 ### 🚀 New Features
 
@@ -491,7 +491,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.3.0` (Oct 10, 2022)
+## `v0.3.0` (Oct 10, 2023)
 
 ### 🚀 New Features
 
@@ -506,7 +506,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.2.4` (Sep 20, 2022)
+## `v0.2.4` (Sep 20, 2023)
 
 ### 🚀 New Features
 
@@ -519,7 +519,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.2.3` (Sep 18, 2022)
+## `v0.2.3` (Sep 18, 2023)
 
 ### 🚀 New Features
 
@@ -536,7 +536,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.2.2` (Sep 14, 2022)
+## `v0.2.2` (Sep 14, 2023)
 
 ### 🚀 New Features
 
@@ -550,7 +550,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.2.1` (Sep 06, 2022)
+## `v0.2.1` (Sep 06, 2023)
 
 *No specific changes listed for this release tag.*
 
@@ -561,7 +561,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.2.0` (Aug 09, 2022)
+## `v0.2.0` (Aug 09, 2023)
 
 ### 🚀 New Features
 
@@ -570,7 +570,7 @@ Thank @CVHub520
 - Add `CLRNet` model for lane detection
 - Add `DWPose` model for whole-body pose estimation
 
-### �� Bug Fixes
+### 🐛 Bug Fixes
 
 - Fix `YOLOv8` issue
 - Fix GPU inference result exception
@@ -582,7 +582,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.1.2` (Jun 20, 2022)
+## `v0.1.2` (Jun 20, 2023)
 
 ### 🚀 New Features
 
@@ -596,7 +596,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.1.1` (May 25, 2022)
+## `v0.1.1` (May 25, 2023)
 
 *Update executable files.*
 
@@ -607,7 +607,7 @@ A total of 1 developer contributed to this release.
 Thank @CVHub520
 
 
-## `v0.1.0` (May 23, 2022)
+## `v0.1.0` (May 23, 2023)
 
 ### 🚀 New Features
 

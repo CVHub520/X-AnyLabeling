@@ -5,13 +5,12 @@ import yaml
 import importlib.resources as pkg_resources
 from threading import Lock
 
-
 from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
+import anylabeling.configs as auto_labeling_configs
 from anylabeling.utils import GenericWorker
 from anylabeling.views.labeling.logger import logger
 from anylabeling.config import get_config, save_config
-from anylabeling.configs import auto_labeling as auto_labeling_configs
 from anylabeling.services.auto_labeling.types import AutoLabelingResult
 from anylabeling.services.auto_labeling.utils import TimeoutContext
 
@@ -148,11 +147,10 @@ class ModelManager(QObject):
             config_file = model["config_file"]
             if config_file.startswith(":/"):  # Config file is in resources
                 config_file_name = config_file[2:]
-                with pkg_resources.open_text(
-                    auto_labeling_configs, config_file_name
-                ) as f:
+                resource_path = pkg_resources.files(auto_labeling_configs).joinpath('auto_labeling', config_file_name)
+                with open(resource_path, "r", encoding="utf-8") as f:
                     model_config = yaml.safe_load(f)
-                    model_config["config_file"] = config_file
+                    model_config["config_file"] = str(config_file)
             else:  # Config file is in local file system
                 with open(config_file, "r", encoding="utf-8") as f:
                     model_config = yaml.safe_load(f)
