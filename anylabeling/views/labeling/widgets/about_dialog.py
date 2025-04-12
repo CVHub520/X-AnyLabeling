@@ -115,15 +115,15 @@ class AboutDialog(QDialog):
         links_layout.setSpacing(8)
         links_layout.setAlignment(Qt.AlignCenter)
 
-        website_btn = QPushButton(self.parent.tr("Website"))
+        website_btn = QPushButton(self.tr("Website"))
         website_btn.setObjectName("link-btn")
         website_btn.clicked.connect(lambda: open_url(self.website_url))
 
-        copy_btn = QPushButton(self.parent.tr("Copy App Info"))
+        copy_btn = QPushButton(self.tr("Copy App Info"))
         copy_btn.setObjectName("link-btn")
         copy_btn.clicked.connect(self.copy_app_info)
 
-        report_btn = QPushButton(self.parent.tr("Report Issue"))
+        report_btn = QPushButton(self.tr("Report Issue"))
         report_btn.setObjectName("link-btn")
         report_btn.clicked.connect(lambda: open_url(self.github_issues_url))
 
@@ -179,11 +179,11 @@ class AboutDialog(QDialog):
         update_layout.setSpacing(8)
         update_layout.setAlignment(Qt.AlignCenter)
 
-        changelog_btn = QPushButton("Changelog")
+        changelog_btn = QPushButton(self.tr("Changelog"))
         changelog_btn.setObjectName("link-btn")
         changelog_btn.clicked.connect(lambda: open_url(self.changelog_url))
 
-        check_update_btn = QPushButton(self.parent.tr("Check for Updates"))
+        check_update_btn = QPushButton(self.tr("Check for Updates"))
         check_update_btn.setObjectName("link-btn")
         check_update_btn.clicked.connect(self.check_for_updates)
 
@@ -229,7 +229,7 @@ class AboutDialog(QDialog):
         msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
 
         popup = Popup(
-            self.parent.tr("Copied!"),
+            self.tr("Copied!"),
             self.parent,
             icon=self._set_icon_path("copy-green"),
         )
@@ -263,14 +263,14 @@ class AboutDialog(QDialog):
                     }
                 elif show_error:
                     popup = Popup(
-                        self.parent.tr("No Updates Available"),
+                        self.tr("No Updates Available"),
                         self.parent,
                         icon=self._set_icon_path("copy-green"),
                     )
                     popup.show_popup(self.parent)
             elif show_error:
                 popup = Popup(
-                    self.parent.tr(f"GitHub API error: {response.status_code}"),
+                    self.tr(f"GitHub API error: {response.status_code}"),
                     self.parent,
                     icon=self._set_icon_path("error"),
                 )
@@ -278,7 +278,7 @@ class AboutDialog(QDialog):
         except Exception as e:
             if show_error:
                 popup = Popup(
-                    self.parent.tr(f"Check update error: {str(e)}"),
+                    self.tr(f"Check update error: {str(e)}"),
                     self.parent,
                     icon=self._set_icon_path("error"),
                 )
@@ -311,13 +311,13 @@ class AboutDialog(QDialog):
     def show_update_dialog(self, update_info):
         """Show update available dialog with Markdown support"""
         dialog = QDialog(self)
-        dialog.setWindowTitle(self.parent.tr("Update Available"))
+        dialog.setWindowTitle(self.tr("Update Available"))
         dialog.setMinimumSize(500, 400)
         
         layout = QVBoxLayout(dialog)
 
         title_label = QLabel(
-            self.parent.tr(f"A new version {update_info['latest_version']} is available!")
+            self.tr(f"A new version {update_info['latest_version']} is available!")
         )
         title_label.setAlignment(Qt.AlignCenter)
         title_label.setStyleSheet("""
@@ -339,10 +339,10 @@ class AboutDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
         
-        cancel_btn = QPushButton(self.parent.tr("Cancel"))
+        cancel_btn = QPushButton(self.tr("Cancel"))
         cancel_btn.clicked.connect(dialog.reject)
         
-        ok_btn = QPushButton(self.parent.tr("Download"))
+        ok_btn = QPushButton(self.tr("Download"))
         ok_btn.setDefault(True)
         ok_btn.clicked.connect(lambda: self._handle_update_ok(dialog, update_info['download_url']))
         
@@ -360,7 +360,7 @@ class AboutDialog(QDialog):
     def copy_to_clipboard(self, text):
         """Copy text to clipboard and show popup"""
         popup = Popup(
-            self.parent.tr("Copied!"),
+            self.tr("Copied!"),
             self.parent,
             icon=self._set_icon_path("copy-green"),
         )

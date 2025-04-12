@@ -447,7 +447,7 @@ class OverviewDialog(QtWidgets.QDialog):
             os.remove(classes_path)
 
             popup = Popup(
-                self.parent.tr(
+                self.tr(
                     f"Exporting annotations successfully!\nResults have been saved to:\n{zip_path}"
                 ),
                 self.parent, msec=5000,
@@ -459,7 +459,7 @@ class OverviewDialog(QtWidgets.QDialog):
             logger.error(f"Error occurred while exporting file: {e}")
 
             popup = Popup(
-                self.parent.tr(f"Error occurred while exporting annotations statistics file."),
+                self.tr(f"Error occurred while exporting annotations statistics file."),
                 self.parent,
                 icon="anylabeling/resources/icons/error.svg",
             )

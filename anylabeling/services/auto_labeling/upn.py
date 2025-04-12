@@ -14,7 +14,12 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
-from .__base__.upn import UPNWrapper
+
+try:
+    from .__base__.upn import UPNWrapper
+    UPN_AVAILABLE = True
+except ImportError:
+    UPN_AVAILABLE = False
 
 
 class UPN(Model):
@@ -44,6 +49,10 @@ class UPN(Model):
         default_output_mode = "rectangle"
 
     def __init__(self, model_config, on_message) -> None:
+        if not UPN_AVAILABLE:
+            message = "UPN model will not be available. Please install related packages and try again."
+            raise ImportError(message)
+
         # Run the parent class's init method
         super().__init__(model_config, on_message)
         model_name = self.config["type"]

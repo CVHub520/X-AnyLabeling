@@ -41,7 +41,7 @@
    <item>
     <layout class="QHBoxLayout" name="model_selection">
      <property name="spacing">
-      <number>2</number>
+      <number>6</number>
      </property>
      <property name="topMargin">
       <number>0</number>
@@ -306,17 +306,14 @@
      <item>
       <widget class="QPushButton" name="button_finish_object">
        <property name="text">
-        <string>Finish Object (f)</string>
+        <string>Finish (f)</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="toggle_preserve_existing_annotations">
+      <widget class="QPushButton" name="toggle_preserve_existing_annotations">
           <property name="text">
-              <string>Preserve existing annotations</string>
-          </property>
-          <property name="checked">
-              <bool>false</bool>
+              <string>Overwrite Shapes</string>
           </property>
       </widget>
      </item>

@@ -6,6 +6,13 @@ from PyQt5.QtWidgets import QWidget, QFileDialog
 
 from anylabeling.services.auto_labeling.model_manager import ModelManager
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
+from anylabeling.views.labeling.utils.style import (
+    get_lineedit_style,
+    get_ok_btn_style,
+    get_double_spinbox_style,
+    get_cancel_btn_style,
+    get_toggle_button_style,
+)
 
 
 class AutoLabelingWidget(QWidget):
@@ -87,34 +94,64 @@ class AutoLabelingWidget(QWidget):
         self.initial_iou_value = 0
         self.initial_preserve_annotations_state = False
 
-        # Auto labeling buttons
+        # ===================================
+        #  Auto labeling buttons
+        # ===================================
+
+        # --- Configuration for: button_run ---
         self.button_run.setShortcut("I")
+        self.button_run.setStyleSheet(get_ok_btn_style())
         self.button_run.clicked.connect(self.run_prediction)
-        self.button_send.clicked.connect(self.run_vl_prediction)
-        self.edit_conf.valueChanged.connect(self.on_conf_value_changed)
-        self.edit_iou.valueChanged.connect(self.on_iou_value_changed)
+
+        # --- Configuration for: button_reset_tracker ---
+        self.button_reset_tracker.setStyleSheet(get_cancel_btn_style())
         self.button_reset_tracker.clicked.connect(self.on_reset_tracker)
+
+        # --- Configuration for: button_send ---
+        self.button_send.setStyleSheet(get_ok_btn_style())
+        self.button_send.clicked.connect(self.run_vl_prediction)
+
+        # --- Configuration for: edit_conf ---
+        self.edit_conf.setStyleSheet(get_double_spinbox_style())
+        self.edit_conf.valueChanged.connect(self.on_conf_value_changed)
+
+        # --- Configuration for: edit_iou ---
+        self.edit_iou.setStyleSheet(get_double_spinbox_style())
+        self.edit_iou.valueChanged.connect(self.on_iou_value_changed)
+
+        # --- Configuration for: edit_text ---
+        self.edit_text.setStyleSheet(get_lineedit_style())
+
+        # --- Configuration for: button_add_point ---
         self.button_add_point.setShortcut("Q")
         self.button_add_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
                 AutoLabelingMode.ADD, AutoLabelingMode.POINT
             )
         )
+
+        # --- Configuration for: button_remove_point ---
         self.button_remove_point.setShortcut("E")
         self.button_remove_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
                 AutoLabelingMode.REMOVE, AutoLabelingMode.POINT
             )
         )
+
+        # --- Configuration for: button_add_rect ---
         self.button_add_rect.clicked.connect(
             lambda: self.set_auto_labeling_mode(
                 AutoLabelingMode.ADD, AutoLabelingMode.RECTANGLE
             )
         )
+
+        # --- Configuration for: button_clear ---
         self.button_clear.clicked.connect(
             self.clear_auto_labeling_action_requested
         )
         self.button_clear.setShortcut("B")
+
+        # --- Configuration for: button_finish_object ---
         self.button_finish_object.clicked.connect(self.add_new_prompt)
         self.button_finish_object.clicked.connect(
             self.finish_auto_labeling_object_action_requested
@@ -123,9 +160,27 @@ class AutoLabelingWidget(QWidget):
             self.cache_auto_label_changed
         )
         self.button_finish_object.setShortcut("F")
-        self.toggle_preserve_existing_annotations.stateChanged.connect(
+
+        # --- Configuration for: toggle_preserve_existing_annotations ---
+        self.toggle_preserve_existing_annotations.setChecked(False)
+        self.toggle_preserve_existing_annotations.setCheckable(True)
+        self.toggle_preserve_existing_annotations.setStyleSheet(get_toggle_button_style())
+        tooltip_on = "Existing shapes will be preserved during updates. Click to switch to overwriting."
+        tooltip_off = "Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving."
+        self.toggle_preserve_existing_annotations.clicked.connect(
+            lambda checked: (
+                self.toggle_preserve_existing_annotations.setToolTip(tooltip_on if checked else tooltip_off),
+                self.toggle_preserve_existing_annotations.setText("Keep Shapes" if checked else "Overwrite Shapes")
+            )
+        )
+        self.toggle_preserve_existing_annotations.toggled.connect(
             self.on_preserve_existing_annotations_state_changed
         )
+
+        # ===================================
+        #  End of Auto labeling buttons
+        # ===================================
+
         # Hide labeling widgets by default
         self.hide_labeling_widgets()
 
@@ -206,10 +261,11 @@ class AutoLabelingWidget(QWidget):
         """Update button colors"""
         style_sheet = """
             text-align: center;
-            margin-right: 3px;
-            border-radius: 5px;
-            padding: 4px 8px;
-            border: 1px solid #999999;
+            border-radius: 8px;
+            border: 1px solid #d2d2d7;
+            font-weight: 500;
+            min-width: 100px;
+            height: 36px;
             color: #000000;  /* black */
             background-color: #e0e0e0;  /* light gray */
         """

@@ -302,7 +302,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         # Try to modify group IDs
         if self.modify_group_id(updated_gid_info):
             popup = Popup(
-                self.parent.tr("Group IDs modified successfully!"),
+                self.tr("Group IDs modified successfully!"),
                 self.parent,
                 icon="anylabeling/resources/icons/copy-green.svg",
             )
@@ -310,7 +310,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             self.accept()
         else:
             popup = Popup(
-                self.parent.tr("An error occurred while updating the Group IDs."),
+                self.tr("An error occurred while updating the Group IDs."),
                 self.parent,
                 icon="anylabeling/resources/icons/error.svg",
             )
@@ -719,37 +719,6 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.start_index = from_value
             self.end_index = to_value
             self.confirm_changes(self.start_index, self.end_index)
-
-
-class TextInputDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle(self.tr("Text Input Dialog"))
-
-        layout = QtWidgets.QVBoxLayout()
-
-        self.label = QtWidgets.QLabel(self.tr("Enter the text prompt below:"))
-        self.text_input = QtWidgets.QLineEdit()
-
-        self.ok_button = QtWidgets.QPushButton(self.tr("OK"))
-        self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
-
-        self.ok_button.clicked.connect(self.accept)
-        self.cancel_button.clicked.connect(self.reject)
-
-        layout.addWidget(self.label)
-        layout.addWidget(self.text_input)
-        layout.addWidget(self.ok_button)
-        layout.addWidget(self.cancel_button)
-
-        self.setLayout(layout)
-
-    def get_input_text(self):
-        result = self.exec_()
-        if result == QtWidgets.QDialog.Accepted:
-            return self.text_input.text()
-        else:
-            return ""
 
 
 class LabelQLineEdit(QtWidgets.QLineEdit):

@@ -12,7 +12,6 @@ from .crosshair_settings_dialog import CrosshairSettingsDialog
 from .label_dialog import (
     LabelDialog,
     LabelQLineEdit,
-    TextInputDialog,
     LabelModifyDialog,
     GroupIDModifyDialog,
 )
