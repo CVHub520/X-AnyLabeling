@@ -1,6 +1,7 @@
 type: yolo11_cls
 name: yolo11s-cls_r20240930
-display_name: YOLO11s-Cls Ultralytics
+provider: Ultralytics
+display_name: YOLO11s-Cls
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-cls.onnx
 classes:
   0: tench

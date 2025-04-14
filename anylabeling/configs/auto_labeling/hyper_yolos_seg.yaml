@@ -1,6 +1,7 @@
 type: yolov8_seg
 name: hyper_yolos-seg-r20241216
-display_name: Hyper-YOLOs-Seg (iMoonLab)
+provider: iMoonLab
+display_name: Hyper-YOLOs-Seg
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolos-seg.onnx
 nms_threshold: 0.45
 confidence_threshold: 0.25

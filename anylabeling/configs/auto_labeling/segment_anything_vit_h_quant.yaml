@@ -1,5 +1,6 @@
 type: segment_anything
 name: segment_anything_vit_h_quant-r20230810
+provider: Meta
 display_name: Segment Anything (ViT-Huge Quant)
 encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_vit_h_4b8939.encoder.quant.onnx
 decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_vit_h_4b8939.decoder.quant.onnx

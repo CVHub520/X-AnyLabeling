@@ -1,6 +1,7 @@
 type: damo_yolo
 name: damo_yolo_l-r20231001
-display_name: DAMO-YOLO-L (Alibaba)
+provider: Alibaba
+display_name: DAMO-YOLO-L
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/damoyolo_tinynasL45_L_508.onnx
 nms_threshold: 0.45
 confidence_threshold: 0.25

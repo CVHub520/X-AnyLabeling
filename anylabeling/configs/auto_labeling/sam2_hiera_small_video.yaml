@@ -1,5 +1,6 @@
 type: segment_anything_2_video
 name: sam2_hiera_small_video-r20240901
+provider: Meta
 display_name: Segment Anything 2 Video (Small)
 model_cfg: sam2_hiera_s.yaml
 device_type: cuda  # cpu, cuda, mps

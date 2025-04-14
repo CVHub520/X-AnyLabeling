@@ -1,6 +1,7 @@
 type: florence2
 name: florence2_large_ft-r20241205
-display_name: microsoft/Florence-2-large-ft
+provider: Microsoft
+display_name: Florence-2-large-ft
 model_path: microsoft/Florence-2-large-ft  # model_id or local path
 trust_remote_code: true
 max_new_tokens: 1024

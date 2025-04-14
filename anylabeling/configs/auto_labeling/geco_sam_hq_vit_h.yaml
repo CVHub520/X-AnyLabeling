@@ -1,5 +1,6 @@
 type: geco
 name: geco_sam_hq_vit_h-r20250330
+provider: CVHub
 display_name: GECO (ViT-huge)
 encoder_data_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder_data.bin
 encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/GeCo_encoder.onnx

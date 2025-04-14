@@ -1,6 +1,7 @@
 type: yolov8
 name: yolov8l-r20230520
-display_name: YOLOv8l Ultralytics
+provider: Ultralytics
+display_name: YOLOv8l
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8l.onnx
 nms_threshold: 0.45
 confidence_threshold: 0.25

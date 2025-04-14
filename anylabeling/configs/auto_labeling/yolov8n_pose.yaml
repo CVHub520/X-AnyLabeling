@@ -1,6 +1,7 @@
 type: yolov8_pose
 name: yolov8n-pose-r20231103
-display_name: YOLOv8n-Pose Ultralytics
+provider: Ultralytics
+display_name: YOLOv8n-Pose
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8n-pose.onnx
 confidence_threshold: 0.5
 nms_threshold: 0.6

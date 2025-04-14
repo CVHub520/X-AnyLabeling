@@ -1,6 +1,7 @@
 type: gold_yolo
 name: gold_yolo_n-r20231001
-display_name: Gold-YOLO-N (HuaWei)
+provider: HuaWei
+display_name: Gold-YOLO-N
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/Gold_n_dist.onnx
 nms_threshold: 0.45
 confidence_threshold: 0.25

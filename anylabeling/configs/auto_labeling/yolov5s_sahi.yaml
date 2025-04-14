@@ -1,6 +1,7 @@
 type: yolov5_sahi
 name: yolov5s_sahi-r20241118
-display_name: YOLOv5s-SAHI Ultralytics
+provider: Ultralytics
+display_name: YOLOv5s-SAHI
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
 slice_height: 512
 slice_width: 512

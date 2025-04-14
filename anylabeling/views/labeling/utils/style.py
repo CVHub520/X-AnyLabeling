@@ -165,6 +165,58 @@ def get_export_option_style():
     """
 
 
+def get_normal_button_style():
+    return """
+        QPushButton {
+            height: 24px;
+            min-width: 80px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background-color: #f5f5f7;
+            border: 1px solid #d2d2d7;
+        }
+        QPushButton:hover {
+            background-color: #e5e5e5;
+        }
+        QPushButton:pressed {
+            background-color: #d5d5d5;
+        }
+    """
+
+
+def get_toggle_button_style(button_color: str):
+    return f"""
+        QPushButton {{
+            height: 24px;
+            min-width: 80px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background-color: {button_color};
+            border: 1px solid #d2d2d7;
+        }}
+    """
+
+
+def get_highlight_button_style():
+    return """
+        QPushButton {
+            height: 24px;
+            color: white;
+            border: none;
+            min-width: 80px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background-color: #0071e3;
+        }
+        QPushButton:hover {
+            background-color: #0077ED;
+        }
+        QPushButton:pressed {
+            background-color: #0068D0;
+        }
+    """
+
+
 def get_spinbox_style():
     return """
         QSpinBox {
@@ -237,8 +289,8 @@ def get_lineedit_style():
             border-radius: 8;
             background-color: #F9F9F9;
             font-size: 13px;
-            height: 36px;
-            padding-left: 4px;
+            height: 24px;
+            padding: 5px 8px;
         }
         QLineEdit:hover {
             background-color: #DBDBDB;
@@ -247,35 +299,5 @@ def get_lineedit_style():
         QLineEdit:focus {
             border: 3px solid "#60A5FA";
             background-color: "#F9F9F9";
-        }
-    """
-
-
-def get_toggle_button_style():
-    """
-    Returns the CSS stylesheet for a QPushButton, suitable for toggling.
-    """
-    return """
-        QPushButton {
-            background-color: #f5f5f7;
-            border: 1px solid #d2d2d7;
-            border-radius: 8px;
-            font-weight: 500;
-            min-width: 150px;
-            height: 36px;
-            color: #1d1d1f;
-        }
-        QPushButton:checked {
-            background-color: #0071e3;
-            color: white;
-            border-color: #005bb5;
-        }
-        QPushButton:hover {
-            background-color: #cccccc;
-            border: 1px solid #b0b0b0;
-        }
-        QPushButton:checked:hover {
-            background-color: #005bb5;
-            border: none;
         }
     """

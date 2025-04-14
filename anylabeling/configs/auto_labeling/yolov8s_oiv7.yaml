@@ -1,6 +1,7 @@
 type: yolov8
 name: yolov8s-oiv7-r20240529
-display_name: YOLOv8s (OpenImageV7) Ultralytics
+provider: Ultralytics
+display_name: YOLOv8s (OpenImageV7)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.7/yolov8s-oiv7.onnx
 nms_threshold: 0.45
 confidence_threshold: 0.25

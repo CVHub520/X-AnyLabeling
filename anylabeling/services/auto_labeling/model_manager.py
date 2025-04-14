@@ -210,7 +210,7 @@ class ModelManager(QObject):
             logger.info(
                 "Another model is being loaded. Please wait for it to finish."
             )
-            return
+            return False
 
         # Check config file path
         if not config_file or not os.path.isfile(config_file):
@@ -221,14 +221,15 @@ class ModelManager(QObject):
             self.new_model_status.emit(
                 self.tr("Error in loading custom model: Invalid path.")
             )
-            return
+            return False
 
         # Check config file content
         model_config = {}
-        with open(config_file, "r", encoding="utf-8") as f:
-            model_config = yaml.safe_load(f)
-            model_config["config_file"] = os.path.abspath(config_file)
-        if not model_config:
+        try:
+            with open(config_file, "r", encoding="utf-8") as f:
+                model_config = yaml.safe_load(f)
+                model_config["config_file"] = os.path.abspath(config_file)
+        except Exception as e:
             logger.error(
                 "An error occurred while loading the custom model: "
                 "The config file is invalid."
@@ -236,7 +237,8 @@ class ModelManager(QObject):
             self.new_model_status.emit(
                 self.tr("Error in loading custom model: Invalid config file.")
             )
-            return
+            return False
+
         if (
             "type" not in model_config
             or "display_name" not in model_config
@@ -268,7 +270,7 @@ class ModelManager(QObject):
                     "Error in loading custom model: Invalid config file format."
                 )
             )
-            return
+            return False
 
         # Add or replace custom model
         custom_models = get_config().get("custom_models", [])
@@ -300,6 +302,8 @@ class ModelManager(QObject):
 
         # Load model
         self.load_model(model_config["config_file"])
+
+        return True
 
     def load_model(self, config_file):
         """Run model loading in a thread"""

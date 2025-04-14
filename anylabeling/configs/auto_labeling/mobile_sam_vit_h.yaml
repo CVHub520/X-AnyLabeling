@@ -1,5 +1,6 @@
 type: segment_anything
 name: mobile_sam_vit_h-r20230810
+provider: Others
 display_name: MobileSAM (ViT-Huge)
 encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/mobile_sam.encoder.onnx
 decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_vit_h_4b8939.decoder.onnx

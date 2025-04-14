@@ -1,6 +1,7 @@
 type: yolox
 name: yolox_s-r20230520
-display_name: YOLOX Megvii
+provider: Megvii
+display_name: YOLOX
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolox_s.onnx
 p6: False
 nms_threshold: 0.45

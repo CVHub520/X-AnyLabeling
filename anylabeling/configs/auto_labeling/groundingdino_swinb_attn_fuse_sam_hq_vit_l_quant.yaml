@@ -1,5 +1,6 @@
 type: grounding_sam
 name: groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant-r20231111
+provider: IDEA-Research
 display_name: GroundingSAM-SwinB with HQ-SAM-VitL-QInt8
 # Grounding-DINO
 model_type: groundingdino_swinb_cogcoor

@@ -1,6 +1,7 @@
 type: yolov10
 name: yolov10m-r20240525
-display_name: YOLOv10m THU-MIG
+provider: THU
+display_name: YOLOv10m
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.6/yolov10m.onnx
 confidence_threshold: 0.25
 classes:

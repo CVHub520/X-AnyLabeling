@@ -1,6 +1,7 @@
 type: yolo11
 name: yolo11s-r20240930
-display_name: YOLO11s Ultralytics
+provider: Ultralytics
+display_name: YOLO11s
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s.onnx
 nms_threshold: 0.45
 confidence_threshold: 0.25

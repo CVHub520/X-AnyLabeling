@@ -1,17 +1,25 @@
 import os
+import yaml
+import collections
 
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QPoint
 from PyQt5.QtWidgets import QWidget, QFileDialog
 
 from anylabeling.services.auto_labeling.model_manager import ModelManager
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.views.labeling.utils.style import (
     get_lineedit_style,
-    get_ok_btn_style,
     get_double_spinbox_style,
-    get_cancel_btn_style,
+    get_normal_button_style,
+    get_highlight_button_style,
     get_toggle_button_style,
+)
+from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
+    load_json,
+    save_json,
+    _MODELS_CONFIG_PATH,
+    SearchableModelDropdownPopup,
 )
 
 
@@ -32,9 +40,6 @@ class AutoLabelingWidget(QWidget):
         uic.loadUi(os.path.join(current_dir, "auto_labeling.ui"), self)
 
         self.model_manager = ModelManager()
-        self.model_manager.model_configs_changed.connect(
-            lambda model_list: self.update_model_configs(model_list)
-        )
         self.model_manager.new_model_status.connect(self.on_new_model_status)
         self.new_model_selected.connect(self.model_manager.load_model)
         self.new_custom_model_selected.connect(
@@ -68,11 +73,9 @@ class AutoLabelingWidget(QWidget):
             self.on_florence2_mode_changed
         )
 
-        self.update_model_configs(self.model_manager.get_model_configs())
-
         # Disable tools when inference is running
         def set_enable_tools(enable):
-            self.model_select_combobox.setEnabled(enable)
+            self.model_selection_button.setEnabled(enable)
             self.output_select_combobox.setEnabled(enable)
             self.button_add_point.setEnabled(enable)
             self.button_remove_point.setEnabled(enable)
@@ -98,17 +101,25 @@ class AutoLabelingWidget(QWidget):
         #  Auto labeling buttons
         # ===================================
 
+        # --- Configuration for: model_selection_button ---
+        model_data = self.init_model_data()
+        self.model_dropdown = SearchableModelDropdownPopup(model_data)
+        self.model_dropdown.hide()
+        self.model_dropdown.modelSelected.connect(self.on_model_selected)
+        self.model_selection_button.setStyleSheet(get_normal_button_style())
+        self.model_selection_button.clicked.connect(self.show_model_dropdown)
+
         # --- Configuration for: button_run ---
         self.button_run.setShortcut("I")
-        self.button_run.setStyleSheet(get_ok_btn_style())
+        self.button_run.setStyleSheet(get_highlight_button_style())
         self.button_run.clicked.connect(self.run_prediction)
 
         # --- Configuration for: button_reset_tracker ---
-        self.button_reset_tracker.setStyleSheet(get_cancel_btn_style())
+        self.button_reset_tracker.setStyleSheet(get_normal_button_style())
         self.button_reset_tracker.clicked.connect(self.on_reset_tracker)
 
         # --- Configuration for: button_send ---
-        self.button_send.setStyleSheet(get_ok_btn_style())
+        self.button_send.setStyleSheet(get_highlight_button_style())
         self.button_send.clicked.connect(self.run_vl_prediction)
 
         # --- Configuration for: edit_conf ---
@@ -164,13 +175,13 @@ class AutoLabelingWidget(QWidget):
         # --- Configuration for: toggle_preserve_existing_annotations ---
         self.toggle_preserve_existing_annotations.setChecked(False)
         self.toggle_preserve_existing_annotations.setCheckable(True)
-        self.toggle_preserve_existing_annotations.setStyleSheet(get_toggle_button_style())
+        self.toggle_preserve_existing_annotations.setStyleSheet(get_normal_button_style())
         tooltip_on = self.tr("Existing shapes will be preserved during updates. Click to switch to overwriting.")
         tooltip_off = self.tr("Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving.")
         self.toggle_preserve_existing_annotations.clicked.connect(
             lambda checked: (
                 self.toggle_preserve_existing_annotations.setToolTip(tooltip_on if checked else tooltip_off),
-                self.toggle_preserve_existing_annotations.setText(self.tr("Keep Shapes") if checked else self.tr("Overwrite Shapes"))
+                self.toggle_preserve_existing_annotations.setText(self.tr("Replace (Off)") if checked else self.tr("Replace (On)"))
             )
         )
         self.toggle_preserve_existing_annotations.toggled.connect(
@@ -187,11 +198,6 @@ class AutoLabelingWidget(QWidget):
         # Handle close button
         self.button_close.clicked.connect(self.unload_and_hide)
 
-        # Handle model select combobox
-        self.model_select_combobox.currentIndexChanged.connect(
-            self.on_model_select_combobox_changed
-        )
-
         self.auto_labeling_mode_changed.connect(self.update_button_colors)
         self.auto_labeling_mode = AutoLabelingMode.NONE
         self.auto_labeling_mode_changed.emit(self.auto_labeling_mode)
@@ -200,6 +206,140 @@ class AutoLabelingWidget(QWidget):
         self.populate_upn_combobox()
         # Populate Florence2 select combobox with modes
         self.populate_florence2_combobox()
+
+    def init_model_data(self):
+        """Get models data"""
+        model_data = {"Custom": {"load_custom_model": {
+            "selected": False,
+            "favorite": False,
+            "display_name": "...Load Custom Model",
+        }}}
+
+        try:
+            local_model_data = load_json(_MODELS_CONFIG_PATH)["models_data"]
+            model_data["Custom"].update(local_model_data["Custom"])
+        except Exception as _:
+            pass
+
+        self.model_info = {
+            "load_custom_model": {
+                "display_name": "...Load Custom Model",
+                "config_path": None,
+            }
+        }
+
+        model_list = self.model_manager.get_model_configs()
+        for model_dict in model_list:
+            model_name = model_dict["name"]
+            if model_dict.get("is_custom_model", False):
+                provider_name = "Custom"
+            else:
+                provider_name = model_dict.get("provider", "Others")
+
+            if provider_name not in model_data:
+                model_data[provider_name] = {}
+
+            if provider_name in local_model_data and model_name in local_model_data[provider_name]:
+                model_data[provider_name].update(local_model_data[provider_name])
+            else:
+                model_data[provider_name][model_name] = {
+                    "selected": False,
+                    "favorite": False,
+                    "display_name": model_dict["display_name"],
+                }
+
+            self.model_info[model_name] = {
+                "display_name": model_dict["display_name"],
+                "config_path": model_dict["config_file"],
+            }
+
+        # Sort the collected model_data
+        sorted_model_data = self._sort_model_data(model_data)
+
+        return sorted_model_data
+
+    def _sort_model_data(self, model_data: dict) -> collections.OrderedDict:
+        """Sorts the model data dictionary"""
+        def top_level_sort_key(key: str):
+            if key == "Custom": return (0,)
+            if key == "Others": return (2,)
+            return (1, key)
+
+        def inner_sort_key(item: tuple[str, dict]):
+            _, model_details = item
+            display_name = model_details.get("display_name", "")
+            if display_name == "...Load Custom Model": return (0,)
+            return (1, display_name)
+
+        sorted_top_keys = sorted(model_data.keys(), key=top_level_sort_key)
+        sorted_data = collections.OrderedDict()
+        for key in sorted_top_keys:
+            inner_dict = model_data[key]
+            sorted_inner_items = sorted(inner_dict.items(), key=inner_sort_key)
+            sorted_data[key] = collections.OrderedDict(sorted_inner_items)
+        return sorted_data
+
+    def show_model_dropdown(self):
+        """Show the model dropdown"""
+        button_pos = self.model_selection_button.mapToGlobal(QPoint(0, 0))
+        self.model_dropdown.move(int(button_pos.x()), int(button_pos.y()))
+        self.model_dropdown.adjustSize()
+        self.model_dropdown.show()
+
+    def on_model_selected(self, model_name):
+        """Handle the model selected event"""
+        config_path = self.model_info[model_name]["config_path"]
+
+        if model_name == "load_custom_model":
+            # Unload current model first
+            self.model_manager.unload_model()
+
+            # Open file dialog to select "config.yaml" file for model
+            file_dialog = QFileDialog(self)
+            file_dialog.setFileMode(QFileDialog.ExistingFile)
+            file_dialog.setNameFilter("Config file (*.yaml)")
+
+            if file_dialog.exec_():
+                self.hide_labeling_widgets()
+                config_file = file_dialog.selectedFiles()[0]
+                flag = self.model_manager.load_custom_model(config_file)
+                if not flag:
+                    self.model_selection_button.setText("No Model")
+                    return
+
+                # update model_info
+                with open(config_file, "r", encoding="utf-8") as f:
+                    config_info = yaml.safe_load(f)
+                self.model_info[config_info["name"]] = {
+                    "display_name": config_info["display_name"],
+                    "config_path": None,
+                }
+
+                # update model_data
+                model_data = self.init_model_data()
+                model_data["Custom"]["load_custom_model"]["selected"] = False
+                model_data["Custom"][config_info["name"]] = {
+                    "selected": True,
+                    "favorite": False,
+                    "display_name": config_info["display_name"],
+                }
+                save_json(model_data, _MODELS_CONFIG_PATH)
+                self.model_dropdown.update_models_data(model_data)
+
+                self.clear_auto_labeling_action_requested.emit()
+                self.model_selection_button.setText(config_info["display_name"])
+                if config_path:
+                    self.model_selection_button.setEnabled(False)
+
+            return
+
+        self.clear_auto_labeling_action_requested.emit()
+        self.model_selection_button.setText(self.model_info[model_name]["display_name"])
+
+        if config_path:
+            self.model_selection_button.setEnabled(False)
+        self.hide_labeling_widgets()
+        self.new_model_selected.emit(config_path)
 
     def populate_upn_combobox(self):
         """Populate UPN combobox with available modes"""
@@ -237,39 +377,9 @@ class AutoLabelingWidget(QWidget):
         for mode, display_name in modes.items():
             self.florence2_select_combobox.addItem(display_name, userData=mode)
 
-    def update_model_configs(self, model_list):
-        """Update model list"""
-        # Add models to combobox
-        self.model_select_combobox.clear()
-        self.model_select_combobox.addItem(self.tr("No Model"), userData=None)
-        self.model_select_combobox.addItem(
-            self.tr("...Load Custom Model"), userData="load_custom_model"
-        )
-        for model_config in model_list:
-            self.model_select_combobox.addItem(
-                (
-                    self.tr("(User) ")
-                    if model_config.get("is_custom_model", False)
-                    else ""
-                )
-                + str(model_config["display_name"]),
-                userData=model_config["config_file"],
-            )
-
     @pyqtSlot()
     def update_button_colors(self):
         """Update button colors"""
-        style_sheet = """
-            text-align: center;
-            border-radius: 8px;
-            border: 1px solid #d2d2d7;
-            font-weight: 500;
-            min-width: 100px;
-            height: 36px;
-            color: #000000;  /* black */
-            background-color: #e0e0e0;  /* light gray */
-        """
-
         for button in [
             self.button_add_point,
             self.button_remove_point,
@@ -277,28 +387,25 @@ class AutoLabelingWidget(QWidget):
             self.button_clear,
             self.button_finish_object,
         ]:
-            button.setStyleSheet(style_sheet)
+            button.setStyleSheet(get_normal_button_style())
         if self.auto_labeling_mode == AutoLabelingMode.NONE:
             return
         if self.auto_labeling_mode.edit_mode == AutoLabelingMode.ADD:
             if self.auto_labeling_mode.shape_type == AutoLabelingMode.POINT:
                 self.button_add_point.setStyleSheet(
-                    style_sheet
-                    + "background-color: #90EE90;"  # light green color
+                    get_toggle_button_style(button_color="#90EE90")
                 )
             elif (
                 self.auto_labeling_mode.shape_type
                 == AutoLabelingMode.RECTANGLE
             ):
                 self.button_add_rect.setStyleSheet(
-                    style_sheet
-                    + "background-color: #90EE90;"  # light green color
+                    get_toggle_button_style(button_color="#90EE90")
                 )
         elif self.auto_labeling_mode.edit_mode == AutoLabelingMode.REMOVE:
             if self.auto_labeling_mode.shape_type == AutoLabelingMode.POINT:
                 self.button_remove_point.setStyleSheet(
-                    style_sheet
-                    + "background-color: #FFB6C1;"  # light red color
+                    get_toggle_button_style(button_color="#FFB6C1")
                 )
 
     def set_auto_labeling_mode(self, edit_mode, shape_type=None):
@@ -327,7 +434,6 @@ class AutoLabelingWidget(QWidget):
 
     def unload_and_hide(self):
         """Unload model and hide widget"""
-        self.model_select_combobox.setCurrentIndex(0)
         self.hide()
 
     def on_new_model_status(self, status):
@@ -335,18 +441,7 @@ class AutoLabelingWidget(QWidget):
 
     def on_new_model_loaded(self, model_config):
         """Enable model select combobox"""
-        self.model_select_combobox.currentIndexChanged.disconnect()
-        if "config_file" not in model_config:
-            self.model_select_combobox.setCurrentIndex(0)
-        else:
-            config_file = model_config["config_file"]
-            self.model_select_combobox.setCurrentIndex(
-                self.model_select_combobox.findData(config_file)
-            )
-        self.model_select_combobox.currentIndexChanged.connect(
-            self.on_model_select_combobox_changed
-        )
-        self.model_select_combobox.setEnabled(True)
+        self.model_selection_button.setEnabled(True)
 
         # Reset controls to initial values when the model changes
         self.on_conf_value_changed(self.initial_conf_value)
@@ -403,36 +498,6 @@ class AutoLabelingWidget(QWidget):
                 self.output_select_combobox.currentData()
             )
         )
-
-    def on_model_select_combobox_changed(self, index):
-        """Handle model select combobox change"""
-        self.clear_auto_labeling_action_requested.emit()
-        config_path = self.model_select_combobox.itemData(index)
-
-        # Load custom model?
-        if config_path == "load_custom_model":
-            # Unload current model
-            self.model_manager.unload_model()
-            # Open file dialog to select "config.yaml" file for model
-            file_dialog = QFileDialog(self)
-            file_dialog.setFileMode(QFileDialog.ExistingFile)
-            file_dialog.setNameFilter("Config file (*.yaml)")
-            if file_dialog.exec_():
-                config_file = file_dialog.selectedFiles()[0]
-                # Disable combobox while loading model
-                if config_path:
-                    self.model_select_combobox.setEnabled(False)
-                self.hide_labeling_widgets()
-                self.model_manager.load_custom_model(config_file)
-            else:
-                self.model_select_combobox.setCurrentIndex(0)
-            return
-
-        # Disable combobox while loading model
-        if config_path:
-            self.model_select_combobox.setEnabled(False)
-        self.hide_labeling_widgets()
-        self.new_model_selected.emit(config_path)
 
     def update_visible_widgets(self, model_config):
         """Update widget status"""
@@ -561,21 +626,21 @@ class AutoLabelingWidget(QWidget):
         # Define which modes should preserve existing annotations by default
         preserve_annotations_modes = {
             # Modes that should preserve existing annotations (replace=False)
-            "region_to_cat": True,
-            "region_to_desc": True,
-            "region_to_seg": True,
-            "refer_exp_seg": True,
+            "region_to_cat": "Replace (Off)",
+            "region_to_desc": "Replace (Off)",
+            "region_to_seg": "Replace (Off)",
+            "refer_exp_seg": "Replace (Off)",
             # Modes that should replace existing annotations (replace=True)
-            "caption": False,
-            "detailed_cap": False,
-            "more_detailed_cap": False,
-            "od": False,
-            "region_proposal": False,
-            "dense_region_cap": False,
-            "ovd": False,
-            "cap_to_pg": False,
-            "ocr": False,
-            "ocr_with_region": False,
+            "caption": "Replace (On)",
+            "detailed_cap": "Replace (On)",
+            "more_detailed_cap": "Replace (On)",
+            "od": "Replace (On)",
+            "region_proposal": "Replace (On)",
+            "dense_region_cap": "Replace (On)",
+            "ovd": "Replace (On)",
+            "cap_to_pg": "Replace (On)",
+            "ocr": "Replace (On)",
+            "ocr_with_region": "Replace (On)",
         }
 
         # Hide all widgets first
@@ -604,13 +669,13 @@ class AutoLabelingWidget(QWidget):
             # Set the default state for preserve annotations
             if mode in preserve_annotations_modes:
                 # Temporarily disconnect the signal to avoid triggering the callback
-                self.toggle_preserve_existing_annotations.stateChanged.disconnect()
+                self.toggle_preserve_existing_annotations.toggled.disconnect()
                 # Set the state
-                self.toggle_preserve_existing_annotations.setChecked(
+                self.toggle_preserve_existing_annotations.setText(
                     preserve_annotations_modes[mode]
                 )
                 # Reconnect the signal
-                self.toggle_preserve_existing_annotations.stateChanged.connect(
+                self.toggle_preserve_existing_annotations.toggled.connect(
                     self.on_preserve_existing_annotations_state_changed
                 )
                 # Manually trigger the state change to update the model

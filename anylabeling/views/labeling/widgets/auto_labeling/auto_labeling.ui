@@ -24,10 +24,10 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>0</number>
+    <number>5</number>
    </property>
    <property name="leftMargin">
-    <number>2</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
     <number>2</number>
@@ -46,31 +46,13 @@
      <property name="topMargin">
       <number>0</number>
      </property>
-     <item>
-      <widget class="QLabel" name="model_label">
-       <property name="text">
-        <string>Auto</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="model_select_combobox">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>200</width>
-         <height>0</height>
-        </size>
-       </property>
-       <item>
-        <property name="text">
-         <string>No Model</string>
-        </property>
-       </item>
-      </widget>
-     </item>
+    <item>
+        <widget class="QPushButton" name="model_selection_button">
+            <property name="text">
+                <string>No Model</string>
+            </property>
+        </widget>
+    </item>
      <item>
       <widget class="QLabel" name="output_label">
        <property name="text">
@@ -313,7 +295,7 @@
      <item>
       <widget class="QPushButton" name="toggle_preserve_existing_annotations">
           <property name="text">
-              <string>Overwrite Shapes</string>
+              <string>Replace (On)</string>
           </property>
       </widget>
      </item>
@@ -372,7 +354,7 @@
      </property>
      <property name="styleSheet">
       <string notr="true">margin-top: 0;
-margin-bottom: 10px;</string>
+margin-bottom: 2px;</string>
      </property>
      <property name="text">
       <string>Ready!</string>

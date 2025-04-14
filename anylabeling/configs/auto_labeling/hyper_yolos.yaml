@@ -1,6 +1,7 @@
 type: yolov8
 name: hyper_yolos-r20241216
-display_name: Hyper-YOLOs (iMoonLab)
+provider: iMoonLab
+display_name: Hyper-YOLOs
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolos.onnx
 nms_threshold: 0.45
 confidence_threshold: 0.25

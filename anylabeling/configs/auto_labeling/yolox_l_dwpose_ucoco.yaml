@@ -1,6 +1,7 @@
 type: yolox_dwpose
 name: yolox_l_dwpose_ucoco-r20230820
-display_name: DWPose IDEA
+provider: IDEA-Research
+display_name: DWPose
 det_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/yolox_l.onnx
 pose_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/dw-ll_ucoco_384.onnx
 det_input_width: 640

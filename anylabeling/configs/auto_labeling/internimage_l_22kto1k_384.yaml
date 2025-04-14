@@ -1,6 +1,7 @@
-type: internimage_cls
+
 name: internimage_l_22kto1k_384-r20230520
-display_name: InternImage-L OpenGVLab
+provider: OpenGVLab
+display_name: InternImage-L
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.1.0/internimage_l_22kto1k_384.onnx
 classes:
   0: tench

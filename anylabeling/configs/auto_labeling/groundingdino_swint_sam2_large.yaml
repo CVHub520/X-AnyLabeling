@@ -1,5 +1,6 @@
 type: grounding_sam2
 name: groundingdino_swint_sam2_large-r20240806
+provider: IDEA-Research
 display_name: GroundingSAM2
 # Grounding-DINO (swint)
 model_type: groundingdino_swint_ogc

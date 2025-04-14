@@ -1,5 +1,6 @@
 type: yolov5_sam
 name: yolov5s_mobile_sam_vit_h-r20230920
+provider: Others
 display_name: YOLOv5s-MobileSAM (ViT-Huge)
 #SAM
 encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/mobile_sam.encoder.onnx

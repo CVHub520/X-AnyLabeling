@@ -1,5 +1,6 @@
 type: yolov5_det_track
 name: yolov5s_det_botsort-r20240816
+provider: Ultralytics
 display_name: YOLOv5s-Det-BoT-SORT
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
 nms_threshold: 0.5

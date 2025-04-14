@@ -1,5 +1,6 @@
 type: yolov5_resnet
 name: yolov5s_resnet50-r20230520
+provider: Others
 display_name: YOLOv5s-ResNet50
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
 cls_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/resnet50.onnx
