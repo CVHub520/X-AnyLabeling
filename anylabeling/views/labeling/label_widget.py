@@ -8,7 +8,6 @@ import re
 import shutil
 
 import cv2
-import imgviz
 import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSlot
@@ -60,11 +59,7 @@ from .widgets import (
     ZoomWidget,
 )
 
-LABEL_COLORMAP = imgviz.label_colormap()
-
-# Green for the first label
-LABEL_COLORMAP[2] = LABEL_COLORMAP[1]
-LABEL_COLORMAP[1] = [0, 180, 33]
+LABEL_COLORMAP = utils.label_colormap()
 LABEL_OPACITY = 128
 
 

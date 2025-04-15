@@ -1,13 +1,8 @@
 # flake8: noqa
 
 from .batch import run_all_images
+from .colormap import label_colormap
 from .crop import save_crop
-from .general import (
-    gradient_text,
-    hex_to_rgb,
-    is_chinese,
-    find_most_similar_label,
-)
 from .export import (
     export_yolo_annotation,
     export_voc_annotation,
@@ -18,21 +13,11 @@ from .export import (
     export_odvg_annotation,
     export_pporc_annotation,
 )
-from .upload import (
-    upload_image_flags_file,
-    upload_label_flags_file,
-    upload_shape_attrs_file,
-    upload_yolo_annotation,
-    upload_voc_annotation,
-    upload_coco_annotation,
-    upload_dota_annotation,
-    upload_mask_annotation,
-    upload_mot_annotation,
-    upload_odvg_annotation,
-    upload_ppocr_annotation,
-)
-from ._io import (
-    lblsave,
+from .general import (
+    gradient_text,
+    hex_to_rgb,
+    is_chinese,
+    find_most_similar_label,
 )
 from .image import (
     apply_exif_orientation,
@@ -64,5 +49,18 @@ from .shape import (
     shapes_to_label,
     rectangle_from_diagonal,
     shape_conversion,
+)
+from .upload import (
+    upload_image_flags_file,
+    upload_label_flags_file,
+    upload_shape_attrs_file,
+    upload_yolo_annotation,
+    upload_voc_annotation,
+    upload_coco_annotation,
+    upload_dota_annotation,
+    upload_mask_annotation,
+    upload_mot_annotation,
+    upload_odvg_annotation,
+    upload_ppocr_annotation,
 )
 from .video import open_video_file

@@ -1,6 +1,5 @@
 """This module defines Canvas widget - the core component for drawing image labels"""
 
-import imgviz
 import math
 from copy import deepcopy
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -8,6 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QWheelEvent
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
+from anylabeling.views.labeling.utils.colormap import label_colormap
 
 from .. import utils
 from ..shape import Shape
@@ -22,7 +22,7 @@ MOVE_SPEED = 5.0
 LARGE_ROTATION_INCREMENT = 0.1
 SMALL_ROTATION_INCREMENT = 0.01
 
-LABEL_COLORMAP = imgviz.label_colormap()
+LABEL_COLORMAP = label_colormap()
 
 
 class Canvas(
@@ -1386,7 +1386,7 @@ class Canvas(
                     continue
                 p.fillRect(rect, shape.line_color)
 
-            pen = QtGui.QPen(QtGui.QColor("#FFFFFF"), 8, Qt.SolidLine)
+            pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.SolidLine)
             p.setPen(pen)
             for _, _, text_pos, label_text in labels:
                 if not shape.visible:

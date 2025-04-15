@@ -43,7 +43,6 @@ def get_package_name():
 def get_install_requires():
     """Get python requirements based on context"""
     install_requires = [
-        "imgviz>=0.11",
         "natsort>=7.1.0",
         "numpy<=1.26.4",
         "Pillow>=2.8",
