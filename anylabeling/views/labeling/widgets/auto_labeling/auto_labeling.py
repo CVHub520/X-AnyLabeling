@@ -219,7 +219,7 @@ class AutoLabelingWidget(QWidget):
             local_model_data = load_json(_MODELS_CONFIG_PATH)["models_data"]
             model_data["Custom"].update(local_model_data["Custom"])
         except Exception as _:
-            pass
+            local_model_data = {}
 
         self.model_info = {
             "load_custom_model": {
