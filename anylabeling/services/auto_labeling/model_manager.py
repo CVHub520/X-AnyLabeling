@@ -51,6 +51,7 @@ class ModelManager(QObject):
         "grounding_sam",
         "grounding_sam2",
         "grounding_dino",
+        "grounding_dino_api",
         "yolov5_obb",
         "gold_yolo",
         "ram",
@@ -835,6 +836,26 @@ class ModelManager(QObject):
 
             try:
                 model_config["model"] = Grounding_DINO(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                template = "Error in loading model: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
+        elif model_config["type"] == "grounding_dino_api":
+            from .grounding_dino_api import Grounding_DINO_API
+
+            try:
+                model_config["model"] = Grounding_DINO_API(
                     model_config, on_message=self.new_model_status.emit
                 )
                 self.auto_segmentation_model_unselected.emit()
@@ -1845,6 +1866,7 @@ class ModelManager(QObject):
             "damo_yolo",
             "gold_yolo",
             "grounding_dino",
+            "grounding_dino_api",
             "rtdetr",
             "rtdetrv2",
             "yolo_nas",
@@ -1930,6 +1952,7 @@ class ModelManager(QObject):
             "damo_yolo",
             "gold_yolo",
             "grounding_dino",
+            "grounding_dino_api",
             "rtdetr",
             "rtdetrv2",
             "yolo_nas",
@@ -2130,6 +2153,19 @@ class ModelManager(QObject):
             return
 
         self.loaded_model_config["model"].set_upn_mode(mode)
+
+    def set_groundingdino_mode(self, mode):
+        """Set GroundingDino (API) mode"""
+        if self.loaded_model_config is None:
+            return
+
+        if self.loaded_model_config["type"] not in [
+            "upn",
+        ]:
+            return
+
+        self.loaded_model_config["model"].set_groundingdino_mode(mode)
+
 
     def set_florence2_mode(self, mode):
         """Set Florence2 mode"""

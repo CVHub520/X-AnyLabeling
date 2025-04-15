@@ -38,6 +38,7 @@
 
 ## 🥳 What's New
 
+- Support [Grounding-DINO-1.6-API](https://algos.deepdataspace.com/en#/model/grounding_dino) open-set object detection model
 - Support [GeCo](./examples/counting/geco/README.md) zero-shot counting model
 - For more details, please refer to the [Changelog](./docs/en/changelog.md)
 

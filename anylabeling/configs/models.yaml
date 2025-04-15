@@ -70,6 +70,8 @@
   config_file: ":/yolov8m_seg_bytetrack.yaml"
 - model_name: "yolov8x_pose_p6_botsort-r20240816"
   config_file: ":/yolov8x_pose_p6_botsort.yaml"
+- model_name: "grounding_dino_api-r20250415"
+  config_file: ":/grounding_dino_api.yaml"
 - model_name: "groundingdino_swint_ogc_quant-r20231024"
   config_file: ":/groundingdino_swint_ogc_quant.yaml"
 - model_name: "groundingdino_swint_sam2_large-r20240806"

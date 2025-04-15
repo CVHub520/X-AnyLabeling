@@ -72,6 +72,9 @@ class AutoLabelingWidget(QWidget):
         self.florence2_select_combobox.currentIndexChanged.connect(
             self.on_florence2_mode_changed
         )
+        self.gd_select_combobox.currentIndexChanged.connect(
+            self.on_gd_mode_changed
+        )
 
         # Disable tools when inference is running
         def set_enable_tools(enable):
@@ -83,6 +86,7 @@ class AutoLabelingWidget(QWidget):
             self.button_clear.setEnabled(enable)
             self.button_finish_object.setEnabled(enable)
             self.upn_select_combobox.setEnabled(enable)
+            self.gd_select_combobox.setEnabled(enable)
             self.florence2_select_combobox.setEnabled(enable)
 
         self.model_manager.prediction_started.connect(
@@ -202,10 +206,10 @@ class AutoLabelingWidget(QWidget):
         self.auto_labeling_mode = AutoLabelingMode.NONE
         self.auto_labeling_mode_changed.emit(self.auto_labeling_mode)
 
-        # Populate UPN select combobox with modes
+        # Populate select combobox with modes
         self.populate_upn_combobox()
-        # Populate Florence2 select combobox with modes
         self.populate_florence2_combobox()
+        self.populate_gd_combobox()
 
     def init_model_data(self):
         """Get models data"""
@@ -353,6 +357,21 @@ class AutoLabelingWidget(QWidget):
         for mode, display_name in modes.items():
             self.upn_select_combobox.addItem(display_name, userData=mode)
 
+    def populate_gd_combobox(self):
+        """Populate GroundingDino combobox with available modes"""
+        self.gd_select_combobox.clear()
+        # Define modes with display names
+        modes = {
+            "GroundingDino_1_6_Pro": "GroundingDino-1.6-Pro",
+            "GroundingDino_1_6_Edge": "GroundingDino-1.6-Edge",
+            "GroundingDino_1_5_Pro": "GroundingDino-1.5-Pro",
+            "GroundingDino_1_5_Edge": "GroundingDino-1.5-Edge",
+        }
+        # Add modes to combobox
+        for mode, display_name in modes.items():
+            self.gd_select_combobox.addItem(display_name, userData=mode)
+
+
     def populate_florence2_combobox(self):
         """Populate Florence2 combobox with available modes"""
         self.florence2_select_combobox.clear()
@@ -457,6 +476,9 @@ class AutoLabelingWidget(QWidget):
         # Update Florence2 mode in UI if Florence2 model is loaded
         elif model_config.get("type") == "florence2":
             self.update_florence2_mode_ui()
+        # Update GroundingDinomode in UI if GroundingDino model (API) is loaded
+        elif model_config.get("type") == "groundingdino":
+            self.update_groundingdino_mode_ui()
 
     def update_upn_mode_ui(self):
         """Update UPN mode combobox to reflect current backend state"""
@@ -466,6 +488,15 @@ class AutoLabelingWidget(QWidget):
         index = self.upn_select_combobox.findData(current_mode)
         if index != -1:
             self.upn_select_combobox.setCurrentIndex(index)
+
+    def update_groundingdino_mode_ui(self):
+        """Update GroundingDino mode combobox to reflect current backend state"""
+        current_mode = self.model_manager.loaded_model_config[
+            "model"
+        ].prompt_type
+        index = self.gd_select_combobox.findData(current_mode)
+        if index != -1:
+            self.gd_select_combobox.setCurrentIndex(index)
 
     def update_florence2_mode_ui(self):
         """Update Florence2 mode combobox to reflect current backend state"""
@@ -528,6 +559,7 @@ class AutoLabelingWidget(QWidget):
             "toggle_preserve_existing_annotations",
             "button_reset_tracker",
             "upn_select_combobox",
+            "gd_select_combobox",
             "florence2_select_combobox",
         ]
         for widget in widgets:
@@ -572,6 +604,12 @@ class AutoLabelingWidget(QWidget):
         """Handle UPN mode change"""
         mode = self.upn_select_combobox.currentData()
         self.model_manager.set_upn_mode(mode)
+
+    @pyqtSlot()
+    def on_gd_mode_changed(self):
+        """Handle GroundingDino mode change"""
+        mode = self.gd_select_combobox.currentData()
+        self.model_manager.set_groundingdino_mode(mode)
 
     @pyqtSlot()
     def on_florence2_mode_changed(self):

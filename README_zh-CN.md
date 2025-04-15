@@ -37,6 +37,7 @@
 
 ## 🥳 新功能
 
+- 支持 [Grounding-DINO-1.6-API](https://algos.deepdataspace.com/en#/model/grounding_dino) 开集检测模型
 - 支持 [GeCo](./examples/counting/geco/README.md) 零样本计数模型
 - 更多详情，请参考[更新日志](./docs/en/changelog.md)
 
