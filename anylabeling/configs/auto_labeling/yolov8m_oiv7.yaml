@@ -3,8 +3,8 @@ name: yolov8m-oiv7-r20240529
 provider: Ultralytics
 display_name: YOLOv8m (OpenImageV7)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.7/yolov8m-oiv7.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   0: Accordion
   1: Adhesive tape

@@ -3,7 +3,7 @@ name: rtdetrv2s-r20240730
 provider: PaddlePaddle
 display_name: RT-DETRv2-S
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/rtdetrv2_r18vd_120e_coco.onnx
-score_threshold: 0.45
+conf_threshold: 0.45
 classes:
   - person
   - bicycle

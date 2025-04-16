@@ -23,8 +23,8 @@ class YOLOX(Model):
             "display_name",
             "model_path",
             "p6",
-            "nms_threshold",
-            "confidence_threshold",
+            "iou_threshold",
+            "conf_threshold",
             "classes",
         ]
         widgets = [
@@ -56,8 +56,8 @@ class YOLOX(Model):
         self.p6 = self.config["p6"]
         self.classes = self.config["classes"]
         self.input_shape = self.net.get_input_shape()[-2:]
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
+        self.nms_thres = self.config["iou_threshold"]
+        self.conf_thres = self.config["conf_threshold"]
         self.replace = True
 
     def set_auto_labeling_conf(self, value):
@@ -166,7 +166,7 @@ class YOLOX(Model):
         for box, score, cls_inds in zip(
             final_boxes, final_scores, final_cls_inds
         ):
-            if score < self.config["confidence_threshold"]:
+            if score < self.conf_thres:
                 continue
             x1, y1, x2, y2 = box
             score = float(score)

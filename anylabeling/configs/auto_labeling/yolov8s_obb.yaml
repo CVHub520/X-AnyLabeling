@@ -3,8 +3,8 @@ name: yolov8s-obb-r20240111
 provider: Ultralytics
 display_name: YOLOv8s_obb (DOTA-v1.0)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov8s-obb.onnx
-nms_threshold: 0.7
-confidence_threshold: 0.25
+iou_threshold: 0.7
+conf_threshold: 0.25
 classes:
   - plane
   - ship

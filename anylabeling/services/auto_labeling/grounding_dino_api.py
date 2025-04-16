@@ -24,7 +24,7 @@ class Grounding_DINO_API(Model):
             "type",
             "name",
             "display_name",
-            "bbox_threshold",
+            "conf_threshold",
             "iou_threshold",
         ]
         widgets = [
@@ -51,7 +51,7 @@ class Grounding_DINO_API(Model):
         self.detection_url = f"{self.api_base_url.rstrip('/')}/v2/task/grounding_dino/detection"
         self.status_url_template = f"{self.api_base_url.rstrip('/')}/v2/task_status/{{task_uuid}}"
 
-        self.bbox_threshold = self.config["bbox_threshold"]
+        self.bbox_threshold = self.config["conf_threshold"]
         self.iou_threshold = self.config["iou_threshold"]
         self.replace = True
 

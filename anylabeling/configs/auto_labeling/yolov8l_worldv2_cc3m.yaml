@@ -3,8 +3,8 @@ name: yolov8l-worldv2-cc3m-r20240529
 provider: Ultralytics
 display_name: YOLOv8s-worldv2-cc3m
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.7/yolov8l-worldv2-cc3m.onnx
-nms_threshold: 0.3
-confidence_threshold: 0.1
+iou_threshold: 0.3
+conf_threshold: 0.1
 classes:
   - person
   - bicycle

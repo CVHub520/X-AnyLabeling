@@ -30,7 +30,7 @@ class Grounding_DINO(Model):
             "model_path",
             "input_width",
             "input_height",
-            "box_threshold",
+            "conf_threshold",
             "text_threshold",
         ]
         widgets = [
@@ -65,7 +65,7 @@ class Grounding_DINO(Model):
         self.net.tokenizer = self.get_tokenlizer(
             self.model_configs.text_encoder_type
         )
-        self.box_threshold = self.config["box_threshold"]
+        self.box_threshold = self.config["conf_threshold"]
         self.text_threshold = self.config["text_threshold"]
         self.target_size = (
             self.config["input_width"],

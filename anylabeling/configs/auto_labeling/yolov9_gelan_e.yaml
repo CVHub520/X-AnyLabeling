@@ -3,8 +3,8 @@ name: yolov9-gelan-e-r20240224
 provider: Others
 display_name: YOLOv9-GELAN-e
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.2/gelan-e.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 input_width: 640
 input_height: 640
 classes:

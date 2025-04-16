@@ -12,7 +12,6 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
-from .utils.points_conversion import cxywh2xyxy
 
 
 class RTDETRv2(Model):
@@ -24,7 +23,7 @@ class RTDETRv2(Model):
             "name",
             "display_name",
             "model_path",
-            "score_threshold",
+            "conf_threshold",
             "classes",
         ]
         widgets = [
@@ -53,7 +52,7 @@ class RTDETRv2(Model):
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.classes = self.config["classes"]
         self.input_shape = self.net.get_input_shape()[-2:]
-        self.conf_thres = self.config["score_threshold"]
+        self.conf_thres = self.config["conf_threshold"]
         self.replace = True
 
     def set_auto_labeling_conf(self, value):

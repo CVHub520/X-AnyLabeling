@@ -32,8 +32,8 @@ class UPN(Model):
             "name",
             "display_name",
             "model_path",
-            "confidence_threshold",
-            "nms_threshold",
+            "iou_threshold",
+            "conf_threshold",
         ]
         widgets = [
             "button_run",
@@ -68,8 +68,8 @@ class UPN(Model):
         # TODO: Add CPU support for UPN
         self.net = UPNWrapper(model_abs_path, "cuda")
         self.prompt_type = "coarse_grained_prompt"
-        self.conf_thres = self.config.get("confidence_threshold", 0.3)
-        self.nms_thres = self.config.get("nms_threshold", 0.8)
+        self.conf_thres = self.config.get("iou_threshold", 0.3)
+        self.nms_thres = self.config.get("conf_threshold", 0.8)
         self._check_prompt_type()
 
     def _check_prompt_type(self):

@@ -3,5 +3,5 @@ name: upn-r20241128
 provider: IDEA-Research
 display_name: Universal Proposal Network
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/upn_large.pth
-confidence_threshold: 0.3
-nms_threshold: 0.8
+iou_threshold: 0.45
+conf_threshold: 0.25

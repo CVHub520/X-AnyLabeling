@@ -80,8 +80,8 @@ class YOLOv8SegmentAnything2(YOLO):
         self.agnostic = self.config.get("agnostic", False)
         self.show_boxes = self.config.get("show_boxes", False)
         self.strategy = self.config.get("strategy", "largest")
-        self.iou_thres = self.config.get("nms_threshold", 0.45)
-        self.conf_thres = self.config.get("confidence_threshold", 0.25)
+        self.iou_thres = self.config.get("iou_threshold", 0.45)
+        self.conf_thres = self.config.get("conf_threshold", 0.25)
         self.filter_classes = self.config.get("filter_classes", None)
 
         self.task = "det"

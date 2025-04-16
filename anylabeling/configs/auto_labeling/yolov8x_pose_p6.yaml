@@ -3,8 +3,8 @@ name: yolov8x-pose-p6-r20231103
 provider: Ultralytics
 display_name: YOLOv8x-Pose-P6
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x-pose-p6.onnx
-confidence_threshold: 0.5
-nms_threshold: 0.6
+conf_threshold: 0.5
+iou_threshold: 0.6
 kpt_threshold: 0.25
 has_visible: true
 classes:

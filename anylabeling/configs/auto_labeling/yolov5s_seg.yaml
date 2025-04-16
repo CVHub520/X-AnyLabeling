@@ -3,8 +3,8 @@ name: yolov5s-seg-r20231027
 provider: Ultralytics
 display_name: YOLOv5s-Seg
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov5s-seg.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

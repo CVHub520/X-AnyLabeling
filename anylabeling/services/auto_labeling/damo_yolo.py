@@ -23,8 +23,8 @@ class DAMO_YOLO(Model):
             "name",
             "display_name",
             "model_path",
-            "nms_threshold",
-            "confidence_threshold",
+            "iou_threshold",
+            "conf_threshold",
             "classes",
         ]
         widgets = [
@@ -58,8 +58,8 @@ class DAMO_YOLO(Model):
         self.filter_classes = self.config.get("filter_classes", [])
         self.input_shape = self.net.get_input_shape()
         self.input_size = self.input_shape[-2:]
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
+        self.nms_thres = self.config["iou_threshold"]
+        self.conf_thres = self.config["conf_threshold"]
         self.replace = True
 
     def set_auto_labeling_conf(self, value):

@@ -3,7 +3,7 @@ name: yolov10b-r20240525
 provider: THU
 display_name: YOLOv10b
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.6/yolov10b.onnx
-confidence_threshold: 0.25
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

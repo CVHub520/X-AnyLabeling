@@ -228,8 +228,8 @@ class YOLO_NAS(Model):
             "name",
             "display_name",
             "model_path",
-            "confidence_threshold",
-            "nms_threshold",
+            "conf_threshold",
+            "iou_threshold",
             "classes",
         ]
         widgets = [
@@ -265,12 +265,12 @@ class YOLO_NAS(Model):
         )
         self.postprocess = Postprocessing(
             YOLO_NAS_DEFAULT_PROCESSING_STEPS,
-            self.config["nms_threshold"],
-            self.config["confidence_threshold"],
+            self.config["iou_threshold"],
+            self.config["conf_threshold"],
         )
         self.filter_classes = self.config.get("filter_classes", [])
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
+        self.nms_thres = self.config["iou_threshold"]
+        self.conf_thres = self.config["conf_threshold"]
         self.replace = True
 
     def set_auto_labeling_conf(self, value):

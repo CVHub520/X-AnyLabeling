@@ -3,8 +3,8 @@ name: yolo11s-pose-r20240930
 provider: Ultralytics
 display_name: YOLO11s-Pose
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-pose.onnx
-confidence_threshold: 0.5
-nms_threshold: 0.6
+conf_threshold: 0.5
+iou_threshold: 0.6
 kpt_threshold: 0.25
 has_visible: true
 classes:

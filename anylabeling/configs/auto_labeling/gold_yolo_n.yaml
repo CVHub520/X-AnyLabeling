@@ -3,8 +3,8 @@ name: gold_yolo_n-r20231001
 provider: HuaWei
 display_name: Gold-YOLO-N
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/Gold_n_dist.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

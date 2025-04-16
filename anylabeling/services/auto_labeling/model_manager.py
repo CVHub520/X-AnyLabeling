@@ -13,84 +13,24 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.config import get_config, save_config
 from anylabeling.services.auto_labeling.types import AutoLabelingResult
 from anylabeling.services.auto_labeling.utils import TimeoutContext
+from anylabeling.services.auto_labeling import (
+    _CUSTOM_MODELS,
+    _CACHED_AUTO_LABELING_MODELS,
+    _AUTO_LABELING_MARKS_MODELS,
+    _AUTO_LABELING_API_TOKEN_MODELS,
+    _AUTO_LABELING_RESET_TRACKER_MODELS,
+    _AUTO_LABELING_CONF_MODELS,
+    _AUTO_LABELING_IOU_MODELS,
+    _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS,
+    _AUTO_LABELING_PROMPT_MODELS,
+    _ON_NEXT_FILES_CHANGED_MODELS,
+)
 
 
 class ModelManager(QObject):
     """Model manager"""
 
     MAX_NUM_CUSTOM_MODELS = 5
-    CUSTOM_MODELS = [
-        "florence2",
-        "doclayout_yolo",
-        "open_vision",
-        "segment_anything",
-        "segment_anything_2",
-        "segment_anything_2_video",
-        "sam_med2d",
-        "sam_hq",
-        "yolov5",
-        "yolov6",
-        "yolov7",
-        "yolov8",
-        "yolov8_seg",
-        "yolox",
-        "yolov5_resnet",
-        "yolov6_face",
-        "rtdetr",
-        "yolo_nas",
-        "yolox_dwpose",
-        "clrnet",
-        "ppocr_v4",
-        "yolov5_sam",
-        "yolov8_sam2",
-        "efficientvit_sam",
-        "yolov5_track",
-        "damo_yolo",
-        "yolov5_sahi",
-        "yolov8_sahi",
-        "grounding_sam",
-        "grounding_sam2",
-        "grounding_dino",
-        "grounding_dino_api",
-        "yolov5_obb",
-        "gold_yolo",
-        "ram",
-        "yolov5_seg",
-        "yolov5_ram",
-        "yolov8_pose",
-        "pulc_attribute",
-        "internimage_cls",
-        "edge_sam",
-        "yolov5_cls",
-        "yolov8_cls",
-        "yolov8_obb",
-        "yolov5_car_plate",
-        "rtmdet_pose",
-        "yolov9",
-        "yolow",
-        "yolov10",
-        "rmbg",
-        "depth_anything",
-        "depth_anything_v2",
-        "yolow_ram",
-        "rtdetrv2",
-        "yolov8_det_track",
-        "yolov8_seg_track",
-        "yolov8_obb_track",
-        "yolov8_pose_track",
-        "yolo11",
-        "yolo11_cls",
-        "yolo11_obb",
-        "yolo11_seg",
-        "yolo11_pose",
-        "yolo11_det_track",
-        "yolo11_seg_track",
-        "yolo11_obb_track",
-        "yolo11_pose_track",
-        "upn",
-        "geco",
-    ]
-
     model_configs_changed = pyqtSignal(list)
     new_model_status = pyqtSignal(str)
     model_loaded = pyqtSignal(dict)
@@ -244,7 +184,7 @@ class ModelManager(QObject):
             "type" not in model_config
             or "display_name" not in model_config
             or "name" not in model_config
-            or model_config["type"] not in self.CUSTOM_MODELS
+            or model_config["type"] not in _CUSTOM_MODELS
         ):
             if "type" not in model_config:
                 logger.error(
@@ -1801,12 +1741,9 @@ class ModelManager(QObject):
 
     def set_cache_auto_label(self, text, gid):
         """Set cache auto label"""
-        valid_models = [
-            "segment_anything_2_video",
-        ]
         if (
             self.loaded_model_config is not None
-            and self.loaded_model_config["type"] in valid_models
+            and self.loaded_model_config["type"] in _CACHED_AUTO_LABELING_MODELS
         ):
             self.loaded_model_config["model"].set_cache_auto_label(text, gid)
 
@@ -1814,36 +1751,18 @@ class ModelManager(QObject):
         """Set auto labeling marks
         (For example, for segment_anything model, it is the marks for)
         """
-        marks_model_list = [
-            "segment_anything",
-            "segment_anything_2",
-            "segment_anything_2_video",
-            "sam_med2d",
-            "sam_hq",
-            "yolov5_sam",
-            "efficientvit_sam",
-            "grounding_sam",
-            "grounding_sam2",
-            "open_vision",
-            "edge_sam",
-            "florence2",
-            "geco",
-        ]
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in marks_model_list
+            or self.loaded_model_config["type"] not in _AUTO_LABELING_MARKS_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_marks(marks)
 
     def set_auto_labeling_api_token(self, token):
         """Set the API token for the model"""
-        model_list = [
-            "grounding_dino_api",
-        ]
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in model_list
+            or self.loaded_model_config["type"] not in _AUTO_LABELING_API_TOKEN_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_api_token(token)
@@ -1852,165 +1771,45 @@ class ModelManager(QObject):
         """Resets the tracker to its initial state,
         clearing all tracked objects and internal states.
         """
-        model_list = [
-            "yolov5_det_track",
-            "yolov8_det_track",
-            "yolov8_obb_track",
-            "yolov8_seg_track",
-            "yolov8_pose_track",
-            "segment_anything_2_video",
-            "yolo11_det_track",
-            "yolo11_seg_track",
-            "yolo11_obb_track",
-            "yolo11_pose_track",
-        ]
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in model_list
+            or self.loaded_model_config["type"] not in _AUTO_LABELING_RESET_TRACKER_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_reset_tracker()
 
     def set_auto_labeling_conf(self, value):
         """Set auto labeling confidences"""
-        model_list = [
-            "upn",
-            "damo_yolo",
-            "gold_yolo",
-            "grounding_dino",
-            "grounding_dino_api",
-            "rtdetr",
-            "rtdetrv2",
-            "yolo_nas",
-            "yolov5_obb",
-            "yolov5_seg",
-            "yolov5_det_track",
-            "yolov5",
-            "yolov6",
-            "yolov6_face",
-            "yolov7",
-            "yolov8_sam2",
-            "yolov8_obb",
-            "yolov8_pose",
-            "yolov8_seg",
-            "yolov8_det_track",
-            "yolov8_seg_track",
-            "yolov8_obb_track",
-            "yolov8_pose_track",
-            "yolov8",
-            "yolov9",
-            "yolov10",
-            "yolo11",
-            "yolo11_obb",
-            "yolo11_seg",
-            "yolo11_pose",
-            "yolo11_det_track",
-            "yolo11_seg_track",
-            "yolo11_obb_track",
-            "yolo11_pose_track",
-            "yolow",
-            "yolox",
-            "doclayout_yolo",
-        ]
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in model_list
+            or self.loaded_model_config["type"] not in _AUTO_LABELING_CONF_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_conf(value)
 
     def set_auto_labeling_iou(self, value):
         """Set auto labeling iou"""
-        model_list = [
-            "upn",
-            "damo_yolo",
-            "gold_yolo",
-            "yolo_nas",
-            "yolov5_obb",
-            "yolov5_seg",
-            "yolov5_det_track",
-            "yolov5",
-            "yolov6",
-            "yolov7",
-            "yolov8_sam2",
-            "yolov8_obb",
-            "yolov8_pose",
-            "yolov8_seg",
-            "yolov8_det_track",
-            "yolov8_seg_track",
-            "yolov8_obb_track",
-            "yolov8_pose_track",
-            "yolov8",
-            "yolov9",
-            "yolo11",
-            "yolo11_obb",
-            "yolo11_seg",
-            "yolo11_pose",
-            "yolo11_det_track",
-            "yolo11_seg_track",
-            "yolo11_obb_track",
-            "yolo11_pose_track",
-            "yolox",
-        ]
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in model_list
+            or self.loaded_model_config["type"] not in _AUTO_LABELING_IOU_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_iou(value)
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        model_list = [
-            "damo_yolo",
-            "gold_yolo",
-            "grounding_dino",
-            "grounding_dino_api",
-            "rtdetr",
-            "rtdetrv2",
-            "yolo_nas",
-            "yolov5_obb",
-            "yolov5_seg",
-            "yolov5_det_track",
-            "yolov5",
-            "yolov6",
-            "yolov7",
-            "yolov8_sam2",
-            "yolov8_obb",
-            "yolov8_pose",
-            "yolov8_seg",
-            "yolov8_det_track",
-            "yolov8_seg_track",
-            "yolov8_obb_track",
-            "yolov8_pose_track",
-            "yolov8",
-            "yolov9",
-            "yolov10",
-            "yolo11",
-            "yolo11_obb",
-            "yolo11_seg",
-            "yolo11_pose",
-            "yolo11_det_track",
-            "yolo11_seg_track",
-            "yolo11_obb_track",
-            "yolo11_pose_track",
-            "yolow",
-            "yolox",
-            "doclayout_yolo",
-            "florence2",
-        ]
         if (
             self.loaded_model_config is not None
-            and self.loaded_model_config["type"] in model_list
+            and self.loaded_model_config["type"] in 
+            _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS
         ):
             self.loaded_model_config[
                 "model"
             ].set_auto_labeling_preserve_existing_annotations_state(state)
 
     def set_auto_labeling_prompt(self):
-        model_list = ["segment_anything_2_video"]
         if (
             self.loaded_model_config is not None
-            and self.loaded_model_config["type"] in model_list
+            and self.loaded_model_config["type"] in _AUTO_LABELING_PROMPT_MODELS
         ):
             self.loaded_model_config["model"].set_auto_labeling_prompt()
 
@@ -2137,56 +1936,32 @@ class ModelManager(QObject):
             return
 
         # Currently only segment_anything-like model supports this feature
-        if self.loaded_model_config["type"] not in [
-            "segment_anything",
-            "segment_anything_2",
-            "sam_med2d",
-            "sam_hq",
-            "yolov5_sam",
-            "yolov8_sam2",
-            "efficientvit_sam",
-            "grounding_sam",
-            "grounding_sam2",
-            "edge_sam",
-            "geco",
-        ]:
+        if self.loaded_model_config["type"] not in _ON_NEXT_FILES_CHANGED_MODELS:
             return
 
         self.loaded_model_config["model"].on_next_files_changed(next_files)
 
+    # Specific model setters
     def set_upn_mode(self, mode):
         """Set UPN mode"""
         if self.loaded_model_config is None:
             return
 
-        if self.loaded_model_config["type"] not in [
-            "upn",
-        ]:
-            return
-
-        self.loaded_model_config["model"].set_upn_mode(mode)
+        if self.loaded_model_config["type"] == "upn":
+            self.loaded_model_config["model"].set_upn_mode(mode)
 
     def set_groundingdino_mode(self, mode):
         """Set GroundingDino (API) mode"""
         if self.loaded_model_config is None:
             return
 
-        if self.loaded_model_config["type"] not in [
-            "upn",
-        ]:
-            return
-
-        self.loaded_model_config["model"].set_groundingdino_mode(mode)
-
+        if self.loaded_model_config["type"] == "grounding_dino_api":
+            self.loaded_model_config["model"].set_groundingdino_mode(mode)
 
     def set_florence2_mode(self, mode):
         """Set Florence2 mode"""
         if self.loaded_model_config is None:
             return
 
-        if self.loaded_model_config["type"] not in [
-            "florence2",
-        ]:
-            return
-
-        self.loaded_model_config["model"].set_florence2_mode(mode)
+        if self.loaded_model_config["type"] == "florence2":
+            self.loaded_model_config["model"].set_florence2_mode(mode)

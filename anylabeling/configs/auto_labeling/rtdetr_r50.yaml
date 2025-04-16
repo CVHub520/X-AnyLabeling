@@ -3,7 +3,7 @@ name: rtdetr_r50-r20230520
 provider: PaddlePaddle
 display_name: RT-DETR (ResNet50)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/rtdetr_r50vd_6x_coco.onnx
-score_threshold: 0.25
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

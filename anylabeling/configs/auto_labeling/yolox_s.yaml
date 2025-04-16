@@ -4,8 +4,8 @@ provider: Megvii
 display_name: YOLOX
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolox_s.onnx
 p6: False
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

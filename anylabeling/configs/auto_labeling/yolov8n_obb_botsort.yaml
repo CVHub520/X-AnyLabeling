@@ -3,8 +3,8 @@ name: yolov8n_obb_botsort-r20240816
 provider: Ultralytics
 display_name: YOLOv8n-Obb-BoT-SORT
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/yolov8n_obb_car_bus.onnx
-nms_threshold: 0.5
-confidence_threshold: 0.1
+iou_threshold: 0.5
+conf_threshold: 0.1
 tracker:
   # Base settings
   tracker_type: botsort # tracker type, ['botsort', 'bytetrack']

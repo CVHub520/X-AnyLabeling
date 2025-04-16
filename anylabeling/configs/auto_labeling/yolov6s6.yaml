@@ -3,8 +3,8 @@ name: yolov6s6-r20230520
 provider: MeiTuan
 display_name: YOLOv6s6
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6s6.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

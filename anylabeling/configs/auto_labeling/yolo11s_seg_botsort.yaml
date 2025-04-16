@@ -3,8 +3,8 @@ name: yolo11s_seg_botsort-r20240930
 provider: Ultralytics
 display_name: YOLO11s-Seg-BoT-SORT
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-seg.onnx
-nms_threshold: 0.5
-confidence_threshold: 0.1
+iou_threshold: 0.5
+conf_threshold: 0.1
 # show_boxes: True
 tracker:
   # Base settings

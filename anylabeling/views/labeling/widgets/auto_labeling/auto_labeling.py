@@ -10,9 +10,12 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 
-
 from anylabeling.services.auto_labeling.model_manager import ModelManager
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
+from anylabeling.services.auto_labeling import (
+    _AUTO_LABELING_IOU_MODELS,
+    _AUTO_LABELING_CONF_MODELS,
+)
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.style import (
     get_lineedit_style,
@@ -495,20 +498,40 @@ class AutoLabelingWidget(QWidget):
         self.model_selection_button.setEnabled(True)
 
         # Reset controls to initial values when the model changes
-        self.on_conf_value_changed(self.initial_conf_value)
-        self.on_iou_value_changed(self.initial_iou_value)
+        try:
+            if self.model_manager.loaded_model_config["type"] in _AUTO_LABELING_IOU_MODELS:
+                initial_iou_value = self.model_manager.loaded_model_config["iou_threshold"]
+                self.edit_iou.setValue(initial_iou_value)
+            else:
+                initial_iou_value = 0.0
+                self.edit_iou.setValue(initial_iou_value)
+        except Exception as _:
+            initial_iou_value = 0.0
+            self.edit_iou.setValue(initial_iou_value)
+
+        try:
+            if self.model_manager.loaded_model_config["type"] in _AUTO_LABELING_CONF_MODELS:
+                initial_conf_value = self.model_manager.loaded_model_config["conf_threshold"]
+                self.edit_conf.setValue(initial_conf_value)
+            else:
+                initial_conf_value = 0.0
+                self.edit_conf.setValue(initial_conf_value)
+        except Exception as _:
+            initial_conf_value = 0.0
+            self.edit_conf.setValue(initial_conf_value)
+
+        self.on_reset_tracker()
+        self.on_iou_value_changed(initial_iou_value)
+        self.on_conf_value_changed(initial_conf_value)
         self.on_preserve_existing_annotations_state_changed(
             self.initial_preserve_annotations_state
         )
-        self.on_reset_tracker()
 
-        # Update UPN mode in UI if UPN model is loaded
+        # Update specific mode in UI if specific model is loaded
         if model_config.get("type") == "upn":
             self.update_upn_mode_ui()
-        # Update Florence2 mode in UI if Florence2 model is loaded
         elif model_config.get("type") == "florence2":
             self.update_florence2_mode_ui()
-        # Update GroundingDinomode in UI if GroundingDino model (API) is loaded
         elif model_config.get("type") == "groundingdino":
             self.update_groundingdino_mode_ui()
 
@@ -613,20 +636,22 @@ class AutoLabelingWidget(QWidget):
         return True
 
     def on_conf_value_changed(self, value):
-        self.initial_conf_value = value
+        """Handle conf value changed"""
         self.model_manager.set_auto_labeling_conf(value)
 
     def on_iou_value_changed(self, value):
-        self.initial_iou_value = value
+        """Handle iou value changed"""
         self.model_manager.set_auto_labeling_iou(value)
 
     def on_preserve_existing_annotations_state_changed(self, state):
+        """Handle preserve existing annotations state changed"""
         self.initial_preserve_annotations_state = state
         self.model_manager.set_auto_labeling_preserve_existing_annotations_state(
             state
         )
 
     def on_reset_tracker(self):
+        """Handle reset tracker"""
         self.model_manager.set_auto_labeling_reset_tracker()
 
     def on_set_api_token(self):

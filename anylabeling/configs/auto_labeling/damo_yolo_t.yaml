@@ -3,8 +3,8 @@ name: damo_yolo_t-r20231001
 provider: Alibaba
 display_name: DAMO-YOLO-T
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/damoyolo_tinynasL20_T_420.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

@@ -5,8 +5,8 @@ display_name: YOLOv8s-SAM2 (Base)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8s.onnx
 encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_base_plus.encoder.onnx
 decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_base_plus.decoder.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle

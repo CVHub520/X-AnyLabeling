@@ -27,8 +27,8 @@ class YOLOv5OBB(Model):
             "display_name",
             "model_path",
             "stride",
-            "nms_threshold",
-            "confidence_threshold",
+            "iou_threshold",
+            "conf_threshold",
             "classes",
         ]
         widgets = [
@@ -60,8 +60,8 @@ class YOLOv5OBB(Model):
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.stride = self.config["stride"]
         self.classes = self.config["classes"]
-        self.nms_thres = self.config["nms_threshold"]
-        self.conf_thres = self.config["confidence_threshold"]
+        self.nms_thres = self.config["iou_threshold"]
+        self.conf_thres = self.config["conf_threshold"]
 
         _, _, h, w = self.net.get_input_shape()
         self.input_shape = (h, w)
