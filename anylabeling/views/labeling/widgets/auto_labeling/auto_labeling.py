@@ -231,19 +231,35 @@ class AutoLabelingWidget(QWidget):
             "favorite": False,
             "display_name": "...Load Custom Model",
         }}}
-
-        try:
-            local_model_data = load_json(_MODELS_CONFIG_PATH)["models_data"]
-            model_data["Custom"].update(local_model_data["Custom"])
-        except Exception as _:
-            local_model_data = {}
-
         self.model_info = {
             "load_custom_model": {
                 "display_name": "...Load Custom Model",
                 "config_path": None,
             }
         }
+
+        try:
+            local_model_data = load_json(_MODELS_CONFIG_PATH)["models_data"]
+            for model_name, model_dict in local_model_data["Custom"].items():
+                if model_name == "load_custom_model":
+                    continue
+                elif not os.path.exists(model_dict["config_path"]):
+                    continue
+
+                model_data["Custom"][model_name] = {
+                    "selected": False,
+                    "favorite": model_dict["favorite"],
+                    "display_name": model_dict["display_name"],
+                    "config_path": model_dict["config_path"]
+                }
+
+                self.model_info[model_name] = {
+                    "display_name": model_dict["display_name"],
+                    "config_path": model_dict["config_path"]
+                }
+
+        except Exception as _:
+            local_model_data = {}
 
         model_list = self.model_manager.get_model_configs()
         for model_dict in model_list:
@@ -257,6 +273,7 @@ class AutoLabelingWidget(QWidget):
                 model_data[provider_name] = {}
 
             if provider_name in local_model_data and model_name in local_model_data[provider_name]:
+                local_model_data[provider_name][model_name]["selected"] = False
                 model_data[provider_name].update(local_model_data[provider_name])
             else:
                 model_data[provider_name][model_name] = {
@@ -267,7 +284,7 @@ class AutoLabelingWidget(QWidget):
 
             self.model_info[model_name] = {
                 "display_name": model_dict["display_name"],
-                "config_path": model_dict["config_file"],
+                "config_path": None if model_name == "load_custom_model" else model_dict["config_file"],
             }
 
         # Sort the collected model_data
@@ -303,9 +320,8 @@ class AutoLabelingWidget(QWidget):
         self.model_dropdown.adjustSize()
         self.model_dropdown.show()
 
-    def on_model_selected(self, model_name):
+    def on_model_selected(self, provider, model_name):
         """Handle the model selected event"""
-        config_path = self.model_info[model_name]["config_path"]
 
         if model_name == "load_custom_model":
             # Unload current model first
@@ -329,34 +345,37 @@ class AutoLabelingWidget(QWidget):
                     config_info = yaml.safe_load(f)
                 self.model_info[config_info["name"]] = {
                     "display_name": config_info["display_name"],
-                    "config_path": None,
+                    "config_path": config_file,
                 }
 
                 # update model_data
-                model_data = self.init_model_data()
-                model_data["Custom"]["load_custom_model"]["selected"] = False
-                model_data["Custom"][config_info["name"]] = {
+                models_data = self.init_model_data()
+                models_data["Custom"]["load_custom_model"]["selected"] = False
+                models_data["Custom"][config_info["name"]] = {
                     "selected": True,
                     "favorite": False,
                     "display_name": config_info["display_name"],
+                    "config_path": config_file,
                 }
-                save_json(model_data, _MODELS_CONFIG_PATH)
-                self.model_dropdown.update_models_data(model_data)
+                save_json({"models_data": models_data}, _MODELS_CONFIG_PATH)
+                self.model_dropdown.update_models_data(models_data)
 
                 self.clear_auto_labeling_action_requested.emit()
                 self.model_selection_button.setText(config_info["display_name"])
-                if config_path:
-                    self.model_selection_button.setEnabled(False)
+                self.model_selection_button.setEnabled(False)
 
             return
 
         self.clear_auto_labeling_action_requested.emit()
         self.model_selection_button.setText(self.model_info[model_name]["display_name"])
 
-        if config_path:
-            self.model_selection_button.setEnabled(False)
+        self.model_selection_button.setEnabled(False)
         self.hide_labeling_widgets()
-        self.new_model_selected.emit(config_path)
+
+        if provider == "Custom":
+            self.model_manager.load_custom_model(self.model_info[model_name]["config_path"])
+        else:
+            self.new_model_selected.emit(self.model_info[model_name]["config_path"])
 
     def populate_upn_combobox(self):
         """Populate UPN combobox with available modes"""

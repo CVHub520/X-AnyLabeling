@@ -229,7 +229,7 @@ class ModelItem(QFrame):
 
 
 class SearchableModelDropdownPopup(QWidget):
-    modelSelected = pyqtSignal(str)
+    modelSelected = pyqtSignal(str, str)
 
     def __init__(self, models_data: dict = {}, parent=None):
         super().__init__(parent)
@@ -385,7 +385,7 @@ class SearchableModelDropdownPopup(QWidget):
                 self.model_items[model_name].update_selection(True)
                 self.models_data[provider][model_name]["selected"] = True
                 self.save_models_data()
-                self.modelSelected.emit(model_name)
+                self.modelSelected.emit(provider, model_name)
                 break
 
         self.close()
