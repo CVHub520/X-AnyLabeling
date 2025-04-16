@@ -1836,6 +1836,18 @@ class ModelManager(QObject):
             return
         self.loaded_model_config["model"].set_auto_labeling_marks(marks)
 
+    def set_auto_labeling_api_token(self, token):
+        """Set the API token for the model"""
+        model_list = [
+            "grounding_dino_api",
+        ]
+        if (
+            self.loaded_model_config is None
+            or self.loaded_model_config["type"] not in model_list
+        ):
+            return
+        self.loaded_model_config["model"].set_auto_labeling_api_token(token)
+
     def set_auto_labeling_reset_tracker(self):
         """Resets the tracker to its initial state,
         clearing all tracked objects and internal states.

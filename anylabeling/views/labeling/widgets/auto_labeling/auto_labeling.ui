@@ -327,6 +327,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_set_api_token">
+       <property name="text">
+        <string>Set API Token</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="button_reset_tracker">
        <property name="text">
         <string>Reset Tracker</string>

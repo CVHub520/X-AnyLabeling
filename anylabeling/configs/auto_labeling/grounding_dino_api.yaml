@@ -2,7 +2,5 @@ type: grounding_dino_api
 name: grounding_dino_api-r20250415
 provider: IDEA-Research
 display_name: GroundingDINO (API)
-api_base_url: https://api.deepdataspace.com
-api_token: null
 bbox_threshold: 0.25
 iou_threshold: 0.80

@@ -4,10 +4,16 @@ import collections
 
 from PyQt5 import uic
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QPoint
-from PyQt5.QtWidgets import QWidget, QFileDialog
+from PyQt5.QtWidgets import (
+    QDialog,
+    QFileDialog,
+    QWidget,
+)
+
 
 from anylabeling.services.auto_labeling.model_manager import ModelManager
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
+from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.style import (
     get_lineedit_style,
     get_double_spinbox_style,
@@ -15,6 +21,7 @@ from anylabeling.views.labeling.utils.style import (
     get_highlight_button_style,
     get_toggle_button_style,
 )
+from anylabeling.views.labeling.widgets.api_token_dialog import ApiTokenDialog
 from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
     load_json,
     save_json,
@@ -122,6 +129,11 @@ class AutoLabelingWidget(QWidget):
         self.button_reset_tracker.setStyleSheet(get_normal_button_style())
         self.button_reset_tracker.clicked.connect(self.on_reset_tracker)
 
+        # --- Configuration for: button_set_api_token ---
+        self.button_set_api_token.setStyleSheet(get_normal_button_style())
+        self.button_set_api_token.setToolTip(self.tr("You can set the API token via the GROUNDING_DINO_API_TOKEN environment variable"))
+        self.button_set_api_token.clicked.connect(self.on_set_api_token)
+
         # --- Configuration for: button_send ---
         self.button_send.setStyleSheet(get_highlight_button_style())
         self.button_send.clicked.connect(self.run_vl_prediction)
@@ -182,6 +194,7 @@ class AutoLabelingWidget(QWidget):
         self.toggle_preserve_existing_annotations.setStyleSheet(get_normal_button_style())
         tooltip_on = self.tr("Existing shapes will be preserved during updates. Click to switch to overwriting.")
         tooltip_off = self.tr("Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving.")
+        self.toggle_preserve_existing_annotations.setToolTip(tooltip_off)
         self.toggle_preserve_existing_annotations.clicked.connect(
             lambda checked: (
                 self.toggle_preserve_existing_annotations.setToolTip(tooltip_on if checked else tooltip_off),
@@ -535,8 +548,11 @@ class AutoLabelingWidget(QWidget):
         if not model_config or "model" not in model_config:
             return
         widgets = model_config["model"].get_required_widgets()
-        for widget in widgets:
-            getattr(self, widget).show()
+        for widget_name in widgets:
+            if hasattr(self, widget_name):
+                getattr(self, widget_name).show()
+            else:
+                logger.warning(f"Warning: Widget '{widget_name}' not found in AutoLabelingWidget.")
 
     def hide_labeling_widgets(self):
         """Hide labeling widgets by default"""
@@ -557,6 +573,7 @@ class AutoLabelingWidget(QWidget):
             "output_label",
             "output_select_combobox",
             "toggle_preserve_existing_annotations",
+            "button_set_api_token",
             "button_reset_tracker",
             "upn_select_combobox",
             "gd_select_combobox",
@@ -592,6 +609,16 @@ class AutoLabelingWidget(QWidget):
 
     def on_reset_tracker(self):
         self.model_manager.set_auto_labeling_reset_tracker()
+
+    def on_set_api_token(self):
+        """Show a dialog to input the API token."""
+        dialog = ApiTokenDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            token = dialog.get_token()
+            try:
+                self.model_manager.set_auto_labeling_api_token(token)
+            except Exception as e:
+                logger.error(f"Error setting API token: {e}")
 
     def on_cache_auto_label_changed(self, text, gid):
         self.model_manager.set_cache_auto_label(text, gid)

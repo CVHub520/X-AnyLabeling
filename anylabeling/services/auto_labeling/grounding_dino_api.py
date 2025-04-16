@@ -1,6 +1,7 @@
 import base64
 import cv2
 import json
+import os
 import re
 import requests
 import time
@@ -23,8 +24,6 @@ class Grounding_DINO_API(Model):
             "type",
             "name",
             "display_name",
-            "api_base_url",
-            "api_token",
             "bbox_threshold",
             "iou_threshold",
         ]
@@ -37,6 +36,7 @@ class Grounding_DINO_API(Model):
             "input_iou",
             "edit_iou",
             "toggle_preserve_existing_annotations",
+            "button_set_api_token",
         ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
@@ -46,8 +46,7 @@ class Grounding_DINO_API(Model):
     def __init__(self, model_config, on_message) -> None:
         super().__init__(model_config, on_message)
 
-        self.api_base_url = self.config["api_base_url"]
-        self.api_token = self.config["api_token"]
+        self.api_base_url = "https://api.deepdataspace.com"
         self.model_name = "GroundingDino-1.6-Pro"
         self.detection_url = f"{self.api_base_url.rstrip('/')}/v2/task/grounding_dino/detection"
         self.status_url_template = f"{self.api_base_url.rstrip('/')}/v2/task_status/{{task_uuid}}"
@@ -58,8 +57,12 @@ class Grounding_DINO_API(Model):
 
         self.headers = {
             "Content-Type": "application/json",
-            "Token": self.api_token
+            "Token": os.getenv("GROUNDING_DINO_API_TOKEN", "")
         }
+
+    def set_auto_labeling_api_token(self, token):
+        """Set the API token for the model"""
+        self.headers["Token"] = token
 
     def set_groundingdino_mode(self, value):
         """set model name"""
@@ -93,36 +96,28 @@ class Grounding_DINO_API(Model):
             logger.warning("Input image is None.")
             return AutoLabelingResult([], replace=self.replace)
 
-        # Check API Token
-        if not self.api_token:
-            raise ValueError("API Token is not configured. Please set it in the configuration file.")
+        if not self.headers["Token"]:
+            raise ValueError("API Token is not configured. Please set it before calling.")
 
-        # Check Text Prompt
-        if not text_prompt: # Checks for None or empty string
-            raise ValueError("Text prompt is required for Grounding DINO API.")
+        if not text_prompt:
+            raise ValueError("Empty text prompt.")
 
+        text_prompt = text_prompt.rstrip(".")
         prompt_pattern = r"^[a-zA-Z]+(\.[a-zA-Z]+)*$"
         if not re.match(prompt_pattern, text_prompt):
-            logger.error(f"Invalid text prompt format: '{text_prompt}'. "
-                         f"It should be English words separated by '.' (e.g., 'cat.dog').")
             raise ValueError(f"Invalid text prompt format. "
                              f"It should be English words separated by '.' (e.g., 'cat.dog').")
 
-        try:
-            cv_image = qt_img_to_rgb_cv_img(image, image_path)
-            if cv_image is None:
-                raise ValueError("Failed to convert input image to OpenCV format.")
+        cv_image = qt_img_to_rgb_cv_img(image, image_path)
+        if cv_image is None:
+            raise ValueError("Failed to convert input image to OpenCV format.")
 
-            # Encode image to base64 as PNG
-            is_success, buffer = cv2.imencode(".png", cv_image)
-            if not is_success:
-                raise ValueError("Failed to encode image.")
-            img_base64 = base64.b64encode(buffer).decode('utf-8')
-            img_data_uri = f"data:image/png;base64,{img_base64}"
-
-        except Exception as e:
-            logger.error(f"Error processing image: {e}")
-            raise ValueError("Error processing image.")
+        # Encode image to base64 as PNG
+        is_success, buffer = cv2.imencode(".png", cv_image)
+        if not is_success:
+            raise ValueError("Failed to encode image.")
+        img_base64 = base64.b64encode(buffer).decode('utf-8')
+        img_data_uri = f"data:image/png;base64,{img_base64}"
 
         payload = {
             "model": self.model_name,
@@ -144,6 +139,7 @@ class Grounding_DINO_API(Model):
                          f"targets: {['bbox']}, "
                          f"bbox_threshold: {self.bbox_threshold}, "
                          f"iou_threshold: {self.iou_threshold}")
+
             start_time = time.time()
             resp = requests.post(
                 url=self.detection_url,
@@ -165,7 +161,7 @@ class Grounding_DINO_API(Model):
 
             status_url = self.status_url_template.format(task_uuid=task_uuid)
             polling_attempts = 0
-            max_polling_attempts = 60
+            max_polling_attempts = 30
             while polling_attempts < max_polling_attempts:
                 polling_attempts += 1
                 time.sleep(1)
