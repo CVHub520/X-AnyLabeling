@@ -146,4 +146,8 @@ def get_providers_data() -> dict:
         if provider not in custom_providers_data:
             custom_providers_data[provider] = provider_data
 
+    for provider, provider_data in default_providers_data.items():
+        if provider not in custom_providers_data:
+            custom_providers_data[provider] = provider_data
+
     return custom_providers_data

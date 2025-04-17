@@ -88,6 +88,13 @@ DEFAULT_PROVIDERS_DATA = {
         "api_docs_url": "https://platform.openai.com/docs",
         "model_docs_url": "https://platform.openai.com/docs/models",
     },
+    "openrouter": {
+        "api_address": "https://openrouter.ai/api/v1",
+        "api_key": None,
+        "api_key_url": "https://openrouter.ai/settings/keys",
+        "api_docs_url": "https://openrouter.ai/docs/quick-start",
+        "model_docs_url": "https://openrouter.ai/models",
+    },
     "qwen": {
         "api_address": "https://dashscope.aliyuncs.com/compatible-mode/v1",
         "api_key": None,
