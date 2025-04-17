@@ -1215,9 +1215,7 @@ class ChatbotDialog(QDialog):
                 self.loading_message.content_label = QLabel("")
                 self.loading_message.content_label.setWordWrap(True)
                 self.loading_message.content_label.setTextFormat(Qt.PlainText)
-                self.loading_message.content_label.setStyleSheet(
-                    ChatMessageStyle.get_content_label_style(is_error=False)
-                )
+                self.loading_message.content_label.setStyleSheet(ChatMessageStyle.get_fade_in_text_style())
                 self.loading_message.content_label.setMinimumWidth(100)
                 self.loading_message.content_label.setMaximumWidth(1999)
                 self.loading_message.bubble.layout().addWidget(
@@ -1238,6 +1236,11 @@ class ChatbotDialog(QDialog):
             # Get the final text
             final_text = ""
             if hasattr(self.loading_message, "content_label"):
+                animation = QPropertyAnimation(self.loading_message.content_label, b"styleSheet")
+                animation.setDuration(300)
+                animation.setStartValue(ChatMessageStyle.get_animation_style(0.5))
+                animation.setEndValue(ChatMessageStyle.get_animation_style(1.0))
+                animation.start()
                 final_text = self.loading_message.content_label.text()
 
             # Store reference to loading message for removal

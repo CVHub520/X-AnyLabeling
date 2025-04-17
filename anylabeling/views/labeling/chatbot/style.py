@@ -687,6 +687,30 @@ class ChatMessageStyle:
             }}
         """
 
+    def get_fade_in_text_style(theme: Dict[str, str] = None):
+        theme = theme or THEME
+        return f"""
+            QLabel {{
+                color: rgba(0, 0, 0, 0.5);
+                font-size: {FONT_SIZE_NORMAL};
+                background-color: transparent;
+                padding: 0px 0px;
+                font-weight: normal;
+            }}
+        """
+
+    def get_animation_style(alpha, theme: Dict[str, str] = None):
+        theme = theme or THEME
+        return f"""
+            QLabel {{
+                color: rgba(0, 0, 0, {alpha});
+                font-size: {FONT_SIZE_NORMAL};
+                background-color: transparent;
+                padding: 0px 0px;
+                font-weight: normal;
+            }}
+        """
+
     def get_edit_area_style(theme: Dict[str, str] = None):
         theme = theme or THEME
         return f"""
