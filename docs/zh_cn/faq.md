@@ -4,9 +4,33 @@
 ### 安装与运行相关问题
 
 <details>
-<summary>Q: 启动时报错：`qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.` </summary>
+<summary>Q: 启动时报错：Gtk-WARNING **: 17:40:30.674: Could not load a pixbuf from icon theme </summary>
+
+可参考[#893](https://github.com/CVHub520/X-AnyLabeling/issues/893)。
+</details>
+
+<details>
+<summary>Q: 启动时报错：AttributeError: 'NoneType' object has no attribute 'items'</summary>
+
+可删除用户目录下的 `.xanylabelingrc` 文件再尝试重启。详情可参考[#877](https://github.com/CVHub520/X-AnyLabeling/issues/877)。
+</details>
+
+<details>
+<summary>Q: 启动时报错：`Could not locate cublasLt64_12.dll. Please make sure it is in your library path!` </summary>
+
+OnnxRunTime 库与 CUDA 版本不兼容，详情可参考[#844](https://github.com/CVHub520/X-AnyLabeling/issues/844)。
+</details>
+
+<details>
+<summary>Q: 启动时报错：`qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found` </summary>
 
 可参考[#541](https://github.com/CVHub520/X-AnyLabeling/issues/541)、[#496](https://github.com/CVHub520/X-AnyLabeling/issues/496)。
+</details>
+
+<details>
+<summary>Q: 启动时报错：`qt.qpa.plugin: Could not find the Qt platform plugin "wayland" in "/usr/lib/qt/plugins/platforms/"` </summary>
+
+可参考[#761](https://github.com/CVHub520/X-AnyLabeling/issues/761)。
 </details>
 
 <details>
@@ -21,8 +45,33 @@
 添加 `chmod 0700 /run/user/1000/` 到 `.bashrc` 文件中激活并重新启动应用即可。
 </details>
 
+<details>
+<summary>Q: 启动软件时出现 `AttributeError: module 'importlib.resources' has no attribute 'files'` </summary>
+
+请将 Python 版本升级至 3.9 及以上。
+</details>
+
 
 ### 界面交互相关问题
+
+<details>
+<summary>Q: 绘制矩形等目标框时，如何开启连续绘制模式？</summary>
+
+可以打开电脑用户目录下的 .xanylabelingrc 配置文件，修改 auto_highlight_shape 和 auto_switch_to_edit_mode 为 False。
+详情可参考[#887](https://github.com/CVHub520/X-AnyLabeling/issues/887)。 
+</details>
+
+<details>
+<summary>Q: 在高分辨率显示器上界面显示模糊</summary>
+
+可参考[#811](https://github.com/CVHub520/X-AnyLabeling/issues/811)。
+</details>
+
+<details>
+<summary>Q: 标注完成后，没有弹出标签管理器自动分配标签名称？</summary>
+
+取消勾选 `Auto Use Last Label`，详情可参考[#805](https://github.com/CVHub520/X-AnyLabeling/issues/805)。
+</details>
 
 <details>
 <summary>Q: 应用启动时，首次点击无效？</summary>
@@ -38,6 +87,52 @@
 
 
 ### 模型相关问题
+
+<details>
+<summary>Q: ERROR | model_manager:predict_shapes:2031 - Error in predict_shapes: '<=' not supported between instances of 'int' and 'str'</summary>
+
+请检查模型配置文件（*.yaml）是否正确，具体可参考此[#902](https://github.com/CVHub520/X-AnyLabeling/issues/902)。
+</details>
+
+<details>
+<summary>Q: Error in model prediction:openCV(4.7.0)xxx\opencv-python\opencv-python\opencv\modulesl\imgproc\src\resize.cpp:4065: error: (-215:Assertion failed) inv_scale_x >0 in function'cv::resize'</summary>
+
+可尝试以下解决方案：
+- 配置文件中置顶图片宽高信息，参考[#885](https://github.com/CVHub520/X-AnyLabeling/issues/885)。
+- 检查导出模型时是否设置了动态 batch？参考[#784](https://github.com/CVHub520/X-AnyLabeling/issues/784)。
+</details>
+
+<details>
+<summary>Q: 运行 yolo-pose 模型出现 `Error in loading model: 'list' object has no attribute 'items'`</summary>
+
+未按照官方模板编写配置文件，详情可参考[#880](https://github.com/CVHub520/X-AnyLabeling/issues/880)。
+</details>
+
+<details>
+<summary>Q: Error in predict_shapes or Error in model prediction: list index out of range. Please check the model.</summary>
+
+可参考以下解决方案：
+    - 检查标签名称是否为纯数字，若是，请务必将其加上单引号；
+    - 检查配置文件中 `type` 字段是否正确定义，详情可参考[#837](https://github.com/CVHub520/X-AnyLabeling/issues/837)、[#878](https://github.com/CVHub520/X-AnyLabeling/issues/878)；
+</details>
+
+<details>
+<summary>Q: Error with Error in loading model: exceptions must derive from BaseException</summary>
+
+请确保配置文件中，模型路径格式正确且存在。详情可参考[#868](https://github.com/CVHub520/X-AnyLabeling/issues/868)、[#441](https://github.com/CVHub520/X-AnyLabeling/issues/441)。
+</details>
+
+<details>
+<summary>Q: Error in model prediction: ‘int’ object is not subscriptable. Please check the model.</summary>
+
+如果是非官方内置的自定义模型，请检查模型预处理、推理和后处理部分，详情可参考[#828](https://github.com/CVHub520/X-AnyLabeling/issues/828).
+</details>
+
+<details>
+<summary>Q: 安装 SAM2 出现的报错问题：`from sam2 import _C`</summary>
+
+可参考[#719](https://github.com/CVHub520/X-AnyLabeling/issues/719)、[#842](https://github.com/CVHub520/X-AnyLabeling/issues/842)、[#843](https://github.com/CVHub520/X-AnyLabeling/issues/843)、[#864](https://github.com/CVHub520/X-AnyLabeling/issues/865)、[#865](https://github.com/CVHub520/X-AnyLabeling/issues/865)。
+</details>
 
 <details>
 <summary>Q: 下载完的模型每次重新启动应用时都被自动删除重新下载</summary>
@@ -69,6 +164,7 @@ pip install --upgrade onnx
 
 1. 检查配置文件中的定义的类别与模型支持的类别列表是否一致。
 2. 使用 [netron](https://netron.app/) 工具比较自定义模型与官方对应的内置模型输入输出节点维度是否一致。
+3. 检查模型配置文件各个字段是否正确，详情可参考[#888](https://github.com/CVHub520/X-AnyLabeling/issues/888)。
 </details>
 
 <details>
@@ -128,7 +224,47 @@ pip install --upgrade onnx
 可参考[#865](https://github.com/CVHub520/X-AnyLabeling/issues/865)。
 </details>
 
+<details>
+<summary>Q: 运行 GPU 版本时出现 `FAIL : Failed to load library libonnxruntime_providers_cuda.so with error: libcudnn.so.9: cannot open shared object file: No such file or directory` 错误</summary>
+
+可参考[此教程](../zh_cn/get_started.md)中 "步骤 0. 安装 ONNX Runtime" 安装匹配版本。
+此外，可查看[#834](https://github.com/CVHub520/X-AnyLabeling/issues/834)。
+</details>
+
+<details>
+<summary>Q: 运行 GPU 版本时出现 `ImportError: DLL load failed while importing onnx_cpp2py_export: 动态链接库(DLL)初始化例程失败` 错误</summary>
+
+onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.com/CVHub520/X-AnyLabeling/issues/886)
+</details>
+
+
 ### 标签导入导出相关问题
+
+<details>
+<summary>Q: 加载文件时，出现 `a bytes-like object is required, not 'NoneType'`，确保 xxx.json 是一个有效的标签文件</summary>
+
+请检查 *.json 文件中，`imagePath` 字段值是否与图像文件名一致。具体可参考此[#869](https://github.com/CVHub520/X-AnyLabeling/issues/869)。
+</details>
+
+<details>
+<summary>Q: 导入的标签文件为空</summary>
+
+请检查是否存在以下情况：
+    - 标注类型与导出类型不一致，例如标注的的是 `rectangle` 矩形框，导出时选择 `Polygon` 选项；
+    - 导入的图像文件夹存在多级嵌套的子文件夹，详情可参考[#839](https://github.com/CVHub520/X-AnyLabeling/issues/839)；
+</details>
+
+<details>
+<summary>Q: 导入和导出 yolo 关键点标签时闪退</summary>
+
+请检查模型配置文件（*.yaml）是否正确，具体可参考此[#898](https://github.com/CVHub520/X-AnyLabeling/issues/898)。
+</details>
+
+<details>
+<summary>Q: 导入标签时出现 `invalid literal for int() with base 10`</summary>
+
+可参考[#782](https://github.com/CVHub520/X-AnyLabeling/issues/782)。
+</details>
 
 <details>
 <summary>Q: Export mask error: "imageWidth"</summary>
