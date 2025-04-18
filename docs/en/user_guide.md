@@ -42,6 +42,7 @@
       * [7.4 Auto-Switch to Edit Mode](#74-auto-switch-to-edit-mode)
       * [7.5 Hover Auto-Highlight Mode](#75-hover-auto-highlight-mode)
       * [7.6 Shape Property Customization](#76-shape-property-customization)
+      * [7.7 Configuring Model Download Sources](#77-configuring-model-download-sources)
   * [8. Tasks](#8-tasks)
       * [8.1 Image Classification](#81-image-classification)
       * [8.2 Object Detection](#82-object-detection)
@@ -743,6 +744,31 @@ shape:
   line_width: 4
 ...
 ```
+
+### 7.7 Configuring Model Download Sources
+
+X-AnyLabeling can download pre-trained models from different model hubs. You can specify your preferred download source using an environment variable, by editing the `.xanylabelingrc` configuration file, or based on the software's language setting. The sources are prioritized as follows:
+
+1.  **Environment Variable (Highest Priority)**: Set the `XANYLABELING_MODEL_HUB` environment variable.
+    *   Example (Linux/macOS): `export XANYLABELING_MODEL_HUB=modelscope`
+    *   Example (Windows): `set XANYLABELING_MODEL_HUB=modelscope`
+    *   If this variable is set to `modelscope`, X-AnyLabeling will exclusively use ModelScope, overriding any setting in the configuration file. If it's set to any other value or left empty, the configuration file setting will be considered next.
+
+2.  **Configuration File (Medium Priority)**: Modify the `.xanylabelingrc` file located in your user directory.
+    *   Locate the `model_hub` field within the file.
+    *   Possible values are `github` (the default) or `modelscope`.
+    *   This setting takes effect only if the `XANYLABELING_MODEL_HUB` environment variable is not set or is empty. Setting `model_hub: modelscope` here will prioritize downloading models from ModelScope.
+
+    ```yaml
+    language: en_US
+    model_hub: github  # Options: github, modelscope
+    ...
+    ```
+
+3.  **Language Setting (Lowest Priority)**:
+    *   If neither the environment variable nor the configuration file explicitly specifies `modelscope` (meaning they are unset, empty, or set to `github`), *and* the software language is set to Chinese (`language: zh_CN`), X-AnyLabeling will attempt to download models from ModelScope by default.
+    *   In all other scenarios (e.g., the language is set to English and `modelscope` hasn't been specified via the environment variable or config file), the default GitHub URL will be used for downloads.
+
 
 ## 8. Tasks
 

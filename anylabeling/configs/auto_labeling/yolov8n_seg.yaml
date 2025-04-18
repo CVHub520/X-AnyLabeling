@@ -1,5 +1,5 @@
 type: yolov8_seg
-name: yolov8n-seg-r20230620
+name: yolov8n_seg-r20230620
 provider: Ultralytics
 display_name: YOLOv8n-Seg
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n-seg.onnx

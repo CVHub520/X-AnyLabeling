@@ -38,6 +38,7 @@
 
 ## 🥳 What's New
 
+- Support downloading models from [ModelScope](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43) as an alternative source
 - Support [Grounding-DINO-1.6-API](https://algos.deepdataspace.com/en#/model/grounding_dino) open-set object detection model
 - Support [GeCo](./examples/counting/geco/README.md) zero-shot counting model
 - For more details, please refer to the [Changelog](./docs/en/changelog.md)

@@ -3,27 +3,25 @@ import pathlib
 import yaml
 import onnx
 import urllib.request
+import time
 from urllib.parse import urlparse
-
-from PyQt5.QtCore import QCoreApplication
+from urllib.error import URLError
 
 import ssl
-
 ssl._create_default_https_context = (
     ssl._create_unverified_context
 )  # Prevent issue when downloading models behind a proxy
 
 import socket
-
 socket.setdefaulttimeout(240)  # Prevent timeout when downloading models
 
 from abc import abstractmethod
 
-
-from PyQt5.QtCore import QFile, QObject
+from PyQt5.QtCore import QCoreApplication, QFile, QObject
 from PyQt5.QtGui import QImage
 
 from .types import AutoLabelingResult
+from anylabeling.config import get_config
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
 
@@ -32,6 +30,10 @@ class Model(QObject):
     BASE_DOWNLOAD_URL = (
         "https://github.com/CVHub520/X-AnyLabeling/releases/tag"
     )
+
+    # Add retry settings
+    MAX_RETRIES = 2
+    RETRY_DELAY = 3  # seconds
 
     class Meta(QObject):
         required_config_names = []
@@ -67,6 +69,7 @@ class Model(QObject):
             config=self.config,
         )
         self.output_mode = self.Meta.default_output_mode
+        self._config = get_config()
 
     def get_required_widgets(self):
         """
@@ -76,6 +79,8 @@ class Model(QObject):
 
     @staticmethod
     def allow_migrate_data():
+        """Check if the current env have write permissions
+        """
         home_dir = os.path.expanduser("~")
         old_model_path = os.path.join(home_dir, "anylabeling_data")
         new_model_path = os.path.join(home_dir, "xanylabeling_data")
@@ -85,17 +90,35 @@ class Model(QObject):
         ):
             return True
 
-        # Check if the current env have write permissions
         if not os.access(home_dir, os.W_OK):
             return False
 
-        # Attempt to migrate data
         try:
             os.rename(old_model_path, new_model_path)
             return True
         except Exception as e:
             logger.error(f"An error occurred during data migration: {str(e)}")
             return False
+
+    def download_with_retry(self, url, dest_path, progress_callback):
+        """Download file with retry mechanism
+        """
+        for attempt in range(self.MAX_RETRIES):
+            try:
+                if attempt > 0:
+                    logger.warning(f"Retry attempt {attempt + 1}/{self.MAX_RETRIES}")
+                urllib.request.urlretrieve(url, dest_path, progress_callback)
+                return True
+            except URLError as e:
+                delay = self.RETRY_DELAY * (attempt + 1)
+                if attempt < self.MAX_RETRIES - 1:
+                    error_msg = f"Connection failed, retrying in {delay}s... (Attempt {attempt + 1}/{self.MAX_RETRIES} failed)"
+                    logger.warning(error_msg)
+                    self.on_message(error_msg)
+                    time.sleep(delay)
+                else:
+                    logger.warning(f"All download attempts failed ({self.MAX_RETRIES} tries)")
+                    raise e
 
     def get_model_abs_path(self, model_config, model_path_field_name):
         """
@@ -164,6 +187,7 @@ class Model(QObject):
                     logger.warning("Action: Delete and redownload...")
                     try:
                         os.remove(model_abs_path)
+                        time.sleep(1)
                     except Exception as e:  # noqa
                         logger.error(f"Could not delete: {str(e)}")
                 else:
@@ -173,14 +197,31 @@ class Model(QObject):
         pathlib.Path(model_abs_path).parent.mkdir(parents=True, exist_ok=True)
 
         # Download url
+        use_modelscope = False
+        env_model_hub = os.getenv("XANYLABELING_MODEL_HUB")
+        if env_model_hub == "modelscope":
+            use_modelscope = True
+        elif env_model_hub is None or env_model_hub == "": # Only check config if env var is not set or empty
+             if self._config.get("model_hub") == "modelscope":
+                 use_modelscope = True
+             # Fallback to language check only if model_hub is not 'modelscope'
+             elif self._config.get("model_hub") is None or self._config.get("model_hub") == "":
+                 if self._config.get("language") == "zh_CN":
+                     use_modelscope = True
+
+        if use_modelscope:
+            model_type = model_config["name"].split("-")[0]
+            model_name = os.path.basename(download_url)
+            download_url = f"https://www.modelscope.cn/models/CVHub520/{model_type}/resolve/master/{model_name}"
+
         ellipsis_download_url = download_url
         if len(download_url) > 40:
             ellipsis_download_url = (
                 download_url[:20] + "..." + download_url[-20:]
             )
-        logger.info(f"Downloading {ellipsis_download_url} to {model_abs_path}")
+
+        logger.info(f"Downloading {download_url} to {model_abs_path}")
         try:
-            # Download and show progress
             def _progress(count, block_size, total_size):
                 percent = int(count * block_size * 100 / total_size)
                 self.on_message(
@@ -191,12 +232,12 @@ class Model(QObject):
                     )
                 )
 
-            urllib.request.urlretrieve(
-                download_url, model_abs_path, reporthook=_progress
-            )
+            self.download_with_retry(download_url, model_abs_path, _progress)
+
         except Exception as e:  # noqa
-            logger.error(f"Could not download {download_url}: {e}")
-            self.on_message(f"Could not download {download_url}")
+            logger.error(f"Could not download {download_url}: {e}, you can try to download it manually.")
+            self.on_message(f"Download failed! Please try again later.")
+            time.sleep(1)
             return None
 
         return model_abs_path

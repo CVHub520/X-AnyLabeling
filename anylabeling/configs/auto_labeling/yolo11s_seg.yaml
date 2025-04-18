@@ -1,5 +1,5 @@
 type: yolo11_seg
-name: yolo11s-seg-r20240930
+name: yolo11s_seg-r20240930
 provider: Ultralytics
 display_name: YOLO11s-Seg
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-seg.onnx

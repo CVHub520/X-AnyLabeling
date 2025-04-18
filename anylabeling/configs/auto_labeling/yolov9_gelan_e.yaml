@@ -1,5 +1,5 @@
 type: yolov9
-name: yolov9-gelan-e-r20240224
+name: yolov9_gelan_e-r20240224
 provider: Others
 display_name: YOLOv9-GELAN-e
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.2/gelan-e.onnx

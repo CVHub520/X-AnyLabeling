@@ -42,6 +42,7 @@
       * [7.4 自动切换编辑模式](#74-自动切换编辑模式)
       * [7.5 悬浮自动高亮模式](#75-悬浮自动高亮模式)
       * [7.6 对象属性自定义](#76-对象属性自定义)
+      * [7.7 模型下载源配置](#77-模型下载源配置)
    * [8. 任务](#8-任务)
       * [8.1 图像分类](#81-图像分类)
       * [8.2 目标检测](#82-目标检测)
@@ -751,6 +752,31 @@ shape:
   line_width: 4
 ...
 ```
+
+### 7.7 模型下载源配置
+
+X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以通过设置环境变量、修改配置文件 `.xanylabelingrc` 或根据软件语言来指定模型下载源。下载源的优先级顺序如下：
+
+1.  **环境变量 (最高优先级)**: 设置环境变量 `XANYLABELING_MODEL_HUB`。
+    -   例如，在 Linux/macOS 使用 `export XANYLABELING_MODEL_HUB=modelscope`。
+    -   在 Windows 使用 `set XANYLABELING_MODEL_HUB=modelscope`。
+    -   如果此环境变量设置为 `modelscope`，将强制使用 ModelScope，覆盖配置文件的设置。如果设置为其他值或为空，则会考虑配置文件。
+
+2.  **配置文件 (中等优先级)**: 打开用户目录下的配置文件 `.xanylabelingrc`。
+    -   找到 `model_hub` 字段。
+    -   可选值为 `github` (默认) 或 `modelscope`。
+    -   如果环境变量 `XANYLABELING_MODEL_HUB` 未设置或为空，则此配置生效。设置为 `model_hub: modelscope` 将优先从 ModelScope 下载模型。
+
+    ```yaml
+    language: en_US
+    model_hub: github  # 可选: github, modelscope
+    ...
+    ```
+
+3.  **语言设置 (最低优先级)**:
+    -   如果环境变量和配置文件中的 `model_hub` 都没有明确设置为 `modelscope`（即它们未设置、为空或为 `github`），则软件语言设置为中文 (`language: zh_CN`) 时，会默认尝试从 ModelScope 下载模型。
+    -   在其他情况下（例如，语言为英文，且没有其他设置指定 `modelscope`），将使用默认的 GitHub URL。
+
 
 ## 8. 任务
 

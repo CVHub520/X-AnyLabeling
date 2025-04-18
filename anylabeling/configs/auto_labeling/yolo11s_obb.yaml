@@ -1,5 +1,5 @@
 type: yolo11_obb
-name: yolo11s-obb-r20240930
+name: yolo11s_obb-r20240930
 provider: Ultralytics
 display_name: YOLO11s_obb (DOTA-v1.0)
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-obb.onnx

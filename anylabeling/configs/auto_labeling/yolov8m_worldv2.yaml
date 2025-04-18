@@ -1,5 +1,5 @@
 type: yolow
-name: yolov8m-worldv2-r20240529
+name: yolov8m_worldv2-r20240529
 provider: Ultralytics
 display_name: YOLOv8m-worldv2
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.7/yolov8m-worldv2.onnx
