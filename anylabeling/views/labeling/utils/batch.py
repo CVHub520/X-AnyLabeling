@@ -194,7 +194,10 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
                 data["description"] = new_description
             else:
                 data["shapes"].extend(new_shapes)
-                data["description"] += new_description
+                if "description" in data:
+                    data["description"] += new_description
+                else:
+                    data["description"] = new_description
         else:
             if self._config["store_data"]:
                 image_data = base64.b64encode(image_data).decode("utf-8")
