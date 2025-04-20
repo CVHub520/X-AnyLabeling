@@ -1,7 +1,6 @@
 import base64
 import json
 import os.path as osp
-import time
 from PIL import Image
 
 from PyQt5 import QtWidgets
@@ -242,7 +241,6 @@ def process_next_image(self, progress_dialog):
                 self.filename = image_file
                 self.load_file(self.filename)
                 batch = False
-                time.sleep(0.1)
 
             if self.text_prompt:
                 auto_labeling_result = (

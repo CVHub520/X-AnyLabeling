@@ -198,31 +198,53 @@ class SegmentAnything(Model):
                 shape.label = "AUTOLABEL_OBJECT"
                 shape.selected = False
                 shapes.append(shape)
-        elif self.output_mode in ["rectangle", "rotation"]:
+        elif self.output_mode == "rectangle":
+            x_min = 100000000
+            y_min = 100000000
+            x_max = 0
+            y_max = 0
+            for approx in approx_contours:
+                points = approx.reshape(-1, 2)
+                points[:, 0] = points[:, 0]
+                points[:, 1] = points[:, 1]
+                points = points.tolist()
+                if len(points) < 3:
+                    continue
+
+                for point in points:
+                    x_min = min(x_min, point[0])
+                    y_min = min(y_min, point[1])
+                    x_max = max(x_max, point[0])
+                    y_max = max(y_max, point[1])
+
             shape = Shape(flags={})
-            rectangle_box, rotation_box = get_bounding_boxes(
-                approx_contours[0]
-            )
-            xmin, ymin, xmax, ymax = rectangle_box
-            if self.output_mode == "rectangle":
-                shape.add_point(QtCore.QPointF(int(xmin), int(ymin)))
-                shape.add_point(QtCore.QPointF(int(xmax), int(ymin)))
-                shape.add_point(QtCore.QPointF(int(xmax), int(ymax)))
-                shape.add_point(QtCore.QPointF(int(xmin), int(ymax)))
-            else:
-                for point in rotation_box:
-                    shape.add_point(
-                        QtCore.QPointF(int(point[0]), int(point[1]))
-                    )
-                shape.direction = calculate_rotation_theta(rotation_box)
-            shape.shape_type = self.output_mode
+            shape.add_point(QtCore.QPointF(x_min, y_min))
+            shape.add_point(QtCore.QPointF(x_max, y_min))
+            shape.add_point(QtCore.QPointF(x_max, y_max))
+            shape.add_point(QtCore.QPointF(x_min, y_max))
+            shape.shape_type = "rectangle"
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
             if self.clip_net is not None and self.classes:
-                img = image[ymin:ymax, xmin:xmax]
+                img = image[y_min:y_max, x_min:x_max]
                 out = self.clip_net(img, self.classes)
                 shape.cache_label = self.classes[int(np.argmax(out))]
+            shape.label = "AUTOLABEL_OBJECT"
+            shape.selected = False
+            shapes.append(shape)
+        elif self.output_mode == "rotation":
+            shape = Shape(flags={})
+            rotation_box = get_bounding_boxes(approx_contours[0])[1]
+            for point in rotation_box:
+                shape.add_point(
+                    QtCore.QPointF(int(point[0]), int(point[1]))
+                )
+            shape.direction = calculate_rotation_theta(rotation_box)
+            shape.shape_type = self.output_mode
+            shape.closed = True
+            shape.fill_color = "#000000"
+            shape.line_color = "#000000"
             shape.label = "AUTOLABEL_OBJECT"
             shape.selected = False
             shapes.append(shape)
