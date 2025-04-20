@@ -69,8 +69,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         return sorted(list(gid_info))
 
     def init_ui(self):
-        """Initialize the UI.
-        """
+        """Initialize the UI."""
 
         self.setWindowTitle(self.tr("Group ID Change Manager"))
         self.setWindowFlags(
@@ -165,7 +164,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             """
         )
 
-        self.table_widget.verticalHeader().setStyleSheet("color: #666666; font-size: 13px;")
+        self.table_widget.verticalHeader().setStyleSheet(
+            "color: #666666; font-size: 13px;"
+        )
         self.table_widget.verticalHeader().setDefaultAlignment(Qt.AlignCenter)
         self.table_widget.verticalHeader().setFixedWidth(30)
 
@@ -227,8 +228,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.populate_table()
 
     def move_to_center(self):
-        """Move the dialog to the center of the screen.
-        """
+        """Move the dialog to the center of the screen."""
         qr = self.frameGeometry()
         cp = QtWidgets.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
@@ -236,8 +236,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.move(qr.topLeft())
 
     def populate_table(self):
-        """Populate the table with the group IDs.
-        """
+        """Populate the table with the group IDs."""
         for i, group_id in enumerate(self.gid_info):
             self.table_widget.insertRow(i)
 
@@ -269,8 +268,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             self.table_widget.setRowHeight(i, 50)
 
     def confirm_changes(self):
-        """Confirm the changes.
-        """
+        """Confirm the changes."""
         total_num = self.table_widget.rowCount()
         if total_num == 0:
             self.reject()
@@ -317,8 +315,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             popup.show_popup(self.parent)
 
     def modify_group_id(self, updated_gid_info):
-        """Modify the group IDs.
-        """
+        """Modify the group IDs."""
         try:
             for shape_file in self.shape_list:
                 with open(shape_file, "r", encoding="utf-8") as f:

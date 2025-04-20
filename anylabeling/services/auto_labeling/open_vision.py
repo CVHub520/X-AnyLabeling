@@ -103,9 +103,11 @@ class OpenVision(Model):
             keywords=self.keywords,
             conf_threshold=self.box_threshold,
             pretrain_model_path=model_abs_path,
-            device="cuda"
-            if torch.cuda.is_available() and __preferred_device__ == "GPU"
-            else "cpu",
+            device=(
+                "cuda"
+                if torch.cuda.is_available() and __preferred_device__ == "GPU"
+                else "cpu"
+            ),
         )
         self.net = self.build_model(model_config)
         self.net.to(self.device)

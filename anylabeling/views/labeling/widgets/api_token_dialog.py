@@ -40,14 +40,20 @@ class ApiTokenDialog(QDialog):
         self.api_key_input.setEchoMode(QLineEdit.Password)
         self.api_key_input.setPlaceholderText(self.tr("Enter API key"))
         self.api_key_input.setStyleSheet(get_lineedit_style())
-        self.api_key_input.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        button_size = self.api_key_input.sizeHint().height() # Match height of line edit
+        self.api_key_input.setSizePolicy(
+            QSizePolicy.Expanding, QSizePolicy.Fixed
+        )
+        button_size = (
+            self.api_key_input.sizeHint().height()
+        )  # Match height of line edit
 
         self.toggle_visibility_btn = QPushButton()
         self.toggle_visibility_btn.setCheckable(True)
         self.toggle_visibility_btn.setFixedSize(button_size, button_size)
         self.toggle_visibility_btn.setStyleSheet(get_normal_button_style())
-        self.toggle_visibility_btn.clicked.connect(self.toggle_api_key_visibility)
+        self.toggle_visibility_btn.clicked.connect(
+            self.toggle_api_key_visibility
+        )
 
         # Set initial icon/text
         self._update_visibility_button(False)
@@ -57,7 +63,9 @@ class ApiTokenDialog(QDialog):
         self.layout.addLayout(api_key_container)
 
         # OK and Cancel buttons
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
         ok_button = self.button_box.button(QDialogButtonBox.Ok)
         cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
         if ok_button:
@@ -76,21 +84,23 @@ class ApiTokenDialog(QDialog):
         # Use shorter text labels as fallback if icons fail or aren't available
         show_text = self.tr("Show")
         hide_text = self.tr("Hide")
-        if checked: # Visible state
+        if checked:  # Visible state
             try:
                 self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye")))
                 self.toggle_visibility_btn.setText("")
                 self.toggle_visibility_btn.setToolTip(hide_text)
-            except: # noqa
+            except:  # noqa
                 self.toggle_visibility_btn.setIcon(QIcon())
                 self.toggle_visibility_btn.setText(hide_text)
                 self.toggle_visibility_btn.setToolTip("")
-        else: # Hidden state (Password mode)
+        else:  # Hidden state (Password mode)
             try:
-                self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
+                self.toggle_visibility_btn.setIcon(
+                    QIcon(set_icon_path("eye-off"))
+                )
                 self.toggle_visibility_btn.setText("")
                 self.toggle_visibility_btn.setToolTip(show_text)
-            except: # noqa
+            except:  # noqa
                 self.toggle_visibility_btn.setIcon(QIcon())
                 self.toggle_visibility_btn.setText(show_text)
                 self.toggle_visibility_btn.setToolTip("")

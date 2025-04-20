@@ -172,9 +172,11 @@ class Florence2(Model):
         # Move inputs to device and match model dtype
         model_dtype = next(self.model.parameters()).dtype
         inputs = {
-            k: v.to(device=self.device, dtype=model_dtype)
-            if torch.is_floating_point(v)
-            else v.to(self.device)
+            k: (
+                v.to(device=self.device, dtype=model_dtype)
+                if torch.is_floating_point(v)
+                else v.to(self.device)
+            )
             for k, v in inputs.items()
         }
 

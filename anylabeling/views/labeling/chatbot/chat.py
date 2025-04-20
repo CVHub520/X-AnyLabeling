@@ -312,7 +312,7 @@ class ChatMessage(QFrame):
             for i in range(0, len(content), chunk_size):
                 processed_content += content[i : i + chunk_size]
                 if i + chunk_size < len(content):
-                    processed_content += "\u200B"  # Zero-width space, allows line breaks but is invisible
+                    processed_content += "\u200b"  # Zero-width space, allows line breaks but is invisible
             return processed_content
         return content
 
@@ -324,7 +324,7 @@ class ChatMessage(QFrame):
             content_label.setMinimumWidth(200)
 
             # Set text format based on content
-            if "\u200B" in processed_content or self.is_error:
+            if "\u200b" in processed_content or self.is_error:
                 content_label.setTextFormat(Qt.RichText)
             else:
                 content_label.setTextFormat(Qt.PlainText)
@@ -573,9 +573,9 @@ class ChatMessage(QFrame):
                             parent, "filename"
                         ):
                             if parent.filename:
-                                parent.other_data[
-                                    "chat_history"
-                                ] = dialog.chat_history
+                                parent.other_data["chat_history"] = (
+                                    dialog.chat_history
+                                )
                                 parent.set_dirty()
 
         self.exit_edit_mode()
@@ -710,9 +710,9 @@ class ChatMessage(QFrame):
                             parent.filename
                             and "chat_history" in parent.other_data
                         ):
-                            parent.other_data[
-                                "chat_history"
-                            ] = dialog.chat_history
+                            parent.other_data["chat_history"] = (
+                                dialog.chat_history
+                            )
                             parent.set_dirty()
 
             # Delete the widget

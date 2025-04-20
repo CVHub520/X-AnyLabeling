@@ -1017,6 +1017,13 @@ class LabelingWidget(LabelDialog):
                 "Upload Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition & Relation Extraction) Annotations"
             ),
         )
+        upload_vlm_r1_ovd_annotation = action(
+            self.tr("&Upload VLM-R1 OVD Annotations"),
+            lambda: utils.upload_vlm_r1_ovd_annotation(self),
+            None,
+            icon="format_vlm_r1_ovd",
+            tip=self.tr("Upload Custom VLM-R1 OVD Annotations"),
+        )
 
         # Export
         export_yolo_hbb_annotation = action(
@@ -1141,6 +1148,13 @@ class LabelingWidget(LabelDialog):
                 "Export Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition & Relation Extraction) Annotations"
             ),
         )
+        export_vlm_r1_ovd_annotation = action(
+            self.tr("&Export VLM-R1 OVD Annotations"),
+            lambda: utils.export_vlm_r1_ovd_annotation(self),
+            None,
+            icon="format_vlm_r1_ovd",
+            tip=self.tr("Export Custom VLM-R1 OVD Annotations"),
+        )
 
         # Group zoom controls into a list for easier toggling.
         zoom_actions = (
@@ -1248,6 +1262,7 @@ class LabelingWidget(LabelDialog):
             upload_odvg_annotation=upload_odvg_annotation,
             upload_ppocr_rec_annotation=upload_ppocr_rec_annotation,
             upload_ppocr_kie_annotation=upload_ppocr_kie_annotation,
+            upload_vlm_r1_ovd_annotation=upload_vlm_r1_ovd_annotation,
             export_yolo_hbb_annotation=export_yolo_hbb_annotation,
             export_yolo_obb_annotation=export_yolo_obb_annotation,
             export_yolo_seg_annotation=export_yolo_seg_annotation,
@@ -1264,6 +1279,7 @@ class LabelingWidget(LabelDialog):
             export_odvg_annotation=export_odvg_annotation,
             export_pporc_rec_annotation=export_pporc_rec_annotation,
             export_pporc_kie_annotation=export_pporc_kie_annotation,
+            export_vlm_r1_ovd_annotation=export_vlm_r1_ovd_annotation,
             zoom=zoom,
             zoom_in=zoom_in,
             zoom_out=zoom_out,
@@ -1451,6 +1467,8 @@ class LabelingWidget(LabelDialog):
                 None,
                 upload_ppocr_rec_annotation,
                 upload_ppocr_kie_annotation,
+                None,
+                upload_vlm_r1_ovd_annotation,
             ),
         )
         utils.add_actions(
@@ -1477,6 +1495,8 @@ class LabelingWidget(LabelDialog):
                 None,
                 export_pporc_rec_annotation,
                 export_pporc_kie_annotation,
+                None,
+                export_vlm_r1_ovd_annotation,
             ),
         )
         utils.add_actions(
@@ -1902,7 +1922,9 @@ class LabelingWidget(LabelDialog):
     def reset_attribute(self, text):
         valid_labels = list(self.attributes.keys())
         if text not in valid_labels:
-            most_similar_label = utils.find_most_similar_label(text, valid_labels)
+            most_similar_label = utils.find_most_similar_label(
+                text, valid_labels
+            )
             self.error_message(
                 self.tr("Invalid label"),
                 self.tr(

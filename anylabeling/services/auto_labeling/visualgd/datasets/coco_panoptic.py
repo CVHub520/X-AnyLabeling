@@ -69,9 +69,11 @@ class CocoPanoptic:
         target = {}
         target["image_id"] = torch.tensor(
             [
-                ann_info["image_id"]
-                if "image_id" in ann_info
-                else ann_info["id"]
+                (
+                    ann_info["image_id"]
+                    if "image_id" in ann_info
+                    else ann_info["id"]
+                )
             ]
         )
         if self.return_masks:

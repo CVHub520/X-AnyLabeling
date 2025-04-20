@@ -14,6 +14,7 @@
     <a href=""><img src="https://img.shields.io/badge/python-3.10+-aff.svg"></a>
     <a href=""><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
     <a href=""><img src="https://img.shields.io/github/downloads/CVHub520/X-AnyLabeling/total?label=downloads"></a>
+    <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
@@ -38,6 +39,7 @@
 
 ## 🥳 What's New
 
+- Support one-click import/export for [VLM-R1-OVD](https://github.com/om-ai-lab/VLM-R1) labels
 - Support downloading models from [ModelScope](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43) as an alternative source
 - Support [Grounding-DINO-1.6-API](https://algos.deepdataspace.com/en#/model/grounding_dino) open-set object detection model
 - Support [GeCo](./examples/counting/geco/README.md) zero-shot counting model

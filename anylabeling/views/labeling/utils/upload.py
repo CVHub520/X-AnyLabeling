@@ -1,4 +1,5 @@
 import json
+import jsonlines
 import os
 import os.path as osp
 import time
@@ -16,6 +17,7 @@ from anylabeling.views.labeling.label_converter import LabelConverter
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
 from anylabeling.views.labeling.utils.style import *
+from anylabeling.views.labeling.utils.export import _check_filename_exist
 
 
 class UploadPPOCRThread(QThread):
@@ -122,17 +124,108 @@ class UploadCocoThread(QThread):
             self.finished.emit(False, str(e))
 
 
-def upload_ppocr_annotation(self, mode):
-    if not self.may_continue():
+def upload_vlm_r1_ovd_annotation(self):
+    if not _check_filename_exist(self):
         return
 
-    if not self.filename:
+    filter = "Attribute Files (*.jsonl);;All Files (*)"
+    input_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+        self,
+        self.tr("Select a custom vlm_r1_ovd annotation file"),
+        "",
+        filter,
+    )
+
+    if not input_file:
+        return
+
+    output_dir_path = osp.dirname(self.filename)
+    if self.output_dir:
+        output_dir_path = self.output_dir
+
+    response = QtWidgets.QMessageBox()
+    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setWindowTitle(self.tr("Warning"))
+    response.setText(self.tr("Current annotation will be lost"))
+    response.setInformativeText(
+        self.tr(
+            "You are going to upload new annotations to this task. Continue?"
+        )
+    )
+    response.setStandardButtons(
+        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+    )
+    response.setStyleSheet(get_msg_box_style())
+
+    if response.exec_() != QtWidgets.QMessageBox.Ok:
+        return
+
+    image_list = self.image_list if self.image_list else [self.filename]
+    progress_dialog = QProgressDialog(
+        self.tr("Uploading..."), self.tr("Cancel"), 0, len(image_list), self
+    )
+    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowTitle(self.tr("Progress"))
+    progress_dialog.setMinimumWidth(500)
+    progress_dialog.setMinimumHeight(150)
+    progress_dialog.setStyleSheet(
+        get_progress_dialog_style(color="#1d1d1f", height=20)
+    )
+
+    converter = LabelConverter()
+
+    # parse input_data
+    input_data = {}
+    with jsonlines.open(input_file, "r") as reader:
+        for data in list(reader):
+            image_path = osp.basename(data["image"])
+            input_data[image_path] = data["conversations"][1]["value"]
+
+    try:
+        for i, image_file in enumerate(image_list):
+            image_filename = osp.basename(image_file)
+            label_filename = osp.splitext(image_filename)[0] + ".json"
+            output_file = osp.join(output_dir_path, label_filename)
+
+            converter.vlm_r1_ovd_to_custom(
+                input_data=input_data[image_filename],
+                output_file=output_file,
+                image_file=image_file,
+            )
+
+            progress_dialog.setValue(i)
+            if progress_dialog.wasCanceled():
+                break
+
+        progress_dialog.close()
+        template = self.tr(
+            "Uploading annotations successfully!\n"
+            "Results have been saved to:\n"
+            "%s"
+        )
+        message_text = template % output_dir_path
         popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
+            message_text,
             self,
-            icon="anylabeling/resources/icons/warning.svg",
+            icon="anylabeling/resources/icons/copy-green.svg",
+        )
+        popup.show_popup(self, popup_height=65, position="center")
+
+        # update and refresh the current canvas
+        self.load_file(self.filename)
+
+    except Exception as e:
+        logger.error(f"Error occurred while uploading annotations: {e}")
+        popup = Popup(
+            self.tr(f"Error occurred while uploading annotations!"),
+            self,
+            icon="anylabeling/resources/icons/error.svg",
         )
         popup.show_popup(self, position="center")
+
+
+def upload_ppocr_annotation(self, mode):
+    if not _check_filename_exist(self):
         return
 
     if mode == "rec":
@@ -145,12 +238,6 @@ def upload_ppocr_annotation(self, mode):
         )
 
         if not input_file:
-            popup = Popup(
-                self.tr("Please select a specific rec file!"),
-                self,
-                icon="anylabeling/resources/icons/warning.svg",
-            )
-            popup.show_popup(self, position="center")
             return
 
     elif mode == "kie":
@@ -163,12 +250,6 @@ def upload_ppocr_annotation(self, mode):
         )
 
         if not input_file:
-            popup = Popup(
-                self.tr("Please select a specific kie file!"),
-                self,
-                icon="anylabeling/resources/icons/warning.svg",
-            )
-            popup.show_popup(self, position="center")
             return
 
     response = QtWidgets.QMessageBox()
@@ -193,7 +274,7 @@ def upload_ppocr_annotation(self, mode):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
     progress_dialog.setRange(0, 0)
     progress_dialog.setStyleSheet(get_progress_dialog_style())
@@ -239,16 +320,7 @@ def upload_ppocr_annotation(self, mode):
 
 
 def upload_odvg_annotation(self):
-    if not self.may_continue():
-        return
-
-    if not self.filename:
-        popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
+    if not _check_filename_exist(self):
         return
 
     filter = "OD Files (*.json *.jsonl);;All Files (*)"
@@ -260,12 +332,6 @@ def upload_odvg_annotation(self):
     )
 
     if not input_file:
-        popup = Popup(
-            self.tr("Please select a specific OD file!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
         return
 
     response = QtWidgets.QMessageBox()
@@ -290,7 +356,7 @@ def upload_odvg_annotation(self):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
     progress_dialog.setRange(0, 0)
     progress_dialog.setStyleSheet(get_progress_dialog_style())
@@ -333,16 +399,7 @@ def upload_odvg_annotation(self):
 
 
 def upload_mot_annotation(self, LABEL_OPACITY):
-    if not self.may_continue():
-        return
-
-    if not self.filename:
-        popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
+    if not _check_filename_exist(self):
         return
 
     filter = "Classes Files (*.txt);;All Files (*)"
@@ -354,12 +411,6 @@ def upload_mot_annotation(self, LABEL_OPACITY):
     )
 
     if not classes_file:
-        popup = Popup(
-            self.tr("Please select a specific classes file!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
         return
 
     filter = "Gt Files (*.txt);;All Files (*)"
@@ -413,7 +464,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
     progress_dialog.setRange(0, 0)
     progress_dialog.setStyleSheet(get_progress_dialog_style())
@@ -459,16 +510,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
 
 
 def upload_mask_annotation(self, LABEL_OPACITY):
-    if not self.may_continue():
-        return
-
-    if not self.filename:
-        popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
+    if not _check_filename_exist(self):
         return
 
     filter = "Attribute Files (*.json);;All Files (*)"
@@ -480,12 +522,6 @@ def upload_mask_annotation(self, LABEL_OPACITY):
     )
 
     if not color_map_file:
-        popup = Popup(
-            self.tr("Please select a specific color_map file!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
         return
 
     dialog = QtWidgets.QDialog(self)
@@ -594,11 +630,11 @@ def upload_mask_annotation(self, LABEL_OPACITY):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style(
-        color="#1d1d1f", height=20
-    ))
+    progress_dialog.setStyleSheet(
+        get_progress_dialog_style(color="#1d1d1f", height=20)
+    )
 
     try:
         for i, image_filename in enumerate(image_file_list):
@@ -649,16 +685,7 @@ def upload_mask_annotation(self, LABEL_OPACITY):
 
 
 def upload_dota_annotation(self):
-    if not self.may_continue():
-        return
-
-    if not self.filename:
-        popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
+    if not _check_filename_exist(self):
         return
 
     dialog = QtWidgets.QDialog(self)
@@ -754,11 +781,11 @@ def upload_dota_annotation(self):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style(
-        color="#1d1d1f", height=20
-    ))
+    progress_dialog.setStyleSheet(
+        get_progress_dialog_style(color="#1d1d1f", height=20)
+    )
 
     try:
         for i, image_path in enumerate(image_list):
@@ -811,16 +838,7 @@ def upload_dota_annotation(self):
 
 
 def upload_coco_annotation(self, mode):
-    if not self.may_continue():
-        return
-
-    if not self.filename:
-        popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
+    if not _check_filename_exist(self):
         return
 
     filter = "Attribute Files (*.json);;All Files (*)"
@@ -832,12 +850,6 @@ def upload_coco_annotation(self, mode):
     )
 
     if not input_file:
-        popup = Popup(
-            self.tr("Please select a specific coco annotation file!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
         return
 
     output_dir_path = osp.dirname(self.filename)
@@ -866,7 +878,7 @@ def upload_coco_annotation(self, mode):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
     progress_dialog.setRange(0, 0)
     progress_dialog.setStyleSheet(get_progress_dialog_style())
@@ -907,16 +919,7 @@ def upload_coco_annotation(self, mode):
 
 
 def upload_voc_annotation(self, mode):
-    if not self.may_continue():
-        return
-
-    if not self.filename:
-        popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
+    if not _check_filename_exist(self):
         return
 
     dialog = QtWidgets.QDialog(self)
@@ -1011,11 +1014,11 @@ def upload_voc_annotation(self, mode):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style(
-        color="#1d1d1f", height=20
-    ))
+    progress_dialog.setStyleSheet(
+        get_progress_dialog_style(color="#1d1d1f", height=20)
+    )
 
     try:
         for i, image_path in enumerate(image_list):
@@ -1067,16 +1070,7 @@ def upload_voc_annotation(self, mode):
 
 
 def upload_yolo_annotation(self, mode, LABEL_OPACITY):
-    if not self.may_continue():
-        return
-
-    if not self.filename:
-        popup = Popup(
-            self.tr("Please load an image folder before proceeding!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
+    if not _check_filename_exist(self):
         return
 
     if mode == "pose":
@@ -1088,12 +1082,6 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
             filter,
         )
         if not self.yaml_file:
-            popup = Popup(
-                self.tr("Please select a specific config file!"),
-                self,
-                icon="anylabeling/resources/icons/warning.svg",
-            )
-            popup.show_popup(self, position="center")
             return
 
         labels = []
@@ -1113,12 +1101,6 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
             filter,
         )
         if not self.classes_file:
-            popup = Popup(
-                self.tr("Please select a specific config file!"),
-                self,
-                icon="anylabeling/resources/icons/warning.svg",
-            )
-            popup.show_popup(self, position="center")
             return
 
         with open(self.classes_file, "r", encoding="utf-8") as f:
@@ -1220,11 +1202,11 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
-    progress_dialog.setMinimumWidth(400)
+    progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style(
-        color="#1d1d1f", height=20
-    ))
+    progress_dialog.setStyleSheet(
+        get_progress_dialog_style(color="#1d1d1f", height=20)
+    )
 
     try:
         for i, image_filename in enumerate(image_file_list):
@@ -1301,12 +1283,6 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
         filter,
     )
     if not file_path:
-        popup = Popup(
-            self.tr("Please select a specific shape attributes file!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
         return
 
     try:
@@ -1355,12 +1331,6 @@ def upload_label_flags_file(self, LABEL_OPACITY):
         filter,
     )
     if not file_path:
-        popup = Popup(
-            self.tr("Please select a specific flags file!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
         return
 
     try:
@@ -1405,12 +1375,6 @@ def upload_image_flags_file(self):
         filter,
     )
     if not file_path:
-        popup = Popup(
-            self.tr("Please select a specific flags file!"),
-            self,
-            icon="anylabeling/resources/icons/warning.svg",
-        )
-        popup.show_popup(self, position="center")
         return
 
     try:

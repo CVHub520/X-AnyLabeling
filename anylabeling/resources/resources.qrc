@@ -38,6 +38,7 @@
         <file>images/format_yolo.png</file>
         <file>images/format_coco.png</file>
         <file>images/format_mask.png</file>
+        <file>images/format_vlm_r1_ovd.png</file>
         <file>images/help.png</file>
         <file>images/icon.icns</file>
         <file>images/icon.ico</file>

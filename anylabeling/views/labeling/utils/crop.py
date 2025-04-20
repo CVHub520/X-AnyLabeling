@@ -87,7 +87,7 @@ def crop_and_save(
     height, width = image.shape[:2]
     xmin, ymin = max(0, xmin), max(0, ymin)
     xmax, ymax = min(width - 1, xmax), min(height - 1, ymax)
-    cropped_image = image[ymin: ymax, xmin: xmax]
+    cropped_image = image[ymin:ymax, xmin:xmax]
 
     # Create output directory
     dst_path = Path(save_path) / label
@@ -96,8 +96,7 @@ def crop_and_save(
     # Update counter and create output filename
     label_to_count[label] = label_to_count.get(label, 0) + 1
     dst_file = (
-        dst_path
-        / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
+        dst_path / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
     )
 
     # Save image safely handling non-ASCII paths
@@ -113,12 +112,19 @@ def crop_and_save(
 
 def process_single_image(args):
     """Process a single image with cropping parameters
-    
+
     Args:
-        args: Tuple containing 
+        args: Tuple containing
         (image_file, label_dir_path, save_path, min_width, min_height, label_start_indices)
     """
-    image_file, label_dir_path, save_path, min_width, min_height, label_start_indices = args
+    (
+        image_file,
+        label_dir_path,
+        save_path,
+        min_width,
+        min_height,
+        label_start_indices,
+    ) = args
     try:
         image_name = osp.basename(image_file)
         label_file = osp.join(
@@ -171,7 +177,9 @@ def process_single_image(args):
             dst_path = Path(save_path) / label
             dst_path.mkdir(parents=True, exist_ok=True)
 
-            dst_file = dst_path / f"{orig_filename}_{current_index}-{shape_type}.jpg"
+            dst_file = (
+                dst_path / f"{orig_filename}_{current_index}-{shape_type}.jpg"
+            )
 
             try:
                 is_success, buf = cv2.imencode(".jpg", cropped_image)
@@ -194,7 +202,8 @@ def save_crop(self):
     if not self.filename:
         popup = Popup(
             self.tr("Please load an image folder before proceeding!"),
-            self, msec=1000,
+            self,
+            msec=1000,
             icon="anylabeling/resources/icons/warning.svg",
         )
         popup.show_popup(self, position="center")
@@ -247,10 +256,12 @@ def save_crop(self):
     min_width_spin.setRange(0, 10000)
     min_width_spin.setValue(0)
     min_width_spin.setMinimumWidth(100)
-    min_width_spin.setStyleSheet(ChatbotDialogStyle.get_spinbox_style(
-        up_arrow_url=set_icon_path("caret-up"),
-        down_arrow_url=set_icon_path("caret-down"),
-    ))
+    min_width_spin.setStyleSheet(
+        ChatbotDialogStyle.get_spinbox_style(
+            up_arrow_url=set_icon_path("caret-up"),
+            down_arrow_url=set_icon_path("caret-down"),
+        )
+    )
     min_width_layout.addWidget(min_width_label)
     min_width_layout.addWidget(min_width_spin)
     layout.addLayout(min_width_layout)
@@ -261,10 +272,12 @@ def save_crop(self):
     min_height_spin.setRange(0, 10000)
     min_height_spin.setValue(0)
     min_height_spin.setMinimumWidth(100)
-    min_height_spin.setStyleSheet(ChatbotDialogStyle.get_spinbox_style(
-        up_arrow_url=set_icon_path("caret-up"),
-        down_arrow_url=set_icon_path("caret-down"),
-    ))
+    min_height_spin.setStyleSheet(
+        ChatbotDialogStyle.get_spinbox_style(
+            up_arrow_url=set_icon_path("caret-up"),
+            down_arrow_url=set_icon_path("caret-down"),
+        )
+    )
     min_height_layout.addWidget(min_height_label)
     min_height_layout.addWidget(min_height_spin)
     layout.addLayout(min_height_layout)
@@ -328,29 +341,35 @@ def save_crop(self):
     label_dir_path = self.output_dir or osp.dirname(self.filename)
 
     progress_dialog = QProgressDialog(
-        self.tr("Processing..."), self.tr("Cancel"),
-        0, len(image_file_list), self
+        self.tr("Processing..."),
+        self.tr("Cancel"),
+        0,
+        len(image_file_list),
+        self,
     )
     progress_dialog.setWindowModality(Qt.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
-    progress_dialog.setStyleSheet(get_progress_dialog_style(
-        color="#1d1d1f", height=20
-    ))
+    progress_dialog.setStyleSheet(
+        get_progress_dialog_style(color="#1d1d1f", height=20)
+    )
     progress_dialog.show()
 
     QApplication.processEvents()
 
     try:
         num_cores = max(1, int(multiprocessing.cpu_count() * 0.9))
-        image_file_list = [self.filename] if not self.image_list else self.image_list
+        image_file_list = (
+            [self.filename] if not self.image_list else self.image_list
+        )
         label_dir_path = self.output_dir or osp.dirname(self.filename)
 
         label_counts = {}
         for image_file in image_file_list:
             label_file = osp.join(
-                label_dir_path, osp.splitext(osp.basename(image_file))[0] + ".json"
+                label_dir_path,
+                osp.splitext(osp.basename(image_file))[0] + ".json",
             )
             if osp.exists(label_file):
                 with open(label_file, "r", encoding="utf-8") as f:
@@ -358,7 +377,9 @@ def save_crop(self):
                     for shape in data.get("shapes", []):
                         label = shape.get("label", "")
                         if label:
-                            label_counts[label] = label_counts.get(label, 0) + 1
+                            label_counts[label] = (
+                                label_counts.get(label, 0) + 1
+                            )
 
         current_indices = {label: 1 for label in label_counts}
 
@@ -369,13 +390,15 @@ def save_crop(self):
                 save_path,
                 min_width_spin.value(),
                 min_height_spin.value(),
-                current_indices.copy()
+                current_indices.copy(),
             )
             for image_file in image_file_list
         ]
 
         with multiprocessing.Pool(processes=num_cores) as pool:
-            for i, _ in enumerate(pool.imap(process_single_image, process_args)):
+            for i, _ in enumerate(
+                pool.imap(process_single_image, process_args)
+            ):
                 progress_dialog.setValue(i + 1)
                 QApplication.processEvents()
 
@@ -389,7 +412,8 @@ def save_crop(self):
             self.tr(
                 f"Cropped images successfully!\nResults have been saved to:\n{save_path}"
             ),
-            self, msec=3000,
+            self,
+            msec=3000,
             icon="anylabeling/resources/icons/copy-green.svg",
         )
         popup.show_popup(self, popup_height=65, position="center")
@@ -398,7 +422,8 @@ def save_crop(self):
         logger.error(f"Error occurred while exporting cropped images: {e}")
         popup = Popup(
             self.tr(f"Error occurred while exporting cropped images!"),
-            self, msec=3000,
+            self,
+            msec=3000,
             icon="anylabeling/resources/icons/error.svg",
         )
         popup.show_popup(self, position="center")

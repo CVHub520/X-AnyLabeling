@@ -248,9 +248,7 @@ class Embedder:
         if self.kwargs["log_sampling"]:
             freq_bands = 2.0 ** torch.linspace(0.0, max_freq, steps=N_freqs)
         else:
-            freq_bands = torch.linspace(
-                2.0**0.0, 2.0**max_freq, steps=N_freqs
-            )
+            freq_bands = torch.linspace(2.0**0.0, 2.0**max_freq, steps=N_freqs)
 
         for freq in freq_bands:
             for p_fn in self.kwargs["periodic_fns"]:

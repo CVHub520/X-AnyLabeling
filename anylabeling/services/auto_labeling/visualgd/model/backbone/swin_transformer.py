@@ -442,9 +442,11 @@ class BasicLayer(nn.Module):
                     qk_scale=qk_scale,
                     drop=drop,
                     attn_drop=attn_drop,
-                    drop_path=drop_path[i]
-                    if isinstance(drop_path, list)
-                    else drop_path,
+                    drop_path=(
+                        drop_path[i]
+                        if isinstance(drop_path, list)
+                        else drop_path
+                    ),
                     norm_layer=norm_layer,
                 )
                 for i in range(depth)
@@ -659,9 +661,7 @@ class SwinTransformer(nn.Module):
         # prepare downsample list
         downsamplelist = [PatchMerging for i in range(self.num_layers)]
         downsamplelist[-1] = None
-        num_features = [
-            int(embed_dim * 2**i) for i in range(self.num_layers)
-        ]
+        num_features = [int(embed_dim * 2**i) for i in range(self.num_layers)]
         if self.dilation:
             downsamplelist[-2] = None
             num_features[-1] = int(embed_dim * 2 ** (self.num_layers - 1)) // 2

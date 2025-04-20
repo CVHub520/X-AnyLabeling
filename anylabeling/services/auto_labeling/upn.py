@@ -17,6 +17,7 @@ from .types import AutoLabelingResult
 
 try:
     from .__base__.upn import UPNWrapper
+
     UPN_AVAILABLE = True
 except ImportError:
     UPN_AVAILABLE = False

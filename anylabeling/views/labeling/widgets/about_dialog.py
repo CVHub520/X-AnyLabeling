@@ -34,7 +34,9 @@ class AboutDialog(QDialog):
 
     email_address = "cv_hub@163.com"
     website_url = "https://github.com/CVHub520/X-AnyLabeling"
-    discord_url = "https://discord.com/channels/1350265627142651994/1350265628832829514"
+    discord_url = (
+        "https://discord.com/channels/1350265627142651994/1350265628832829514"
+    )
     twitter_url = "https://x.com/xanylabeling"
     github_url = "https://github.com/CVHub520/X-AnyLabeling"
     github_issues_url = "https://github.com/CVHub520/X-AnyLabeling/issues"
@@ -50,7 +52,8 @@ class AboutDialog(QDialog):
         self.setFixedSize(400, 320)
         self.setWindowFlags(Qt.WindowContextHelpButtonHint)
 
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QDialog {
                 background-color: #FFFFFF;
                 border-radius: 10px;
@@ -88,7 +91,8 @@ class AboutDialog(QDialog):
                 background-color: #F0F0F0;
                 border-radius: 4px;
             }
-        """)
+        """
+        )
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
@@ -145,7 +149,9 @@ class AboutDialog(QDialog):
         email_btn.setIcon(QIcon(self._set_resource_path("email")))
         email_btn.setIconSize(QSize(20, 20))
         email_btn.setToolTip(self.email_address)
-        email_btn.clicked.connect(lambda: self.copy_to_clipboard(self.email_address))
+        email_btn.clicked.connect(
+            lambda: self.copy_to_clipboard(self.email_address)
+        )
 
         # Discord
         discord_btn = QPushButton()
@@ -196,7 +202,9 @@ class AboutDialog(QDialog):
         layout.addStretch()
 
         # Copyright
-        copyright_label = QLabel("Copyright © 2023 CVHub. All rights reserved.")
+        copyright_label = QLabel(
+            "Copyright © 2023 CVHub. All rights reserved."
+        )
         copyright_label.setStyleSheet("color: #86868b; font-size: 12px;")
         copyright_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(copyright_label)
@@ -237,18 +245,18 @@ class AboutDialog(QDialog):
 
     def _perform_update_check(self, show_error=True):
         """Internal method to check for updates
-        
+
         Args:
             show_error (bool): Whether to show error popups to user
-        
+
         Returns:
             dict or None: Update info if available, None if no update or error
         """
         try:
-            headers = {'Accept': 'application/vnd.github.v3+json'}
+            headers = {"Accept": "application/vnd.github.v3+json"}
             response = requests.get(
                 "https://api.github.com/repos/CVHub520/X-AnyLabeling/releases/latest",
-                headers=headers
+                headers=headers,
             )
             if response.status_code == 200:
                 data = response.json()
@@ -259,7 +267,7 @@ class AboutDialog(QDialog):
                         "latest_version": latest_version,
                         "download_url": data["html_url"],
                         "release_notes": data["body"],
-                        "assets": data.get("assets", [])
+                        "assets": data.get("assets", []),
                     }
                 elif show_error:
                     popup = Popup(
@@ -299,11 +307,14 @@ class AboutDialog(QDialog):
 
     def check_updates_in_background(self):
         """Check for updates in background when dialog opens"""
+
         def update_check_thread():
             update_info = self._perform_update_check(show_error=False)
             if update_info:
                 self._cached_update_info = update_info
-                QTimer.singleShot(0, lambda: self.show_update_dialog(update_info))
+                QTimer.singleShot(
+                    0, lambda: self.show_update_dialog(update_info)
+                )
 
         thread = threading.Thread(target=update_check_thread, daemon=True)
         thread.start()
@@ -313,46 +324,54 @@ class AboutDialog(QDialog):
         dialog = QDialog(self)
         dialog.setWindowTitle(self.tr("Update Available"))
         dialog.setMinimumSize(500, 400)
-        
+
         layout = QVBoxLayout(dialog)
 
         template = "A new version {version} is available!"
         translated_template = self.tr(template)
-        display_text = translated_template.format(version=update_info['latest_version'])
+        display_text = translated_template.format(
+            version=update_info["latest_version"]
+        )
         title_label = QLabel(display_text)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("""
+        title_label.setStyleSheet(
+            """
             font-size: 16px;
             font-weight: bold;
             color: #0066FF;
             margin: 15px 0;
             padding: 10px;
-        """)
+        """
+        )
         layout.addWidget(title_label)
 
         web_view = QWebEngineView()
         web_view.setMinimumHeight(350)
         web_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        web_view.setHtml(convert_markdown_to_html(update_info['release_notes']))
-        
+        web_view.setHtml(
+            convert_markdown_to_html(update_info["release_notes"])
+        )
+
         layout.addWidget(web_view)
 
         button_layout = QHBoxLayout()
         button_layout.addStretch()
-        
+
         cancel_btn = QPushButton(self.tr("Cancel"))
         cancel_btn.clicked.connect(dialog.reject)
-        
+
         ok_btn = QPushButton(self.tr("Download"))
         ok_btn.setDefault(True)
-        ok_btn.clicked.connect(lambda: self._handle_update_ok(dialog, update_info['download_url']))
-        
+        ok_btn.clicked.connect(
+            lambda: self._handle_update_ok(dialog, update_info["download_url"])
+        )
+
         button_layout.addWidget(cancel_btn)
         button_layout.addWidget(ok_btn)
         layout.addLayout(button_layout)
-        
+
         dialog.exec_()
-    
+
     def _handle_update_ok(self, dialog, url):
         """Handle OK button click in update dialog"""
         dialog.accept()

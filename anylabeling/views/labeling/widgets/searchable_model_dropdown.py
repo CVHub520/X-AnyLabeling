@@ -22,7 +22,9 @@ from anylabeling.views.labeling.chatbot.utils import (
 )
 
 
-_MODELS_CONFIG_PATH = os.path.join(os.path.expanduser("~"), "xanylabeling_data/models.json")
+_MODELS_CONFIG_PATH = os.path.join(
+    os.path.expanduser("~"), "xanylabeling_data/models.json"
+)
 
 
 class SearchBar(QLineEdit):

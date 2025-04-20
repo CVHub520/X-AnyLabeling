@@ -3,7 +3,9 @@ import os.path as osp
 import cv2
 import json
 import jsonlines
+import json_repair
 import math
+import re
 import yaml
 import pathlib
 import configparser
@@ -186,6 +188,26 @@ class LabelConverter:
             ]
             for p in points
         ]
+
+    @staticmethod
+    def _extract_bbox_answer(content):
+        answer_matches = re.findall(
+            r"<answer>(.*?)</answer>", content, re.DOTALL
+        )
+        if answer_matches:
+            text = answer_matches[-1]
+        else:
+            text = content
+
+        try:
+            data = json_repair.loads(text)
+            if isinstance(data, list) and len(data) > 0:
+                return data
+            else:
+                return []
+        except Exception as e:
+            print(f"JSON解析错误: {e}")
+            return []
 
     def get_coco_data(self):
         coco_data = {
@@ -899,6 +921,32 @@ class LabelConverter:
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
+    def vlm_r1_ovd_to_custom(self, input_data, output_file, image_file):
+        self.reset()
+
+        image_width, image_height = self.get_image_size(image_file)
+
+        bbox_data = self._extract_bbox_answer(input_data)
+        for bbox in bbox_data:
+            label = bbox["label"]
+            xmin, ymin, xmax, ymax = bbox["bbox_2d"]
+            points = [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]]
+            shape = {
+                "label": label,
+                "points": points,
+                "group_id": None,
+                "description": None,
+                "shape_type": "rectangle",
+            }
+            self.custom_data["shapes"].append(shape)
+
+        self.custom_data["imagePath"] = osp.basename(image_file)
+        self.custom_data["imageHeight"] = image_height
+        self.custom_data["imageWidth"] = image_width
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
     # Export functions
     def custom_to_yolo(  # noqa: C901
         self, input_file, output_file, mode, skip_empty_files=False
@@ -1110,9 +1158,9 @@ class LabelConverter:
         ET.SubElement(size, "height").text = str(image_height)
         ET.SubElement(size, "depth").text = str(image_depth)
         source = ET.SubElement(root, "source")
-        ET.SubElement(
-            source, "database"
-        ).text = "https://github.com/CVHub520/X-AnyLabeling"
+        ET.SubElement(source, "database").text = (
+            "https://github.com/CVHub520/X-AnyLabeling"
+        )
         for shape in shapes:
             label = shape["label"]
             points = self.clamp_points(
@@ -1680,6 +1728,88 @@ class LabelConverter:
         od_file = osp.join(save_path, "od.json")
         with jsonlines.open(od_file, mode="w") as writer:
             writer.write_all(od_data)
+
+    def custom_to_vlm_r1_ovd(
+        self, image_list, label_path, save_path, prefix=""
+    ):
+        with jsonlines.open(save_path, mode="w") as writer:
+            for i, image_file in enumerate(image_list):
+                image_name = osp.basename(image_file)
+                label_name = osp.splitext(image_name)[0] + ".json"
+                label_file = osp.join(label_path, label_name)
+                if not osp.exists(label_file):
+                    label_file = osp.join(osp.dirname(image_file), label_name)
+
+                img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
+                height, width = img.shape[:2]
+
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                box_labels, unique_labels = [], set()
+                for shape in data["shapes"]:
+                    if shape["shape_type"] != "rectangle":
+                        continue
+
+                    points = self.clamp_points(shape["points"], width, height)
+                    xmin = int(points[0][0])
+                    ymin = int(points[0][1])
+                    xmax = int(points[2][0])
+                    ymax = int(points[2][1])
+
+                    label = shape["label"]
+                    if not self.classes:
+                        box_labels.append(
+                            {
+                                "bbox_2d": [xmin, ymin, xmax, ymax],
+                                "label": label,
+                            }
+                        )
+                        unique_labels.add(label)
+                    else:
+                        if label in self.classes:
+                            box_labels.append(
+                                {
+                                    "bbox_2d": [xmin, ymin, xmax, ymax],
+                                    "label": label,
+                                }
+                            )
+                            unique_labels.add(label)
+
+                if not box_labels and not self.classes:
+                    continue
+
+                if self.classes and not box_labels:
+                    answer = "None"
+                else:
+                    box_strings = [
+                        f'{{"bbox_2d": {b["bbox_2d"]}, "label": "{b["label"]}"}}'
+                        for b in box_labels
+                    ]
+                    boxes_str = ",\n ".join(box_strings)
+                    answer = f"""```json\n[\n{boxes_str}\n]\n```"""
+
+                if self.classes:
+                    labels = self.classes
+                else:
+                    labels = list(unique_labels)
+
+                question = f"First thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think><answer> answer here </answer>. Please carefully check the image and detect the following objects: {labels}. "
+                question = (
+                    question
+                    + 'Output the bbox coordinates of detected objects in <answer></answer>. The bbox coordinates in Markdown format should be: \n```json\n[{"bbox_2d": [x1, y1, x2, y2], "label": "object name"}]\n```\n If no targets are detected in the image, simply respond with "None".'
+                )
+
+                item = {
+                    "id": i + 1,
+                    "image": prefix + image_name,
+                    "conversations": [
+                        {"from": "human", "value": question},
+                        {"from": "assistant", "value": answer},
+                    ],
+                }
+
+                writer.write(item)
 
     def custom_to_ppocr(self, image_file, label_file, save_path, mode):
         if not osp.exists(label_file):

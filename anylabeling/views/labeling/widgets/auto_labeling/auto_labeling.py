@@ -134,7 +134,11 @@ class AutoLabelingWidget(QWidget):
 
         # --- Configuration for: button_set_api_token ---
         self.button_set_api_token.setStyleSheet(get_normal_button_style())
-        self.button_set_api_token.setToolTip(self.tr("You can set the API token via the GROUNDING_DINO_API_TOKEN environment variable"))
+        self.button_set_api_token.setToolTip(
+            self.tr(
+                "You can set the API token via the GROUNDING_DINO_API_TOKEN environment variable"
+            )
+        )
         self.button_set_api_token.clicked.connect(self.on_set_api_token)
 
         # --- Configuration for: button_send ---
@@ -194,14 +198,26 @@ class AutoLabelingWidget(QWidget):
         # --- Configuration for: toggle_preserve_existing_annotations ---
         self.toggle_preserve_existing_annotations.setChecked(False)
         self.toggle_preserve_existing_annotations.setCheckable(True)
-        self.toggle_preserve_existing_annotations.setStyleSheet(get_normal_button_style())
-        tooltip_on = self.tr("Existing shapes will be preserved during updates. Click to switch to overwriting.")
-        tooltip_off = self.tr("Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving.")
+        self.toggle_preserve_existing_annotations.setStyleSheet(
+            get_normal_button_style()
+        )
+        tooltip_on = self.tr(
+            "Existing shapes will be preserved during updates. Click to switch to overwriting."
+        )
+        tooltip_off = self.tr(
+            "Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving."
+        )
         self.toggle_preserve_existing_annotations.setToolTip(tooltip_off)
         self.toggle_preserve_existing_annotations.clicked.connect(
             lambda checked: (
-                self.toggle_preserve_existing_annotations.setToolTip(tooltip_on if checked else tooltip_off),
-                self.toggle_preserve_existing_annotations.setText(self.tr("Replace (Off)") if checked else self.tr("Replace (On)"))
+                self.toggle_preserve_existing_annotations.setToolTip(
+                    tooltip_on if checked else tooltip_off
+                ),
+                self.toggle_preserve_existing_annotations.setText(
+                    self.tr("Replace (Off)")
+                    if checked
+                    else self.tr("Replace (On)")
+                ),
             )
         )
         self.toggle_preserve_existing_annotations.toggled.connect(
@@ -229,11 +245,15 @@ class AutoLabelingWidget(QWidget):
 
     def init_model_data(self):
         """Get models data"""
-        model_data = {"Custom": {"load_custom_model": {
-            "selected": False,
-            "favorite": False,
-            "display_name": "...Load Custom Model",
-        }}}
+        model_data = {
+            "Custom": {
+                "load_custom_model": {
+                    "selected": False,
+                    "favorite": False,
+                    "display_name": "...Load Custom Model",
+                }
+            }
+        }
         self.model_info = {
             "load_custom_model": {
                 "display_name": "...Load Custom Model",
@@ -253,12 +273,12 @@ class AutoLabelingWidget(QWidget):
                     "selected": False,
                     "favorite": model_dict["favorite"],
                     "display_name": model_dict["display_name"],
-                    "config_path": model_dict["config_path"]
+                    "config_path": model_dict["config_path"],
                 }
 
                 self.model_info[model_name] = {
                     "display_name": model_dict["display_name"],
-                    "config_path": model_dict["config_path"]
+                    "config_path": model_dict["config_path"],
                 }
 
         except Exception as _:
@@ -275,9 +295,14 @@ class AutoLabelingWidget(QWidget):
             if provider_name not in model_data:
                 model_data[provider_name] = {}
 
-            if provider_name in local_model_data and model_name in local_model_data[provider_name]:
+            if (
+                provider_name in local_model_data
+                and model_name in local_model_data[provider_name]
+            ):
                 local_model_data[provider_name][model_name]["selected"] = False
-                model_data[provider_name].update(local_model_data[provider_name])
+                model_data[provider_name].update(
+                    local_model_data[provider_name]
+                )
             else:
                 model_data[provider_name][model_name] = {
                     "selected": False,
@@ -287,7 +312,11 @@ class AutoLabelingWidget(QWidget):
 
             self.model_info[model_name] = {
                 "display_name": model_dict["display_name"],
-                "config_path": None if model_name == "load_custom_model" else model_dict["config_file"],
+                "config_path": (
+                    None
+                    if model_name == "load_custom_model"
+                    else model_dict["config_file"]
+                ),
             }
 
         # Sort the collected model_data
@@ -297,15 +326,19 @@ class AutoLabelingWidget(QWidget):
 
     def _sort_model_data(self, model_data: dict) -> collections.OrderedDict:
         """Sorts the model data dictionary"""
+
         def top_level_sort_key(key: str):
-            if key == "Custom": return (0,)
-            if key == "Others": return (2,)
+            if key == "Custom":
+                return (0,)
+            if key == "Others":
+                return (2,)
             return (1, key)
 
         def inner_sort_key(item: tuple[str, dict]):
             _, model_details = item
             display_name = model_details.get("display_name", "")
-            if display_name == "...Load Custom Model": return (0,)
+            if display_name == "...Load Custom Model":
+                return (0,)
             return (1, display_name)
 
         sorted_top_keys = sorted(model_data.keys(), key=top_level_sort_key)
@@ -364,21 +397,29 @@ class AutoLabelingWidget(QWidget):
                 self.model_dropdown.update_models_data(models_data)
 
                 self.clear_auto_labeling_action_requested.emit()
-                self.model_selection_button.setText(config_info["display_name"])
+                self.model_selection_button.setText(
+                    config_info["display_name"]
+                )
                 self.model_selection_button.setEnabled(False)
 
             return
 
         self.clear_auto_labeling_action_requested.emit()
-        self.model_selection_button.setText(self.model_info[model_name]["display_name"])
+        self.model_selection_button.setText(
+            self.model_info[model_name]["display_name"]
+        )
 
         self.model_selection_button.setEnabled(False)
         self.hide_labeling_widgets()
 
         if provider == "Custom":
-            self.model_manager.load_custom_model(self.model_info[model_name]["config_path"])
+            self.model_manager.load_custom_model(
+                self.model_info[model_name]["config_path"]
+            )
         else:
-            self.new_model_selected.emit(self.model_info[model_name]["config_path"])
+            self.new_model_selected.emit(
+                self.model_info[model_name]["config_path"]
+            )
 
     def populate_upn_combobox(self):
         """Populate UPN combobox with available modes"""
@@ -405,7 +446,6 @@ class AutoLabelingWidget(QWidget):
         # Add modes to combobox
         for mode, display_name in modes.items():
             self.gd_select_combobox.addItem(display_name, userData=mode)
-
 
     def populate_florence2_combobox(self):
         """Populate Florence2 combobox with available modes"""
@@ -499,8 +539,13 @@ class AutoLabelingWidget(QWidget):
 
         # Reset controls to initial values when the model changes
         try:
-            if self.model_manager.loaded_model_config["type"] in _AUTO_LABELING_IOU_MODELS:
-                initial_iou_value = self.model_manager.loaded_model_config["iou_threshold"]
+            if (
+                self.model_manager.loaded_model_config["type"]
+                in _AUTO_LABELING_IOU_MODELS
+            ):
+                initial_iou_value = self.model_manager.loaded_model_config[
+                    "iou_threshold"
+                ]
                 self.edit_iou.setValue(initial_iou_value)
             else:
                 initial_iou_value = 0.0
@@ -510,8 +555,13 @@ class AutoLabelingWidget(QWidget):
             self.edit_iou.setValue(initial_iou_value)
 
         try:
-            if self.model_manager.loaded_model_config["type"] in _AUTO_LABELING_CONF_MODELS:
-                initial_conf_value = self.model_manager.loaded_model_config["conf_threshold"]
+            if (
+                self.model_manager.loaded_model_config["type"]
+                in _AUTO_LABELING_CONF_MODELS
+            ):
+                initial_conf_value = self.model_manager.loaded_model_config[
+                    "conf_threshold"
+                ]
                 self.edit_conf.setValue(initial_conf_value)
             else:
                 initial_conf_value = 0.0
@@ -594,7 +644,9 @@ class AutoLabelingWidget(QWidget):
             if hasattr(self, widget_name):
                 getattr(self, widget_name).show()
             else:
-                logger.warning(f"Warning: Widget '{widget_name}' not found in AutoLabelingWidget.")
+                logger.warning(
+                    f"Warning: Widget '{widget_name}' not found in AutoLabelingWidget."
+                )
 
     def hide_labeling_widgets(self):
         """Hide labeling widgets by default"""

@@ -81,9 +81,9 @@ class LabelFile:
                             "UserWarning: Diagonal vertex mode is deprecated in X-AnyLabeling release v2.2.0 or later.\n"
                             "Please update your code to accommodate the new four-point mode."
                         )
-                        data["shapes"][i][
-                            "points"
-                        ] = utils.rectangle_from_diagonal(shape_points)
+                        data["shapes"][i]["points"] = (
+                            utils.rectangle_from_diagonal(shape_points)
+                        )
 
             data["imagePath"] = osp.basename(data["imagePath"])
             if data["imageData"] is not None:

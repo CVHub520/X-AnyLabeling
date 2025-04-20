@@ -151,9 +151,9 @@ class ChatbotDialog(QDialog):
             btn.setIconSize(QSize(*ICON_SIZE_SMALL))
             btn.setStyleSheet(ChatbotDialogStyle.get_provider_button_style())
             btn.clicked.connect(
-                lambda checked, p=provider: self.switch_provider(p)
-                if checked
-                else None
+                lambda checked, p=provider: (
+                    self.switch_provider(p) if checked else None
+                )
             )
             provider_group.addButton(btn)
             setattr(self, f"{provider}_btn", btn)
@@ -755,9 +755,15 @@ class ChatbotDialog(QDialog):
         self.main_splitter.setSizes([200, 700, 300])
 
         # Set stretch factors to ensure middle panel gets priority when resizing (initially)
-        self.main_splitter.setStretchFactor(0, 0) # Left panel fixed size initially
-        self.main_splitter.setStretchFactor(1, 1) # Middle wrapper takes extra space initially
-        self.main_splitter.setStretchFactor(2, 0) # Right panel fixed size initially
+        self.main_splitter.setStretchFactor(
+            0, 0
+        )  # Left panel fixed size initially
+        self.main_splitter.setStretchFactor(
+            1, 1
+        )  # Middle wrapper takes extra space initially
+        self.main_splitter.setStretchFactor(
+            2, 0
+        )  # Right panel fixed size initially
 
         main_layout.addWidget(self.main_splitter)
 
@@ -1215,7 +1221,9 @@ class ChatbotDialog(QDialog):
                 self.loading_message.content_label = QLabel("")
                 self.loading_message.content_label.setWordWrap(True)
                 self.loading_message.content_label.setTextFormat(Qt.PlainText)
-                self.loading_message.content_label.setStyleSheet(ChatMessageStyle.get_fade_in_text_style())
+                self.loading_message.content_label.setStyleSheet(
+                    ChatMessageStyle.get_fade_in_text_style()
+                )
                 self.loading_message.content_label.setMinimumWidth(100)
                 self.loading_message.content_label.setMaximumWidth(1999)
                 self.loading_message.bubble.layout().addWidget(
@@ -1236,10 +1244,16 @@ class ChatbotDialog(QDialog):
             # Get the final text
             final_text = ""
             if hasattr(self.loading_message, "content_label"):
-                animation = QPropertyAnimation(self.loading_message.content_label, b"styleSheet")
+                animation = QPropertyAnimation(
+                    self.loading_message.content_label, b"styleSheet"
+                )
                 animation.setDuration(300)
-                animation.setStartValue(ChatMessageStyle.get_animation_style(0.5))
-                animation.setEndValue(ChatMessageStyle.get_animation_style(1.0))
+                animation.setStartValue(
+                    ChatMessageStyle.get_animation_style(0.5)
+                )
+                animation.setEndValue(
+                    ChatMessageStyle.get_animation_style(1.0)
+                )
                 animation.start()
                 final_text = self.loading_message.content_label.text()
 
@@ -1766,12 +1780,12 @@ class ChatbotDialog(QDialog):
                         break  # (NOTE) Only support one image per file
 
                 if imported_count > 0:
-                    template = self.tr("Successfully imported {0} items to:\n{1}")
+                    template = self.tr(
+                        "Successfully imported {0} items to:\n{1}"
+                    )
                     message_text = template.format(imported_count, current_dir)
                     QMessageBox.information(
-                        self,
-                        self.tr("Import Successful"),
-                        message_text
+                        self, self.tr("Import Successful"), message_text
                     )
                     self.navigate_image(
                         index=self.parent().image_list.index(
@@ -2050,7 +2064,7 @@ class ChatbotDialog(QDialog):
         super().resizeEvent(event)
 
         # Initialize flag if not present
-        if not hasattr(self, '_middle_is_centered'):
+        if not hasattr(self, "_middle_is_centered"):
             self._middle_is_centered = False
 
         is_maximized = self.isMaximized()
@@ -2077,7 +2091,7 @@ class ChatbotDialog(QDialog):
 
             self.middle_wrapper_layout.addWidget(self.middle_widget)
             self.middle_widget.setMinimumWidth(0)
-            self.middle_widget.setMaximumWidth(16777215) # QWIDGETSIZE_MAX
+            self.middle_widget.setMaximumWidth(16777215)  # QWIDGETSIZE_MAX
             self._middle_is_centered = False
             self.main_splitter.setStretchFactor(1, 1)
 

@@ -89,6 +89,7 @@ class OverviewDialog(QtWidgets.QDialog):
     This dialog displays an overview of the label information and shape information for the images in the current project.
     It allows the user to select a range of images to display and export the data as a CSV file.
     """
+
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
@@ -207,15 +208,19 @@ class OverviewDialog(QtWidgets.QDialog):
         shape_infos = []
 
         progress_dialog = QProgressDialog(
-            self.tr("Loading..."), self.tr("Cancel"), 0, len(self.image_file_list), self
+            self.tr("Loading..."),
+            self.tr("Cancel"),
+            0,
+            len(self.image_file_list),
+            self,
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
         progress_dialog.setMinimumWidth(400)
         progress_dialog.setMinimumHeight(150)
-        progress_dialog.setStyleSheet(get_progress_dialog_style(
-            color="#1d1d1f", height=20
-        ))
+        progress_dialog.setStyleSheet(
+            get_progress_dialog_style(color="#1d1d1f", height=20)
+        )
 
         if start_index == -1:
             start_index = self.start_index
@@ -241,7 +246,9 @@ class OverviewDialog(QtWidgets.QDialog):
                     continue
                 shape_type = shape["shape_type"]
                 if shape_type not in self.supported_shape:
-                    logger.warning(f"Invalid shape_type {shape_type} of {label_file}!")
+                    logger.warning(
+                        f"Invalid shape_type {shape_type} of {label_file}!"
+                    )
                     continue
                 label = shape["label"]
                 score = shape.get("score", 0.0)
@@ -403,7 +410,9 @@ class OverviewDialog(QtWidgets.QDialog):
         self.accept()
 
         try:
-            label_infos, shape_infos = self.get_total_infos(1, len(self.image_file_list))
+            label_infos, shape_infos = self.get_total_infos(
+                1, len(self.image_file_list)
+            )
             headers, shape_infos_data = self.get_shape_infos_table(shape_infos)
 
             label_infos_path = os.path.join(directory, "label_infos.csv")
@@ -454,7 +463,8 @@ class OverviewDialog(QtWidgets.QDialog):
             message_text = template % zip_path
             popup = Popup(
                 message_text,
-                self, msec=5000,
+                self,
+                msec=5000,
                 icon="anylabeling/resources/icons/copy-green.svg",
             )
             popup.show_popup(self, popup_height=65, position="center")
@@ -463,7 +473,9 @@ class OverviewDialog(QtWidgets.QDialog):
             logger.error(f"Error occurred while exporting file: {e}")
 
             popup = Popup(
-                self.tr(f"Error occurred while exporting annotations statistics file."),
+                self.tr(
+                    f"Error occurred while exporting annotations statistics file."
+                ),
                 self.parent,
                 icon="anylabeling/resources/icons/error.svg",
             )

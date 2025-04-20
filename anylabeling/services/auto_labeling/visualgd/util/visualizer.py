@@ -2,7 +2,7 @@
 """
 @File    :   visualizer.py
 @Time    :   2022/04/05 11:39:33
-@Author  :   Shilong Liu 
+@Author  :   Shilong Liu
 @Contact :   slongliu86@gmail.com
 """
 

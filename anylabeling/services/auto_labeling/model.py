@@ -8,11 +8,13 @@ from urllib.parse import urlparse
 from urllib.error import URLError
 
 import ssl
+
 ssl._create_default_https_context = (
     ssl._create_unverified_context
 )  # Prevent issue when downloading models behind a proxy
 
 import socket
+
 socket.setdefaulttimeout(240)  # Prevent timeout when downloading models
 
 from abc import abstractmethod
@@ -79,8 +81,7 @@ class Model(QObject):
 
     @staticmethod
     def allow_migrate_data():
-        """Check if the current env have write permissions
-        """
+        """Check if the current env have write permissions"""
         home_dir = os.path.expanduser("~")
         old_model_path = os.path.join(home_dir, "anylabeling_data")
         new_model_path = os.path.join(home_dir, "xanylabeling_data")
@@ -101,12 +102,13 @@ class Model(QObject):
             return False
 
     def download_with_retry(self, url, dest_path, progress_callback):
-        """Download file with retry mechanism
-        """
+        """Download file with retry mechanism"""
         for attempt in range(self.MAX_RETRIES):
             try:
                 if attempt > 0:
-                    logger.warning(f"Retry attempt {attempt + 1}/{self.MAX_RETRIES}")
+                    logger.warning(
+                        f"Retry attempt {attempt + 1}/{self.MAX_RETRIES}"
+                    )
                 urllib.request.urlretrieve(url, dest_path, progress_callback)
                 return True
             except URLError as e:
@@ -117,7 +119,9 @@ class Model(QObject):
                     self.on_message(error_msg)
                     time.sleep(delay)
                 else:
-                    logger.warning(f"All download attempts failed ({self.MAX_RETRIES} tries)")
+                    logger.warning(
+                        f"All download attempts failed ({self.MAX_RETRIES} tries)"
+                    )
                     raise e
 
     def get_model_abs_path(self, model_config, model_path_field_name):
@@ -201,13 +205,18 @@ class Model(QObject):
         env_model_hub = os.getenv("XANYLABELING_MODEL_HUB")
         if env_model_hub == "modelscope":
             use_modelscope = True
-        elif env_model_hub is None or env_model_hub == "": # Only check config if env var is not set or empty
-             if self._config.get("model_hub") == "modelscope":
-                 use_modelscope = True
-             # Fallback to language check only if model_hub is not 'modelscope'
-             elif self._config.get("model_hub") is None or self._config.get("model_hub") == "":
-                 if self._config.get("language") == "zh_CN":
-                     use_modelscope = True
+        elif (
+            env_model_hub is None or env_model_hub == ""
+        ):  # Only check config if env var is not set or empty
+            if self._config.get("model_hub") == "modelscope":
+                use_modelscope = True
+            # Fallback to language check only if model_hub is not 'modelscope'
+            elif (
+                self._config.get("model_hub") is None
+                or self._config.get("model_hub") == ""
+            ):
+                if self._config.get("language") == "zh_CN":
+                    use_modelscope = True
 
         if use_modelscope:
             model_type = model_config["name"].split("-")[0]
@@ -222,6 +231,7 @@ class Model(QObject):
 
         logger.info(f"Downloading {download_url} to {model_abs_path}")
         try:
+
             def _progress(count, block_size, total_size):
                 percent = int(count * block_size * 100 / total_size)
                 self.on_message(
@@ -235,7 +245,9 @@ class Model(QObject):
             self.download_with_retry(download_url, model_abs_path, _progress)
 
         except Exception as e:  # noqa
-            logger.error(f"Could not download {download_url}: {e}, you can try to download it manually.")
+            logger.error(
+                f"Could not download {download_url}: {e}, you can try to download it manually."
+            )
             self.on_message(f"Download failed! Please try again later.")
             time.sleep(1)
             return None

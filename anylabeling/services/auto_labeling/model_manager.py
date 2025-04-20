@@ -88,7 +88,9 @@ class ModelManager(QObject):
             config_file = model["config_file"]
             if config_file.startswith(":/"):  # Config file is in resources
                 config_file_name = config_file[2:]
-                resource_path = pkg_resources.files(auto_labeling_configs).joinpath('auto_labeling', config_file_name)
+                resource_path = pkg_resources.files(
+                    auto_labeling_configs
+                ).joinpath("auto_labeling", config_file_name)
                 with open(resource_path, "r", encoding="utf-8") as f:
                     model_config = yaml.safe_load(f)
                     model_config["config_file"] = str(config_file)
@@ -287,7 +289,9 @@ class ModelManager(QObject):
         self.model_download_thread = QThread()
         template = "Loading model: {model_name}. Please wait..."
         translated_template = self.tr(template)
-        message = translated_template.format(model_name=self.model_configs[model_id]["display_name"])
+        message = translated_template.format(
+            model_name=self.model_configs[model_id]["display_name"]
+        )
         self.new_model_status.emit(message)
 
         self.model_download_worker = GenericWorker(self._load_model, model_id)
@@ -1743,7 +1747,8 @@ class ModelManager(QObject):
         """Set cache auto label"""
         if (
             self.loaded_model_config is not None
-            and self.loaded_model_config["type"] in _CACHED_AUTO_LABELING_MODELS
+            and self.loaded_model_config["type"]
+            in _CACHED_AUTO_LABELING_MODELS
         ):
             self.loaded_model_config["model"].set_cache_auto_label(text, gid)
 
@@ -1753,7 +1758,8 @@ class ModelManager(QObject):
         """
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in _AUTO_LABELING_MARKS_MODELS
+            or self.loaded_model_config["type"]
+            not in _AUTO_LABELING_MARKS_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_marks(marks)
@@ -1762,7 +1768,8 @@ class ModelManager(QObject):
         """Set the API token for the model"""
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in _AUTO_LABELING_API_TOKEN_MODELS
+            or self.loaded_model_config["type"]
+            not in _AUTO_LABELING_API_TOKEN_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_api_token(token)
@@ -1773,7 +1780,8 @@ class ModelManager(QObject):
         """
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in _AUTO_LABELING_RESET_TRACKER_MODELS
+            or self.loaded_model_config["type"]
+            not in _AUTO_LABELING_RESET_TRACKER_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_reset_tracker()
@@ -1782,7 +1790,8 @@ class ModelManager(QObject):
         """Set auto labeling confidences"""
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in _AUTO_LABELING_CONF_MODELS
+            or self.loaded_model_config["type"]
+            not in _AUTO_LABELING_CONF_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_conf(value)
@@ -1791,7 +1800,8 @@ class ModelManager(QObject):
         """Set auto labeling iou"""
         if (
             self.loaded_model_config is None
-            or self.loaded_model_config["type"] not in _AUTO_LABELING_IOU_MODELS
+            or self.loaded_model_config["type"]
+            not in _AUTO_LABELING_IOU_MODELS
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_iou(value)
@@ -1799,8 +1809,8 @@ class ModelManager(QObject):
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
         if (
             self.loaded_model_config is not None
-            and self.loaded_model_config["type"] in 
-            _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS
+            and self.loaded_model_config["type"]
+            in _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS
         ):
             self.loaded_model_config[
                 "model"
@@ -1809,7 +1819,8 @@ class ModelManager(QObject):
     def set_auto_labeling_prompt(self):
         if (
             self.loaded_model_config is not None
-            and self.loaded_model_config["type"] in _AUTO_LABELING_PROMPT_MODELS
+            and self.loaded_model_config["type"]
+            in _AUTO_LABELING_PROMPT_MODELS
         ):
             self.loaded_model_config["model"].set_auto_labeling_prompt()
 
@@ -1936,7 +1947,10 @@ class ModelManager(QObject):
             return
 
         # Currently only segment_anything-like model supports this feature
-        if self.loaded_model_config["type"] not in _ON_NEXT_FILES_CHANGED_MODELS:
+        if (
+            self.loaded_model_config["type"]
+            not in _ON_NEXT_FILES_CHANGED_MODELS
+        ):
             return
 
         self.loaded_model_config["model"].on_next_files_changed(next_files)

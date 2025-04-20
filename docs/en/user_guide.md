@@ -26,6 +26,7 @@
       * [4.6 MOT Annotation](#46-mot-annotation)
       * [4.7 PPOCR Annotation](#47-ppocr-annotation)
       * [4.8 ODVG Annotation](#48-odvg-annotation)
+      * [4.9 VLM-R1-OVD Annotation](#49-vlm-r1-ovd-annotation)
   * [5. Toolbar](#5-toolbar)
       * [5.1 Data Statistics](#51-data-statistics)
       * [5.2 Save Sub-Images](#52-save-sub-images)
@@ -498,6 +499,24 @@ Before importing/exporting ODVG label files, you need to prepare a label configu
 4. Choose the save path and click OK.
 
 > For the style of ODVG label files, refer to [ODVG](../../assets/ODVG).
+
+### 4.9 VLM-R1-OVD Annotation
+
+The latest version of X-AnyLabeling supports one-click import/export for VLM-R1-OVD label files.
+
+**Import Task**:
+1. Click the `Upload` button in the top menu bar.
+2. Select the corresponding task.
+3. Choose the directory where the label files are located and click OK.
+
+**Export Task**:
+1. Click the `Export` button in the top menu bar.
+2. Select the corresponding task.
+3. Fill in the corresponding configuration items and click OK.
+
+Note: The [classes.txt](../../assets/classes.txt) file is used to specify the categories or phrases to be exported. If not specified, the default is to detect all categories or phrases in each image as prompt categories for export, and automatically skip empty files without labels.
+
+> For the style of VLM-R1-OVD label files, refer to [vlm_r1_ovd.jsonl](../../assets/vlm_r1_ovd.jsonl).
 
 
 ### 5. Toolbar

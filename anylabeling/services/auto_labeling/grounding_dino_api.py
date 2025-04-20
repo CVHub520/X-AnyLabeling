@@ -48,8 +48,12 @@ class Grounding_DINO_API(Model):
 
         self.api_base_url = "https://api.deepdataspace.com"
         self.model_name = "GroundingDino-1.6-Pro"
-        self.detection_url = f"{self.api_base_url.rstrip('/')}/v2/task/grounding_dino/detection"
-        self.status_url_template = f"{self.api_base_url.rstrip('/')}/v2/task_status/{{task_uuid}}"
+        self.detection_url = (
+            f"{self.api_base_url.rstrip('/')}/v2/task/grounding_dino/detection"
+        )
+        self.status_url_template = (
+            f"{self.api_base_url.rstrip('/')}/v2/task_status/{{task_uuid}}"
+        )
 
         self.bbox_threshold = self.config["conf_threshold"]
         self.iou_threshold = self.config["iou_threshold"]
@@ -57,7 +61,7 @@ class Grounding_DINO_API(Model):
 
         self.headers = {
             "Content-Type": "application/json",
-            "Token": os.getenv("GROUNDING_DINO_API_TOKEN", "")
+            "Token": os.getenv("GROUNDING_DINO_API_TOKEN", ""),
         }
 
     def set_auto_labeling_api_token(self, token):
@@ -97,7 +101,9 @@ class Grounding_DINO_API(Model):
             return AutoLabelingResult([], replace=self.replace)
 
         if not self.headers["Token"]:
-            raise ValueError("API Token is not configured. Please set it before calling.")
+            raise ValueError(
+                "API Token is not configured. Please set it before calling."
+            )
 
         if not text_prompt:
             raise ValueError("Empty text prompt.")
@@ -105,8 +111,10 @@ class Grounding_DINO_API(Model):
         text_prompt = text_prompt.rstrip(".")
         prompt_pattern = r"^[a-zA-Z]+(\.[a-zA-Z]+)*$"
         if not re.match(prompt_pattern, text_prompt):
-            raise ValueError(f"Invalid text prompt format. "
-                             f"It should be English words separated by '.' (e.g., 'cat.dog').")
+            raise ValueError(
+                f"Invalid text prompt format. "
+                f"It should be English words separated by '.' (e.g., 'cat.dog')."
+            )
 
         cv_image = qt_img_to_rgb_cv_img(image, image_path)
         if cv_image is None:
@@ -116,43 +124,48 @@ class Grounding_DINO_API(Model):
         is_success, buffer = cv2.imencode(".png", cv_image)
         if not is_success:
             raise ValueError("Failed to encode image.")
-        img_base64 = base64.b64encode(buffer).decode('utf-8')
+        img_base64 = base64.b64encode(buffer).decode("utf-8")
         img_data_uri = f"data:image/png;base64,{img_base64}"
 
         payload = {
             "model": self.model_name,
             "image": img_data_uri,
-            "prompt": {
-                "type": "text",
-                "text": text_prompt
-            },
+            "prompt": {"type": "text", "text": text_prompt},
             "targets": ["bbox"],
             "bbox_threshold": self.bbox_threshold,
-            "iou_threshold": self.iou_threshold
+            "iou_threshold": self.iou_threshold,
         }
 
         shapes = []
         try:
-            logger.info(f"Sending request to {self.detection_url} with payload: "
-                         f"model: {self.model_name}, "
-                         f"prompt: {text_prompt}, "
-                         f"targets: {['bbox']}, "
-                         f"bbox_threshold: {self.bbox_threshold}, "
-                         f"iou_threshold: {self.iou_threshold}")
+            logger.info(
+                f"Sending request to {self.detection_url} with payload: "
+                f"model: {self.model_name}, "
+                f"prompt: {text_prompt}, "
+                f"targets: {['bbox']}, "
+                f"bbox_threshold: {self.bbox_threshold}, "
+                f"iou_threshold: {self.iou_threshold}"
+            )
 
             start_time = time.time()
             resp = requests.post(
                 url=self.detection_url,
                 json=payload,
                 headers=self.headers,
-                timeout=30
+                timeout=30,
             )
             resp.raise_for_status()
             json_resp = resp.json()
             logger.debug(f"Initial API response: {json_resp}")
 
-            if json_resp.get("code") != 0 or "data" not in json_resp or "task_uuid" not in json_resp["data"]:
-                error_msg = json_resp.get("msg", "Unknown error initiating task.")
+            if (
+                json_resp.get("code") != 0
+                or "data" not in json_resp
+                or "task_uuid" not in json_resp["data"]
+            ):
+                error_msg = json_resp.get(
+                    "msg", "Unknown error initiating task."
+                )
                 logger.error(f"API Error (initiate): {error_msg}")
                 raise ValueError("Unknown error initiating task.")
 
@@ -165,14 +178,20 @@ class Grounding_DINO_API(Model):
             while polling_attempts < max_polling_attempts:
                 polling_attempts += 1
                 time.sleep(1)
-                logger.debug(f"Polling status for task {task_uuid} (Attempt {polling_attempts})")
-                resp = requests.get(status_url, headers=self.headers, timeout=10)
+                logger.debug(
+                    f"Polling status for task {task_uuid} (Attempt {polling_attempts})"
+                )
+                resp = requests.get(
+                    status_url, headers=self.headers, timeout=10
+                )
                 resp.raise_for_status()
                 json_resp = resp.json()
                 logger.debug(f"Polling response: {json_resp}")
 
                 if json_resp.get("code") != 0:
-                    error_msg = json_resp.get("msg", "Unknown error checking status.")
+                    error_msg = json_resp.get(
+                        "msg", "Unknown error checking status."
+                    )
                     logger.error(f"API Error (polling): {error_msg}")
                     raise ValueError("Unknown error checking status.")
 
@@ -182,14 +201,20 @@ class Grounding_DINO_API(Model):
                 if task_status not in ["waiting", "running"]:
                     break
             else:
-                 logger.warning(f"Task {task_uuid} timed out after {max_polling_attempts} seconds.")
-                 raise ValueError("Task timed out.")
+                logger.warning(
+                    f"Task {task_uuid} timed out after {max_polling_attempts} seconds."
+                )
+                raise ValueError("Task timed out.")
 
             end_time = time.time()
-            logger.info(f"Task {task_uuid} finished with status '{task_status}' in {end_time - start_time:.2f} seconds.")
+            logger.info(
+                f"Task {task_uuid} finished with status '{task_status}' in {end_time - start_time:.2f} seconds."
+            )
 
             if task_status == "failed":
-                error_msg = status_data.get("error", "Task failed with unknown error.")
+                error_msg = status_data.get(
+                    "error", "Task failed with unknown error."
+                )
                 logger.error(f"Task {task_uuid} failed: {error_msg}")
                 raise ValueError(f"Task {task_uuid} failed: {error_msg}")
             elif task_status == "success":
@@ -208,7 +233,7 @@ class Grounding_DINO_API(Model):
                             shape = Shape(
                                 label=str(label),
                                 score=float(score),
-                                shape_type="rectangle"
+                                shape_type="rectangle",
                             )
                             shape.add_point(QtCore.QPointF(x1, y1))
                             shape.add_point(QtCore.QPointF(x2, y1))
@@ -216,16 +241,23 @@ class Grounding_DINO_API(Model):
                             shape.add_point(QtCore.QPointF(x1, y2))
                             shapes.append(shape)
                         except (ValueError, TypeError) as coord_err:
-                            logger.warning(f"Skipping object due to invalid bbox format {bbox}: {coord_err}")
+                            logger.warning(
+                                f"Skipping object due to invalid bbox format {bbox}: {coord_err}"
+                            )
                     else:
-                        logger.warning(f"Skipping object with missing data: {obj}")
+                        logger.warning(
+                            f"Skipping object with missing data: {obj}"
+                        )
 
         except requests.exceptions.RequestException as req_err:
             logger.error(f"API Request failed: {req_err}")
         except json.JSONDecodeError as json_err:
             logger.error(f"Failed to decode API response: {json_err}")
         except Exception as e:
-            logger.error(f"An unexpected error occurred during API prediction: {e}", exc_info=True)
+            logger.error(
+                f"An unexpected error occurred during API prediction: {e}",
+                exc_info=True,
+            )
 
         result = AutoLabelingResult(shapes, replace=self.replace)
         return result
