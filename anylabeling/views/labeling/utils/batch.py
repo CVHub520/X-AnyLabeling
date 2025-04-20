@@ -1,6 +1,7 @@
 import base64
 import json
 import os.path as osp
+import time
 from PIL import Image
 
 from PyQt5 import QtWidgets
@@ -229,6 +230,7 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
 
 def process_next_image(self, progress_dialog):
     try:
+        batch = True
         total_images = len(self.image_list)
 
         while (self.image_index < total_images) and (
@@ -236,13 +238,19 @@ def process_next_image(self, progress_dialog):
         ):
             image_file = self.image_list[self.image_index]
 
+            if self.auto_labeling_widget.model_manager.loaded_model_config["type"] in VIDEO_MODELS:
+                self.filename = image_file
+                self.load_file(self.filename)
+                batch = False
+                time.sleep(0.1)
+
             if self.text_prompt:
                 auto_labeling_result = (
                     self.auto_labeling_widget.model_manager.predict_shapes(
                         self.image,
                         image_file,
                         text_prompt=self.text_prompt,
-                        batch=True,
+                        batch=batch,
                     )
                 )
             elif self.run_tracker:
@@ -251,17 +259,18 @@ def process_next_image(self, progress_dialog):
                         self.image,
                         image_file,
                         run_tracker=self.run_tracker,
-                        batch=True,
+                        batch=batch,
                     )
                 )
             else:
                 auto_labeling_result = (
                     self.auto_labeling_widget.model_manager.predict_shapes(
-                        self.image, image_file, batch=True
+                        self.image, image_file, batch=batch
                     )
                 )
 
-            save_auto_labeling_result(self, image_file, auto_labeling_result)
+            if batch:
+                save_auto_labeling_result(self, image_file, auto_labeling_result)
 
             progress_dialog.setValue(self.image_index)
             self.image_index += 1
