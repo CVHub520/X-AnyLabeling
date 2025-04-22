@@ -27,7 +27,7 @@ def scan_all_images(folder_path):
                     images.append(relative_path)
 
         try:
-            return natsort.os_sorted(images)
+            return natsort.natsorted(images)
         except (OSError, ValueError) as e:
             logger.warning(
                 f"Warning: Natural sort failed, falling back to regular sort: {e}"
