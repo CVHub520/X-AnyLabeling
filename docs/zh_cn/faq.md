@@ -4,6 +4,12 @@
 ### 安装与运行相关问题
 
 <details>
+<summary>Q: 程序运行时崩溃，出现 `Qt5Core.dll` 依赖库错误</summary>
+
+可参考[#907](https://github.com/CVHub520/X-AnyLabeling/issues/907)。
+</details>
+
+<details>
 <summary>Q: 启动时报错：Gtk-WARNING **: 17:40:30.674: Could not load a pixbuf from icon theme </summary>
 
 可参考[#893](https://github.com/CVHub520/X-AnyLabeling/issues/893)。
@@ -238,7 +244,19 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 </details>
 
 
-### 标签导入导出相关问题
+### 文件相关问题
+
+<details>
+<summary>Q: 加载图片目录时，出现 `segmentation fault` 段错误</summary>
+
+详情可参考此[#906](https://github.com/CVHub520/X-AnyLabeling/issues/906)。
+</details>
+
+<details>
+<summary>Q: 上传标签文件时发生错误，出现 `cannot identify image file xxx`</summary>
+
+请检查图片文件和标签文件有没有分目录存放。详情可参考此[#911](https://github.com/CVHub520/X-AnyLabeling/issues/869)。
+</details>
 
 <details>
 <summary>Q: 加载文件时，出现 `a bytes-like object is required, not 'NoneType'`，确保 xxx.json 是一个有效的标签文件</summary>
