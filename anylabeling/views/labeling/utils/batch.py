@@ -237,7 +237,12 @@ def process_next_image(self, progress_dialog):
         ):
             image_file = self.image_list[self.image_index]
 
-            if self.auto_labeling_widget.model_manager.loaded_model_config["type"] in VIDEO_MODELS:
+            if (
+                self.auto_labeling_widget.model_manager.loaded_model_config[
+                    "type"
+                ]
+                in VIDEO_MODELS
+            ):
                 self.filename = image_file
                 self.load_file(self.filename)
                 batch = False
@@ -268,7 +273,9 @@ def process_next_image(self, progress_dialog):
                 )
 
             if batch:
-                save_auto_labeling_result(self, image_file, auto_labeling_result)
+                save_auto_labeling_result(
+                    self, image_file, auto_labeling_result
+                )
 
             progress_dialog.setValue(self.image_index)
             self.image_index += 1

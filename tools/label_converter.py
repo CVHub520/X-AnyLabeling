@@ -288,6 +288,10 @@ class RectLabelConverter(BaseLabelConverter):
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def custom_to_coco(self, input_path, output_path):
+        raise DeprecationWarning(
+            "This function is deprecated. Please use the GUI for COCO export."
+        )
+
         coco_data = self.get_coco_data()
 
         for i, class_name in enumerate(self.classes):
@@ -357,6 +361,10 @@ class RectLabelConverter(BaseLabelConverter):
             json.dump(coco_data, f, indent=4, ensure_ascii=False)
 
     def coco_to_custom(self, input_file, image_path):
+        raise DeprecationWarning(
+            "This function is deprecated. Please use the GUI for COCO upload."
+        )
+
         img_dic = {}
         for file in os.listdir(image_path):
             img_dic[file] = file
@@ -461,6 +469,10 @@ class PolyLabelConvert(BaseLabelConverter):
         return mask
 
     def custom_to_coco(self, input_path, output_path):
+        raise DeprecationWarning(
+            "This function is deprecated. Please use the GUI for COCO export."
+        )
+
         coco_data = self.get_coco_data()
 
         for i, class_name in enumerate(self.classes):

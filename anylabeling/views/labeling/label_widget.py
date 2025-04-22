@@ -958,11 +958,13 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Upload Custom COCO Detection Annotations"),
         )
         upload_coco_seg_annotation = action(
-            self.tr("&Upload COCO Segmentation Annotations"),
+            self.tr("&Upload COCO Instance Segmentation Annotations"),
             lambda: utils.upload_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
-            tip=self.tr("Upload Custom COCO Segmentation Annotations"),
+            tip=self.tr(
+                "Upload Custom COCO Instance Segmentation Annotations"
+            ),
         )
         upload_coco_pose_annotation = action(
             self.tr("&Upload COCO Keypoint Annotations"),
@@ -1080,11 +1082,13 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Export Custom COCO Rectangle Annotations"),
         )
         export_coco_seg_annotation = action(
-            self.tr("&Export COCO Segmentation Annotations"),
+            self.tr("&Export COCO Instance Segmentation Annotations"),
             lambda: utils.export_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
-            tip=self.tr("Export Custom COCO Segmentation Annotations"),
+            tip=self.tr(
+                "Export Custom COCO Instance Segmentation Annotations"
+            ),
         )
         export_coco_pose_annotation = action(
             self.tr("&Export COCO Keypoint Annotations"),

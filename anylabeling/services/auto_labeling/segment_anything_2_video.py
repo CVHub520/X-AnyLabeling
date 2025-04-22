@@ -332,9 +332,7 @@ class SegmentAnything2Video(Model):
             shape = Shape(flags={})
             rotation_box = get_bounding_boxes(approx_contours[0])[1]
             for point in rotation_box:
-                shape.add_point(
-                    QtCore.QPointF(int(point[0]), int(point[1]))
-                )
+                shape.add_point(QtCore.QPointF(int(point[0]), int(point[1])))
             shape.direction = calculate_rotation_theta(rotation_box)
             shape.shape_type = self.output_mode
             shape.closed = True

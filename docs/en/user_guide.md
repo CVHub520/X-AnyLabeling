@@ -327,7 +327,10 @@ The export path defaults to the `Annotations` folder in the same directory as th
 
 The latest version of X-AnyLabeling supports one-click import/export for COCO label files (*.json) related to object detection, instance segmentation, and keypoint detection tasks.
 
-Before importing or exporting COCO label files, ensure you have a label configuration file prepared. For object detection and instance segmentation tasks, refer to [classes.txt](../../assets/classes.txt), and for keypoint detection tasks, refer to [yolov8_pose.yaml](../../assets/yolov8_pose.yaml).
+Before importing or exporting COCO format labels, ensure you have the correct configuration file:
+*   For Object Detection tasks (rectangle format), use [`classes.txt`](../../assets/classes.txt).
+*   For Instance Segmentation tasks (polygon format), also use [`classes.txt`](../../assets/classes.txt), but ensure it includes `_background_` as the first class for export. `__ignore__` can optionally be added as well.
+*   For Keypoint Detection tasks (pose format), use [`yolov8_pose.yaml`](../../assets/yolov8_pose.yaml).
 
 **Import Task**:
 1. Click the `Upload` button in the top menu bar.
@@ -343,7 +346,7 @@ Before importing or exporting COCO label files, ensure you have a label configur
 
 The export path defaults to the `annotations` folder in the same directory as the current image directory.
 
-> For a sample COCO label file, refer to [instances_default.json](../../assets/annotations/instances_default.json).
+> For a sample COCO label file, refer to [annotations](../../assets/annotations) directory.
 
 ### 4.4 DOTA Annotation
 

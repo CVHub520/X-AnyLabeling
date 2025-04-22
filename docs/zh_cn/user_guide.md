@@ -333,6 +333,7 @@ X-AnyLabeling 支持对当前图片进行色彩调整。具体操作如下：
 
 1. 对于 COCO 目标检测、实例分割任务，请参考 [classes.txt](../../assets/classes.txt) 准备配置文件，其中每一行代表一个类别，编号从上至下依次递增。
 2. 对于 COCO 关键点检测任务，请参考 [yolov8_pose.yaml](../../assets/yolov8_pose.yaml) 进行准备，其中 `has_visible` 参数请参考[官方定义](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format)。
+3. 对于 COCO 实例分割任务，请参考 [labels.txt](../../assets/labels.txt) 进行准备。
 
 **导入任务**：
 1. 点击上方菜单栏的 `导入` 按钮。
@@ -348,7 +349,7 @@ X-AnyLabeling 支持对当前图片进行色彩调整。具体操作如下：
 
 导出路径默认保存在当前图片目录的同级目录下的 `annotations` 文件夹内。
 
-> COCO 标签文件样式可参考 [instances_default.json](../../assets/annotations/instances_default.json)。
+> COCO 格式的对应标签文件样式可参考 [annotations](../../assets/annotations) 目录。
 
 ### 4.4 DOTA标签
 
@@ -368,7 +369,7 @@ X-AnyLabeling 支持对当前图片进行色彩调整。具体操作如下：
 导出路径默认保存在当前图片目录的同级目录下的 `labelTxt` 文件夹内。
 
 > DOTA 标签文件样式可参考 [demo_obb.txt](../../assets/labelTxt/demo_obb.txt)。
-
+instances_default
 ### 4.5 MASK标签
 
 当前 X-AnyLabeling 最新版本支持一键导入/导出语义分割任务相关的掩码标签文件（*.png）。
