@@ -403,25 +403,22 @@ class EfficientViT_SAM(Model):
         """
         Predict shapes from image
         """
-
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
 
         shapes = []
         try:
-            # Use cached image embedding if possible
             cached_data = self.image_embedding_cache.get(filename)
             if cached_data is not None:
                 image_embedding = cached_data
+                cv_image = qt_img_to_rgb_cv_img(image, filename) 
             else:
                 cv_image = qt_img_to_rgb_cv_img(image, filename)
                 if self.stop_inference:
                     return AutoLabelingResult([], replace=False)
                 image_embedding = self.encoder_model(cv_image)
-                self.image_embedding_cache.put(
-                    filename,
-                    image_embedding,
-                )
+                self.image_embedding_cache.put(filename, image_embedding)
+
             if self.stop_inference:
                 return AutoLabelingResult([], replace=False)
 
@@ -437,14 +434,14 @@ class EfficientViT_SAM(Model):
             else:
                 masks = masks[0]
             shapes = self.post_process(masks, cv_image)
-        except Exception as e:  # noqa
+            
+        except Exception as e:
             logger.warning("Could not inference model")
             logger.warning(e)
             traceback.print_exc()
             return AutoLabelingResult([], replace=False)
 
-        result = AutoLabelingResult(shapes, replace=False)
-        return result
+        return AutoLabelingResult(shapes, replace=False)
 
     def unload(self):
         self.stop_inference = True
