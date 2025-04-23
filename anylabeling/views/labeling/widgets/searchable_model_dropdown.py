@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from PyQt5.QtGui import QIcon
 
+from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.utils import (
     load_json,
@@ -82,7 +83,9 @@ class ProviderSection(QFrame):
         elif Path(set_icon_path(provider_name.lower(), format="png")).exists():
             icon_path = set_icon_path(provider_name.lower(), format="png")
         else:
-            print(f"provider_name: {provider_name}")
+            # Use default logo if no specific icon is found
+            icon_path = "anylabeling/resources/icons/others.png"
+            logger.warning(f"Icon not found for provider '{provider_name}'. Using default.")
         icon.setPixmap(QIcon(icon_path).pixmap(QSize(*ICON_SIZE_SMALL)))
         header.addWidget(icon)
 
