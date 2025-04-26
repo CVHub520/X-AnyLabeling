@@ -1,7 +1,7 @@
 type: rfdetr
 name: rfdetr_base-r20250426
 provider: Roboflow
-display_name: Rf-DETR Base
+display_name: RF-DETR Base
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/rf-detr-base.onnx
 conf_threshold: 0.50
 num_select: 300

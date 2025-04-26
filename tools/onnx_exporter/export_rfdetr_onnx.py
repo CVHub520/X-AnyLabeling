@@ -144,6 +144,10 @@ def box_cxcywh_to_xyxy(x):
 
 
 def preprocess(image, input_shape):
+    # Convert grayscale to RGB if needed
+    if image.mode == 'L':
+        image = image.convert('RGB')
+
     # resize with bilinear interpolation
     image = image.resize(input_shape, Image.BILINEAR)
 

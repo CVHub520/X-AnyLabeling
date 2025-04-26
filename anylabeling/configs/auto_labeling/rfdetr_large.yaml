@@ -1,7 +1,7 @@
 type: rfdetr
 name: rfdetr_large-r20250426
 provider: Roboflow
-display_name: Rf-DETR Large
+display_name: RF-DETR Large
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/rf-detr-large.onnx
 conf_threshold: 0.50
 num_select: 300

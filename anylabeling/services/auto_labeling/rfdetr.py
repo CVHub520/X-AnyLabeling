@@ -80,6 +80,10 @@ class RFDETR(Model):
         Returns:
             numpy.ndarray: The pre-processed output.
         """
+        # Convert grayscale to RGB if needed
+        if input_image.mode == 'L':
+            input_image = input_image.convert('RGB')
+        
         # resize with bilinear interpolation
         image = input_image.resize(self.input_shape, Image.BILINEAR)
 
@@ -89,7 +93,7 @@ class RFDETR(Model):
         # div 255
         image = image.astype(np.float32) / 255.0
 
-        # transpose to CHW format last
+        # transpose to CHW format
         image = image.transpose((2, 0, 1))
 
         # normalize
