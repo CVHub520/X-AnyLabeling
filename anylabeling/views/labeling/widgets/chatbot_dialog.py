@@ -89,9 +89,6 @@ class ChatbotDialog(QDialog):
         self.open_image_folder_tooltip = CustomTooltip(
             title=self.tr("Open Image Folder")
         )
-        self.open_video_tooltip = CustomTooltip(
-            title=self.tr("Open Video File")
-        )
         self.open_image_file_tooltip = CustomTooltip(
             title=self.tr("Open Image File")
         )
@@ -384,12 +381,11 @@ class ChatbotDialog(QDialog):
         nav_layout.addWidget(self.prev_image_btn)
         nav_layout.addStretch()
 
-        # Add image and video buttons for importing media
-        import_media_btn_modes = ["image", "folder", "video"]
+        # Add image buttons for importing media
+        import_media_btn_modes = ["image", "folder"]
         import_media_btn_names = [
             "open_image_file_btn",
             "open_image_folder_btn",
-            "open_video_btn",
         ]
         for btn_mode, btn_name in zip(
             import_media_btn_modes, import_media_btn_names
@@ -399,7 +395,7 @@ class ChatbotDialog(QDialog):
             btn.setFixedSize(*ICON_SIZE_NORMAL)
             btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
             btn.clicked.connect(
-                lambda checked=False, mode=btn_mode: self.open_image_folder_or_video_file(
+                lambda checked=False, mode=btn_mode: self.open_image_file_or_folder(
                     mode=mode
                 )
             )
@@ -994,18 +990,15 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn.setVisible(has_images)
         self.next_image_btn.setVisible(has_images)
 
-    def open_image_folder_or_video_file(self, mode="image"):
-        """Open an image file or image folder or a video file"""
+    def open_image_file_or_folder(self, mode="image"):
+        """Open an image file or image folder"""
         if mode == "image":
             self.parent().open_file()
             if self.parent().filename:
                 self.load_chat_for_current_image()
                 self.update_import_buttons_visibility()
         else:
-            if mode == "video":
-                self.parent().open_video_file()
-            else:
-                self.parent().open_folder_dialog()
+            self.parent().open_folder_dialog()
             if self.parent().image_list:
                 self.load_chat_for_current_image()
                 self.update_import_buttons_visibility()
@@ -1824,7 +1817,6 @@ class ChatbotDialog(QDialog):
             "clear_chat_btn": self.clear_chat_tooltip,
             "open_image_file_btn": self.open_image_file_tooltip,
             "open_image_folder_btn": self.open_image_folder_tooltip,
-            "open_video_btn": self.open_video_tooltip,
             "prev_image_btn": self.prev_image_tooltip,
             "next_image_btn": self.next_image_tooltip,
             "run_all_images_btn": self.run_all_images_tooltip,
@@ -2013,7 +2005,6 @@ class ChatbotDialog(QDialog):
         self.next_image_btn.setEnabled(enabled)
         self.open_image_file_btn.setEnabled(enabled)
         self.open_image_folder_btn.setEnabled(enabled)
-        self.open_video_btn.setEnabled(enabled)
         self.run_all_images_btn.setEnabled(enabled)
         self.import_export_btn.setEnabled(enabled)
         self.clear_chat_btn.setEnabled(enabled)
@@ -2297,7 +2288,6 @@ class ChatbotDialog(QDialog):
             self.clear_chat_tooltip,
             self.open_image_file_tooltip,
             self.open_image_folder_tooltip,
-            self.open_video_tooltip,
             self.prev_image_tooltip,
             self.next_image_tooltip,
         ]
