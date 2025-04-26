@@ -92,6 +92,19 @@ def letterbox(
     return im, ratio, (dw, dh)
 
 
+def sigmoid(x):
+    """
+    Applies the sigmoid function to the input array.
+
+    Args:
+        x (numpy.ndarray): Input array.
+
+    Returns:
+        numpy.ndarray: Output array after applying sigmoid.
+    """
+    return np.exp(-np.logaddexp(0, -x))
+
+
 def softmax(x):
     """
     Applies the softmax function to the input array.

@@ -1,5 +1,7 @@
 ## 🛠️ `X-AnyLabeling` 模型库
 
+> ModelScope 官方下载链接：[点击跳转](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43)
+
 
 ### 图像分类
 
@@ -64,6 +66,9 @@
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
+| rf-detr-base-coco.onnx | [RF-DETR Base COCO](https://github.com/roboflow/rf-detr) | [rfdetr_base_coco.yaml](../../anylabeling/configs/auto_labeling/rfdetr_base_coco.yaml) | 110.24MB | [百度网盘](https://pan.baidu.com/s/18jS1ufutyQK4KYSbMcR-HA?pwd=4wse) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/rf-detr-base-coco.onnx) |
+| rf-detr-base.onnx | [RF-DETR Base](https://github.com/roboflow/rf-detr) | [rfdetr_base.yaml](../../anylabeling/configs/auto_labeling/rfdetr_base.yaml) | 110.24MB | [百度网盘](https://pan.baidu.com/s/1GMlx137YNybLw5Gbka9y2A?pwd=a598) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/rf-detr-base.onnx) |
+| rf-detr-large.onnx | [RF-DETR Large](https://github.com/roboflow/rf-detr) | [rfdetr_large.yaml](../../anylabeling/configs/auto_labeling/rfdetr_large.yaml) | 473.06MB | [百度网盘](https://pan.baidu.com/s/1KRfDa82xOuaZ-aqg2rwFCw?pwd=6sqi) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/rf-detr-large.onnx) |
 | upn_large.pth | [UPN-Large](../../examples/detection/hbb/README.md) | [upn.yaml](../../anylabeling/configs/auto_labeling/upn.yaml) | 834.23MB | [百度网盘](https://pan.baidu.com/s/1e092YPQthvAFV49YXlPLdg?pwd=2hbp) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/upn_large.pth) |
 | damoyolo_tinynasL20_T_420.onnx | [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)-COCO  | [damo_yolo_t.yaml](../../anylabeling/configs/auto_labeling/damo_yolo_t.yaml)  | 32.45MB  | [百度网盘](https://pan.baidu.com/s/1V3yWsdOqPhYQYsguW_672A?pwd=b8vv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/damoyolo_tinynasL20_T_420.onnx) |
 | damoyolo_tinynasL25_S_460.onnx | [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)-COCO  | [damo_yolo_s.yaml](../../anylabeling/configs/auto_labeling/damo_yolo_s.yaml)  | 62.09MB  | [百度网盘](https://pan.baidu.com/s/1NfHl2dQAwJer0yFprovnuA?pwd=ml1m) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.3.0/damoyolo_tinynasL25_S_460.onnx) |

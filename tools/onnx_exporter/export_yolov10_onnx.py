@@ -235,7 +235,7 @@ def main():
         outs, conf_thres, image_shape, input_shape
     )
 
-    # 保存结果
+    # Draw the boxes
     for label, score, box in zip(labels, scores, boxes):
         label_text = f"{CLASS_NAMES[label]}: {score:.2f}"
         cv2.rectangle(
@@ -254,7 +254,7 @@ def main():
     try:
         cv2.imshow("image", im0)
         cv2.waitKey(0)
-    except Exception as e:  # 指定异常类型
+    except Exception as e:
         if not os.path.exists(os.path.dirname(save_path)):
             os.makedirs(os.path.dirname(save_path), exist_ok=True)
         cv2.imwrite(save_path, im0)

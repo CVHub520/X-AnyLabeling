@@ -1,53 +1,63 @@
 # Model Loading
 
-X-AnyLabeling currently comes with a variety of built-in general models. For specific details, refer to the [Model List](../../docs/en/model_zoo.md).
+X-AnyLabeling currently includes many built-in general-purpose models. For a detailed list, please refer to the [Model Zoo](../../docs/en/model_zoo.md).
 
 ## Loading Built-in Models
 
-Before using AI-assisted labeling features, users need to load a model, which can be activated by clicking the `AI` button in the left menu bar or by using the shortcut `Ctrl+A`.
+Before enabling the AI-assisted labeling feature, you need to load a model. This can be done via the `AI` icon button in the left sidebar or by using the shortcut `Ctrl+A`.
 
-Typically, when a user selects a model from the model dropdown list, the system checks if the corresponding model file exists in the user's directory at `~/xanylabeling_data/models/${model_name}`. If the file exists, it is loaded directly; otherwise, it will be automatically downloaded to the specified directory from the internet.
+Typically, when you select a model from the dropdown list, the application checks if the corresponding model files exist in the user's directory at `~/xanylabeling_data/models/${model_name}`. If they exist, the model is loaded directly. Otherwise, the application automatically downloads the files from the network to the specified directory.
 
-Please note that all built-in models in `X-AnyLabeling` are hosted on GitHub's release repository. Therefore, users need to ensure they have a reliable internet connection and access to the required resources. If downloading fails due to network issues, users can follow these steps:
+Note: All built-in models are hosted by default on GitHub Releases. Therefore, you need a stable internet connection with access to GitHub; otherwise, the download might fail.
 
-- Open the [model_zoo.md](./model_zoo.md) file and locate the configuration file for the desired model.
-- Edit the configuration file to modify the model path and optionally adjust other hyperparameters as needed.
-- Open the tool interface, click on **Load Custom Model**, and select the path to the configuration file.
+For users who fail to load models due to network issues, options include downloading the model offline and loading it manually, or modifying the model download source.
 
-## Loading Adapted Custom Models
+### Offline Model Download
 
-> **Adapted models** are those that have already been integrated into X-AnyLabeling, so you don't need to write any code. Refer to the [Model List](../../docs/en/model_zoo.md) for more details.
+- Open the [model_zoo.md](./model_zoo.md) file and find the configuration file corresponding to the desired model.
+- Edit the configuration file, modify the model path, and optionally adjust other hyperparameters as needed.
+- In the tool's interface, click **Load Custom Model** and select the path to the configuration file.
 
-Here is an example of loading a custom model using the [YOLOv5s](https://github.com/ultralytics/yolov5) model:
+### Modify Model Download Source
 
-### a. Model Conversion
+For details, please refer to section `7.7 Model Download Source Configuration` in [user_guide.md](./user_guide.md).
 
-Assuming you have trained a custom model, first, you should convert it into the `ONNX` file format:
+## Loading Adapted User Custom Models
+
+> **Adapted Models** refer to models that have already been integrated into X-AnyLabeling, requiring no custom inference code from the user. A list of adapted models can be found in the [Model Zoo](../../docs/en/model_zoo.md).
+
+In this tutorial, we will use the [YOLOv5s](https://github.com/ultralytics/yolov5) model as an example to detail how to load a custom adapted model.
+
+**a. Model Conversion**
+
+Suppose you have trained a model locally. First, you can convert the `PyTorch` trained model to X-AnyLabeling's default `ONNX` file format (optional). Specifically, execute:
 
 ```bash
 python export.py --weights yolov5s.pt --include onnx
 ```
 
-> [!Note]
-> The current version does not support **dynamic input**, so do not set the `--dynamic` parameter. 
+Note: The current version does not support **dynamic inputs**, so do not set the `--dynamic` parameter.
 
-Additionally, you can use [Netron](https://netron.app/) to view the `onnx` file and check the input and output node information, ensuring that the first dimension of the input node is 1.
+Additionally, it is highly recommended to import the exported `*.onnx` file using the [Netron](https://netron.app/) online tool to check the input and output node information, ensuring dimensions and other details are as expected.
 
 <p align="center">
   <img src="../../assets/resources/netron.png" alt="Netron">
 </p>
 
-### b. Model Configuration
+**b. Model Configuration**
 
-After preparing the `onnx` file, you can browse the [Model List](../../docs/en/model_zoo.md) to find and download the corresponding model configuration file. Here, we continue use [yolov5s.yaml](../../anylabeling/configs/auto_labeling/yolov5s.yaml) as an example, with the following content:
+Once the `onnx` file is ready, you can browse the [Model Zoo](../../docs/en/model_zoo.md) file to find and copy the configuration file for the corresponding model.
+
+Taking [yolov5s.yaml](../../anylabeling/configs/auto_labeling/yolov5s.yaml) as an example, let's look at its content:
 
 ```YAML
 type: yolov5
 name: yolov5s-r20230520
-display_name: YOLOv5s Ultralytics
+provider: Ultralytics
+display_name: YOLOv5s
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle
@@ -55,32 +65,36 @@ classes:
   ...
 ```
 
-| Field | Description | Modifiable |
-|-------|-------------|------------|
-| `type` | Model type identifier, not customizable. | ❌ |
-| `name` | Index name of the model configuration file, keep the default value. | ❌ |
-| `display_name` | The name displayed in the model dropdown list, can be customized. | ✔️ |
-| `model_path` | Path to load the model, supports relative and absolute paths. | ✔️ |
+| Field          | Description                                                     | Modifiable |
+|----------------|-----------------------------------------------------------------|------------|
+| `type`         | Model type identifier, cannot be customized.                    | ❌         |
+| `name`         | Index name of the model configuration file, keep default.       | ❌         |
+| `provider`     | Model provider, can be modified based on actual situation.      | ✔️         |
+| `display_name` | Name shown in the model dropdown list in the UI, customizable. | ✔️         |
+| `model_path`   | Model loading path, supports relative and absolute paths.      | ✔️         |
+| `iou_threshold`| IoU threshold for Non-Maximum Suppression (NMS).               | ✔️         |
+| `conf_threshold`| Confidence threshold for NMS.                                  | ✔️         |
+| `classes`      | List of model labels, must match the training labels.          | ✔️         |
 
-For different models, X-AnyLabeling provides specific fields. For example, in the [YOLO](../../anylabeling/services/auto_labeling/__base__/yolo.py) model, the following hyperparameter configurations are provided:
+Note that not all fields apply to every model. Refer to the definition of the specific model.
 
-| Field | Description |
-|-------|-------------|
-| `classes` | List of labels used by the model, must match the labels used during training. |
-| `filter_classes` | Specifies the classes to use during inference. |
-| `agnostic` | Whether to use class-agnostic NMS. |
-| `nms_threshold` | Threshold for non-maximum suppression, used to filter overlapping bounding boxes. |
-| `confidence_threshold` | Confidence threshold, used to filter low-confidence bounding boxes. |
+For example, looking at the implementation of the [YOLO](../../anylabeling/services/auto_labeling/__base__/yolo.py) base model, it offers additional optional configuration items:
 
-A typical example is as follows:
+| Field           | Description                   |
+|-----------------|-------------------------------|
+| `filter_classes`| Specify classes used during inference. |
+| `agnostic`      | Use class-agnostic NMS.      |
+
+Here's a typical example:
 
 ```YAML
 type: yolov5
 name: yolov5s-r20230520
-display_name: YOLOv5s Custom
-model_path: yolov5s_custom.onnx
-nms_threshold: 0.60
-confidence_threshold: 0.45
+provider: Ultralytics
+display_name: YOLOv5s
+model_path: /path/to/your/custom_yolov5s.onnx # Modified path
+iou_threshold: 0.60
+conf_threshold: 0.25
 agnostic: True
 filter_classes:
   - person
@@ -92,7 +106,7 @@ classes:
   - ...
 ```
 
-For older versions of YOLOv5 (v5.0 and below), please specify the `anchors` and `stride` fields in the configuration file; otherwise, you must remove these fields. For example:
+Specifically, only when using older versions of YOLOv5 (v5.0 and below), you need to specify the `anchors` and `stride` fields in the configuration file. Otherwise, **do not** specify these fields to avoid inference errors. Example:
 
 ```YAML
 type: yolov5
@@ -104,34 +118,38 @@ anchors:
   - [116,90, 156,198, 373,326]  # P5/32
 ```
 
-Additionally:
-- For the `nms_threshold` and `confidence_threshold` fields, versions v2.4.0 and above support setting these directly from the GUI, allowing users to adjust them as needed.
-- For segmentation models, you can specify the `epsilon_factor` parameter to control the smoothing degree of the output contour points, with a default value of 0.005.
+> **Tip**: For segmentation models, you can specify the `epsilon_factor` parameter to control the smoothness of the output contour points. The default value is `0.005`.
 
-### c. Model Loading
+**c. Model Loading**
 
-It is recommended to set the `model_path` field to the file name of the current `onnx` model and place the model and configuration files in the same directory, using a relative path to avoid issues with escape characters.
+After understanding the above, modify the `model_path` field in the configuration file and optionally adjust other hyperparameters as needed.
 
-Finally, in the model dropdown at the bottom of the menu, select `...Load Custom Model` and import the configuration file prepared in the previous step to load the custom model.
+The software currently supports both **relative paths** and **absolute paths** for model loading. When entering the model path, be mindful of escape characters.
 
-## Loading Unadapted Custom Models
+Finally, in the model dropdown list in the top menu bar of the interface, find the `...Load Custom Model` option, and then import the prepared configuration file to complete the custom model loading process.
 
-> **Unadapted models** refer to models that have not yet been integrated into X-AnyLabeling. Users must follow the implementation steps below to integrate them.
+## Loading Unadapted User Custom Models
 
-For a multi-class semantic segmentation model, follow these steps:
+> **Unadapted Models** refer to models that have not yet been integrated into X-AnyLabeling. Users need to follow the implementation steps below for integration.
 
-### a. Train and Export the Model
+Here, we use a multi-class semantic segmentation model, `U-Net`, as an example. Follow these implementation steps:
 
-Export the model to `ONNX`, ensuring the output node's dimensions are `[1, C, H, W]`, where `C` is the total number of classes (including the background class).
+**a. Training and Exporting Model**
 
-### b. Define the Configuration File
+Export the `ONNX` model, ensuring the output node dimension is `[1, C, H, W]`, where `C` is the total number of classes (including the background class).
 
-First, add a new configuration file under the [configuration file directory](../../anylabeling/configs/auto_labeling), such as `unet.yaml`:
+> **Friendly Reminder**: Exporting to `ONNX` is optional. You can choose other model formats like `PyTorch`, `OpenVINO`, or `TensorRT` based on your needs. For an example using `Segment-Anything-2` for video object tracking, refer to the [Installation Guide](../../examples/interactive_video_object_segmentation/README.md), the configuration file definition [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml), and the corresponding implementation [segment_anything_2_video.py](../../anylabeling/services/auto_labeling/segment_anything_2_video.py).
+
+**b. Define Configuration File**
+
+First, create a new configuration file, e.g., `unet.yaml`, in the [configuration directory](../../anylabeling/configs/auto_labeling):
 
 ```YAML
 type: unet
-name: unet-r20240101
+name: unet-r20250101
 display_name: U-Net (ResNet34)
+provider: xxx
+conf_threshold: 0.5
 model_path: /path/to/best.onnx
 classes:
   - cat
@@ -139,32 +157,37 @@ classes:
   - _background_
 ```
 
-In it:
+Where:
 
-| Field | Description |
-|-------|-------------|
-| `type` | Required. Specifies the model type, ensuring it does not conflict with existing model types to maintain unique identification. |
-| `name` | Required. Defines the model index for internal referencing and management, avoiding conflicts with existing model index names. |
-| `display_name` | Required. The name displayed in the user interface, allowing for easy identification and selection. It must be unique and not duplicate other models' names. |
+| Field          | Description                                                      |
+|----------------|------------------------------------------------------------------|
+| `type`         | Specifies the model type. Ensure it's unique from existing types to maintain identifier uniqueness. |
+| `name`         | Defines the model index for internal reference and management. Avoid conflicts with existing indices. |
+| `display_name` | The model name displayed in the UI for easy identification. Ensure uniqueness. |
 
-These three fields are mandatory. You can also add other fields as needed, such as model path, hyperparameters, and classes.
+These three fields are mandatory. Add other fields as needed, such as provider, model path, hyperparameters, etc.
 
-### c. Add Configuration File
+**c. Add Configuration File**
 
-Next, add the above configuration file to the [Model Management File](../../anylabeling/configs/auto_labeling/models.yaml):
+Next, add the above configuration file to the [model management file](../../anylabeling/configs/models.yaml):
 
-```
+```yaml
 ...
 
-- model_name: "unet-r20240101"
+- model_name: "unet-r20250101"
   config_file: ":/unet.yaml"
 ...
-
 ```
 
-### d. Define the Inference Service
+**d. Configure UI Components**
 
-In defining the inference service, extending the [Model](../../anylabeling/services/auto_labeling/model.py) base class is a critical step. It allows you to implement model-specific inference logic. Specifically, you can create a new `unet.py` file under the [model inference service path](../../anylabeling/services/auto_labeling/), with a reference example as follows:
+This step can add UI components as needed. Simply add the `model_type` to the corresponding list in the [file](../../anylabeling/services/auto_labeling/__init__.py).
+
+**e. Define Inference Service**
+
+A key step in defining the inference service is inheriting the [Model](../../anylabeling/services/auto_labeling/model.py) base class, which allows you to implement model-specific forward inference logic.
+
+Specifically, create a new file `unet.py` in the [model inference service directory](../../anylabeling/services/auto_labeling/). Here's an example:
 
 ```python
 import logging
@@ -217,15 +240,6 @@ class UNet(Model):
         self.input_shape = self.net.get_input_shape()[-2:]
 
     def preprocess(self, input_image):
-        """
-        Pre-processes the input image before feeding it to the network.
-
-        Args:
-            input_image (numpy.ndarray): The input image to be processed.
-
-        Returns:
-            numpy.ndarray: The pre-processed output.
-        """
         input_h, input_w = self.input_shape
         image = cv2.resize(input_image, (input_w, input_h))
         image = np.transpose(image, (2, 0, 1))
@@ -235,18 +249,6 @@ class UNet(Model):
         return image
 
     def postprocess(self, image, outputs):
-        """
-        Post-processes the network's output.
-
-        Args:
-            image (numpy.ndarray): The input image.
-            outputs (numpy.ndarray): The output from the network.
-
-        Returns:
-            contours (list): List of contours for each detected object class.
-                            Each contour is represented as a dictionary containing
-                            the class label and a list of contour points.
-        """
         n, c, h, w = outputs.shape
         image_height, image_width = image.shape[:2]
         # Obtain the category index of each pixel
@@ -268,10 +270,6 @@ class UNet(Model):
         return results
 
     def predict_shapes(self, image, image_path=None):
-        """
-        Predict shapes from image
-        """
-
         if image is None:
             return []
 
@@ -298,7 +296,6 @@ class UNet(Model):
                 shape.closed = True
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = label
                 shape.selected = False
                 shapes.append(shape)
@@ -310,9 +307,22 @@ class UNet(Model):
         del self.net
 ```
 
-### e. Add to Model Management
+Here:
 
-Finally, add the implemented model class to the corresponding model management file. Specifically, open [model_manager.py](../../anylabeling/services/auto_labeling/model_manager.py), add the model type field (e.g., `unet`) to the `CUSTOM_MODELS` list, and initialize your instance in the `_load_model` method. Refer to the example below:
+-   In the `Meta` class:
+    -   `required_config_names`: Specifies mandatory fields in the model config file for proper initialization.
+    -   `widgets`: Specifies controls (buttons, dropdowns, etc.) to display for this service. See [this file](../../anylabeling/services/auto_labeling/__init__.py) for definitions.
+    -   `output_modes`: Specifies the output shape types supported (e.g., polygon, rectangle, rotated box).
+    -   `default_output_mode`: Specifies the default output shape type.
+-   `predict_shapes` and `unload` are abstract methods that **must** be implemented. They define the inference process and resource release logic, respectively.
+
+**f. Add to Model Management**
+
+After the above steps, open the [model configuration file](../../anylabeling/services/auto_labeling/__init__.py). Add the corresponding model type field (e.g., `unet`) to the `_CUSTOM_MODELS` list and, if necessary, add the model name to relevant configuration sections.
+
+> **Tip**: If you don't know how to implement specific widgets, use the search panel, enter relevant keywords, and examine the implementation logic of available widgets.
+
+Finally, go to the [Model Manager class file](../../anylabeling/services/auto_labeling/model_manager.py). In the `_load_model` method, initialize your instance as follows:
 
 ```python
 ...
@@ -320,18 +330,9 @@ Finally, add the implemented model class to the corresponding model management f
 class ModelManager(QObject):
     """Model manager"""
 
-    MAX_NUM_CUSTOM_MODELS = 5
-    CUSTOM_MODELS = [
-      ...
-      "unet",
-      ...
-    ]
-
     def __init__(self):
         ...
-
     ...
-
     def _load_model(self, model_id):
         """Load and return model info"""
         if self.loaded_model_config is not None:
@@ -368,244 +369,289 @@ class ModelManager(QObject):
     ...
 ```
 
-⚠️ Note:
+⚠️Note:
 
-- If using the `SAM` mode, replace `self.auto_segmentation_model_unselected.emit()` with `self.auto_segmentation_model_selected.emit()` to trigger the corresponding functionality.
-- The model type field must match the `type` field defined in the configuration file from step **b. Define Configuration File**.
-
+-   The model type field must match the `type` field defined in the configuration file (Step **b. Define Configuration File**).
+-   If the model is based on `SAM` (Segment Anything Model) interaction patterns, replace `self.auto_segmentation_model_unselected.emit()` with `self.auto_segmentation_model_selected.emit()` to trigger the corresponding functionality. (Or better, use a configuration flag as shown in the example code).
 
 # Model Export
 
-> This section provides specific examples of converting custom models to ONNX format, enabling quick integration into X-AnyLabeling.
+> This section provides specific examples of converting custom models to the ONNX format for quick integration into X-AnyLabeling.
 
 ## Classification
 
 ### [InternImage](https://github.com/OpenGVLab/InternImage)
 
-InternImage introduces a large-scale convolutional neural network (CNN) model, leveraging deformable convolution as the core operator to achieve a large effective receptive field, adaptive spatial aggregation, and reduced inductive bias, leading to stronger and more robust pattern learning from massive data. It outperforms current CNNs and vision transformers on benchmarks
+InternImage introduces a large-scale Convolutional Neural Network (CNN) model utilizing deformable convolutions as core operators. This achieves large effective receptive fields, adaptive spatial aggregation, and reduced inductive bias, enabling the learning of stronger, more robust patterns from extensive data. It surpasses current CNNs and Vision Transformers on benchmarks.
 
-| Attribute       | Value                                                                 |
-|-----------------|------------------------------------------------------------------------|
-| Paper Title     | InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions |
-| Affiliation     | Shanghai AI Laboratory, Tsinghua University, Nanjing University, etc. |
-| Published       | CVPR'23    |
+| Attribute         | Value                                                                                   |
+|-------------------|-----------------------------------------------------------------------------------------|
+| Paper Title       | InternImage: Exploring Large-Scale Vision Foundation Models with Deformable Convolutions |
+| Publishing Units  | Shanghai AI Laboratory, Tsinghua University, Nanjing University, etc.                 |
+| Publication Date  | CVPR'23                                                                                 |
 
-Refer to this [tutorial](../../tools/onnx_exporter/export_internimage_model_onnx.py).
+Please refer to this [tutorial](../../tools/onnx_exporter/export_internimage_model_onnx.py).
 
 ### [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_person_attribute.md)
 
-This tutorial provides a way for users to quickly build a lightweight, high-precision, and practical classification model of person attributes using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in pedestrian analysis scenarios, pedestrian tracking scenarios, etc.
+This tutorial provides users with a method to quickly build lightweight, high-precision, and practical person attribute classification models using PaddleClas PULC (Practical Ultra-Lightweight image Classification). The model can be widely used in pedestrian analysis, tracking scenarios, etc.
 
-Refer to this [tutorial](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py).
+| Attribute         | Value                                                                                   |
+|-------------------|-----------------------------------------------------------------------------------------|
+| Publishing Units  | PaddlePaddle Team (Baidu)                                                               |
+
+Please refer to this [tutorial](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py).
 
 ### [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release/2.5/docs/zh_CN/models/PULC/PULC_vehicle_attribute.md)
 
-This tutorial provides a way for users to quickly build a lightweight, high-precision, and practical classification model of vehicle attributes using PaddleClas PULC (Practical Ultra Lightweight image Classification). The model can be widely used in vehicle identification, road monitoring, and other scenarios.
+This tutorial provides users with a method to quickly build lightweight, high-precision, and practical vehicle attribute classification models using PaddleClas PULC. The model is suitable for vehicle recognition, road monitoring, etc.
 
-Refer to this [tutorial](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py).
+| Attribute         | Value                                                                                   |
+|-------------------|-----------------------------------------------------------------------------------------|
+| Publishing Units  | PaddlePaddle Team (Baidu)                                                               |
 
+Please refer to this [tutorial](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py).
 
 ## Object Detection
+
+### [RF-DETR](https://github.com/roboflow/rf-detr)
+
+`RF-DETR` is the first real-time model to exceed 60 AP on the Microsoft COCO benchmark alongside competitive performance at base sizes. It also achieves state-of-the-art performance on RF100-VL, an object detection benchmark that measures model domain adaptability to real world problems. RF-DETR is comparable speed to current real-time objection models.
+
+> Organization: Roboflow
+
+Please refer to this [tutorial](../../tools/onnx_exporter/export_rfdetr_onnx.py).
 
 ### [YOLOv5_OBB](https://github.com/hukaixuan19970627/yolov5_obb)
 
 > Author: Kaixuan Hu
 
-Refer to this [tutorial](https://github.com/CVHub520/yolov5_obb/tree/main).
+Please refer to this [tutorial](https://github.com/CVHub520/yolov5_obb/tree/main).
 
 ### [YOLOv7](https://github.com/WongKinYiu/yolov7)
 
-| Attribute       | Value                                                                 |
-|-----------------|------------------------------------------------------------------------|
-| Paper Title     | YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors |
-| Affiliation     | Institute of Information Science, Academia Sinica, Taiwan                   |
+| Attribute         | Value                                                                                     |
+|-------------------|-------------------------------------------------------------------------------------------|
+| Paper Title       | YOLOv7: Trainable bag-of-freebies sets new state-of-the-art for real-time object detectors |
+| Publishing Units  | Institute of Information Science, Academia Sinica, Taiwan                                |
 
 ```bash
 python export.py --weights yolov7.pt --img-size 640 --grid
 ```
 
-> **Note:** It is crucial to include the `--grid` parameter when running this command.
+> **Note:** The `--grid` parameter must be included when running this command.
 
 ### [Gold-YOLO](https://github.com/huawei-noah/Efficient-Computing/tree/master/Detection/Gold-YOLO)
 
-| Attribute       | Value                                  |
-|-----------------|----------------------------------------|
-| Paper Title     | Efficient object detectors including Gold-YOLO |
-| Affiliation     | huawei-noah                            |
-| Published       | NeurIPS'23                              |
+| Attribute         | Value                                                                   |
+|-------------------|-------------------------------------------------------------------------|
+| Paper Title       | Gathering Information Helps Explain The Locality In Structured Object Detection (Preprint includes Gold-YOLO) |
+| Publishing Units  | Huawei Noah's Ark Lab                                                   |
+| Publication Date  | NeurIPS'23                                                              |
 
 ```bash
-$ git clone https://github.com/huawei-noah/Efficient-Computing.git
-$ cd Detection/Gold-YOLO
-$ python deploy/ONNX/export_onnx.py --weights Gold_n_dist.pt --simplify --ort
-                                              Gold_s_pre_dist.pt                     
-                                              Gold_m_pre_dist.pt
-                                              Gold_l_pre_dist.pt
+# Clone the repository first
+git clone https://github.com/huawei-noah/Efficient-Computing.git
+cd Efficient-Computing/Detection/Gold-YOLO
+# Run export for desired model weight
+python deploy/ONNX/export_onnx.py --weights Gold_n_dist.pt --simplify --ort
+# Or other weights: Gold_s_pre_dist.pt, Gold_m_pre_dist.pt, Gold_l_pre_dist.pt
 ```
 
 ### [DAMO-YOLO](https://github.com/tinyvision/DAMO-YOLO)
 
-`DAMO-YOLO` is a fast and accurate object detection method developed by the TinyML Team from Alibaba DAMO Data Analytics and Intelligence Lab. It achieves higher performance than state-of-the-art YOLO series, extending YOLO with new technologies, including Neural Architecture Search (NAS) backbones, efficient Reparameterized Generalized-FPN (RepGFPN), a lightweight head with AlignedOTA label assignment, and distillation enhancement. For more details, refer to the Arxiv Report. Here you can find not only powerful models but also highly efficient training strategies and complete tools from training to deployment.
+`DAMO-YOLO` is a fast and accurate object detection method developed by the TinyML team at Alibaba DAMO Academy's Data Analytics and Intelligence Lab. It achieves state-of-the-art performance by incorporating new techniques, including a Neural Architecture Search (NAS) backbone, an efficient re-parameterized Generalized-FPN (RepGFPN), a lightweight head, AlignedOTA label assignment, and distillation enhancement.
 
-| Attribute       | Value                                 |
-|-----------------|---------------------------------------|
-| Paper Title     | DAMO-YOLO: A Report on Real-Time Object Detection |
-| Affiliation     | Alibaba Group                         |
-| Published       | Arxiv'22                               |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | DAMO-YOLO: A Report on Real-Time Object Detection                     |
+| Publishing Units  | Alibaba Group                                                         |
+| Publication Date  | Arxiv'22                                                              |
 
 ```bash
-$ git clone https://github.com/tinyvision/DAMO-YOLO.git
-$ cd DAMO-YOLO
-$ python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tinynasL25_S.pth --batch_size 1 --img_size 640
+# Clone the repository first
+git clone https://github.com/tinyvision/DAMO-YOLO.git
+cd DAMO-YOLO
+# Run converter for a specific config and checkpoint
+python tools/converter.py -f configs/damoyolo_tinynasL25_S.py -c damoyolo_tinynasL25_S.pth --batch_size 1 --img_size 640
 ```
 
 ### [RT-DETR](https://github.com/lyuwenyu/RT-DETR)
 
-Real-Time DEtection TRansformer (`RT-DETR`, aka RTDETR) is the first real-time end-to-end object detector known to the authors. RT-DETR-L achieves 53.0% AP on COCO val2017 and 114 FPS on T4 GPU, while RT-DETR-X achieves 54.8% AP and 74 FPS, outperforming all YOLO detectors of the same scale in both speed and accuracy. Furthermore, RT-DETR-R50 achieves 53.1% AP and 108 FPS, outperforming DINO-Deformable-DETR-R50 by 2.2% AP in accuracy and by about 21 times in FPS.
+Real-Time Detection Transformer (`RT-DETR`) is the first known real-time end-to-end object detector. RT-DETR-L achieves 53.0% AP on COCO val2017 at 114 FPS on a T4 GPU, while RT-DETR-X achieves 54.8% AP at 74 FPS, surpassing all YOLO detectors of the same scale in speed and accuracy. RT-DETR-R50 achieves 53.1% AP at 108 FPS, outperforming DINO-Deformable-DETR-R50 by 2.2% AP with about 21x faster FPS.
 
-| Attribute       | Value                                       |
-|-----------------|---------------------------------------------|
-| Paper Title     | RT-DETR: DETRs Beat YOLOs on Real-time Object Detection |
-| Affiliation     | Baidu                                       |
-| Published       | Arxiv'22                                     |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | RT-DETR: DETRs Beat YOLOs on Real-time Object Detection               |
+| Publishing Units  | Baidu Inc.                                                            |
+| Publication Date  | Arxiv'22 (Accepted to ICCV 2023)                                      |
 
-Refer to this [article](https://zhuanlan.zhihu.com/p/628660998).
+Please refer to external tutorials or the official repository for ONNX export instructions, as direct commands might vary. Example article (Chinese): [https://zhuanlan.zhihu.com/p/628660998](https://zhuanlan.zhihu.com/p/628660998).
 
 ### [Hyper-YOLO](https://github.com/iMoonLab/Hyper-YOLO)
 
-Hyper-YOLO represents a groundbreaking advancement in object detection by leveraging hypergraph computation to model sophisticated relationships between visual features. At its core is the innovative Hypergraph Computing Enhanced Semantic Collection and Scattering (HGC-SCS) framework, which transforms visual features into semantic spaces and constructs hypergraphs to enable rich high-order information flow.
+Hyper-YOLO is a novel object detection method that integrates hypergraph computation to capture complex high-order associations between visual features. It introduces a Hypergraph Computation-enhanced Semantic Collection and Scattering (HGC-SCS) framework, transforming visual feature maps into semantic space and constructing hypergraphs for high-order information propagation.
 
-| Attribute       | Value                                       |
-|-----------------|---------------------------------------------|
-| Paper Title     | Hyper-YOLO: When Visual Object Detection Meets Hypergraph Computation |
-| Affiliation     | Tsinghua University, Xi'an Jiaotong University |
-| Published       | TAPMI'25                                      |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | Hyper-YOLO: When Visual Object Detection Meets Hypergraph Computation |
+| Publishing Units  | Tsinghua University, Xi'an Jiaotong University                        |
+| Publication Date  | TAPMI'25 (Preprint available)                                         |
 
-To get started, first download the model and install the required dependencies. Then modify the `Hyper-YOLO/ultralytics/export.py` file with the following configuration to set `batch=1` and `half=False`:
+Download the model, install dependencies, then modify the `Hyper-YOLO/ultralytics/export.py` file (or a similar export script within that project), setting `batch=1` and `half=False`:
 
-```bash
-import sys
-import os
-sys.path.append(os.getcwd())
+```python
+# Example modification within export_onnx.py or a similar script
+# Ensure necessary imports (Path, YOLO, torch, os) are present
 from pathlib import Path
 from ultralytics import YOLO
-
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
-torch.cuda.device_count.cache_clear()
+import os
+
+if __name__ == '__main__':
+    model_path = 'hyper-yolon-seg.pt' # Or your specific model weight file
+    if isinstance(model_path, (str, Path)):
+        model = YOLO(model_path)
+
+    # Ensure export arguments are set correctly
+    output_filename = model.export(
+        imgsz=640,
+        batch=1,         # Set batch size to 1
+        format='onnx',   # Specify ONNX format
+        int8=False,
+        half=False,      # Set half to False
+        device="0",      # Or "cpu"
+        verbose=False
+    )
+    print(f"Model exported to {output_filename}")
+
 ```
 
-Then run the following command to export:
+Then run the export script (adjust path as needed):
 
 ```bash
-python3 ultralytics/utils/export_onnx.py
+python3 Hyper-YOLO/ultralytics/export.py
 ```
 
 
 ## Segment Anything
 
-### [SAM](https://github.com/vietanhdev/samexporter)
+### [SAM](https://github.com/facebookresearch/segment-anything)
 
-The Segment Anything Model (`SAM`) produces high-quality object masks from input prompts such as points or boxes. It can be used to generate masks for all objects in an image, trained on a dataset of 11 million images and 1.1 billion masks. SAM has strong zero-shot performance on various segmentation tasks.
+The Segment Anything Model (`SAM`) generates high-quality object masks from input prompts like points or boxes. It can produce masks for all objects in an image and was trained on a dataset of 11 million images and 1.1 billion masks. SAM demonstrates strong zero-shot performance on various segmentation tasks.
 
-| Attribute       | Value                                       |
-|-----------------|---------------------------------------------|
-| Paper Title     | Segment Anything                             |
-| Affiliation     | Meta AI Research, FAIR                      |
-| Published       | ICCV'23                                      |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | Segment Anything                                                      |
+| Publishing Units  | Meta AI Research, FAIR                                                |
+| Publication Date  | ICCV'23                                                               |
 
-Refer to these [steps](https://github.com/vietanhdev/samexporter#sam-exporter).
+For ONNX export, refer to community exporters like [https://github.com/vietanhdev/samexporter#sam-exporter](https://github.com/vietanhdev/samexporter#sam-exporter) or the official repository for potential tools.
 
-### [Efficient-SAM](https://github.com/CVHub520/efficientvit)
+### [Efficient-SAM](https://github.com/yformer/EfficientSAM)
 
-`EfficientViT` is a new family of vision models for efficient high-resolution dense prediction. It uses a new lightweight multi-scale linear attention module as the core building block. This module achieves a global receptive field and multi-scale learning with only hardware-efficient operations.
+`EfficientViT` (underlying EfficientSAM) is a family of vision models designed for efficient high-resolution dense prediction. It uses a novel lightweight multi-scale linear attention module as its core building block, achieving global receptive fields and multi-scale learning with hardware-efficient operations. EfficientSAM adapts this for promptable segmentation.
 
-| Attribute       | Value                                                         |
-|-----------------|--------------------------------------------------------------|
-| Paper Title     | EfficientViT: Multi-Scale Linear Attention for High-Resolution Dense Prediction |
-| Affiliation     | MIT                                                           |
-| Published       | ICCV'23      |
+| Attribute         | Value                                                                                 |
+|-------------------|---------------------------------------------------------------------------------------|
+| Paper Title       | EfficientViT: Multi-Scale Linear Attention for High-Resolution Dense Prediction       |
+| Publishing Units  | MIT HAN Lab                                                                           |
+| Publication Date  | ICCV'23                                                                               |
 
-Refer to these [steps](https://github.com/CVHub520/efficientvit#benchmarking-with-onnxruntime).
+For ONNX export, refer to the specific EfficientSAM project (e.g., linked via EfficientViT or search directly) or check benchmarking scripts like those mentioned in the EfficientViT repo: [https://github.com/microsoft/Cream/tree/main/EfficientViT#benchmarking-with-onnxruntime](https://github.com/microsoft/Cream/tree/main/EfficientViT#benchmarking-with-onnxruntime) (Note: Original provided link `CVHub520/efficientvit` seems like a fork, official repo might differ).
 
-### [SAM-Med2D](https://github.com/CVHub520/SAM-Med2D)
+### [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D)
 
-`SAM-Med2D` is a specialized model developed to address the challenge of applying state-of-the-art image segmentation techniques to medical images.
+`SAM-Med2D` is a specialized model developed to address the challenges of applying state-of-the-art image segmentation techniques to medical images.
 
-| Attribute       | Value                |
-|-----------------|----------------------|
-| Paper Title     | SAM-Med2D            |
-| Affiliation     | OpenGVLab            |
-| Published       | Arxiv'23              |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | SAM-Med2D                                                             |
+| Publishing Units  | OpenGVLab                                                             |
+| Publication Date  | Arxiv'23                                                              |
 
-Refer to these [steps](https://github.com/CVHub520/SAM-Med2D#-deploy).
+Refer to the deployment instructions in the official repository: [https://github.com/OpenGVLab/SAM-Med2D#%EF%B8%8F-deploy](https://github.com/OpenGVLab/SAM-Med2D#%EF%B8%8F-deploy). (Note: Original provided link `CVHub520/SAM-Med2D` seems like a fork).
 
 ### [HQ-SAM](https://github.com/SysCV/sam-hq)
 
-`HQ-SAM` is an enhanced version of the Segment Anything Model (SAM) designed to improve mask prediction quality, particularly for complex structures, while preserving SAM's efficiency and zero-shot capabilities. It achieves this through a refined decoding process and additional training on a specialized dataset.
+`HQ-SAM` is an enhanced version of the Segment Anything Model (SAM) designed to improve mask prediction quality, especially for complex structures, while maintaining SAM's efficiency and zero-shot capabilities. It achieves this through an improved decoding process and additional training on a specialized dataset.
 
-| Attribute       | Value                                       |
-|-----------------|---------------------------------------------|
-| Paper Title     | Segment Anything in High Quality            |
-| Affiliation     | ETH Zurich & HKUST                          |
-| Published       | NeurIPS'23                                |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | Segment Anything in High Quality                                      |
+| Publishing Units  | ETH Zurich, HKUST                                                     |
+| Publication Date  | NeurIPS'23                                                            |
 
-Refer to this [tutorial](https://github.com/CVHub520/sam-hq).
+Refer to the official HQ-SAM repository or potentially forks like [https://github.com/CVHub520/sam-hq](https://github.com/CVHub520/sam-hq) for ONNX export tutorials or scripts.
 
 ### [EdgeSAM](https://github.com/chongzhou96/EdgeSAM)
 
-`EdgeSAM` is an accelerated variant of the Segment Anything Model (SAM), optimized for efficient execution on edge devices with minimal compromise in performance. It achieves a 40-fold speed increase compared to the original SAM, and outperforms MobileSAM, being 14 times as fast when deployed on edge devices while enhancing the mIoUs on COCO and LVIS by 2.3 and 3.2 respectively. EdgeSAM is also the first SAM variant that can run at over 30 FPS on an iPhone 14.
+`EdgeSAM` is an accelerated variant of the Segment Anything Model (SAM), optimized for efficient execution on edge devices with minimal performance compromise. It claims significant speedups over the original SAM and MobileSAM on edge hardware.
 
-| Attribute       | Value                                                                                      |
-|-----------------|-------------------------------------------------------------------------------------------|
-| Paper Title     | Prompt-In-the-Loop Distillation for On-Device Deployment of SAM                           |
-| Affiliation     | S-Lab, Nanyang Technological University, Shanghai Artificial Intelligence Laboratory.      |
-| Published       | Arxiv'23    |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | EdgeSAM: Prompt-In-the-Loop Distillation for On-Device Deployment of SAM |
+| Publishing Units  | S-Lab, Nanyang Technological University; Shanghai AI Laboratory       |
+| Publication Date  | Arxiv'23                                                              |
 
-
-Refer to this [tutorial](https://github.com/chongzhou96/EdgeSAM/blob/master/scripts/export_onnx_model.py).
+Refer to the official repository's export script: [https://github.com/chongzhou96/EdgeSAM/blob/main/scripts/export_onnx_model.py](https://github.com/chongzhou96/EdgeSAM/blob/main/scripts/export_onnx_model.py).
 
 ## Grounding
 
-### [Grounding DINO](https://github.com/IDEA-Research/GroundingDINO) 
+### [Grounding DINO](https://github.com/IDEA-Research/GroundingDINO)
 
-`Grounding DINO` is a state-of-the-art (SOTA) zero-shot object detection model excelling in detecting objects beyond the predefined training classes. Its unique capability allows adaptation to new objects and scenarios, making it highly versatile for real-world applications. It also performs well in Referring Expression Comprehension (REC), identifying and localizing specific objects or regions within an image based on textual descriptions. Grounding DINO simplifies object detection by eliminating hand-designed components like Non-Maximum Suppression (NMS), streamlining the model architecture, and enhancing efficiency and performance.
+`Grounding DINO` is a state-of-the-art (SOTA) zero-shot object detection model excelling at detecting objects not defined during training. Its ability to adapt to new objects and scenes makes it highly versatile for real-world applications. It performs well in Referring Expression Comprehension (REC), identifying and locating specific objects or regions in images based on text descriptions. Grounding DINO simplifies object detection by eliminating hand-designed components like Non-Maximum Suppression (NMS).
 
-| Attribute       | Value                                                         |
-|-----------------|--------------------------------------------------------------|
-| Paper Title     | Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection |
-| Affiliation     | IDEA-CVR, IDEA-Research                                       |
-| Published       | Arxiv'23      |
+| Attribute         | Value                                                                                     |
+|-------------------|-------------------------------------------------------------------------------------------|
+| Paper Title       | Grounding DINO: Marrying DINO with Grounded Pre-Training for Open-Set Object Detection    |
+| Publishing Units  | IDEA-CVR, IDEA-Research                                                                   |
+| Publication Date  | Arxiv'23                                                                                  |
 
-Refer to this [tutorial](../../tools/onnx_exporter/export_grounding_dino_onnx.py).
+Please refer to this [tutorial](../../tools/onnx_exporter/export_grounding_dino_onnx.py).
 
 ### [YOLO-World](https://github.com/AILab-CVC/YOLO-World)
 
-`YOLO-World` enhances the YOLO series by incorporating vision-language modeling, achieving efficient open-scenario object detection with impressive performance on various tasks.
+`YOLO-World` enhances the YOLO series by incorporating vision-language modeling, enabling efficient open-vocabulary object detection that excels in various tasks.
 
-| Attribute       | Value                                                                                          |
-|-----------------|------------------------------------------------------------------------------------------------|
-| Paper Title     | Real-Time Open-Vocabulary Object Detection                                                    |
-| Affiliation     | Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology.          |
-| Published       | Arxiv'24    |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | YOLO-World: Real-Time Open-Vocabulary Object Detection                 |
+| Publishing Units  | Tencent AI Lab, ARC Lab, Tencent PCG, Huazhong University of Science and Technology |
+| Publication Date  | Arxiv'24                                                              |
 
 ```bash
-$ git clone https://github.com/ultralytics/ultralytics.git
-$ cd ultralytics
-$ yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
+# Ensure ultralytics package is installed and updated
+# pip install -U ultralytics
+# Clone the ultralytics repo if needed for specific export scripts, otherwise use the pip package
+# git clone https://github.com/ultralytics/ultralytics.git
+# cd ultralytics
+# Use the yolo command line interface
+yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
 ```
+
+### [GeCo](https://github.com/jerpelhan/GeCo)
+
+`GeCo` is a unified architecture for few-shot counting, achieving high-precision object detection, segmentation, and counting through novel dense queries and a counting loss.
+
+| Attribute         | Value                                                                                         |
+|-------------------|-----------------------------------------------------------------------------------------------|
+| Paper Title       | GeCo: Query-Based Anchors for Fine-Grained Multi-Object Counting, Detection, and Segmentation |
+| Publishing Units  | University of Ljubljana                                                                       |
+| Publication Date  | NeurIPS'24                                                                                    |
+
+Please refer to this [tutorial](../../tools/onnx_exporter/export_geco_onnx.py).
 
 ## Image Tagging
 
-### [Recognize Anything](https://github.com/xinyu1205/Tag2Text) 
+### [Recognize Anything (RAM)](https://github.com/xinyu1205/recognize-anything)
 
-`RAM` is a robust image tagging model known for its exceptional capabilities in image recognition. RAM stands out for its strong and versatile performance, excelling in zero-shot generalization. It offers the advantages of being both cost-effective and reproducible, relying on open-source and annotation-free datasets. RAM's flexibility makes it suitable for a wide range of application scenarios, making it a valuable tool for various image recognition tasks.
+`RAM` (Recognize Anything Model) is a robust image tagging model known for its exceptional image recognition capabilities. RAM excels in zero-shot generalization, is cost-effective, reproducible, and relies on open-source, annotation-free datasets. Its flexibility makes it suitable for a wide range of applications.
 
-| Attribute       | Value                                                             |
-|-----------------|-------------------------------------------------------------------|
-| Paper Title     | Recognize Anything: A Strong Image Tagging Model                  |
-| Affiliation     | OPPO Research Institute, IDEA-Research, AI Robotics              |
-| Published       | Arxiv'23      |
+| Attribute         | Value                                                                 |
+|-------------------|-----------------------------------------------------------------------|
+| Paper Title       | Recognize Anything: A Strong Image Tagging Model                      |
+| Publishing Units  | OPPO Research Institute, IDEA-Research, AI Robotics                   |
+| Publication Date  | Arxiv'23                                                              |
 
-Refer to this [tutorial](../../tools/onnx_exporter/export_recognize_anything_model_onnx.py).
+Please refer to this [tutorial](../../tools/onnx_exporter/export_recognize_anything_model_onnx.py). (Note: Original linked repo `Tag2Text` seems related but RAM is often associated with `recognize-anything`).

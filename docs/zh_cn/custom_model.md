@@ -4,31 +4,41 @@ X-AnyLabeling 当前内置了许多通用模型，具体可参考 [模型列表]
 
 ## 加载内置模型
 
-在启用 AI 辅助标定功能之前，用户需要先加载模型，并通过左侧菜单栏的 `AI` 标识按钮或直接使用快捷键 `Ctrl+A` 激活。
+在启用 AI 辅助标定功能之前，用户需要先加载模型，可通过左侧菜单栏的 `AI` 标识按钮或直接使用快捷键 `Ctrl+A` 激活。
 
-通常，当用户从模型下拉列表中选择对应的模型时，后台会检查当前用户目录下 `~/xanylabeling_data/models/${model_name}` 是否存在相应的模型文件。如果存在，则直接加载；如果不存在，则会通过网络自动下载到指定目录。
+通常，当用户从模型下拉列表中选择对应的模型时，后台会检查当前用户目录下 `~/xanylabeling_data/models/${model_name}` 是否存在相应的模型文件。如果存在，则直接加载；否则，直接通过网络自动下载到指定目录。
 
-请注意，`X-AnyLabeling` 当前内置的所有模型默认托管在 GitHub 的 release 仓库。因此，用户需要配置科学上网条件，并保持网络畅通，否则可能会下载失败。对于由于网络问题未能成功加载模型的用户，可参考以下步骤进行配置：
+注意，当前软件内置的所有模型默认托管在 GitHub 的 release 仓库。因此，用户需要配置科学上网条件，并保持网络畅通，否则可能会下载失败。
+
+对由于网络问题未能成功加载模型的用户，可选择离线下载并手动加载模型或修改模型下载源。
+
+### 离线下载模型
 
 - 打开 [model_zoo.md](./model_zoo.md) 文件，找到欲加载模型对应的配置文件。
 - 编辑配置文件，修改模型路径，并根据需要选择性地修改其他超参数。
 - 打开工具界面，点击**加载自定义模型**，选择配置文件所在路径即可。
 
+### 修改模型下载源
+
+详情可参考 [user_guide.md](./user_guide.md) 中的 `7.7 模型下载源配置` 章节。
+
 ## 加载已适配的用户自定义模型
 
-> **已适配模型**是指当前已经在 X-AnyLabeling 中适配过的模型，无须用户编写模型推理代码。具体可参考 [模型列表](../../docs/zh_cn/model_zoo.md)。
+> **已适配模型**是指当前已经在 X-AnyLabeling 中适配过的模型，无须用户编写模型推理代码。适配模型列表可参考 [模型列表](../../docs/zh_cn/model_zoo.md)。
 
-以下以 [YOLOv5s](https://github.com/ultralytics/yolov5) 模型为例，介绍加载自定义模型的步骤：
+本教程中，我们以 [YOLOv5s](https://github.com/ultralytics/yolov5) 模型为例，详细介绍如何加载自定义模型。
 
 **a. 模型转换**
 
-假设您已经训练好一个本地模型，首先将 `PyTorch` 训练模型转换为 `ONNX` 文件格式：
+假设您已经在本地训练好一个模型，我们首先可以将 `PyTorch` 训练模型转换为 X-AnyLabeling 默认的 `ONNX` 文件格式（可选项）。具体地，执行：
 
 ```bash
 python export.py --weights yolov5s.pt --include onnx
 ```
 
-注意：当前版本不支持动态输入，因此请勿设置 `--dynamic` 参数。此外，您可以通过 [Netron](https://netron.app/) 在线查看 `onnx` 文件，检查输入和输出节点信息，确保输入节点的第一个维度为1。
+注意：当前版本暂不支持**动态输入**，因此请勿设置 `--dynamic` 参数。
+
+此外，强烈建议通过 [Netron](https://netron.app/) 在线工具导入上一步导出的 `*.onnx` 文件，检查输入和输出节点信息，确保维度等信息符合预期。
 
 <p align="center">
   <img src="../../assets/resources/netron.png" alt="Netron">
@@ -36,15 +46,18 @@ python export.py --weights yolov5s.pt --include onnx
 
 **b. 模型配置**
 
-准备好 `onnx` 文件后，您可以浏览 [模型列表](../../docs/zh_cn/model_zoo.md) 文件，找到并下载对应模型的配置文件。这里以 [yolov5s.yaml](../../anylabeling/configs/auto_labeling/yolov5s.yaml) 为例，其内容如下：
+准备好 `onnx` 文件后，您可以浏览 [模型列表](../../docs/zh_cn/model_zoo.md) 文件，找到并拷贝对应模型的配置文件。
+
+同样，以 [yolov5s.yaml](../../anylabeling/configs/auto_labeling/yolov5s.yaml) 为例，我们可以看下其内容：
 
 ```YAML
 type: yolov5
 name: yolov5s-r20230520
-display_name: YOLOv5s Ultralytics
+provider: Ultralytics
+display_name: YOLOv5s
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
-nms_threshold: 0.45
-confidence_threshold: 0.25
+iou_threshold: 0.45
+conf_threshold: 0.25
 classes:
   - person
   - bicycle
@@ -54,30 +67,34 @@ classes:
 
 | 字段 | 描述 | 是否可修改 |
 |------|------|------------|
-| `type` | 模型类型标识，不支持自定义。| ❌ |
-| `name` | 模型配置文件的索引名称，保留默认值即可。 | ❌ |
-| `display_name` | 在界面上模型下拉列表中显示的名称，可自行修改。 | ✔️ |
-| `model_path` | 模型加载路径，支持相对路径和绝对路径。 | ✔️ |
+| `type` | 模型类型标识，不支持自定义 | ❌ |
+| `name` | 模型配置文件的索引名称，保留默认值即可 | ❌ |
+| `provider` | 模型提供商，可根据实际情况修改 | ✔️ |
+| `display_name` | 在界面上模型下拉列表中显示的名称，可自行修改 | ✔️ |
+| `model_path` | 模型加载路径，支持相对路径和绝对路径 | ✔️ |
+| `iou_threshold` | 用于非极大值抑制的交并比阈值 | ✔️ |
+| `conf_threshold` | 用于非极大值抑制的置信度阈值 | ✔️ |
+| `classes` | 模型的标签列表，需与训练时的标签列表一致 | ✔️ |
 
-对于不同模型，X-AnyLabeling 提供了一些特有字段，具体可参考对应模型的定义。以下以 [YOLO](../../anylabeling/services/auto_labeling/__base__/yolo.py) 模型为例，提供了一些超参数配置：
+需要注意的是，以上字段并非所有模型都适用，具体可参考对应模型的定义。
+
+例如，我们可以看下 [YOLO](../../anylabeling/services/auto_labeling/__base__/yolo.py) 模型的实现，其额外提供了以下可选配置项：
 
 | 字段 | 描述 |
 |------|------|
-| `classes` | 模型的标签列表，需与训练时的标签列表一致。| 
-| `filter_classes` | 指定推理时使用的类别。| 
-| `agnostic` | 是否使用单类 NMS。|
-| `nms_threshold` | 非极大值抑制的阈值，用于过滤重叠的目标框。|
-| `confidence_threshold` | 置信度阈值，用于过滤置信度较低的目标框。|
+| `filter_classes` | 指定推理时使用的类别| 
+| `agnostic` | 是否使用单类 NMS|
 
 一个典型的参考示例如下：
 
 ```YAML
 type: yolov5
 name: yolov5s-r20230520
-display_name: YOLOv5s Custom
-model_path: yolov5s_custom.onnx
-nms_threshold: 0.60
-confidence_threshold: 0.45
+provider: Ultralytics
+display_name: YOLOv5s
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
+iou_threshold: 0.60
+conf_threshold: 0.25
 agnostic: True
 filter_classes:
   - person
@@ -89,7 +106,7 @@ classes:
   - ...
 ```
 
-特别地，当使用低版本的 YOLOv5（v5.0 及以下）时，请在配置文件中指定 `anchors` 和 `stride` 字段，否则请删除这些字段。示例如下：
+特别地，当且仅当使用低版本的 YOLOv5（v5.0 及以下）时，需要在配置文件中指定 `anchors` 和 `stride` 字段，否则请务必不要指定这些字段，以免造成模型推理错误。示例如下：
 
 ```YAML
 type: yolov5
@@ -101,26 +118,28 @@ anchors:
   - [116,90, 156,198, 373,326]  # P5/32
 ```
 
-此外：
-- 对于 `nms_threshold` 和 `confidence_threshold` 字段，`v2.4.0` 及以上版本支持直接从 GUI 界面进行设置，用户可根据需要修改。
-- 对于分割模型，则可指定 `epsilon_factor` 参数来控制输出轮廓点的平滑程度，默认值为 0.005。
+> **提示**: 对于分割模型，可指定 `epsilon_factor` 参数来控制输出轮廓点的平滑程度，默认值为 `0.005`。
 
 **c. 模型加载**
 
-建议将 `model_path` 字段设置为当前 `onnx` 模型的文件名称，并将模型文件和配置文件放在同一目录下，使用相对路径进行加载，以避免路径中出现转义字符的影响。
+了解完上述内容后，修改配置文件中的 `model_path` 字段，并根据需要选择性地修改其他超参数即可。
 
-最后，在菜单栏下方的模型下拉框选项中，找到 `...加载自定义模型`，然后导入上一步准备的配置文件即可完成自定义模型加载。
+目前软件支持 **相对路径** 和 **绝对路径** 两种模型加载方式，用户在填写模型路径时，注意避免路径中转义字符的影响。
+
+最后，在界面上方菜单栏中的模型下拉框列表中，找到 `...加载自定义模型` 选项，然后导入上一步准备的配置文件即可完成自定义模型加载。
 
 
 ## 加载未适配的用户自定义模型
 
-> **未适配模型**指还未在 X-AnyLabeling 中适配过的模型即内置模型，需要用户参考以下实施步骤进行集成。
+> **未适配模型**指还未在 X-AnyLabeling 中适配过的模型，需要用户自行参考以下实施步骤进行集成。
 
-这里以多类别语义分割模型，可遵循以下实施步骤：
+这里以多类别语义分割模型 `U-Net` 为例，可遵循以下实施步骤：
 
 **a. 训练及导出模型**
 
 导出 `ONNX` 模型，确保输出节点的维度为 `[1, C, H, W]`，其中 `C` 为总的类别数（包含背景类）。
+
+> **友情提示**：导出 `ONNX` 模型并非必选项，用户也可以根据需要选择其它模型格式，如 `PyTorch`、 `OpenVINO` 或 `TensorRT` 等。以 `Segment-Anything-2` 的视频目标追踪为例，可参考 [安装指南](../../examples/interactive_video_object_segmentation/README.md) 章节、配置文件定义 [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml) 及相应的实现 [segment_anything_2_video.py](../../anylabeling/services/auto_labeling/segment_anything_2_video.py)。
 
 **b. 定义配置文件**
 
@@ -128,8 +147,10 @@ anchors:
 
 ```YAML
 type: unet
-name: unet-r20240101
+name: unet-r20250101
 display_name: U-Net (ResNet34)
+provider: xxx
+conf_threshold: 0.5
 model_path: /path/to/best.onnx
 classes:
   - cat
@@ -141,28 +162,34 @@ classes:
 
 | 字段 | 描述   |
 |-----|--------|
-| `type` | 必填项，指定模型的类型，确保与现有模型类型不重复，以维护模型标识的唯一性。|
-| `name` | 必填项，定义模型的索引，用于内部引用和管理，避免与现有模型的索引名称冲突。|
-| `display_name` | 必填项，展示在用户界面的模型名称，便于识别和选择，同样需保证其独特性，不与其它模型重名。|
+| `type` | 指定模型类型，确保与现有模型类型不重复，以维护模型标识的唯一性。|
+| `name` | 定义模型索引，用于内部引用和管理，避免与现有模型的索引名称冲突。|
+| `display_name` | 展示在用户界面的模型名称，便于识别和选择，同样需保证其独特性，不与其它模型重名。|
 
-以上三个字段为不可缺省字段。最后，可根据实际需要添加其它字段，如模型路径、模型超参、模型类别等。
+以上三个字段为不可缺省字段。最后，可根据实际需要添加其它字段，如模型提供商、模型路径、模型超参等。
 
 **c. 添加配置文件**
 
-其次，将上述配置文件添加到[模型管理文件](../../anylabeling/configs/auto_labeling/models.yaml)中：
+其次，将上述配置文件添加到[模型管理文件](../../anylabeling/configs/models.yaml)中：
 
-```
+```yaml
 ...
 
-- model_name: "unet-r20240101"
+- model_name: "unet-r20250101"
   config_file: ":/unet.yaml"
 ...
 
 ```
 
-**d. 定义推理服务**
+**d. 配置UI组件**
 
-在定义推理服务的过程中，继承 [Model](../../anylabeling/services/auto_labeling/model.py) 基类是关键步骤之一，它允许你实现特定于模型的前向推理逻辑。具体地，你可以在[模型推理服务路径](../../anylabeling/services/auto_labeling/)下新建一个`unet.py`文件，参考示例如下：
+这一步可根据需要自行添加UI组件，只需将模型名称添加到对应的列表即可，具体可参考此[文件](../../anylabeling/services/auto_labeling/__init__.py) 中的定义。
+
+**e. 定义推理服务**
+
+在定义推理服务的过程中，继承 [Model](../../anylabeling/services/auto_labeling/model.py) 基类是关键步骤之一，它允许你实现特定于模型的前向推理逻辑。
+
+具体地，你可以在[模型推理服务目录](../../anylabeling/services/auto_labeling/)下新建一个 `unet.py` 文件，参考示例如下：
 
 ```python
 import logging
@@ -215,15 +242,6 @@ class UNet(Model):
         self.input_shape = self.net.get_input_shape()[-2:]
 
     def preprocess(self, input_image):
-        """
-        Pre-processes the input image before feeding it to the network.
-
-        Args:
-            input_image (numpy.ndarray): The input image to be processed.
-
-        Returns:
-            numpy.ndarray: The pre-processed output.
-        """
         input_h, input_w = self.input_shape
         image = cv2.resize(input_image, (input_w, input_h))
         image = np.transpose(image, (2, 0, 1))
@@ -233,18 +251,6 @@ class UNet(Model):
         return image
 
     def postprocess(self, image, outputs):
-        """
-        Post-processes the network's output.
-
-        Args:
-            image (numpy.ndarray): The input image.
-            outputs (numpy.ndarray): The output from the network.
-
-        Returns:
-            contours (list): List of contours for each detected object class.
-                            Each contour is represented as a dictionary containing
-                            the class label and a list of contour points.
-        """
         n, c, h, w = outputs.shape
         image_height, image_width = image.shape[:2]
         # Obtain the category index of each pixel
@@ -266,10 +272,6 @@ class UNet(Model):
         return results
 
     def predict_shapes(self, image, image_path=None):
-        """
-        Predict shapes from image
-        """
-
         if image is None:
             return []
 
@@ -295,8 +297,6 @@ class UNet(Model):
                 shape.shape_type = "polygon"
                 shape.closed = True
                 shape.fill_color = "#000000"
-                shape.line_color = "#000000"
-                shape.line_width = 1
                 shape.label = label
                 shape.selected = False
                 shapes.append(shape)
@@ -308,9 +308,24 @@ class UNet(Model):
         del self.net
 ```
 
-**e. 添加至模型管理**
+这里：
 
-最后，我们仅需将实现好的模型类添加至对应的模型管理文件中即可。具体地，你可以打开 [model_manager.py](../../anylabeling/services/auto_labeling/model_manager.py)，将对应的模型类型字段（如`unet`）添加至 `CUSTOM_MODELS` 列表中，同时在 `_load_model` 方法中初始化你的实例。参考示例如下：
+- 元数据 `Meta` 类中：
+    - `required_config_names`：用于指定模型配置文件中必须包含的配置项，确保模型推理服务能够正确初始化。
+    - `widgets`：指定模型推理服务中需要显示的控件，如按钮、下拉框等，具体可参考此 [文件](../../anylabeling/services/auto_labeling/__init__.py) 中的定义。
+    - `output_modes`：指定模型推理服务中输出的形状类型，支持多边形、矩形和旋转框等。
+    - `default_output_mode`：指定模型推理服务中默认的输出形状类型。
+- `predict_shapes` 和 `unload` 均属于抽象方法，分别用于定义模型推理过程和模型资源释放逻辑，因此一定需要实现。
+
+
+**f. 添加至模型管理**
+
+完成上述步骤后，我们需要打开 [模型配置文件](../../anylabeling/services/auto_labeling/__init__.py) 中，并将对应的模型类型字段（如`unet`）添加至 `_CUSTOM_MODELS` 列表中，并根据需要在不同配置项中添加对应的模型名称。
+
+> **提示**: 如果你不知道如何实现对应的控件，可打开搜索面板，输入相应关键字，查看所有可用控件的实现逻辑。
+
+最后，移步至 [模型管理类文件](../../anylabeling/services/auto_labeling/model_manager.py) 中，在 `_load_model` 方法中按照如下方式初始化你的实例：
+
 
 ```python
 ...
@@ -318,18 +333,9 @@ class UNet(Model):
 class ModelManager(QObject):
     """Model manager"""
 
-    MAX_NUM_CUSTOM_MODELS = 5
-    CUSTOM_MODELS = [
-      ...
-      "unet",
-      ...
-    ]
-
     def __init__(self):
         ...
-
     ...
-
     def _load_model(self, model_id):
         """Load and return model info"""
         if self.loaded_model_config is not None:
@@ -368,8 +374,8 @@ class ModelManager(QObject):
 
 ⚠️注意：
 
-- 如果是基于 `SAM` 的模式，请将 `self.auto_segmentation_model_unselected.emit()` 替换为 `self.auto_segmentation_model_selected.emit()` 以触发相应的功能。
 - 模型类型字段需要与上述步骤**b. 定义配置文件**中定义的配置文件中的 `type` 字段保持一致。
+- 如果是基于 `SAM` 的模式，请将 `self.auto_segmentation_model_unselected.emit()` 替换为 `self.auto_segmentation_model_selected.emit()` 以触发相应的功能。
 
 
 # 模型导出
@@ -403,6 +409,14 @@ InternImage 引入了一个大规模卷积神经网络 (CNN) 模型，利用可�
 请参考此 [教程](../../tools/onnx_exporter/export_pulc_attribute_model_onnx.py)。
 
 ## Object Detection
+
+### [RF-DETR](https://github.com/roboflow/rf-detr)
+
+`RF-DETR` 是第一个在 Microsoft COCO 基准测试中超过 60 AP 的实时模型，同时在小尺寸模型中表现出色。它还在 RF100-VL 上实现了最先进的性能，这是一个衡量模型对现实世界问题适应能力的对象检测基准。RF-DETR 的性能与当前的实时目标检测模型相当。
+
+> 机构: Roboflow
+
+请参考此 [教程](../../tools/onnx_exporter/export_rfdetr_onnx.py)。
 
 ### [YOLOv5_OBB](https://github.com/hukaixuan19970627/yolov5_obb)
 
@@ -599,6 +613,18 @@ $ git clone https://github.com/ultralytics/ultralytics.git
 $ cd ultralytics
 $ yolo export model=yolov8s-worldv2.pt format=onnx opset=13 simplify
 ```
+
+### [GeCo](https://github.com/jerpelhan/GeCo.git)
+
+`GeCo` 是一种统一架构的少样本计数器，通过新颖的密集查询和计数损失，实现了高精度的目标检测、分割和计数。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | A Novel Unified Architecture for Low-Shot Counting by Detection and Segmentation |
+| 发表单位       | 卢布尔雅那大学                                                        |
+| 发表时间       | NeurIPS'24                                                        |
+
+请参考此 [教程](../../tools/onnx_exporter/export_geco_onnx.py)。
 
 ## Image Tagging
 

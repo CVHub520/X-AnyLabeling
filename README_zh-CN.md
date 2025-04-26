@@ -38,6 +38,7 @@
 
 ## 🥳 新功能
 
+- 支持 [RF-DETR](./tools/onnx_exporter/export_rfdetr_onnx.py) 目标检测模型
 - 支持一键导入/导出 [VLM-R1-OVD](https://github.com/om-ai-lab/VLM-R1) 标签
 - 支持从 [ModelScope](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43) 下载模型
 - 支持 [Grounding-DINO-1.6-API](https://algos.deepdataspace.com/en#/model/grounding_dino) 开集检测模型

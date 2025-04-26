@@ -3,6 +3,34 @@ import numpy as np
 from .general import refine_contours
 
 
+def cxcywh2xyxy(x):
+    """
+    Convert bounding box coordinates from (cx, cy, w, h) format to (x1, y1, x2, y2) format.
+
+    Args:
+        x (np.ndarray): The input bounding box coordinates in (cx, cy, w, h) format.
+    Returns:
+        y (np.ndarray): The bounding box coordinates in (x1, y1, x2, y2) format.
+    """
+
+    x_c = x[..., 0]
+    y_c = x[..., 1]
+    w = x[..., 2]
+    h = x[..., 3]
+
+    w = np.maximum(w, 0.0)
+    h = np.maximum(h, 0.0)
+
+    b = np.stack([
+        x_c - 0.5 * w,
+        y_c - 0.5 * h,
+        x_c + 0.5 * w,
+        y_c + 0.5 * h,
+    ], axis=-1)
+
+    return b
+
+
 def xyxy2xywh(x):
     """
     Convert bounding box coordinates from (x1, y1, x2, y2) format to (x, y, width, height) format.
@@ -10,7 +38,7 @@ def xyxy2xywh(x):
     Args:
         x (np.ndarray): The input bounding box coordinates in (x1, y1, x2, y2) format.
     Returns:
-       y (np.ndarray): The bounding box coordinates in (x, y, width, height) format.
+        y (np.ndarray): The bounding box coordinates in (x, y, width, height) format.
     """
     y = np.copy(x)
     y[..., 0] = (x[..., 0] + x[..., 2]) / 2  # x center

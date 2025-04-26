@@ -68,6 +68,7 @@ _CUSTOM_MODELS = [
     "yolo11_pose_track",
     "upn",
     "geco",
+    "rfdetr",
 ]
 
 
@@ -155,6 +156,7 @@ _AUTO_LABELING_CONF_MODELS = [
     "yolow",
     "yolox",
     "doclayout_yolo",
+    "rfdetr",
 ]
 
 
@@ -230,6 +232,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "yolox",
     "doclayout_yolo",
     "florence2",
+    "rfdetr",
 ]
 
 

@@ -285,7 +285,7 @@ class LabelConverter:
             else:
                 return []
         except Exception as e:
-            print(f"JSON解析错误: {e}")
+            logger.error(f"Error while parsing JSON: {e}")
             return []
 
     def get_coco_data(self, mode):
@@ -1959,7 +1959,7 @@ class LabelConverter:
                 question = f"First thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think><answer> answer here </answer>. Please carefully check the image and detect the following objects: {labels}. "
                 question = (
                     question
-                    + 'Output the bbox coordinates of detected objects in <answer></answer>. The bbox coordinates in Markdown format should be: \n```json\n[{"bbox_2d": [x1, y1, x2, y2], "label": "object name"}]\n```\n If no targets are detected in the image, simply respond with "None".'
+                    + 'Output the bbox coordinates of detected objects in <answer></answer>. The bbox coordinates in Markdown format should be: \n```json\n[{"bbox_2d": [x1, y1, x2, y2], "label": "object name"},\n{"bbox_2d": [x1, y1, x2, y2], "label": "object name"},\n...\n]\n```\nIf no targets are detected in the image, simply respond with None.'
                 )
 
                 item = {
