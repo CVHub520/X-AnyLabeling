@@ -181,9 +181,14 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
         if self.output_dir:
             label_file = osp.join(self.output_dir, osp.basename(label_file))
 
-        new_shapes = [shape.to_dict() for shape in auto_labeling_result.shapes]
-        new_description = auto_labeling_result.description
-        replace = auto_labeling_result.replace
+        if auto_labeling_result is None:
+            new_shapes = []
+            new_description = ""
+            replace = True
+        else:
+            new_shapes = [shape.to_dict() for shape in auto_labeling_result.shapes]
+            new_description = auto_labeling_result.description
+            replace = auto_labeling_result.replace
 
         if osp.exists(label_file):
             with io_open(label_file, "r") as f:
