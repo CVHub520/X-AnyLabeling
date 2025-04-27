@@ -81,9 +81,9 @@ class RFDETR(Model):
             numpy.ndarray: The pre-processed output.
         """
         # Convert grayscale to RGB if needed
-        if input_image.mode == 'L':
-            input_image = input_image.convert('RGB')
-        
+        if input_image.mode == "L":
+            input_image = input_image.convert("RGB")
+
         # resize with bilinear interpolation
         image = input_image.resize(self.input_shape, Image.BILINEAR)
 
@@ -97,8 +97,12 @@ class RFDETR(Model):
         image = image.transpose((2, 0, 1))
 
         # normalize
-        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32).reshape(-1, 1, 1)
-        std = np.array([0.229, 0.224, 0.225], dtype=np.float32).reshape(-1, 1, 1)
+        mean = np.array([0.485, 0.456, 0.406], dtype=np.float32).reshape(
+            -1, 1, 1
+        )
+        std = np.array([0.229, 0.224, 0.225], dtype=np.float32).reshape(
+            -1, 1, 1
+        )
         image = (image - mean) / std
 
         # add batch dimension
@@ -127,7 +131,9 @@ class RFDETR(Model):
         prob = sigmoid(out_logits)
         prob_reshaped = prob.reshape(out_logits.shape[0], -1)
 
-        topk_indexes = np.argpartition(-prob_reshaped, self.num_select, axis=1)[:, :self.num_select]
+        topk_indexes = np.argpartition(
+            -prob_reshaped, self.num_select, axis=1
+        )[:, : self.num_select]
         topk_values = np.take_along_axis(prob_reshaped, topk_indexes, axis=1)
 
         sort_indices = np.argsort(-topk_values, axis=1)

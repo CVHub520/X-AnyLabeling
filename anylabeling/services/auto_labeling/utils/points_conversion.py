@@ -21,12 +21,15 @@ def cxcywh2xyxy(x):
     w = np.maximum(w, 0.0)
     h = np.maximum(h, 0.0)
 
-    b = np.stack([
-        x_c - 0.5 * w,
-        y_c - 0.5 * h,
-        x_c + 0.5 * w,
-        y_c + 0.5 * h,
-    ], axis=-1)
+    b = np.stack(
+        [
+            x_c - 0.5 * w,
+            y_c - 0.5 * h,
+            x_c + 0.5 * w,
+            y_c + 0.5 * h,
+        ],
+        axis=-1,
+    )
 
     return b
 

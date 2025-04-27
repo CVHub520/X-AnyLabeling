@@ -39,6 +39,7 @@
 
 ## 🥳 What's New
 
+- Support [Chatbot](./docs/en/chatbot.md) for multimodal image dataset annotation
 - Support [RF-DETR](./tools/onnx_exporter/export_rfdetr_onnx.py) object detection model
 - Support one-click import/export for [VLM-R1-OVD](https://github.com/om-ai-lab/VLM-R1) labels
 - Support downloading models from [ModelScope](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43) as an alternative source

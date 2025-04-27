@@ -85,7 +85,9 @@ class ProviderSection(QFrame):
         else:
             # Use default logo if no specific icon is found
             icon_path = "anylabeling/resources/icons/others.png"
-            logger.warning(f"Icon not found for provider '{provider_name}'. Using default.")
+            logger.warning(
+                f"Icon not found for provider '{provider_name}'. Using default."
+            )
         icon.setPixmap(QIcon(icon_path).pixmap(QSize(*ICON_SIZE_SMALL)))
         header.addWidget(icon)
 

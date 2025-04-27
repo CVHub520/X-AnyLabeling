@@ -1,5 +1,7 @@
 # 用户手册
 
+本指南提供了使用 X-AnyLabeling 的全面指导，涵盖了从基本的文件管理、标注任务到高级功能和自定义的所有内容。
+
 ## 0. 目录
    * [1. 文件](#1-文件)
       * [1.1 导入数据](#11-导入数据)
@@ -56,6 +58,7 @@
       * [8.10 视觉-语言](#810-视觉-语言)
       * [8.11 基于检测与分割的零样本计数](#811-基于检测与分割的零样本计数)
    * [9. 模型](#9-模型)
+   * [10. 聊天机器人](#10-聊天机器人)
 
 ## 1. 文件
 
@@ -101,26 +104,40 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 
 ```json
 {
-  "version": "${version}",
-  "flags": {},
-  "shapes": [
+  "version": "${version}", // X-AnyLabeling 版本号
+  "flags": {},             // 图片级标志 (如果存在)
+  "shapes": [              // 标注的形状列表
     {
-      "label": "${label}",
-      "score": null,
-      "points": [...],
-      "group_id": null,
-      "description": null,
-      "difficult": false,
-      "shape_type": "${shape_type}",
-      "flags": null,
-      "attributes": {}
-    },
-    ...
+      "label": "${label}",        // 类别标签
+      "score": null,            // 置信度得分 (e.g., from model), 若无此信息则为 `null`
+      "points": [...],          // 形状的顶点坐标列表
+      "group_id": null,         // 用于关联同一组内的多个形状 (e.g., pose keypoints)
+      "description": null,      // 形状的文本描述
+      "difficult": false,       // 标识当前对象是否难以识别
+      "shape_type": "${shape_type}", // e.g., "rectangle", "polygon"
+      "flags": null,            // 形状级标志 (如果存在)
+      "attributes": {}          // 自定义属性字典
+    }
+    // ... 更多对象
   ],
-  "imagePath": "${filename}",
-  "imageData": null,  // base64
-  "imageHeight": -1,
-  "imageWidth": -1
+  "description": null,      // 图片的文本描述
+  "chat_history": [         // 聊天历史 (for chatbot)
+    {
+      "role": "user",
+      "content": "Hi",
+      "image": null
+    },
+    {
+      "role": "assistant",
+      "content": "Hi there! How can I help you today?",
+      "image": null
+    }
+    // ... 更多对话
+  ],
+  "imagePath": "${filename}", // 图片的相对路径
+  "imageData": null,         // Base64 编码的图片数据 (如果启用, 请参考 1.5)
+  "imageHeight": -1,         // 图片高度
+  "imageWidth": -1           // 图片宽度
 }
 ```
 
@@ -183,41 +200,14 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 
 当用户创建（未勾选`自动使用上一个标签`）或编辑一个对象时，默认弹出一个标签编辑框，用于编辑对象的标签信息。
 
-<div style="display: flex; align-items: center;">
-  <img src="../../assets/resources/edit_label.png" style="max-width: 50%; height: auto;" />
-  <div style="margin-left: 1em;">
-    <table style="width: 100%;">
-      <tr>
-        <th>字段</th>
-        <th>描述</th>
-      </tr>
-      <tr>
-        <td>对象标签</td>
-        <td>输入当前对象的类别标签，支持模糊搜索。</td>
-      </tr>
-      <tr>
-        <td>群组编号</td>
-        <td>用于关键点检测、多目标跟踪等特定任务。</td>
-      </tr>
-      <tr>
-        <td>困难标签</td>
-        <td>标识当前对象是否难以识别。</td>
-      </tr>
-      <tr>
-        <td>标签列表</td>
-        <td>展示当前已添加的标签列表，默认按字母序排列。</td>
-      </tr>
-      <tr>
-        <td>标签描述</td>
-        <td>附加的标志信息，用于存储额外的状态或属性，若无此信息则为 `null`。</td>
-      </tr>
-      <tr>
-        <td>标签连接</td>
-        <td>用于标识关键信息提取-关系抽取任务中的连接字段。</td>
-      </tr>
-    </table>
-  </div>
-</div>
+字段 | 描述
+---- | ----
+对象标签 | 输入当前对象的类别标签，支持模糊搜索。
+群组编号 | 用于关键点检测、多目标跟踪等特定任务。
+困难标签 | 标识当前对象是否难以识别。
+标签列表 | 展示当前已添加的标签列表，默认按字母序排列。
+标签描述 | 附加的标志信息，用于存储额外的状态或属性，若无此信息则为 `null`。
+标签连接 | 用于标识关键信息提取-关系抽取任务中的连接字段。
 
 ### 2.4 编辑图片
 
@@ -589,6 +579,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 - **矩形框转旋转框**：一键将矩形框标签转换为旋转框标签。
 - **旋转框转矩形框**：一键将旋转框标签转换为矩形框标签。
 - **多边形框转多边形框**：一键将多边形框标签转换为多边形框标签。
+- **多边形框转旋转框**：一键将多边形框标签转换为旋转框标签。
 
 注意：`旋转框转矩形框` 和 `多边形框转多边形框` 操作默认取最大外接矩，因此会丢失一些标签信息，如旋转角度等。这些操作为**不可逆**，请谨慎使用。
 
@@ -642,6 +633,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 | Alt + g               | 修改群组编号                           |
 | Ctrl + Delete         | 删除当前标签文件                    |
 | Ctrl + Shift + Delete | 删除当前图像文件                        |
+| Ctrl + b              | 打开聊天机器人对话窗口                   |
 | Ctrl + q              | 退出当前应用程序                        |
 | Ctrl + i              | 打开图像文件                           |
 | Ctrl + o              | 打开视频文件                           |
@@ -842,3 +834,7 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 ## 9. 模型
 
 关于如何加载和导出模型可参阅[自定义模型文档](./custom_model.md)。
+
+## 10. 聊天机器人
+
+- 聊天机器人：[链接](../zh_cn/chatbot.md)

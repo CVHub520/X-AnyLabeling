@@ -411,7 +411,7 @@ class EfficientViT_SAM(Model):
             cached_data = self.image_embedding_cache.get(filename)
             if cached_data is not None:
                 image_embedding = cached_data
-                cv_image = qt_img_to_rgb_cv_img(image, filename) 
+                cv_image = qt_img_to_rgb_cv_img(image, filename)
             else:
                 cv_image = qt_img_to_rgb_cv_img(image, filename)
                 if self.stop_inference:
@@ -434,7 +434,7 @@ class EfficientViT_SAM(Model):
             else:
                 masks = masks[0]
             shapes = self.post_process(masks, cv_image)
-            
+
         except Exception as e:
             logger.warning("Could not inference model")
             logger.warning(e)

@@ -186,7 +186,9 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
             new_description = ""
             replace = True
         else:
-            new_shapes = [shape.to_dict() for shape in auto_labeling_result.shapes]
+            new_shapes = [
+                shape.to_dict() for shape in auto_labeling_result.shapes
+            ]
             new_description = auto_labeling_result.description
             replace = auto_labeling_result.replace
 
