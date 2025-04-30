@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
 from anylabeling.views.labeling.label_converter import LabelConverter
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import *
 
 
@@ -82,7 +83,7 @@ def _check_filename_exist(self):
         popup = Popup(
             self.tr("Please load an image folder before proceeding!"),
             self,
-            icon="anylabeling/resources/icons/warning.svg",
+            icon=new_icon_path("warning", "svg"),
         )
         popup.show_popup(self, position="center")
         return False
@@ -233,6 +234,10 @@ def export_yolo_annotation(self, mode):
         os.makedirs(save_path)
 
     image_list = self.image_list if self.image_list else [self.filename]
+    label_dir_path = osp.dirname(self.filename)
+    if self.output_dir:
+        label_dir_path = self.output_dir
+
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
     )
@@ -250,7 +255,7 @@ def export_yolo_annotation(self, mode):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
 
-            src_file = osp.join(osp.dirname(image_file), label_file_name)
+            src_file = osp.join(label_dir_path, label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_yolo(
@@ -278,7 +283,7 @@ def export_yolo_annotation(self, mode):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -287,7 +292,7 @@ def export_yolo_annotation(self, mode):
         popup = Popup(
             self.tr(f"Error occurred while exporting annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -412,6 +417,10 @@ def export_voc_annotation(self, mode):
     converter = LabelConverter()
 
     image_list = self.image_list if self.image_list else [self.filename]
+    label_dir_path = osp.dirname(self.filename)
+    if self.output_dir:
+        label_dir_path = self.output_dir
+
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
     )
@@ -429,7 +438,7 @@ def export_voc_annotation(self, mode):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".xml"
 
-            src_file = osp.join(osp.dirname(image_file), label_file_name)
+            src_file = osp.join(label_dir_path, label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_voc(
@@ -457,7 +466,7 @@ def export_voc_annotation(self, mode):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -466,7 +475,7 @@ def export_voc_annotation(self, mode):
         popup = Popup(
             self.tr(f"Error occurred while exporting annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -622,7 +631,7 @@ def export_coco_annotation(self, mode):
             popup = Popup(
                 message_text,
                 self,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
@@ -632,7 +641,7 @@ def export_coco_annotation(self, mode):
             popup = Popup(
                 self.tr(f"Error occurred while exporting annotations!"),
                 self,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self, position="center")
 
@@ -759,6 +768,10 @@ def export_dota_annotation(self):
     converter = LabelConverter(classes_file=self.classes_file)
 
     image_list = self.image_list if self.image_list else [self.filename]
+    label_dir_path = osp.dirname(self.filename)
+    if self.output_dir:
+        label_dir_path = self.output_dir
+
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
     )
@@ -776,7 +789,7 @@ def export_dota_annotation(self):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
 
-            src_file = osp.join(osp.dirname(image_file), label_file_name)
+            src_file = osp.join(label_dir_path, label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             if not osp.exists(src_file):
@@ -798,7 +811,7 @@ def export_dota_annotation(self):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -807,7 +820,7 @@ def export_dota_annotation(self):
         popup = Popup(
             self.tr(f"Error occurred while exporting annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -964,7 +977,7 @@ def export_mask_annotation(self):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -973,7 +986,7 @@ def export_mask_annotation(self):
         popup = Popup(
             self.tr(f"Error occurred while exporting annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -1115,7 +1128,7 @@ def export_mot_annotation(self, mode):
             popup = Popup(
                 message_text,
                 self,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
@@ -1125,7 +1138,7 @@ def export_mot_annotation(self, mode):
             popup = Popup(
                 self.tr(f"Error occurred while exporting annotations!"),
                 self,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self, position="center")
 
@@ -1300,7 +1313,7 @@ def export_pporc_annotation(self, mode):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -1309,7 +1322,7 @@ def export_pporc_annotation(self, mode):
         popup = Popup(
             self.tr(f"Error occurred while exporting annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -1524,7 +1537,7 @@ def export_vlm_r1_ovd_annotation(self):
         popup = Popup(
             template % e,
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
         return
@@ -1562,7 +1575,7 @@ def export_vlm_r1_ovd_annotation(self):
                 popup = Popup(
                     message_text,
                     self,
-                    icon="anylabeling/resources/icons/copy-green.svg",
+                    icon=new_icon_path("copy-green", "svg"),
                 )
                 popup.show_popup(self, popup_height=65, position="center")
             else:
@@ -1572,7 +1585,7 @@ def export_vlm_r1_ovd_annotation(self):
                 popup = Popup(
                     self.tr(f"Error occurred while exporting annotations!"),
                     self,
-                    icon="anylabeling/resources/icons/error.svg",
+                    icon=new_icon_path("error", "svg"),
                 )
                 popup.show_popup(self, position="center")
 
@@ -1588,6 +1601,6 @@ def export_vlm_r1_ovd_annotation(self):
         popup = Popup(
             self.tr(f"Error occurred while exporting annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
