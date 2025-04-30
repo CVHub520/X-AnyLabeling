@@ -21,8 +21,8 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.views.labeling.chatbot.style import ChatbotDialogStyle
-from anylabeling.views.labeling.chatbot.utils import set_icon_path
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
     get_msg_box_style,
     get_progress_dialog_style,
@@ -53,8 +53,8 @@ class FrameExtractionDialog(QDialog):
         self.interval_spin.setValue(1)
         self.interval_spin.setStyleSheet(
             ChatbotDialogStyle.get_spinbox_style(
-                up_arrow_url=set_icon_path("caret-up"),
-                down_arrow_url=set_icon_path("caret-down"),
+                up_arrow_url=new_icon_path("caret-up", "svg"),
+                down_arrow_url=new_icon_path("caret-down", "svg"),
             )
         )
         self.interval_spin.setMinimumWidth(100)
@@ -81,8 +81,8 @@ class FrameExtractionDialog(QDialog):
         self.seq_spin.setMinimumWidth(100)
         self.seq_spin.setStyleSheet(
             ChatbotDialogStyle.get_spinbox_style(
-                up_arrow_url=set_icon_path("caret-up"),
-                down_arrow_url=set_icon_path("caret-down"),
+                up_arrow_url=new_icon_path("caret-up", "svg"),
+                down_arrow_url=new_icon_path("caret-down", "svg"),
             )
         )
         seq_layout.addWidget(seq_label)
@@ -182,7 +182,7 @@ def extract_frames_from_video(self, input_file, out_dir):
             popup = Popup(
                 f"Failed to open video file: {osp.basename(input_file)}",
                 self,
-                icon="anylabeling/resources/icons/warning.svg",
+                icon=new_icon_path("warning", "svg"),
             )
             popup.show_popup(self, position="center")
             return None
@@ -308,7 +308,7 @@ def extract_frames_from_video(self, input_file, out_dir):
                             popup = Popup(
                                 self.tr("ffmpeg failed. Check logs."),
                                 self,
-                                icon="anylabeling/resources/icons/warning.svg",
+                                icon=new_icon_path("warning", "svg"),
                             )
                             popup.show_popup(self, position="center")
                             ffmpeg_failed = True
@@ -342,7 +342,7 @@ def extract_frames_from_video(self, input_file, out_dir):
                     popup = Popup(
                         self.tr("ffmpeg not found."),
                         self,
-                        icon="anylabeling/resources/icons/error.svg",
+                        icon=new_icon_path("error", "svg"),
                     )
                     popup.show_popup(self, position="center")
                     ffmpeg_failed = True
@@ -355,7 +355,7 @@ def extract_frames_from_video(self, input_file, out_dir):
                     popup = Popup(
                         f"{self.tr('Error running ffmpeg')}: {e}",
                         self,
-                        icon="anylabeling/resources/icons/error.svg",
+                        icon=new_icon_path("error", "svg"),
                     )
                     popup.show_popup(self, position="center")
                     ffmpeg_failed = True
@@ -454,7 +454,7 @@ def extract_frames_from_video(self, input_file, out_dir):
             popup = Popup(
                 f"An unexpected error occurred during extraction: {extraction_e}",
                 self,
-                icon="anylabeling/resources/icons/warning.svg",
+                icon=new_icon_path("warning", "svg"),
             )
             popup.show_popup(self, position="center")
             return None  # Indicate failure of extraction phase
@@ -468,7 +468,7 @@ def extract_frames_from_video(self, input_file, out_dir):
         popup = Popup(
             f"An error occurred during setup: {opening_e}",
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
         return None  # Indicate failure
@@ -544,7 +544,7 @@ def open_video_file(self):
             popup = Popup(
                 f"Failed to remove existing directory: {e}",
                 self,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self, position="center")
             return  # Don't proceed if removal fails

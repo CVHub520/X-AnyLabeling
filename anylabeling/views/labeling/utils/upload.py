@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
 from anylabeling.views.labeling.label_converter import LabelConverter
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import *
 from anylabeling.views.labeling.utils.export import _check_filename_exist
 
@@ -207,7 +208,7 @@ def upload_vlm_r1_ovd_annotation(self):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -219,7 +220,7 @@ def upload_vlm_r1_ovd_annotation(self):
         popup = Popup(
             self.tr(f"Error occurred while uploading annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -297,7 +298,7 @@ def upload_ppocr_annotation(self, mode):
             popup = Popup(
                 self.tr(f"Uploading annotations successfully!"),
                 self,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
@@ -307,7 +308,7 @@ def upload_ppocr_annotation(self, mode):
             popup = Popup(
                 self.tr(f"Error occurred while uploading annotations!"),
                 self,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self, position="center")
 
@@ -376,7 +377,7 @@ def upload_odvg_annotation(self):
             popup = Popup(
                 self.tr(f"Uploading annotations successfully!"),
                 self,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
@@ -386,7 +387,7 @@ def upload_odvg_annotation(self):
             popup = Popup(
                 self.tr(f"Error occurred while uploading annotations!"),
                 self,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self, position="center")
 
@@ -425,7 +426,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
         popup = Popup(
             self.tr("Please select a specific gt file!"),
             self,
-            icon="anylabeling/resources/icons/warning.svg",
+            icon=new_icon_path("warning", "svg"),
         )
         popup.show_popup(self, position="center")
         return
@@ -487,7 +488,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
             popup = Popup(
                 self.tr(f"Uploading annotations successfully!"),
                 self,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
@@ -497,7 +498,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
             popup = Popup(
                 self.tr(f"Error occurred while uploading annotations!"),
                 self,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self, position="center")
 
@@ -667,7 +668,7 @@ def upload_mask_annotation(self, LABEL_OPACITY):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -679,7 +680,7 @@ def upload_mask_annotation(self, LABEL_OPACITY):
         popup = Popup(
             self.tr(f"Error occurred while uploading annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -820,7 +821,7 @@ def upload_dota_annotation(self):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -832,7 +833,7 @@ def upload_dota_annotation(self):
         popup = Popup(
             self.tr(f"Error occurred while uploading annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -896,7 +897,7 @@ def upload_coco_annotation(self, mode):
             popup = Popup(
                 self.tr(f"Uploading annotations successfully!"),
                 self,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
@@ -906,7 +907,7 @@ def upload_coco_annotation(self, mode):
             popup = Popup(
                 self.tr(f"Error occurred while uploading annotations!"),
                 self,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self, position="center")
 
@@ -1052,7 +1053,7 @@ def upload_voc_annotation(self, mode):
         popup = Popup(
             message_text,
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -1064,7 +1065,7 @@ def upload_voc_annotation(self, mode):
         popup = Popup(
             self.tr(f"Error occurred while uploading annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -1249,7 +1250,7 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
         popup = Popup(
             self.tr("Upload completed successfully!"),
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -1269,7 +1270,7 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
         popup = Popup(
             self.tr("Error occurred while uploading annotations!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -1306,7 +1307,7 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
         popup = Popup(
             self.tr(f"Uploading shape attributes file successfully!"),
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -1317,7 +1318,7 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
         popup = Popup(
             self.tr(f"Error occurred while uploading shape attributes file!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -1352,7 +1353,7 @@ def upload_label_flags_file(self, LABEL_OPACITY):
         popup = Popup(
             self.tr(f"Uploading flags file successfully!"),
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -1361,7 +1362,7 @@ def upload_label_flags_file(self, LABEL_OPACITY):
         popup = Popup(
             self.tr(f"Error occurred while uploading flags file!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
@@ -1390,7 +1391,7 @@ def upload_image_flags_file(self):
         popup = Popup(
             self.tr(f"Uploading flags file successfully!"),
             self,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -1399,6 +1400,6 @@ def upload_image_flags_file(self):
         popup = Popup(
             self.tr(f"Error occurred while uploading flags file!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")

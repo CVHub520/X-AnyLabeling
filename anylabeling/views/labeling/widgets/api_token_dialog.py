@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (
     QDialogButtonBox,
 )
 
-from anylabeling.views.labeling.chatbot.utils import set_icon_path
+from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.utils.style import (
     get_lineedit_style,
     get_normal_button_style,
@@ -86,7 +86,7 @@ class ApiTokenDialog(QDialog):
         hide_text = self.tr("Hide")
         if checked:  # Visible state
             try:
-                self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye")))
+                self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye", "svg")))
                 self.toggle_visibility_btn.setText("")
                 self.toggle_visibility_btn.setToolTip(hide_text)
             except:  # noqa
@@ -96,7 +96,7 @@ class ApiTokenDialog(QDialog):
         else:  # Hidden state (Password mode)
             try:
                 self.toggle_visibility_btn.setIcon(
-                    QIcon(set_icon_path("eye-off"))
+                    QIcon(new_icon("eye-off", "svg"))
                 )
                 self.toggle_visibility_btn.setText("")
                 self.toggle_visibility_btn.setToolTip(show_text)

@@ -44,6 +44,7 @@ from anylabeling.app_info import __version__
 from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.widgets.model_dropdown_widget import (
     ModelDropdown,
 )
@@ -103,7 +104,7 @@ class ChatbotDialog(QDialog):
             title=self.tr("Import/Export Dataset")
         )
 
-        pixmap = QPixmap(set_icon_path("click"))
+        pixmap = QPixmap(new_icon_path("click", "svg"))
         scaled_pixmap = pixmap.scaled(
             *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
         )
@@ -142,7 +143,7 @@ class ChatbotDialog(QDialog):
         # Set provider buttons
         for provider in self.providers.keys():
             btn = QPushButton(self.tr(provider.capitalize()))
-            btn.setIcon(QIcon(set_icon_path(provider, format="png")))
+            btn.setIcon(QIcon(new_icon(provider.lower())))
             btn.setCheckable(True)
             btn.setFixedHeight(40)
             btn.setIconSize(QSize(*ICON_SIZE_SMALL))
@@ -293,7 +294,7 @@ class ChatbotDialog(QDialog):
 
         # Add clear context button (left side)
         self.clear_chat_btn = QPushButton()
-        self.clear_chat_btn.setIcon(QIcon(set_icon_path("eraser")))
+        self.clear_chat_btn.setIcon(QIcon(new_icon("eraser", "svg")))
         self.clear_chat_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.clear_chat_btn.setStyleSheet(
             ChatbotDialogStyle.get_send_button_style()
@@ -309,7 +310,7 @@ class ChatbotDialog(QDialog):
 
         # Create the send button (right side)
         self.send_btn = QPushButton()
-        self.send_btn.setIcon(QIcon(set_icon_path("send")))
+        self.send_btn.setIcon(QIcon(new_icon("send", "svg")))
         self.send_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
         self.send_btn.setStyleSheet(ChatbotDialogStyle.get_send_button_style())
         self.send_btn.setFixedSize(*ICON_SIZE_SMALL)
@@ -353,7 +354,7 @@ class ChatbotDialog(QDialog):
         nav_layout = QHBoxLayout()
 
         self.prev_image_btn = QPushButton()
-        self.prev_image_btn.setIcon(QIcon(set_icon_path("arrow-left")))
+        self.prev_image_btn.setIcon(QIcon(new_icon("arrow-left", "svg")))
         self.prev_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.prev_image_btn.setStyleSheet(
             ChatbotDialogStyle.get_button_style()
@@ -366,7 +367,7 @@ class ChatbotDialog(QDialog):
         self.prev_image_btn.setVisible(False)
 
         self.next_image_btn = QPushButton()
-        self.next_image_btn.setIcon(QIcon(set_icon_path("arrow-right")))
+        self.next_image_btn.setIcon(QIcon(new_icon("arrow-right", "svg")))
         self.next_image_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.next_image_btn.setStyleSheet(
             ChatbotDialogStyle.get_button_style()
@@ -391,7 +392,7 @@ class ChatbotDialog(QDialog):
             import_media_btn_modes, import_media_btn_names
         ):
             btn = QPushButton()
-            btn.setIcon(QIcon(set_icon_path(btn_mode)))
+            btn.setIcon(QIcon(new_icon(btn_mode, "svg")))
             btn.setFixedSize(*ICON_SIZE_NORMAL)
             btn.setStyleSheet(ChatbotDialogStyle.get_button_style())
             btn.clicked.connect(
@@ -405,7 +406,7 @@ class ChatbotDialog(QDialog):
             setattr(self, btn_name, btn)  # Store reference as class attribute
 
         self.run_all_images_btn = QPushButton()
-        self.run_all_images_btn.setIcon(QIcon(set_icon_path("run")))
+        self.run_all_images_btn.setIcon(QIcon(new_icon("run", "svg")))
         self.run_all_images_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.run_all_images_btn.setStyleSheet(
             ChatbotDialogStyle.get_button_style()
@@ -417,7 +418,7 @@ class ChatbotDialog(QDialog):
         nav_layout.addWidget(self.run_all_images_btn)
 
         self.import_export_btn = QPushButton()
-        self.import_export_btn.setIcon(QIcon(set_icon_path("import-export")))
+        self.import_export_btn.setIcon(QIcon(new_icon("import-export", "svg")))
         self.import_export_btn.setFixedSize(*ICON_SIZE_NORMAL)
         self.import_export_btn.setStyleSheet(
             ChatbotDialogStyle.get_button_style()
@@ -468,7 +469,7 @@ class ChatbotDialog(QDialog):
         api_docs_url = self.providers[self.default_provider]["api_docs_url"]
         api_help_btn = QPushButton()
         api_help_btn.setObjectName("api_help_btn")
-        api_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        api_help_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
         api_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_help_btn.setCursor(self.click_cursor)
@@ -509,7 +510,7 @@ class ChatbotDialog(QDialog):
         api_key_url = self.providers[self.default_provider]["api_key_url"]
         api_key_help_btn = QPushButton()
         api_key_help_btn.setObjectName("api_key_help_btn")
-        api_key_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        api_key_help_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
         api_key_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_key_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_key_help_btn.setCursor(self.click_cursor)
@@ -539,7 +540,7 @@ class ChatbotDialog(QDialog):
 
         self.toggle_visibility_btn = QPushButton()
         self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
+        self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye-off", "svg")))
         self.toggle_visibility_btn.setCheckable(True)
         self.toggle_visibility_btn.setStyleSheet(
             ChatbotDialogStyle.get_button_style()
@@ -570,7 +571,7 @@ class ChatbotDialog(QDialog):
         ]
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
-        model_help_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        model_help_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
         model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         model_help_btn.setCursor(self.click_cursor)
@@ -623,7 +624,7 @@ class ChatbotDialog(QDialog):
         temp_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
 
         temp_info_btn = QPushButton()
-        temp_info_btn.setIcon(QIcon(set_icon_path("help-circle")))
+        temp_info_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
         temp_info_btn.setFixedSize(*ICON_SIZE_SMALL)
         temp_info_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         temp_info_btn.installEventFilter(self)
@@ -694,8 +695,8 @@ class ChatbotDialog(QDialog):
         self.max_length_input.setButtonSymbols(QSpinBox.UpDownArrows)
         self.max_length_input.setStyleSheet(
             ChatbotDialogStyle.get_spinbox_style(
-                up_arrow_url=set_icon_path("caret-up"),
-                down_arrow_url=set_icon_path("caret-down"),
+                up_arrow_url=new_icon_path("caret-up", "svg"),
+                down_arrow_url=new_icon_path("caret-down", "svg"),
             )
         )
         self.max_length_input.setFixedHeight(40)
@@ -929,7 +930,7 @@ class ChatbotDialog(QDialog):
 
     def restore_send_button(self):
         """Restore the send button to its original state"""
-        self.send_btn.setIcon(QIcon(set_icon_path("send")))
+        self.send_btn.setIcon(QIcon(new_icon("send", "svg")))
         self.send_btn.setEnabled(False)
         self.send_btn.clicked.disconnect()
         self.send_btn.clicked.connect(self.start_generation)
@@ -1093,7 +1094,7 @@ class ChatbotDialog(QDialog):
         self.set_components_enabled(False)
 
         # Change send button to stop button
-        self.send_btn.setIcon(QIcon(set_icon_path("stop")))
+        self.send_btn.setIcon(QIcon(new_icon("stop", "svg")))
         self.send_btn.setEnabled(True)
         self.send_btn.clicked.disconnect()
         self.send_btn.clicked.connect(self.stop_generation)
@@ -1159,7 +1160,7 @@ class ChatbotDialog(QDialog):
         # Create the icon label
         role_label = QLabel()
         icon_pixmap = QPixmap(
-            set_icon_path(self.default_provider, format="png")
+            new_icon_path(self.default_provider.lower())
         )
         scaled_icon = icon_pixmap.scaled(
             *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
@@ -1285,10 +1286,10 @@ class ChatbotDialog(QDialog):
         """Toggle visibility of API key"""
         if self.api_key.echoMode() == QLineEdit.Password:
             self.api_key.setEchoMode(QLineEdit.Normal)
-            self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye")))
+            self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye", "svg")))
         else:
             self.api_key.setEchoMode(QLineEdit.Password)
-            self.toggle_visibility_btn.setIcon(QIcon(set_icon_path("eye-off")))
+            self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye-off", "svg")))
 
     def navigate_image(self, direction="next", index=None):
         """Navigate to previous or next image and load its chat history

@@ -23,6 +23,7 @@ from anylabeling.views.labeling.utils.general import (
     collect_system_info,
     open_url,
 )
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.chatbot.render import convert_markdown_to_html
 
@@ -48,9 +49,8 @@ class AboutDialog(QDialog):
 
         self._cached_update_info = None
 
-        self.setWindowTitle("")
-        self.setFixedSize(400, 320)
-        self.setWindowFlags(Qt.WindowContextHelpButtonHint)
+        self.setWindowTitle(" ")
+        self.setFixedSize(350, 250)
 
         self.setStyleSheet(
             """
@@ -98,16 +98,6 @@ class AboutDialog(QDialog):
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(16)
 
-        # Close button in top-right corner
-        close_btn = QPushButton("×")
-        close_btn.setObjectName("close-btn")
-        close_btn.clicked.connect(self.close)
-        close_btn.setFixedSize(30, 30)
-        close_layout = QHBoxLayout()
-        close_layout.addStretch()
-        close_layout.addWidget(close_btn)
-        layout.addLayout(close_layout)
-
         # App name and version
         title_label = QLabel(f"<b>X-AnyLabeling</b> v{__version__}")
         title_label.setStyleSheet("font-size: 16px;")
@@ -146,7 +136,7 @@ class AboutDialog(QDialog):
         # Email
         email_btn = QPushButton()
         email_btn.setObjectName("social-btn")
-        email_btn.setIcon(QIcon(self._set_resource_path("email")))
+        email_btn.setIcon(QIcon(new_icon("email")))
         email_btn.setIconSize(QSize(20, 20))
         email_btn.setToolTip(self.email_address)
         email_btn.clicked.connect(
@@ -156,21 +146,21 @@ class AboutDialog(QDialog):
         # Discord
         discord_btn = QPushButton()
         discord_btn.setObjectName("social-btn")
-        discord_btn.setIcon(QIcon(self._set_resource_path("discord")))
+        discord_btn.setIcon(QIcon(new_icon("discord")))
         discord_btn.setIconSize(QSize(20, 20))
         discord_btn.clicked.connect(lambda: open_url(self.discord_url))
 
         # Twitter
         twitter_btn = QPushButton()
         twitter_btn.setObjectName("social-btn")
-        twitter_btn.setIcon(QIcon(self._set_resource_path("twitter")))
+        twitter_btn.setIcon(QIcon(new_icon("twitter")))
         twitter_btn.setIconSize(QSize(20, 20))
         twitter_btn.clicked.connect(lambda: open_url(self.twitter_url))
 
         # GitHub
         github_btn = QPushButton()
         github_btn.setObjectName("social-btn")
-        github_btn.setIcon(QIcon(self._set_resource_path("github")))
+        github_btn.setIcon(QIcon(new_icon("github")))
         github_btn.setIconSize(QSize(20, 20))
         github_btn.clicked.connect(lambda: open_url(self.github_url))
 
@@ -239,7 +229,7 @@ class AboutDialog(QDialog):
         popup = Popup(
             self.tr("Copied!"),
             self.parent,
-            icon=self._set_icon_path("copy-green"),
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self.parent, copy_msg=msg)
 
@@ -273,14 +263,14 @@ class AboutDialog(QDialog):
                     popup = Popup(
                         self.tr("No Updates Available"),
                         self.parent,
-                        icon=self._set_icon_path("copy-green"),
+                        icon=new_icon_path("copy-green", "svg"),
                     )
                     popup.show_popup(self.parent)
             elif show_error:
                 popup = Popup(
                     self.tr(f"GitHub API error: {response.status_code}"),
                     self.parent,
-                    icon=self._set_icon_path("error"),
+                    icon=new_icon_path("error", "svg"),
                 )
                 popup.show_popup(self.parent)
         except Exception as e:
@@ -288,7 +278,7 @@ class AboutDialog(QDialog):
                 popup = Popup(
                     self.tr(f"Check update error: {str(e)}"),
                     self.parent,
-                    icon=self._set_icon_path("error"),
+                    icon=new_icon_path("error", "Svg"),
                 )
                 popup.show_popup(self.parent)
         return None
@@ -382,26 +372,6 @@ class AboutDialog(QDialog):
         popup = Popup(
             self.tr("Copied!"),
             self.parent,
-            icon=self._set_icon_path("copy-green"),
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self.parent, copy_msg=text)
-
-    @staticmethod
-    def _set_icon_path(icon_name: str, format: str = "svg") -> str:
-        """Set the path to the icon
-
-        Args:
-            icon_name: Name of the icon file without extension
-            format: File format extension (default: 'svg')
-        """
-        return f"anylabeling/resources/icons/{icon_name}.{format}"
-
-    @staticmethod
-    def _set_resource_path(resource_name: str, format: str = "png") -> str:
-        """Set the path to the resource
-
-        Args:
-            resource_name: Name of the resource file without extension
-            format: File format extension (default: 'pngs')
-        """
-        return f"anylabeling/resources/images/{resource_name}.{format}"

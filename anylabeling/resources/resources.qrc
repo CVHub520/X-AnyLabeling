@@ -1,73 +1,144 @@
 <RCC>
     <qresource prefix="/images">
+        <file>images/alibaba.png</file>
+        <file>images/anthropic.png</file>
+        <file>images/arrow-left.svg</file>
+        <file>images/arrow-right.svg</file>
         <file>images/auto-run.png</file>
-        <file>images/minus.png</file>
-        <file>images/plus.png</file>
-        <file>images/cancel.png</file>
-        <file>images/convert.png</file>
-        <file>images/edit.png</file>
-        <file>images/next.png</file>
-        <file>images/open.png</file>
-        <file>images/overview.png</file>
-        <file>images/prev.png</file>
-        <file>images/save.png</file>
         <file>images/brain.png</file>
+        <file>images/bria-ai.png</file>
+        <file>images/cancel.png</file>
+        <file>images/caret-down.svg</file>
+        <file>images/caret-up.svg</file>
         <file>images/cartesian.png</file>
         <file>images/chatbot.png</file>
+        <file>images/check.svg</file>
+        <file>images/checkmark.svg</file>
+        <file>images/chevron-down.svg</file>
         <file>images/circle.png</file>
+        <file>images/claude.svg</file>
+        <file>images/clear.svg</file>
+        <file>images/click.svg</file>
         <file>images/cn.png</file>
         <file>images/color.png</file>
         <file>images/contact.png</file>
+        <file>images/convert.png</file>
+        <file>images/copy-green.svg</file>
         <file>images/copy.png</file>
+        <file>images/copy.svg</file>
+        <file>images/createai.png</file>
         <file>images/crop.png</file>
+        <file>images/cvhub.png</file>
+        <file>images/deci-ai.png</file>
+        <file>images/deepseek.png</file>
         <file>images/delete.png</file>
-        <file>images/hidden.png</file>
+        <file>images/discord.png</file>
+        <file>images/docs.png</file>
         <file>images/done.png</file>
+        <file>images/edit.png</file>
+        <file>images/edit.svg</file>
+        <file>images/email.png</file>
+        <file>images/eraser.svg</file>
+        <file>images/error.svg</file>
+        <file>images/eth.png</file>
+        <file>images/expert.png</file>
+        <file>images/eye-off.svg</file>
         <file>images/eye.png</file>
+        <file>images/eye.svg</file>
         <file>images/file.png</file>
         <file>images/fit-width.png</file>
         <file>images/fit-window.png</file>
         <file>images/fit.png</file>
+        <file>images/folder.svg</file>
         <file>images/format_classify.png</file>
-        <file>images/format_default.png</file>
-        <file>images/format_odvg.png</file>
-        <file>images/format_mot.png</file>
-        <file>images/format_ppocr.png</file>
-        <file>images/format_voc.png</file>
-        <file>images/format_dota.png</file>
-        <file>images/format_yolo.png</file>
         <file>images/format_coco.png</file>
+        <file>images/format_default.png</file>
+        <file>images/format_dota.png</file>
         <file>images/format_mask.png</file>
+        <file>images/format_mot.png</file>
+        <file>images/format_obb.png</file>
+        <file>images/format_odvg.png</file>
+        <file>images/format_ppocr.png</file>
         <file>images/format_vlm_r1_ovd.png</file>
+        <file>images/format_voc.png</file>
+        <file>images/format_yolo.png</file>
+        <file>images/github.png</file>
+        <file>images/google.png</file>
+        <file>images/help-circle.svg</file>
         <file>images/help.png</file>
+        <file>images/hidden.png</file>
+        <file>images/hku.png</file>
+        <file>images/huawei.png</file>
         <file>images/icon.icns</file>
         <file>images/icon.ico</file>
         <file>images/icon.png</file>
+        <file>images/idea-research.png</file>
+        <file>images/image.svg</file>
+        <file>images/imoonlab.png</file>
+        <file>images/import-export.svg</file>
         <file>images/labels.png</file>
+        <file>images/lightning.svg</file>
         <file>images/line-strip.png</file>
         <file>images/line.png</file>
         <file>images/logo.png</file>
         <file>images/loop.png</file>
+        <file>images/megvii.png</file>
+        <file>images/meituan.png</file>
+        <file>images/meta.png</file>
+        <file>images/microsoft.png</file>
+        <file>images/minus.png</file>
+        <file>images/mit.png</file>
         <file>images/new.png</file>
+        <file>images/next.png</file>
         <file>images/objects.png</file>
+        <file>images/ollama.png</file>
+        <file>images/open.png</file>
+        <file>images/openai.png</file>
+        <file>images/opendatalab.png</file>
+        <file>images/opengvlab.png</file>
+        <file>images/openmmlab.png</file>
+        <file>images/openrouter.png</file>
+        <file>images/oppo.png</file>
+        <file>images/others.png</file>
+        <file>images/overview.png</file>
+        <file>images/paddlepaddle.png</file>
         <file>images/paste.png</file>
+        <file>images/plus.png</file>
         <file>images/point.png</file>
         <file>images/polygon.png</file>
+        <file>images/prev.png</file>
         <file>images/quit.png</file>
+        <file>images/qwen.png</file>
         <file>images/rectangle.png</file>
+        <file>images/refresh.svg</file>
         <file>images/resetall.png</file>
+        <file>images/roboflow.png</file>
         <file>images/rotation.png</file>
+        <file>images/run.svg</file>
         <file>images/save-as.png</file>
+        <file>images/save.png</file>
         <file>images/scissors.png</file>
-        <file>images/docs.png</file>
+        <file>images/search.svg</file>
+        <file>images/send.svg</file>
+        <file>images/star-black.svg</file>
+        <file>images/star.svg</file>
+        <file>images/starred.svg</file>
+        <file>images/stop.svg</file>
+        <file>images/thu.png</file>
+        <file>images/trash.svg</file>
+        <file>images/twitter.png</file>
+        <file>images/ultralytics.png</file>
         <file>images/undo-cross.png</file>
-        <file>images/update.png</file>
         <file>images/undo.png</file>
         <file>images/union.png</file>
+        <file>images/update.png</file>
         <file>images/upload_brain.png</file>
         <file>images/us.png</file>
         <file>images/verify.png</file>
         <file>images/video.png</file>
+        <file>images/video.svg</file>
+        <file>images/vision.svg</file>
+        <file>images/warning.svg</file>
         <file>images/zoom-in.png</file>
         <file>images/zoom-out.png</file>
         <file>images/zoom.png</file>

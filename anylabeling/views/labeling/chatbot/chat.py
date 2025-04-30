@@ -23,6 +23,7 @@ from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.render import *
 from anylabeling.views.labeling.chatbot.style import *
 from anylabeling.views.labeling.chatbot.utils import *
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 
 
 class ChatMessage(QFrame):
@@ -85,7 +86,7 @@ class ChatMessage(QFrame):
             icon_container_layout.setSpacing(0)
 
             role_label = QLabel()
-            icon_pixmap = QPixmap(set_icon_path(self.provider, format="png"))
+            icon_pixmap = QPixmap(new_icon_path(self.provider))
             scaled_icon = icon_pixmap.scaled(
                 *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
             )
@@ -99,7 +100,7 @@ class ChatMessage(QFrame):
 
         # Create copy button
         self.copy_btn = QPushButton()
-        self.copy_btn.setIcon(QIcon(set_icon_path("copy")))
+        self.copy_btn.setIcon(QIcon(new_icon("copy", "svg")))
         self.copy_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
         self.copy_btn.clicked.connect(
@@ -109,7 +110,7 @@ class ChatMessage(QFrame):
 
         # Create delete button
         self.delete_btn = QPushButton()
-        self.delete_btn.setIcon(QIcon(set_icon_path("trash")))
+        self.delete_btn.setIcon(QIcon(new_icon("trash", "svg")))
         self.delete_btn.setFixedSize(*ICON_SIZE_SMALL)
         self.delete_btn.setStyleSheet(ChatMessageStyle.get_button_style())
         self.delete_btn.clicked.connect(self.confirm_delete_message)
@@ -120,7 +121,7 @@ class ChatMessage(QFrame):
         if is_user:
             # Create edit button
             self.edit_btn = QPushButton()
-            self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
+            self.edit_btn.setIcon(QIcon(new_icon("edit", "svg")))
             self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
             self.edit_btn.clicked.connect(self.enter_edit_mode)
@@ -128,7 +129,7 @@ class ChatMessage(QFrame):
         else:
             # Create regenerate button
             self.regenerate_btn = QPushButton()
-            self.regenerate_btn.setIcon(QIcon(set_icon_path("refresh")))
+            self.regenerate_btn.setIcon(QIcon(new_icon("refresh", "svg")))
             self.regenerate_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.regenerate_btn.setStyleSheet(
                 ChatMessageStyle.get_button_style()
@@ -138,7 +139,7 @@ class ChatMessage(QFrame):
 
             # Create edit button
             self.edit_btn = QPushButton()
-            self.edit_btn.setIcon(QIcon(set_icon_path("edit")))
+            self.edit_btn.setIcon(QIcon(new_icon("edit", "svg")))
             self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
             self.edit_btn.clicked.connect(self.enter_edit_mode)
@@ -422,14 +423,14 @@ class ChatMessage(QFrame):
 
         # Change the button icon to a checkmark
         if button:
-            button.setIcon(QIcon(set_icon_path("check")))
+            button.setIcon(QIcon(new_icon("check", "svg")))
 
             # Start a timer to reset the button after a delay
             QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
 
     def reset_copy_button(self, button):
         """Reset the copy button to its original state"""
-        button.setIcon(QIcon(set_icon_path("copy")))
+        button.setIcon(QIcon(new_icon("copy", "svg")))
         button.setStyleSheet(ChatMessageStyle.get_button_style())
 
     def adjust_height_after_animation(self):

@@ -18,39 +18,40 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import get_progress_dialog_style
 from anylabeling.views.labeling.widgets.popup import Popup
 
 
-overview_dialog_styles = """
-    QSpinBox {
+overview_dialog_styles = f"""
+    QSpinBox {{
         padding: 5px 8px;
         background: white;
         border: 1px solid #d2d2d7;
         border-radius: 6px;
         min-height: 24px;
         selection-background-color: #0071e3;
-    }
-    QSpinBox::up-button, QSpinBox::down-button {
+    }}
+    QSpinBox::up-button, QSpinBox::down-button {{
         width: 20px;
         border: none;
         background: #f0f0f0;
-    }
-    QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+    }}
+    QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
         background: #e0e0e0;
-    }
-    QSpinBox::up-arrow {
-        image: url("anylabeling/resources/icons/caret-up.svg");
+    }}
+    QSpinBox::up-arrow {{
+        image: url({new_icon_path("caret-up", "svg")});
         width: 12px;
         height: 12px;
-    }
-    QSpinBox::down-arrow {
-        image: url("anylabeling/resources/icons/caret-down.svg");
+    }}
+    QSpinBox::down-arrow {{
+        image: url({new_icon_path("caret-down", "svg")});
         width: 12px;
         height: 12px;
-    }
+    }}
 
-    .secondary-button {
+    .secondary-button {{
         background-color: #f5f5f7;
         color: #1d1d1f;
         border: 1px solid #d2d2d7;
@@ -58,15 +59,15 @@ overview_dialog_styles = """
         font-weight: 500;
         min-width: 100px;
         height: 36px;
-    }
-    .secondary-button:hover {
+    }}
+    .secondary-button:hover {{
         background-color: #e5e5e5;
-    }
-    .secondary-button:pressed {
+    }}
+    .secondary-button:pressed {{
         background-color: #d5d5d5;
-    }
+    }}
 
-    .primary-button {
+    .primary-button {{
         background-color: #0071e3;
         color: white;
         border: none;
@@ -74,13 +75,13 @@ overview_dialog_styles = """
         font-weight: 500;
         min-width: 100px;
         height: 36px;
-    }
-    .primary-button:hover {
+    }}
+    .primary-button:hover {{
         background-color: #0077ED;
-    }
-    .primary-button:pressed {
+    }}
+    .primary-button:pressed {{
         background-color: #0068D0;
-    }
+    }}
 """
 
 
@@ -465,7 +466,7 @@ class OverviewDialog(QtWidgets.QDialog):
                 message_text,
                 self,
                 msec=5000,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self, popup_height=65, position="center")
 
@@ -477,7 +478,7 @@ class OverviewDialog(QtWidgets.QDialog):
                     f"Error occurred while exporting annotations statistics file."
                 ),
                 self.parent,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self.parent)
 

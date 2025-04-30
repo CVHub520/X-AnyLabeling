@@ -24,9 +24,9 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.views.labeling.chatbot.style import ChatbotDialogStyle
-from anylabeling.views.labeling.chatbot.utils import set_icon_path
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
     get_export_option_style,
@@ -204,7 +204,7 @@ def save_crop(self):
             self.tr("Please load an image folder before proceeding!"),
             self,
             msec=1000,
-            icon="anylabeling/resources/icons/warning.svg",
+            icon=new_icon_path("warning", "svg"),
         )
         popup.show_popup(self, position="center")
         return
@@ -258,8 +258,8 @@ def save_crop(self):
     min_width_spin.setMinimumWidth(100)
     min_width_spin.setStyleSheet(
         ChatbotDialogStyle.get_spinbox_style(
-            up_arrow_url=set_icon_path("caret-up"),
-            down_arrow_url=set_icon_path("caret-down"),
+            up_arrow_url=new_icon_path("caret-up", "svg"),
+            down_arrow_url=new_icon_path("caret-down", "svg"),
         )
     )
     min_width_layout.addWidget(min_width_label)
@@ -274,8 +274,8 @@ def save_crop(self):
     min_height_spin.setMinimumWidth(100)
     min_height_spin.setStyleSheet(
         ChatbotDialogStyle.get_spinbox_style(
-            up_arrow_url=set_icon_path("caret-up"),
-            down_arrow_url=set_icon_path("caret-down"),
+            up_arrow_url=new_icon_path("caret-up", "svg"),
+            down_arrow_url=new_icon_path("caret-down", "svg"),
         )
     )
     min_height_layout.addWidget(min_height_label)
@@ -414,7 +414,7 @@ def save_crop(self):
             ),
             self,
             msec=3000,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -424,6 +424,6 @@ def save_crop(self):
             self.tr(f"Error occurred while exporting cropped images!"),
             self,
             msec=3000,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")

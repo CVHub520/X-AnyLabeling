@@ -38,8 +38,13 @@ def scan_all_images(folder_path):
         return []
 
 
-def new_icon(icon):
-    return QtGui.QIcon(osp.join(f":/images/images/{icon}.png"))
+def new_icon(icon, ext="png"):
+    return QtGui.QIcon(osp.join(f":/images/images/{icon}.{ext}"))
+
+
+def new_icon_path(icon, ext="png"):
+    """Returns the resource path string for an icon."""
+    return f":/images/images/{icon}.{ext}"
 
 
 def new_button(text, icon=None, slot=None):

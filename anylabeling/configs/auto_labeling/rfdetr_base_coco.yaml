@@ -2,7 +2,7 @@ type: rfdetr
 name: rfdetr_base_coco-r20250426
 provider: Roboflow
 display_name: RF-DETR Base COCO
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.6.0/rf-detr-base-coco.onnx
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rf-detr-base-coco.onnx
 conf_threshold: 0.50
 num_select: 300
 input_widht: 560  # must be multiple of 560

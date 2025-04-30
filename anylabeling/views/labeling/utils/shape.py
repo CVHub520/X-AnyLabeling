@@ -13,6 +13,7 @@ from PyQt5.QtWidgets import QProgressDialog
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import get_bounding_boxes
 from anylabeling.views.labeling.widgets import Popup
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import *
 from anylabeling.services.auto_labeling.utils import calculate_rotation_theta
 
@@ -121,7 +122,7 @@ def shape_conversion(self, mode):
             self.tr("Conversion completed successfully!"),
             self,
             msec=1000,
-            icon="anylabeling/resources/icons/copy-green.svg",
+            icon=new_icon_path("copy-green", "svg"),
         )
         popup.show_popup(self, popup_height=65, position="center")
 
@@ -133,7 +134,7 @@ def shape_conversion(self, mode):
             self.tr("Error occurred while converting shapes!"),
             self,
             msec=1000,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 

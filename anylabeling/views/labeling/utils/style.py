@@ -1,3 +1,6 @@
+from anylabeling.views.labeling.utils.qt import new_icon_path
+
+
 def get_progress_dialog_style(color=None, height=None):
     return f"""
         QProgressDialog {{
@@ -121,47 +124,47 @@ def get_cancel_btn_style():
 
 
 def get_export_option_style():
-    return """
-        QDialog {
+    return f"""
+        QDialog {{
             background-color: #ffffff;
             border-radius: 8px;
-        }
+        }}
 
-        QLabel {
+        QLabel {{
             font-size: 13px;
             background-color: transparent;
             border-left: none;
-        }
+        }}
 
-        QLineEdit {
+        QLineEdit {{
             border: 1px solid #E5E5E5;
             border-radius: 8;
             background-color: #F9F9F9;
             font-size: 13px;
             height: 36px;
             padding-left: 4px;
-        }
-        QLineEdit:hover {
+        }}
+        QLineEdit:hover {{
             background-color: #DBDBDB;
             border-radius: 8px;
-        }
-        QLineEdit:focus {
+        }}
+        QLineEdit:focus {{
             border: 3px solid "#60A5FA";
             background-color: "#F9F9F9";
-        }
+        }}
 
-        QCheckBox::indicator {
+        QCheckBox::indicator {{
             width: 18px;
             height: 18px;
             border-radius: 4px;
             border: 1px solid #d2d2d7;
             background-color: white;
-        }
-        QCheckBox::indicator:checked {
+        }}
+        QCheckBox::indicator:checked {{
             background-color: white;
             border: 1px solid #d2d2d7;
-            image: url("anylabeling/resources/icons/checkmark.svg");
-        }
+            image: url({new_icon_path("checkmark", "svg")});
+        }}
     """
 
 
@@ -218,33 +221,33 @@ def get_highlight_button_style():
 
 
 def get_spinbox_style():
-    return """
-        QSpinBox {
+    return f"""
+        QSpinBox {{
             padding: 5px 8px;
             background: white;
             border: 1px solid #d2d2d7;
             border-radius: 6px;
             min-height: 24px;
             selection-background-color: #0071e3;
-        }
-        QSpinBox::up-button, QSpinBox::down-button {
+        }}
+        QSpinBox::up-button, QSpinBox::down-button {{
             width: 20px;
             border: none;
             background: #f0f0f0;
-        }
-        QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+        }}
+        QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
             background: #e0e0e0;
-        }
-        QSpinBox::up-arrow {
-            image: url("anylabeling/resources/icons/caret-up.svg");
+        }}
+        QSpinBox::up-arrow {{
+            image: url({new_icon_path("caret-up", "svg")});
             width: 12px;
             height: 12px;
-        }
-        QSpinBox::down-arrow {
-            image: url("anylabeling/resources/icons/caret-down.svg");
+        }}
+        QSpinBox::down-arrow {{
+            image: url({new_icon_path("caret-down", "svg")});
             width: 12px;
             height: 12px;
-        }
+        }}
     """
 
 
@@ -252,33 +255,33 @@ def get_double_spinbox_style():
     """
     Returns the CSS stylesheet for a QDoubleSpinBox, suitable for decimals.
     """
-    return """
-        QDoubleSpinBox {
+    return f"""
+        QDoubleSpinBox {{
             padding: 5px 8px;
             background: white;
             border: 1px solid #d2d2d7;
             border-radius: 6px;
             min-height: 24px;
             selection-background-color: #0071e3;
-        }
-        QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+        }}
+        QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{
             width: 20px;
             border: none;
             background: #f0f0f0;
-        }
-        QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {
+        }}
+        QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {{
             background: #e0e0e0;
-        }
-        QDoubleSpinBox::up-arrow {
-            image: url("anylabeling/resources/icons/caret-up.svg");
+        }}
+        QDoubleSpinBox::up-arrow {{
+            image: url({new_icon_path("caret-up", "svg")});
             width: 12px;
             height: 12px;
-        }
-        QDoubleSpinBox::down-arrow {
-            image: url("anylabeling/resources/icons/caret-down.svg");
+        }}
+        QDoubleSpinBox::down-arrow {{
+            image: url({new_icon_path("caret-down", "svg")});
             width: 12px;
             height: 12px;
-        }
+        }}
     """
 
 

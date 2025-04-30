@@ -1,5 +1,4 @@
 from difflib import SequenceMatcher
-from pathlib import Path
 
 from PyQt5.QtWidgets import (
     QLabel,
@@ -14,13 +13,9 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from PyQt5.QtGui import QIcon
 
-from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.chatbot.config import *
-from anylabeling.views.labeling.chatbot.utils import (
-    load_json,
-    save_json,
-    set_icon_path,
-)
+from anylabeling.views.labeling.chatbot.utils import load_json, save_json
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 
 
 _MODELS_CONFIG_PATH = os.path.join(
@@ -49,7 +44,7 @@ class SearchBar(QLineEdit):
 
         self.search_icon = QLabel(self)
         self.search_icon.setPixmap(
-            QIcon(set_icon_path("search")).pixmap(QSize(*ICON_SIZE_SMALL))
+            QIcon(new_icon("search", "svg")).pixmap(QSize(*ICON_SIZE_SMALL))
         )
         self.search_icon.setFixedSize(self.search_icon.pixmap().size())
         self.search_icon.setStyleSheet("background-color: transparent;")
@@ -73,22 +68,16 @@ class ProviderSection(QFrame):
         header = QHBoxLayout()
         icon = QLabel()
         if provider_name == "Favorites":
-            icon_path = set_icon_path("star-black", format="png")
+            icon_name, ext = "star-black", "svg"
         elif provider_name == "Custom":
-            icon_path = "anylabeling/resources/images/logo.png"
+            icon_name, ext = "logo", "png"
         elif provider_name == "CVHub":
-            icon_path = "anylabeling/resources/icons/cvhub.png"
+            icon_name, ext = "cvhub", "png"
         elif provider_name == "ETH Zürich":
-            icon_path = "anylabeling/resources/icons/eth.png"
-        elif Path(set_icon_path(provider_name.lower(), format="png")).exists():
-            icon_path = set_icon_path(provider_name.lower(), format="png")
+            icon_name, ext = "eth", "png"
         else:
-            # Use default logo if no specific icon is found
-            icon_path = "anylabeling/resources/icons/others.png"
-            logger.warning(
-                f"Icon not found for provider '{provider_name}'. Using default."
-            )
-        icon.setPixmap(QIcon(icon_path).pixmap(QSize(*ICON_SIZE_SMALL)))
+            icon_name, ext = provider_name.lower(), "png"
+        icon.setPixmap(QIcon(new_icon(icon_name, ext)).pixmap(QSize(*ICON_SIZE_SMALL)))
         header.addWidget(icon)
 
         label = QLabel(provider_name)
@@ -146,7 +135,7 @@ class ModelItem(QFrame):
         self.check_icon = QLabel()
         if self.is_selected:
             self.check_icon.setPixmap(
-                QIcon(set_icon_path("check")).pixmap(QSize(*ICON_SIZE_SMALL))
+                QIcon(new_icon("check", "svg")).pixmap(QSize(*ICON_SIZE_SMALL))
             )
         layout.addWidget(self.check_icon)
 
@@ -162,11 +151,11 @@ class ModelItem(QFrame):
         """
         )
         if self.is_favorite:
-            self.star_icon.setIcon(QIcon(set_icon_path("starred")))
+            self.star_icon.setIcon(QIcon(new_icon("starred", "svg")))
             if self.in_favorites_section:
                 self.star_icon.setVisible(False)
         else:
-            self.star_icon.setIcon(QIcon(set_icon_path("star")))
+            self.star_icon.setIcon(QIcon(new_icon("star", "svg")))
             self.star_icon.setVisible(False)
 
         self.star_icon.clicked.connect(self.toggle_favorite)
@@ -200,16 +189,16 @@ class ModelItem(QFrame):
     def toggle_favorite(self):
         self.is_favorite = not self.is_favorite
         if self.is_favorite:
-            self.star_icon.setIcon(QIcon(set_icon_path("starred")))
+            self.star_icon.setIcon(QIcon(new_icon("starred", "svg")))
         else:
-            self.star_icon.setIcon(QIcon(set_icon_path("star")))
+            self.star_icon.setIcon(QIcon(new_icon("star", "svg")))
         self.favoriteToggled.emit(self.model_name, self.is_favorite)
 
     def update_selection(self, is_selected):
         self.is_selected = is_selected
         if is_selected:
             self.check_icon.setPixmap(
-                QIcon(set_icon_path("check")).pixmap(QSize(*ICON_SIZE_SMALL))
+                QIcon(new_icon("check", "svg")).pixmap(QSize(*ICON_SIZE_SMALL))
             )
             self.setStyleSheet(
                 """
@@ -229,9 +218,9 @@ class ModelItem(QFrame):
     def update_favorite(self, is_favorite):
         self.is_favorite = is_favorite
         if is_favorite:
-            self.star_icon.setIcon(QIcon(set_icon_path("starred")))
+            self.star_icon.setIcon(QIcon(new_icon("starred", "svg")))
         else:
-            self.star_icon.setIcon(QIcon(set_icon_path("star")))
+            self.star_icon.setIcon(QIcon(new_icon("star", "svg")))
         self.star_icon.setVisible(is_favorite or self.underMouse())
 
 
@@ -267,7 +256,7 @@ class SearchableModelDropdownPopup(QWidget):
                 height: 16px;
                 subcontrol-position: bottom;
                 subcontrol-origin: margin;
-                image: url({set_icon_path("caret-down")});
+                image: url({new_icon_path("caret-down", "svg")});
             }}
             QScrollBar::sub-line:vertical {{
                 border: none;
@@ -275,7 +264,7 @@ class SearchableModelDropdownPopup(QWidget):
                 height: 16px;
                 subcontrol-position: top;
                 subcontrol-origin: margin;
-                image: url({set_icon_path("caret-up")});
+                image: url({new_icon_path("caret-up", "svg")});
             }}
             QFrame[frameShape="4"] {{
                 color: #e5e5e8;

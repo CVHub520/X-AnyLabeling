@@ -1,5 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 
+from anylabeling.views.labeling.utils.qt import new_icon_path
+
 
 class CrosshairSettingsDialog(QtWidgets.QDialog):
     def __init__(
@@ -21,87 +23,88 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
 
         # Apply macOS style
         self.setStyleSheet(
-            """
-            QDialog {
-                background-color: #f5f5f7;
-                border-radius: 10px;
-            }
-            QLabel {
-                color: #1d1d1f;
-                font-size: 13px;
-            }
-            QCheckBox {
-                spacing: 8px;
-            }
-            QCheckBox::indicator {
-                width: 18px;
-                height: 18px;
-                border-radius: 3px;
-                border: 1px solid #d2d2d7;
-                background-color: white;
-            }
-            QCheckBox::indicator:checked {
-                background-color: white;
-                border: 1px solid #d2d2d7;
-                image: url("anylabeling/resources/icons/checkmark.svg");
-            }
-            QSlider {
-                height: 28px;
-            }
-            QSlider::groove:horizontal {
-                height: 4px;
-                background: #d2d2d7;
-                border-radius: 2px;
-            }
-            QSlider::handle:horizontal {
-                background: #0071e3;
-                border: none;
-                width: 16px;
-                height: 16px;
-                margin: -6px 0;
-                border-radius: 8px;
-            }
-            QSlider::sub-page:horizontal {
-                background: #0071e3;
-                border-radius: 2px;
-            }
-            QDoubleSpinBox {
-                padding: 5px 8px;
-                background: white;
-                border: 1px solid #d2d2d7;
-                border-radius: 6px;
-                min-height: 24px;
-                selection-background-color: #0071e3;
-            }
-            QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
-                width: 20px;
-                border: none;
-                background: #f0f0f0;
-            }
+            f"""
+                QDialog {{
+                    background-color: #f5f5f7;
+                    border-radius: 10px;
+                }}
+                QLabel {{
+                    color: #1d1d1f;
+                    font-size: 13px;
+                }}
+                QCheckBox {{
+                    spacing: 8px;
+                }}
+                QCheckBox::indicator {{
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 3px;
+                    border: 1px solid #d2d2d7;
+                    background-color: white;
+                }}
+                QCheckBox::indicator:checked {{
+                    background-color: white;
+                    border: 1px solid #d2d2d7;
+                    image: url({new_icon_path("checkmark", "svg")});
+                }}
+                QSlider {{
+                    height: 28px;
+                }}
+                QSlider::groove:horizontal {{
+                    height: 4px;
+                    background: #d2d2d7;
+                    border-radius: 2px;
+                }}
+                QSlider::handle:horizontal {{
+                    background: #0071e3;
+                    border: none;
+                    width: 16px;
+                    height: 16px;
+                    margin: -6px 0;
+                    border-radius: 8px;
+                }}
+                QSlider::sub-page:horizontal {{
+                    background: #0071e3;
+                    border-radius: 2px;
+                }}
+                QDoubleSpinBox {{
+                    padding: 5px 8px;
+                    background: white;
+                    border: 1px solid #d2d2d7;
+                    border-radius: 6px;
+                    min-height: 24px;
+                    selection-background-color: #0071e3;
+                }}
+                QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{
+                    width: 20px;
+                    border: none;
+                    background: #f0f0f0;
+                }}
 
-            QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {
-                background: #e0e0e0;
-            }
+                QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {{
+                    background: #e0e0e0;
+                }}
 
-            QDoubleSpinBox::up-arrow {
-                image: url("anylabeling/resources/icons/caret-up.svg");
-                width: 12px;
-                height: 12px;
-            }
+                QDoubleSpinBox::up-arrow {{
+                    image: url({new_icon_path("caret-up", "svg")});
+                    width: 12px;
+                    height: 12px;
+                }}
 
-            QDoubleSpinBox::down-arrow {
-                image: url("anylabeling/resources/icons/caret-down.svg");
-                width: 12px;
-                height: 12px;
-            }
-            QLineEdit {
-                padding: 5px 8px;
-                background: white;
-                border: 1px solid #d2d2d7;
-                border-radius: 6px;
-                min-height: 24px;
-                selection-background-color: #0071e3;
-            }
+                QDoubleSpinBox::down-arrow {{
+                    image: url({new_icon_path("caret-down", "svg")});
+                    width: 12px;
+                    height: 12px;
+                }}
+
+                QLineEdit {{
+                    padding: 5px 8px;
+                    background: white;
+                    border: 1px solid #d2d2d7;
+                    border-radius: 6px;
+                    min-height: 24px;
+                    selection-background-color: #0071e3;
+                }}
         """
         )
 

@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 from anylabeling.views.labeling import utils
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets.popup import Popup
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
     get_ok_btn_style,
     get_spinbox_style,
@@ -302,7 +303,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             popup = Popup(
                 self.tr("Group IDs modified successfully!"),
                 self.parent,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self.parent)
             self.accept()
@@ -310,7 +311,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             popup = Popup(
                 self.tr("An error occurred while updating the Group IDs."),
                 self.parent,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self.parent)
 
@@ -590,7 +591,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             popup = Popup(
                 self.tr("Labels modified successfully!"),
                 self.parent,
-                icon="anylabeling/resources/icons/copy-green.svg",
+                icon=new_icon_path("copy-green", "svg"),
             )
             popup.show_popup(self.parent)
             self.accept()
@@ -598,7 +599,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             popup = Popup(
                 self.tr("An error occurred while updating the labels."),
                 self.parent,
-                icon="anylabeling/resources/icons/error.svg",
+                icon=new_icon_path("error", "svg"),
             )
             popup.show_popup(self.parent)
 

@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.label_file import io_open
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import get_msg_box_style
 from anylabeling.views.labeling.widgets.popup import Popup
 
@@ -166,7 +167,7 @@ def finish_processing(self, progress_dialog):
     popup = Popup(
         self.tr("Processing completed successfully!"),
         self,
-        icon="anylabeling/resources/icons/copy-green.svg",
+        icon=new_icon_path("copy-green", "svg"),
     )
     popup.show_popup(self, position="center")
 
@@ -296,7 +297,7 @@ def process_next_image(self, progress_dialog):
         popup = Popup(
             self.tr("Error occurred while processing images!"),
             self,
-            icon="anylabeling/resources/icons/error.svg",
+            icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
 
