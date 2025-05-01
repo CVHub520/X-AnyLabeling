@@ -15,8 +15,8 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.app_info import __version__
-from anylabeling.views.labeling.label_file import io_open
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils._io import io_open
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import get_msg_box_style
 from anylabeling.views.labeling.widgets.popup import Popup

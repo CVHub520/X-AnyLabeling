@@ -31,6 +31,7 @@ from .image import (
     img_pil_to_data,
     process_image_exif,
 )
+from ._io import io_open
 from .qt import (
     Struct,
     add_actions,

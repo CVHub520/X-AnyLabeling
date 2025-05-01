@@ -19,13 +19,6 @@ from .label_converter import LabelConverter
 PIL.Image.MAX_IMAGE_PIXELS = None
 
 
-@contextlib.contextmanager
-def io_open(name, mode):
-    assert mode in ["r", "w"]
-    encoding = "utf-8"
-    yield io.open(name, mode, encoding=encoding)
-
-
 class LabelFileError(Exception):
     pass
 
@@ -62,7 +55,7 @@ class LabelFile:
             "imageWidth",
         ]
         try:
-            with io_open(filename, "r") as f:
+            with utils.io_open(filename, "r") as f:
                 data = json.load(f)
 
             if data.get("version") is None:
@@ -193,7 +186,7 @@ class LabelFile:
             assert key not in data
             data[key] = value
         try:
-            with io_open(filename, "w") as f:
+            with utils.io_open(filename, "w") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
             self.filename = filename
         except Exception as e:  # noqa
