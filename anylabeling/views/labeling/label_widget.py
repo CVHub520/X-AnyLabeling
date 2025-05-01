@@ -3074,18 +3074,26 @@ class LabelingWidget(LabelDialog):
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
 
     def hide_selected_polygons(self):
-        for index, item in enumerate(self.label_list):
+        shapes_to_hide = []
+        for item in self.label_list:
             if item.shape().selected:
                 item.setCheckState(Qt.Unchecked)
-                self.selected_polygon_stack.append(index)
-                self.label_list[index].shape().visible = False
+                item.shape().visible = False
+                shapes_to_hide.append(item.shape())
+
+        self.selected_polygon_stack.extend(shapes_to_hide)
+        self.canvas.update()
 
     def show_hidden_polygons(self):
         if self.selected_polygon_stack:
-            index = self.selected_polygon_stack.pop()
-            item = self.label_list.item_at_index(index)
-            item.setCheckState(Qt.Checked)
-            self.label_list[index].shape().visible = True
+            shape_to_show = self.selected_polygon_stack.pop()
+            item = self.label_list.find_item_by_shape(shape_to_show)
+            if item:
+                item.setCheckState(Qt.Checked)
+                shape_to_show.visible = True
+                self.canvas.update()
+            else:
+                logger.warning(f"Shape associated with the hidden item was not found in label list, could not show.")
 
     def get_next_files(self, filename, num_files):
         """Get the next files in the list."""
