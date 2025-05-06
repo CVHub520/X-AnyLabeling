@@ -1,3 +1,8 @@
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).parent.parent))
+
 import logging
 import pprint
 from app_info import __appname__, __version__, __preferred_device__
@@ -8,8 +13,10 @@ from views.labeling.utils.general import (
     indent_text,
 )
 
+
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
+
 
 if __name__ == "__main__":
     app_info = {

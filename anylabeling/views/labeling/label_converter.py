@@ -1956,10 +1956,10 @@ class LabelConverter:
                 else:
                     labels = list(unique_labels)
 
-                question = f"First thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think><answer> answer here </answer>. Please carefully check the image and detect the following objects: {labels}. "
+                question = f"Please carefully check the image and detect the following objects: {labels}. "
                 question = (
                     question
-                    + 'Output the bbox coordinates of detected objects in <answer></answer>. The bbox coordinates in Markdown format should be: \n```json\n[{"bbox_2d": [x1, y1, x2, y2], "label": "object name"},\n{"bbox_2d": [x1, y1, x2, y2], "label": "object name"},\n...\n]\n```\nIf no targets are detected in the image, simply respond with None.'
+                    + 'Output the bbox coordinates of detected objects in JSON format in <answer></answer>. The bbox coordinate format should be: \n```json\n[{"bbox_2d": [x1, y1, x2, y2], "label": "object name"},\n{"bbox_2d": [x1, y1, x2, y2], "label": "object name"},\n...\n]\n```\n. If no targets are detected in the image, simply respond with "None".'
                 )
 
                 item = {
