@@ -191,12 +191,13 @@ class LabelConverter:
         results = []
         input_type = mapping_table["type"]
         mapping_color = mapping_table["colors"]
-
         if input_type == "grayscale":
             color_to_label = {v: k for k, v in mapping_color.items()}
             binaray_img = cv2.imread(mask, cv2.IMREAD_GRAYSCALE)
             # use the different color_value to find the sub-region for each class
             for color_value in np.unique(binaray_img):
+                if color_value not in color_to_label:
+                    continue
                 class_name = color_to_label.get(color_value, "Unknown")
                 label_map = (binaray_img == color_value).astype(np.uint8)
 
@@ -221,7 +222,6 @@ class LabelConverter:
             }
             rgb_img = cv2.imread(mask)
             hsv_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
-
             _, binary_img = cv2.threshold(
                 hsv_img[:, :, 1], 0, 255, cv2.THRESH_BINARY
             )
@@ -237,6 +237,8 @@ class LabelConverter:
                 x, y, w, h = cv2.boundingRect(contour)
                 center = (int(x + w / 2), int(y + h / 2))
                 rgb_color = rgb_img[center[1], center[0]].tolist()
+                if rgb_color == [0, 0, 0] and rgb_color not in color_to_label:
+                    continue
                 label = color_to_label.get(tuple(rgb_color[::-1]), "Unknown")
 
                 points = []
@@ -859,7 +861,6 @@ class LabelConverter:
         self, input_file, output_file, image_file, mapping_table
     ):
         self.reset()
-
         results = self.get_contours_and_labels(input_file, mapping_table)
         for result in results:
             shape = {
