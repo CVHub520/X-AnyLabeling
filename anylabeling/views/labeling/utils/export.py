@@ -958,8 +958,11 @@ def export_mask_annotation(self):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".png"
 
-            src_file = osp.join(osp.dirname(image_file), label_file_name)
+            src_file = osp.join(label_dir_path, label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
+
+            if not osp.exists(src_file):
+                continue
 
             converter.custom_to_mask(src_file, dst_file, mapping_table)
 

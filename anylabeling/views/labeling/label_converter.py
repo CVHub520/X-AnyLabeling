@@ -190,64 +190,75 @@ class LabelConverter:
     def get_contours_and_labels(mask, mapping_table, epsilon_factor=0.001):
         results = []
         input_type = mapping_table["type"]
-        mapping_color = mapping_table["colors"]
+        mapping_color_data = mapping_table["colors"]  # {"label_name": [R, G, B], ...}
+
         if input_type == "grayscale":
-            color_to_label = {v: k for k, v in mapping_color.items()}
-            binaray_img = cv2.imread(mask, cv2.IMREAD_GRAYSCALE)
-            # use the different color_value to find the sub-region for each class
-            for color_value in np.unique(binaray_img):
+            color_to_label = {v: k for k, v in mapping_color_data.items()}
+            binary_img = cv2.imread(mask, cv2.IMREAD_GRAYSCALE)
+            if binary_img is None:
+                logger.error(f"Failed to read grayscale mask: {mask}")
+                return results
+
+            unique_colors = np.unique(binary_img)
+            for color_value in unique_colors:
+                if color_value == 0 and 0 not in color_to_label:
+                    continue
                 if color_value not in color_to_label:
                     continue
-                class_name = color_to_label.get(color_value, "Unknown")
-                label_map = (binaray_img == color_value).astype(np.uint8)
+
+                class_name = color_to_label.get(color_value)
+
+                # Create a binary map for the current color_value
+                label_map = (binary_img == color_value).astype(np.uint8)
 
                 contours, _ = cv2.findContours(
                     label_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
                 )
                 for contour in contours:
+                    if len(contour) < 3:
+                        continue
                     epsilon = epsilon_factor * cv2.arcLength(contour, True)
                     approx = cv2.approxPolyDP(contour, epsilon, True)
-                    if len(approx) < 5:
+                    if len(approx) < 3:
                         continue
 
-                    points = []
-                    for point in approx:
-                        x, y = point[0].tolist()
-                        points.append([x, y])
+                    points = [p[0].tolist() for p in approx]
                     result_item = {"points": points, "label": class_name}
                     results.append(result_item)
+
         elif input_type == "rgb":
-            color_to_label = {
-                tuple(color): label for label, color in mapping_color.items()
-            }
-            rgb_img = cv2.imread(mask)
-            hsv_img = cv2.cvtColor(rgb_img, cv2.COLOR_BGR2HSV)
-            _, binary_img = cv2.threshold(
-                hsv_img[:, :, 1], 0, 255, cv2.THRESH_BINARY
-            )
-            contours, _ = cv2.findContours(
-                binary_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-            )
-            for contour in contours:
-                epsilon = epsilon_factor * cv2.arcLength(contour, True)
-                approx = cv2.approxPolyDP(contour, epsilon, True)
-                if len(approx) < 5:
+            rgb_img_bgr = cv2.imread(mask)
+            if rgb_img_bgr is None:
+                logger.error(f"Failed to read RGB mask: {mask}")
+                return results
+
+            for class_name, color_rgb in mapping_color_data.items():
+                if not isinstance(color_rgb, (list, tuple, np.ndarray)) or len(color_rgb) != 3:
+                    logger.warning(f"Invalid color format for label {class_name}: {color_rgb}. Skipping.")
                     continue
 
-                x, y, w, h = cv2.boundingRect(contour)
-                center = (int(x + w / 2), int(y + h / 2))
-                rgb_color = rgb_img[center[1], center[0]].tolist()
-                if rgb_color == [0, 0, 0] and rgb_color not in color_to_label:
-                    continue
-                label = color_to_label.get(tuple(rgb_color[::-1]), "Unknown")
+                r, g, b = color_rgb
+                lower_bound_bgr = np.array([b, g, r], dtype=np.uint8)
+                upper_bound_bgr = np.array([b, g, r], dtype=np.uint8)
 
-                points = []
-                for point in approx:
-                    x, y = point[0].tolist()
-                    points.append([x, y])
+                specific_color_mask = cv2.inRange(rgb_img_bgr, lower_bound_bgr, upper_bound_bgr)
 
-                result_item = {"points": points, "label": label}
-                results.append(result_item)
+                contours, _ = cv2.findContours(
+                    specific_color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                )
+
+                for contour in contours:
+                    if len(contour) < 3:
+                        continue
+                    epsilon = epsilon_factor * cv2.arcLength(contour, True)
+                    approx = cv2.approxPolyDP(contour, epsilon, True)
+                    if len(approx) < 3:
+                        continue
+                    
+                    points = [p[0].tolist() for p in approx]
+                    result_item = {"points": points, "label": class_name}
+                    results.append(result_item)
+
         return results
 
     @staticmethod

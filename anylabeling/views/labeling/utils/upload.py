@@ -662,6 +662,7 @@ def upload_mask_annotation(self, LABEL_OPACITY):
             if progress_dialog.wasCanceled():
                 break
 
+        progress_dialog.close()
         template = self.tr(
             "Uploading annotations successfully!\n"
             "Results have been saved to:\n"
