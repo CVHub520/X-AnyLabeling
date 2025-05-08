@@ -641,9 +641,12 @@ def upload_mask_annotation(self, LABEL_OPACITY):
         for i, image_filename in enumerate(image_file_list):
             if image_filename.endswith(".json"):
                 continue
-            label_filename = osp.splitext(image_filename)[0] + ".png"
             data_filename = osp.splitext(image_filename)[0] + ".json"
-            if label_filename not in label_file_list:
+            if osp.splitext(image_filename)[0] + ".png" in label_file_list:
+                label_filename = osp.splitext(image_filename)[0] + ".png"
+            elif osp.splitext(image_filename)[0] + ".jpg" in label_file_list:
+                label_filename = osp.splitext(image_filename)[0] + ".jpg"
+            else:
                 continue
             input_file = osp.join(label_dir_path, label_filename)
             output_file = osp.join(output_dir_path, data_filename)
