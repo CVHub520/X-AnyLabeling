@@ -20,37 +20,33 @@
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
 
-<img src="https://github.com/user-attachments/assets/0b1e3c69-a800-4497-9bad-4332c1ce1ebf" width="100%" />
-<div align="center"><strong>Segment Anything 2.1</strong></div>
+https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
 
 <br>
 
-[![Open Vision](https://github.com/user-attachments/assets/b2c1419b-540b-44fb-988e-a48572268df7)](https://www.youtube.com/watch?v=QtoVMiTwXqk)
-<div align="center"><strong>Interactive Visual-Text Prompting for Generic Vision Tasks</strong></div>
+<img src="https://github.com/user-attachments/assets/7f43bcec-96fd-48d1-bd36-9e5a440a66f6" width="100%" />
+<div align="center"><strong>Visual Prompting for Detection</strong></div>
 
-</br>
+<br>
 
-| **Tracking by HBB Detection** | **Tracking by OBB Detection** |
-| :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/be67d4f8-eb31-4bb3-887c-d954bb4a5d6d" width="100%" /> | <img src="https://github.com/user-attachments/assets/d85b1102-124a-4971-9332-c51fd2b1c47b" width="100%" /> |
-| **Tracking by Instance Segmentation** | **Tracking by Pose Estimation** | 
-| <img src="https://github.com/user-attachments/assets/8d412dc6-62c7-4bb2-9a1e-026448acf2bf" width="100%" /> | <img src="https://github.com/user-attachments/assets/bab038a7-3023-4097-bdcc-90e5009477c0" width="100%" /> |
+<img src="https://github.com/user-attachments/assets/208dc9ed-b8c9-4127-9e5b-e76f53892f03" width="100%" />
+<div align="center"><strong>Visual Prompting for Segmentation</strong></div>
+
+<br>
+
+<img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
+<div align="center"><strong>Chatbot</strong></div>
 
 
 ## 🥳 What's New
 
-- Support [Chatbot](./docs/en/chatbot.md) for multimodal image dataset annotation
-- Support [RF-DETR](./tools/onnx_exporter/export_rfdetr_onnx.py) object detection model
-- Support one-click import/export for [VLM-R1-OVD](https://github.com/om-ai-lab/VLM-R1) labels
-- Support downloading models from [ModelScope](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43) as an alternative source
-- Support [Grounding-DINO-1.6-API](https://algos.deepdataspace.com/en#/model/grounding_dino) open-set object detection model
-- Support [GeCo](./examples/counting/geco/README.md) zero-shot counting model
-- For more details, please refer to the [Changelog](./docs/en/changelog.md)
+- Bump version to [3.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.0)
+- For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
 ## X-AnyLabeling
 
-**X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It’s designed for visual data engineers, offering industrial-grade solutions for complex tasks.
+**X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It's designed for multi-modal data engineers, offering industrial-grade solutions for complex tasks.
 
 ## Features
 
@@ -60,28 +56,31 @@
 - Accelerates inference with `GPU` support.
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.
-- Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR.
+- Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, VLM-R1.
 - Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 
 
 ### Model library
 
-<div align="center">
-
-| **Object Detection** | **SOD with [SAHI](https://github.com/obss/sahi)** | **Facial Landmark Detection** | **Pose Estimation** |
-| :---: | :---: | :---: | :---: |
-| <img src='https://user-images.githubusercontent.com/72010077/273488633-fc31da5c-dfdd-434e-b5d0-874892807d95.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206095892-934be83a-f869-4a31-8e52-1074184149d1.jpg' height="126px" width="180px"> |  <img src='https://user-images.githubusercontent.com/61035602/206095684-72f42233-c9c7-4bd8-9195-e34859bd08bf.jpg' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206100220-ab01d347-9ff9-4f17-9718-290ec14d4205.gif' height="126px" width="180px"> |
-|  **Lane Detection** | **OCR** | **MOT** | **Instance Segmentation** |
-| <img src='https://user-images.githubusercontent.com/72010077/273764641-65f456ed-27ce-4077-8fce-b30db093b988.jpg' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273421210-30d20e08-3b72-4f4d-8976-05b564e13d87.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/61035602/206111753-836e7827-968e-4c80-92ef-7a78766892fc.gif' height="126px" width="180px"  > | <img src='https://user-images.githubusercontent.com/61035602/206095831-cc439557-1a23-4a99-b6b0-b6f2e97e8c57.jpg' height="126px" width="180px"> |
-|  **Tagging** | **Grounding** | **Recognition** | **Rotation** |
-| <img src='https://user-images.githubusercontent.com/72010077/277670825-8797ac7e-e593-45ea-be6a-65c3af17b12b.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277395884-4d500af3-3e4e-4fb3-aace-9a56a09c0595.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277396071-79daec2c-6b0a-4d42-97cf-69fd098b3400.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/277395955-aab54ea0-88f5-41af-ab0a-f4158a673f5e.png' height="126px" width="180px"> |
-|  **Segment Anything** | **BC-SAM** | **Skin-SAM** | **Polyp-SAM** |
-| <img src='https://user-images.githubusercontent.com/72010077/273421331-2c0858b5-0b92-405b-aae6-d061bc25aa3c.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764259-718dce97-d04d-4629-b6d2-95f17670ce2a.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764288-e26767d1-3c44-45cb-a72e-124efb4e8263.png' height="126px" width="180px"> | <img src='https://user-images.githubusercontent.com/72010077/273764318-e8b6a197-e733-478e-a210-e4386bafa1e4.png' height="126px" width="180px"> |
-
-For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
-
-</div>
+| **Task Category** | **Supported Models** |
+| :--- | :--- |
+| 🖼️ Image Classification | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
+| 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR |
+| 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg |
+| 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
+| 👣 Tracking | Bot-SORT, ByteTrack |
+| 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
+| 📏 Depth Estimation | Depth Anything |
+| 🧩 Segment Anything | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM, 
+| ✂️ Image Matting | RMBG |
+| 📍 Grounding | CountGD, GeCO, Grunding DINO, YOLO-World |
+| 💡 Proposal | UPN |
+| 🏷️ Tagging | RAM, RAM++ |
+| 📄 OCR | PP-OCR |
+| 🗣️ VLM | Florence2, 
+| 🛣️ Land Detection | CLRNet |
+| 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 
 ## Docs
@@ -89,6 +88,7 @@ For more details, please refer to 👉 [model_zoo](./docs/en/model_zoo.md) 👈
 1. [Installation & Quickstart](./docs/en/get_started.md)
 2. [Usage](./docs/en/user_guide.md)
 3. [Customize a model](./docs/en/custom_model.md)
+4. [Chatbot](./docs/en/chatbot.md)
 
 ## Examples
 

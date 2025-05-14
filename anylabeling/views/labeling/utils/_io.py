@@ -1,6 +1,7 @@
 import io
 import contextlib
 
+
 @contextlib.contextmanager
 def io_open(name, mode):
     assert mode in ["r", "w"]

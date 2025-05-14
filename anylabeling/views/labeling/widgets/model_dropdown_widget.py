@@ -118,7 +118,9 @@ class ModelItem(QFrame):
         if model_data.get("vision", False):
             vision_icon = QLabel()
             vision_icon.setPixmap(
-                QIcon(new_icon("vision", "svg")).pixmap(QSize(*ICON_SIZE_SMALL))
+                QIcon(new_icon("vision", "svg")).pixmap(
+                    QSize(*ICON_SIZE_SMALL)
+                )
             )
             layout.addWidget(vision_icon)
 
@@ -199,9 +201,7 @@ class ProviderSection(QFrame):
         else:
             icon_name, ext = provider_name.lower(), "png"
         icon.setPixmap(
-            QIcon(new_icon(icon_name, ext)).pixmap(
-                QSize(*ICON_SIZE_SMALL)
-            )
+            QIcon(new_icon(icon_name, ext)).pixmap(QSize(*ICON_SIZE_SMALL))
         )
         header.addWidget(icon)
 

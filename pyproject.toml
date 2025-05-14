@@ -1,21 +1,152 @@
+# X-AnyLabeling GPLv3 License - https://github.com/CVHub520/X-AnyLabeling/blob/main/LICENSE
+
+# Overview:
+# This pyproject.toml file manages the build, packaging, and distribution of the X-AnyLabeling library.
+# It defines essential project metadata, dependencies, and settings used to develop and deploy the library.
+
+# Key Sections:
+# - [build-system]: Specifies the build requirements and backend (e.g., setuptools, wheel).
+# - [project]: Includes details like name, version, description, authors, dependencies and more.
+# - [project.optional-dependencies]: Provides additional, optional packages for extended features.
+# - [tool.*]: Configures settings for various tools (pytest, yapf, etc.) used in the project.
+
+# Installation:
+# The X-AnyLabeling library can be installed using the command: 'pip install x-anylabeling'
+# For development purposes, you can install the package in editable mode with: 'pip install -e .'
+# This approach allows for real-time code modifications without the need for re-installation.
+
+# Documentation:
+# For comprehensive documentation and usage instructions, visit: https://github.com/CVHub520/X-AnyLabeling/tree/main/docs
+
+[build-system]
+requires = ["setuptools>=70.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# Project settings -----------------------------------------------------------------------------------------------------
+[project]
+name = "x-anylabeling"
+dynamic = ["version"]
+description = "Advanced Auto Labeling Solution with Added Features"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { "text" = "GPLv3" }
+keywords = ["machine-learning", "deep-learning", "computer-vision", "multi-modal", "auto-labeling", "image-annotation", "AI", "LLM", "VLM", "YOLO", "SAM", "CLIP", "Grounding-DINO", "X-AnyLabeling"]
+authors = [
+    { name = "Wei Wang", email = "cv_hub@163.com" },
+]
+maintainers = [
+    { name = "CVHub", email = "cvhub.cn@gmail.com" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+]
+
+# Core dependencies
+dependencies = [
+    "natsort>=8.1.0",
+    "numpy<=1.26.4",
+    "pillow>=7.1.2",
+    "opencv-contrib-python-headless>=4.7.0.72",
+    'PyQt5>=5.15.7; platform_system != "Darwin"', # Exclude PyQt5 on macOS
+    'PyQtWebEngine>=5.15.7; platform_system != "Darwin"', # Exclude PyQtWebEngine on macOS
+    "onnx>=1.16.1",
+    "onnxruntime>=1.18.1",
+    "qimage2ndarray>=1.10.0",
+    "lapx>=0.5.5",
+    "tqdm>=4.64.0", # progress bars
+    "scipy>=1.4.1",
+    "PyYAML",
+    "importlib_metadata",
+    "json_repair",
+    "jsonlines",
+    "markdown",
+    "openai",
+    "pyclipper",
+    "shapely",
+    "termcolor",
+    "tokenizers",
+]
+
+# Optional dependencies ------------------------------------------------------------------------------------------------
+[project.optional-dependencies]
+dev = [
+    "build",
+    "black",
+    "flake8",
+    "pyinstaller",
+    "pytest",
+    "twine",
+]
+gpu = [
+    "onnxruntime-gpu>=1.18.1; platform_system != 'Darwin'"
+]
+
+[project.urls]
+"Source" = "https://github.com/CVHub520/X-AnyLabeling"
+"Documentation" = "https://github.com/CVHub520/X-AnyLabeling/tree/main/docs"
+"Bug Reports" = "https://github.com/CVHub520/X-AnyLabeling/issues"
+"Changelog" = "https://github.com/CVHub520/X-AnyLabeling/releases"
+
+[project.scripts]
+xlabeling = "anylabeling.app:main"
+x-anylabeling = "anylabeling.app:main"
+
+# Tools settings -------------------------------------------------------------------------------------------------------
+[tool.setuptools]  # configuration specific to the `setuptools` build backend.
+packages = { find = { where = ["."], include = ["anylabeling*"], exclude = ["resources*"] } }
+
+[tool.setuptools.dynamic]
+version = {attr = "anylabeling.app_info.__version__"}
+
+[tool.pytest.ini_options]
+addopts = "--doctest-modules --durations=30 --color=yes"
+markers = [
+    "slow: skip slow tests unless --slow is set",
+]
+norecursedirs = [".git", "dist", "build"]
+
 [tool.black]
 line-length = 79
-#include = '\.pyi?$'
 exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
+/( \\
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
   | _build
   | buck-out
   | build
   | dist
+  | tests/
+  | anylabeling/resources/resources\\.py
 )/
 '''
 
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"
-
+[tool.flake8]
+max-line-length = 79
+max-complexity = 18
+select = ["B", "C", "E", "F", "W", "T4", "B9"]
+ignore = ["E203", "E266", "E501", "W503", "F403", "F401", "B905", "E402"]
+exclude = [
+  ".git",
+  "__pycache__",
+  "build",
+  "dist",
+  ".venv",
+  "anylabeling/resources/resources.py"
+]

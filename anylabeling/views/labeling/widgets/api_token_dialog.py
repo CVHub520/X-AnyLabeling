@@ -86,7 +86,9 @@ class ApiTokenDialog(QDialog):
         hide_text = self.tr("Hide")
         if checked:  # Visible state
             try:
-                self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye", "svg")))
+                self.toggle_visibility_btn.setIcon(
+                    QIcon(new_icon("eye", "svg"))
+                )
                 self.toggle_visibility_btn.setText("")
                 self.toggle_visibility_btn.setToolTip(hide_text)
             except:  # noqa

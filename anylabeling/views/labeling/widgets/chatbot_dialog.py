@@ -1159,9 +1159,7 @@ class ChatbotDialog(QDialog):
 
         # Create the icon label
         role_label = QLabel()
-        icon_pixmap = QPixmap(
-            new_icon_path(self.default_provider.lower())
-        )
+        icon_pixmap = QPixmap(new_icon_path(self.default_provider.lower()))
         scaled_icon = icon_pixmap.scaled(
             *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
         )
@@ -1289,7 +1287,9 @@ class ChatbotDialog(QDialog):
             self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye", "svg")))
         else:
             self.api_key.setEchoMode(QLineEdit.Password)
-            self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye-off", "svg")))
+            self.toggle_visibility_btn.setIcon(
+                QIcon(new_icon("eye-off", "svg"))
+            )
 
     def navigate_image(self, direction="next", index=None):
         """Navigate to previous or next image and load its chat history

@@ -77,7 +77,9 @@ class ProviderSection(QFrame):
             icon_name, ext = "eth", "png"
         else:
             icon_name, ext = provider_name.lower(), "png"
-        icon.setPixmap(QIcon(new_icon(icon_name, ext)).pixmap(QSize(*ICON_SIZE_SMALL)))
+        icon.setPixmap(
+            QIcon(new_icon(icon_name, ext)).pixmap(QSize(*ICON_SIZE_SMALL))
+        )
         header.addWidget(icon)
 
         label = QLabel(provider_name)

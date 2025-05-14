@@ -519,6 +519,17 @@ if __name__ == '__main__':
 python3 ultralytics/utils/export_onnx.py
 ```
 
+### [D-FINE](https://github.com/Peterande/D-FINE)
+
+`D-FINE`是一款强大的实时目标检测器，它将DETR中的边界框回归任务重新定义为细粒度分布优化(FDR)，并引入全局最优定位自蒸馏(GO-LSD)，在不增加额外推理和训练成本的情况下实现了卓越性能。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | D-FINE: Redefine Regression Task of DETRs as Fine-grained Distribution Refinement                      |
+| 发表单位       | 中国科学技术大学                                                    |
+| 发表时间       | ICLR'25 Spotlight                                                  |
+
+请参考此[教程](../../tools/onnx_exporter/export_dfine_onnx.py)。
 
 ## Segment Anything
 

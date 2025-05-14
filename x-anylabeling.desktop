@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=X-AnyLabeling
+Comment=Advanced Auto Labeling Solution with Added Features
+Exec=X-AnyLabeling
+Icon=anylabeling/resources/images/logo.png
+Terminal=false
+Type=Application
+Categories=Graphics;RasterGraphics;MachineLearning

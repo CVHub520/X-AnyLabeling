@@ -534,6 +534,18 @@ python3 Hyper-YOLO/ultralytics/export.py
 ```
 
 
+### [D-FINE](https://github.com/Peterande/D-FINE)
+
+`D-FINE` is a powerful real-time object detector that redefines the bounding box regression task in DETRs as Fine-grained Distribution Refinement (FDR) and introduces Global Optimal Localization Self-Distillation (GO-LSD), achieving outstanding performance without introducing additional inference and training costs.
+
+| Attribute         | Value                                                                             |
+|-------------------|-----------------------------------------------------------------------------------|
+| Paper Title       | D-FINE: Redefine Regression Task of DETRs as Fine-grained Distribution Refinement |
+| Publishing Units  | OUniversity of Science and Technology of China                                    |
+| Publication Date  | ICLR'25 Spotlight                                                                 |
+
+Please refer to this [tutorial](../../tools/onnx_exporter/export_dfine_onnx.py).
+
 ## Segment Anything
 
 ### [SAM](https://github.com/facebookresearch/segment-anything)

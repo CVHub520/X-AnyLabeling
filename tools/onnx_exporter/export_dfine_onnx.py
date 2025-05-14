@@ -145,7 +145,9 @@ def preprocess(input_image, input_size, interpolation=Image.BILINEAR):
     pad_h, pad_w = (input_h - new_height) // 2, (input_w - new_width) // 2
     new_image.paste(image, (pad_w, pad_h))
 
-    orig_size = np.array([[new_image.size[1], new_image.size[0]]], dtype=np.int64)
+    orig_size = np.array(
+        [[new_image.size[1], new_image.size[0]]], dtype=np.int64
+    )
     im_data = np.array(new_image).astype(np.float32) / 255.0
     im_data = im_data.transpose(2, 0, 1)
     blob = np.expand_dims(im_data, axis=0)
@@ -191,11 +193,11 @@ def postprocess(outputs, orig_size, ratio, padding, conf_thres):
             y1 = max(0, min(y1, ori_h))
             x2 = max(0, min(x2, ori_w))
             y2 = max(0, min(y2, ori_h))
-            
+
             labels.append(label_idx)
             scores.append(score)
             boxes.append([x1, y1, x2, y2])
-    
+
     return labels, scores, boxes
 
 
@@ -217,7 +219,9 @@ def main():
     outputs = ort_model.run(None, inputs)
 
     # Postprocess
-    labels, scores, boxes = postprocess(outputs, image.size, ratio, (pad_w, pad_h), conf_thres)
+    labels, scores, boxes = postprocess(
+        outputs, image.size, ratio, (pad_w, pad_h), conf_thres
+    )
 
     # Draw the boxes
     im0 = cv2.imread(image_path)

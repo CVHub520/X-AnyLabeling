@@ -35,7 +35,7 @@ class DecodeImage(object):
         img_mode="RGB",
         channel_first=False,
         ignore_orientation=False,
-        **kwargs
+        **kwargs,
     ):
         self.img_mode = img_mode
         self.channel_first = channel_first
@@ -484,7 +484,7 @@ class SRResize(object):
         min_ratio=1,
         mask=False,
         infer_mode=False,
-        **kwargs
+        **kwargs,
     ):
         self.imgH = imgH
         self.imgW = imgW

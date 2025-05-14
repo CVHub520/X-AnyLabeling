@@ -962,7 +962,9 @@ class LabelingWidget(LabelDialog):
             lambda: utils.upload_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
-            tip=self.tr("Upload Custom COCO Instance Segmentation Annotations"),
+            tip=self.tr(
+                "Upload Custom COCO Instance Segmentation Annotations"
+            ),
         )
         upload_coco_pose_annotation = action(
             self.tr("&Upload COCO Keypoint Annotations"),
@@ -1084,7 +1086,9 @@ class LabelingWidget(LabelDialog):
             lambda: utils.export_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
-            tip=self.tr("Export Custom COCO Instance Segmentation Annotations"),
+            tip=self.tr(
+                "Export Custom COCO Instance Segmentation Annotations"
+            ),
         )
         export_coco_pose_annotation = action(
             self.tr("&Export COCO Keypoint Annotations"),
@@ -3089,7 +3093,9 @@ class LabelingWidget(LabelDialog):
                 shape_to_show.visible = True
                 self.canvas.update()
             else:
-                logger.warning(f"Shape associated with the hidden item was not found in label list, could not show.")
+                logger.warning(
+                    f"Shape associated with the hidden item was not found in label list, could not show."
+                )
 
     def get_next_files(self, filename, num_files):
         """Get the next files in the list."""

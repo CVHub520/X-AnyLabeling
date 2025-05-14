@@ -190,7 +190,9 @@ class LabelConverter:
     def get_contours_and_labels(mask, mapping_table, epsilon_factor=0.001):
         results = []
         input_type = mapping_table["type"]
-        mapping_color_data = mapping_table["colors"]  # {"label_name": [R, G, B], ...}
+        mapping_color_data = mapping_table[
+            "colors"
+        ]  # {"label_name": [R, G, B], ...}
 
         if input_type == "grayscale":
             color_to_label = {v: k for k, v in mapping_color_data.items()}
@@ -233,18 +235,27 @@ class LabelConverter:
                 return results
 
             for class_name, color_rgb in mapping_color_data.items():
-                if not isinstance(color_rgb, (list, tuple, np.ndarray)) or len(color_rgb) != 3:
-                    logger.warning(f"Invalid color format for label {class_name}: {color_rgb}. Skipping.")
+                if (
+                    not isinstance(color_rgb, (list, tuple, np.ndarray))
+                    or len(color_rgb) != 3
+                ):
+                    logger.warning(
+                        f"Invalid color format for label {class_name}: {color_rgb}. Skipping."
+                    )
                     continue
 
                 r, g, b = color_rgb
                 lower_bound_bgr = np.array([b, g, r], dtype=np.uint8)
                 upper_bound_bgr = np.array([b, g, r], dtype=np.uint8)
 
-                specific_color_mask = cv2.inRange(rgb_img_bgr, lower_bound_bgr, upper_bound_bgr)
+                specific_color_mask = cv2.inRange(
+                    rgb_img_bgr, lower_bound_bgr, upper_bound_bgr
+                )
 
                 contours, _ = cv2.findContours(
-                    specific_color_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                    specific_color_mask,
+                    cv2.RETR_EXTERNAL,
+                    cv2.CHAIN_APPROX_SIMPLE,
                 )
 
                 for contour in contours:
@@ -254,7 +265,7 @@ class LabelConverter:
                     approx = cv2.approxPolyDP(contour, epsilon, True)
                     if len(approx) < 3:
                         continue
-                    
+
                     points = [p[0].tolist() for p in approx]
                     result_item = {"points": points, "label": class_name}
                     results.append(result_item)

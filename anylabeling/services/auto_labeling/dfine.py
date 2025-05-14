@@ -94,7 +94,9 @@ class DFINE(Model):
         pad_h, pad_w = (input_h - new_height) // 2, (input_w - new_width) // 2
         new_image.paste(image, (pad_w, pad_h))
 
-        orig_size = np.array([[new_image.size[1], new_image.size[0]]], dtype=np.int64)
+        orig_size = np.array(
+            [[new_image.size[1], new_image.size[0]]], dtype=np.int64
+        )
         im_data = np.array(new_image).astype(np.float32) / 255.0
         im_data = im_data.transpose(2, 0, 1)
         blob = np.expand_dims(im_data, axis=0)
@@ -129,20 +131,20 @@ class DFINE(Model):
                     label = self.classes[label_idx]
                 else:
                     label = str(label_idx)
-                
+
                 # Get box coordinates and adjust for padding and resize
                 box = boxes[0][i]
                 x1 = int((box[0] - pad_w) / ratio)
                 y1 = int((box[1] - pad_h) / ratio)
                 x2 = int((box[2] - pad_w) / ratio)
                 y2 = int((box[3] - pad_h) / ratio)
-                
+
                 # Clip coordinates to image boundaries
                 x1 = max(0, min(x1, ori_w))
                 y1 = max(0, min(y1, ori_h))
                 x2 = max(0, min(x2, ori_w))
                 y2 = max(0, min(y2, ori_h))
-                
+
                 result = {
                     "x1": x1,
                     "y1": y1,
@@ -152,7 +154,7 @@ class DFINE(Model):
                     "score": float(score),
                 }
                 results.append(result)
-        
+
         return results
 
     def predict_shapes(self, image, image_path=None):
@@ -174,7 +176,9 @@ class DFINE(Model):
 
         # Run inference
         inputs = {"images": blob, "orig_target_sizes": orig_size}
-        outputs = self.net.get_ort_inference(blob, inputs=inputs, extract=False)
+        outputs = self.net.get_ort_inference(
+            blob, inputs=inputs, extract=False
+        )
 
         # Process outputs
         results = self.postprocess(outputs, image.size, ratio, (pad_w, pad_h))

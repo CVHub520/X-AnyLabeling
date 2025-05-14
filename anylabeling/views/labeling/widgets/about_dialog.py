@@ -41,7 +41,7 @@ class AboutDialog(QDialog):
     twitter_url = "https://x.com/xanylabeling"
     github_url = "https://github.com/CVHub520/X-AnyLabeling"
     github_issues_url = "https://github.com/CVHub520/X-AnyLabeling/issues"
-    changelog_url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/docs/en/changelog.md"
+    changelog_url = "https://github.com/CVHub520/X-AnyLabeling/tree/main/CHANGELOG.md"
 
     def __init__(self, parent=None):
         super().__init__(parent)
