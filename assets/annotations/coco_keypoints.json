@@ -1,7 +1,7 @@
 {
     "info": {
         "year": 2023,
-        "version": "2.5.4",
+        "version": "3.0.0",
         "description": "COCO Label Conversion",
         "contributor": "CVHub",
         "url": "https://github.com/CVHub520/X-AnyLabeling",

@@ -962,9 +962,7 @@ class LabelingWidget(LabelDialog):
             lambda: utils.upload_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
-            tip=self.tr(
-                "Upload Custom COCO Instance Segmentation Annotations"
-            ),
+            tip=self.tr("Upload Custom COCO Instance Segmentation Annotations"),
         )
         upload_coco_pose_annotation = action(
             self.tr("&Upload COCO Keypoint Annotations"),
@@ -1086,9 +1084,7 @@ class LabelingWidget(LabelDialog):
             lambda: utils.export_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
-            tip=self.tr(
-                "Export Custom COCO Instance Segmentation Annotations"
-            ),
+            tip=self.tr("Export Custom COCO Instance Segmentation Annotations"),
         )
         export_coco_pose_annotation = action(
             self.tr("&Export COCO Keypoint Annotations"),
@@ -3754,7 +3750,7 @@ class LabelingWidget(LabelDialog):
     def remove_selected_point(self):
         self.canvas.remove_selected_point()
         self.canvas.update()
-        if not self.canvas.h_hape.points:
+        if self.canvas.h_hape and not self.canvas.h_hape.points:
             self.canvas.delete_shape(self.canvas.h_hape)
             self.remove_labels([self.canvas.h_hape])
             self.set_dirty()

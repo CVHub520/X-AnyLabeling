@@ -145,6 +145,7 @@ class YOLO(Model):
             "yolov10",
             "doclayout_yolo",
             "yolo11",
+            "yolo12",
             "gold_yolo",
             "yolow",
             "yolow_ram",
@@ -300,6 +301,7 @@ class YOLO(Model):
             "yolo11_seg_track",
             "yolo11_obb_track",
             "yolo11_pose_track",
+            "yolo12",
         ]:
             p = non_max_suppression_v8(
                 preds[0],
