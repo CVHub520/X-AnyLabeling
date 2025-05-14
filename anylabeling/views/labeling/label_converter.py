@@ -1401,9 +1401,15 @@ class LabelConverter:
                 points = self.clamp_points(
                     shape["points"], image_width, image_height
                 )
-                group_id = int(shape.get("group_id", uuid.uuid1()))
+
+                group_id = shape.get("group_id", None)
+                if group_id is not None:
+                    group_id = int(group_id)
+                else:
+                    group_id = hash(uuid.uuid1())
+
                 difficult = shape.get("difficult", False)
-                bbox, segmentation, area = [], [], 0
+                bbox, area = [], 0
                 shape_type = shape["shape_type"]
 
                 if mode == "pose":
