@@ -71,6 +71,7 @@ _CUSTOM_MODELS = [
     "rfdetr",
     "dfine",
     "yolo12",
+    "u_rtdetr",
 ]
 
 
@@ -161,6 +162,7 @@ _AUTO_LABELING_CONF_MODELS = [
     "rfdetr",
     "dfine",
     "yolo12",
+    "u_rtdetr",
 ]
 
 
@@ -240,6 +242,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "rfdetr",
     "dfine",
     "yolo12",
+    "u_rtdetr",
 ]
 
 

@@ -40,6 +40,7 @@ https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
 
 ## 🥳 新功能
 
+- 支持 [Ultralytics RT-DETR](https://docs.ultralytics.com/models/rtdetr/) 目标检测模型
 - X-AnyLabeling [v3.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.0) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 

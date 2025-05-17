@@ -1,6 +1,5 @@
 import os
 import cv2
-import math
 import numpy as np
 from typing import Union, Tuple, List
 from argparse import Namespace
@@ -152,6 +151,7 @@ class YOLO(Model):
             "yolov5_det_track",
             "yolov8_det_track",
             "yolo11_det_track",
+            "u_rtdetr",
         ]:
             self.task = "det"
         elif self.model_type in [
@@ -245,6 +245,16 @@ class YOLO(Model):
             input_img = cv2.resize(
                 cropped_img, (self.input_width, self.input_height)
             )
+        elif upsample_mode == "scaleresize":
+            ratio_width = self.input_shape[1] / self.img_width
+            ratio_height = self.input_shape[0] / self.img_height
+            input_img = cv2.resize(
+                image,
+                (0, 0),
+                fx=ratio_width,
+                fy=ratio_height,
+                interpolation=cv2.INTER_LINEAR,
+            )
         # Transpose
         input_img = input_img.transpose(2, 0, 1)
         # Expand
@@ -319,6 +329,8 @@ class YOLO(Model):
                 conf_thres=self.conf_thres,
                 classes=self.filter_classes,
             )
+        elif self.model_type == "u_rtdetr":
+            return self.postprocess_rtdetr(preds)
         masks, keypoints = None, None
         img_shape = (self.img_height, self.img_width)
         if self.task == "seg":
@@ -384,7 +396,10 @@ class YOLO(Model):
             logger.warning(e)
             return []
         self.image_shape = image.shape
-        blob = self.preprocess(image, upsample_mode="letterbox")
+        if self.model_type == "u_rtdetr":
+            blob = self.preprocess_rtdetr(image)
+        else:
+            blob = self.preprocess(image, upsample_mode="letterbox")
         outputs = self.inference(blob)
         boxes, class_ids, scores, masks, keypoints = self.postprocess(outputs)
 
@@ -705,6 +720,136 @@ class YOLO(Model):
         masks[masks <= 0.5] = 0
 
         return masks
+
+    def preprocess_rtdetr(self, image):
+        """Preprocess the input image for RTDETR model."""
+        # Get original image dimensions
+        self.img_height, self.img_width = image.shape[:2]
+
+        # Compute rescale ratio
+        ratio_height = self.input_shape[0] / self.img_height
+        ratio_width = self.input_shape[1] / self.img_width
+
+        # Resize the image
+        resized_image = cv2.resize(
+            image,
+            (0, 0),
+            fx=ratio_width,
+            fy=ratio_height,
+            interpolation=cv2.INTER_LINEAR,
+        )
+
+        # Normalize image to [0, 1]
+        resized_image_norm = resized_image.astype(np.float32) / 255.0
+
+        # Convert HWC to CHW (height, width, channels) -> (channels, height, width)
+        blob = resized_image_norm.transpose(2, 0, 1)
+
+        # Add batch dimension: NCHW
+        blob = np.expand_dims(blob, axis=0)
+
+        # Make sure it's contiguous in memory
+        blob = np.ascontiguousarray(blob)
+
+        return blob
+
+    def postprocess_rtdetr(self, prediction):
+        """
+        Postprocess the prediction of the RT-DETR model.
+        """
+
+        def _rescale_boxes(boxes, image_shape):
+            """Rescale boxes from model input shape to original image shape."""
+            image_height, image_width = image_shape
+
+            # Extract boxes
+            x1 = np.array([box[0] for box in boxes])
+            y1 = np.array([box[1] for box in boxes])
+            x2 = np.array([box[2] for box in boxes])
+            y2 = np.array([box[3] for box in boxes])
+
+            # Rescale from normalized coordinates to pixel coordinates
+            x1 = np.floor(np.clip(x1 * image_width, 0, image_width - 1))
+            y1 = np.floor(np.clip(y1 * image_height, 0, image_height - 1))
+            x2 = np.ceil(np.clip(x2 * image_width, 0, image_width - 1))
+            y2 = np.ceil(np.clip(y2 * image_height, 0, image_height - 1))
+
+            # Create new boxes
+            new_boxes = []
+            for i in range(len(boxes)):
+                new_boxes.append([x1[i], y1[i], x2[i], y2[i]])
+
+            return new_boxes
+
+        def _bbox_cxcywh_to_xyxy(boxes):
+            """Convert bounding boxes from [cx, cy, w, h] to [x1, y1, x2, y2] format."""
+            xyxy_boxes = []
+            for box in boxes:
+                x1 = box[0] - box[2] / 2.0
+                y1 = box[1] - box[3] / 2.0
+                x2 = box[0] + box[2] / 2.0
+                y2 = box[1] + box[3] / 2.0
+                xyxy_boxes.append([x1, y1, x2, y2])
+            return xyxy_boxes
+
+        outputs = prediction[0][0]
+
+        # Extract boxes and scores
+        num_boxes = outputs.shape[0]
+        num_classes = len(self.classes)
+
+        # Parse boxes and scores
+        boxes = []
+        scores = []
+        for i in range(num_boxes):
+            box = outputs[i, :4]
+            score = outputs[i, 4 : 4 + num_classes]
+            boxes.append(box)
+            scores.append(score)
+
+        boxes = np.array(boxes)
+        scores = np.array(scores)
+
+        xyxy_boxes = _bbox_cxcywh_to_xyxy(boxes)
+
+        # Get max scores and corresponding class indices
+        max_scores = np.max(scores, axis=1)
+        class_indices = np.argmax(scores, axis=1)
+
+        # Filter detections based on confidence threshold
+        mask = max_scores > self.conf_thres
+        filtered_boxes = [
+            xyxy_boxes[i] for i in range(len(xyxy_boxes)) if mask[i]
+        ]
+        filtered_scores = [
+            max_scores[i] for i in range(len(max_scores)) if mask[i]
+        ]
+        filtered_class_indices = [
+            class_indices[i] for i in range(len(class_indices)) if mask[i]
+        ]
+
+        # Rescale boxes to original image size
+        filtered_boxes = _rescale_boxes(
+            filtered_boxes, (self.img_height, self.img_width)
+        )
+
+        boxes, class_ids, scores, masks, keypoints = [], [], [], None, None
+        for box, score, class_idx in zip(
+            filtered_boxes, filtered_scores, filtered_class_indices
+        ):
+            if self.filter_classes and class_idx not in self.filter_classes:
+                continue
+            boxes.append(box)
+            class_ids.append([class_idx])
+            scores.append([score])
+
+        return (
+            np.array(boxes),
+            np.array(class_ids),
+            np.array(scores),
+            masks,
+            keypoints,
+        )
 
     def postprocess_v10(
         self, prediction, task="det", conf_thres=0.25, classes=None
