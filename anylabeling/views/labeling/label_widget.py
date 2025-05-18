@@ -3848,11 +3848,6 @@ class LabelingWidget(LabelDialog):
         self.open_next_image()
 
     def import_image_folder(self, dirpath, pattern=None, load=True):
-        self.actions.open_next_image.setEnabled(True)
-        self.actions.open_prev_image.setEnabled(True)
-        self.actions.open_next_unchecked_image.setEnabled(True)
-        self.actions.open_prev_unchecked_image.setEnabled(True)
-
         if not self.may_continue() or not dirpath:
             return
 
@@ -3876,7 +3871,13 @@ class LabelingWidget(LabelDialog):
                 item.setCheckState(Qt.Unchecked)
             self.file_list_widget.addItem(item)
             self.fn_to_index[filename] = self.file_list_widget.count() - 1
-            utils.process_image_exif(filename)
+            # utils.process_image_exif(filename)
+
+        self.actions.open_next_image.setEnabled(True)
+        self.actions.open_prev_image.setEnabled(True)
+        self.actions.open_next_unchecked_image.setEnabled(True)
+        self.actions.open_prev_unchecked_image.setEnabled(True)
+
         self.open_next_image(load=load)
 
     def toggle_auto_labeling_widget(self):
