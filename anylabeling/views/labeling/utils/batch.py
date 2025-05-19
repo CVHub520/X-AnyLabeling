@@ -208,6 +208,8 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
                     data["description"] = new_description
         else:
             if self._config["store_data"]:
+                with open(image_file, "rb") as f:
+                    image_data = f.read()
                 image_data = base64.b64encode(image_data).decode("utf-8")
             else:
                 image_data = None
