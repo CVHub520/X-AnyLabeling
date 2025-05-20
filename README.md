@@ -40,8 +40,7 @@ https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
 
 ## 🥳 What's New
 
-- Support [Ultralytics RT-DETR](https://docs.ultralytics.com/models/rtdetr/) object detection model
-- Bump version to [3.0.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.0)
+- Bump version to [3.0.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.1)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 

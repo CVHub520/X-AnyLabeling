@@ -1,6 +1,31 @@
 # X-AnyLabeling Changelog
 
-## `v3.0.0` (May 10, 2025)
+## `v3.0.1` (May 20, 2025)
+
+### 🚀 New Features
+
+- Add support for Ultralytics RT-DETR object detection models (#944)
+- Enhance label history management by adding removal and addition methods for label history
+
+### 🐛 Bug Fixes
+
+- Add 'pillow' to requirements for macOS, Windows, and Linux (#942)
+- Initialize image_data before base64 encoding in save_auto_labeling_result (#946)
+
+### 🛠️ Improvements
+
+- Optimize image folder import performance by disabling automatic EXIF processing (#945)
+- Update requirements-macos.txt (#939)
+- Add FAQ entry for OpenSSL Uplink error during startup (#941)
+
+### 🌟 Contributors
+
+A total of 8 developers contributed to this release.
+
+Thank @DenDen047, @4399123, @CVHub520
+
+
+## `v3.0.0` (May 15, 2025)
 
 ### 🚀 New Features
 
