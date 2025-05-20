@@ -579,9 +579,12 @@ class LabelModifyDialog(QtWidgets.QDialog):
             # Handle delete and change of labels
             if is_delete:
                 self.parent.unique_label_list.remove_items_by_label(label)
+                self.parent.label_dialog.remove_label_history(label)
                 continue  # Skip adding this to updated_label_info to effectively delete it
             elif new_value:
                 self.parent.unique_label_list.remove_items_by_label(label)
+                self.parent.label_dialog.remove_label_history(label)
+                self.parent.label_dialog.add_label_history(new_value)
                 updated_label_info[new_value] = self.parent.label_info[label]
             else:
                 updated_label_info[label] = self.parent.label_info[label]
@@ -958,6 +961,21 @@ class LabelDialog(QtWidgets.QDialog):
         items = self.label_list.findItems(label, QtCore.Qt.MatchExactly)
         if items:
             self.label_list.setCurrentItem(items[0])
+
+    def remove_label_history(self, label):
+        items = self.label_list.findItems(label, QtCore.Qt.MatchExactly)
+        if not items:
+            logger.warning(f"Skipping empty items.")
+            return
+
+        for item in items:
+            self.label_list.takeItem(self.label_list.row(item))
+
+        if self._last_label == label:
+            self._last_label = ""
+
+        if self.edit.text() == label:
+            self.edit.clear()
 
     def label_selected(self, item):
         if item is not None:
