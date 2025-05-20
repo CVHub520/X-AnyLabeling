@@ -4,6 +4,12 @@
 ### 安装与运行相关问题
 
 <details>
+<summary>Q: 启动时报错：OPENSSL_Uplink(00007FFE6B47AC88,08): not OPENSSL_Applink</summary>
+
+可参考[#941](https://github.com/CVHub520/X-AnyLabeling/issues/941)。
+</details>
+
+<details>
 <summary>Q: 程序运行时崩溃，出现 `Qt5Core.dll` 依赖库错误</summary>
 
 可参考[#907](https://github.com/CVHub520/X-AnyLabeling/issues/907)。
