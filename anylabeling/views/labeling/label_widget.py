@@ -3756,7 +3756,7 @@ class LabelingWidget(LabelDialog):
     def remove_selected_point(self):
         self.canvas.remove_selected_point()
         self.canvas.update()
-        if self.canvas.h_hape and not self.canvas.h_hape.points:
+        if self.canvas.h_hape is not None and not self.canvas.h_hape.points:
             self.canvas.delete_shape(self.canvas.h_hape)
             self.remove_labels([self.canvas.h_hape])
             self.set_dirty()

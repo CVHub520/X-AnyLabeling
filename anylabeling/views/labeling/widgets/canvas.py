@@ -1359,6 +1359,8 @@ class Canvas(
                     "point",
                 ]:
                     points = shape.points
+                    if not points:
+                        continue
                     point = points[0]
                     rect = QtCore.QRect(
                         int(point.x() + d_react),
