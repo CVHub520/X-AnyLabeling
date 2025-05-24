@@ -19,27 +19,31 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-
 https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
+
+https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
+
+<div align="center"><strong>基于文本/视觉提示或免提示的检测和分割统一模型</strong></div>
 
 <br>
 
 <img src="https://github.com/user-attachments/assets/7f43bcec-96fd-48d1-bd36-9e5a440a66f6" width="100%" />
-<div align="center"><strong>Visual Prompting for Detection</strong></div>
+<div align="center"><strong>检测一切</strong></div>
 
 <br>
 
 <img src="https://github.com/user-attachments/assets/208dc9ed-b8c9-4127-9e5b-e76f53892f03" width="100%" />
-<div align="center"><strong>Visual Prompting for Segmentation</strong></div>
+<div align="center"><strong>分割一切</strong></div>
 
 <br>
 
 <img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
-<div align="center"><strong>Chatbot</strong></div>
+<div align="center"><strong>聊天机器人</strong></div>
 
 
 ## 🥳 新功能
 
+- 新增 `Grounding` 任务支持，集成 `YOLOE` 模型实现文本/视觉提示和无提示检测分割
 - X-AnyLabeling [v3.0.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.1) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
@@ -75,12 +79,12 @@ https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
 | 📏 **深度估计** | Depth Anything |
 | 🧩 **分割一切** | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ **图像抠图** | RMBG |
-| 📍 **视觉定位** | CountGD, GeCO, Grunding DINO, YOLO-World |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCR |
 | 🗣️ **视觉语言模型** | Florence2 |
 | 🛣️ **车道线检测** | CLRNet |
+| 📍 **Grounding** | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |
 | 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 

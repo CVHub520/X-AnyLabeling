@@ -15,6 +15,7 @@ from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.services.auto_labeling import (
     _AUTO_LABELING_IOU_MODELS,
     _AUTO_LABELING_CONF_MODELS,
+    _SKIP_PREDICTION_ON_NEW_MARKS_MODELS,
 )
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.style import (
@@ -679,7 +680,9 @@ class AutoLabelingWidget(QWidget):
     def on_new_marks(self, marks):
         """Handle new marks"""
         self.model_manager.set_auto_labeling_marks(marks)
-        self.run_prediction()
+        current_model_name = self.model_manager.loaded_model_config["type"]
+        if current_model_name not in _SKIP_PREDICTION_ON_NEW_MARKS_MODELS:
+            self.run_prediction()
 
     def on_open(self):
         pass

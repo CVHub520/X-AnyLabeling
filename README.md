@@ -19,18 +19,21 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-
 https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
+
+https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
+
+<div align="center"><strong>Text/Visual Prompting and Prompt-free for Detection & Segmentation</strong></div>
 
 <br>
 
 <img src="https://github.com/user-attachments/assets/7f43bcec-96fd-48d1-bd36-9e5a440a66f6" width="100%" />
-<div align="center"><strong>Visual Prompting for Detection</strong></div>
+<div align="center"><strong>Detect Anything</strong></div>
 
 <br>
 
 <img src="https://github.com/user-attachments/assets/208dc9ed-b8c9-4127-9e5b-e76f53892f03" width="100%" />
-<div align="center"><strong>Visual Prompting for Segmentation</strong></div>
+<div align="center"><strong>Segment Anything</strong></div>
 
 <br>
 
@@ -40,6 +43,7 @@ https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
 
 ## 🥳 What's New
 
+- Added support for Grounding tasks with YOLOE model for text/visual prompting and prompt-free detection & segmentation
 - Bump version to [3.0.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.1)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
@@ -74,12 +78,12 @@ https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
 | 📏 Depth Estimation | Depth Anything |
 | 🧩 Segment Anything | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM, 
 | ✂️ Image Matting | RMBG |
-| 📍 Grounding | CountGD, GeCO, Grunding DINO, YOLO-World |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCR |
 | 🗣️ VLM | Florence2, 
 | 🛣️ Land Detection | CLRNet |
+| 📍 Grounding | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 

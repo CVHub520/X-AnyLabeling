@@ -29,7 +29,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [4.7 PPOCR Format](#47-ppocr-format)
       * [4.8 ODVG Format](#48-odvg-format)
       * [4.9 VLM-R1-OVD Format](#49-vlm-r1-ovd-format)
-  * [5. Toolbar Tools](#5-toolbar-tools)
+   * [5. Toolbar Tools](#5-toolbar-tools)
       * [5.1 Data Statistics (Overview)](#51-data-statistics-overview)
       * [5.2 Save Cropped Images](#52-save-cropped-images)
       * [5.3 Label Manager](#53-label-manager)
@@ -46,7 +46,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [7.5 Hover Auto-Highlight](#75-hover-auto-highlight)
       * [7.6 Shape Appearance](#76-shape-appearance)
       * [7.7 Model Download Source](#77-model-download-source)
-  * [8. Supported Tasks](#8-supported-tasks)
+   * [8. Supported Tasks](#8-supported-tasks)
       * [8.1 Image Classification](#81-image-classification)
       * [8.2 Object Detection](#82-object-detection)
       * [8.3 Image Segmentation](#83-image-segmentation)
@@ -58,6 +58,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [8.9 Matting](#89-matting)
       * [8.10 Vision-Language Tasks](#810-vision-language-tasks)
       * [8.11 Zero-Shot Counting](#811-zero-shot-counting)
+      * [8.12 Grounding](#812-grounding)
    * [9. Custom Models](#9-custom-models)
    * [10. Chatbot](#10-chatbot)
 
@@ -757,31 +758,44 @@ shape:
 
 X-AnyLabeling supports various annotation tasks. Follow the links below for specific guides and examples for each task type:
 
-- **8.1 Image Classification**
+### 8.1 Image Classification
   - Image-level: [Link](../../examples/classification/image-level/README.md)
   - Object-level (Shape Attributes): [Link](../../examples/classification/shape-level/README.md)
-- **8.2 Object Detection**
+
+### 8.2 Object Detection
   - Horizontal Bounding Box (HBB): [Link](../../examples/detection/hbb/README.md)
   - Oriented Bounding Box (OBB): [Link](../../examples/detection/obb/README.md)
-- **8.3 Image Segmentation**
+
+### 8.3 Image Segmentation
   - Semantic & Instance Segmentation (Polygons): [Link](../../examples/segmentation/README.md)
-- **8.4 Pose Estimation**
+
+### 8.4 Pose Estimation
   - Keypoint Detection: [Link](../../examples/estimation/pose_estimation/README.md)
-- **8.5 Multi-Object Tracking**
+
+### 8.5 Multi-Object Tracking
   - MOT/MOTS: [Link](../../examples/multiple_object_tracking/README.md)
-- **8.6 Depth Estimation**
+
+### 8.6 Depth Estimation
   - Depth Annotation: [Link](../../examples/estimation/depth_estimation/README.md)
-- **8.7 Optical Character Recognition (OCR)**
+
+### 8.7 Optical Character Recognition (OCR)
   - Text Detection & Recognition: [Link](../../examples/optical_character_recognition/text_recognition/README.md)
   - Key Information Extraction (KIE): [Link](../../examples/optical_character_recognition/kie/README.md)
-- **8.8 Interactive Video Object Segmentation (IVOS)**
+
+### 8.8 Interactive Video Object Segmentation (IVOS)
   - IVOS: [Link](../../examples/interactive_video_object_segmentation/README.md)
-- **8.9 Matting**
+
+### 8.9 Matting
   - Image Matting (Alpha Masks): [Link](../../examples/matting/image_matting/README.md)
-- **8.10 Vision-Language Tasks**
+
+### 8.10 Vision-Language Tasks
   - Florence 2 Examples: [Link](../../examples/vision_language/florence2/README.md)
-- **8.11 Zero-Shot Counting**
+
+### 8.11 Zero-Shot Counting
   - GeCo Counting by Detection/Segmentation: [Link](../../examples/counting/geco/README.md)
+
+### 8.12 Grounding
+  - YOLOE: [Link](../../examples/grounding/yoloe/README.md)
 
 ## 9. Custom Models
 

@@ -72,6 +72,7 @@ _CUSTOM_MODELS = [
     "dfine",
     "yolo12",
     "u_rtdetr",
+    "yoloe",
 ]
 
 
@@ -96,6 +97,13 @@ _AUTO_LABELING_MARKS_MODELS = [
     "edge_sam",
     "florence2",
     "geco",
+    "yoloe",
+]
+
+
+# --- skip_prediction_on_new_marks ---
+_SKIP_PREDICTION_ON_NEW_MARKS_MODELS = [
+    "yoloe",
 ]
 
 
@@ -163,6 +171,7 @@ _AUTO_LABELING_CONF_MODELS = [
     "dfine",
     "yolo12",
     "u_rtdetr",
+    "yoloe",
 ]
 
 
@@ -198,6 +207,7 @@ _AUTO_LABELING_IOU_MODELS = [
     "yolo11_pose_track",
     "yolox",
     "yolo12",
+    "yoloe",
 ]
 
 
@@ -243,6 +253,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "dfine",
     "yolo12",
     "u_rtdetr",
+    "yoloe",
 ]
 
 

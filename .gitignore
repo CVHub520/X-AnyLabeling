@@ -5,6 +5,8 @@
 __pycache__
 *.pyc
 *.egg-info
+*.pt
+*.onnx
 anylabeling/data
 /data
 /dist

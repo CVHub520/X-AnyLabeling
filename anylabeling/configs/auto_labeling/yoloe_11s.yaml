@@ -1,0 +1,13 @@
+type: yoloe
+name: yoloe_11s-r20250524
+provider: THU
+display_name: YOLOE-11-S
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yoloe-11s-seg.pt
+model_pf_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yoloe-11s-seg-pf.pt
+embedding_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/mobileclip_blt.pt
+input_height: 640
+input_width: 640
+iou_threshold: 0.70
+conf_threshold: 0.25
+max_det: 1000
+with_mask: false
