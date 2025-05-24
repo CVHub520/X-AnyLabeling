@@ -64,7 +64,11 @@ class YOLOE(Model):
         super().__init__(model_config, on_message)
 
         # Validate model paths
-        check_model_list = ["model_path", "model_pf_path", "embedding_model_path"]
+        check_model_list = [
+            "model_path",
+            "model_pf_path",
+            "embedding_model_path",
+        ]
         for model_name in check_model_list:
             model_abs_path = self.get_model_abs_path(self.config, model_name)
             if not model_abs_path or not os.path.isfile(model_abs_path):
@@ -84,7 +88,7 @@ class YOLOE(Model):
         self._text_model = None
         self._visual_model = None
         self._prompt_free_model = None
-        
+
         # Cache text prompt state to avoid unnecessary model rebuilds
         self._current_text_prompt = None
         self._prompt_free_initialized = False
@@ -115,8 +119,13 @@ class YOLOE(Model):
             self.texts = self.load_tag_list()
 
         # Create symlink for embedding model if needed
-        if not os.path.exists(os.path.basename(self.config["embedding_model_path"])):
-            os.symlink(self.config["embedding_model_path"], os.path.basename(self.config["embedding_model_path"]))
+        if not os.path.exists(
+            os.path.basename(self.config["embedding_model_path"])
+        ):
+            os.symlink(
+                self.config["embedding_model_path"],
+                os.path.basename(self.config["embedding_model_path"]),
+            )
 
     @staticmethod
     def build_model(model_path):
@@ -201,7 +210,9 @@ class YOLOE(Model):
         """Get or create text prompt model instance"""
         if self._text_model is None or self._current_text_prompt != texts:
             self._text_model = self.build_model(self.config["model_path"])
-            self._text_model.set_classes(texts, self._text_model.get_text_pe(texts))
+            self._text_model.set_classes(
+                texts, self._text_model.get_text_pe(texts)
+            )
             self._current_text_prompt = texts
         return self._text_model
 
@@ -213,15 +224,22 @@ class YOLOE(Model):
 
     def _get_prompt_free_model(self):
         """Get or create prompt-free model instance"""
-        if self._prompt_free_model is None or not self._prompt_free_initialized:
-            self._prompt_free_model = self.build_model(self.config["model_pf_path"])
+        if (
+            self._prompt_free_model is None
+            or not self._prompt_free_initialized
+        ):
+            self._prompt_free_model = self.build_model(
+                self.config["model_pf_path"]
+            )
             # Initialize prompt-free model with vocabulary
-            vocab = self.build_model(self.config["model_path"]).get_vocab(self.texts)
+            vocab = self.build_model(self.config["model_path"]).get_vocab(
+                self.texts
+            )
             self._prompt_free_model.set_vocab(vocab, names=self.texts)
             self._prompt_free_model.model.model[-1].is_fused = True
             self._prompt_free_model.model.model[-1].max_det = self.max_det
             self._prompt_free_initialized = True
-        
+
         # Update dynamic parameters each time
         self._prompt_free_model.model.model[-1].iou = self.iou_thres
         self._prompt_free_model.model.model[-1].conf = self.conf_thres
@@ -241,7 +259,7 @@ class YOLOE(Model):
             return []
 
         kwargs = {}
-        
+
         # Visual prompting mode
         if self.marks:
             bboxes = []
@@ -250,15 +268,9 @@ class YOLOE(Model):
                 bboxes.append(mark["data"])
 
             bboxes = np.array(bboxes)
-            prompts = {
-                "bboxes": bboxes,
-                "cls": np.array([0] * len(bboxes))
-            }
+            prompts = {"bboxes": bboxes, "cls": np.array([0] * len(bboxes))}
 
-            kwargs = dict(
-                prompts=prompts,
-                predictor=YOLOEVPSegPredictor
-            )
+            kwargs = dict(prompts=prompts, predictor=YOLOEVPSegPredictor)
             model = self._get_visual_model()
             results = model.predict(
                 source=image,
@@ -266,7 +278,7 @@ class YOLOE(Model):
                 conf=self.conf_thres,
                 iou=self.iou_thres,
                 verbose=False,
-                **kwargs
+                **kwargs,
             )
             self.marks = []
 
@@ -274,9 +286,9 @@ class YOLOE(Model):
         elif text_prompt:
             text_prompt = text_prompt.strip()
             text_prompt = text_prompt.replace(",", ".")
-            while text_prompt.endswith('.'):
+            while text_prompt.endswith("."):
                 text_prompt = text_prompt[:-1]
-            texts = [text.strip() for text in text_prompt.split('.')]
+            texts = [text.strip() for text in text_prompt.split(".")]
 
             # Reset text model if prompt changed
             if self.text_prompt is None:
@@ -294,9 +306,9 @@ class YOLOE(Model):
                 conf=self.conf_thres,
                 iou=self.iou_thres,
                 verbose=False,
-                **kwargs
+                **kwargs,
             )
-            
+
         # Prompt-free mode
         else:
             model = self._get_prompt_free_model()
@@ -306,7 +318,7 @@ class YOLOE(Model):
                 conf=self.conf_thres,
                 iou=self.iou_thres,
                 verbose=False,
-                **kwargs
+                **kwargs,
             )
 
         shapes = self.postprocess(results)

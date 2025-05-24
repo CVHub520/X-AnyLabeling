@@ -445,7 +445,13 @@ def run_all_images(self):
     ):
         text_input_dialog = TextInputDialog(parent=self)
         self.text_prompt = text_input_dialog.get_input_text()
-        if self.text_prompt or self.auto_labeling_widget.model_manager.loaded_model_config["type"] == "yoloe":
+        if (
+            self.text_prompt
+            or self.auto_labeling_widget.model_manager.loaded_model_config[
+                "type"
+            ]
+            == "yoloe"
+        ):
             show_progress_dialog_and_process(self)
 
     elif (

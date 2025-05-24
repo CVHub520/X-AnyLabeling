@@ -1,5 +1,21 @@
 # X-AnyLabeling Changelog
 
+## `v3.0.2` (May 24, 2025)
+
+### 🚀 New Features
+
+- Support `YOLOE` model for text/visual prompting and prompt-free grounding
+
+### 🐛 Bug Fixes
+
+- Fixed crash issue during keypoint annotation (#952)
+
+### 🌟 Contributors
+
+A total of 1 developers contributed to this release.
+
+Thank @CVHub520
+
 ## `v3.0.1` (May 20, 2025)
 
 ### 🚀 New Features
@@ -20,7 +36,7 @@
 
 ### 🌟 Contributors
 
-A total of 8 developers contributed to this release.
+A total of 3 developers contributed to this release.
 
 Thank @DenDen047, @4399123, @CVHub520
 
