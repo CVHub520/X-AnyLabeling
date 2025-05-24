@@ -43,8 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 新功能
 
-- 新增 `Grounding` 任务支持，集成 `YOLOE` 模型实现文本/视觉提示和无提示检测分割
-- X-AnyLabeling [v3.0.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.1) 最新版本发布
+- X-AnyLabeling [v3.0.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.2) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 

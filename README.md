@@ -43,8 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 What's New
 
-- Added support for Grounding tasks with YOLOE model for text/visual prompting and prompt-free detection & segmentation
-- Bump version to [3.0.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.1)
+- Bump version to [3.0.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.2)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
