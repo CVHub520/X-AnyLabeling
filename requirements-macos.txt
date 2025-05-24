@@ -1,6 +1,5 @@
+# For macOS: conda install -c conda-forge pyqt==5.15.9 pyqtwebengine
 opencv-contrib-python-headless>=4.7.0.72
-# PyQt5==5.15.6 # Use Miniconda/Anaconda: conda install -c conda-forge pyqt
-PyQtWebEngine==5.15.7
 natsort==8.1.0
 termcolor==1.1.0
 onnx>=1.13.1

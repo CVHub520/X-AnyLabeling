@@ -82,7 +82,7 @@ pip install -r requirements-[xxx].txt
 Moreover, for macOS, you’ll need to execute an additional command to install a specific version of PyQt from the conda-forge repository:
 
 ```bash
-conda install -c conda-forge pyqt=5.15.9
+conda install -c conda-forge pyqt==5.15.9 pyqtwebengine
 ```
 
 #### 1.1.3 Launch

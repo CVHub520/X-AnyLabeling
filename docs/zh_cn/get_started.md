@@ -82,7 +82,7 @@ pip install -r requirements-[xxx].txt
 此外，对于 macOS 用户，你需要额外运行以下命令从 conda-forge 源安装特定版本的版本：
 
 ```bash
-conda install -c conda-forge pyqt=5.15.9
+conda install -c conda-forge pyqt==5.15.9 pyqtwebengine
 ```
 
 #### 1.1.3 启动
