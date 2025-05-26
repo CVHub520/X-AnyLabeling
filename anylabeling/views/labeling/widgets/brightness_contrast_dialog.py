@@ -11,7 +11,7 @@ from ..utils.image import pil_to_qimage
 class BrightnessContrastDialog(QtWidgets.QDialog):
     """Dialog for adjusting brightness and contrast of current image"""
 
-    def __init__(self, img, callback, parent=None):
+    def __init__(self, callback, parent=None):
         super(BrightnessContrastDialog, self).__init__(parent)
         self.setModal(True)
         self.setWindowTitle(self.tr("Brightness/Contrast"))
@@ -158,9 +158,6 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
 
         main_layout.addLayout(buttons_layout)
         self.setLayout(main_layout)
-
-        assert isinstance(img, PIL.Image.Image)
-        self.img = img
         self.callback = callback
 
         # Center the dialog on the screen
@@ -172,6 +169,11 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         cp = QtWidgets.QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+    def update_image(self, image):
+        """Update image instance"""
+        assert isinstance(image, PIL.Image.Image)
+        self.img = image
 
     def update_brightness_label(self, value):
         """Update brightness label"""

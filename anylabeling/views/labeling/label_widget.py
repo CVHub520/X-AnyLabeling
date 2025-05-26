@@ -101,6 +101,7 @@ class LabelingWidget(LabelDialog):
         self.fn_to_index = {}
         self.cache_auto_label = None
         self.cache_auto_label_group_id = None
+
         # see configs/anylabeling_config.yaml for valid configuration
         if config is None:
             config = get_config()
@@ -138,6 +139,11 @@ class LabelingWidget(LabelDialog):
         self._no_selection_slot = False
 
         self._copied_shapes = None
+
+        self.brightness_contrast_dialog = BrightnessContrastDialog(
+            self.on_new_brightness_contrast,
+            parent=self
+        )
 
         # Main widgets and related state.
         self.label_dialog = LabelDialog(
@@ -3055,22 +3061,20 @@ class LabelingWidget(LabelDialog):
         )
 
     def brightness_contrast(self, _):
-        dialog = BrightnessContrastDialog(
-            utils.img_data_to_pil(self.image_data),
-            self.on_new_brightness_contrast,
-            parent=self,
-        )
+        self.brightness_contrast_dialog.update_image(utils.img_data_to_pil(self.image_data))
+
         brightness, contrast = self.brightness_contrast_values.get(
             self.filename, (None, None)
         )
         if brightness is not None:
-            dialog.slider_brightness.setValue(brightness)
+            self.brightness_contrast_dialog.slider_brightness.setValue(brightness)
         if contrast is not None:
-            dialog.slider_contrast.setValue(contrast)
-        dialog.exec_()
+            self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
 
-        brightness = dialog.slider_brightness.value()
-        contrast = dialog.slider_contrast.value()
+        self.brightness_contrast_dialog.exec_()
+
+        brightness = self.brightness_contrast_dialog.slider_brightness.value()
+        contrast = self.brightness_contrast_dialog.slider_contrast.value()
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
 
     def hide_selected_polygons(self):
@@ -3277,11 +3281,8 @@ class LabelingWidget(LabelDialog):
                     orientation, self.scroll_values[orientation][self.filename]
                 )
         # set brightness contrast values
-        dialog = BrightnessContrastDialog(
-            utils.img_data_to_pil(self.image_data),
-            self.on_new_brightness_contrast,
-            parent=self,
-        )
+        self.brightness_contrast_dialog.update_image(utils.img_data_to_pil(self.image_data))
+
         brightness, contrast = self.brightness_contrast_values.get(
             self.filename, (None, None)
         )
@@ -3294,12 +3295,13 @@ class LabelingWidget(LabelDialog):
                 self.recent_files[0], (None, None)
             )
         if brightness is not None:
-            dialog.slider_brightness.setValue(brightness)
+            self.brightness_contrast_dialog.slider_brightness.setValue(brightness)
         if contrast is not None:
-            dialog.slider_contrast.setValue(contrast)
+            self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
         if brightness is not None or contrast is not None:
-            dialog.on_new_value()
+            self.brightness_contrast_dialog.on_new_value()
+
         self.paint_canvas()
         self.add_recent_file(self.filename)
         self.toggle_actions(True)
