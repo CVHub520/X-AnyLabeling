@@ -101,6 +101,17 @@ OnnxRunTime 库与 CUDA 版本不兼容，详情可参考[#844](https://github.c
 ### 模型相关问题
 
 <details>
+<summary>Q: Chatbot 中如何访问 'Google Gemini' 等需要外网访问的模型？</summary>
+
+可在当前终端或者系统配置文件中设置代理协议，其中 ip 和 port 替换为自己的网络协议地址和端口号：
+
+```bash
+export http_proxy=http://ip:port
+export https_proxy=http://ip:port
+```
+</details>
+
+<details>
 <summary>Q: ERROR | model_manager:predict_shapes:2031 - Error in predict_shapes: '<=' not supported between instances of 'int' and 'str'</summary>
 
 请检查模型配置文件（*.yaml）是否正确，具体可参考此[#902](https://github.com/CVHub520/X-AnyLabeling/issues/902)。
