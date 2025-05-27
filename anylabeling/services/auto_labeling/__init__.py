@@ -254,6 +254,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "yolo12",
     "u_rtdetr",
     "yoloe",
+    "segment_anything_2_video",
 ]
 
 

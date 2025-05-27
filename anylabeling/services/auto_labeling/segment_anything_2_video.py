@@ -59,6 +59,7 @@ class SegmentAnything2Video(Model):
             "button_clear",
             "button_finish_object",
             "button_reset_tracker",
+            "toggle_preserve_existing_annotations",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -148,6 +149,7 @@ class SegmentAnything2Video(Model):
         self.labels = []
         self.group_ids = []
         self.prompts = []
+        self.replace = True
 
     def set_auto_labeling_marks(self, marks):
         """Set marks for auto labeling.
@@ -156,6 +158,10 @@ class SegmentAnything2Video(Model):
             marks (list): List of marks (points or rectangles).
         """
         self.marks = marks
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """Toggle the preservation of existing annotations based on the checkbox state."""
+        self.replace = not state
 
     def set_cache_auto_label(self, text, gid):
         """Set cache auto label"""
@@ -440,7 +446,7 @@ class SegmentAnything2Video(Model):
                 else:
                     masks = masks[0]
                 shapes.extend(self.post_process(masks, i))
-            return shapes, True
+            return shapes, self.replace
 
     def predict_shapes(
         self, image, filename=None, run_tracker=False
