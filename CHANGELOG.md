@@ -1,5 +1,24 @@
 # X-AnyLabeling Changelog
 
+## `v3.0.3` (May 28, 2025)
+
+### 🚀 New Features
+
+- Added Digit Shortcut Manager for quick shape creation using numeric keys (#945)
+- Added support for preserving existing annotations in SegmentAnything2Video model
+
+### 🛠️ Improvements
+
+- Updated FAQ entries for ONNX model IR version issues with resolution steps
+- Added FAQ entry on accessing external models like 'Google Gemini' through proxy settings
+- Converted BrightnessContrastDialog to singleton to reduce instantiation overhead (#954)
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v3.0.2` (May 24, 2025)
 
 ### 🚀 New Features

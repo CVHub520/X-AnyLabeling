@@ -513,16 +513,76 @@ class LabelingWidget(LabelDialog):
             self.tr("Start drawing linestrip. Ctrl+LeftClick ends creation."),
             enabled=False,
         )
-        digit_shortcut_0 = action(None, lambda: self.create_digit_mode(0), "0")
-        digit_shortcut_1 = action(None, lambda: self.create_digit_mode(1), "1")
-        digit_shortcut_2 = action(None, lambda: self.create_digit_mode(2), "2")
-        digit_shortcut_3 = action(None, lambda: self.create_digit_mode(3), "3")
-        digit_shortcut_4 = action(None, lambda: self.create_digit_mode(4), "4")
-        digit_shortcut_5 = action(None, lambda: self.create_digit_mode(5), "5")
-        digit_shortcut_6 = action(None, lambda: self.create_digit_mode(6), "6")
-        digit_shortcut_7 = action(None, lambda: self.create_digit_mode(7), "7")
-        digit_shortcut_8 = action(None, lambda: self.create_digit_mode(8), "8")
-        digit_shortcut_9 = action(None, lambda: self.create_digit_mode(9), "9")
+        digit_shortcut_0 = action(
+            self.tr("Digit Shortcut 0"),
+            lambda: self.create_digit_mode(0),
+            "0",
+            "digit0",
+            enabled=False,
+        )
+        digit_shortcut_1 = action(
+            self.tr("Digit Shortcut 1"),
+            lambda: self.create_digit_mode(1),
+            "1",
+            "digit1",
+            enabled=False,
+        )
+        digit_shortcut_2 = action(
+            self.tr("Digit Shortcut 2"),
+            lambda: self.create_digit_mode(2),
+            "2",
+            "digit2",
+            enabled=False,
+        )
+        digit_shortcut_3 = action(
+            self.tr("Digit Shortcut 3"),
+            lambda: self.create_digit_mode(3),
+            "3",
+            "digit3",
+            enabled=False,
+        )
+        digit_shortcut_4 = action(
+            self.tr("Digit Shortcut 4"),
+            lambda: self.create_digit_mode(4),
+            "4",
+            "digit4",
+            enabled=False,
+        )
+        digit_shortcut_5 = action(
+            self.tr("Digit Shortcut 5"),
+            lambda: self.create_digit_mode(5),
+            "5",
+            "digit5",
+            enabled=False,
+        )
+        digit_shortcut_6 = action(
+            self.tr("Digit Shortcut 6"),
+            lambda: self.create_digit_mode(6),
+            "6",
+            "digit6",
+            enabled=False,
+        )
+        digit_shortcut_7 = action(
+            self.tr("Digit Shortcut 7"),
+            lambda: self.create_digit_mode(7),
+            "7",
+            "digit7",
+            enabled=False,
+        )
+        digit_shortcut_8 = action(
+            self.tr("Digit Shortcut 8"),
+            lambda: self.create_digit_mode(8),
+            "8",
+            "digit8",
+            enabled=False,
+        )
+        digit_shortcut_9 = action(
+            self.tr("Digit Shortcut 9"),
+            lambda: self.create_digit_mode(9),
+            "9",
+            "digit9",
+            enabled=False,
+        )
         edit_mode = action(
             self.tr("Edit Object"),
             self.set_edit_mode,
@@ -2299,6 +2359,16 @@ class LabelingWidget(LabelDialog):
             self.actions.create_line_mode.setEnabled(True)
             self.actions.create_point_mode.setEnabled(True)
             self.actions.create_line_strip_mode.setEnabled(True)
+            self.actions.digit_shortcut_0.setEnabled(True)
+            self.actions.digit_shortcut_1.setEnabled(True)
+            self.actions.digit_shortcut_2.setEnabled(True)
+            self.actions.digit_shortcut_3.setEnabled(True)
+            self.actions.digit_shortcut_4.setEnabled(True)
+            self.actions.digit_shortcut_5.setEnabled(True)
+            self.actions.digit_shortcut_6.setEnabled(True)
+            self.actions.digit_shortcut_7.setEnabled(True)
+            self.actions.digit_shortcut_8.setEnabled(True)
+            self.actions.digit_shortcut_9.setEnabled(True)
         else:
             self.actions.union_selection.setEnabled(False)
             if create_mode == "polygon":

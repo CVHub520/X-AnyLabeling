@@ -43,8 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 What's New
 
-- Added Digit Shortcut Manager feature that allows users to configure numeric keys (0-9) for quick shape creation
-- Bump version to [3.0.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.2)
+- Bump version to [3.0.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.3)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
