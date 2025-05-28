@@ -31,6 +31,404 @@ def natural_sort_key(s):
     ]
 
 
+class ColoredComboBox(QtWidgets.QComboBox):
+    def __init__(self, parent=None):
+        super(ColoredComboBox, self).__init__(parent)
+        self.mode_colors = {
+            "polygon": QtGui.QColor("#D81B60"),  # Magenta
+            "rectangle": QtGui.QColor("#1E88E5"),  # Bright Blue
+            "rotation": QtGui.QColor("#8E24AA"),  # Purple
+            "circle": QtGui.QColor("#00C853"),  # Bright Green
+            "line": QtGui.QColor("#FF6D00"),  # Bright Orange
+            "point": QtGui.QColor("#00ACC1"),  # Teal
+            "linestrip": QtGui.QColor("#6D4C41"),  # Brown
+        }
+
+    def addModeItem(self, text, userData=None):
+        self.addItem(text, userData)
+        if text in self.mode_colors:
+            index = self.count() - 1
+            self.setItemData(
+                index, self.mode_colors[text], QtCore.Qt.ForegroundRole
+            )
+
+    def paintEvent(self, event):
+        painter = QtWidgets.QStylePainter(self)
+        painter.setPen(self.palette().color(QtGui.QPalette.Text))
+
+        # Draw the combobox frame, button, etc.
+        opt = QtWidgets.QStyleOptionComboBox()
+        self.initStyleOption(opt)
+        painter.drawComplexControl(QtWidgets.QStyle.CC_ComboBox, opt)
+
+        # Draw the current text with proper color
+        current_text = self.currentText()
+        if current_text in self.mode_colors:
+            painter.setPen(self.mode_colors[current_text])
+
+        # Draw the text
+        opt.currentText = current_text
+        rect = self.style().subElementRect(
+            QtWidgets.QStyle.SE_ComboBoxFocusRect, opt, self
+        )
+        rect.adjust(2, 0, -2, 0)  # adjust the text rectangle
+        painter.drawText(
+            rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, current_text
+        )
+
+
+class DigitShortcutDialog(QtWidgets.QDialog):
+    """Dialog for managing digit shortcuts"""
+
+    def __init__(self, parent=None):
+        """
+        Initialize the digit shortcut dialog.
+
+        Args:
+            parent: The parent widget.
+        """
+        super(DigitShortcutDialog, self).__init__(parent)
+
+        self.parent = parent
+        self.digit_shortcuts = {}
+        if (
+            hasattr(self.parent, "drawing_digit_shortcuts")
+            and self.parent.drawing_digit_shortcuts is not None
+        ):
+            self.digit_shortcuts = self.parent.drawing_digit_shortcuts.copy()
+
+        self.available_modes = [
+            "polygon",
+            "rectangle",
+            "rotation",
+            "circle",
+            "line",
+            "point",
+            "linestrip",
+        ]
+
+        self.setWindowTitle(self.tr("Digit Shortcut Manager"))
+        self.setModal(True)
+        self.setMinimumSize(500, 435)
+        self.setWindowFlags(
+            self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint
+        )
+
+        self.setStyleSheet(
+            f"""
+                QDialog {{
+                    background-color: #f5f5f7;
+                    border-radius: 10px;
+                }}
+                QLabel {{
+                    color: #1d1d1f;
+                    font-size: 13px;
+                }}
+                QComboBox {{
+                    padding: 2px 6px;
+                    background: white;
+                    border: 1px solid #d2d2d7;
+                    border-radius: 4px;
+                    min-height: 20px;
+                    selection-background-color: #0071e3;
+                }}
+                QComboBox::drop-down {{
+                    subcontrol-origin: padding;
+                    subcontrol-position: center right;
+                    width: 20px;
+                    border: none;
+                }}
+                QComboBox::down-arrow {{
+                    image: url({new_icon_path("caret-down", "svg")});
+                    width: 12px;
+                    height: 12px;
+                }}
+                QLineEdit {{
+                    padding: 2px 6px;
+                    background: white;
+                    border: 1px solid #d2d2d7;
+                    border-radius: 4px;
+                    min-height: 20px;
+                    selection-background-color: #0071e3;
+                }}
+                QLineEdit:disabled {{
+                    background: #f0f0f0;
+                    color: #999999;
+                }}
+                QHeaderView::section {{
+                    background-color: #f0f0f0;
+                    padding: 5px;
+                    border: 1px solid #d2d2d7;
+                    font-weight: bold;
+                }}
+        """
+        )
+
+        # Create layout with proper spacing
+        layout = QtWidgets.QVBoxLayout()
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(16)
+
+        # Header label
+        header_label = QtWidgets.QLabel(
+            self.tr("Configure digit keys (0-9) for quick shape creation:")
+        )
+        header_label.setStyleSheet("font-weight: bold; font-size: 14px;")
+        layout.addWidget(header_label)
+
+        # Create table for digit shortcuts
+        self.table = QtWidgets.QTableWidget()
+        self.table.setColumnCount(3)
+        self.table.setRowCount(10)  # 0-9 digits
+        self.table.setHorizontalHeaderLabels(
+            [self.tr("Digit"), self.tr("Drawing Mode"), self.tr("Label")]
+        )
+        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.table.horizontalHeader().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.ResizeToContents
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            1, QtWidgets.QHeaderView.Stretch
+        )
+        self.table.horizontalHeader().setSectionResizeMode(
+            2, QtWidgets.QHeaderView.Stretch
+        )
+        self.table.verticalHeader().setVisible(False)
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
+        # Populate table
+        for digit in range(10):
+            # Digit column
+            digit_item = QtWidgets.QTableWidgetItem(str(digit))
+            digit_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            self.table.setItem(digit, 0, digit_item)
+
+            # Mode combobox column
+            mode_combo = ColoredComboBox()
+            mode_combo.addItem(self.tr("None"), None)
+            for mode in self.available_modes:
+                mode_combo.addModeItem(mode, mode)
+
+            # Set current mode if exists
+            if (
+                int(digit) in self.digit_shortcuts
+                and "mode" in self.digit_shortcuts[int(digit)]
+            ):
+                mode = self.digit_shortcuts[int(digit)]["mode"]
+                index = mode_combo.findData(mode)
+                if index >= 0:
+                    mode_combo.setCurrentIndex(index)
+
+            # Connect mode change to enable/disable label field
+            mode_combo.currentIndexChanged.connect(
+                lambda idx, d=digit: self.on_mode_changed(d, idx)
+            )
+            self.table.setCellWidget(digit, 1, mode_combo)
+
+            # Label text field
+            label_edit = QtWidgets.QLineEdit()
+            if (
+                int(digit) in self.digit_shortcuts
+                and "label" in self.digit_shortcuts[int(digit)]
+            ):
+                label_edit.setText(self.digit_shortcuts[int(digit)]["label"])
+
+            # Initially disable if no mode is selected
+            if (
+                int(digit) not in self.digit_shortcuts
+                or "mode" not in self.digit_shortcuts[int(digit)]
+                or self.digit_shortcuts[int(digit)]["mode"] is None
+            ):
+                label_edit.setEnabled(False)
+
+            self.table.setCellWidget(digit, 2, label_edit)
+
+        layout.addWidget(self.table)
+
+        # Button layout
+        button_layout = QtWidgets.QHBoxLayout()
+        button_layout.setSpacing(8)
+
+        self.reset_button = QtWidgets.QPushButton(self.tr("Reset"))
+        self.reset_button.setFixedSize(100, 32)
+        self.reset_button.clicked.connect(self.reset_settings)
+        self.reset_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #f5f5f7;
+                color: #1d1d1f;
+                border: 1px solid #d2d2d7;
+                border-radius: 6px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: #e5e5e5;
+            }
+            QPushButton:pressed {
+                background-color: #d5d5d5;
+            }
+            """
+        )
+
+        ok_button = QtWidgets.QPushButton(self.tr("OK"))
+        ok_button.setFixedSize(100, 32)
+        ok_button.clicked.connect(self.save_settings)
+        ok_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #0071e3;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: #0077ED;
+            }
+            QPushButton:pressed {
+                background-color: #0068D0;
+            }
+            """
+        )
+
+        cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
+        cancel_button.setFixedSize(100, 32)
+        cancel_button.clicked.connect(self.reject)
+        cancel_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #f5f5f7;
+                color: #1d1d1f;
+                border: 1px solid #d2d2d7;
+                border-radius: 6px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: #e5e5e5;
+            }
+            QPushButton:pressed {
+                background-color: #d5d5d5;
+            }
+            """
+        )
+
+        button_layout.addWidget(self.reset_button)
+        button_layout.addStretch()
+        button_layout.addWidget(cancel_button)
+        button_layout.addWidget(ok_button)
+
+        layout.addLayout(button_layout)
+        self.setLayout(layout)
+
+        # Center the dialog
+        self.move_to_center()
+
+        # Set compact row heights
+        self.table.verticalHeader().setDefaultSectionSize(28)
+
+    def on_mode_changed(self, digit, index):
+        """Enable/disable label field based on mode selection"""
+        combo = self.table.cellWidget(digit, 1)
+        label_edit = self.table.cellWidget(digit, 2)
+
+        # Enable label field only if a valid mode is selected
+        mode = combo.itemData(index)
+        label_edit.setEnabled(mode is not None)
+
+        if mode is None:
+            label_edit.clear()
+            label_edit.setStyleSheet("")
+        else:
+            # Reset style but add a placeholder to indicate requirement
+            label_edit.setStyleSheet("")
+            label_edit.setPlaceholderText(self.tr("Required"))
+
+    def reset_settings(self):
+        """Reset all settings to None"""
+        # Show confirmation dialog
+        confirm = QtWidgets.QMessageBox.warning(
+            self,
+            self.tr("Confirm Reset"),
+            self.tr(
+                "Are you sure you want to reset all shortcuts? This cannot be undone."
+            ),
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No,
+        )
+
+        # Only proceed if user confirmed
+        if confirm == QtWidgets.QMessageBox.Yes:
+            for digit in range(10):
+                mode_combo = self.table.cellWidget(digit, 1)
+                mode_combo.setCurrentIndex(0)  # "None" option
+
+                label_edit = self.table.cellWidget(digit, 2)
+                label_edit.clear()
+                label_edit.setEnabled(False)
+
+    def save_settings(self):
+        """Save settings to parent and close dialog"""
+        result = {}
+        has_error = False
+
+        # Reset all error styling
+        for digit in range(10):
+            label_edit = self.table.cellWidget(digit, 2)
+            label_edit.setStyleSheet("")
+
+        for digit in range(10):
+            mode_combo = self.table.cellWidget(digit, 1)
+            label_edit = self.table.cellWidget(digit, 2)
+
+            mode = mode_combo.currentData()
+            label = label_edit.text().strip()
+
+            # Validate: if mode is set, label must not be empty
+            if mode is not None and not label:
+                has_error = True
+                # Highlight the empty label field
+                label_edit.setStyleSheet(
+                    "border: 2px solid #FF3B30; background-color: #FFEEEE;"
+                )
+
+            if mode is not None and label:
+                result[int(digit)] = {"mode": mode, "label": label}
+
+        if has_error:
+            QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Validation Error"),
+                self.tr(
+                    "Please provide a label for each enabled drawing mode."
+                ),
+                QtWidgets.QMessageBox.Ok,
+            )
+            return
+
+        # Update parent's digit shortcuts
+        if hasattr(self.parent, "drawing_digit_shortcuts"):
+            self.parent.drawing_digit_shortcuts = result
+
+        self.accept()
+
+        popup = Popup(
+            self.tr("Digit shortcuts saved successfully"),
+            self.parent,
+            msec=1000,
+            icon=new_icon_path("copy-green", "svg"),
+        )
+        popup.show_popup(self.parent)
+
+    def move_to_center(self):
+        """Move dialog to center of the screen"""
+        screen = QtWidgets.QApplication.desktop().screenGeometry()
+        size = self.geometry()
+        self.move(
+            (screen.width() - size.width()) // 2,
+            (screen.height() - size.height()) // 2,
+        )
+
+
 class GroupIDModifyDialog(QtWidgets.QDialog):
     """A dialog for modifying group IDs across multiple files."""
 

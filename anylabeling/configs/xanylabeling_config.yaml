@@ -131,6 +131,7 @@ shortcuts:
   add_point_to_edge: Ctrl+Shift+P
   edit_label: Ctrl+E
   edit_group_id: Alt+G
+  edit_digit_shortcut: Alt+D
   toggle_keep_prev_mode: Ctrl+P
   remove_selected_point: Backspace
   group_selected_shapes: G
@@ -151,3 +152,6 @@ shortcuts:
 
 # Auto labeling
 custom_models: []
+
+# Digit shortcuts
+digit_shortcuts: null

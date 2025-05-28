@@ -34,7 +34,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [5.2 Save Cropped Images](#52-save-cropped-images)
       * [5.3 Label Manager](#53-label-manager)
       * [5.4 Shape Type Conversion](#54-shape-type-conversion)
-      * [5.5 Saving Masked Images](#55-saving-masked-images)
+      * [5.5 Digit Shortcut Manager](#55-digit-shortcut-manager)
    * [6. Help and Language](#6-help-and-language)
       * [6.1 About X-AnyLabeling](#61-about-x-anylabeling)
       * [6.2 Setting the Language](#62-setting-the-language)
@@ -539,15 +539,39 @@ You can convert between certain shape types using the `Tools` menu. Supported co
 
 > **Note:** Converting *to* Rectangle or Bounding Box uses the axis-aligned bounding box, losing rotation or precise boundary information. This conversion is **irreversible** within the tool, so use it carefully.
 
-### 5.5 Saving Masked Images
+### 5.5 Digit Shortcut Manager
 
-This feature (`Tools` > `Save Masked Image`) allows you to save versions of your images where specific areas are masked (filled with a solid color):
+The Digit Shortcut Manager is a practical feature provided by X-AnyLabeling that allows users to configure numeric keys (0-9) for quick shape creation, significantly improving labeling efficiency. 
 
-1. Annotate the areas you want to mask using `rectangle`, `rotation`, or `polygon` shapes.
-2. Assign the special label `__mask__` to these shapes.
-3. Select `Tools` > `Save Masked Image`.
-4. Choose the fill color (default is gray `(114, 114, 114)`).
-5. The masked images will be saved in the `x-anylabeling-mask-image` subfolder in the current image directory.
+By pre-setting the drawing mode and label name corresponding to each numeric key, users can quickly create desired annotation shapes with a single keystroke during the labeling process.
+
+To open the Digit Shortcut Manager, select **Tools** in the top menu bar of the main interface, then click on the **Digit Shortcut Manager** option, or simply use the shortcut key **Alt+D**.
+
+In the Digit Shortcut Manager dialog, users can see a table containing all numeric keys (0-9), with each row including the following information:
+
+- **Digit**: Represents the numeric key (0-9) on the keyboard
+- **Drawing Mode**: Choose the type of shape to draw from the dropdown menu, including rectangle, polygon, rotation, circle, line, point, linestrip, or none
+- **Label**: Specify the default label name for the shape (required)
+
+**Configuring Shortcuts**: Select the drawing mode corresponding to the digit, enter the default label name for that shape (required when a drawing mode is enabled), then click **OK** to save the settings.
+
+**Resetting Shortcuts**: Click the **Reset** button to clear all shortcut settings. The system will display a confirmation dialog, and all configurations will be cleared after confirmation.
+
+**Using Shortcuts**: In the labeling interface, simply press the configured numeric key (0-9). The system will automatically switch to the corresponding drawing mode with the preset label name. After drawing is complete, the annotation will automatically use the preset label name.
+
+**Offline Configuration**: In addition to configuration through the GUI interface, users can directly configure shortcuts in the `.xanylabelingrc` configuration file in their user directory. The configuration format is as follows:
+
+```yaml
+digit_shortcuts:
+  0: {mode: polygon, label: person}
+  1: {mode: rectangle, label: car}
+  2: {mode: rotation, label: truck}
+  # More configurations...
+```
+
+Digit shortcut settings configured through the GUI interface will be automatically synchronized and saved to the `.xanylabelingrc` configuration file in the current user directory, and will be automatically loaded the next time the software is started. Similarly, if you directly modify the configuration file, the software will automatically recognize and apply these changes after restart.
+
+By properly configuring numeric shortcuts, you can significantly improve labeling efficiency and reduce repetitive operations, particularly suitable for scenarios that require frequent switching between different annotation types.
 
 ## 6. Help and Language
 
@@ -585,8 +609,8 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Ctrl+Shift+d`        | Next Annotated/Unannotated Image                 | Behavior depends on `switch_to_checked` config |
 | `Ctrl+Shift+a`        | Previous Annotated/Unannotated Image             | Behavior depends on `switch_to_checked` config |
 | `p`                   | Create Polygon Tool                              | Shortcut might vary (check interface)      |
-| `o`                   | Create Rotated Rectangle Tool                    | Shortcut might vary                      |
-| `r`                   | Create Rectangle Tool                            | Shortcut might vary                      |
+| `o`                   | Create Rotated Rectangle Tool                    | Shortcut might vary                        |
+| `r`                   | Create Rectangle Tool                            | Shortcut might vary                        |
 | `i`                   | Run AI Model Inference                           | If model loaded                            |
 | `q`                   | Add Positive Point (SAM)                         | SAM Interactive Segmentation Mode          |
 | `e`                   | Add Negative Point (SAM)                         | SAM Interactive Segmentation Mode          |
@@ -596,9 +620,10 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `u`                   | Ungroup Selected Shapes                          | Sets group ID to null                      |
 | `s`                   | Hide Selected Shapes                             | Temporarily hide                           |
 | `w`                   | Show Hidden Shapes                               | Show previously hidden shapes              |
+| `Alt+d`               | Open Digit Shortcut Manager                      | Configure numeric key shortcuts            |
 | `Alt+g`               | Edit Group ID for Selection                      | Manually set group ID                      |
 | `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |
-| `Ctrl+Shift+Delete` | Delete Current Image & Label File                | Moves to `_delete_` folder                |
+| `Ctrl+Shift+Delete`   | Delete Current Image & Label File                | Moves to `_delete_` folder                 |
 | `Ctrl+b`              | Open Chatbot                                     |                                            |
 | `Ctrl+q`              | Quit Application                                 |                                            |
 | `Ctrl+i`              | Open Single Image File                           |                                            |
@@ -630,7 +655,7 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Delete`              | Delete Selection                                 | Deletes selected shape(s)                  |
 | `Esc`                 | Deselect Object / Cancel Drawing                 |                                            |
 | `Backspace`           | Delete Selected Point (Polygon Edit)             | While editing polygon points (`Ctrl+J`)    |
-| `↑`, `→`, `↓`, `←`  | Move Selection (Arrow Keys)                      | Nudge selected shape(s)                    |
+| `↑`, `→`, `↓`, `←`    | Move Selection (Arrow Keys)                      | Nudge selected shape(s)                    |
 | `z`, `x`, `c`, `v`    | Rotate Selection                                 | Rotates selected shape(s) (if applicable)  |
 
 ### 7.2 Custom Label Colors

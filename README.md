@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 What's New
 
+- Added Digit Shortcut Manager feature that allows users to configure numeric keys (0-9) for quick shape creation
 - Bump version to [3.0.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.2)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
@@ -80,7 +81,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCR |
-| 🗣️ VLM | Florence2, 
+| 🗣️ VLM | Florence2 |
 | 🛣️ Land Detection | CLRNet |
 | 📍 Grounding | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |

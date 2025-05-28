@@ -50,6 +50,7 @@ from .widgets import (
     LabelFilterComboBox,
     LabelListWidget,
     LabelListWidgetItem,
+    DigitShortcutDialog,
     LabelModifyDialog,
     GroupIDModifyDialog,
     OverviewDialog,
@@ -107,8 +108,9 @@ class LabelingWidget(LabelDialog):
             config = get_config()
         self._config = config
         self.label_flags = self._config["label_flags"]
-
         self.label_loop_count = -1
+        self.digit_to_label = None
+        self.drawing_digit_shortcuts = self._config.get("digit_shortcuts", {})
 
         # set default shape colors
         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
@@ -141,8 +143,7 @@ class LabelingWidget(LabelDialog):
         self._copied_shapes = None
 
         self.brightness_contrast_dialog = BrightnessContrastDialog(
-            self.on_new_brightness_contrast,
-            parent=self
+            self.on_new_brightness_contrast, parent=self
         )
 
         # Main widgets and related state.
@@ -512,6 +513,16 @@ class LabelingWidget(LabelDialog):
             self.tr("Start drawing linestrip. Ctrl+LeftClick ends creation."),
             enabled=False,
         )
+        digit_shortcut_0 = action(None, lambda: self.create_digit_mode(0), "0")
+        digit_shortcut_1 = action(None, lambda: self.create_digit_mode(1), "1")
+        digit_shortcut_2 = action(None, lambda: self.create_digit_mode(2), "2")
+        digit_shortcut_3 = action(None, lambda: self.create_digit_mode(3), "3")
+        digit_shortcut_4 = action(None, lambda: self.create_digit_mode(4), "4")
+        digit_shortcut_5 = action(None, lambda: self.create_digit_mode(5), "5")
+        digit_shortcut_6 = action(None, lambda: self.create_digit_mode(6), "6")
+        digit_shortcut_7 = action(None, lambda: self.create_digit_mode(7), "7")
+        digit_shortcut_8 = action(None, lambda: self.create_digit_mode(8), "8")
+        digit_shortcut_9 = action(None, lambda: self.create_digit_mode(9), "9")
         edit_mode = action(
             self.tr("Edit Object"),
             self.set_edit_mode,
@@ -624,6 +635,15 @@ class LabelingWidget(LabelDialog):
             icon="crop",
             tip=self.tr(
                 "Save cropped image. (Support rectangle/rotation/polygon shape_type)"
+            ),
+        )
+        digit_shortcut_manager = action(
+            self.tr("&Digit Shortcut Manager"),
+            self.digit_shortcut_manager,
+            shortcuts["edit_digit_shortcut"],
+            icon="edit",
+            tip=self.tr(
+                "Manage Digit Shortcuts: Assign Drawing Modes and Labels to Number Keys"
             ),
         )
         label_manager = action(
@@ -1254,6 +1274,16 @@ class LabelingWidget(LabelDialog):
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
             create_line_strip_mode=create_line_strip_mode,
+            digit_shortcut_0=digit_shortcut_0,
+            digit_shortcut_1=digit_shortcut_1,
+            digit_shortcut_2=digit_shortcut_2,
+            digit_shortcut_3=digit_shortcut_3,
+            digit_shortcut_4=digit_shortcut_4,
+            digit_shortcut_5=digit_shortcut_5,
+            digit_shortcut_6=digit_shortcut_6,
+            digit_shortcut_7=digit_shortcut_7,
+            digit_shortcut_8=digit_shortcut_8,
+            digit_shortcut_9=digit_shortcut_9,
             upload_image_flags_file=upload_image_flags_file,
             upload_label_flags_file=upload_label_flags_file,
             upload_shape_attrs_file=upload_shape_attrs_file,
@@ -1370,6 +1400,16 @@ class LabelingWidget(LabelDialog):
                 create_line_mode,
                 create_point_mode,
                 create_line_strip_mode,
+                digit_shortcut_0,
+                digit_shortcut_1,
+                digit_shortcut_2,
+                digit_shortcut_3,
+                digit_shortcut_4,
+                digit_shortcut_5,
+                digit_shortcut_6,
+                digit_shortcut_7,
+                digit_shortcut_8,
+                digit_shortcut_9,
                 edit_mode,
                 brightness_contrast,
                 loop_thru_labels,
@@ -1427,6 +1467,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 save_crop,
                 None,
+                digit_shortcut_manager,
                 label_manager,
                 gid_manager,
                 None,
@@ -1862,6 +1903,16 @@ class LabelingWidget(LabelDialog):
             self.actions.create_line_mode,
             self.actions.create_point_mode,
             self.actions.create_line_strip_mode,
+            self.actions.digit_shortcut_0,
+            self.actions.digit_shortcut_1,
+            self.actions.digit_shortcut_2,
+            self.actions.digit_shortcut_3,
+            self.actions.digit_shortcut_4,
+            self.actions.digit_shortcut_5,
+            self.actions.digit_shortcut_6,
+            self.actions.digit_shortcut_7,
+            self.actions.digit_shortcut_8,
+            self.actions.digit_shortcut_9,
             self.actions.edit_mode,
         )
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
@@ -1895,6 +1946,16 @@ class LabelingWidget(LabelDialog):
         self.actions.create_line_mode.setEnabled(True)
         self.actions.create_point_mode.setEnabled(True)
         self.actions.create_line_strip_mode.setEnabled(True)
+        self.actions.digit_shortcut_0.setEnabled(True)
+        self.actions.digit_shortcut_1.setEnabled(True)
+        self.actions.digit_shortcut_2.setEnabled(True)
+        self.actions.digit_shortcut_3.setEnabled(True)
+        self.actions.digit_shortcut_4.setEnabled(True)
+        self.actions.digit_shortcut_5.setEnabled(True)
+        self.actions.digit_shortcut_6.setEnabled(True)
+        self.actions.digit_shortcut_7.setEnabled(True)
+        self.actions.digit_shortcut_8.setEnabled(True)
+        self.actions.digit_shortcut_9.setEnabled(True)
         title = __appname__
         if self.filename is not None:
             title = f"{title} - {self.filename}"
@@ -2072,6 +2133,13 @@ class LabelingWidget(LabelDialog):
         if self.filename:
             OverviewDialog(parent=self)
 
+    def digit_shortcut_manager(self):
+        digit_shortcut_dialog = DigitShortcutDialog(parent=self)
+        result = digit_shortcut_dialog.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            self._config["digit_shortcuts"] = self.drawing_digit_shortcuts
+            save_config(self._config)
+
     def label_manager(self):
         modify_label_dialog = LabelModifyDialog(
             parent=self, opacity=LABEL_OPACITY
@@ -2181,6 +2249,31 @@ class LabelingWidget(LabelDialog):
         self.actions.undo.setEnabled(not drawing)
         self.actions.delete.setEnabled(not drawing)
         self.actions.union_selection.setEnabled(not drawing)
+
+    def create_digit_mode(self, digit_num):
+        if self.drawing_digit_shortcuts is None:
+            return
+
+        data = self.drawing_digit_shortcuts.get(digit_num, None)
+        if not data:
+            return
+
+        label = data.get("label", "object")
+        create_mode = data.get("mode", None)
+
+        if create_mode not in [
+            "polygon",
+            "rectangle",
+            "rotation",
+            "circle",
+            "line",
+            "point",
+            "linestrip",
+        ]:
+            return
+
+        self.digit_to_label = label
+        self.toggle_draw_mode(edit=False, create_mode=create_mode)
 
     def toggle_draw_mode(
         self, edit=True, create_mode="rectangle", disable_auto_labeling=True
@@ -2882,7 +2975,10 @@ class LabelingWidget(LabelDialog):
             or self.canvas.shapes[-1].label == AutoLabelingMode.OBJECT
         ):
             last_label = self.find_last_label()
-            if self._config["auto_use_last_label"] and last_label:
+            if self.digit_to_label is not None:
+                text = self.digit_to_label
+                self.digit_to_label = None
+            elif self._config["auto_use_last_label"] and last_label:
                 text = last_label
             else:
                 previous_text = self.label_dialog.edit.text()
@@ -3061,13 +3157,17 @@ class LabelingWidget(LabelDialog):
         )
 
     def brightness_contrast(self, _):
-        self.brightness_contrast_dialog.update_image(utils.img_data_to_pil(self.image_data))
+        self.brightness_contrast_dialog.update_image(
+            utils.img_data_to_pil(self.image_data)
+        )
 
         brightness, contrast = self.brightness_contrast_values.get(
             self.filename, (None, None)
         )
         if brightness is not None:
-            self.brightness_contrast_dialog.slider_brightness.setValue(brightness)
+            self.brightness_contrast_dialog.slider_brightness.setValue(
+                brightness
+            )
         if contrast is not None:
             self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
 
@@ -3281,7 +3381,9 @@ class LabelingWidget(LabelDialog):
                     orientation, self.scroll_values[orientation][self.filename]
                 )
         # set brightness contrast values
-        self.brightness_contrast_dialog.update_image(utils.img_data_to_pil(self.image_data))
+        self.brightness_contrast_dialog.update_image(
+            utils.img_data_to_pil(self.image_data)
+        )
 
         brightness, contrast = self.brightness_contrast_values.get(
             self.filename, (None, None)
@@ -3295,7 +3397,9 @@ class LabelingWidget(LabelDialog):
                 self.recent_files[0], (None, None)
             )
         if brightness is not None:
-            self.brightness_contrast_dialog.slider_brightness.setValue(brightness)
+            self.brightness_contrast_dialog.slider_brightness.setValue(
+                brightness
+            )
         if contrast is not None:
             self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
         self.brightness_contrast_values[self.filename] = (brightness, contrast)

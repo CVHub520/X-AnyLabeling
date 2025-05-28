@@ -13,6 +13,7 @@ from .label_dialog import (
     LabelDialog,
     LabelQLineEdit,
     LabelModifyDialog,
+    DigitShortcutDialog,
     GroupIDModifyDialog,
 )
 from .model_dropdown_widget import SearchBar

@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 新功能
 
+- 新增数字快捷键管理器功能，允许用户配置数字键（0-9）快速创建标注对象
 - X-AnyLabeling [v3.0.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.2) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
