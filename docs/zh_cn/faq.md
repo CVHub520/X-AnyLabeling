@@ -161,11 +161,6 @@ export https_proxy=http://ip:port
 <summary>Q: 下载完的模型每次重新启动应用时都被自动删除重新下载</summary>
 
 - 注意模型路径不得有中文字符，否则会有异常。（[#600](https://github.com/CVHub520/X-AnyLabeling/issues/600)）
-- 如提示`Unsupported model IR version: 10, max supported IR version: 9`，则说明模型 IR 版本过高，请更新 onnx 版本：
-
-```bash
-pip install --upgrade onnx
-```
 </details>
 
 <details>
@@ -219,16 +214,15 @@ Error in predict_shapes: [ONNXRuntimeError] : 1 : FAIL : Non-zero status code re
 </details>
 
 <details>
-<summary>Q: Unsupported model IR version: 10, max supported IR version: 9</summary>
+<summary>Q: Unsupported model IR version: 11, max supported IR version: 10</summary>
 
-ONNX Runtime 版本过低，请更新：
+可参考以下解决方案：
 
-```shell
-# 安装 CPU 版本
-pip install --upgrade onnxruntime
-
-# 安装 GPU 版本
-pip install --upgrade onnxruntime-gpu
+```bash
+import onnx
+onnx_model = onnx.load("/path/to/your/onnx_model")
+model.ir_version = 10  # 修改为合适的版本号
+onnx.save("/path/to/onnx_model")
 ```
 </details>
 
