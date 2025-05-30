@@ -221,8 +221,8 @@ Error in predict_shapes: [ONNXRuntimeError] : 1 : FAIL : Non-zero status code re
 ```bash
 import onnx
 onnx_model = onnx.load("/path/to/your/onnx_model")
-model.ir_version = 10  # 修改为合适的版本号
-onnx.save("/path/to/onnx_model")
+onnx_model.ir_version = 10  # 修改为合适的版本号
+onnx.save(onnx_model, "/path/to/onnx_model")
 ```
 </details>
 

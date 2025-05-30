@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 新功能
 
+- 支持 `RMBG v2.0` 图像抠图模型
 - X-AnyLabeling [v3.0.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.3) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
@@ -77,7 +78,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
 | 📏 **深度估计** | Depth Anything |
 | 🧩 **分割一切** | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
-| ✂️ **图像抠图** | RMBG |
+| ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCR |

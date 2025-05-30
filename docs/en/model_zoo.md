@@ -234,6 +234,8 @@
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
+| bria-rmbg-2.0.onnx | [RMBG v2.0 (BRIA AI)](https://huggingface.co/briaai/RMBG-2.0) | [rmbg_v20.yaml](../../anylabeling/configs/auto_labeling/rmbg_v20.yaml) | 976.88MB | [baidu](https://pan.baidu.com/s/1baIuKtLq31gq9vQezqy2Yw?pwd=vt5r) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/bria-rmbg-2.0.onnx) |
+| bria-rmbg-2.0-quant.onnx | [RMBG v2.0 Quantized (BRIA AI)](https://huggingface.co/briaai/RMBG-2.0) | [rmbg_v20_quant.yaml](../../anylabeling/configs/auto_labeling/rmbg_v20_quant.yaml) | 349.13MB | [baidu](https://pan.baidu.com/s/1u32UoVNxnDOq31qprsBUWQ?pwd=62ys) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/bria-rmbg-2.0-quant.onnx) |
 | bria-rmbg-1.4.onnx | [RMBG v1.4 (BRIA AI)](https://huggingface.co/briaai/RMBG-1.4) | [rmbg_v14.yaml](../../anylabeling/configs/auto_labeling/rmbg_v14.yaml) | 167.99MB | [baidu](https://pan.baidu.com/s/1tVuHF7NsZ7CXeqdQbsOhJg?pwd=9yny) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.3/bria-rmbg-1.4.onnx) |
 
 

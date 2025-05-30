@@ -1,0 +1,6 @@
+type: rmbg
+name: rmbg_v20_quant-r20250530
+provider: BRIA-AI
+display_name: RMBG v2.0 Quantized
+version: 2.0
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/bria-rmbg-2.0-quant.onnx

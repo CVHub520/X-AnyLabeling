@@ -14,7 +14,7 @@ from .engines.build_onnx_engine import OnnxBaseModel
 
 
 class RMBG(Model):
-    """A class for removing backgrounds from images using BRIA RMBG 1.4 model."""
+    """A class for removing backgrounds from images using BRIA RMBG model."""
 
     class Meta:
         required_config_names = [
@@ -43,8 +43,27 @@ class RMBG(Model):
             )
         self.model_path = model_abs_path
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
-        self.input_shape = self.net.get_input_shape()[-2:]
         self.device = "cuda" if __preferred_device__ == "GPU" else "cpu"
+        self.model_version = float(self.config.get("version", 1.4))
+        assert self.model_version in [
+            1.4,
+            2.0,
+        ], "Only support model versions 1.4 and 2.0"
+
+        if self.device == "cpu" and self.model_version == 2.0:
+            logger.warning(
+                "⚠️ RMBG model running on CPU will be very slow. Please consider using GPU acceleration for better performance."
+            )
+
+        # Set default input shape for different versions
+        if self.model_version == 2.0:
+            self.input_shape = (1024, 1024)
+            self.mean = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+            self.std = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+        else:
+            self.input_shape = self.net.get_input_shape()[-2:]
+            self.mean = 0.5
+            self.std = 1.0
 
     def preprocess(self, image: np.ndarray) -> np.ndarray:
         """
@@ -62,7 +81,13 @@ class RMBG(Model):
             image, self.input_shape, interpolation=cv2.INTER_LINEAR
         )
         image = image.astype(np.float32) / 255.0
-        image = (image - 0.5) / 1.0
+
+        if self.model_version >= 2.0:
+            for i in range(3):
+                image[:, :, i] = (image[:, :, i] - self.mean[i]) / self.std[i]
+        else:
+            image = (image - self.mean) / self.std
+
         image = np.transpose(image, (2, 0, 1))
         return np.expand_dims(image, axis=0)
 
@@ -82,9 +107,12 @@ class RMBG(Model):
         Returns:
             np.ndarray: Postprocessed image as a numpy array.
         """
+        h, w = original_size
+        resize_shape = (w, h)
+
         result = cv2.resize(
             np.squeeze(result),
-            original_size[::-1],
+            resize_shape,
             interpolation=cv2.INTER_LINEAR,
         )
         max_val, min_val = np.max(result), np.min(result)

@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 What's New
 
+- Support `RMBG v2.0` model for image matting
 - Bump version to [3.0.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.3)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
@@ -76,7 +77,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
 | 📏 Depth Estimation | Depth Anything |
 | 🧩 Segment Anything | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM, 
-| ✂️ Image Matting | RMBG |
+| ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCR |
