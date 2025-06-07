@@ -3,6 +3,7 @@ import os
 import os.path as osp
 import pathlib
 import shutil
+import tempfile
 import time
 
 from PyQt5 import QtWidgets
@@ -18,6 +19,65 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import *
+
+
+def check_label_consistency(image_list, label_dir_path, target_labels):
+    inconsistent_labels = set()
+    checked_files = 0
+
+    for image_file in image_list[:50]:
+        image_file_name = osp.basename(image_file)
+        label_file_name = osp.splitext(image_file_name)[0] + ".json"
+        label_file = osp.join(label_dir_path, label_file_name)
+
+        if osp.exists(label_file):
+            try:
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+
+                if "shapes" in data:
+                    checked_files += 1
+                    for shape in data["shapes"]:
+                        if "label" in shape:
+                            label = shape["label"]
+                            if label not in target_labels:
+                                inconsistent_labels.add(label)
+            except Exception:
+                continue
+
+    return len(inconsistent_labels) > 0, inconsistent_labels, checked_files
+
+
+def filter_json_shapes_by_labels(
+    json_file_path, target_labels, output_path=None
+):
+    try:
+        with open(json_file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if "shapes" not in data:
+            return True, 0, 0, ""
+
+        original_count = len(data["shapes"])
+
+        filtered_shapes = []
+        for shape in data["shapes"]:
+            if "label" in shape and shape["label"] in target_labels:
+                filtered_shapes.append(shape)
+
+        data["shapes"] = filtered_shapes
+
+        output_file = output_path if output_path else json_file_path
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+        filtered_count = len(filtered_shapes)
+        return True, original_count, filtered_count, ""
+
+    except json.JSONDecodeError as e:
+        return False, 0, 0, f"JSON decode error: {str(e)}"
+    except Exception as e:
+        return False, 0, 0, f"Processing error: {str(e)}"
 
 
 class ExportThread(QThread):
@@ -95,7 +155,6 @@ def export_yolo_annotation(self, mode):
     if not _check_filename_exist(self):
         return
 
-    # Handle config/classes file selection based on mode
     if mode == "pose":
         filter = "Classes Files (*.yaml);;All Files (*)"
         self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -107,6 +166,9 @@ def export_yolo_annotation(self, mode):
         if not self.yaml_file:
             return
         converter = LabelConverter(pose_cfg_file=self.yaml_file)
+        target_labels = None
+        has_inconsistent = False
+        inconsistent_labels = set()
 
     elif mode in ["hbb", "obb", "seg"]:
         filter = "Classes Files (*.txt);;All Files (*)"
@@ -119,6 +181,37 @@ def export_yolo_annotation(self, mode):
         if not self.classes_file:
             return
         converter = LabelConverter(classes_file=self.classes_file)
+
+        target_labels = []
+        try:
+            with open(self.classes_file, "r", encoding="utf-8") as f:
+                target_labels = [
+                    line.strip() for line in f.readlines() if line.strip()
+                ]
+        except Exception as e:
+            logger.error(f"Error reading classes file: {e}")
+            popup = Popup(
+                self.tr(f"Error reading classes file: {str(e)}"),
+                self,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self, position="center")
+            return
+
+        image_list_for_check = (
+            self.image_list if self.image_list else [self.filename]
+        )
+        label_dir_path_for_check = osp.dirname(self.filename)
+        if self.output_dir:
+            label_dir_path_for_check = self.output_dir
+
+        (
+            has_inconsistent,
+            inconsistent_labels,
+            checked_files,
+        ) = check_label_consistency(
+            image_list_for_check, label_dir_path_for_check, target_labels
+        )
 
     dialog = QtWidgets.QDialog(self)
     dialog.setWindowTitle(self.tr("Export options"))
@@ -174,6 +267,46 @@ def export_yolo_annotation(self, mode):
     skip_empty_files_checkbox.setChecked(False)
     layout.addWidget(skip_empty_files_checkbox)
 
+    filter_labels_checkbox = None
+    if mode in ["hbb", "obb", "seg"]:
+        if has_inconsistent:
+            inconsistency_layout = QVBoxLayout()
+            inconsistency_layout.setSpacing(8)
+
+            inconsistency_title = QtWidgets.QLabel(
+                self.tr("Label Inconsistency Detected")
+            )
+            inconsistency_title.setStyleSheet(
+                "color: #d32f2f; font-weight: bold;"
+            )
+            inconsistency_layout.addWidget(inconsistency_title)
+
+            inconsistent_labels_text = ", ".join(list(inconsistent_labels)[:5])
+            if len(inconsistent_labels) > 5:
+                inconsistent_labels_text += self.tr(" (+%d more)") % (
+                    len(inconsistent_labels) - 5
+                )
+
+            info_text = self.tr(
+                "Found %d label(s) not in classes file:\n%s\n\n"
+                "You can enable the filter option below to export only matching labels."
+            ) % (len(inconsistent_labels), inconsistent_labels_text)
+
+            inconsistency_info = QtWidgets.QLabel(info_text)
+            inconsistency_info.setStyleSheet(
+                "color: #666; padding: 8px; background-color: #fff3e0; border: 1px solid #ffcc02; border-radius: 4px;"
+            )
+            inconsistency_info.setWordWrap(True)
+            inconsistency_layout.addWidget(inconsistency_info)
+
+            layout.addLayout(inconsistency_layout)
+
+        filter_labels_checkbox = QtWidgets.QCheckBox(
+            self.tr("Filter annotations to match classes file?")
+        )
+        filter_labels_checkbox.setChecked(has_inconsistent)
+        layout.addWidget(filter_labels_checkbox)
+
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
     button_layout.setSpacing(8)
@@ -199,6 +332,9 @@ def export_yolo_annotation(self, mode):
 
     save_images = save_images_checkbox.isChecked()
     skip_empty_files = skip_empty_files_checkbox.isChecked()
+    filter_labels = (
+        filter_labels_checkbox.isChecked() if filter_labels_checkbox else False
+    )
     save_path = path_edit.text()
 
     if osp.exists(save_path):
@@ -238,6 +374,86 @@ def export_yolo_annotation(self, mode):
     if self.output_dir:
         label_dir_path = self.output_dir
 
+    temp_dir = None
+    temp_label_dir_path = label_dir_path
+
+    if target_labels and filter_labels and mode in ["hbb", "obb", "seg"]:
+        temp_dir = tempfile.mkdtemp(prefix="anylabeling_filter_")
+        temp_label_dir_path = temp_dir
+
+        filter_progress = QProgressDialog(
+            self.tr("Filtering annotations..."),
+            self.tr("Cancel"),
+            0,
+            len(image_list),
+            self,
+        )
+        filter_progress.setWindowModality(Qt.WindowModal)
+        filter_progress.setWindowTitle(self.tr("Pre-processing"))
+        filter_progress.setMinimumWidth(500)
+        filter_progress.setMinimumHeight(150)
+        filter_progress.setStyleSheet(
+            get_progress_dialog_style(color="#1d1d1f", height=20)
+        )
+
+        filter_errors = []
+
+        try:
+            for i, image_file in enumerate(image_list):
+                image_file_name = osp.basename(image_file)
+                label_file_name = osp.splitext(image_file_name)[0] + ".json"
+                src_file = osp.join(label_dir_path, label_file_name)
+                temp_file = osp.join(temp_dir, label_file_name)
+
+                if osp.exists(src_file):
+                    shutil.copy2(src_file, temp_file)
+                    (
+                        success,
+                        orig_count,
+                        filt_count,
+                        error_msg,
+                    ) = filter_json_shapes_by_labels(temp_file, target_labels)
+                    if not success:
+                        filter_errors.append(f"{label_file_name}: {error_msg}")
+
+                filter_progress.setValue(i)
+                if filter_progress.wasCanceled():
+                    filter_progress.close()
+                    if temp_dir and osp.exists(temp_dir):
+                        shutil.rmtree(temp_dir)
+                    return
+
+            filter_progress.close()
+
+            if filter_errors:
+                error_summary = "\n".join(filter_errors[:3])
+                if len(filter_errors) > 3:
+                    error_summary += (
+                        f"\n... and {len(filter_errors) - 3} more errors"
+                    )
+
+                popup = Popup(
+                    self.tr(
+                        f"Some files had filtering errors:\n{error_summary}\n\nContinuing with export..."
+                    ),
+                    self,
+                    icon=new_icon_path("warning", "svg"),
+                )
+                popup.show_popup(self, popup_height=100, position="center")
+
+        except Exception as e:
+            filter_progress.close()
+            logger.error(f"Error during pre-processing: {e}")
+            if temp_dir and osp.exists(temp_dir):
+                shutil.rmtree(temp_dir)
+            popup = Popup(
+                self.tr(f"Error during pre-processing: {str(e)}"),
+                self,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self, position="center")
+            return
+
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
     )
@@ -255,7 +471,7 @@ def export_yolo_annotation(self, mode):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
 
-            src_file = osp.join(label_dir_path, label_file_name)
+            src_file = osp.join(temp_label_dir_path, label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_yolo(
@@ -274,6 +490,10 @@ def export_yolo_annotation(self, mode):
                 break
 
         progress_dialog.close()
+
+        if temp_dir and osp.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
         template = self.tr(
             "Exporting annotations successfully!\n"
             "Results have been saved to:\n"
@@ -289,6 +509,10 @@ def export_yolo_annotation(self, mode):
 
     except Exception as e:
         logger.error(f"Error occurred while exporting annotations: {e}")
+
+        if temp_dir and osp.exists(temp_dir):
+            shutil.rmtree(temp_dir)
+
         popup = Popup(
             self.tr(f"Error occurred while exporting annotations!"),
             self,
