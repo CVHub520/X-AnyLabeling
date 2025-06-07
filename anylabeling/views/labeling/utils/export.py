@@ -20,6 +20,35 @@ from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import *
 
 
+def filter_json_shapes_by_labels(json_file_path, target_labels):
+    try:
+        with open(json_file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if "shapes" not in data:
+            return True, 0, 0, ""
+
+        original_count = len(data["shapes"])
+
+        filtered_shapes = []
+        for shape in data["shapes"]:
+            if "label" in shape and shape["label"] in target_labels:
+                filtered_shapes.append(shape)
+
+        data["shapes"] = filtered_shapes
+
+        with open(json_file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+        filtered_count = len(filtered_shapes)
+        return True, original_count, filtered_count, ""
+
+    except json.JSONDecodeError as e:
+        return False, 0, 0, f"JSON decode error: {str(e)}"
+    except Exception as e:
+        return False, 0, 0, f"Processing error: {str(e)}"
+
+
 class ExportThread(QThread):
     finished = pyqtSignal(bool, str)
 
@@ -95,7 +124,6 @@ def export_yolo_annotation(self, mode):
     if not _check_filename_exist(self):
         return
 
-    # Handle config/classes file selection based on mode
     if mode == "pose":
         filter = "Classes Files (*.yaml);;All Files (*)"
         self.yaml_file, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -107,6 +135,7 @@ def export_yolo_annotation(self, mode):
         if not self.yaml_file:
             return
         converter = LabelConverter(pose_cfg_file=self.yaml_file)
+        target_labels = None
 
     elif mode in ["hbb", "obb", "seg"]:
         filter = "Classes Files (*.txt);;All Files (*)"
@@ -119,6 +148,22 @@ def export_yolo_annotation(self, mode):
         if not self.classes_file:
             return
         converter = LabelConverter(classes_file=self.classes_file)
+
+        target_labels = []
+        try:
+            with open(self.classes_file, "r", encoding="utf-8") as f:
+                target_labels = [
+                    line.strip() for line in f.readlines() if line.strip()
+                ]
+        except Exception as e:
+            logger.error(f"Error reading classes file: {e}")
+            popup = Popup(
+                self.tr(f"Error reading classes file: {str(e)}"),
+                self,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self, position="center")
+            return
 
     dialog = QtWidgets.QDialog(self)
     dialog.setWindowTitle(self.tr("Export options"))
@@ -174,6 +219,46 @@ def export_yolo_annotation(self, mode):
     skip_empty_files_checkbox.setChecked(False)
     layout.addWidget(skip_empty_files_checkbox)
 
+    filter_labels_checkbox = None
+    if mode in ["hbb", "obb", "seg"]:
+        filter_labels_checkbox = QtWidgets.QCheckBox(
+            self.tr("Filter annotations to match classes file?")
+        )
+        filter_labels_checkbox.setChecked(False)  # 默认不启用
+        layout.addWidget(filter_labels_checkbox)
+
+        def show_filter_warning(checked):
+            if checked:
+                warning_box = QtWidgets.QMessageBox(dialog)
+                warning_box.setIcon(QtWidgets.QMessageBox.Warning)
+                warning_box.setWindowTitle(self.tr("Filter Warning"))
+                warning_box.setText(self.tr("Important Warning"))
+                warning_box.setInformativeText(
+                    self.tr(
+                        "Only annotations matching the selected classes will be exported.\n\n"
+                        "⚠️ Original JSON files will be permanently modified.\n"
+                        "⚠️ This operation cannot be undone.\n\n"
+                        "Please backup your annotation files before proceeding.\n\n"
+                    )
+                )
+
+                continue_button = warning_box.addButton(
+                    self.tr("Continue"), QtWidgets.QMessageBox.YesRole
+                )
+                cancel_button = warning_box.addButton(
+                    self.tr("Cancel"), QtWidgets.QMessageBox.NoRole
+                )
+                warning_box.setDefaultButton(cancel_button)
+                warning_box.setStyleSheet(get_msg_box_style())
+
+                warning_box.exec_()
+                clicked_button = warning_box.clickedButton()
+
+                if clicked_button == cancel_button:
+                    filter_labels_checkbox.setChecked(False)
+
+        filter_labels_checkbox.stateChanged.connect(show_filter_warning)
+
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
     button_layout.setSpacing(8)
@@ -199,6 +284,9 @@ def export_yolo_annotation(self, mode):
 
     save_images = save_images_checkbox.isChecked()
     skip_empty_files = skip_empty_files_checkbox.isChecked()
+    filter_labels = (
+        filter_labels_checkbox.isChecked() if filter_labels_checkbox else False
+    )
     save_path = path_edit.text()
 
     if osp.exists(save_path):
@@ -237,6 +325,77 @@ def export_yolo_annotation(self, mode):
     label_dir_path = osp.dirname(self.filename)
     if self.output_dir:
         label_dir_path = self.output_dir
+
+    if target_labels and filter_labels and mode in ["hbb", "obb", "seg"]:
+        filter_progress = QProgressDialog(
+            self.tr("Filtering annotations..."),
+            self.tr("Cancel"),
+            0,
+            len(image_list),
+            self,
+        )
+        filter_progress.setWindowModality(Qt.WindowModal)
+        filter_progress.setWindowTitle(self.tr("Pre-processing"))
+        filter_progress.setMinimumWidth(500)
+        filter_progress.setMinimumHeight(150)
+        filter_progress.setStyleSheet(
+            get_progress_dialog_style(color="#1d1d1f", height=20)
+        )
+
+        filter_errors = []
+
+        try:
+            for i, image_file in enumerate(image_list):
+                image_file_name = osp.basename(image_file)
+                label_file_name = osp.splitext(image_file_name)[0] + ".json"
+                src_file = osp.join(label_dir_path, label_file_name)
+
+                if osp.exists(src_file):
+                    (
+                        success,
+                        orig_count,
+                        filt_count,
+                        error_msg,
+                    ) = filter_json_shapes_by_labels(src_file, target_labels)
+                    if not success:
+                        filter_errors.append(f"{label_file_name}: {error_msg}")
+
+                filter_progress.setValue(i)
+                if filter_progress.wasCanceled():
+                    filter_progress.close()
+                    return
+
+            filter_progress.close()
+
+            # Only show filtering errors if there are any
+            if filter_errors:
+                error_summary = "\n".join(
+                    filter_errors[:3]
+                )  # Show first 3 errors
+                if len(filter_errors) > 3:
+                    error_summary += (
+                        f"\n... and {len(filter_errors) - 3} more errors"
+                    )
+
+                popup = Popup(
+                    self.tr(
+                        f"Some files had filtering errors:\n{error_summary}\n\nContinuing with export..."
+                    ),
+                    self,
+                    icon=new_icon_path("warning", "svg"),
+                )
+                popup.show_popup(self, popup_height=100, position="center")
+
+        except Exception as e:
+            filter_progress.close()
+            logger.error(f"Error during pre-processing: {e}")
+            popup = Popup(
+                self.tr(f"Error during pre-processing: {str(e)}"),
+                self,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self, position="center")
+            return
 
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
