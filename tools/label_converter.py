@@ -360,7 +360,7 @@ class RectLabelConverter(BaseLabelConverter):
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(coco_data, f, indent=4, ensure_ascii=False)
 
-    def coco_to_custom(self, input_file, image_path):
+    def coco_to_custom(self, input_file, image_path, output_path):
         raise DeprecationWarning(
             "This function is deprecated. Please use the GUI for COCO upload."
         )
@@ -435,7 +435,7 @@ class RectLabelConverter(BaseLabelConverter):
             self.custom_data["imageWidth"] = dic_info["imageWidth"]
 
             output_file = osp.join(
-                image_path, osp.splitext(dic_info["imagePath"])[0] + ".json"
+                output_path, osp.splitext(dic_info["imagePath"])[0] + ".json"
             )
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
@@ -602,7 +602,7 @@ class PolyLabelConvert(BaseLabelConverter):
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
-    def coco_to_custom(self, input_file, image_path):
+    def coco_to_custom(self, input_file, image_path, output_path):
         img_dic = {}
         for file in os.listdir(image_path):
             img_dic[file] = file
@@ -662,7 +662,7 @@ class PolyLabelConvert(BaseLabelConverter):
             self.custom_data["imageWidth"] = dic_info["imageWidth"]
 
             output_file = osp.join(
-                image_path, osp.splitext(dic_info["imagePath"])[0] + ".json"
+                output_path, osp.splitext(dic_info["imagePath"])[0] + ".json"
             )
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
@@ -884,7 +884,7 @@ class RotateLabelConverter(BaseLabelConverter):
 
 
 class MOTSConverter(BaseLabelConverter):
-    def custom_to_gt(self, gt_file):
+    def custom_to_gt(self, gt_file, output_file):
         import pycocotools.mask as coco_mask
 
         with open(gt_file, "r") as f:
@@ -897,8 +897,9 @@ class MOTSConverter(BaseLabelConverter):
             rle = self.polygon_to_rle(polygon, height, width)
             label[-1] = rle["counts"]
             results.append(label)
-        save_path = osp.dirname(gt_file)
-        with open(osp.join(save_path, "gt.txt"), "w", encoding="utf-8") as f:
+        save_path = osp.dirname(output_file)
+        os.makedirs(save_path, exist_ok=True)
+        with open(output_file, "w", encoding="utf-8") as f:
             for row in results:
                 f.write(" ".join(map(str, row)) + "\n")
 
@@ -1051,12 +1052,13 @@ def main():  # noqa: C901
             converter.custom_to_voc2017(src_file, dst_file)
     elif args.mode == "voc2custom":
         file_list = os.listdir(args.src_path)
+        os.makedirs(args.dst_path, exist_ok=True)
         for file_name in tqdm(
             file_list, desc="Converting files", unit="file", colour="green"
         ):
             src_file = osp.join(args.src_path, file_name)
             dst_file = osp.join(
-                args.img_path, osp.splitext(file_name)[0] + ".json"
+                args.dst_path, osp.splitext(file_name)[0] + ".json"
             )
             converter.voc2017_to_custom(src_file, dst_file)
     elif args.mode == "custom2yolo":
@@ -1074,6 +1076,7 @@ def main():  # noqa: C901
             converter.custom_to_yolov5(src_file, dst_file)
     elif args.mode == "yolo2custom":
         img_dic = {}
+        os.makedirs(args.dst_path, exist_ok=True)
         for file in os.listdir(args.img_path):
             prefix = file.rsplit(".", 1)[0]
             img_dic[prefix] = file
@@ -1083,7 +1086,7 @@ def main():  # noqa: C901
         ):
             src_file = osp.join(args.src_path, file_name)
             dst_file = osp.join(
-                args.img_path, osp.splitext(file_name)[0] + ".json"
+                args.dst_path, osp.splitext(file_name)[0] + ".json"
             )
             img_file = osp.join(
                 args.img_path, img_dic[osp.splitext(file_name)[0]]
@@ -1093,7 +1096,8 @@ def main():  # noqa: C901
         os.makedirs(args.dst_path, exist_ok=True)
         converter.custom_to_coco(args.src_path, args.dst_path)
     elif args.mode == "coco2custom":
-        converter.coco_to_custom(args.src_path, args.img_path)
+        os.makedirs(args.dst_path, exist_ok=True)
+        converter.coco_to_custom(args.src_path, args.img_path, args.dst_path)
     elif args.mode == "custom2dota":
         file_list = os.listdir(args.src_path)
         os.makedirs(args.dst_path, exist_ok=True)
@@ -1118,7 +1122,7 @@ def main():  # noqa: C901
         ):
             src_file = osp.join(args.src_path, file_name)
             dst_file = osp.join(
-                args.img_path, osp.splitext(file_name)[0] + ".json"
+                args.dst_path, osp.splitext(file_name)[0] + ".json"
             )
             img_file = osp.join(
                 args.img_path, img_dic[osp.splitext(file_name)[0]]
@@ -1140,7 +1144,7 @@ def main():  # noqa: C901
             )
             converter.dxml_to_dota(src_file, dst_file)
     elif args.mode == "custom_to_gt":
-        converter.custom_to_gt(args.src_path)
+        converter.custom_to_gt(args.src_path, args.dst_path)
     end_time = time.time()
     print(f"Conversion completed successfully: {args.dst_path}")
     print(f"Conversion time: {end_time - start_time:.2f} seconds")
