@@ -129,14 +129,20 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
   - [GeCo](./examples/counting/geco/README.md)
 
 
-## Contact
+## Contribute
 
-If you find this project helpful, please give it a ⭐star⭐, and for any questions or issues, feel free to [create an issue](https://github.com/CVHub520/X-AnyLabeling/issues) or email cv_hub@163.com.
+We believe in open collaboration! **X‑AnyLabeling** continues to grow with the support of the community. Whether you're fixing bugs, improving documentation, or adding new features, your contributions make a real impact.
+
+To get started, please read our [Contributing Guide](./CONTRIBUTING.md) and make sure to agree to the [Contributor License Agreement (CLA)](./CLA.md) before submitting a pull request.
+
+If you find this project helpful, please consider giving it a ⭐️ star! Have questions or suggestions? Open an [issue](https://github.com/CVHub520/X-AnyLabeling/issues) or email us at cv_hub@163.com.
+
+A huge thank you 🙏 to everyone helping to make X‑AnyLabeling better.
 
 
 ## License
 
-This project is released under the [GPL-3.0 license](./LICENSE).
+This project is licensed under the [GPL-3.0 license](./LICENSE) and is only free to use for personal non-commercial purposes. For academic, research, or educational use, it is also free but requires registration via this form [here](https://forms.gle/MZCKhU7UJ4TRSWxR7). If you intend to use this project for commercial purposes or within a company, please contact cv_hub@163.com to obtain a commercial license.
 
 
 ## Acknowledgement
