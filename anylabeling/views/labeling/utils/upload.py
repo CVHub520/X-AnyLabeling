@@ -175,14 +175,14 @@ def upload_vlm_r1_ovd_annotation(self):
 
     converter = LabelConverter()
 
-    # parse input_data
-    input_data = {}
-    with jsonlines.open(input_file, "r") as reader:
-        for data in list(reader):
-            image_path = osp.basename(data["image"])
-            input_data[image_path] = data["conversations"][1]["value"]
-
     try:
+        # parse input_data
+        input_data = {}
+        with jsonlines.open(input_file, "r") as reader:
+            for data in list(reader):
+                image_path = osp.basename(data["image"])
+                input_data[image_path] = data["conversations"][1]["value"]
+
         for i, image_file in enumerate(image_list):
             image_filename = osp.basename(image_file)
             label_filename = osp.splitext(image_filename)[0] + ".json"
@@ -216,9 +216,12 @@ def upload_vlm_r1_ovd_annotation(self):
         self.load_file(self.filename)
 
     except Exception as e:
-        logger.error(f"Error occurred while uploading annotations: {e}")
+        progress_dialog.close()
+        message = f"Error occurred while uploading annotations: {str(e)}"
+        logger.error(message)
+        
         popup = Popup(
-            self.tr(f"Error occurred while uploading annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -302,11 +305,10 @@ def upload_ppocr_annotation(self, mode):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            logger.error(
-                f"Error occurred while uploading annotations: {error_msg}"
-            )
+            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            logger.error(message)
             popup = Popup(
-                self.tr(f"Error occurred while uploading annotations!"),
+                message,
                 self,
                 icon=new_icon_path("error", "svg"),
             )
@@ -381,11 +383,10 @@ def upload_odvg_annotation(self):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            logger.error(
-                f"Error occurred while uploading annotations: {error_msg}"
-            )
+            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            logger.error(message)
             popup = Popup(
-                self.tr(f"Error occurred while uploading annotations!"),
+                message,
                 self,
                 icon=new_icon_path("error", "svg"),
             )
@@ -492,11 +493,10 @@ def upload_mot_annotation(self, LABEL_OPACITY):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            logger.error(
-                f"Error occurred while uploading annotations: {error_msg}"
-            )
+            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            logger.error(message)
             popup = Popup(
-                self.tr(f"Error occurred while uploading annotations!"),
+                message,
                 self,
                 icon=new_icon_path("error", "svg"),
             )
@@ -680,9 +680,12 @@ def upload_mask_annotation(self, LABEL_OPACITY):
         self.load_file(self.filename)
 
     except Exception as e:
-        logger.error(f"Error occurred while uploading annotations: {e}")
+        progress_dialog.close()
+        message = f"Error occurred while uploading annotations: {str(e)}"
+        logger.error(message)
+        
         popup = Popup(
-            self.tr(f"Error occurred while uploading annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -833,9 +836,12 @@ def upload_dota_annotation(self):
         self.load_file(self.filename)
 
     except Exception as e:
-        logger.error(f"Error occurred while uploading annotations: {e}")
+        progress_dialog.close()
+        message = f"Error occurred while uploading annotations: {str(e)}"
+        logger.error(message)
+        
         popup = Popup(
-            self.tr(f"Error occurred while uploading annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -905,11 +911,10 @@ def upload_coco_annotation(self, mode):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            logger.error(
-                f"Error occurred while uploading annotations: {error_msg}"
-            )
+            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            logger.error(message)
             popup = Popup(
-                self.tr(f"Error occurred while uploading annotations!"),
+                message,
                 self,
                 icon=new_icon_path("error", "svg"),
             )
@@ -1065,9 +1070,12 @@ def upload_voc_annotation(self, mode):
         self.load_file(self.filename)
 
     except Exception as e:
-        logger.error(f"Error occurred while uploading annotations: {e}")
+        progress_dialog.close()
+        message = f"Error occurred while uploading annotations: {str(e)}"
+        logger.error(message)
+        
         popup = Popup(
-            self.tr(f"Error occurred while uploading annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -1269,10 +1277,12 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
                 )
 
     except Exception as e:
-        logger.error(f"Error occurred while uploading annotations: {e}")
         progress_dialog.close()
+        message = f"Error occurred while uploading annotations: {str(e)}"
+        logger.error(message)
+        
         popup = Popup(
-            self.tr("Error occurred while uploading annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -1316,11 +1326,11 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(
-            f"Error occurred while uploading shape attributes file: {e}"
-        )
+        message = f"Error occurred while uploading shape attributes file: {str(e)}"
+        logger.error(message)
+        
         popup = Popup(
-            self.tr(f"Error occurred while uploading shape attributes file!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -1362,14 +1372,15 @@ def upload_label_flags_file(self, LABEL_OPACITY):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(f"Error occurred while uploading flags file: {e}")
+        message = f"Error occurred while uploading flags file: {str(e)}"
+        logger.error(message)
+        
         popup = Popup(
-            self.tr(f"Error occurred while uploading flags file!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
-
 
 def upload_image_flags_file(self):
     filter = "Image Flags Files (*.txt);;All Files (*)"
@@ -1400,9 +1411,10 @@ def upload_image_flags_file(self):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(f"Error occurred while uploading flags file: {e}")
+        message = f"Error occurred while uploading flags file: {str(e)}"
+        logger.error(message)
         popup = Popup(
-            self.tr(f"Error occurred while uploading flags file!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )

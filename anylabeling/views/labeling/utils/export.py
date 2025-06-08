@@ -288,9 +288,11 @@ def export_yolo_annotation(self, mode):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(f"Error occurred while exporting annotations: {e}")
+        message = f"Error occurred while exporting annotations: {str(e)}"
+        progress_dialog.close()
+        logger.error(message)
         popup = Popup(
-            self.tr(f"Error occurred while exporting annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -471,9 +473,11 @@ def export_voc_annotation(self, mode):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(f"Error occurred while exporting annotations: {e}")
+        message = f"Error occurred while exporting annotations: {str(e)}"
+        progress_dialog.close()
+        logger.error(message)
         popup = Popup(
-            self.tr(f"Error occurred while exporting annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -635,11 +639,10 @@ def export_coco_annotation(self, mode):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            logger.error(
-                f"Error occurred while exporting annotations: {error_msg}"
-            )
+            message = f"Error occurred while exporting annotations: {str(error_msg)}"
+            logger.error(message)
             popup = Popup(
-                self.tr(f"Error occurred while exporting annotations!"),
+                message,
                 self,
                 icon=new_icon_path("error", "svg"),
             )
@@ -816,9 +819,11 @@ def export_dota_annotation(self):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(f"Error occurred while exporting annotations: {e}")
+        message = f"Error occurred while exporting annotations: {str(e)}"
+        progress_dialog.close()
+        logger.error(message)
         popup = Popup(
-            self.tr(f"Error occurred while exporting annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -985,9 +990,11 @@ def export_mask_annotation(self):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(f"Error occurred while exporting annotations: {e}")
+        message = f"Error occurred while exporting annotations: {str(e)}"
+        progress_dialog.close()
+        logger.error(message)
         popup = Popup(
-            self.tr(f"Error occurred while exporting annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -1135,11 +1142,10 @@ def export_mot_annotation(self, mode):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            logger.error(
-                f"Error occurred while exporting annotations: {error_msg}"
-            )
+            message = f"Error occurred while exporting annotations: {str(error_msg)}"
+            logger.error(message)
             popup = Popup(
-                self.tr(f"Error occurred while exporting annotations!"),
+                message,
                 self,
                 icon=new_icon_path("error", "svg"),
             )
@@ -1321,9 +1327,11 @@ def export_pporc_annotation(self, mode):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        logger.error(f"Error occurred while exporting annotations: {e}")
+        message = f"Error occurred while exporting annotations: {str(e)}"
+        progress_dialog.close()
+        logger.error(message)
         popup = Popup(
-            self.tr(f"Error occurred while exporting annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
@@ -1582,11 +1590,10 @@ def export_vlm_r1_ovd_annotation(self):
                 )
                 popup.show_popup(self, popup_height=65, position="center")
             else:
-                logger.error(
-                    f"Error occurred while exporting annotations: {error_msg}"
-                )
+                message = f"Error occurred while exporting annotations: {str(error_msg)}"
+                logger.error(message)
                 popup = Popup(
-                    self.tr(f"Error occurred while exporting annotations!"),
+                    message,
                     self,
                     icon=new_icon_path("error", "svg"),
                 )
@@ -1600,9 +1607,11 @@ def export_vlm_r1_ovd_annotation(self):
         progress_dialog.canceled.connect(self.export_thread.terminate)
 
     except Exception as e:
-        logger.error(f"Error occurred while exporting annotations: {e}")
+        message = f"Error occurred while exporting annotations: {str(e)}"
+        progress_dialog.close()
+        logger.error(message)
         popup = Popup(
-            self.tr(f"Error occurred while exporting annotations!"),
+            message,
             self,
             icon=new_icon_path("error", "svg"),
         )
