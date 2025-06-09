@@ -1479,6 +1479,7 @@ class LabelConverter:
                         "segmentation": [],
                     }
                     coco_data["annotations"].append(annotation)
+                    annotation_id += 1
 
                 elif mode == "polygon":
                     if shape_type != "polygon":
