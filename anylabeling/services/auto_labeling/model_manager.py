@@ -100,9 +100,11 @@ class ModelManager(QObject):
                     model_config["config_file"] = os.path.normpath(
                         os.path.abspath(config_file)
                     )
-            model_config["is_custom_model"] = model.get(
-                "is_custom_model", False
-            )
+            is_custom = model.get("is_custom_model", False)
+            model_config["is_custom_model"] = is_custom
+            if is_custom and not model_config["name"].startswith("_custom_"):
+                model_config["name"] = f"_custom_{model_config['name']}"
+
             model_configs.append(model_config)
 
         # Sort by last used

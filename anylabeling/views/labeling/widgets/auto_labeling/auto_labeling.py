@@ -270,6 +270,9 @@ class AutoLabelingWidget(QWidget):
                 elif not os.path.exists(model_dict["config_path"]):
                     continue
 
+                if not model_name.startswith("_custom_"):
+                    model_name = f"_custom_{model_name}"
+
                 model_data["Custom"][model_name] = {
                     "selected": False,
                     "favorite": model_dict["favorite"],
@@ -380,6 +383,10 @@ class AutoLabelingWidget(QWidget):
                 # update model_info
                 with open(config_file, "r", encoding="utf-8") as f:
                     config_info = yaml.safe_load(f)
+
+                if not config_info["name"].startswith("_custom_"):
+                    config_info["name"] = f"_custom_{config_info['name']}"
+
                 self.model_info[config_info["name"]] = {
                     "display_name": config_info["display_name"],
                     "config_path": config_file,
