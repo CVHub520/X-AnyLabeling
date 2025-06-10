@@ -5,7 +5,6 @@ from PyQt5.QtCore import (
     Qt,
 )
 from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QDesktopServices
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import (
     QApplication,
     QFrame,
@@ -18,6 +17,11 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QTextEdit,
 )
+
+try:
+    from PyQt5.QtWebEngineWidgets import QWebEngineView
+except ImportError:
+    QWebEngineView = None
 
 from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.render import *
