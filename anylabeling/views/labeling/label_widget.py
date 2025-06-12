@@ -232,6 +232,7 @@ class LabelingWidget(LabelDialog):
         file_list_widget = QtWidgets.QWidget()
         file_list_widget.setLayout(file_list_layout)
         self.file_dock.setWidget(file_list_widget)
+        self.file_dock.setStyleSheet("QDockWidget::title {" "text-align: center;" "padding: 0px;" "}")
 
         self.zoom_widget = ZoomWidget()
         self.setAcceptDrops(True)
