@@ -278,3 +278,11 @@ _ON_NEXT_FILES_CHANGED_MODELS = [
     "edge_sam",
     "geco",
 ]
+
+
+# --- update_thumbnail_display ---
+_THUMBNAIL_RENDER_MODELS = {
+    "rmbg": "x-anylabeling-matting",
+    "depth_anything": "x-anylabeling-depth",
+    "depth_anything_v2": "x-anylabeling-depth",
+}
