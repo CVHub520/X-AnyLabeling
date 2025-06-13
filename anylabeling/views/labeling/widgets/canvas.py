@@ -179,6 +179,20 @@ class Canvas(
             self.shapes_backups = self.shapes_backups[-self.num_backups - 1 :]
         self.shapes_backups.append(shapes_backup)
 
+    def store_moving_shape(self):
+        """Store a moving shape"""
+        if self.moving_shape and self.h_hape:
+            index = self.shapes.index(self.h_hape)
+            if (
+                    self.shapes_backups[-1][index].points
+                    != self.shapes[index].points
+            ):
+                self.store_shapes()
+                self.shape_moved.emit()
+
+            self.moving_shape = False
+        pass
+
     @property
     def is_shape_restorable(self):
         """Check if shape can be restored from backup"""
@@ -213,6 +227,7 @@ class Canvas(
 
     def leaveEvent(self, _):
         """Mouse leave event"""
+        self.store_moving_shape()
         self.un_highlight()
         self.restore_cursor()
 
@@ -652,16 +667,7 @@ class Canvas(
                         [x for x in self.selected_shapes if x != self.h_hape]
                     )
 
-        if self.moving_shape and self.h_hape:
-            index = self.shapes.index(self.h_hape)
-            if (
-                self.shapes_backups[-1][index].points
-                != self.shapes[index].points
-            ):
-                self.store_shapes()
-                self.shape_moved.emit()
-
-            self.moving_shape = False
+        self.store_moving_shape()
 
     def end_move(self, copy):
         """End of move"""
