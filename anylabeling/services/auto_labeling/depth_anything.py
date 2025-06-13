@@ -10,6 +10,7 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
+from . import _THUMBNAIL_RENDER_MODELS
 
 
 class Resize(object):
@@ -246,6 +247,7 @@ class DepthAnything(Model):
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
         self.render_mode = self.config.get("render_mode", "color")
+        self.save_dir, self.file_ext = _THUMBNAIL_RENDER_MODELS["depth_anything"]
 
     def preprocess(self, input_image):
         """
@@ -322,11 +324,11 @@ class DepthAnything(Model):
         depth = self.postprocess(output, orig_shape)
 
         image_dir_path = os.path.dirname(image_path)
-        save_path = os.path.join(image_dir_path, "..", "x-anylabeling-depth")
+        save_path = os.path.join(image_dir_path, "..", self.save_dir)
         save_path = os.path.realpath(save_path)
         os.makedirs(save_path, exist_ok=True)
         image_file_name = os.path.basename(image_path)
-        save_name = os.path.splitext(image_file_name)[0] + ".png"
+        save_name = os.path.splitext(image_file_name)[0] + self.file_ext
         save_file = os.path.join(save_path, save_name)
         cv2.imwrite(save_file, depth)
 

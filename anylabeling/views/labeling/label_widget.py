@@ -4397,18 +4397,9 @@ class LabelingWidget(LabelDialog):
         try:
             image_dir = osp.dirname(self.filename)
             parent_dir = osp.dirname(image_dir)
-            save_name = _THUMBNAIL_RENDER_MODELS[model_config["type"]]
-            thumbnail_dir = osp.join(parent_dir, save_name)
             base_name = osp.splitext(osp.basename(self.filename))[0]
-
-            _thumbnail_file_ext = ""
-            for ext in [".png", ".jpg", ".jpeg"]:
-                check_path = osp.join(thumbnail_dir, base_name + ext)
-                if osp.exists(check_path):
-                    _thumbnail_file_ext = ext
-                    break
-
-            # Use the cached extension for all subsequent checks
+            save_dir, _thumbnail_file_ext = _THUMBNAIL_RENDER_MODELS[model_config["type"]]
+            thumbnail_dir = osp.join(parent_dir, save_dir)
             thumbnail_path = osp.join(thumbnail_dir, base_name + _thumbnail_file_ext)
             if not osp.exists(thumbnail_path):
                 return

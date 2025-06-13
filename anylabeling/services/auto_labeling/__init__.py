@@ -282,7 +282,7 @@ _ON_NEXT_FILES_CHANGED_MODELS = [
 
 # --- update_thumbnail_display ---
 _THUMBNAIL_RENDER_MODELS = {
-    "rmbg": "x-anylabeling-matting",
-    "depth_anything": "x-anylabeling-depth",
-    "depth_anything_v2": "x-anylabeling-depth",
+    "rmbg": ("x-anylabeling-matting", ".png"),
+    "depth_anything": ("x-anylabeling-depth", ".png"),
+    "depth_anything_v2": ("x-anylabeling-depth", ".png"),
 }

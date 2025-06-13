@@ -11,6 +11,7 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from .model import Model
 from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
+from . import _THUMBNAIL_RENDER_MODELS
 
 
 class RMBG(Model):
@@ -64,6 +65,8 @@ class RMBG(Model):
             self.input_shape = self.net.get_input_shape()[-2:]
             self.mean = 0.5
             self.std = 1.0
+        
+        self.save_dir, self.file_ext = _THUMBNAIL_RENDER_MODELS["rmbg"]
 
     def preprocess(self, image: np.ndarray) -> np.ndarray:
         """
@@ -153,11 +156,11 @@ class RMBG(Model):
 
         # Save the result
         image_dir_path = os.path.dirname(image_path)
-        save_path = os.path.join(image_dir_path, "..", "x-anylabeling-matting")
+        save_path = os.path.join(image_dir_path, "..", self.save_dir)
         save_path = os.path.realpath(save_path)
         os.makedirs(save_path, exist_ok=True)
         image_file_name = os.path.basename(image_path)
-        save_name = os.path.splitext(image_file_name)[0] + ".png"
+        save_name = os.path.splitext(image_file_name)[0] + self.file_ext
         save_file = os.path.join(save_path, save_name)
         output_image.save(save_file)
 
