@@ -687,50 +687,40 @@ label_colors:
 
 ### 7.3 Predefined Labels
 
-To define a default list of labels that appear in the "Label List" panel when you start the application:
+To offer flexibility in label management and meet diverse usage scenarios, X-AnyLabeling supports not only loading labels via startup command-line arguments but also provides two additional convenient methods for loading predefined labels.
 
-1. Open the `.xanylabelingrc` file.
-2. Find or add the `labels:` section.
-3. List your desired default labels, one per line, preceded by a hyphen and space.
-4. **Important:** Enclose purely numeric label names in single quotes (e.g., `'1'`).
-5. Save the file and restart X-AnyLabeling.
+**Option 1: Set via Config File (Persistent)**
 
-Example:
-```YAML
-# ... other settings ...
+Edit the `labels` field in the config file to define your labels.
+Note: If a label is a number, wrap it in single quotes (`''`) to avoid parsing issues. For example:
+
+```yaml
 labels:
 - car
-- truck
-- bus
-- person
-- cyclist
-- '1'       # Numeric label needs quotes
-- traffic_light
-- _background_ # Common practice for some formats
-# ... other settings ...
+- '1'
+- '2'
+- 苹果
+- _phone
 ```
 
-### 7.4 Auto-Switch to Edit Mode
+**Option 2: Upload via Interface (Temporary)**
 
-Configure whether the tool automatically switches to Edit Mode after you finish drawing a shape (v2.4.0+):
+Create a simple `.txt` file with one label per line:
 
-1. Open `.xanylabelingrc`.
-2. Find the `auto_switch_to_edit_mode:` field.
-   - `true`: Switch to Edit Mode automatically after drawing a shape.
-   - `false`: Stay in Drawing Mode to create multiple shapes of the same type consecutively. Manual switch (`Ctrl+E` or clicking shape) needed to edit.
-3. Save and restart.
+```txt
+person
+car
+bicycle
+dog
+cat
+```
 
-### 7.5 Hover Auto-Highlight
+Then upload it through the menu: `Upload` → `Upload Label Classes File`.
 
-Configure whether shapes are automatically highlighted when you hover the mouse over them (v2.4.0+):
+🔔 **Tips:**
 
-1. Open `.xanylabelingrc`.
-2. Find the `auto_highlight_shape:` field.
-   - `true`: Highlight shapes instantly on mouse hover (makes selection easier).
-   - `false`: Require a click to select and highlight a shape.
-3. Save and restart.
-
-> **Note:** This is automatically set to `false` during multi-label classification tasks that use a property file, to prevent unintended selections while interacting with the property list.
+* Labels set via the config file are saved permanently and remain after restarting the software — ideal for fixed, long-term label sets.
+* Labels uploaded via the interface are temporary and reset after restarting — useful when frequently switching between different label sets.
 
 ### 7.6 Shape Appearance
 

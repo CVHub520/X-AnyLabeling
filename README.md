@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 What's New
 
+- Add GUI support for uploading custom label classes
 - Add real-time preview dialog for image matting and depth estimation results
 - Support `RMBG v2.0` model for image matting
 - Bump version to [3.0.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.3)

@@ -57,6 +57,7 @@ from .upload import (
     upload_image_flags_file,
     upload_label_flags_file,
     upload_shape_attrs_file,
+    upload_label_classes_file,
     upload_yolo_annotation,
     upload_voc_annotation,
     upload_coco_annotation,

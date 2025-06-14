@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 新功能
 
+- 添加图形界面支持上传自定义标签集合
 - 新增图像抠图和深度估计任务的实时结果预览功能
 - 支持 `RMBG v2.0` 图像抠图模型
 - X-AnyLabeling [v3.0.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.3) 最新版本发布

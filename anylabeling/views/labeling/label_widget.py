@@ -200,14 +200,7 @@ class LabelingWidget(LabelDialog):
                 "Press 'Esc' to deselect."
             )
         )
-        if self._config["labels"]:
-            for label in self._config["labels"]:
-                item = self.unique_label_list.create_item_from_label(label)
-                self.unique_label_list.addItem(item)
-                rgb = self._get_rgb_by_label(label)
-                self.unique_label_list.set_item_label(
-                    item, label, rgb, LABEL_OPACITY
-                )
+        self.load_labels(self._config["labels"])
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
         self.label_dock.setObjectName("Labels")
         self.label_dock.setWidget(self.unique_label_list)
@@ -992,6 +985,13 @@ class LabelingWidget(LabelDialog):
             icon="format_classify",
             tip=self.tr("Upload Custom Attributes File"),
         )
+        upload_label_classes_file = action(
+            self.tr("&Upload Label Classes File"),
+            lambda: utils.upload_label_classes_file(self),
+            None,
+            icon="format_classify",
+            tip=self.tr("Upload Custom Label Classes File"),
+        )
         upload_yolo_hbb_annotation = action(
             self.tr("&Upload YOLO-Hbb Annotations"),
             lambda: utils.upload_yolo_annotation(self, "hbb", LABEL_OPACITY),
@@ -1349,6 +1349,7 @@ class LabelingWidget(LabelDialog):
             upload_image_flags_file=upload_image_flags_file,
             upload_label_flags_file=upload_label_flags_file,
             upload_shape_attrs_file=upload_shape_attrs_file,
+            upload_label_classes_file=upload_label_classes_file,
             upload_yolo_hbb_annotation=upload_yolo_hbb_annotation,
             upload_yolo_obb_annotation=upload_yolo_obb_annotation,
             upload_yolo_seg_annotation=upload_yolo_seg_annotation,
@@ -1560,6 +1561,7 @@ class LabelingWidget(LabelDialog):
                 upload_image_flags_file,
                 upload_label_flags_file,
                 upload_shape_attrs_file,
+                upload_label_classes_file,
                 None,
                 upload_yolo_hbb_annotation,
                 upload_yolo_obb_annotation,
@@ -2817,6 +2819,30 @@ class LabelingWidget(LabelDialog):
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         self.update_combo_box()
         self.update_gid_box()
+
+    def load_labels(self, labels, clear_existing=True):
+        """
+        Load labels to the unique label list widget.
+        
+        Args:
+            labels (list): List of label names to load
+            clear_existing (bool): Whether to clear existing labels before loading new ones
+        """
+        if not labels:
+            return
+
+        if clear_existing:
+            self.unique_label_list.clear()
+
+        for label in labels:
+            # Check if label already exists to avoid duplicates
+            if not self.unique_label_list.find_items_by_label(label):
+                item = self.unique_label_list.create_item_from_label(label)
+                self.unique_label_list.addItem(item)
+                rgb = self._get_rgb_by_label(label)
+                self.unique_label_list.set_item_label(
+                    item, label, rgb, LABEL_OPACITY
+                )
 
     def _update_shape_color(self, shape):
         r, g, b = self._get_rgb_by_label(shape.label)
