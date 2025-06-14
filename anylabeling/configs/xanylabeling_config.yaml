@@ -84,6 +84,10 @@ canvas:
   # change mode
   # The max number of edits we can undo
   num_backups: 10
+  wheel_rectangle_editing:
+    enable: false
+    adjust_step: 2.0
+    scale_step: 0.05
   crosshair:
     show: true
     width: 2.0

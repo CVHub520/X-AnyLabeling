@@ -236,6 +236,7 @@ class LabelingWidget(LabelDialog):
             epsilon=self._config["epsilon"],
             double_click=self._config["canvas"]["double_click"],
             num_backups=self._config["canvas"]["num_backups"],
+            wheel_rectangle_editing=self._config["canvas"]["wheel_rectangle_editing"],
         )
         self.canvas.zoom_request.connect(self.zoom_request)
 

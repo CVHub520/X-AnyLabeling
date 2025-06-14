@@ -59,6 +59,10 @@ class Canvas(
                 f"Unexpected value for double_click event: {self.double_click}"
             )
         self.num_backups = kwargs.pop("num_backups", 10)
+        self.wheel_rectangle_editing = kwargs.pop("wheel_rectangle_editing", {})
+        self.enable_wheel_rectangle_editing = self.wheel_rectangle_editing.get("enable", False)
+        self.rect_adjust_step = self.wheel_rectangle_editing.get("adjust_step", 2.0)
+        self.rect_scale_step = self.wheel_rectangle_editing.get("scale_step", 0.05)
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         # Initialise local state.
@@ -1597,6 +1601,32 @@ class Canvas(
         """Mouse wheel event"""
         mods = ev.modifiers()
         delta = ev.angleDelta()
+
+        if (self.editing() and 
+            self.enable_wheel_rectangle_editing and 
+            len(self.selected_shapes) == 1 and 
+            self.selected_shapes[0].shape_type == "rectangle" and
+            not (QtCore.Qt.ControlModifier & int(mods))):
+
+            try:
+                pos = self.transform_pos(ev.posF())
+            except AttributeError:
+                pos = self.transform_pos(ev.localPos())
+
+            shape = self.selected_shapes[0]
+            wheel_up = delta.y() > 0
+
+            if shape.contains_point(pos):
+                self._scale_rectangle(shape, wheel_up)
+            else:
+                self._adjust_rectangle_edge(shape, pos, wheel_up)
+
+            self.store_shapes()
+            self.shape_moved.emit()
+            self.update()
+            ev.accept()
+            return
+
         if QtCore.Qt.ControlModifier == int(mods):
             # with Ctrl/Command key
             # zoom
@@ -1606,6 +1636,105 @@ class Canvas(
             self.scroll_request.emit(delta.x(), QtCore.Qt.Horizontal)
             self.scroll_request.emit(delta.y(), QtCore.Qt.Vertical)
         ev.accept()
+
+    def _scale_rectangle(self, shape, scale_up):
+        """Scale rectangle from center while keeping within image boundaries"""
+        if len(shape.points) < 4:
+            return
+
+        if self.pixmap is None:
+            return
+        img_width = self.pixmap.width()
+        img_height = self.pixmap.height()
+
+        x_coords = [p.x() for p in shape.points]
+        y_coords = [p.y() for p in shape.points]
+        center_x = sum(x_coords) / 4
+        center_y = sum(y_coords) / 4
+        center = QtCore.QPointF(center_x, center_y)
+
+        scale_factor = 1.0 + self.rect_scale_step if scale_up else 1.0 - self.rect_scale_step
+        scale_factor = max(0.1, scale_factor)
+
+        new_points = []
+        for i in range(len(shape.points)):
+            point = shape.points[i]
+            offset = point - center
+            scaled_offset = offset * scale_factor
+            new_point = center + scaled_offset
+
+            if (new_point.x() < 0 or new_point.x() >= img_width or 
+                new_point.y() < 0 or new_point.y() >= img_height):
+                return
+
+            new_points.append(new_point)
+
+        for i, new_point in enumerate(new_points):
+            shape.points[i] = new_point
+
+    def _adjust_rectangle_edge(self, shape, cursor_pos, move_outward):
+        """Adjust the rectangle edge closest to cursor position within image boundaries"""
+        if len(shape.points) < 4:
+            return
+
+        rect = shape.bounding_rect()
+        min_x, max_x = rect.left(), rect.right()
+        min_y, max_y = rect.top(), rect.bottom()
+
+        distances = {}
+
+        if cursor_pos.x() < min_x:
+            distances['left'] = min_x - cursor_pos.x()
+        elif cursor_pos.x() > max_x:
+            distances['right'] = cursor_pos.x() - max_x
+        else:
+            distances['left'] = abs(cursor_pos.x() - min_x)
+            distances['right'] = abs(cursor_pos.x() - max_x)
+        
+        if cursor_pos.y() < min_y:
+            distances['top'] = min_y - cursor_pos.y()
+        elif cursor_pos.y() > max_y:
+            distances['bottom'] = cursor_pos.y() - max_y
+        else:
+            distances['top'] = abs(cursor_pos.y() - min_y)
+            distances['bottom'] = abs(cursor_pos.y() - max_y)
+
+        if cursor_pos.x() < min_x and cursor_pos.y() >= min_y and cursor_pos.y() <= max_y:
+            closest_edge = 'left'
+        elif cursor_pos.x() > max_x and cursor_pos.y() >= min_y and cursor_pos.y() <= max_y:
+            closest_edge = 'right'
+        elif cursor_pos.y() < min_y and cursor_pos.x() >= min_x and cursor_pos.x() <= max_x:
+            closest_edge = 'top'
+        elif cursor_pos.y() > max_y and cursor_pos.x() >= min_x and cursor_pos.x() <= max_x:
+            closest_edge = 'bottom'
+        else:
+            closest_edge = min(distances, key=distances.get)
+
+        step = self.rect_adjust_step if move_outward else -self.rect_adjust_step
+
+        if self.pixmap is None:
+            return
+        img_width = self.pixmap.width()
+        img_height = self.pixmap.height()
+
+        for i, point in enumerate(shape.points):
+            new_point = None
+            
+            if closest_edge == 'left' and abs(point.x() - min_x) < 1e-6:
+                new_x = max(0, point.x() - step)
+                new_point = QtCore.QPointF(new_x, point.y())
+            elif closest_edge == 'right' and abs(point.x() - max_x) < 1e-6:
+                new_x = min(img_width - 1, point.x() + step)
+                new_point = QtCore.QPointF(new_x, point.y())
+            elif closest_edge == 'top' and abs(point.y() - min_y) < 1e-6:
+                new_y = max(0, point.y() - step)
+                new_point = QtCore.QPointF(point.x(), new_y)
+            elif closest_edge == 'bottom' and abs(point.y() - max_y) < 1e-6:
+                new_y = min(img_height - 1, point.y() + step)
+                new_point = QtCore.QPointF(point.x(), new_y)
+                
+            if new_point is not None:
+                shape.points[i] = new_point
 
     def move_by_keyboard(self, offset):
         """Move selected shapes by an offset (using keyboard)"""
