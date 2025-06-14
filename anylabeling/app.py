@@ -28,6 +28,7 @@ from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils import new_icon, gradient_text
+from anylabeling.cli_export import export_annotations
 
 # NOTE: Do not remove this import, it is required for loading translations
 from anylabeling.resources import resources
@@ -132,6 +133,11 @@ def main():
         help="epsilon to find nearest vertex on canvas",
         default=argparse.SUPPRESS,
     )
+    parser.add_argument(
+        "--export-format",
+        help="Specify the export format (e.g., yolo:hbb)",
+        default=argparse.SUPPRESS,
+    )
     args = parser.parse_args()
 
     if hasattr(args, "flags"):
@@ -219,6 +225,19 @@ def main():
         output_file=output_file,
         output_dir=output_dir,
     )
+
+    if hasattr(args, "export_format"):
+        try:
+            export_annotations(
+                args=args,
+                image_paths=win.labeling_widget.view.image_list,
+                json_input_dir=filename,
+                export_output_dir=output,
+            )
+        except Exception as e:
+            logger.error(f"Export failed: {e}")
+            sys.exit(1)
+        sys.exit(0)
 
     if reset_config:
         logger.info(f"Resetting Qt config: {win.settings.fileName()}")
