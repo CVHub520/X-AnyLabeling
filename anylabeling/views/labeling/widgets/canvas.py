@@ -68,6 +68,7 @@ class Canvas(
         # Initialise local state.
         self.mode = self.EDIT
         self.is_auto_labeling = False
+        self.is_move_editing = False
         self.auto_labeling_mode: AutoLabelingMode = None
         self.shapes = []
         self.shapes_backups = []
@@ -183,6 +184,19 @@ class Canvas(
             self.shapes_backups = self.shapes_backups[-self.num_backups - 1 :]
         self.shapes_backups.append(shapes_backup)
 
+    def store_moving_shape(self):
+        """Store a moving shape"""
+        if self.moving_shape and self.h_hape:
+            index = self.shapes.index(self.h_hape)
+            if (
+                    self.shapes_backups[-1][index].points
+                    != self.shapes[index].points
+            ):
+                self.store_shapes()
+                self.shape_moved.emit()
+
+            self.moving_shape = False
+
     @property
     def is_shape_restorable(self):
         """Check if shape can be restored from backup"""
@@ -217,6 +231,7 @@ class Canvas(
 
     def leaveEvent(self, _):
         """Mouse leave event"""
+        self.store_moving_shape()
         self.un_highlight()
         self.restore_cursor()
 
@@ -265,6 +280,7 @@ class Canvas(
         if not value:  # Create
             self.un_highlight()
             self.deselect_shape()
+            self.is_move_editing = False
 
     def un_highlight(self):
         """Unhighlight shape/vertex/edge"""
@@ -381,6 +397,7 @@ class Canvas(
         # Polygon/Vertex moving.
         if QtCore.Qt.LeftButton & ev.buttons():
             if self.selected_vertex():
+                self.is_move_editing = False
                 try:
                     self.bounded_move_vertex(pos)
                     self.repaint()
@@ -404,6 +421,26 @@ class Canvas(
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_width, shape_height, pos)
+            return
+
+        if self.editing() and self.is_move_editing:
+            self.override_cursor(CURSOR_MOVE)
+            if self.selected_vertex():
+                try:
+                    self.bounded_move_vertex(pos)
+                    self.repaint()
+                    self.moving_shape = True
+                except IndexError:
+                    return
+                if self.h_hape.shape_type == "rectangle":
+                    p1 = self.h_hape[0]
+                    p2 = self.h_hape[2]
+                    shape_width = int(abs(p2.x() - p1.x()))
+                    shape_height = int(abs(p2.y() - p1.y()))
+                    self.show_shape.emit(shape_width, shape_height, pos)
+            else:
+                self.is_move_editing = False
+
             return
 
         # Just hovering over the canvas, 2 possibilities:
@@ -612,6 +649,13 @@ class Canvas(
                     # Delete point if: left-click + SHIFT on a point
                     self.remove_selected_point()
 
+                if self.selected_vertex():
+                    self.is_move_editing = not self.is_move_editing
+                    if self.is_move_editing:
+                        self.override_cursor(CURSOR_MOVE)
+                    else:
+                        self.override_cursor(CURSOR_POINT)
+
                 group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
                 self.select_shape_point(
                     pos, multiple_selection_mode=group_mode
@@ -656,16 +700,7 @@ class Canvas(
                         [x for x in self.selected_shapes if x != self.h_hape]
                     )
 
-        if self.moving_shape and self.h_hape:
-            index = self.shapes.index(self.h_hape)
-            if (
-                self.shapes_backups[-1][index].points
-                != self.shapes[index].points
-            ):
-                self.store_shapes()
-                self.shape_moved.emit()
-
-            self.moving_shape = False
+        self.store_moving_shape()
 
     def end_move(self, copy):
         """End of move"""
@@ -1894,6 +1929,7 @@ class Canvas(
         self.restore_cursor()
         self.pixmap = None
         self.shapes_backups = []
+        self.is_move_editing = False
         self.update()
 
     def set_cross_line(self, show, width, color, opacity):
