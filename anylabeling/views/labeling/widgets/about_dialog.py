@@ -1,6 +1,4 @@
-import requests
 import threading
-from packaging import version
 
 from PyQt5.QtWidgets import (
     QDialog,
@@ -28,6 +26,7 @@ from anylabeling.views.labeling.utils.general import (
     open_url,
 )
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
+from anylabeling.views.labeling.utils.update_checker import check_for_updates_sync
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.chatbot.render import convert_markdown_to_html
 
@@ -239,74 +238,47 @@ class AboutDialog(QDialog):
         )
         popup.show_popup(self.parent, copy_msg=msg)
 
-    def _perform_update_check(self, show_error=True):
-        """Internal method to check for updates
-
-        Args:
-            show_error (bool): Whether to show error popups to user
-
-        Returns:
-            dict or None: Update info if available, None if no update or error
-        """
-        try:
-            headers = {"Accept": "application/vnd.github.v3+json"}
-            response = requests.get(
-                "https://api.github.com/repos/CVHub520/X-AnyLabeling/releases/latest",
-                headers=headers,
-            )
-            if response.status_code == 200:
-                data = response.json()
-                latest_version = data["tag_name"].lstrip("v")
-
-                if version.parse(latest_version) > version.parse(__version__):
-                    return {
-                        "latest_version": latest_version,
-                        "download_url": data["html_url"],
-                        "release_notes": data["body"],
-                        "assets": data.get("assets", []),
-                    }
-                elif show_error:
-                    popup = Popup(
-                        self.tr("No Updates Available"),
-                        self.parent,
-                        icon=new_icon_path("copy-green", "svg"),
-                    )
-                    popup.show_popup(self.parent)
-            elif show_error:
-                popup = Popup(
-                    self.tr(f"GitHub API error: {response.status_code}"),
-                    self.parent,
-                    icon=new_icon_path("error", "svg"),
-                )
-                popup.show_popup(self.parent)
-        except Exception as e:
-            if show_error:
-                popup = Popup(
-                    self.tr(f"Check update error: {str(e)}"),
-                    self.parent,
-                    icon=new_icon_path("error", "Svg"),
-                )
-                popup.show_popup(self.parent)
-        return None
-
     def check_for_updates(self):
         """Handle user-initiated update check"""
         if self._cached_update_info:
-            self.show_update_dialog(self._cached_update_info)
+            if self._cached_update_info["has_update"]:
+                self.show_update_dialog(self._cached_update_info)
+            else:
+                popup = Popup(
+                    self.tr("No Updates Available"),
+                    self.parent,
+                    icon=new_icon_path("copy-green", "svg"),
+                )
+                popup.show_popup(self.parent)
             return
 
         # If no cache, perform new check with error reporting
-        update_info = self._perform_update_check(show_error=True)
+        update_info = check_for_updates_sync(timeout=10)
         if update_info:
             self._cached_update_info = update_info
-            self.show_update_dialog(update_info)
+            if update_info["has_update"]:
+                self.show_update_dialog(update_info)
+            else:
+                popup = Popup(
+                    self.tr("No Updates Available"),
+                    self.parent,
+                    icon=new_icon_path("copy-green", "svg"),
+                )
+                popup.show_popup(self.parent)
+        else:
+            popup = Popup(
+                self.tr("Check update failed"),
+                self.parent,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self.parent)
 
     def check_updates_in_background(self):
         """Check for updates in background when dialog opens"""
 
         def update_check_thread():
-            update_info = self._perform_update_check(show_error=False)
-            if update_info:
+            update_info = check_for_updates_sync(timeout=5)
+            if update_info and update_info["has_update"]:
                 self._cached_update_info = update_info
                 QTimer.singleShot(
                     0, lambda: self.show_update_dialog(update_info)

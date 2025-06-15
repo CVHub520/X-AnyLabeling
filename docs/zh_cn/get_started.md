@@ -137,6 +137,7 @@ python anylabeling/app.py
 | `--validatelabel`          | 指定标签验证的类型。                                                                               |
 | `--keep-prev`              | 保留上一帧的注释。                                                                                 |
 | `--epsilon`                | 确定在画布上找到最近顶点的 epsilon 值。                                                             |
+| `--no-auto-update-check`   | 禁用启动时的自动更新检查。                                                                         |
 
 ⚠️ 请注意，如果您需要 GPU 加速，应在 [app_info.py](../../anylabeling/app_info.py) 配置文件中将 `__preferred_device__` 字段设置为 'GPU'。
 

@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 What's New
 
+- Add automatic update check on startup
 - Add rectangle scaling and edge adjustment with mouse wheel support
 - Add GUI support for uploading custom label classes
 - Add real-time preview dialog for image matting and depth estimation results

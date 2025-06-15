@@ -133,6 +133,7 @@ python anylabeling/app.py
 | `--validatelabel`          | Specifies the type of label validation.                                                           |
 | `--keep-prev`              | Retains annotations from the previous frame.                                                       |
 | `--epsilon`                | Determines the epsilon value for finding the nearest vertex on the canvas.                         |
+| `--no-auto-update-check`   | Disables automatic update checking on startup.                                                     |
 
 ⚠️Please note that if you require GPU acceleration, you should set the `__preferred_device__` field to 'GPU' in the [app_info.py](../../anylabeling/app_info.py) configuration file.
 
