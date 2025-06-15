@@ -280,6 +280,7 @@ class Canvas(
         if not value:  # Create
             self.un_highlight()
             self.deselect_shape()
+            self.is_move_editing = False
 
     def un_highlight(self):
         """Unhighlight shape/vertex/edge"""
@@ -423,6 +424,7 @@ class Canvas(
             return
 
         if self.editing() and self.is_move_editing:
+            self.override_cursor(CURSOR_MOVE)
             if self.selected_vertex():
                 try:
                     self.bounded_move_vertex(pos)
@@ -649,6 +651,10 @@ class Canvas(
 
                 if self.selected_vertex():
                     self.is_move_editing = not self.is_move_editing
+                    if self.is_move_editing:
+                        self.override_cursor(CURSOR_MOVE)
+                    else:
+                        self.override_cursor(CURSOR_POINT)
 
                 group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
                 self.select_shape_point(
@@ -1923,6 +1929,7 @@ class Canvas(
         self.restore_cursor()
         self.pixmap = None
         self.shapes_backups = []
+        self.is_move_editing = False
         self.update()
 
     def set_cross_line(self, show, width, color, opacity):
