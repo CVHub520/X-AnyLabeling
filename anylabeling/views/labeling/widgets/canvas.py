@@ -65,6 +65,10 @@ class Canvas(
         self.rect_scale_step = self.wheel_rectangle_editing.get("scale_step", 0.05)
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
+        
+        # 添加平移相关的变量
+        self.panning_mode_enabled = False
+        self.is_panning_active = False
         # Initialise local state.
         self.mode = self.EDIT
         self.is_auto_labeling = False
@@ -181,7 +185,7 @@ class Canvas(
         for shape in self.shapes:
             shapes_backup.append(shape.copy())
         if len(self.shapes_backups) > self.num_backups:
-            self.shapes_backups = self.shapes_backups[-self.num_backups - 1:]
+            self.shapes_backups = self.shapes_backups[-self.num_backups - 1 :]
         self.shapes_backups.append(shapes_backup)
 
     def store_moving_shape(self):
@@ -227,16 +231,23 @@ class Canvas(
 
     def enterEvent(self, _):
         """Mouse enter event"""
+        # 首先检查是否是平移相关的鼠标进入事件
+        if self._handle_panning_enter(_):
+            return
         self.override_cursor(self._cursor)
 
     def leaveEvent(self, _):
         """Mouse leave event"""
+        # 处理平移相关的鼠标离开事件
+        self._handle_panning_leave(_)
         self.store_moving_shape()
         self.un_highlight()
         self.restore_cursor()
 
     def focusOutEvent(self, _):
         """Window out of focus event"""
+        # 处理平移相关的焦点离开事件
+        self._handle_panning_focus_out(_)
         self.restore_cursor()
 
     def is_visible(self, shape):
@@ -263,8 +274,8 @@ class Canvas(
     def get_mode(self):
         """Get current mode"""
         if (
-                self.is_auto_labeling
-                and self.auto_labeling_mode != AutoLabelingMode.NONE
+            self.is_auto_labeling
+            and self.auto_labeling_mode != AutoLabelingMode.NONE
         ):
             return self.tr("Auto Labeling")
         if self.mode == self.CREATE:
@@ -305,13 +316,21 @@ class Canvas(
         """Update line with last point and current coordinates"""
         if self.is_loading:
             return
+            
+        # 首先检查是否是平移相关的鼠标移动事件
+        if self._handle_panning_mouse_move(ev):
+            return
+            
         try:
             pos = self.transform_pos(ev.localPos())
         except AttributeError:
             return
 
+        self.show_shape.emit(-1, -1, pos)
+
         self.prev_move_point = pos
         self.repaint()
+        self.restore_cursor()
 
         # Polygon drawing.
         if self.drawing():
@@ -319,8 +338,8 @@ class Canvas(
             self.line.line_color = QtGui.QColor(*line_color)
             self.line.shape_type = self.create_mode
 
+            self.override_cursor(CURSOR_DRAW)
             if not self.current:
-                self.override_cursor(CURSOR_DRAW)
                 return
 
             if self.create_mode == "rectangle":
@@ -330,17 +349,17 @@ class Canvas(
 
             color = QtGui.QColor(0, 0, 255)
             if (
-                    self.out_off_pixmap(pos)
-                    and self.create_mode not in self.allowed_oop_shape_types
+                self.out_off_pixmap(pos)
+                and self.create_mode not in self.allowed_oop_shape_types
             ):
                 # Don't allow the user to draw outside the pixmap, except for rotation.
                 # Project the point to the pixmap's edges.
                 pos = self.intersection_point(self.current[-1], pos)
             elif (
-                    self.snapping
-                    and len(self.current) > 1
-                    and self.create_mode == "polygon"
-                    and self.close_enough(pos, self.current[0])
+                self.snapping
+                and len(self.current) > 1
+                and self.create_mode == "polygon"
+                and self.close_enough(pos, self.current[0])
             ):
                 # Attract line to starting point and
                 # colorise to alert the user.
@@ -348,16 +367,14 @@ class Canvas(
                 self.override_cursor(CURSOR_POINT)
                 self.current.highlight_vertex(0, Shape.NEAR_VERTEX)
             elif (
-                    self.create_mode == "rotation"
-                    and len(self.current) > 0
-                    and self.close_enough(pos, self.current[0])
+                self.create_mode == "rotation"
+                and len(self.current) > 0
+                and self.close_enough(pos, self.current[0])
             ):
                 pos = self.current[0]
                 color = self.current.line_color
                 self.override_cursor(CURSOR_POINT)
                 self.current.highlight_vertex(0, Shape.NEAR_VERTEX)
-            else:
-                self.override_cursor(CURSOR_DRAW)
             if self.create_mode in ["polygon", "linestrip"]:
                 self.line[0] = self.current[-1]
                 self.line[1] = pos
@@ -442,8 +459,6 @@ class Canvas(
 
             return
 
-        self.show_shape.emit(-1, -1, pos)
-
         # Just hovering over the canvas, 2 possibilities:
         # - Highlight shapes
         # - Highlight vertex
@@ -508,7 +523,7 @@ class Canvas(
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
                 if self.h_shape_is_hovered:
                     group_mode = (
-                            int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                        int(ev.modifiers()) == QtCore.Qt.ControlModifier
                     )
                     self.select_shape_point(
                         pos, multiple_selection_mode=group_mode
@@ -524,7 +539,6 @@ class Canvas(
                 break
         else:  # Nothing found, clear highlights, reset state.
             self.un_highlight()
-            self.override_cursor(CURSOR_DEFAULT)
         self.vertex_selected.emit(self.h_vertex is not None)
 
     def add_point_to_edge(self):
@@ -558,6 +572,11 @@ class Canvas(
         """Mouse press event"""
         if self.is_loading:
             return
+            
+        # 首先检查是否是平移相关的鼠标按下事件
+        if self._handle_panning_mouse_press(ev):
+            return
+            
         pos = self.transform_pos(ev.localPos())
         if ev.button() == QtCore.Qt.LeftButton:
             if self.drawing():
@@ -610,9 +629,9 @@ class Canvas(
                     # [Feature] support for automatically switching to editing mode
                     # when the cursor moves over an object
                     if (
-                            self.create_mode
-                            in ["rectangle", "rotation", "circle", "line", "point"]
-                            and not self.is_auto_labeling
+                        self.create_mode
+                        in ["rectangle", "rotation", "circle", "line", "point"]
+                        and not self.is_auto_labeling
                     ):
                         self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
@@ -629,8 +648,8 @@ class Canvas(
                         self.drawing_polygon.emit(True)
                         self.update()
                 elif (
-                        self.out_off_pixmap(pos)
-                        and self.create_mode in self.allowed_oop_shape_types
+                    self.out_off_pixmap(pos)
+                    and self.create_mode in self.allowed_oop_shape_types
                 ):
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
@@ -643,10 +662,10 @@ class Canvas(
                 if self.selected_edge():
                     self.add_point_to_edge()
                 elif (
-                        self.selected_vertex()
-                        and int(ev.modifiers()) == QtCore.Qt.ShiftModifier
-                        and self.h_hape.shape_type
-                        not in ["rectangle", "rotation", "line"]
+                    self.selected_vertex()
+                    and int(ev.modifiers()) == QtCore.Qt.ShiftModifier
+                    and self.h_hape.shape_type
+                    not in ["rectangle", "rotation", "line"]
                 ):
                     # Delete point if: left-click + SHIFT on a point
                     self.remove_selected_point()
@@ -667,8 +686,8 @@ class Canvas(
         elif ev.button() == QtCore.Qt.RightButton and self.editing():
             group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
             if not self.selected_shapes or (
-                    self.h_hape is not None
-                    and self.h_hape not in self.selected_shapes
+                self.h_hape is not None
+                and self.h_hape not in self.selected_shapes
             ):
                 self.select_shape_point(
                     pos, multiple_selection_mode=group_mode
@@ -681,12 +700,17 @@ class Canvas(
         """Mouse release event"""
         if self.is_loading:
             return
+            
+        # 首先检查是否是平移相关的鼠标释放事件
+        if self._handle_panning_mouse_release(ev):
+            return
+            
         if ev.button() == QtCore.Qt.RightButton:
             menu = self.menus[len(self.selected_shapes_copy) > 0]
             self.restore_cursor()
             if (
-                    not menu.exec_(self.mapToGlobal(ev.pos()))
-                    and self.selected_shapes_copy
+                not menu.exec_(self.mapToGlobal(ev.pos()))
+                and self.selected_shapes_copy
             ):
                 # Cancel the move by deleting the shadow copy.
                 self.selected_shapes_copy = []
@@ -694,9 +718,9 @@ class Canvas(
         elif ev.button() == QtCore.Qt.LeftButton:
             if self.editing():
                 if (
-                        self.h_hape is not None
-                        and self.h_shape_is_selected
-                        and not self.moving_shape
+                    self.h_hape is not None
+                    and self.h_shape_is_selected
+                    and not self.moving_shape
                 ):
                     self.selection_changed.emit(
                         [x for x in self.selected_shapes if x != self.h_hape]
@@ -746,9 +770,9 @@ class Canvas(
         # We need at least 4 points here, since the mousePress handler
         # adds an extra one before this handler is called.
         if (
-                self.double_click == "close"
-                and self.can_close_shape()
-                and len(self.current) > 3
+            self.double_click == "close"
+            and self.can_close_shape()
+            and len(self.current) > 3
         ):
             self.current.pop_point()
             self.finalise()
@@ -782,9 +806,9 @@ class Canvas(
         else:
             for shape in reversed(self.shapes):
                 if (
-                        self.is_visible(shape)
-                        and len(shape.points) > 1
-                        and shape.contains_point(point)
+                    self.is_visible(shape)
+                    and len(shape.points) > 1
+                    and shape.contains_point(point)
                 ):
                     self.set_hiding()
                     if shape not in self.selected_shapes:
@@ -862,8 +886,8 @@ class Canvas(
         index, shape = self.h_vertex, self.h_hape
         point = shape[index]
         if (
-                self.out_off_pixmap(pos)
-                and shape.shape_type not in self.allowed_oop_shape_types
+            self.out_off_pixmap(pos)
+            and shape.shape_type not in self.allowed_oop_shape_types
         ):
             pos = self.intersection_point(point, pos)
 
@@ -1037,9 +1061,9 @@ class Canvas(
     def paintEvent(self, event):  # noqa: C901
         """Paint event for canvas"""
         if (
-                self.pixmap is None
-                or self.pixmap.width() == 0
-                or self.pixmap.height() == 0
+            self.pixmap is None
+            or self.pixmap.width() == 0
+            or self.pixmap.height() == 0
         ):
             super().paintEvent(event)
             return
@@ -1123,7 +1147,7 @@ class Canvas(
                         max_y = max(max_y, rect.y() + rect.height())
                     group_color = LABEL_COLORMAP[
                         int(group_id) % len(LABEL_COLORMAP)
-                        ]
+                    ]
                     pen.setStyle(Qt.SolidLine)
                     pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
                     pen.setColor(QtGui.QColor(*group_color))
@@ -1219,17 +1243,17 @@ class Canvas(
         # Draw degrees
         for shape in self.shapes:
             if (
-                    shape.selected or not self._hide_backround
+                shape.selected or not self._hide_backround
             ) and self.is_visible(shape):
                 shape.fill = self._fill_drawing and (
-                        shape.selected or shape == self.h_hape
+                    shape.selected or shape == self.h_hape
                 )
                 shape.paint(p)
 
             if (
-                    shape.shape_type == "rotation"
-                    and len(shape.points) == 4
-                    and self.is_visible(shape)
+                shape.shape_type == "rotation"
+                and len(shape.points) == 4
+                and self.is_visible(shape)
             ):
                 d = shape.point_size / shape.scale
                 center = QtCore.QPointF(
@@ -1285,10 +1309,10 @@ class Canvas(
                 s.paint(p)
 
         if (
-                self.fill_drawing()
-                and self.create_mode == "polygon"
-                and self.current is not None
-                and len(self.current.points) >= 2
+            self.fill_drawing()
+            and self.create_mode == "polygon"
+            and self.current is not None
+            and len(self.current.points) >= 2
         ):
             drawing_shape = self.current.copy()
             drawing_shape.add_point(self.line[1])
@@ -1362,17 +1386,17 @@ class Canvas(
                 ]:
                     continue
                 label_text = (
-                        (
-                            f"id:{shape.group_id} "
-                            if shape.group_id is not None
-                            else ""
-                        )
-                        + (f"{shape.label}")
-                        + (
-                            f" {float(shape.score):.2f}"
-                            if (shape.score is not None and self.show_scores)
-                            else ""
-                        )
+                    (
+                        f"id:{shape.group_id} "
+                        if shape.group_id is not None
+                        else ""
+                    )
+                    + (f"{shape.label}")
+                    + (
+                        f" {float(shape.score):.2f}"
+                        if (shape.score is not None and self.show_scores)
+                        else ""
+                    )
                 )
                 if not label_text:
                     continue
@@ -1478,8 +1502,8 @@ class Canvas(
         """Finish drawing for a shape"""
         assert self.current
         if (
-                self.is_auto_labeling
-                and self.auto_labeling_mode != AutoLabelingMode.NONE
+            self.is_auto_labeling
+            and self.auto_labeling_mode != AutoLabelingMode.NONE
         ):
             self.current.label = self.auto_labeling_mode.edit_mode
         # TODO(vietanhdev): Temporrally fix. Need to refactor
@@ -1639,11 +1663,11 @@ class Canvas(
         mods = ev.modifiers()
         delta = ev.angleDelta()
 
-        if (self.editing() and
-                self.enable_wheel_rectangle_editing and
-                len(self.selected_shapes) == 1 and
-                self.selected_shapes[0].shape_type == "rectangle" and
-                not (QtCore.Qt.ControlModifier & int(mods))):
+        if (self.editing() and 
+            self.enable_wheel_rectangle_editing and 
+            len(self.selected_shapes) == 1 and 
+            self.selected_shapes[0].shape_type == "rectangle" and
+            not (QtCore.Qt.ControlModifier & int(mods))):
 
             try:
                 pos = self.transform_pos(ev.posF())
@@ -1700,8 +1724,8 @@ class Canvas(
             scaled_offset = offset * scale_factor
             new_point = center + scaled_offset
 
-            if (new_point.x() < 0 or new_point.x() >= img_width or
-                    new_point.y() < 0 or new_point.y() >= img_height):
+            if (new_point.x() < 0 or new_point.x() >= img_width or 
+                new_point.y() < 0 or new_point.y() >= img_height):
                 return
 
             new_points.append(new_point)
@@ -1727,7 +1751,7 @@ class Canvas(
         else:
             distances['left'] = abs(cursor_pos.x() - min_x)
             distances['right'] = abs(cursor_pos.x() - max_x)
-
+        
         if cursor_pos.y() < min_y:
             distances['top'] = min_y - cursor_pos.y()
         elif cursor_pos.y() > max_y:
@@ -1756,7 +1780,7 @@ class Canvas(
 
         for i, point in enumerate(shape.points):
             new_point = None
-
+            
             if closest_edge == 'left' and abs(point.x() - min_x) < 1e-6:
                 new_x = max(0, point.x() - step)
                 new_point = QtCore.QPointF(new_x, point.y())
@@ -1769,7 +1793,7 @@ class Canvas(
             elif closest_edge == 'bottom' and abs(point.y() - max_y) < 1e-6:
                 new_y = min(img_height - 1, point.y() + step)
                 new_point = QtCore.QPointF(point.x(), new_y)
-
+                
             if new_point is not None:
                 shape.points[i] = new_point
 
@@ -1794,6 +1818,10 @@ class Canvas(
     # QT Overload
     def keyPressEvent(self, ev):
         """Key press event"""
+        # 首先检查是否是平移相关的按键事件
+        if self._handle_panning_key_press(ev):
+            return
+            
         modifiers = ev.modifiers()
         key = ev.key()
         if self.drawing():
@@ -1826,6 +1854,10 @@ class Canvas(
     # QT Overload
     def keyReleaseEvent(self, ev):
         """Key release event"""
+        # 首先检查是否是平移相关的按键释放事件
+        if self._handle_panning_key_release(ev):
+            return
+            
         modifiers = ev.modifiers()
         if self.drawing():
             if int(modifiers) == 0:
@@ -1834,14 +1866,14 @@ class Canvas(
             # NOTE: Temporary fix to avoid ValueError
             # when the selected shape is not in the shapes list
             if (
-                    (self.moving_shape or self.rotating_shape)
-                    and self.selected_shapes
-                    and self.selected_shapes[0] in self.shapes
+                (self.moving_shape or self.rotating_shape)
+                and self.selected_shapes
+                and self.selected_shapes[0] in self.shapes
             ):
                 index = self.shapes.index(self.selected_shapes[0])
                 if (
-                        self.shapes_backups[-1][index].points
-                        != self.shapes[index].points
+                    self.shapes_backups[-1][index].points
+                    != self.shapes[index].points
                 ):
                     self.store_shapes()
                     if self.moving_shape:
@@ -1916,22 +1948,11 @@ class Canvas(
         self.visible[shape] = value
         self.update()
 
-    def current_cursor(self):
-        """Current cursor"""
-        cursor = QtWidgets.QApplication.overrideCursor()
-        cursor = cursor.shape() if cursor else None
-
-        return cursor
-
     def override_cursor(self, cursor):
         """Override cursor"""
-        current_cursor = self.current_cursor()
-        if current_cursor != cursor:
-            self._cursor = cursor
-            if current_cursor is None:
-                QtWidgets.QApplication.setOverrideCursor(cursor)
-            else:
-                QtWidgets.QApplication.changeOverrideCursor(cursor)
+        self.restore_cursor()
+        self._cursor = cursor
+        QtWidgets.QApplication.setOverrideCursor(cursor)
 
     def restore_cursor(self):
         """Restore override cursor"""
@@ -2019,3 +2040,68 @@ class Canvas(
                     shape.group_id = None
 
         self.update()
+
+# --- Panning Feature Start ---
+
+    def _handle_panning_key_press(self, ev):
+        if ev.key() == Qt.Key_Space and not ev.isAutoRepeat():
+            self.panning_mode_enabled = True
+            self.override_cursor(CURSOR_GRAB)
+            return True
+        return False
+
+    def _handle_panning_key_release(self, ev):
+        if ev.key() == Qt.Key_Space and not ev.isAutoRepeat():
+            self.panning_mode_enabled = False
+            if not self.is_panning_active:
+                self.restore_cursor()
+            return True
+        return False
+
+    def _handle_panning_mouse_press(self, ev):
+        if self.panning_mode_enabled and ev.button() == Qt.LeftButton:
+            self.is_panning_active = True
+            self.prev_move_point = ev.globalPos()
+            self.override_cursor(CURSOR_MOVE)
+            return True
+        return False
+
+    def _handle_panning_mouse_move(self, ev):
+        if self.is_panning_active:
+            offset = ev.globalPos() - self.prev_move_point
+            self.prev_move_point = ev.globalPos()
+            if offset.x() != 0:
+                self.scroll_request.emit(offset.x(), Qt.Horizontal)
+            if offset.y() != 0:
+                self.scroll_request.emit(offset.y(), Qt.Vertical)
+            self.update()
+            return True
+        return False
+
+    def _handle_panning_mouse_release(self, ev):
+        if self.is_panning_active and ev.button() == Qt.LeftButton:
+            self.is_panning_active = False
+            if self.panning_mode_enabled:
+                self.override_cursor(CURSOR_GRAB)
+            else:
+                self.restore_cursor()
+            return True
+        return False
+
+    def _handle_panning_enter(self, ev):
+        if self.panning_mode_enabled:
+            self.override_cursor(CURSOR_GRAB)
+            return True
+        return False
+
+    def _handle_panning_leave(self, ev):
+        if self.is_panning_active:
+            self.is_panning_active = False
+
+    def _handle_panning_focus_out(self, ev):
+        if self.is_panning_active:
+            self.is_panning_active = False 
+        if self.panning_mode_enabled:
+            self.panning_mode_enabled = False
+
+    # --- Panning Feature End ---
