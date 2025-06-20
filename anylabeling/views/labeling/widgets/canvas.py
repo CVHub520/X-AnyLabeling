@@ -186,14 +186,16 @@ class Canvas(
 
     def store_moving_shape(self):
         """Store a moving shape"""
-        if self.moving_shape and self.h_hape:
-            index = self.shapes.index(self.h_hape)
-            if (
-                    self.shapes_backups[-1][index].points
-                    != self.shapes[index].points
-            ):
-                self.store_shapes()
-                self.shape_moved.emit()
+        if self.moving_shape:
+            for shape in self.selected_shapes:
+                index = self.shapes.index(shape)
+                if (
+                        self.shapes_backups[-1][index].points
+                        != self.shapes[index].points
+                ):
+                    self.store_shapes()
+                    self.shape_moved.emit()
+                    break
 
             self.moving_shape = False
 
