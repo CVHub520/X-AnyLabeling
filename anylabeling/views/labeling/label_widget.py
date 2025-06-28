@@ -2109,6 +2109,7 @@ class LabelingWidget(LabelDialog):
         self.label_list.clear()
         self.load_shapes(self.canvas.shapes)
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
+        self.set_dirty()
 
     def get_label_file_list(self):
         label_file_list = []
