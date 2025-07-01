@@ -60,7 +60,7 @@
       * [8.11 基于检测与分割的零样本计数](#811-基于检测与分割的零样本计数)
       * [8.12 Grounding](#812-grounding)
    * [9. 模型](#9-模型)
-   * [10. 聊天机器人](#10-聊天机器人)
+   * [10. 高级功能](#10-高级功能)
 
 ## 1. 文件
 
@@ -136,6 +136,16 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
     }
     // ... 更多对话
   ],
+  "vqaData": {
+    "question": "What animals are shown in the image?",
+    "answer": "zebras",
+    "split": "train",
+    "task": "QA",
+    "tags": [
+      "natural"
+    ],
+    // ... 更多选项
+  },
   "imagePath": "${filename}", // 图片的相对路径
   "imageData": null,         // Base64 编码的图片数据 (如果启用, 请参考 1.5)
   "imageHeight": -1,         // 图片高度
@@ -668,6 +678,7 @@ digit_shortcuts:
 | Alt + g               | 修改群组编号                           |
 | Ctrl + Delete         | 删除当前标签文件                    |
 | Ctrl + Shift + Delete | 删除当前图像文件                        |
+| Ctrl + 1              | 打开视觉问答窗口                     |
 | Ctrl + b              | 打开聊天机器人对话窗口                   |
 | Ctrl + q              | 退出当前应用程序                        |
 | Ctrl + i              | 打开图像文件                           |
@@ -895,6 +906,7 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 
 关于如何加载和导出模型可参阅[自定义模型文档](./custom_model.md)。
 
-## 10. 聊天机器人
+## 10. 高级功能
 
 - 聊天机器人：[链接](../zh_cn/chatbot.md)
+- 视觉问答: [链接](../zh_cn/vqa.md)

@@ -219,7 +219,7 @@ def upload_vlm_r1_ovd_annotation(self):
         progress_dialog.close()
         message = f"Error occurred while uploading annotations: {str(e)}"
         logger.error(message)
-        
+
         popup = Popup(
             message,
             self,
@@ -305,7 +305,9 @@ def upload_ppocr_annotation(self, mode):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            message = (
+                f"Error occurred while uploading annotations: {str(error_msg)}"
+            )
             logger.error(message)
             popup = Popup(
                 message,
@@ -383,7 +385,9 @@ def upload_odvg_annotation(self):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            message = (
+                f"Error occurred while uploading annotations: {str(error_msg)}"
+            )
             logger.error(message)
             popup = Popup(
                 message,
@@ -493,7 +497,9 @@ def upload_mot_annotation(self, LABEL_OPACITY):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            message = (
+                f"Error occurred while uploading annotations: {str(error_msg)}"
+            )
             logger.error(message)
             popup = Popup(
                 message,
@@ -683,7 +689,7 @@ def upload_mask_annotation(self, LABEL_OPACITY):
         progress_dialog.close()
         message = f"Error occurred while uploading annotations: {str(e)}"
         logger.error(message)
-        
+
         popup = Popup(
             message,
             self,
@@ -839,7 +845,7 @@ def upload_dota_annotation(self):
         progress_dialog.close()
         message = f"Error occurred while uploading annotations: {str(e)}"
         logger.error(message)
-        
+
         popup = Popup(
             message,
             self,
@@ -911,7 +917,9 @@ def upload_coco_annotation(self, mode):
             )
             popup.show_popup(self, popup_height=65, position="center")
         else:
-            message = f"Error occurred while uploading annotations: {str(error_msg)}"
+            message = (
+                f"Error occurred while uploading annotations: {str(error_msg)}"
+            )
             logger.error(message)
             popup = Popup(
                 message,
@@ -1073,7 +1081,7 @@ def upload_voc_annotation(self, mode):
         progress_dialog.close()
         message = f"Error occurred while uploading annotations: {str(e)}"
         logger.error(message)
-        
+
         popup = Popup(
             message,
             self,
@@ -1280,7 +1288,7 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
         progress_dialog.close()
         message = f"Error occurred while uploading annotations: {str(e)}"
         logger.error(message)
-        
+
         popup = Popup(
             message,
             self,
@@ -1348,7 +1356,9 @@ def upload_label_classes_file(self):
         popup.show_popup(self, position="center")
 
     except Exception as e:
-        message = f"Error occurred while uploading label classes file: {str(e)}"
+        message = (
+            f"Error occurred while uploading label classes file: {str(e)}"
+        )
         logger.error(message)
 
         popup = Popup(
@@ -1396,9 +1406,11 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        message = f"Error occurred while uploading shape attributes file: {str(e)}"
+        message = (
+            f"Error occurred while uploading shape attributes file: {str(e)}"
+        )
         logger.error(message)
-        
+
         popup = Popup(
             message,
             self,
@@ -1444,7 +1456,7 @@ def upload_label_flags_file(self, LABEL_OPACITY):
     except Exception as e:
         message = f"Error occurred while uploading flags file: {str(e)}"
         logger.error(message)
-        
+
         popup = Popup(
             message,
             self,

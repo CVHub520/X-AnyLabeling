@@ -60,7 +60,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [8.11 Zero-Shot Counting](#811-zero-shot-counting)
       * [8.12 Grounding](#812-grounding)
    * [9. Custom Models](#9-custom-models)
-   * [10. Chatbot](#10-chatbot)
+   * [10. Advanced Features](#10-advanced-features)
 
 
 ## 1. File Management
@@ -133,6 +133,16 @@ Label files are saved in `*.json` format in the same directory as the images by 
     }
     // ... more dialogs
   ],
+  "vqaData": {
+    "question": "What animals are shown in the image?",
+    "answer": "zebras",
+    "split": "train",
+    "task": "QA",
+    "tags": [
+      "natural"
+    ],
+    // ... more items
+  },
   "imagePath": "${filename}", // Relative path to the image file
   "imageData": null,         // Base64 encoded image data (if enabled, see 1.5)
   "imageHeight": -1,         // Image height in pixels
@@ -611,6 +621,7 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Alt+g`               | Edit Group ID for Selection                      | Manually set group ID                      |
 | `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |
 | `Ctrl+Shift+Delete`   | Delete Current Image & Label File                | Moves to `_delete_` folder                 |
+| `Ctrl+1`              | Open Visual Question Answering Dialog            |                                            |
 | `Ctrl+b`              | Open Chatbot                                     |                                            |
 | `Ctrl+q`              | Quit Application                                 |                                            |
 | `Ctrl+i`              | Open Single Image File                           |                                            |
@@ -803,6 +814,7 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
 
 For details on integrating and using your own custom AI models within X-AnyLabeling for assisted annotation, refer to the [Custom Models](./custom_model.md) guide.
 
-## 10. Chatbot
+## 10. Advanced Features
 
 - Chatbot Guide: [Link](../en/chatbot.md)
+- VQA Guide: [Link](../en/vqa.md)

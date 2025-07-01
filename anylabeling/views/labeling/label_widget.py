@@ -44,6 +44,7 @@ from .widgets import (
     BrightnessContrastDialog,
     Canvas,
     ChatbotDialog,
+    VQADialog,
     CrosshairSettingsDialog,
     FileDialogPreview,
     GroupIDFilterComboBox,
@@ -226,7 +227,9 @@ class LabelingWidget(LabelDialog):
         file_list_widget = QtWidgets.QWidget()
         file_list_widget.setLayout(file_list_layout)
         self.file_dock.setWidget(file_list_widget)
-        self.file_dock.setStyleSheet("QDockWidget::title {" "text-align: center;" "padding: 0px;" "}")
+        self.file_dock.setStyleSheet(
+            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
+        )
 
         self.zoom_widget = ZoomWidget()
         self.setAcceptDrops(True)
@@ -236,7 +239,9 @@ class LabelingWidget(LabelDialog):
             epsilon=self._config["epsilon"],
             double_click=self._config["canvas"]["double_click"],
             num_backups=self._config["canvas"]["num_backups"],
-            wheel_rectangle_editing=self._config["canvas"]["wheel_rectangle_editing"],
+            wheel_rectangle_editing=self._config["canvas"][
+                "wheel_rectangle_editing"
+            ],
         )
         self.canvas.zoom_request.connect(self.zoom_request)
 
@@ -761,6 +766,13 @@ class LabelingWidget(LabelDialog):
             shortcuts["open_chatbot"],
             icon="chatbot",
             tip=self.tr("Open chatbot dialog"),
+        )
+        open_vqa = action(
+            self.tr("VQA"),
+            self.open_vqa,
+            shortcuts["open_vqa"],
+            icon="vqa",
+            tip=self.tr("Open VQA dialog"),
         )
 
         documentation = action(
@@ -1407,6 +1419,7 @@ class LabelingWidget(LabelDialog):
             open_next_unchecked_image=open_next_unchecked_image,
             open_prev_unchecked_image=open_prev_unchecked_image,
             open_chatbot=open_chatbot,
+            open_vqa=open_vqa,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1691,6 +1704,7 @@ class LabelingWidget(LabelDialog):
             zoom,
             fit_width,
             open_chatbot,
+            open_vqa,
             toggle_auto_labeling_widget,
             run_all_images,
         )
@@ -1767,7 +1781,9 @@ class LabelingWidget(LabelDialog):
         thumbnail_image_layout.setContentsMargins(2, 2, 2, 2)
         self.thumbnail_image_label = QLabel()
         self.thumbnail_image_label.setAlignment(Qt.AlignCenter)
-        self.thumbnail_image_label.mousePressEvent = utils.on_thumbnail_click(self)
+        self.thumbnail_image_label.mousePressEvent = utils.on_thumbnail_click(
+            self
+        )
         thumbnail_image_layout.addWidget(self.thumbnail_image_label)
         self.thumbnail_container.setLayout(thumbnail_image_layout)
         self.thumbnail_container.hide()
@@ -1918,6 +1934,7 @@ class LabelingWidget(LabelDialog):
         text_mode = self.tr("Mode:")
         text_shortcuts = self.tr("Shortcuts:")
         text_chatbot = self.tr("Chatbot")
+        text_vqa = self.tr("VQA")
         text_previous = self.tr("Previous")
         text_next = self.tr("Next")
         text_rectangle = self.tr("Rectangle")
@@ -1927,6 +1944,7 @@ class LabelingWidget(LabelDialog):
             f"<b>{text_mode}</b> {self.canvas.get_mode()} | "
             f"<b>{text_shortcuts}</b>"
             f" {text_chatbot}(<b>Ctrl+B</b>),"
+            f" {text_vqa}(<b>Ctrl+Q</b>),"
             f" {text_previous}(<b>A</b>),"
             f" {text_next}(<b>D</b>),"
             f" {text_rectangle}(<b>R</b>),"
@@ -2240,6 +2258,10 @@ class LabelingWidget(LabelDialog):
 
     def open_chatbot(self):
         dialog = ChatbotDialog(self)
+        _ = dialog.exec_()
+
+    def open_vqa(self):
+        dialog = VQADialog(self)
         _ = dialog.exec_()
 
     # Help
@@ -2824,7 +2846,7 @@ class LabelingWidget(LabelDialog):
     def load_labels(self, labels, clear_existing=True):
         """
         Load labels to the unique label list widget.
-        
+
         Args:
             labels (list): List of label names to load
             clear_existing (bool): Whether to clear existing labels before loading new ones
@@ -4414,20 +4436,28 @@ class LabelingWidget(LabelDialog):
         self.thumbnail_image_label.clear()
         self.thumbnail_container.hide()
 
-        model_config = self.auto_labeling_widget.model_manager.loaded_model_config
+        model_config = (
+            self.auto_labeling_widget.model_manager.loaded_model_config
+        )
         supported_model_list = list(_THUMBNAIL_RENDER_MODELS.keys())
-        if not (model_config and 
-                model_config.get("type") in supported_model_list and 
-                self.image_list):
+        if not (
+            model_config
+            and model_config.get("type") in supported_model_list
+            and self.image_list
+        ):
             return
 
         try:
             image_dir = osp.dirname(self.filename)
             parent_dir = osp.dirname(image_dir)
             base_name = osp.splitext(osp.basename(self.filename))[0]
-            save_dir, _thumbnail_file_ext = _THUMBNAIL_RENDER_MODELS[model_config["type"]]
+            save_dir, _thumbnail_file_ext = _THUMBNAIL_RENDER_MODELS[
+                model_config["type"]
+            ]
             thumbnail_dir = osp.join(parent_dir, save_dir)
-            thumbnail_path = osp.join(thumbnail_dir, base_name + _thumbnail_file_ext)
+            thumbnail_path = osp.join(
+                thumbnail_dir, base_name + _thumbnail_file_ext
+            )
             if not osp.exists(thumbnail_path):
                 return
 

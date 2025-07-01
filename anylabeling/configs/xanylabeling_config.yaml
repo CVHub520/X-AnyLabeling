@@ -100,6 +100,7 @@ shortcuts:
   open_video: Ctrl+O
   open_dir: Ctrl+U
   open_chatbot: Ctrl+B
+  open_vqa: Ctrl+1
   quit: Ctrl+Q
   save: Ctrl+S
   save_as: Ctrl+Shift+S

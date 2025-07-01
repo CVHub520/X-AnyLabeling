@@ -65,7 +65,7 @@ class RMBG(Model):
             self.input_shape = self.net.get_input_shape()[-2:]
             self.mean = 0.5
             self.std = 1.0
-        
+
         self.save_dir, self.file_ext = _THUMBNAIL_RENDER_MODELS["rmbg"]
 
     def preprocess(self, image: np.ndarray) -> np.ndarray:

@@ -247,7 +247,9 @@ class DepthAnything(Model):
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
         self.render_mode = self.config.get("render_mode", "color")
-        self.save_dir, self.file_ext = _THUMBNAIL_RENDER_MODELS["depth_anything"]
+        self.save_dir, self.file_ext = _THUMBNAIL_RENDER_MODELS[
+            "depth_anything"
+        ]
 
     def preprocess(self, input_image):
         """

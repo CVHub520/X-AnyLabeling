@@ -141,7 +141,9 @@ def on_thumbnail_click(widget):
     def _on_click(event):
         if widget.thumbnail_pixmap and not widget.thumbnail_pixmap.isNull():
             dialog = QtWidgets.QDialog(widget)
-            dialog.setWindowTitle(widget.tr("Thumbnail - Click anywhere to close"))
+            dialog.setWindowTitle(
+                widget.tr("Thumbnail - Click anywhere to close")
+            )
             dialog.setModal(True)
 
             main_layout = QtWidgets.QVBoxLayout()
@@ -174,7 +176,7 @@ def on_thumbnail_click(widget):
                 display_width,
                 display_height,
                 Qt.KeepAspectRatio,
-                Qt.SmoothTransformation
+                Qt.SmoothTransformation,
             )
 
             label.setPixmap(scaled_pixmap)
@@ -200,7 +202,7 @@ def on_thumbnail_click(widget):
 
             dialog.move(
                 (screen_size.width() - total_width) // 2,
-                (screen_size.height() - total_height) // 2
+                (screen_size.height() - total_height) // 2,
             )
             dialog.exec_()
 

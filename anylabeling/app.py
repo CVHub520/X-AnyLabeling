@@ -28,7 +28,9 @@ from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils import new_icon, gradient_text
-from anylabeling.views.labeling.utils.update_checker import check_for_updates_async
+from anylabeling.views.labeling.utils.update_checker import (
+    check_for_updates_async,
+)
 
 # NOTE: Do not remove this import, it is required for loading translations
 from anylabeling.resources import resources
@@ -234,6 +236,7 @@ def main():
         sys.exit(0)
 
     if not no_auto_update_check:
+
         def delayed_update_check():
             check_for_updates_async(timeout=5)
 

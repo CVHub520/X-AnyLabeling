@@ -26,7 +26,9 @@ from anylabeling.views.labeling.utils.general import (
     open_url,
 )
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
-from anylabeling.views.labeling.utils.update_checker import check_for_updates_sync
+from anylabeling.views.labeling.utils.update_checker import (
+    check_for_updates_sync,
+)
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.chatbot.render import convert_markdown_to_html
 

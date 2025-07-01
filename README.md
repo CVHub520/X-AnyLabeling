@@ -43,6 +43,7 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 
 ## 🥳 What's New
 
+- Add Visual Question Answering (VQA) annotation tool for creating image Q&A datasets
 - Add automatic update check on startup
 - Add rectangle scaling and edge adjustment with mouse wheel support
 - Add GUI support for uploading custom label classes
@@ -97,6 +98,8 @@ https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
 2. [Usage](./docs/en/user_guide.md)
 3. [Customize a model](./docs/en/custom_model.md)
 4. [Chatbot](./docs/en/chatbot.md)
+5. [VQA](./docs/en/vqa.md)
+
 
 ## Examples
 
