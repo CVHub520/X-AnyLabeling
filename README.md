@@ -19,37 +19,47 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079
+<video src="https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079" width="100%" controls>
+</video>
 
-https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8
+</br>
 
-<div align="center"><strong>Text/Visual Prompting and Prompt-free for Detection & Segmentation</strong></div>
+<details>
+<summary><strong>Text/Visual Prompting and Prompt-free for Detection & Segmentation</strong></summary>
 
-<br>
+<video src="https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8" width="100%" controls>
+</video>
+</details>
+
+<details>
+<summary><strong>Detect Anything</strong></summary>
 
 <img src="https://github.com/user-attachments/assets/7f43bcec-96fd-48d1-bd36-9e5a440a66f6" width="100%" />
-<div align="center"><strong>Detect Anything</strong></div>
+</details>
 
-<br>
+<details>
+<summary><strong>Segment Anything</strong></summary>
 
 <img src="https://github.com/user-attachments/assets/208dc9ed-b8c9-4127-9e5b-e76f53892f03" width="100%" />
-<div align="center"><strong>Segment Anything</strong></div>
+</details>
 
-<br>
+<details>
+<summary><strong>Chatbot</strong></summary>
 
 <img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
-<div align="center"><strong>Chatbot</strong></div>
+</details>
+
+<details>
+<summary><strong>VQA</strong></summary>
+
+<video src="https://github.com/user-attachments/assets/92807672-f101-475b-b790-9caa1c31da05" width="100%" controls>
+</video>
+</details>
 
 
 ## 🥳 What's New
 
-- Add Visual Question Answering (VQA) annotation tool for creating image Q&A datasets
-- Add automatic update check on startup
-- Add rectangle scaling and edge adjustment with mouse wheel support
-- Add GUI support for uploading custom label classes
-- Add real-time preview dialog for image matting and depth estimation results
-- Support `RMBG v2.0` model for image matting
-- Bump version to [3.0.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.0.3)
+- Bump version to [3.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.0)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
@@ -173,4 +183,8 @@ If you use this software in your research, please cite it as below:
 }
 ```
 
-<div align="right"><a href="#top">🔝 Back to Top</a></div>
+---
+
+![Star History Chart](https://api.star-history.com/svg?repos=CVHub520/X-AnyLabeling&type=Date)
+
+<div align="center"><a href="#top">🔝 返回顶部</a></div>

@@ -4,6 +4,13 @@
 ### 安装与运行相关问题
 
 <details>
+<summary>Q: 启动时报错：Failed to execute script 'app' due to unhandled exception: 'str' object does not support item assignment</summary>
+
+删除用户目录下的配置文件后再重启。
+可参考[#996](https://github.com/CVHub520/X-AnyLabeling/issues/996)。
+</details>
+
+<details>
 <summary>Q: 启动时报错：OPENSSL_Uplink(00007FFE6B47AC88,08): not OPENSSL_Applink</summary>
 
 可参考[#941](https://github.com/CVHub520/X-AnyLabeling/issues/941)。
@@ -24,13 +31,14 @@
 <details>
 <summary>Q: 启动时报错：AttributeError: 'NoneType' object has no attribute 'items'</summary>
 
-可删除用户目录下的 `.xanylabelingrc` 文件再尝试重启。详情可参考[#877](https://github.com/CVHub520/X-AnyLabeling/issues/877)。
+可删除用户目录下的 `.xanylabelingrc` 文件再尝试重启。可参考[#877](https://github.com/CVHub520/X-AnyLabeling/issues/877)。
 </details>
 
 <details>
 <summary>Q: 启动时报错：`Could not locate cublasLt64_12.dll. Please make sure it is in your library path!` </summary>
 
-OnnxRunTime 库与 CUDA 版本不兼容，详情可参考[#844](https://github.com/CVHub520/X-AnyLabeling/issues/844)。
+方案1：OnnxRunTime 库与 CUDA 版本不兼容，可参考[#844](https://github.com/CVHub520/X-AnyLabeling/issues/844)；
+方案2：针对于没有全局安装 CUDA、CUDNN 的方法，可参考[#1014](https://github.com/CVHub520/X-AnyLabeling/issues/1014)。
 </details>
 
 <details>
@@ -67,10 +75,28 @@ OnnxRunTime 库与 CUDA 版本不兼容，详情可参考[#844](https://github.c
 ### 界面交互相关问题
 
 <details>
+<summary>Q: 如何快速绘制小目标物体？</summary>
+
+可参考[#1000](https://github.com/CVHub520/X-AnyLabeling/issues/1000)。 
+</details>
+
+<details>
+<summary>Q: 如何标注镂空目标用于图像分割任务？</summary>
+
+可参考[#991](https://github.com/CVHub520/X-AnyLabeling/issues/991)。 
+</details>
+
+<details>
+<summary>Q: 如何快速进行多目标关键点标签与分组标注？</summary>
+
+可参考[#982](https://github.com/CVHub520/X-AnyLabeling/issues/982)。 
+</details>
+
+<details>
 <summary>Q: 绘制矩形等目标框时，如何开启连续绘制模式？</summary>
 
 可以打开电脑用户目录下的 .xanylabelingrc 配置文件，修改 auto_highlight_shape 和 auto_switch_to_edit_mode 为 False。
-详情可参考[#887](https://github.com/CVHub520/X-AnyLabeling/issues/887)。 
+可参考[#887](https://github.com/CVHub520/X-AnyLabeling/issues/887)。 
 </details>
 
 <details>
@@ -82,7 +108,7 @@ OnnxRunTime 库与 CUDA 版本不兼容，详情可参考[#844](https://github.c
 <details>
 <summary>Q: 标注完成后，没有弹出标签管理器自动分配标签名称？</summary>
 
-取消勾选 `Auto Use Last Label`，详情可参考[#805](https://github.com/CVHub520/X-AnyLabeling/issues/805)。
+取消勾选 `Auto Use Last Label`，可参考[#805](https://github.com/CVHub520/X-AnyLabeling/issues/805)。
 </details>
 
 <details>
@@ -99,6 +125,51 @@ OnnxRunTime 库与 CUDA 版本不兼容，详情可参考[#844](https://github.c
 
 
 ### 模型相关问题
+
+<details>
+<summary>Q: Error in loading model: YOLOE model will be not be available.</summary>
+
+可参考[#997](https://github.com/CVHub520/X-AnyLabeling/issues/997)。
+</details>
+
+<details>
+<summary>Q: Error in loading model: yoloe with error: [WinError, 1314] 客户端没有所需的特权。mobileclip_blt.pt</summary>
+
+可参考[#992](https://github.com/CVHub520/X-AnyLabeling/issues/992)。
+</details>
+
+<details>
+<summary>Q: Error in loading custom model: Invalid config file format.</summary>
+
+可参考[#986](https://github.com/CVHub520/X-AnyLabeling/issues/986)。
+</details>
+
+<details>
+<summary>Q: Error in predict_shapes: cannot access local variable 'p' where it is not associated with a value</summary>
+
+可参考[#983](https://github.com/CVHub520/X-AnyLabeling/issues/983)。
+</details>
+
+<details>
+<summary>Q: Error in loading model :Could not download or initialize encoder data</summary>
+
+可参考[#961](https://github.com/CVHub520/X-AnyLabeling/issues/961)。
+</details>
+
+<details>
+<summary>Q: 下载的模型默认保存在什么位置？</summary>
+
+可参考[#943](https://github.com/CVHub520/X-AnyLabeling/issues/943)。
+</details>
+
+<details>
+<summary>Q: 模型预测的类别跟训练的类别对应不上</summary>
+
+检查自定义模型配置文件（*.yaml）是不是格式没写对：
+1. 默认2个字符缩进；
+2. key 不能有空格；
+可参考[#923](https://github.com/CVHub520/X-AnyLabeling/issues/923)。
+</details>
 
 <details>
 <summary>Q: Chatbot 中如何访问 'Google Gemini' 等需要外网访问的模型？</summary>
@@ -128,7 +199,7 @@ export https_proxy=http://ip:port
 <details>
 <summary>Q: 运行 yolo-pose 模型出现 `Error in loading model: 'list' object has no attribute 'items'`</summary>
 
-未按照官方模板编写配置文件，详情可参考[#880](https://github.com/CVHub520/X-AnyLabeling/issues/880)。
+未按照官方模板编写配置文件，可参考[#880](https://github.com/CVHub520/X-AnyLabeling/issues/880)。
 </details>
 
 <details>
@@ -136,19 +207,19 @@ export https_proxy=http://ip:port
 
 可参考以下解决方案：
     - 检查标签名称是否为纯数字，若是，请务必将其加上单引号；
-    - 检查配置文件中 `type` 字段是否正确定义，详情可参考[#837](https://github.com/CVHub520/X-AnyLabeling/issues/837)、[#878](https://github.com/CVHub520/X-AnyLabeling/issues/878)；
+    - 检查配置文件中 `type` 字段是否正确定义，可参考[#837](https://github.com/CVHub520/X-AnyLabeling/issues/837)、[#878](https://github.com/CVHub520/X-AnyLabeling/issues/878)；
 </details>
 
 <details>
 <summary>Q: Error with Error in loading model: exceptions must derive from BaseException</summary>
 
-请确保配置文件中，模型路径格式正确且存在。详情可参考[#868](https://github.com/CVHub520/X-AnyLabeling/issues/868)、[#441](https://github.com/CVHub520/X-AnyLabeling/issues/441)。
+请确保配置文件中，模型路径格式正确且存在。可参考[#868](https://github.com/CVHub520/X-AnyLabeling/issues/868)、[#441](https://github.com/CVHub520/X-AnyLabeling/issues/441)。
 </details>
 
 <details>
 <summary>Q: Error in model prediction: ‘int’ object is not subscriptable. Please check the model.</summary>
 
-如果是非官方内置的自定义模型，请检查模型预处理、推理和后处理部分，详情可参考[#828](https://github.com/CVHub520/X-AnyLabeling/issues/828).
+如果是非官方内置的自定义模型，请检查模型预处理、推理和后处理部分，可参考[#828](https://github.com/CVHub520/X-AnyLabeling/issues/828).
 </details>
 
 <details>
@@ -182,7 +253,8 @@ export https_proxy=http://ip:port
 
 1. 检查配置文件中的定义的类别与模型支持的类别列表是否一致。
 2. 使用 [netron](https://netron.app/) 工具比较自定义模型与官方对应的内置模型输入输出节点维度是否一致。
-3. 检查模型配置文件各个字段是否正确，详情可参考[#888](https://github.com/CVHub520/X-AnyLabeling/issues/888)。
+3. 检查模型配置文件各个字段是否正确，可参考[#888](https://github.com/CVHub520/X-AnyLabeling/issues/888)。
+4. 检查是否擅自修改了某个内置字段名称，可参考[#983](https://github.com/CVHub520/X-AnyLabeling/issues/983)。
 </details>
 
 <details>
@@ -258,15 +330,30 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 ### 文件相关问题
 
 <details>
+<summary>Q: 在 Labelme 中导入 X-AnyLabeling 的标签会提示 `AssertionError` 错误</summary>
+
+可参考此[#1007](https://github.com/CVHub520/X-AnyLabeling/issues/1007)。
+</details>
+
+<details>
+<summary>Q: 导出标签时发生错误：Error occurred while exporting annotations. 'xxx' is not in list</summary>
+
+请按照以下步骤依次检查下：
+1. 按下 `ctrl+g` 查看当前任务的标注类别；
+2. 检查导出时上传的标签类别文件（`classes.txt`）中定义的类别是否与标注类别名称一一对应；
+3. 检查是否选择了错误的导出类型，例如标注的是矩形框，导出时却选择了分割或旋转框等选项；
+</details>
+
+<details>
 <summary>Q: 加载图片目录时，出现 `segmentation fault` 段错误</summary>
 
-详情可参考此[#906](https://github.com/CVHub520/X-AnyLabeling/issues/906)。
+可参考此[#906](https://github.com/CVHub520/X-AnyLabeling/issues/906)。
 </details>
 
 <details>
 <summary>Q: 上传标签文件时发生错误，出现 `cannot identify image file xxx`</summary>
 
-请检查图片文件和标签文件有没有分目录存放。详情可参考此[#911](https://github.com/CVHub520/X-AnyLabeling/issues/869)。
+请检查图片文件和标签文件有没有分目录存放。可参考此[#911](https://github.com/CVHub520/X-AnyLabeling/issues/869)。
 </details>
 
 <details>
@@ -280,7 +367,7 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 
 请检查是否存在以下情况：
     - 标注类型与导出类型不一致，例如标注的的是 `rectangle` 矩形框，导出时选择 `Polygon` 选项；
-    - 导入的图像文件夹存在多级嵌套的子文件夹，详情可参考[#839](https://github.com/CVHub520/X-AnyLabeling/issues/839)；
+    - 导入的图像文件夹存在多级嵌套的子文件夹，可参考[#839](https://github.com/CVHub520/X-AnyLabeling/issues/839)；
 </details>
 
 <details>
