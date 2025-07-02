@@ -1944,7 +1944,7 @@ class LabelingWidget(LabelDialog):
             f"<b>{text_mode}</b> {self.canvas.get_mode()} | "
             f"<b>{text_shortcuts}</b>"
             f" {text_chatbot}(<b>Ctrl+B</b>),"
-            f" {text_vqa}(<b>Ctrl+Q</b>),"
+            f" {text_vqa}(<b>Ctrl+1</b>),"
             f" {text_previous}(<b>A</b>),"
             f" {text_next}(<b>D</b>),"
             f" {text_rectangle}(<b>R</b>),"
