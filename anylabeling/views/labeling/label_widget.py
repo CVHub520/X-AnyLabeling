@@ -3215,10 +3215,11 @@ class LabelingWidget(LabelDialog):
                     str(self.tr("X: %d, Y: %d")) % (int(pos.x()), int(pos.y()))
                 )
 
-    def scroll_request(self, delta, orientation):
-        units = -delta * 0.1  # natural scroll
+    def scroll_request(self, delta, orientation, mode):
         scroll_bar = self.scroll_bars[orientation]
-        value = scroll_bar.value() + scroll_bar.singleStep() * units
+        units = -delta * (0.1 if mode == 0 else 1)
+        step = scroll_bar.singleStep() if mode == 0 else scroll_bar.maximum()
+        value = scroll_bar.value() + step * units
         self.set_scroll(orientation, value)
 
     def set_scroll(self, orientation, value):
