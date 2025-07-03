@@ -31,7 +31,7 @@ class Canvas(
     """Canvas widget to handle label drawing"""
 
     zoom_request = QtCore.pyqtSignal(int, QtCore.QPoint)
-    scroll_request = QtCore.pyqtSignal(int, int)
+    scroll_request = QtCore.pyqtSignal(float, int, int)
     # [Feature] support for automatically switching to editing mode
     # when the cursor moves over an object
     mode_changed = QtCore.pyqtSignal()
@@ -90,6 +90,7 @@ class Canvas(
         #   - create_mode == 'point': the point
         self.line = Shape()
         self.prev_point = QtCore.QPoint()
+        self.prev_pan_point = QtCore.QPoint()
         self.prev_move_point = QtCore.QPoint()
         self.offsets = QtCore.QPointF(), QtCore.QPointF()
         self.scale = 1.0
@@ -438,6 +439,13 @@ class Canvas(
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_width, shape_height, pos)
+            else:
+                if self.pixmap and self.pixmap.width() and self.pixmap.height():
+                    self.override_cursor(CURSOR_MOVE)
+                    delta = ev.localPos() - self.prev_pan_point
+                    self.scroll_request.emit(delta.x() / (self.pixmap.width() * self.scale), Qt.Horizontal, 1)
+                    self.scroll_request.emit(delta.y() / (self.pixmap.height() * self.scale), Qt.Vertical, 1)
+                    self.repaint()
             return
 
         if self.editing() and self.is_move_editing:
@@ -681,6 +689,7 @@ class Canvas(
                     pos, multiple_selection_mode=group_mode
                 )
                 self.prev_point = pos
+                self.prev_pan_point = ev.localPos()
                 self.repaint()
         elif ev.button() == QtCore.Qt.RightButton and self.editing():
             group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
@@ -1690,8 +1699,8 @@ class Canvas(
             self.zoom_request.emit(delta.y(), ev.pos())
         else:
             # scroll
-            self.scroll_request.emit(delta.x(), QtCore.Qt.Horizontal)
-            self.scroll_request.emit(delta.y(), QtCore.Qt.Vertical)
+            self.scroll_request.emit(delta.x(), QtCore.Qt.Horizontal, 0)
+            self.scroll_request.emit(delta.y(), QtCore.Qt.Vertical, 0)
         ev.accept()
 
     def _scale_rectangle(self, shape, scale_up):
