@@ -1699,8 +1699,8 @@ class Canvas(
             self.zoom_request.emit(delta.y(), ev.pos())
         else:
             # scroll
-            self.scroll_request.emit(delta.x(), QtCore.Qt.Horizontal)
-            self.scroll_request.emit(delta.y(), QtCore.Qt.Vertical)
+            self.scroll_request.emit(delta.x(), QtCore.Qt.Horizontal, 0)
+            self.scroll_request.emit(delta.y(), QtCore.Qt.Vertical, 0)
         ev.accept()
 
     def _scale_rectangle(self, shape, scale_up):
