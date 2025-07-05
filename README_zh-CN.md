@@ -59,7 +59,7 @@
 
 ## 🥳 新功能
 
-- X-AnyLabeling [v3.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.0) 最新版本发布
+- X-AnyLabeling [v3.1.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.1) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 

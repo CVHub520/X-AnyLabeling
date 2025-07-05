@@ -1,6 +1,23 @@
 # X-AnyLabeling Changelog
 
-## `v3.1.0` (July 02, 2025)
+## `v3.1.1` (Jul 05, 2025)
+
+### 🚀 New Features
+
+- Add customizable field export options for VQA dialog
+- Add ability to adjust the visible area of the image by dragging the mouse (#1019)
+
+### 🐛 Bug Fixes
+
+- Fix VQA keyboard shortcut (Ctrl+Q → Ctrl+1)
+
+### 🌟 Contributors
+
+A total of 2 developer contributed to this release.
+
+Thank @zhixuwei, @CVHub520
+
+## `v3.1.0` (Jul 02, 2025)
 
 ### 🚀 New Features
 
@@ -33,9 +50,9 @@
 
 ### 🌟 Contributors
 
-A total of 6 developer contributed to this release.
+A total of 7 developer contributed to this release.
 
-Thank @1955946542, @donkinone, @ljh725, @pipihuang2, @sunmooncode, @CVHub520
+Thank @1955946542, @donkinone, @ljh725, @pipihuang2, @sunmooncode, @zhixuwei, @CVHub520
 
 ## `v3.0.3` (May 28, 2025)
 

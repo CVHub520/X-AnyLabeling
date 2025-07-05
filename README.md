@@ -59,7 +59,7 @@
 
 ## 🥳 What's New
 
-- Bump version to [3.1.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.0)
+- Bump version to [3.1.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.1)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
@@ -187,4 +187,4 @@ If you use this software in your research, please cite it as below:
 
 ![Star History Chart](https://api.star-history.com/svg?repos=CVHub520/X-AnyLabeling&type=Date)
 
-<div align="center"><a href="#top">🔝 返回顶部</a></div>
+<div align="center"><a href="#top">🔝 Back to Top</a></div>
