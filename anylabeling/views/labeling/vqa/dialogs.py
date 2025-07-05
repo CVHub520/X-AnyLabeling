@@ -408,3 +408,272 @@ class DeleteComponentDialog(QDialog):
         """Get index of first selected component (for backwards compatibility)"""
         indices = self.get_selected_indices()
         return indices[-1] if indices else -1
+
+
+class ExportLabelsDialog(QDialog):
+    """Dialog for selecting and configuring label export options"""
+
+    def __init__(self, components, parent=None):
+        super().__init__(parent)
+        self.components = components
+        self.setWindowTitle(self.tr("Export Labels"))
+        self.setModal(True)
+
+        # Calculate dialog size based on content
+        base_height = 240
+        row_height = 35
+        field_count = len(components) + 3  # components + image/width/height
+        table_height = max(150, field_count * row_height + 50)
+        total_height = min(385, base_height + table_height)
+
+        self.setFixedSize(520, total_height)
+
+        layout = QVBoxLayout(self)
+
+        # Top controls
+        top_layout = QHBoxLayout()
+        top_layout.addStretch()
+
+        select_all_layout = QHBoxLayout()
+        select_all_label = QLabel(self.tr("Select All:"))
+        select_all_label.setStyleSheet(get_filename_label_style())
+
+        self.select_all_checkbox = QCheckBox()
+        self.select_all_checkbox.setToolTip(
+            self.tr("Select/Deselect All Fields")
+        )
+        self.select_all_checkbox.stateChanged.connect(
+            self.on_select_all_changed
+        )
+
+        select_all_layout.addWidget(select_all_label)
+        select_all_layout.addWidget(self.select_all_checkbox)
+        top_layout.addLayout(select_all_layout)
+
+        layout.addLayout(top_layout)
+
+        # Export fields table
+        self.export_table = QTableWidget()
+        field_count = len(components) + 3  # components + basic fields
+        self.export_table.setRowCount(field_count)
+        self.export_table.setColumnCount(4)
+
+        headers = [
+            self.tr("Type"),
+            self.tr("Original Key"),
+            self.tr("Export Key"),
+            self.tr("Select"),
+        ]
+        self.export_table.setHorizontalHeaderLabels(headers)
+
+        self.export_table.setSelectionBehavior(QTableWidget.SelectItems)
+        self.export_table.setSelectionMode(QTableWidget.NoSelection)
+        self.export_table.setAlternatingRowColors(True)
+        self.export_table.verticalHeader().setVisible(False)
+        self.export_table.setFocusPolicy(Qt.NoFocus)
+        self.export_table.verticalHeader().setDefaultSectionSize(32)
+        min_table_height = field_count * 32 + 30
+        self.export_table.setMinimumHeight(min_table_height)
+        self.export_table.setStyleSheet(get_component_dialog_combobox_style())
+
+        header = self.export_table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.Stretch)
+        header.setSectionResizeMode(3, QHeaderView.Fixed)
+        self.export_table.setColumnWidth(3, 80)
+
+        layout.addWidget(self.export_table, 1)
+
+        # Bottom controls
+        button_layout = QHBoxLayout()
+
+        self.status_label = QLabel(self.tr("No fields selected"))
+        self.status_label.setStyleSheet(get_status_label_style())
+        button_layout.addWidget(self.status_label)
+        button_layout.addStretch()
+
+        self.export_button = QPushButton(self.tr("Export"))
+        self.export_button.setStyleSheet(get_primary_button_style())
+        self.export_button.setEnabled(False)
+
+        self.cancel_button = QPushButton(self.tr("Cancel"))
+        self.cancel_button.setStyleSheet(get_cancel_button_style())
+
+        self.export_button.clicked.connect(self.accept)
+        self.cancel_button.clicked.connect(self.reject)
+
+        button_layout.addWidget(self.export_button)
+        button_layout.addWidget(self.cancel_button)
+        layout.addLayout(button_layout)
+
+        # Populate table after all widgets are created
+        self.populate_table()
+        self.export_table.resizeRowsToContents()
+
+    def populate_table(self):
+        """Populate table with basic fields and component fields"""
+        row = 0
+
+        # Basic fields
+        basic_fields = [
+            ("Basic", "image", "image"),
+            ("Basic", "width", "width"),
+            ("Basic", "height", "height"),
+        ]
+
+        for field_type, original_key, export_key in basic_fields:
+            # Type column
+            type_item = QTableWidgetItem(field_type)
+            type_item.setTextAlignment(Qt.AlignCenter)
+            type_item.setData(Qt.ForegroundRole, QColor("#718096"))
+            self.export_table.setItem(row, 0, type_item)
+
+            # Original key column
+            original_item = QTableWidgetItem(original_key)
+            original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.export_table.setItem(row, 1, original_item)
+
+            # Export key column (editable)
+            export_input = QLineEdit()
+            export_input.setText(export_key)
+            export_input.setStyleSheet(get_page_input_style())
+            self.export_table.setCellWidget(row, 2, export_input)
+
+            # Select column
+            checkbox_widget = QWidget()
+            checkbox_layout = QHBoxLayout(checkbox_widget)
+            checkbox_layout.setContentsMargins(0, 0, 0, 0)
+            checkbox_layout.setAlignment(Qt.AlignCenter)
+
+            checkbox = QCheckBox()
+            checkbox.setChecked(True)  # Basic fields selected by default
+            checkbox.stateChanged.connect(self.on_item_selection_changed)
+            checkbox_layout.addWidget(checkbox)
+
+            self.export_table.setCellWidget(row, 3, checkbox_widget)
+            row += 1
+
+        # Component fields
+        type_colors = {
+            "QLineEdit": QColor("#4299e1"),
+            "QRadioButton": QColor("#48bb78"),
+            "QComboBox": QColor("#ed8936"),
+            "QCheckBox": QColor("#9f7aea"),
+        }
+
+        for component in self.components:
+            # Type column
+            type_item = QTableWidgetItem(component["type"])
+            type_item.setTextAlignment(Qt.AlignCenter)
+            color = type_colors.get(component["type"], QColor("#718096"))
+            type_item.setData(Qt.ForegroundRole, color)
+            self.export_table.setItem(row, 0, type_item)
+
+            # Original key column
+            original_item = QTableWidgetItem(component["title"])
+            original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.export_table.setItem(row, 1, original_item)
+
+            # Export key column (editable)
+            export_input = QLineEdit()
+            export_input.setText(component["title"])
+            export_input.setStyleSheet(get_page_input_style())
+            self.export_table.setCellWidget(row, 2, export_input)
+
+            # Select column
+            checkbox_widget = QWidget()
+            checkbox_layout = QHBoxLayout(checkbox_widget)
+            checkbox_layout.setContentsMargins(0, 0, 0, 0)
+            checkbox_layout.setAlignment(Qt.AlignCenter)
+
+            checkbox = QCheckBox()
+            checkbox.setChecked(True)  # Components selected by default
+            checkbox.stateChanged.connect(self.on_item_selection_changed)
+            checkbox_layout.addWidget(checkbox)
+
+            self.export_table.setCellWidget(row, 3, checkbox_widget)
+            row += 1
+
+        # Update initial state
+        self.update_ui_state()
+
+    def on_select_all_changed(self, state):
+        """Handle select all checkbox state change"""
+        is_checked = state == Qt.Checked
+
+        for row in range(self.export_table.rowCount()):
+            checkbox_widget = self.export_table.cellWidget(row, 3)
+            if checkbox_widget:
+                checkbox = checkbox_widget.findChild(QCheckBox)
+                if checkbox:
+                    checkbox.blockSignals(True)
+                    checkbox.setChecked(is_checked)
+                    checkbox.blockSignals(False)
+
+        self.update_ui_state()
+
+    def on_item_selection_changed(self):
+        """Handle individual checkbox state change"""
+        selected_count = self.get_selected_count()
+        total_count = self.export_table.rowCount()
+
+        self.select_all_checkbox.blockSignals(True)
+        if selected_count == 0:
+            self.select_all_checkbox.setCheckState(Qt.Unchecked)
+        elif selected_count == total_count:
+            self.select_all_checkbox.setCheckState(Qt.Checked)
+        else:
+            self.select_all_checkbox.setCheckState(Qt.PartiallyChecked)
+        self.select_all_checkbox.blockSignals(False)
+
+        self.update_ui_state()
+
+    def get_selected_count(self):
+        """Get count of selected checkboxes"""
+        count = 0
+        for row in range(self.export_table.rowCount()):
+            checkbox_widget = self.export_table.cellWidget(row, 3)
+            if checkbox_widget:
+                checkbox = checkbox_widget.findChild(QCheckBox)
+                if checkbox and checkbox.isChecked():
+                    count += 1
+        return count
+
+    def update_ui_state(self):
+        """Update UI state (buttons and status label)"""
+        selected_count = self.get_selected_count()
+        has_selection = selected_count > 0
+
+        self.export_button.setEnabled(has_selection)
+
+        if selected_count == 0:
+            status_text = self.tr("No fields selected")
+        elif selected_count == 1:
+            status_text = self.tr("1 field selected")
+        else:
+            status_text = self.tr("%d fields selected") % selected_count
+
+        self.status_label.setText(status_text)
+
+    def get_export_config(self):
+        """Get export configuration based on user selections"""
+        config = {}
+
+        for row in range(self.export_table.rowCount()):
+            checkbox_widget = self.export_table.cellWidget(row, 3)
+            if checkbox_widget:
+                checkbox = checkbox_widget.findChild(QCheckBox)
+                if checkbox and checkbox.isChecked():
+                    original_key = self.export_table.item(row, 1).text()
+                    export_input = self.export_table.cellWidget(row, 2)
+                    export_key = (
+                        export_input.text().strip()
+                        if export_input
+                        else original_key
+                    )
+
+                    if export_key:  # Only add if export key is not empty
+                        config[original_key] = export_key
+
+        return config

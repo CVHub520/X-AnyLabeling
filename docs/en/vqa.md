@@ -106,10 +106,29 @@ VQA annotation data is stored in the `vqaData` field within the label file. The 
 
 ## Data Export
 
-Use the **Export Labels** button to export all VQA annotations in JSONL format, where each line contains the annotation data for one image as below:
+Use the **Export Labels** button to export all VQA annotations in JSONL format. The new export feature provides flexible field selection and renaming options.
 
-```jsonl
-{"image": "0000000000154.jpg", "question": "What animals are shown in the image?", "answer": "Two zebras are grazing in the grassland", "split": "train"}
-{"image": "0000000000155.jpg", "question": "What is the cat doing?", "answer": "sleeping", "split": "val"}
-...
-```
+### Export Configuration
+
+After clicking **Export Labels**, an export configuration dialog will open where you can:
+
+- **Select Export Fields**: Choose which fields to export via checkboxes
+- **Rename Export Keys**: Modify the field names used in export in the "Export Key" column  
+- **Batch Operations**: Use the "Select All" checkbox to quickly select or deselect all fields
+
+### Available Field Types
+
+The export dialog includes the following field types:
+
+1. **Basic Fields**:
+   - `image`: Image filename
+   - `width`: Image width
+   - `height`: Image height
+
+2. **Custom Component Fields**:
+   - All created custom components and their data
+   - Supports different component types: text input, radio buttons, dropdown select, checkboxes
+
+### Export Examples
+
+Based on your field selection and renaming settings, the exported JSONL file may look like:

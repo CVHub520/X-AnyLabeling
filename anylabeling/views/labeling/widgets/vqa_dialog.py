@@ -25,6 +25,7 @@ from PyQt5.QtGui import QPixmap, QIcon, QIntValidator
 from anylabeling.views.labeling.vqa import *
 from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.vqa.dialogs import ExportLabelsDialog
 
 
 class VQADialog(QDialog):
@@ -1210,6 +1211,19 @@ class VQADialog(QDialog):
             )
             return
 
+        export_dialog = ExportLabelsDialog(self.custom_components, self)
+        if export_dialog.exec_() != QDialog.Accepted:
+            return
+
+        export_config = export_dialog.get_export_config()
+        if not export_config:
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("No fields selected for export!"),
+            )
+            return
+
         export_path = QFileDialog.getSaveFileName(
             self,
             self.tr("Export Labels"),
@@ -1226,29 +1240,29 @@ class VQADialog(QDialog):
                 self.current_image_index = i
                 self.load_current_image_data()
 
+                # Basic image info
                 pixmap = QPixmap(image_file)
                 width = pixmap.width() if not pixmap.isNull() else 0
                 height = pixmap.height() if not pixmap.isNull() else 0
 
-                label_data = {
+                # Build data dict with all available fields
+                all_data = {
                     "image": os.path.basename(image_file),
                     "width": width,
                     "height": height,
                 }
 
-                # Only export data for currently defined components
+                # Add component data
                 other_data = getattr(self.parent(), "other_data", {})
                 if other_data:
                     vqa_data = other_data.get("vqaData", {})
-                    current_component_titles = {
-                        comp["title"] for comp in self.custom_components
-                    }
-                    filtered_vqa_data = {
-                        title: value
-                        for title, value in vqa_data.items()
-                        if title in current_component_titles
-                    }
-                    label_data.update(filtered_vqa_data)
+                    all_data.update(vqa_data)
+
+                # Filter and rename fields based on export config
+                label_data = {}
+                for original_key, export_key in export_config.items():
+                    if original_key in all_data:
+                        label_data[export_key] = all_data[original_key]
 
                 f.write(json.dumps(label_data, ensure_ascii=False) + "\n")
 

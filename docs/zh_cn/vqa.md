@@ -109,10 +109,41 @@ VQA 标注数据存储在标签文件的 `vqaData` 字段中。数据结构包�
 
 ## 数据导出
 
-使用 **Export Labels** 按钮可将所有 VQA 标注导出为 JSONL 格式，其中每行包含一张图像的标注数据，示例如下：
+使用 **Export Labels** 按钮可将所有 VQA 标注导出为 JSONL 格式。新的导出功能提供了灵活的字段选择和重命名选项。
+
+### 导出配置
+
+点击 **Export Labels** 后，将打开导出配置对话框，您可以：
+
+- **选择导出字段**：通过复选框选择要导出的字段
+- **重命名导出键**：在 "Export Key" 列中修改导出时使用的字段名
+- **批量操作**：使用 "Select All" 复选框快速选择或取消选择所有字段
+
+### 可导出字段类型
+
+导出对话框包含以下字段类型：
+
+1. **基础字段**（Basic）：
+   - `image`：图像文件名
+   - `width`：图像宽度
+   - `height`：图像高度
+
+2. **自定义组件字段**：
+   - 所有已创建的自定义组件及其数据
+   - 支持不同组件类型：文本输入、单选按钮、下拉选择、复选框
+
+### 导出示例
+
+根据您的字段选择和重命名设置，导出的 JSONL 文件可能如下所示：
 
 ```jsonl
-{"image": "0000000000154.jpg", "question": "图像中有几只斑马？", "answer": 3, "split": "train"}
-{"image": "0000000000155.jpg", "question": "猫在做什么？", "answer": "睡觉", "split": "val"}
-...
+{"image": "0000000000154.jpg", "width": 640, "height": 480, "question": "图像中有几只斑马？", "answer": 3, "split": "train"}
+{"image": "0000000000155.jpg", "width": 640, "height": 480, "question": "猫在做什么？", "answer": "睡觉", "split": "val"}
+```
+
+或者重命名后的格式：
+
+```jsonl
+{"filename": "0000000000154.jpg", "img_width": 640, "img_height": 480, "query": "图像中有几只斑马？", "response": 3, "dataset": "train"}
+{"filename": "0000000000155.jpg", "img_width": 640, "img_height": 480, "query": "猫在做什么？", "response": "睡觉", "dataset": "val"}
 ```

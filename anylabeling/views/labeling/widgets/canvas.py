@@ -440,11 +440,23 @@ class Canvas(
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_width, shape_height, pos)
             else:
-                if self.pixmap and self.pixmap.width() and self.pixmap.height():
+                if (
+                    self.pixmap
+                    and self.pixmap.width()
+                    and self.pixmap.height()
+                ):
                     self.override_cursor(CURSOR_MOVE)
                     delta = ev.localPos() - self.prev_pan_point
-                    self.scroll_request.emit(delta.x() / (self.pixmap.width() * self.scale), Qt.Horizontal, 1)
-                    self.scroll_request.emit(delta.y() / (self.pixmap.height() * self.scale), Qt.Vertical, 1)
+                    self.scroll_request.emit(
+                        delta.x() / (self.pixmap.width() * self.scale),
+                        Qt.Horizontal,
+                        1,
+                    )
+                    self.scroll_request.emit(
+                        delta.y() / (self.pixmap.height() * self.scale),
+                        Qt.Vertical,
+                        1,
+                    )
                     self.repaint()
             return
 
