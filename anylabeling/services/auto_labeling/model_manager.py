@@ -215,6 +215,7 @@ class ModelManager(QObject):
                     "Error in loading custom model: Invalid config file format."
                 )
             )
+            self.model_loaded.emit({})
             return False
 
         # Add or replace custom model
