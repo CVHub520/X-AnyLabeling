@@ -928,7 +928,13 @@ class LabelConverter:
                 continue
 
             self.reset()
-            frame_id = int(osp.splitext(file_name.rsplit("-")[-1])[0])
+            frame_id = osp.splitext(file_name.rsplit("_")[-1])[0]
+            if frame_id.isdigit():
+                frame_id = int(frame_id)
+            else:
+                match = re.search(r'\d+', frame_id)
+                frame_id = int(match.group()) if match else 0
+
             data = data_to_shape[frame_id]
             image_file = osp.join(image_path, file_name)
             imageWidth, imageHeight = self.get_image_size(image_file)
@@ -1739,7 +1745,14 @@ class LabelConverter:
                 im_height = data["imageHeight"]
             if im_ext is None:
                 im_ext = osp.splitext(osp.basename(data["imagePath"]))[-1]
-            frame_id = int(osp.splitext(label_file_name.split("-")[-1])[0])
+
+            frame_id = osp.splitext(label_file_name.rsplit("_")[-1])[0]
+            if frame_id.isdigit():
+                frame_id = int(frame_id)
+            else:
+                match = re.search(r'\d+', frame_id)
+                frame_id = int(match.group()) if match else 0
+
             for shape in data["shapes"]:
                 if shape["shape_type"] != "rectangle":
                     continue
@@ -1834,7 +1847,14 @@ class LabelConverter:
                 im_height = data["imageHeight"]
             if im_ext is None:
                 im_ext = osp.splitext(osp.basename(data["imagePath"]))[-1]
-            frame_id = int(osp.splitext(label_file_name.split("-")[-1])[0])
+
+            frame_id = osp.splitext(label_file_name.split("_")[-1])[0]
+            if frame_id.isdigit():
+                frame_id = int(frame_id)
+            else:
+                match = re.search(r'\d+', frame_id)
+                frame_id = int(match.group()) if match else 0
+
             for shape in data["shapes"]:
                 if shape["shape_type"] != "polygon":
                     continue
