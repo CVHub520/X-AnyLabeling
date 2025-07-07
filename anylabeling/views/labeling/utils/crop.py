@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import os.path as osp
 import shutil
+import sys
 from pathlib import Path
 
 import cv2
@@ -110,8 +111,9 @@ def crop_and_save(
     # Save image safely handling non-ASCII paths
     try:
         is_success, buf = cv2.imencode(".jpg", cropped_image)
-        if is_success:
-            buf.tofile(str(dst_file))
+        if is_success and buf is not None:
+            with open(str(dst_file), "wb") as f:
+                f.write(buf.tobytes())
         else:
             raise ValueError(f"Failed to save image: {dst_file}")
     except Exception as e:
@@ -199,8 +201,9 @@ def process_single_image(args):
 
             try:
                 is_success, buf = cv2.imencode(".jpg", cropped_image)
-                if is_success:
-                    buf.tofile(str(dst_file))
+                if is_success and buf is not None:
+                    with open(str(dst_file), "wb") as f:
+                        f.write(buf.tobytes())
                 else:
                     raise ValueError(f"Failed to save image: {dst_file}")
             except Exception as e:
@@ -375,7 +378,6 @@ def save_crop(self):
     QApplication.processEvents()
 
     try:
-        num_cores = max(1, int(multiprocessing.cpu_count() * 0.9))
         image_file_list = (
             [self.filename] if not self.image_list else self.image_list
         )
@@ -411,17 +413,31 @@ def save_crop(self):
             for image_file in image_file_list
         ]
 
-        with multiprocessing.Pool(processes=num_cores) as pool:
-            for i, _ in enumerate(
-                pool.imap(process_single_image, process_args)
-            ):
+        is_frozen = getattr(sys, 'frozen', False)
+        
+        if is_frozen:
+            logger.info("Running in PyInstaller environment, using single-thread processing")
+            for i, args in enumerate(process_args):
+                process_single_image(args)
                 progress_dialog.setValue(i + 1)
                 QApplication.processEvents()
 
                 if progress_dialog.wasCanceled():
-                    pool.terminate()
-                    pool.join()
                     return
+        else:
+            # Use multiprocessing to process images in parallel in the dev environment only.
+            num_cores = max(1, int(multiprocessing.cpu_count() * 0.9))
+            with multiprocessing.Pool(processes=num_cores) as pool:
+                for i, _ in enumerate(
+                    pool.imap(process_single_image, process_args)
+                ):
+                    progress_dialog.setValue(i + 1)
+                    QApplication.processEvents()
+
+                    if progress_dialog.wasCanceled():
+                        pool.terminate()
+                        pool.join()
+                        return
 
         progress_dialog.close()
         popup = Popup(
