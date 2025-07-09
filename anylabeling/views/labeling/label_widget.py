@@ -2295,6 +2295,10 @@ class LabelingWidget(LabelDialog):
         zoom_scale = 4
 
         item = self.label_list[self.label_loop_count]
+        for shape in self.canvas.selected_shapes:
+            shape.selected = False
+        self.canvas.h_hape = item.shape()
+
         xs = []
         ys = []
         # loop through all points on this label
