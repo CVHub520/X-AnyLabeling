@@ -1104,6 +1104,13 @@ class LabelingWidget(LabelDialog):
                 "Upload Custom Object Detection Visual Grounding Annotations"
             ),
         )
+        upload_mmgd_annotation = action(
+            self.tr("&Upload MM-Grounding-DINO Annotations"),
+            lambda: utils.upload_mmgd_annotation(self, LABEL_OPACITY),
+            None,
+            icon="format_mmgd",
+            tip=self.tr("Upload Custom MM-Grounding-DINO Annotations"),
+        )
         upload_ppocr_rec_annotation = action(
             self.tr("&Upload PPOCR-Rec Annotations"),
             lambda: utils.upload_ppocr_annotation(self, "rec"),
@@ -1376,6 +1383,7 @@ class LabelingWidget(LabelDialog):
             upload_mask_annotation=upload_mask_annotation,
             upload_mot_annotation=upload_mot_annotation,
             upload_odvg_annotation=upload_odvg_annotation,
+            upload_mmgd_annotation=upload_mmgd_annotation,
             upload_ppocr_rec_annotation=upload_ppocr_rec_annotation,
             upload_ppocr_kie_annotation=upload_ppocr_kie_annotation,
             upload_vlm_r1_ovd_annotation=upload_vlm_r1_ovd_annotation,
@@ -1593,6 +1601,7 @@ class LabelingWidget(LabelDialog):
                 upload_mask_annotation,
                 upload_mot_annotation,
                 upload_odvg_annotation,
+                upload_mmgd_annotation,
                 None,
                 upload_ppocr_rec_annotation,
                 upload_ppocr_kie_annotation,

@@ -59,6 +59,7 @@
 
 ## 🥳 What's New
 
+- Add support for [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) annotations upload
 - Bump version to [3.1.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.1)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
@@ -75,7 +76,7 @@
 - Accelerates inference with `GPU` support.
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.
-- Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, VLM-R1.
+- Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, MMGD, VLM-R1.
 - Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 

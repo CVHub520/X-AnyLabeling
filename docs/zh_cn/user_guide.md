@@ -29,6 +29,7 @@
       * [4.7 PPOCR标签](#47-ppocr标签)
       * [4.8 ODVG标签](#48-odvg标签)
       * [4.9 VLM-R1-OVD标签](#49-vlm-r1-ovd标签)
+      * [4.10 MMGD标签](#410-mmgd标签)
    * [5. 工具栏](#5-工具栏)
       * [5.1 数据统计](#51-数据统计)
       * [5.2 保存子图](#52-保存子图)
@@ -518,6 +519,18 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 其中，[classes.txt](../../assets/classes.txt) 文件用于指定需要导出的类别或短语提示。若不指定，则默认以每张图片为单位检测到所有类别或短语提示作为提示类别进行导出，并自动跳过空标签文件。
 
 > VLM-R1-OVD 标签文件导出示例可参考 [vlm_r1_ovd.jsonl](../../assets/vlm_r1_ovd.jsonl) 文件。
+
+### 4.10 MMGD标签
+
+当前 X-AnyLabeling v3.1.2+ 版本支持一键导入基于 [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) 预测所获取的标签文件。
+
+**导入流程**：
+1. 点击上方菜单栏的 `导入` 按钮。
+2. 选择对应的任务。
+3. 上传类别文件。
+4. 选择标签文件所在目录，并根据自己需求勾选感兴趣的类别并设置过滤阈值，点击确定即可。
+
+其中，[classes.txt](../../assets/classes.txt) 文件用于后续标签序号到类别名称的映射，每一行代表一个类别，编号从上至下从 0 开始依次递增。
 
 
 ### 5. 工具栏

@@ -932,7 +932,7 @@ class LabelConverter:
             if frame_id.isdigit():
                 frame_id = int(frame_id)
             else:
-                match = re.search(r'\d+', frame_id)
+                match = re.search(r"\d+", frame_id)
                 frame_id = int(match.group()) if match else 0
 
             data = data_to_shape[frame_id]
@@ -1010,6 +1010,67 @@ class LabelConverter:
             )
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+
+    def mmgd_to_custom(
+        self, input_file, output_file, image_file, labels, thresholds
+    ):
+        self.reset()
+
+        with open(input_file, "r", encoding="utf-8") as f:
+            mmgd_data = json.load(f)
+
+        required_keys = ["labels", "scores", "bboxes"]
+        missing_keys = [key for key in required_keys if key not in mmgd_data]
+        if missing_keys:
+            logger.error(
+                f"Missing required keys in uploaded file: {missing_keys}"
+            )
+            raise ValueError(
+                f"Missing required keys in uploaded file: {missing_keys}"
+            )
+        indexes = mmgd_data["labels"]
+        scores = mmgd_data["scores"]
+        bboxes = mmgd_data["bboxes"]
+
+        image_width, image_height = self.get_image_size(image_file)
+        self.custom_data["imagePath"] = osp.basename(image_file)
+        self.custom_data["imageHeight"] = image_height
+        self.custom_data["imageWidth"] = image_width
+
+        valid_label_set = set(labels)
+        filtered = [
+            (self.classes[index], score, bbox)
+            for index, score, bbox in zip(indexes, scores, bboxes)
+            if (
+                index < len(self.classes)
+                and self.classes[index] in valid_label_set
+                and score >= thresholds[self.classes[index]]
+            )
+        ]
+
+        for label, score, bbox in filtered:
+            xmin, ymin, xmax, ymax = bbox
+            points = [
+                [xmin, ymin],
+                [xmax, ymin],
+                [xmax, ymax],
+                [xmin, ymax],
+            ]
+            shape_type = "rectangle"
+            shape = {
+                "label": label,
+                "score": round(score, 2),
+                "description": "",
+                "points": points,
+                "group_id": None,
+                "difficult": False,
+                "shape_type": shape_type,
+                "flags": {},
+            }
+            self.custom_data["shapes"].append(shape)
+
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
 
     def ppocr_to_custom(self, input_file, output_path, image_path, mode):
         if mode in ["rec", "kie"]:
@@ -1750,7 +1811,7 @@ class LabelConverter:
             if frame_id.isdigit():
                 frame_id = int(frame_id)
             else:
-                match = re.search(r'\d+', frame_id)
+                match = re.search(r"\d+", frame_id)
                 frame_id = int(match.group()) if match else 0
 
             for shape in data["shapes"]:
@@ -1852,7 +1913,7 @@ class LabelConverter:
             if frame_id.isdigit():
                 frame_id = int(frame_id)
             else:
-                match = re.search(r'\d+', frame_id)
+                match = re.search(r"\d+", frame_id)
                 frame_id = int(match.group()) if match else 0
 
             for shape in data["shapes"]:

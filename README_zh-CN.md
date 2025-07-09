@@ -59,6 +59,7 @@
 
 ## 🥳 新功能
 
+- 新增支持 [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) 标签导入
 - X-AnyLabeling [v3.1.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.1) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
@@ -76,7 +77,7 @@
 - 支持一键预测所有图像。
 - 支持`图像`和`视频`处理。
 - 支持自定义模型和二次开发。
-- 支持一键导入和导出多种标签格式，如 COCO\VOC\YOLO\DOTA\MOT\MASK\PPOCR\VLM-R1 等；
+- 支持一键导入和导出多种标签格式，如 COCO\VOC\YOLO\DOTA\MOT\MASK\PPOCR\MMGF\VLM-R1 等；
 - 支持多种图像标注样式，包括 `多边形`、`矩形`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
 - 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`等。
 
