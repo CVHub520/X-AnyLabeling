@@ -2344,6 +2344,10 @@ class LabelingWidget(LabelDialog):
 
         self.set_scroll(Qt.Horizontal, x_scroll)
         self.set_scroll(Qt.Vertical, y_scroll)
+        for shape in self.canvas.selected_shapes:
+            shape.selected = False
+        self.canvas.prev_h_shape = self.canvas.h_hape = item.shape()
+        self.canvas.update()
 
     def copy_to_clipboard(self, text):
         clipboard = QtWidgets.QApplication.clipboard()
