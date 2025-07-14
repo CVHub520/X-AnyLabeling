@@ -4101,6 +4101,7 @@ class LabelingWidget(LabelDialog):
             else:
                 item.setCheckState(Qt.Unchecked)
             self.file_list_widget.addItem(item)
+            self.fn_to_index[file] = self.file_list_widget.count() - 1
 
         if len(self.image_list) > 1:
             self.actions.open_next_image.setEnabled(True)
