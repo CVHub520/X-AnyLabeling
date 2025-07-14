@@ -736,11 +736,19 @@ class LabelConverter:
                     "attributes": {},
                 }
                 total_info[dic_info["image_id"]]["shapes"].append(shape)
+
             elif mode == "polygon":
                 shape_type = "polygon"
-
                 segmentations_list = []
+
                 for segmentation in dic_info["segmentation"]:
+                    if isinstance(segmentation, dict) and "counts" in segmentation:
+                        # TODO: Handle RLE format segmentation
+                        continue
+
+                    if not isinstance(segmentation, list):
+                        continue
+
                     if len(segmentation) < 6 or len(segmentation) % 2 != 0:
                         continue
                     segmentations_list.append(segmentation)
@@ -758,8 +766,12 @@ class LabelConverter:
 
                 for segmentation in segmentations_list:
                     points = []
+                    seen_points = set()
                     for i in range(0, len(segmentation), 2):
-                        points.append([segmentation[i], segmentation[i + 1]])
+                        point = (segmentation[i], segmentation[i + 1])
+                        if point not in seen_points:
+                            points.append([point[0], point[1]])
+                            seen_points.add(point)
 
                     if not points:
                         continue
