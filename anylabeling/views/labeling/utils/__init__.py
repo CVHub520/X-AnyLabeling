@@ -65,6 +65,7 @@ from .upload import (
     upload_mask_annotation,
     upload_mot_annotation,
     upload_odvg_annotation,
+    upload_mmgd_annotation,
     upload_ppocr_annotation,
     upload_vlm_r1_ovd_annotation,
 )

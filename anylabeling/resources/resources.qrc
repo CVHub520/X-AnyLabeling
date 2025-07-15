@@ -65,6 +65,7 @@
         <file>images/format_default.png</file>
         <file>images/format_dota.png</file>
         <file>images/format_mask.png</file>
+        <file>images/format_mmgd.png</file>
         <file>images/format_mot.png</file>
         <file>images/format_obb.png</file>
         <file>images/format_odvg.png</file>

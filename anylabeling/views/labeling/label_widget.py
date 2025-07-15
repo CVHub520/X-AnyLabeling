@@ -1104,6 +1104,13 @@ class LabelingWidget(LabelDialog):
                 "Upload Custom Object Detection Visual Grounding Annotations"
             ),
         )
+        upload_mmgd_annotation = action(
+            self.tr("&Upload MM-Grounding-DINO Annotations"),
+            lambda: utils.upload_mmgd_annotation(self, LABEL_OPACITY),
+            None,
+            icon="format_mmgd",
+            tip=self.tr("Upload Custom MM-Grounding-DINO Annotations"),
+        )
         upload_ppocr_rec_annotation = action(
             self.tr("&Upload PPOCR-Rec Annotations"),
             lambda: utils.upload_ppocr_annotation(self, "rec"),
@@ -1376,6 +1383,7 @@ class LabelingWidget(LabelDialog):
             upload_mask_annotation=upload_mask_annotation,
             upload_mot_annotation=upload_mot_annotation,
             upload_odvg_annotation=upload_odvg_annotation,
+            upload_mmgd_annotation=upload_mmgd_annotation,
             upload_ppocr_rec_annotation=upload_ppocr_rec_annotation,
             upload_ppocr_kie_annotation=upload_ppocr_kie_annotation,
             upload_vlm_r1_ovd_annotation=upload_vlm_r1_ovd_annotation,
@@ -1593,6 +1601,7 @@ class LabelingWidget(LabelDialog):
                 upload_mask_annotation,
                 upload_mot_annotation,
                 upload_odvg_annotation,
+                upload_mmgd_annotation,
                 None,
                 upload_ppocr_rec_annotation,
                 upload_ppocr_kie_annotation,
@@ -2335,6 +2344,10 @@ class LabelingWidget(LabelDialog):
 
         self.set_scroll(Qt.Horizontal, x_scroll)
         self.set_scroll(Qt.Vertical, y_scroll)
+        for shape in self.canvas.selected_shapes:
+            shape.selected = False
+        self.canvas.prev_h_shape = self.canvas.h_hape = item.shape()
+        self.canvas.update()
 
     def copy_to_clipboard(self, text):
         clipboard = QtWidgets.QApplication.clipboard()
@@ -4096,6 +4109,7 @@ class LabelingWidget(LabelDialog):
             else:
                 item.setCheckState(Qt.Unchecked)
             self.file_list_widget.addItem(item)
+            self.fn_to_index[file] = self.file_list_widget.count() - 1
 
         if len(self.image_list) > 1:
             self.actions.open_next_image.setEnabled(True)

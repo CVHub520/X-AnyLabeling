@@ -441,10 +441,34 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         super(GroupIDModifyDialog, self).__init__(parent)
 
         self.parent = parent
-        self.shape_list = parent.get_label_file_list()
+        self.image_file_list = self.get_image_file_list()
+        self.shape_list = self.get_shape_file_list()
         self.gid_info = self.get_gid_info()
+        self.start_index = 1
+        self.end_index = len(self.image_file_list)
 
         self.init_ui()
+
+    def get_image_file_list(self):
+        image_file_list = []
+        count = self.parent.file_list_widget.count()
+        for c in range(count):
+            image_file = self.parent.file_list_widget.item(c).text()
+            image_file_list.append(image_file)
+        return image_file_list
+
+    def get_shape_file_list(self):
+        shape_file_list = []
+        for image_file in self.image_file_list:
+            label_dir, filename = os.path.split(image_file)
+            if self.parent.output_dir:
+                label_dir = self.parent.output_dir
+            label_file = os.path.join(
+                label_dir, os.path.splitext(filename)[0] + ".json"
+            )
+            if os.path.exists(label_file):
+                shape_file_list.append(label_file)
+        return shape_file_list
 
     def get_gid_info(self):
         """Get the group IDs from the shape files.
@@ -494,7 +518,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.table_widget.horizontalHeader().setSectionResizeMode(
             0, QtWidgets.QHeaderView.Fixed
         )
-        self.table_widget.setColumnWidth(0, 240)
+        self.table_widget.setColumnWidth(0, 260)
 
         # Table style
         self.table_widget.setStyleSheet(
@@ -567,62 +591,41 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             "color: #666666; font-size: 13px;"
         )
         self.table_widget.verticalHeader().setDefaultAlignment(Qt.AlignCenter)
-        self.table_widget.verticalHeader().setFixedWidth(30)
-
-        # Buttons layout
-        self.buttons_layout = QtWidgets.QHBoxLayout()
-        self.buttons_layout.setSpacing(12)
-
-        # Cancel button
-        self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"), self)
-        self.cancel_button.setFixedSize(120, 36)
-        self.cancel_button.clicked.connect(self.reject)
-        self.cancel_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #F5F5F7;
-                color: #1d1d1f;
-                border: none;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #EBEBEB;
-            }
-            QPushButton:pressed {
-                background-color: #DEDEDE;
-            }
-        """
-        )
-
-        # Confirm button
-        self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"), self)
-        self.confirm_button.setFixedSize(120, 36)
-        self.confirm_button.clicked.connect(self.confirm_changes)
-        self.confirm_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #0071e3;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #0077ED;
-            }
-            QPushButton:pressed {
-                background-color: #0068D0;
-            }
-        """
-        )
-
-        self.buttons_layout.addStretch()
-        self.buttons_layout.addWidget(self.cancel_button)
-        self.buttons_layout.addWidget(self.confirm_button)
+        self.table_widget.verticalHeader().setFixedWidth(50)
 
         layout.addWidget(self.table_widget)
-        layout.addLayout(self.buttons_layout)
+
+        range_layout = QtWidgets.QHBoxLayout()
+        range_layout.addStretch(1)
+
+        from_label = QtWidgets.QLabel("From:")
+        self.from_input = QtWidgets.QSpinBox()
+        self.from_input.setMinimum(1)
+        self.from_input.setMaximum(len(self.image_file_list))
+        self.from_input.setSingleStep(1)
+        self.from_input.setValue(self.start_index)
+        self.from_input.setStyleSheet(get_spinbox_style())
+        range_layout.addWidget(from_label)
+        range_layout.addWidget(self.from_input)
+
+        to_label = QtWidgets.QLabel("To:")
+        self.to_input = QtWidgets.QSpinBox()
+        self.to_input.setMinimum(1)
+        self.to_input.setMaximum(len(self.image_file_list))
+        self.to_input.setSingleStep(1)
+        self.to_input.setValue(len(self.image_file_list))
+        self.to_input.setStyleSheet(get_spinbox_style())
+        range_layout.addWidget(to_label)
+        range_layout.addWidget(self.to_input)
+
+        self.range_button = QtWidgets.QPushButton("Go")
+        self.range_button.setStyleSheet(get_ok_btn_style())
+        range_layout.addWidget(self.range_button)
+        self.range_button.clicked.connect(self.update_range)
+
+        range_layout.addStretch(1)
+
+        layout.addLayout(range_layout)
 
         self.populate_table()
 
@@ -666,11 +669,38 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             # Set row height
             self.table_widget.setRowHeight(i, 50)
 
-    def confirm_changes(self):
+    def update_range(self):
+        from_value = (
+            int(self.from_input.text())
+            if self.from_input.text()
+            else self.start_index
+        )
+        to_value = (
+            int(self.to_input.text())
+            if self.to_input.text()
+            else self.end_index
+        )
+        if (
+            (from_value > to_value)
+            or (from_value < 1)
+            or (to_value > len(self.image_file_list))
+        ):
+            self.from_input.setValue(1)
+            self.to_input.setValue(len(self.image_file_list))
+            QtWidgets.QMessageBox.information(
+                self,
+                self.tr("Invalid Range"),
+                self.tr("Please enter a valid range."),
+            )
+        else:
+            self.start_index = from_value
+            self.end_index = to_value
+            self.confirm_changes(self.start_index, self.end_index)
+
+    def confirm_changes(self, start_index: int = -1, end_index: int = -1):
         """Confirm the changes."""
         total_num = self.table_widget.rowCount()
         if total_num == 0:
-            self.reject()
             return
 
         # Temporary dictionary to handle changes
@@ -697,7 +727,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.gid_info = new_gid_info
 
         # Try to modify group IDs
-        if self.modify_group_id(updated_gid_info):
+        if self.modify_group_id(updated_gid_info, start_index, end_index):
             popup = Popup(
                 self.tr("Group IDs modified successfully!"),
                 self.parent,
@@ -713,11 +743,25 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             )
             popup.show_popup(self.parent)
 
-    def modify_group_id(self, updated_gid_info):
+    def modify_group_id(self, updated_gid_info, start_index: int = -1, end_index: int = -1):
         """Modify the group IDs."""
         try:
-            for shape_file in self.shape_list:
-                with open(shape_file, "r", encoding="utf-8") as f:
+            if start_index == -1:
+                start_index = self.start_index
+            if end_index == -1:
+                end_index = self.end_index
+            for i, image_file in enumerate(self.image_file_list):
+                if i < start_index - 1 or i > end_index - 1:
+                    continue
+                label_dir, filename = os.path.split(image_file)
+                if self.parent.output_dir:
+                    label_dir = self.parent.output_dir
+                label_file = os.path.join(
+                    label_dir, os.path.splitext(filename)[0] + ".json"
+                )
+                if not os.path.exists(label_file):
+                    continue
+                with open(label_file, "r", encoding="utf-8") as f:
                     data = json.load(f)
 
                 src_shapes, dst_shapes = data["shapes"], []
@@ -732,7 +776,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
 
-                with open(shape_file, "w", encoding="utf-8") as f:
+                with open(label_file, "w", encoding="utf-8") as f:
                     json.dump(data, f, indent=2, ensure_ascii=False)
 
             return True

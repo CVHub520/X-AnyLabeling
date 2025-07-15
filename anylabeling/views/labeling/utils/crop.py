@@ -90,7 +90,9 @@ def crop_and_save(
     xmax, ymax = min(width, xmax), min(height, ymax)
 
     if xmin >= xmax or ymin >= ymax:
-        logger.warning(f"Invalid crop region: xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax}")
+        logger.warning(
+            f"Invalid crop region: xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax}"
+        )
         return
 
     cropped_image = image[ymin:ymax, xmin:xmax]
@@ -184,7 +186,9 @@ def process_single_image(args):
             xmax, ymax = min(width, x + w), min(height, y + h)
 
             if xmin >= xmax or ymin >= ymax:
-                logger.warning(f"Invalid crop region: xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax}")
+                logger.warning(
+                    f"Invalid crop region: xmin={xmin}, xmax={xmax}, ymin={ymin}, ymax={ymax}"
+                )
                 continue
 
             cropped_image = image[ymin:ymax, xmin:xmax]
@@ -413,10 +417,12 @@ def save_crop(self):
             for image_file in image_file_list
         ]
 
-        is_frozen = getattr(sys, 'frozen', False)
-        
+        is_frozen = getattr(sys, "frozen", False)
+
         if is_frozen:
-            logger.info("Running in PyInstaller environment, using single-thread processing")
+            logger.info(
+                "Running in PyInstaller environment, using single-thread processing"
+            )
             for i, args in enumerate(process_args):
                 process_single_image(args)
                 progress_dialog.setValue(i + 1)
