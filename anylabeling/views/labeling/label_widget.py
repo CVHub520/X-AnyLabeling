@@ -2875,7 +2875,7 @@ class LabelingWidget(LabelDialog):
         shape.hvertex_fill_color = QtGui.QColor(255, 255, 255)
         shape.fill_color = QtGui.QColor(r, g, b, 128)
         shape.select_line_color = QtGui.QColor(255, 255, 255)
-        shape.select_fill_color = QtGui.QColor(r, g, b, 155)
+        shape.select_fill_color = QtGui.QColor(r, g, b, 30)  # make the fill color more transparent, change from 155 to 30
 
     def _get_rgb_by_label(self, label, skip_label_info=False):
         if label in self.label_info and not skip_label_info:
@@ -3243,15 +3243,23 @@ class LabelingWidget(LabelDialog):
 
     def zoom_request(self, delta, pos):
         canvas_width_old = self.canvas.width()
+        # add height zoom ratio for more accurate cursor location 
+        canvas_height_old = self.canvas.height()
+
         units = 1.1
         if delta < 0:
             units = 0.9
         self.add_zoom(units)
 
         canvas_width_new = self.canvas.width()
-        if canvas_width_old != canvas_width_new:
+        canvas_height_new = self.canvas.height()
+        canvas_scale_factor = 1
+        if canvas_height_old != canvas_height_new:
+            canvas_scale_factor = canvas_height_new / canvas_height_old
+        elif canvas_width_old != canvas_width_new:
             canvas_scale_factor = canvas_width_new / canvas_width_old
-
+        
+        if canvas_scale_factor != 1:
             x_shift = round(pos.x() * canvas_scale_factor - pos.x())
             y_shift = round(pos.y() * canvas_scale_factor - pos.y())
 

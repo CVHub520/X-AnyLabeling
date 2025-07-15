@@ -1422,15 +1422,19 @@ class Canvas(
                         bbox = shape.bounding_rect()
                     except IndexError:
                         continue
+                    # draw the labe text outside of the shape
                     rect = QtCore.QRect(
                         int(bbox.x()),
-                        int(bbox.y()),
+                        # int(bbox.y()),
+                        int(bbox.y() - bound_rect.height()),
                         int(bound_rect.width()),
                         int(bound_rect.height()),
                     )
+                    
                     text_pos = QtCore.QPoint(
                         int(bbox.x()),
-                        int(bbox.y() + bound_rect.height() - d_text),
+                        # int(bbox.y() + bound_rect.height() - d_text),
+                        int(max(bbox.y() - d_text, 0)),
                     )
                 elif shape.shape_type in [
                     "circle",
@@ -1472,10 +1476,15 @@ class Canvas(
 
         # Draw mouse coordinates
         if self.cross_line_show:
+            # print(self.editing)
+            pen_style = Qt.SolidLine
+            if self.editing():
+                pen_style = Qt.DotLine
             pen = QtGui.QPen(
                 QtGui.QColor(self.cross_line_color),
                 max(1, int(round(self.cross_line_width / Shape.scale))),
-                Qt.DashLine,
+                # Qt.DashLine,
+                pen_style,
             )
             p.setPen(pen)
             p.setOpacity(self.cross_line_opacity)
