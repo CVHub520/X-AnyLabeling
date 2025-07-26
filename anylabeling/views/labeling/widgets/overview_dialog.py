@@ -161,7 +161,7 @@ class OverviewDialog(QtWidgets.QDialog):
         self.export_button.setProperty("class", "secondary-button")
 
         # Add toggle button to switch between label_infos and shape_infos
-        self.toggle_button = QPushButton(self.tr("Show Shape Infos"))
+        self.toggle_button = QPushButton(self.tr("Shape"))
         self.toggle_button.setProperty("class", "secondary-button")
         self.toggle_button.clicked.connect(self.toggle_info)
 
@@ -488,7 +488,7 @@ class OverviewDialog(QtWidgets.QDialog):
         """
         self.showing_label_infos = not self.showing_label_infos
         if self.showing_label_infos:
-            self.toggle_button.setText(self.tr("Show Shape Infos"))
+            self.toggle_button.setText(self.tr("Shape"))
         else:
-            self.toggle_button.setText(self.tr("Show Label Infos"))
+            self.toggle_button.setText(self.tr("Label"))
         self.populate_table(self.start_index, self.end_index)
