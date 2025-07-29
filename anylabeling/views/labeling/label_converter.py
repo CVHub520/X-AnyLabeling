@@ -35,7 +35,7 @@ class LabelConverter:
         if pose_cfg_file:
             with open(pose_cfg_file, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
-                self.has_vasiable = data["has_visible"]
+                self.has_visible = data["has_visible"]
                 for class_name, keypoint_name in data["classes"].items():
                     self.pose_classes[class_name] = keypoint_name
                 self.classes = list(self.pose_classes.keys())
@@ -539,12 +539,12 @@ class LabelConverter:
             # Add keypoints info
             keypoint_name = self.pose_classes[label]
             keypoints = line[5:]
-            interval = 3 if self.has_vasiable else 2
+            interval = 3 if self.has_visible else 2
             for j in range(0, len(keypoints), interval):
                 x = float(keypoints[j]) * img_w
                 y = float(keypoints[j + 1]) * img_h
-                flag = int(keypoints[j + 2]) if self.has_vasiable else 0
-                if (x == 0 and y == 0) or (flag == 0 and self.has_vasiable):
+                flag = int(keypoints[j + 2]) if self.has_visible else 0
+                if (x == 0 and y == 0) or (flag == 0 and self.has_visible):
                     continue
                 if interval == 3 and flag == 1:
                     difficult = True
@@ -823,14 +823,14 @@ class LabelConverter:
                 keypoints = dic_info["keypoints"]
                 kpt_names = self.pose_classes[label]
                 if len(kpt_names) * 3 == len(keypoints):
-                    has_vasiable = True
+                    has_visible = True
                 else:
-                    has_vasiable = False
-                interval = 3 if has_vasiable else 2
+                    has_visible = False
+                interval = 3 if has_visible else 2
                 for i in range(0, len(keypoints), interval):
                     x = keypoints[i]
                     y = keypoints[i + 1]
-                    flag = keypoints[i + 2] if has_vasiable else 0
+                    flag = keypoints[i + 2] if has_visible else 0
                     if x == 0 and y == 0 and flag == 0:
                         continue
                     shape = {
@@ -1316,7 +1316,7 @@ class LabelConverter:
                     for name in kpt_names:
                         # 0: Invisible, 1: Occluded, 2: Visible
                         if name not in keypoints:
-                            if self.has_vasiable:
+                            if self.has_visible:
                                 label += " 0 0 0"
                             else:
                                 label += " 0 0"
@@ -1324,7 +1324,7 @@ class LabelConverter:
                             x, y, visible = keypoints[name]
                             x = round((int(x) / image_width), 6)
                             y = round((int(y) / image_height), 6)
-                            if self.has_vasiable:
+                            if self.has_visible:
                                 label += f" {x} {y} {visible}"
                             else:
                                 label += f" {x} {y}"
@@ -1332,7 +1332,7 @@ class LabelConverter:
                     # Pad the label with zeros to meet
                     # the yolov8-pose model's training data format requirements
                     for _ in range(max_keypoints - len(kpt_names)):
-                        if self.has_vasiable:
+                        if self.has_visible:
                             label += " 0 0 0"
                         else:
                             label += " 0 0"
@@ -1608,7 +1608,7 @@ class LabelConverter:
                     for name in kpt_names:
                         # 0: Invisible, 1: Occluded, 2: Visible
                         if name not in data["keypoints"]:
-                            if self.has_vasiable:
+                            if self.has_visible:
                                 keypoints += [0, 0, 0]
                             else:
                                 keypoints += [0, 0]
@@ -1617,7 +1617,7 @@ class LabelConverter:
                             x, y, visible = data["keypoints"][name]
                             x = int(x)
                             y = int(y)
-                            if self.has_vasiable:
+                            if self.has_visible:
                                 keypoints += [x, y, visible]
                             else:
                                 keypoints += [x, y]
