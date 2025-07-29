@@ -14,8 +14,11 @@ from .types import AutoLabelingResult
 try:
     import torch
     import supervision as sv
-
-    from supervision.detection.utils import mask_to_polygons
+    
+    try:
+        from supervision.detection.utils.converters import mask_to_polygons
+    except ImportError:
+        from supervision.detection.utils import mask_to_polygons
     from ultralytics import YOLOE as _YOLOE
     from ultralytics.models.yolo.yoloe.predict_vp import YOLOEVPSegPredictor
 
