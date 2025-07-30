@@ -27,6 +27,7 @@ from PyQt5.QtWidgets import (
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.services.auto_labeling import _THUMBNAIL_RENDER_MODELS
+from anylabeling.views.training import UltralyticsDialog
 
 from ...app_info import (
     __appname__,
@@ -797,6 +798,11 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
 
+        ultralytics_train = action(
+            "Ultralytics",
+            lambda: self.start_training("ultralytics"),
+        )
+
         zoom = QtWidgets.QWidgetAction(self)
         zoom.setDefaultWidget(self.zoom_widget)
         self.zoom_widget.setWhatsThis(
@@ -1518,6 +1524,7 @@ class LabelingWidget(LabelDialog):
             upload=self.menu(self.tr("&Upload")),
             export=self.menu(self.tr("&Export")),
             tool=self.menu(self.tr("&Tool")),
+            train=self.menu(self.tr("&Train")),
             help=self.menu(self.tr("&Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open &Recent")),
             label_list=label_menu,
@@ -1544,6 +1551,12 @@ class LabelingWidget(LabelDialog):
                 delete_image_file,
                 None,
             ),
+        )
+        utils.add_actions(
+            self.menus.train,
+            (
+                ultralytics_train,
+            )
         )
         utils.add_actions(
             self.menus.tool,
@@ -2239,6 +2252,18 @@ class LabelingWidget(LabelDialog):
         if self.no_shape():
             for action in self.actions.on_shapes_present:
                 action.setEnabled(False)
+
+    # Trainer
+    def start_training(self, mode):
+        if mode == "ultralytics":
+            dialog = UltralyticsDialog(self)
+        else:
+            return
+
+        try:
+            _ = dialog.exec_()
+        except Exception as e:
+            self.error_message("Start Error", f"Failed to start training dialog: {str(e)}")
 
     # Tools
     def overview(self):

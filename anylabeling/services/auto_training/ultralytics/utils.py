@@ -1,0 +1,112 @@
+import os
+import json
+from typing import List, Dict, Tuple
+
+from .config import TASK_SHAPE_MAPPINGS, MIN_LABELED_IMAGES_THRESHOLD
+
+
+def get_label_infos(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> Dict[str, Dict[str, int]]:
+    initial_nums = [0 for _ in range(len(supported_shape))]
+    label_infos = {}
+
+    for image_file in image_list:
+        label_dir, filename = os.path.split(image_file)
+        if output_dir:
+            label_dir = output_dir
+        label_file = os.path.join(label_dir, os.path.splitext(filename)[0] + ".json")
+
+        if not os.path.exists(label_file):
+            continue
+
+        try:
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            shapes = data.get("shapes", [])
+
+            for shape in shapes:
+                if "label" not in shape or "shape_type" not in shape:
+                    continue
+                shape_type = shape["shape_type"]
+                if shape_type not in supported_shape:
+                    continue
+                label = shape["label"]
+
+                if label not in label_infos:
+                    label_infos[label] = dict(zip(supported_shape, initial_nums))
+                label_infos[label][shape_type] += 1
+
+        except (json.JSONDecodeError, IOError):
+            continue
+
+    label_infos = {k: label_infos[k] for k in sorted(label_infos)}
+    return label_infos
+
+
+def get_task_valid_images(image_list: List[str], task_type: str, output_dir: str = None) -> int:
+    if task_type not in TASK_SHAPE_MAPPINGS:
+        return 0
+    
+    valid_shapes = TASK_SHAPE_MAPPINGS[task_type]
+    valid_image_count = 0
+    
+    for image_file in image_list:
+        label_dir, filename = os.path.split(image_file)
+        if output_dir:
+            label_dir = output_dir
+        label_file = os.path.join(label_dir, os.path.splitext(filename)[0] + ".json")
+        
+        if not os.path.exists(label_file):
+            continue
+            
+        try:
+            with open(label_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            shapes = data.get("shapes", [])
+            
+            has_valid_shape = any(
+                shape.get("shape_type") in valid_shapes 
+                for shape in shapes 
+                if "shape_type" in shape
+            )
+            
+            if has_valid_shape:
+                valid_image_count += 1
+        except (json.JSONDecodeError, IOError):
+            continue
+    
+    return valid_image_count
+
+
+def validate_task_requirements(task_type: str, image_list: List[str], output_dir: str = None) -> Tuple[bool, str]:
+    if not task_type:
+        return False, "Please select a task type"
+    
+    if not image_list:
+        return False, "Please load images first"
+    
+    valid_images = get_task_valid_images(image_list, task_type, output_dir)
+    
+    if valid_images < MIN_LABELED_IMAGES_THRESHOLD:
+        return False, f"Need at least {MIN_LABELED_IMAGES_THRESHOLD} labeled images for {task_type} task. Found: {valid_images}"
+    
+    return True, ""
+
+
+def get_statistics_table_data(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> List[List[str]]:
+    label_infos = get_label_infos(image_list, supported_shape, output_dir)
+
+    if not label_infos:
+        return []
+
+    total_infos = [["Label"] + supported_shape + ["Total"]]
+    shape_counter = [0 for _ in range(len(supported_shape) + 1)]
+
+    for label, infos in label_infos.items():
+        counter = [infos[shape_type] for shape_type in supported_shape]
+        counter.append(sum(counter))
+        row = [label] + [str(c) for c in counter]
+        total_infos.append(row)
+        shape_counter = [x + y for x, y in zip(counter, shape_counter)]
+
+    total_infos.append(["Total"] + [str(c) for c in shape_counter])
+    return total_infos
