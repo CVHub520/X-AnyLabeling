@@ -1268,6 +1268,7 @@ class UltralyticsDialog(QDialog):
                 self.output_dir,
                 config["basic"].get("pose_config")
             )
+            logger.info(f"Successfully created YOLO dataset at {temp_dir}")
             self.append_training_log(f"Created dataset: {temp_dir}")
 
             train_args = {

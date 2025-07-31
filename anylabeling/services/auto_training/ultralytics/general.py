@@ -40,7 +40,7 @@ def create_yolo_dataset(image_list: List[str], task_type: str, dataset_ratio: fl
                 converter.custom_to_yolo(label_file, dst_label_path, mode, skip_empty_files=False)
 
     data = load_yaml_config(data_file)
-    if task_type == "pose":
+    if task_type.lower() == "pose":
         if not pose_cfg_file:
             return None, "Pose configuration file is required for pose detection tasks"
         converter = LabelConverter(pose_cfg_file=pose_cfg_file)
@@ -50,7 +50,7 @@ def create_yolo_dataset(image_list: List[str], task_type: str, dataset_ratio: fl
 
     data_file_name = os.path.splitext(os.path.basename(data_file))[0]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    temp_dir = os.path.join(DATASET_PATH, task_type, f"{data_file_name.lower()}_{timestamp}")
+    temp_dir = os.path.join(DATASET_PATH, task_type.lower(), f"{data_file_name}_{timestamp}")
 
     train_images_dir = os.path.join(temp_dir, "images", "train")
     val_images_dir = os.path.join(temp_dir, "images", "val")
