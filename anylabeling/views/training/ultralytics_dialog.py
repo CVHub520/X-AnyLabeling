@@ -242,6 +242,10 @@ class UltralyticsDialog(QDialog):
             QMessageBox.warning(self, self.tr("Validation Error"), error_message)
             return
 
+        project = os.path.join(DEFAULT_PROJECT_DIR, self.selected_task_type.lower())
+        self.config_widgets["project"].setText(project)
+        self.config_widgets["project"].setReadOnly(True)
+
         self.go_to_specific_tab(1)
 
     def init_actions(self, parent_layout):
@@ -872,11 +876,9 @@ class UltralyticsDialog(QDialog):
 
         return config
 
-    def save_config(self):
-        config = self.get_current_config()
+    def save_current_config(self):
         try:
-            with open(SETTINGS_CONFIG_PATH, 'w', encoding='utf-8') as f:
-                json.dump(config, f, indent=2)
+            save_config(self.get_current_config())
             template = self.tr("Configuration saved successfully to %s")
             msg_test = template % SETTINGS_CONFIG_PATH
             QMessageBox.information(self, self.tr("Success"), msg_test)
@@ -938,7 +940,11 @@ class UltralyticsDialog(QDialog):
             )
             if reply == QMessageBox.Yes:
                 self.reset_train_tab()
+        elif self.training_status == "stop":
+            self.start_training_button.setVisible(True)
+            self.training_status == "idle"
 
+        save_config(config)
         self.go_to_specific_tab(2)
 
     def init_config_buttons(self, parent_layout):
@@ -949,7 +955,7 @@ class UltralyticsDialog(QDialog):
         button_layout.addWidget(import_btn)
 
         save_btn = SecondaryButton(self.tr("Save Config"))
-        save_btn.clicked.connect(self.save_config)
+        save_btn.clicked.connect(self.save_current_config)
         button_layout.addWidget(save_btn)
         button_layout.addStretch()
 
@@ -1100,7 +1106,7 @@ class UltralyticsDialog(QDialog):
             error_msg = data.get("error", "Unknown error occurred")
             self.append_training_log(f"ERROR: {error_msg}")
         elif event_type == "training_stopped":
-            self.training_status = "idle"
+            self.training_status = "stop"
             self.update_training_status_display()
             self.start_training_button.setVisible(False)
             self.previous_button.setVisible(True)

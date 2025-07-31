@@ -1,3 +1,4 @@
+from .custom_dialogs import ExportFormatDialog
 from .custom_widgets import (
     CustomCheckBox,
     CustomComboBox,
@@ -8,6 +9,5 @@ from .custom_widgets import (
     CustomSpinBox,
     PrimaryButton,
     SecondaryButton,
-    TrainingConfirmDialog,
-    ExportFormatDialog
+    TrainingConfirmDialog
 )
