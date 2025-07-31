@@ -865,6 +865,14 @@ class UltralyticsDialog(QDialog):
             QMessageBox.warning(self, self.tr("Validation Error"), error_message)
             return
 
+        if self.training_status == "training":
+            QMessageBox.warning(
+                self, 
+                self.tr("Training in Progress"), 
+                self.tr("Training is currently in progress. Please stop the training first if you need to reconfigure.")
+            )
+            return
+
         if not self.selected_task_type:
             QMessageBox.warning(self, self.tr("Error"), self.tr("Please select a task type first"))
             return
@@ -875,7 +883,21 @@ class UltralyticsDialog(QDialog):
                 QMessageBox.warning(self, self.tr("Error"), self.tr("Please select a valid pose configuration file for pose detection tasks"))
                 return
 
-        self.tab_widget.setCurrentIndex(2)  # Switch to Train tab
+        if self.has_training_traces():
+            reply = QMessageBox.question(
+                self,
+                self.tr("Reset Training"),
+                self.tr("Training traces detected. Do you want to reset the training tab?"),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+            if reply == QMessageBox.Yes:
+                self.reset_train_tab()
+                self.tab_widget.setCurrentIndex(2)
+            else:
+                return
+
+        self.tab_widget.setCurrentIndex(2)
 
     def init_config_buttons(self, parent_layout):
         button_layout = QHBoxLayout()
@@ -1004,6 +1026,7 @@ class UltralyticsDialog(QDialog):
             self.start_training_button.setVisible(False)
             self.stop_training_button.setVisible(True)
             self.export_button.setVisible(False)
+            self.previous_button.setVisible(False)
             self.progress_timer.start(1000)
             self.image_timer.start(5000)
             self.append_training_log(self.tr("Training is about to start..."))
@@ -1011,7 +1034,8 @@ class UltralyticsDialog(QDialog):
             self.training_status = "completed"
             self.update_training_status_display()
             self.stop_training_button.setVisible(False)
-            self.start_training_button.setVisible(True)
+            self.start_training_button.setVisible(False)
+            self.previous_button.setVisible(True)
             self.export_button.setVisible(True)
             self.progress_timer.stop()
             self.image_timer.stop()
@@ -1021,7 +1045,8 @@ class UltralyticsDialog(QDialog):
         elif event_type == "training_error":
             self.training_status = "error"
             self.update_training_status_display()
-            self.start_training_button.setVisible(True)
+            self.start_training_button.setVisible(False)
+            self.previous_button.setVisible(True)
             self.stop_training_button.setVisible(False)
             self.export_button.setVisible(False)
             self.progress_timer.stop()
@@ -1032,6 +1057,7 @@ class UltralyticsDialog(QDialog):
             self.training_status = "idle"
             self.update_training_status_display()
             self.start_training_button.setVisible(True)
+            self.previous_button.setVisible(False)
             self.stop_training_button.setVisible(False)
             self.export_button.setVisible(False)
             self.progress_timer.stop()
@@ -1278,6 +1304,11 @@ class UltralyticsDialog(QDialog):
         self.stop_training_button.setVisible(False)
         actions_layout.addWidget(self.stop_training_button)
 
+        self.previous_button = SecondaryButton(self.tr("Previous"))
+        self.previous_button.clicked.connect(self.go_to_config_tab)
+        self.previous_button.setVisible(False)
+        actions_layout.addWidget(self.previous_button)
+
         self.start_training_button = PrimaryButton(self.tr("Start Training"))
         self.start_training_button.clicked.connect(self.start_training_from_train_tab)
         actions_layout.addWidget(self.start_training_button)
@@ -1351,3 +1382,33 @@ class UltralyticsDialog(QDialog):
         if not success:
             QMessageBox.critical(self, self.tr("Export Error"), message)
             self.append_training_log(f"Failed to start export: {message}")
+
+    def has_training_traces(self):
+        return (self.training_status in ["completed", "error"] or 
+                self.current_project_path or 
+                (hasattr(self, "log_display") and self.log_display.toPlainText().strip()))
+
+    def reset_train_tab(self):
+        self.training_status = "idle"
+        self.current_project_path = None
+        self.current_epochs = 0
+        self.progress_bar.setValue(0)
+        self.progress_bar.setFormat("0/0")
+        self.update_training_status_display()
+        
+        if hasattr(self, "log_display"):
+            self.log_display.clear()
+        
+        for i, image_label in enumerate(self.image_labels):
+            image_label.clear()
+            image_label.setText(self.tr("No image"))
+            image_label.setToolTip("")
+            self.image_paths[i] = None
+        
+        self.previous_button.setVisible(False)
+        self.start_training_button.setVisible(True)
+        self.export_button.setVisible(False)
+        self.stop_training_button.setVisible(False)
+
+    def go_to_config_tab(self):
+        self.tab_widget.setCurrentIndex(1)
