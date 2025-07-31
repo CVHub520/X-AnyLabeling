@@ -134,12 +134,18 @@ def parse_string_to_digit_list(input_string: str) -> List[int]:
 
     Returns:
         A list of integers found in the string. For example, for the input
-        "1, 2 3-4", the output would be [1, 2, 3, 4]. Returns an empty
-        list if no numbers are found or the input is empty.
+        "1, 2 3-4", the output would be [1, 2, 3, 4]. Returns None if
+        no numbers are found, input is empty, or parsing fails.
     """
-    if not input_string:
-        return []
+    try:
+        if not input_string:
+            return None
 
-    numbers_as_strings = re.findall(r'\d+', input_string)
+        numbers_as_strings = re.findall(r'\d+', input_string)
+        if not numbers_as_strings:
+            return None
 
-    return [int(num) for num in numbers_as_strings]
+        return [int(num) for num in numbers_as_strings]
+
+    except Exception:
+        return None

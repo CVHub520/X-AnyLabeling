@@ -1,4 +1,6 @@
 import os
+import subprocess
+import sys
 from typing import Dict, List, Tuple
 
 from .utils import get_task_valid_images
@@ -35,6 +37,27 @@ def validate_basic_config(config: Dict) -> Tuple[bool, str]:
         return False, "Valid data file is required"
 
     return True, ""
+
+
+def install_packages_with_timeout(packages, timeout=30):
+    cmd = [sys.executable, "-m", "pip", "install"] + packages
+
+    try:
+        process = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        stdout, stderr = process.communicate(timeout=timeout)
+        return process.returncode == 0, stdout, stderr
+
+    except subprocess.TimeoutExpired:
+        process.kill()
+        return False, "", "Installation timed out"
+    except Exception as e:
+        return False, "", str(e)
 
 
 def validate_task_requirements(task_type: str, image_list: List[str], output_dir: str = None) -> Tuple[bool, str]:

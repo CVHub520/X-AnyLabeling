@@ -35,6 +35,11 @@ from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.training.widgets.ultralytics_widgets import *
 from anylabeling.services.auto_training.ultralytics._io import *
 from anylabeling.services.auto_training.ultralytics.config import *
+from anylabeling.services.auto_training.ultralytics.exporter import (
+    ExportEventRedirector,
+    ExportLogRedirector,
+    get_export_manager
+)
 from anylabeling.services.auto_training.ultralytics.general import (
     create_yolo_dataset,
     parse_string_to_digit_list
@@ -80,6 +85,15 @@ class UltralyticsDialog(QDialog):
         self.event_redirector.training_event_signal.connect(self.on_training_event, Qt.QueuedConnection)
         self.training_manager = get_training_manager()
         self.training_manager.callbacks = [self.event_redirector.emit_training_event]
+
+        # Export related attributes
+        self.export_log_redirector = ExportLogRedirector()
+        self.export_log_redirector.log_signal.connect(self.append_training_log, Qt.QueuedConnection)
+        self.export_event_redirector = ExportEventRedirector()
+        self.export_event_redirector.export_event_signal.connect(self.on_export_event, Qt.QueuedConnection)
+        self.export_manager = get_export_manager()
+        self.export_manager.callbacks = [self.export_event_redirector.emit_export_event]
+
         self.progress_timer = QTimer()
         self.progress_timer.timeout.connect(self.update_training_progress)
         self.image_timer = QTimer()
@@ -989,7 +1003,7 @@ class UltralyticsDialog(QDialog):
             self.update_training_status_display()
             self.start_training_button.setVisible(False)
             self.stop_training_button.setVisible(True)
-            self.next_button.setVisible(False)
+            self.export_button.setVisible(False)
             self.progress_timer.start(1000)
             self.image_timer.start(5000)
             self.append_training_log(self.tr("Training is about to start..."))
@@ -997,8 +1011,8 @@ class UltralyticsDialog(QDialog):
             self.training_status = "completed"
             self.update_training_status_display()
             self.stop_training_button.setVisible(False)
-            self.start_training_button.setVisible(False)
-            self.next_button.setVisible(True)
+            self.start_training_button.setVisible(True)
+            self.export_button.setVisible(True)
             self.progress_timer.stop()
             self.image_timer.stop()
             self.update_training_progress()
@@ -1009,7 +1023,7 @@ class UltralyticsDialog(QDialog):
             self.update_training_status_display()
             self.start_training_button.setVisible(True)
             self.stop_training_button.setVisible(False)
-            self.next_button.setVisible(False)
+            self.export_button.setVisible(False)
             self.progress_timer.stop()
             self.image_timer.stop()
             error_msg = data.get("error", "Unknown error occurred")
@@ -1019,7 +1033,7 @@ class UltralyticsDialog(QDialog):
             self.update_training_status_display()
             self.start_training_button.setVisible(True)
             self.stop_training_button.setVisible(False)
-            self.next_button.setVisible(False)
+            self.export_button.setVisible(False)
             self.progress_timer.stop()
             self.image_timer.stop()
             self.append_training_log(self.tr("Training stopped by user"))
@@ -1268,9 +1282,10 @@ class UltralyticsDialog(QDialog):
         self.start_training_button.clicked.connect(self.start_training_from_train_tab)
         actions_layout.addWidget(self.start_training_button)
 
-        self.next_button = PrimaryButton(self.tr("Next"))
-        self.next_button.setVisible(False)
-        actions_layout.addWidget(self.next_button)
+        self.export_button = PrimaryButton(self.tr("Export"))
+        self.export_button.clicked.connect(self.start_export)
+        self.export_button.setVisible(False)
+        actions_layout.addWidget(self.export_button)
 
         parent_layout.addLayout(actions_layout)
 
@@ -1293,3 +1308,46 @@ class UltralyticsDialog(QDialog):
         layout.addWidget(scroll_area)
 
         self.init_training_actions(layout)
+
+    def on_export_event(self, event_type, data):
+        if event_type == "export_started":
+            self.append_training_log(self.tr("Export started..."))
+            self.export_button.setEnabled(False)
+        elif event_type == "export_completed":
+            exported_path = data.get("exported_path", "")
+            export_format = data.get("format", "onnx")
+            self.append_training_log(self.tr(f"Export completed successfully! File saved to: {exported_path}"))
+            QMessageBox.information(
+                self, 
+                self.tr("Export Successful"), 
+                self.tr(f"Model successfully exported to {export_format.upper()} format:\n{exported_path}")
+            )
+            self.export_button.setEnabled(True)
+        elif event_type == "export_error":
+            error_msg = data.get("error", "Unknown error occurred")
+            self.append_training_log(f"ERROR: {error_msg}")
+            QMessageBox.warning(self, self.tr("Export Error"), error_msg)
+            self.export_button.setEnabled(True)
+        elif event_type == "export_log":
+            log_message = data.get("message", "")
+            if log_message:
+                self.append_training_log(log_message)
+
+    def start_export(self):
+        if not self.current_project_path:
+            QMessageBox.warning(self, self.tr("Error"), self.tr("No training project available for export"))
+            return
+
+        weights_path = os.path.join(self.current_project_path, "weights", "best.pt")
+        if not os.path.exists(weights_path):
+            QMessageBox.warning(
+                self, 
+                self.tr("Model Not Found"), 
+                self.tr(f"Model weights not found at: {weights_path}")
+            )
+            return
+
+        success, message = self.export_manager.start_export(self.current_project_path, "onnx")
+        if not success:
+            QMessageBox.critical(self, self.tr("Export Error"), message)
+            self.append_training_log(f"Failed to start export: {message}")

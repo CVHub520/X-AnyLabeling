@@ -1,11 +1,49 @@
 import os
 import json
+import importlib.metadata
+from packaging.specifiers import SpecifierSet
 from typing import List, Dict
 
 from .config import TASK_SHAPE_MAPPINGS
 
 
+def check_package_installed(package_name, version_spec=None):
+    """Check if a Python package is installed and optionally verify its version.
+
+    Args:
+        package_name: Name of the package to check
+        version_spec: Optional version specification string (e.g. ">=1.0.0")
+
+    Returns:
+        bool: True if package is installed and version matches spec (if provided), False otherwise
+    """
+    try:
+        __import__(package_name)
+
+        if version_spec:
+            try:
+                installed_version = importlib.metadata.version(package_name)
+                spec_set = SpecifierSet(version_spec)
+                return installed_version in spec_set
+            except importlib.metadata.PackageNotFoundError:
+                return False
+        
+        return True
+    except ImportError:
+        return False
+
+
 def get_label_infos(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> Dict[str, Dict[str, int]]:
+    """Get statistics about labels and shapes from a list of labeled images.
+
+    Args:
+        image_list: List of image file paths
+        supported_shape: List of supported shape types
+        output_dir: Optional output directory for label files
+
+    Returns:
+        Dict mapping label names to counts of each shape type
+    """
     initial_nums = [0 for _ in range(len(supported_shape))]
     label_infos = {}
 
@@ -43,6 +81,16 @@ def get_label_infos(image_list: List[str], supported_shape: List[str], output_di
 
 
 def get_task_valid_images(image_list: List[str], task_type: str, output_dir: str = None) -> int:
+    """Count number of images that have valid shapes for a given task type.
+
+    Args:
+        image_list: List of image file paths
+        task_type: Type of task (e.g. 'detection', 'segmentation')
+        output_dir: Optional output directory for label files
+
+    Returns:
+        Number of images that have at least one valid shape for the task
+    """
     if task_type not in TASK_SHAPE_MAPPINGS:
         return 0
     
@@ -78,6 +126,16 @@ def get_task_valid_images(image_list: List[str], task_type: str, output_dir: str
 
 
 def get_statistics_table_data(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> List[List[str]]:
+    """Generate statistics table data about labels and shapes.
+
+    Args:
+        image_list: List of image file paths
+        supported_shape: List of supported shape types
+        output_dir: Optional output directory for label files
+
+    Returns:
+        List of rows containing label statistics, with headers and totals
+    """
     label_infos = get_label_infos(image_list, supported_shape, output_dir)
 
     if not label_infos:

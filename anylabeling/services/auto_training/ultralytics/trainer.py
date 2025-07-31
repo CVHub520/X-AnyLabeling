@@ -29,10 +29,12 @@ class TrainingLogRedirector(QObject):
         self.log_stream = StringIO()
 
     def write(self, text):
+        """Write text to log stream and emit signal if not empty"""
         if text.strip():
             self.log_signal.emit(text)
 
     def flush(self):
+        """Flush the log stream"""
         pass
 
 
