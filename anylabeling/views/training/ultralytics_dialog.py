@@ -15,12 +15,9 @@ from PyQt5.QtWidgets import (
     QTabWidget,
     QWidget,
     QPushButton,
-    QTableWidget,
-    QTableWidgetItem,
     QLabel,
     QMessageBox,
     QScrollArea,
-    QHeaderView,
     QGroupBox,
     QFileDialog,
     QFormLayout,
@@ -194,29 +191,10 @@ class UltralyticsDialog(QDialog):
     def refresh_dataset_summary(self):
         if not self.image_list or not self.supported_shape:
             self.summary_table.clear()
-            self.summary_table.setRowCount(0)
-            self.summary_table.setColumnCount(0)
             return
 
         table_data = get_statistics_table_data(self.image_list, self.supported_shape, self.output_dir)
-        if not table_data:
-            self.summary_table.clear()
-            self.summary_table.setRowCount(0)
-            self.summary_table.setColumnCount(0)
-            return
-
-        headers = table_data[0]
-        data_rows = table_data[1:]
-        self.summary_table.setRowCount(len(data_rows))
-        self.summary_table.setColumnCount(len(headers))
-        self.summary_table.setHorizontalHeaderLabels(headers)
-
-        for row, row_data in enumerate(data_rows):
-            for col, value in enumerate(row_data):
-                item = QTableWidgetItem(str(value))
-                self.summary_table.setItem(row, col, item)
-
-        self.summary_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.summary_table.load_data(table_data)
 
     def load_images(self):
         self.parent().open_folder_dialog()
@@ -228,9 +206,7 @@ class UltralyticsDialog(QDialog):
         summary_layout = QVBoxLayout(summary_widget)
         summary_layout.addWidget(QLabel(self.tr("Dataset Summary:")))
 
-        self.summary_table = QTableWidget()
-        self.summary_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.summary_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.summary_table = CustomTable()
         summary_layout.addWidget(self.summary_table)
         parent_layout.addWidget(summary_widget, 1)
 

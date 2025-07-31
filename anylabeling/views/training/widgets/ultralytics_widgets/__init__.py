@@ -7,6 +7,7 @@ from .custom_widgets import (
     CustomQPushButton,
     CustomSlider,
     CustomSpinBox,
+    CustomTable,
     PrimaryButton,
     SecondaryButton,
     TrainingConfirmDialog

@@ -15,6 +15,66 @@ def get_advanced_toggle_btn_style():
     """
 
 
+def get_custom_table_style():
+    return """
+        QTableWidget {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background-color: white;
+            gridline-color: transparent;
+            outline: none;
+        }
+        QTableWidget::item {
+            padding: 12px 16px;
+            border: none;
+            border-bottom: 1px solid #f3f4f6;
+            color: #374151;
+            font-size: 13px;
+            outline: none;
+        }
+        QTableWidget::item:hover {
+            background-color: #f9fafb;
+        }
+        QHeaderView::section {
+            background-color: #f8fafc;
+            color: #6b7280;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px;
+            border: none;
+            border-bottom: 2px solid #e5e7eb;
+            border-right: 1px solid #f3f4f6;
+            outline: none;
+        }
+        QHeaderView::section:first {
+            border-top-left-radius: 8px;
+        }
+        QHeaderView::section:last {
+            border-top-right-radius: 8px;
+            border-right: none;
+        }
+        QTableWidget::item:alternate {
+            background-color: #fafafa;
+        }
+        QScrollBar:vertical {
+            background: #f3f4f6;
+            width: 8px;
+            border-radius: 4px;
+            margin: 4px 2px;
+        }
+        QScrollBar::handle:vertical {
+            background: #d1d5db;
+            border-radius: 4px;
+            min-height: 20px;
+        }
+        QScrollBar::handle:vertical:hover {
+            background: #9ca3af;
+        }
+    """
+
+
 def get_image_row_label_style():
     return "font-weight: bold; margin-bottom: 5px;"
 

@@ -10,9 +10,15 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QTextEdit
+    QTextEdit,
+    QTableWidget,
+    QTableWidgetItem,
+    QHeaderView,
+    QAbstractItemView
 )
 from PyQt5 import QtCore
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QBrush, QColor
 
 from anylabeling.services.auto_training.ultralytics.config import *
 from anylabeling.services.auto_training.ultralytics.style import *
@@ -236,6 +242,7 @@ class CustomQPushButton(QPushButton):
         self.setFixedHeight(32)
         self.setMinimumWidth(80)
         self.selected = False
+        self.setFocusPolicy(Qt.NoFocus)
         self.update_style()
 
     def set_selected(self, selected):
@@ -251,9 +258,13 @@ class CustomQPushButton(QPushButton):
                     border-radius: 4px;
                     padding: 4px 8px;
                     font-weight: bold;
+                    outline: none;
                 }
                 QPushButton:hover {
                     background-color: #005A9E;
+                }
+                QPushButton:focus {
+                    outline: none;
                 }
             """)
         else:
@@ -264,12 +275,16 @@ class CustomQPushButton(QPushButton):
                     border: 1px solid #CCCCCC;
                     border-radius: 4px;
                     padding: 4px 8px;
+                    outline: none;
                 }
                 QPushButton:hover {
                     background-color: #E0E0E0;
                 }
                 QPushButton:pressed {
                     background-color: #D0D0D0;
+                }
+                QPushButton:focus {
+                    outline: none;
                 }
             """)
 
@@ -390,3 +405,52 @@ class TrainingConfirmDialog(QDialog):
                 formatted_cmd += f"    {param} \\\n"
 
         return formatted_cmd
+
+
+class CustomTable(QTableWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.original_data = []
+        self.setup_table()
+
+    def setup_table(self):
+        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.setSelectionMode(QAbstractItemView.NoSelection)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.setAlternatingRowColors(True)
+        self.setShowGrid(False)
+        self.verticalHeader().setVisible(False)
+        self.setStyleSheet(get_custom_table_style())
+
+        header = self.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        header.setStretchLastSection(True)
+
+    def load_data(self, table_data):
+        if not table_data:
+            self.clear()
+            return
+
+        self.original_data = table_data
+        self.populate_table()
+
+    def populate_table(self):
+        if not self.original_data:
+            return
+
+        headers = self.original_data[0]
+        data_rows = self.original_data[1:]
+
+        self.setRowCount(len(data_rows))
+        self.setColumnCount(len(headers))
+        self.setHorizontalHeaderLabels(headers)
+
+        for row, row_data in enumerate(data_rows):
+            for col, value in enumerate(row_data):
+                item = QTableWidgetItem(str(value))
+                item.setTextAlignment(Qt.AlignCenter)
+
+                if col == 0:
+                    item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+
+                self.setItem(row, col, item)
