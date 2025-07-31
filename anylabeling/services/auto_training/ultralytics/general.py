@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 from datetime import datetime
 from typing import List
@@ -117,3 +118,28 @@ def create_yolo_dataset(image_list: List[str], task_type: str, dataset_ratio: fl
     save_yaml_config(data, yaml_file)
 
     return temp_dir
+
+
+def parse_string_to_digit_list(input_string: str) -> List[int]:
+    """Parses a string containing numbers into a list of integers.
+
+    This function uses regular expressions to find all numerical digits
+    in the input string, treating any non-digit characters as delimiters.
+    It then converts the found sequences of digits into integers.
+
+    Args:
+        input_string: The string to parse. It can contain numbers
+            separated by commas, spaces, or any other non-digit symbols.
+            Example: "1, 2 3-4".
+
+    Returns:
+        A list of integers found in the string. For example, for the input
+        "1, 2 3-4", the output would be [1, 2, 3, 4]. Returns an empty
+        list if no numbers are found or the input is empty.
+    """
+    if not input_string:
+        return []
+
+    numbers_as_strings = re.findall(r'\d+', input_string)
+
+    return [int(num) for num in numbers_as_strings]

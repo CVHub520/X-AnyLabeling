@@ -1,5 +1,8 @@
 import os
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
+
+from .utils import get_task_valid_images
+from .config import MIN_LABELED_IMAGES_THRESHOLD
 
 
 def validate_basic_config(config: Dict) -> Tuple[bool, str]:
@@ -31,4 +34,19 @@ def validate_basic_config(config: Dict) -> Tuple[bool, str]:
     if not data_path or not os.path.exists(data_path):
         return False, "Valid data file is required"
 
+    return True, ""
+
+
+def validate_task_requirements(task_type: str, image_list: List[str], output_dir: str = None) -> Tuple[bool, str]:
+    if not task_type:
+        return False, "Please select a task type"
+    
+    if not image_list:
+        return False, "Please load images first"
+    
+    valid_images = get_task_valid_images(image_list, task_type, output_dir)
+    
+    if valid_images < MIN_LABELED_IMAGES_THRESHOLD:
+        return False, f"Need at least {MIN_LABELED_IMAGES_THRESHOLD} labeled images for {task_type} task. Found: {valid_images}"
+    
     return True, ""

@@ -1,8 +1,8 @@
 import os
 import json
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
-from .config import TASK_SHAPE_MAPPINGS, MIN_LABELED_IMAGES_THRESHOLD
+from .config import TASK_SHAPE_MAPPINGS
 
 
 def get_label_infos(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> Dict[str, Dict[str, int]]:
@@ -75,21 +75,6 @@ def get_task_valid_images(image_list: List[str], task_type: str, output_dir: str
             continue
     
     return valid_image_count
-
-
-def validate_task_requirements(task_type: str, image_list: List[str], output_dir: str = None) -> Tuple[bool, str]:
-    if not task_type:
-        return False, "Please select a task type"
-    
-    if not image_list:
-        return False, "Please load images first"
-    
-    valid_images = get_task_valid_images(image_list, task_type, output_dir)
-    
-    if valid_images < MIN_LABELED_IMAGES_THRESHOLD:
-        return False, f"Need at least {MIN_LABELED_IMAGES_THRESHOLD} labeled images for {task_type} task. Found: {valid_images}"
-    
-    return True, ""
 
 
 def get_statistics_table_data(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> List[List[str]]:

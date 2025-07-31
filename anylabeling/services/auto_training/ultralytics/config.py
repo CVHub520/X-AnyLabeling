@@ -31,7 +31,7 @@ TASK_LABEL_MAPPINGS = {
 }
 
 # Training configuration
-MIN_LABELED_IMAGES_THRESHOLD = 0
+MIN_LABELED_IMAGES_THRESHOLD = 20
 NUM_WORKERS = multiprocessing.cpu_count()
 DEFAULT_TRAINING_CONFIG = {
     "epochs": 100,

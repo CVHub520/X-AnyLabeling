@@ -35,14 +35,20 @@ from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.training.widgets.ultralytics_widgets import *
 from anylabeling.services.auto_training.ultralytics._io import *
 from anylabeling.services.auto_training.ultralytics.config import *
-from anylabeling.services.auto_training.ultralytics.general import create_yolo_dataset
+from anylabeling.services.auto_training.ultralytics.general import (
+    create_yolo_dataset,
+    parse_string_to_digit_list
+)
 from anylabeling.services.auto_training.ultralytics.style import *
-from anylabeling.services.auto_training.ultralytics.utils import *
-from anylabeling.services.auto_training.ultralytics.validators import validate_basic_config
 from anylabeling.services.auto_training.ultralytics.trainer import (
     TrainingEventRedirector,
     TrainingLogRedirector,
     get_training_manager
+)
+from anylabeling.services.auto_training.ultralytics.utils import *
+from anylabeling.services.auto_training.ultralytics.validators import (
+    validate_basic_config,
+    validate_task_requirements
 )
 
 
@@ -763,7 +769,6 @@ class UltralyticsDialog(QDialog):
                 "data": get_widget_value("data"),
                 "device": get_widget_value("device"),
                 "dataset_ratio": get_widget_value("dataset_ratio") / 100.0 if get_widget_value("dataset_ratio") is not None else 0.8,
-                "classes": get_widget_value("classes"),
                 "pose_config": get_widget_value("pose_config"),
             },
             "train": {
@@ -772,6 +777,7 @@ class UltralyticsDialog(QDialog):
                 "imgsz": get_widget_value("imgsz"),
                 "workers": get_widget_value("workers"),
                 "single_cls": get_widget_value("single_cls"),
+                "classes": parse_string_to_digit_list(get_widget_value("classes")),
             },
             "strategy": {
                 "time": get_widget_value("time"),
@@ -986,7 +992,7 @@ class UltralyticsDialog(QDialog):
             self.next_button.setVisible(False)
             self.progress_timer.start(1000)
             self.image_timer.start(5000)
-            self.append_training_log(self.tr("Training started..."))
+            self.append_training_log(self.tr("Training is about to start..."))
         elif event_type == "training_completed":
             self.training_status = "completed"
             self.update_training_status_display()
