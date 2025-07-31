@@ -43,6 +43,35 @@ def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
     return True, ""
 
 
+def validate_classes(classes_str: str, names: List[str]) -> Tuple[bool, str]:
+    """Validate class indices against available class names.
+
+    Args:
+        classes_str: String containing class indices to validate, can be empty
+        names: List of available class names to validate against
+
+    Returns:
+        Tuple containing:
+            - bool: True if validation passes, False if validation fails
+            - str: Empty string if validation passes, error message if validation fails
+    """
+    if not classes_str.strip():
+        return True, ""
+
+    from .general import parse_string_to_digit_list
+    classes = parse_string_to_digit_list(classes_str)
+
+    if classes is None:
+        return False, "Invalid classes format"
+
+    max_index = len(names) - 1
+    for cls_idx in classes:
+        if cls_idx < 0 or cls_idx > max_index:
+            return False, f"Class index {cls_idx} out of range (0-{max_index})"
+
+    return True, ""
+
+
 def validate_data_file(file_path: str) -> Tuple[bool, Union[str, List[str]]]:
     """Validate data YAML file.
 

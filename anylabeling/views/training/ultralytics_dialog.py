@@ -43,6 +43,7 @@ from anylabeling.services.auto_training.ultralytics.exporter import (
 )
 from anylabeling.services.auto_training.ultralytics.general import (
     create_yolo_dataset,
+    format_classes_display,
     parse_string_to_digit_list
 )
 from anylabeling.services.auto_training.ultralytics.style import *
@@ -714,7 +715,10 @@ class UltralyticsDialog(QDialog):
 
             try:
                 if widget_type == "CustomLineEdit":
-                    widget.setText(str(value))
+                    if key == "classes":
+                        widget.setText(format_classes_display(value))
+                    else:
+                        widget.setText(str(value) if value is not None else "")
                 elif widget_type in ["CustomSpinBox", "CustomDoubleSpinBox"]:
                     widget.setValue(value)
                 elif widget_type == "CustomComboBox":

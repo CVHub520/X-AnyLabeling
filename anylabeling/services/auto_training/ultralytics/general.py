@@ -120,6 +120,28 @@ def create_yolo_dataset(image_list: List[str], task_type: str, dataset_ratio: fl
     return temp_dir
 
 
+def format_classes_display(classes_value) -> str:
+    """Formats class values for display.
+
+    This function takes a classes value and formats it into a string representation.
+    It handles None values, empty values, lists, and single values.
+
+    Args:
+        classes_value: The value to format. Can be None, a list, or a single value.
+
+    Returns:
+        A string representation of the classes value:
+        - Empty string if input is None or empty
+        - Comma-separated string if input is a list
+        - String conversion of the input value otherwise
+    """
+    if classes_value is None or not classes_value:
+        return ""
+    if isinstance(classes_value, list):
+        return ",".join(map(str, classes_value))
+    return str(classes_value) if classes_value else ""
+
+
 def parse_string_to_digit_list(input_string: str) -> List[int]:
     """Parses a string containing numbers into a list of integers.
 
