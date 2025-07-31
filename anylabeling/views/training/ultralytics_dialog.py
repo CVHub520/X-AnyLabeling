@@ -3,6 +3,7 @@ import glob
 import json
 import os
 import re
+import shutil
 import subprocess
 
 from PyQt5.QtCore import Qt, QTimer
@@ -114,12 +115,18 @@ class UltralyticsDialog(QDialog):
         self.tab_widget.addTab(self.data_tab, self.tr("Data"))
         self.tab_widget.addTab(self.config_tab, self.tr("Config"))
         self.tab_widget.addTab(self.train_tab, self.tr("Train"))
+        self.tab_widget.tabBar().setEnabled(False)
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self.tab_widget)
 
         self.init_data_tab()
         self.init_config_tab()
         self.init_train_tab()
+
+    def go_to_specific_tab(self, index):
+        """Go to specific tab by index
+        """
+        self.tab_widget.setCurrentIndex(index)
 
     # Data Tab
     def show_pose_config(self):
@@ -231,7 +238,8 @@ class UltralyticsDialog(QDialog):
         if not is_valid:
             QMessageBox.warning(self, self.tr("Validation Error"), error_message)
             return
-        self.tab_widget.setCurrentIndex(1)
+
+        self.go_to_specific_tab(1)
 
     def init_actions(self, parent_layout):
         actions_layout = QHBoxLayout()
@@ -287,7 +295,10 @@ class UltralyticsDialog(QDialog):
 
     def setup_cuda_checkboxes(self, device_count):
         if not hasattr(self, '_cuda_layout') or not self._cuda_layout:
-            self._cuda_layout = QHBoxLayout(self.device_checkboxes)
+            if self.device_checkboxes.layout() is None:
+                self._cuda_layout = QHBoxLayout(self.device_checkboxes)
+            else:
+                self._cuda_layout = self.device_checkboxes.layout()
             self._cuda_layout.setContentsMargins(0, 0, 0, 0)
             self._cuda_layout.setSpacing(5)
         else:
@@ -859,18 +870,38 @@ class UltralyticsDialog(QDialog):
             QMessageBox.warning(self, self.tr("Error"), f"Failed to save config: {str(e)}")
 
     def start_training(self):
-        config = self.get_current_config()
-        is_valid, error_message = validate_basic_config(config)
-        if not is_valid:
-            QMessageBox.warning(self, self.tr("Validation Error"), error_message)
-            return
-
         if self.training_status == "training":
             QMessageBox.warning(
                 self, 
                 self.tr("Training in Progress"), 
                 self.tr("Training is currently in progress. Please stop the training first if you need to reconfigure.")
             )
+            return
+
+        config = self.get_current_config()
+        is_valid, error_message = validate_basic_config(config)
+        if is_valid == "directory_exists":
+            reply = QMessageBox.question(
+                self, 
+                self.tr("Directory Exists"), 
+                self.tr("Project directory already exists! Do you want to overwrite it?\nIf not, please manually modify the `Name` field value."),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+
+            if reply == QMessageBox.Yes:
+                try:
+                    shutil.rmtree(error_message)
+                    self.append_training_log(f"Removed existing directory: {error_message}")
+                except Exception as e:
+                    error_msg = f"Failed to remove directory: {str(e)}"
+                    logger.error(error_msg)
+                    return
+            else:
+                return
+        elif not is_valid:
+            QMessageBox.warning(self, self.tr("Validation Error"), error_message)
+            self.append_training_log(f"Validation Error: {error_message}")
             return
 
         if not self.selected_task_type:
@@ -883,7 +914,7 @@ class UltralyticsDialog(QDialog):
                 QMessageBox.warning(self, self.tr("Error"), self.tr("Please select a valid pose configuration file for pose detection tasks"))
                 return
 
-        if self.has_training_traces():
+        if self.training_status in ["completed", "error"]:
             reply = QMessageBox.question(
                 self,
                 self.tr("Reset Training"),
@@ -893,11 +924,8 @@ class UltralyticsDialog(QDialog):
             )
             if reply == QMessageBox.Yes:
                 self.reset_train_tab()
-                self.tab_widget.setCurrentIndex(2)
-            else:
-                return
 
-        self.tab_widget.setCurrentIndex(2)
+        self.go_to_specific_tab(2)
 
     def init_config_buttons(self, parent_layout):
         button_layout = QHBoxLayout()
@@ -910,6 +938,10 @@ class UltralyticsDialog(QDialog):
         save_btn.clicked.connect(self.save_config)
         button_layout.addWidget(save_btn)
         button_layout.addStretch()
+
+        previous_btn = SecondaryButton(self.tr("Previous"))
+        previous_btn.clicked.connect(lambda: self.go_to_specific_tab(0))
+        button_layout.addWidget(previous_btn)
 
         train_btn = PrimaryButton(self.tr("Next"))
         train_btn.clicked.connect(self.start_training)
@@ -1056,8 +1088,8 @@ class UltralyticsDialog(QDialog):
         elif event_type == "training_stopped":
             self.training_status = "idle"
             self.update_training_status_display()
-            self.start_training_button.setVisible(True)
-            self.previous_button.setVisible(False)
+            self.start_training_button.setVisible(False)
+            self.previous_button.setVisible(True)
             self.stop_training_button.setVisible(False)
             self.export_button.setVisible(False)
             self.progress_timer.stop()
@@ -1261,18 +1293,6 @@ class UltralyticsDialog(QDialog):
 
     def start_training_from_train_tab(self):
         config = self.get_current_config()
-        is_valid, error_message = validate_basic_config(config)
-        if not is_valid:
-            QMessageBox.warning(self, self.tr("Validation Error"), error_message)
-            self.append_training_log(f"Validation Error: {error_message}")
-            return
-
-        if not self.selected_task_type:
-            error_msg = self.tr("Please select a task type first")
-            QMessageBox.warning(self, self.tr("Error"), error_msg)
-            self.append_training_log(f"Error: {error_msg}")
-            return
-
         project_path = config["basic"]["project"]
         name = config["basic"]["name"]
         self.current_project_path = os.path.join(project_path, name)
@@ -1305,8 +1325,8 @@ class UltralyticsDialog(QDialog):
         actions_layout.addWidget(self.stop_training_button)
 
         self.previous_button = SecondaryButton(self.tr("Previous"))
-        self.previous_button.clicked.connect(self.go_to_config_tab)
-        self.previous_button.setVisible(False)
+        self.previous_button.clicked.connect(lambda: self.go_to_specific_tab(1))
+        self.previous_button.setVisible(True)
         actions_layout.addWidget(self.previous_button)
 
         self.start_training_button = PrimaryButton(self.tr("Start Training"))
@@ -1383,11 +1403,6 @@ class UltralyticsDialog(QDialog):
             QMessageBox.critical(self, self.tr("Export Error"), message)
             self.append_training_log(f"Failed to start export: {message}")
 
-    def has_training_traces(self):
-        return (self.training_status in ["completed", "error"] or 
-                self.current_project_path or 
-                (hasattr(self, "log_display") and self.log_display.toPlainText().strip()))
-
     def reset_train_tab(self):
         self.training_status = "idle"
         self.current_project_path = None
@@ -1395,20 +1410,17 @@ class UltralyticsDialog(QDialog):
         self.progress_bar.setValue(0)
         self.progress_bar.setFormat("0/0")
         self.update_training_status_display()
-        
+
         if hasattr(self, "log_display"):
             self.log_display.clear()
-        
+
         for i, image_label in enumerate(self.image_labels):
             image_label.clear()
             image_label.setText(self.tr("No image"))
             image_label.setToolTip("")
             self.image_paths[i] = None
-        
-        self.previous_button.setVisible(False)
+
+        self.previous_button.setVisible(True)
         self.start_training_button.setVisible(True)
         self.export_button.setVisible(False)
         self.stop_training_button.setVisible(False)
-
-    def go_to_config_tab(self):
-        self.tab_widget.setCurrentIndex(1)

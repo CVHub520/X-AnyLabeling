@@ -1,20 +1,23 @@
 import os
 import subprocess
 import sys
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from .utils import get_task_valid_images
 from .config import MIN_LABELED_IMAGES_THRESHOLD
 
 
-def validate_basic_config(config: Dict) -> Tuple[bool, str]:
+def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
     """Validate basic training configuration
 
     Args:
         config: Training configuration dictionary
         
     Returns:
-        Tuple of (is_valid, error_message)
+        Tuple of (is_valid_or_status, error_message_or_path)
+        - (True, "") - validation passed
+        - (False, error_message) - validation failed
+        - ("directory_exists", directory_path) - directory exists, needs user confirmation
     """
     basic = config.get("basic", {})
 
@@ -26,7 +29,7 @@ def validate_basic_config(config: Dict) -> Tuple[bool, str]:
 
     save_dir = os.path.join(basic["project"], basic["name"])
     if os.path.exists(save_dir):
-        return False, f"Project directory already exists: {save_dir}"
+        return "directory_exists", save_dir
 
     model_path = basic.get("model", "").strip()
     if not model_path or not os.path.exists(model_path):
