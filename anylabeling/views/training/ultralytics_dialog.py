@@ -1275,12 +1275,24 @@ class UltralyticsDialog(QDialog):
             logger.info(f"Successfully created YOLO dataset at {temp_dir}")
             self.append_training_log(f"Created dataset: {temp_dir}")
 
+            device_value = config["basic"]["device"]
+            if device_value == "cuda" and hasattr(self, 'device_checkboxes'):
+                selected_gpus = []
+                if hasattr(self, '_cuda_layout') and self._cuda_layout:
+                    for i in range(self._cuda_layout.count()):
+                        widget = self._cuda_layout.itemAt(i).widget()
+                        if widget and hasattr(widget, 'isChecked') and widget.isChecked():
+                            gpu_text = widget.text()
+                            gpu_id = gpu_text.split()[-1]
+                            selected_gpus.append(int(gpu_id))
+                device_value = selected_gpus if selected_gpus else "cpu"
+
             train_args = {
                 "data": os.path.join(temp_dir, "data.yaml"),
                 "model": config["basic"]["model"],
                 "project": config["basic"]["project"],
                 "name": config["basic"]["name"],
-                "device": config["basic"]["device"],
+                "device": device_value,
             }
 
             # Add advanced parameters
