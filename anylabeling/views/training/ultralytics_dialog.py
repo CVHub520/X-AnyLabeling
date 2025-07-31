@@ -54,6 +54,7 @@ from anylabeling.services.auto_training.ultralytics.trainer import (
 from anylabeling.services.auto_training.ultralytics.utils import *
 from anylabeling.services.auto_training.ultralytics.validators import (
     validate_basic_config,
+    validate_data_file,
     validate_task_requirements
 )
 
@@ -78,6 +79,7 @@ class UltralyticsDialog(QDialog):
         self.selected_task_type = None
         self.config_widgets = {}
         self.task_type_buttons = {}
+        self.names = []
 
         # Training related attributes
         self.log_redirector = TrainingLogRedirector()
@@ -284,7 +286,15 @@ class UltralyticsDialog(QDialog):
             self, self.tr("Select Data File"), "", "Text Files (*.yaml);;All Files (*)"
         )
         if file_path:
-            self.config_widgets["data"].setText(file_path)
+            is_valid, result = validate_data_file(file_path)
+            if is_valid:
+                self.config_widgets["data"].setText(file_path)
+                self.names = result
+                logger.info(f"Data file loaded successfully: {file_path}")
+            else:
+                QMessageBox.warning(self, self.tr("Invalid Data File"), result)
+                self.config_widgets["data"].clear()
+                self.names = []
 
     def browse_pose_config_file(self):
         file_path, _ = QFileDialog.getOpenFileName(

@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+import yaml
 from typing import Dict, List, Tuple, Union
 
 from .utils import get_task_valid_images
@@ -40,6 +41,28 @@ def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
         return False, "Valid data file is required"
 
     return True, ""
+
+
+def validate_data_file(file_path: str) -> Tuple[bool, Union[str, List[str]]]:
+    """Validate data YAML file.
+
+    Args:
+        file_path (str): Path to the data file.
+
+    Returns:
+        Tuple[bool, Union[str, List[str]]]: (is_valid, error_message_or_names_list)
+    """
+    try:
+        with open(file_path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        if "names" not in data:
+            return False, "Data file must contain 'names' field"
+
+        return True, list(data["names"].values())
+
+    except Exception as e:
+        return False, f"Failed to read file: {e}"
 
 
 def install_packages_with_timeout(packages, timeout=30):
