@@ -9,9 +9,9 @@ DATASET_PATH = os.path.join(root_dir, "datasets")
 SETTINGS_CONFIG_PATH = os.path.join(root_dir, "settings.json")
 DEFAULT_PROJECT_DIR = os.path.join(root_dir, "runs")
 
-# Initialization parameters
+# UI configuration
 DEFAULT_WINDOW_TITLE = "Ultralytics Training Platforms 🚀"
-DEFAULT_WINDOW_SIZE = (1200, 700)  # (w, h)
+DEFAULT_WINDOW_SIZE = (1200, 800)  # (w, h)
 ICON_SIZE_NORMAL = (32, 32)
 ICON_SIZE_SMALL = (16, 16)
 
@@ -29,6 +29,7 @@ TASK_LABEL_MAPPINGS = {
     "Segment": "seg",
     "Pose": "pose"
 }
+
 # Training configuration
 MIN_LABELED_IMAGES_THRESHOLD = 0
 NUM_WORKERS = multiprocessing.cpu_count()
@@ -77,7 +78,18 @@ DEFAULT_TRAINING_CONFIG = {
     "cache": False,
 }
 OPTIMIZER_OPTIONS = ["auto", "SGD", "Adam", "AdamW", "NAdam", "RAdam", "RMSProp"]
-
+TRAINING_STATUS_COLORS = {
+    "idle": "#6c757d",
+    "training": "#6f42c1",
+    "completed": "#28a745", 
+    "error": "#ffc107"
+}
+TRAINING_STATUS_TEXTS = {
+    "idle": "Ready to train",
+    "training": "Training in progress",
+    "completed": "Training completed",
+    "error": "Training error"
+}
 
 # Env Check
 def is_torch_available() -> bool:

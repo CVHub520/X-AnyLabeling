@@ -1,8 +1,12 @@
+import csv
+import glob
 import json
 import os
+import re
+import subprocess
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -20,6 +24,10 @@ from PyQt5.QtWidgets import (
     QFileDialog,
     QFormLayout,
     QGridLayout,
+    QProgressBar,
+    QTextEdit,
+    QApplication,
+    QSizePolicy
 )
 
 from anylabeling.views.labeling.logger import logger
@@ -27,11 +35,14 @@ from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.training.widgets.ultralytics_widgets import *
 from anylabeling.services.auto_training.ultralytics._io import *
 from anylabeling.services.auto_training.ultralytics.config import *
+from anylabeling.services.auto_training.ultralytics.general import create_yolo_dataset
 from anylabeling.services.auto_training.ultralytics.style import *
 from anylabeling.services.auto_training.ultralytics.utils import *
+from anylabeling.services.auto_training.ultralytics.validators import validate_basic_config
 from anylabeling.services.auto_training.ultralytics.trainer import (
-    create_yolo_dataset,
-    validate_basic_config,
+    TrainingEventRedirector,
+    TrainingLogRedirector,
+    get_training_manager
 )
 
 
@@ -56,6 +67,21 @@ class UltralyticsDialog(QDialog):
         self.config_widgets = {}
         self.task_type_buttons = {}
 
+        # Training related attributes
+        self.log_redirector = TrainingLogRedirector()
+        self.log_redirector.log_signal.connect(self.append_training_log, Qt.QueuedConnection)
+        self.event_redirector = TrainingEventRedirector()
+        self.event_redirector.training_event_signal.connect(self.on_training_event, Qt.QueuedConnection)
+        self.training_manager = get_training_manager()
+        self.training_manager.callbacks = [self.event_redirector.emit_training_event]
+        self.progress_timer = QTimer()
+        self.progress_timer.timeout.connect(self.update_training_progress)
+        self.image_timer = QTimer()
+        self.image_timer.timeout.connect(self.update_training_images)
+        self.current_project_path = None
+        self.training_status = "idle"  # idle, training, completed, error
+        self.current_epochs = 0
+
         self.init_ui()
         self.refresh_dataset_summary()
 
@@ -63,16 +89,11 @@ class UltralyticsDialog(QDialog):
         self.data_tab = QWidget()
         self.config_tab = QWidget()
         self.train_tab = QWidget()
-        self.eval_tab = QWidget()
-        self.export_tab = QWidget()
 
         self.tab_widget = QTabWidget()
         self.tab_widget.addTab(self.data_tab, self.tr("Data"))
         self.tab_widget.addTab(self.config_tab, self.tr("Config"))
         self.tab_widget.addTab(self.train_tab, self.tr("Train"))
-        self.tab_widget.addTab(self.eval_tab, self.tr("Eval"))
-        self.tab_widget.addTab(self.export_tab, self.tr("Export"))
-
         main_layout = QVBoxLayout(self)
         main_layout.addWidget(self.tab_widget)
 
@@ -177,31 +198,23 @@ class UltralyticsDialog(QDialog):
         summary_layout = QVBoxLayout(summary_widget)
         summary_layout.addWidget(QLabel(self.tr("Dataset Summary:")))
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-
         self.summary_table = QTableWidget()
         self.summary_table.setEditTriggers(QTableWidget.NoEditTriggers)
-        scroll_area.setWidget(self.summary_table)
-        summary_layout.addWidget(scroll_area)
-        parent_layout.addWidget(summary_widget)
+        self.summary_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        summary_layout.addWidget(self.summary_table)
+        parent_layout.addWidget(summary_widget, 1)
 
     def proceed_to_config(self):
         is_valid, error_message = validate_task_requirements(
             self.selected_task_type, self.image_list, self.output_dir
         )
-
         if not is_valid:
             QMessageBox.warning(self, self.tr("Validation Error"), error_message)
             return
-
         self.tab_widget.setCurrentIndex(1)
 
     def init_actions(self, parent_layout):
-        actions_widget = QWidget()
-        actions_layout = QHBoxLayout(actions_widget)
+        actions_layout = QHBoxLayout()
 
         self.load_images_button = SecondaryButton(self.tr("Load Images"))
         self.load_images_button.clicked.connect(self.load_images)
@@ -211,12 +224,23 @@ class UltralyticsDialog(QDialog):
         self.next_button = PrimaryButton(self.tr("Next"))
         self.next_button.clicked.connect(self.proceed_to_config)
         actions_layout.addWidget(self.next_button)
-        parent_layout.addWidget(actions_widget)
+        parent_layout.addLayout(actions_layout)
 
     def init_data_tab(self):
         layout = QVBoxLayout(self.data_tab)
-        self.init_task_configuration(layout)
-        self.init_dataset_summary(layout)
+
+        scroll_area = QScrollArea()
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+
+        self.init_task_configuration(scroll_layout)
+        self.init_dataset_summary(scroll_layout)
+
+        scroll_layout.addStretch()
+        scroll_area.setWidget(scroll_widget)
+        scroll_area.setWidgetResizable(True)
+        layout.addWidget(scroll_area)
+
         self.init_actions(layout)
 
     # Config Tab
@@ -820,6 +844,7 @@ class UltralyticsDialog(QDialog):
         if not is_valid:
             QMessageBox.warning(self, self.tr("Validation Error"), error_message)
             return
+
         if not self.selected_task_type:
             QMessageBox.warning(self, self.tr("Error"), self.tr("Please select a task type first"))
             return
@@ -830,63 +855,7 @@ class UltralyticsDialog(QDialog):
                 QMessageBox.warning(self, self.tr("Error"), self.tr("Please select a valid pose configuration file for pose detection tasks"))
                 return
 
-        temp_dir = create_yolo_dataset(
-            self.image_list,
-            self.selected_task_type,
-            config["basic"]["dataset_ratio"],
-            config["basic"]["data"],
-            self.output_dir,
-            config["basic"].get("pose_config")
-        )
-        logger.info(f"Created YOLO dataset: {temp_dir}")
-
-        train_args = {
-            "data": os.path.join(temp_dir, "data.yaml"),
-            "model": config["basic"]["model"],
-            "project": config["basic"]["project"],
-            "name": config["basic"]["name"],
-            "device": config["basic"]["device"],
-        }
-
-        advanced_params = {}
-        for section in ["train", "strategy", "learning_rate", "warmup", "augment", "regularization", "loss_weights", "checkpoint"]:
-            advanced_params.update(config.get(section, {}))
-        advanced_params = {
-            key: value for key, value in advanced_params.items()
-            if key in DEFAULT_TRAINING_CONFIG and value != DEFAULT_TRAINING_CONFIG[key]
-        }
-        train_args.update(advanced_params)
-
-        cmd_parts = ["yolo", self.selected_task_type.lower(), "train"]
-        for key, value in train_args.items():
-            cmd_parts.append(f"{key}={value}")
-
-        confirm_dialog = TrainingConfirmDialog(cmd_parts, self)
-        if confirm_dialog.exec_() != QDialog.Accepted:
-            return
-
-        try:
-            success, message = self.training_manager.start_training(train_args)
-
-            if not success:
-                QMessageBox.critical(self, self.tr("Training Error"), message)
-                return
-
-            save_config(config)
-            self.tab_widget.setCurrentIndex(2)
-
-            QMessageBox.information(
-                self, 
-                self.tr("Training Started"), 
-                self.tr("Training process has been started successfully")
-            )
-
-        except Exception as e:
-            QMessageBox.critical(
-                self, 
-                self.tr("Training Error"), 
-                f"Failed to start training: {str(e)}"
-            )
+        self.tab_widget.setCurrentIndex(2)  # Switch to Train tab
 
     def init_config_buttons(self, parent_layout):
         button_layout = QHBoxLayout()
@@ -928,8 +897,393 @@ class UltralyticsDialog(QDialog):
         self.init_config_buttons(layout)
         self.load_default_config()
 
-    # Train config
+    # Train tab
+    def update_training_status_display(self):        
+        color = TRAINING_STATUS_COLORS.get(self.training_status, "#6c757d")
+        text = self.tr(TRAINING_STATUS_TEXTS.get(self.training_status, "Unknown status"))
+        self.status_label.setText(text)
+        self.status_label.setStyleSheet(get_status_label_style(color))
+
+    def update_training_progress(self):
+        if not self.current_project_path:
+            return
+
+        results_file = os.path.join(self.current_project_path, "results.csv")
+        if os.path.exists(results_file):
+            try:
+                with open(results_file, 'r') as f:
+                    reader = csv.reader(f)
+                    rows = list(reader)
+                    if len(rows) > 1:  # Skip header
+                        self.current_epochs = len(rows) - 1
+                        progress = min(100, int((self.current_epochs / self.total_epochs) * 100))
+                        self.progress_bar.setValue(progress)
+                        self.progress_bar.setFormat(f"{self.current_epochs}/{self.total_epochs}")
+            except Exception as e:
+                logger.warning(f"Failed to read results.csv: {e}")
+
+    def update_training_images(self):
+        if not self.current_project_path:
+            return
+
+        def find_images_by_pattern(patterns, max_count=3):
+            found_files = []
+            for pattern in patterns:
+                matches = glob.glob(os.path.join(self.current_project_path, pattern))
+                matches.sort()
+                found_files.extend(matches)
+                if len(found_files) >= max_count:
+                    break
+            return found_files[:max_count]
+        
+        image_configs = [
+            {"patterns": ["train_batch*.jpg"], "max_count": 3},
+            {"patterns": ["*PR_curve.png", "*F1_curve.png", "results.png"], "max_count": 3}
+        ]
+        
+        all_images = []
+        for config in image_configs:
+            all_images.extend(find_images_by_pattern(config["patterns"], config["max_count"]))
+
+        for i, image_label in enumerate(self.image_labels):
+            if i < len(all_images):
+                image_path = all_images[i]
+                try:
+                    pixmap = QPixmap(image_path)
+                    if not pixmap.isNull():
+                        scaled_pixmap = pixmap.scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+                        image_label.setPixmap(scaled_pixmap)
+                        image_label.setText("")
+                        image_label.setToolTip(os.path.basename(image_path))
+                        self.image_paths[i] = image_path
+                    else:
+                        image_label.clear()
+                        image_label.setText(self.tr("No image"))
+                        image_label.setToolTip("")
+                        self.image_paths[i] = None
+                except Exception as e:
+                    logger.warning(f"Failed to load image {image_path}: {e}")
+                    image_label.clear()
+                    image_label.setText(self.tr("No image"))
+                    image_label.setToolTip("")
+                    self.image_paths[i] = None
+            else:
+                image_label.clear()
+                image_label.setText(self.tr("No image"))
+                image_label.setToolTip("")
+                self.image_paths[i] = None
+
+    def on_training_event(self, event_type, data):
+        if event_type == "training_started":
+            self.training_status = "training"
+            self.total_epochs = data["total_epochs"]
+            self.current_epochs = 0
+            self.progress_bar.setValue(0)
+            self.progress_bar.setFormat(f"0/{self.total_epochs}")
+            self.update_training_status_display()
+            self.start_training_button.setVisible(False)
+            self.stop_training_button.setVisible(True)
+            self.next_button.setVisible(False)
+            self.progress_timer.start(1000)
+            self.image_timer.start(5000)
+            self.append_training_log(self.tr("Training started..."))
+        elif event_type == "training_completed":
+            self.training_status = "completed"
+            self.update_training_status_display()
+            self.stop_training_button.setVisible(False)
+            self.start_training_button.setVisible(False)
+            self.next_button.setVisible(True)
+            self.progress_timer.stop()
+            self.image_timer.stop()
+            self.update_training_progress()
+            self.update_training_images()
+            self.append_training_log(self.tr("Training completed successfully!"))
+        elif event_type == "training_error":
+            self.training_status = "error"
+            self.update_training_status_display()
+            self.start_training_button.setVisible(True)
+            self.stop_training_button.setVisible(False)
+            self.next_button.setVisible(False)
+            self.progress_timer.stop()
+            self.image_timer.stop()
+            error_msg = data.get("error", "Unknown error occurred")
+            self.append_training_log(f"ERROR: {error_msg}")
+        elif event_type == "training_stopped":
+            self.training_status = "idle"
+            self.update_training_status_display()
+            self.start_training_button.setVisible(True)
+            self.stop_training_button.setVisible(False)
+            self.next_button.setVisible(False)
+            self.progress_timer.stop()
+            self.image_timer.stop()
+            self.append_training_log(self.tr("Training stopped by user"))
+        elif event_type == "training_log":
+            log_message = data.get("message", "")
+            if log_message:
+                self.append_training_log(log_message)
+
+    def append_training_log(self, text):
+        def clean_ansi_codes(text: str) -> str:
+            ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+            return ansi_escape.sub('', text)
+
+        if hasattr(self, "log_display"):
+            text = clean_ansi_codes(text)
+            self.log_display.append(text.strip())
+
+    def init_training_status(self, parent_layout):
+        status_group = QGroupBox(self.tr("Training Status"))
+        status_layout = QVBoxLayout(status_group)
+
+        self.status_label = QLabel(self.tr("Ready to train"))
+        self.status_label.setStyleSheet(get_status_label_style())
+        status_layout.addWidget(self.status_label)
+
+        progress_layout = QHBoxLayout()
+        progress_layout.addWidget(QLabel(self.tr("Progress:")))
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(0)
+        self.progress_bar.setFormat("0/0")
+        self.progress_bar.setStyleSheet(get_progress_bar_style())
+        progress_layout.addWidget(self.progress_bar)
+        status_layout.addLayout(progress_layout)
+        parent_layout.addWidget(status_group)
+
+    def clear_training_logs(self):
+        if hasattr(self, "log_display"):
+            reply = QMessageBox.question(
+                self,
+                self.tr("Clear Logs"),
+                self.tr("Are you sure you want to clear all training logs?"),
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.No
+            )
+            if reply == QMessageBox.Yes:
+                self.log_display.clear()
+
+    def copy_training_logs(self):
+        if hasattr(self, "log_display"):
+            text = self.log_display.toPlainText()
+            if text:
+                clipboard = QApplication.clipboard()
+                clipboard.setText(text)
+
+    def init_training_logs(self, parent_layout):
+        logs_group = QGroupBox(self.tr("Training Logs"))
+        logs_layout = QVBoxLayout(logs_group)
+
+        self.log_display = QTextEdit()
+        self.log_display.setReadOnly(True)
+        self.log_display.setMinimumHeight(250)
+        self.log_display.setStyleSheet(get_log_display_style())
+        logs_layout.addWidget(self.log_display)
+
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+
+        self.clear_logs_button = SecondaryButton(self.tr("Clear"))
+        self.clear_logs_button.clicked.connect(self.clear_training_logs)
+        button_layout.addWidget(self.clear_logs_button)
+
+        self.copy_logs_button = SecondaryButton(self.tr("Copy"))
+        self.copy_logs_button.clicked.connect(self.copy_training_logs)
+        button_layout.addWidget(self.copy_logs_button)
+
+        logs_layout.addLayout(button_layout)
+        parent_layout.addWidget(logs_group)
+
+    def init_training_images(self, parent_layout):
+        images_group = QGroupBox(self.tr("Training Images"))
+        images_layout = QVBoxLayout(images_group)
+        images_layout.setContentsMargins(5, 5, 5, 5)
+
+        self.image_labels = []
+        self.image_paths = [None] * 6
+        self.images_widget = QWidget()
+        images_row_layout = QHBoxLayout(self.images_widget)
+        images_row_layout.setSpacing(10)
+        images_row_layout.setContentsMargins(0, 0, 0, 0)
+        
+        for i in range(6):
+            image_label = QLabel()
+            image_label.setMinimumSize(150, 150)
+            image_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            image_label.setStyleSheet(get_image_label_style())
+            image_label.setAlignment(Qt.AlignCenter)
+            image_label.setText(self.tr("No image"))
+            image_label.setScaledContents(False)
+            image_label.mousePressEvent = lambda event, idx=i: self.on_image_clicked(idx)
+            self.image_labels.append(image_label)
+            images_row_layout.addWidget(image_label, 1)
+
+        images_layout.addWidget(self.images_widget, 1)
+        parent_layout.addWidget(images_group, 1)
+
+    def on_image_clicked(self, index):
+        if self.image_paths[index]:
+            self.open_image_file(self.image_paths[index])
+
+    def open_image_file(self, image_path):
+        try:
+            if "microsoft" in os.uname().release.lower():  # WSL2
+                windows_path = subprocess.check_output(['wslpath', '-w', image_path]).decode().strip()
+                subprocess.run(['powershell.exe', '-c', f'Start-Process "{windows_path}"'], 
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            elif os.name == 'nt':  # Windows
+                os.startfile(image_path)
+            elif os.name == 'posix':  # macOS and Linux
+                subprocess.run(['xdg-open', image_path])
+        except Exception as e:
+            logger.warning(f"Failed to open image {image_path}: {e}")
+
+    def open_training_directory(self):
+        if self.current_project_path and os.path.exists(self.current_project_path):
+            try:
+                if "microsoft" in os.uname().release.lower():  # WSL2
+                    wsl_path = self.current_project_path
+                    windows_path = subprocess.check_output(['wslpath', '-w', wsl_path]).decode().strip()
+                    subprocess.run(['explorer.exe', windows_path])
+                elif os.name == 'nt':  # Windows
+                    os.startfile(self.current_project_path)
+                elif os.name == 'posix':  # macOS and Linux
+                    subprocess.run(['xdg-open', self.current_project_path])
+            except Exception as e:
+                self.append_training_log(f"Failed to open directory: {str(e)}")
+                QMessageBox.information(self, self.tr("Info"), f"Directory path: {self.current_project_path}")
+        else:
+            QMessageBox.information(self, self.tr("Info"), self.tr("No training directory available"))
+
+    def stop_training(self):
+        reply = QMessageBox.question(
+            self,
+            self.tr("Confirm Stop"),
+            self.tr("Are you sure you want to stop the training?"),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            success = self.training_manager.stop_training()
+            if success:
+                self.append_training_log(self.tr("Stopping training..."))
+            else:
+                self.append_training_log(self.tr("Cancel to stop training"))
+
+    def get_training_args(self, config):
+        try:
+            temp_dir = create_yolo_dataset(
+                self.image_list,
+                self.selected_task_type,
+                config["basic"]["dataset_ratio"],
+                config["basic"]["data"],
+                self.output_dir,
+                config["basic"].get("pose_config")
+            )
+            self.append_training_log(f"Created dataset: {temp_dir}")
+
+            train_args = {
+                "data": os.path.join(temp_dir, "data.yaml"),
+                "model": config["basic"]["model"],
+                "project": config["basic"]["project"],
+                "name": config["basic"]["name"],
+                "device": config["basic"]["device"],
+            }
+
+            # Add advanced parameters
+            advanced_params = {}
+            for section in ["train", "strategy", "learning_rate", "warmup", "augment", "regularization", "loss_weights", "checkpoint"]:
+                advanced_params.update(config.get(section, {}))
+            advanced_params = {
+                key: value for key, value in advanced_params.items()
+                if key in DEFAULT_TRAINING_CONFIG and value != DEFAULT_TRAINING_CONFIG[key]
+            }
+            train_args.update(advanced_params)
+            self.total_epochs = train_args.get("epochs", 100)
+
+            # Log the training command
+            cmd_parts = ["yolo", self.selected_task_type.lower(), "train"]
+            for key, value in train_args.items():
+                cmd_parts.append(f"{key}={value}")
+            self.append_training_log(f"Training command: {' '.join(cmd_parts)}")
+
+            return train_args
+            
+        except Exception as e:
+            self.append_training_log(f"Error preparing training args: {str(e)}")
+            raise
+
+    def start_training_from_train_tab(self):
+        config = self.get_current_config()
+        is_valid, error_message = validate_basic_config(config)
+        if not is_valid:
+            QMessageBox.warning(self, self.tr("Validation Error"), error_message)
+            self.append_training_log(f"Validation Error: {error_message}")
+            return
+
+        if not self.selected_task_type:
+            error_msg = self.tr("Please select a task type first")
+            QMessageBox.warning(self, self.tr("Error"), error_msg)
+            self.append_training_log(f"Error: {error_msg}")
+            return
+
+        project_path = config["basic"]["project"]
+        name = config["basic"]["name"]
+        self.current_project_path = os.path.join(project_path, name)
+
+        try:
+            self.append_training_log(self.tr("Preparing training..."))
+            train_args = self.get_training_args(config)
+            success, message = self.training_manager.start_training(train_args)
+            if not success:
+                self.append_training_log(f"Failed to start training: {message}")
+                QMessageBox.critical(self, self.tr("Training Error"), message)
+                return
+
+        except Exception as e:
+            error_msg = f"Failed to start training: {str(e)}"
+            self.append_training_log(f"ERROR: {error_msg}")
+            QMessageBox.critical(self, self.tr("Training Error"), error_msg)
+
+    def init_training_actions(self, parent_layout):
+        actions_layout = QHBoxLayout()
+
+        self.open_dir_button = SecondaryButton(self.tr("Open Directory"))
+        self.open_dir_button.clicked.connect(self.open_training_directory)
+        actions_layout.addWidget(self.open_dir_button)
+        actions_layout.addStretch()
+
+        self.stop_training_button = SecondaryButton(self.tr("Stop Training"))
+        self.stop_training_button.clicked.connect(self.stop_training)
+        self.stop_training_button.setVisible(False)
+        actions_layout.addWidget(self.stop_training_button)
+
+        self.start_training_button = PrimaryButton(self.tr("Start Training"))
+        self.start_training_button.clicked.connect(self.start_training_from_train_tab)
+        actions_layout.addWidget(self.start_training_button)
+
+        self.next_button = PrimaryButton(self.tr("Next"))
+        self.next_button.setVisible(False)
+        actions_layout.addWidget(self.next_button)
+
+        parent_layout.addLayout(actions_layout)
+
     def init_train_tab(self):
         layout = QVBoxLayout(self.train_tab)
 
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
 
+        scroll_widget = QWidget()
+        scroll_layout = QVBoxLayout(scroll_widget)
+
+        self.init_training_status(scroll_layout)
+        self.init_training_logs(scroll_layout)
+        self.init_training_images(scroll_layout)
+
+        scroll_layout.addStretch()
+        scroll_area.setWidget(scroll_widget)
+        layout.addWidget(scroll_area)
+
+        self.init_training_actions(layout)
