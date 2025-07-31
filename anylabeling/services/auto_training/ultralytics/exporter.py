@@ -41,7 +41,7 @@ class ExportLogRedirector(QObject):
         pass
 
 
-def validate_export_environment():
+def validate_onnx_export_environment():
     required_packages = ["onnx", "onnxslim", "onnxruntime"]
     missing_packages = []
     package_mapping = {
@@ -65,6 +65,141 @@ def validate_export_environment():
         pass
     
     return missing_packages
+
+
+def validate_openvino_export_environment():
+    required_packages = ["openvino"]
+    missing_packages = []
+    package_mapping = {"openvino": "openvino>=2024.0.0"}
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_tensorrt_export_environment():
+    required_packages = ["tensorrt"]
+    missing_packages = []
+    package_mapping = {"tensorrt": "tensorrt>7.0.0,!=10.1.0"}
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_coreml_export_environment():
+    required_packages = ["coremltools"]
+    missing_packages = []
+    package_mapping = {"coremltools": "coremltools>=8.0"}
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_tensorflow_export_environment():
+    required_packages = ["tensorflow"]
+    missing_packages = []
+    package_mapping = {"tensorflow": "tensorflow>=2.0.0"}
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_paddle_export_environment():
+    required_packages = ["paddlepaddle", "x2paddle"]
+    missing_packages = []
+    package_mapping = {
+        "paddlepaddle": "paddlepaddle-gpu",
+        "x2paddle": "x2paddle"
+    }
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_mnn_export_environment():
+    required_packages = ["MNN"]
+    missing_packages = []
+    package_mapping = {"MNN": "MNN>=2.9.6"}
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_ncnn_export_environment():
+    required_packages = ["ncnn"]
+    missing_packages = []
+    package_mapping = {"ncnn": "ncnn"}
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_imx500_export_environment():
+    required_packages = ["imx500-converter", "mct-quantizers"]
+    missing_packages = []
+    package_mapping = {
+        "imx500-converter": "imx500-converter[pt]>=3.16.1",
+        "mct-quantizers": "mct-quantizers>=1.6.0"
+    }
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def validate_rknn_export_environment():
+    required_packages = ["rknn-toolkit2"]
+    missing_packages = []
+    package_mapping = {"rknn-toolkit2": "rknn-toolkit2"}
+    
+    for package in required_packages:
+        if not check_package_installed(package):
+            missing_packages.append(package_mapping[package])
+    
+    return missing_packages
+
+
+def get_export_validator(export_format):
+    validators = {
+        "onnx": validate_onnx_export_environment,
+        "openvino": validate_openvino_export_environment,
+        "engine": validate_tensorrt_export_environment,
+        "coreml": validate_coreml_export_environment,
+        "saved_model": validate_tensorflow_export_environment,
+        "pb": validate_tensorflow_export_environment,
+        "tflite": validate_tensorflow_export_environment,
+        "edgetpu": validate_tensorflow_export_environment,
+        "tfjs": validate_tensorflow_export_environment,
+        "paddle": validate_paddle_export_environment,
+        "mnn": validate_mnn_export_environment,
+        "ncnn": validate_ncnn_export_environment,
+        "imx": validate_imx500_export_environment,
+        "rknn": validate_rknn_export_environment,
+        "torchscript": lambda: []
+    }
+    return validators.get(export_format, lambda: [])
 
 
 class ExportManager:
@@ -100,7 +235,7 @@ class ExportManager:
         try:
             self.notify_callbacks("export_started", {"weights_path": weights_path, "format": export_format})
             self.notify_callbacks("export_log", {"message": "Checking export environment..."})
-            missing_packages = validate_export_environment()
+            missing_packages = get_export_validator(export_format)()
             if missing_packages:
                 self.notify_callbacks("export_log", {"message": f"Missing required packages: {', '.join(missing_packages)}"})
                 self.notify_callbacks("export_log", {"message": "Attempting to install missing packages..."})

@@ -8,5 +8,6 @@ from .custom_widgets import (
     CustomSpinBox,
     PrimaryButton,
     SecondaryButton,
-    TrainingConfirmDialog
+    TrainingConfirmDialog,
+    ExportFormatDialog
 )

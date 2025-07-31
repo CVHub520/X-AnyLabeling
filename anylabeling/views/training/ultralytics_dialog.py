@@ -1425,10 +1425,13 @@ class UltralyticsDialog(QDialog):
             )
             return
 
-        success, message = self.export_manager.start_export(self.current_project_path, "onnx")
-        if not success:
-            QMessageBox.critical(self, self.tr("Export Error"), message)
-            self.append_training_log(f"Failed to start export: {message}")
+        export_dialog = ExportFormatDialog(self)
+        if export_dialog.exec_() == QDialog.Accepted:
+            export_format = export_dialog.get_selected_format()
+            success, message = self.export_manager.start_export(self.current_project_path, export_format)
+            if not success:
+                QMessageBox.critical(self, self.tr("Export Error"), message)
+                self.append_training_log(f"Failed to start export: {message}")
 
     def reset_train_tab(self):
         self.training_status = "idle"
