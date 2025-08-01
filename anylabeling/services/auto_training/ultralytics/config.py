@@ -109,7 +109,7 @@ def is_cuda_available() -> bool:
 def is_mps_available() -> bool:
     try:
         import torch
-        return torch.mps.is_available() if is_torch_available() else False
+        return torch.backends.mps.is_available() if is_torch_available() else False
     except ImportError:
         return False
 
