@@ -62,7 +62,7 @@ def get_custom_table_style():
             background: #f3f4f6;
             width: 8px;
             border-radius: 4px;
-            margin: 4px 2px;
+            margin: 0px;
         }
         QScrollBar::handle:vertical {
             background: #d1d5db;
@@ -71,6 +71,19 @@ def get_custom_table_style():
         }
         QScrollBar::handle:vertical:hover {
             background: #9ca3af;
+        }
+        QScrollBar::add-line:vertical {
+            height: 0px;
+            subcontrol-position: bottom;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::sub-line:vertical {
+            height: 0px;
+            subcontrol-position: top;
+            subcontrol-origin: margin;
+        }
+        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+            background: transparent;
         }
     """
 

@@ -801,6 +801,7 @@ class LabelingWidget(LabelDialog):
         ultralytics_train = action(
             "Ultralytics",
             lambda: self.start_training("ultralytics"),
+            icon="ultralytics",
         )
 
         zoom = QtWidgets.QWidgetAction(self)
