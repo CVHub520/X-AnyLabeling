@@ -182,7 +182,7 @@ def main():
     if not config["labels"] and config["validate_label"]:
         logger.error(
             "--labels must be specified with --validatelabel or "
-            "validate_label: true in the config file "
+            "validate_label: exact in the config file "
             "(ex. ~/.xanylabelingrc)."
         )
         sys.exit(1)
