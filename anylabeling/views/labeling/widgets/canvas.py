@@ -651,6 +651,7 @@ class Canvas(
                         self.create_mode
                         in ["rectangle", "rotation", "circle", "line", "point"]
                         and not self.is_auto_labeling
+                        and not self.current
                     ):
                         self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
