@@ -59,6 +59,7 @@
 
 ## 🥳 新功能
 
+- 新增支持 [RF-DETR](https://github.com/roboflow/rf-detr/tree/develop) 目标检测模型（Medium, Small, Nano）
 - 新增支持 [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) 标签导入
 - X-AnyLabeling [v3.1.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.1) 最新版本发布
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
