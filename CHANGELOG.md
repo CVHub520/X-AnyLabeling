@@ -1,5 +1,38 @@
 # X-AnyLabeling Changelog
 
+## `v3.1.2` (Aug 16, 2025)
+
+### 🚀 New Features
+
+- Introduce Auto Mask Decode (AMD) mode for continuous point tracking (#1060)
+- Add new RF-DETR models (medium, small, nano) and fix input width typo in configuration files (#1069)
+- Enhance range selection for group ID modification with new input fields and validation (#1035)
+- Add support for MM-Grounding-DINO annotations upload
+
+### 🐛 Bug Fixes
+
+- Update error message for label validation to specify 'exact' in config file (#1064)
+- Fix issues when drawing rectangular boxes (#1063 by zhixuwei)
+- Add try-except for mask_to_polygons for supervision version compatibility (#1055 by adarshs)
+- Improve segmentation handling by filtering invalid entries and avoiding duplicate points in polygon mode (#1032)
+- Resolve KeyError when importing files via drag and drop (#1030)
+- Enhance image saving logic to handle non-ASCII paths and improve multiprocessing handling in frozen environments (#1021)
+- Improve crop region validation and handle empty cropped images with warnings (#1021)
+- Emit model_loaded signal even if loading custom model configuration fails
+- Update frame ID extraction logic to handle underscores and non-digit cases (#1020)
+
+### 🛠️ Improvements
+
+- Correct variable name from 'has_vasiable' to 'has_visible' for accurate keypoint processing
+- Simplify toggle button text for clarity in label and shape information display
+- When looping through shapes, display their fill colors (#1025 by zhixuwei)
+
+### 🌟 Contributors
+
+A total of 4 developers contributed to this release.
+
+Thank @zhixuwei, @adarshs, @CVHub520
+
 ## `v3.1.1` (Jul 05, 2025)
 
 ### 🚀 New Features
