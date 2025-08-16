@@ -1,7 +1,7 @@
 import csv
 import glob
-import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -349,6 +349,8 @@ class UltralyticsDialog(QDialog):
     def init_basic_settings(self, parent_layout):
         group = QGroupBox(self.tr("Basic Settings"))
         layout = QFormLayout(group)
+        layout.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
+        layout.setRowWrapPolicy(QFormLayout.DontWrapRows)
 
         self.config_widgets["project"] = CustomLineEdit()
         selected_task_type = (
@@ -1426,7 +1428,9 @@ class UltralyticsDialog(QDialog):
                 )
             elif os.name == "nt":  # Windows
                 os.startfile(image_path)
-            elif os.name == "posix":  # macOS and Linux
+            elif platform.system() == "Darwin":  # macOS
+                subprocess.run(["open", image_path])
+            elif os.name == "posix":  # Linux
                 subprocess.run(["xdg-open", image_path])
         except Exception as e:
             logger.warning(f"Failed to open image {image_path}: {e}")
@@ -1446,7 +1450,9 @@ class UltralyticsDialog(QDialog):
                     subprocess.run(["explorer.exe", windows_path])
                 elif os.name == "nt":  # Windows
                     os.startfile(self.current_project_path)
-                elif os.name == "posix":  # macOS and Linux
+                elif platform.system() == "Darwin":  # macOS
+                    subprocess.run(["open", self.current_project_path])
+                elif os.name == "posix":  # Linux
                     subprocess.run(["xdg-open", self.current_project_path])
             except Exception as e:
                 self.append_training_log(f"Failed to open directory: {str(e)}")
