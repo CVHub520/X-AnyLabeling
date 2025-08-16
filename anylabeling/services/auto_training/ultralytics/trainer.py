@@ -1,11 +1,15 @@
 import os
 import signal
+import shutil
 import subprocess
+import time
 import threading
 from io import StringIO
 from typing import Dict, Tuple
 
 from PyQt5.QtCore import QObject, pyqtSignal
+
+from .config import SETTINGS_CONFIG_PATH
 
 
 class TrainingEventRedirector(QObject):
@@ -158,9 +162,22 @@ except Exception as e:
                     except:
                         pass
 
+            def save_settings_config():
+                save_path = os.path.join(train_args["project"], train_args["name"])
+                save_file = os.path.join(save_path, "settings.json")
+
+                while not os.path.exists(save_path):
+                    time.sleep(1)
+
+                shutil.copy2(SETTINGS_CONFIG_PATH, save_file)
+
             training_thread = threading.Thread(target=run_training)
             training_thread.daemon = True
             training_thread.start()
+
+            config_thread = threading.Thread(target=save_settings_config)
+            config_thread.daemon = True
+            config_thread.start()
 
             return True, "Training started successfully"
 
