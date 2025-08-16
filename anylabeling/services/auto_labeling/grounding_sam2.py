@@ -53,6 +53,7 @@ class GroundingSAM2(Model):
             "button_add_rect",
             "button_clear",
             "button_finish_object",
+            "button_auto_decode",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),

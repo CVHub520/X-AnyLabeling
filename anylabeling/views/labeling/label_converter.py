@@ -742,7 +742,10 @@ class LabelConverter:
                 segmentations_list = []
 
                 for segmentation in dic_info["segmentation"]:
-                    if isinstance(segmentation, dict) and "counts" in segmentation:
+                    if (
+                        isinstance(segmentation, dict)
+                        and "counts" in segmentation
+                    ):
                         # TODO: Handle RLE format segmentation
                         continue
 

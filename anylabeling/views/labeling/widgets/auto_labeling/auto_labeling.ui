@@ -320,6 +320,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_auto_decode">
+       <property name="text">
+        <string>AMD (Off)</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="toggle_preserve_existing_annotations">
           <property name="text">
               <string>Replace (On)</string>

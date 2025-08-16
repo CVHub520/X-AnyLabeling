@@ -59,6 +59,7 @@
 
 ## 🥳 What's New
 
+- Add support for **Auto Mask Decode (AMD)** mode for continuous point tracking in Segment Anything series models
 - Add support for [RF-DETR](https://github.com/roboflow/rf-detr/tree/develop) object detection models (Medium, Small, Nano)
 - Add support for [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) annotations upload
 - Bump version to [3.1.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.1.1)

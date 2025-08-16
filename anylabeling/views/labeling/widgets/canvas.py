@@ -3,7 +3,7 @@
 import math
 from copy import deepcopy
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QWheelEvent
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
@@ -18,6 +18,9 @@ CURSOR_DRAW = QtCore.Qt.CrossCursor
 CURSOR_MOVE = QtCore.Qt.ClosedHandCursor
 CURSOR_GRAB = QtCore.Qt.OpenHandCursor
 
+AUTO_DECODE_DELAY_MS = 100
+MAX_AUTO_DECODE_MARKS = 42
+AUTO_DECODE_MOVE_THRESHOLD = 5.0
 MOVE_SPEED = 5.0
 LARGE_ROTATION_INCREMENT = 0.1
 SMALL_ROTATION_INCREMENT = 0.01
@@ -43,6 +46,8 @@ class Canvas(
     drawing_polygon = QtCore.pyqtSignal(bool)
     vertex_selected = QtCore.pyqtSignal(bool)
     auto_labeling_marks_updated = QtCore.pyqtSignal(list)
+    auto_decode_requested = QtCore.pyqtSignal(list)
+    auto_decode_finish_requested = QtCore.pyqtSignal()
 
     CREATE, EDIT = 0, 1
 
@@ -136,6 +141,14 @@ class Canvas(
         self.loading_text = self.tr("Loading...")
         self.loading_angle = 0
 
+        # Auto mask decode mode
+        self.auto_decode_mode = False
+        self.auto_decode_timer = QTimer()
+        self.auto_decode_timer.timeout.connect(self.on_auto_decode_timeout)
+        self.auto_decode_timer.setSingleShot(True)
+        self.auto_decode_tracklet = []
+        self.last_mouse_pos = None
+
     def set_loading(self, is_loading: bool, loading_text: str = None):
         """Set loading state"""
         self.is_loading = is_loading
@@ -155,6 +168,19 @@ class Canvas(
             self.parent.toggle_draw_mode(
                 False, mode.shape_type, disable_auto_labeling=False
             )
+
+    def set_auto_decode_mode(self, enabled: bool):
+        """Set auto decode mode"""
+        if self.auto_decode_mode and not enabled:
+            self.reset_auto_decode_state()
+        self.auto_decode_mode = enabled
+
+    def reset_auto_decode_state(self):
+        """Reset auto decode state"""
+        if self.auto_decode_timer.isActive():
+            self.auto_decode_timer.stop()
+        self.auto_decode_tracklet.clear()
+        self.last_mouse_pos = None
 
     def fill_drawing(self):
         """Get option to fill shapes by color"""
@@ -319,6 +345,17 @@ class Canvas(
         """Check if selected an edge"""
         return self.h_edge is not None
 
+    def _should_trigger_auto_decode(self, pos):
+        """Check if mouse movement exceeds threshold to trigger auto decode"""
+        if not self.auto_decode_tracklet:
+            return True
+
+        last_point = self.auto_decode_tracklet[-1]["data"]
+        distance = (
+            (pos.x() - last_point[0]) ** 2 + (pos.y() - last_point[1]) ** 2
+        ) ** 0.5
+        return distance >= AUTO_DECODE_MOVE_THRESHOLD
+
     # QT Overload
     def mouseMoveEvent(self, ev):  # noqa: C901
         """Update line with last point and current coordinates"""
@@ -331,6 +368,17 @@ class Canvas(
 
         self.prev_move_point = pos
         self.repaint()
+
+        # Handle auto decode mode
+        if (
+            self.auto_decode_mode
+            and self.is_auto_labeling
+            and self.auto_decode_tracklet
+        ):
+            if self._should_trigger_auto_decode(pos):
+                self.last_mouse_pos = pos
+                if not self.auto_decode_timer.isActive():
+                    self.auto_decode_timer.start(AUTO_DECODE_DELAY_MS)
 
         # Polygon drawing.
         if self.drawing():
@@ -591,6 +639,37 @@ class Canvas(
         self.prev_h_vertex = None
         self.moving_shape = True  # Save changes
 
+    def on_auto_decode_timeout(self):
+        """Handle auto decode timeout"""
+        if (
+            not self.auto_decode_mode
+            or self.auto_labeling_mode.shape_type != AutoLabelingMode.POINT
+        ):
+            return
+
+        flag = -1
+        if self.auto_labeling_mode.edit_mode == AutoLabelingMode.ADD:
+            flag = 1
+        elif self.auto_labeling_mode.edit_mode == AutoLabelingMode.REMOVE:
+            flag = 0
+        if flag == -1:
+            return
+
+        if self.auto_decode_mode and self.last_mouse_pos:
+            if len(self.auto_decode_tracklet) >= MAX_AUTO_DECODE_MARKS:
+                self.auto_decode_tracklet.pop(0)
+
+            marks = {
+                "type": "point",
+                "data": [
+                    int(self.last_mouse_pos.x()),
+                    int(self.last_mouse_pos.y()),
+                ],
+                "label": flag,
+            }
+            self.auto_decode_tracklet.append(marks)
+            self.auto_decode_requested.emit(self.auto_decode_tracklet)
+
     # QT Overload
     def mousePressEvent(self, ev):  # noqa: C901
         """Mouse press event"""
@@ -655,6 +734,16 @@ class Canvas(
                     ):
                         self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
+                    # Handle auto decode mode first click
+                    if self.auto_decode_mode and self.is_auto_labeling:
+                        if (
+                            self.auto_labeling_mode.shape_type
+                            == AutoLabelingMode.POINT
+                        ):
+                            self.last_mouse_pos = pos
+                            self.on_auto_decode_timeout()
+                            return
+
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
                     self.current.add_point(pos)
@@ -783,6 +872,16 @@ class Canvas(
         """Mouse double click event"""
         if self.is_loading:
             return
+
+        # Handle auto decode mode double click to finish
+        if (
+            self.auto_decode_mode
+            and self.is_auto_labeling
+            and self.auto_decode_tracklet
+        ):
+            self.auto_decode_finish_requested.emit()
+            return
+
         # We need at least 4 points here, since the mousePress handler
         # adds an extra one before this handler is called.
         if (
