@@ -13,7 +13,7 @@ def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
 
     Args:
         config: Training configuration dictionary
-        
+
     Returns:
         Tuple of (is_valid_or_status, error_message_or_path)
         - (True, "") - validation passed
@@ -59,6 +59,7 @@ def validate_classes(classes_str: str, names: List[str]) -> Tuple[bool, str]:
         return True, ""
 
     from .general import parse_string_to_digit_list
+
     classes = parse_string_to_digit_list(classes_str)
 
     if classes is None:
@@ -82,9 +83,9 @@ def validate_data_file(file_path: str) -> Tuple[bool, Union[str, List[str]]]:
         Tuple[bool, Union[str, List[str]]]: (is_valid, error_message_or_names_list)
     """
     try:
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             data = yaml.safe_load(f)
-        
+
         if "names" not in data:
             return False, "Data file must contain 'names' field"
 
@@ -99,10 +100,7 @@ def install_packages_with_timeout(packages, timeout=30):
 
     try:
         process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
+            cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
 
         stdout, stderr = process.communicate(timeout=timeout)
@@ -115,16 +113,21 @@ def install_packages_with_timeout(packages, timeout=30):
         return False, "", str(e)
 
 
-def validate_task_requirements(task_type: str, image_list: List[str], output_dir: str = None) -> Tuple[bool, str]:
+def validate_task_requirements(
+    task_type: str, image_list: List[str], output_dir: str = None
+) -> Tuple[bool, str]:
     if not task_type:
         return False, "Please select a task type"
-    
+
     if not image_list:
         return False, "Please load images first"
-    
+
     valid_images = get_task_valid_images(image_list, task_type, output_dir)
-    
+
     if valid_images < MIN_LABELED_IMAGES_THRESHOLD:
-        return False, f"Need at least {MIN_LABELED_IMAGES_THRESHOLD} labeled images for {task_type} task. Found: {valid_images}"
-    
+        return (
+            False,
+            f"Need at least {MIN_LABELED_IMAGES_THRESHOLD} labeled images for {task_type} task. Found: {valid_images}",
+        )
+
     return True, ""

@@ -14,6 +14,7 @@ from .config import SETTINGS_CONFIG_PATH
 
 class TrainingEventRedirector(QObject):
     """Thread-safe training event redirector"""
+
     training_event_signal = pyqtSignal(str, dict)
 
     def __init__(self):
@@ -26,6 +27,7 @@ class TrainingEventRedirector(QObject):
 
 class TrainingLogRedirector(QObject):
     """Thread-safe training log redirector"""
+
     log_signal = pyqtSignal(str)
 
     def __init__(self):
@@ -93,18 +95,20 @@ except Exception as e:
     sys.exit(1)
 """
 
-            script_path = os.path.join(train_args.get("project", "/tmp"), "train_script.py")
+            script_path = os.path.join(
+                train_args.get("project", "/tmp"), "train_script.py"
+            )
             os.makedirs(os.path.dirname(script_path), exist_ok=True)
 
-            with open(script_path, 'w') as f:
+            with open(script_path, "w") as f:
                 f.write(script_content)
 
             def run_training():
                 try:
                     self.is_training = True
-                    self.notify_callbacks("training_started", {
-                        "total_epochs": self.total_epochs
-                    })
+                    self.notify_callbacks(
+                        "training_started", {"total_epochs": self.total_epochs}
+                    )
 
                     self.training_process = subprocess.Popen(
                         [sys.executable, script_path],
@@ -112,7 +116,7 @@ except Exception as e:
                         stderr=subprocess.STDOUT,
                         universal_newlines=True,
                         bufsize=1,
-                        preexec_fn=os.setsid if os.name != 'nt' else None
+                        preexec_fn=os.setsid if os.name != "nt" else None,
                     )
 
                     while True:
@@ -121,41 +125,49 @@ except Exception as e:
                             try:
                                 self.training_process.wait(timeout=5)
                             except subprocess.TimeoutExpired:
-                                if os.name == 'nt':
+                                if os.name == "nt":
                                     self.training_process.kill()
                                 else:
-                                    os.killpg(os.getpgid(self.training_process.pid), signal.SIGKILL)
+                                    os.killpg(
+                                        os.getpgid(self.training_process.pid),
+                                        signal.SIGKILL,
+                                    )
                             self.is_training = False
                             self.notify_callbacks("training_stopped", {})
                             return
 
                         output = self.training_process.stdout.readline()
-                        if output == '' and self.training_process.poll() is not None:
+                        if (
+                            output == ""
+                            and self.training_process.poll() is not None
+                        ):
                             break
                         if output:
                             cleaned_output = output.strip()
                             if cleaned_output:
-                                self.notify_callbacks("training_log", {
-                                    "message": cleaned_output
-                                })
+                                self.notify_callbacks(
+                                    "training_log", {"message": cleaned_output}
+                                )
 
                     return_code = self.training_process.poll()
                     self.is_training = False
 
                     if return_code == 0:
-                        self.notify_callbacks("training_completed", {
-                            "results": "Training completed successfully"
-                        })
+                        self.notify_callbacks(
+                            "training_completed",
+                            {"results": "Training completed successfully"},
+                        )
                     else:
-                        self.notify_callbacks("training_error", {
-                            "error": f"Training process exited with code {return_code}"
-                        })
+                        self.notify_callbacks(
+                            "training_error",
+                            {
+                                "error": f"Training process exited with code {return_code}"
+                            },
+                        )
 
                 except Exception as e:
                     self.is_training = False
-                    self.notify_callbacks("training_error", {
-                        "error": str(e)
-                    })
+                    self.notify_callbacks("training_error", {"error": str(e)})
                 finally:
                     try:
                         os.remove(script_path)
@@ -163,7 +175,9 @@ except Exception as e:
                         pass
 
             def save_settings_config():
-                save_path = os.path.join(train_args["project"], train_args["name"])
+                save_path = os.path.join(
+                    train_args["project"], train_args["name"]
+                )
                 save_file = os.path.join(save_path, "settings.json")
 
                 while not os.path.exists(save_path):
@@ -182,7 +196,10 @@ except Exception as e:
             return True, "Training started successfully"
 
         except ImportError:
-            return False, "Ultralytics is not installed. Please install it with: pip install ultralytics"
+            return (
+                False,
+                "Ultralytics is not installed. Please install it with: pip install ultralytics",
+            )
         except Exception as e:
             return False, f"Failed to start training: {str(e)}"
 
@@ -198,6 +215,7 @@ except Exception as e:
 
 
 _training_manager = TrainingManager()
+
 
 def get_training_manager() -> TrainingManager:
     return _training_manager

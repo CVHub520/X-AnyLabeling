@@ -1,14 +1,5 @@
-from PyQt5.QtWidgets import (
-    QDialog,
-    QHBoxLayout,
-    QLabel,
-    QVBoxLayout
-)
-from .custom_widgets import (
-    CustomComboBox,
-    PrimaryButton,
-    SecondaryButton
-)
+from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QVBoxLayout
+from .custom_widgets import CustomComboBox, PrimaryButton, SecondaryButton
 
 
 class ExportFormatDialog(QDialog):
@@ -23,14 +14,16 @@ class ExportFormatDialog(QDialog):
         layout.setSpacing(8)
         layout.setContentsMargins(24, 24, 24, 24)
 
-        desc_label = QLabel(self.tr("Select the format for exporting your trained model:"))
+        desc_label = QLabel(
+            self.tr("Select the format for exporting your trained model:")
+        )
         desc_label.setStyleSheet("color: #718096; margin-bottom: 8px;")
         layout.addWidget(desc_label)
 
         self.format_combo = CustomComboBox()
         formats = [
             ("ONNX", "onnx"),
-            ("TorchScript", "torchscript"), 
+            ("TorchScript", "torchscript"),
             ("OpenVINO", "openvino"),
             ("TensorRT", "engine"),
             ("CoreML", "coreml"),
@@ -42,7 +35,7 @@ class ExportFormatDialog(QDialog):
             ("MNN", "mnn"),
             ("NCNN", "ncnn"),
             ("IMX500", "imx"),
-            ("RKNN", "rknn")
+            ("RKNN", "rknn"),
         ]
 
         for display_name, format_code in formats:
@@ -51,14 +44,20 @@ class ExportFormatDialog(QDialog):
         self.format_combo.setCurrentIndex(0)
         layout.addWidget(self.format_combo)
 
-        info_label = QLabel(self.tr("Note: Some formats may require additional dependencies to be installed."))
-        info_label.setStyleSheet("""
+        info_label = QLabel(
+            self.tr(
+                "Note: Some formats may require additional dependencies to be installed."
+            )
+        )
+        info_label.setStyleSheet(
+            """
             color: #e69500;
             font-size: 12px;
             margin-top: 8px;
             padding: 4px;
             min-height: 20px;
-        """)
+        """
+        )
         info_label.setWordWrap(True)
         layout.addWidget(info_label)
 

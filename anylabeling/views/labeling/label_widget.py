@@ -1553,12 +1553,7 @@ class LabelingWidget(LabelDialog):
                 None,
             ),
         )
-        utils.add_actions(
-            self.menus.train,
-            (
-                ultralytics_train,
-            )
-        )
+        utils.add_actions(self.menus.train, (ultralytics_train,))
         utils.add_actions(
             self.menus.tool,
             (
@@ -2282,7 +2277,9 @@ class LabelingWidget(LabelDialog):
         try:
             _ = dialog.exec_()
         except Exception as e:
-            self.error_message("Start Error", f"Failed to start training dialog: {str(e)}")
+            self.error_message(
+                "Start Error", f"Failed to start training dialog: {str(e)}"
+            )
 
     # Tools
     def overview(self):

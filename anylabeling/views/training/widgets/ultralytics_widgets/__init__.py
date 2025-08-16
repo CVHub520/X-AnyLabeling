@@ -10,5 +10,5 @@ from .custom_widgets import (
     CustomTable,
     PrimaryButton,
     SecondaryButton,
-    TrainingConfirmDialog
+    TrainingConfirmDialog,
 )

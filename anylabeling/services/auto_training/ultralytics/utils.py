@@ -27,13 +27,15 @@ def check_package_installed(package_name, version_spec=None):
                 return installed_version in spec_set
             except importlib.metadata.PackageNotFoundError:
                 return False
-        
+
         return True
     except ImportError:
         return False
 
 
-def get_label_infos(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> Dict[str, Dict[str, int]]:
+def get_label_infos(
+    image_list: List[str], supported_shape: List[str], output_dir: str = None
+) -> Dict[str, Dict[str, int]]:
     """Get statistics about labels and shapes from a list of labeled images.
 
     Args:
@@ -51,7 +53,9 @@ def get_label_infos(image_list: List[str], supported_shape: List[str], output_di
         label_dir, filename = os.path.split(image_file)
         if output_dir:
             label_dir = output_dir
-        label_file = os.path.join(label_dir, os.path.splitext(filename)[0] + ".json")
+        label_file = os.path.join(
+            label_dir, os.path.splitext(filename)[0] + ".json"
+        )
 
         if not os.path.exists(label_file):
             continue
@@ -70,7 +74,9 @@ def get_label_infos(image_list: List[str], supported_shape: List[str], output_di
                 label = shape["label"]
 
                 if label not in label_infos:
-                    label_infos[label] = dict(zip(supported_shape, initial_nums))
+                    label_infos[label] = dict(
+                        zip(supported_shape, initial_nums)
+                    )
                 label_infos[label][shape_type] += 1
 
         except (json.JSONDecodeError, IOError):
@@ -80,7 +86,9 @@ def get_label_infos(image_list: List[str], supported_shape: List[str], output_di
     return label_infos
 
 
-def get_task_valid_images(image_list: List[str], task_type: str, output_dir: str = None) -> int:
+def get_task_valid_images(
+    image_list: List[str], task_type: str, output_dir: str = None
+) -> int:
     """Count number of images that have valid shapes for a given task type.
 
     Args:
@@ -93,39 +101,43 @@ def get_task_valid_images(image_list: List[str], task_type: str, output_dir: str
     """
     if task_type not in TASK_SHAPE_MAPPINGS:
         return 0
-    
+
     valid_shapes = TASK_SHAPE_MAPPINGS[task_type]
     valid_image_count = 0
-    
+
     for image_file in image_list:
         label_dir, filename = os.path.split(image_file)
         if output_dir:
             label_dir = output_dir
-        label_file = os.path.join(label_dir, os.path.splitext(filename)[0] + ".json")
-        
+        label_file = os.path.join(
+            label_dir, os.path.splitext(filename)[0] + ".json"
+        )
+
         if not os.path.exists(label_file):
             continue
-            
+
         try:
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
             shapes = data.get("shapes", [])
-            
+
             has_valid_shape = any(
-                shape.get("shape_type") in valid_shapes 
-                for shape in shapes 
+                shape.get("shape_type") in valid_shapes
+                for shape in shapes
                 if "shape_type" in shape
             )
-            
+
             if has_valid_shape:
                 valid_image_count += 1
         except (json.JSONDecodeError, IOError):
             continue
-    
+
     return valid_image_count
 
 
-def get_statistics_table_data(image_list: List[str], supported_shape: List[str], output_dir: str = None) -> List[List[str]]:
+def get_statistics_table_data(
+    image_list: List[str], supported_shape: List[str], output_dir: str = None
+) -> List[List[str]]:
     """Generate statistics table data about labels and shapes.
 
     Args:

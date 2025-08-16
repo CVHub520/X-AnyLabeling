@@ -21,13 +21,13 @@ TASK_SHAPE_MAPPINGS = {
     "Detect": ["rectangle"],
     "OBB": ["rotation"],
     "Segment": ["polygon"],
-    "Pose": ["point"]
+    "Pose": ["point"],
 }
 TASK_LABEL_MAPPINGS = {
     "Detect": "hbb",
     "OBB": "obb",
     "Segment": "seg",
-    "Pose": "pose"
+    "Pose": "pose",
 }
 
 # Training configuration
@@ -77,44 +77,66 @@ DEFAULT_TRAINING_CONFIG = {
     "resume": False,
     "cache": False,
 }
-OPTIMIZER_OPTIONS = ["auto", "SGD", "Adam", "AdamW", "NAdam", "RAdam", "RMSProp"]
+OPTIMIZER_OPTIONS = [
+    "auto",
+    "SGD",
+    "Adam",
+    "AdamW",
+    "NAdam",
+    "RAdam",
+    "RMSProp",
+]
 TRAINING_STATUS_COLORS = {
     "idle": "#6c757d",
     "training": "#6f42c1",
-    "completed": "#28a745", 
-    "error": "#ffc107"
+    "completed": "#28a745",
+    "error": "#ffc107",
 }
 TRAINING_STATUS_TEXTS = {
     "idle": "Ready to train",
     "training": "Training in progress",
     "completed": "Training completed",
-    "error": "Training error"
+    "error": "Training error",
 }
+
 
 # Env Check
 def is_torch_available() -> bool:
     try:
         import torch
+
         return True
     except ImportError:
         return False
 
+
 def is_cuda_available() -> bool:
     try:
         import torch
+
         return torch.cuda.is_available() if is_torch_available() else False
     except ImportError:
         return False
 
+
 def is_mps_available() -> bool:
     try:
         import torch
-        return torch.backends.mps.is_available() if is_torch_available() else False
+
+        return (
+            torch.backends.mps.is_available()
+            if is_torch_available()
+            else False
+        )
     except ImportError:
         return False
 
 
 IS_TORCH_AVAILABLE = is_torch_available()
-IS_CUDA_AVAILABLE = is_cuda_available() 
+IS_CUDA_AVAILABLE = is_cuda_available()
 IS_MPS_AVAILABLE = is_mps_available()
-DEVICE_OPTIONS = (["cuda"] if IS_CUDA_AVAILABLE else []) + (["mps"] if IS_MPS_AVAILABLE else []) + ["cpu"]
+DEVICE_OPTIONS = (
+    (["cuda"] if IS_CUDA_AVAILABLE else [])
+    + (["mps"] if IS_MPS_AVAILABLE else [])
+    + ["cpu"]
+)

@@ -13,6 +13,7 @@ from .validators import install_packages_with_timeout
 
 class ExportEventRedirector(QObject):
     """Thread-safe export event redirector"""
+
     export_event_signal = pyqtSignal(str, dict)
 
     def __init__(self):
@@ -25,6 +26,7 @@ class ExportEventRedirector(QObject):
 
 class ExportLogRedirector(QObject):
     """Thread-safe export log redirector"""
+
     log_signal = pyqtSignal(str)
 
     def __init__(self):
@@ -46,8 +48,8 @@ def validate_onnx_export_environment():
     missing_packages = []
     package_mapping = {
         "onnx": "onnx>=1.12.0,<1.18.0",
-        "onnxslim": "onnxslim>=0.1.59", 
-        "onnxruntime": "onnxruntime"
+        "onnxslim": "onnxslim>=0.1.59",
+        "onnxruntime": "onnxruntime",
     }
 
     for package in required_packages:
@@ -56,14 +58,16 @@ def validate_onnx_export_environment():
 
     try:
         import onnx
-        if hasattr(onnx, '__version__'):
+
+        if hasattr(onnx, "__version__"):
             onnx_version = onnx.__version__
             from packaging import version
+
             if version.parse(onnx_version) >= version.parse("1.18.0"):
                 missing_packages.append("onnx>=1.12.0,<1.18.0")
     except:
         pass
-    
+
     return missing_packages
 
 
@@ -71,11 +75,11 @@ def validate_openvino_export_environment():
     required_packages = ["openvino"]
     missing_packages = []
     package_mapping = {"openvino": "openvino>=2024.0.0"}
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -83,11 +87,11 @@ def validate_tensorrt_export_environment():
     required_packages = ["tensorrt"]
     missing_packages = []
     package_mapping = {"tensorrt": "tensorrt>7.0.0,!=10.1.0"}
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -95,11 +99,11 @@ def validate_coreml_export_environment():
     required_packages = ["coremltools"]
     missing_packages = []
     package_mapping = {"coremltools": "coremltools>=8.0"}
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -107,11 +111,11 @@ def validate_tensorflow_export_environment():
     required_packages = ["tensorflow"]
     missing_packages = []
     package_mapping = {"tensorflow": "tensorflow>=2.0.0"}
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -120,13 +124,13 @@ def validate_paddle_export_environment():
     missing_packages = []
     package_mapping = {
         "paddlepaddle": "paddlepaddle-gpu",
-        "x2paddle": "x2paddle"
+        "x2paddle": "x2paddle",
     }
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -134,11 +138,11 @@ def validate_mnn_export_environment():
     required_packages = ["MNN"]
     missing_packages = []
     package_mapping = {"MNN": "MNN>=2.9.6"}
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -146,11 +150,11 @@ def validate_ncnn_export_environment():
     required_packages = ["ncnn"]
     missing_packages = []
     package_mapping = {"ncnn": "ncnn"}
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -159,13 +163,13 @@ def validate_imx500_export_environment():
     missing_packages = []
     package_mapping = {
         "imx500-converter": "imx500-converter[pt]>=3.16.1",
-        "mct-quantizers": "mct-quantizers>=1.6.0"
+        "mct-quantizers": "mct-quantizers>=1.6.0",
     }
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -173,11 +177,11 @@ def validate_rknn_export_environment():
     required_packages = ["rknn-toolkit2"]
     missing_packages = []
     package_mapping = {"rknn-toolkit2": "rknn-toolkit2"}
-    
+
     for package in required_packages:
         if not check_package_installed(package):
             missing_packages.append(package_mapping[package])
-    
+
     return missing_packages
 
 
@@ -197,7 +201,7 @@ def get_export_validator(export_format):
         "ncnn": validate_ncnn_export_environment,
         "imx": validate_imx500_export_environment,
         "rknn": validate_rknn_export_environment,
-        "torchscript": lambda: []
+        "torchscript": lambda: [],
     }
     return validators.get(export_format, lambda: [])
 
@@ -215,7 +219,9 @@ class ExportManager:
             except Exception as e:
                 print(f"Error in export callback: {e}")
 
-    def start_export(self, project_path: str, export_format: str = "onnx") -> Tuple[bool, str]:
+    def start_export(
+        self, project_path: str, export_format: str = "onnx"
+    ) -> Tuple[bool, str]:
         if self.is_exporting:
             return False, "Export already in progress"
 
@@ -225,28 +231,48 @@ class ExportManager:
 
         self.is_exporting = True
         self.export_thread = threading.Thread(
-            target=self._export_worker,
-            args=(weights_path, export_format)
+            target=self._export_worker, args=(weights_path, export_format)
         )
         self.export_thread.start()
         return True, "Export started successfully"
 
     def _export_worker(self, weights_path: str, export_format: str):
         try:
-            self.notify_callbacks("export_started", {"weights_path": weights_path, "format": export_format})
-            self.notify_callbacks("export_log", {"message": "Checking export environment..."})
+            self.notify_callbacks(
+                "export_started",
+                {"weights_path": weights_path, "format": export_format},
+            )
+            self.notify_callbacks(
+                "export_log", {"message": "Checking export environment..."}
+            )
             missing_packages = get_export_validator(export_format)()
             if missing_packages:
-                self.notify_callbacks("export_log", {"message": f"Missing required packages: {', '.join(missing_packages)}"})
-                self.notify_callbacks("export_log", {"message": "Attempting to install missing packages..."})
-                success, stdout, stderr = install_packages_with_timeout(missing_packages, timeout=30)
+                self.notify_callbacks(
+                    "export_log",
+                    {
+                        "message": f"Missing required packages: {', '.join(missing_packages)}"
+                    },
+                )
+                self.notify_callbacks(
+                    "export_log",
+                    {"message": "Attempting to install missing packages..."},
+                )
+                success, stdout, stderr = install_packages_with_timeout(
+                    missing_packages, timeout=30
+                )
                 if not success:
                     error_msg = f"Failed to install required packages: {', '.join(missing_packages)}. Please manually install these packages and restart the application."
                     self.notify_callbacks("export_error", {"error": error_msg})
                     return
-                self.notify_callbacks("export_log", {"message": "Required packages installed successfully"})
+                self.notify_callbacks(
+                    "export_log",
+                    {"message": "Required packages installed successfully"},
+                )
             else:
-                self.notify_callbacks("export_log", {"message": "All required packages are available"})
+                self.notify_callbacks(
+                    "export_log",
+                    {"message": "All required packages are available"},
+                )
 
             original_stdout = sys.stdout
             original_stderr = sys.stderr
@@ -257,43 +283,79 @@ class ExportManager:
 
             try:
                 from ultralytics import YOLO
-                self.notify_callbacks("export_log", {"message": f"Loading model from {weights_path}"})
+
+                self.notify_callbacks(
+                    "export_log",
+                    {"message": f"Loading model from {weights_path}"},
+                )
                 model = YOLO(weights_path)
 
-                self.notify_callbacks("export_log", {"message": f"Starting export to {export_format} format..."})
+                self.notify_callbacks(
+                    "export_log",
+                    {
+                        "message": f"Starting export to {export_format} format..."
+                    },
+                )
                 results = model.export(format=export_format)
 
-                exported_path = results if isinstance(results, str) else str(results)
+                exported_path = (
+                    results if isinstance(results, str) else str(results)
+                )
                 if not exported_path:
                     weights_dir = os.path.dirname(weights_path)
-                    model_name = os.path.splitext(os.path.basename(weights_path))[0]
-                    exported_path = os.path.join(weights_dir, f"{model_name}.{export_format}")
+                    model_name = os.path.splitext(
+                        os.path.basename(weights_path)
+                    )[0]
+                    exported_path = os.path.join(
+                        weights_dir, f"{model_name}.{export_format}"
+                    )
 
                 if os.path.exists(exported_path):
-                    self.notify_callbacks("export_completed", {
-                        "exported_path": exported_path,
-                        "format": export_format
-                    })
+                    self.notify_callbacks(
+                        "export_completed",
+                        {
+                            "exported_path": exported_path,
+                            "format": export_format,
+                        },
+                    )
                 else:
-                    possible_path = weights_path.replace('.pt', f'.{export_format}')
+                    possible_path = weights_path.replace(
+                        ".pt", f".{export_format}"
+                    )
                     if os.path.exists(possible_path):
-                        self.notify_callbacks("export_completed", {
-                            "exported_path": possible_path,
-                            "format": export_format
-                        })
+                        self.notify_callbacks(
+                            "export_completed",
+                            {
+                                "exported_path": possible_path,
+                                "format": export_format,
+                            },
+                        )
                     else:
-                        self.notify_callbacks("export_error", {"error": "Export completed but output file not found"})
+                        self.notify_callbacks(
+                            "export_error",
+                            {
+                                "error": "Export completed but output file not found"
+                            },
+                        )
 
             except ImportError as e:
-                self.notify_callbacks("export_error", {"error": f"Failed to import ultralytics: {str(e)}"})
+                self.notify_callbacks(
+                    "export_error",
+                    {"error": f"Failed to import ultralytics: {str(e)}"},
+                )
             except Exception as e:
-                self.notify_callbacks("export_error", {"error": f"Export failed: {str(e)}"})
+                self.notify_callbacks(
+                    "export_error", {"error": f"Export failed: {str(e)}"}
+                )
             finally:
                 sys.stdout = original_stdout
                 sys.stderr = original_stderr
 
         except Exception as e:
-            self.notify_callbacks("export_error", {"error": f"Unexpected error during export: {str(e)}"})
+            self.notify_callbacks(
+                "export_error",
+                {"error": f"Unexpected error during export: {str(e)}"},
+            )
         finally:
             self.is_exporting = False
 
@@ -319,6 +381,8 @@ def get_export_manager() -> ExportManager:
     return _export_manager
 
 
-def export_model(project_path: str, export_format: str = "onnx") -> Tuple[bool, str]:
+def export_model(
+    project_path: str, export_format: str = "onnx"
+) -> Tuple[bool, str]:
     manager = get_export_manager()
     return manager.start_export(project_path, export_format)

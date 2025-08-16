@@ -1,4 +1,3 @@
-
 def get_advanced_toggle_btn_style():
     return """
         QPushButton {
