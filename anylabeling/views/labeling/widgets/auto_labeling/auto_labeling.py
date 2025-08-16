@@ -43,6 +43,8 @@ class AutoLabelingWidget(QWidget):
     clear_auto_labeling_action_requested = pyqtSignal()
     finish_auto_labeling_object_action_requested = pyqtSignal()
     cache_auto_label_changed = pyqtSignal()
+    auto_decode_mode_changed = pyqtSignal(bool)
+    clear_auto_decode_requested = pyqtSignal()
 
     def __init__(self, parent):
         super().__init__()
@@ -96,6 +98,7 @@ class AutoLabelingWidget(QWidget):
             self.button_add_rect.setEnabled(enable)
             self.button_clear.setEnabled(enable)
             self.button_finish_object.setEnabled(enable)
+            self.button_auto_decode.setEnabled(enable)
             self.upn_select_combobox.setEnabled(enable)
             self.gd_select_combobox.setEnabled(enable)
             self.florence2_select_combobox.setEnabled(enable)
@@ -181,20 +184,21 @@ class AutoLabelingWidget(QWidget):
         )
 
         # --- Configuration for: button_clear ---
-        self.button_clear.clicked.connect(
-            self.clear_auto_labeling_action_requested
-        )
+        self.button_clear.clicked.connect(self.on_clear_clicked)
         self.button_clear.setShortcut("B")
 
         # --- Configuration for: button_finish_object ---
-        self.button_finish_object.clicked.connect(self.add_new_prompt)
-        self.button_finish_object.clicked.connect(
-            self.finish_auto_labeling_object_action_requested
-        )
-        self.button_finish_object.clicked.connect(
-            self.cache_auto_label_changed
-        )
+        self.button_finish_object.clicked.connect(self.on_finish_clicked)
         self.button_finish_object.setShortcut("F")
+
+        # --- Configuration for: button_auto_decode ---
+        self.button_auto_decode.setStyleSheet(get_normal_button_style())
+        self.button_auto_decode.clicked.connect(self.on_auto_decode_toggled)
+        self.button_auto_decode.setToolTip(
+            self.tr(
+                "Enable auto mask decode mode for continuous point tracking"
+            )
+        )
 
         # --- Configuration for: toggle_preserve_existing_annotations ---
         self.toggle_preserve_existing_annotations.setChecked(False)
@@ -680,6 +684,7 @@ class AutoLabelingWidget(QWidget):
             "upn_select_combobox",
             "gd_select_combobox",
             "florence2_select_combobox",
+            "button_auto_decode",
         ]
         for widget in widgets:
             getattr(self, widget).hide()
@@ -853,3 +858,31 @@ class AutoLabelingWidget(QWidget):
                 self.on_preserve_existing_annotations_state_changed(
                     preserve_annotations_modes[mode]
                 )
+
+    def on_auto_decode_toggled(self):
+        """Handle AMD button toggle"""
+        is_checked = self.button_auto_decode.isChecked()
+        self.button_auto_decode.setText(
+            "AMD (On)" if is_checked else "AMD (Off)"
+        )
+
+        if is_checked:
+            self.button_auto_decode.setStyleSheet(
+                get_toggle_button_style(button_color="#87CEEB")
+            )
+        else:
+            self.button_auto_decode.setStyleSheet(get_normal_button_style())
+
+        self.auto_decode_mode_changed.emit(is_checked)
+
+    def on_clear_clicked(self):
+        """Handle clear button click"""
+        self.clear_auto_decode_requested.emit()
+        self.clear_auto_labeling_action_requested.emit()
+
+    def on_finish_clicked(self):
+        """Handle finish button click"""
+        self.clear_auto_decode_requested.emit()
+        self.add_new_prompt()
+        self.finish_auto_labeling_object_action_requested.emit()
+        self.cache_auto_label_changed.emit()

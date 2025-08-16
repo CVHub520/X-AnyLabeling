@@ -58,6 +58,7 @@ class SegmentAnything2Video(Model):
             "button_add_rect",
             "button_clear",
             "button_finish_object",
+            "button_auto_decode",
             "button_reset_tracker",
             "toggle_preserve_existing_annotations",
         ]

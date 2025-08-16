@@ -743,7 +743,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             )
             popup.show_popup(self.parent)
 
-    def modify_group_id(self, updated_gid_info, start_index: int = -1, end_index: int = -1):
+    def modify_group_id(
+        self, updated_gid_info, start_index: int = -1, end_index: int = -1
+    ):
         """Modify the group IDs."""
         try:
             if start_index == -1:

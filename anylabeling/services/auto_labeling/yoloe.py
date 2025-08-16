@@ -14,7 +14,7 @@ from .types import AutoLabelingResult
 try:
     import torch
     import supervision as sv
-    
+
     try:
         from supervision.detection.utils.converters import mask_to_polygons
     except ImportError:

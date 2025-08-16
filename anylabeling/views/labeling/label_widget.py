@@ -1739,6 +1739,18 @@ class LabelingWidget(LabelDialog):
         self.auto_labeling_widget.auto_labeling_mode_changed.connect(
             self.canvas.set_auto_labeling_mode
         )
+        self.auto_labeling_widget.auto_decode_mode_changed.connect(
+            self.canvas.set_auto_decode_mode
+        )
+        self.auto_labeling_widget.clear_auto_decode_requested.connect(
+            self.canvas.reset_auto_decode_state
+        )
+        self.canvas.auto_decode_requested.connect(
+            self.on_auto_decode_requested
+        )
+        self.canvas.auto_decode_finish_requested.connect(
+            self.auto_labeling_widget.on_finish_clicked
+        )
         self.auto_labeling_widget.clear_auto_labeling_action_requested.connect(
             self.clear_auto_labeling_marks
         )
@@ -1970,6 +1982,12 @@ class LabelingWidget(LabelDialog):
     def on_auto_segmentation_disabled(self):
         self.canvas.set_auto_labeling(False)
         self.label_instruction.setText(self.get_labeling_instruction())
+
+    @pyqtSlot(list)
+    def on_auto_decode_requested(self, marks):
+        """Handle auto decode request"""
+        self.auto_labeling_widget.model_manager.set_auto_labeling_marks(marks)
+        self.auto_labeling_widget.run_prediction()
 
     def menu(self, title, actions=None):
         menu = self.parent.parent.menuBar().addMenu(title)
