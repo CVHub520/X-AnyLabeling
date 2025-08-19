@@ -923,3 +923,4 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 
 - 聊天机器人：[链接](../zh_cn/chatbot.md)
 - 视觉问答: [链接](../zh_cn/vqa.md)
+- Ultralytics 训练平台：[链接](../../examples/training/ultralytics/README.md)

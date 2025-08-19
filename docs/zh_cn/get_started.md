@@ -28,6 +28,7 @@ conda activate x-anylabeling
 > 2. 基于 UPN 的目标候选框生成：[安装指南](../../examples/detection/hbb/README.md)
 > 3. 基于视觉和文本提示的交互式目标检测和分割：[安装指南](../../examples/detection/hbb/README.md)
 > 4. 基于视觉和文本提示及免提示的目标检测和分割：[安装指南](../../examples/grounding/yoloe/README.md)
+> 5. 基于 Ultralytics 框架的一键训练平台：[安装指南](../../examples/training/ultralytics/README.md)
 
 **步骤 0.** 安装 [ONNX Runtime](https://onnxruntime.ai/)。
 

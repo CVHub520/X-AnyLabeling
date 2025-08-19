@@ -28,6 +28,7 @@ conda activate x-anylabeling
 > 2. Object proposal generation based on UPN: [Installation Guide](../../examples/detection/hbb/README.md)
 > 3. Interactive visual-text prompting for generic vision tasks: [Installation Guide](../../examples/detection/hbb/README.md)
 > 4. Text/visual prompting and prompt-free detection and segmentation: [Installation Guide](../../examples/grounding/yoloe/README.md)
+> 5. Ultralytics Training Platforms: [Installation Guide](../../examples/training/ultralytics/README.md)
 
 **Step 0.** Install [ONNX Runtime](https://onnxruntime.ai/).
 

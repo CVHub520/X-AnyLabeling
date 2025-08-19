@@ -832,3 +832,4 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 
 - Chatbot Guide: [Link](../en/chatbot.md)
 - VQA Guide: [Link](../en/vqa.md)
+- Ultralytics Training Platforms: [Link](../../examples/training/ultralytics/README.md)
