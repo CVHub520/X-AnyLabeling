@@ -1,5 +1,17 @@
 # X-AnyLabeling Changelog
 
+## `v3.2.0` (Aug 19, 2025)
+
+### 🚀 New Features
+
+- Introduce Auto Training Platform for Ultralytics tasks (Detect/Segment/OBB/Pose)
+
+### 🌟 Contributors
+
+A total of 1 developers contributed to this release.
+
+Thank @CVHub520
+
 ## `v3.1.2` (Aug 16, 2025)
 
 ### 🚀 New Features
@@ -29,7 +41,7 @@
 
 ### 🌟 Contributors
 
-A total of 4 developers contributed to this release.
+A total of 3 developers contributed to this release.
 
 Thank @zhixuwei, @adarshs, @CVHub520
 
