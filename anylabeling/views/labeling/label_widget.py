@@ -2145,7 +2145,7 @@ class LabelingWidget(LabelDialog):
         # Skip validation for auto-labeling special constants
         if text in [
             AutoLabelingMode.OBJECT,
-            AutoLabelingMode.ADD, 
+            AutoLabelingMode.ADD,
             AutoLabelingMode.REMOVE,
         ]:
             return text

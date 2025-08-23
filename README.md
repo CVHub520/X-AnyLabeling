@@ -64,9 +64,9 @@
 
 ## 🥳 What's New
 
+- Bump version to [3.2.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.1)
 - Add support for Show/Hide shape attributes on canvas
 - Add support for automated training platform with Ultralytics tasks in X-AnyLabeling [Link](./examples/training/ultralytics/README.md)
-- Bump version to [3.2.0](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.0)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
