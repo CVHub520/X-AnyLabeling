@@ -74,25 +74,35 @@ import io
 import os
 import signal
 import sys
+import multiprocessing
+
+import matplotlib
+matplotlib.use('Agg')
+
 from ultralytics import YOLO
 
 def signal_handler(signum, frame):
     print("Training interrupted by signal", flush=True)
     sys.exit(1)
 
-signal.signal(signal.SIGTERM, signal_handler)
-signal.signal(signal.SIGINT, signal_handler)
 
-try:
-    model = YOLO('{train_args.pop("model")}')
-    train_args = {train_args}
-    results = model.train(**train_args)
-except KeyboardInterrupt:
-    print("Training interrupted by user", flush=True)
-    sys.exit(1)
-except Exception as e:
-    print(f"Training error: {{e}}", flush=True)
-    sys.exit(1)
+if __name__ == "__main__":
+    if sys.platform.startswith("win"):
+        multiprocessing.set_start_method('spawn', force=True)
+
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+
+    try:
+        model = YOLO('{train_args.pop("model")}')
+        train_args = {train_args}
+        results = model.train(**train_args)
+    except KeyboardInterrupt:
+        print("Training interrupted by user", flush=True)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Training error: {{e}}", flush=True)
+        sys.exit(1)
 """
 
             script_path = os.path.join(
