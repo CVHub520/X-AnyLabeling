@@ -45,6 +45,7 @@ class VQADialog(QDialog):
             | Qt.WindowMaximizeButtonHint
             | Qt.WindowCloseButtonHint
         )
+        self.setModal(False)
         self.resize(*DEFAULT_WINDOW_SIZE)
         self.is_enlarged = False
 
@@ -1498,7 +1499,8 @@ class VQADialog(QDialog):
             event: Close event object
         """
         self.save_config()
-        super().closeEvent(event)
+        self.hide()
+        event.ignore()
 
     def resizeEvent(self, event):
         """

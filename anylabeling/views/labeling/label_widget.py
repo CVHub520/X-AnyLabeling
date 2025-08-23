@@ -2333,8 +2333,14 @@ class LabelingWidget(LabelDialog):
         _ = dialog.exec_()
 
     def open_vqa(self):
-        dialog = VQADialog(self)
-        _ = dialog.exec_()
+        if not hasattr(self, "vqa_window") or self.vqa_window is None:
+            self.vqa_window = VQADialog(self)
+            self.vqa_window.setAttribute(Qt.WA_DeleteOnClose, False)
+        if self.vqa_window.isVisible():
+            self.vqa_window.raise_()
+            self.vqa_window.activateWindow()
+        else:
+            self.vqa_window.show()
 
     # Help
     def documentation(self):
