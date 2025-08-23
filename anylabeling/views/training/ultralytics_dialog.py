@@ -135,6 +135,19 @@ class UltralyticsDialog(QDialog):
         self.init_config_tab()
         self.init_train_tab()
 
+    def closeEvent(self, event):
+        """Handle window close event"""
+        if self.training_status == "training":
+            QMessageBox.warning(
+                self,
+                self.tr("Training in Progress"),
+                self.tr("Cannot close window while training is in progress. Please stop training first."),
+            )
+            event.ignore()
+            return
+
+        super().closeEvent(event)
+
     def go_to_specific_tab(self, index):
         """Go to specific tab by index"""
         self.tab_widget.setCurrentIndex(index)
