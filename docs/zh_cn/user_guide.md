@@ -711,6 +711,8 @@ digit_shortcuts:
 | Ctrl + s              | 保存当前标注                           |
 | Ctrl + l              | 显示/隐藏标签                           |
 | Ctrl + t              | 显示/隐藏文本                           |
+| Ctrl + k              | 显示/隐藏连接线                         |
+| Ctrl + Shift + l      | 显示/隐藏属性                           |
 | Ctrl + Shift + s      | 更改输出目录                           |
 | Ctrl + z              | 撤销上一操作                           |
 | Ctrl + 0              | 缩放至原始大小                         |

@@ -17,6 +17,7 @@ show_scores: true
 show_degrees: false
 show_shapes: true
 show_linking: true
+show_attributes: true
 logger_level: info
 system_clipboard: false
 switch_to_checked: false
@@ -147,6 +148,7 @@ shortcuts:
   show_texts: Ctrl+T
   show_labels: Ctrl+L
   show_linking: Ctrl+K
+  show_attributes: Ctrl+Shift+L
   union_selected_shapes: Ctrl+Shift+M
   toggle_auto_use_last_label: Ctrl+Y
   toggle_visibility_shapes: Ctrl+H

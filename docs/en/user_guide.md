@@ -655,6 +655,8 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Ctrl+s`              | Save Current Annotations                         | Manual save (if auto-save is off)          |
 | `Ctrl+l`              | Toggle Label Text Visibility                     | Show/Hide label names on shapes            |
 | `Ctrl+t`              | Toggle Description Text Visibility               | Show/Hide shape descriptions on shapes     |
+| `Ctrl+k`              | Toggle Linking Display                           | Show/Hide shape linking visualization      |
+| `Ctrl+Shift+l`        | Toggle Attributes Display                        | Show/Hide shape attributes on canvas       |
 | `Ctrl+Shift+s`        | Set Output Directory                             | Change where `.json` files are saved       |
 | `Ctrl+0`              | Zoom to Actual Size (100%)                       |                                            |
 | `Ctrl++` / `Ctrl+=`   | Zoom In                                          |                                            |

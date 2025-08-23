@@ -943,6 +943,17 @@ class LabelingWidget(LabelDialog):
             enabled=True,
             auto_trigger=True,
         )
+        show_attributes = action(
+            self.tr("&Show Attributes"),
+            lambda x: self.set_canvas_params("show_attributes", x),
+            shortcut=shortcuts["show_attributes"],
+            tip=self.tr("Show attribute inside shapes"),
+            icon=None,
+            checkable=True,
+            checked=self._config["show_attributes"],
+            enabled=True,
+            auto_trigger=True,
+        )
         show_degrees = action(
             self.tr("&Show Degress"),
             lambda x: self.set_canvas_params("show_degrees", x),
@@ -1427,6 +1438,7 @@ class LabelingWidget(LabelDialog):
             show_labels=show_labels,
             show_scores=show_scores,
             show_degrees=show_degrees,
+            show_attributes=show_attributes,
             show_linking=show_linking,
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
@@ -1675,6 +1687,7 @@ class LabelingWidget(LabelDialog):
                 show_labels,
                 show_scores,
                 show_degrees,
+                show_attributes,
                 show_linking,
                 show_groups,
                 hide_selected_polygons,

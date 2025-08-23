@@ -129,6 +129,7 @@ class Canvas(
         self.show_labels = True
         self.show_scores = True
         self.show_degrees = False
+        self.show_attributes = True
         self.show_linking = True
 
         # Set cross line options.
@@ -1587,6 +1588,126 @@ class Canvas(
                 QtCore.QPointF(0, self.prev_move_point.y()),
                 QtCore.QPointF(self.pixmap.width(), self.prev_move_point.y()),
             )
+
+        # Draw attributes
+        if self.show_attributes:
+            font_size = int(max(8.0, int(round(10.0 / Shape.scale))))
+            font = QtGui.QFont("Arial", font_size, QtGui.QFont.Bold)
+            p.setFont(font)
+            attributes_list = []
+
+            for shape in self.shapes:
+                if not shape.visible:
+                    continue
+                if not hasattr(shape, "attributes") or not shape.attributes:
+                    continue
+                if shape.label in [
+                    "AUTOLABEL_OBJECT",
+                    "AUTOLABEL_ADD", 
+                    "AUTOLABEL_REMOVE",
+                ]:
+                    continue
+
+                attrs_text = []
+                for key, value in shape.attributes.items():
+                    attrs_text.append(f"{key}: {value}")
+                if not attrs_text:
+                    continue
+
+                max_attrs_per_line = 1
+                attribute_lines = []
+                for i in range(0, len(attrs_text), max_attrs_per_line):
+                    line_attrs = attrs_text[i:i + max_attrs_per_line]
+                    attribute_lines.append(" | ".join(line_attrs))
+                
+                fm = QtGui.QFontMetrics(font)
+                max_width = 0
+                line_heights = []
+                for line in attribute_lines:
+                    line_rect = fm.tightBoundingRect(line)
+                    max_width = max(max_width, line_rect.width())
+                    line_heights.append(fm.height())
+                total_height = sum(line_heights)
+
+                padding_x = 8
+                padding_y = 2
+                rect_width = max_width + 2 * padding_x
+                rect_height = total_height + 2 * padding_y
+                d_react = shape.point_size / shape.scale
+
+                if shape.shape_type in ["rectangle", "polygon", "rotation"]:
+                    try:
+                        bbox = shape.bounding_rect()
+                    except IndexError:
+                        continue
+
+                    rect = QtCore.QRect(
+                        int(bbox.x()),
+                        int(bbox.y() + bbox.height() + 1),
+                        rect_width,
+                        rect_height
+                    )
+
+                    text_positions = []
+                    y_offset = 0
+                    for i, line_height in enumerate(line_heights):
+                        text_pos = QtCore.QPoint(
+                            int(bbox.x() + padding_x),
+                            int(bbox.y() + bbox.height() + 1 + padding_y + y_offset + fm.ascent())
+                        )
+                        text_positions.append(text_pos)
+                        y_offset += line_height
+
+                elif shape.shape_type in [
+                    "circle",
+                    "line", 
+                    "linestrip",
+                    "point",
+                ]:
+                    points = shape.points
+                    if not points:
+                        continue
+                    point = points[0]
+                    
+                    rect = QtCore.QRect(
+                        int(point.x() + d_react),
+                        int(point.y() + 1),
+                        rect_width,
+                        rect_height
+                    )
+
+                    text_positions = []
+                    y_offset = 0
+                    for i, line_height in enumerate(line_heights):
+                        text_pos = QtCore.QPoint(
+                            int(point.x() + d_react + padding_x),
+                            int(point.y() + 1 + padding_y + y_offset + fm.ascent())
+                        )
+                        text_positions.append(text_pos)
+                        y_offset += line_height
+                else:
+                    continue
+
+                attributes_list.append((shape, rect, text_positions, attribute_lines))
+
+            for shape, rect, _, _ in attributes_list:
+                if not shape.visible:
+                    continue
+
+                background_color = QtGui.QColor(33, 33, 33, 255)
+                p.fillRect(rect, background_color)
+
+                pen = QtGui.QPen(QtGui.QColor(66, 66, 66), 1, Qt.SolidLine)  # Lighter grey border
+                p.setPen(pen)
+                p.drawRect(rect)
+
+            pen = QtGui.QPen(QtGui.QColor(33, 150, 243), 1, Qt.SolidLine)  # Material Blue 500
+            p.setPen(pen)
+            p.setFont(font)
+
+            for _, _, text_positions, attribute_lines in attributes_list:
+                for i, (text_pos, line_text) in enumerate(zip(text_positions, attribute_lines)):
+                    p.drawText(text_pos, line_text)
 
         p.end()
 
