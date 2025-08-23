@@ -138,7 +138,10 @@ class UltralyticsDialog(QDialog):
 
     def save_training_logs_to_file(self):
         """Save training logs to a local file with timestamp"""
-        if not hasattr(self, "log_display") or not self.log_display.toPlainText().strip():
+        if (
+            not hasattr(self, "log_display")
+            or not self.log_display.toPlainText().strip()
+        ):
             return
 
         if not os.path.exists(self.current_project_path):
@@ -165,7 +168,9 @@ class UltralyticsDialog(QDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Training in Progress"),
-                self.tr("Cannot close window while training is in progress. Please stop training first."),
+                self.tr(
+                    "Cannot close window while training is in progress. Please stop training first."
+                ),
             )
             event.ignore()
             return
@@ -1453,7 +1458,10 @@ class UltralyticsDialog(QDialog):
         try:
             is_wsl2 = False
             try:
-                if hasattr(os, 'uname') and "microsoft" in os.uname().release.lower():
+                if (
+                    hasattr(os, "uname")
+                    and "microsoft" in os.uname().release.lower()
+                ):
                     is_wsl2 = True
             except (AttributeError, OSError):
                 pass
@@ -1489,7 +1497,10 @@ class UltralyticsDialog(QDialog):
             try:
                 is_wsl2 = False
                 try:
-                    if hasattr(os, 'uname') and "microsoft" in os.uname().release.lower():
+                    if (
+                        hasattr(os, "uname")
+                        and "microsoft" in os.uname().release.lower()
+                    ):
                         is_wsl2 = True
                 except (AttributeError, OSError):
                     pass
