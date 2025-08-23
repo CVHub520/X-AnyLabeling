@@ -83,7 +83,7 @@ def validate_data_file(file_path: str) -> Tuple[bool, Union[str, List[str]]]:
         Tuple[bool, Union[str, List[str]]]: (is_valid, error_message_or_names_list)
     """
     try:
-        with open(file_path, "r") as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         if "names" not in data:
