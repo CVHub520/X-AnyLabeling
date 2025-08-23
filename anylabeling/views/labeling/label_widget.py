@@ -2142,6 +2142,14 @@ class LabelingWidget(LabelDialog):
         self.gid_filter_combobox.gid_box.clear()
 
     def reset_attribute(self, text):
+        # Skip validation for auto-labeling special constants
+        if text in [
+            AutoLabelingMode.OBJECT,
+            AutoLabelingMode.ADD, 
+            AutoLabelingMode.REMOVE,
+        ]:
+            return text
+
         valid_labels = list(self.attributes.keys())
         if text not in valid_labels:
             most_similar_label = utils.find_most_similar_label(
