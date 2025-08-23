@@ -1,4 +1,5 @@
 import csv
+import datetime
 import glob
 import os
 import platform
@@ -135,6 +136,29 @@ class UltralyticsDialog(QDialog):
         self.init_config_tab()
         self.init_train_tab()
 
+    def save_training_logs_to_file(self):
+        """Save training logs to a local file with timestamp"""
+        if not hasattr(self, "log_display") or not self.log_display.toPlainText().strip():
+            return
+
+        if not os.path.exists(self.current_project_path):
+            return
+        log_dir_path = os.path.join(self.current_project_path, "logs")
+        os.makedirs(log_dir_path, exist_ok=True)
+
+        try:
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"training_log_{self.training_status}_{timestamp}.txt"
+            log_file_path = os.path.join(log_dir_path, filename)
+
+            with open(log_file_path, "w", encoding="utf-8") as f:
+                f.write(self.log_display.toPlainText())
+
+            logger.info(f"Training logs saved to: {log_file_path}")
+
+        except Exception as e:
+            logger.error(f"Failed to save training logs: {str(e)}")
+
     def closeEvent(self, event):
         """Handle window close event"""
         if self.training_status == "training":
@@ -145,6 +169,9 @@ class UltralyticsDialog(QDialog):
             )
             event.ignore()
             return
+
+        if self.training_status in ["completed", "error", "stop"]:
+            self.save_training_logs_to_file()
 
         super().closeEvent(event)
 
