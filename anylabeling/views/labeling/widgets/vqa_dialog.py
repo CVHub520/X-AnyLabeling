@@ -81,11 +81,27 @@ class VQADialog(QDialog):
         left_layout.setContentsMargins(0, 0, 10, 0)
         left_layout.setSpacing(10)
 
+        header_widget = QWidget()
+        header_layout = QHBoxLayout(header_widget)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        header_layout.setSpacing(10)
+
         self.filename_label = QLabel(self.tr("No image loaded"))
         self.filename_label.setAlignment(Qt.AlignCenter)
         self.filename_label.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
         self.filename_label.setStyleSheet(get_filename_label_style())
-        left_layout.addWidget(self.filename_label)
+
+        self.toggle_panel_button = QPushButton()
+        self.toggle_panel_button.setIcon(QIcon(new_icon("sidebar", "svg")))
+        self.toggle_panel_button.setFixedSize(*ICON_SIZE_NORMAL)
+        self.toggle_panel_button.setStyleSheet(get_button_style())
+        self.toggle_panel_button.setToolTip(self.tr("Toggle Sidebar"))
+        self.toggle_panel_button.clicked.connect(self.toggle_left_panel)
+
+        header_layout.addWidget(self.filename_label, 1)
+        header_layout.addWidget(self.toggle_panel_button)
+
+        left_layout.addWidget(header_widget)
 
         self.image_container = QWidget()
         self.image_container.setStyleSheet(get_image_container_style())
@@ -100,48 +116,6 @@ class VQADialog(QDialog):
 
         left_layout.addWidget(self.image_container, 1)
 
-        nav_widget = QWidget()
-        nav_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
-        nav_layout = QHBoxLayout(nav_widget)
-        nav_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.prev_button = QPushButton()
-        self.prev_button.setIcon(QIcon(new_icon("arrow-left", "svg")))
-        self.prev_button.setFixedSize(*ICON_SIZE_NORMAL)
-        self.prev_button.setStyleSheet(get_button_style())
-        self.prev_button.clicked.connect(lambda _: self.switch_image("prev"))
-
-        page_widget = QWidget()
-        page_widget.setFixedWidth(82)
-        page_layout = QHBoxLayout(page_widget)
-        page_layout.setContentsMargins(0, 0, 0, 0)
-        page_layout.setSpacing(2)
-
-        self.page_input = QLineEdit()
-        self.page_input.setFixedSize(68, DEFAULT_COMPONENT_HEIGHT)
-        self.page_input.setAlignment(Qt.AlignCenter)
-        self.page_input.setStyleSheet(get_page_input_style())
-        self.page_input.returnPressed.connect(
-            lambda: self.switch_image("jump")
-        )
-
-        page_layout.addWidget(self.page_input)
-
-        self.next_button = QPushButton()
-        self.next_button.setIcon(QIcon(new_icon("arrow-right", "svg")))
-        self.next_button.setFixedSize(*ICON_SIZE_NORMAL)
-        self.next_button.setStyleSheet(get_button_style())
-        self.next_button.clicked.connect(lambda _: self.switch_image("next"))
-
-        nav_layout.addWidget(self.prev_button)
-        nav_layout.addStretch()
-        nav_layout.addWidget(page_widget)
-        nav_layout.addStretch()
-        nav_layout.addWidget(self.next_button)
-
-        left_layout.addWidget(nav_widget)
-
-        # Styling for the left panel
         left_widget.setMinimumWidth(400)
         left_widget.setMaximumWidth(800)
 
@@ -159,9 +133,13 @@ class VQADialog(QDialog):
         action_layout.setContentsMargins(10, 0, 10, 0)
         action_layout.setSpacing(8)
 
-        self.load_images_button = QPushButton(self.tr("Load Images"))
-        self.load_images_button.setStyleSheet(get_primary_button_style())
-        self.load_images_button.clicked.connect(self.load_images_folder)
+        self.toggle_panel_button_right = QPushButton()
+        self.toggle_panel_button_right.setIcon(QIcon(new_icon("sidebar", "svg")))
+        self.toggle_panel_button_right.setFixedSize(*ICON_SIZE_NORMAL)
+        self.toggle_panel_button_right.setStyleSheet(get_button_style())
+        self.toggle_panel_button_right.setToolTip(self.tr("Toggle Sidebar"))
+        self.toggle_panel_button_right.clicked.connect(self.toggle_left_panel)
+        self.toggle_panel_button_right.setVisible(False)
 
         self.export_button = QPushButton(self.tr("Export Labels"))
         self.export_button.setStyleSheet(get_export_button_style())
@@ -171,9 +149,19 @@ class VQADialog(QDialog):
         self.clear_button.setStyleSheet(get_danger_button_style())
         self.clear_button.clicked.connect(self.clear_current)
 
-        action_layout.addWidget(self.load_images_button, 1)
+        self.add_component_button = QPushButton(self.tr("Add Componet"))
+        self.add_component_button.setStyleSheet(get_primary_button_style())
+        self.add_component_button.clicked.connect(self.add_custom_component)
+
+        self.delete_component_button = QPushButton(self.tr("Del Componet"))
+        self.delete_component_button.setStyleSheet(get_danger_button_style())
+        self.delete_component_button.clicked.connect(self.delete_custom_component)
+
+        action_layout.addWidget(self.toggle_panel_button_right)
         action_layout.addWidget(self.export_button, 1)
         action_layout.addWidget(self.clear_button, 1)
+        action_layout.addWidget(self.add_component_button, 1)
+        action_layout.addWidget(self.delete_component_button, 1)
 
         right_layout.addWidget(action_widget)
 
@@ -190,28 +178,46 @@ class VQADialog(QDialog):
         self.scroll_area.setWidget(self.scroll_widget)
         right_layout.addWidget(self.scroll_area, 1)
 
-        bottom_widget = QWidget()
-        bottom_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
-        bottom_layout = QHBoxLayout(bottom_widget)
-        bottom_layout.setContentsMargins(10, 0, 10, 0)
-        bottom_layout.setSpacing(8)
+        nav_widget = QWidget()
+        nav_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
+        nav_layout = QHBoxLayout(nav_widget)
+        nav_layout.setContentsMargins(10, 0, 10, 0)
+        nav_layout.setSpacing(8)
 
-        self.add_component_button = QPushButton(self.tr("Add Componet"))
-        self.add_component_button.setStyleSheet(get_primary_button_style())
-        self.add_component_button.clicked.connect(self.add_custom_component)
+        self.prev_button = QPushButton()
+        self.prev_button.setIcon(QIcon(new_icon("arrow-left", "svg")))
+        self.prev_button.setFixedSize(*ICON_SIZE_NORMAL)
+        self.prev_button.setStyleSheet(get_button_style())
+        self.prev_button.clicked.connect(lambda _: self.switch_image("prev"))
 
-        self.delete_component_button = QPushButton(self.tr("Del Componet"))
-        self.delete_component_button.setStyleSheet(get_danger_button_style())
-        self.delete_component_button.clicked.connect(
-            self.delete_custom_component
-        )
+        page_widget = QWidget()
+        page_widget.setFixedWidth(82)
+        page_layout = QHBoxLayout(page_widget)
+        page_layout.setContentsMargins(0, 0, 0, 0)
+        page_layout.setSpacing(2)
 
-        bottom_layout.addWidget(self.add_component_button, 1)
-        bottom_layout.addWidget(self.delete_component_button, 1)
+        self.page_input = QLineEdit()
+        self.page_input.setFixedSize(68, DEFAULT_COMPONENT_HEIGHT)
+        self.page_input.setAlignment(Qt.AlignCenter)
+        self.page_input.setStyleSheet(get_page_input_style())
+        self.page_input.returnPressed.connect(lambda: self.switch_image("jump"))
 
-        right_layout.addWidget(bottom_widget)
+        page_layout.addWidget(self.page_input)
 
-        # Add panels to main splitter
+        self.next_button = QPushButton()
+        self.next_button.setIcon(QIcon(new_icon("arrow-right", "svg")))
+        self.next_button.setFixedSize(*ICON_SIZE_NORMAL)
+        self.next_button.setStyleSheet(get_button_style())
+        self.next_button.clicked.connect(lambda _: self.switch_image("next"))
+
+        nav_layout.addWidget(self.prev_button)
+        nav_layout.addStretch()
+        nav_layout.addWidget(page_widget)
+        nav_layout.addStretch()
+        nav_layout.addWidget(self.next_button)
+
+        right_layout.addWidget(nav_widget)
+
         self.main_splitter.addWidget(left_widget)
         self.main_splitter.addWidget(right_widget)
         self.main_splitter.setSizes([500, 500])
@@ -221,6 +227,15 @@ class VQADialog(QDialog):
         main_layout.addWidget(self.main_splitter)
 
         self.update_navigation_state()
+
+    def toggle_left_panel(self):
+        sizes = self.main_splitter.sizes()
+        if sizes[0] == 0:
+            self.main_splitter.setSizes([500, 500])
+            self.toggle_panel_button_right.setVisible(False)
+        else:
+            self.main_splitter.setSizes([0, 1000])
+            self.toggle_panel_button_right.setVisible(True)
 
     def load_config(self):
         """
