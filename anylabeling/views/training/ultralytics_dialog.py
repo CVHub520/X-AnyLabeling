@@ -1411,7 +1411,14 @@ class UltralyticsDialog(QDialog):
 
     def open_image_file(self, image_path):
         try:
-            if "microsoft" in os.uname().release.lower():  # WSL2
+            is_wsl2 = False
+            try:
+                if hasattr(os, 'uname') and "microsoft" in os.uname().release.lower():
+                    is_wsl2 = True
+            except (AttributeError, OSError):
+                pass
+
+            if is_wsl2:  # WSL2
                 windows_path = (
                     subprocess.check_output(["wslpath", "-w", image_path])
                     .decode()
@@ -1440,7 +1447,14 @@ class UltralyticsDialog(QDialog):
             self.current_project_path
         ):
             try:
-                if "microsoft" in os.uname().release.lower():  # WSL2
+                is_wsl2 = False
+                try:
+                    if hasattr(os, 'uname') and "microsoft" in os.uname().release.lower():
+                        is_wsl2 = True
+                except (AttributeError, OSError):
+                    pass
+
+                if is_wsl2:  # WSL2
                     wsl_path = self.current_project_path
                     windows_path = (
                         subprocess.check_output(["wslpath", "-w", wsl_path])
