@@ -110,14 +110,12 @@ class VQADialog(QDialog):
 
         self.image_label = QLabel()
         self.image_label.setAlignment(Qt.AlignCenter)
-        self.image_label.setMinimumHeight(400)
+        self.image_label.setMinimumHeight(700)
         self.image_label.setStyleSheet(get_image_label_style())
         container_layout.addWidget(self.image_label, 1)
 
         left_layout.addWidget(self.image_container, 1)
-
-        left_widget.setMinimumWidth(400)
-        left_widget.setMaximumWidth(800)
+        left_widget.setMaximumWidth(600)
 
         ################################
         #          Right panel         #
@@ -220,9 +218,9 @@ class VQADialog(QDialog):
 
         self.main_splitter.addWidget(left_widget)
         self.main_splitter.addWidget(right_widget)
-        self.main_splitter.setSizes([500, 500])
+        self.main_splitter.setSizes([600, 600])
 
-        self.main_splitter.setStretchFactor(0, 0)
+        self.main_splitter.setStretchFactor(0, 1)
         self.main_splitter.setStretchFactor(1, 0)
         main_layout.addWidget(self.main_splitter)
 
@@ -231,10 +229,10 @@ class VQADialog(QDialog):
     def toggle_left_panel(self):
         sizes = self.main_splitter.sizes()
         if sizes[0] == 0:
-            self.main_splitter.setSizes([500, 500])
+            self.main_splitter.setSizes([600, 600])
             self.toggle_panel_button_right.setVisible(False)
         else:
-            self.main_splitter.setSizes([0, 1000])
+            self.main_splitter.setSizes([0, 600])
             self.toggle_panel_button_right.setVisible(True)
 
     def load_config(self):
