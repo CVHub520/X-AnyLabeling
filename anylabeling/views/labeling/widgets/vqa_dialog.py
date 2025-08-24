@@ -1,7 +1,7 @@
 import os
 import json
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (
     QDialog,
     QHBoxLayout,
@@ -415,6 +415,7 @@ class VQADialog(QDialog):
             or not self.parent().other_data
         ):
             self.set_default_values()
+            self.adjust_all_text_widgets_height()
             return
 
         vqa_data = self.parent().other_data.get("vqaData", {})
@@ -431,6 +432,8 @@ class VQADialog(QDialog):
                 self.set_component_default_value(
                     widget, comp_type, comp["options"]
                 )
+        
+        self.adjust_all_text_widgets_height()
 
     def update_navigation_state(self):
         """
@@ -897,6 +900,88 @@ class VQADialog(QDialog):
         self.custom_components.pop(index)
         self.save_config()
 
+    def open_ai_assistant(self, component_obj):
+        """
+        Open AI assistant dialog for QLineEdit component.
+
+        Args:
+            component_obj (dict): Component object containing widget and metadata
+        """
+        widget = component_obj["widget"]
+        current_text = widget.toPlainText().strip()
+
+        dialog = AIPromptDialog(self, current_text)
+        if dialog.exec_() == QDialog.Accepted:
+            prompt = dialog.get_prompt()
+            if prompt:
+                self.loading_msg = AILoadingDialog(self)
+
+                current_image_path = None
+                if hasattr(self.parent(), "filename") and self.parent().filename:
+                    current_image_path = self.parent().filename
+
+                self.ai_worker = AIWorkerThread(prompt, current_text, {}, current_image_path)
+                self.ai_worker.finished.connect(
+                    lambda result, success, error: self.handle_ai_result(
+                        result, success, error, widget
+                    )
+                )
+
+                self.loading_msg.cancel_button.clicked.connect(self.cancel_ai_processing)
+                self.ai_worker.start()
+                if self.loading_msg.exec_() == QDialog.Rejected:
+                    self.cancel_ai_processing()
+
+    def cancel_ai_processing(self):
+        """Cancel the AI processing"""
+        if hasattr(self, "ai_worker") and self.ai_worker.isRunning():
+            self.ai_worker.terminate()
+            self.ai_worker.wait(1000)
+        if hasattr(self, "loading_msg"):
+            self.loading_msg.close()
+
+    def handle_ai_result(self, result, success, error_message, widget):
+        """
+        Handle AI API result.
+
+        Args:
+            result (str): Generated text result
+            success (bool): Whether the API call was successful
+            error_message (str): Error message if failed
+            widget: Target text widget
+        """
+        if hasattr(self, "loading_msg"):
+            self.loading_msg.close()
+
+        if success:
+            reply = QMessageBox.question(
+                self,
+                "AI Result",
+                "Generated content:\n" +
+                "=" * 20 +
+                "\n" + 
+                result + 
+                "\n" + 
+                "=" * 20 + 
+                "\nDo you want to use this result?",
+                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.Yes
+            )
+
+            if reply == QMessageBox.Yes:
+                widget.blockSignals(True)
+                widget.setPlainText(result)
+                widget.blockSignals(False)
+                if hasattr(widget, "adjust_height"):
+                    widget.adjust_height()
+                self.save_current_image_data()
+        else:
+            QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                self.tr("Failed to generate content:\n") + error_message
+            )
+
     def create_component(self, component_data, from_config=False):
         """
         Create and add a new component to the UI.
@@ -924,10 +1009,19 @@ class VQADialog(QDialog):
         title_layout.addWidget(title_label)
         title_layout.addStretch()
 
+        if comp_type == "QLineEdit":
+            ai_button = QPushButton()
+            ai_button.setIcon(QIcon(new_icon("wand", "svg")))
+            ai_button.setFixedSize(*ICON_SIZE_SMALL)
+            ai_button.setStyleSheet(get_button_style())
+            ai_button.setToolTip(self.tr("AI Assistant"))
+            title_layout.addWidget(ai_button)
+
         edit_button = QPushButton()
         edit_button.setIcon(QIcon(new_icon("edit", "svg")))
         edit_button.setFixedSize(*ICON_SIZE_SMALL)
         edit_button.setStyleSheet(get_button_style())
+        edit_button.setToolTip(self.tr("Edit Content"))
         title_layout.addWidget(edit_button)
 
         self.scroll_layout.addWidget(title_widget)
@@ -1017,6 +1111,11 @@ class VQADialog(QDialog):
         edit_button.clicked.connect(
             lambda: self.edit_custom_component_by_object(component_obj)
         )
+
+        if comp_type == "QLineEdit":
+            ai_button.clicked.connect(
+                lambda: self.open_ai_assistant(component_obj)
+            )
 
         self.custom_components.append(component_obj)
 
@@ -1163,6 +1262,8 @@ class VQADialog(QDialog):
             widget.blockSignals(True)
             widget.setPlainText(str(value) if value else "")
             widget.blockSignals(False)
+            if hasattr(widget, "adjust_height"):
+                widget.adjust_height()
 
         elif comp_type == "QRadioButton":
             layout = widget.layout()
@@ -1214,6 +1315,16 @@ class VQADialog(QDialog):
                 checkbox_widget = item.widget()
                 if checkbox_widget:
                     checkbox_widget.blockSignals(False)
+
+    def adjust_all_text_widgets_height(self):
+        """
+        Trigger height adjustment for all AutoResizeTextEdit widgets.
+        """
+        for comp in self.custom_components:
+            if comp["type"] == "QLineEdit":
+                widget = comp["widget"]
+                if hasattr(widget, "adjust_height"):
+                    widget.adjust_height()
 
     def export_labels(self):
         """
@@ -1557,3 +1668,9 @@ class VQADialog(QDialog):
             self.page_input.setValidator(
                 QIntValidator(1, len(self.image_files))
             )
+            QTimer.singleShot(100, self.adjust_all_text_widgets_height)
+
+    def showEvent(self, event):
+        """Adjust text widget heights after dialog shown"""
+        super().showEvent(event)
+        QTimer.singleShot(200, self.adjust_all_text_widgets_height)

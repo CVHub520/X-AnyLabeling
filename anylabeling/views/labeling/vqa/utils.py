@@ -1,3 +1,168 @@
+import base64
+import json
+import os
+import re
+import requests
+
+from PyQt5.QtCore import QThread, pyqtSignal
+
+from anylabeling.views.labeling.chatbot.config import (
+    MODELS_CONFIG_PATH,
+    PROVIDERS_CONFIG_PATH,
+)
+from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.vqa.config import MAX_TOKENS, REQUEST_TIMEOUT
+
+
+class AIWorkerThread(QThread):
+    """Worker thread for AI API calls"""
+
+    finished = pyqtSignal(str, bool, str)  # result, success, error_message
+
+    def __init__(self, prompt, current_text, config, image_path=None):
+        super().__init__()
+        self.prompt = prompt
+        self.current_text = current_text
+        self.config = config
+        self.image_path = image_path
+        self._is_cancelled = False
+
+    def run(self):
+        try:
+            if self._is_cancelled:
+                return
+
+            models_config = self.load_models_config()
+            providers_config = self.load_providers_config()
+
+            if not models_config or not providers_config:
+                self.finished.emit("", False, "Configuration files not found")
+                return
+
+            settings = models_config.get("settings", {})
+            provider = settings.get("provider")
+            model_id = settings.get("model_id")
+            temperature = settings.get("temperature", 0.7)
+
+            if not provider or not model_id:
+                self.finished.emit("", False, "Please configure model and provider in Chatbot (Ctrl+B)")
+                return
+
+            provider_info = providers_config.get(provider, {})
+            api_address = provider_info.get("api_address")
+            api_key = provider_info.get("api_key")
+
+            if not api_address or not api_key:
+                self.finished.emit("", False, f"Please configure API key for {provider} in Chatbot (Ctrl+B)")
+                return
+
+            if self._is_cancelled:
+                return
+
+            # Process special character references
+            processed_prompt = self.process_special_references(self.prompt)
+
+            result = self.call_openai_api(api_address, api_key, model_id, processed_prompt, temperature)
+
+            if not self._is_cancelled:
+                self.finished.emit(result, True, "")
+
+        except Exception as e:
+            if not self._is_cancelled:
+                self.finished.emit("", False, f"API call failed: {str(e)}")
+
+    def process_special_references(self, prompt):
+        """Process @image and @text references in the prompt"""
+        if "@text" in prompt and self.current_text:
+            prompt = prompt.replace("@text", self.current_text)
+
+        if "@image" in prompt:
+            if not self.image_path or not os.path.exists(self.image_path):
+                raise Exception("No image available for @image reference")
+
+            # Replace @image with <image> for API compatibility
+            prompt = re.sub(r"@image\s*", "<image> ", prompt).strip()
+
+            self.has_image_reference = True
+        else:
+            self.has_image_reference = False
+
+        return prompt
+
+    def cancel(self):
+        """Cancel the operation"""
+        self._is_cancelled = True
+
+    def load_models_config(self):
+        """Load models configuration"""
+        try:
+            if os.path.exists(MODELS_CONFIG_PATH):
+                with open(MODELS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load models config: {e}")
+        return None
+
+    def load_providers_config(self):
+        """Load providers configuration"""
+        try:
+            if os.path.exists(PROVIDERS_CONFIG_PATH):
+                with open(PROVIDERS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load providers config: {e}")
+        return None
+
+    def call_openai_api(self, api_address, api_key, model_id, prompt, temperature):
+        """Call OpenAI-compatible API with optional image support"""
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+
+        if hasattr(self, "has_image_reference") and self.has_image_reference:
+            with open(self.image_path, "rb") as f:
+                image_data = base64.b64encode(f.read()).decode("utf-8")
+
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{image_data}"
+                            },
+                        },
+                        {"type": "text", "text": prompt},
+                    ],
+                }
+            ]
+        else:
+            messages = [
+                {"role": "user", "content": prompt}
+            ]
+
+        data = {
+            "model": model_id,
+            "messages": messages,
+            "temperature": temperature / 100.0 if temperature > 2 else temperature,
+            "max_tokens": MAX_TOKENS
+        }
+
+        # Ensure API address ends with correct path
+        if not api_address.endswith("/"):
+            api_address += "/"
+        if not api_address.endswith("chat/completions"):
+            api_address += "chat/completions"
+
+        response = requests.post(api_address, headers=headers, json=data, timeout=REQUEST_TIMEOUT)
+        response.raise_for_status()
+
+        result = response.json()
+        return result["choices"][0]["message"]["content"].strip()
+
+
 def apply_option_mapping(value, mapping):
     """Map options to their corresponding values."""
     if isinstance(value, str):

@@ -40,3 +40,7 @@ SUPPORTED_WIDGETS = [
     "QComboBox",
     "QCheckBox",
 ]
+
+# AI Assistant
+MAX_TOKENS = 2048
+REQUEST_TIMEOUT = 120

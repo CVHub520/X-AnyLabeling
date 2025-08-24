@@ -1,3 +1,5 @@
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor, QWheelEvent, QTextCharFormat, QTextCursor
 from PyQt5.QtWidgets import (
     QComboBox,
     QDialog,
@@ -14,8 +16,6 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QWidget,
 )
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor, QWheelEvent
 
 from anylabeling.views.labeling.vqa.config import (
     DEFAULT_COMPONENT_WINDOW_SIZE,
@@ -35,6 +35,282 @@ from anylabeling.views.labeling.vqa.style import (
 class QComboBox(QComboBox):
     def wheelEvent(self, e: QWheelEvent) -> None:
         pass
+
+
+class AILoadingDialog(QDialog):
+    """AI loading dialog"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.setWindowTitle(self.tr("AI Processing"))
+        self.setFixedSize(420, 180)
+        self.setModal(True)
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: white;
+                border-radius: 12px;
+                border: 1px solid #E5E7EB;
+            }
+            """
+        )
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(16)
+
+        content_layout = QVBoxLayout()
+        content_layout.setSpacing(12)
+
+        title_label = QLabel(self.tr("AI Processing"))
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setStyleSheet(
+            """
+            QLabel {
+                font-size: 16px;
+                font-weight: 600;
+                color: #1F2937;
+                background: none;
+                border: none;
+            }
+            """
+        )
+        content_layout.addWidget(title_label)
+
+        message_label = QLabel(self.tr("Generating content, please wait..."))
+        message_label.setAlignment(Qt.AlignCenter)
+        message_label.setStyleSheet(
+            """
+            QLabel {
+                font-size: 14px;
+                color: #6B7280;
+                background: none;
+                border: none;
+            }
+            """
+        )
+        content_layout.addWidget(message_label)
+
+        layout.addLayout(content_layout)
+        layout.addStretch()
+
+        button_layout = QHBoxLayout()
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.addStretch()
+
+        self.cancel_button = QPushButton(self.tr("Cancel"))
+        self.cancel_button.setStyleSheet(get_secondary_button_style())
+        self.cancel_button.setCursor(Qt.PointingHandCursor)
+        self.cancel_button.clicked.connect(self.reject)
+        button_layout.addWidget(self.cancel_button)
+
+        layout.addLayout(button_layout)
+
+        self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint)
+
+    def center_on_parent(self):
+        if self.parent:
+            center_point = self.parent.mapToGlobal(self.parent.rect().center())
+            dialog_rect = self.rect()
+            self.move(
+                center_point.x() - dialog_rect.width() // 2,
+                center_point.y() - dialog_rect.height() // 2,
+            )
+
+    def exec_(self):
+        self.center_on_parent()
+        return super().exec_()
+
+
+class AIPromptDialog(QDialog):
+    """AI prompt dialog for QLineEdit components"""
+
+    def __init__(self, parent=None, current_text=""):
+        super().__init__(parent)
+        self.parent = parent
+        self.current_text = current_text
+        self.setWindowTitle(self.tr("AI Assistance"))
+        self.setMinimumWidth(450)
+        self.setup_ui()
+
+    def setup_ui(self):
+        """Set up the UI interface"""
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: white;
+                border-radius: 8px;
+            }
+            """
+        )
+
+        dialog_layout = QVBoxLayout(self)
+        dialog_layout.setContentsMargins(24, 24, 24, 24)
+        dialog_layout.setSpacing(20)
+
+        self.prompt_input = QTextEdit()
+        self.prompt_input.setPlaceholderText(
+            "Examples:\n"
+            "   1. @image Describe this image\n"
+            "   2. Translate to English, return translated text only: @text\n"
+            "   3. Improve and make it more professional: @text"
+        )
+        self.prompt_input.setStyleSheet(
+            """
+            QTextEdit {
+                border: 1px solid #E5E7EB;
+                border-radius: 8px;
+                background-color: #F9FAFB;
+                color: #1F2937;
+                font-size: 14px;
+                line-height: 1.5;
+                padding: 12px;
+            }
+            QTextEdit:focus {
+                border: 1px solid #6366F1;
+            }
+            QScrollBar:vertical {
+                width: 8px;
+                background: transparent;
+            }
+            QScrollBar::handle:vertical {
+                background: #D1D5DB;
+                border-radius: 4px;
+                min-height: 30px;
+            }
+            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+                height: 0px;
+            }
+            """
+        )
+        self.prompt_input.setAcceptRichText(True)
+        self.prompt_input.textChanged.connect(self.on_text_changed)
+        self.prompt_input.setMinimumHeight(120)
+        self.prompt_input.setMaximumHeight(160)
+        self.prompt_input.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        dialog_layout.addWidget(self.prompt_input)
+
+        button_layout = QHBoxLayout()
+        button_layout.setContentsMargins(0, 8, 0, 0)
+        button_layout.setSpacing(12)
+        button_layout.addStretch()
+
+        cancel_btn = QPushButton(self.tr("Cancel"))
+        cancel_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: white;
+                color: #4B5563;
+                border: 1px solid #E5E7EB;
+                border-radius: 6px;
+                padding: 8px 16px;
+                font-size: 14px;
+                font-weight: 500;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #F9FAFB;
+                border-color: #D1D5DB;
+            }
+            QPushButton:pressed {
+                background-color: #F3F4F6;
+            }
+            """
+        )
+        cancel_btn.setMinimumHeight(36)
+        cancel_btn.setCursor(Qt.PointingHandCursor)
+        cancel_btn.clicked.connect(self.reject)
+
+        confirm_btn = QPushButton(self.tr("Generate"))
+        confirm_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #4F46E5;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 16px;
+                font-size: 14px;
+                font-weight: 500;
+                min-width: 80px;
+            }
+            QPushButton:hover {
+                background-color: #4338CA;
+            }
+            QPushButton:pressed {
+                background-color: #3730A3;
+            }
+            """
+        )
+        confirm_btn.setMinimumHeight(36)
+        confirm_btn.setCursor(Qt.PointingHandCursor)
+        confirm_btn.clicked.connect(self.accept)
+
+        button_layout.addWidget(cancel_btn)
+        button_layout.addWidget(confirm_btn)
+        dialog_layout.addLayout(button_layout)
+
+        self.setAttribute(Qt.WA_TranslucentBackground, False)
+        self.setWindowFlags(self.windowFlags() & ~Qt.FramelessWindowHint)
+
+    def center_on_parent(self):
+        """Center the dialog on the parent window"""
+        if self.parent:
+            center_point = self.parent.mapToGlobal(self.parent.rect().center())
+            dialog_rect = self.rect()
+            self.move(
+                center_point.x() - dialog_rect.width() // 2,
+                center_point.y() - dialog_rect.height() // 2,
+            )
+
+    def get_prompt(self):
+        """Get the user input prompt"""
+        return self.prompt_input.toPlainText().strip()
+
+    def exec_(self):
+        """Override exec_ method to adjust position before showing the dialog"""
+        self.adjustSize()
+        self.center_on_parent()
+        return super().exec_()
+
+    def on_text_changed(self):
+        """Handle text changes in the message input to highlight @image and @text tags"""
+        cursor = self.prompt_input.textCursor()
+        current_position = cursor.position()
+        document = self.prompt_input.document()
+        text = document.toPlainText()
+
+        self.prompt_input.blockSignals(True)
+
+        cursor.select(QTextCursor.Document)
+        format = QTextCharFormat()
+        cursor.setCharFormat(format)
+
+        tags = ["@image", "@text"]
+        for tag in tags:
+            start_index = 0
+            while True:
+                start_index = text.find(tag, start_index)
+                if start_index == -1:
+                    break
+
+                highlight_format = QTextCharFormat()
+                highlight_format.setBackground(QColor("#E3F2FD"))
+                highlight_format.setForeground(QColor("#1976D2"))
+
+                cursor.setPosition(start_index)
+                cursor.setPosition(start_index + len(tag), QTextCursor.KeepAnchor)
+                cursor.setCharFormat(highlight_format)
+
+                start_index += len(tag)
+
+        cursor.setPosition(current_position)
+        self.prompt_input.setTextCursor(cursor)
+        self.prompt_input.blockSignals(False)
 
 
 class ComponentDialog(QDialog):
