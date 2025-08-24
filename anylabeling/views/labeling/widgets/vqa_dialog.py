@@ -142,19 +142,19 @@ class VQADialog(QDialog):
         self.toggle_panel_button_right.setVisible(False)
 
         self.export_button = QPushButton(self.tr("Export Labels"))
-        self.export_button.setStyleSheet(get_export_button_style())
+        self.export_button.setStyleSheet(get_success_button_style())
         self.export_button.clicked.connect(self.export_labels)
 
         self.clear_button = QPushButton(self.tr("Clear All"))
         self.clear_button.setStyleSheet(get_danger_button_style())
         self.clear_button.clicked.connect(self.clear_current)
 
-        self.add_component_button = QPushButton(self.tr("Add Componet"))
+        self.add_component_button = QPushButton(self.tr("Add Compo"))
         self.add_component_button.setStyleSheet(get_primary_button_style())
         self.add_component_button.clicked.connect(self.add_custom_component)
 
-        self.delete_component_button = QPushButton(self.tr("Del Componet"))
-        self.delete_component_button.setStyleSheet(get_danger_button_style())
+        self.delete_component_button = QPushButton(self.tr("Del Compo"))
+        self.delete_component_button.setStyleSheet(get_secondary_button_style())
         self.delete_component_button.clicked.connect(self.delete_custom_component)
 
         action_layout.addWidget(self.toggle_panel_button_right)

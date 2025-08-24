@@ -22,11 +22,11 @@ from anylabeling.views.labeling.vqa.config import (
     SUPPORTED_WIDGETS,
 )
 from anylabeling.views.labeling.vqa.style import (
-    get_cancel_button_style,
     get_danger_button_style,
     get_filename_label_style,
     get_page_input_style,
     get_primary_button_style,
+    get_secondary_button_style,
     get_status_label_style,
     get_component_dialog_combobox_style,
 )
@@ -103,7 +103,7 @@ class ComponentDialog(QDialog):
         self.ok_button = QPushButton(self.tr("OK"))
         self.ok_button.setStyleSheet(get_primary_button_style())
         self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.setStyleSheet(get_cancel_button_style())
+        self.cancel_button.setStyleSheet(get_secondary_button_style())
 
         self.ok_button.clicked.connect(self.validate_and_accept)
         self.cancel_button.clicked.connect(self.reject)
@@ -292,7 +292,7 @@ class DeleteComponentDialog(QDialog):
         self.delete_button.setEnabled(False)
 
         self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.setStyleSheet(get_cancel_button_style())
+        self.cancel_button.setStyleSheet(get_secondary_button_style())
 
         self.delete_button.clicked.connect(self.accept)
         self.cancel_button.clicked.connect(self.reject)
@@ -498,7 +498,7 @@ class ExportLabelsDialog(QDialog):
         self.export_button.setEnabled(False)
 
         self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.setStyleSheet(get_cancel_button_style())
+        self.cancel_button.setStyleSheet(get_secondary_button_style())
 
         self.export_button.clicked.connect(self.accept)
         self.cancel_button.clicked.connect(self.reject)

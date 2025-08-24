@@ -156,109 +156,113 @@ def get_page_label_style(theme: Dict[str, str] = None) -> str:
     """
 
 
-def get_primary_button_style() -> str:
+def get_primary_button_style(theme: Dict[str, str] = None) -> str:
     """Style for primary action buttons"""
+    theme = theme or THEME
     return f"""
         QPushButton {{
-            background-color: #4299e1;
-            color: #f9fbfd;
+            background-color: {theme["primary"]};
+            color: #ffffff;
             border: none;
-            border-radius: 6px;
-            font-weight: bold;
+            border-radius: 8px;
+            font-weight: 500;
             font-size: {FONT_SIZE_NORMAL};
-            height: 28px;
-            padding: 0 12px;
+            height: 32px;
+            padding: 0 16px;
+            min-width: 80px;
         }}
         QPushButton:hover {{
-            background-color: #3182ce;
+            background-color: #3b82f6;
+            transform: translateY(-1px);
         }}
         QPushButton:pressed {{
-            background-color: #2c5282;
+            background-color: #2563eb;
+            transform: translateY(0px);
         }}
     """
 
 
-def get_cancel_button_style(theme: Dict[str, str] = None) -> str:
-    """Style for cancel button"""
+def get_secondary_button_style(theme: Dict[str, str] = None) -> str:
+    """Style for secondary action buttons"""
     theme = theme or THEME
     return f"""
         QPushButton {{
             background-color: {theme["background"]};
             color: {theme["text"]};
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-weight: bold;
+            border: 1px solid {theme["border"]};
+            border-radius: 8px;
+            font-weight: 500;
             font-size: {FONT_SIZE_NORMAL};
-            height: 28px;
-            padding: 0 12px;
+            height: 32px;
+            padding: 0 16px;
+            min-width: 80px;
         }}
         QPushButton:hover {{
-            background-color: #f9fafb;
-            border-color: #9ca3af;
+            background-color: #f8fafc;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
         }}
         QPushButton:pressed {{
-            background-color: #f3f4f6;
+            background-color: #f1f5f9;
+            transform: translateY(0px);
         }}
     """
 
 
-def get_save_button_style(theme: Dict[str, str] = None):
-    """Style for edit message save button"""
+def get_success_button_style(theme: Dict[str, str] = None) -> str:
+    """Style for success/export action buttons"""
     theme = theme or THEME
     return f"""
         QPushButton {{
-            background-color: {theme["primary"]};
-            border: 1px solid {theme["primary"]};
-            border-radius: 4px;
-            padding: 4px 10px;
-            color: white;
+            background-color: #10b981;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
             font-size: {FONT_SIZE_NORMAL};
+            height: 32px;
+            padding: 0 16px;
+            min-width: 80px;
         }}
         QPushButton:hover {{
-            background-color: {theme["primary"]};
+            background-color: #059669;
+            transform: translateY(-1px);
+        }}
+        QPushButton:pressed {{
+            background-color: #047857;
+            transform: translateY(0px);
         }}
     """
 
 
-def get_danger_button_style() -> str:
+def get_danger_button_style(theme: Dict[str, str] = None) -> str:
     """Style for danger/destructive action buttons"""
+    theme = theme or THEME
     return f"""
         QPushButton {{
-            background-color: #fed7d7;
-            color: #c53030;
-            border: 1px solid #feb2b2;
-            border-radius: 6px;
-            font-weight: bold;
+            background-color: {theme["background"]};
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            font-weight: 500;
             font-size: {FONT_SIZE_NORMAL};
-            height: 28px;
-            padding: 0 12px;
+            height: 32px;
+            padding: 0 16px;
+            min-width: 80px;
         }}
         QPushButton:hover {{
-            background-color: #fbb6ce;
+            background-color: #fef2f2;
+            border-color: #fca5a5;
+            color: #b91c1c;
+            transform: translateY(-1px);
         }}
         QPushButton:pressed {{
-            background-color: #f687b3;
+            background-color: #fee2e2;
+            transform: translateY(0px);
         }}
     """
 
 
 def get_export_button_style() -> str:
-    """Style for export action buttons"""
-    return f"""
-        QPushButton {{
-            background-color: #48bb78;
-            color: #ffffff;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: {FONT_SIZE_NORMAL};
-            height: 28px;
-            padding: 0 12px;
-        }}
-        QPushButton:hover {{
-            background-color: #38a169;
-        }}
-        QPushButton:pressed {{
-            background-color: #2f855a;
-        }}
-    """
+    """Style for export action buttons - alias for success style"""
+    return get_success_button_style()
