@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import (
     QWidget,
 )
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QWheelEvent
 
 from anylabeling.views.labeling.vqa.config import (
     DEFAULT_COMPONENT_WINDOW_SIZE,
@@ -30,6 +30,11 @@ from anylabeling.views.labeling.vqa.style import (
     get_status_label_style,
     get_component_dialog_combobox_style,
 )
+
+
+class QComboBox(QComboBox):
+    def wheelEvent(self, e: QWheelEvent) -> None:
+        pass
 
 
 class ComponentDialog(QDialog):
