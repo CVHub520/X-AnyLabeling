@@ -1,24 +1,30 @@
+import json
+import os
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QWheelEvent, QTextCharFormat, QTextCursor
 from PyQt5.QtWidgets import (
+    QAbstractItemView,
+    QCheckBox,
     QComboBox,
     QDialog,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
-    QTextEdit,
-    QVBoxLayout,
     QTableWidget,
     QTableWidgetItem,
-    QCheckBox,
-    QHeaderView,
+    QTextEdit,
+    QVBoxLayout,
     QWidget,
 )
 
 from anylabeling.views.labeling.vqa.config import (
     DEFAULT_COMPONENT_WINDOW_SIZE,
+    DEFAULT_TEMPLATES,
+    PROMPTS_CONFIG_PATH,
     SUPPORTED_WIDGETS,
 )
 from anylabeling.views.labeling.vqa.style import (
@@ -30,11 +36,499 @@ from anylabeling.views.labeling.vqa.style import (
     get_status_label_style,
     get_component_dialog_combobox_style,
 )
+from anylabeling.views.labeling.utils.qt import new_icon_path
 
 
 class QComboBox(QComboBox):
     def wheelEvent(self, e: QWheelEvent) -> None:
         pass
+
+
+class PromptTemplateDialog(QDialog):
+    """Prompt template management dialog"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.setWindowTitle(self.tr("Prompt Template Library"))
+        self.setMinimumSize(600, 450)
+        self.selected_template = None
+        self.setup_ui()
+        self.load_templates()
+
+    def setup_ui(self):
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: white;
+                border-radius: 8px;
+            }
+            """
+        )
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(12)
+
+        self.table = QTableWidget()
+        self.table.setColumnCount(3)
+        self.table.setHorizontalHeaderLabels([
+            self.tr("Select"), 
+            self.tr("Template Name"), 
+            self.tr("Action")
+        ])
+
+        self.table.setStyleSheet(self.get_table_style())
+        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.table.setAlternatingRowColors(True)
+        self.table.setShowGrid(False)
+        self.table.verticalHeader().setVisible(False)
+
+        header = self.table.horizontalHeader()
+        header.setSectionResizeMode(0, QHeaderView.Fixed)
+        header.setSectionResizeMode(1, QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QHeaderView.Fixed)
+        header.resizeSection(0, 100)
+        header.resizeSection(2, 120)
+
+        layout.addWidget(self.table)
+
+        add_button = QPushButton(self.tr("Add New Template"))
+        add_button.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #f5f5f7;
+                border: 1px solid #d2d2d7;
+                border-radius: 8px;
+                font-weight: 500;
+                font-size: 13px;
+                color: #1d1d1f;
+                min-width: 100px;
+                height: 36px;
+                padding: 0 8px;
+            }
+            QPushButton:hover {
+                background-color: #e5e5e5;
+            }
+            QPushButton:pressed {
+                background-color: #d6d6d6;
+            }
+            """
+        )
+        add_button.clicked.connect(self.add_template)
+        layout.addWidget(add_button)
+
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+
+        cancel_btn = QPushButton(self.tr("Cancel"))
+        cancel_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #f5f5f7;
+                border: 1px solid #d2d2d7;
+                border-radius: 8px;
+                font-weight: 500;
+                font-size: 13px;
+                color: #1d1d1f;
+                min-width: 100px;
+                height: 36px;
+                padding: 0 2px;
+            }
+            QPushButton:hover {
+                background-color: #e5e5e5;
+            }
+            QPushButton:pressed {
+                background-color: #d6d6d6;
+            }
+            """
+        )
+        cancel_btn.clicked.connect(self.reject)
+
+        ok_btn = QPushButton(self.tr("OK"))
+        ok_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #0077ed;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-weight: 500;
+                font-size: 13px;
+                min-width: 100px;
+                height: 36px;
+                padding: 0 2px;
+            }
+            QPushButton:hover {
+                background-color: #0066cc;
+            }
+            QPushButton:pressed {
+                background-color: #005bb5;
+            }
+            """
+        )
+        ok_btn.clicked.connect(self.accept)
+
+        button_layout.addWidget(cancel_btn)
+        button_layout.addWidget(ok_btn)
+        layout.addLayout(button_layout)
+
+    def get_table_style(self):
+        return f"""
+            QTableWidget {{
+                border: 1px solid #E5E7EB;
+                border-radius: 8px;
+                background-color: white;
+                gridline-color: transparent;
+                outline: none;
+            }}
+            QTableWidget::item {{
+                padding: 8px 16px;
+                border: none;
+                border-bottom: 1px solid #F3F4F6;
+                color: #374151;
+                font-size: 13px;
+                outline: none;
+            }}
+            QTableWidget::item:hover {{
+                background-color: #F9FAFB;
+            }}
+            QHeaderView::section {{
+                background-color: #F8FAFC;
+                color: #6B7280;
+                font-weight: 600;
+                font-size: 12px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                padding: 16px;
+                border: none;
+                border-bottom: 2px solid #E5E7EB;
+                border-right: 1px solid #F3F4F6;
+                outline: none;
+                height: 40px;
+            }}
+            QCheckBox {{
+                spacing: 8px;
+            }}
+            QCheckBox::indicator {{
+                width: 18px;
+                height: 18px;
+                border-radius: 3px;
+                border: 1px solid #D2D2D7;
+                background-color: white;
+            }}
+            QCheckBox::indicator:checked {{
+                background-color: white;
+                border: 1px solid #D2D2D7;
+                image: url({new_icon_path("checkmark", "svg")});
+            }}
+        """
+
+    def get_default_templates(self):
+        """Get default system templates"""
+        return [
+            {
+                "name": name,
+                "content": content,
+                "is_system": True
+            } for name, content in DEFAULT_TEMPLATES.items()
+        ]
+
+    def load_templates(self):
+        """Load templates from config file"""
+        templates = self.get_default_templates()
+
+        if os.path.exists(PROMPTS_CONFIG_PATH):
+            try:
+                with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                    user_templates = json.load(f)
+                    for template in user_templates:
+                        template["is_system"] = False
+                    templates.extend(user_templates)
+            except Exception as e:
+                print(f"Error loading templates: {e}")
+
+        self.populate_table(templates)
+
+    def populate_table(self, templates):
+        """Populate table with templates"""
+        self.table.setRowCount(len(templates))
+
+        for row in range(len(templates)):
+            self.table.setRowHeight(row, 60)
+
+        for row, template in enumerate(templates):
+            checkbox = QCheckBox()
+            checkbox.toggled.connect(lambda checked, r=row: self.on_checkbox_toggled(r, checked))
+            checkbox_widget = QWidget()
+            checkbox_layout = QVBoxLayout(checkbox_widget)
+            checkbox_layout.addWidget(checkbox)
+            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setContentsMargins(0, 0, 0, 0)
+            checkbox_layout.setSpacing(0)
+
+            self.table.setCellWidget(row, 0, checkbox_widget)
+
+            name_item = QTableWidgetItem(template["name"])
+            if template["is_system"]:
+                name_item.setForeground(QColor("#6366F1"))
+            else:
+                name_item.setForeground(QColor("#374151"))
+            name_item.setToolTip(template["content"])
+            name_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self.table.setItem(row, 1, name_item)
+
+            delete_btn = QPushButton(self.tr("Delete"))
+            delete_btn.setFixedSize(80, 32)
+
+            if template["is_system"]:
+                delete_btn.setEnabled(False)
+                delete_btn.setStyleSheet(
+                    """
+                    QPushButton {
+                        background-color: #F3F4F6;
+                        color: #9CA3AF;
+                        border: 1px solid #E5E7EB;
+                        border-radius: 6px;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                    """
+                )
+            else:
+                delete_btn.setStyleSheet(
+                    """
+                    QPushButton {
+                        background-color: #DC2626;
+                        color: white;
+                        border: 1px solid #DC2626;
+                        border-radius: 6px;
+                        font-size: 12px;
+                        font-weight: 500;
+                    }
+                    QPushButton:hover {
+                        background-color: #B91C1C;
+                        border: 1px solid #B91C1C;
+                    }
+                    QPushButton:pressed {
+                        background-color: #991B1B;
+                        border: 1px solid #991B1B;
+                    }
+                    """
+                )
+                delete_btn.clicked.connect(lambda _, r=row: self.delete_template(r))
+
+            delete_widget = QWidget()
+            delete_layout = QVBoxLayout(delete_widget)
+            delete_layout.addWidget(delete_btn)
+            delete_layout.setAlignment(Qt.AlignCenter)
+            delete_layout.setContentsMargins(0, 0, 0, 0)
+            delete_layout.setSpacing(0)
+
+            self.table.setCellWidget(row, 2, delete_widget)
+
+    def on_checkbox_toggled(self, row, checked):
+        """Handle checkbox toggle with mutual exclusion"""
+        if checked:
+            for i in range(self.table.rowCount()):
+                if i != row:
+                    checkbox_widget = self.table.cellWidget(i, 0)
+                    if checkbox_widget:
+                        checkbox = checkbox_widget.findChild(QCheckBox)
+                        if checkbox:
+                            checkbox.blockSignals(True)
+                            checkbox.setChecked(False)
+                            checkbox.blockSignals(False)
+
+            name_item = self.table.item(row, 1)
+            if name_item:
+                self.selected_template = {
+                    "name": name_item.text(),
+                    "content": name_item.toolTip()
+                }
+        else:
+            self.selected_template = None
+
+    def add_template(self):
+        """Add new template"""
+        dialog = AddTemplateDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            template_data = dialog.get_template_data()
+            self.save_user_template(template_data["name"], template_data["content"])
+            self.load_templates()
+
+    def delete_template(self, row):
+        """Delete template"""
+        name_item = self.table.item(row, 1)
+        if not name_item:
+            return
+
+        reply = QMessageBox.question(
+            self,
+            self.tr("Delete Template"),
+            self.tr("Are you sure you want to delete this template?"),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            self.remove_user_template(name_item.text())
+            self.load_templates()
+
+    def save_user_template(self, name, content):
+        """Save user template to config file"""
+        user_templates = []
+
+        if os.path.exists(PROMPTS_CONFIG_PATH):
+            try:
+                with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                    user_templates = json.load(f)
+            except Exception:
+                user_templates = []
+
+        user_templates.append({
+            "name": name,
+            "content": content
+        })
+
+        os.makedirs(os.path.dirname(PROMPTS_CONFIG_PATH), exist_ok=True)
+        with open(PROMPTS_CONFIG_PATH, "w", encoding="utf-8") as f:
+            json.dump(user_templates, f, ensure_ascii=False, indent=2)
+
+    def remove_user_template(self, name):
+        """Remove user template from config file"""
+        if not os.path.exists(PROMPTS_CONFIG_PATH):
+            return
+
+        try:
+            with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                user_templates = json.load(f)
+
+            user_templates = [t for t in user_templates if t["name"] != name]
+
+            with open(PROMPTS_CONFIG_PATH, "w", encoding="utf-8") as f:
+                json.dump(user_templates, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error removing template: {e}")
+
+    def get_selected_template(self):
+        """Get selected template"""
+        return self.selected_template
+
+
+class AddTemplateDialog(QDialog):
+    """Custom dialog for adding new templates"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent
+        self.setWindowTitle(self.tr("Add Template"))
+        self.setModal(True)
+        self.setFixedSize(500, 350)
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setStyleSheet(
+            """
+            QDialog {
+                background-color: white;
+                border-radius: 8px;
+            }
+            """
+        )
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(12)
+
+        name_label = QLabel(self.tr("Template Name:"))
+        name_label.setStyleSheet(get_filename_label_style())
+        layout.addWidget(name_label)
+
+        self.name_input = QLineEdit()
+        self.name_input.setStyleSheet(
+            f"""
+            QLineEdit {{
+                background-color: white;
+                border-radius: 8px;
+                padding: 8px 12px;
+                font-size: 14px;
+                border: 1px solid #e2e8f0;
+            }}
+            QLineEdit:focus {{
+                border: 2px solid #60A5FA;
+            }}
+            """
+        )
+        layout.addWidget(self.name_input)
+
+        content_label = QLabel(self.tr("Template Content:"))
+        content_label.setStyleSheet(get_filename_label_style())
+        layout.addWidget(content_label)
+
+        self.content_input = QTextEdit()
+        self.content_input.setStyleSheet(
+            f"""
+            QTextEdit {{
+                background-color: white;
+                border-radius: 8px;
+                padding: 8px 12px;
+                font-size: 14px;
+                border: 1px solid #e2e8f0;
+            }}
+            QTextEdit:focus {{
+                border: 2px solid #60A5FA;
+            }}
+            """
+        )
+        self.content_input.setMinimumHeight(120)
+        layout.addWidget(self.content_input)
+
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+
+        cancel_btn = QPushButton(self.tr("Cancel"))
+        cancel_btn.setStyleSheet(get_secondary_button_style())
+        cancel_btn.clicked.connect(self.reject)
+
+        ok_btn = QPushButton(self.tr("OK"))
+        ok_btn.setStyleSheet(get_primary_button_style())
+        ok_btn.clicked.connect(self.validate_and_accept)
+
+        button_layout.addWidget(cancel_btn)
+        button_layout.addWidget(ok_btn)
+        layout.addLayout(button_layout)
+
+    def validate_and_accept(self):
+        """Validate input and accept dialog"""
+        name = self.name_input.text().strip()
+        content = self.content_input.toPlainText().strip()
+
+        if not name:
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Template name cannot be empty!")
+            )
+            return
+
+        if not content:
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Template content cannot be empty!")
+            )
+            return
+
+        self.accept()
+
+    def get_template_data(self):
+        """Get template data"""
+        return {
+            "name": self.name_input.text().strip(),
+            "content": self.content_input.toPlainText().strip()
+        }
 
 
 class AILoadingDialog(QDialog):
@@ -134,7 +628,7 @@ class AIPromptDialog(QDialog):
         self.parent = parent
         self.current_text = current_text
         self.setWindowTitle(self.tr("AI Assistance"))
-        self.setMinimumWidth(450)
+        self.setMinimumWidth(600)
         self.setup_ui()
 
     def setup_ui(self):
@@ -150,7 +644,7 @@ class AIPromptDialog(QDialog):
 
         dialog_layout = QVBoxLayout(self)
         dialog_layout.setContentsMargins(24, 24, 24, 24)
-        dialog_layout.setSpacing(20)
+        dialog_layout.setSpacing(12)
 
         self.prompt_input = QTextEdit()
         self.prompt_input.setPlaceholderText(
@@ -197,31 +691,57 @@ class AIPromptDialog(QDialog):
         button_layout = QHBoxLayout()
         button_layout.setContentsMargins(0, 8, 0, 0)
         button_layout.setSpacing(12)
+
+        template_btn = QPushButton(self.tr("Templates"))
+        template_btn.setStyleSheet(
+            """
+            QPushButton {
+                background-color: #f5f5f7;
+                border: 1px solid #d2d2d7;
+                border-radius: 8px;
+                font-weight: 500;
+                font-size: 13px;
+                color: #1d1d1f;
+                min-width: 100px;
+                height: 36px;
+                padding: 0 2px;
+            }
+            QPushButton:hover {
+                background-color: #e5e5e5;
+            }
+            QPushButton:pressed {
+                background-color: #d6d6d6;
+            }
+            """
+        )
+        template_btn.setCursor(Qt.PointingHandCursor)
+        template_btn.clicked.connect(self.open_template_library)
+
+        button_layout.addWidget(template_btn)
         button_layout.addStretch()
 
         cancel_btn = QPushButton(self.tr("Cancel"))
         cancel_btn.setStyleSheet(
             """
             QPushButton {
-                background-color: white;
-                color: #4B5563;
-                border: 1px solid #E5E7EB;
-                border-radius: 6px;
-                padding: 8px 16px;
-                font-size: 14px;
+                background-color: #f5f5f7;
+                border: 1px solid #d2d2d7;
+                border-radius: 8px;
                 font-weight: 500;
-                min-width: 80px;
+                font-size: 13px;
+                color: #1d1d1f;
+                min-width: 100px;
+                height: 36px;
+                padding: 0 2px;
             }
             QPushButton:hover {
-                background-color: #F9FAFB;
-                border-color: #D1D5DB;
+                background-color: #e5e5e5;
             }
             QPushButton:pressed {
-                background-color: #F3F4F6;
+                background-color: #d6d6d6;
             }
             """
         )
-        cancel_btn.setMinimumHeight(36)
         cancel_btn.setCursor(Qt.PointingHandCursor)
         cancel_btn.clicked.connect(self.reject)
 
@@ -229,24 +749,24 @@ class AIPromptDialog(QDialog):
         confirm_btn.setStyleSheet(
             """
             QPushButton {
-                background-color: #4F46E5;
+                background-color: #0077ed;
                 color: white;
                 border: none;
-                border-radius: 6px;
-                padding: 8px 16px;
-                font-size: 14px;
+                border-radius: 8px;
                 font-weight: 500;
-                min-width: 80px;
+                font-size: 13px;
+                min-width: 100px;
+                height: 36px;
+                padding: 0 2px;
             }
             QPushButton:hover {
-                background-color: #4338CA;
+                background-color: #0066cc;
             }
             QPushButton:pressed {
-                background-color: #3730A3;
+                background-color: #005bb5;
             }
             """
         )
-        confirm_btn.setMinimumHeight(36)
         confirm_btn.setCursor(Qt.PointingHandCursor)
         confirm_btn.clicked.connect(self.accept)
 
@@ -256,6 +776,14 @@ class AIPromptDialog(QDialog):
 
         self.setAttribute(Qt.WA_TranslucentBackground, False)
         self.setWindowFlags(self.windowFlags() & ~Qt.FramelessWindowHint)
+
+    def open_template_library(self):
+        """Open template library dialog"""
+        dialog = PromptTemplateDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            selected_template = dialog.get_selected_template()
+            if selected_template:
+                self.prompt_input.setPlainText(selected_template["content"])
 
     def center_on_parent(self):
         """Center the dialog on the parent window"""

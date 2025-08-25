@@ -4,6 +4,7 @@ import os
 # VQA config path
 home_dir = os.path.expanduser("~")
 root_dir = os.path.join(home_dir, "xanylabeling_data/vqa")
+PROMPTS_CONFIG_PATH = os.path.join(root_dir, "prompts.json")
 COMPONENTS_CONFIG_PATH = os.path.join(root_dir, "components.json")
 
 # Global design system
@@ -44,3 +45,18 @@ SUPPORTED_WIDGETS = [
 # AI Assistant
 MAX_TOKENS = 2048
 REQUEST_TIMEOUT = 120
+DEFAULT_TEMPLATES = {
+    # @text
+    "Condense text": "Please make this text more concise while keeping the key points. Output the condensed version only:\n@text",
+    "Academic style": "Please rewrite this text in a formal academic style. Return only the reformatted text:\n@text", 
+    "Clarify meaning": "Please break down and explain the meaning of this text. Provide only the explanation:\n@text",
+    "Grammar check": "Please review and correct any grammatical errors in this text. Return only the corrected version:\n@text",
+    "Enhance writing": "Please refine and polish this text to make it more effective. Return only the enhanced version:\n@text",
+    "Brief summary": "Please provide a concise summary of the key points in this text. Return only the summary:\n@text",
+    "Chinese translation": "Please convert this text to Chinese language. Return only the translated version:\n@text",
+    # @image
+    "Image Description": "@image Describe this image in detail.",
+    "OCR": "@image Read all texts in the image, output in lines.",
+    "Text Recognition": "@image Recognise all texts in the image, output in lines.",
+    "Text Spotting": "@image Spotting all the text in the image with line-level, and output in JSON format."
+}
