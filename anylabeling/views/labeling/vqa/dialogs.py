@@ -1,7 +1,7 @@
 import json
 import os
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QColor, QWheelEvent, QTextCharFormat, QTextCursor
 from PyQt5.QtWidgets import (
     QAbstractItemView,
@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QPushButton,
+    QGraphicsDropShadowEffect,
     QTableWidget,
     QTableWidgetItem,
     QTextEdit,
@@ -540,15 +541,16 @@ class AILoadingDialog(QDialog):
         self.setWindowTitle(self.tr("AI Processing"))
         self.setFixedSize(420, 180)
         self.setModal(True)
+        self.dot_count = 1
         self.setup_ui()
+        self.setup_animation()
 
     def setup_ui(self):
         self.setStyleSheet(
             """
             QDialog {
-                background-color: white;
-                border-radius: 12px;
-                border: 1px solid #E5E7EB;
+                background-color: #ffffff;
+                border-radius: 0px;
             }
             """
         )
@@ -575,9 +577,9 @@ class AILoadingDialog(QDialog):
         )
         content_layout.addWidget(title_label)
 
-        message_label = QLabel(self.tr("Generating content, please wait..."))
-        message_label.setAlignment(Qt.AlignCenter)
-        message_label.setStyleSheet(
+        self.message_label = QLabel(self.tr("Generating content, please wait."))
+        self.message_label.setAlignment(Qt.AlignCenter)
+        self.message_label.setStyleSheet(
             """
             QLabel {
                 font-size: 14px;
@@ -587,7 +589,7 @@ class AILoadingDialog(QDialog):
             }
             """
         )
-        content_layout.addWidget(message_label)
+        content_layout.addWidget(self.message_label)
 
         layout.addLayout(content_layout)
         layout.addStretch()
@@ -604,7 +606,24 @@ class AILoadingDialog(QDialog):
 
         layout.addLayout(button_layout)
 
-        self.setWindowFlags(Qt.Dialog | Qt.CustomizeWindowHint)
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(15)
+        shadow.setColor(QColor(0, 0, 0, 25))
+        shadow.setOffset(0, 4)
+        self.setGraphicsEffect(shadow)
+
+    def setup_animation(self):
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_dots)
+        self.timer.start(300)
+
+    def update_dots(self):
+        base_text = self.tr("Generating content, please wait")
+        dots = "." * self.dot_count
+        spaces = " " * (3 - self.dot_count)
+        self.message_label.setText(base_text + dots + spaces)
+        self.dot_count = self.dot_count % 3 + 1
 
     def center_on_parent(self):
         if self.parent:
@@ -618,6 +637,14 @@ class AILoadingDialog(QDialog):
     def exec_(self):
         self.center_on_parent()
         return super().exec_()
+
+    def closeEvent(self, event):
+        self.timer.stop()
+        super().closeEvent(event)
+
+    def reject(self):
+        self.timer.stop()
+        super().reject()
 
 
 class AIPromptDialog(QDialog):

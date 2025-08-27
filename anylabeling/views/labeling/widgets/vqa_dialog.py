@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QLineEdit,
     QMessageBox,
     QFileDialog,
+    QTextEdit,
 )
 from PyQt5.QtGui import QPixmap, QIcon, QIntValidator
 
@@ -954,21 +955,38 @@ class VQADialog(QDialog):
             self.loading_msg.close()
 
         if success:
-            reply = QMessageBox.question(
-                self,
-                "AI Result",
-                "Generated content:\n" +
-                "=" * 20 +
-                "\n" + 
-                result + 
-                "\n" + 
-                "=" * 20 + 
-                "\nDo you want to use this result?",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.Yes
-            )
+            dialog = QDialog(self)
+            dialog.setWindowTitle("AI Generated Result")
+            dialog.setModal(True)
+            dialog.resize(500, 400)
+            
+            layout = QVBoxLayout(dialog)
+            layout.setSpacing(10)
+            
+            text_edit = QTextEdit()
+            text_edit.setPlainText(result)
+            text_edit.setReadOnly(True)
+            layout.addWidget(text_edit)
+            
+            button_layout = QHBoxLayout()
+            button_layout.addStretch()
+            
+            apply_button = QPushButton("Apply")
+            apply_button.setStyleSheet(get_primary_button_style())
+            cancel_button = QPushButton("Cancel")
+            cancel_button.setStyleSheet(get_secondary_button_style())
+            
+            button_layout.addWidget(apply_button)
+            button_layout.addWidget(cancel_button)
+            layout.addLayout(button_layout)
+            
+            apply_button.clicked.connect(dialog.accept)
+            cancel_button.clicked.connect(dialog.reject)
+            apply_button.setDefault(True)
+            
+            reply = dialog.exec_()
 
-            if reply == QMessageBox.Yes:
+            if reply == QDialog.Accepted:
                 widget.blockSignals(True)
                 widget.setPlainText(result)
                 widget.blockSignals(False)
