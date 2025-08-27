@@ -51,7 +51,7 @@ class PromptTemplateDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
-        self.setWindowTitle(self.tr("Prompt Template Library"))
+        self.setWindowTitle(self.tr("Template Gallery"))
         self.setMinimumSize(600, 450)
         self.selected_template = None
         self.setup_ui()
@@ -85,6 +85,9 @@ class PromptTemplateDialog(QDialog):
         self.table.setAlternatingRowColors(True)
         self.table.setShowGrid(False)
         self.table.verticalHeader().setVisible(False)
+        
+        # Add double click event
+        self.table.itemDoubleClicked.connect(self.on_item_double_clicked)
 
         header = self.table.horizontalHeader()
         header.setSectionResizeMode(0, QHeaderView.Fixed)
@@ -95,32 +98,33 @@ class PromptTemplateDialog(QDialog):
 
         layout.addWidget(self.table)
 
-        add_button = QPushButton(self.tr("Add New Template"))
+        button_layout = QHBoxLayout()
+
+        add_button = QPushButton(self.tr("Add"))
         add_button.setStyleSheet(
             """
             QPushButton {
-                background-color: #f5f5f7;
-                border: 1px solid #d2d2d7;
+                background-color: #10b981;
+                color: white;
+                border: none;
                 border-radius: 8px;
                 font-weight: 500;
                 font-size: 13px;
-                color: #1d1d1f;
                 min-width: 100px;
                 height: 36px;
-                padding: 0 8px;
+                padding: 0 2px;
             }
             QPushButton:hover {
-                background-color: #e5e5e5;
+                background-color: #059669;
             }
             QPushButton:pressed {
-                background-color: #d6d6d6;
+                background-color: #047857;
             }
             """
         )
         add_button.clicked.connect(self.add_template)
-        layout.addWidget(add_button)
+        button_layout.addWidget(add_button)
 
-        button_layout = QHBoxLayout()
         button_layout.addStretch()
 
         cancel_btn = QPushButton(self.tr("Cancel"))
@@ -179,13 +183,13 @@ class PromptTemplateDialog(QDialog):
         return f"""
             QTableWidget {{
                 border: 1px solid #E5E7EB;
-                border-radius: 8px;
+                border-radius: 0px;
                 background-color: white;
                 gridline-color: transparent;
                 outline: none;
             }}
             QTableWidget::item {{
-                padding: 8px 16px;
+                padding: 6px 12px;
                 border: none;
                 border-bottom: 1px solid #F3F4F6;
                 color: #374151;
@@ -202,19 +206,19 @@ class PromptTemplateDialog(QDialog):
                 font-size: 12px;
                 text-transform: uppercase;
                 letter-spacing: 0.5px;
-                padding: 16px;
+                padding: 8px 12px;
                 border: none;
                 border-bottom: 2px solid #E5E7EB;
                 border-right: 1px solid #F3F4F6;
                 outline: none;
-                height: 40px;
+                height: 28px;
             }}
             QCheckBox {{
-                spacing: 8px;
+                spacing: 6px;
             }}
             QCheckBox::indicator {{
-                width: 18px;
-                height: 18px;
+                width: 16px;
+                height: 16px;
                 border-radius: 3px;
                 border: 1px solid #D2D2D7;
                 background-color: white;
@@ -238,7 +242,8 @@ class PromptTemplateDialog(QDialog):
 
     def load_templates(self):
         """Load templates from config file"""
-        templates = self.get_default_templates()
+        user_templates = []
+        system_templates = self.get_default_templates()
 
         if os.path.exists(PROMPTS_CONFIG_PATH):
             try:
@@ -246,10 +251,10 @@ class PromptTemplateDialog(QDialog):
                     user_templates = json.load(f)
                     for template in user_templates:
                         template["is_system"] = False
-                    templates.extend(user_templates)
             except Exception as e:
                 print(f"Error loading templates: {e}")
 
+        templates = user_templates + system_templates
         self.populate_table(templates)
 
     def populate_table(self, templates):
@@ -257,7 +262,7 @@ class PromptTemplateDialog(QDialog):
         self.table.setRowCount(len(templates))
 
         for row in range(len(templates)):
-            self.table.setRowHeight(row, 60)
+            self.table.setRowHeight(row, 36)
 
         for row, template in enumerate(templates):
             checkbox = QCheckBox()
@@ -281,7 +286,7 @@ class PromptTemplateDialog(QDialog):
             self.table.setItem(row, 1, name_item)
 
             delete_btn = QPushButton(self.tr("Delete"))
-            delete_btn.setFixedSize(80, 32)
+            delete_btn.setFixedSize(70, 24)
 
             if template["is_system"]:
                 delete_btn.setEnabled(False)
@@ -291,8 +296,8 @@ class PromptTemplateDialog(QDialog):
                         background-color: #F3F4F6;
                         color: #9CA3AF;
                         border: 1px solid #E5E7EB;
-                        border-radius: 6px;
-                        font-size: 12px;
+                        border-radius: 4px;
+                        font-size: 11px;
                         font-weight: 500;
                     }
                     """
@@ -304,8 +309,8 @@ class PromptTemplateDialog(QDialog):
                         background-color: #DC2626;
                         color: white;
                         border: 1px solid #DC2626;
-                        border-radius: 6px;
-                        font-size: 12px;
+                        border-radius: 4px;
+                        font-size: 11px;
                         font-weight: 500;
                     }
                     QPushButton:hover {
@@ -417,17 +422,71 @@ class PromptTemplateDialog(QDialog):
         """Get selected template"""
         return self.selected_template
 
+    def on_item_double_clicked(self, item):
+        """Handle double click on table item"""
+        if item.column() != 1:
+            return
+
+        row = item.row()
+        name_item = self.table.item(row, 1)
+        if not name_item:
+            return
+
+        if name_item.foreground().color() == QColor("#6366F1"):  # System template
+            return
+
+        template_data = {
+            "name": name_item.text(),
+            "content": name_item.toolTip()
+        }
+
+        dialog = AddTemplateDialog(self, edit_data=template_data)
+        if dialog.exec_() == QDialog.Accepted:
+            new_data = dialog.get_template_data()
+            self.update_user_template(template_data["name"], new_data["name"], new_data["content"])
+            self.load_templates()
+
+    def update_user_template(self, old_name, new_name, new_content):
+        """Update existing user template"""
+        if not os.path.exists(PROMPTS_CONFIG_PATH):
+            return
+
+        try:
+            with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                user_templates = json.load(f)
+
+            for template in user_templates:
+                if template["name"] == old_name:
+                    template["name"] = new_name
+                    template["content"] = new_content
+                    break
+
+            with open(PROMPTS_CONFIG_PATH, "w", encoding="utf-8") as f:
+                json.dump(user_templates, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            print(f"Error updating template: {e}")
+
 
 class AddTemplateDialog(QDialog):
     """Custom dialog for adding new templates"""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, edit_data=None):
         super().__init__(parent)
         self.parent = parent
-        self.setWindowTitle(self.tr("Add Template"))
+        self.edit_data = edit_data
+        self.is_edit_mode = edit_data is not None
+
+        if self.is_edit_mode:
+            self.setWindowTitle(self.tr("Edit Template"))
+        else:
+            self.setWindowTitle(self.tr("Add Template"))
+
         self.setModal(True)
         self.setFixedSize(500, 350)
         self.setup_ui()
+
+        if self.is_edit_mode:
+            self.prefill_data()
 
     def setup_ui(self):
         self.setStyleSheet(
@@ -500,6 +559,12 @@ class AddTemplateDialog(QDialog):
         button_layout.addWidget(cancel_btn)
         button_layout.addWidget(ok_btn)
         layout.addLayout(button_layout)
+
+    def prefill_data(self):
+        """Prefill data for edit mode"""
+        if self.edit_data:
+            self.name_input.setText(self.edit_data["name"])
+            self.content_input.setPlainText(self.edit_data["content"])
 
     def validate_and_accept(self):
         """Validate input and accept dialog"""
