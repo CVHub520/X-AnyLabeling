@@ -2595,75 +2595,205 @@ class LabelingWidget(LabelDialog):
                     return True
         return False
 
+    def _get_common_label_values(self, shapes):
+        """Determine common label values for multiple shapes"""
+        if not shapes:
+            return None, None, None, None, None, None
+        
+        # Get values from first shape
+        first_shape = shapes[0]
+        common_label = first_shape.label
+        common_flags = first_shape.flags.copy() if first_shape.flags else {}
+        common_group_id = first_shape.group_id
+        common_description = first_shape.description
+        common_difficult = first_shape.difficult
+        common_kie_linking = first_shape.kie_linking.copy() if first_shape.kie_linking else []
+        
+        # Check if all shapes have the same values
+        for shape in shapes[1:]:
+            if shape.label != common_label:
+                common_label = ""
+            if shape.flags != common_flags:
+                common_flags = {}
+            if shape.group_id != common_group_id:
+                common_group_id = None
+            if shape.description != common_description:
+                common_description = ""
+            if shape.difficult != common_difficult:
+                common_difficult = False
+            if shape.kie_linking != common_kie_linking:
+                common_kie_linking = []
+        
+        return (
+            common_label,
+            common_flags,
+            common_group_id,
+            common_description,
+            common_difficult,
+            common_kie_linking,
+        )
+
     def edit_label(self, item=None):
         if item and not isinstance(item, LabelListWidgetItem):
             raise TypeError("item must be LabelListWidgetItem type")
 
         if not self.canvas.editing():
             return
-        if not item:
-            item = self.current_item()
-        if item is None:
+        
+        # Handle multiple selected shapes
+        selected_shapes = self.canvas.selected_shapes
+        if not selected_shapes:
             return
-        shape = item.shape()
-        if shape is None:
-            return
-        (
-            text,
-            flags,
-            group_id,
-            description,
-            difficult,
-            kie_linking,
-        ) = self.label_dialog.pop_up(
-            text=shape.label,
-            flags=shape.flags,
-            group_id=shape.group_id,
-            description=shape.description,
-            difficult=shape.difficult,
-            kie_linking=shape.kie_linking,
-            move_mode=self._config.get("move_mode", "auto"),
-        )
-        if text is None:
-            return
-        if not self.validate_label(text):
-            self.error_message(
-                self.tr("Invalid label"),
-                self.tr("Invalid label '{}' with validation type '{}'").format(
-                    text, self._config["validate_label"]
-                ),
+        
+        if len(selected_shapes) == 1:
+            # Single shape editing
+            if not item:
+                item = self.current_item()
+            if item is None:
+                return
+            shape = item.shape()
+            if shape is None:
+                return
+            (
+                text,
+                flags,
+                group_id,
+                description,
+                difficult,
+                kie_linking,
+            ) = self.label_dialog.pop_up(
+                text=shape.label,
+                flags=shape.flags,
+                group_id=shape.group_id,
+                description=shape.description,
+                difficult=shape.difficult,
+                kie_linking=shape.kie_linking,
+                move_mode=self._config.get("move_mode", "auto"),
             )
-            return
-        if self.attributes and text:
-            text = self.reset_attribute(text)
-        shape.label = text
-        shape.flags = flags
-        shape.group_id = group_id
-        shape.description = description
-        shape.difficult = difficult
-        shape.kie_linking = kie_linking
+            if text is None:
+                return
+            if not self.validate_label(text):
+                self.error_message(
+                    self.tr("Invalid label"),
+                    self.tr("Invalid label '{}' with validation type '{}'").format(
+                        text, self._config["validate_label"]
+                    ),
+                )
+                return
+            if self.attributes and text:
+                text = self.reset_attribute(text)
+            
+            # Store backup before making changes for undo functionality
+            self.canvas.store_shapes()
+            
+            # Apply changes to single shape
+            shape.label = text
+            shape.flags = flags
+            shape.group_id = group_id
+            shape.description = description
+            shape.difficult = difficult
+            shape.kie_linking = kie_linking
 
-        # Add to label history
-        self.label_dialog.add_label_history(shape.label)
+            # Add to label history
+            self.label_dialog.add_label_history(shape.label)
 
-        # Update unique label list
-        if not self.unique_label_list.find_items_by_label(shape.label):
-            unique_label_item = self.unique_label_list.create_item_from_label(
-                shape.label
-            )
-            self.unique_label_list.addItem(unique_label_item)
-            rgb = self._get_rgb_by_label(shape.label)
-            self.unique_label_list.set_item_label(
-                unique_label_item, shape.label, rgb, LABEL_OPACITY
-            )
+            # Update unique label list
+            if not self.unique_label_list.find_items_by_label(shape.label):
+                unique_label_item = self.unique_label_list.create_item_from_label(
+                    shape.label
+                )
+                self.unique_label_list.addItem(unique_label_item)
+                rgb = self._get_rgb_by_label(shape.label)
+                self.unique_label_list.set_item_label(
+                    unique_label_item, shape.label, rgb, LABEL_OPACITY
+                )
 
-        self._update_shape_color(shape)
-        if shape.group_id is None:
-            color = shape.fill_color.getRgb()[:3]
-            item.setText("{}".format(html.escape(shape.label)))
-            item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
+            self._update_shape_color(shape)
+            if shape.group_id is None:
+                color = shape.fill_color.getRgb()[:3]
+                item.setText("{}".format(html.escape(shape.label)))
+                item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
+            else:
+                item.setText(f"{shape.label} ({shape.group_id})")
         else:
-            item.setText(f"{shape.label} ({shape.group_id})")
+            # Multi-shape editing
+            (
+                common_label,
+                common_flags,
+                common_group_id,
+                common_description,
+                common_difficult,
+                common_kie_linking,
+            ) = self._get_common_label_values(selected_shapes)
+            
+            (
+                text,
+                flags,
+                group_id,
+                description,
+                difficult,
+                kie_linking,
+            ) = self.label_dialog.pop_up(
+                text=common_label,
+                flags=common_flags,
+                group_id=common_group_id,
+                description=common_description,
+                difficult=common_difficult,
+                kie_linking=common_kie_linking,
+                move_mode=self._config.get("move_mode", "auto"),
+            )
+            if text is None:
+                return
+            if not self.validate_label(text):
+                self.error_message(
+                    self.tr("Invalid label"),
+                    self.tr("Invalid label '{}' with validation type '{}'").format(
+                        text, self._config["validate_label"]
+                    ),
+                )
+                return
+            if self.attributes and text:
+                text = self.reset_attribute(text)
+            
+            # Store backup before making changes for undo functionality
+            self.canvas.store_shapes()
+            
+            # Apply changes to all selected shapes
+            for shape in selected_shapes:
+                shape.label = text
+                shape.flags = flags
+                shape.group_id = group_id
+                shape.description = description
+                shape.difficult = difficult
+                shape.kie_linking = kie_linking
+                
+                # Update shape color
+                self._update_shape_color(shape)
+                
+                # Update corresponding list item
+                item = self.label_list.find_item_by_shape(shape)
+                if item is not None:
+                    if shape.group_id is None:
+                        color = shape.fill_color.getRgb()[:3]
+                        item.setText("{}".format(html.escape(shape.label)))
+                        item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
+                    else:
+                        item.setText(f"{shape.label} ({shape.group_id})")
+
+            # Add to label history
+            self.label_dialog.add_label_history(text)
+
+            # Update unique label list
+            if not self.unique_label_list.find_items_by_label(text):
+                unique_label_item = self.unique_label_list.create_item_from_label(
+                    text
+                )
+                self.unique_label_list.addItem(unique_label_item)
+                rgb = self._get_rgb_by_label(text)
+                self.unique_label_list.set_item_label(
+                    unique_label_item, text, rgb, LABEL_OPACITY
+                )
+        
         self.set_dirty()
         self.update_combo_box()
         self.update_gid_box()
@@ -2868,7 +2998,7 @@ class LabelingWidget(LabelDialog):
         self.actions.delete.setEnabled(n_selected)
         self.actions.duplicate.setEnabled(n_selected)
         self.actions.copy.setEnabled(n_selected)
-        self.actions.edit.setEnabled(n_selected == 1)
+        self.actions.edit.setEnabled(n_selected >= 1)
         self.actions.union_selection.setEnabled(
             not all(value > 0 for value in allow_merge_shape_type.values())
             and (

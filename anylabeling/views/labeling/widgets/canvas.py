@@ -448,84 +448,93 @@ class Canvas(
             self.current.highlight_clear()
             return
 
+        # Check if Alt is pressed for alt select mode
+        alt_pressed = bool(int(ev.modifiers()) & QtCore.Qt.AltModifier)
+        
         # Polygon copy moving.
         if QtCore.Qt.RightButton & ev.buttons():
-            if self.selected_shapes_copy and self.prev_point:
-                self.override_cursor(CURSOR_MOVE)
-                self.bounded_move_shapes(self.selected_shapes_copy, pos)
-                self.repaint()
-            elif self.selected_shapes:
-                self.selected_shapes_copy = [
-                    s.copy() for s in self.selected_shapes
-                ]
-                self.repaint()
+            # Prevent copy moving when Alt is pressed (alt select mode)
+            if not alt_pressed:
+                if self.selected_shapes_copy and self.prev_point:
+                    self.override_cursor(CURSOR_MOVE)
+                    self.bounded_move_shapes(self.selected_shapes_copy, pos)
+                    self.repaint()
+                elif self.selected_shapes:
+                    self.selected_shapes_copy = [
+                        s.copy() for s in self.selected_shapes
+                    ]
+                    self.repaint()
             return
 
         # Polygon/Vertex moving.
         if QtCore.Qt.LeftButton & ev.buttons():
-            if self.selected_vertex():
-                self.is_move_editing = False
-                try:
-                    self.bounded_move_vertex(pos)
+            # Prevent all editing operations when Alt is pressed (alt select mode)
+            if not alt_pressed:
+                if self.selected_vertex():
+                    self.is_move_editing = False
+                    try:
+                        self.bounded_move_vertex(pos)
+                        self.repaint()
+                        self.moving_shape = True
+                    except IndexError:
+                        return
+                    if self.h_hape.shape_type == "rectangle":
+                        p1 = self.h_hape[0]
+                        p2 = self.h_hape[2]
+                        shape_width = int(abs(p2.x() - p1.x()))
+                        shape_height = int(abs(p2.y() - p1.y()))
+                        self.show_shape.emit(shape_width, shape_height, pos)
+                elif self.selected_shapes and self.prev_point:
+                    self.override_cursor(CURSOR_MOVE)
+                    self.bounded_move_shapes(self.selected_shapes, pos)
                     self.repaint()
                     self.moving_shape = True
-                except IndexError:
-                    return
-                if self.h_hape.shape_type == "rectangle":
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
-                    shape_width = int(abs(p2.x() - p1.x()))
-                    shape_height = int(abs(p2.y() - p1.y()))
-                    self.show_shape.emit(shape_width, shape_height, pos)
-            elif self.selected_shapes and self.prev_point:
-                self.override_cursor(CURSOR_MOVE)
-                self.bounded_move_shapes(self.selected_shapes, pos)
-                self.repaint()
-                self.moving_shape = True
-                if self.selected_shapes[-1].shape_type == "rectangle":
-                    p1 = self.selected_shapes[-1][0]
-                    p2 = self.selected_shapes[-1][2]
-                    shape_width = int(abs(p2.x() - p1.x()))
-                    shape_height = int(abs(p2.y() - p1.y()))
-                    self.show_shape.emit(shape_width, shape_height, pos)
-            else:
-                if (
-                    self.pixmap
-                    and self.pixmap.width()
-                    and self.pixmap.height()
-                ):
-                    self.override_cursor(CURSOR_MOVE)
-                    delta = ev.localPos() - self.prev_pan_point
-                    self.scroll_request.emit(
-                        delta.x() / (self.pixmap.width() * self.scale),
-                        Qt.Horizontal,
-                        1,
-                    )
-                    self.scroll_request.emit(
-                        delta.y() / (self.pixmap.height() * self.scale),
-                        Qt.Vertical,
-                        1,
-                    )
-                    self.repaint()
+                    if self.selected_shapes[-1].shape_type == "rectangle":
+                        p1 = self.selected_shapes[-1][0]
+                        p2 = self.selected_shapes[-1][2]
+                        shape_width = int(abs(p2.x() - p1.x()))
+                        shape_height = int(abs(p2.y() - p1.y()))
+                        self.show_shape.emit(shape_width, shape_height, pos)
+                else:
+                    if (
+                        self.pixmap
+                        and self.pixmap.width()
+                        and self.pixmap.height()
+                    ):
+                        self.override_cursor(CURSOR_MOVE)
+                        delta = ev.localPos() - self.prev_pan_point
+                        self.scroll_request.emit(
+                            delta.x() / (self.pixmap.width() * self.scale),
+                            Qt.Horizontal,
+                            1,
+                        )
+                        self.scroll_request.emit(
+                            delta.y() / (self.pixmap.height() * self.scale),
+                            Qt.Vertical,
+                            1,
+                        )
+                        self.repaint()
             return
 
         if self.editing() and self.is_move_editing:
-            self.override_cursor(CURSOR_MOVE)
-            if self.selected_vertex():
-                try:
-                    self.bounded_move_vertex(pos)
-                    self.repaint()
-                    self.moving_shape = True
-                except IndexError:
-                    return
-                if self.h_hape.shape_type == "rectangle":
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
-                    shape_width = int(abs(p2.x() - p1.x()))
-                    shape_height = int(abs(p2.y() - p1.y()))
-                    self.show_shape.emit(shape_width, shape_height, pos)
-            else:
-                self.is_move_editing = False
+            # Prevent move editing when Alt is pressed (alt select mode)
+            if not alt_pressed:
+                self.override_cursor(CURSOR_MOVE)
+                if self.selected_vertex():
+                    try:
+                        self.bounded_move_vertex(pos)
+                        self.repaint()
+                        self.moving_shape = True
+                    except IndexError:
+                        return
+                    if self.h_hape.shape_type == "rectangle":
+                        p1 = self.h_hape[0]
+                        p2 = self.h_hape[2]
+                        shape_width = int(abs(p2.x() - p1.x()))
+                        shape_height = int(abs(p2.y() - p1.y()))
+                        self.show_shape.emit(shape_width, shape_height, pos)
+                else:
+                    self.is_move_editing = False
 
             return
 
@@ -541,7 +550,7 @@ class Canvas(
             # check if we happen to be inside a shape.
             index = shape.nearest_vertex(pos, self.epsilon / self.scale)
             index_edge = shape.nearest_edge(pos, self.epsilon / self.scale)
-            if index is not None:
+            if index is not None and not alt_pressed:
                 if self.selected_vertex():
                     self.h_hape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex = index
@@ -557,7 +566,7 @@ class Canvas(
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
-            if index_edge is not None and shape.can_add_point():
+            if index_edge is not None and shape.can_add_point() and not alt_pressed:
                 if self.selected_vertex():
                     self.h_hape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex
@@ -580,26 +589,38 @@ class Canvas(
                 self.prev_h_shape = self.h_hape = shape
                 self.prev_h_edge = self.h_edge
                 self.h_edge = None
-                if shape.group_id and shape.shape_type == "rectangle":
-                    tooltip_text = "Click & drag to move shape '{label} {group_id}'".format(
-                        label=shape.label, group_id=shape.group_id
-                    )
-                    self.setToolTip(self.tr(tooltip_text))
-                else:
+                
+                # Set appropriate tooltip and cursor based on Alt key state
+                if alt_pressed:
                     self.setToolTip(
-                        self.tr("Click & drag to move shape '%s'")
+                        self.tr("Click to select/deselect shape '%s'")
                         % shape.label
                     )
+                    self.override_cursor(CURSOR_POINT)
+                else:
+                    if shape.group_id and shape.shape_type == "rectangle":
+                        tooltip_text = "Click & drag to move shape '{label} {group_id}'".format(
+                            label=shape.label, group_id=shape.group_id
+                        )
+                        self.setToolTip(self.tr(tooltip_text))
+                    else:
+                        self.setToolTip(
+                            self.tr("Click & drag to move shape '%s'")
+                            % shape.label
+                        )
+                    self.override_cursor(CURSOR_GRAB)
                 self.setStatusTip(self.toolTip())
-                self.override_cursor(CURSOR_GRAB)
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
                 if self.h_shape_is_hovered:
-                    group_mode = (
-                        int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                    group_mode = bool(
+                        int(ev.modifiers()) & QtCore.Qt.ControlModifier
                     )
-                    self.select_shape_point(
-                        pos, multiple_selection_mode=group_mode
-                    )
+                    # Don't auto-select during Alt+hover to preserve multi-selection state
+                    alt_pressed = bool(int(ev.modifiers()) & QtCore.Qt.AltModifier)
+                    if not alt_pressed:
+                        self.select_shape_point(
+                            pos, multiple_selection_mode=group_mode, alt_selection_mode=False
+                        )
                 self.update()
 
                 if shape.shape_type == "rectangle":
@@ -723,7 +744,7 @@ class Canvas(
                     elif self.create_mode == "linestrip":
                         self.current.add_point(self.line[1])
                         self.line[0] = self.current[-1]
-                        if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
+                        if bool(int(ev.modifiers()) & QtCore.Qt.ControlModifier):
                             self.finalise()
                     # [Feature] support for automatically switching to editing mode
                     # when the cursor moves over an object
@@ -769,39 +790,42 @@ class Canvas(
                     self.drawing_polygon.emit(True)
                     self.update()
             elif self.editing():
-                if self.selected_edge():
+                group_mode = bool(int(ev.modifiers()) & QtCore.Qt.ControlModifier)
+                alt_selection_mode = bool(int(ev.modifiers()) & QtCore.Qt.AltModifier)
+                multiple_selection_mode = group_mode or alt_selection_mode
+                
+                if not alt_selection_mode and self.selected_edge():
                     self.add_point_to_edge()
                 elif (
                     self.selected_vertex()
-                    and int(ev.modifiers()) == QtCore.Qt.ShiftModifier
+                    and bool(int(ev.modifiers()) & QtCore.Qt.ShiftModifier)
                     and self.h_hape.shape_type
                     not in ["rectangle", "rotation", "line"]
                 ):
                     # Delete point if: left-click + SHIFT on a point
                     self.remove_selected_point()
 
-                if self.selected_vertex():
+                if not alt_selection_mode and self.selected_vertex():
                     self.is_move_editing = not self.is_move_editing
                     if self.is_move_editing:
                         self.override_cursor(CURSOR_MOVE)
                     else:
                         self.override_cursor(CURSOR_POINT)
 
-                group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
                 self.select_shape_point(
-                    pos, multiple_selection_mode=group_mode
+                    pos, multiple_selection_mode=multiple_selection_mode, alt_selection_mode=alt_selection_mode
                 )
                 self.prev_point = pos
                 self.prev_pan_point = ev.localPos()
                 self.repaint()
         elif ev.button() == QtCore.Qt.RightButton and self.editing():
-            group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
+            group_mode = bool(int(ev.modifiers()) & QtCore.Qt.ControlModifier)
             if not self.selected_shapes or (
                 self.h_hape is not None
                 and self.h_hape not in self.selected_shapes
             ):
                 self.select_shape_point(
-                    pos, multiple_selection_mode=group_mode
+                    pos, multiple_selection_mode=group_mode, alt_selection_mode=False
                 )
                 self.repaint()
             self.prev_point = pos
@@ -823,10 +847,13 @@ class Canvas(
                 self.repaint()
         elif ev.button() == QtCore.Qt.LeftButton:
             if self.editing():
+                # Only deselect hovered shape if it's the only selected shape
+                # This prevents interference with multi-selection (Alt+click) workflows
                 if (
                     self.h_hape is not None
                     and self.h_shape_is_selected
                     and not self.moving_shape
+                    and len(self.selected_shapes) == 1
                 ):
                     self.selection_changed.emit(
                         [x for x in self.selected_shapes if x != self.h_hape]
@@ -899,8 +926,38 @@ class Canvas(
         self.selection_changed.emit(shapes)
         self.update()
 
-    def select_shape_point(self, point, multiple_selection_mode):
+    def select_shape_point(self, point, multiple_selection_mode, alt_selection_mode=False):
         """Select the first shape created which contains this point."""
+        # If alt_selection_mode is True, skip vertex manipulation and go directly to shape selection
+        if alt_selection_mode:
+            # Force shape selection mode - ignore any vertex/edge hover states
+            for shape in reversed(self.shapes):
+                if (
+                    self.is_visible(shape)
+                    and len(shape.points) > 1
+                    and shape.contains_point(point)
+                ):
+                    self.set_hiding()
+                    if shape not in self.selected_shapes:
+                        if multiple_selection_mode:
+                            self.selection_changed.emit(
+                                self.selected_shapes + [shape]
+                            )
+                        else:
+                            self.selection_changed.emit([shape])
+                        self.h_shape_is_selected = False
+                    else:
+                        # Alt+click on already selected shape should deselect it
+                        remaining_shapes = [s for s in self.selected_shapes if s != shape]
+                        self.selection_changed.emit(remaining_shapes)
+                        self.h_shape_is_selected = False
+                    self.calculate_offsets(point)
+                    return
+            # If no shape was clicked, deselect all
+            self.deselect_shape()
+            return
+            
+        # Normal mode - handle vertex selection if available
         if self.selected_vertex():  # A vertex is marked for selection.
             index, shape = self.h_vertex, self.h_hape
             shape.highlight_vertex(index, shape.MOVE_VERTEX)
@@ -919,26 +976,26 @@ class Canvas(
                 self.calculate_offsets(point)
                 return
 
-        else:
-            for shape in reversed(self.shapes):
-                if (
-                    self.is_visible(shape)
-                    and len(shape.points) > 1
-                    and shape.contains_point(point)
-                ):
-                    self.set_hiding()
-                    if shape not in self.selected_shapes:
-                        if multiple_selection_mode:
-                            self.selection_changed.emit(
-                                self.selected_shapes + [shape]
-                            )
-                        else:
-                            self.selection_changed.emit([shape])
-                        self.h_shape_is_selected = False
+        # No vertex selected, try shape selection
+        for shape in reversed(self.shapes):
+            if (
+                self.is_visible(shape)
+                and len(shape.points) > 1
+                and shape.contains_point(point)
+            ):
+                self.set_hiding()
+                if shape not in self.selected_shapes:
+                    if multiple_selection_mode:
+                        self.selection_changed.emit(
+                            self.selected_shapes + [shape]
+                        )
                     else:
-                        self.h_shape_is_selected = True
-                    self.calculate_offsets(point)
-                    return
+                        self.selection_changed.emit([shape])
+                    self.h_shape_is_selected = False
+                else:
+                    self.h_shape_is_selected = True
+                self.calculate_offsets(point)
+                return
         self.deselect_shape()
 
     def calculate_offsets(self, point):
