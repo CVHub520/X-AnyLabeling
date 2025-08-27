@@ -16,7 +16,6 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QComboBox,
     QButtonGroup,
-    QLineEdit,
     QMessageBox,
     QFileDialog,
     QTextEdit,
@@ -64,12 +63,10 @@ class VQADialog(QDialog):
         Initialize and setup the user interface layout and components.
         Creates the main layout with left panel (image display) and right panel (controls).
         """
-        # Main horizontal layout with splitters
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(20)
 
-        # Create main splitter for two columns
         self.main_splitter = QSplitter(Qt.Horizontal)
         self.main_splitter.setHandleWidth(3)
         self.main_splitter.setStyleSheet(get_main_splitter_style())
@@ -195,11 +192,13 @@ class VQADialog(QDialog):
         page_layout.setContentsMargins(0, 0, 0, 0)
         page_layout.setSpacing(2)
 
-        self.page_input = QLineEdit()
+        self.page_input = PageInputLineEdit()
+        self.page_input.vqa_dialog = self
         self.page_input.setFixedSize(68, DEFAULT_COMPONENT_HEIGHT)
         self.page_input.setAlignment(Qt.AlignCenter)
         self.page_input.setStyleSheet(get_page_input_style())
-        self.page_input.returnPressed.connect(lambda: self.switch_image("jump"))
+        self.page_input.textChanged.connect(self.validate_page_input)
+        self.page_input.editingFinished.connect(self.on_page_input_finished)
 
         page_layout.addWidget(self.page_input)
 
@@ -306,10 +305,11 @@ class VQADialog(QDialog):
             return
 
         if mode == "jump":
-            current_index = int(self.page_input.text())
+            user_input = int(self.page_input.text())
+            current_index = user_input - 1
             if (
-                current_index < 1
-                or current_index > len(self.parent().image_list) - 1
+                current_index < 0
+                or current_index >= len(self.parent().image_list)
             ):
                 return
         elif mode == "prev":
@@ -329,6 +329,10 @@ class VQADialog(QDialog):
 
         try:
             self.switching_image = True
+
+            original_sizes = self.main_splitter.sizes()
+            was_collapsed = original_sizes[0] == 0
+
             self.save_current_image_data()
             new_file = self.parent().image_list[current_index]
             self.parent().load_file(new_file)
@@ -336,6 +340,17 @@ class VQADialog(QDialog):
             self.update_navigation_state()
             self.clear_all_components_silent()
             self.load_current_image_data()
+
+            def restore_panel_state():
+                if was_collapsed:
+                    self.main_splitter.setSizes([0, 600])
+                    self.toggle_panel_button_right.setVisible(True)
+                else:
+                    self.main_splitter.setSizes([600, 600])
+                    self.toggle_panel_button_right.setVisible(False)
+
+            QTimer.singleShot(10, restore_panel_state)
+
             self.switching_image = False
         except (ValueError, AttributeError):
             self.switching_image = False
@@ -1632,6 +1647,60 @@ class VQADialog(QDialog):
 
         widget.blockSignals(False)
         widget.currentTextChanged.connect(self.save_current_image_data)
+
+    def validate_page_input(self, text):
+        """Real-time validation of page input"""
+        if not text:
+            return
+
+        try:
+            if not text.isdigit():
+                cursor_pos = self.page_input.cursorPosition()
+                clean_text = ''.join(c for c in text if c.isdigit())
+                self.page_input.setText(clean_text)
+                self.page_input.setCursorPosition(min(cursor_pos, len(clean_text)))
+                return
+
+            page_num = int(text)
+            max_pages = len(self.parent().image_list) if self.parent().image_list else 1
+
+            if page_num > max_pages:
+                self.page_input.setText(str(max_pages))
+                self.page_input.setCursorPosition(len(str(max_pages)))
+
+        except ValueError:
+            pass
+
+    def on_page_input_finished(self):
+        """Handle when user finishes editing page input"""
+        text = self.page_input.text().strip()
+
+        if not text:
+            self.restore_current_page_number()
+            return
+
+        try:
+            page_num = int(text)
+            max_pages = len(self.parent().image_list) if self.parent().image_list else 1
+
+            if page_num < 1:
+                self.page_input.setText("1")
+            elif page_num > max_pages:
+                self.page_input.setText(str(max_pages))
+
+        except ValueError:
+            self.restore_current_page_number()
+
+    def restore_current_page_number(self):
+        """Restore the current page number in the input"""
+        if self.parent().filename and self.parent().image_list:
+            try:
+                current_index = self.parent().image_list.index(self.parent().filename)
+                self.page_input.setText(str(current_index + 1))
+            except (ValueError, AttributeError):
+                self.page_input.setText("1")
+        else:
+            self.page_input.setText("1")
 
     def closeEvent(self, event):
         """

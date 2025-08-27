@@ -1,5 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QLineEdit, QTextEdit
 
 
 class AutoResizeTextEdit(QTextEdit):
@@ -46,6 +46,28 @@ class AutoResizeTextEdit(QTextEdit):
 
         if self.height() != new_height:
             self.setFixedHeight(new_height)
+
+
+class PageInputLineEdit(QLineEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.vqa_dialog = None
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+            text = self.text().strip()
+
+            if not text:
+                logger.warning("Empty input, restoring current page")
+                if self.vqa_dialog:
+                    self.vqa_dialog.restore_current_page_number()
+                return
+
+            if self.vqa_dialog:
+                self.vqa_dialog.switch_image("jump")
+            return
+
+        super().keyPressEvent(event)
 
 
 def create_truncated_widget(text, widget_class, max_width=500):
