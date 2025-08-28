@@ -65,13 +65,43 @@ class SegmentAnythingONNX:
         points, labels = np.array(points), np.array(labels)
         return points, labels
 
-    def run_encoder(self, encoder_inputs):
-        """Run encoder"""
-        features = self.encoder_session.run(None, encoder_inputs)
-        image_embeddings, interm_embeddings = features[0], np.stack(
-            features[1:]
-        )
-        return image_embeddings, interm_embeddings
+    def run_encoder(self, encoder_inputs, release_after=True):
+        """
+        Run encoder inference and return embeddings.
+
+        Args:
+            encoder_inputs (dict[str, np.ndarray]): Input tensors for the encoder,
+                e.g. {self.encoder_input_name: cv_image.astype(np.float32)}.
+            release_after (bool): If True, release GPU memory and close the session
+                after inference. Defaults to True.
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Image embeddings and stacked intermediate embeddings.
+        """
+        # 1) 필요 시 세션 생성 (lazy init)
+        if self.encoder_session is None:
+            self.encoder_session = onnxruntime.InferenceSession(
+                self.encoder_model_path, providers=self.providers
+            )
+
+        features = None
+        try:
+            # 2) 추론
+            features = self.encoder_session.run(None, encoder_inputs)
+
+            # 3) 필요한 출력만 반환
+            image_embeddings = features[0]
+            interm_embeddings = np.stack(features[1:])
+            return image_embeddings, interm_embeddings
+
+        finally:
+            # 4) 필요 시 메모리/세션 정리
+            if release_after:
+                del features
+                import gc
+                gc.collect()
+                self.encoder_session = None
+
 
     @staticmethod
     def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int):

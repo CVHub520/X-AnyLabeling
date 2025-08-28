@@ -45,12 +45,43 @@ class SegmentAnythingONNX:
         points, labels = np.array(points), np.array(labels)
         return points, labels
 
-    def run_encoder(self, encoder_inputs):
-        """Run encoder"""
-        output = self.encoder_session.run(None, encoder_inputs)
-        image_embedding = output[0]
-        return image_embedding
+    def run_encoder(self, encoder_inputs, release_after=True):
+        """
+        Run encoder and return image embedding.
 
+        Args:
+            encoder_inputs (dict[str, np.ndarray]): Input tensors for the encoder,
+                e.g. {self.encoder_input_name: cv_image.astype(np.float32)}.
+            release_after (bool): If True, release GPU memory and close the session
+                after inference. Defaults to True.
+
+        Returns:
+            np.ndarray: Image embedding output.
+        """
+        # 1) 필요 시 세션 생성 (lazy init)
+        if self.encoder_session is None:
+            self.encoder_session = onnxruntime.InferenceSession(
+                self.encoder_model_path, providers=self.providers
+            )
+
+        output = None
+        try:
+            # 2) 추론
+            output = self.encoder_session.run(None, encoder_inputs)
+
+            # 3) 필요한 출력만 반환
+            image_embedding = output[0]
+            return image_embedding
+
+        finally:
+            # 4) 필요 시 메모리/세션 정리
+            if release_after:
+                del output
+                import gc
+                gc.collect()
+                self.encoder_session = None
+
+    
     @staticmethod
     def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int):
         """
