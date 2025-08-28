@@ -11,7 +11,7 @@ from anylabeling.views.labeling.chatbot.config import (
     PROVIDERS_CONFIG_PATH,
 )
 from anylabeling.views.labeling.logger import logger
-from anylabeling.views.labeling.vqa.config import MAX_TOKENS, REQUEST_TIMEOUT
+from anylabeling.views.labeling.vqa.config import REQUEST_TIMEOUT
 
 
 class AIWorkerThread(QThread):
@@ -42,10 +42,16 @@ class AIWorkerThread(QThread):
             settings = models_config.get("settings", {})
             provider = settings.get("provider")
             model_id = settings.get("model_id")
+            max_tokens = settings.get("max_length", 2048)
             temperature = settings.get("temperature", 0.7)
+            system_prompt = settings.get("system_prompt", None)
 
             if not provider or not model_id:
-                self.finished.emit("", False, "Please configure model and provider in Chatbot (Ctrl+B)")
+                self.finished.emit(
+                    "",
+                    False,
+                    "Please configure model and provider in Chatbot (Ctrl+B)",
+                )
                 return
 
             provider_info = providers_config.get(provider, {})
@@ -53,7 +59,11 @@ class AIWorkerThread(QThread):
             api_key = provider_info.get("api_key")
 
             if not api_address or not api_key:
-                self.finished.emit("", False, f"Please configure API key for {provider} in Chatbot (Ctrl+B)")
+                self.finished.emit(
+                    "",
+                    False,
+                    f"Please configure API key for {provider} in Chatbot (Ctrl+B)",
+                )
                 return
 
             if self._is_cancelled:
@@ -62,7 +72,15 @@ class AIWorkerThread(QThread):
             # Process special character references
             processed_prompt = self.process_special_references(self.prompt)
 
-            result = self.call_openai_api(api_address, api_key, model_id, processed_prompt, temperature)
+            result = self.call_openai_api(
+                api_address,
+                api_key,
+                model_id,
+                processed_prompt,
+                temperature,
+                max_tokens,
+                system_prompt,
+            )
 
             if not self._is_cancelled:
                 self.finished.emit(result, True, "")
@@ -113,18 +131,30 @@ class AIWorkerThread(QThread):
             logger.error(f"Failed to load providers config: {e}")
         return None
 
-    def call_openai_api(self, api_address, api_key, model_id, prompt, temperature):
+    def call_openai_api(
+        self,
+        api_address,
+        api_key,
+        model_id,
+        prompt,
+        temperature,
+        max_tokens,
+        system_prompt,
+    ):
         """Call OpenAI-compatible API with optional image support"""
         headers = {
             "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
+        messages = []
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
 
         if hasattr(self, "has_image_reference") and self.has_image_reference:
             with open(self.image_path, "rb") as f:
                 image_data = base64.b64encode(f.read()).decode("utf-8")
 
-            messages = [
+            messages.append(
                 {
                     "role": "user",
                     "content": [
@@ -137,17 +167,17 @@ class AIWorkerThread(QThread):
                         {"type": "text", "text": prompt},
                     ],
                 }
-            ]
+            )
         else:
-            messages = [
-                {"role": "user", "content": prompt}
-            ]
+            messages.append({"role": "user", "content": prompt})
 
         data = {
             "model": model_id,
             "messages": messages,
-            "temperature": temperature / 100.0 if temperature > 2 else temperature,
-            "max_tokens": MAX_TOKENS
+            "temperature": (
+                temperature / 100.0 if temperature > 2 else temperature
+            ),
+            "max_tokens": max_tokens,
         }
 
         # Ensure API address ends with correct path
@@ -156,7 +186,9 @@ class AIWorkerThread(QThread):
         if not api_address.endswith("chat/completions"):
             api_address += "chat/completions"
 
-        response = requests.post(api_address, headers=headers, json=data, timeout=REQUEST_TIMEOUT)
+        response = requests.post(
+            api_address, headers=headers, json=data, timeout=REQUEST_TIMEOUT
+        )
         response.raise_for_status()
 
         result = response.json()

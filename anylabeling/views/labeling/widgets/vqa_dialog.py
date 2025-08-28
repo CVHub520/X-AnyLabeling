@@ -3,22 +3,22 @@ import json
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import (
-    QDialog,
-    QHBoxLayout,
-    QVBoxLayout,
-    QLabel,
-    QPushButton,
-    QWidget,
-    QScrollArea,
-    QSplitter,
-    QFrame,
-    QRadioButton,
+    QButtonGroup,
     QCheckBox,
     QComboBox,
-    QButtonGroup,
-    QMessageBox,
+    QDialog,
     QFileDialog,
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QRadioButton,
+    QScrollArea,
+    QSplitter,
     QTextEdit,
+    QVBoxLayout,
+    QWidget,
 )
 from PyQt5.QtGui import QPixmap, QIcon, QIntValidator
 
@@ -113,7 +113,7 @@ class VQADialog(QDialog):
         container_layout.addWidget(self.image_label, 1)
 
         left_layout.addWidget(self.image_container, 1)
-        left_widget.setMaximumWidth(600)
+        left_widget.setMaximumWidth(PANEL_SIZE)
 
         ################################
         #          Right panel         #
@@ -130,7 +130,9 @@ class VQADialog(QDialog):
         action_layout.setSpacing(8)
 
         self.toggle_panel_button_right = QPushButton()
-        self.toggle_panel_button_right.setIcon(QIcon(new_icon("sidebar", "svg")))
+        self.toggle_panel_button_right.setIcon(
+            QIcon(new_icon("sidebar", "svg"))
+        )
         self.toggle_panel_button_right.setFixedSize(*ICON_SIZE_NORMAL)
         self.toggle_panel_button_right.setStyleSheet(get_button_style())
         self.toggle_panel_button_right.setToolTip(self.tr("Toggle Sidebar"))
@@ -138,20 +140,30 @@ class VQADialog(QDialog):
         self.toggle_panel_button_right.setVisible(False)
 
         self.export_button = QPushButton(self.tr("Export Labels"))
-        self.export_button.setStyleSheet(get_success_button_style())
+        self.export_button.setStyleSheet(
+            get_dialog_button_style("success", "medium")
+        )
         self.export_button.clicked.connect(self.export_labels)
 
         self.clear_button = QPushButton(self.tr("Clear All"))
-        self.clear_button.setStyleSheet(get_danger_button_style())
+        self.clear_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
         self.clear_button.clicked.connect(self.clear_current)
 
         self.add_component_button = QPushButton(self.tr("Add Compo"))
-        self.add_component_button.setStyleSheet(get_primary_button_style())
+        self.add_component_button.setStyleSheet(
+            get_dialog_button_style("primary", "medium")
+        )
         self.add_component_button.clicked.connect(self.add_custom_component)
 
         self.delete_component_button = QPushButton(self.tr("Del Compo"))
-        self.delete_component_button.setStyleSheet(get_secondary_button_style())
-        self.delete_component_button.clicked.connect(self.delete_custom_component)
+        self.delete_component_button.setStyleSheet(
+            get_dialog_button_style("danger", "medium")
+        )
+        self.delete_component_button.clicked.connect(
+            self.delete_custom_component
+        )
 
         action_layout.addWidget(self.toggle_panel_button_right)
         action_layout.addWidget(self.export_button, 1)
@@ -218,7 +230,7 @@ class VQADialog(QDialog):
 
         self.main_splitter.addWidget(left_widget)
         self.main_splitter.addWidget(right_widget)
-        self.main_splitter.setSizes([600, 600])
+        self.main_splitter.setSizes([PANEL_SIZE, PANEL_SIZE])
 
         self.main_splitter.setStretchFactor(0, 1)
         self.main_splitter.setStretchFactor(1, 0)
@@ -229,10 +241,10 @@ class VQADialog(QDialog):
     def toggle_left_panel(self):
         sizes = self.main_splitter.sizes()
         if sizes[0] == 0:
-            self.main_splitter.setSizes([600, 600])
+            self.main_splitter.setSizes([PANEL_SIZE, PANEL_SIZE])
             self.toggle_panel_button_right.setVisible(False)
         else:
-            self.main_splitter.setSizes([0, 600])
+            self.main_splitter.setSizes([0, PANEL_SIZE])
             self.toggle_panel_button_right.setVisible(True)
 
     def load_config(self):
@@ -307,9 +319,8 @@ class VQADialog(QDialog):
         if mode == "jump":
             user_input = int(self.page_input.text())
             current_index = user_input - 1
-            if (
-                current_index < 0
-                or current_index >= len(self.parent().image_list)
+            if current_index < 0 or current_index >= len(
+                self.parent().image_list
             ):
                 return
         elif mode == "prev":
@@ -343,10 +354,10 @@ class VQADialog(QDialog):
 
             def restore_panel_state():
                 if was_collapsed:
-                    self.main_splitter.setSizes([0, 600])
+                    self.main_splitter.setSizes([0, PANEL_SIZE])
                     self.toggle_panel_button_right.setVisible(True)
                 else:
-                    self.main_splitter.setSizes([600, 600])
+                    self.main_splitter.setSizes([PANEL_SIZE, PANEL_SIZE])
                     self.toggle_panel_button_right.setVisible(False)
 
             QTimer.singleShot(10, restore_panel_state)
@@ -448,7 +459,7 @@ class VQADialog(QDialog):
                 self.set_component_default_value(
                     widget, comp_type, comp["options"]
                 )
-        
+
         self.adjust_all_text_widgets_height()
 
     def update_navigation_state(self):
@@ -933,17 +944,24 @@ class VQADialog(QDialog):
                 self.loading_msg = AILoadingDialog(self)
 
                 current_image_path = None
-                if hasattr(self.parent(), "filename") and self.parent().filename:
+                if (
+                    hasattr(self.parent(), "filename")
+                    and self.parent().filename
+                ):
                     current_image_path = self.parent().filename
 
-                self.ai_worker = AIWorkerThread(prompt, current_text, {}, current_image_path)
+                self.ai_worker = AIWorkerThread(
+                    prompt, current_text, {}, current_image_path
+                )
                 self.ai_worker.finished.connect(
                     lambda result, success, error: self.handle_ai_result(
                         result, success, error, widget
                     )
                 )
 
-                self.loading_msg.cancel_button.clicked.connect(self.cancel_ai_processing)
+                self.loading_msg.cancel_button.clicked.connect(
+                    self.cancel_ai_processing
+                )
                 self.ai_worker.start()
                 if self.loading_msg.exec_() == QDialog.Rejected:
                     self.cancel_ai_processing()
@@ -971,34 +989,38 @@ class VQADialog(QDialog):
 
         if success:
             dialog = QDialog(self)
-            dialog.setWindowTitle("AI Generated Result")
+            dialog.setWindowTitle(self.tr("AI Generated Result"))
             dialog.setModal(True)
             dialog.resize(500, 400)
-            
+
             layout = QVBoxLayout(dialog)
             layout.setSpacing(10)
-            
+
             text_edit = QTextEdit()
             text_edit.setPlainText(result)
             text_edit.setReadOnly(True)
             layout.addWidget(text_edit)
-            
+
             button_layout = QHBoxLayout()
             button_layout.addStretch()
-            
-            apply_button = QPushButton("Apply")
-            apply_button.setStyleSheet(get_primary_button_style())
-            cancel_button = QPushButton("Cancel")
-            cancel_button.setStyleSheet(get_secondary_button_style())
-            
+
+            apply_button = QPushButton(self.tr("Apply"))
+            apply_button.setStyleSheet(
+                get_dialog_button_style("primary", "medium")
+            )
+            cancel_button = QPushButton(self.tr("Cancel"))
+            cancel_button.setStyleSheet(
+                get_dialog_button_style("secondary", "medium")
+            )
+
             button_layout.addWidget(apply_button)
             button_layout.addWidget(cancel_button)
             layout.addLayout(button_layout)
-            
+
             apply_button.clicked.connect(dialog.accept)
             cancel_button.clicked.connect(dialog.reject)
             apply_button.setDefault(True)
-            
+
             reply = dialog.exec_()
 
             if reply == QDialog.Accepted:
@@ -1012,7 +1034,7 @@ class VQADialog(QDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Error"),
-                self.tr("Failed to generate content:\n") + error_message
+                self.tr("Failed to generate content:\n") + error_message,
             )
 
     def create_component(self, component_data, from_config=False):
@@ -1656,13 +1678,19 @@ class VQADialog(QDialog):
         try:
             if not text.isdigit():
                 cursor_pos = self.page_input.cursorPosition()
-                clean_text = ''.join(c for c in text if c.isdigit())
+                clean_text = "".join(c for c in text if c.isdigit())
                 self.page_input.setText(clean_text)
-                self.page_input.setCursorPosition(min(cursor_pos, len(clean_text)))
+                self.page_input.setCursorPosition(
+                    min(cursor_pos, len(clean_text))
+                )
                 return
 
             page_num = int(text)
-            max_pages = len(self.parent().image_list) if self.parent().image_list else 1
+            max_pages = (
+                len(self.parent().image_list)
+                if self.parent().image_list
+                else 1
+            )
 
             if page_num > max_pages:
                 self.page_input.setText(str(max_pages))
@@ -1681,7 +1709,11 @@ class VQADialog(QDialog):
 
         try:
             page_num = int(text)
-            max_pages = len(self.parent().image_list) if self.parent().image_list else 1
+            max_pages = (
+                len(self.parent().image_list)
+                if self.parent().image_list
+                else 1
+            )
 
             if page_num < 1:
                 self.page_input.setText("1")
@@ -1695,7 +1727,9 @@ class VQADialog(QDialog):
         """Restore the current page number in the input"""
         if self.parent().filename and self.parent().image_list:
             try:
-                current_index = self.parent().image_list.index(self.parent().filename)
+                current_index = self.parent().image_list.index(
+                    self.parent().filename
+                )
                 self.page_input.setText(str(current_index + 1))
             except (ValueError, AttributeError):
                 self.page_input.setText("1")

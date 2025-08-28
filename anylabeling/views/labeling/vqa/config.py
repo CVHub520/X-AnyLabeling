@@ -13,6 +13,7 @@ FONT_SIZE_SMALL = "11px"
 FONT_SIZE_NORMAL = "13px"
 FONT_SIZE_LARGE = "16px"
 DEFAULT_COMPONENT_HEIGHT = 32
+PANEL_SIZE = 600
 ICON_SIZE_NORMAL = (32, 32)
 ICON_SIZE_SMALL = (16, 16)
 
@@ -35,6 +36,35 @@ THEME = {
     "error": "#FF453A",  # Refined red
 }
 
+# Button color schemes
+BUTTON_COLORS = {
+    "primary": {
+        "background": "#0077ed",
+        "hover": "#0066cc",
+        "pressed": "#005bb5",
+        "text": "white",
+    },
+    "secondary": {
+        "background": "#f5f5f7",
+        "hover": "#e5e5e5",
+        "pressed": "#d6d6d6",
+        "text": "#1d1d1f",
+        "border": "#d2d2d7",
+    },
+    "success": {
+        "background": "#10b981",
+        "hover": "#059669",
+        "pressed": "#047857",
+        "text": "white",
+    },
+    "danger": {
+        "background": "#dc2626",
+        "hover": "#b91c1c",
+        "pressed": "#991b1b",
+        "text": "white",
+    },
+}
+
 SUPPORTED_WIDGETS = [
     "QLineEdit",
     "QRadioButton",
@@ -43,12 +73,11 @@ SUPPORTED_WIDGETS = [
 ]
 
 # AI Assistant
-MAX_TOKENS = 2048
 REQUEST_TIMEOUT = 120
 DEFAULT_TEMPLATES = {
     # @text
     "Condense text": "Please make this text more concise while keeping the key points. Output the condensed version only:\n@text",
-    "Academic style": "Please rewrite this text in a formal academic style. Return only the reformatted text:\n@text", 
+    "Academic style": "Please rewrite this text in a formal academic style. Return only the reformatted text:\n@text",
     "Clarify meaning": "Please break down and explain the meaning of this text. Provide only the explanation:\n@text",
     "Grammar check": "Please review and correct any grammatical errors in this text. Return only the corrected version:\n@text",
     "Enhance writing": "Please refine and polish this text to make it more effective. Return only the enhanced version:\n@text",
@@ -58,5 +87,5 @@ DEFAULT_TEMPLATES = {
     "Image Description": "@image Describe this image in detail.",
     "OCR": "@image Read all texts in the image, output in lines.",
     "Text Recognition": "@image Recognise all texts in the image, output in lines.",
-    "Text Spotting": "@image Spotting all the text in the image with line-level, and output in JSON format."
+    "Text Spotting": "@image Spotting all the text in the image with line-level, and output in JSON format.",
 }

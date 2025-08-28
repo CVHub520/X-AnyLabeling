@@ -58,7 +58,6 @@ class PageInputLineEdit(QLineEdit):
             text = self.text().strip()
 
             if not text:
-                logger.warning("Empty input, restoring current page")
                 if self.vqa_dialog:
                     self.vqa_dialog.restore_current_page_number()
                 return

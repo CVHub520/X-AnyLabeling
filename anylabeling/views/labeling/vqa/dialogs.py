@@ -29,15 +29,19 @@ from anylabeling.views.labeling.vqa.config import (
     SUPPORTED_WIDGETS,
 )
 from anylabeling.views.labeling.vqa.style import (
-    get_danger_button_style,
-    get_filename_label_style,
-    get_page_input_style,
-    get_primary_button_style,
-    get_secondary_button_style,
-    get_status_label_style,
+    get_content_input_style,
     get_component_dialog_combobox_style,
+    get_dialog_button_style,
+    get_filename_label_style,
+    get_name_input_style,
+    get_message_label_style,
+    get_page_input_style,
+    get_prompt_input_style,
+    get_status_label_style,
+    get_table_style,
+    get_title_label_style,
+    get_ui_style,
 )
-from anylabeling.views.labeling.utils.qt import new_icon_path
 
 
 class QComboBox(QComboBox):
@@ -58,14 +62,7 @@ class PromptTemplateDialog(QDialog):
         self.load_templates()
 
     def setup_ui(self):
-        self.setStyleSheet(
-            """
-            QDialog {
-                background-color: white;
-                border-radius: 8px;
-            }
-            """
-        )
+        self.setStyleSheet(get_ui_style())
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
@@ -73,20 +70,16 @@ class PromptTemplateDialog(QDialog):
 
         self.table = QTableWidget()
         self.table.setColumnCount(3)
-        self.table.setHorizontalHeaderLabels([
-            self.tr("Select"), 
-            self.tr("Template Name"), 
-            self.tr("Action")
-        ])
+        self.table.setHorizontalHeaderLabels(
+            [self.tr("Select"), self.tr("Template Name"), self.tr("Action")]
+        )
 
-        self.table.setStyleSheet(self.get_table_style())
+        self.table.setStyleSheet(get_table_style())
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self.table.setSelectionMode(QAbstractItemView.NoSelection)
         self.table.setAlternatingRowColors(True)
         self.table.setShowGrid(False)
         self.table.verticalHeader().setVisible(False)
-        
-        # Add double click event
         self.table.itemDoubleClicked.connect(self.on_item_double_clicked)
 
         header = self.table.horizontalHeader()
@@ -101,143 +94,30 @@ class PromptTemplateDialog(QDialog):
         button_layout = QHBoxLayout()
 
         add_button = QPushButton(self.tr("Add"))
-        add_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #10b981;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-weight: 500;
-                font-size: 13px;
-                min-width: 100px;
-                height: 36px;
-                padding: 0 2px;
-            }
-            QPushButton:hover {
-                background-color: #059669;
-            }
-            QPushButton:pressed {
-                background-color: #047857;
-            }
-            """
-        )
+        add_button.setStyleSheet(get_dialog_button_style("success", "medium"))
         add_button.clicked.connect(self.add_template)
         button_layout.addWidget(add_button)
-
         button_layout.addStretch()
 
         cancel_btn = QPushButton(self.tr("Cancel"))
         cancel_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #f5f5f7;
-                border: 1px solid #d2d2d7;
-                border-radius: 8px;
-                font-weight: 500;
-                font-size: 13px;
-                color: #1d1d1f;
-                min-width: 100px;
-                height: 36px;
-                padding: 0 2px;
-            }
-            QPushButton:hover {
-                background-color: #e5e5e5;
-            }
-            QPushButton:pressed {
-                background-color: #d6d6d6;
-            }
-            """
+            get_dialog_button_style("secondary", "medium")
         )
         cancel_btn.clicked.connect(self.reject)
 
         ok_btn = QPushButton(self.tr("OK"))
-        ok_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #0077ed;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-weight: 500;
-                font-size: 13px;
-                min-width: 100px;
-                height: 36px;
-                padding: 0 2px;
-            }
-            QPushButton:hover {
-                background-color: #0066cc;
-            }
-            QPushButton:pressed {
-                background-color: #005bb5;
-            }
-            """
-        )
+        ok_btn.setStyleSheet(get_dialog_button_style("primary", "medium"))
         ok_btn.clicked.connect(self.accept)
 
         button_layout.addWidget(cancel_btn)
         button_layout.addWidget(ok_btn)
         layout.addLayout(button_layout)
 
-    def get_table_style(self):
-        return f"""
-            QTableWidget {{
-                border: 1px solid #E5E7EB;
-                border-radius: 0px;
-                background-color: white;
-                gridline-color: transparent;
-                outline: none;
-            }}
-            QTableWidget::item {{
-                padding: 6px 12px;
-                border: none;
-                border-bottom: 1px solid #F3F4F6;
-                color: #374151;
-                font-size: 13px;
-                outline: none;
-            }}
-            QTableWidget::item:hover {{
-                background-color: #F9FAFB;
-            }}
-            QHeaderView::section {{
-                background-color: #F8FAFC;
-                color: #6B7280;
-                font-weight: 600;
-                font-size: 12px;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-                padding: 8px 12px;
-                border: none;
-                border-bottom: 2px solid #E5E7EB;
-                border-right: 1px solid #F3F4F6;
-                outline: none;
-                height: 28px;
-            }}
-            QCheckBox {{
-                spacing: 6px;
-            }}
-            QCheckBox::indicator {{
-                width: 16px;
-                height: 16px;
-                border-radius: 3px;
-                border: 1px solid #D2D2D7;
-                background-color: white;
-            }}
-            QCheckBox::indicator:checked {{
-                background-color: white;
-                border: 1px solid #D2D2D7;
-                image: url({new_icon_path("checkmark", "svg")});
-            }}
-        """
-
     def get_default_templates(self):
         """Get default system templates"""
         return [
-            {
-                "name": name,
-                "content": content,
-                "is_system": True
-            } for name, content in DEFAULT_TEMPLATES.items()
+            {"name": name, "content": content, "is_system": True}
+            for name, content in DEFAULT_TEMPLATES.items()
         ]
 
     def load_templates(self):
@@ -266,7 +146,9 @@ class PromptTemplateDialog(QDialog):
 
         for row, template in enumerate(templates):
             checkbox = QCheckBox()
-            checkbox.toggled.connect(lambda checked, r=row: self.on_checkbox_toggled(r, checked))
+            checkbox.toggled.connect(
+                lambda checked, r=row: self.on_checkbox_toggled(r, checked)
+            )
             checkbox_widget = QWidget()
             checkbox_layout = QVBoxLayout(checkbox_widget)
             checkbox_layout.addWidget(checkbox)
@@ -291,39 +173,17 @@ class PromptTemplateDialog(QDialog):
             if template["is_system"]:
                 delete_btn.setEnabled(False)
                 delete_btn.setStyleSheet(
-                    """
-                    QPushButton {
-                        background-color: #F3F4F6;
-                        color: #9CA3AF;
-                        border: 1px solid #E5E7EB;
-                        border-radius: 4px;
-                        font-size: 11px;
-                        font-weight: 500;
-                    }
-                    """
+                    get_dialog_button_style(
+                        "secondary", "small", disabled=True
+                    )
                 )
             else:
                 delete_btn.setStyleSheet(
-                    """
-                    QPushButton {
-                        background-color: #DC2626;
-                        color: white;
-                        border: 1px solid #DC2626;
-                        border-radius: 4px;
-                        font-size: 11px;
-                        font-weight: 500;
-                    }
-                    QPushButton:hover {
-                        background-color: #B91C1C;
-                        border: 1px solid #B91C1C;
-                    }
-                    QPushButton:pressed {
-                        background-color: #991B1B;
-                        border: 1px solid #991B1B;
-                    }
-                    """
+                    get_dialog_button_style("danger", "small")
                 )
-                delete_btn.clicked.connect(lambda _, r=row: self.delete_template(r))
+                delete_btn.clicked.connect(
+                    lambda _, r=row: self.delete_template(r)
+                )
 
             delete_widget = QWidget()
             delete_layout = QVBoxLayout(delete_widget)
@@ -351,7 +211,7 @@ class PromptTemplateDialog(QDialog):
             if name_item:
                 self.selected_template = {
                     "name": name_item.text(),
-                    "content": name_item.toolTip()
+                    "content": name_item.toolTip(),
                 }
         else:
             self.selected_template = None
@@ -361,7 +221,9 @@ class PromptTemplateDialog(QDialog):
         dialog = AddTemplateDialog(self)
         if dialog.exec_() == QDialog.Accepted:
             template_data = dialog.get_template_data()
-            self.save_user_template(template_data["name"], template_data["content"])
+            self.save_user_template(
+                template_data["name"], template_data["content"]
+            )
             self.load_templates()
 
     def delete_template(self, row):
@@ -375,7 +237,7 @@ class PromptTemplateDialog(QDialog):
             self.tr("Delete Template"),
             self.tr("Are you sure you want to delete this template?"),
             QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
+            QMessageBox.No,
         )
 
         if reply == QMessageBox.Yes:
@@ -393,10 +255,7 @@ class PromptTemplateDialog(QDialog):
             except Exception:
                 user_templates = []
 
-        user_templates.append({
-            "name": name,
-            "content": content
-        })
+        user_templates.append({"name": name, "content": content})
 
         os.makedirs(os.path.dirname(PROMPTS_CONFIG_PATH), exist_ok=True)
         with open(PROMPTS_CONFIG_PATH, "w", encoding="utf-8") as f:
@@ -432,18 +291,22 @@ class PromptTemplateDialog(QDialog):
         if not name_item:
             return
 
-        if name_item.foreground().color() == QColor("#6366F1"):  # System template
+        if name_item.foreground().color() == QColor(
+            "#6366F1"
+        ):  # System template
             return
 
         template_data = {
             "name": name_item.text(),
-            "content": name_item.toolTip()
+            "content": name_item.toolTip(),
         }
 
         dialog = AddTemplateDialog(self, edit_data=template_data)
         if dialog.exec_() == QDialog.Accepted:
             new_data = dialog.get_template_data()
-            self.update_user_template(template_data["name"], new_data["name"], new_data["content"])
+            self.update_user_template(
+                template_data["name"], new_data["name"], new_data["content"]
+            )
             self.load_templates()
 
     def update_user_template(self, old_name, new_name, new_content):
@@ -482,21 +345,14 @@ class AddTemplateDialog(QDialog):
             self.setWindowTitle(self.tr("Add Template"))
 
         self.setModal(True)
-        self.setFixedSize(500, 350)
+        self.setFixedSize(520, 350)
         self.setup_ui()
 
         if self.is_edit_mode:
             self.prefill_data()
 
     def setup_ui(self):
-        self.setStyleSheet(
-            """
-            QDialog {
-                background-color: white;
-                border-radius: 8px;
-            }
-            """
-        )
+        self.setStyleSheet(get_ui_style())
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
@@ -507,20 +363,7 @@ class AddTemplateDialog(QDialog):
         layout.addWidget(name_label)
 
         self.name_input = QLineEdit()
-        self.name_input.setStyleSheet(
-            f"""
-            QLineEdit {{
-                background-color: white;
-                border-radius: 8px;
-                padding: 8px 12px;
-                font-size: 14px;
-                border: 1px solid #e2e8f0;
-            }}
-            QLineEdit:focus {{
-                border: 2px solid #60A5FA;
-            }}
-            """
-        )
+        self.name_input.setStyleSheet(get_name_input_style())
         layout.addWidget(self.name_input)
 
         content_label = QLabel(self.tr("Template Content:"))
@@ -528,20 +371,7 @@ class AddTemplateDialog(QDialog):
         layout.addWidget(content_label)
 
         self.content_input = QTextEdit()
-        self.content_input.setStyleSheet(
-            f"""
-            QTextEdit {{
-                background-color: white;
-                border-radius: 8px;
-                padding: 8px 12px;
-                font-size: 14px;
-                border: 1px solid #e2e8f0;
-            }}
-            QTextEdit:focus {{
-                border: 2px solid #60A5FA;
-            }}
-            """
-        )
+        self.content_input.setStyleSheet(get_content_input_style())
         self.content_input.setMinimumHeight(120)
         layout.addWidget(self.content_input)
 
@@ -549,11 +379,13 @@ class AddTemplateDialog(QDialog):
         button_layout.addStretch()
 
         cancel_btn = QPushButton(self.tr("Cancel"))
-        cancel_btn.setStyleSheet(get_secondary_button_style())
+        cancel_btn.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
         cancel_btn.clicked.connect(self.reject)
 
         ok_btn = QPushButton(self.tr("OK"))
-        ok_btn.setStyleSheet(get_primary_button_style())
+        ok_btn.setStyleSheet(get_dialog_button_style("primary", "medium"))
         ok_btn.clicked.connect(self.validate_and_accept)
 
         button_layout.addWidget(cancel_btn)
@@ -575,7 +407,7 @@ class AddTemplateDialog(QDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Warning"),
-                self.tr("Template name cannot be empty!")
+                self.tr("Template name cannot be empty!"),
             )
             return
 
@@ -583,7 +415,7 @@ class AddTemplateDialog(QDialog):
             QMessageBox.warning(
                 self,
                 self.tr("Warning"),
-                self.tr("Template content cannot be empty!")
+                self.tr("Template content cannot be empty!"),
             )
             return
 
@@ -593,7 +425,7 @@ class AddTemplateDialog(QDialog):
         """Get template data"""
         return {
             "name": self.name_input.text().strip(),
-            "content": self.content_input.toPlainText().strip()
+            "content": self.content_input.toPlainText().strip(),
         }
 
 
@@ -611,14 +443,7 @@ class AILoadingDialog(QDialog):
         self.setup_animation()
 
     def setup_ui(self):
-        self.setStyleSheet(
-            """
-            QDialog {
-                background-color: #ffffff;
-                border-radius: 0px;
-            }
-            """
-        )
+        self.setStyleSheet(get_ui_style())
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
@@ -629,31 +454,14 @@ class AILoadingDialog(QDialog):
 
         title_label = QLabel(self.tr("AI Processing"))
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet(
-            """
-            QLabel {
-                font-size: 16px;
-                font-weight: 600;
-                color: #1F2937;
-                background: none;
-                border: none;
-            }
-            """
-        )
+        title_label.setStyleSheet(get_title_label_style())
         content_layout.addWidget(title_label)
 
-        self.message_label = QLabel(self.tr("Generating content, please wait."))
-        self.message_label.setAlignment(Qt.AlignCenter)
-        self.message_label.setStyleSheet(
-            """
-            QLabel {
-                font-size: 14px;
-                color: #6B7280;
-                background: none;
-                border: none;
-            }
-            """
+        self.message_label = QLabel(
+            self.tr("Generating content, please wait.")
         )
+        self.message_label.setAlignment(Qt.AlignCenter)
+        self.message_label.setStyleSheet(get_message_label_style())
         content_layout.addWidget(self.message_label)
 
         layout.addLayout(content_layout)
@@ -664,7 +472,9 @@ class AILoadingDialog(QDialog):
         button_layout.addStretch()
 
         self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.setStyleSheet(get_secondary_button_style())
+        self.cancel_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
         self.cancel_button.setCursor(Qt.PointingHandCursor)
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_button)
@@ -725,14 +535,7 @@ class AIPromptDialog(QDialog):
 
     def setup_ui(self):
         """Set up the UI interface"""
-        self.setStyleSheet(
-            """
-            QDialog {
-                background-color: white;
-                border-radius: 8px;
-            }
-            """
-        )
+        self.setStyleSheet(get_ui_style())
 
         dialog_layout = QVBoxLayout(self)
         dialog_layout.setContentsMargins(24, 24, 24, 24)
@@ -745,34 +548,7 @@ class AIPromptDialog(QDialog):
             "   2. Translate to English, return translated text only: @text\n"
             "   3. Improve and make it more professional: @text"
         )
-        self.prompt_input.setStyleSheet(
-            """
-            QTextEdit {
-                border: 1px solid #E5E7EB;
-                border-radius: 8px;
-                background-color: #F9FAFB;
-                color: #1F2937;
-                font-size: 14px;
-                line-height: 1.5;
-                padding: 12px;
-            }
-            QTextEdit:focus {
-                border: 1px solid #6366F1;
-            }
-            QScrollBar:vertical {
-                width: 8px;
-                background: transparent;
-            }
-            QScrollBar::handle:vertical {
-                background: #D1D5DB;
-                border-radius: 4px;
-                min-height: 30px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-            """
-        )
+        self.prompt_input.setStyleSheet(get_prompt_input_style())
         self.prompt_input.setAcceptRichText(True)
         self.prompt_input.textChanged.connect(self.on_text_changed)
         self.prompt_input.setMinimumHeight(120)
@@ -786,25 +562,7 @@ class AIPromptDialog(QDialog):
 
         template_btn = QPushButton(self.tr("Templates"))
         template_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #f5f5f7;
-                border: 1px solid #d2d2d7;
-                border-radius: 8px;
-                font-weight: 500;
-                font-size: 13px;
-                color: #1d1d1f;
-                min-width: 100px;
-                height: 36px;
-                padding: 0 2px;
-            }
-            QPushButton:hover {
-                background-color: #e5e5e5;
-            }
-            QPushButton:pressed {
-                background-color: #d6d6d6;
-            }
-            """
+            get_dialog_button_style("secondary", "medium")
         )
         template_btn.setCursor(Qt.PointingHandCursor)
         template_btn.clicked.connect(self.open_template_library)
@@ -814,51 +572,13 @@ class AIPromptDialog(QDialog):
 
         cancel_btn = QPushButton(self.tr("Cancel"))
         cancel_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #f5f5f7;
-                border: 1px solid #d2d2d7;
-                border-radius: 8px;
-                font-weight: 500;
-                font-size: 13px;
-                color: #1d1d1f;
-                min-width: 100px;
-                height: 36px;
-                padding: 0 2px;
-            }
-            QPushButton:hover {
-                background-color: #e5e5e5;
-            }
-            QPushButton:pressed {
-                background-color: #d6d6d6;
-            }
-            """
+            get_dialog_button_style("secondary", "medium")
         )
         cancel_btn.setCursor(Qt.PointingHandCursor)
         cancel_btn.clicked.connect(self.reject)
 
         confirm_btn = QPushButton(self.tr("Generate"))
-        confirm_btn.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #0077ed;
-                color: white;
-                border: none;
-                border-radius: 8px;
-                font-weight: 500;
-                font-size: 13px;
-                min-width: 100px;
-                height: 36px;
-                padding: 0 2px;
-            }
-            QPushButton:hover {
-                background-color: #0066cc;
-            }
-            QPushButton:pressed {
-                background-color: #005bb5;
-            }
-            """
-        )
+        confirm_btn.setStyleSheet(get_dialog_button_style("primary", "medium"))
         confirm_btn.setCursor(Qt.PointingHandCursor)
         confirm_btn.clicked.connect(self.accept)
 
@@ -923,7 +643,9 @@ class AIPromptDialog(QDialog):
                 highlight_format.setForeground(QColor("#1976D2"))
 
                 cursor.setPosition(start_index)
-                cursor.setPosition(start_index + len(tag), QTextCursor.KeepAnchor)
+                cursor.setPosition(
+                    start_index + len(tag), QTextCursor.KeepAnchor
+                )
                 cursor.setCharFormat(highlight_format)
 
                 start_index += len(tag)
@@ -1001,10 +723,15 @@ class ComponentDialog(QDialog):
         layout.addWidget(self.options_input)
 
         button_layout = QHBoxLayout()
+        button_layout.addStretch()
         self.ok_button = QPushButton(self.tr("OK"))
-        self.ok_button.setStyleSheet(get_primary_button_style())
+        self.ok_button.setStyleSheet(
+            get_dialog_button_style("primary", "medium")
+        )
         self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.setStyleSheet(get_secondary_button_style())
+        self.cancel_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
 
         self.ok_button.clicked.connect(self.validate_and_accept)
         self.cancel_button.clicked.connect(self.reject)
@@ -1189,11 +916,15 @@ class DeleteComponentDialog(QDialog):
         button_layout.addStretch()
 
         self.delete_button = QPushButton(self.tr("Delete"))
-        self.delete_button.setStyleSheet(get_danger_button_style())
+        self.delete_button.setStyleSheet(
+            get_dialog_button_style("danger", "medium")
+        )
         self.delete_button.setEnabled(False)
 
         self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.setStyleSheet(get_secondary_button_style())
+        self.cancel_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
 
         self.delete_button.clicked.connect(self.accept)
         self.cancel_button.clicked.connect(self.reject)
@@ -1386,7 +1117,6 @@ class ExportLabelsDialog(QDialog):
 
         layout.addWidget(self.export_table, 1)
 
-        # Bottom controls
         button_layout = QHBoxLayout()
 
         self.status_label = QLabel(self.tr("No fields selected"))
@@ -1395,11 +1125,15 @@ class ExportLabelsDialog(QDialog):
         button_layout.addStretch()
 
         self.export_button = QPushButton(self.tr("Export"))
-        self.export_button.setStyleSheet(get_primary_button_style())
+        self.export_button.setStyleSheet(
+            get_dialog_button_style("primary", "medium")
+        )
         self.export_button.setEnabled(False)
 
         self.cancel_button = QPushButton(self.tr("Cancel"))
-        self.cancel_button.setStyleSheet(get_secondary_button_style())
+        self.cancel_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
 
         self.export_button.clicked.connect(self.accept)
         self.cancel_button.clicked.connect(self.reject)
@@ -1424,38 +1158,33 @@ class ExportLabelsDialog(QDialog):
         ]
 
         for field_type, original_key, export_key in basic_fields:
-            # Type column
             type_item = QTableWidgetItem(field_type)
             type_item.setTextAlignment(Qt.AlignCenter)
             type_item.setData(Qt.ForegroundRole, QColor("#718096"))
             self.export_table.setItem(row, 0, type_item)
 
-            # Original key column
             original_item = QTableWidgetItem(original_key)
             original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             self.export_table.setItem(row, 1, original_item)
 
-            # Export key column (editable)
             export_input = QLineEdit()
             export_input.setText(export_key)
             export_input.setStyleSheet(get_page_input_style())
             self.export_table.setCellWidget(row, 2, export_input)
 
-            # Select column
             checkbox_widget = QWidget()
             checkbox_layout = QHBoxLayout(checkbox_widget)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)
             checkbox_layout.setAlignment(Qt.AlignCenter)
 
             checkbox = QCheckBox()
-            checkbox.setChecked(True)  # Basic fields selected by default
+            checkbox.setChecked(True)
             checkbox.stateChanged.connect(self.on_item_selection_changed)
             checkbox_layout.addWidget(checkbox)
 
             self.export_table.setCellWidget(row, 3, checkbox_widget)
             row += 1
 
-        # Component fields
         type_colors = {
             "QLineEdit": QColor("#4299e1"),
             "QRadioButton": QColor("#48bb78"),
@@ -1464,39 +1193,35 @@ class ExportLabelsDialog(QDialog):
         }
 
         for component in self.components:
-            # Type column
+
             type_item = QTableWidgetItem(component["type"])
             type_item.setTextAlignment(Qt.AlignCenter)
             color = type_colors.get(component["type"], QColor("#718096"))
             type_item.setData(Qt.ForegroundRole, color)
             self.export_table.setItem(row, 0, type_item)
 
-            # Original key column
             original_item = QTableWidgetItem(component["title"])
             original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
             self.export_table.setItem(row, 1, original_item)
 
-            # Export key column (editable)
             export_input = QLineEdit()
             export_input.setText(component["title"])
             export_input.setStyleSheet(get_page_input_style())
             self.export_table.setCellWidget(row, 2, export_input)
 
-            # Select column
             checkbox_widget = QWidget()
             checkbox_layout = QHBoxLayout(checkbox_widget)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)
             checkbox_layout.setAlignment(Qt.AlignCenter)
 
             checkbox = QCheckBox()
-            checkbox.setChecked(True)  # Components selected by default
+            checkbox.setChecked(True)
             checkbox.stateChanged.connect(self.on_item_selection_changed)
             checkbox_layout.addWidget(checkbox)
 
             self.export_table.setCellWidget(row, 3, checkbox_widget)
             row += 1
 
-        # Update initial state
         self.update_ui_state()
 
     def on_select_all_changed(self, state):
@@ -1574,7 +1299,7 @@ class ExportLabelsDialog(QDialog):
                         else original_key
                     )
 
-                    if export_key:  # Only add if export key is not empty
+                    if export_key:
                         config[original_key] = export_key
 
         return config
