@@ -733,6 +733,7 @@ class Canvas(
                         and not self.is_auto_labeling
                         and not self.current
                     ):
+                        self.prev_pan_point = ev.localPos()
                         self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Handle auto decode mode first click
