@@ -142,8 +142,8 @@ class LabelingWidget(LabelDialog):
         self.dirty = False
 
         self._no_selection_slot = False
-
         self._copied_shapes = None
+        self._batch_edit_warning_shown = False
 
         self.brightness_contrast_dialog = BrightnessContrastDialog(
             self.on_new_brightness_contrast, parent=self
@@ -2608,12 +2608,100 @@ class LabelingWidget(LabelDialog):
                     return True
         return False
 
+    def batch_edit_labels(self, shapes):
+        if not self._batch_edit_warning_shown:
+            reply = QtWidgets.QMessageBox.question(
+                self,
+                self.tr("Batch Edit"),
+                self.tr(
+                    "You are about to edit multiple shapes in batch mode. "
+                    "This operation cannot be undone.\n\n"
+                    "This warning will only be shown once. Do you want to continue?"
+                ),
+                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                QtWidgets.QMessageBox.No
+            )
+
+            if reply != QtWidgets.QMessageBox.Yes:
+                return
+
+            self._batch_edit_warning_shown = True
+
+        first_shape = shapes[0]
+        result = self.label_dialog.pop_up(
+            text=first_shape.label,
+            flags=first_shape.flags,
+            group_id=first_shape.group_id,
+            description=first_shape.description,
+            difficult=first_shape.difficult,
+            kie_linking=first_shape.kie_linking,
+            move_mode="center",
+        )
+
+        if result[0] is None:
+            return
+
+        text, flags, group_id, description, difficult, kie_linking = result
+
+        if not self.validate_label(text):
+            self.error_message(
+                self.tr("Invalid label"),
+                self.tr("Invalid label '{}' with validation type '{}'").format(
+                    text, self._config["validate_label"]
+                ),
+            )
+            return
+
+        for shape in shapes:
+            if self.attributes and text:
+                text = self.reset_attribute(text)
+
+            shape.label = text
+            shape.flags = flags
+            shape.group_id = group_id
+            shape.description = description
+            shape.difficult = difficult
+            shape.kie_linking = kie_linking
+
+            self._update_shape_color(shape)
+
+            item = self.label_list.find_item_by_shape(shape)
+            if item is not None:
+                if shape.group_id is None:
+                    color = shape.fill_color.getRgb()[:3]
+                    item.setText("{}".format(html.escape(shape.label)))
+                    item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
+                else:
+                    item.setText(f"{shape.label} ({shape.group_id})")
+
+        self.label_dialog.add_label_history(text)
+
+        if not self.unique_label_list.find_items_by_label(text):
+            unique_label_item = self.unique_label_list.create_item_from_label(text)
+            self.unique_label_list.addItem(unique_label_item)
+            rgb = self._get_rgb_by_label(text)
+            self.unique_label_list.set_item_label(
+                unique_label_item, text, rgb, LABEL_OPACITY
+            )
+
+        self.set_dirty()
+        self.update_combo_box()
+        self.update_gid_box()
+
     def edit_label(self, item=None):
         if item and not isinstance(item, LabelListWidgetItem):
             raise TypeError("item must be LabelListWidgetItem type")
 
         if not self.canvas.editing():
             return
+
+        selected_shapes = self.canvas.selected_shapes
+        if not selected_shapes:
+            return
+
+        if len(selected_shapes) > 1:
+            return self.batch_edit_labels(selected_shapes)
+
         if not item:
             item = self.current_item()
         if item is None:
@@ -2878,10 +2966,11 @@ class LabelingWidget(LabelDialog):
                 self.label_list.scroll_to_item(item)
         self._no_selection_slot = False
         n_selected = len(selected_shapes)
+        same_type = len(set(shape.shape_type for shape in selected_shapes)) <= 1
         self.actions.delete.setEnabled(n_selected)
         self.actions.duplicate.setEnabled(n_selected)
         self.actions.copy.setEnabled(n_selected)
-        self.actions.edit.setEnabled(n_selected == 1)
+        self.actions.edit.setEnabled(n_selected >= 1 and same_type)
         self.actions.union_selection.setEnabled(
             not all(value > 0 for value in allow_merge_shape_type.values())
             and (
