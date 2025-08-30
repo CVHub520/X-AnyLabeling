@@ -1,4 +1,5 @@
 import os
+import gc
 import cv2
 import traceback
 import onnxruntime
@@ -32,19 +33,24 @@ class SegmentAnythingONNX:
         self.target_size = 1024
         self.input_size = (684, 1024)
 
+        self.encoder_model_path = encoder_model_path
+        self.decoder_model_path = decoder_model_path
+
         # Load models
-        providers = onnxruntime.get_available_providers()
+        self.providers = onnxruntime.get_available_providers()
 
         # Pop TensorRT Runtime due to crashing issues
         # TODO: Add back when TensorRT backend is stable
-        providers = [p for p in providers if p != "TensorrtExecutionProvider"]
+        self.providers = [p for p in self.providers if p != "TensorrtExecutionProvider"]
 
+        sess_options = onnxruntime.SessionOptions()
+        sess_options.log_severity_level = 3
         self.encoder_session = onnxruntime.InferenceSession(
-            encoder_model_path, providers=providers
+            encoder_model_path, providers=self.providers, sess_options=sess_options
         )
         self.encoder_input_name = self.encoder_session.get_inputs()[0].name
         self.decoder_session = onnxruntime.InferenceSession(
-            decoder_model_path, providers=providers
+            decoder_model_path, providers=self.providers, sess_options=sess_options
         )
 
     def get_input_points(self, prompt):
@@ -67,7 +73,7 @@ class SegmentAnythingONNX:
 
     def run_encoder(self, encoder_inputs, release_after=True):
         """
-        Run encoder inference and return embeddings.
+        Run encoder and return image embeddings.
 
         Args:
             encoder_inputs (dict[str, np.ndarray]): Input tensors for the encoder,
@@ -78,27 +84,24 @@ class SegmentAnythingONNX:
         Returns:
             Tuple[np.ndarray, np.ndarray]: Image embeddings and stacked intermediate embeddings.
         """
-        # 1) 필요 시 세션 생성 (lazy init)
+        # Lazy initialization
         if self.encoder_session is None:
             self.encoder_session = onnxruntime.InferenceSession(
                 self.encoder_model_path, providers=self.providers
             )
+            self.encoder_input_name = self.encoder_session.get_inputs()[0].name
 
         features = None
         try:
-            # 2) 추론
             features = self.encoder_session.run(None, encoder_inputs)
-
-            # 3) 필요한 출력만 반환
             image_embeddings = features[0]
             interm_embeddings = np.stack(features[1:])
             return image_embeddings, interm_embeddings
 
         finally:
-            # 4) 필요 시 메모리/세션 정리
             if release_after:
-                del features
-                import gc
+                if features is not None:
+                    del features
                 gc.collect()
                 self.encoder_session = None
 

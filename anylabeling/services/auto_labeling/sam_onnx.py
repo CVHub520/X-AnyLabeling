@@ -1,3 +1,4 @@
+import gc
 from copy import deepcopy
 
 import cv2
@@ -12,19 +13,22 @@ class SegmentAnythingONNX:
         self.target_size = 1024
         self.input_size = (684, 1024)
 
+        self.encoder_model_path = encoder_model_path
+        self.decoder_model_path = decoder_model_path
+
         # Load models
-        providers = onnxruntime.get_available_providers()
+        self.providers = onnxruntime.get_available_providers()
 
         # Pop TensorRT Runtime due to crashing issues
         # TODO: Add back when TensorRT backend is stable
-        providers = [p for p in providers if p != "TensorrtExecutionProvider"]
+        self.providers = [p for p in self.providers if p != "TensorrtExecutionProvider"]
 
         self.encoder_session = onnxruntime.InferenceSession(
-            encoder_model_path, providers=providers
+            encoder_model_path, providers=self.providers
         )
         self.encoder_input_name = self.encoder_session.get_inputs()[0].name
         self.decoder_session = onnxruntime.InferenceSession(
-            decoder_model_path, providers=providers
+            decoder_model_path, providers=self.providers
         )
 
     def get_input_points(self, prompt):
@@ -58,26 +62,23 @@ class SegmentAnythingONNX:
         Returns:
             np.ndarray: Image embedding output.
         """
-        # 1) 필요 시 세션 생성 (lazy init)
+        # Lazy initialization
         if self.encoder_session is None:
             self.encoder_session = onnxruntime.InferenceSession(
                 self.encoder_model_path, providers=self.providers
             )
+            self.encoder_input_name = self.encoder_session.get_inputs()[0].name
 
         output = None
         try:
-            # 2) 추론
             output = self.encoder_session.run(None, encoder_inputs)
-
-            # 3) 필요한 출력만 반환
             image_embedding = output[0]
             return image_embedding
 
         finally:
-            # 4) 필요 시 메모리/세션 정리
             if release_after:
-                del output
-                import gc
+                if output is not None:
+                    del output
                 gc.collect()
                 self.encoder_session = None
 
