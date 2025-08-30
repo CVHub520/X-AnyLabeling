@@ -57,7 +57,7 @@
 <details>
 <summary><strong>视觉问答</strong></summary>
 
-<video src="https://github.com/user-attachments/assets/92807672-f101-475b-b790-9caa1c31da05" width="100%" controls>
+<video src="https://github.com/user-attachments/assets/53adcff4-b962-41b7-a408-3afecd8d8c82" width="100%" controls>
 </video>
 </details>
 
@@ -153,6 +153,8 @@
   - [Florence 2](./examples/vision_language/florence2/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
+- [Training](./examples/training/)
+  - [Ultralytics](./examples/training/ultralytics/README.md)
 
 
 ## 赞助

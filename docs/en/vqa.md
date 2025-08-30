@@ -1,91 +1,88 @@
 # Overview
 
-The `X-AnyLabeling` Visual Question Answering (VQA) tool is a professional system designed specifically for annotating image question-answering datasets.
+`X-AnyLabeling` Visual Question Answering (VQA) Tool is a professional system designed for multimodal image question-answering dataset annotation. The tool not only supports the creation of image-based question-answer pairs but also integrates intelligent assistance, offering a wide variety of input components and extensive configurability. With its flexibility to adapt to different annotation tasks, it provides high-quality training data for supervised fine-tuning, reinforcement learning post-training, and similar tasks.
 
-This tool enables the creation of question-answer pairs corresponding to images, offers multiple input component types, and provides high configurability to flexibly adapt to different annotation task requirements.
-
-The VQA tool is particularly well-suited for building high-quality visual question-answering training data and can be used for cutting-edge model training tasks such as supervised fine-tuning and visual Chain of Thought (CoT).
-
-<video src="https://github.com/user-attachments/assets/92807672-f101-475b-b790-9caa1c31da05" width="100%" controls>
+<video src="https://github.com/user-attachments/assets/53adcff4-b962-41b7-a408-3afecd8d8c82" width="100%" controls>
 </video>
 
-# Getting Started
+# Launching the Tool
 
-## Accessing the VQA Tool
+To open the VQA tool, ensure that the main window’s image directory is loaded. Then, either click the VQA icon in the left toolbar of the main window or use the following keyboard shortcut:
 
-To open the VQA tool, click the Visual Question Answering icon in the left toolbar of X-AnyLabeling or use the following keyboard shortcuts to quickly launch the chatbot dialog interface:
+* **Windows/Linux**: `Ctrl` + `1`
+* **macOS**: `⌘` + `1`
 
-- Windows/Linux: `Ctrl` + `1`
-- macOS: `⌘` + `1`
-
-## Initial Setup
-
-Upon each startup, the system automatically loads the default configuration from the following path. You can add custom components according to your annotation requirements to build a personalized annotation interface:
+On startup, the system automatically loads the default configuration from the following path. You may modify it as needed:
 
 ```bash
 ~/xanylabeling_data/vqa/components.json
 ```
 
-# User Interface
+# Tutorial
 
-The VQA tool features a dual-panel interface design with an image display and navigation area on the left, and an annotation control area on the right for configuring, editing, and exporting question-answer pairs.
+The VQA tool adopts a dual-panel layout: the left panel displays image previews, while the right one provides annotation controls.
 
-<img src="../../assets/resources/vqa_panel.png" width="100%" />
+<img src="../../assets/resources/vqa/entire_panel.png" width="100%" />
 
-## Left Panel - Image Display Area
+## Left Panel – Image Preview
 
-* **Filename and Progress Indicator**: Displays the current image filename and its position within the dataset (e.g., `000000000154.jpg (33/128)`).
-* **Image Preview Area**: Centers and displays the image with adaptive scaling support.
-* **Image Navigation Features**:
-  * "Previous / Next" buttons for sequential browsing
-  * Page number input box for quick navigation
+* **Filename and Progress Indicator**: Shows the current image filename and its position within the dataset (e.g., `000000000154.jpg (33/128)`).
+* **Image Preview Area**: Displays the image centered on the panel with adaptive zoom.
+* **Panel Toggle**: Use the sidebar icon to expand or collapse the left panel.
 
-## Right Panel - Annotation Control Area
+## Right Panel – Annotation Controls
 
-* **Operation Functions**:
-  * **Load Images**: Load image directory
-  * **Export Labels**: Export annotation data in JSONL format
-  * **Clear All**: Clear all annotation items for the current image
+* **Toolbar Buttons**:
 
-* **Annotation Components Area**: Dynamically loads annotation components based on user configuration with real-time editing support. Component types include:
+| Button        | Description                                  |
+| ------------- | -------------------------------------------- |
+| Export Labels | Export annotations as JSONL format           |
+| Clear All     | Remove all annotations for the current image |
+| Add Component | Add a new annotation component               |
+| Del Component | Delete an existing component                 |
 
-  **Text Input Box (`QLineEdit`)**
-  * Used for open-ended Q&A such as image descriptions, detailed answers, etc.
+* **Annotation Components**:
 
-  **Radio Button Group (`QRadioButton`)**
-  * Suitable for single-choice questions like task type selection, dataset partitioning, etc.
-  * First option is selected by default
-  * Supports custom option content
-
-  **Checkbox Group (`QCheckBox`)**
-  * Suitable for multiple-choice questions like image labels, attribute marking, etc.
-  * Supports multiple selections with no default selection
-
-  **Dropdown Menu (`QComboBox`)**
-  * Suitable for single-choice scenarios with many options
-  * Displays "-- Select --" prompt by default
-  * Supports custom option lists
-
-* **Component Management Area**:
-  * **Add Component**: Add new annotation components
-  * **Del Component**: Delete configured components
+| Component     | Type         | Description                                                           |
+| ------------- | ------------ | --------------------------------------------------------------------- |
+| Text Input    | QLineEdit    | For open-ended QA, such as image descriptions or detailed answers     |
+| Radio Buttons | QRadioButton | For single-choice tasks, such as task type selection or dataset split |
+| Checkboxes    | QCheckBox    | For multi-choice tasks, such as image tagging or attribute labeling   |
+| Dropdown Menu | QComboBox    | For single-choice tasks with many options, supports custom lists      |
 
 <div style="display: flex; justify-content: space-between;">
-  <img src="../../assets/resources/vqa_add_componet.png" width="56%" />
-  <img src="../../assets/resources/vqa_del_componet.png" width="43%" />
+  <img src="../../assets/resources/vqa/add_compone.png" width="56%" />
+  <img src="../../assets/resources/vqa/del_compone.png" width="43%" />
 </div>
 
-# Data Storage
+For text input components, the system integrates powerful AI assistance to improve annotation efficiency. To enable this feature, follow the configuration instructions in the [Chatbot](../zh_cn/chatbot.md) section.
 
-X-AnyLabeling enables auto-save by default for VQA annotations. All annotation data is automatically saved to JSON files in the same directory as the images.
+<img src="../../assets/resources/vqa/chatbot.png" width="100%" />
 
-## VQA Data Format
+Once configured, you can open the AI assistant dialog by clicking the magic wand (🪄) icon in the title bar.
 
-VQA annotation data is stored in the `vqaData` field within the label file. The data structure includes all the information captured through the configured components:
+<img src="../../assets/resources/vqa/assistance.png" width="100%" />
+
+The system supports both text-only and multimodal prompts. Two special prompt tokens are provided for convenience:
+
+* **@image**: References the currently annotated image. The AI will analyze and interpret the content.
+* **@text**: References the current content in the text input field, allowing the AI to refine or optimize existing text.
+
+To further enhance efficiency and reusability, the tool includes a prompt template gallery. Predefined templates are available for common use cases, and users can freely add, edit, or delete custom templates. Templates help build high-quality prompts quickly, improving annotation speed and consistency.
+
+<img src="../../assets/resources/vqa/add_template.png" width="100%" />
+
+Hovering over a template displays the full content in a tooltip for quick preview. For custom templates, double-clicking a template field allows you to edit the title and content.
+
+<img src="../../assets/resources/vqa/template_gallery.png" width="100%" />
+
+# Data Management
+
+X-AnyLabeling uses an autosave mechanism to ensure that no annotation work is lost. Annotations are automatically saved in JSON format in the same directory as the corresponding image. For VQA tasks, all annotation data is stored under the `vqaData` field. This field contains structured data collected through the configured components:
 
 ```json
 {
-  "version": "3.0.0",
+  "version": "3.2.1",
   "flags": {},
   "shapes": [],
   ...
@@ -104,31 +101,16 @@ VQA annotation data is stored in the `vqaData` field within the label file. The 
 }
 ```
 
-## Data Export
+After completing annotation tasks, click the `Export Labels` button to export the data. The export dialog provides flexible field selection, including:
 
-Use the **Export Labels** button to export all VQA annotations in JSONL format. The new export feature provides flexible field selection and renaming options.
+* **Basic Fields**: Image filename, width, and height
+* **Custom Component Fields**: All configured components and their corresponding data
 
-### Export Configuration
+<img src="../../assets/resources/vqa/export.png" width="100%" />
 
-After clicking **Export Labels**, an export configuration dialog will open where you can:
+Exported data is saved in `JSONL` format, with one record per line. Example output:
 
-- **Select Export Fields**: Choose which fields to export via checkboxes
-- **Rename Export Keys**: Modify the field names used in export in the "Export Key" column  
-- **Batch Operations**: Use the "Select All" checkbox to quickly select or deselect all fields
-
-### Available Field Types
-
-The export dialog includes the following field types:
-
-1. **Basic Fields**:
-   - `image`: Image filename
-   - `width`: Image width
-   - `height`: Image height
-
-2. **Custom Component Fields**:
-   - All created custom components and their data
-   - Supports different component types: text input, radio buttons, dropdown select, checkboxes
-
-### Export Examples
-
-Based on your field selection and renaming settings, the exported JSONL file may look like:
+```jsonl
+{"image": "0000000000154.jpg", "width": 640, "height": 480, "question": "How many zebras are in the image?", "answer": 3, "split": "train"}
+{"image": "0000000000155.jpg", "width": 640, "height": 480, "question": "What is the cat doing?", "answer": "sleeping", "split": "val"}
+```
