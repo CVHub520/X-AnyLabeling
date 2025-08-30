@@ -481,7 +481,7 @@ class AILoadingDialog(QDialog):
 
         layout.addLayout(button_layout)
 
-        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint)
+        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
         shadow.setColor(QColor(0, 0, 0, 25))
@@ -1052,15 +1052,16 @@ class ExportLabelsDialog(QDialog):
         self.setModal(True)
 
         # Calculate dialog size based on content
-        base_height = 240
+        base_height = 280
         row_height = 35
-        field_count = len(components) + 3  # components + image/width/height
+        field_count = len(components) + 3
         table_height = max(150, field_count * row_height + 50)
-        total_height = min(385, base_height + table_height)
+        total_height = min(500, base_height + table_height)
 
         self.setFixedSize(520, total_height)
 
         layout = QVBoxLayout(self)
+        layout.setSpacing(10)
 
         # Top controls
         top_layout = QHBoxLayout()
@@ -1105,7 +1106,9 @@ class ExportLabelsDialog(QDialog):
         self.export_table.setFocusPolicy(Qt.NoFocus)
         self.export_table.verticalHeader().setDefaultSectionSize(32)
         min_table_height = field_count * 32 + 30
-        self.export_table.setMinimumHeight(min_table_height)
+        max_table_height = total_height - 120
+        self.export_table.setMaximumHeight(max_table_height)
+        self.export_table.setMinimumHeight(min(min_table_height, max_table_height))
         self.export_table.setStyleSheet(get_component_dialog_combobox_style())
 
         header = self.export_table.horizontalHeader()
@@ -1115,7 +1118,7 @@ class ExportLabelsDialog(QDialog):
         header.setSectionResizeMode(3, QHeaderView.Fixed)
         self.export_table.setColumnWidth(3, 80)
 
-        layout.addWidget(self.export_table, 1)
+        layout.addWidget(self.export_table)
 
         button_layout = QHBoxLayout()
 

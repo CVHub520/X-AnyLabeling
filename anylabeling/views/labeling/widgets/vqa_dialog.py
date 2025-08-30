@@ -991,6 +991,7 @@ class VQADialog(QDialog):
             dialog = QDialog(self)
             dialog.setWindowTitle(self.tr("AI Generated Result"))
             dialog.setModal(True)
+            dialog.setWindowFlags(dialog.windowFlags() | Qt.WindowStaysOnTopHint)
             dialog.resize(500, 400)
 
             layout = QVBoxLayout(dialog)
@@ -1417,9 +1418,6 @@ class VQADialog(QDialog):
 
         with open(export_path, "w", encoding="utf-8") as f:
             for i, image_file in enumerate(self.image_files):
-                self.current_image_index = i
-                self.load_current_image_data()
-
                 # Basic image info
                 pixmap = QPixmap(image_file)
                 width = pixmap.width() if not pixmap.isNull() else 0
@@ -1432,11 +1430,15 @@ class VQADialog(QDialog):
                     "height": height,
                 }
 
-                # Add component data
-                other_data = getattr(self.parent(), "other_data", {})
-                if other_data:
-                    vqa_data = other_data.get("vqaData", {})
-                    all_data.update(vqa_data)
+                label_file_path = get_label_file_path(image_file, self.parent().output_dir)
+                if os.path.exists(label_file_path):
+                    try:
+                        with open(label_file_path, "r", encoding="utf-8") as label_f:
+                            label_data_json = json.load(label_f)
+                            vqa_data = label_data_json.get("vqaData", {})
+                            all_data.update(vqa_data)
+                    except Exception as e:
+                        logger.warning(f"Failed to load label file {label_file_path}: {e}")
 
                 # Filter and rename fields based on export config
                 label_data = {}

@@ -224,6 +224,27 @@ def get_default_value(comp_type, options):
     return ""
 
 
+def get_label_file_path(image_file, output_dir=None):
+    """
+    Get the corresponding label file path for an image file.
+
+    Args:
+        image_file (str): Path to the image file
+        output_dir (str, optional): Output directory path. Defaults to None.
+
+    Returns:
+        str: Path to the corresponding JSON label file
+    """
+    base_name = os.path.splitext(os.path.basename(image_file))[0]
+    label_filename = base_name + ".json"
+
+    if output_dir:
+        return os.path.join(output_dir, label_filename)
+    else:
+        image_dir = os.path.dirname(image_file)
+        return os.path.join(image_dir, label_filename)
+
+
 def get_real_modified_options(old_options, new_options, common_options):
     """Identify truly modified options excluding common ones."""
     modified = {}

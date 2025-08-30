@@ -2333,6 +2333,13 @@ class LabelingWidget(LabelDialog):
         _ = dialog.exec_()
 
     def open_vqa(self):
+        if not self.image_list:
+            self.error_message(
+                self.tr("No images loaded"),
+                self.tr("Please load an image folder before opening the VQA dialog."),
+            )
+            return
+
         if not hasattr(self, "vqa_window") or self.vqa_window is None:
             self.vqa_window = VQADialog(self)
             self.vqa_window.setAttribute(Qt.WA_DeleteOnClose, False)
