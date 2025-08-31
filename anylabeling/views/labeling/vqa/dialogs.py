@@ -481,7 +481,9 @@ class AILoadingDialog(QDialog):
 
         layout.addLayout(button_layout)
 
-        self.setWindowFlags(Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(
+            Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+        )
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
         shadow.setColor(QColor(0, 0, 0, 25))
@@ -1108,7 +1110,9 @@ class ExportLabelsDialog(QDialog):
         min_table_height = field_count * 32 + 30
         max_table_height = total_height - 120
         self.export_table.setMaximumHeight(max_table_height)
-        self.export_table.setMinimumHeight(min(min_table_height, max_table_height))
+        self.export_table.setMinimumHeight(
+            min(min_table_height, max_table_height)
+        )
         self.export_table.setStyleSheet(get_component_dialog_combobox_style())
 
         header = self.export_table.horizontalHeader()

@@ -21,7 +21,9 @@ class SegmentAnythingONNX:
 
         # Pop TensorRT Runtime due to crashing issues
         # TODO: Add back when TensorRT backend is stable
-        self.providers = [p for p in self.providers if p != "TensorrtExecutionProvider"]
+        self.providers = [
+            p for p in self.providers if p != "TensorrtExecutionProvider"
+        ]
 
         self.encoder_session = onnxruntime.InferenceSession(
             encoder_model_path, providers=self.providers
@@ -82,7 +84,6 @@ class SegmentAnythingONNX:
                 gc.collect()
                 self.encoder_session = None
 
-    
     @staticmethod
     def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int):
         """

@@ -64,7 +64,9 @@
 
 ## 🥳 What's New
 
-- Bump version to [3.2.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.1)
+- Bump version to [3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2)
+- Add AI Assistant and prompt template management for VQA
+- Add support for batch editing multiple shapes simultaneously
 - Add support for Show/Hide shape attributes on canvas
 - Add support for automated training platform with Ultralytics tasks in X-AnyLabeling [Link](./examples/training/ultralytics/README.md)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)

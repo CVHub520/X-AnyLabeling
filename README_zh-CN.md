@@ -64,7 +64,9 @@
 
 ## 🥳 新功能
 
-- X-AnyLabeling [v3.2.1](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.1) 最新版本发布
+- X-AnyLabeling [v3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2) 最新版本发布
+- 新增 VQA 任务的 AI 助手功能和提示模板管理系统
+- 支持批量编辑多个对象
 - 支持在画布上显示/隐藏对象属性
 - 在 X-AnyLabeling 中内置一键训练功能，支持 Ultralytics 官方 Detect、Segment、OBB、Pose 四大任务 [链接](./examples/training/ultralytics/README.md)
 - 更多详情，请参考[更新日志](./CHANGELOG.md)

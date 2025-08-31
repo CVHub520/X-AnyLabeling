@@ -141,7 +141,7 @@ Results have been saved to:
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="497"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="499"/>
         <source>Generating content, please wait</source>
         <translation>正在生成内容，请稍候</translation>
     </message>
@@ -149,22 +149,22 @@ Results have been saved to:
 <context>
     <name>AIPromptDialog</name>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="532"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="534"/>
         <source>AI Assistance</source>
         <translation>AI助手</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="563"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="565"/>
         <source>Templates</source>
         <translation>模板</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="573"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="575"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="580"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="582"/>
         <source>Generate</source>
         <translation>生成</translation>
     </message>
@@ -847,62 +847,62 @@ Results have been saved to:
 <context>
     <name>ComponentDialog</name>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="687"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="689"/>
         <source>Edit Component</source>
         <translation>编辑组件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="687"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="689"/>
         <source>Add Component</source>
         <translation>添加组件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="697"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="699"/>
         <source>Component Title:</source>
         <translation>组件标题：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="706"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="708"/>
         <source>Component Type:</source>
         <translation>组件类型：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="716"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="718"/>
         <source>Options (one per line):</source>
         <translation>选项（每行一个）：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="727"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="729"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="731"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="733"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="804"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="806"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="768"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="770"/>
         <source>Component title cannot be empty!</source>
         <translation>组件标题不能为空！</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="780"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="782"/>
         <source>Component title already exists!</source>
         <translation>组件标题已存在！</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="791"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="793"/>
         <source>Options cannot be empty for this component type!</source>
         <translation>此组件类型的选项不能为空！</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="804"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="806"/>
         <source>Duplicate options are not allowed!</source>
         <translation>不允许重复的选项！</translation>
     </message>
@@ -958,57 +958,57 @@ Results have been saved to:
 <context>
     <name>DeleteComponentDialog</name>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="850"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="852"/>
         <source>Delete Components</source>
         <translation>删除组件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="865"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="867"/>
         <source>Select All:</source>
         <translation>选择所有：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="869"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="871"/>
         <source>Select/Deselect All Components</source>
         <translation>选择/取消选择所有组件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="886"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="888"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="886"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="888"/>
         <source>Title</source>
         <translation>标题</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="886"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="888"/>
         <source>Select</source>
         <translation>选择</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1019"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1021"/>
         <source>No components selected</source>
         <translation>未选择任何组件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="918"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="920"/>
         <source>Delete</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="924"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="926"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1021"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1023"/>
         <source>1 component selected</source>
         <translation>已选择1个组件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1023"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1025"/>
         <source>%d components selected</source>
         <translation>已选择%d个组件</translation>
     </message>
@@ -1127,62 +1127,62 @@ Results have been saved to:
 <context>
     <name>ExportLabelsDialog</name>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1051"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1053"/>
         <source>Export Labels</source>
         <translation>导出标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1070"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1073"/>
         <source>Select All:</source>
         <translation>全选：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1074"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1077"/>
         <source>Select/Deselect All Fields</source>
         <translation>选择/取消选择所有字段</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1094"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1097"/>
         <source>Type</source>
         <translation>类型</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1095"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1098"/>
         <source>Original Key</source>
         <translation>原始键名</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1096"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1099"/>
         <source>Export Key</source>
         <translation>导出键名</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1097"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1100"/>
         <source>Select</source>
         <translation>选择</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1277"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1284"/>
         <source>No fields selected</source>
         <translation>未选择任何字段</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1127"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1134"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1133"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1140"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1279"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1286"/>
         <source>1 field selected</source>
         <translation>已选择1个字段</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/vqa/dialogs.py" line="1281"/>
+        <location filename="../../views/labeling/vqa/dialogs.py" line="1288"/>
         <source>%d fields selected</source>
         <translation>已选择%d个字段</translation>
     </message>
@@ -2083,117 +2083,117 @@ Results have been saved to:
         <translation>快捷键：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4384"/>
+        <location filename="../../views/labeling/label_widget.py" line="4486"/>
         <source>Invalid label</source>
         <translation>无效标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4384"/>
+        <location filename="../../views/labeling/label_widget.py" line="4486"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation>无效标签'{}'，验证类型'{}'</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3082"/>
+        <location filename="../../views/labeling/label_widget.py" line="3184"/>
         <source>Error saving label data</source>
         <translation>保存标签数据时出错</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3082"/>
+        <location filename="../../views/labeling/label_widget.py" line="3184"/>
         <source>&lt;b&gt;%s&lt;/b&gt;</source>
         <translation>&lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3548"/>
+        <location filename="../../views/labeling/label_widget.py" line="3650"/>
         <source>Error opening file</source>
         <translation>打开文件时出错</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3486"/>
+        <location filename="../../views/labeling/label_widget.py" line="3588"/>
         <source>No such file: &lt;b&gt;%s&lt;/b&gt;</source>
         <translation>没有这个文件：&lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3493"/>
+        <location filename="../../views/labeling/label_widget.py" line="3595"/>
         <source>Loading %s...</source>
         <translation>正在加载%s...</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3508"/>
+        <location filename="../../views/labeling/label_widget.py" line="3610"/>
         <source>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Make sure &lt;i&gt;%s&lt;/i&gt; is a valid label file.</source>
         <translation>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;确保&lt;i&gt;%s&lt;/i&gt;是一个有效的标签文件。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3555"/>
+        <location filename="../../views/labeling/label_widget.py" line="3657"/>
         <source>Error reading %s</source>
         <translation>读取%s时出错</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3548"/>
+        <location filename="../../views/labeling/label_widget.py" line="3650"/>
         <source>&lt;p&gt;Make sure &lt;i&gt;{0}&lt;/i&gt; is a valid image file.&lt;br/&gt;Supported image formats: {1}&lt;/p&gt;</source>
         <translation>&lt;p&gt;确保&lt;i&gt;{0}&lt;/i&gt;是一个有效的图像文件。&lt;br/&gt;支持的图像格式：{1}&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3636"/>
+        <location filename="../../views/labeling/label_widget.py" line="3738"/>
         <source>Loaded %s</source>
         <translation>已加载%s</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3823"/>
+        <location filename="../../views/labeling/label_widget.py" line="3925"/>
         <source>Image &amp; Label files (%s)</source>
         <translation>图像和标签文件（%s）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3829"/>
+        <location filename="../../views/labeling/label_widget.py" line="3931"/>
         <source>%s - Choose Image or Label file</source>
         <translation>%s - 选择图像或标签文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3847"/>
+        <location filename="../../views/labeling/label_widget.py" line="3949"/>
         <source>%s - Save/Load Annotations in Directory</source>
         <translation>%s - 在目录中保存/加载注释</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3861"/>
+        <location filename="../../views/labeling/label_widget.py" line="3963"/>
         <source>%s . Annotations will be saved/loaded in %s</source>
         <translation>%s . 注释将保存/加载在%s中</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3893"/>
+        <location filename="../../views/labeling/label_widget.py" line="3995"/>
         <source>%s - Choose File</source>
         <translation>%s - 选择文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3918"/>
+        <location filename="../../views/labeling/label_widget.py" line="4020"/>
         <source>Label files (*%s)</source>
         <translation>标签文件（*%s）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3918"/>
+        <location filename="../../views/labeling/label_widget.py" line="4020"/>
         <source>Choose File</source>
         <translation>选择文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3960"/>
+        <location filename="../../views/labeling/label_widget.py" line="4062"/>
         <source>You are about to permanently delete this label file, proceed anyway?</source>
         <translation>您即将永久删除此标签文件，是否继续？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3991"/>
+        <location filename="../../views/labeling/label_widget.py" line="4093"/>
         <source>Attention</source>
         <translation>注意</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4055"/>
+        <location filename="../../views/labeling/label_widget.py" line="4157"/>
         <source>Save annotations to &quot;{self.filename!r}&quot; before closing?</source>
         <translation>在关闭之前将注释保存到&quot;{self.filename!r}&quot;？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4058"/>
+        <location filename="../../views/labeling/label_widget.py" line="4160"/>
         <source>Save annotations?</source>
         <translation>保存注释？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4128"/>
+        <location filename="../../views/labeling/label_widget.py" line="4230"/>
         <source>%s - Open Directory</source>
         <translation>%s - 打开目录</translation>
     </message>
@@ -2399,27 +2399,27 @@ Reset the label as {}.</source>
         <translation>无效标签'{}'，有效标签'{}'！标签重置为'{}'.</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3277"/>
+        <location filename="../../views/labeling/label_widget.py" line="3379"/>
         <source>X: %d, Y: %d | H: %d, W: %d</source>
         <translation>X: %d, Y: %d | H: %d, W: %d</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3295"/>
+        <location filename="../../views/labeling/label_widget.py" line="3397"/>
         <source>X: %d, Y: %d</source>
         <translation>X: %d, Y: %d</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4467"/>
+        <location filename="../../views/labeling/label_widget.py" line="4569"/>
         <source>Object Description</source>
         <translation>对象文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4476"/>
+        <location filename="../../views/labeling/label_widget.py" line="4578"/>
         <source>Image Description</source>
         <translation>图像文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4487"/>
+        <location filename="../../views/labeling/label_widget.py" line="4589"/>
         <source>Switch to Edit mode for description editing</source>
         <translation>切换到编辑模式以进行文本编辑</translation>
     </message>
@@ -2499,12 +2499,12 @@ Reset the label as {}.</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3264"/>
+        <location filename="../../views/labeling/label_widget.py" line="3366"/>
         <source>X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]</source>
         <translation>X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3284"/>
+        <location filename="../../views/labeling/label_widget.py" line="3386"/>
         <source>X: %d, Y: %d [%s: %d/%d]</source>
         <translation>X: %d, Y: %d [%s: %d/%d]</translation>
     </message>
@@ -2524,7 +2524,7 @@ Reset the label as {}.</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3987"/>
+        <location filename="../../views/labeling/label_widget.py" line="4089"/>
         <source>You are about to permanently delete this image file, proceed anyway?</source>
         <translation>您即将永久删除此图像文件，是否继续？</translation>
     </message>
@@ -2844,22 +2844,22 @@ Reset the label as {}.</source>
         <translation>导出自定义 PPOCR 关键信息提取标签（包括语义实体识别和关系提取）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3104"/>
+        <location filename="../../views/labeling/label_widget.py" line="3206"/>
         <source>Error pasting shapes</source>
         <translation>粘贴对象失败</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3104"/>
+        <location filename="../../views/labeling/label_widget.py" line="3206"/>
         <source>Error decoding shapes: %s</source>
         <translation>对象解码失败：%s</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2423"/>
+        <location filename="../../views/labeling/label_widget.py" line="2432"/>
         <source>Copied</source>
         <translation>已复制</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2423"/>
+        <location filename="../../views/labeling/label_widget.py" line="2432"/>
         <source>The information has been copied to the clipboard.</source>
         <translation>环境信息已复制到剪切板</translation>
     </message>
@@ -3127,6 +3127,30 @@ Reset the label as {}.</source>
         <location filename="../../views/labeling/label_widget.py" line="946"/>
         <source>Show attribute inside shapes</source>
         <translation>在对象内显示属性</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="2337"/>
+        <source>No images loaded</source>
+        <translation>未加载图像</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="2337"/>
+        <source>Please load an image folder before opening the VQA dialog.</source>
+        <translation>请在打开视觉问答窗口前加载图像文件夹。</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="2615"/>
+        <source>Batch Edit</source>
+        <translation>批量编辑</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="2615"/>
+        <source>You are about to edit multiple shapes in batch mode. This operation cannot be undone.
+
+This warning will only be shown once. Do you want to continue?</source>
+        <translation>您即将在批量模式下编辑多个对象。此操作无法撤消。
+
+此警告仅显示一次。是否继续？</translation>
     </message>
 </context>
 <context>
@@ -4075,7 +4099,7 @@ Results have been saved to:
         <translation type="obsolete">加载图像</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1407"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1410"/>
         <source>Export Labels</source>
         <translation>导出标签</translation>
     </message>
@@ -4146,42 +4170,42 @@ Do you want to continue?</source>
         <translation>确认删除</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1400"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1403"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1389"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1392"/>
         <source>No images loaded!</source>
         <translation>未加载图像！</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1407"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1410"/>
         <source>vqa_labels.jsonl</source>
         <translation>vqa_labels.jsonl</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1449"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1459"/>
         <source>Labels exported to %s.</source>
         <translation>标签已导出到 %s。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1451"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1461"/>
         <source>Success</source>
         <translation>成功</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1457"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1467"/>
         <source>Confirm Clear</source>
         <translation>确认清除</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1457"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1467"/>
         <source>Are you sure you want to clear all current annotations?</source>
         <translation>您确定要清除所有当前的标注吗？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1400"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1403"/>
         <source>No fields selected for export!</source>
         <translation>未选择要导出的字段！</translation>
     </message>
@@ -4201,24 +4225,24 @@ Do you want to continue?</source>
         <translation>删除组件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1034"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1037"/>
         <source>Error</source>
         <translation>错误</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1034"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1037"/>
         <source>Failed to generate content:
 </source>
         <translation>生成内容失败：
 </translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1072"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1075"/>
         <source>AI Assistant</source>
         <translation>AI助手</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1079"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1082"/>
         <source>Edit Content</source>
         <translation>编辑内容</translation>
     </message>
@@ -4228,12 +4252,12 @@ Do you want to continue?</source>
         <translation>AI生成结果</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1007"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1010"/>
         <source>Apply</source>
         <translation>应用</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1011"/>
+        <location filename="../../views/labeling/widgets/vqa_dialog.py" line="1014"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>

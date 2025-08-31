@@ -2336,7 +2336,9 @@ class LabelingWidget(LabelDialog):
         if not self.image_list:
             self.error_message(
                 self.tr("No images loaded"),
-                self.tr("Please load an image folder before opening the VQA dialog."),
+                self.tr(
+                    "Please load an image folder before opening the VQA dialog."
+                ),
             )
             return
 
@@ -2619,7 +2621,7 @@ class LabelingWidget(LabelDialog):
                     "This warning will only be shown once. Do you want to continue?"
                 ),
                 QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-                QtWidgets.QMessageBox.No
+                QtWidgets.QMessageBox.No,
             )
 
             if reply != QtWidgets.QMessageBox.Yes:
@@ -2677,7 +2679,9 @@ class LabelingWidget(LabelDialog):
         self.label_dialog.add_label_history(text)
 
         if not self.unique_label_list.find_items_by_label(text):
-            unique_label_item = self.unique_label_list.create_item_from_label(text)
+            unique_label_item = self.unique_label_list.create_item_from_label(
+                text
+            )
             self.unique_label_list.addItem(unique_label_item)
             rgb = self._get_rgb_by_label(text)
             self.unique_label_list.set_item_label(
@@ -2966,7 +2970,9 @@ class LabelingWidget(LabelDialog):
                 self.label_list.scroll_to_item(item)
         self._no_selection_slot = False
         n_selected = len(selected_shapes)
-        same_type = len(set(shape.shape_type for shape in selected_shapes)) <= 1
+        same_type = (
+            len(set(shape.shape_type for shape in selected_shapes)) <= 1
+        )
         self.actions.delete.setEnabled(n_selected)
         self.actions.duplicate.setEnabled(n_selected)
         self.actions.copy.setEnabled(n_selected)

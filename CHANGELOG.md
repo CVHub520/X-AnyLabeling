@@ -1,5 +1,28 @@
 # X-AnyLabeling Changelog
 
+## `v3.2.2` (Aug 31, 2025)
+
+### 🚀 New Features
+
+- Support batch editing for multiple shapes (#1084)
+- Introduce AI Assistant for VQA
+- Add prompt template management to VQA
+- Enhance VQA dialog with a new UI including sidebar toggles, streamlined navigation controls, improved page navigation, loading indicators, and updated button styles
+
+### 🐛 Bug Fixes
+
+- Fix issue with dragging and moving the image (#1088)
+
+### 🛠️ Improvements
+
+- Optimize SAM inference memory management (#1086)
+
+### 🌟 Contributors
+
+A total of 4 developers contributed to this release.
+
+Thank @jsolobang, @zhaoruibing, @zhixuwei, @CVHub520
+
 ## `v3.2.1` (Aug 23, 2025)
 
 ### 🚀 New Features

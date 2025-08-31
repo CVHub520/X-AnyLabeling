@@ -736,6 +736,22 @@ Then upload it through the menu: `Upload` → `Upload Label Classes File`.
 * Labels set via the config file are saved permanently and remain after restarting the software — ideal for fixed, long-term label sets.
 * Labels uploaded via the interface are temporary and reset after restarting — useful when frequently switching between different label sets.
 
+### 7.4 Auto-Switch to Edit Mode
+
+To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. This behavior is controlled by the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
+
+- Set to `true` to enable automatic switching to Edit Mode.
+- Set to `false` (the default) to remain in Drawing Mode, which allows for the continuous creation of multiple shapes.
+
+### 7.5 Hover Auto-Highlight
+
+For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. This is controlled by the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
+
+- Set to `true` to highlight shapes on hover.
+- Set to `false` (the default) to only highlight shapes upon clicking them.
+
+*Note: When working on multi-label classification tasks with a custom attributes file loaded, this setting is automatically disabled to prevent accidentally changing the active shape while interacting with the attributes panel.*
+
 ### 7.6 Shape Appearance
 
 Customize the default appearance of shapes (colors during drawing/selection, point size, line width) by editing the `shape:` section in the `.xanylabelingrc` file:

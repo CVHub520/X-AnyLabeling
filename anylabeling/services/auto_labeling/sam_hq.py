@@ -41,16 +41,22 @@ class SegmentAnythingONNX:
 
         # Pop TensorRT Runtime due to crashing issues
         # TODO: Add back when TensorRT backend is stable
-        self.providers = [p for p in self.providers if p != "TensorrtExecutionProvider"]
+        self.providers = [
+            p for p in self.providers if p != "TensorrtExecutionProvider"
+        ]
 
         sess_options = onnxruntime.SessionOptions()
         sess_options.log_severity_level = 3
         self.encoder_session = onnxruntime.InferenceSession(
-            encoder_model_path, providers=self.providers, sess_options=sess_options
+            encoder_model_path,
+            providers=self.providers,
+            sess_options=sess_options,
         )
         self.encoder_input_name = self.encoder_session.get_inputs()[0].name
         self.decoder_session = onnxruntime.InferenceSession(
-            decoder_model_path, providers=self.providers, sess_options=sess_options
+            decoder_model_path,
+            providers=self.providers,
+            sess_options=sess_options,
         )
 
     def get_input_points(self, prompt):
@@ -104,7 +110,6 @@ class SegmentAnythingONNX:
                     del features
                 gc.collect()
                 self.encoder_session = None
-
 
     @staticmethod
     def get_preprocess_shape(oldh: int, oldw: int, long_side_length: int):
