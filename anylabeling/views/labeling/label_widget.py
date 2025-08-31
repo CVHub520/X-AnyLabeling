@@ -189,23 +189,97 @@ class LabelingWidget(LabelDialog):
         self.label_list.item_changed.connect(self.label_item_changed)
         self.label_list.item_dropped.connect(self.label_order_changed)
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Objects"), self)
-        self.shape_dock.setWidget(self.label_list)
+        
+        # 创建对象控制按钮
+        shape_control_widget = QtWidgets.QWidget()
+        shape_control_layout = QtWidgets.QHBoxLayout()
+        shape_control_layout.setContentsMargins(2, 2, 2, 2)
+        shape_control_layout.setSpacing(2)
+        
+        btn_select_all_shapes = QtWidgets.QPushButton(self.tr("全选"))
+        def select_all_objects():
+            for item in self.label_list:
+                item.setCheckState(Qt.Checked)
+        btn_select_all_shapes.clicked.connect(select_all_objects)
+
+        btn_invert_selection_shapes = QtWidgets.QPushButton(self.tr("反选"))
+        def invert_all_objects():
+            for item in self.label_list:
+                item.setCheckState(Qt.Unchecked if item.checkState() == Qt.Checked else Qt.Checked)
+        btn_invert_selection_shapes.clicked.connect(invert_all_objects)
+
+        btn_deselect_all_shapes = QtWidgets.QPushButton(self.tr("取消"))
+        def deselect_all_objects():
+            for item in self.label_list:
+                item.setCheckState(Qt.Unchecked)
+        btn_deselect_all_shapes.clicked.connect(deselect_all_objects)
+        
+        # 高亮按钮
+        self._highlight_on = False
+        btn_highlight = QtWidgets.QPushButton(self.tr("高亮"))
+        btn_highlight.setCheckable(True)
+        def toggle_highlight():
+            self._highlight_on = not self._highlight_on
+            for item in self.label_list:
+                shape = item.shape()
+                shape.selected = self._highlight_on
+            self.canvas.update()
+        btn_highlight.clicked.connect(toggle_highlight)
+
+        shape_control_layout.addWidget(btn_select_all_shapes)
+        shape_control_layout.addWidget(btn_invert_selection_shapes)
+        shape_control_layout.addWidget(btn_deselect_all_shapes)
+        shape_control_layout.addWidget(btn_highlight)
+        shape_control_layout.addStretch()
+        shape_control_widget.setLayout(shape_control_layout)
+        
+        shape_container = QtWidgets.QWidget()
+        shape_layout = QtWidgets.QVBoxLayout()
+        shape_layout.setContentsMargins(0, 0, 0, 0)
+        shape_layout.setSpacing(2)
+        shape_layout.addWidget(shape_control_widget)
+        shape_layout.addWidget(self.label_list)
+        shape_container.setLayout(shape_layout)
+        
+        self.shape_dock.setWidget(shape_container)
         self.shape_dock.setStyleSheet(
             "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
         self.shape_dock.setTitleBarWidget(QtWidgets.QWidget())
 
-        self.unique_label_list = UniqueLabelQListWidget()
+        self.unique_label_list = UniqueLabelQListWidget(self)
         self.unique_label_list.setToolTip(
             self.tr(
-                "Select label to start annotating for it. "
+                "Click labels to toggle visibility. "
                 "Press 'Esc' to deselect."
             )
         )
+        # 连接标签可见性变化信号
+        self.unique_label_list.label_visibility_changed.connect(
+            self.update_label_visibility
+        )
         self.load_labels(self._config["labels"])
+
+        # 创建标签控制按钮
+        self.create_label_control_buttons()
+
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
         self.label_dock.setObjectName("Labels")
-        self.label_dock.setWidget(self.unique_label_list)
+        
+        # 创建标签容器widget
+        label_container = QtWidgets.QWidget()
+        label_layout = QtWidgets.QVBoxLayout()
+        label_layout.setContentsMargins(0, 0, 0, 0)
+        label_layout.setSpacing(2)
+        
+        # 添加控制按钮
+        label_layout.addWidget(self.label_control_widget)
+        # 添加标签列表
+        label_layout.addWidget(self.unique_label_list)
+        
+        label_container.setLayout(label_layout)
+        self.label_dock.setWidget(label_container)
+        
         self.label_dock.setStyleSheet(
             "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
         )
@@ -1853,9 +1927,10 @@ class LabelingWidget(LabelDialog):
         )
         right_sidebar_layout.addWidget(self.scroll_area)
 
-        # Shape text label
+        # Shape text label (缩小描述区域)
         self.shape_text_label = QLabel("Object Text")
         self.shape_text_edit = QPlainTextEdit()
+        self.shape_text_edit.setMaximumHeight(60)  # 限制高度
         right_sidebar_layout.addWidget(
             self.shape_text_label, 0, Qt.AlignCenter
         )
@@ -2214,19 +2289,26 @@ class LabelingWidget(LabelDialog):
         """
         Merges selected shapes into one shape.
         """
-        rectangle_shapes, polygon_shapes = [], []
+        rectangle_shapes, polygon_shapes, rotation_shapes = [], [], []
         for shape in self.canvas.selected_shapes:
             points = shape.points
             if shape.shape_type == "rectangle":
                 xmin, ymin = (points[0].x(), points[0].y())
                 xmax, ymax = (points[2].x(), points[2].y())
                 rectangle_shapes.append([xmin, ymin, xmax, ymax])
+            elif shape.shape_type == "rotation":
+                # 旋转矩形：保存所有四个顶点和方向
+                rotation_shapes.append({
+                    'points': [(p.x(), p.y()) for p in points],
+                    'direction': shape.direction if hasattr(shape, 'direction') else 0
+                })
             else:
                 polygon_shapes.append([(p.x(), p.y()) for p in points])
 
-        union_shape = shape.copy()
+        union_shape = self.canvas.selected_shapes[0].copy()  # 使用第一个形状作为模板
 
         if len(rectangle_shapes) > 0:
+            # 处理普通矩形合并
             min_x = min([bbox[0] for bbox in rectangle_shapes])
             min_y = min([bbox[1] for bbox in rectangle_shapes])
             max_x = max([bbox[2] for bbox in rectangle_shapes])
@@ -2240,6 +2322,32 @@ class LabelingWidget(LabelDialog):
             union_shape.points[2].setY(max_y)
             union_shape.points[3].setX(min_x)
             union_shape.points[3].setY(max_y)
+        elif len(rotation_shapes) > 0:
+            # 处理旋转矩形合并
+            all_points = []
+            for rot_shape in rotation_shapes:
+                all_points.extend(rot_shape['points'])
+            
+            # 找到包围所有点的最小外接矩形
+            min_x = min([p[0] for p in all_points])
+            min_y = min([p[1] for p in all_points])
+            max_x = max([p[0] for p in all_points])
+            max_y = max([p[1] for p in all_points])
+            
+            # 创建包围矩形
+            union_shape.shape_type = "rotation"  # 保持为旋转矩形类型
+            union_shape.points[0].setX(min_x)
+            union_shape.points[0].setY(min_y)
+            union_shape.points[1].setX(max_x)
+            union_shape.points[1].setY(min_y)
+            union_shape.points[2].setX(max_x)
+            union_shape.points[2].setY(max_y)
+            union_shape.points[3].setX(min_x)
+            union_shape.points[3].setY(max_y)
+            
+            # 保持第一个旋转矩形的方向，或设置为0度
+            if hasattr(union_shape, 'direction'):
+                union_shape.direction = rotation_shapes[0]['direction']
         else:
             # Create a blank mask
             min_x = min([min(p[0] for p in poly) for poly in polygon_shapes])
@@ -2958,10 +3066,10 @@ class LabelingWidget(LabelDialog):
             shape.selected = False
         self.label_list.clearSelection()
         self.canvas.selected_shapes = selected_shapes
-        allow_merge_shape_type = {"rectangle": 0, "polygon": 0}
+        allow_merge_shape_type = {"rectangle": 0, "polygon": 0, "rotation": 0}
         for shape in self.canvas.selected_shapes:
             shape.selected = True
-            if shape.shape_type in ["rectangle", "polygon"]:
+            if shape.shape_type in ["rectangle", "polygon", "rotation"]:
                 allow_merge_shape_type[shape.shape_type] += 1
             item = self.label_list.find_item_by_shape(shape)
             # NOTE: Handle the case when the shape is not found
@@ -2982,6 +3090,7 @@ class LabelingWidget(LabelDialog):
             and (
                 allow_merge_shape_type["rectangle"] > 1
                 or allow_merge_shape_type["polygon"] > 1
+                or allow_merge_shape_type["rotation"] > 1
             )
         )
         self.set_text_editing(True)
@@ -3026,6 +3135,59 @@ class LabelingWidget(LabelDialog):
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         self.update_combo_box()
         self.update_gid_box()
+
+    def create_label_control_buttons(self):
+        """创建标签控制按钮"""
+        self.label_control_widget = QtWidgets.QWidget()
+        control_layout = QtWidgets.QHBoxLayout()
+        control_layout.setContentsMargins(2, 2, 2, 2)
+        control_layout.setSpacing(2)
+
+        # 全选按钮
+        self.btn_select_all = QtWidgets.QPushButton(self.tr("全选"))
+        self.btn_select_all.setToolTip(self.tr("选择所有标签"))
+        def select_all_labels():
+            for i in range(self.unique_label_list.count()):
+                item = self.unique_label_list.item(i)
+                item.setCheckState(Qt.Checked)
+        self.btn_select_all.clicked.connect(select_all_labels)
+
+        # 反选按钮
+        self.btn_invert_selection = QtWidgets.QPushButton(self.tr("反选"))
+        self.btn_invert_selection.setToolTip(self.tr("反向选择标签"))
+        def invert_labels():
+            # 统计对象区当前存在的标签集合
+            object_labels = set()
+            for obj_item in self.label_list:
+                object_labels.add(obj_item.shape().label)
+            for i in range(self.unique_label_list.count()):
+                item = self.unique_label_list.item(i)
+                label = item.data(Qt.UserRole)
+                if label in object_labels:
+                    # 反转
+                    item.setCheckState(Qt.Unchecked if item.checkState() == Qt.Checked else Qt.Checked)
+                else:
+                    # 不存在的标签直接取消勾选
+                    item.setCheckState(Qt.Unchecked)
+        self.btn_invert_selection.clicked.connect(invert_labels)
+
+        # 取消按钮
+        self.btn_deselect_all = QtWidgets.QPushButton(self.tr("取消"))
+        self.btn_deselect_all.setToolTip(self.tr("取消所有标签"))
+        def deselect_all_labels():
+            for i in range(self.unique_label_list.count()):
+                item = self.unique_label_list.item(i)
+                item.setCheckState(Qt.Unchecked)
+        self.btn_deselect_all.clicked.connect(deselect_all_labels)
+
+        # 添加按钮到布局
+        control_layout.addWidget(self.btn_select_all)
+        control_layout.addWidget(self.btn_invert_selection)
+        control_layout.addWidget(self.btn_deselect_all)
+        control_layout.addStretch()
+
+        self.label_control_widget.setLayout(control_layout)
+
 
     def load_labels(self, labels, clear_existing=True):
         """
@@ -3094,7 +3256,17 @@ class LabelingWidget(LabelDialog):
             self.add_label(shape, update_last_label=update_last_label)
         self.label_list.clearSelection()
         self._no_selection_slot = False
+        # 全局高亮同步
+        if hasattr(self, "_highlight_on") and self._highlight_on:
+            for shape in shapes:
+                shape.selected = True
+                shape.fill = True
+        elif hasattr(self, "_highlight_on") and not self._highlight_on:
+            for shape in shapes:
+                shape.selected = False
+                shape.fill = False
         self.canvas.load_shapes(shapes, replace=replace)
+        self.canvas.update()
 
     def load_flags(self, flags):
         self.flag_widget.clear()
@@ -3231,6 +3403,17 @@ class LabelingWidget(LabelDialog):
             ]
             self.actions.paste.setEnabled(len(self._copied_shapes) > 0)
 
+
+    def update_label_visibility(self, label, is_visible):
+        """标签区勾选同步到对象区，并同步可见性"""
+        for item in self.label_list:
+            shape = item.shape()
+            if shape.label == label:
+                # 更新对象区的勾选状态
+                item.setCheckState(Qt.Checked if is_visible else Qt.Unchecked)
+                shape.visible = is_visible
+                self.canvas.set_shape_visible(shape, is_visible)
+
     def text_selection_changed(self, index):
         label = self.label_filter_combobox.text_box.itemText(index)
         for item in self.label_list:
@@ -3267,6 +3450,31 @@ class LabelingWidget(LabelDialog):
         shape = item.shape()
         shape.visible = item.checkState() == Qt.Checked
         self.canvas.set_shape_visible(shape, item.checkState() == Qt.Checked)
+        
+        # 简单的同步逻辑：对象区变化同步到标签区
+        label = shape.label
+        is_visible = item.checkState() == Qt.Checked
+        
+        # 检查该标签的所有对象是否都可见
+        all_visible = True
+        any_visible = False
+        for obj_item in self.label_list:
+            if obj_item.shape().label == label:
+                if obj_item.checkState() == Qt.Checked:
+                    any_visible = True
+                else:
+                    all_visible = False
+        
+        # 更新标签区：只有全部可见才勾选，全部不可见才取消勾选
+        for i in range(self.unique_label_list.count()):
+            label_item = self.unique_label_list.item(i)
+            if label_item.data(Qt.UserRole) == label:
+                if all_visible:
+                    label_item.setCheckState(Qt.Checked)
+                elif not any_visible:
+                    label_item.setCheckState(Qt.Unchecked)
+                # 部分可见时保持当前状态
+                break
 
     def label_order_changed(self):
         self.set_dirty()
