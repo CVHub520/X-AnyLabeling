@@ -1162,6 +1162,7 @@ class ExportLabelsDialog(QDialog):
             ("Basic", "image", "image"),
             ("Basic", "width", "width"),
             ("Basic", "height", "height"),
+            ("Basic", "shapes", "shapes"),
         ]
 
         for field_type, original_key, export_key in basic_fields:
@@ -1185,7 +1186,7 @@ class ExportLabelsDialog(QDialog):
             checkbox_layout.setAlignment(Qt.AlignCenter)
 
             checkbox = QCheckBox()
-            checkbox.setChecked(True)
+            checkbox.setChecked(original_key != "shapes")
             checkbox.stateChanged.connect(self.on_item_selection_changed)
             checkbox_layout.addWidget(checkbox)
 

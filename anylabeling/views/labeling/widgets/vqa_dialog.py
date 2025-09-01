@@ -1443,10 +1443,27 @@ class VQADialog(QDialog):
                             label_data_json = json.load(label_f)
                             vqa_data = label_data_json.get("vqaData", {})
                             all_data.update(vqa_data)
+                            all_data["shapes"] = label_data_json.get("shapes", [])
                     except Exception as e:
                         logger.warning(
                             f"Failed to load label file {label_file_path}: {e}"
                         )
+
+                for component in self.custom_components:
+                    comp_title = component["title"]
+                    if comp_title not in all_data:
+                        comp_type = component["type"]
+                        if comp_type == "QLineEdit":
+                            all_data[comp_title] = ""
+                        elif comp_type == "QRadioButton":
+                            all_data[comp_title] = None
+                        elif comp_type == "QComboBox":
+                            all_data[comp_title] = None
+                        elif comp_type == "QCheckBox":
+                            all_data[comp_title] = []
+
+                if "shapes" not in all_data:
+                    all_data["shapes"] = []
 
                 # Filter and rename fields based on export config
                 label_data = {}
