@@ -1364,6 +1364,8 @@ class Canvas(
             ) and self.is_visible(shape):
                 shape.fill = self._fill_drawing and (
                     shape.selected or shape == self.h_hape
+                ) and not (
+                    self.selected_vertex() and self.moving_shape
                 )
                 shape.paint(p)
 
