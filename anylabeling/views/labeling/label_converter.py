@@ -464,6 +464,8 @@ class LabelConverter:
         img_w, img_h = self.get_image_size(image_file)
         for line in lines:
             line = line.strip().split(" ")
+            if len(line) <= 1:
+                continue
             class_index = int(line[0])
             label = self.classes[class_index]
             shape_type = "rotation"
@@ -508,6 +510,8 @@ class LabelConverter:
         classes = list(self.pose_classes.keys())
         for i, line in enumerate(lines):
             line = line.strip().split(" ")
+            if len(line) <= 1:
+                continue
             class_index = int(line[0])
             label = classes[class_index]
             # Add rectangle info
@@ -576,6 +580,8 @@ class LabelConverter:
         image_size = np.array([img_w, img_h], np.float64)
         for line in lines:
             line = line.strip().split(" ")
+            if len(line) <= 1:
+                continue
             class_index = int(line[0])
             label = self.classes[class_index]
             if mode == "hbb":
