@@ -3,6 +3,7 @@ from typing import Dict
 from anylabeling.views.labeling.vqa.config import (
     BORDER_RADIUS,
     BUTTON_COLORS,
+    FONT_SIZE_SMALL,
     FONT_SIZE_NORMAL,
     FONT_SIZE_LARGE,
     THEME,
@@ -327,21 +328,21 @@ def get_dialog_button_style(
     sizes = {
         "small": {
             "height": "28px",
-            "padding": "0 12px",
-            "font_size": "12px",
-            "min_width": "70px",
+            "padding": "0 8px",
+            "font_size": FONT_SIZE_SMALL,
+            "min_width": "50px",
         },
         "medium": {
             "height": "36px",
-            "padding": "0 16px",
-            "font_size": "13px",
-            "min_width": "100px",
+            "padding": "0 10px",
+            "font_size": FONT_SIZE_NORMAL,
+            "min_width": "70px",
         },
         "large": {
             "height": "44px",
-            "padding": "0 20px",
-            "font_size": "14px",
-            "min_width": "120px",
+            "padding": "0 12px",
+            "font_size": FONT_SIZE_LARGE,
+            "min_width": "90px",
         },
     }
     size_config = sizes.get(size, sizes["medium"])
