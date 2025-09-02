@@ -2,6 +2,7 @@ import json
 import os
 import re
 import shutil
+import random 
 from datetime import datetime
 from typing import List
 
@@ -117,6 +118,9 @@ def create_yolo_dataset(
         except Exception:
             background_images.append(image_file)
             continue
+
+    # ensure train/val split is randomized
+    valid_images = random.sample(valid_images, k=len(valid_images))
 
     train_count = int(len(valid_images) * dataset_ratio)
     train_valid_images = valid_images[:train_count]
