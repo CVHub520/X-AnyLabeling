@@ -1056,7 +1056,7 @@ class ExportLabelsDialog(QDialog):
         # Calculate dialog size based on content
         base_height = 280
         row_height = 35
-        field_count = len(components) + 3
+        field_count = len(components) + 4
         table_height = max(150, field_count * row_height + 50)
         total_height = min(500, base_height + table_height)
 
@@ -1089,7 +1089,7 @@ class ExportLabelsDialog(QDialog):
 
         # Export fields table
         self.export_table = QTableWidget()
-        field_count = len(components) + 3  # components + basic fields
+        field_count = len(components) + 4
         self.export_table.setRowCount(field_count)
         self.export_table.setColumnCount(4)
 
@@ -1169,10 +1169,12 @@ class ExportLabelsDialog(QDialog):
             type_item = QTableWidgetItem(field_type)
             type_item.setTextAlignment(Qt.AlignCenter)
             type_item.setData(Qt.ForegroundRole, QColor("#718096"))
+            type_item.setFlags(type_item.flags() & ~Qt.ItemIsEditable)
             self.export_table.setItem(row, 0, type_item)
 
             original_item = QTableWidgetItem(original_key)
             original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            original_item.setFlags(original_item.flags() & ~Qt.ItemIsEditable)
             self.export_table.setItem(row, 1, original_item)
 
             export_input = QLineEdit()
@@ -1206,10 +1208,12 @@ class ExportLabelsDialog(QDialog):
             type_item.setTextAlignment(Qt.AlignCenter)
             color = type_colors.get(component["type"], QColor("#718096"))
             type_item.setData(Qt.ForegroundRole, color)
+            type_item.setFlags(type_item.flags() & ~Qt.ItemIsEditable)
             self.export_table.setItem(row, 0, type_item)
 
             original_item = QTableWidgetItem(component["title"])
             original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            original_item.setFlags(original_item.flags() & ~Qt.ItemIsEditable)
             self.export_table.setItem(row, 1, original_item)
 
             export_input = QLineEdit()
