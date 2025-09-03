@@ -1115,21 +1115,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 self.parent.unique_label_list.set_item_label(
                     unique_label_item, c, rgb, self.opacity
                 )
+            else:
+                rgb = self.parent._get_rgb_by_label(c, skip_label_info=True)
             # Update label info
-            color = [0, 0, 0]
-            opacity = 255
-            items = self.parent.unique_label_list.find_items_by_label(c)
-            for item in items:
-                qlabel = self.parent.unique_label_list.itemWidget(item)
-                if qlabel:
-                    style_sheet = qlabel.styleSheet()
-                    start_index = style_sheet.find("rgba(") + 5
-                    end_index = style_sheet.find(")", start_index)
-                    rgba_color = style_sheet[start_index:end_index].split(",")
-                    rgba_color = [int(x.strip()) for x in rgba_color]
-                    color = rgba_color[:-1]
-                    opacity = rgba_color[-1]
-                    break
+            color = list(rgb)
+            opacity = self.opacity
             self.parent.label_info[c] = dict(
                 delete=False,
                 value=None,
