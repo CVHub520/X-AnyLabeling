@@ -2,8 +2,16 @@
 # vim: ft=python
 
 import sys
+import sysconfig
+from pathlib import Path
 
 sys.setrecursionlimit(5000)  # required on Windows
+
+site_packages = Path(sysconfig.get_path("purelib"))
+onnxruntime_dlls = [
+    (str(site_packages / 'onnxruntime/capi/onnxruntime_providers_cuda.dll'), 'onnxruntime/capi'),
+    (str(site_packages / 'onnxruntime/capi/onnxruntime_providers_shared.dll'), 'onnxruntime/capi')
+]
 
 a = Analysis(
     ['anylabeling/app.py'],
@@ -17,8 +25,7 @@ a = Analysis(
         ('anylabeling/services/auto_labeling/configs/clip/*', 'anylabeling/services/auto_labeling/configs/clip'),
         ('anylabeling/services/auto_labeling/configs/ppocr/*', 'anylabeling/services/auto_labeling/configs/ppocr'),
         ('anylabeling/services/auto_labeling/configs/ram/*', 'anylabeling/services/auto_labeling/configs/ram'),
-        ('C:/Users/18102/.conda/envs/x-anylabeling-gpu/Lib/site-packages/onnxruntime/capi/onnxruntime_providers_cuda.dll', 'onnxruntime/capi'),
-        ('C:/Users/18102/.conda/envs/x-anylabeling-gpu/Lib/site-packages/onnxruntime/capi/onnxruntime_providers_shared.dll', 'onnxruntime/capi')
+        *onnxruntime_dlls
     ],
     hiddenimports=[],
     hookspath=[],
