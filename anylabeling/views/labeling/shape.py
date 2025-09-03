@@ -11,9 +11,9 @@ from ..labeling.logger import logger
 
 
 DEFAULT_LINE_COLOR = QtGui.QColor(0, 255, 0, 128)  # bf hovering
-DEFAULT_FILL_COLOR = QtGui.QColor(100, 100, 100, 100)  # hovering
+DEFAULT_FILL_COLOR = QtGui.QColor(255, 168, 0, 100)  # hovering - 橙色半透明
 DEFAULT_SELECT_LINE_COLOR = QtGui.QColor(255, 255, 255)  # selected
-DEFAULT_SELECT_FILL_COLOR = QtGui.QColor(0, 255, 0, 155)  # selected
+DEFAULT_SELECT_FILL_COLOR = QtGui.QColor(255, 0, 0, 155)  # selected - 红色半透明
 DEFAULT_VERTEX_FILL_COLOR = QtGui.QColor(0, 255, 0, 255)  # hovering
 DEFAULT_HVERTEX_FILL_COLOR = QtGui.QColor(255, 255, 255, 255)  # hovering
 
@@ -78,8 +78,8 @@ class Shape:
         self.difficult = difficult
         self.kie_linking = kie_linking
         self.points = []
-        self.fill = False
-        self.selected = False
+        self.fill = True
+        self.selected = True
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
