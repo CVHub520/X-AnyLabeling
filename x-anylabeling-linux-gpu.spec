@@ -2,6 +2,14 @@
 # vim: ft=python
 
 import sys
+import sysconfig
+from pathlib import Path
+
+site_packages = Path(sysconfig.get_path("purelib"))
+onnxruntime_libs = [
+    (str(site_packages / 'onnxruntime/capi/libonnxruntime_providers_cuda.so'), 'onnxruntime/capi'),
+    (str(site_packages / 'onnxruntime/capi/libonnxruntime_providers_shared.so'), 'onnxruntime/capi')
+]
 
 a = Analysis(
     ['anylabeling/app.py'],
@@ -15,8 +23,7 @@ a = Analysis(
         ('anylabeling/services/auto_labeling/configs/clip/*', 'anylabeling/services/auto_labeling/configs/clip'),
         ('anylabeling/services/auto_labeling/configs/ppocr/*', 'anylabeling/services/auto_labeling/configs/ppocr'),
         ('anylabeling/services/auto_labeling/configs/ram/*', 'anylabeling/services/auto_labeling/configs/ram'),
-        ('/home/cvhub/miniconda3/envs/x-anylabeling-gpu/lib/python3.8/site-packages/onnxruntime/capi/libonnxruntime_providers_cuda.so', 'onnxruntime/capi'),
-        ('/home/cvhub/miniconda3/envs/x-anylabeling-gpu/lib/python3.8/site-packages/onnxruntime/capi/libonnxruntime_providers_shared.so', 'onnxruntime/capi'),
+        *onnxruntime_libs
     ],
     hiddenimports=[],
     hookspath=[],

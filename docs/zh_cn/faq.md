@@ -326,6 +326,12 @@ pip install --upgrade onnx
 onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.com/CVHub520/X-AnyLabeling/issues/886)
 </details>
 
+<details>
+<summary>Q: 运行编译好的 GPU 版本时发现模型长时间处于加载状态</summary>
+
+这通常是由于 onnx 和 onnxruntime-gpu 版本不匹配导致的。请参考[ONNX Runtime 官方兼容性文档](https://onnxruntime.ai/docs/reference/compatibility.html#onnx-opset-support)确保安装了匹配的 `onnx` 版本。
+</details>
+
 
 ### 文件相关问题
 
