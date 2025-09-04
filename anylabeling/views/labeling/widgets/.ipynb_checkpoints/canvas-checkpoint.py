@@ -45,13 +45,11 @@ class Canvas(
     shape_rotated = QtCore.pyqtSignal()
     drawing_polygon = QtCore.pyqtSignal(bool)
     vertex_selected = QtCore.pyqtSignal(bool)
-    lineDrawnForSplit = QtCore.pyqtSignal(object, list)
     auto_labeling_marks_updated = QtCore.pyqtSignal(list)
     auto_decode_requested = QtCore.pyqtSignal(list)
     auto_decode_finish_requested = QtCore.pyqtSignal()
 
     CREATE, EDIT = 0, 1
-    SPLIT = 2
 
     # polygon, rectangle, rotation, line, or point
     _create_mode = "polygon"
@@ -86,9 +84,6 @@ class Canvas(
         self.is_move_editing = False
         self.auto_labeling_mode: AutoLabelingMode = None
         self.shapes = []
-        self.mode_before_split = self.EDIT  # 存储进入画线模式前的状态
-        self.shape_to_split = None         # 存储要被分割的图形
-        self.split_line_points = []        # 存储用户画的线的点集
         self.shapes_backups = []
         self.current = None
         self.selected_shapes = []  # save the selected shapes here
@@ -195,28 +190,6 @@ class Canvas(
     def set_fill_drawing(self, value):
         """Set shape filling option"""
         self._fill_drawing = value
-
-
-    def enter_split_mode(self, shape):
-        """命令 Canvas 进入画线分割模式"""
-        self.mode_before_split = self.mode  # 保存当前模式
-        self.mode = self.SPLIT              # 设置为新模式
-        self.shape_to_split = shape         # 保存要分割的图形
-        self.un_highlight()                 # 清除所有高亮
-        self.deselect_shape()               # 取消所有选择
-        self.shape_to_split.selected = True # 只让要分割的图形保持选中外观
-        self.override_cursor(CURSOR_DRAW)   # 改变鼠标为十字形
-        self.update()
-    
-    def exit_split_mode(self):
-        """命令 Canvas 退出画线分割模式"""
-        if self.shape_to_split:
-            self.shape_to_split.selected = False
-        self.shape_to_split = None
-        self.split_line_points = []
-        self.mode = self.mode_before_split    # 恢复之前的模式
-        self.restore_cursor()
-        self.update()
 
     @property
     def create_mode(self):
@@ -394,12 +367,6 @@ class Canvas(
         except AttributeError:
             return
 
-        if self.mode == self.SPLIT and self.split_line_points:
-            # 如果正在画线（左键被按下），则不断添加新的点
-            self.split_line_points.append(pos)
-            self.update()
-            return # 在画线模式下，不执行后面的任何逻辑
-        
         self.prev_move_point = pos
         self.repaint()
 
@@ -710,14 +677,6 @@ class Canvas(
         if self.is_loading:
             return
         pos = self.transform_pos(ev.localPos())
-
-
-        if self.mode == self.SPLIT:
-            if ev.button() == QtCore.Qt.LeftButton:
-                # 开始画线，清空旧的点，并记录第一个点
-                self.split_line_points = [pos]
-                self.update()
-            return  # 在画线模式下，不执行后面的任何逻辑
         if ev.button() == QtCore.Qt.LeftButton:
             if self.drawing():
                 if self.current:
@@ -852,17 +811,6 @@ class Canvas(
         """Mouse release event"""
         if self.is_loading:
             return
-    
-        if self.mode == self.SPLIT:
-            if ev.button() == QtCore.Qt.LeftButton and self.split_line_points:
-                # 画线结束
-                # 发射信号，把要分割的图形和画的线都传递出去
-                line_points_as_list = [[p.x(), p.y()] for p in self.split_line_points]
-                self.lineDrawnForSplit.emit(self.shape_to_split, line_points_as_list)
-                # 退出画线模式
-                self.exit_split_mode()
-            return # 在画线模式下，不执行后面的任何逻辑
-        
         if ev.button() == QtCore.Qt.RightButton:
             menu = self.menus[len(self.selected_shapes_copy) > 0]
             self.restore_cursor()
@@ -1782,21 +1730,6 @@ class Canvas(
                 ):
                     p.drawText(text_pos, line_text)
 
-
-        if self.mode == self.SPLIT and len(self.split_line_points) > 1:
-            # 使用一个非常“霸道”的画笔来确保可见性
-            p.setRenderHint(QtGui.QPainter.Antialiasing)
-            # 颜色：亮黄色，完全不透明
-            pen = QtGui.QPen(QtGui.QColor(255, 255, 0, 255)) 
-            # 宽度：更粗，确保在高分辨率下可见
-            pen.setWidth(max(3, int(round(3.0 / self.scale))))
-            # 样式：实线，而不是虚线，更容易看到
-            pen.setStyle(Qt.SolidLine) 
-            p.setPen(pen)
-            
-            # 使用 QPolygonF 进行绘制，这是绘制点集的标准方式
-            poly = QtGui.QPolygonF(self.split_line_points)
-            p.drawPolyline(poly)
         p.end()
 
     def transform_pos(self, point):
@@ -2172,11 +2105,6 @@ class Canvas(
         """Key press event"""
         modifiers = ev.modifiers()
         key = ev.key()
-        if self.mode == self.SPLIT and key == QtCore.Qt.Key_Escape:
-            print("Split mode cancelled by user.")
-            self.exit_split_mode()
-            self.parent.statusBar().clearMessage()
-            return
         if self.drawing():
             if key == QtCore.Qt.Key_Escape and self.current:
                 self.current = None

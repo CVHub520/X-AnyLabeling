@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
-    <height>68</height>
+    <width>2400</width>
+    <height>86</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -46,13 +46,13 @@
      <property name="topMargin">
       <number>0</number>
      </property>
-    <item>
-        <widget class="QPushButton" name="model_selection_button">
-            <property name="text">
-                <string>No Model</string>
-            </property>
-        </widget>
-    </item>
+     <item>
+      <widget class="QPushButton" name="model_selection_button">
+       <property name="text">
+        <string>No Model</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QLabel" name="output_label">
        <property name="text">
@@ -81,9 +81,9 @@
      </item>
      <item>
       <widget class="QComboBox" name="upn_select_combobox">
-        <property name="currentIndex">
-            <number>0</number>
-        </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
        <item>
         <property name="text">
          <string>coarse_grained_prompt</string>
@@ -98,9 +98,9 @@
      </item>
      <item>
       <widget class="QComboBox" name="florence2_select_combobox">
-        <property name="currentIndex">
-            <number>0</number>
-        </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
        <item>
         <property name="text">
          <string>caption</string>
@@ -175,9 +175,9 @@
      </item>
      <item>
       <widget class="QComboBox" name="gd_select_combobox">
-        <property name="currentIndex">
-            <number>0</number>
-        </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
        <item>
         <property name="text">
          <string>GroundingDino_1_6_Pro</string>
@@ -216,18 +216,18 @@
      </item>
      <item>
       <widget class="QLineEdit" name="edit_text">
-        <property name="placeholderText">
-            <string>Enter text prompt here, e.g., person.car.bicycle</string>
-        </property>
+       <property name="placeholderText">
+        <string>Enter text prompt here, e.g., person.car.bicycle</string>
+       </property>
       </widget>
      </item>
-    <item>
-        <widget class="QPushButton" name="button_send">
-            <property name="text">
-                <string>Send</string>
-            </property>
-        </widget>
-    </item>
+     <item>
+      <widget class="QPushButton" name="button_send">
+       <property name="text">
+        <string>Send</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QLabel" name="input_box_thres">
        <property name="text">
@@ -256,9 +256,6 @@
        <property name="singleStep">
         <double>0.010000000000000</double>
        </property>
-       <!-- <property name="value">
-        <double>0.250000000000000</double>
-       </property> -->
       </widget>
      </item>
      <item>
@@ -330,10 +327,23 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_split_mask">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Select a single mask on the canvas, then click this to draw a line to split it.</string>
+       </property>
+       <property name="text">
+        <string>Split Selected Mask</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="toggle_preserve_existing_annotations">
-          <property name="text">
-              <string>Replace (On)</string>
-          </property>
+       <property name="text">
+        <string>Replace (On)</string>
+       </property>
       </widget>
      </item>
      <item>

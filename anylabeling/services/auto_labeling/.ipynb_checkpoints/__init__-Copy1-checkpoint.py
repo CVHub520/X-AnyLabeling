@@ -1,3 +1,6 @@
+print("\n\n***************************************************")
+print("*** X-AnyLabeling 正在执行这个 __init__.py 文件! ***")
+print("***************************************************\n\n")
 _CUSTOM_MODELS = [
     "florence2",
     "doclayout_yolo",
@@ -73,6 +76,7 @@ _CUSTOM_MODELS = [
     "yolo12",
     "u_rtdetr",
     "yoloe",
+    "bacteria_autoseg",
 ]
 
 

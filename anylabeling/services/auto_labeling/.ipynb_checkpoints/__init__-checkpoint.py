@@ -125,7 +125,6 @@ _AUTO_LABELING_RESET_TRACKER_MODELS = [
     "yolo11_seg_track",
     "yolo11_obb_track",
     "yolo11_pose_track",
-    "bacteria_autoseg",
 ]
 
 

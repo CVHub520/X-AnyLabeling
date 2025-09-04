@@ -247,8 +247,6 @@ class AutoLabelingWidget(QWidget):
         self.populate_upn_combobox()
         self.populate_florence2_combobox()
         self.populate_gd_combobox()
-        if hasattr(self, 'button_split_mask'):
-            self.button_split_mask.hide()
 
     def init_model_data(self):
         """Get models data"""
@@ -549,19 +547,8 @@ class AutoLabelingWidget(QWidget):
 
     def on_new_model_loaded(self, model_config):
         """Enable model select combobox"""
-        # 【【【新增的、简化的修复代码】】】
-        # 检查新加载的模型是不是我们的模型
-        # model_config 是一个字典，比如 {'type': 'yolov8', ...}
-        # 如果模型加载失败，model_config 可能是个空字典 {}
-        is_our_model = model_config.get("type") == "bacteria_autoseg"
-        
-        # 根据结果，决定我们的自定义按钮是显示还是隐藏
-        if hasattr(self, 'button_split_mask'):
-            self.button_split_mask.setVisible(is_our_model)
-    
-        # --- 方法的其余部分保持不变 ---
         self.model_selection_button.setEnabled(True)
-    
+
         # Reset controls to initial values when the model changes
         try:
             if (
@@ -578,7 +565,7 @@ class AutoLabelingWidget(QWidget):
         except Exception as _:
             initial_iou_value = 0.0
             self.edit_iou.setValue(initial_iou_value)
-    
+
         try:
             if (
                 self.model_manager.loaded_model_config["type"]
@@ -594,14 +581,14 @@ class AutoLabelingWidget(QWidget):
         except Exception as _:
             initial_conf_value = 0.0
             self.edit_conf.setValue(initial_conf_value)
-    
+
         self.on_reset_tracker()
         self.on_iou_value_changed(initial_iou_value)
         self.on_conf_value_changed(initial_conf_value)
         self.on_preserve_existing_annotations_state_changed(
             self.initial_preserve_annotations_state
         )
-    
+
         # Update specific mode in UI if specific model is loaded
         if model_config.get("type") == "upn":
             self.update_upn_mode_ui()

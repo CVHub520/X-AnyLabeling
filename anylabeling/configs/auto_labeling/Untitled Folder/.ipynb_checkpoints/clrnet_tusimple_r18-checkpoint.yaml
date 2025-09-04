@@ -1,0 +1,14 @@
+type: clrnet
+name: clrnet_tusimple_r18-r20230901
+provider: CreateAI
+display_name: CLRNet
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/clrnet_tusimple_r18.onnx
+input_width: 800
+input_height: 320
+image_width: 1280
+image_height: 720
+nms_threshold: 50
+conf_threshold: 0.4
+n_offsets: 72
+max_lanes: 5
+cut_height: 160

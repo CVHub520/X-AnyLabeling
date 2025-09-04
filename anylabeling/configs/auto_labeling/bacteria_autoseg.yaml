@@ -1,0 +1,7 @@
+type: "bacteria_autoseg"
+name: "BacteriaAutoseg"
+provider: "YXT"
+display_name: "Bacteria Segmentation (Stable)"
+encoder_model_path: "models/bacteria_encoder.onnx" # 确认这个路径正确
+decoder_model_path: "models/bacteria_decoder.onnx" # 确认这个路径正确
+input_size: 1024

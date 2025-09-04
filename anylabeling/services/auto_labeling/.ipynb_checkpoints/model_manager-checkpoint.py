@@ -56,7 +56,6 @@ class ModelManager(QObject):
 
         self.load_model_configs()
 
-        
     def load_model_configs(self):
         """Load model configs"""
         # Load list of default models
@@ -121,7 +120,7 @@ class ModelManager(QObject):
 
         self.model_configs = model_configs
         self.model_configs_changed.emit(model_configs)
-    
+
     def get_model_configs(self):
         """Return model infos"""
         return self.model_configs
@@ -1793,29 +1792,6 @@ class ModelManager(QObject):
                     f"✅ Model loaded successfully: {model_config['type']}"
                 )
             except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-
-        elif model_config["type"] == "bacteria_autoseg":
-            # 从我们创建的 .py 文件中导入我们的类
-            from .bacteria_autoseg import BacteriaAutoseg
-            try:
-                # 实例化我们的模型类
-                model_config["model"] = BacteriaAutoseg(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                # 因为我们的模型是非交互式的，所以发送这个信号
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:
                 template = "Error in loading model: {error_message}"
                 translated_template = self.tr(template)
                 error_text = translated_template.format(error_message=str(e))

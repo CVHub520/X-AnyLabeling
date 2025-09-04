@@ -1,0 +1,9 @@
+type: sam_hq
+name: sam_hq_vit_b-r20231111
+provider: ETH Zürich
+display_name: SAM-HQ (ViT-Base)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_b_encoder.onnx
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/sam_hq_vit_b_decoder.onnx
+input_size: 1024
+max_width: 1024
+max_height: 682
