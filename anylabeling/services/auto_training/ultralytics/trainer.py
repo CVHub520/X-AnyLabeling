@@ -69,7 +69,7 @@ class TrainingManager:
             self.total_epochs = train_args.get("epochs", 100)
             self.stop_event.clear()
 
-            script_content = f"""
+            script_content = f"""# -*- coding: utf-8 -*-
 import io
 import os
 import signal
@@ -110,7 +110,7 @@ if __name__ == "__main__":
             )
             os.makedirs(os.path.dirname(script_path), exist_ok=True)
 
-            with open(script_path, "w") as f:
+            with open(script_path, "w", encoding="utf-8") as f:
                 f.write(script_content)
 
             def run_training():
