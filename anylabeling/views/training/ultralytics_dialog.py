@@ -1212,7 +1212,7 @@ class UltralyticsDialog(QDialog):
         results_file = os.path.join(self.current_project_path, "results.csv")
         if os.path.exists(results_file):
             try:
-                with open(results_file, "r") as f:
+                with open(results_file, "r", encoding="utf-8") as f:
                     reader = csv.reader(f)
                     rows = list(reader)
                     if len(rows) > 1:  # Skip header
