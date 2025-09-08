@@ -26,6 +26,7 @@ from anylabeling.views.labeling.vqa import *
 from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.vqa.dialogs import ExportLabelsDialog
+from anylabeling.views.labeling.widgets.popup import Popup
 
 
 class VQADialog(QDialog):
@@ -91,6 +92,13 @@ class VQADialog(QDialog):
         self.filename_label.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
         self.filename_label.setStyleSheet(get_filename_label_style())
 
+        self.refresh_button = QPushButton()
+        self.refresh_button.setIcon(QIcon(new_icon("refresh", "svg")))
+        self.refresh_button.setFixedSize(*ICON_SIZE_NORMAL)
+        self.refresh_button.setStyleSheet(get_button_style())
+        self.refresh_button.setToolTip(self.tr("Refresh Data"))
+        self.refresh_button.clicked.connect(self.refresh_data)
+
         self.toggle_panel_button = QPushButton()
         self.toggle_panel_button.setIcon(QIcon(new_icon("sidebar", "svg")))
         self.toggle_panel_button.setFixedSize(*ICON_SIZE_NORMAL)
@@ -99,6 +107,7 @@ class VQADialog(QDialog):
         self.toggle_panel_button.clicked.connect(self.toggle_left_panel)
 
         header_layout.addWidget(self.filename_label, 1)
+        header_layout.addWidget(self.refresh_button)
         header_layout.addWidget(self.toggle_panel_button)
 
         left_layout.addWidget(header_widget)
@@ -128,6 +137,14 @@ class VQADialog(QDialog):
         action_layout = QHBoxLayout(action_widget)
         action_layout.setContentsMargins(10, 0, 10, 0)
         action_layout.setSpacing(8)
+
+        self.refresh_button_right = QPushButton()
+        self.refresh_button_right.setIcon(QIcon(new_icon("refresh", "svg")))
+        self.refresh_button_right.setFixedSize(*ICON_SIZE_NORMAL)
+        self.refresh_button_right.setStyleSheet(get_button_style())
+        self.refresh_button_right.setToolTip(self.tr("Refresh Data"))
+        self.refresh_button_right.clicked.connect(self.refresh_data)
+        self.refresh_button_right.setVisible(False)
 
         self.toggle_panel_button_right = QPushButton()
         self.toggle_panel_button_right.setIcon(
@@ -165,6 +182,7 @@ class VQADialog(QDialog):
             self.delete_custom_component
         )
 
+        action_layout.addWidget(self.refresh_button_right)
         action_layout.addWidget(self.toggle_panel_button_right)
         action_layout.addWidget(self.export_button, 1)
         action_layout.addWidget(self.clear_button, 1)
@@ -248,10 +266,12 @@ class VQADialog(QDialog):
             left_width = total_width // 2
             right_width = total_width - left_width
             self.main_splitter.setSizes([left_width, right_width])
+            self.refresh_button_right.setVisible(False)
             self.toggle_panel_button_right.setVisible(False)
         else:
             total_width = self.main_splitter.width()
             self.main_splitter.setSizes([0, total_width])
+            self.refresh_button_right.setVisible(True)
             self.toggle_panel_button_right.setVisible(True)
 
     def load_config(self):
@@ -1824,6 +1844,38 @@ class VQADialog(QDialog):
                 QIntValidator(1, len(self.image_files))
             )
             QTimer.singleShot(100, self.adjust_all_text_widgets_height)
+
+    def refresh_data(self):
+        """
+        Refresh VQA dialog data to sync with main window changes.
+        """
+        if not hasattr(self.parent(), "image_list") or not self.parent().image_list:
+            QMessageBox.information(
+                self,
+                self.tr("Info"),
+                self.tr("No images loaded in main window!")
+            )
+            return
+
+        self.save_current_image_data()
+        self.image_files = self.parent().image_list
+        self.update_image_display()
+        self.update_navigation_state()
+        self.load_current_image_data()
+
+        if self.image_files:
+            self.page_input.setValidator(
+                QIntValidator(1, len(self.image_files))
+            )
+
+        QTimer.singleShot(100, self.adjust_all_text_widgets_height)
+
+        popup = Popup(
+            self.tr("VQA data refreshed successfully!"),
+            self,
+            icon=new_icon("copy-green", "svg"),
+        )
+        popup.show_popup(self, position="default")
 
     def showEvent(self, event):
         """Adjust text widget heights after dialog shown"""
