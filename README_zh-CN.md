@@ -64,6 +64,7 @@
 
 ## 🥳 新功能
 
+- 新增导航器功能，支持高分辨率图像的快速导航和缩放控制
 - X-AnyLabeling [v3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2) 最新版本发布
 - 新增 VQA 任务的 AI 助手功能和提示模板管理系统
 - 支持批量编辑多个对象

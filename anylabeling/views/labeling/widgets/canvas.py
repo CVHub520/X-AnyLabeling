@@ -48,6 +48,7 @@ class Canvas(
     auto_labeling_marks_updated = QtCore.pyqtSignal(list)
     auto_decode_requested = QtCore.pyqtSignal(list)
     auto_decode_finish_requested = QtCore.pyqtSignal()
+    shape_hover_changed = QtCore.pyqtSignal()
 
     CREATE, EDIT = 0, 1
 
@@ -280,6 +281,7 @@ class Canvas(
         self.store_moving_shape()
         self.un_highlight()
         self.restore_cursor()
+        self.shape_hover_changed.emit()
 
     def focusOutEvent(self, _):
         """Window out of focus event"""
@@ -327,6 +329,7 @@ class Canvas(
             self.un_highlight()
             self.deselect_shape()
             self.is_move_editing = False
+            self.shape_hover_changed.emit()
 
     def un_highlight(self):
         """Unhighlight shape/vertex/edge"""
@@ -367,6 +370,7 @@ class Canvas(
         except AttributeError:
             return
 
+        prev_hover_shape = self.h_hape
         self.prev_move_point = pos
         self.repaint()
 
@@ -613,6 +617,9 @@ class Canvas(
             self.un_highlight()
             self.override_cursor(CURSOR_DEFAULT)
         self.vertex_selected.emit(self.h_vertex is not None)
+
+        if prev_hover_shape != self.h_hape:
+            self.shape_hover_changed.emit()
 
     def add_point_to_edge(self):
         """Add a point to current shape"""
@@ -1362,10 +1369,10 @@ class Canvas(
             if (
                 shape.selected or not self._hide_backround
             ) and self.is_visible(shape):
-                shape.fill = self._fill_drawing and (
-                    shape.selected or shape == self.h_hape
-                ) and not (
-                    self.selected_vertex() and self.moving_shape
+                shape.fill = (
+                    self._fill_drawing
+                    and (shape.selected or shape == self.h_hape)
+                    and not (self.selected_vertex() and self.moving_shape)
                 )
                 shape.paint(p)
 

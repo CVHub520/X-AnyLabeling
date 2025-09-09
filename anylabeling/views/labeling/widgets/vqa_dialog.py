@@ -1470,7 +1470,9 @@ class VQADialog(QDialog):
                             label_data_json = json.load(label_f)
                             vqa_data = label_data_json.get("vqaData", {})
                             all_data.update(vqa_data)
-                            all_data["shapes"] = label_data_json.get("shapes", [])
+                            all_data["shapes"] = label_data_json.get(
+                                "shapes", []
+                            )
                     except Exception as e:
                         logger.warning(
                             f"Failed to load label file {label_file_path}: {e}"
@@ -1849,11 +1851,14 @@ class VQADialog(QDialog):
         """
         Refresh VQA dialog data to sync with main window changes.
         """
-        if not hasattr(self.parent(), "image_list") or not self.parent().image_list:
+        if (
+            not hasattr(self.parent(), "image_list")
+            or not self.parent().image_list
+        ):
             QMessageBox.information(
                 self,
                 self.tr("Info"),
-                self.tr("No images loaded in main window!")
+                self.tr("No images loaded in main window!"),
             )
             return
 

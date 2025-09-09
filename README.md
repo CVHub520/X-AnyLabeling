@@ -64,6 +64,7 @@
 
 ## 🥳 What's New
 
+- Add Navigator feature for high-resolution image navigation and zoom control
 - Bump version to [3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2)
 - Add AI Assistant and prompt template management for VQA
 - Add support for batch editing multiple shapes simultaneously

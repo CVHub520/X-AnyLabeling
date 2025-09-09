@@ -19,6 +19,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [3.2 Image Display](#32-image-display)
       * [3.3 Shape Display](#33-shape-display)
       * [3.4 Crosshair Customization](#34-crosshair-customization)
+      * [3.5 Navigator](#35-navigator)
    * [4. Annotation Formats (Import/Export)](#4-annotation-formats-importexport)
       * [4.1 YOLO Format](#41-yolo-format)
       * [4.2 VOC Format](#42-voc-format)
@@ -279,6 +280,18 @@ The panel on the right includes **Label Filters** and **Group ID Filters**. Use 
 </p>
 
 You can customize the appearance (width, transparency, color) of the crosshair cursor via `View` > `Set Crosshair`. The status bar shows the cursor's real-time pixel coordinates.
+
+### 3.5 Navigator
+
+X-AnyLabeling v3.2.3+ introduces a navigator feature that helps you quickly navigate to any area of high-resolution images.
+
+To open the navigator, simply click `View` -> `Navigator` in the menu bar or press the shortcut key `F9`. The navigator displays a thumbnail of the current image in a separate window, with a red frame indicating your current visible area.
+
+You can click anywhere on the thumbnail to quickly jump to that location, or drag the red frame to move your view. The navigator also displays all your annotated objects in real-time, giving you a clear overview of your progress.
+
+At the bottom of the navigator, you can precisely set the zoom ratio through the input box (supporting 1% to 1000%), or drag the slider to adjust it. Additionally, you can use the mouse wheel to zoom directly in either the main canvas or the navigator window.
+
+This feature is particularly useful when working with ultra-high resolution images, allowing you to maintain precise local operations while keeping the global perspective.
 
 ## 4. Annotation Formats (Import/Export)
 
@@ -671,6 +684,7 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Backspace`           | Delete Selected Point (Polygon Edit)             | While editing polygon points (`Ctrl+J`)    |
 | `↑`, `→`, `↓`, `←`    | Move Selection (Arrow Keys)                      | Nudge selected shape(s)                    |
 | `z`, `x`, `c`, `v`    | Rotate Selection                                 | Rotates selected shape(s) (if applicable)  |
+| `F9`                  | Show/Hide Navigator                              | Toggle navigator window                    |
 
 ### 7.2 Custom Label Colors
 

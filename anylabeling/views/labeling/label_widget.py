@@ -6,6 +6,7 @@ import os
 import os.path as osp
 import re
 import shutil
+from typing import Optional
 
 import cv2
 import numpy as np
@@ -61,6 +62,7 @@ from .widgets import (
     ToolBar,
     UniqueLabelQListWidget,
     ZoomWidget,
+    NavigatorDialog,
 )
 
 LABEL_COLORMAP = utils.label_colormap()
@@ -233,6 +235,22 @@ class LabelingWidget(LabelDialog):
         )
 
         self.zoom_widget = ZoomWidget()
+
+        self.navigator_dialog = NavigatorDialog(self)
+        self.navigator_dialog.navigator.navigation_requested.connect(
+            self.on_navigator_request
+        )
+        self.navigator_dialog.closeEvent = self._navigator_close_event
+        self.navigator_dialog.zoom_changed[int].connect(
+            lambda zoom: self.on_navigator_zoom_changed(zoom, None)
+        )
+        self.navigator_dialog.zoom_changed[int, QtCore.QPoint].connect(
+            self.on_navigator_zoom_changed
+        )
+        self.navigator_dialog.viewport_update_requested.connect(
+            self.on_navigator_viewport_update_requested
+        )
+
         self.setAcceptDrops(True)
 
         self.canvas = self.label_list.canvas = Canvas(
@@ -253,6 +271,12 @@ class LabelingWidget(LabelDialog):
             Qt.Vertical: scroll_area.verticalScrollBar(),
             Qt.Horizontal: scroll_area.horizontalScrollBar(),
         }
+        self.scroll_bars[Qt.Vertical].valueChanged.connect(
+            lambda: self.update_navigator_viewport()
+        )
+        self.scroll_bars[Qt.Horizontal].valueChanged.connect(
+            lambda: self.update_navigator_viewport()
+        )
         self.canvas.scroll_request.connect(self.scroll_request)
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.show_shape.connect(self.show_shape)
@@ -790,7 +814,7 @@ class LabelingWidget(LabelDialog):
         )
 
         loop_thru_labels = action(
-            self.tr("&Loop through labels"),
+            self.tr("&Loop Through Labels"),
             self.loop_thru_labels,
             shortcut=shortcuts["loop_thru_labels"],
             icon="loop",
@@ -838,7 +862,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         zoom_org = action(
-            self.tr("&Original size"),
+            self.tr("&Original Size"),
             functools.partial(self.set_zoom, 100),
             shortcuts["zoom_to_original"],
             "zoom",
@@ -1324,6 +1348,16 @@ class LabelingWidget(LabelDialog):
         )
         fill_drawing.trigger()
 
+        show_navigator = action(
+            self.tr("Navigator"),
+            self.toggle_navigator,
+            shortcuts["show_navigator"],
+            "navigator",
+            self.tr("Show/hide the navigator window"),
+            checkable=True,
+            enabled=True,
+        )
+
         # AI Actions
         toggle_auto_labeling_widget = action(
             self.tr("&Auto Labeling"),
@@ -1440,6 +1474,7 @@ class LabelingWidget(LabelDialog):
             show_degrees=show_degrees,
             show_attributes=show_attributes,
             show_linking=show_linking,
+            show_navigator=show_navigator,
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
@@ -1666,8 +1701,8 @@ class LabelingWidget(LabelDialog):
                 self.shape_dock.toggleViewAction(),
                 self.file_dock.toggleViewAction(),
                 None,
+                show_navigator,
                 fill_drawing,
-                None,
                 loop_thru_labels,
                 None,
                 zoom_in,
@@ -1773,6 +1808,7 @@ class LabelingWidget(LabelDialog):
         self.canvas.auto_decode_finish_requested.connect(
             self.auto_labeling_widget.on_finish_clicked
         )
+        self.canvas.shape_hover_changed.connect(self.update_navigator_shapes)
         self.auto_labeling_widget.clear_auto_labeling_action_requested.connect(
             self.clear_auto_labeling_marks
         )
@@ -1960,6 +1996,55 @@ class LabelingWidget(LabelDialog):
 
         self.set_text_editing(False)
 
+        QtCore.QTimer.singleShot(100, self.restore_navigator_state)
+
+    def restore_navigator_state(self) -> None:
+        try:
+            navigator_visible: bool = self.settings.value(
+                "navigator/visible", False, type=bool
+            )
+
+            if navigator_visible:
+                self.navigator_dialog.show()
+
+                if hasattr(self, "image") and not self.image.isNull():
+                    self.navigator_dialog.set_image(
+                        QtGui.QPixmap.fromImage(self.image)
+                    )
+                    self.update_navigator_viewport()
+                else:
+                    self._should_restore_navigator = True
+
+                # Restore geometry information
+                geometry = self.settings.value("navigator/geometry")
+                if geometry:
+                    self.navigator_dialog.restoreGeometry(geometry)
+                else:
+                    # Fallback: restore position and size separately
+                    saved_size = self.settings.value("navigator/size")
+                    saved_position = self.settings.value("navigator/position")
+
+                    if saved_size:
+                        self.navigator_dialog.resize(saved_size)
+                    if saved_position:
+                        self.navigator_dialog.move(saved_position)
+
+                if hasattr(self, "actions") and hasattr(
+                    self.actions, "show_navigator"
+                ):
+                    self.actions.show_navigator.setChecked(True)
+
+        except Exception as e:
+            print(f"Error restoring navigator state: {e}")
+
+    def _navigator_close_event(self, event: QtGui.QCloseEvent) -> None:
+        if hasattr(self, "actions") and hasattr(
+            self.actions, "show_navigator"
+        ):
+            self.actions.show_navigator.setChecked(False)
+
+        NavigatorDialog.closeEvent(self.navigator_dialog, event)
+
     def set_language(self, language):
         if self._config["language"] == language:
             return
@@ -2078,9 +2163,11 @@ class LabelingWidget(LabelDialog):
                 label_file_without_path = osp.basename(label_file)
                 label_file = self.output_dir + "/" + label_file_without_path
             self.save_labels(label_file)
+            self.update_navigator_shapes()
             return
         self.dirty = True
         self.actions.save.setEnabled(True)
+        self.update_navigator_shapes()
         title = __appname__
         if self.filename is not None:
             title = f"{title} - {self.filename}*"
@@ -3267,6 +3354,7 @@ class LabelingWidget(LabelDialog):
         shape = item.shape()
         shape.visible = item.checkState() == Qt.Checked
         self.canvas.set_shape_visible(shape, item.checkState() == Qt.Checked)
+        self.update_navigator_shapes()
 
     def label_order_changed(self):
         self.set_dirty()
@@ -3398,6 +3486,235 @@ class LabelingWidget(LabelDialog):
                     str(self.tr("X: %d, Y: %d")) % (int(pos.x()), int(pos.y()))
                 )
 
+    def on_navigator_request(self, x_ratio, y_ratio):
+        """Handle navigation request from navigator widget."""
+        if not hasattr(self, "image") or self.image.isNull():
+            return
+
+        scroll_area = self._central_widget
+        canvas_size = self.canvas.size()
+        scroll_area_size = scroll_area.viewport().size()
+
+        target_x = x_ratio * canvas_size.width() - scroll_area_size.width() / 2
+        target_y = (
+            y_ratio * canvas_size.height() - scroll_area_size.height() / 2
+        )
+
+        self.set_scroll(Qt.Horizontal, target_x)
+        self.set_scroll(Qt.Vertical, target_y)
+
+    def update_navigator_viewport(self):
+        """Update the viewport rectangle in the navigator."""
+        if not hasattr(self, "navigator_dialog") or not hasattr(self, "image"):
+            return
+
+        if self.image.isNull():
+            return
+
+        scroll_area = self._central_widget
+        canvas_size = self.canvas.size()
+        scroll_area_size = scroll_area.viewport().size()
+        if canvas_size.width() <= 0 or canvas_size.height() <= 0:
+            return
+
+        h_scroll = self.scroll_bars[Qt.Horizontal].value()
+        v_scroll = self.scroll_bars[Qt.Vertical].value()
+        x_ratio = max(0.0, h_scroll / canvas_size.width())
+        y_ratio = max(0.0, v_scroll / canvas_size.height())
+        width_ratio = min(1.0, scroll_area_size.width() / canvas_size.width())
+        height_ratio = min(
+            1.0, scroll_area_size.height() / canvas_size.height()
+        )
+
+        self.navigator_dialog.set_viewport(
+            x_ratio, y_ratio, width_ratio, height_ratio
+        )
+        self.update_navigator_shapes()
+
+    def update_navigator_shapes(self):
+        """Update shapes overlay in navigator."""
+        if (
+            not hasattr(self, "navigator_dialog")
+            or not self.navigator_dialog.isVisible()
+        ):
+            return
+
+        shapes = getattr(self.canvas, "shapes", [])
+        canvas_visible = getattr(self.canvas, "visible", {})
+        h_shape = getattr(self.canvas, "h_hape", None)
+        for shape in shapes:
+            shape._is_highlighted = shape == h_shape
+        self.navigator_dialog.set_shapes(shapes, canvas_visible)
+
+    def on_navigator_zoom_changed(
+        self, zoom_percentage: int, mouse_pos: Optional[QtCore.QPoint] = None
+    ) -> None:
+        """Handle zoom change from navigator controls."""
+
+        if not hasattr(self, "image") or self.image.isNull():
+            return
+
+        if mouse_pos is not None:
+            canvas_pos = self._convert_navigator_pos_to_canvas(mouse_pos)
+            if canvas_pos:
+                canvas_width_old = self.canvas.width()
+
+                self.zoom_widget.setValue(zoom_percentage)
+                self.zoom_mode = self.MANUAL_ZOOM
+                self.zoom_values[self.filename] = (
+                    self.zoom_mode,
+                    zoom_percentage,
+                )
+                self.paint_canvas()
+
+                canvas_width_new = self.canvas.width()
+                if canvas_width_old != canvas_width_new:
+                    canvas_scale_factor = canvas_width_new / canvas_width_old
+                    x_shift = round(
+                        canvas_pos.x() * canvas_scale_factor - canvas_pos.x()
+                    )
+                    y_shift = round(
+                        canvas_pos.y() * canvas_scale_factor - canvas_pos.y()
+                    )
+                    self.set_scroll(
+                        QtCore.Qt.Horizontal,
+                        self.scroll_bars[QtCore.Qt.Horizontal].value()
+                        + x_shift,
+                    )
+                    self.set_scroll(
+                        QtCore.Qt.Vertical,
+                        self.scroll_bars[QtCore.Qt.Vertical].value() + y_shift,
+                    )
+
+                return
+
+        # Handle direct zoom changes
+        if (
+            hasattr(self, "canvas")
+            and hasattr(self.canvas, "width")
+            and hasattr(self.canvas, "height")
+        ):
+            if hasattr(self.navigator_dialog, "navigator"):
+                nav_widget = self.navigator_dialog.navigator
+                if (
+                    hasattr(nav_widget, "viewport_rect")
+                    and not nav_widget.viewport_rect.isEmpty()
+                ):
+                    nav_rect_center_x = nav_widget.viewport_rect.center().x()
+                    nav_rect_center_y = nav_widget.viewport_rect.center().y()
+                    canvas_pos = self._convert_navigator_pos_to_canvas(
+                        QtCore.QPoint(
+                            int(nav_rect_center_x), int(nav_rect_center_y)
+                        )
+                    )
+
+                    if canvas_pos:
+                        canvas_width_old = self.canvas.width()
+
+                        self.zoom_widget.setValue(zoom_percentage)
+                        self.zoom_mode = self.MANUAL_ZOOM
+                        self.zoom_values[self.filename] = (
+                            self.zoom_mode,
+                            zoom_percentage,
+                        )
+                        self.paint_canvas()
+
+                        canvas_width_new = self.canvas.width()
+                        if canvas_width_old != canvas_width_new:
+                            canvas_scale_factor = (
+                                canvas_width_new / canvas_width_old
+                            )
+                            x_shift = round(
+                                canvas_pos.x() * canvas_scale_factor
+                                - canvas_pos.x()
+                            )
+                            y_shift = round(
+                                canvas_pos.y() * canvas_scale_factor
+                                - canvas_pos.y()
+                            )
+                            self.set_scroll(
+                                QtCore.Qt.Horizontal,
+                                self.scroll_bars[QtCore.Qt.Horizontal].value()
+                                + x_shift,
+                            )
+                            self.set_scroll(
+                                QtCore.Qt.Vertical,
+                                self.scroll_bars[QtCore.Qt.Vertical].value()
+                                + y_shift,
+                            )
+                        return
+
+            self.zoom_widget.setValue(zoom_percentage)
+            self.zoom_mode = self.MANUAL_ZOOM
+            self.zoom_values[self.filename] = (self.zoom_mode, zoom_percentage)
+            self.paint_canvas()
+        else:
+            self.zoom_widget.setValue(zoom_percentage)
+            self.zoom_mode = self.MANUAL_ZOOM
+            self.zoom_values[self.filename] = (self.zoom_mode, zoom_percentage)
+            self.paint_canvas()
+
+    def _convert_navigator_pos_to_canvas(
+        self, navigator_pos: QtCore.QPoint
+    ) -> Optional[QtCore.QPoint]:
+        """Convert navigator mouse position to canvas coordinates."""
+        if (
+            not hasattr(self, "navigator_dialog")
+            or not self.navigator_dialog.isVisible()
+        ):
+            return None
+
+        navigator_widget = self.navigator_dialog.navigator
+        if (
+            not navigator_widget.image_rect
+            or navigator_widget.image_rect.isEmpty()
+        ):
+            return None
+
+        relative_x = navigator_pos.x() - navigator_widget.image_rect.x()
+        relative_y = navigator_pos.y() - navigator_widget.image_rect.y()
+        if (
+            relative_x < 0
+            or relative_x > navigator_widget.image_rect.width()
+            or relative_y < 0
+            or relative_y > navigator_widget.image_rect.height()
+        ):
+            return None
+
+        # Convert to ratio (0.0 to 1.0)
+        x_ratio = relative_x / navigator_widget.image_rect.width()
+        y_ratio = relative_y / navigator_widget.image_rect.height()
+
+        # Convert to canvas coordinates
+        canvas_x = int(x_ratio * self.canvas.width())
+        canvas_y = int(y_ratio * self.canvas.height())
+
+        return QtCore.QPoint(canvas_x, canvas_y)
+
+    def on_navigator_viewport_update_requested(self):
+        """Handle viewport update request from navigator resize"""
+        QtCore.QTimer.singleShot(50, self.update_navigator_viewport)
+
+    def toggle_navigator(self):
+        """Toggle the navigator window visibility"""
+        if self.navigator_dialog.isVisible():
+            self.navigator_dialog.hide()
+            if hasattr(self, "actions") and hasattr(
+                self.actions, "show_navigator"
+            ):
+                self.actions.show_navigator.setChecked(False)
+        else:
+            self.navigator_dialog.show()
+            if hasattr(self, "image") and not self.image.isNull():
+                self.navigator_dialog.set_image(
+                    QtGui.QPixmap.fromImage(self.image)
+                )
+                self.update_navigator_viewport()
+            if hasattr(self, "actions") and hasattr(
+                self.actions, "show_navigator"
+            ):
+                self.actions.show_navigator.setChecked(True)
+
     def scroll_request(self, delta, orientation, mode):
         scroll_bar = self.scroll_bars[orientation]
         units = -delta * (0.1 if mode == 0 else 1)
@@ -3408,6 +3725,7 @@ class LabelingWidget(LabelDialog):
     def set_scroll(self, orientation, value):
         self.scroll_bars[orientation].setValue(round(value))
         self.scroll_values[orientation][self.filename] = value
+        self.update_navigator_viewport()
 
     def set_zoom(self, value):
         self.actions.fit_width.setChecked(False)
@@ -3415,6 +3733,8 @@ class LabelingWidget(LabelDialog):
         self.zoom_mode = self.MANUAL_ZOOM
         self.zoom_widget.setValue(value)
         self.zoom_values[self.filename] = (self.zoom_mode, value)
+        if hasattr(self, "navigator_dialog"):
+            self.navigator_dialog.set_zoom_value(value)
 
     def add_zoom(self, increment=1.1):
         zoom_value = self.zoom_widget.value() * increment
@@ -3512,6 +3832,7 @@ class LabelingWidget(LabelDialog):
 
         self.selected_polygon_stack.extend(shapes_to_hide)
         self.canvas.update()
+        self.update_navigator_shapes()
 
     def show_hidden_polygons(self):
         if self.selected_polygon_stack:
@@ -3521,6 +3842,7 @@ class LabelingWidget(LabelDialog):
                 item.setCheckState(Qt.Checked)
                 shape_to_show.visible = True
                 self.canvas.update()
+                self.update_navigator_shapes()
             else:
                 logger.warning(
                     f"Shape associated with the hidden item was not found in label list, could not show."
@@ -3658,6 +3980,15 @@ class LabelingWidget(LabelDialog):
             return False
         self.image = image
         self.filename = filename
+        self.navigator_dialog.set_image(QtGui.QPixmap.fromImage(image))
+        self.update_navigator_shapes()
+        if (
+            hasattr(self, "_should_restore_navigator")
+            and self._should_restore_navigator
+        ):
+            self._should_restore_navigator = False
+            if self.navigator_dialog.isVisible():
+                self.update_navigator_viewport()
         if self._config["keep_prev"]:
             prev_shapes = self.canvas.shapes
         self.canvas.load_pixmap(QtGui.QPixmap.fromImage(image))
@@ -3761,12 +4092,15 @@ class LabelingWidget(LabelDialog):
         self.canvas.scale = 0.01 * self.zoom_widget.value()
         self.canvas.adjustSize()
         self.canvas.update()
+        self.update_navigator_viewport()
 
     def adjust_scale(self, initial=False):
         value = self.scalers[self.FIT_WINDOW if initial else self.zoom_mode]()
         value = int(100 * value)
         self.zoom_widget.setValue(value)
         self.zoom_values[self.filename] = (self.zoom_mode, value)
+        if hasattr(self, "navigator_dialog"):
+            self.navigator_dialog.set_zoom_value(value)
 
     def scale_fit_window(self):
         """Figure out the size of the pixmap to fit the main widget."""
@@ -3796,6 +4130,21 @@ class LabelingWidget(LabelDialog):
         self.settings.setValue("window/position", self.pos())
         self.settings.setValue("window/state", self.parent.parent.saveState())
         self.settings.setValue("recent_files", self.recent_files)
+
+        if hasattr(self, "navigator_dialog"):
+            navigator_visible = self.navigator_dialog.isVisible()
+            self.settings.setValue("navigator/visible", navigator_visible)
+            if navigator_visible:
+                self.settings.setValue(
+                    "navigator/geometry", self.navigator_dialog.saveGeometry()
+                )
+                self.settings.setValue(
+                    "navigator/size", self.navigator_dialog.size()
+                )
+                self.settings.setValue(
+                    "navigator/position", self.navigator_dialog.pos()
+                )
+
         save_config(self._config)
         # ask the use for where to save the labels
         # self.settings.setValue('window/geometry', self.saveGeometry())
@@ -4185,6 +4534,7 @@ class LabelingWidget(LabelDialog):
             item.setCheckState(Qt.Checked if value else Qt.Unchecked)
             self.label_list[index].shape().visible = True if value else False
         self._config["show_shapes"] = value
+        self.update_navigator_shapes()
 
     def remove_selected_point(self):
         self.canvas.remove_selected_point()
