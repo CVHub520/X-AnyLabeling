@@ -8,40 +8,32 @@ import PIL.ImageDraw
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QProgressDialog, QInputDialog
+from PyQt5.QtWidgets import QDialog, QProgressDialog
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import get_bounding_boxes
-from anylabeling.views.labeling.widgets import Popup
+from anylabeling.views.labeling.widgets import PolygonSidesDialog, Popup
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import *
 from anylabeling.services.auto_labeling.utils import calculate_rotation_theta
 
 
-def get_conversion_params(self, mode):
+def get_conversion_params(self, mode: str):
     """Get parameters required for specific conversion modes.
-    
+
     Args:
         mode (str): The conversion mode
-        
+
     Returns:
         dict: Parameters dictionary, or None if user cancelled
     """
     if mode == "circle_to_polygon":
-        num_sides, ok = QInputDialog.getInt(
-            self,
-            self.tr("Set Polygon Sides"),
-            self.tr("Enter number of polygon sides:"),
-            32,  # default value
-            3,   # minimum value
-            100, # maximum value
-            1    # step
-        )
-        if not ok:  # User cancelled the input dialog
+        dialog = PolygonSidesDialog(self)
+        if dialog.exec_() == QDialog.Accepted:
+            return {"num_sides": dialog.get_value()}
+        else:
             return None
-        return {'num_sides': num_sides}
-    
-    # Default: no additional parameters needed
+
     return {}
 
 
@@ -50,9 +42,8 @@ def shape_conversion(self, mode):
     if len(label_file_list) == 0:
         return
 
-    # Get mode-specific parameters
     params = get_conversion_params(self, mode)
-    if params is None:  # User cancelled parameter input
+    if params is None:
         return
 
     response = QtWidgets.QMessageBox()
@@ -148,21 +139,21 @@ def shape_conversion(self, mode):
                     points = np.array(data["shapes"][j]["points"])
                     if len(points) != 2:
                         continue
-                    
-                    # Calculate center and radius from circle points
+
                     center_x, center_y = points[0]
                     edge_x, edge_y = points[1]
-                    radius = math.sqrt((edge_x - center_x)**2 + (edge_y - center_y)**2)
-                    
-                    # Generate polygon with user-specified number of sides
-                    num_sides = params.get('num_sides', 32)  # Default to 32 if not specified
+                    radius = math.sqrt(
+                        (edge_x - center_x) ** 2 + (edge_y - center_y) ** 2
+                    )
+
+                    num_sides = params.get("num_sides", 32)
                     polygon_points = []
                     for i in range(num_sides):
                         angle = 2 * math.pi * i / num_sides
                         x = center_x + radius * math.cos(angle)
                         y = center_y + radius * math.sin(angle)
                         polygon_points.append([x, y])
-                    
+
                     data["shapes"][j]["shape_type"] = "polygon"
                     data["shapes"][j]["points"] = polygon_points
 

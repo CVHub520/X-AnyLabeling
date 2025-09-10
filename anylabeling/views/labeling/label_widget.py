@@ -789,7 +789,9 @@ class LabelingWidget(LabelDialog):
             self.tr("&Convert Circle to Polygon"),
             lambda: utils.shape_conversion(self, "circle_to_polygon"),
             icon="convert",
-            tip=self.tr("Perform conversion from circle to polygon with user-specified points"),
+            tip=self.tr(
+                "Perform conversion from circle to polygon with user-specified points"
+            ),
         )
         open_chatbot = action(
             self.tr("ChatBot"),
