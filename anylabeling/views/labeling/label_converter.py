@@ -2153,7 +2153,7 @@ class LabelConverter:
                 crop_img_file = osp.join(
                     save_crop_img_path, crop_img_filenmame
                 )
-                cv2.imwrite(crop_img_file, img_crop)
+                cv2.imencode(".jpg", img_crop)[1].tofile(crop_img_file)
                 rec_gt.append(
                     f"crop_img/{crop_img_filenmame}\t{transcription}\n"
                 )
