@@ -8,7 +8,7 @@ import PIL.ImageDraw
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QProgressDialog
+from PyQt5.QtWidgets import QProgressDialog, QInputDialog
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import get_bounding_boxes
@@ -18,9 +18,41 @@ from anylabeling.views.labeling.utils.style import *
 from anylabeling.services.auto_labeling.utils import calculate_rotation_theta
 
 
+def get_conversion_params(self, mode):
+    """Get parameters required for specific conversion modes.
+    
+    Args:
+        mode (str): The conversion mode
+        
+    Returns:
+        dict: Parameters dictionary, or None if user cancelled
+    """
+    if mode == "circle_to_polygon":
+        num_sides, ok = QInputDialog.getInt(
+            self,
+            self.tr("Set Polygon Sides"),
+            self.tr("Enter number of polygon sides:"),
+            32,  # default value
+            3,   # minimum value
+            100, # maximum value
+            1    # step
+        )
+        if not ok:  # User cancelled the input dialog
+            return None
+        return {'num_sides': num_sides}
+    
+    # Default: no additional parameters needed
+    return {}
+
+
 def shape_conversion(self, mode):
     label_file_list = self.get_label_file_list()
     if len(label_file_list) == 0:
+        return
+
+    # Get mode-specific parameters
+    params = get_conversion_params(self, mode)
+    if params is None:  # User cancelled parameter input
         return
 
     response = QtWidgets.QMessageBox()
@@ -122,8 +154,8 @@ def shape_conversion(self, mode):
                     edge_x, edge_y = points[1]
                     radius = math.sqrt((edge_x - center_x)**2 + (edge_y - center_y)**2)
                     
-                    # Generate 32-sided polygon
-                    num_sides = 32
+                    # Generate polygon with user-specified number of sides
+                    num_sides = params.get('num_sides', 32)  # Default to 32 if not specified
                     polygon_points = []
                     for i in range(num_sides):
                         angle = 2 * math.pi * i / num_sides
