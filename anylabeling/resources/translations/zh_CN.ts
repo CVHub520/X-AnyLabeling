@@ -2974,6 +2974,16 @@ Reset the label as {}.</source>
         <translation>执行从多边形到定向边界框的转换</translation>
     </message>
     <message>
+        <location filename="../../views/labeling/label_widget.py" line="789"/>
+        <source>&amp;Convert Circle to Polygon</source>
+        <translation>圆形转多边形框</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="792"/>
+        <source>Perform conversion from circle to polygon with user-specified points</source>
+        <translation>执行从圆形到用户指定多边形的转换</translation>
+    </message>
+    <message>
         <location filename="../../views/labeling/label_widget.py" line="809"/>
         <source>&amp;About</source>
         <translation>关于</translation>

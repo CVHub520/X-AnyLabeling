@@ -110,6 +110,30 @@ def shape_conversion(self, mode):
                         rotation_box
                     )
 
+                elif mode == "circle_to_polygon" and (
+                    data["shapes"][j]["shape_type"] == "circle"
+                ):
+                    points = np.array(data["shapes"][j]["points"])
+                    if len(points) != 2:
+                        continue
+                    
+                    # Calculate center and radius from circle points
+                    center_x, center_y = points[0]
+                    edge_x, edge_y = points[1]
+                    radius = math.sqrt((edge_x - center_x)**2 + (edge_y - center_y)**2)
+                    
+                    # Generate 32-sided polygon
+                    num_sides = 32
+                    polygon_points = []
+                    for i in range(num_sides):
+                        angle = 2 * math.pi * i / num_sides
+                        x = center_x + radius * math.cos(angle)
+                        y = center_y + radius * math.sin(angle)
+                        polygon_points.append([x, y])
+                    
+                    data["shapes"][j]["shape_type"] = "polygon"
+                    data["shapes"][j]["points"] = polygon_points
+
             with open(label_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 

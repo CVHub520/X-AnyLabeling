@@ -2858,6 +2858,16 @@ Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../views/labeling/label_widget.py" line="789"/>
+        <source>&amp;Convert Circle to Polygon</source>
+        <translation>&amp;Convert Circle to Polygon</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="792"/>
+        <source>Perform conversion from circle to polygon with user-specified points</source>
+        <translation>Perform conversion from circle to polygon with user-specified points</translation>
+    </message>
+    <message>
         <location filename="../../views/labeling/label_widget.py" line="809"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
