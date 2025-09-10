@@ -785,6 +785,14 @@ class LabelingWidget(LabelDialog):
                 "Perform conversion from polygon to oriented bounding box"
             ),
         )
+        circle_to_polygon = action(
+            self.tr("&Convert Circle to Polygon"),
+            lambda: utils.shape_conversion(self, "circle_to_polygon"),
+            icon="convert",
+            tip=self.tr(
+                "Perform conversion from circle to polygon with user-specified points"
+            ),
+        )
         open_chatbot = action(
             self.tr("ChatBot"),
             self.open_chatbot,
@@ -1616,6 +1624,7 @@ class LabelingWidget(LabelDialog):
                 obb_to_hbb,
                 polygon_to_hbb,
                 polygon_to_obb,
+                circle_to_polygon,
             ),
         )
         utils.add_actions(
