@@ -1543,8 +1543,22 @@ class Canvas(
                         int(bbox.x()),
                         int(bbox.y() + bound_rect.height() - d_text),
                     )
+                elif shape.shape_type == "circle":
+                    points = shape.points
+                    if not points:
+                        continue
+                    point = points[0]
+                    rect = QtCore.QRect(
+                        int(point.x() - bound_rect.width()/2),
+                        int(point.y() - bound_rect.height()/2),
+                        int(bound_rect.width()),
+                        int(bound_rect.height()),
+                    )
+                    text_pos = QtCore.QPoint(
+                        int(point.x() - bound_rect.width()/2),
+                        int(point.y() + bound_rect.height()/2 - d_text),
+                    )
                 elif shape.shape_type in [
-                    "circle",
                     "line",
                     "linestrip",
                     "point",
