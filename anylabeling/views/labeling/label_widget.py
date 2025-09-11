@@ -745,6 +745,13 @@ class LabelingWidget(LabelDialog):
             icon="edit",
             tip=self.tr("Manage Group ID"),
         )
+        copy_coordinates = action(
+            self.tr("Copy Coordinates"),
+            self.copy_shape_coordinates,
+            icon="copy",
+            tip=self.tr("Copy shape coordinates to clipboard"),
+            enabled=False,
+        )
         union_selection = action(
             self.tr("&Union Selection"),
             self.union_selection,
@@ -1377,7 +1384,9 @@ class LabelingWidget(LabelDialog):
 
         # Label list context menu.
         label_menu = QtWidgets.QMenu()
-        utils.add_actions(label_menu, (edit, delete, union_selection))
+        utils.add_actions(
+            label_menu, (edit, delete, copy_coordinates, union_selection)
+        )
         self.label_list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.label_list.customContextMenuRequested.connect(
             self.pop_label_list_menu
@@ -1404,6 +1413,7 @@ class LabelingWidget(LabelDialog):
             edit=edit,
             duplicate=duplicate,
             copy=copy,
+            copy_coordinates=copy_coordinates,
             paste=paste,
             undo_last_point=undo_last_point,
             undo=undo,
@@ -1510,6 +1520,7 @@ class LabelingWidget(LabelDialog):
                 undo,
                 undo_last_point,
                 None,
+                copy_coordinates,
                 remove_point,
                 union_selection,
                 None,
@@ -1529,6 +1540,7 @@ class LabelingWidget(LabelDialog):
                 create_line_strip_mode,
                 edit_mode,
                 edit,
+                copy_coordinates,
                 union_selection,
                 duplicate,
                 copy,
@@ -2306,10 +2318,33 @@ class LabelingWidget(LabelDialog):
                 label_file_list.append(osp.join(self.output_dir, file_name))
         return label_file_list
 
+    def copy_shape_coordinates(self):
+        item = self.current_item()
+        if item is None:
+            return
+        shape = item.shape()
+        if shape is None:
+            return
+
+        points = shape.points
+        if shape.shape_type == "rectangle":
+            if len(points) >= 2:
+                x1, y1 = points[0].x(), points[0].y()
+                x2, y2 = points[2].x(), points[2].y()
+                coordinates = [x1, y1, x2, y2]
+                coordinates = list(map(int, coordinates))
+            else:
+                return
+        else:
+            coordinates = []
+            for point in points:
+                coordinates.extend([point.x(), point.y()])
+
+        coordinates_str = str(coordinates)
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setText(coordinates_str)
+
     def union_selection(self):
-        """
-        Merges selected shapes into one shape.
-        """
         rectangle_shapes, polygon_shapes = [], []
         for shape in self.canvas.selected_shapes:
             points = shape.points
@@ -3073,6 +3108,7 @@ class LabelingWidget(LabelDialog):
         self.actions.duplicate.setEnabled(n_selected)
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected >= 1 and same_type)
+        self.actions.copy_coordinates.setEnabled(n_selected == 1)
         self.actions.union_selection.setEnabled(
             not all(value > 0 for value in allow_merge_shape_type.values())
             and (

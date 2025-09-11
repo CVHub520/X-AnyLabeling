@@ -1549,14 +1549,14 @@ class Canvas(
                         continue
                     point = points[0]
                     rect = QtCore.QRect(
-                        int(point.x() - bound_rect.width()/2),
-                        int(point.y() - bound_rect.height()/2),
+                        int(point.x() - bound_rect.width() / 2),
+                        int(point.y() - bound_rect.height() / 2),
                         int(bound_rect.width()),
                         int(bound_rect.height()),
                     )
                     text_pos = QtCore.QPoint(
-                        int(point.x() - bound_rect.width()/2),
-                        int(point.y() + bound_rect.height()/2 - d_text),
+                        int(point.x() - bound_rect.width() / 2),
+                        int(point.y() + bound_rect.height() / 2 - d_text),
                     )
                 elif shape.shape_type in [
                     "line",
