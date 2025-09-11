@@ -1,0 +1,10 @@
+type: ppocr_v5
+name: ch_chinese_cht_en_japan_ppocr_v5-r20250912
+provider: PaddlePaddle
+display_name: PP-OCRv5
+det_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/ppocrv5_mobile_det_infer.onnx
+rec_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/ppocrv5_mobile_rec_infer.onnx
+cls_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/ch_ppocr_mobile_v2.0_cls_infer.onnx
+drop_score: 0.5
+lang: ppocrv5_dict
+use_angle_cls: True

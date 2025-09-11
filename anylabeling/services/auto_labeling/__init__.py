@@ -73,6 +73,7 @@ _CUSTOM_MODELS = [
     "yolo12",
     "u_rtdetr",
     "yoloe",
+    "ppocr_v5",
 ]
 
 

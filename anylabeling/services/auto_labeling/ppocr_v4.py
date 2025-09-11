@@ -54,6 +54,7 @@ class PPOCRv4(Model):
             )
 
         self.sess_opts = ort.SessionOptions()
+        self.sess_opts.log_severity_level = 3
         if "OMP_NUM_THREADS" in os.environ:
             self.sess_opts.inter_op_num_threads = int(
                 os.environ["OMP_NUM_THREADS"]
@@ -84,6 +85,8 @@ class PPOCRv4(Model):
             self.rec_char_dict = "ppocr_keys_v1.txt"
         elif self.lang == "japan":
             self.rec_char_dict = "japan_dict.txt"
+        elif self.lang == "ppocrv5_dict":
+            self.rec_char_dict = "ppocrv5_dict.txt"
 
     def parse_args(self):
         args = Args(

@@ -64,6 +64,7 @@
 
 ## 🥳 新功能
 
+- 新增支持 [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) 模型
 - 新增复制坐标到剪贴板功能
 - 新增导航器功能，支持高分辨率图像的快速导航和缩放控制
 - X-AnyLabeling [v3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2) 最新版本发布
@@ -107,7 +108,7 @@
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
-| 📄 **光学字符识别** | PP-OCR |
+| 📄 **光学字符识别** | PP-OCRv4, PPOCR-v5 |
 | 🗣️ **视觉语言模型** | Florence2 |
 | 🛣️ **车道线检测** | CLRNet |
 | 📍 **Grounding** | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |

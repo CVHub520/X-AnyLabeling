@@ -64,6 +64,7 @@
 
 ## 🥳 What's New
 
+- Add support for [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) model
 - Add copy coordinates to clipboard feature
 - Add Navigator feature for high-resolution image navigation and zoom control
 - Bump version to [3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2)
@@ -106,7 +107,7 @@
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
-| 📄 OCR | PP-OCR |
+| 📄 OCR | PP-OCRv4, PP-OCRv5 |
 | 🗣️ VLM | Florence2 |
 | 🛣️ Land Detection | CLRNet |
 | 📍 Grounding | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |

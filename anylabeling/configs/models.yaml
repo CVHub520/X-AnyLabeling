@@ -1,3 +1,5 @@
+- model_name: "ch_chinese_cht_en_japan_ppocr_v5-r20250912"
+  config_file: ":/ch_chinese_cht_en_japan_ppocr_v5.yaml"
 - model_name: "ch_ppocr_v4-r20230915"
   config_file: ":/ch_ppocr_v4.yaml"
 - model_name: "clrnet_tusimple_r18-r20230901"
