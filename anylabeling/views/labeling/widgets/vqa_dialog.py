@@ -1862,25 +1862,44 @@ class VQADialog(QDialog):
             )
             return
 
-        self.save_current_image_data()
-        self.image_files = self.parent().image_list
-        self.update_image_display()
-        self.update_navigation_state()
-        self.load_current_image_data()
+        try:
+            self.switching_image = True
 
-        if self.image_files:
-            self.page_input.setValidator(
-                QIntValidator(1, len(self.image_files))
-            )
+            if hasattr(self.parent(), "other_data") and self.parent().other_data:
+                self.parent().other_data.pop("vqaData", None)
 
-        QTimer.singleShot(100, self.adjust_all_text_widgets_height)
+            current_file = self.parent().filename
+            self.image_files = self.parent().image_list
 
-        popup = Popup(
-            self.tr("VQA data refreshed successfully!"),
-            self,
-            icon=new_icon("copy-green", "svg"),
-        )
-        popup.show_popup(self, position="default")
+            if current_file and current_file in self.image_files:
+                self.parent().load_file(current_file)
+
+            self.update_image_display()
+            self.update_navigation_state()
+            self.clear_all_components_silent()
+            self.load_current_image_data()
+
+            if self.image_files:
+                self.page_input.setValidator(
+                    QIntValidator(1, len(self.image_files))
+                )
+
+            def finalize_refresh():
+                self.adjust_all_text_widgets_height()
+                self.switching_image = False
+                logger.info("VQA data refreshed successfully!")
+                popup = Popup(
+                    self.tr("VQA data refreshed successfully!"),
+                    self,
+                    icon=new_icon("copy-green", "svg"),
+                )
+                popup.show_popup(self, position="default")
+
+            QTimer.singleShot(100, finalize_refresh)
+
+        except Exception as e:
+            self.switching_image = False
+            logger.error(f"Error in refresh_data: {e}")
 
     def showEvent(self, event):
         """Adjust text widget heights after dialog shown"""
