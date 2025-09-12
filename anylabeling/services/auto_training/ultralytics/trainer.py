@@ -76,6 +76,10 @@ import signal
 import sys
 import multiprocessing
 
+if sys.platform.startswith("win"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 import matplotlib
 matplotlib.use('Agg')
 
@@ -94,14 +98,16 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
     try:
-        model = YOLO('{train_args.pop("model")}')
-        train_args = {train_args}
+        model = YOLO('""" + str(train_args.pop("model")) + """')
+        train_args = """ + str(train_args) + """
+        train_args['verbose'] = False
+        train_args['show'] = False
         results = model.train(**train_args)
     except KeyboardInterrupt:
         print("Training interrupted by user", flush=True)
         sys.exit(1)
     except Exception as e:
-        print(f"Training error: {{e}}", flush=True)
+        print(f"Training error: {e}", flush=True)
         sys.exit(1)
 """
 
