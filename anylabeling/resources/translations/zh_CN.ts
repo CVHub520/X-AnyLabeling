@@ -2083,12 +2083,12 @@ Results have been saved to:
         <translation>快捷键：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4881"/>
+        <location filename="../../views/labeling/label_widget.py" line="4906"/>
         <source>Invalid label</source>
         <translation>无效标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4881"/>
+        <location filename="../../views/labeling/label_widget.py" line="4906"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation>无效标签'{}'，验证类型'{}'</translation>
     </message>
@@ -2173,27 +2173,27 @@ Results have been saved to:
         <translation>选择文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4456"/>
+        <location filename="../../views/labeling/label_widget.py" line="4470"/>
         <source>You are about to permanently delete this label file, proceed anyway?</source>
         <translation>您即将永久删除此标签文件，是否继续？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4487"/>
+        <location filename="../../views/labeling/label_widget.py" line="4512"/>
         <source>Attention</source>
         <translation>注意</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4551"/>
+        <location filename="../../views/labeling/label_widget.py" line="4576"/>
         <source>Save annotations to &quot;{self.filename!r}&quot; before closing?</source>
         <translation>在关闭之前将注释保存到&quot;{self.filename!r}&quot;？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4554"/>
+        <location filename="../../views/labeling/label_widget.py" line="4579"/>
         <source>Save annotations?</source>
         <translation>保存注释？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4625"/>
+        <location filename="../../views/labeling/label_widget.py" line="4650"/>
         <source>%s - Open Directory</source>
         <translation>%s - 打开目录</translation>
     </message>
@@ -2409,17 +2409,17 @@ Reset the label as {}.</source>
         <translation>X: %d, Y: %d</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4964"/>
+        <location filename="../../views/labeling/label_widget.py" line="4989"/>
         <source>Object Description</source>
         <translation>对象文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4973"/>
+        <location filename="../../views/labeling/label_widget.py" line="4998"/>
         <source>Image Description</source>
         <translation>图像文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4984"/>
+        <location filename="../../views/labeling/label_widget.py" line="5009"/>
         <source>Switch to Edit mode for description editing</source>
         <translation>切换到编辑模式以进行文本编辑</translation>
     </message>
@@ -2524,7 +2524,7 @@ Reset the label as {}.</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4483"/>
+        <location filename="../../views/labeling/label_widget.py" line="4508"/>
         <source>You are about to permanently delete this image file, proceed anyway?</source>
         <translation>您即将永久删除此图像文件，是否继续？</translation>
     </message>
@@ -3192,6 +3192,16 @@ This warning will only be shown once. Do you want to continue?</source>
         <source>Copy shape coordinates to clipboard</source>
         <translation>复制对象坐标到剪贴板</translation>
     </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4460"/>
+        <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the label file.</source>
+        <translation>请在删除标签文件前禁用&quot;保留上一个注释&quot;。</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4498"/>
+        <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the image file.</source>
+        <translation>请在删除图像文件前禁用&quot;保留上一个注释&quot;。</translation>
+    </message>
 </context>
 <context>
     <name>Model</name>
@@ -3319,22 +3329,22 @@ This warning will only be shown once. Do you want to continue?</source>
         <translation>加载模型时出错：无效的模型名称。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1994"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2014"/>
         <source>Model is not loaded. Choose a mode to continue.</source>
         <translation>模型尚未加载。选择一个模式以继续。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1973"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1993"/>
         <source>Finished inferencing AI model. Check the result.</source>
         <translation>完成 AI 模型推理，请检查结果。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1998"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2018"/>
         <source>Inferencing AI model. Please wait...</source>
         <translation>正在进行 AI 模型推理，请稍等...</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2008"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2028"/>
         <source>Another model is being executed. Please wait for it to finish.</source>
         <translation>另一个模型正在执行，请耐心等待。</translation>
     </message>

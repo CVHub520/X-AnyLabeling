@@ -1997,12 +1997,12 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4881"/>
+        <location filename="../../views/labeling/label_widget.py" line="4906"/>
         <source>Invalid label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4881"/>
+        <location filename="../../views/labeling/label_widget.py" line="4906"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2087,27 +2087,27 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4456"/>
+        <location filename="../../views/labeling/label_widget.py" line="4470"/>
         <source>You are about to permanently delete this label file, proceed anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4487"/>
+        <location filename="../../views/labeling/label_widget.py" line="4512"/>
         <source>Attention</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4551"/>
+        <location filename="../../views/labeling/label_widget.py" line="4576"/>
         <source>Save annotations to &quot;{self.filename!r}&quot; before closing?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4554"/>
+        <location filename="../../views/labeling/label_widget.py" line="4579"/>
         <source>Save annotations?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4625"/>
+        <location filename="../../views/labeling/label_widget.py" line="4650"/>
         <source>%s - Open Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2273,17 +2273,17 @@ Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4964"/>
+        <location filename="../../views/labeling/label_widget.py" line="4989"/>
         <source>Object Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4973"/>
+        <location filename="../../views/labeling/label_widget.py" line="4998"/>
         <source>Image Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4984"/>
+        <location filename="../../views/labeling/label_widget.py" line="5009"/>
         <source>Switch to Edit mode for description editing</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2388,7 +2388,7 @@ Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4483"/>
+        <location filename="../../views/labeling/label_widget.py" line="4508"/>
         <source>You are about to permanently delete this image file, proceed anyway?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3074,6 +3074,16 @@ This warning will only be shown once. Do you want to continue?</source>
         <source>Copy shape coordinates to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4460"/>
+        <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the label file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4498"/>
+        <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the image file.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Model</name>
@@ -3181,22 +3191,22 @@ This warning will only be shown once. Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1994"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2014"/>
         <source>Model is not loaded. Choose a mode to continue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1973"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="1993"/>
         <source>Finished inferencing AI model. Check the result.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="1998"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2018"/>
         <source>Inferencing AI model. Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model_manager.py" line="2008"/>
+        <location filename="../../services/auto_labeling/model_manager.py" line="2028"/>
         <source>Another model is being executed. Please wait for it to finish.</source>
         <translation type="unfinished"></translation>
     </message>

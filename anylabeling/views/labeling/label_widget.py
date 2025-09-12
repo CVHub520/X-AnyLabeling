@@ -4436,12 +4436,15 @@ class LabelingWidget(LabelDialog):
         self.actions.save_as.setEnabled(False)
 
     def get_label_file(self):
-        if self.filename.lower().endswith(".json"):
-            label_file = self.filename
-        else:
-            label_file = osp.splitext(self.filename)[0] + ".json"
-
-        return label_file
+        if self.label_file:
+            return self.label_file.filename
+        base = self.image_path if self.image_path else self.filename
+        if base.lower().endswith(".json"):
+            return base
+        lf = osp.splitext(base)[0] + ".json"
+        if self.output_dir:
+            lf = osp.join(self.output_dir, osp.basename(lf))
+        return lf
 
     def get_image_file(self):
         if not self.filename.lower().endswith(".json"):
@@ -4453,6 +4456,17 @@ class LabelingWidget(LabelDialog):
 
     def delete_file(self):
         mb = QtWidgets.QMessageBox
+        if self._config.get("keep_prev", False):
+            mb.warning(
+                self,
+                self.tr("Attention"),
+                self.tr(
+                    "Please disable 'Keep Previous Annotation' before deleting the label file."
+                ),
+                mb.Ok,
+            )
+            return
+
         msg = self.tr(
             "You are about to permanently delete this label file, "
             "proceed anyway?"
@@ -4480,6 +4494,17 @@ class LabelingWidget(LabelDialog):
             return
 
         mb = QtWidgets.QMessageBox
+        if self._config.get("keep_prev", False):
+            mb.warning(
+                self,
+                self.tr("Attention"),
+                self.tr(
+                    "Please disable 'Keep Previous Annotation' before deleting the image file."
+                ),
+                mb.Ok,
+            )
+            return
+
         msg = self.tr(
             "You are about to permanently delete this image file, "
             "proceed anyway?"
