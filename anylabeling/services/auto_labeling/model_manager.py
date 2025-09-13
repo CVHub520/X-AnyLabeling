@@ -21,6 +21,7 @@ from anylabeling.services.auto_labeling import (
     _AUTO_LABELING_RESET_TRACKER_MODELS,
     _AUTO_LABELING_CONF_MODELS,
     _AUTO_LABELING_IOU_MODELS,
+    _AUTO_LABELING_MASK_FINENESS_MODELS,
     _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS,
     _AUTO_LABELING_PROMPT_MODELS,
     _ON_NEXT_FILES_CHANGED_MODELS,
@@ -2119,3 +2120,13 @@ class ModelManager(QObject):
 
         if self.loaded_model_config["type"] == "florence2":
             self.loaded_model_config["model"].set_florence2_mode(mode)
+
+    def set_mask_fineness(self, epsilon):
+        """Set mask fineness (epsilon value for Douglas-Peucker algorithm)"""
+        if (
+            self.loaded_model_config is None
+            or self.loaded_model_config["type"]
+            not in _AUTO_LABELING_MASK_FINENESS_MODELS
+        ):
+            return
+        self.loaded_model_config["model"].set_mask_fineness(epsilon)

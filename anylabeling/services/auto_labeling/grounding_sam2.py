@@ -54,6 +54,8 @@ class GroundingSAM2(Model):
             "button_clear",
             "button_finish_object",
             "button_auto_decode",
+            "mask_fineness_slider",
+            "mask_fineness_value_label",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -138,9 +140,15 @@ class GroundingSAM2(Model):
         self.pre_inference_worker = None
         self.stop_inference = False
 
+        self.epsilon = 0.001
+
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
         self.marks = marks
+
+    def set_mask_fineness(self, epsilon):
+        """Set mask fineness epsilon value"""
+        self.epsilon = epsilon
 
     def preprocess(self, image, text_prompt):
         # Resize the image
@@ -264,8 +272,8 @@ class GroundingSAM2(Model):
         # Refine contours
         approx_contours = []
         for contour in contours:
-            # Approximate contour
-            epsilon = 0.001 * cv2.arcLength(contour, True)
+            # Approximate contour using configurable epsilon
+            epsilon = self.epsilon * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
             approx_contours.append(approx)
 

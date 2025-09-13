@@ -189,7 +189,7 @@ class SegmentAnythingONNX:
         return masks
 
     @staticmethod
-    def get_approx_contours(masks):
+    def get_approx_contours(masks, _epsilon=0.001):
         """
         Post process masks
         """
@@ -205,7 +205,7 @@ class SegmentAnythingONNX:
         approx_contours = []
         for contour in contours:
             # Approximate contour
-            epsilon = 0.001 * cv2.arcLength(contour, True)
+            epsilon = _epsilon * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
             approx_contours.append(approx)
 

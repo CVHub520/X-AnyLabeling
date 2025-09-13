@@ -64,6 +64,7 @@
 
 ## 🥳 新功能
 
+- 新增 SAM 系列模型的掩码精细度控制滑块，可调节分割精度
 - 新增 PP-OCR 模型的文字重识别功能 [[示例](./examples/optical_character_recognition/text_recognition/README.md)]
 - 新增支持 [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) 模型
 - 新增复制坐标到剪贴板功能

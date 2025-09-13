@@ -18,6 +18,7 @@ from anylabeling.services.auto_labeling import (
     _SKIP_DET_MODELS,
     _SKIP_PREDICTION_ON_NEW_MARKS_MODELS,
 )
+from anylabeling.views.labeling.chatbot.style import ChatbotDialogStyle
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.style import (
     get_lineedit_style,
@@ -46,6 +47,7 @@ class AutoLabelingWidget(QWidget):
     cache_auto_label_changed = pyqtSignal()
     auto_decode_mode_changed = pyqtSignal(bool)
     clear_auto_decode_requested = pyqtSignal()
+    mask_fineness_changed = pyqtSignal(float)
 
     def __init__(self, parent):
         super().__init__()
@@ -244,6 +246,32 @@ class AutoLabelingWidget(QWidget):
         self.button_skip_detection.clicked.connect(
             self.on_skip_detection_toggled
         )
+
+        # --- Configuration for: mask_fineness_slider ---
+        self.mask_fineness_slider.setStyleSheet(
+            ChatbotDialogStyle.get_slider_style()
+        )
+        self.mask_fineness_slider.valueChanged.connect(
+            self.on_mask_fineness_changed
+        )
+        self.mask_fineness_slider.setToolTip(
+            self.tr(
+                "Adjust mask fineness: lower=finer, higher=coarser [Default: 0.001]"
+            )
+        )
+        self.mask_fineness_value_label.setStyleSheet(
+            """
+            QLabel { 
+                color: #6c757d; 
+                font-size: 10px; 
+                font-weight: 500;
+                background: transparent;
+                border: none;
+                padding: 0px;
+            }
+        """
+        )
+        self.on_mask_fineness_changed(self.mask_fineness_slider.value())
 
         # ===================================
         #  End of Auto labeling buttons
@@ -717,6 +745,8 @@ class AutoLabelingWidget(QWidget):
             "florence2_select_combobox",
             "button_auto_decode",
             "button_skip_detection",
+            "mask_fineness_slider",
+            "mask_fineness_value_label",
         ]
         for widget in widgets:
             getattr(self, widget).hide()
@@ -954,3 +984,12 @@ class AutoLabelingWidget(QWidget):
                 raise ValueError(error_text)
 
         return dt_boxes
+
+    def on_mask_fineness_changed(self, value):
+        """Handle mask fineness slider change"""
+        # Map slider value (1-100) to epsilon range (0.0001-0.01)
+        epsilon = 0.0001 + (value - 1) * (0.01 - 0.0001) / 99
+
+        self.mask_fineness_value_label.setText(f"{epsilon:.4f}")
+        self.model_manager.set_mask_fineness(epsilon)
+        self.mask_fineness_changed.emit(epsilon)

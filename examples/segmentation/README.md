@@ -46,6 +46,9 @@ Furthermore, we can also use prompting to specify further and control the region
 
 For instance, if we want to segment only the region with plant branches and leaves and exclude the pot which holds the plant, we can simply pass points on the plant region as positive points and the points on the potted region as negative points. This indicates to the model to predict a segmentation mask for the region, which includes the positive points and excludes the negative points. After completing your markings, press the shortcut `f`, enter the desired label name, and then save the object.
 
+> [!TIP]
+> You can adjust the mask fineness by dragging the slider to control the precision of segmentation boundaries. The default value is 0.001 - lower values produce more detailed and precise masks with finer boundaries, while higher values create coarser masks with simplified contours.
+
 We also provide the **Auto Mask Decode (AMD)** feature that enables continuous point tracking for real-time segmentation feedback. After enabling AMD mode by clicking the button, place your first point to initialize tracking, then move your mouse over the image - the model will automatically add points and update the segmentation mask as you move. When you're satisfied with the segmentation, double-click anywhere on the canvas (equivalent to pressing `f`) to complete the session and save the object with your desired label. To exit AMD mode without saving, use the Clear button or press `b` to erase all marks and return to normal mode.
 
 <video src="https://github.com/user-attachments/assets/0384b172-ad26-4ff5-8648-6020ada3a86a" width="100%" controls>

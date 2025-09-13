@@ -43,6 +43,8 @@ class YOLOv5SegmentAnything(YOLO):
             "button_auto_decode",
             "output_label",
             "output_select_combobox",
+            "mask_fineness_slider",
+            "mask_fineness_value_label",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -150,9 +152,15 @@ class YOLOv5SegmentAnything(YOLO):
         self.marks = []
         self.image_embed_cache = {}
 
+        self.epsilon = 0.001
+
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
         self.marks = marks
+
+    def set_mask_fineness(self, epsilon):
+        """Set mask fineness epsilon value"""
+        self.epsilon = epsilon
 
     def get_sam_results(self, approx_contours, label=None):
         # Contours to shapes
@@ -233,7 +241,9 @@ class YOLOv5SegmentAnything(YOLO):
                     masks = masks[0][0]
                 else:
                     masks = masks[0]
-                approx_contours = self.model.get_approx_contours(masks)
+                approx_contours = self.model.get_approx_contours(
+                    masks, self.epsilon
+                )
                 results = self.get_sam_results(approx_contours, label=label)
                 shapes.append(results)
             result = AutoLabelingResult(shapes, replace=True)

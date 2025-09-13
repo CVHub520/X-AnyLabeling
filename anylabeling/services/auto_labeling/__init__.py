@@ -102,6 +102,21 @@ _AUTO_LABELING_MARKS_MODELS = [
 ]
 
 
+# --- set_mask_fineness ---
+_AUTO_LABELING_MASK_FINENESS_MODELS = [
+    "segment_anything",
+    "segment_anything_2",
+    "segment_anything_2_video",
+    "sam_med2d",
+    "sam_hq",
+    "yolov5_sam",
+    "efficientvit_sam",
+    "grounding_sam",
+    "grounding_sam2",
+    "edge_sam",
+]
+
+
 # --- skip detection step ---
 _SKIP_DET_MODELS = [
     "ppocr_v4",

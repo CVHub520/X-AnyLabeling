@@ -61,6 +61,8 @@ class SegmentAnything2Video(Model):
             "button_auto_decode",
             "button_reset_tracker",
             "toggle_preserve_existing_annotations",
+            "mask_fineness_slider",
+            "mask_fineness_value_label",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -151,6 +153,11 @@ class SegmentAnything2Video(Model):
         self.group_ids = []
         self.prompts = []
         self.replace = True
+        self.epsilon = 0.001
+
+    def set_mask_fineness(self, epsilon):
+        """Set mask fineness epsilon value"""
+        self.epsilon = epsilon
 
     def set_auto_labeling_marks(self, marks):
         """Set marks for auto labeling.
@@ -241,8 +248,8 @@ class SegmentAnything2Video(Model):
         # Refine and filter contours
         approx_contours = []
         for contour in contours:
-            # Approximate contour
-            epsilon = 0.001 * cv2.arcLength(contour, True)
+            # Approximate contour using configurable epsilon
+            epsilon = self.epsilon * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
             approx_contours.append(approx)
 

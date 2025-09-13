@@ -201,6 +201,8 @@ class SAM_Med2D(Model):
             "button_clear",
             "button_finish_object",
             "button_auto_decode",
+            "mask_fineness_slider",
+            "mask_fineness_value_label",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -282,9 +284,15 @@ class SAM_Med2D(Model):
                 )
             self.classes = self.config.get("classes", [])
 
+        self.epsilon = 0.001
+
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
         self.marks = marks
+
+    def set_mask_fineness(self, epsilon):
+        """Set mask fineness epsilon value"""
+        self.epsilon = epsilon
 
     def post_process(self, masks, image=None):
         """
@@ -301,8 +309,8 @@ class SAM_Med2D(Model):
         # Refine contours
         approx_contours = []
         for contour in contours:
-            # Approximate contour
-            epsilon = 0.001 * cv2.arcLength(contour, True)
+            # Approximate contour using configurable epsilon
+            epsilon = self.epsilon * cv2.arcLength(contour, True)
             approx = cv2.approxPolyDP(contour, epsilon, True)
             approx_contours.append(approx)
 

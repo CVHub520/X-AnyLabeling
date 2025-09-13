@@ -1573,7 +1573,12 @@ class Canvas(
                     )
                     text_pos = QtCore.QPoint(
                         int(point.x() - rect_width / 2 + padding_x),
-                        int(point.y() + rect_height / 2 - padding_y - fm.descent()),
+                        int(
+                            point.y()
+                            + rect_height / 2
+                            - padding_y
+                            - fm.descent()
+                        ),
                     )
                 elif shape.shape_type in [
                     "line",
@@ -1592,7 +1597,13 @@ class Canvas(
                     )
                     text_pos = QtCore.QPoint(
                         int(point.x() + d_react + padding_x),
-                        int(point.y() - 15 + rect_height - padding_y - fm.descent()),
+                        int(
+                            point.y()
+                            - 15
+                            + rect_height
+                            - padding_y
+                            - fm.descent()
+                        ),
                     )
                 else:
                     continue
