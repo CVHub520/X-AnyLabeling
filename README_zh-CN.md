@@ -64,6 +64,7 @@
 
 ## 🥳 新功能
 
+- 新增 PP-OCR 模型的文字重识别功能 [[示例](./examples/optical_character_recognition/text_recognition/README.md)]
 - 新增支持 [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) 模型
 - 新增复制坐标到剪贴板功能
 - 新增导航器功能，支持高分辨率图像的快速导航和缩放控制
@@ -71,7 +72,7 @@
 - 新增 VQA 任务的 AI 助手功能和提示模板管理系统
 - 支持批量编辑多个对象
 - 支持在画布上显示/隐藏对象属性
-- 在 X-AnyLabeling 中内置一键训练功能，支持 Ultralytics 官方 Detect、Segment、OBB、Pose 四大任务 [链接](./examples/training/ultralytics/README.md)
+- 在 X-AnyLabeling 中内置一键训练功能，支持 Ultralytics 官方 Detect、Segment、OBB、Pose 四大任务 [[链接](./examples/training/ultralytics/README.md)]
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 

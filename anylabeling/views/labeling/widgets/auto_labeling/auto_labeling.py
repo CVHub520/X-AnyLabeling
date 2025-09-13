@@ -15,6 +15,7 @@ from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.services.auto_labeling import (
     _AUTO_LABELING_IOU_MODELS,
     _AUTO_LABELING_CONF_MODELS,
+    _SKIP_DET_MODELS,
     _SKIP_PREDICTION_ON_NEW_MARKS_MODELS,
 )
 from anylabeling.views.labeling.logger import logger
@@ -99,6 +100,7 @@ class AutoLabelingWidget(QWidget):
             self.button_clear.setEnabled(enable)
             self.button_finish_object.setEnabled(enable)
             self.button_auto_decode.setEnabled(enable)
+            self.button_skip_detection.setEnabled(enable)
             self.upn_select_combobox.setEnabled(enable)
             self.gd_select_combobox.setEnabled(enable)
             self.florence2_select_combobox.setEnabled(enable)
@@ -114,6 +116,7 @@ class AutoLabelingWidget(QWidget):
         self.initial_conf_value = 0
         self.initial_iou_value = 0
         self.initial_preserve_annotations_state = False
+        self.skip_detection = False
 
         # ===================================
         #  Auto labeling buttons
@@ -227,6 +230,19 @@ class AutoLabelingWidget(QWidget):
         )
         self.toggle_preserve_existing_annotations.toggled.connect(
             self.on_preserve_existing_annotations_state_changed
+        )
+
+        # --- Configuration for: button_skip_detection ---
+        self.button_skip_detection.setStyleSheet(get_normal_button_style())
+        self.button_skip_detection.setCheckable(True)
+        self.button_skip_detection.setChecked(False)
+        self.button_skip_detection.setToolTip(
+            self.tr(
+                "Skip detection model and use existing annotations as detection boxes"
+            )
+        )
+        self.button_skip_detection.clicked.connect(
+            self.on_skip_detection_toggled
         )
 
         # ===================================
@@ -525,6 +541,21 @@ class AutoLabelingWidget(QWidget):
     def run_prediction(self):
         """Run prediction"""
         if self.parent.filename is not None:
+            if (
+                self.button_skip_detection.isChecked()
+                and self.parent.canvas.shapes
+                and self.model_manager.loaded_model_config["type"]
+                in _SKIP_DET_MODELS
+            ):
+                dt_boxes = self._extract_detection_boxes_from_shapes()
+                if dt_boxes is not None:
+                    self.model_manager.predict_shapes_threading(
+                        self.parent.image,
+                        self.parent.filename,
+                        dt_boxes=dt_boxes,
+                    )
+                    return
+
             self.model_manager.predict_shapes_threading(
                 self.parent.image, self.parent.filename
             )
@@ -685,6 +716,7 @@ class AutoLabelingWidget(QWidget):
             "gd_select_combobox",
             "florence2_select_combobox",
             "button_auto_decode",
+            "button_skip_detection",
         ]
         for widget in widgets:
             getattr(self, widget).hide()
@@ -886,3 +918,39 @@ class AutoLabelingWidget(QWidget):
         self.add_new_prompt()
         self.finish_auto_labeling_object_action_requested.emit()
         self.cache_auto_label_changed.emit()
+
+    def on_skip_detection_toggled(self):
+        """Handle skip detection button toggle"""
+        is_checked = self.button_skip_detection.isChecked()
+        self.button_skip_detection.setText(
+            self.tr("Skip Det (On)")
+            if is_checked
+            else self.tr("Skip Det (Off)")
+        )
+
+        if is_checked:
+            self.button_skip_detection.setStyleSheet(
+                get_toggle_button_style(button_color="#90EE90")
+            )
+        else:
+            self.button_skip_detection.setStyleSheet(get_normal_button_style())
+
+        self.skip_detection = is_checked
+
+    def _extract_detection_boxes_from_shapes(self):
+        """Extract detection boxes from existing shapes"""
+        dt_boxes = []
+        for shape in self.parent.canvas.shapes:
+            if shape.shape_type in ["rectangle", "rotation", "polygon"]:
+                points = [
+                    [int(point.x()), int(point.y())] for point in shape.points
+                ]
+                dt_boxes.append(points)
+            else:
+                error_text = self.tr(
+                    "Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes."
+                )
+                self.model_manager.new_model_status.emit(error_text)
+                raise ValueError(error_text)
+
+        return dt_boxes

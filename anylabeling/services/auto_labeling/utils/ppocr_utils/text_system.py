@@ -1,6 +1,7 @@
 # flake8: noqa F405
 
 import os
+from tkinter import N
 
 os.environ["FLAGS_allocator_strategy"] = "auto_growth"
 
@@ -961,23 +962,63 @@ class TextSystem(object):
             )
         self.crop_image_res_index += bbox_num
 
-    def __call__(self, img, cls=True):
+    @staticmethod
+    def normalize_custom_detection_boxes(dt_boxes):
+        standardized_boxes = []
+        for box_points in dt_boxes:
+            points_array = np.array(box_points, dtype=np.float32)
+            if len(points_array) < 3:
+                continue
+
+            min_area_rect = cv2.minAreaRect(points_array)
+            box_points_4 = cv2.boxPoints(min_area_rect)
+            box_points_4 = np.array(box_points_4, dtype=np.float32)
+            sorted_points = box_points_4[
+                np.lexsort((box_points_4[:, 0], box_points_4[:, 1]))
+            ]
+
+            if len(sorted_points) >= 4:
+                top_points = sorted_points[:2]
+                bottom_points = sorted_points[2:]
+                top_points = top_points[np.argsort(top_points[:, 0])]
+                bottom_points = bottom_points[
+                    np.argsort(bottom_points[:, 0])[::-1]
+                ]
+
+                quad_box = np.array(
+                    [
+                        top_points[0],
+                        top_points[1],
+                        bottom_points[0],
+                        bottom_points[1],
+                    ]
+                )
+                standardized_boxes.append(quad_box)
+
+        return np.array(standardized_boxes) if standardized_boxes else None
+
+    def __call__(self, img, cls=True, dt_boxes=None):
         if img is None:
-            # logger.debug("no valid image provided")
             return None, None, None
 
         ori_im = img.copy()
-        dt_boxes = self.text_detector(img)
+        original_dt_boxes = None
+        sort_indices = None
+
+        if dt_boxes is not None and len(dt_boxes) > 0:
+            self.drop_score = 0.0  # Skip confidence filtering
+            original_dt_boxes = copy.deepcopy(dt_boxes)
+            dt_boxes = self.normalize_custom_detection_boxes(dt_boxes)
+            if dt_boxes is None:
+                return None, None, None
+        else:
+            dt_boxes = self.text_detector(img)
 
         if dt_boxes is None:
-            # logger.debug("no dt_boxes found, elapsed : {}".format(elapse))
             return None, None, None
-        else:
-            pass
-            # logger.debug("dt_boxes num : {}, elapsed : {}".format(len(dt_boxes), elapse))
-        img_crop_list = []
 
-        dt_boxes = sorted_boxes(dt_boxes)
+        img_crop_list = []
+        dt_boxes, sort_indices = sorted_boxes(dt_boxes)
 
         for bno in range(len(dt_boxes)):
             tmp_box = copy.deepcopy(dt_boxes[bno])
@@ -992,10 +1033,14 @@ class TextSystem(object):
         rec_res = self.text_recognizer(img_crop_list)
 
         filter_boxes, filter_rec_res, scores = [], [], []
-        for box, rec_result in zip(dt_boxes, rec_res):
+        for i, rec_result in enumerate(rec_res):
             text, score = rec_result
             if score >= self.drop_score:
-                filter_boxes.append(box)
+                if original_dt_boxes is not None and sort_indices is not None:
+                    original_index = sort_indices[i]
+                    filter_boxes.append(original_dt_boxes[original_index])
+                else:
+                    filter_boxes.append(dt_boxes[i])
                 filter_rec_res.append(rec_result)
                 scores.append(score)
 
@@ -1175,20 +1220,30 @@ def sorted_boxes(dt_boxes):
     args:
         dt_boxes(array):detected text boxes with shape [4, 2]
     return:
-        sorted boxes(array) with shape [4, 2]
+        sorted boxes(array) with shape [4, 2], sort_indices(list): mapping from sorted index to original index
     """
     num_boxes = dt_boxes.shape[0]
-    sorted_boxes = sorted(dt_boxes, key=lambda x: (x[0][1], x[0][0]))
-    _boxes = list(sorted_boxes)
+    indexed_boxes = [(dt_boxes[i], i) for i in range(num_boxes)]
+    sorted_indexed_boxes = sorted(
+        indexed_boxes, key=lambda x: (x[0][0][1], x[0][0][0])
+    )
 
     for i in range(num_boxes - 1):
         for j in range(i, -1, -1):
-            if abs(_boxes[j + 1][0][1] - _boxes[j][0][1]) < 10 and (
-                _boxes[j + 1][0][0] < _boxes[j][0][0]
+            if abs(
+                sorted_indexed_boxes[j + 1][0][0][1]
+                - sorted_indexed_boxes[j][0][0][1]
+            ) < 10 and (
+                sorted_indexed_boxes[j + 1][0][0][0]
+                < sorted_indexed_boxes[j][0][0][0]
             ):
-                tmp = _boxes[j]
-                _boxes[j] = _boxes[j + 1]
-                _boxes[j + 1] = tmp
+                tmp = sorted_indexed_boxes[j]
+                sorted_indexed_boxes[j] = sorted_indexed_boxes[j + 1]
+                sorted_indexed_boxes[j + 1] = tmp
             else:
                 break
-    return _boxes
+
+    sorted_boxes_list = [item[0] for item in sorted_indexed_boxes]
+    sort_indices = [item[1] for item in sorted_indexed_boxes]
+
+    return sorted_boxes_list, sort_indices

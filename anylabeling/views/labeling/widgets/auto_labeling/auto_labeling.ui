@@ -330,6 +330,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_skip_detection">
+       <property name="text">
+        <string>Skip Det (Off)</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="toggle_preserve_existing_annotations">
           <property name="text">
               <string>Replace (On)</string>

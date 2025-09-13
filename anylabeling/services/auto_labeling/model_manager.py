@@ -1960,6 +1960,7 @@ class ModelManager(QObject):
         text_prompt=None,
         run_tracker=False,
         batch=False,
+        dt_boxes=None,
     ):
         """Predict shapes.
         NOTE: This function is blocking. The model can take a long time to
@@ -1981,6 +1982,10 @@ class ModelManager(QObject):
                 auto_labeling_result = self.loaded_model_config[
                     "model"
                 ].predict_shapes(image, filename, run_tracker=run_tracker)
+            elif dt_boxes is not None:
+                auto_labeling_result = self.loaded_model_config[
+                    "model"
+                ].predict_shapes(image, filename, dt_boxes=dt_boxes)
             else:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
@@ -2005,7 +2010,12 @@ class ModelManager(QObject):
 
     @pyqtSlot()
     def predict_shapes_threading(
-        self, image, filename=None, text_prompt=None, run_tracker=False
+        self,
+        image,
+        filename=None,
+        text_prompt=None,
+        run_tracker=False,
+        dt_boxes=None,
     ):
         """Predict shapes.
         This function starts a thread to run the prediction.
@@ -2048,6 +2058,13 @@ class ModelManager(QObject):
                     image,
                     filename,
                     run_tracker=run_tracker,
+                )
+            elif dt_boxes is not None:
+                self.model_execution_worker = GenericWorker(
+                    self.predict_shapes,
+                    image,
+                    filename,
+                    dt_boxes=dt_boxes,
                 )
             else:
                 self.model_execution_worker = GenericWorker(

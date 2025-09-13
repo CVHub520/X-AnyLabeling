@@ -69,7 +69,8 @@ class TrainingManager:
             self.total_epochs = train_args.get("epochs", 100)
             self.stop_event.clear()
 
-            script_content = f"""# -*- coding: utf-8 -*-
+            script_content = (
+                f"""# -*- coding: utf-8 -*-
 import io
 import os
 import signal
@@ -98,8 +99,12 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
     try:
-        model = YOLO('""" + str(train_args.pop("model")) + """')
-        train_args = """ + str(train_args) + """
+        model = YOLO('"""
+                + str(train_args.pop("model"))
+                + """')
+        train_args = """
+                + str(train_args)
+                + """
         train_args['verbose'] = False
         train_args['show'] = False
         results = model.train(**train_args)
@@ -110,6 +115,7 @@ if __name__ == "__main__":
         print(f"Training error: {e}", flush=True)
         sys.exit(1)
 """
+            )
 
             script_path = os.path.join(
                 train_args.get("project", "/tmp"), "train_script.py"

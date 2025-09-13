@@ -20,12 +20,15 @@ The following modes are avaliable:
 
 2. Automatic Annotation Mode
 
-For automatic annotation, the tool is integrated with models from [PaddleOCR-v4.0](https://github.com/PaddlePaddle/PaddleOCR). Users can select the appropriate model based on their needs or deploy custom models for assisted inference. 
+For automatic annotation, the tool is integrated with models from [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR). Users can select the appropriate model based on their needs or deploy custom models for assisted inference. 
 
 Here's how to proceed with automatic annotation:
 - Load the image or video file.
 - Load the relevant PPOCR model.
 - Click to run the annotation process.
+
+> [!TIP]
+> Starting from v3.2.3+, we supports Re-recognition functionality. When detection results are inaccurate, you can manually draw text boxes and use only the recognition part of the OCR pipeline. Simply draw your text regions first (currently only rectangle, rotation and polygon shapes are supported), then ensure the "Skip Det (On)" button is activated before running inference, otherwise, it will override your existing shapes.
 
 When annotating PPOCR data, the `label` field values can be ignored; instead, you should focus on the `description` field. 
 - To hide the text labels, you can use the shortcut `Ctrl+L`. 
@@ -34,7 +37,7 @@ When annotating PPOCR data, the `label` field values can be ignored; instead, yo
 ## Export
 
 For instructions on exporting PP-OCR Rec annotations, please consult the user guide available:
-- [English version](../../docs/en/user_guide.md)
-- [Chinese version](../../docs/zh_cn/user_guide.md)
+- [English version](../../../docs/en/user_guide.md)
+- [Chinese version](../../../docs/zh_cn/user_guide.md)
 
 The exported annotations can be directly used for the training of PP-OCR detection and recognition models.

@@ -102,6 +102,13 @@ _AUTO_LABELING_MARKS_MODELS = [
 ]
 
 
+# --- skip detection step ---
+_SKIP_DET_MODELS = [
+    "ppocr_v4",
+    "ppocr_v5",
+]
+
+
 # --- skip_prediction_on_new_marks ---
 _SKIP_PREDICTION_ON_NEW_MARKS_MODELS = [
     "yoloe",

@@ -1463,19 +1463,24 @@ class Canvas(
                 if description:
                     bbox = shape.bounding_rect()
                     fm = QtGui.QFontMetrics(p.font())
-                    rect = fm.boundingRect(description)
+                    text_rect = fm.tightBoundingRect(description)
+
+                    padding_x = 4
+                    padding_y = 2
+                    rect_width = text_rect.width() + 2 * padding_x
+                    rect_height = fm.height() + 2 * padding_y
+
+                    bg_x = int(bbox.x())
+                    bg_y = int(bbox.y() - rect_height)
+
                     p.fillRect(
-                        int(rect.x() + bbox.x()),
-                        int(rect.y() + bbox.y()),
-                        int(rect.width()),
-                        int(rect.height()),
+                        bg_x,
+                        bg_y,
+                        rect_width,
+                        rect_height,
                         QtGui.QColor(background_color),
                     )
-                    p.drawText(
-                        int(bbox.x()),
-                        int(bbox.y()),
-                        description,
-                    )
+
             pen = QtGui.QPen(QtGui.QColor(text_color), 8, Qt.SolidLine)
             p.setPen(pen)
             for shape in self.shapes:
@@ -1484,9 +1489,17 @@ class Canvas(
                 description = shape.description
                 if description:
                     bbox = shape.bounding_rect()
+                    fm = QtGui.QFontMetrics(p.font())
+
+                    padding_x = 4
+                    padding_y = 2
+
+                    text_x = int(bbox.x() + padding_x)
+                    text_y = int(bbox.y() - padding_y - fm.descent())
+
                     p.drawText(
-                        int(bbox.x()),
-                        int(bbox.y()),
+                        text_x,
+                        text_y,
                         description,
                     )
 

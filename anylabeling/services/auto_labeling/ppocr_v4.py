@@ -34,7 +34,7 @@ class PPOCRv4(Model):
             "cls_model_path",
             "use_angle_cls",
         ]
-        widgets = ["button_run"]
+        widgets = ["button_run", "button_skip_detection"]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
@@ -71,7 +71,6 @@ class PPOCRv4(Model):
         return net
 
     def __init__(self, model_config, on_message) -> None:
-        # Run the parent class's init method
         super().__init__(model_config, on_message)
 
         self.det_net = self.load_model("det_model_path")
@@ -87,6 +86,9 @@ class PPOCRv4(Model):
             self.rec_char_dict = "japan_dict.txt"
         elif self.lang == "ppocrv5_dict":
             self.rec_char_dict = "ppocrv5_dict.txt"
+
+        self.args = self.parse_args()
+        self.text_sys = TextSystem(self.args)
 
     def parse_args(self):
         args = Args(
@@ -174,7 +176,7 @@ class PPOCRv4(Model):
         )
         return args
 
-    def predict_shapes(self, image, image_path=None):
+    def predict_shapes(self, image, image_path=None, dt_boxes=None):
         """
         Predict shapes from image
         """
@@ -190,10 +192,7 @@ class PPOCRv4(Model):
             logger.warning(e)
             return []
 
-        args = self.parse_args()
-        text_sys = TextSystem(args)
-        dt_boxes, rec_res, scores = text_sys(image)
-
+        dt_boxes, rec_res, scores = self.text_sys(image, dt_boxes=dt_boxes)
         results = [
             {
                 "description": rec_res[i][0],
@@ -229,6 +228,7 @@ class PPOCRv4(Model):
             elif shape_type == "polygon":
                 for point in points:
                     shape.add_point(QtCore.QPointF(*point))
+                shape.add_point(QtCore.QPointF(*points[0]))
                 shape.closed = True
             shapes.append(shape)
 
@@ -239,3 +239,4 @@ class PPOCRv4(Model):
         del self.det_net
         del self.rec_net
         del self.cls_net
+        del self.text_sys

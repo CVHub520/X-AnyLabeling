@@ -64,6 +64,7 @@
 
 ## 🥳 What's New
 
+- Add Re-recognition feature for PP-OCR models [[example](./examples/optical_character_recognition/text_recognition/README.md)]
 - Add support for [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) model
 - Add copy coordinates to clipboard feature
 - Add Navigator feature for high-resolution image navigation and zoom control
@@ -71,7 +72,7 @@
 - Add AI Assistant and prompt template management for VQA
 - Add support for batch editing multiple shapes simultaneously
 - Add support for Show/Hide shape attributes on canvas
-- Add support for automated training platform with Ultralytics tasks in X-AnyLabeling [Link](./examples/training/ultralytics/README.md)
+- Add support for automated training platform with Ultralytics tasks in X-AnyLabeling [[Link](./examples/training/ultralytics/README.md)]
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 

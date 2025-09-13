@@ -1865,7 +1865,10 @@ class VQADialog(QDialog):
         try:
             self.switching_image = True
 
-            if hasattr(self.parent(), "other_data") and self.parent().other_data:
+            if (
+                hasattr(self.parent(), "other_data")
+                and self.parent().other_data
+            ):
                 self.parent().other_data.pop("vqaData", None)
 
             current_file = self.parent().filename
