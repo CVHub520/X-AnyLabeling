@@ -1515,7 +1515,6 @@ class Canvas(
                 if not shape.visible:
                     continue
                 d_react = shape.point_size / shape.scale
-                d_text = 1.5
                 if not shape.visible:
                     continue
                 if shape.label in [
@@ -1540,7 +1539,12 @@ class Canvas(
                 if not label_text:
                     continue
                 fm = QtGui.QFontMetrics(p.font())
-                bound_rect = fm.boundingRect(label_text)
+                text_rect = fm.tightBoundingRect(label_text)
+                padding_x = 4
+                padding_y = 2
+                rect_width = text_rect.width() + 2 * padding_x
+                rect_height = fm.height() + 2 * padding_y
+
                 if shape.shape_type in ["rectangle", "polygon", "rotation"]:
                     try:
                         bbox = shape.bounding_rect()
@@ -1549,12 +1553,12 @@ class Canvas(
                     rect = QtCore.QRect(
                         int(bbox.x()),
                         int(bbox.y()),
-                        int(bound_rect.width()),
-                        int(bound_rect.height()),
+                        rect_width,
+                        rect_height,
                     )
                     text_pos = QtCore.QPoint(
-                        int(bbox.x()),
-                        int(bbox.y() + bound_rect.height() - d_text),
+                        int(bbox.x() + padding_x),
+                        int(bbox.y() + rect_height - padding_y - fm.descent()),
                     )
                 elif shape.shape_type == "circle":
                     points = shape.points
@@ -1562,14 +1566,14 @@ class Canvas(
                         continue
                     point = points[0]
                     rect = QtCore.QRect(
-                        int(point.x() - bound_rect.width() / 2),
-                        int(point.y() - bound_rect.height() / 2),
-                        int(bound_rect.width()),
-                        int(bound_rect.height()),
+                        int(point.x() - rect_width / 2),
+                        int(point.y() - rect_height / 2),
+                        rect_width,
+                        rect_height,
                     )
                     text_pos = QtCore.QPoint(
-                        int(point.x() - bound_rect.width() / 2),
-                        int(point.y() + bound_rect.height() / 2 - d_text),
+                        int(point.x() - rect_width / 2 + padding_x),
+                        int(point.y() + rect_height / 2 - padding_y - fm.descent()),
                     )
                 elif shape.shape_type in [
                     "line",
@@ -1583,12 +1587,12 @@ class Canvas(
                     rect = QtCore.QRect(
                         int(point.x() + d_react),
                         int(point.y() - 15),
-                        int(bound_rect.width()),
-                        int(bound_rect.height()),
+                        rect_width,
+                        rect_height,
                     )
                     text_pos = QtCore.QPoint(
-                        int(point.x()),
-                        int(point.y() - 15 + bound_rect.height() - d_text),
+                        int(point.x() + d_react + padding_x),
+                        int(point.y() - 15 + rect_height - padding_y - fm.descent()),
                     )
                 else:
                     continue
