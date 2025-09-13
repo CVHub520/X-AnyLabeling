@@ -2064,6 +2064,8 @@ class LabelingWidget(LabelDialog):
         ):
             self.actions.show_navigator.setChecked(False)
 
+        self.settings.setValue("navigator/visible", False)
+
         NavigatorDialog.closeEvent(self.navigator_dialog, event)
 
     def set_language(self, language):
