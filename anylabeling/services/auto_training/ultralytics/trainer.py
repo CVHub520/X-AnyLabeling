@@ -136,7 +136,8 @@ if __name__ == "__main__":
                         [sys.executable, script_path],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT,
-                        universal_newlines=True,
+                        text=True,
+                        encoding="utf-8",
                         bufsize=1,
                         preexec_fn=os.setsid if os.name != "nt" else None,
                     )
