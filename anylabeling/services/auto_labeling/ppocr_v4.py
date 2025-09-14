@@ -202,11 +202,13 @@ class PPOCRv4(Model):
         else:
             dt_boxes = None
 
-        dt_boxes, rec_res, scores = self.text_sys(image, dt_boxes=dt_boxes)
+        dt_boxes, rec_res, scores, sort_indices = self.text_sys(image, dt_boxes=dt_boxes)
 
         if existing_shapes is not None:
             shapes = []
-            for i, shape in enumerate(existing_shapes):
+            for i in range(len(existing_shapes)):
+                ori_index = sort_indices[i]
+                shape = existing_shapes[ori_index]
                 updated_shape = Shape(
                     label=shape.label,
                     score=shape.score,

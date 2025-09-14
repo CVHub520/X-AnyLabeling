@@ -1044,7 +1044,7 @@ class TextSystem(object):
                 filter_rec_res.append(rec_result)
                 scores.append(score)
 
-        return filter_boxes, filter_rec_res, scores
+        return filter_boxes, filter_rec_res, scores, sort_indices
 
 
 def build_post_process(config, global_config=None):
