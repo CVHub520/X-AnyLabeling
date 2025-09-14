@@ -2108,27 +2108,27 @@ Results have been saved to:
         <translation>快捷键：</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4908"/>
+        <location filename="../../views/labeling/label_widget.py" line="4970"/>
         <source>Invalid label</source>
         <translation>无效标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4908"/>
+        <location filename="../../views/labeling/label_widget.py" line="4970"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation>无效标签'{}'，验证类型'{}'</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3318"/>
+        <location filename="../../views/labeling/label_widget.py" line="3327"/>
         <source>Error saving label data</source>
         <translation>保存标签数据时出错</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3318"/>
+        <location filename="../../views/labeling/label_widget.py" line="3327"/>
         <source>&lt;b&gt;%s&lt;/b&gt;</source>
         <translation>&lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4019"/>
+        <location filename="../../views/labeling/label_widget.py" line="4016"/>
         <source>Error opening file</source>
         <translation>打开文件时出错</translation>
     </message>
@@ -2140,85 +2140,85 @@ Results have been saved to:
     <message>
         <location filename="../../views/labeling/label_widget.py" line="3964"/>
         <source>Loading %s...</source>
-        <translation>正在加载%s...</translation>
+        <translation type="obsolete">正在加载%s...</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3979"/>
+        <location filename="../../views/labeling/label_widget.py" line="3976"/>
         <source>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Make sure &lt;i&gt;%s&lt;/i&gt; is a valid label file.</source>
         <translation>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;确保&lt;i&gt;%s&lt;/i&gt;是一个有效的标签文件。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4026"/>
+        <location filename="../../views/labeling/label_widget.py" line="4023"/>
         <source>Error reading %s</source>
         <translation>读取%s时出错</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4019"/>
+        <location filename="../../views/labeling/label_widget.py" line="4016"/>
         <source>&lt;p&gt;Make sure &lt;i&gt;{0}&lt;/i&gt; is a valid image file.&lt;br/&gt;Supported image formats: {1}&lt;/p&gt;</source>
         <translation>&lt;p&gt;确保&lt;i&gt;{0}&lt;/i&gt;是一个有效的图像文件。&lt;br/&gt;支持的图像格式：{1}&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="4116"/>
         <source>Loaded %s</source>
-        <translation>已加载%s</translation>
+        <translation type="obsolete">已加载%s</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4321"/>
+        <location filename="../../views/labeling/label_widget.py" line="4316"/>
         <source>Image &amp; Label files (%s)</source>
         <translation>图像和标签文件（%s）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4327"/>
+        <location filename="../../views/labeling/label_widget.py" line="4322"/>
         <source>%s - Choose Image or Label file</source>
         <translation>%s - 选择图像或标签文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4345"/>
+        <location filename="../../views/labeling/label_widget.py" line="4341"/>
         <source>%s - Save/Load Annotations in Directory</source>
         <translation>%s - 在目录中保存/加载注释</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4359"/>
+        <location filename="../../views/labeling/label_widget.py" line="4355"/>
         <source>%s . Annotations will be saved/loaded in %s</source>
         <translation>%s . 注释将保存/加载在%s中</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4391"/>
+        <location filename="../../views/labeling/label_widget.py" line="4387"/>
         <source>%s - Choose File</source>
         <translation>%s - 选择文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4416"/>
+        <location filename="../../views/labeling/label_widget.py" line="4412"/>
         <source>Label files (*%s)</source>
         <translation>标签文件（*%s）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4416"/>
+        <location filename="../../views/labeling/label_widget.py" line="4412"/>
         <source>Choose File</source>
         <translation>选择文件</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4472"/>
+        <location filename="../../views/labeling/label_widget.py" line="4468"/>
         <source>You are about to permanently delete this label file, proceed anyway?</source>
         <translation>您即将永久删除此标签文件，是否继续？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4514"/>
+        <location filename="../../views/labeling/label_widget.py" line="4510"/>
         <source>Attention</source>
         <translation>注意</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4578"/>
+        <location filename="../../views/labeling/label_widget.py" line="4574"/>
         <source>Save annotations to &quot;{self.filename!r}&quot; before closing?</source>
         <translation>在关闭之前将注释保存到&quot;{self.filename!r}&quot;？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4581"/>
+        <location filename="../../views/labeling/label_widget.py" line="4577"/>
         <source>Save annotations?</source>
         <translation>保存注释？</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4652"/>
+        <location filename="../../views/labeling/label_widget.py" line="4648"/>
         <source>%s - Open Directory</source>
         <translation>%s - 打开目录</translation>
     </message>
@@ -2418,13 +2418,13 @@ Results have been saved to:
         <translation>导入</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2268"/>
+        <location filename="../../views/labeling/label_widget.py" line="2277"/>
         <source>Invalid label &apos;{}&apos; with validation type: {}!
 Reset the label as {}.</source>
         <translation>无效标签'{}'，有效标签'{}'！标签重置为'{}'.</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3514"/>
+        <location filename="../../views/labeling/label_widget.py" line="3518"/>
         <source>X: %d, Y: %d | H: %d, W: %d</source>
         <translation>X: %d, Y: %d | H: %d, W: %d</translation>
     </message>
@@ -2434,17 +2434,17 @@ Reset the label as {}.</source>
         <translation>X: %d, Y: %d</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4991"/>
+        <location filename="../../views/labeling/label_widget.py" line="5053"/>
         <source>Object Description</source>
         <translation>对象文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5000"/>
+        <location filename="../../views/labeling/label_widget.py" line="5062"/>
         <source>Image Description</source>
         <translation>图像文本描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5011"/>
+        <location filename="../../views/labeling/label_widget.py" line="5073"/>
         <source>Switch to Edit mode for description editing</source>
         <translation>切换到编辑模式以进行文本编辑</translation>
     </message>
@@ -2526,12 +2526,12 @@ Reset the label as {}.</source>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="3501"/>
         <source>X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]</source>
-        <translation>X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]</translation>
+        <translation type="obsolete">X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="3521"/>
         <source>X: %d, Y: %d [%s: %d/%d]</source>
-        <translation>X: %d, Y: %d [%s: %d/%d]</translation>
+        <translation type="obsolete">X: %d, Y: %d [%s: %d/%d]</translation>
     </message>
     <message>
         <location filename="../../views/labeling/label_widget.py" line="403"/>
@@ -2549,7 +2549,7 @@ Reset the label as {}.</source>
         <translation>工具</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4510"/>
+        <location filename="../../views/labeling/label_widget.py" line="4506"/>
         <source>You are about to permanently delete this image file, proceed anyway?</source>
         <translation>您即将永久删除此图像文件，是否继续？</translation>
     </message>
@@ -2869,22 +2869,22 @@ Reset the label as {}.</source>
         <translation>导出自定义 PPOCR 关键信息提取标签（包括语义实体识别和关系提取）</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3340"/>
+        <location filename="../../views/labeling/label_widget.py" line="3349"/>
         <source>Error pasting shapes</source>
         <translation>粘贴对象失败</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3340"/>
+        <location filename="../../views/labeling/label_widget.py" line="3349"/>
         <source>Error decoding shapes: %s</source>
         <translation>对象解码失败：%s</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2565"/>
+        <location filename="../../views/labeling/label_widget.py" line="2574"/>
         <source>Copied</source>
         <translation>已复制</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2565"/>
+        <location filename="../../views/labeling/label_widget.py" line="2574"/>
         <source>The information has been copied to the clipboard.</source>
         <translation>环境信息已复制到剪切板</translation>
     </message>
@@ -3164,22 +3164,22 @@ Reset the label as {}.</source>
         <translation>在对象内显示属性</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2470"/>
+        <location filename="../../views/labeling/label_widget.py" line="2479"/>
         <source>No images loaded</source>
         <translation>未加载图像</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2470"/>
+        <location filename="../../views/labeling/label_widget.py" line="2479"/>
         <source>Please load an image folder before opening the VQA dialog.</source>
         <translation>请在打开视觉问答窗口前加载图像文件夹。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2748"/>
+        <location filename="../../views/labeling/label_widget.py" line="2757"/>
         <source>Batch Edit</source>
         <translation>批量编辑</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2748"/>
+        <location filename="../../views/labeling/label_widget.py" line="2757"/>
         <source>You are about to edit multiple shapes in batch mode. This operation cannot be undone.
 
 This warning will only be shown once. Do you want to continue?</source>
@@ -3218,14 +3218,63 @@ This warning will only be shown once. Do you want to continue?</source>
         <translation>复制对象坐标到剪贴板</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4462"/>
+        <location filename="../../views/labeling/label_widget.py" line="4458"/>
         <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the label file.</source>
         <translation>请在删除标签文件前禁用&quot;保留上一个注释&quot;。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4500"/>
+        <location filename="../../views/labeling/label_widget.py" line="4496"/>
         <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the image file.</source>
         <translation>请在删除图像文件前禁用&quot;保留上一个注释&quot;。</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4704"/>
+        <source>Processing EXIF orientation...</source>
+        <translation>正在处理EXIF方向信息...</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4704"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4714"/>
+        <source>Processing: %s</source>
+        <translation>正在处理: %s</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4729"/>
+        <source>Successfully processed %s images.
+
+Original images backed up to:
+%s</source>
+        <translation>已成功处理 %s 张图片。
+
+原始图片已备份至:
+%s</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4734"/>
+        <source>EXIF Processing Complete</source>
+        <translation>EXIF处理完成</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4770"/>
+        <source>EXIF Orientation Detected</source>
+        <translation>检测到 EXIF 方向信息</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4770"/>
+        <source>Detected %s images with EXIF orientation data. Direct annotation without correction may cause training anomalies.
+
+We will process these images in background and create backups in &apos;x-anylabeling-exif-backup&apos; folder under current directory. This may take some time.
+
+Continue processing or cancel import?</source>
+        <translation>检测到 %s 张图片包含 EXIF 方向信息。如果不进行校正直接标注可能会导致训练异常。
+
+我们将在后台处理这些图片，并在当前目录下的'x-anylabeling-exif-backup'文件夹中创建备份。这可能需要一些时间。
+
+是否继续处理或取消导入？</translation>
     </message>
 </context>
 <context>

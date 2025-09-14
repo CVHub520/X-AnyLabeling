@@ -21,7 +21,7 @@ from .general import (
     find_most_similar_label,
 )
 from .image import (
-    apply_exif_orientation,
+    check_img_exif,
     get_pil_img_dim,
     img_arr_to_b64,
     img_b64_to_arr,

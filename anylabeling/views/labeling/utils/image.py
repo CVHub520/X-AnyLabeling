@@ -5,7 +5,6 @@ import io
 import shutil
 
 import numpy as np
-import PIL.ExifTags
 import PIL.Image
 import PIL.ImageOps
 
@@ -104,81 +103,37 @@ def get_pil_img_dim(img_path):
         raise
 
 
-def process_image_exif(filename):
-    """Process image EXIF orientation and save if necessary."""
-    with PIL.Image.open(filename) as img:
-        exif_data = None
-        if hasattr(img, "_getexif"):
-            exif_data = img._getexif()
-        if exif_data is not None:
-            for tag, value in exif_data.items():
-                tag_name = PIL.ExifTags.TAGS.get(tag, tag)
-                if tag_name != "Orientation":
-                    continue
-                if value == 3:
-                    img = img.rotate(180, expand=True)
-                    rotation = "180 degrees"
-                elif value == 6:
-                    img = img.rotate(270, expand=True)
-                    rotation = "270 degrees"
-                elif value == 8:
-                    img = img.rotate(90, expand=True)
-                    rotation = "90 degrees"
-                else:
-                    return  # No rotation needed
-                backup_dir = osp.join(
-                    osp.dirname(osp.dirname(filename)),
-                    "x-anylabeling-exif-backup",
-                )
-                os.makedirs(backup_dir, exist_ok=True)
-                backup_filename = osp.join(backup_dir, osp.basename(filename))
-                shutil.copy2(filename, backup_filename)
-                img.save(filename)
-                logger.info(
-                    f"Rotated {filename} by {rotation}, saving backup to {backup_filename}"
-                )
-                break
-
-
-def apply_exif_orientation(image):
+def check_img_exif(filename):
+    """Check if image needs EXIF orientation correction"""
     try:
-        exif = image._getexif()
-    except AttributeError:
-        exif = None
+        with PIL.Image.open(filename) as img:
+            exif = img.getexif()
+            orientation = exif.get(0x0112, 1)
+            return orientation not in (1, None)
 
-    if exif is None:
-        return image
+    except Exception:
+        return False
 
-    exif = {
-        PIL.ExifTags.TAGS[k]: v
-        for k, v in exif.items()
-        if k in PIL.ExifTags.TAGS
-    }
 
-    orientation = exif.get("Orientation", None)
+def process_image_exif(filename):
+    """Process image EXIF orientation."""
+    try:
+        with PIL.Image.open(filename) as img:
+            exif = img.getexif()
+            orientation = exif.get(0x0112, 1)
+            if orientation in (1, None):
+                return
 
-    if orientation == 1:
-        # do nothing
-        return image
-    if orientation == 2:
-        # left-to-right mirror
-        return PIL.ImageOps.mirror(image)
-    if orientation == 3:
-        # rotate 180
-        return image.transpose(PIL.Image.ROTATE_180)
-    if orientation == 4:
-        # top-to-bottom mirror
-        return PIL.ImageOps.flip(image)
-    if orientation == 5:
-        # top-to-left mirror
-        return PIL.ImageOps.mirror(image.transpose(PIL.Image.ROTATE_270))
-    if orientation == 6:
-        # rotate 270
-        return image.transpose(PIL.Image.ROTATE_270)
-    if orientation == 7:
-        # top-to-right mirror
-        return PIL.ImageOps.mirror(image.transpose(PIL.Image.ROTATE_90))
-    if orientation == 8:
-        # rotate 90
-        return image.transpose(PIL.Image.ROTATE_90)
-    return image
+            corrected_img = PIL.ImageOps.exif_transpose(img)
+
+            backup_dir = osp.join(
+                osp.dirname(osp.dirname(filename)),
+                "x-anylabeling-exif-backup",
+            )
+            os.makedirs(backup_dir, exist_ok=True)
+            backup_filename = osp.join(backup_dir, osp.basename(filename))
+            shutil.copy2(filename, backup_filename)
+            corrected_img.save(filename)
+
+    except Exception as e:
+        logger.error(f"Error processing EXIF orientation for {filename}: {e}")
