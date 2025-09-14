@@ -2219,13 +2219,22 @@ class LabelingWidget(LabelDialog):
         self.actions.digit_shortcut_9.setEnabled(True)
         title = __appname__
         if self.filename is not None:
-            title = f"{title} - {self.filename}"
-        self.setWindowTitle(title)
+            current_index, total_count = self.get_image_progress_info()
+            basename = osp.basename(str(self.filename))
+            title = f"{title} - {basename} [{current_index}/{total_count}]"
+        self.parent.parent.setWindowTitle(title)
 
         if self.has_label_file():
             self.actions.delete_file.setEnabled(True)
         else:
             self.actions.delete_file.setEnabled(False)
+
+    def get_image_progress_info(self):
+        if self.filename and self.filename in self.fn_to_index:
+            current_index = self.fn_to_index[str(self.filename)]
+            total_count = len(self.image_list)
+            return current_index + 1, total_count
+        return 1, 1
 
     def toggle_actions(self, value=True):
         """Enable/Disable widgets which depend on an opened image."""
@@ -3494,20 +3503,15 @@ class LabelingWidget(LabelDialog):
         - pos (QPointF): The current mouse coordinates inside the shape.
         """
         num_images = len(self.image_list)
-        basename = osp.basename(str(self.filename))
         if shape_height > 0 and shape_width > 0:
             if num_images and self.filename in self.image_list:
-                current_index = self.fn_to_index[str(self.filename)] + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d | H: %d, W: %d [%s: %d/%d]"))
+                    str(self.tr("X: %d, Y: %d | H: %d, W: %d"))
                     % (
                         int(pos.x()),
                         int(pos.y()),
                         shape_height,
                         shape_width,
-                        basename,
-                        current_index,
-                        num_images,
                     )
                 )
             else:
@@ -3517,15 +3521,11 @@ class LabelingWidget(LabelDialog):
                 )
         elif self.image_path:
             if num_images and self.filename in self.image_list:
-                current_index = self.fn_to_index[str(self.filename)] + 1
                 self.status(
-                    str(self.tr("X: %d, Y: %d [%s: %d/%d]"))
+                    str(self.tr("X: %d, Y: %d"))
                     % (
                         int(pos.x()),
                         int(pos.y()),
-                        basename,
-                        current_index,
-                        num_images,
                     )
                 )
             else:
@@ -3961,9 +3961,6 @@ class LabelingWidget(LabelDialog):
             return False
 
         # assumes same name, but json extension
-        self.status(
-            str(self.tr("Loading %s...")) % osp.basename(str(filename))
-        )
         label_file = osp.splitext(filename)[0] + ".json"
         image_dir = None
         if self.output_dir:
@@ -4113,8 +4110,6 @@ class LabelingWidget(LabelDialog):
         self.add_recent_file(self.filename)
         self.toggle_actions(True)
         self.canvas.setFocus()
-        msg = str(self.tr("Loaded %s")) % osp.basename(str(filename))
-        self.status(msg)
         self.update_thumbnail_display()
         return True
 
@@ -4333,6 +4328,7 @@ class LabelingWidget(LabelDialog):
             filename = file_dialog.selectedFiles()[0]
             if filename:
                 self.file_list_widget.clear()
+                self.fn_to_index.clear()
                 self.load_file(filename)
 
     def change_output_dir_dialog(self, _value=False):
