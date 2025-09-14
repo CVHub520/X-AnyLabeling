@@ -1961,7 +1961,7 @@ class ModelManager(QObject):
         text_prompt=None,
         run_tracker=False,
         batch=False,
-        dt_boxes=None,
+        existing_shapes=None,
     ):
         """Predict shapes.
         NOTE: This function is blocking. The model can take a long time to
@@ -1983,10 +1983,12 @@ class ModelManager(QObject):
                 auto_labeling_result = self.loaded_model_config[
                     "model"
                 ].predict_shapes(image, filename, run_tracker=run_tracker)
-            elif dt_boxes is not None:
+            elif existing_shapes is not None:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
-                ].predict_shapes(image, filename, dt_boxes=dt_boxes)
+                ].predict_shapes(
+                    image, filename, existing_shapes=existing_shapes
+                )
             else:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
@@ -2016,7 +2018,7 @@ class ModelManager(QObject):
         filename=None,
         text_prompt=None,
         run_tracker=False,
-        dt_boxes=None,
+        existing_shapes=None,
     ):
         """Predict shapes.
         This function starts a thread to run the prediction.
@@ -2060,12 +2062,12 @@ class ModelManager(QObject):
                     filename,
                     run_tracker=run_tracker,
                 )
-            elif dt_boxes is not None:
+            elif existing_shapes is not None:
                 self.model_execution_worker = GenericWorker(
                     self.predict_shapes,
                     image,
                     filename,
-                    dt_boxes=dt_boxes,
+                    existing_shapes=existing_shapes,
                 )
             else:
                 self.model_execution_worker = GenericWorker(

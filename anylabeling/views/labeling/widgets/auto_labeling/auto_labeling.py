@@ -575,12 +575,12 @@ class AutoLabelingWidget(QWidget):
                 and self.model_manager.loaded_model_config["type"]
                 in _SKIP_DET_MODELS
             ):
-                dt_boxes = self._extract_detection_boxes_from_shapes()
-                if dt_boxes is not None:
+                existing_shapes = self._extract_shapes_for_recognition()
+                if existing_shapes is not None:
                     self.model_manager.predict_shapes_threading(
                         self.parent.image,
                         self.parent.filename,
-                        dt_boxes=dt_boxes,
+                        existing_shapes=existing_shapes,
                     )
                     return
 
@@ -967,15 +967,12 @@ class AutoLabelingWidget(QWidget):
 
         self.skip_detection = is_checked
 
-    def _extract_detection_boxes_from_shapes(self):
-        """Extract detection boxes from existing shapes"""
-        dt_boxes = []
+    def _extract_shapes_for_recognition(self):
+        """Extract shapes for text recognition"""
+        shapes_for_recognition = []
         for shape in self.parent.canvas.shapes:
             if shape.shape_type in ["rectangle", "rotation", "polygon"]:
-                points = [
-                    [int(point.x()), int(point.y())] for point in shape.points
-                ]
-                dt_boxes.append(points)
+                shapes_for_recognition.append(shape)
             else:
                 error_text = self.tr(
                     "Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes."
@@ -983,7 +980,7 @@ class AutoLabelingWidget(QWidget):
                 self.model_manager.new_model_status.emit(error_text)
                 raise ValueError(error_text)
 
-        return dt_boxes
+        return shapes_for_recognition
 
     def on_mask_fineness_changed(self, value):
         """Handle mask fineness slider change"""

@@ -176,7 +176,7 @@ class PPOCRv4(Model):
         )
         return args
 
-    def predict_shapes(self, image, image_path=None, dt_boxes=None):
+    def predict_shapes(self, image, image_path=None, existing_shapes=None):
         """
         Predict shapes from image
         """
@@ -192,7 +192,40 @@ class PPOCRv4(Model):
             logger.warning(e)
             return []
 
+        if existing_shapes is not None:
+            dt_boxes = []
+            for shape in existing_shapes:
+                points = [
+                    [int(point.x()), int(point.y())] for point in shape.points
+                ]
+                dt_boxes.append(points)
+        else:
+            dt_boxes = None
+
         dt_boxes, rec_res, scores = self.text_sys(image, dt_boxes=dt_boxes)
+
+        if existing_shapes is not None:
+            shapes = []
+            for i, shape in enumerate(existing_shapes):
+                updated_shape = Shape(
+                    label=shape.label,
+                    score=shape.score,
+                    shape_type=shape.shape_type,
+                    group_id=shape.group_id,
+                    description=rec_res[i][0],
+                    difficult=shape.difficult,
+                    flags=shape.flags,
+                    attributes=shape.attributes,
+                )
+                for point in shape.points:
+                    updated_shape.add_point(point)
+                if hasattr(shape, "closed"):
+                    updated_shape.closed = shape.closed
+                shapes.append(updated_shape)
+
+            result = AutoLabelingResult(shapes, replace=True)
+            return result
+
         results = [
             {
                 "description": rec_res[i][0],
