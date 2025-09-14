@@ -1,5 +1,44 @@
 # X-AnyLabeling Changelog
 
+## `v3.2.3` (Sep 14, 2025)
+
+### 🚀 New Features
+
+- Implement EXIF orientation processing for images during import, with user feedback and backup features
+- Add mask fineness control slider for SAM series models to adjust segmentation precision (#1114)
+- Add Re-recognition feature for PP-OCR models (#1113)
+- Add support for PP-OCRv5 model (#1113)
+- Add copy coordinates to clipboard feature
+- Add circle to polygon transform feature (#1112)
+- Add Navigator feature for high-resolution image navigation and zoom control (#1102)
+- Add refresh button to sync data with main window and display success popup for VQA Dialog
+- Enable shapes field export for VQA Dialog
+
+### 🐛 Bug Fixes
+
+- Fix 'gbk' codec decode error on windows during Ultralytics traning (#1115)
+- Prevent deleting label file when "Keep Previous Annotation" is enabled by showing a warning to disable it first
+- Fix Chinese character path support in crop image saving
+- Enable ONNX Runtime library linking in x-anylabeling-*-gpu.spec
+- Fix first image showing old dataset data after refresh in VQA dialog
+
+### 🛠️ Improvements
+
+- Enhance window title to display current image progress (#936)
+- Adjust label bounding box calculations for improved text positioning
+- Improve circle label positioning to center display
+- Streamline color retrieval by using parent method for RGB values in LabelModifyDialog
+- Update field count in VQA ExportLabelsDialog for accurate table height calculation and make table items non-editable
+- Enhance button styles and dialog layout for improved user experience
+- Enhance Ultralytics train/val dataset split with true randomization (#1095)
+- Optimize the experience of adjusting the shape (#1094)
+
+### 🌟 Contributors
+
+A total of 6 developers contributed to this release.
+
+Thank @Einstellung, @lhj5426, @sckiyo, @xiaomaxiao, @zhixuwei, @CVHub520
+
 ## `v3.2.2` (Aug 31, 2025)
 
 ### 🚀 New Features

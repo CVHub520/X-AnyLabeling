@@ -64,12 +64,13 @@
 
 ## 🥳 新功能
 
+- X-AnyLabeling [v3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3) 最新版本发布
 - 新增 SAM 系列模型的掩码精细度控制滑块，可调节分割精度
 - 新增 PP-OCR 模型的文字重识别功能 [[示例](./examples/optical_character_recognition/text_recognition/README.md)]
 - 新增支持 [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) 模型
 - 新增复制坐标到剪贴板功能
 - 新增导航器功能，支持高分辨率图像的快速导航和缩放控制
-- X-AnyLabeling [v3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2) 最新版本发布
+- X-AnyLabeling [v3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2) 版本发布
 - 新增 VQA 任务的 AI 助手功能和提示模板管理系统
 - 支持批量编辑多个对象
 - 支持在画布上显示/隐藏对象属性

@@ -64,6 +64,7 @@
 
 ## 🥳 What's New
 
+- Bump version to [3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3)
 - Add mask fineness control slider for SAM series models to adjust segmentation precision
 - Add Re-recognition feature for PP-OCR models [[example](./examples/optical_character_recognition/text_recognition/README.md)]
 - Add support for [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) model
