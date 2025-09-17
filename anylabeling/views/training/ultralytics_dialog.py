@@ -985,8 +985,8 @@ class UltralyticsDialog(QDialog):
             "basic": {
                 "project": get_widget_value("project"),
                 "name": get_widget_value("name"),
-                "model": get_widget_value("model"),
-                "data": get_widget_value("data"),
+                "model": get_widget_value("model").strip('"'),
+                "data": get_widget_value("data").strip('"'),
                 "device": get_widget_value("device"),
                 "dataset_ratio": (
                     get_widget_value("dataset_ratio") / 100.0
