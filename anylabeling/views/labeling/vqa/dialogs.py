@@ -633,6 +633,15 @@ class AIPromptDialog(QDialog):
         cursor.setCharFormat(format)
 
         tags = ["@image", "@text"]
+        if hasattr(self.parent, "custom_components"):
+            tags.extend(
+                [
+                    f"@{comp['title']}"
+                    for comp in self.parent.custom_components
+                    if comp["type"] == "QLineEdit"
+                ]
+            )
+
         for tag in tags:
             start_index = 0
             while True:

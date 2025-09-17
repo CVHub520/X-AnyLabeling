@@ -19,12 +19,15 @@ class AIWorkerThread(QThread):
 
     finished = pyqtSignal(str, bool, str)  # result, success, error_message
 
-    def __init__(self, prompt, current_text, config, image_path=None):
+    def __init__(
+        self, prompt, current_text, config, image_path=None, components=None
+    ):
         super().__init__()
         self.prompt = prompt
         self.current_text = current_text
         self.config = config
         self.image_path = image_path
+        self.components = components or []
         self._is_cancelled = False
 
     def run(self):
@@ -93,6 +96,13 @@ class AIWorkerThread(QThread):
         """Process @image and @text references in the prompt"""
         if "@text" in prompt and self.current_text:
             prompt = prompt.replace("@text", self.current_text)
+
+        for component in self.components:
+            widget_ref = f"@{component['title']}"
+            if widget_ref in prompt:
+                if component["type"] == "QLineEdit":
+                    widget_value = component["widget"].toPlainText().strip()
+                    prompt = prompt.replace(widget_ref, widget_value)
 
         if "@image" in prompt:
             if not self.image_path or not os.path.exists(self.image_path):

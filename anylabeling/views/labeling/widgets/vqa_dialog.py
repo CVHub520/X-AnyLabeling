@@ -978,7 +978,11 @@ class VQADialog(QDialog):
                     current_image_path = self.parent().filename
 
                 self.ai_worker = AIWorkerThread(
-                    prompt, current_text, {}, current_image_path
+                    prompt,
+                    current_text,
+                    {},
+                    current_image_path,
+                    self.custom_components,
                 )
                 self.ai_worker.finished.connect(
                     lambda result, success, error: self.handle_ai_result(

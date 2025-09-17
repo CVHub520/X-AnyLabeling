@@ -202,7 +202,9 @@ class PPOCRv4(Model):
         else:
             dt_boxes = None
 
-        dt_boxes, rec_res, scores, sort_indices = self.text_sys(image, dt_boxes=dt_boxes)
+        dt_boxes, rec_res, scores, sort_indices = self.text_sys(
+            image, dt_boxes=dt_boxes
+        )
 
         if existing_shapes is not None:
             shapes = []
