@@ -127,6 +127,12 @@
 ### 模型相关问题
 
 <details>
+<summary>Q: Error in model predict_shapes: ModelManager.new_auto_labeling_result[AutolabelingResult].emit(): argument 1 has unexpected type 'list'</summary>
+
+通常是加载了损坏或无效的图像文件，或者当前图像格式不支持等原因所造成。
+</details>
+
+<details>
 <summary>Q: Error in loading model: YOLOE model will be not be available.</summary>
 
 可参考[#997](https://github.com/CVHub520/X-AnyLabeling/issues/997)。
@@ -213,7 +219,8 @@ export https_proxy=http://ip:port
 <details>
 <summary>Q: Error with Error in loading model: exceptions must derive from BaseException</summary>
 
-请确保配置文件中，模型路径格式正确且存在。可参考[#868](https://github.com/CVHub520/X-AnyLabeling/issues/868)、[#441](https://github.com/CVHub520/X-AnyLabeling/issues/441)。
+1. 请确保配置文件中，模型路径格式正确且存在。可参考[#868](https://github.com/CVHub520/X-AnyLabeling/issues/868)、[#441](https://github.com/CVHub520/X-AnyLabeling/issues/441)。
+2. 检查是否是当前 onnx 模型 ir_version 版本与对应的 onnx 版本之间不匹配。可参考[#1120](https://github.com/CVHub520/X-AnyLabeling/issues/1120#issuecomment-3303864917)
 </details>
 
 <details>
