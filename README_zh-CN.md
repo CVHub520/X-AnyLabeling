@@ -64,6 +64,7 @@
 
 ## 🥳 新功能
 
+- 新增上传 YOLO 标签时保留现有标注选项
 - 新增 VQA AI 提示跨组件引用和标注数据引用功能
 - X-AnyLabeling [v3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3) 最新版本发布
 - 新增 SAM 系列模型的掩码精细度控制滑块，可调节分割精度

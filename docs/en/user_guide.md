@@ -314,10 +314,12 @@ Supports YOLOv5/v8 format (`*.txt`) labels for object detection, instance segmen
 > **Note:** For YOLO-Pose export, you must assign the same `group_id` to each bounding box and its corresponding keypoints during annotation so they are correctly associated.
 
 **Importing:**
-1. Select `Import Annotations` > `Import YOLO Annotations`.
-2. Select the corresponding task (Detection, Segmentation, Pose).
-3. Provide the required configuration file (`classes.txt` or `*.yaml`).
-4. Select the directory containing the YOLO `*.txt` label files.
+1. Click the `Import` button in the top menu bar.
+2. Select the corresponding task.
+3. Upload the prepared configuration file.
+4. Select the directory containing the label files.
+5. Optionally check "Preserve Existing Annotations" to merge new annotations with existing ones.
+6. Click OK to confirm.
 
 **Exporting:**
 1. Select `Export Annotations` > `Export YOLO Annotations`.

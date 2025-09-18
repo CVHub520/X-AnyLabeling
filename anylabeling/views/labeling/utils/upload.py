@@ -1421,6 +1421,12 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
     path_layout.addLayout(path_input_layout)
     layout.addLayout(path_layout)
 
+    preserve_checkbox = QtWidgets.QCheckBox(
+        self.tr("Preserve existing annotations")
+    )
+    preserve_checkbox.setChecked(False)
+    layout.addWidget(preserve_checkbox)
+
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
     button_layout.setSpacing(8)
@@ -1445,6 +1451,7 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
         return
 
     label_dir_path = path_edit.text()
+    preserve_existing = preserve_checkbox.isChecked()
     image_dir_path = osp.dirname(self.filename)
     image_file_list = os.listdir(image_dir_path)
     label_file_list = os.listdir(label_dir_path)
@@ -1453,12 +1460,22 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
     response = QtWidgets.QMessageBox()
     response.setIcon(QtWidgets.QMessageBox.Warning)
     response.setWindowTitle(self.tr("Warning"))
-    response.setText(self.tr("Current annotation will be lost"))
-    response.setInformativeText(
-        self.tr(
-            "You are going to upload new annotations to this task. Continue?"
+    if preserve_existing:
+        response.setText(
+            self.tr("New annotations will be merged with existing ones")
         )
-    )
+        response.setInformativeText(
+            self.tr(
+                "You are going to add new annotations to this task. Existing annotations will be preserved. Continue?"
+            )
+        )
+    else:
+        response.setText(self.tr("Current annotation will be lost"))
+        response.setInformativeText(
+            self.tr(
+                "You are going to upload new annotations to this task. Continue?"
+            )
+        )
     response.setStandardButtons(
         QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
     )
@@ -1494,6 +1511,12 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
             output_file = osp.join(output_dir_path, data_filename)
             image_file = osp.join(image_dir_path, image_filename)
 
+            existing_shapes = []
+            if preserve_existing and osp.exists(output_file):
+                with open(output_file, "r", encoding="utf-8") as f:
+                    existing_data = json.load(f)
+                    existing_shapes = existing_data.get("shapes", [])
+
             if mode in ["hbb", "seg"]:
                 converter.yolo_to_custom(
                     input_file=input_file,
@@ -1513,6 +1536,16 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
                     output_file=output_file,
                     image_file=image_file,
                 )
+
+            # Merge with existing shapes if needed
+            if preserve_existing and existing_shapes:
+                with open(output_file, "r", encoding="utf-8") as f:
+                    new_data = json.load(f)
+                new_data["shapes"] = existing_shapes + new_data.get(
+                    "shapes", []
+                )
+                with open(output_file, "w", encoding="utf-8") as f:
+                    json.dump(new_data, f, indent=2, ensure_ascii=False)
 
             progress_dialog.setValue(i)
             if progress_dialog.wasCanceled():
