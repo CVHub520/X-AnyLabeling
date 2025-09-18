@@ -487,6 +487,11 @@ class ChatbotDialog(QDialog):
         self.api_address = QLineEdit(
             self.providers[self.default_provider]["api_address"]
         )
+        self.api_address.setPlaceholderText(
+            DEFAULT_PROVIDERS_DATA[self.default_provider].get(
+                "api_address", ""
+            )
+        )
         self.api_address.setStyleSheet(
             ChatbotDialogStyle.get_settings_edit_style()
         )
@@ -783,7 +788,7 @@ class ChatbotDialog(QDialog):
             self.providers[self.default_provider]["api_key"],
         )
         self.selected_model = _model_settings["model_id"]
-        self.model_dropdown = ModelDropdown(models_data)
+        self.model_dropdown = ModelDropdown(models_data, self.default_provider)
         self.model_dropdown.hide()
         self.model_dropdown.modelSelected.connect(self.on_model_selected)
         self.model_dropdown.providerSelected.connect(self.on_provider_selected)
@@ -801,7 +806,7 @@ class ChatbotDialog(QDialog):
                     self.providers[provider]["api_address"],
                     self.providers[provider]["api_key"],
                 )
-                self.model_dropdown.update_models_data(models_data)
+                self.model_dropdown.update_models_data(models_data, provider)
                 break
 
         button_rect = self.model_button.rect()
@@ -837,10 +842,13 @@ class ChatbotDialog(QDialog):
             api_address = self.providers[provider]["api_address"]
             api_key = self.providers[provider]["api_key"]
             self.api_address.setText(api_address)
+            self.api_address.setPlaceholderText(
+                DEFAULT_PROVIDERS_DATA[provider].get("api_address", "")
+            )
             self.api_key.setText(api_key)
 
             models_data = get_models_data(provider, api_address, api_key)
-            self.model_dropdown.update_models_data(models_data)
+            self.model_dropdown.update_models_data(models_data, provider)
 
             # update help button urls
             button_url_mapping = [

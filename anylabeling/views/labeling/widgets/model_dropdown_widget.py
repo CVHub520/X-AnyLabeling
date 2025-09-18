@@ -231,10 +231,13 @@ class ModelDropdown(QWidget):
     modelSelected = pyqtSignal(str)
     providerSelected = pyqtSignal(str)
 
-    def __init__(self, models_data: dict = {}, parent=None):
+    def __init__(
+        self, models_data: dict = {}, current_provider: str = None, parent=None
+    ):
         super().__init__(parent)
         self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
         self.resize(360, 500)
+        self.current_provider = current_provider
 
         self.setStyleSheet(
             f"""
@@ -302,8 +305,12 @@ class ModelDropdown(QWidget):
         # Connect search bar to filter
         self.search_bar.textChanged.connect(self.filter_models)
 
-    def update_models_data(self, models_data: dict):
+    def update_models_data(
+        self, models_data: dict, current_provider: str = None
+    ):
         self.models_data = models_data
+        if current_provider:
+            self.current_provider = current_provider
         self.setup_model_list()
 
     def save_models_data(self, provider: str = None, model_id: str = None):
@@ -334,6 +341,55 @@ class ModelDropdown(QWidget):
 
         self.model_items = {}
 
+        if not self.current_provider:
+            self._setup_all_providers()
+            return
+
+        current_provider_models = self.models_data.get(
+            self.current_provider, {}
+        )
+
+        favorites = []
+        for model_name, model_data in current_provider_models.items():
+            if model_data.get("favorite", False):
+                favorites.append((model_name, model_data))
+
+        if favorites:
+            fav_section = ProviderSection("Favorites")
+            self.container_layout.addWidget(fav_section)
+
+            for model_name, model_data in favorites:
+                model_item = ModelItem(
+                    model_name, model_data, in_favorites_section=True
+                )
+                model_item.clicked.connect(self.select_model)
+                model_item.favoriteToggled.connect(self.toggle_favorite)
+                fav_section.add_model_item(model_item)
+                self.model_items[model_name] = model_item
+
+            separator = QFrame()
+            separator.setFrameShape(QFrame.HLine)
+            separator.setFrameShadow(QFrame.Plain)
+            self.container_layout.addWidget(separator)
+
+        if current_provider_models:
+            provider_section = ProviderSection(
+                self.current_provider.capitalize()
+            )
+            self.container_layout.addWidget(provider_section)
+
+            for model_name, model_data in current_provider_models.items():
+                model_item = ModelItem(model_name, model_data)
+                model_item.clicked.connect(self.select_model)
+                model_item.favoriteToggled.connect(self.toggle_favorite)
+                provider_section.add_model_item(model_item)
+                self.model_items[model_name] = model_item
+
+        self.container_layout.addStretch()
+        self.container_layout.update()
+        self.container_layout.parentWidget().adjustSize()
+
+    def _setup_all_providers(self):
         # Add favorites section if there are favorites
         favorites = []
         for provider, models in self.models_data.items():

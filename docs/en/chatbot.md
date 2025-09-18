@@ -40,6 +40,9 @@ The Chatbot features a three-panel interface designed for streamlined interactio
 | OpenRouter | [Link](https://openrouter.ai/settings/keys)                   | [Link](https://openrouter.ai/docs/quick-start)                | [Link](https://openrouter.ai/models)                                        |
 | Qwen       | [Link](https://bailian.console.aliyun.com/?apiKey=1#/api-key) | [Link](https://help.aliyun.com/document_detail/2590237.html)   | [Link](https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm) |
 
+> [!NOTE]
+> The Custom provider supports configuring any custom endpoint that is compatible with the OpenAI API format. After selecting a provider, the model list will only display relevant models and favorites for the current provider.
+
 ## Middle Panel - Chat Interface
 
 - **Chat Window**: View your conversation history with the AI. Supports copy, edit, delete, and rerun functions.

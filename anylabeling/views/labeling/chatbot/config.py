@@ -53,6 +53,13 @@ DEFAULT_SETTINGS = {
 }
 
 DEFAULT_PROVIDERS_DATA = {
+    "custom": {
+        "api_address": "",
+        "api_key": "",
+        "api_key_url": None,
+        "api_docs_url": None,
+        "model_docs_url": None,
+    },
     "anthropic": {
         "api_address": "https://api.anthropic.com/v1/",
         "api_key": None,

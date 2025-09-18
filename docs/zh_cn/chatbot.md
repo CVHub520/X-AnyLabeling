@@ -38,6 +38,9 @@
 | OpenRouter | [Link](https://openrouter.ai/settings/keys)            | [Link](https://openrouter.ai/docs/quick-start)              | [Link](https://openrouter.ai/models)                                        |
 | Qwen       | [Link](https://bailian.console.aliyun.com/?apiKey=1#/api-key) | [Link](https://help.aliyun.com/document_detail/2590237.html) | [Link](https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm) |
 
+> [!NOTE]
+> Custom 提供商支持配置兼容 OpenAI API 格式的自定义端点。切换提供商后，模型列表将自动更新显示当前提供商的可用模型。
+
 ## 中间面板 - 聊天界面
 
 - 聊天窗口：查看您与 AI 的对话历史，支持复制、编辑、删除、重新运行功能

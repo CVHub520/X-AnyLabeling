@@ -64,6 +64,7 @@
 
 ## 🥳 新功能
 
+- 新增聊天机器人自定义提供商支持并优化模型下拉列表选择功能
 - 新增上传 YOLO 标签时保留现有标注选项
 - 新增 VQA AI 提示跨组件引用和标注数据引用功能
 - X-AnyLabeling [v3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3) 最新版本发布
