@@ -74,6 +74,13 @@ SUPPORTED_WIDGETS = [
 
 # AI Assistant
 REQUEST_TIMEOUT = 120
+AI_PROMPT_PLACEHOLDER = (
+    "Examples:\n"
+    "   1. @image Describe this image\n"
+    "   2. Translate to English, return translated text only: @text\n"
+    "   3. @widget.title - Reference widget values\n"
+    "   4. @label.shapes - Reference annotation data"
+)
 DEFAULT_TEMPLATES = {
     # @text
     "Condense text": "Please make this text more concise while keeping the key points. Output the condensed version only:\n@text",

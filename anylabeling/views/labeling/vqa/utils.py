@@ -20,7 +20,13 @@ class AIWorkerThread(QThread):
     finished = pyqtSignal(str, bool, str)  # result, success, error_message
 
     def __init__(
-        self, prompt, current_text, config, image_path=None, components=None
+        self,
+        prompt,
+        current_text,
+        config,
+        image_path=None,
+        components=None,
+        parent=None,
     ):
         super().__init__()
         self.prompt = prompt
@@ -28,6 +34,7 @@ class AIWorkerThread(QThread):
         self.config = config
         self.image_path = image_path
         self.components = components or []
+        self.parent = parent
         self._is_cancelled = False
 
     def run(self):
@@ -93,16 +100,36 @@ class AIWorkerThread(QThread):
                 self.finished.emit("", False, f"API call failed: {str(e)}")
 
     def process_special_references(self, prompt):
-        """Process @image and @text references in the prompt"""
         if "@text" in prompt and self.current_text:
             prompt = prompt.replace("@text", self.current_text)
 
         for component in self.components:
-            widget_ref = f"@{component['title']}"
+            widget_ref = f"@widget.{component['title']}"
             if widget_ref in prompt:
                 if component["type"] == "QLineEdit":
                     widget_value = component["widget"].toPlainText().strip()
                     prompt = prompt.replace(widget_ref, widget_value)
+
+        if self.parent and self.image_path:
+            label_data = self.get_label_data()
+            if label_data:
+                label_refs = {
+                    "@label.shapes": str(label_data.get("shapes", [])),
+                    "@label.imagePath": label_data.get("imagePath", ""),
+                    "@label.imageHeight": str(
+                        label_data.get("imageHeight", "")
+                    ),
+                    "@label.imageWidth": str(label_data.get("imageWidth", "")),
+                    "@label.flags": str(label_data.get("flags", {})),
+                }
+
+                vqa_data = label_data.get("vqaData", {})
+                for key, value in vqa_data.items():
+                    label_refs[f"@label.{key}"] = str(value)
+
+                for ref, value in label_refs.items():
+                    if ref in prompt:
+                        prompt = prompt.replace(ref, value)
 
         if "@image" in prompt:
             if not self.image_path or not os.path.exists(self.image_path):
@@ -115,7 +142,20 @@ class AIWorkerThread(QThread):
         else:
             self.has_image_reference = False
 
+        logger.debug(f"prompt: {prompt}")
+
         return prompt
+
+    def get_label_data(self):
+        if not self.parent or not self.image_path:
+            return None
+
+        output_dir = getattr(self.parent, "output_dir", None)
+        label_file_path = get_label_file_path(self.image_path, output_dir)
+
+        if os.path.exists(label_file_path):
+            with open(label_file_path, "r", encoding="utf-8") as f:
+                return json.load(f)
 
     def cancel(self):
         """Cancel the operation"""

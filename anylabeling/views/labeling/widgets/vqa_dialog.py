@@ -983,6 +983,7 @@ class VQADialog(QDialog):
                     {},
                     current_image_path,
                     self.custom_components,
+                    self.parent(),
                 )
                 self.ai_worker.finished.connect(
                     lambda result, success, error: self.handle_ai_result(

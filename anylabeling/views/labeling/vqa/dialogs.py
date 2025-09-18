@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.views.labeling.vqa.config import (
+    AI_PROMPT_PLACEHOLDER,
     DEFAULT_COMPONENT_WINDOW_SIZE,
     DEFAULT_TEMPLATES,
     PROMPTS_CONFIG_PATH,
@@ -544,12 +545,7 @@ class AIPromptDialog(QDialog):
         dialog_layout.setSpacing(12)
 
         self.prompt_input = QTextEdit()
-        self.prompt_input.setPlaceholderText(
-            "Examples:\n"
-            "   1. @image Describe this image\n"
-            "   2. Translate to English, return translated text only: @text\n"
-            "   3. Improve and make it more professional: @text"
-        )
+        self.prompt_input.setPlaceholderText(AI_PROMPT_PLACEHOLDER)
         self.prompt_input.setStyleSheet(get_prompt_input_style())
         self.prompt_input.setAcceptRichText(True)
         self.prompt_input.textChanged.connect(self.on_text_changed)
@@ -636,11 +632,21 @@ class AIPromptDialog(QDialog):
         if hasattr(self.parent, "custom_components"):
             tags.extend(
                 [
-                    f"@{comp['title']}"
+                    f"@widget.{comp['title']}"
                     for comp in self.parent.custom_components
                     if comp["type"] == "QLineEdit"
                 ]
             )
+
+        tags.extend(
+            [
+                "@label.shapes",
+                "@label.imagePath",
+                "@label.imageHeight",
+                "@label.imageWidth",
+                "@label.flags",
+            ]
+        )
 
         for tag in tags:
             start_index = 0

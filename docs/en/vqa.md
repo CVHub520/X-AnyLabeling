@@ -63,10 +63,28 @@ Once configured, you can open the AI assistant dialog by clicking the magic wand
 
 <img src="../../assets/resources/vqa/assistance.png" width="100%" />
 
-The system supports both text-only and multimodal prompts. Two special prompt tokens are provided for convenience:
+The system supports both text-only and multimodal prompts with various reference tokens:
 
-* **@image**: References the currently annotated image. The AI will analyze and interpret the content.
-* **@text**: References the current content in the text input field, allowing the AI to refine or optimize existing text.
+**Basic References**
+- `@image`: References the current image for AI analysis
+- `@text`: References the current text input field content
+
+**Cross-Widget References**
+- `@widget.component_name`: References other QLineEdit component values, e.g., `@widget.question` references the "question" component
+
+**Label Data References**
+- `@label.shapes`: References all annotation shapes in the current image
+- `@label.imagePath`: References the image file path
+- `@label.imageHeight`: References the image height
+- `@label.imageWidth`: References the image width
+- `@label.flags`: References annotation flags
+
+**Usage Examples**
+```
+Describe objects in the image: @image
+Analyze with existing annotations: @image Analyze based on shapes @label.shapes
+Reference other components: Generate answer based on question "@widget.question"
+```
 
 To further enhance efficiency and reusability, the tool includes a prompt template gallery. Predefined templates are available for common use cases, and users can freely add, edit, or delete custom templates. Templates help build high-quality prompts quickly, improving annotation speed and consistency.
 
