@@ -383,7 +383,20 @@ class UltralyticsDialog(QDialog):
             try:
                 import torch
 
-                device_count = torch.cuda.device_count()
+                if os.environ.get("CUDA_VISIBLE_DEVICES") == "-1":
+                    cuda_visible_devices_backup = os.environ.get(
+                        "CUDA_VISIBLE_DEVICES"
+                    )
+                    del os.environ["CUDA_VISIBLE_DEVICES"]
+                    torch.cuda.empty_cache()
+                    device_count = torch.cuda.device_count()
+                    if cuda_visible_devices_backup != "-1":
+                        os.environ["CUDA_VISIBLE_DEVICES"] = (
+                            cuda_visible_devices_backup
+                        )
+                else:
+                    device_count = torch.cuda.device_count()
+
                 self.setup_cuda_checkboxes(device_count)
                 self.device_checkboxes.setVisible(True)
             except ImportError:
