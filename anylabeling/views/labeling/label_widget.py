@@ -837,6 +837,15 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
 
+        frame_range_edit = action(
+            self.tr("Frame Range Edit"),
+            self.frame_range_edit,
+            shortcuts["frame_range_edit"],
+            icon="frame_range",
+            tip=self.tr("Edit annotations in frame range"),
+            enabled=False,
+        )
+
         ultralytics_train = action(
             "Ultralytics",
             lambda: self.start_training("ultralytics"),
@@ -1500,6 +1509,7 @@ class LabelingWidget(LabelDialog):
             open_prev_unchecked_image=open_prev_unchecked_image,
             open_chatbot=open_chatbot,
             open_vqa=open_vqa,
+            frame_range_edit=frame_range_edit,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1572,6 +1582,7 @@ class LabelingWidget(LabelDialog):
                 edit_mode,
                 brightness_contrast,
                 loop_thru_labels,
+                frame_range_edit,
             ),
             on_shapes_present=(save_as, delete),
             hide_selected_polygons=hide_selected_polygons,
@@ -1637,6 +1648,8 @@ class LabelingWidget(LabelDialog):
                 polygon_to_hbb,
                 polygon_to_obb,
                 circle_to_polygon,
+                None,
+                frame_range_edit,
             ),
         )
         utils.add_actions(
@@ -1787,6 +1800,7 @@ class LabelingWidget(LabelDialog):
             delete,
             undo,
             loop_thru_labels,
+            frame_range_edit,
             None,
             zoom,
             fit_width,
@@ -2201,6 +2215,7 @@ class LabelingWidget(LabelDialog):
         self.actions.save.setEnabled(False)
         self.actions.union_selection.setEnabled(False)
         self.actions.create_mode.setEnabled(True)
+
         self.actions.create_rectangle_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
         self.actions.create_circle_mode.setEnabled(True)
@@ -2242,6 +2257,12 @@ class LabelingWidget(LabelDialog):
             action.setEnabled(value)
         for action in self.actions.on_load_active:
             action.setEnabled(value)
+        
+        # 特殊处理：frame_range_edit 动作需要在有文件列表时启用
+        if value and self.file_list_widget.count() > 0:
+            self.actions.frame_range_edit.setEnabled(True)
+        else:
+            self.actions.frame_range_edit.setEnabled(False)
 
     def queue_event(self, function):
         QtCore.QTimer.singleShot(0, function)
@@ -3355,6 +3376,19 @@ class LabelingWidget(LabelDialog):
         else:
             self.load_shapes(self._copied_shapes, replace=False)
         self.set_dirty()
+
+    def frame_range_edit(self):
+        """帧范围编辑功能"""
+        try:
+            from .frame_range_editor import FrameRangeEditor
+            editor = FrameRangeEditor(self)
+            editor.show_frame_range_dialog()
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "错误",
+                f"无法启动帧范围编辑功能: {str(e)}"
+            )
 
     def toggle_system_clipboard(self, system_clipboard):
         self._config["system_clipboard"] = system_clipboard
@@ -4696,6 +4730,9 @@ class LabelingWidget(LabelDialog):
             self.actions.open_prev_image.setEnabled(True)
             self.actions.open_next_unchecked_image.setEnabled(True)
             self.actions.open_prev_unchecked_image.setEnabled(True)
+        
+        # 更新所有依赖于文件加载的按钮状态
+        self.toggle_actions(True)
 
         self.open_next_image()
 
@@ -4795,6 +4832,9 @@ class LabelingWidget(LabelDialog):
         self.actions.open_prev_image.setEnabled(True)
         self.actions.open_next_unchecked_image.setEnabled(True)
         self.actions.open_prev_unchecked_image.setEnabled(True)
+        
+        # 更新所有依赖于文件加载的按钮状态
+        self.toggle_actions(True)
 
         self.open_next_image(load=load)
 

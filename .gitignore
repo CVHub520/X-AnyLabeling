@@ -16,3 +16,4 @@ anylabeling/data
 anylabeling/app_info.py-*
 zipped_models/*
 venv/
+anylabeling/resources/resources.py

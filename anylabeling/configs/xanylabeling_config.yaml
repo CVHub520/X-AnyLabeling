@@ -157,6 +157,7 @@ shortcuts:
   auto_label: Ctrl+A
   auto_run: Ctrl+M
   loop_thru_labels: Ctrl+Shift+N
+  frame_range_edit: Ctrl+Shift+B
 
 # Auto labeling
 custom_models: []

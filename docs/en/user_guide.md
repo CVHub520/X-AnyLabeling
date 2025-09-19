@@ -37,6 +37,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [5.3 Label Manager](#53-label-manager)
       * [5.4 Shape Type Conversion](#54-shape-type-conversion)
       * [5.5 Digit Shortcut Manager](#55-digit-shortcut-manager)
+      * [5.6 Frame Range Editor](#56-frame-range-editor)
    * [6. Help and Language](#6-help-and-language)
       * [6.1 About X-AnyLabeling](#61-about-x-anylabeling)
       * [6.2 Setting the Language](#62-setting-the-language)
@@ -599,6 +600,39 @@ Digit shortcut settings configured through the GUI interface will be automatical
 
 By properly configuring numeric shortcuts, you can significantly improve labeling efficiency and reduce repetitive operations, particularly suitable for scenarios that require frequent switching between different annotation types.
 
+### 5.6 Frame Range Editor
+
+The Frame Range Editor is a powerful tool designed for video annotation tasks that allows users to perform batch operations on a range of video frames. This tool is especially useful when working with large video datasets where you need to apply the same operation to multiple consecutive frames.
+
+**Features:**
+- **Batch Operations**: Perform operations on a specified range of frames rather than individual frames
+- **Multiple Operation Types**: Choose from different operation types including deleting all annotations, removing selected objects, or adding selected objects
+- **Backup Creation**: Optionally create backups of annotation files before performing operations
+- **Frame Range Validation**: Input validation ensures start frame is not greater than end frame
+
+**Supported Operations:**
+1. **Delete All Annotations**: Delete all annotation files (JSON) within the specified frame range
+2. **Remove Selected Objects**: Remove specific objects that match the currently selected shapes within the frame range
+3. **Add Selected Objects**: Add the currently selected shapes to frames within the specified range
+
+**Usage:**
+1. Select one or more shapes on the canvas that you want to work with (for Remove or Add operations)
+2. Go to `Tools` > `Frame Range Editor`
+3. In the dialog that appears:
+   - Enter the start frame number
+   - Enter the end frame number
+   - Select the operation type from the dropdown
+   - Choose whether to create a backup (recommended)
+4. Click `OK` to execute the operation
+
+**Notes:**
+- Frame numbers are based on the video frame naming convention (e.g., frame_00001.jpg)
+- Backup files are stored in a `_backup` folder within the same directory
+- For Remove/Add operations, you must have shapes selected on the canvas before opening the dialog
+- The operation will process all frames in the specified range, including those that may not have annotations
+
+This tool significantly speeds up video annotation workflows by eliminating the need to manually process each frame individually.
+
 ## 6. Help and Language
 
 ### 6.1 About X-AnyLabeling
@@ -680,6 +714,7 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Ctrl+Shift+f`        | Zoom to Fit Width                                |                                            |
 | `Ctrl+Shift+m`        | Merge Selected Shapes                            | Creates bounding box around selection      |
 | `Ctrl+Shift+n`        | Cycle Through Shapes                             | Selects next shape on canvas               |
+| `Ctrl+Shift+b`        | Frame Range Editor                               | Edit annotations in a range of frames      |
 | `Ctrl+z`              | Undo Last Action                                 |                                            |
 | `Delete`              | Delete Selection                                 | Deletes selected shape(s)                  |
 | `Esc`                 | Deselect Object / Cancel Drawing                 |                                            |
