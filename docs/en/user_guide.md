@@ -272,8 +272,8 @@ When you hover over a shape, its dimensions (width and height) are displayed in 
   <img src="../../assets/resources/filter.png" alt="Shape Display Filters">
 </p>
 
-
-The panel on the right includes **Label Filters** and **Group ID Filters**. Use these dropdowns or text boxes to show only shapes matching specific labels or group IDs, hiding all others.
+> [!TIP]
+> The right panel features **Label Filters** and **Group ID Filters** for filtering shapes by label or group ID. X-AnyLabeling v3.2.4+ adds the ability to select/deselect all shapes at once, making it easier to manage multiple shapes simultaneously.
 
 ### 3.4 Crosshair Customization
 

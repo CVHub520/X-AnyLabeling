@@ -64,6 +64,7 @@
 
 ## 🥳 What's New
 
+- Add select/deselect all shapes feature
 - Add custom provider support and enhance model dropdown feature for Chatbot
 - Add option to preserve existing annotations when uploading YOLO labels
 - Add cross-component and annotation data reference tokens for VQA AI prompts

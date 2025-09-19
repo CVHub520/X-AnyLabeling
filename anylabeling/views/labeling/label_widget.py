@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
     QComboBox,
     QLabel,
     QPlainTextEdit,
+    QPushButton,
     QVBoxLayout,
     QWhatsThis,
     QWidget,
@@ -183,6 +184,11 @@ class LabelingWidget(LabelDialog):
         # Create and add combobox for showing unique labels or group ids in group
         self.label_filter_combobox = LabelFilterComboBox(self)
         self.gid_filter_combobox = GroupIDFilterComboBox(self)
+
+        # Create select all/none toggle button
+        self.select_toggle_button = QPushButton(self.tr("Select"), self)
+        self.select_toggle_button.setCheckable(True)
+        self.select_toggle_button.clicked.connect(self.toggle_select_all)
 
         self.label_list.item_selection_changed.connect(
             self.label_selection_changed
@@ -1920,12 +1926,14 @@ class LabelingWidget(LabelDialog):
         right_sidebar_layout.addWidget(self.flag_dock)
         right_sidebar_layout.addWidget(self.label_dock)
 
-        # Create a horizontal layout for the filters
+        # Create a horizontal layout for the filters and select button
         filter_layout = QHBoxLayout()
-        filter_layout.addWidget(self.label_filter_combobox, 90)
-        filter_layout.addWidget(self.gid_filter_combobox, 10)
+        filter_layout.setContentsMargins(0, 0, 0, 0)
+        filter_layout.setSpacing(5)
+        filter_layout.addWidget(self.label_filter_combobox, 2)
+        filter_layout.addWidget(self.gid_filter_combobox, 1)
+        filter_layout.addWidget(self.select_toggle_button, 0)
         right_sidebar_layout.addLayout(filter_layout)
-
         right_sidebar_layout.addWidget(self.shape_dock)
         right_sidebar_layout.addWidget(self.file_dock)
         self.file_dock.setFeatures(QDockWidget.DockWidgetFloatable)
@@ -2259,6 +2267,16 @@ class LabelingWidget(LabelDialog):
         self.canvas.reset_state()
         self.label_filter_combobox.text_box.clear()
         self.gid_filter_combobox.gid_box.clear()
+        self.select_toggle_button.setChecked(False)
+        self.select_toggle_button.setText(self.tr("Select"))
+
+    def toggle_select_all(self):
+        if self.select_toggle_button.isChecked():
+            self.canvas.select_shapes(self.canvas.shapes)
+            self.select_toggle_button.setText(self.tr("Unselect"))
+        else:
+            self.canvas.select_shapes([])
+            self.select_toggle_button.setText(self.tr("Select"))
 
     def reset_attribute(self, text):
         # Skip validation for auto-labeling special constants
