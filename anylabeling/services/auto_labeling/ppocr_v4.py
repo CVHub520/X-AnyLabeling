@@ -192,13 +192,21 @@ class PPOCRv4(Model):
             logger.warning(e)
             return []
 
+        selected_shapes, unselected_shapes = [], []
         if existing_shapes is not None:
             dt_boxes = []
             for shape in existing_shapes:
-                points = [
-                    [int(point.x()), int(point.y())] for point in shape.points
-                ]
-                dt_boxes.append(points)
+                if shape.selected:
+                    points = [
+                        [int(point.x()), int(point.y())] for point in shape.points
+                    ]
+                    dt_boxes.append(points)
+                    selected_shapes.append(shape)
+                else:
+                    unselected_shapes.append(shape)
+
+            if not dt_boxes:
+                dt_boxes = None
         else:
             dt_boxes = None
 
@@ -208,9 +216,9 @@ class PPOCRv4(Model):
 
         if existing_shapes is not None:
             shapes = []
-            for i in range(len(existing_shapes)):
+            for i in range(len(selected_shapes)):
                 ori_index = sort_indices[i]
-                shape = existing_shapes[ori_index]
+                shape = selected_shapes[ori_index]
                 updated_shape = Shape(
                     label=shape.label,
                     score=shape.score,
@@ -227,6 +235,7 @@ class PPOCRv4(Model):
                     updated_shape.closed = shape.closed
                 shapes.append(updated_shape)
 
+            shapes.extend(unselected_shapes)
             result = AutoLabelingResult(shapes, replace=True)
             return result
 
