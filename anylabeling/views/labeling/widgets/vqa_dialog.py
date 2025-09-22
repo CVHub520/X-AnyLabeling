@@ -15,12 +15,18 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QRadioButton,
     QScrollArea,
+    QShortcut,
     QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
 )
-from PyQt5.QtGui import QPixmap, QIcon, QIntValidator
+from PyQt5.QtGui import (
+    QIcon,
+    QIntValidator,
+    QKeySequence,
+    QPixmap,
+)
 
 from anylabeling.views.labeling.vqa import *
 from anylabeling.views.labeling.utils.qt import new_icon
@@ -58,6 +64,7 @@ class VQADialog(QDialog):
         self.switching_image = False
 
         self.init_ui()
+        self.setup_shortcuts()
         self.load_config()
         self.load_initial_image_data()
 
@@ -258,6 +265,13 @@ class VQADialog(QDialog):
         main_layout.addWidget(self.main_splitter)
 
         self.update_navigation_state()
+
+    def setup_shortcuts(self):
+        prev_shortcut = QShortcut(QKeySequence("A"), self)
+        prev_shortcut.activated.connect(lambda: self.switch_image("prev"))
+
+        next_shortcut = QShortcut(QKeySequence("D"), self)
+        next_shortcut.activated.connect(lambda: self.switch_image("next"))
 
     def toggle_left_panel(self):
         sizes = self.main_splitter.sizes()
