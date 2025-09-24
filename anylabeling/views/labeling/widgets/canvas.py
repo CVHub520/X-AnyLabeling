@@ -244,6 +244,38 @@ class Canvas(
 
             self.moving_shape = False
 
+    def clip_rectangle_to_pixmap(self, shape):
+        """Clip rectangle shape to pixmap boundaries"""
+        if self.pixmap is None or shape.shape_type != "rectangle":
+            return True
+
+        w, h = self.pixmap.width(), self.pixmap.height()
+        points = shape.points
+
+        if len(points) != 4:
+            return True
+
+        x_coords = [p.x() for p in points]
+        y_coords = [p.y() for p in points]
+        min_x, max_x = min(x_coords), max(x_coords)
+        min_y, max_y = min(y_coords), max(y_coords)
+
+        clipped_min_x = max(0, min_x)
+        clipped_min_y = max(0, min_y)
+        clipped_max_x = min(w - 1, max_x)
+        clipped_max_y = min(h - 1, max_y)
+
+        if clipped_max_x <= clipped_min_x or clipped_max_y <= clipped_min_y:
+            return False
+
+        shape.points = [
+            QtCore.QPointF(clipped_min_x, clipped_min_y),
+            QtCore.QPointF(clipped_max_x, clipped_min_y),
+            QtCore.QPointF(clipped_max_x, clipped_max_y),
+            QtCore.QPointF(clipped_min_x, clipped_max_y),
+        ]
+        return True
+
     @property
     def is_shape_restorable(self):
         """Check if shape can be restored from backup"""
@@ -403,10 +435,8 @@ class Canvas(
             color = QtGui.QColor(0, 0, 255)
             if (
                 self.out_off_pixmap(pos)
-                and self.create_mode not in self.allowed_oop_shape_types
+                and self.create_mode not in ["rectangle", "rotation"]
             ):
-                # Don't allow the user to draw outside the pixmap, except for rotation.
-                # Project the point to the pixmap's edges.
                 pos = self.intersection_point(self.current[-1], pos)
             elif (
                 self.snapping
@@ -767,7 +797,7 @@ class Canvas(
                         self.update()
                 elif (
                     self.out_off_pixmap(pos)
-                    and self.create_mode in self.allowed_oop_shape_types
+                    and self.create_mode in ["rectangle", "rotation"]
                 ):
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
@@ -1815,10 +1845,17 @@ class Canvas(
             and self.auto_labeling_mode != AutoLabelingMode.NONE
         ):
             self.current.label = self.auto_labeling_mode.edit_mode
-        # TODO(vietanhdev): Temporrally fix. Need to refactor
         if self.current.label is None:
             self.current.label = ""
         self.current.close()
+        if self.current.shape_type == "rectangle":
+            if not self.clip_rectangle_to_pixmap(self.current):
+                self.current = None
+                self.set_hiding(False)
+                self.drawing_polygon.emit(False)
+                self.update()
+                return
+
         self.shapes.append(self.current)
         self.store_shapes()
         self.current = None
