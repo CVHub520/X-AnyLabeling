@@ -14,6 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import (
     QButtonGroup,
+    QCheckBox,
     QComboBox,
     QDockWidget,
     QGridLayout,
@@ -1929,14 +1930,46 @@ class LabelingWidget(LabelDialog):
         )
         right_sidebar_layout.addWidget(self.scroll_area)
 
-        # Shape text label
+        # Shape text label with checkbox
         self.shape_text_label = QLabel("Object Text")
         self.shape_text_edit = QPlainTextEdit()
-        right_sidebar_layout.addWidget(
-            self.shape_text_label, 0, Qt.AlignCenter
-        )
+        self.description_checkbox = QCheckBox()
+        self.description_checkbox.setChecked(True)
+        self.description_checkbox.toggled.connect(self.toggle_description_visibility)
+
+        description_header_layout = QHBoxLayout()
+        description_header_layout.setContentsMargins(0, 2, 0, 2)
+        description_header_layout.addStretch()
+        description_header_layout.addWidget(self.shape_text_label)
+        description_header_layout.addStretch()
+        description_header_layout.addWidget(self.description_checkbox)
+        description_header_widget = QWidget()
+        description_header_widget.setLayout(description_header_layout)
+
+        right_sidebar_layout.addWidget(description_header_widget)
         right_sidebar_layout.addWidget(self.shape_text_edit)
         right_sidebar_layout.addWidget(self.flag_dock)
+
+        # Labels with checkbox
+        self.labels_checkbox = QCheckBox()
+        self.labels_checkbox.setChecked(True)
+        self.labels_checkbox.toggled.connect(self.toggle_labels_visibility)
+
+        labels_header_layout = QHBoxLayout()
+        labels_header_layout.setContentsMargins(0, 2, 0, 2)
+        labels_header_layout.addStretch()
+        labels_title = QLabel(self.tr("Labels"))
+        labels_header_layout.addWidget(labels_title)
+        labels_header_layout.addStretch()
+        labels_header_layout.addWidget(self.labels_checkbox)
+        labels_header_widget = QWidget()
+        labels_header_widget.setLayout(labels_header_layout)
+        right_sidebar_layout.addWidget(labels_header_widget)
+
+        # Hide the original dock title bar
+        empty_widget = QWidget()
+        empty_widget.setFixedHeight(0)
+        self.label_dock.setTitleBarWidget(empty_widget)
         right_sidebar_layout.addWidget(self.label_dock)
 
         # Create a horizontal layout for the filters and select button
@@ -5179,7 +5212,7 @@ class LabelingWidget(LabelDialog):
         else:
             self.shape_text_edit.setDisabled(True)
             self.shape_text_label.setText(
-                self.tr("Switch to Edit mode for description editing")
+                self.tr("Description")
             )
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText("")
@@ -5246,3 +5279,16 @@ class LabelingWidget(LabelDialog):
 
         except Exception as e:
             logger.error(f"Failed to load thumbnail image: {str(e)}")
+
+    def toggle_description_visibility(self, checked):
+        self.shape_text_edit.setVisible(checked)
+
+    def toggle_labels_visibility(self, checked):
+        if checked:
+            self.label_dock.widget().setVisible(True)
+            self.label_dock.setMinimumHeight(2)
+            self.label_dock.setMaximumHeight(16777215)
+        else:
+            self.label_dock.widget().setVisible(False)
+            self.label_dock.setMinimumHeight(2)
+            self.label_dock.setMaximumHeight(2)

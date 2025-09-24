@@ -70,6 +70,7 @@
 
 ## 🥳 What's New
 
+- Add checkboxes for description and labels visibility control in the labeling widget (#1139)
 - Add support for radiobutton widgets in shape attributes for faster single-click selection [[Toturial](./examples/classification/shape-level/README.md)]
 - Add automatic attributes panel display when finishing shape drawing
 - Fix linestrip vertex drawing issues (#1134)
