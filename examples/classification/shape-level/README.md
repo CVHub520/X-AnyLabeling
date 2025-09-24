@@ -38,10 +38,30 @@ Prepare a attributes file like [attributes.json](./attributes.json). An example 
             "green",
             "blue"
         ]
+    },
+    "__widget_types__": {
+        "vehicle": {
+            "bodyColor": "radiobutton",
+            "vehicleType": "combobox"
+        },
+        "person": {
+            "wearsGlasses": "radiobutton",
+            "wearsMask": "radiobutton",
+            "clothingColor": "combobox"
+        }
     }
 }
 
 ```
+
+> [!NOTE]
+> **Widget Types Configuration (X-AnyLabeling v3.2.4+)**
+> 
+> You can specify the widget type for each attribute using the `__widget_types__` section:
+> - `"radiobutton"`: Single-click selection, ideal for yes/no or few options
+> - `"combobox"`: Dropdown selection, suitable for many options (default)
+> 
+> If `__widget_types__` is not specified, all attributes default to combobox.
 
 **Step 1: Run the Application**
 

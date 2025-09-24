@@ -13,18 +13,20 @@ import numpy as np
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtWidgets import (
+    QButtonGroup,
+    QComboBox,
     QDockWidget,
     QGridLayout,
     QHBoxLayout,
-    QComboBox,
     QLabel,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QRadioButton,
+    QScrollArea,
     QVBoxLayout,
     QWhatsThis,
     QWidget,
-    QMessageBox,
-    QScrollArea,
 )
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
@@ -101,6 +103,7 @@ class LabelingWidget(LabelDialog):
         self.other_data = {}
         self.classes_file = None
         self.attributes = {}
+        self.attribute_widget_types = {}
         self.current_category = None
         self.selected_polygon_stack = []
         self.supported_shape = Shape.get_supported_shape()
@@ -3010,11 +3013,14 @@ class LabelingWidget(LabelDialog):
                     self.scroll_area.setWidget(self.grid_layout_container)
 
     def attribute_selection_changed(self, i, property, combo):
-        # This function is called when the user changes the value in a QComboBox
-        # It updates the shape's attributes and saves them immediately
         selected_option = combo.currentText()
         self.canvas.shapes[i].attributes[property] = selected_option
         self.save_attributes(self.canvas.shapes)
+
+    def attribute_radio_changed(self, i, property, option, checked):
+        if checked:
+            self.canvas.shapes[i].attributes[property] = option
+            self.save_attributes(self.canvas.shapes)
 
     def update_selected_options(self, selected_options):
         if not isinstance(selected_options, dict):
@@ -3022,22 +3028,29 @@ class LabelingWidget(LabelDialog):
             return
         for row in range(len(selected_options)):
             category_label = None
-            property_combo = None
+            property_widget = None
             if self.grid_layout.itemAtPosition(row, 0):
                 category_label = self.grid_layout.itemAtPosition(
                     row, 0
                 ).widget()
             if self.grid_layout.itemAtPosition(row, 1):
-                property_combo = self.grid_layout.itemAtPosition(
+                property_widget = self.grid_layout.itemAtPosition(
                     row, 1
                 ).widget()
-            if category_label and property_combo:
+            if category_label and property_widget:
                 category = category_label.text()
                 if category in selected_options:
                     selected_option = selected_options[category]
-                    index = property_combo.findText(selected_option)
-                    if index >= 0:
-                        property_combo.setCurrentIndex(index)
+
+                    if isinstance(property_widget, QComboBox):
+                        index = property_widget.findText(selected_option)
+                        if index >= 0:
+                            property_widget.setCurrentIndex(index)
+                    elif isinstance(property_widget, QWidget):
+                        for child in property_widget.findChildren(QRadioButton):
+                            if child.text() == selected_option:
+                                child.setChecked(True)
+                                break
         return
 
     def update_attributes(self, i):
@@ -3051,16 +3064,41 @@ class LabelingWidget(LabelDialog):
         # Repopulate the QGridLayout with the updated data
         for row, (property, options) in enumerate(current_attibute.items()):
             property_label = QLabel(property)
-            property_combo = QComboBox()
-            property_combo.addItems(options)
-            property_combo.currentIndexChanged.connect(
-                lambda _, property=property, combo=property_combo: self.attribute_selection_changed(
-                    i, property, combo
+            widget_type = self.attribute_widget_types.get(update_category, {}).get(property, "combobox")
+            if widget_type == "radiobutton":
+                radio_group = QButtonGroup()
+                radio_widget = QWidget()
+                radio_layout = QHBoxLayout()
+                radio_layout.setContentsMargins(0, 0, 0, 0)
+
+                for option in options:
+                    radio_button = QRadioButton(option)
+                    radio_group.addButton(radio_button)
+                    radio_layout.addWidget(radio_button)
+                    radio_button.toggled.connect(
+                        lambda checked, property=property, option=option: self.attribute_radio_changed(
+                            i, property, option, checked
+                        )
+                    )
+
+                radio_widget.setLayout(radio_layout)
+                self.grid_layout.addWidget(property_label, row, 0)
+                self.grid_layout.addWidget(radio_widget, row, 1)
+
+                radio_group.buttons()[0].setChecked(True)
+                selected_options[property] = options[0]
+            else:
+                property_combo = QComboBox()
+                property_combo.addItems(options)
+                property_combo.currentIndexChanged.connect(
+                    lambda _, property=property, combo=property_combo: self.attribute_selection_changed(
+                        i, property, combo
+                    )
                 )
-            )
-            self.grid_layout.addWidget(property_label, row, 0)
-            self.grid_layout.addWidget(property_combo, row, 1)
-            selected_options[property] = options[0]
+                self.grid_layout.addWidget(property_label, row, 0)
+                self.grid_layout.addWidget(property_combo, row, 1)
+                selected_options[property] = options[0]
+
         # Ensure the scroll_area updates its contents
         self.grid_layout_container = QWidget()
         self.grid_layout_container.setLayout(self.grid_layout)

@@ -70,6 +70,10 @@
 
 ## 🥳 What's New
 
+- Add support for radiobutton widgets in shape attributes for faster single-click selection [[Toturial](./examples/classification/shape-level/README.md)]
+- Add automatic attributes panel display when finishing shape drawing
+- Fix linestrip vertex drawing issues (#1134)
+- Add support for drawing rectangle shapes outside canvas with auto-clipping (#1137)
 - Add dedicated multi-class image classifier with streamlined workflow [[Docs](./docs/en/image_classifier.md)]
 - Add select/deselect all shapes feature
 - Add custom provider support and enhance model dropdown feature for Chatbot

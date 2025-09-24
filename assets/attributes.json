@@ -20,5 +20,16 @@
             "green",
             "blue"
         ]
+    },
+    "__widget_types__": {
+        "vehicle": {
+            "bodyColor": "radiobutton",
+            "vehicleType": "combobox"
+        },
+        "person": {
+            "wearsGlasses": "radiobutton",
+            "wearsMask": "radiobutton",
+            "clothingColor": "combobox"
+        }
     }
 }
