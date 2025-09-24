@@ -606,7 +606,15 @@ class Canvas(
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
-            if len(shape.points) > 1 and shape.contains_point(pos):
+            shape_hit = False
+            if shape.shape_type in ["point", "line", "linestrip"]:
+                nearest_index = shape.nearest_vertex(pos, self.epsilon * 3 / self.scale)
+                if nearest_index is not None:
+                    shape_hit = True
+            elif len(shape.points) > 1 and shape.contains_point(pos):
+                shape_hit = True
+
+            if shape_hit:
                 if self.selected_vertex():
                     self.h_hape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex
@@ -959,11 +967,21 @@ class Canvas(
 
         else:
             for shape in reversed(self.shapes):
-                if (
+                shape_selectable = False
+                if shape.shape_type in ["point", "line", "linestrip"]:
+                    if (
+                        self.is_visible(shape)
+                        and shape.nearest_vertex(point, self.epsilon * 3 / self.scale) is not None
+                    ):
+                        shape_selectable = True
+                elif (
                     self.is_visible(shape)
                     and len(shape.points) > 1
                     and shape.contains_point(point)
                 ):
+                    shape_selectable = True
+
+                if shape_selectable:
                     self.set_hiding()
                     if shape not in self.selected_shapes:
                         if multiple_selection_mode:
