@@ -81,6 +81,7 @@
         <file>images/hidden.png</file>
         <file>images/hku.png</file>
         <file>images/huawei.png</file>
+        <file>images/husky.png</file>
         <file>images/icon.icns</file>
         <file>images/icon.ico</file>
         <file>images/icon.png</file>
@@ -99,9 +100,11 @@
         <file>images/meta.png</file>
         <file>images/microsoft.png</file>
         <file>images/minus.png</file>
+        <file>images/minus.svg</file>
         <file>images/mit.png</file>
         <file>images/navigator.png</file>
         <file>images/new.png</file>
+        <file>images/new.svg</file>
         <file>images/next.png</file>
         <file>images/objects.png</file>
         <file>images/ollama.png</file>
@@ -120,8 +123,10 @@
         <file>images/point.png</file>
         <file>images/polygon.png</file>
         <file>images/prev.png</file>
+        <file>images/psyduck.png</file>
         <file>images/quit.png</file>
         <file>images/qwen.png</file>
+        <file>images/ragdoll.png</file>
         <file>images/rectangle.png</file>
         <file>images/refresh.svg</file>
         <file>images/resetall.png</file>
@@ -152,6 +157,7 @@
         <file>images/verify.png</file>
         <file>images/video.png</file>
         <file>images/video.svg</file>
+        <file>images/view.svg</file>
         <file>images/vision.svg</file>
         <file>images/vqa.png</file>
         <file>images/wand.svg</file>

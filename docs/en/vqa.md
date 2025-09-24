@@ -9,8 +9,8 @@
 
 To open the VQA tool, ensure that the main window’s image directory is loaded. Then, either click the VQA icon in the left toolbar of the main window or use the following keyboard shortcut:
 
-* **Windows/Linux**: `Ctrl` + `1`
-* **macOS**: `⌘` + `1`
+* **Windows/Linux**: `Ctrl` + `2`
+* **macOS**: `⌘` + `2`
 
 On startup, the system automatically loads the default configuration from the following path. You may modify it as needed:
 

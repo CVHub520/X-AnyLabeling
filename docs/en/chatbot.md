@@ -14,8 +14,8 @@ This feature enables you to engage in chat conversations using natural language,
 
 To open the Chatbot, click the Chatbot icon in the left toolbar of X-AnyLabeling or use the following keyboard shortcut to quickly launch the Chatbot interface:
 
-- Windows/Linux: `Ctrl` + `b`
-- macOS: `⌘` + `b`
+- Windows/Linux: `Ctrl` + `1`
+- macOS: `⌘` + `1`
 
 ## Initial Setup
 

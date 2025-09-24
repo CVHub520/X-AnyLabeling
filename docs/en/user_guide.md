@@ -652,8 +652,9 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Alt+g`               | Edit Group ID for Selection                      | Manually set group ID                      |
 | `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |
 | `Ctrl+Shift+Delete`   | Delete Current Image & Label File                | Moves to `_delete_` folder                 |
-| `Ctrl+1`              | Open Visual Question Answering Dialog            |                                            |
-| `Ctrl+b`              | Open Chatbot                                     |                                            |
+| `Ctrl+1`              | Open Chatbot                                     |                                            |
+| `Ctrl+2`              | Open Visual Question Answering Dialog            |                                            |
+| `Ctrl+3`              | Open Image Classifier Dialog                     |                                            |
 | `Ctrl+q`              | Quit Application                                 |                                            |
 | `Ctrl+i`              | Open Single Image File                           |                                            |
 | `Ctrl+o`              | Open Single Video File                           |                                            |
@@ -868,4 +869,5 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 
 - Chatbot Guide: [Link](../en/chatbot.md)
 - VQA Guide: [Link](../en/vqa.md)
+- Image Classifier: [Link](../en/image_classifier.md)
 - Ultralytics Training Platforms: [Link](../../examples/training/ultralytics/README.md)

@@ -11,6 +11,7 @@ class GroupIDFilterComboBox(QWidget):
         self.gid_box.currentIndexChanged.connect(parent.gid_selection_changed)
 
         layout = QHBoxLayout()
+        layout.setContentsMargins(0, 2, 0, 2)
         layout.addWidget(self.gid_box)
         self.setLayout(layout)
 
@@ -32,6 +33,7 @@ class LabelFilterComboBox(QWidget):
         )
 
         layout = QHBoxLayout()
+        layout.setContentsMargins(0, 2, 0, 2)
         layout.addWidget(self.text_box)
         self.setLayout(layout)
 

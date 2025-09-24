@@ -60,7 +60,7 @@ class AIWorkerThread(QThread):
                 self.finished.emit(
                     "",
                     False,
-                    "Please configure model and provider in Chatbot (Ctrl+B)",
+                    "Please configure model and provider in Chatbot (Ctrl+0)",
                 )
                 return
 
@@ -72,7 +72,7 @@ class AIWorkerThread(QThread):
                 self.finished.emit(
                     "",
                     False,
-                    f"Please configure API key for {provider} in Chatbot (Ctrl+B)",
+                    f"Please configure API key for {provider} in Chatbot (Ctrl+0)",
                 )
                 return
 
@@ -91,6 +91,7 @@ class AIWorkerThread(QThread):
                 max_tokens,
                 system_prompt,
             )
+            logger.debug(f"Completion: {result}")
 
             if not self._is_cancelled:
                 self.finished.emit(result, True, "")

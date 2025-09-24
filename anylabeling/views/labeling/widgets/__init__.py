@@ -5,6 +5,7 @@ from .auto_labeling import AutoLabelingWidget
 from .brightness_contrast_dialog import BrightnessContrastDialog
 from .canvas import Canvas
 from .chatbot_dialog import ChatbotDialog
+from .classifier_dialog import ClassifierDialog
 from .color_dialog import ColorDialog
 from .crosshair_settings_dialog import CrosshairSettingsDialog
 from .file_dialog_preview import FileDialogPreview

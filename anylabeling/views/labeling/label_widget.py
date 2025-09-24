@@ -47,6 +47,7 @@ from .widgets import (
     BrightnessContrastDialog,
     Canvas,
     ChatbotDialog,
+    ClassifierDialog,
     VQADialog,
     CrosshairSettingsDialog,
     FileDialogPreview,
@@ -810,17 +811,23 @@ class LabelingWidget(LabelDialog):
             self.tr("ChatBot"),
             self.open_chatbot,
             shortcuts["open_chatbot"],
-            icon="chatbot",
+            icon="psyduck",
             tip=self.tr("Open chatbot dialog"),
         )
         open_vqa = action(
             self.tr("VQA"),
             self.open_vqa,
             shortcuts["open_vqa"],
-            icon="vqa",
+            icon="husky",
             tip=self.tr("Open VQA dialog"),
         )
-
+        open_classifier = action(
+            self.tr("Classifier"),
+            self.open_classifier,
+            shortcuts["open_classifier"],
+            icon="ragdoll",
+            tip=self.tr("Open classifier dialog"),
+        )
         documentation = action(
             self.tr("&Documentation"),
             self.documentation,
@@ -1506,6 +1513,7 @@ class LabelingWidget(LabelDialog):
             open_prev_unchecked_image=open_prev_unchecked_image,
             open_chatbot=open_chatbot,
             open_vqa=open_vqa,
+            open_classifier=open_classifier,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1793,13 +1801,15 @@ class LabelingWidget(LabelDialog):
             delete,
             undo,
             loop_thru_labels,
+            run_all_images,
+            toggle_auto_labeling_widget,
             None,
-            zoom,
-            fit_width,
             open_chatbot,
             open_vqa,
-            toggle_auto_labeling_widget,
-            run_all_images,
+            open_classifier,
+            None,
+            fit_width,
+            zoom,
         )
 
         layout = QHBoxLayout()
@@ -2094,6 +2104,7 @@ class LabelingWidget(LabelDialog):
         text_shortcuts = self.tr("Shortcuts:")
         text_chatbot = self.tr("Chatbot")
         text_vqa = self.tr("VQA")
+        text_classifier = self.tr("Classifier")
         text_previous = self.tr("Previous")
         text_next = self.tr("Next")
         text_rectangle = self.tr("Rectangle")
@@ -2102,13 +2113,14 @@ class LabelingWidget(LabelDialog):
         return (
             f"<b>{text_mode}</b> {self.canvas.get_mode()} | "
             f"<b>{text_shortcuts}</b>"
-            f" {text_chatbot}(<b>Ctrl+B</b>),"
-            f" {text_vqa}(<b>Ctrl+1</b>),"
             f" {text_previous}(<b>A</b>),"
             f" {text_next}(<b>D</b>),"
             f" {text_rectangle}(<b>R</b>),"
             f" {text_polygon}(<b>P</b>),"
             f" {text_rotation}(<b>O</b>)"
+            f" {text_chatbot}(<b>Ctrl+1</b>),"
+            f" {text_vqa}(<b>Ctrl+2</b>),"
+            f" {text_classifier}(<b>Ctrl+3</b>),"
         )
 
     @pyqtSlot()
@@ -2271,6 +2283,13 @@ class LabelingWidget(LabelDialog):
         self.select_toggle_button.setText(self.tr("Select"))
 
     def toggle_select_all(self):
+        if not self.canvas.shapes:
+            if self.select_toggle_button.isChecked():
+                self.select_toggle_button.setText(self.tr("Unselect"))
+            else:
+                self.select_toggle_button.setText(self.tr("Select"))
+            return
+
         if self.select_toggle_button.isChecked():
             self.canvas.select_shapes(self.canvas.shapes)
             self.select_toggle_button.setText(self.tr("Unselect"))
@@ -2510,6 +2529,30 @@ class LabelingWidget(LabelDialog):
             self.vqa_window.activateWindow()
         else:
             self.vqa_window.show()
+
+    def open_classifier(self):
+        if not self.image_list:
+            self.error_message(
+                self.tr("No images loaded"),
+                self.tr(
+                    "Please load an image folder before opening the Classification dialog."
+                ),
+            )
+            return
+
+        main_window = self
+        while True:
+            try:
+                parent = main_window.parent()
+            except TypeError:
+                parent = getattr(main_window, "parent", None)
+            if parent is None:
+                break
+            main_window = parent
+        main_window.hide()
+
+        dialog = ClassifierDialog(self)
+        dialog.exec_()
 
     # Help
     def documentation(self):

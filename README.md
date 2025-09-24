@@ -61,16 +61,23 @@
 </video>
 </details>
 
+<details>
+<summary><strong>Image Classifier</strong></summary>
+
+<video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
+</video>
+</details>
 
 ## 🥳 What's New
 
+- Add dedicated multi-class image classifier with streamlined workflow [[Docs](./docs/en/image_classifier.md)]
 - Add select/deselect all shapes feature
 - Add custom provider support and enhance model dropdown feature for Chatbot
 - Add option to preserve existing annotations when uploading YOLO labels
 - Add cross-component and annotation data reference tokens for VQA AI prompts
 - Bump version to [3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3)
 - Add mask fineness control slider for SAM series models to adjust segmentation precision
-- Add Re-recognition feature for PP-OCR models [[example](./examples/optical_character_recognition/text_recognition/README.md)]
+- Add Re-recognition feature for PP-OCR models [[Example](./examples/optical_character_recognition/text_recognition/README.md)]
 - Add support for [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) model
 - Add copy coordinates to clipboard feature
 - Add Navigator feature for high-resolution image navigation and zoom control

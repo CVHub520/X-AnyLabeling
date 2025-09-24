@@ -61,9 +61,16 @@
 </video>
 </details>
 
+<details>
+<summary><strong>图像分类器</strong></summary>
+
+<video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
+</video>
+</details>
 
 ## 🥳 新功能
 
+- 新增专用多类别图像分类器，优化标注流程 [[文档](./docs/zh_cn/image_classifier.md)]
 - 新增一键选取/反选所有对象功能
 - 新增聊天机器人自定义提供商支持并优化模型下拉列表选择功能
 - 新增上传 YOLO 标签时保留现有标注选项

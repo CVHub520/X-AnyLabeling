@@ -12,8 +12,8 @@
 
 要打开聊天机器人，请点击 X-AnyLabeling 中左侧工具栏的聊天机器人图标或使用如下快捷键快速启动聊天机器人对话界面。
 
-- Windows/Linux: `Ctrl` + `b`
-- macOS: `⌘` + `b`
+- Windows/Linux: `Ctrl` + `1`
+- macOS: `⌘` + `1`
 
 ## 初始设置
 

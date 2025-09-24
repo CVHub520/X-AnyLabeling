@@ -708,8 +708,9 @@ digit_shortcuts:
 | Alt + g               | 修改群组编号                           |
 | Ctrl + Delete         | 删除当前标签文件                    |
 | Ctrl + Shift + Delete | 删除当前图像文件                        |
-| Ctrl + 1              | 打开视觉问答窗口                     |
-| Ctrl + b              | 打开聊天机器人对话窗口                   |
+| Ctrl + 1              | 打开聊天机器人对话窗口                   |
+| Ctrl + 2              | 打开视觉问答窗口                     |
+| Ctrl + 3              | 打开图像分类器窗口                   |
 | Ctrl + q              | 退出当前应用程序                        |
 | Ctrl + i              | 打开图像文件                           |
 | Ctrl + o              | 打开视频文件                           |
@@ -943,4 +944,5 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 
 - 聊天机器人：[链接](../zh_cn/chatbot.md)
 - 视觉问答: [链接](../zh_cn/vqa.md)
+- 图像分类器：[链接](../zh_cn/image_classifier.md)
 - Ultralytics 训练平台：[链接](../../examples/training/ultralytics/README.md)

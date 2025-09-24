@@ -198,7 +198,8 @@ class PPOCRv4(Model):
             for shape in existing_shapes:
                 if shape.selected:
                     points = [
-                        [int(point.x()), int(point.y())] for point in shape.points
+                        [int(point.x()), int(point.y())]
+                        for point in shape.points
                     ]
                     dt_boxes.append(points)
                     selected_shapes.append(shape)
