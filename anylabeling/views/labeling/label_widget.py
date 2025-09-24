@@ -3551,6 +3551,15 @@ class LabelingWidget(LabelDialog):
             self.actions.undo_last_point.setEnabled(False)
             self.actions.undo.setEnabled(True)
             self.set_dirty()
+
+            if self.attributes and text in self.attributes:
+                shape.selected = True
+                self.shape_attributes.show()
+                self.scroll_area.show()
+                for i, canvas_shape in enumerate(self.canvas.shapes):
+                    if canvas_shape is shape:
+                        self.update_attributes(i)
+                        break
         else:
             self.canvas.undo_last_line()
             self.canvas.shapes_backups.pop()
