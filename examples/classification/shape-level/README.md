@@ -73,6 +73,9 @@ python anylabeling/app.py
 
 Click on `Upload -> Upload Attributes File` in the top menu bar and select the prepared configuration file to upload.
 
+> [!TIP]
+> Starting from X-AnyLabeling v3.2.4+, you can use **Loop Select Shapes** (Ctrl+Shift+C) to sequentially select each shape on the canvas for efficient attribute annotation. This enables you to quickly cycle through all shapes and assign attributes without having to manually click each one.
+
 For detailed output examples, refer to [this file](./sources/multi-task/elon-musk-tesla.json).
 
 

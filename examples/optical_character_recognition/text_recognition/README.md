@@ -34,6 +34,9 @@ When annotating PPOCR data, the `label` field values can be ignored; instead, yo
 - To hide the text labels, you can use the shortcut `Ctrl+L`. 
 - To modify the `description` field, you can use `Ctrl+E` to open the label manager and make corrections in the section of the pop-up dialog.
 
+> [!TIP]
+> Starting from X-AnyLabeling v3.2.4+, you can use **Loop Select Shapes** (Ctrl+Shift+C) to sequentially select each text region on the canvas for efficient text recognition annotation. This allows you to quickly cycle through all detected text boxes and edit their recognition results without manually clicking each one. You can also directly click the `Select/Unselect` button in the middle right layout of the screen to select/deselect all shapes.
+
 ## Export
 
 For instructions on exporting PP-OCR Rec annotations, please consult the user guide available:

@@ -433,10 +433,10 @@ class Canvas(
                 self.show_shape.emit(shape_width, shape_height, pos)
 
             color = QtGui.QColor(0, 0, 255)
-            if (
-                self.out_off_pixmap(pos)
-                and self.create_mode not in ["rectangle", "rotation"]
-            ):
+            if self.out_off_pixmap(pos) and self.create_mode not in [
+                "rectangle",
+                "rotation",
+            ]:
                 pos = self.intersection_point(self.current[-1], pos)
             elif (
                 self.snapping
@@ -608,7 +608,9 @@ class Canvas(
                 break
             shape_hit = False
             if shape.shape_type in ["point", "line", "linestrip"]:
-                nearest_index = shape.nearest_vertex(pos, self.epsilon * 3 / self.scale)
+                nearest_index = shape.nearest_vertex(
+                    pos, self.epsilon * 3 / self.scale
+                )
                 if nearest_index is not None:
                     shape_hit = True
             elif len(shape.points) > 1 and shape.contains_point(pos):
@@ -803,10 +805,10 @@ class Canvas(
                         self.set_hiding()
                         self.drawing_polygon.emit(True)
                         self.update()
-                elif (
-                    self.out_off_pixmap(pos)
-                    and self.create_mode in ["rectangle", "rotation"]
-                ):
+                elif self.out_off_pixmap(pos) and self.create_mode in [
+                    "rectangle",
+                    "rotation",
+                ]:
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
                     self.current.add_point(pos)
@@ -971,7 +973,10 @@ class Canvas(
                 if shape.shape_type in ["point", "line", "linestrip"]:
                     if (
                         self.is_visible(shape)
-                        and shape.nearest_vertex(point, self.epsilon * 3 / self.scale) is not None
+                        and shape.nearest_vertex(
+                            point, self.epsilon * 3 / self.scale
+                        )
+                        is not None
                     ):
                         shape_selectable = True
                 elif (

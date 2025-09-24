@@ -208,6 +208,11 @@ Press `Ctrl+J` to quickly switch between Drawing and Editing modes. Additional o
 
 Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates).
 
+> [!TIP]
+> X-AnyLabeling provides two convenient shape navigation features:
+> - **Loop Through Objects** (Ctrl+Shift+N): Sequentially zoom in on each shape in the canvas for detailed inspection of annotation quality.
+> - **Loop Select Objects** (Ctrl+Shift+C): Sequentially select each shape in the canvas for quick editing or management of annotations.
+
 ### 2.3 Editing Labels
 
 When you create a shape or select an existing one in Edit Mode, the label panel appears (usually on the right), allowing you to edit its properties:
@@ -682,7 +687,8 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Ctrl+f`              | Zoom to Fit Window                               |                                            |
 | `Ctrl+Shift+f`        | Zoom to Fit Width                                |                                            |
 | `Ctrl+Shift+m`        | Merge Selected Shapes                            | Creates bounding box around selection      |
-| `Ctrl+Shift+n`        | Cycle Through Shapes                             | Selects next shape on canvas               |
+| `Ctrl+Shift+n`        | Cycle Through Shapes                             | Zoom in next shape on canvas               |
+| `Ctrl+Shift+c`        | Cycle Select Shapes                              | Selects next shape on canvas               |
 | `Ctrl+z`              | Undo Last Action                                 |                                            |
 | `Delete`              | Delete Selection                                 | Deletes selected shape(s)                  |
 | `Esc`                 | Deselect Object / Cancel Drawing                 |                                            |

@@ -158,6 +158,7 @@ shortcuts:
   auto_label: Ctrl+A
   auto_run: Ctrl+M
   loop_thru_labels: Ctrl+Shift+N
+  loop_select_labels: Ctrl+Shift+C
 
 # Auto labeling
 custom_models: []

@@ -29,7 +29,10 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.style import get_progress_dialog_style
 from anylabeling.views.labeling.widgets.popup import Popup
-from anylabeling.views.labeling.vqa.dialogs import AILoadingDialog, AIPromptDialog
+from anylabeling.views.labeling.vqa.dialogs import (
+    AILoadingDialog,
+    AIPromptDialog,
+)
 from anylabeling.views.labeling.vqa.style import get_page_input_style
 from anylabeling.views.labeling.vqa.utils import AIWorkerThread
 
@@ -58,7 +61,11 @@ class ClassifierDialog(QDialog):
             self.top_window = parent
             current = self.top_window
             while True:
-                parent_widget = current.parent() if hasattr(current, "parent") and callable(current.parent) else getattr(current, "parent", None)
+                parent_widget = (
+                    current.parent()
+                    if hasattr(current, "parent") and callable(current.parent)
+                    else getattr(current, "parent", None)
+                )
                 if parent_widget is None:
                     break
                 current = parent_widget
@@ -115,17 +122,29 @@ class ClassifierDialog(QDialog):
         action_layout.setSpacing(8)
 
         self.export_button = QPushButton(self.tr("Export"))
-        self.export_button.setStyleSheet(get_dialog_button_style("primary", "medium"))
-        self.export_button.setToolTip(self.tr("Export classified images to folders by category"))
+        self.export_button.setStyleSheet(
+            get_dialog_button_style("primary", "medium")
+        )
+        self.export_button.setToolTip(
+            self.tr("Export classified images to folders by category")
+        )
         self.export_button.clicked.connect(self.export_images)
 
         self.mode_button = QPushButton(self.tr("MultiClass"))
-        self.mode_button.setStyleSheet(get_dialog_button_style("light_green", "medium"))
-        self.mode_button.setToolTip(self.tr("Currently only supports multi-class image classification"))
+        self.mode_button.setStyleSheet(
+            get_dialog_button_style("light_green", "medium")
+        )
+        self.mode_button.setToolTip(
+            self.tr("Currently only supports multi-class image classification")
+        )
 
         self.auto_run_button = QPushButton(self.tr("AutoRun"))
-        self.auto_run_button.setStyleSheet(get_dialog_button_style("secondary", "medium"))
-        self.auto_run_button.setToolTip(self.tr("Use AI to automatically classify all images in batch"))
+        self.auto_run_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
+        self.auto_run_button.setToolTip(
+            self.tr("Use AI to automatically classify all images in batch")
+        )
         self.auto_run_button.clicked.connect(self.auto_run_batch)
 
         action_layout.addWidget(self.export_button, 1)
@@ -149,7 +168,9 @@ class ClassifierDialog(QDialog):
 
         title_label = QLabel(self.tr("Category"))
         title_label.setStyleSheet(get_filename_label_style())
-        title_label.setToolTip(self.tr("Use number keys (0-9) to quickly select categories"))
+        title_label.setToolTip(
+            self.tr("Use number keys (0-9) to quickly select categories")
+        )
         title_layout.addWidget(title_label)
         title_layout.addStretch()
 
@@ -199,7 +220,7 @@ class ClassifierDialog(QDialog):
         self.scroll_layout.addStretch()
         self.scroll_area.setWidget(self.scroll_widget)
         right_layout.addWidget(self.scroll_area, 1)
- 
+
         nav_widget = QWidget()
         nav_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
         nav_layout = QHBoxLayout(nav_widget)
@@ -210,7 +231,9 @@ class ClassifierDialog(QDialog):
         self.prev_button.setIcon(QIcon(new_icon("arrow-left", "svg")))
         self.prev_button.setFixedSize(*ICON_SIZE_NORMAL)
         self.prev_button.setStyleSheet(get_button_style())
-        self.prev_button.setToolTip(self.tr("Previous image (A) | Previous unlabeled image (Ctrl+A)"))
+        self.prev_button.setToolTip(
+            self.tr("Previous image (A) | Previous unlabeled image (Ctrl+A)")
+        )
         self.prev_button.clicked.connect(self.prev_image)
 
         page_widget = QWidget()
@@ -233,7 +256,9 @@ class ClassifierDialog(QDialog):
         self.next_button.setIcon(QIcon(new_icon("arrow-right", "svg")))
         self.next_button.setFixedSize(*ICON_SIZE_NORMAL)
         self.next_button.setStyleSheet(get_button_style())
-        self.next_button.setToolTip(self.tr("Next image (D) | Next unlabeled image (Ctrl+D)"))
+        self.next_button.setToolTip(
+            self.tr("Next image (D) | Next unlabeled image (Ctrl+D)")
+        )
         self.next_button.clicked.connect(self.next_image)
 
         nav_layout.addWidget(self.prev_button)
@@ -270,7 +295,9 @@ class ClassifierDialog(QDialog):
 
         for i in range(10):
             shortcut = QShortcut(QKeySequence(str(i)), self)
-            shortcut.activated.connect(lambda idx=i: self.select_by_number(idx))
+            shortcut.activated.connect(
+                lambda idx=i: self.select_by_number(idx)
+            )
 
     def select_by_number(self, number):
         if self.checkbox_group and number < len(self.labels):
@@ -291,7 +318,9 @@ class ClassifierDialog(QDialog):
             self.image_files = self.parent().image_list
             self.update_image_display()
             self.update_navigation_state()
-            self.page_input.setValidator(QIntValidator(1, len(self.image_files)))
+            self.page_input.setValidator(
+                QIntValidator(1, len(self.image_files))
+            )
 
         if self.parent().image_flags:
             self.labels = self.parent().image_flags[:]
@@ -320,7 +349,9 @@ class ClassifierDialog(QDialog):
 
         stretch_item = None
         if self.scroll_layout.count() > 0:
-            stretch_item = self.scroll_layout.itemAt(self.scroll_layout.count() - 1)
+            stretch_item = self.scroll_layout.itemAt(
+                self.scroll_layout.count() - 1
+            )
             if stretch_item.spacerItem():
                 self.scroll_layout.removeItem(stretch_item)
 
@@ -339,7 +370,10 @@ class ClassifierDialog(QDialog):
             if self.is_multiclass:
                 sender = self.sender()
                 if sender and sender.isChecked():
-                    for label, checkbox in self.checkbox_group.checkboxes.items():
+                    for (
+                        label,
+                        checkbox,
+                    ) in self.checkbox_group.checkboxes.items():
                         if checkbox != sender and checkbox.isChecked():
                             checkbox.blockSignals(True)
                             checkbox.setChecked(False)
@@ -350,12 +384,16 @@ class ClassifierDialog(QDialog):
     def update_filename_label(self):
         if self.parent().filename:
             filename = os.path.basename(self.parent().filename)
-            status_icon = "✅" if self.is_image_labeled(self.parent().filename) else "❌"
+            status_icon = (
+                "✅" if self.is_image_labeled(self.parent().filename) else "❌"
+            )
 
             if self.image_files and self.parent().filename in self.image_files:
                 current_index = self.image_files.index(self.parent().filename)
                 total_count = len(self.image_files)
-                self.filename_label.setText(f"{filename} ({current_index + 1}/{total_count}) {status_icon}")
+                self.filename_label.setText(
+                    f"{filename} ({current_index + 1}/{total_count}) {status_icon}"
+                )
             else:
                 self.filename_label.setText(f"{filename} {status_icon}")
 
@@ -415,28 +453,36 @@ class ClassifierDialog(QDialog):
     def view_statistics(self):
         if not self.labels:
             QMessageBox.information(
-                self,
-                self.tr("Info"),
-                self.tr("Please set labels first."))
+                self, self.tr("Info"), self.tr("Please set labels first.")
+            )
             return
 
         if not self.image_files:
             QMessageBox.information(
                 self,
                 self.tr("Info"),
-                self.tr("No images loaded for statistics."))
+                self.tr("No images loaded for statistics."),
+            )
             return
 
-        dialog = StatisticsViewDialog(self.labels, self.image_files, self.parent().output_dir, self)
+        dialog = StatisticsViewDialog(
+            self.labels, self.image_files, self.parent().output_dir, self
+        )
         dialog.exec_()
 
     def export_images(self):
         if not self.labels:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("No labels configured!"))
+            QMessageBox.warning(
+                self, self.tr("Warning"), self.tr("No labels configured!")
+            )
             return
 
         if not self.is_multiclass:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("Export only supports multi-class tasks!"))
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Export only supports multi-class tasks!"),
+            )
             return
 
         dialog = ExportPathDialog(self.output_dir, self)
@@ -446,38 +492,48 @@ class ClassifierDialog(QDialog):
         self.output_dir = dialog.get_path()
 
         if not self.image_files:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("No images loaded!"))
+            QMessageBox.warning(
+                self, self.tr("Warning"), self.tr("No images loaded!")
+            )
             return
 
         exported_count = 0
-        base_dir = os.path.dirname(self.image_files[0]) if self.image_files else ""
+        base_dir = (
+            os.path.dirname(self.image_files[0]) if self.image_files else ""
+        )
         output_path = os.path.join(base_dir, self.output_dir)
 
         for image_path in self.image_files:
-            label_path = get_label_file_path(image_path, getattr(self.parent(), "output_dir", None))
+            label_path = get_label_file_path(
+                image_path, getattr(self.parent(), "output_dir", None)
+            )
             flags = load_flags_from_json(label_path)
 
             if flags:
                 first_true = get_first_true_flag(flags)
                 if first_true:
-                    export_image_to_category(image_path, first_true, output_path)
+                    export_image_to_category(
+                        image_path, first_true, output_path
+                    )
                     exported_count += 1
 
         template = self.tr("Exported %d images to %s")
         message_text = template % (exported_count, output_path)
-        QMessageBox.information(
-            self, 
-            self.tr("Success"),
-            message_text
-        )
+        QMessageBox.information(self, self.tr("Success"), message_text)
 
     def ai_classify_current(self):
         if not self.labels:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("Please configure labels first!"))
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please configure labels first!"),
+            )
             return
 
         if not self.parent().filename:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("No image loaded!"))
+            QMessageBox.warning(
+                self, self.tr("Warning"), self.tr("No image loaded!")
+            )
             return
 
         prompt = create_ai_prompt_template(self.labels, self.is_multiclass)
@@ -487,7 +543,7 @@ class ClassifierDialog(QDialog):
             final_prompt = dialog.get_prompt()
             if final_prompt:
                 self.loading_msg = AILoadingDialog(self)
-                
+
                 self.ai_worker = AIWorkerThread(
                     final_prompt,
                     "",
@@ -497,7 +553,9 @@ class ClassifierDialog(QDialog):
                     self.parent(),
                 )
                 self.ai_worker.finished.connect(self.handle_ai_result)
-                self.loading_msg.cancel_button.clicked.connect(self.cancel_ai_processing)
+                self.loading_msg.cancel_button.clicked.connect(
+                    self.cancel_ai_processing
+                )
 
                 self.ai_worker.start()
                 if self.loading_msg.exec_() == QDialog.Rejected:
@@ -508,8 +566,10 @@ class ClassifierDialog(QDialog):
             self.loading_msg.close()
 
         if success and result:
-            try:  
-                json_match = re.search(r'```json\s*(.*?)\s*```', result, re.DOTALL)
+            try:
+                json_match = re.search(
+                    r"```json\s*(.*?)\s*```", result, re.DOTALL
+                )
                 if json_match:
                     json_str = json_match.group(1)
                 else:
@@ -519,11 +579,23 @@ class ClassifierDialog(QDialog):
                 if self.checkbox_group:
                     self.checkbox_group.set_flags(flags)
                     self.save_current_flags()
-                    QMessageBox.information(self, self.tr("Success"), self.tr("AI classification completed!"))
+                    QMessageBox.information(
+                        self,
+                        self.tr("Success"),
+                        self.tr("AI classification completed!"),
+                    )
             except (json.JSONDecodeError, Exception):
-                QMessageBox.warning(self, self.tr("Error"), self.tr("Failed to parse AI result"))
+                QMessageBox.warning(
+                    self,
+                    self.tr("Error"),
+                    self.tr("Failed to parse AI result"),
+                )
         else:
-            QMessageBox.warning(self, self.tr("Error"), error_message or self.tr("AI classification failed"))
+            QMessageBox.warning(
+                self,
+                self.tr("Error"),
+                error_message or self.tr("AI classification failed"),
+            )
 
     def cancel_ai_processing(self):
         if hasattr(self, "ai_worker") and self.ai_worker.isRunning():
@@ -534,11 +606,17 @@ class ClassifierDialog(QDialog):
 
     def auto_run_batch(self):
         if not self.labels:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("Please configure labels first!"))
+            QMessageBox.warning(
+                self,
+                self.tr("Warning"),
+                self.tr("Please configure labels first!"),
+            )
             return
 
         if not self.image_files:
-            QMessageBox.warning(self, self.tr("Warning"), self.tr("No images loaded!"))
+            QMessageBox.warning(
+                self, self.tr("Warning"), self.tr("No images loaded!")
+            )
             return
 
         prompt = create_ai_prompt_template(self.labels, self.is_multiclass)
@@ -556,18 +634,18 @@ class ClassifierDialog(QDialog):
             self.tr("Confirmation"),
             self.tr(f"Process {len(self.image_files)} images with AI?"),
             QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
+            QMessageBox.No,
         )
 
         if reply != QMessageBox.Yes:
             return
 
         self.batch_progress = QProgressDialog(
-            self.tr("Processing images..."), 
-            self.tr("Cancel"), 
-            0, 
-            len(self.image_files), 
-            self
+            self.tr("Processing images..."),
+            self.tr("Cancel"),
+            0,
+            len(self.image_files),
+            self,
         )
         self.batch_progress.setWindowModality(Qt.WindowModal)
         self.batch_progress.setWindowTitle(self.tr("Progress"))
@@ -584,7 +662,11 @@ class ClassifierDialog(QDialog):
     def process_next_image(self):
         if self.batch_index >= len(self.image_files):
             self.batch_progress.close()
-            QMessageBox.information(self, self.tr("Success"), self.tr("Batch processing completed!"))
+            QMessageBox.information(
+                self,
+                self.tr("Success"),
+                self.tr("Batch processing completed!"),
+            )
             self.load_current_flags()
             return
 
@@ -593,7 +675,9 @@ class ClassifierDialog(QDialog):
 
         image_path = self.image_files[self.batch_index]
         logger.debug(f"Processing {image_path}")
-        self.batch_progress.setLabelText(f"Processing: {os.path.basename(image_path)}")
+        self.batch_progress.setLabelText(
+            f"Processing: {os.path.basename(image_path)}"
+        )
         self.batch_progress.setValue(self.batch_index)
         self.ai_worker = AIWorkerThread(
             self.batch_prompt,
@@ -610,8 +694,10 @@ class ClassifierDialog(QDialog):
         image_path = self.image_files[self.batch_index]
 
         if success and result:
-            try:          
-                json_match = re.search(r'```json\s*(.*?)\s*```', result, re.DOTALL)
+            try:
+                json_match = re.search(
+                    r"```json\s*(.*?)\s*```", result, re.DOTALL
+                )
                 if json_match:
                     json_str = json_match.group(1)
                 else:
@@ -630,16 +716,20 @@ class ClassifierDialog(QDialog):
                         item = self.parent().flag_widget.item(i)
                         key = item.text()
                         if key in flags:
-                            item.setCheckState(Qt.Checked if flags[key] else Qt.Unchecked)
+                            item.setCheckState(
+                                Qt.Checked if flags[key] else Qt.Unchecked
+                            )
 
                 if hasattr(self.parent(), "set_dirty"):
                     self.parent().set_dirty()
 
                 if current_image:
                     self.parent().load_file(current_image)
-  
+
             except Exception as e:
-                logger.error(f"Error processing batch result for {image_path}: {e}")
+                logger.error(
+                    f"Error processing batch result for {image_path}: {e}"
+                )
 
         self.batch_index += 1
         QTimer.singleShot(100, self.process_next_image)
@@ -699,9 +789,7 @@ class ClassifierDialog(QDialog):
                 return
 
         QMessageBox.information(
-            self,
-            self.tr("Info"),
-            self.tr("No unlabeled images found.")
+            self, self.tr("Info"), self.tr("No unlabeled images found.")
         )
 
     def next_unlabeled_image(self):
@@ -724,9 +812,7 @@ class ClassifierDialog(QDialog):
                 return
 
         QMessageBox.information(
-            self,
-            self.tr("Info"),
-            self.tr("No unlabeled images found.")
+            self, self.tr("Info"), self.tr("No unlabeled images found.")
         )
 
     def switch_to_image(self, index):
@@ -763,7 +849,9 @@ class ClassifierDialog(QDialog):
                 cursor_pos = self.page_input.cursorPosition()
                 clean_text = "".join(c for c in text if c.isdigit())
                 self.page_input.setText(clean_text)
-                self.page_input.setCursorPosition(min(cursor_pos, len(clean_text)))
+                self.page_input.setCursorPosition(
+                    min(cursor_pos, len(clean_text))
+                )
                 return
 
             page_num = int(text)
@@ -818,8 +906,10 @@ class ClassifierDialog(QDialog):
             if not pixmap.isNull():
                 max_width, max_height = IMAGE_DISPLAY_MAX_SIZE
                 scaled_pixmap = pixmap.scaled(
-                    max_width, max_height,
-                    Qt.KeepAspectRatio, Qt.SmoothTransformation
+                    max_width,
+                    max_height,
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation,
                 )
                 self.image_label.setPixmap(scaled_pixmap)
 
@@ -845,7 +935,9 @@ class ClassifierDialog(QDialog):
             try:
                 current_index = self.image_files.index(self.parent().filename)
                 self.prev_button.setEnabled(current_index > 0)
-                self.next_button.setEnabled(current_index < len(self.image_files) - 1)
+                self.next_button.setEnabled(
+                    current_index < len(self.image_files) - 1
+                )
             except (ValueError, AttributeError):
                 self.prev_button.setEnabled(False)
                 self.next_button.setEnabled(False)
@@ -884,7 +976,7 @@ class ClassifierDialog(QDialog):
             finally:
                 self.switching_image = False
 
-    def save_current_flags(self): 
+    def save_current_flags(self):
         if self.switching_image or not self.checkbox_group:
             return
 
@@ -904,7 +996,7 @@ class ClassifierDialog(QDialog):
                 self.parent().set_dirty()
 
         self.update_overlay_text()
-    
+
     def ensure_labels_in_flag_widget(self, new_labels):
         flag_widget = self.parent().flag_widget
 
@@ -930,7 +1022,9 @@ class ClassifierDialog(QDialog):
                 item = flag_widget.item(i)
                 key = item.text()
                 if key in flags:
-                    item.setCheckState(Qt.Checked if flags[key] else Qt.Unchecked)
+                    item.setCheckState(
+                        Qt.Checked if flags[key] else Qt.Unchecked
+                    )
         except Exception as e:
             logger.error(f"Error syncing to flag_widget: {e}")
 
@@ -938,7 +1032,7 @@ class ClassifierDialog(QDialog):
         """更新主flag_widget中的标签名称"""
         try:
             flag_widget = self.parent().flag_widget
-            
+
             for i in range(flag_widget.count()):
                 item = flag_widget.item(i)
                 current_label = item.text()
@@ -959,7 +1053,11 @@ class ClassifierDialog(QDialog):
 
     def update_label_files(self, labels_map={}):
         progress_dialog = QProgressDialog(
-            self.tr("Updating label files..."), self.tr("Cancel"), 0, len(self.image_files), self
+            self.tr("Updating label files..."),
+            self.tr("Cancel"),
+            0,
+            len(self.image_files),
+            self,
         )
         progress_dialog.setWindowModality(Qt.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
@@ -971,7 +1069,9 @@ class ClassifierDialog(QDialog):
 
         try:
             for i, image_file in enumerate(self.image_files):
-                label_path = get_label_file_path(image_file, self.parent().output_dir)
+                label_path = get_label_file_path(
+                    image_file, self.parent().output_dir
+                )
                 if not os.path.exists(label_path):
                     continue
 
@@ -1009,7 +1109,9 @@ class ClassifierDialog(QDialog):
         finally:
             QTimer.singleShot(100, self._delayed_update_ui)
             if self.image_files:
-                self.page_input.setValidator(QIntValidator(1, len(self.image_files)))
+                self.page_input.setValidator(
+                    QIntValidator(1, len(self.image_files))
+                )
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -1031,11 +1133,15 @@ class ClassifierDialog(QDialog):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        if hasattr(self, "main_splitter") and hasattr(self, "target_left_width"):
+        if hasattr(self, "main_splitter") and hasattr(
+            self, "target_left_width"
+        ):
             total_width = self.main_splitter.width()
             right_width = total_width - self.target_left_width
             if right_width > 0:
-                self.main_splitter.setSizes([self.target_left_width, right_width])
+                self.main_splitter.setSizes(
+                    [self.target_left_width, right_width]
+                )
 
         if hasattr(self, "image_label"):
             QTimer.singleShot(50, self.update_image_display)

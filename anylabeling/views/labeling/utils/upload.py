@@ -1669,8 +1669,14 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             attributes_data = json.load(f)
-            self.attribute_widget_types = attributes_data.get("__widget_types__", {})
-            self.attributes = {k: v for k, v in attributes_data.items() if not k.startswith("__")}
+            self.attribute_widget_types = attributes_data.get(
+                "__widget_types__", {}
+            )
+            self.attributes = {
+                k: v
+                for k, v in attributes_data.items()
+                if not k.startswith("__")
+            }
             for label in list(self.attributes.keys()):
                 if not self.unique_label_list.find_items_by_label(label):
                     item = self.unique_label_list.create_item_from_label(label)
