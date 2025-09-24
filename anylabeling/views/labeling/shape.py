@@ -284,8 +284,7 @@ class Shape:
                 line_path.moveTo(self.points[0])
                 for i, p in enumerate(self.points):
                     line_path.lineTo(p)
-                    if self.selected:
-                        self.draw_vertex(vrtx_path, i)
+                    self.draw_vertex(vrtx_path, i)
             elif self.shape_type == "point":
                 assert len(self.points) == 1
                 self.draw_vertex(vrtx_path, 0, True)
