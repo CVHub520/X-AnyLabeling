@@ -17,6 +17,7 @@ def create_yolo_dataset(
     data_file: str,
     output_dir: str = None,
     pose_cfg_file: str = None,
+    skip_empty_files: bool = False,
 ) -> str:
     """Create YOLO dataset from image list and annotations.
 
@@ -27,6 +28,7 @@ def create_yolo_dataset(
         data_file: Path to data config file
         output_dir: Optional output directory for labels
         pose_cfg_file: Optional pose config file for pose detection
+        skip_empty_files: Whether to skip empty label files
 
     Returns:
         Path to created dataset directory
@@ -34,7 +36,7 @@ def create_yolo_dataset(
     from anylabeling.views.labeling.label_converter import LabelConverter
 
     def _process_images_batch(
-        image_label_pairs, images_dir, labels_dir, converter, mode
+        image_label_pairs, images_dir, labels_dir, converter, mode, skip_empty
     ):
         for image_file, label_file in image_label_pairs:
             filename = os.path.basename(image_file)
@@ -50,7 +52,7 @@ def create_yolo_dataset(
                     labels_dir, os.path.splitext(filename)[0] + ".txt"
                 )
                 converter.custom_to_yolo(
-                    label_file, dst_label_path, mode, skip_empty_files=False
+                    label_file, dst_label_path, mode, skip_empty_files=skip_empty
                 )
 
     data = load_yaml_config(data_file)
@@ -125,16 +127,20 @@ def create_yolo_dataset(
     train_count = int(len(valid_images) * dataset_ratio)
     train_valid_images = valid_images[:train_count]
     val_valid_images = valid_images[train_count:]
-    all_train_images = [
-        (img, None) for img in background_images
-    ] + train_valid_images
+    
+    if skip_empty_files:
+        all_train_images = train_valid_images
+    else:
+        all_train_images = [
+            (img, None) for img in background_images
+        ] + train_valid_images
 
     mode = TASK_LABEL_MAPPINGS.get(task_type, "hbb")
     _process_images_batch(
-        all_train_images, train_images_dir, train_labels_dir, converter, mode
+        all_train_images, train_images_dir, train_labels_dir, converter, mode, skip_empty_files
     )
     _process_images_batch(
-        val_valid_images, val_images_dir, val_labels_dir, converter, mode
+        val_valid_images, val_images_dir, val_labels_dir, converter, mode, skip_empty_files
     )
 
     info_file = os.path.join(temp_dir, "dataset_info.txt")
@@ -148,6 +154,7 @@ def create_yolo_dataset(
         f.write(f"Val images: {len(val_valid_images)}\n")
         f.write(f"Valid labeled images: {len(valid_images)}\n")
         f.write(f"Background images: {len(background_images)}\n")
+        f.write(f"Skip empty files: {skip_empty_files}\n")
         f.write(f"Dataset ratio: {dataset_ratio}\n")
 
     yaml_file = os.path.join(temp_dir, "data.yaml")
