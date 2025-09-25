@@ -343,6 +343,12 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 ### 文件相关问题
 
 <details>
+<summary>Q: 预编译版本加载视频文件没有成功解析处图片</summary>
+
+可参考此[#1136](https://github.com/CVHub520/X-AnyLabeling/issues/1136)。
+</details>
+
+<details>
 <summary>Q: 在 Labelme 中导入 X-AnyLabeling 的标签会提示 `AssertionError` 错误</summary>
 
 可参考此[#1007](https://github.com/CVHub520/X-AnyLabeling/issues/1007)。
