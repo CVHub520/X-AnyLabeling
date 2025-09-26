@@ -70,6 +70,7 @@
 
 ## 🥳 新功能
 
+- 新增支持 Ultralytics 图像分类任务训练 [[教程](./examples/training/ultralytics/README.md)]
 - 新增循环选中标签功能用于顺序选中单个对象 (#1138)
 - 新增属性和标签组件的可见性控制复选框功能 (#1139)
 - 新增对象属性单选按钮组件，支持单击快速选择 [[教程](./examples/classification/shape-level/README.md)]
@@ -143,6 +144,7 @@
 4. [常见问题答疑](./docs/zh_cn/faq.md)
 5. [聊天机器人](./docs/zh_cn/chatbot.md)
 6. [视觉问答](./docs/zh_cn/vqa.md)
+7. [多类别图像分类器](./docs/en/image_classifier.md)
 
 
 ## 示例

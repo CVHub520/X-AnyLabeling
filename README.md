@@ -70,6 +70,7 @@
 
 ## 🥳 What's New
 
+- Add support for Ultralytics image classification task training [[Toturial](./examples/training/ultralytics/README.md)]
 - Add loop select labels functionality for sequential shape selection (#1138)
 - Add checkboxes for description and labels visibility control in the labeling widget (#1139)
 - Add support for radiobutton widgets in shape attributes for faster single-click selection [[Toturial](./examples/classification/shape-level/README.md)]
@@ -141,6 +142,7 @@
 3. [Customize a model](./docs/en/custom_model.md)
 4. [Chatbot](./docs/en/chatbot.md)
 5. [VQA](./docs/en/vqa.md)
+6. [Multi-class Image Classifier](./docs/en/image_classifier.md)
 
 
 ## Examples

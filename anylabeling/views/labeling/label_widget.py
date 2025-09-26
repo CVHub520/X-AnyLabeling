@@ -2169,10 +2169,10 @@ class LabelingWidget(LabelDialog):
             f" {text_next}(<b>D</b>),"
             f" {text_rectangle}(<b>R</b>),"
             f" {text_polygon}(<b>P</b>),"
-            f" {text_rotation}(<b>O</b>)"
+            f" {text_rotation}(<b>O</b>),"
             f" {text_chatbot}(<b>Ctrl+1</b>),"
             f" {text_vqa}(<b>Ctrl+2</b>),"
-            f" {text_classifier}(<b>Ctrl+3</b>),"
+            f" {text_classifier}(<b>Ctrl+3</b>)"
         )
 
     @pyqtSlot()

@@ -83,8 +83,8 @@ This tab provides a summary of your current dataset. Your first step is to confi
 
 <img src=".data/tab_data.png" width="100%" />
 
--   **Task Type**: Select the type of model you want to train: [Detect](https://docs.ultralytics.com/tasks/detect/), [OBB](https://docs.ultralytics.com/tasks/obb/), [Segment](https://docs.ultralytics.com/tasks/segment/), or [Pose](https://docs.ultralytics.com/tasks/pose/).
--   **Dataset Summary**: Review the class distribution and ensure you have a sufficient number of labels (a count of 20+ is requires). If your dataset isn't loaded, you can do so here.
+-   **Task Type**: Select the type of model you want to train: [Classify](https://docs.ultralytics.com/tasks/classify/), [Detect](https://docs.ultralytics.com/tasks/detect/), [OBB](https://docs.ultralytics.com/tasks/obb/), [Segment](https://docs.ultralytics.com/tasks/segment/), or [Pose](https://docs.ultralytics.com/tasks/pose/).
+-   **Dataset Summary**: Review the class distribution and ensure you have a sufficient number of labels (a count of 20+ is required). If your dataset isn't loaded, you can do so here.
 
 When your data is correctly configured, click **Next**.
 
@@ -97,12 +97,38 @@ Here, you'll set up the core training parameters and hyperparameters.
 #### Basic Settings
 -   **Project** and **Name**: These fields define the output directory for your training run, which will be saved to `<Project>/<Name>`. The project path is set automatically based on the task type.
 -   **Model**: Path to a pretrained model checkpoint (`.pt` file) to use as a starting point.
--   **Data**: Path to your dataset's configuration file (`.yaml`). For most cases, you can leave this blank, as the tool will automatically generate one for you. For details on the format, see the [official Ultralytics documentation](https://docs.ultralytics.com/datasets/).
+-   **Data**: Path to your dataset's configuration file (`.yaml`) for det/seg/obb/pose tasks, or dataset directory for classification tasks. For classification one, you can leave this blank, as the tool will automatically generate one based on `flag` filed for you. For details on the format, see the [official Ultralytics documentation](https://docs.ultralytics.com/datasets/).
 -   **Device**: Automatically detects available hardware (`CPU`, `CUDA`, `MPS`). Select your desired training device.
 -   **Dataset Ratio**: A slider to set the train/validation split for your dataset.
 
 > ![NOTE]
 > For `Pose` estimation tasks, an additional field will appear to specify a keypoint configuration YAML file. See the [example file](https://github.com/CVHub520/X-AnyLabeling/blob/main/assets/yolov8_pose.yaml) for the required format.
+
+After v2.3.4+, X-AnyLabeling has support for `Classify` tasks and supports two data preparation modes.
+
+- **Flags-based Classification**: Use X-AnyLabeling's built-in image classification flags. For quick annotation tutorials, refer to official [guide](../../../docs/en/image_classifier.md) and example ([EN](../../../docs/zh_cn/image_classifier.md) | [ZH](../../classification/image-level/README.md))
+
+- **Pre-organized Dataset**: If you already have a local structured classification dataset, set the **Data** field to dataset directory on `Configuration Tab`. The expected structure is:
+
+```
+dataset/
+├── train/
+│   ├── class1/
+│   │   ├── image1.jpg
+│   │   └── image2.jpg
+│   └── class2/
+│       ├── image3.jpg
+│       └── image4.jpg
+├── val/ (optional)
+│   ├── class1/
+│   └── class2/
+└── test/ (optional)
+    ├── class1/
+    └── class2/
+```
+
+> [!NOTE]
+> When using the last mode, the tool will directly use your organized dataset without additional processing.
 
 #### Train Settings
 This section contains common hyperparameters like epochs, batch size, and image size. For more advanced options, expand the **Advanced Settings** dropdown.

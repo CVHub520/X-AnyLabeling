@@ -77,6 +77,8 @@ class UltralyticsDialog(QDialog):
         self.supported_shape = parent.supported_shape
         self.selected_task_type = None
         self.config_widgets = {}
+        self._classification_cache = None
+        self._detection_cache = None
         self.task_type_buttons = {}
         self.names = []
 
@@ -225,6 +227,8 @@ class UltralyticsDialog(QDialog):
             else:
                 self.hide_pose_config()
 
+        self.refresh_dataset_summary()
+
     def create_task_handler(self, task_type):
         def handler():
             self.on_task_type_selected(task_type)
@@ -248,18 +252,75 @@ class UltralyticsDialog(QDialog):
         parent_layout.addWidget(config_widget)
 
     def refresh_dataset_summary(self):
-        if not self.image_list or not self.supported_shape:
+        if not self.image_list:
             self.summary_table.clear()
             return
 
-        table_data = get_statistics_table_data(
+        if self.selected_task_type == "Classify":
+            table_data = self._get_classification_table_data()
+        else:
+            table_data = self._get_detection_table_data()
+
+        self.summary_table.load_data(table_data)
+
+    def _get_classification_table_data(self):
+        if self._classification_cache is None:
+            self._classification_cache = self._compute_classification_data()
+        return self._classification_cache
+
+    def _get_detection_table_data(self):
+        if self._detection_cache is None:
+            self._detection_cache = self._compute_detection_data()
+        return self._detection_cache
+
+    def _compute_classification_data(self):
+        headers = ["Label"] + self.supported_shape + ["Total"]
+
+        # Get classification statistics
+        classify_shapes = TASK_SHAPE_MAPPINGS.get("Classify", ["flags"])
+        label_infos = get_label_infos(
+            self.image_list, classify_shapes, self.output_dir
+        )
+        if not label_infos:
+            return [headers]
+
+        table_data = [headers]
+        total_counts = [0] * len(self.supported_shape)
+        total_images = 0
+
+        for label, infos in sorted(label_infos.items()):
+            # All shape columns are 0 for classification
+            shape_counts = [0] * len(self.supported_shape)
+            image_count = infos.get("_total", 0)
+            total_images += image_count
+
+            row = [label] + [str(c) for c in shape_counts] + [str(image_count)]
+            table_data.append(row)
+
+        total_row = (
+            ["Total"] + [str(c) for c in total_counts] + [str(total_images)]
+        )
+        table_data.append(total_row)
+
+        return table_data
+
+    def _compute_detection_data(self):
+        return get_statistics_table_data(
             self.image_list, self.supported_shape, self.output_dir
         )
-        self.summary_table.load_data(table_data)
+
+    def clear_cache(self):
+        self._classification_cache = None
+        self._detection_cache = None
+
+    def closeEvent(self, event):
+        self.clear_cache()
+        super().closeEvent(event)
 
     def load_images(self):
         self.parent().open_folder_dialog()
         self.image_list = self.parent().image_list
+        self.clear_cache()
         self.refresh_dataset_summary()
 
     def init_dataset_summary(self, parent_layout):
@@ -331,17 +392,24 @@ class UltralyticsDialog(QDialog):
             self.config_widgets["model"].setText(file_path)
 
     def browse_data_file(self):
-        file_path, _ = QFileDialog.getOpenFileName(
-            self,
-            self.tr("Select Data File"),
-            "",
-            "Text Files (*.yaml);;All Files (*)",
-        )
-        if file_path:
-            is_valid, result = validate_data_file(file_path)
-            if is_valid:
-                self.config_widgets["data"].setText(file_path)
-                self.names = result
+        if self.selected_task_type == "Classify":
+            dir_path = QFileDialog.getExistingDirectory(
+                self, self.tr("Select Classification Dataset Directory"), ""
+            )
+            if dir_path:
+                self.config_widgets["data"].setText(dir_path)
+        else:
+            file_path, _ = QFileDialog.getOpenFileName(
+                self,
+                self.tr("Select Data File"),
+                "",
+                "Text Files (*.yaml);;All Files (*)",
+            )
+            if file_path:
+                is_valid, result = validate_data_file(file_path)
+                if is_valid:
+                    self.config_widgets["data"].setText(file_path)
+                    self.names = result
                 logger.info(f"Data file loaded successfully: {file_path}")
             else:
                 QMessageBox.warning(self, self.tr("Invalid Data File"), result)
@@ -872,7 +940,9 @@ class UltralyticsDialog(QDialog):
             DEFAULT_TRAINING_CONFIG["cache"]
         )
         ckpt_layout.addWidget(self.config_widgets["cache"])
-        self.config_widgets["skip_empty_files"] = CustomCheckBox("Skip Empty Files")
+        self.config_widgets["skip_empty_files"] = CustomCheckBox(
+            "Skip Empty Files"
+        )
         self.config_widgets["skip_empty_files"].setChecked(False)
         ckpt_layout.addWidget(self.config_widgets["skip_empty_files"])
         ckpt_layout.addStretch()
@@ -1265,13 +1335,30 @@ class UltralyticsDialog(QDialog):
                     break
             return found_files[:max_count]
 
-        image_configs = [
-            {"patterns": ["train_batch*.jpg"], "max_count": 3},
-            {
-                "patterns": ["*PR_curve.png", "*F1_curve.png", "results.png"],
-                "max_count": 3,
-            },
-        ]
+        if self.selected_task_type == "Classify":
+            image_configs = [
+                {"patterns": ["train_batch*.jpg"], "max_count": 3},
+                {
+                    "patterns": [
+                        "val_batch0_labels.jpg",
+                        "val_batch0_pred.jpg",
+                        "results.png",
+                    ],
+                    "max_count": 3,
+                },
+            ]
+        else:
+            image_configs = [
+                {"patterns": ["train_batch*.jpg"], "max_count": 3},
+                {
+                    "patterns": [
+                        "*PR_curve.png",
+                        "*F1_curve.png",
+                        "results.png",
+                    ],
+                    "max_count": 3,
+                },
+            ]
 
         all_images = []
         for config in image_configs:
@@ -1570,17 +1657,30 @@ class UltralyticsDialog(QDialog):
 
     def get_training_args(self, config):
         try:
-            temp_dir = create_yolo_dataset(
-                self.image_list,
-                self.selected_task_type,
-                config["basic"]["dataset_ratio"],
-                config["basic"]["data"],
-                self.output_dir,
-                config["basic"].get("pose_config"),
-                config["checkpoint"].get("skip_empty_files", False),
-            )
-            logger.info(f"Successfully created YOLO dataset at {temp_dir}")
-            self.append_training_log(f"Created dataset: {temp_dir}")
+            if self.selected_task_type == "Classify" and os.path.isdir(
+                config["basic"]["data"]
+            ):
+                data_path = config["basic"]["data"]
+                self.append_training_log(
+                    f"Using existing dataset: {data_path}"
+                )
+            else:
+                temp_dir = create_yolo_dataset(
+                    self.image_list,
+                    self.selected_task_type,
+                    config["basic"]["dataset_ratio"],
+                    config["basic"]["data"],
+                    self.output_dir,
+                    config["basic"].get("pose_config"),
+                    config["checkpoint"].get("skip_empty_files", False),
+                )
+                logger.info(f"Successfully created YOLO dataset at {temp_dir}")
+                self.append_training_log(f"Created dataset: {temp_dir}")
+
+                if self.selected_task_type == "Classify":
+                    data_path = temp_dir
+                else:
+                    data_path = os.path.join(temp_dir, "data.yaml")
 
             device_value = config["basic"]["device"]
             if device_value == "cuda" and hasattr(self, "device_checkboxes"):
@@ -1599,7 +1699,7 @@ class UltralyticsDialog(QDialog):
                 device_value = selected_gpus if selected_gpus else "cpu"
 
             train_args = {
-                "data": os.path.join(temp_dir, "data.yaml"),
+                "data": data_path,
                 "model": config["basic"]["model"],
                 "project": config["basic"]["project"],
                 "name": config["basic"]["name"],

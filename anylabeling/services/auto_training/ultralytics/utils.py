@@ -48,6 +48,7 @@ def get_label_infos(
     """
     initial_nums = [0 for _ in range(len(supported_shape))]
     label_infos = {}
+    is_classify_task = "flags" in supported_shape
 
     for image_file in image_list:
         label_dir, filename = os.path.split(image_file)
@@ -63,21 +64,37 @@ def get_label_infos(
         try:
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            shapes = data.get("shapes", [])
 
-            for shape in shapes:
-                if "label" not in shape or "shape_type" not in shape:
-                    continue
-                shape_type = shape["shape_type"]
-                if shape_type not in supported_shape:
-                    continue
-                label = shape["label"]
+            if is_classify_task:
+                flags = data.get("flags", {})
+                selected_flag = None
+                for flag_name, flag_value in flags.items():
+                    if flag_value:
+                        selected_flag = flag_name
+                        break
 
-                if label not in label_infos:
-                    label_infos[label] = dict(
-                        zip(supported_shape, initial_nums)
-                    )
-                label_infos[label][shape_type] += 1
+                if selected_flag:
+                    if selected_flag not in label_infos:
+                        label_infos[selected_flag] = dict(
+                            zip(supported_shape, initial_nums.copy())
+                        )
+                        label_infos[selected_flag]["_total"] = 0
+                    label_infos[selected_flag]["_total"] += 1
+            else:
+                shapes = data.get("shapes", [])
+                for shape in shapes:
+                    if "label" not in shape or "shape_type" not in shape:
+                        continue
+                    shape_type = shape["shape_type"]
+                    if shape_type not in supported_shape:
+                        continue
+                    label = shape["label"]
+
+                    if label not in label_infos:
+                        label_infos[label] = dict(
+                            zip(supported_shape, initial_nums.copy())
+                        )
+                    label_infos[label][shape_type] += 1
 
         except (json.JSONDecodeError, IOError):
             continue
@@ -119,16 +136,23 @@ def get_task_valid_images(
         try:
             with open(label_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
-            shapes = data.get("shapes", [])
 
-            has_valid_shape = any(
-                shape.get("shape_type") in valid_shapes
-                for shape in shapes
-                if "shape_type" in shape
-            )
-
-            if has_valid_shape:
-                valid_image_count += 1
+            if "flags" in valid_shapes:
+                flags = data.get("flags", {})
+                has_valid_flag = any(
+                    flag_value for flag_value in flags.values()
+                )
+                if has_valid_flag:
+                    valid_image_count += 1
+            else:
+                shapes = data.get("shapes", [])
+                has_valid_shape = any(
+                    shape.get("shape_type") in valid_shapes
+                    for shape in shapes
+                    if "shape_type" in shape
+                )
+                if has_valid_shape:
+                    valid_image_count += 1
         except (json.JSONDecodeError, IOError):
             continue
 
@@ -155,10 +179,19 @@ def get_statistics_table_data(
 
     total_infos = [["Label"] + supported_shape + ["Total"]]
     shape_counter = [0 for _ in range(len(supported_shape) + 1)]
+    is_classify_task = "flags" in supported_shape
 
     for label, infos in label_infos.items():
-        counter = [infos[shape_type] for shape_type in supported_shape]
-        counter.append(sum(counter))
+        if is_classify_task:
+            counter = [
+                infos.get(shape_type, 0) for shape_type in supported_shape
+            ]
+            total_count = infos.get("_total", 0)
+            counter.append(total_count)
+        else:
+            counter = [infos[shape_type] for shape_type in supported_shape]
+            counter.append(sum(counter))
+
         row = [label] + [str(c) for c in counter]
         total_infos.append(row)
         shape_counter = [x + y for x, y in zip(counter, shape_counter)]

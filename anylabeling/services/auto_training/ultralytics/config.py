@@ -16,14 +16,16 @@ ICON_SIZE_NORMAL = (32, 32)
 ICON_SIZE_SMALL = (16, 16)
 
 # Task configuration
-TASK_TYPES = ["Detect", "OBB", "Segment", "Pose"]
+TASK_TYPES = ["Classify", "Detect", "OBB", "Segment", "Pose"]
 TASK_SHAPE_MAPPINGS = {
+    "Classify": ["flags"],
     "Detect": ["rectangle"],
     "OBB": ["rotation"],
     "Segment": ["polygon"],
     "Pose": ["point"],
 }
 TASK_LABEL_MAPPINGS = {
+    "Classify": "classify",
     "Detect": "hbb",
     "OBB": "obb",
     "Segment": "seg",

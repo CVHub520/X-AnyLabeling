@@ -52,40 +52,79 @@ def create_yolo_dataset(
                     labels_dir, os.path.splitext(filename)[0] + ".txt"
                 )
                 converter.custom_to_yolo(
-                    label_file, dst_label_path, mode, skip_empty_files=skip_empty
+                    label_file,
+                    dst_label_path,
+                    mode,
+                    skip_empty_files=skip_empty,
                 )
 
-    data = load_yaml_config(data_file)
-    if task_type.lower() == "pose":
-        if not pose_cfg_file:
-            return (
-                None,
-                "Pose configuration file is required for pose detection tasks",
-            )
-        converter = LabelConverter(pose_cfg_file=pose_cfg_file)
-    else:
-        converter = LabelConverter()
-    converter.classes = [
-        data["names"][i] for i in sorted(data["names"].keys())
-    ]
+    def _process_classify_images_batch(image_label_pairs, base_dir):
+        for image_file, label_file in image_label_pairs:
+            filename = os.path.basename(image_file)
 
-    data_file_name = os.path.splitext(os.path.basename(data_file))[0]
+            if not label_file or not os.path.exists(label_file):
+                continue
+
+            try:
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                flags = data.get("flags", {})
+
+                for flag_name, flag_value in flags.items():
+                    if flag_value:
+                        class_dir = os.path.join(base_dir, flag_name)
+                        os.makedirs(class_dir, exist_ok=True)
+                        dst_image_path = os.path.join(class_dir, filename)
+
+                        if os.name == "nt":  # Windows
+                            shutil.copy2(image_file, dst_image_path)
+                        else:
+                            os.symlink(image_file, dst_image_path)
+                        break
+            except (json.JSONDecodeError, IOError):
+                continue
+
+    if task_type == "Classify":
+        data = {"names": {}, "nc": 0}
+        converter = None
+        data_file_name = "classification"
+    else:
+        data = load_yaml_config(data_file)
+        if task_type.lower() == "pose":
+            if not pose_cfg_file:
+                return (
+                    None,
+                    "Pose configuration file is required for pose detection tasks",
+                )
+            converter = LabelConverter(pose_cfg_file=pose_cfg_file)
+        else:
+            converter = LabelConverter()
+        converter.classes = [
+            data["names"][i] for i in sorted(data["names"].keys())
+        ]
+        data_file_name = os.path.splitext(os.path.basename(data_file))[0]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     temp_dir = os.path.join(
         DATASET_PATH, task_type.lower(), f"{data_file_name}_{timestamp}"
     )
 
-    train_images_dir = os.path.join(temp_dir, "images", "train")
-    val_images_dir = os.path.join(temp_dir, "images", "val")
-    train_labels_dir = os.path.join(temp_dir, "labels", "train")
-    val_labels_dir = os.path.join(temp_dir, "labels", "val")
-    for dir_path in [
-        train_images_dir,
-        val_images_dir,
-        train_labels_dir,
-        val_labels_dir,
-    ]:
-        os.makedirs(dir_path, exist_ok=True)
+    if task_type == "Classify":
+        train_dir = os.path.join(temp_dir, "train")
+        val_dir = os.path.join(temp_dir, "val")
+        os.makedirs(train_dir, exist_ok=True)
+        os.makedirs(val_dir, exist_ok=True)
+    else:
+        train_images_dir = os.path.join(temp_dir, "images", "train")
+        val_images_dir = os.path.join(temp_dir, "images", "val")
+        train_labels_dir = os.path.join(temp_dir, "labels", "train")
+        val_labels_dir = os.path.join(temp_dir, "labels", "val")
+        for dir_path in [
+            train_images_dir,
+            val_images_dir,
+            train_labels_dir,
+            val_labels_dir,
+        ]:
+            os.makedirs(dir_path, exist_ok=True)
 
     background_images = []
     valid_images = []
@@ -106,17 +145,27 @@ def create_yolo_dataset(
         try:
             with open(label_file, "r", encoding="utf-8") as f:
                 label_info = json.load(f)
-            shapes = label_info.get("shapes", [])
-            has_valid_shape = any(
-                shape.get("shape_type") in valid_shapes
-                for shape in shapes
-                if "shape_type" in shape
-            )
 
-            if has_valid_shape:
-                valid_images.append((image_file, label_file))
+            if task_type == "Classify":
+                flags = label_info.get("flags", {})
+                has_valid_flag = any(
+                    flag_value for flag_value in flags.values()
+                )
+                if has_valid_flag:
+                    valid_images.append((image_file, label_file))
+                else:
+                    background_images.append(image_file)
             else:
-                background_images.append(image_file)
+                shapes = label_info.get("shapes", [])
+                has_valid_shape = any(
+                    shape.get("shape_type") in valid_shapes
+                    for shape in shapes
+                    if "shape_type" in shape
+                )
+                if has_valid_shape:
+                    valid_images.append((image_file, label_file))
+                else:
+                    background_images.append(image_file)
         except Exception:
             background_images.append(image_file)
             continue
@@ -127,21 +176,35 @@ def create_yolo_dataset(
     train_count = int(len(valid_images) * dataset_ratio)
     train_valid_images = valid_images[:train_count]
     val_valid_images = valid_images[train_count:]
-    
-    if skip_empty_files:
-        all_train_images = train_valid_images
-    else:
-        all_train_images = [
-            (img, None) for img in background_images
-        ] + train_valid_images
 
-    mode = TASK_LABEL_MAPPINGS.get(task_type, "hbb")
-    _process_images_batch(
-        all_train_images, train_images_dir, train_labels_dir, converter, mode, skip_empty_files
-    )
-    _process_images_batch(
-        val_valid_images, val_images_dir, val_labels_dir, converter, mode, skip_empty_files
-    )
+    if task_type == "Classify":
+        _process_classify_images_batch(train_valid_images, train_dir)
+        _process_classify_images_batch(val_valid_images, val_dir)
+    else:
+        if skip_empty_files:
+            all_train_images = train_valid_images
+        else:
+            all_train_images = [
+                (img, None) for img in background_images
+            ] + train_valid_images
+
+        mode = TASK_LABEL_MAPPINGS.get(task_type, "hbb")
+        _process_images_batch(
+            all_train_images,
+            train_images_dir,
+            train_labels_dir,
+            converter,
+            mode,
+            skip_empty_files,
+        )
+        _process_images_batch(
+            val_valid_images,
+            val_images_dir,
+            val_labels_dir,
+            converter,
+            mode,
+            skip_empty_files,
+        )
 
     info_file = os.path.join(temp_dir, "dataset_info.txt")
     with open(info_file, "w", encoding="utf-8") as f:
@@ -150,17 +213,43 @@ def create_yolo_dataset(
         )
         f.write(f"Task type: {task_type}\n")
         f.write(f"Total images: {len(image_list)}\n")
-        f.write(f"Train images: {len(all_train_images)}\n")
-        f.write(f"Val images: {len(val_valid_images)}\n")
+        if task_type == "Classify":
+            f.write(f"Train images: {len(train_valid_images)}\n")
+            f.write(f"Val images: {len(val_valid_images)}\n")
+        else:
+            f.write(f"Train images: {len(all_train_images)}\n")
+            f.write(f"Val images: {len(val_valid_images)}\n")
+            f.write(f"Background images: {len(background_images)}\n")
+            f.write(f"Skip empty files: {skip_empty_files}\n")
         f.write(f"Valid labeled images: {len(valid_images)}\n")
-        f.write(f"Background images: {len(background_images)}\n")
-        f.write(f"Skip empty files: {skip_empty_files}\n")
         f.write(f"Dataset ratio: {dataset_ratio}\n")
 
     yaml_file = os.path.join(temp_dir, "data.yaml")
-    data["path"] = temp_dir
-    data["train"] = "images/train"
-    data["val"] = "images/val"
+
+    if task_type == "Classify":
+        class_names = {}
+        train_dir = os.path.join(temp_dir, "train")
+        if os.path.exists(train_dir):
+            class_dirs = [
+                d
+                for d in os.listdir(train_dir)
+                if os.path.isdir(os.path.join(train_dir, d))
+            ]
+            for i, class_name in enumerate(sorted(class_dirs)):
+                class_names[i] = class_name
+
+        data = {
+            "path": temp_dir,
+            "train": "train",
+            "val": "val",
+            "names": class_names,
+            "nc": len(class_names),
+        }
+    else:
+        data["path"] = temp_dir
+        data["train"] = "images/train"
+        data["val"] = "images/val"
+
     save_yaml_config(data, yaml_file)
 
     return temp_dir
