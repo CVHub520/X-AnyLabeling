@@ -770,11 +770,12 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             else:
                 new_gid_info.append(old_gid)
 
-        # Update original gid info
-        self.gid_info = new_gid_info
-
         # Try to modify group IDs
         if self.modify_group_id(updated_gid_info, deleted_gid_info, start_index, end_index):
+
+            # Update original gid info
+            self.gid_info = new_gid_info
+
             popup = Popup(
                 self.tr("Group IDs modified successfully!"),
                 self.parent,
