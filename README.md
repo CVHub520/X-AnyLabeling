@@ -70,6 +70,8 @@
 
 ## 🥳 What's New
 
+- Bump version to [3.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.4)
+- Add support for deleting group IDs from objects (#1141)
 - Add support for Ultralytics image classification task training [[Toturial](./examples/training/ultralytics/README.md)]
 - Add loop select labels functionality for sequential shape selection (#1138)
 - Add checkboxes for description and labels visibility control in the labeling widget (#1139)

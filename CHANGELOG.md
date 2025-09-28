@@ -1,5 +1,47 @@
 # X-AnyLabeling Changelog
 
+## `v3.2.4` (Sep 28, 2025)
+
+### 🚀 New Features
+
+- Introduce a dedicated multi-class image classifier with a streamlined workflow (#480)
+- Add support for Ultralytics image classification tasks
+- Add support for deleting group IDs from objects (#1141)
+- Add checkboxes for description and label visibility control (#1139)
+- Add loop select labels functionality for sequential shape selection (#1138)
+- Add support for drawing rectangle shapes outside canvas with auto-clipping (#1137)
+- Add radio button support for attribute selection (#1135)
+- Add an option to skip empty label files when creating YOLO datasets and update the UI (#1131)
+- Add an option to preserve existing annotations when uploading YOLO labels (#1125)
+- Add custom provider support for the chatbot and enhance the model dropdown feature
+- Add cross-widget reference support in VQA dialog using `@widget_title` syntax
+- Add support for paths wrapped in quotes for models and data
+- Add select/deselect all shapes feature (#1092)
+- Implement keyboard shortcuts for image navigation (A/D)
+
+### 🐛 Bug Fixes
+
+- Resolve inconsistent attribute behavior after shape creation and switching (#1134)
+- Ensure linestrip's vertex is drawn regardless of selection state (#1134)
+- Resolve issue where CUDA device count returns 0 after model export in Ultralytics training (#1126)
+- Fix Windows path separator error in `train_script.py`
+- Fix inconsistent shape order when using existing shapes for recognition in PP-OCR
+- Fix issue where group ID info was only updated after successful modification
+
+### 🛠️ Improvements
+
+- Auto-update the attributes panel after shape creation (#1134)
+- Improve shape selection logic for point and line types to enhance user interaction (#1134)
+- Enhance shape selection for partial re-recognition in PP-OCR (#1113)
+- Enhance AI prompts in VQA with cross-component and annotation data references
+- Preserve original shape properties when skipping detection in OCR (#1116)
+
+### 🌟 Contributors
+
+A total of 3 developers contributed to this release.
+
+Thank @sckiyo, @Vlad188-1, @CVHub520
+
 ## `v3.2.3` (Sep 14, 2025)
 
 ### 🚀 New Features

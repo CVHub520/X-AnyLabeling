@@ -70,6 +70,8 @@
 
 ## 🥳 新功能
 
+- X-AnyLabeling [v3.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.4) 版本发布
+- 新增支持删除对象的组 ID 功能 (#1141)
 - 新增支持 Ultralytics 图像分类任务训练 [[教程](./examples/training/ultralytics/README.md)]
 - 新增循环选中标签功能用于顺序选中单个对象 (#1138)
 - 新增属性和标签组件的可见性控制复选框功能 (#1139)
@@ -82,7 +84,7 @@
 - 新增聊天机器人自定义提供商支持并优化模型下拉列表选择功能
 - 新增上传 YOLO 标签时保留现有标注选项
 - 新增 VQA AI 提示跨组件引用和标注数据引用功能
-- X-AnyLabeling [v3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3) 最新版本发布
+- X-AnyLabeling [v3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3) 版本发布
 - 新增 SAM 系列模型的掩码精细度控制滑块，可调节分割精度
 - 新增 PP-OCR 模型的文字重识别功能 [[示例](./examples/optical_character_recognition/text_recognition/README.md)]
 - 新增支持 [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) 模型
