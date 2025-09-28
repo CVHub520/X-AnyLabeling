@@ -501,14 +501,14 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             | Qt.WindowMaximizeButtonHint
         )
 
-        self.resize(640, 480)
+        self.resize(960, 480)
         self.move_to_center()
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)
         layout.setSpacing(20)
 
-        title_list = ["Ori Group-ID", "New Group-ID"]
+        title_list = ["Ori Group-ID", "New Group-ID", "Delete Group by ID"]
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(len(title_list))
         self.table_widget.setHorizontalHeaderLabels(title_list)
@@ -518,7 +518,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.table_widget.horizontalHeader().setSectionResizeMode(
             0, QtWidgets.QHeaderView.Fixed
         )
-        self.table_widget.setColumnWidth(0, 260)
+        for idx in range(len(title_list[:])):
+            self.table_widget.setColumnWidth(idx, 260)
 
         # Table style
         self.table_widget.setStyleSheet(
@@ -663,11 +664,49 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             layout.setAlignment(Qt.AlignCenter)
             layout.addWidget(line_edit)
 
+            # Delete Group by ID
+            delete_gid_checkbox = QCheckBox()
+            delete_gid_checkbox.stateChanged.connect(
+                lambda state, row=i: self.on_delete_checkbox_changed(
+                    row, state
+                )
+            )
+
+            delete_container = QtWidgets.QWidget()
+            delete_layout = QtWidgets.QHBoxLayout(delete_container)
+            delete_layout.setContentsMargins(4, 4, 4, 4)
+            delete_layout.setAlignment(Qt.AlignCenter)
+            delete_layout.addWidget(delete_gid_checkbox)
+
             self.table_widget.setItem(i, 0, old_gid_item)
             self.table_widget.setCellWidget(i, 1, container)
+            self.table_widget.setCellWidget(i, 2, delete_container)
 
             # Set row height
             self.table_widget.setRowHeight(i, 50)
+
+    def on_delete_checkbox_changed(self, row, state):
+        """Deactivate linedit when checkbox is checked"""
+        container = self.table_widget.cellWidget(row, 1)
+        value_item = container.layout().itemAt(0).widget()
+
+        delete_container = self.table_widget.cellWidget(row, 2)
+        delete_checkbox = delete_container.layout().itemAt(0).widget()
+
+        if state == QtCore.Qt.Checked:
+            value_item.clear()
+            value_item.setReadOnly(True)
+            value_item.setStyleSheet("background-color: lightgray;")
+            delete_checkbox.setCheckable(True)
+        else:
+            value_item.setReadOnly(False)
+            value_item.setStyleSheet("background-color: white;")
+            delete_checkbox.setCheckable(False)
+
+        if value_item.text():
+            delete_checkbox.setCheckable(False)
+        else:
+            delete_checkbox.setCheckable(True)
 
     def update_range(self):
         from_value = (
@@ -706,6 +745,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         # Temporary dictionary to handle changes
         new_gid_info = []
         updated_gid_info = {}
+        deleted_gid_info = []
 
         # Iterate over each row to get the old and new group IDs
         for i in range(total_num):
@@ -715,6 +755,13 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             new_gid = line_edit.text()
             old_gid = old_gid_item.text()
 
+            del_container = self.table_widget.cellWidget(i, 2)
+            del_checkbox = del_container.layout().itemAt(0).widget()
+
+            if del_checkbox.isChecked():
+                deleted_gid_info.append(int(old_gid))
+                continue
+
             # Only add to updated_gid_info
             # if the new group ID is not empty and different
             if new_gid and old_gid != new_gid:
@@ -723,11 +770,12 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             else:
                 new_gid_info.append(old_gid)
 
-        # Update original gid info
-        self.gid_info = new_gid_info
-
         # Try to modify group IDs
-        if self.modify_group_id(updated_gid_info, start_index, end_index):
+        if self.modify_group_id(updated_gid_info, deleted_gid_info, start_index, end_index):
+
+            # Update original gid info
+            self.gid_info = new_gid_info
+
             popup = Popup(
                 self.tr("Group IDs modified successfully!"),
                 self.parent,
@@ -744,7 +792,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             popup.show_popup(self.parent)
 
     def modify_group_id(
-        self, updated_gid_info, start_index: int = -1, end_index: int = -1
+        self, updated_gid_info, deleted_gid_info: list, start_index: int = -1, end_index: int = -1
     ):
         """Modify the group IDs."""
         try:
@@ -767,7 +815,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                     data = json.load(f)
 
                 src_shapes, dst_shapes = data["shapes"], []
-                for shape in src_shapes:
+                for shape in reversed(src_shapes):
                     group_id = shape.get("group_id")
                     if group_id is not None:
                         group_id = int(group_id)
@@ -775,6 +823,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                             shape["group_id"] = updated_gid_info[group_id][
                                 "new_gid"
                             ]
+                        if group_id in deleted_gid_info:
+                            src_shapes.remove(shape)
+                            continue
                     dst_shapes.append(shape)
                 data["shapes"] = dst_shapes
 
