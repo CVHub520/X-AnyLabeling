@@ -37,6 +37,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [5.3 Label Manager](#53-label-manager)
       * [5.4 Shape Type Conversion](#54-shape-type-conversion)
       * [5.5 Digit Shortcut Manager](#55-digit-shortcut-manager)
+      * [5.6 Group ID Manager](#56-group-id-manager)
    * [6. Help and Language](#6-help-and-language)
       * [6.1 About X-AnyLabeling](#61-about-x-anylabeling)
       * [6.2 Setting the Language](#62-setting-the-language)
@@ -605,6 +606,18 @@ digit_shortcuts:
 Digit shortcut settings configured through the GUI interface will be automatically synchronized and saved to the `.xanylabelingrc` configuration file in the current user directory, and will be automatically loaded the next time the software is started. Similarly, if you directly modify the configuration file, the software will automatically recognize and apply these changes after restart.
 
 By properly configuring numeric shortcuts, you can significantly improve labeling efficiency and reduce repetitive operations, particularly suitable for scenarios that require frequent switching between different annotation types.
+
+### 5.6 Group ID Manager
+
+The Group ID Manager is a batch management feature for group ID fields, allowing users to uniformly modify and delete group IDs within a specified range. You can access it in two ways:
+
+- Select **Tools** -> **Group ID Manager** from the top menu bar in the main interface
+- Use the shortcut key **Alt+G**
+
+<p align="center">
+  <img src="../../assets/resources/gid_manager.png" alt="Information">
+</p>
+
 
 ## 6. Help and Language
 
