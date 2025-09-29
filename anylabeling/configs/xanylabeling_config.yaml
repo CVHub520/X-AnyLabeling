@@ -8,6 +8,7 @@ keep_prev_scale: false
 keep_prev_brightness: false
 keep_prev_contrast: false
 auto_use_last_label: false
+auto_use_last_gid: false
 auto_highlight_shape: true
 auto_switch_to_edit_mode: true
 show_groups: false
@@ -153,6 +154,7 @@ shortcuts:
   show_attributes: Ctrl+Shift+L
   union_selected_shapes: Ctrl+Shift+M
   toggle_auto_use_last_label: Ctrl+Y
+  toggle_auto_use_last_gid: Ctrl+Shift+G
   toggle_visibility_shapes: Ctrl+H
 
   auto_label: Ctrl+A

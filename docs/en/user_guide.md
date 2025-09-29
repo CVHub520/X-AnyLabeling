@@ -673,6 +673,7 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Ctrl+h`              | Toggle All Shapes Visibility                     | Show/Hide all annotations on canvas        |
 | `Ctrl+p`              | Toggle Preserve Previous Mode                    | (Needs clarification - likely relates to keeping label/settings) |
 | `Ctrl+y`              | Toggle 'Use Last Label'                          | Auto-fills next shape with previous label  |
+| `Ctrl+Shift+y`        | Toggle 'Use Last Group ID'                       | Auto-fills next gid with previous label    |
 | `Ctrl+m`              | Toggle Batch Mode                                | (Needs clarification - likely multi-image annotation) |
 | `Ctrl+a`              | Toggle Auto-Annotation                           | (Needs clarification - likely AI-assist)   |
 | `Ctrl+s`              | Save Current Annotations                         | Manual save (if auto-save is off)          |

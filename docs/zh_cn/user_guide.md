@@ -729,6 +729,7 @@ digit_shortcuts:
 | Ctrl + h              | 显示当前图片的所有对象                 |
 | Ctrl + p              | 切换保留上一个模式                     |
 | Ctrl + y              | 切换自动使用上一个标签                |
+| Ctrl + Shift + g      | 切换自动使用上一个群组编号           |
 | Ctrl + m              | 唤醒批量标注                           |
 | Ctrl + a              | 启用自动标注                           |
 | Ctrl + s              | 保存当前标注                           |

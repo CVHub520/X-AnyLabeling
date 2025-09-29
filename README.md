@@ -70,6 +70,8 @@
 
 ## 🥳 What's New
 
+- Add auto_use_last_gid feature with Ctrl+Shift+G shortcut (1143)
+- Implement async EXIF detection to eliminate loading delays
 - Bump version to [3.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.4)
 - Add support for deleting group IDs from objects (#1141)
 - Add support for Ultralytics image classification task training [[Toturial](./examples/training/ultralytics/README.md)]

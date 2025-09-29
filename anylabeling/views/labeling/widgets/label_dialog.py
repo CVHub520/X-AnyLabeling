@@ -771,7 +771,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
                 new_gid_info.append(old_gid)
 
         # Try to modify group IDs
-        if self.modify_group_id(updated_gid_info, deleted_gid_info, start_index, end_index):
+        if self.modify_group_id(
+            updated_gid_info, deleted_gid_info, start_index, end_index
+        ):
 
             # Update original gid info
             self.gid_info = new_gid_info
@@ -792,7 +794,11 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             popup.show_popup(self.parent)
 
     def modify_group_id(
-        self, updated_gid_info, deleted_gid_info: list, start_index: int = -1, end_index: int = -1
+        self,
+        updated_gid_info,
+        deleted_gid_info: list,
+        start_index: int = -1,
+        end_index: int = -1,
     ):
         """Modify the group IDs."""
         try:

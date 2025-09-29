@@ -36,7 +36,7 @@ class ExifScannerWorker(QObject):
                         exif_files.append(filename)
             except Exception:
                 continue
-        
+
         if not self._should_stop and exif_files:
             self.exif_files_found.emit(exif_files)
 
@@ -104,7 +104,8 @@ class ExifProcessingDialog:
                 "'x-anylabeling-exif-backup' folder under current directory. "
                 "This may take some time.\n\n"
                 "Continue processing or ignore?"
-            ) % exif_count,
+            )
+            % exif_count,
             QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
             QtWidgets.QMessageBox.Ok,
         )
@@ -170,4 +171,6 @@ class ExifProcessingDialog:
                 corrected_img.save(filename)
 
         except Exception as e:
-            logger.error(f"Error processing EXIF orientation for {filename}: {e}")
+            logger.error(
+                f"Error processing EXIF orientation for {filename}: {e}"
+            )

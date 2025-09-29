@@ -34,4 +34,7 @@ To export your pose estimation annotations, proceed with the following steps:
 
 These steps will facilitate the proper export of your pose estimation annotations for further use or analysis.
 
+> [!TIP]
+> For faster annotation, you can enable `auto_use_last_gid` (Ctrl+Shift+G) to automatically use the last group ID when creating new shapes.
+
 To understand the dataset format for YOLO-Pose, refer to the [official documentation](https://docs.ultralytics.com/datasets/pose/#ultralytics-yolo-format) and consult the sample output file [here](./labels/human-pose.txt).

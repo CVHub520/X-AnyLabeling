@@ -479,6 +479,16 @@ class LabelingWidget(LabelDialog):
             checked=self._config["auto_use_last_label"],
         )
 
+        auto_use_last_gid_mode = action(
+            self.tr("Auto Use Last Group ID"),
+            lambda x: self._config.update({"auto_use_last_gid": x}),
+            shortcuts["toggle_auto_use_last_gid"],
+            None,
+            self.tr('Toggle "Auto Use Last Group ID" mode'),
+            checkable=True,
+            checked=self._config["auto_use_last_gid"],
+        )
+
         use_system_clipboard = action(
             self.tr("Use System Clipboard"),
             self.toggle_system_clipboard,
@@ -1434,6 +1444,7 @@ class LabelingWidget(LabelDialog):
             delete_image_file=delete_image_file,
             keep_prev_mode=keep_prev_mode,
             auto_use_last_label_mode=auto_use_last_label_mode,
+            auto_use_last_gid_mode=auto_use_last_gid_mode,
             use_system_clipboard=use_system_clipboard,
             visibility_shapes_mode=visibility_shapes_mode,
             run_all_images=run_all_images,
@@ -1558,6 +1569,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 keep_prev_mode,
                 auto_use_last_label_mode,
+                auto_use_last_gid_mode,
                 use_system_clipboard,
                 visibility_shapes_mode,
             ),
@@ -2190,9 +2202,13 @@ class LabelingWidget(LabelDialog):
 
     @pyqtSlot(list)
     def on_exif_detected(self, exif_files):
-        if utils.ExifProcessingDialog.show_detection_dialog(self, len(exif_files)):
+        if utils.ExifProcessingDialog.show_detection_dialog(
+            self, len(exif_files)
+        ):
             logger.info("Start processing EXIF orientation")
-            utils.ExifProcessingDialog.process_exif_files_with_progress(self, exif_files)
+            utils.ExifProcessingDialog.process_exif_files_with_progress(
+                self, exif_files
+            )
 
     @pyqtSlot(list)
     def on_auto_decode_requested(self, marks):
@@ -3843,11 +3859,18 @@ class LabelingWidget(LabelDialog):
             or self.canvas.shapes[-1].label == AutoLabelingMode.OBJECT
         ):
             last_label = self.find_last_label()
+            last_gid = (
+                self.find_last_gid()
+                if self._config["auto_use_last_gid"]
+                else None
+            )
             if self.digit_to_label is not None:
                 text = self.digit_to_label
                 self.digit_to_label = None
             elif self._config["auto_use_last_label"] and last_label:
                 text = last_label
+                if last_gid is not None:
+                    group_id = last_gid
             else:
                 previous_text = self.label_dialog.edit.text()
                 (
@@ -3859,6 +3882,7 @@ class LabelingWidget(LabelDialog):
                     kie_linking,
                 ) = self.label_dialog.pop_up(
                     text,
+                    group_id=last_gid,
                     move_mode=self._config.get("move_mode", "auto"),
                 )
                 if not text:
@@ -5269,6 +5293,21 @@ class LabelingWidget(LabelDialog):
         # No label is found
         return ""
 
+    def find_last_gid(self):
+        for item in reversed(self.label_list):
+            shape = item.data(Qt.UserRole)
+            if (
+                shape.label
+                not in [
+                    AutoLabelingMode.OBJECT,
+                    AutoLabelingMode.ADD,
+                    AutoLabelingMode.REMOVE,
+                ]
+                and shape.group_id is not None
+            ):
+                return shape.group_id
+        return None
+
     def set_cache_auto_label(self):
         self.auto_labeling_widget.on_cache_auto_label_changed(
             self.cache_auto_label, self.cache_auto_label_group_id
@@ -5298,8 +5337,13 @@ class LabelingWidget(LabelDialog):
             [],
         )
         last_label = self.find_last_label()
+        last_gid = (
+            self.find_last_gid() if self._config["auto_use_last_gid"] else None
+        )
         if self._config["auto_use_last_label"] and last_label:
             text = last_label
+            if last_gid is not None:
+                group_id = last_gid
         elif cache_label is not None:
             text = cache_label
             description = cache_description
@@ -5315,7 +5359,7 @@ class LabelingWidget(LabelDialog):
             ) = self.label_dialog.pop_up(
                 text=self.find_last_label(),
                 flags={},
-                group_id=None,
+                group_id=last_gid,
                 description=None,
                 difficult=False,
                 kie_linking=[],
