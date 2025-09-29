@@ -58,6 +58,7 @@ display_name: YOLOv5s
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
 iou_threshold: 0.45
 conf_threshold: 0.25
+max_det: 300
 classes:
   - person
   - bicycle
@@ -74,6 +75,7 @@ classes:
 | `model_path` | 模型加载路径，支持相对路径和绝对路径 | ✔️ |
 | `iou_threshold` | 用于非极大值抑制的交并比阈值 | ✔️ |
 | `conf_threshold` | 用于非极大值抑制的置信度阈值 | ✔️ |
+| `max_det` | 最大检测框数量 | ✔️ |
 | `classes` | 模型的标签列表，需与训练时的标签列表一致 | ✔️ |
 
 需要注意的是，以上字段并非所有模型都适用，具体可参考对应模型的定义。

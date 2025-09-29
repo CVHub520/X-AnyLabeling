@@ -96,6 +96,7 @@ class YOLO(Model):
         self.epsilon_factor = self.config.get("epsilon_factor", 0.005)
         self.iou_thres = self.config.get("iou_threshold", 0.45)
         self.conf_thres = self.config.get("conf_threshold", 0.25)
+        self.max_det = self.config.get("max_det", 300)
         self.filter_classes = self.config.get("filter_classes", None)
         self.nc = len(self.classes)
         self.input_shape = (self.input_height, self.input_width)
@@ -288,6 +289,7 @@ class YOLO(Model):
                 classes=self.filter_classes,
                 agnostic=self.agnostic,
                 multi_label=False,
+                max_det=self.max_det,
                 nc=self.nc,
             )
         elif self.model_type in [
@@ -321,6 +323,7 @@ class YOLO(Model):
                 classes=self.filter_classes,
                 agnostic=self.agnostic,
                 multi_label=False,
+                max_det=self.max_det,
                 nc=self.nc,
             )
         elif self.model_type in ["yolov10", "doclayout_yolo"]:

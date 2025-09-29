@@ -58,6 +58,7 @@ display_name: YOLOv5s
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx
 iou_threshold: 0.45
 conf_threshold: 0.25
+max_det: 300
 classes:
   - person
   - bicycle
@@ -74,6 +75,7 @@ classes:
 | `model_path`   | Model loading path, supports relative and absolute paths.      | ✔️         |
 | `iou_threshold`| IoU threshold for Non-Maximum Suppression (NMS).               | ✔️         |
 | `conf_threshold`| Confidence threshold for NMS.                                  | ✔️         |
+| `max_det`      | Maximum number of detections.                                  | ✔️         |
 | `classes`      | List of model labels, must match the training labels.          | ✔️         |
 
 Note that not all fields apply to every model. Refer to the definition of the specific model.
