@@ -263,6 +263,8 @@ class LabelingWidget(LabelDialog):
         self.navigator_dialog.viewport_update_requested.connect(
             self.on_navigator_viewport_update_requested
         )
+        self.async_exif_scanner = utils.AsyncExifScanner(self)
+        self.async_exif_scanner.exif_detected.connect(self.on_exif_detected)
 
         self.setAcceptDrops(True)
 
@@ -2185,6 +2187,12 @@ class LabelingWidget(LabelDialog):
     def on_auto_segmentation_disabled(self):
         self.canvas.set_auto_labeling(False)
         self.label_instruction.setText(self.get_labeling_instruction())
+
+    @pyqtSlot(list)
+    def on_exif_detected(self, exif_files):
+        if utils.ExifProcessingDialog.show_detection_dialog(self, len(exif_files)):
+            logger.info("Start processing EXIF orientation")
+            utils.ExifProcessingDialog.process_exif_files_with_progress(self, exif_files)
 
     @pyqtSlot(list)
     def on_auto_decode_requested(self, marks):
@@ -4590,6 +4598,13 @@ class LabelingWidget(LabelDialog):
                 )
 
         save_config(self._config)
+
+        if hasattr(self, "async_exif_scanner") and self.async_exif_scanner:
+            try:
+                self.async_exif_scanner.stop_scan()
+            except (RuntimeError, AttributeError):
+                pass
+
         # ask the use for where to save the labels
         # self.settings.setValue('window/geometry', self.saveGeometry())
 
@@ -5073,11 +5088,13 @@ class LabelingWidget(LabelDialog):
         ]
 
         self.filename = None
+        valid_files = []
         for file in image_files:
             if file in self.image_list or not file.lower().endswith(
                 tuple(extensions)
             ):
                 continue
+            valid_files.append(file)
             label_file = osp.splitext(file)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
@@ -5101,44 +5118,10 @@ class LabelingWidget(LabelDialog):
 
         self.open_next_image()
 
+        if valid_files:
+            self.async_exif_scanner.start_scan(valid_files)
+
     def import_image_folder(self, dirpath, pattern=None, load=True):
-        def _process_exif_with_progress(exif_files):
-            progress = QtWidgets.QProgressDialog(
-                self.tr("Processing EXIF orientation..."),
-                self.tr("Cancel"),
-                0,
-                len(exif_files),
-                self,
-            )
-            progress.setWindowModality(Qt.WindowModal)
-            progress.setAutoClose(True)
-
-            template = self.tr("Processing: %s")
-            for i, filename in enumerate(exif_files):
-                if progress.wasCanceled():
-                    break
-                progress.setLabelText(template % osp.basename(filename))
-                progress.setValue(i)
-                QtWidgets.QApplication.processEvents()
-                utils.process_image_exif(filename)
-
-            progress.setValue(len(exif_files))
-
-            backup_dir = osp.join(
-                osp.dirname(osp.dirname(exif_files[0])),
-                "x-anylabeling-exif-backup",
-            )
-            template = self.tr(
-                "Successfully processed %s images.\n\n"
-                "Original images backed up to:\n"
-                "%s"
-            )
-            QtWidgets.QMessageBox.information(
-                self,
-                self.tr("EXIF Processing Complete"),
-                template % (len(exif_files), backup_dir),
-            )
-
         if not self.may_continue() or not dirpath:
             return
 
@@ -5146,13 +5129,11 @@ class LabelingWidget(LabelDialog):
         self.filename = None
         self.file_list_widget.clear()
         image_files = []
-        exif_files = []
+
         for filename in utils.scan_all_images(dirpath):
             if pattern and pattern not in filename:
                 continue
             image_files.append(filename)
-            if utils.check_img_exif(filename):
-                exif_files.append(filename)
             label_file = osp.splitext(filename)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
@@ -5168,37 +5149,15 @@ class LabelingWidget(LabelDialog):
             self.file_list_widget.addItem(item)
             self.fn_to_index[filename] = self.file_list_widget.count() - 1
 
-        if exif_files:
-            reply = QtWidgets.QMessageBox.question(
-                self,
-                self.tr("EXIF Orientation Detected"),
-                self.tr(
-                    "Detected %s images with EXIF orientation data. "
-                    "Direct annotation without correction may cause training anomalies.\n\n"
-                    "We will process these images in background and create backups in "
-                    "'x-anylabeling-exif-backup' folder under current directory. "
-                    "This may take some time.\n\n"
-                    "Continue processing or cancel import?"
-                )
-                % len(exif_files),
-                QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
-                QtWidgets.QMessageBox.Ok,
-            )
-
-            if reply == QtWidgets.QMessageBox.Cancel:
-                self.file_list_widget.clear()
-                self.fn_to_index.clear()
-                return
-
-            logger.info("Start processing EXIF orientation")
-            _process_exif_with_progress(exif_files)
-
         self.actions.open_next_image.setEnabled(True)
         self.actions.open_prev_image.setEnabled(True)
         self.actions.open_next_unchecked_image.setEnabled(True)
         self.actions.open_prev_unchecked_image.setEnabled(True)
 
         self.open_next_image(load=load)
+
+        if image_files:
+            self.async_exif_scanner.start_scan(image_files)
 
     def toggle_auto_labeling_widget(self):
         """Toggle auto labeling widget visibility."""

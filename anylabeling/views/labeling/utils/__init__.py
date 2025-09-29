@@ -1,5 +1,6 @@
 # flake8: noqa
 
+from .async_exif import AsyncExifScanner, ExifProcessingDialog
 from .batch import run_all_images
 from .colormap import label_colormap
 from .crop import save_crop
