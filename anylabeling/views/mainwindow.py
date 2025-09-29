@@ -2,7 +2,7 @@
 
 from PyQt5.QtWidgets import QMainWindow, QStatusBar, QVBoxLayout, QWidget
 
-from ..app_info import __appdescription__, __appname__
+from ..app_info import __appdescription__, __appname__, __version__
 from .labeling.label_wrapper import LabelingWrapper
 
 
@@ -41,7 +41,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
         status_bar = QStatusBar()
-        status_bar.showMessage(f"{__appname__} - {__appdescription__}")
+        status_bar.showMessage(f"{__appname__} v{__version__} - {__appdescription__}")
         self.setStatusBar(status_bar)
 
     def closeEvent(self, event):

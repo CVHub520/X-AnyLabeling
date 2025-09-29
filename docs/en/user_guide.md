@@ -546,12 +546,14 @@ The toolbar (usually at the top or integrated with the menu) provides access to 
 
 ### 5.2 Save Cropped Images
 
-This feature saves cropped images of each annotation object (`Tools` > `Save Sub-Images`).
+The cropped image saving function can be implemented through the following steps:
 
-1. Prepare a `classes.txt` file listing the object classes you want to crop. See [`classes.txt`](../../assets/classes.txt) for an example.
-2. Select `Tools` > `Save Sub-Images`.
-3. Provide your `classes.txt` file when prompted.
-4. The cropped images will be saved into a `x-anylabeling-crops` subfolder in the current image directory, organized into subdirectories named after each class.
+1. Click **Tools** > **Save Cropped Images** in the top menu bar.
+2. In the popup dialog, configure:
+   - Save Path: Choose the target folder for saving cropped images
+   - Min Width: Set minimum width in pixels for filtering
+   - Min Height: Set minimum height in pixels for filtering
+3. After clicking OK, the system will automatically export all annotated objects sorted by category name to the specified path.
 
 ### 5.3 Label Manager
 

@@ -1,5 +1,26 @@
 # X-AnyLabeling Changelog
 
+## `v3.2.5` (Sep 29, 2025)
+
+### 🚀 New Features
+
+- Add Group ID Manager feature with Ctrl+Shift+G shortcut for auto-using last group ID (#1143)
+
+### 🐛 Bug Fixes
+
+- Fix image folder loading delays by implementing async EXIF detection (#e4bf7f6)
+
+### 🛠️ Improvements
+
+- Update Group ID Manager section in user guide (#1146)
+- Add --qt-platform argument for improved performance on Fedora KDE environments (#1145)
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @vodnikss, @CVHub520
+
 ## `v3.2.4` (Sep 28, 2025)
 
 ### 🚀 New Features
