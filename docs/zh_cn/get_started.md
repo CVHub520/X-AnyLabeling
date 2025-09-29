@@ -119,6 +119,12 @@ set PYTHONPATH=C:\path\to\X-AnyLabeling
 python anylabeling/app.py
 ```
 
+> [!NOTE]
+> 如果您在 Fedora KDE 环境下遇到鼠标移动缓慢或响应延迟的问题，可以尝试使用 `--qt-platform xcb` 参数来提升性能：
+> ```bash
+> python anylabeling/app.py --qt-platform xcb
+> ```
+
 **参数**:
 
 | 选项                       | 描述                                                                                               |

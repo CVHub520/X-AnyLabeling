@@ -53,6 +53,14 @@ def main():
         help="disable automatic update check on startup",
     )
     parser.add_argument(
+        "--qt-platform",
+        help=(
+            "Force Qt platform plugin (e.g., 'xcb', 'wayland'). "
+            "If not specified, Qt will auto-detect the platform."
+        ),
+        default=None,
+    )
+    parser.add_argument(
         "filename",
         nargs="?",
         help=(
@@ -170,12 +178,17 @@ def main():
     config_file_or_yaml = config_from_args.pop("config")
     logger_level = config_from_args.pop("logger_level")
     no_auto_update_check = config_from_args.pop("no_auto_update_check", False)
+    qt_platform = config_from_args.pop("qt_platform", None)
 
     logger.setLevel(getattr(logging, logger_level.upper()))
     logger.info(
         f"🚀 {gradient_text(f'X-AnyLabeling v{__version__} launched!')}"
     )
     logger.info(f"⭐ If you like it, give us a star: {__url__}")
+    if qt_platform:
+        os.environ["QT_QPA_PLATFORM"] = qt_platform
+        logger.info(f"🖥️ Using Qt platform: {qt_platform}")
+
     anylabeling_config.current_config_file = config_file_or_yaml
     config = get_config(config_file_or_yaml, config_from_args, show_msg=True)
 

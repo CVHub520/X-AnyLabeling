@@ -115,6 +115,12 @@ To run the application, execute the following command:
 python anylabeling/app.py
 ```
 
+> [!NOTE]
+> If you experience slow mouse movement or response delays on Fedora KDE environments, you can try use the `--qt-platform xcb` argument to improve performance:
+> ```bash
+> python anylabeling/app.py --qt-platform xcb
+> ```
+
 **Arguments**:
 
 | Option                     | Description                                                                                       |

@@ -70,6 +70,7 @@
 
 ## 🥳 What's New
 
+- Add --qt-platform argument for improved performance on Fedora KDE environments (#1145)
 - Add auto_use_last_gid feature with Ctrl+Shift+G shortcut (1143)
 - Implement async EXIF detection to eliminate loading delays
 - Bump version to [3.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.4)

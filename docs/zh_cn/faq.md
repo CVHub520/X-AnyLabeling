@@ -4,6 +4,25 @@
 ### 安装与运行相关问题
 
 <details>
+<summary>Q: 在 Fedora KDE 等环境下鼠标移动缓慢，响应延迟</summary>
+
+在 Fedora KDE 桌面环境（包括 Wayland 和 X11）下，可能会遇到画布上鼠标指针移动缓慢、响应延迟的性能问题。
+
+- 方法1：使用命令行参数强制使用 XCB 平台
+```bash
+python -m anylabeling --qt-platform xcb
+```
+
+- 方法2：设置环境变量
+```bash
+export QT_QPA_PLATFORM=xcb
+python -m anylabeling
+```
+
+详情可参考[#1145](https://github.com/CVHub520/X-AnyLabeling/issues/1145)。
+</details>
+
+<details>
 <summary>Q: 启动时报错：Failed to execute script 'app' due to unhandled exception: 'str' object does not support item assignment</summary>
 
 删除用户目录下的配置文件后再重启。
