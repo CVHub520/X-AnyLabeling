@@ -3575,6 +3575,8 @@ class LabelingWidget(LabelDialog):
             self.label_dialog.add_label_history(
                 shape.label, update_last_label=update_last_label
             )
+            if update_last_label and shape.group_id is not None:
+                self.label_dialog._last_gid = shape.group_id
 
         for action in self.actions.on_shapes_present:
             action.setEnabled(True)
@@ -3867,6 +3869,8 @@ class LabelingWidget(LabelDialog):
             if self.digit_to_label is not None:
                 text = self.digit_to_label
                 self.digit_to_label = None
+                if last_gid is not None:
+                    group_id = last_gid
             elif self._config["auto_use_last_label"] and last_label:
                 text = last_label
                 if last_gid is not None:
@@ -5294,6 +5298,10 @@ class LabelingWidget(LabelDialog):
         return ""
 
     def find_last_gid(self):
+        last_gid = self.label_dialog.get_last_gid()
+        if last_gid is not None:
+            return last_gid
+
         for item in reversed(self.label_list):
             shape = item.data(Qt.UserRole)
             if (
