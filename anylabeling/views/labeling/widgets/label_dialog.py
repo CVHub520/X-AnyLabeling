@@ -915,7 +915,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(len(title_list))
         self.table_widget.setHorizontalHeaderLabels(title_list)
-        self.table_widget.setEditTriggers(QtWidgets.QAbstractItemView.DoubleClicked)
+        self.table_widget.setEditTriggers(
+            QtWidgets.QAbstractItemView.DoubleClicked
+        )
 
         # Set header font and alignment
         for i in range(len(title_list)):

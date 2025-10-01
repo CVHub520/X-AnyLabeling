@@ -26,7 +26,7 @@ class OnnxBaseModel:
         self.model_path = model_path
 
     def get_ort_inference(
-        self, blob, inputs=None, extract=True, squeeze=False
+        self, blob=None, inputs=None, extract=True, squeeze=False
     ):
         if inputs is None:
             inputs = self.get_input_name()

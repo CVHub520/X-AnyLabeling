@@ -41,7 +41,9 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget)
 
         status_bar = QStatusBar()
-        status_bar.showMessage(f"{__appname__} v{__version__} - {__appdescription__}")
+        status_bar.showMessage(
+            f"{__appname__} v{__version__} - {__appdescription__}"
+        )
         self.setStatusBar(status_bar)
 
     def closeEvent(self, event):

@@ -548,6 +548,18 @@ python3 Hyper-YOLO/ultralytics/export.py
 
 Please refer to this [tutorial](../../tools/onnx_exporter/export_dfine_onnx.py).
 
+### [DEIMv2](https://github.com/Intellindust-AI-Lab/DEIMv2)
+
+`DEIMv2` is an evolution of the DEIM framework while leveraging the rich features from DINOv3. Our method is designed with various model sizes, from an ultra-light version up to S, M, L, and X, to be adaptable for a wide range of scenarios. Across these variants, DEIMv2 achieves state-of-the-art performance, with the S-sized model notably surpassing 50 AP on the challenging COCO benchmark.
+
+| Attribute        | Value                                    |
+|------------------|------------------------------------------|
+| Paper Title      | Real-Time Object Detection Meets DINOv3  |
+| Publishing Units | Intellindust AI Lab & Xiamen University  |
+| Publication Date | Arxiv'25                                 |
+
+请参考此[教程](../../tools/onnx_exporter/export_deimv2_onnx.py)。
+
 ## Segment Anything
 
 ### [SAM](https://github.com/facebookresearch/segment-anything)

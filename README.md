@@ -70,6 +70,7 @@
 
 ## 🥳 What's New
 
+- Add [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): A real-time object detector powered by DINOv3 features
 - Add --qt-platform argument for improved performance on Fedora KDE environments (#1145)
 - Add auto_use_last_gid feature with Ctrl+Shift+G shortcut (1143)
 - Implement async EXIF detection to eliminate loading delays
@@ -123,7 +124,7 @@
 | **Task Category** | **Supported Models** |
 | :--- | :--- |
 | 🖼️ Image Classification | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
-| 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR |
+| 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
 | 👣 Tracking | Bot-SORT, ByteTrack |

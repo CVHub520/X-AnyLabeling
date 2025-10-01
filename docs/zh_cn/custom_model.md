@@ -533,6 +533,18 @@ python3 ultralytics/utils/export_onnx.py
 
 请参考此[教程](../../tools/onnx_exporter/export_dfine_onnx.py)。
 
+### [DEIMv2](https://github.com/Intellindust-AI-Lab/DEIMv2)
+
+`DEIMv2` 是 DEIM 框架的进化版本，同时利用了 DINOv3 的丰富特征。该方法设计了从超轻量级版本到 S、M、L 和 X 等不同规模的模型，以适应各种应用场景。在这些变体中，DEIMv2 都达到了最先进的性能，其中 S 级模型在具有挑战性的 COCO 基准测试中显著超过了 50 AP。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | Real-Time Object Detection Meets DINOv3                      |
+| 发表单位       | 英特灵达 & 厦门大学                                 |
+| 发表时间       | Arxiv'25                                                 |
+
+请参考此[教程](../../tools/onnx_exporter/export_deimv2_onnx.py)。
+
 ## Segment Anything
 
 ### [SAM](https://github.com/vietanhdev/samexporter)

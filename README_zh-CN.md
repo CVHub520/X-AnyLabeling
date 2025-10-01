@@ -70,6 +70,7 @@
 
 ## 🥳 新功能
 
+- 新增 [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): 基于 DINOv3 的实时目标检测器
 - 新增 --qt-platform 参数以提升 Fedora KDE 环境下的性能表现 (#1145)
 - 新增 Ctrl+Shift+G 快捷键自动使用上一次的群组编号功能 (#1143)
 - 实现异步 EXIF 检测以消除图像加载延迟及画面卡顿现象
@@ -124,7 +125,7 @@
 | **任务类别** | **支持模型** |
 | :--- | :--- |
 | 🖼️ **图像分类** | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
-| 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR |
+| 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
 | 👣 **目标跟踪** | Bot-SORT, ByteTrack |

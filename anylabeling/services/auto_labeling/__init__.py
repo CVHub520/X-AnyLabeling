@@ -74,6 +74,7 @@ _CUSTOM_MODELS = [
     "u_rtdetr",
     "yoloe",
     "ppocr_v5",
+    "deimv2",
 ]
 
 
@@ -191,6 +192,7 @@ _AUTO_LABELING_CONF_MODELS = [
     "yolox",
     "doclayout_yolo",
     "rfdetr",
+    "deimv2",
     "dfine",
     "yolo12",
     "u_rtdetr",
@@ -273,6 +275,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "doclayout_yolo",
     "florence2",
     "rfdetr",
+    "deimv2",
     "dfine",
     "yolo12",
     "u_rtdetr",
