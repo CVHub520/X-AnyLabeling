@@ -453,7 +453,14 @@ def run_all_images(self):
             == "yoloe"
         ):
             show_progress_dialog_and_process(self)
-
+    elif (
+            self.auto_labeling_widget.model_manager.loaded_model_config[
+                "type"
+            ]
+            == "florence2"
+    ):
+        self.text_prompt = self.auto_labeling_widget.edit_text.text()
+        show_progress_dialog_and_process(self)
     elif (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]
         in VIDEO_MODELS
