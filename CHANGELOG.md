@@ -1,5 +1,29 @@
 # X-AnyLabeling Changelog
 
+## `v3.2.6` (Oct 02, 2025)
+
+### 🚀 New Features
+
+- Add support for using backspace key to delete the last vertex when creating polygon and line shapes (#1151)
+- Introduce DEIMv2 real-time object detector
+- Add the ability to process all images at once with the Florence-2 model (#1152)
+- Add max_det parameter for maximum detections in YOLO model (#1142)
+
+### 🐛 Bug Fixes
+
+- Enable auto_use_last_gid for digit shortcuts and reset on image switch (#1149)
+
+### 🛠️ Improvements
+
+- Add troubleshooting steps for exporting empty Mask images (#1153)
+- Update rotation increments to radians and format degree display
+
+### 🌟 Contributors
+
+A total of 4 developers contributed to this release.
+
+Thank @lhj5426, @sckiyo, @Vlad188-1, @CVHub520
+
 ## `v3.2.5` (Sep 29, 2025)
 
 ### 🚀 New Features

@@ -70,8 +70,12 @@
 
 ## 🥳 What's New
 
+- Bump version to [3.2.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.6)
 - Add support for using backspace key to delete the last vertex when creating polygon and line shapes (#1151)
 - Add [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): A real-time object detector powered by DINOv3 features
+- Add the ability to process all images at once with the Florence-2 model (#1152)
+- Add max_det parameter for maximum detections in YOLO model (#1142)
+- Bump version to [3.2.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.5)
 - Add --qt-platform argument for improved performance on Fedora KDE environments (#1145)
 - Add auto_use_last_gid feature with Ctrl+Shift+G shortcut (1143)
 - Implement async EXIF detection to eliminate loading delays
@@ -121,7 +125,6 @@
 
 
 ### Model library
-
 | **Task Category** | **Supported Models** |
 | :--- | :--- |
 | 🖼️ Image Classification | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
@@ -131,12 +134,13 @@
 | 👣 Tracking | Bot-SORT, ByteTrack |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
 | 📏 Depth Estimation | Depth Anything |
-| 🧩 Segment Anything | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM, 
+| 🧩 Segment Anything | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCRv4, PP-OCRv5 |
-| 🗣️ VLM | Florence2 |
+| 🗣️ Vision Foundation Models | Florence2 |
+| 👁️ Vision Language Models | Qwen-VL, Gemini, ChatGPT |
 | 🛣️ Land Detection | CLRNet |
 | 📍 Grounding | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |

@@ -70,8 +70,12 @@
 
 ## 🥳 新功能
 
+- 版本更新至 [3.2.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.6)
 - 新增支持创建多边形和线条对象时使用退格键删除上一个顶点 (#1151)
 - 新增 [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): 基于 DINOv3 的实时目标检测器
+- 新增支持 Florence-2 模型一键处理所有图像功能 (#1152)
+- 新增 YOLO 模型最大检测数量参数 (#1142)
+- 版本更新至 [3.2.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.5)
 - 新增 --qt-platform 参数以提升 Fedora KDE 环境下的性能表现 (#1145)
 - 新增 Ctrl+Shift+G 快捷键自动使用上一次的群组编号功能 (#1143)
 - 实现异步 EXIF 检测以消除图像加载延迟及画面卡顿现象
@@ -137,7 +141,8 @@
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCRv4, PPOCR-v5 |
-| 🗣️ **视觉语言模型** | Florence2 |
+| 🗣️ **视觉基础模型** | Florence2 |
+| 👁️ **视觉语言模型** | Qwen-VL, Gemini, ChatGPT |
 | 🛣️ **车道线检测** | CLRNet |
 | 📍 **Grounding** | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |
 | 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |

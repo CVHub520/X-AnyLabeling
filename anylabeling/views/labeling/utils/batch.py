@@ -454,10 +454,8 @@ def run_all_images(self):
         ):
             show_progress_dialog_and_process(self)
     elif (
-            self.auto_labeling_widget.model_manager.loaded_model_config[
-                "type"
-            ]
-            == "florence2"
+        self.auto_labeling_widget.model_manager.loaded_model_config["type"]
+        == "florence2"
     ):
         self.text_prompt = self.auto_labeling_widget.edit_text.text()
         show_progress_dialog_and_process(self)
@@ -467,6 +465,5 @@ def run_all_images(self):
     ):
         self.run_tracker = True
         show_progress_dialog_and_process(self)
-
     else:
         show_progress_dialog_and_process(self)
