@@ -362,6 +362,17 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 ### 文件相关问题
 
 <details>
+<summary>Q: 导出 Mask 图为空</summary>
+
+请按照以下步骤依次检查下：
+1. 按下 `ctrl+g` 查看当前任务的标注类别和标注类型，确保所有标注类型为`polygon`对象；
+2. 检查导出配置文件的格式正确，且类别名称与上述步骤所示的标签类别名称相符；
+3. 升级到最新版本或通过源码运行获取更全面的日志信息。
+
+详情可参考此[#1153](https://github.com/CVHub520/X-AnyLabeling/issues/1153)。
+</details>
+
+<details>
 <summary>Q: 预编译版本加载视频文件没有成功解析处图片</summary>
 
 可参考此[#1136](https://github.com/CVHub520/X-AnyLabeling/issues/1136)。
