@@ -70,6 +70,7 @@
 
 ## 🥳 What's New
 
+- Add support for using backspace key to delete the last vertex when creating polygon and line shapes (#1151)
 - Add [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): A real-time object detector powered by DINOv3 features
 - Add --qt-platform argument for improved performance on Fedora KDE environments (#1145)
 - Add auto_use_last_gid feature with Ctrl+Shift+G shortcut (1143)

@@ -2225,6 +2225,16 @@ class Canvas(
                 self.current = None
                 self.drawing_polygon.emit(False)
                 self.update()
+            elif key == QtCore.Qt.Key_Backspace and self.current:
+                if self.create_mode in ["polygon", "linestrip"]:
+                    if len(self.current.points) > 1:
+                        self.current.points.pop()
+                        self.line[0] = self.current[-1]
+                        self.update()
+                    elif len(self.current.points) == 1:
+                        self.current = None
+                        self.drawing_polygon.emit(False)
+                        self.update()
             elif key == QtCore.Qt.Key_Return and self.can_close_shape():
                 self.finalise()
             elif modifiers == QtCore.Qt.AltModifier:

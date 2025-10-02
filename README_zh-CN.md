@@ -70,6 +70,7 @@
 
 ## 🥳 新功能
 
+- 新增支持创建多边形和线条对象时使用退格键删除上一个顶点 (#1151)
 - 新增 [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): 基于 DINOv3 的实时目标检测器
 - 新增 --qt-platform 参数以提升 Fedora KDE 环境下的性能表现 (#1145)
 - 新增 Ctrl+Shift+G 快捷键自动使用上一次的群组编号功能 (#1143)
