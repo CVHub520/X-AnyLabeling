@@ -104,6 +104,8 @@ class ClassifierDialog(QDialog):
         self.image_label = QLabel()
         self.image_label.setAlignment(Qt.AlignCenter)
         self.image_label.setStyleSheet(get_image_label_style())
+        self.image_label.setFixedSize(PANEL_SIZE - 16, PANEL_SIZE - 16)
+        self.image_label.setScaledContents(False)
         container_layout.addWidget(self.image_label, 1)
 
         self.overlay_label = ClassificationOverlay(self.image_label)
@@ -915,10 +917,10 @@ class ClassifierDialog(QDialog):
 
             pixmap = QPixmap(self.parent().filename)
             if not pixmap.isNull():
-                max_width, max_height = IMAGE_DISPLAY_MAX_SIZE
+                label_size = self.image_label.size()
                 scaled_pixmap = pixmap.scaled(
-                    max_width,
-                    max_height,
+                    label_size.width(),
+                    label_size.height(),
                     Qt.KeepAspectRatio,
                     Qt.SmoothTransformation,
                 )
@@ -1144,15 +1146,3 @@ class ClassifierDialog(QDialog):
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        if hasattr(self, "main_splitter") and hasattr(
-            self, "target_left_width"
-        ):
-            total_width = self.main_splitter.width()
-            right_width = total_width - self.target_left_width
-            if right_width > 0:
-                self.main_splitter.setSizes(
-                    [self.target_left_width, right_width]
-                )
-
-        if hasattr(self, "image_label"):
-            QTimer.singleShot(50, self.update_image_display)

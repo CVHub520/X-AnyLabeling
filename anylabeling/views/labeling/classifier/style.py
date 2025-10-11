@@ -25,7 +25,7 @@ def get_filename_label_style(theme: Dict[str, str] = None) -> str:
 def get_image_label_style() -> str:
     return """
         QLabel {
-            background-color: #ffffff;
+            background-color: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 4px;
@@ -36,9 +36,8 @@ def get_image_label_style() -> str:
 def get_image_container_style() -> str:
     return f"""
         QWidget {{
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: {BORDER_RADIUS};
+            background-color: transparent;
+            border: none;
         }}
     """
 
