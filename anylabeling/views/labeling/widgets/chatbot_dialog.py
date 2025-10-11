@@ -797,8 +797,8 @@ class ChatbotDialog(QDialog):
         # Set focus to the message input
         self.message_input.setFocus()
 
-    def show_model_dropdown(self):
-        """Show the model dropdown"""
+    def refresh_model_list(self):
+        """Refresh the model list for the current provider"""
         for provider in self.providers:
             if getattr(self, f"{provider}_btn").isChecked():
                 models_data = get_models_data(
@@ -808,6 +808,10 @@ class ChatbotDialog(QDialog):
                 )
                 self.model_dropdown.update_models_data(models_data, provider)
                 break
+
+    def show_model_dropdown(self):
+        """Show the model dropdown"""
+        self.refresh_model_list()
 
         button_rect = self.model_button.rect()
         button_pos = self.model_button.mapToGlobal(QPoint(0, 0))
