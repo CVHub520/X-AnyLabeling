@@ -322,8 +322,19 @@ class ClassifierDialog(QDialog):
                 QIntValidator(1, len(self.image_files))
             )
 
-        if self.parent().image_flags:
-            self.labels = self.parent().image_flags[:]
+        # Reset flags from current data
+        self.labels = []
+        if self.parent().filename:
+            label_path = get_label_file_path(
+                self.parent().filename, 
+                getattr(self.parent(), "output_dir", None)
+            )
+            flags = load_flags_from_json(label_path)
+            if flags:
+                self.labels = list(flags.keys())
+
+        if self.labels:
+            self.parent().image_flags = self.labels[:]
             self.create_checkbox_group()
 
         self.load_current_flags()
