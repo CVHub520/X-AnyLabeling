@@ -70,6 +70,7 @@
 
 ## 🥳 新功能
 
+- 新增图像分类器多标签模式，支持为每张图片选择多个标签
 - 版本更新至 [3.2.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.6)
 - 新增支持创建多边形和线条对象时使用退格键删除上一个顶点 (#1151)
 - 新增 [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): 基于 DINOv3 的实时目标检测器

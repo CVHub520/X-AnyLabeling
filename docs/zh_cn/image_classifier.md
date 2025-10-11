@@ -1,6 +1,6 @@
 # 概述
 
-X-AnyLabeling 的图像分类器是一个专门用于图像多类标注的功能模块，它提供了一个独立的对话框界面，让用户可以方便地对图像数据集进行分类标注。该模块支持对单张图片标注唯一分类标签，提供添加、删除、编辑标签等完整的标签管理功能，集成了AI智能分类功能支持单张和批量自动分类，提供标签使用频次等数据集统计信息，支持键盘快捷键快速切换图片和标注，并可将已分类的图片按类别导出到对应文件夹。
+X-AnyLabeling 的图像分类器是一个专门用于图像分类标注的功能模块，它提供了一个独立的对话框界面，让用户可以方便地对图像数据集进行分类标注。该模块支持多类分类（单标签）和多标签分类（多标签）两种模式，提供添加、删除、编辑标签等完整的标签管理功能，集成了AI智能分类功能支持单张和批量自动分类，提供标签使用频次等数据集统计信息，支持键盘快捷键快速切换图片和标注，并可将已分类的图片按类别导出到对应文件夹。
 
 <video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
 </video>
@@ -36,9 +36,15 @@ X-AnyLabeling 的图像分类器是一个专门用于图像多类标注的功能
 
 | 功能按钮 | 说明 |
 |----------|------|
-| Export | 将已分类的图像按类别导出到文件夹中 |
-| MultiClass | 当前仅支持多分类标注 |
+| Export | 将已分类的图像按类别导出到文件夹中（仅支持 MultiClass 模式） |
+| MultiClass | 多类分类模式，每张图片只能选择一个标签 |
+| MultiLabel | 多标签分类模式，每张图片可以选择多个标签（v3.2.7+） |
 | AutoRun | 使用AI模型批量自动分类所有图像 |
+
+> [!NOTE]
+> - MultiClass 模式：适用于互斥分类任务，如动物种类识别（一张图片只能是一种动物）
+> - MultiLabel 模式：适用于多属性标注任务，如图片标签标注（一张图片可以同时具有多个属性）
+> - 需要注意的是，当从 MultiLabel 切换到 MultiClass 模式时，系统只会保留每张图片的第一个勾选标签
 
 
 ```bash
@@ -68,7 +74,9 @@ classified/
 
 <img src="../../assets/resources/image_classifier/assistance.png" width="100%" />
 
-软件内置了一套标准的提示词模板，你可以直接使用或根据实际需求自定义。
+软件内置了一套标准的提示词模板，会根据当前选择的模式（MultiClass 或 MultiLabel）自动调整提示内容。你可以直接使用或根据实际需求自定义。
+
+**MultiClass 模式示例：**
 
 ```prompt
 @image
@@ -86,6 +94,26 @@ Return your result in strict JSON format:
 {"husky": false, "psyduck": false, "ragdoll": false}
 
 Set exactly ONE category to 'true' that best matches the image, keep all others as 'false'.
+```
+
+**MultiLabel 模式示例：**
+
+```prompt
+@image
+You are an expert image classifier. Your task is to perform multi-label classification.
+
+Task Definition: Analyze the given image and classify it based on the provided categories.
+
+Available Categories: ["outdoor", "sunny", "people", "building"]
+
+Instructions:
+1. Carefully examine the image and identify the main subject and their activity
+2. Be precise - only select categories that clearly match what you observe
+
+Return your result in strict JSON format:
+{"outdoor": false, "sunny": false, "people": false, "building": false}
+
+Set ALL applicable categories to 'true', keep non-applicable ones as 'false'.
 ```
 
 > 关于智能对话框的高阶使用方法，如特殊引用及模板库设置等，请参考[VQA标注文档](./vqa.md)。

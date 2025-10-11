@@ -132,13 +132,23 @@ class ClassifierDialog(QDialog):
         )
         self.export_button.clicked.connect(self.export_images)
 
-        self.mode_button = QPushButton(self.tr("MultiClass"))
-        self.mode_button.setStyleSheet(
+        self.multiclass_button = QPushButton(self.tr("MultiClass"))
+        self.multiclass_button.setStyleSheet(
             get_dialog_button_style("light_green", "medium")
         )
-        self.mode_button.setToolTip(
-            self.tr("Currently only supports multi-class image classification")
+        self.multiclass_button.setToolTip(
+            self.tr("Single-label classification mode")
         )
+        self.multiclass_button.clicked.connect(self.switch_to_multiclass)
+
+        self.multilabel_button = QPushButton(self.tr("MultiLabel"))
+        self.multilabel_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
+        self.multilabel_button.setToolTip(
+            self.tr("Multi-label classification mode")
+        )
+        self.multilabel_button.clicked.connect(self.switch_to_multilabel)
 
         self.auto_run_button = QPushButton(self.tr("AutoRun"))
         self.auto_run_button.setStyleSheet(
@@ -150,7 +160,8 @@ class ClassifierDialog(QDialog):
         self.auto_run_button.clicked.connect(self.auto_run_batch)
 
         action_layout.addWidget(self.export_button, 1)
-        action_layout.addWidget(self.mode_button, 1)
+        action_layout.addWidget(self.multiclass_button, 1)
+        action_layout.addWidget(self.multilabel_button, 1)
         action_layout.addWidget(self.auto_run_button, 1)
 
         right_layout.addWidget(action_widget)
@@ -328,8 +339,8 @@ class ClassifierDialog(QDialog):
         self.labels = []
         if self.parent().filename:
             label_path = get_label_file_path(
-                self.parent().filename, 
-                getattr(self.parent(), "output_dir", None)
+                self.parent().filename,
+                getattr(self.parent(), "output_dir", None),
             )
             flags = load_flags_from_json(label_path)
             if flags:
@@ -482,6 +493,46 @@ class ClassifierDialog(QDialog):
             self.labels, self.image_files, self.parent().output_dir, self
         )
         dialog.exec_()
+
+    def switch_to_multiclass(self):
+        if self.is_multiclass:
+            return
+
+        reply = QMessageBox.question(
+            self,
+            self.tr("Switch Mode"),
+            self.tr(
+                "Switching to MultiClass mode will only keep the first label for each image. "
+                "Other labels will be discarded. Continue?"
+            ),
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No,
+        )
+
+        if reply == QMessageBox.Yes:
+            self.is_multiclass = True
+            self.multiclass_button.setStyleSheet(
+                get_dialog_button_style("light_green", "medium")
+            )
+            self.multilabel_button.setStyleSheet(
+                get_dialog_button_style("secondary", "medium")
+            )
+            self.create_checkbox_group()
+            self.load_current_flags()
+
+    def switch_to_multilabel(self):
+        if not self.is_multiclass:
+            return
+
+        self.is_multiclass = False
+        self.multilabel_button.setStyleSheet(
+            get_dialog_button_style("light_green", "medium")
+        )
+        self.multiclass_button.setStyleSheet(
+            get_dialog_button_style("secondary", "medium")
+        )
+        self.create_checkbox_group()
+        self.load_current_flags()
 
     def export_images(self):
         if not self.labels:

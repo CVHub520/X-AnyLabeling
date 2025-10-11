@@ -1,6 +1,6 @@
 # Overview
 
-The Image Classifier in X-AnyLabeling is a specialized feature module designed for multi-class image annotation. It provides a dedicated dialog interface that enables users to efficiently classify and annotate image datasets. This module supports single-class labeling per image, offers comprehensive label management capabilities including adding, deleting, and editing labels, integrates AI-powered classification for both individual and batch processing, provides dataset statistics such as label usage frequency, supports keyboard shortcuts for rapid image navigation and annotation, and allows exporting classified images into category-specific folders.
+The Image Classifier in X-AnyLabeling is a specialized feature module designed for image classification annotation. It provides a dedicated dialog interface that enables users to efficiently classify and annotate image datasets. This module supports both multi-class classification (single-label) and multi-label classification (multi-label) modes, offers comprehensive label management capabilities including adding, deleting, and editing labels, integrates AI-powered classification for both individual and batch processing, provides dataset statistics such as label usage frequency, supports keyboard shortcuts for rapid image navigation and annotation, and allows exporting classified images into category-specific folders.
 
 <video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
 </video>
@@ -36,9 +36,15 @@ The Image Classifier features a dual-panel design with the image preview area on
 
 | Button | Description |
 |--------|-------------|
-| Export | Export classified images into category-specific folders |
-| MultiClass | Currently supports multi-class annotation only |
+| Export | Export classified images into category-specific folders (MultiClass mode only) |
+| MultiClass | Multi-class classification mode, only one label per image |
+| MultiLabel | Multi-label classification mode, multiple labels per image (v3.2.7+) |
 | AutoRun | Use AI models to automatically classify all images in batch |
+
+> [!NOTE]
+> - MultiClass mode: Suitable for mutually exclusive classification tasks, such as animal species recognition (one image can only be one species)
+> - MultiLabel mode: Suitable for multi-attribute annotation tasks, such as image tagging (one image can have multiple attributes)
+> - Note that when switching from MultiLabel to MultiClass mode, the system will only keep the first selected label for each image
 
 The export function organizes classified images into the following structure:
 
@@ -69,7 +75,9 @@ Once configured, you can access the AI intelligent dialog by clicking the magic 
 
 <img src="../../assets/resources/image_classifier/assistance.png" width="100%" />
 
-The software includes a built-in standard prompt template that you can use directly or customize according to your specific requirements.
+The software includes a built-in standard prompt template that automatically adjusts based on the current mode (MultiClass or MultiLabel). You can use it directly or customize according to your specific requirements.
+
+**MultiClass Mode Example:**
 
 ```prompt
 @image
@@ -87,6 +95,26 @@ Return your result in strict JSON format:
 {"husky": false, "psyduck": false, "ragdoll": false}
 
 Set exactly ONE category to 'true' that best matches the image, keep all others as 'false'.
+```
+
+**MultiLabel Mode Example:**
+
+```prompt
+@image
+You are an expert image classifier. Your task is to perform multi-label classification.
+
+Task Definition: Analyze the given image and classify it based on the provided categories.
+
+Available Categories: ["outdoor", "sunny", "people", "building"]
+
+Instructions:
+1. Carefully examine the image and identify the main subject and their activity
+2. Be precise - only select categories that clearly match what you observe
+
+Return your result in strict JSON format:
+{"outdoor": false, "sunny": false, "people": false, "building": false}
+
+Set ALL applicable categories to 'true', keep non-applicable ones as 'false'.
 ```
 
 > For advanced usage of the intelligent dialog, including special references and template library settings, please refer to the [VQA Annotation Documentation](./vqa.md).
