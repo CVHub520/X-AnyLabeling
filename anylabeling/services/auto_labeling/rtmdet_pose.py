@@ -56,9 +56,9 @@ class RTMDet_Pose(Model):
         self.kpt_thr = self.config.get("kpt_threshold", 0.3)
         self.score_thr = self.config.get("score_threshold", 0.3)
         self.kpt_classes = self.config.get("keypoints", [])
-        self.rtmdet = RTMDet(det_model_abs_path, score_thr=self.score_thr)
+        self.rtmdet = RTMDet(det_model_abs_path, score_thr=self.score_thr, device=__preferred_device__)
         if self.config["pose"] == "rtmo":
-            self.pose = RTMO(pose_model_abs_path)
+            self.pose = RTMO(pose_model_abs_path, device=__preferred_device__)
         else:
             self.pose = None
 
@@ -98,7 +98,7 @@ class RTMDet_Pose(Model):
                 keypoints, scores = self.pose(img)
             except Exception:
                 keypoints, scores = [], []
-            if not self.pose and len(keypoints) == 0:
+            if not self.pose or len(keypoints) == 0:
                 continue
             for j in range(len(keypoints[0])):
                 kpt_point, score = keypoints[0][j], scores[0][j]
