@@ -4,6 +4,15 @@
 ### 安装与运行相关问题
 
 <details>
+<summary>Q: 启动时报错：ImportError: No module named expat; use SimpleXMLTreeBuilder instead</summary>
+
+`Conda` 会自动更新系统库（如 expat）到最新版本，导致与预编译的 Python 模块不兼容。可尝试下载低版本 expat 解决，如：
+```bash
+conda install expat=2.5.0 -y
+```
+</details>
+
+<details>
 <summary>Q: 在 Fedora KDE 等环境下鼠标移动缓慢，响应延迟</summary>
 
 在 Fedora KDE 桌面环境（包括 Wayland 和 X11）下，可能会遇到画布上鼠标指针移动缓慢、响应延迟的性能问题。
