@@ -584,10 +584,10 @@ class LabelConverter:
                 cy = float(line[2])
                 nw = float(line[3])
                 nh = float(line[4])
-                xmin = int((cx - nw / 2) * img_w)
-                ymin = int((cy - nh / 2) * img_h)
-                xmax = int((cx + nw / 2) * img_w)
-                ymax = int((cy + nh / 2) * img_h)
+                xmin = (cx - nw / 2) * img_w
+                ymin = (cy - nh / 2) * img_h
+                xmax = (cx + nw / 2) * img_w
+                ymax = (cy + nh / 2) * img_h
                 points = [
                     [xmin, ymin],
                     [xmax, ymin],
