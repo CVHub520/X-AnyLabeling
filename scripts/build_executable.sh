@@ -1,56 +1,25 @@
 #!/bin/bash
-
-python_file="anylabeling/app_info.py"
-variable_name="__preferred_device__"
-
-variable_value=$(python3 - <<END
-import re
-
-with open("$python_file", "r") as f:
-    content = f.read()
-
-target_variable = "__preferred_device__"
-pattern = r'{} = "(.*?)"'.format(target_variable)
-match = re.search(pattern, content)
-
-if match:
-    print(match.group(1))
-END
-)
-
-echo "$variable_name: $variable_value"
-
 system=$1
 
 if [ $system = "win-cpu" ]; then
-    expected_value="CPU"
-    if [ "$variable_value" = "$expected_value" ]; then
-        pyinstaller --noconfirm x-anylabeling-win-cpu.spec
-    else
-        echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
-    fi
+    echo "Building Windows CPU version..."
+    export X_ANYLABELING_DEVICE=CPU
+    pyinstaller --noconfirm x-anylabeling-win-cpu.spec
 elif [ $system = "win-gpu" ];then
-    expected_value="GPU"
-    if [ "$variable_value" = "$expected_value" ]; then
-        pyinstaller --noconfirm x-anylabeling-win-gpu.spec
-    else
-        echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
-    fi
+    echo "Building Windows GPU version..."
+    export X_ANYLABELING_DEVICE=GPU
+    pyinstaller --noconfirm x-anylabeling-win-gpu.spec
 elif [ $system = "linux-cpu" ];then
-    expected_value="CPU"
-    if [ "$variable_value" = "$expected_value" ]; then
-        pyinstaller --noconfirm x-anylabeling-linux-cpu.spec
-    else
-        echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
-    fi
+    echo "Building Linux CPU version..."
+    export X_ANYLABELING_DEVICE=CPU
+    pyinstaller --noconfirm x-anylabeling-linux-cpu.spec
 elif [ $system = "linux-gpu" ];then
-    expected_value="GPU"
-    if [ "$variable_value" = "GPU" ]; then
-        pyinstaller --noconfirm x-anylabeling-linux-gpu.spec
-    else
-        echo "Variable $variable_name has a different value: $variable_value (expected: $expected_value)"
-    fi
+    echo "Building Linux GPU version..."
+    export X_ANYLABELING_DEVICE=GPU
+    pyinstaller --noconfirm x-anylabeling-linux-gpu.spec
 elif [ $system = "macos" ];then
+    echo "Building macOS version..."
+    export X_ANYLABELING_DEVICE=CPU
     pyinstaller --noconfirm x-anylabeling-macos.spec
 else
     echo "System value '$system' is not recognized."

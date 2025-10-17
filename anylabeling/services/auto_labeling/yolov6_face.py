@@ -3,12 +3,11 @@ import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
 
-from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
-from .types import AutoLabelingResult
 from .__base__.yolo import YOLO
+from .types import AutoLabelingResult
 from .utils import numpy_nms, xywh2xyxy, rescale_box_and_landmark
 
 

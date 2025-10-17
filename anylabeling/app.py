@@ -22,7 +22,12 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 import yaml
 from PyQt5 import QtCore, QtWidgets
 
-from anylabeling.app_info import __appname__, __version__, __url__
+from anylabeling.app_info import (
+    __appname__,
+    __version__,
+    __url__,
+    CLI_HELP_MSG,
+)
 from anylabeling.config import get_config
 from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
@@ -38,6 +43,17 @@ from anylabeling.resources import resources
 
 def main():
     parser = argparse.ArgumentParser()
+
+    subparsers = parser.add_subparsers(
+        dest="command", help="available commands"
+    )
+    subparsers.add_parser("help", help="show help message")
+    subparsers.add_parser(
+        "checks", help="display system and package information"
+    )
+    subparsers.add_parser("version", help="show version information")
+    subparsers.add_parser("config", help="show config file path")
+
     parser.add_argument(
         "--reset-config", action="store_true", help="reset qt config"
     )
@@ -61,7 +77,7 @@ def main():
         default=None,
     )
     parser.add_argument(
-        "filename",
+        "--filename",
         nargs="?",
         help=(
             "image or label filename; "
@@ -150,6 +166,21 @@ def main():
     )
     args = parser.parse_args()
 
+    special = {
+        "help": lambda: print(CLI_HELP_MSG),
+        "checks": lambda: __import__(
+            "anylabeling.views.common.checks", fromlist=["run_checks"]
+        ).run_checks(),
+        "version": lambda: print(__version__),
+        "config": lambda: print(
+            os.path.join(os.path.expanduser("~"), ".xanylabelingrc")
+        ),
+    }
+
+    if args.command and args.command in special:
+        special[args.command]()
+        return
+
     if hasattr(args, "flags"):
         if os.path.isfile(args.flags):
             with codecs.open(args.flags, "r", encoding="utf-8") as f:
@@ -172,6 +203,7 @@ def main():
             args.label_flags = yaml.safe_load(args.label_flags)
 
     config_from_args = args.__dict__
+    config_from_args.pop("command", None)
     reset_config = config_from_args.pop("reset_config")
     filename = config_from_args.pop("filename")
     output = config_from_args.pop("output")

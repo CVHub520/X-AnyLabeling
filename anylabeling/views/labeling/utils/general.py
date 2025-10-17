@@ -1,4 +1,6 @@
+import os
 import re
+import shutil
 import math
 import textwrap
 import platform
@@ -7,6 +9,11 @@ import webbrowser
 from difflib import SequenceMatcher
 from importlib_metadata import version as get_package_version
 from typing import Iterator, Tuple
+
+try:
+    import psutil
+except ImportError:
+    psutil = None
 
 
 def format_bold(text):
@@ -82,6 +89,18 @@ def square_dist(p, q):
 def collect_system_info():
     os_info = platform.platform()
     cpu_info = platform.processor()
+    cpu_count = os.cpu_count()
+
+    if psutil:
+        gib = 1 << 30
+        ram = psutil.virtual_memory().total
+        ram_info = f"{ram / gib:.1f} GB"
+        total, used, free = shutil.disk_usage("/")
+        disk_info = f"{(total - free) / gib:.1f}/{total / gib:.1f} GB"
+    else:
+        ram_info = "N/A (psutil not installed)"
+        disk_info = "N/A (psutil not installed)"
+
     gpu_info = get_gpu_info()
     cuda_info = get_cuda_version()
     python_info = platform.python_version()
@@ -96,6 +115,9 @@ def collect_system_info():
     system_info = {
         "Operating System": os_info,
         "CPU": cpu_info,
+        "CPU Count": cpu_count,
+        "RAM": ram_info,
+        "Disk": disk_info,
         "GPU": gpu_info,
         "CUDA": cuda_info,
         "Python Version": python_info,
@@ -156,7 +178,15 @@ def get_gpu_info():
             ],
             encoding="utf-8",
         )
-        return ", ".join(smi_output.strip().split("\n"))
+        gpu_info_lines = []
+        for line in smi_output.strip().split("\n"):
+            parts = line.split(",")
+            if len(parts) == 3:
+                index = parts[0].strip()
+                name = parts[1].strip()
+                memory = parts[2].strip() + "MiB"
+                gpu_info_lines.append(f"CUDA:{index} ({name}, {memory})")
+        return ", ".join(gpu_info_lines)
     except Exception:
         return None
 

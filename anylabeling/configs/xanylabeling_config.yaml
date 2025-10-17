@@ -1,5 +1,6 @@
 language: en_US
 model_hub: github  # github, modelscope
+device: null  # CPU, GPU
 auto_save: true
 display_label_popup: true
 store_data: false
@@ -87,7 +88,7 @@ canvas:
   # The max number of edits we can undo
   num_backups: 10
   wheel_rectangle_editing:
-    enable: false
+    enable: true
     adjust_step: 2.0
     scale_step: 0.05
   crosshair:

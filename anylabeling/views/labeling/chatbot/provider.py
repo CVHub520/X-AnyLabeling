@@ -84,7 +84,9 @@ def fetch_models_async(
         models_data = total_data["models_data"][provider_display_name]
 
         models_to_remove = [
-            model_id for model_id in models_data if model_id not in models_id_list
+            model_id
+            for model_id in models_data
+            if model_id not in models_id_list
         ]
         for model_id in models_to_remove:
             del models_data[model_id]

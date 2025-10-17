@@ -11,12 +11,17 @@
 # - [tool.*]: Configures settings for various tools (pytest, yapf, etc.) used in the project.
 
 # Installation:
-# The X-AnyLabeling library can be installed using the command: 'pip install x-anylabeling'
-# For development purposes, you can install the package in editable mode with: 'pip install -e .'
+# The X-AnyLabeling library can be installed using the command: 'pip install x-anylabeling-cvhub[xxx]'
+# For development purposes, you MUST specify a runtime environment (includes dev tools):
+#   - CPU:       pip install -e .[cpu]
+#   - CUDA 12.x: pip install -e .[gpu]
+#   - CUDA 11.x: pip install -e .[gpu-cu11]
+# Note: Ensure onnxruntime and onnxruntime-gpu are not installed simultaneously.
 # This approach allows for real-time code modifications without the need for re-installation.
 
-# Documentation:
-# For comprehensive documentation and usage instructions, visit: https://github.com/CVHub520/X-AnyLabeling/tree/main/docs
+# Docs: https://github.com/CVHub520/X-AnyLabeling/tree/main/docs
+# Examples: https://github.com/CVHub520/X-AnyLabeling/tree/main/examples/
+# GitHub: https://github.com/CVHub520/X-AnyLabeling
 
 [build-system]
 requires = ["setuptools>=70.0.0", "wheel"]
@@ -24,7 +29,7 @@ build-backend = "setuptools.build_meta"
 
 # Project settings -----------------------------------------------------------------------------------------------------
 [project]
-name = "x-anylabeling"
+name = "x-anylabeling-cvhub"
 dynamic = ["version"]
 description = "Advanced Auto Labeling Solution with Added Features"
 readme = "README.md"
@@ -56,18 +61,17 @@ classifiers = [
 ]
 
 # Core dependencies
+# Note: onnx and onnxruntime are in optional-dependencies for version compatibility
 dependencies = [
     "natsort>=8.1.0",
     "numpy<=1.26.4",
     "pillow>=7.1.2",
     "opencv-contrib-python-headless>=4.7.0.72",
-    'PyQt5>=5.15.7; platform_system != "Darwin"', # Exclude PyQt5 on macOS
-    'PyQtWebEngine>=5.15.7; platform_system != "Darwin"', # Exclude PyQtWebEngine on macOS
-    "onnx>=1.16.1",
-    "onnxruntime>=1.18.1",
+    'PyQt5>=5.15.7; platform_system != "Darwin"',
+    'PyQtWebEngine>=5.15.7; platform_system != "Darwin"',
     "qimage2ndarray>=1.10.0",
     "lapx>=0.5.5",
-    "tqdm>=4.64.0", # progress bars
+    "tqdm>=4.64.0",
     "scipy>=1.4.1",
     "PyYAML",
     "importlib_metadata",
@@ -75,7 +79,9 @@ dependencies = [
     "jsonlines",
     "markdown",
     "openai",
+    "psutil",
     "pyclipper",
+    "six",
     "shapely",
     "termcolor",
     "tokenizers",
@@ -83,6 +89,7 @@ dependencies = [
 
 # Optional dependencies ------------------------------------------------------------------------------------------------
 [project.optional-dependencies]
+
 dev = [
     "build",
     "black",
@@ -91,8 +98,21 @@ dev = [
     "pytest",
     "twine",
 ]
+
+# CPU version: Latest ONNX + ONNXRuntime
+cpu = [
+    "onnx>=1.15.0",
+    "onnxruntime>=1.15.0",
+]
+# CUDA 12.x: Latest ONNX + ONNXRuntime GPU (>= 1.18.1 for CUDA 12.x support)
 gpu = [
-    "onnxruntime-gpu>=1.18.1; platform_system != 'Darwin'"
+    "onnx>=1.15.0",
+    "onnxruntime-gpu>=1.18.1; platform_system != 'Darwin'",
+]
+# CUDA 11.x: ONNX < 1.16.1 + ONNXRuntime GPU < 1.19
+gpu-cu11 = [
+    "onnx>=1.15.0,<1.16.1",
+    "onnxruntime-gpu>=1.15.0,<1.19.0; platform_system != 'Darwin'",
 ]
 
 [project.urls]
@@ -102,8 +122,7 @@ gpu = [
 "Changelog" = "https://github.com/CVHub520/X-AnyLabeling/releases"
 
 [project.scripts]
-xlabeling = "anylabeling.app:main"
-x-anylabeling = "anylabeling.app:main"
+xanylabeling = "anylabeling.app:main"
 
 # Tools settings -------------------------------------------------------------------------------------------------------
 [tool.setuptools]  # configuration specific to the `setuptools` build backend.

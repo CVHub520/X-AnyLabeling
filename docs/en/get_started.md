@@ -1,184 +1,283 @@
-# QuickStart Guides
+# Quick Start Guide
 
-## 1. Quick Start
+## 1. Installation and Deployment
 
-### 1.1 Running from Source
+X-AnyLabeling provides multiple installation methods. You can install the official package directly via `pip` to get the latest stable version, install from source by cloning the official GitHub repository, or use the convenient GUI installer package.
 
-#### 1.1.1 Prerequisites
+> [!NOTE]
+> **Advanced Features**: The following advanced features are only available through Git clone installation. Please refer to the corresponding documentation for configuration instructions.
+>
+> 1. **Video Object Tracking**: Segment-Anything-2 based video object tracking - [Installation Guide](../../examples/interactive_video_object_segmentation/README.md)
+> 2. **Bounding Box Generation**: UPN-based bounding box generation - [Installation Guide](../../examples/detection/hbb/README.md)
+> 3. **Interactive Detection & Segmentation**: Interactive object detection and segmentation with visual and text prompts - [Installation Guide](../../examples/detection/hbb/README.md)
+> 4. **Smart Detection & Segmentation**: Object detection and segmentation with visual prompts, text prompts, and prompt-free modes - [Installation Guide](../../examples/grounding/yoloe/README.md)
+> 5. **One-Click Training Platform**: Ultralytics framework-based training platform - [Installation Guide](../../examples/training/ultralytics/README.md)
 
-Before you start, ensure that you have the following prerequisites installed:
+### 1.1 Prerequisites
+
+#### 1.1.1 Miniconda
 
 **Step 0.** Download and install Miniconda from the [official website](https://docs.anaconda.com/miniconda/).
 
-**Step 1.** Create a new conda environment with Python version 3.10 or higher, and activate it.
-
-```bash
-conda create --name x-anylabeling python=3.10 -y
-conda activate x-anylabeling
-```
-
-#### 1.1.2 Installation
-
-**Optional Features Installation**
+**Step 1.** Create a conda environment with Python 3.10 ~ 3.12 and activate it.
 
 > [!NOTE]
-> If you need to use the following advanced features, please refer to the corresponding documentation to install additional dependencies.
-> 
-> 1. Video object tracking based on Segment-Anything-2: [Installation Guide](../../examples/interactive_video_object_segmentation/README.md)
-> 2. Object proposal generation based on UPN: [Installation Guide](../../examples/detection/hbb/README.md)
-> 3. Interactive visual-text prompting for generic vision tasks: [Installation Guide](../../examples/detection/hbb/README.md)
-> 4. Text/visual prompting and prompt-free detection and segmentation: [Installation Guide](../../examples/grounding/yoloe/README.md)
-> 5. Ultralytics Training Platforms: [Installation Guide](../../examples/training/ultralytics/README.md)
-
-**Step 0.** Install [ONNX Runtime](https://onnxruntime.ai/).
+> Other Python versions require compatibility verification on your own.
 
 ```bash
-# Install ONNX Runtime CPU
-pip install onnxruntime
+# CPU Environment [Windows/Linux/macOS]
+conda create --name x-anylabeling-cpu python=3.10 -y
+conda activate x-anylabeling-cpu
 
-# Install ONNX Runtime GPU (CUDA 11.x)
-pip install onnxruntime-gpu==x.x.x
+# CUDA 11.x Environment [Windows/Linux]
+conda create --name x-anylabeling-cu11 python=3.11 -y
+conda activate x-anylabeling-cu11
 
-# Install ONNX Runtime GPU (CUDA 12.x)
-pip install onnxruntime-gpu --extra-index-url https://aiinfra.pkgs.visualstudio.com/PublicPackages/_packaging/onnxruntime-cuda-12/pypi/simple/
+# CUDA 12.x Environment [Windows/Linux]
+conda create --name x-anylabeling-cu12 python=3.12 -y
+conda activate x-anylabeling-cu12
 ```
 
-> [!Important]
-> For GPU acceleration, please follow the instructions below to ensure that your local CUDA and cuDNN versions are compatible with your ONNX Runtime version. Additionally, install the required dependency libraries to ensure normal GPU-accelerated inference:</br>
-> Ⅰ. [CUDA Execution Provider](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)</br>
-> Ⅱ. [Get started with ONNX Runtime in Python](https://onnxruntime.ai/docs/get-started/with-python.html)</br>
-> Ⅲ. [ONNX Runtime Compatibility](https://onnxruntime.ai/docs/reference/compatibility.html)
+#### 1.1.2 Venv
 
-> [!NOTE]
-> The ONNX Runtime version must be greater than or equal to 1.16.0.
+In addition to Miniconda, you can also use Python's built-in `venv` module to create virtual environments. Here are the commands for creating and activating environments under different configurations:
 
-**Step 1.** Git clone repository.
+```bash
+# CPU [Windows/Linux/macOS]
+python3.10 -m venv venv-cpu
+source venv-cpu/bin/activate  # Linux/macOS
+# venv-cpu\Scripts\activate    # Windows
+
+# CUDA 12.x [Windows/Linux]
+python3.12 -m venv venv-cu12
+source venv-cu12/bin/activate  # Linux
+# venv-cu12\Scripts\activate    # Windows
+
+# CUDA 11.x [Windows/Linux]
+python3.11 -m venv venv-cu11
+source venv-cu11/bin/activate  # Linux
+# venv-cu11\Scripts\activate    # Windows
+```
+
+> [!TIP]
+> For faster dependency installation and a more modern Python package management experience, we strongly recommend using [uv](https://github.com/astral-sh/uv) as your package manager. uv provides significantly faster installation speeds and better dependency resolution capabilities.
+
+### 1.2 Installation
+
+#### 1.2.1 Pip Installation
+
+You can easily install the latest stable version of X-AnyLabeling with the following commands:
+
+```bash
+# CPU [Windows/Linux/macOS]
+pip install x-anylabeling-cvhub[cpu]
+
+# CUDA 12.x is the default GPU option [Windows/Linux]
+pip install x-anylabeling-cvhub[gpu]
+
+# CUDA 11.x [Windows/Linux]
+pip install x-anylabeling-cvhub[gpu-cu11]
+```
+
+#### 1.2.2 Git Clone
+
+**Step a.** Clone the repository.
 
 ```bash
 git clone https://github.com/CVHub520/X-AnyLabeling.git
+cd X-AnyLabeling
 ```
 
-**Step 2:** Install the `requirements.txt` file.
+After cloning the repository, you can choose to install the dependencies in either developer mode or regular mode according to your needs.
+
+**Step b.1.** Developer Mode
+
+```bash
+# CPU [Windows/Linux/macOS]
+pip install -e .[cpu]
+
+# CUDA 12.x is the default GPU option [Windows/Linux]
+pip install -e .[gpu]
+
+# CUDA 11.x [Windows/Linux]
+pip install -e .[gpu-cu11]
+```
+
+If you need to perform secondary development or package compilation, you can install the `dev` dependencies simultaneously, for example:
+
+```bash
+pip install -e .[cpu,dev]
+```
+
+After installation, you can verify it by running the following command:
+
+```bash
+xanylabeling checks   # Display system and version information
+```
+
+You can also run the following commands to get other information:
+
+```bash
+xanylabeling help     # Display help information
+xanylabeling version  # Display version number
+xanylabeling config   # Display configuration file path
+```
+
+After verification, you can run the application directly:
+
+```bash
+xanylabeling
+```
+
+> [!TIP]
+> You can view all available command-line options using `xanylabeling --help`. For complete parameter descriptions, please refer to the [Command-Line Parameters](#command-line-parameters) section.
+
+> [!NOTE]
+> Please refer to the X-AnyLabeling [pyproject.toml](../../pyproject.toml) file for a list of dependencies. Note that all the examples above install all required dependencies.
+
+**Step b.2.** Regular Mode
 
 For different configurations, X-AnyLabeling provides the following dependency files:
 
-| Dependency File            | Operating System | Runtime Environment | Compilable |
-|----------------------------|------------------|---------------------|------------|
-| requirements.txt           | Windows/Linux    | CPU                 | No         |
-| requirements-dev.txt       | Windows/Linux    | CPU                 | Yes        |
-| requirements-gpu.txt       | Windows/Linux    | GPU                 | No         |
-| requirements-gpu-dev.txt   | Windows/Linux    | GPU                 | Yes        |
-| requirements-macos.txt     | MacOS            | CPU                 | No         |
-| requirements-macos-dev.txt | MacOS            | CPU                 | Yes        |
+| Dependency File            | Operating System | Runtime | Compilable |
+|----------------------------|------------------|---------|------------|
+| requirements.txt           | Windows/Linux    | CPU     | No         |
+| requirements-dev.txt       | Windows/Linux    | CPU     | Yes        |
+| requirements-gpu.txt       | Windows/Linux    | GPU     | No         |
+| requirements-gpu-dev.txt   | Windows/Linux    | GPU     | Yes        |
+| requirements-macos.txt     | MacOS            | CPU     | No         |
+| requirements-macos-dev.txt | MacOS            | CPU     | Yes        |
 
-- For development purposes, you should select the option with the `*-dev.txt` suffix for installation.
-- To enable GPU acceleration, you should choose the option with the `*-gpu.txt` suffix for installation.
+**Description**:
 
-To install the necessary packages, use the following command, replacing [xxx] with the appropriate suffix for your requirements:
+- If you need to perform secondary development or package compilation, please select dependency files with the `*-dev.txt` suffix.
+- If you need to enable GPU acceleration, please select dependency files with the `*-gpu.txt` suffix.
+
+Use the following command to install the necessary packages, replacing `[xxx]` with the configuration name that suits your needs:
 
 ```bash
 pip install -r requirements-[xxx].txt
 ```
 
-Moreover, for macOS, you’ll need to execute an additional command to install a specific version of PyQt from the conda-forge repository:
+> [!NOTE]
+> **Special Note for macOS Users**: You need to additionally install specific versions of packages from the conda-forge source:
+> ```bash
+> conda install -c conda-forge pyqt==5.15.9 pyqtwebengine
+> ```
 
-```bash
-conda install -c conda-forge pyqt==5.15.9 pyqtwebengine
-```
+> [!IMPORTANT]
+> For GPU acceleration, please follow the instructions below to ensure that your local CUDA and cuDNN versions are compatible with the ONNX Runtime version, and install the required dependencies to ensure GPU-accelerated inference works properly:
+> 
+> - Ⅰ. [CUDA Execution Provider](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)
+> - Ⅱ. [Get started with ONNX Runtime in Python](https://onnxruntime.ai/docs/get-started/with-python.html)
+> - Ⅲ. [ONNX Runtime Compatibility](https://onnxruntime.ai/docs/reference/compatibility.html)
 
-#### 1.1.3 Launch
+> [!WARNING]
+> For `CUDA 11.x` environments, please ensure that the versions meet the following requirements:
+> - `onnx >= 1.15.0, < 1.16.1`
+> - `onnxruntime-gpu >= 1.15.0, < 1.19.0`
 
-Once you have completed the necessary steps, generate the resources with the following command:
+**Optional Step**: Generate Resource Files
+
+After completing the necessary steps, you can generate resource files using the following command:
 
 ```bash
 pyrcc5 -o anylabeling/resources/resources.py anylabeling/resources/resources.qrc
 ```
 
-To avoid potential conflicts, uninstall any existing installations of AnyLabeling with the following command:
+**Optional Step**: Set Environment Variables
 
 ```bash
-pip uninstall anylabeling -y
-```
-
-Set the environment variable:
-
-```bash
-# linux or macos
+# Linux or macOS
 export PYTHONPATH=/path/to/X-AnyLabeling
-# windows
+
+# Windows
 set PYTHONPATH=C:\path\to\X-AnyLabeling
 ```
 
-To run the application, execute the following command:
+> [!CAUTION]
+> **Avoid Dependency Conflicts**: To avoid conflicts with third-party packages, please uninstall the old version first:
+> ```bash
+> pip uninstall anylabeling -y
+> ```
 
-```python
+**Run the Application**
+
+```bash
 python anylabeling/app.py
 ```
 
+> [!TIP]
+> You can view all available command-line options using the `--help` parameter. For complete parameter descriptions, please refer to the [Command-Line Parameters](#command-line-parameters) section below.
+
 > [!NOTE]
-> If you experience slow mouse movement or response delays on Fedora KDE environments, you can try use the `--qt-platform xcb` argument to improve performance:
+> **Special Note for Fedora KDE Users**: If you encounter slow mouse movement or response lag, try using the `--qt-platform xcb` parameter to improve performance:
 > ```bash
 > python anylabeling/app.py --qt-platform xcb
 > ```
 
-**Arguments**:
+<a id="command-line-parameters"></a>
 
-| Option                     | Description                                                                                       |
-|----------------------------|---------------------------------------------------------------------------------------------------|
-| `filename`                 | Specifies the image or label filename. If a directory path is provided, loads all files in the folder. |
-| `--help`, `-h`             | Displays the help message and exits.                                                              |
-| `--reset-config`           | Resets the Qt configuration, clearing all settings.                                                |
-| `--logger-level`           | Sets the logging level: "debug", "info", "warning", "fatal", "error".                             |
-| `--output`, `-O`, `-o`     | Specifies the output file or directory. Paths ending with `.json` are treated as files.            |
-| `--config`                 | Specifies a configuration file or YAML-formatted configuration string. Defaults to user-specific paths. |
-| `--nodata`                 | Prevents storing image data in JSON files.                                                         |
-| `--autosave`               | Enables automatic saving of annotation data.                                                       |
-| `--nosortlabels`           | Disables sorting of labels.                                                                       |
-| `--flags`                  | Comma-separated list of flags or file path containing flags.                                       |
-| `--labelflags`             | YAML-formatted string or file with JSON-formatted string for label-specific flags.                 |
-| `--labels`                 | Comma-separated list of labels or file path containing labels.                                     |
-| `--validatelabel`          | Specifies the type of label validation.                                                           |
-| `--keep-prev`              | Retains annotations from the previous frame.                                                       |
-| `--epsilon`                | Determines the epsilon value for finding the nearest vertex on the canvas.                         |
-| `--no-auto-update-check`   | Disables automatic update checking on startup.                                                     |
+### Command-Line Parameters
 
-⚠️Please note that if you require GPU acceleration, you should set the `__preferred_device__` field to 'GPU' in the [app_info.py](../../anylabeling/app_info.py) configuration file.
+The following parameters are applicable to both the `xanylabeling` command (developer mode) and the `python anylabeling/app.py` command (regular mode):
 
-### 1.2 Running from GUI
+| Option                     | Description                                                                                        |
+|----------------------------|----------------------------------------------------------------------------------------------------|
+| `filename`                 | Specify the image or label filename. If a directory path is provided, all files in the folder will be loaded. |
+| `--help`, `-h`             | Display help information and exit.                                                                 |
+| `--reset-config`           | Reset Qt configuration, clearing all settings.                                                     |
+| `--logger-level`           | Set the logging level: "debug", "info", "warning", "fatal", "error".                              |
+| `--output`, `-O`, `-o`     | Specify the output file or directory. Paths ending with `.json` are treated as files.             |
+| `--config`                 | Specify a configuration file or YAML-formatted configuration string. Defaults to a user-specific path. |
+| `--nodata`                 | Prevent storing image data in JSON files.                                                          |
+| `--autosave`               | Enable automatic saving of annotation data.                                                        |
+| `--nosortlabels`           | Disable label sorting.                                                                             |
+| `--flags`                  | Comma-separated list of flags or path to a file containing flags.                                 |
+| `--labelflags`             | YAML-formatted string for label-specific flags or a file containing a JSON-formatted string.      |
+| `--labels`                 | Comma-separated list of labels or path to a file containing labels.                               |
+| `--validatelabel`          | Specify the type of label validation.                                                              |
+| `--keep-prev`              | Keep annotations from the previous frame.                                                          |
+| `--epsilon`                | Determine the epsilon value for finding the nearest vertex on the canvas.                          |
+| `--no-auto-update-check`   | Disable automatic update checks on startup.                                                        |
 
-> Download link: [Release](https://github.com/CVHub520/X-AnyLabeling/releases)
+#### 1.2.3 GUI Installer Package
 
-Compared to running from source code, the GUI runtime environment offers a more convenient experience. Users do not need to delve into the underlying implementation; simply extract and it's ready to use. However, there are some issues associated with it, including:
-- **Difficulty in Troubleshooting:** In the event of a crash or error, it may be challenging to quickly pinpoint the exact cause, thereby increasing the difficulty of troubleshooting.
-- **Feature Lag:** The GUI version may lag behind the source code version in terms of features, which could result in missing features and compatibility issues.
-- **GPU Acceleration Limitations:** Given the diversity of hardware and operating system environments, the current GPU inference acceleration service requires users to compile from source code as needed.
+> **Download Link**: [GitHub Releases](https://github.com/CVHub520/X-AnyLabeling/releases)
 
-Therefore, it is recommended to choose between running from source code or using the GUI environment based on specific needs and preferences to optimize the user experience.
+Compared to running from source code, the GUI installer package provides a more convenient user experience. Users don't need to understand the underlying implementation and can use it directly after extraction. However, the GUI installer package also has some limitations:
+
+- **Difficult Troubleshooting**: If crashes or errors occur, it may be difficult to quickly identify the specific cause, increasing the difficulty of troubleshooting.
+- **Feature Lag**: The GUI version may lag behind the source code version in functionality, potentially leading to missing features and compatibility issues.
+- **GPU Acceleration Limitations**: Given the diversity of hardware and operating system environments, current GPU inference acceleration services require users to compile from source code as needed.
+
+Therefore, it is recommended to choose between running from source code and using the GUI installer package based on your specific needs and usage scenarios to optimize the user experience.
 
 ## 2. Usage
 
-For detailed instructions on how to use X-AnyLabeling, please refer to the corresponding [User Manual](./user_guide.md).
+For detailed instructions on how to use X-AnyLabeling, please refer to the corresponding [User Guide](./user_guide.md).
 
-## 3. Development
+## 3. Packaging and Compilation
 
-> Please be aware that the subsequent procedures are optional. This part is intended for users who might require tailoring and compiling the software to suit particular deployment scenarios. Should you be utilizing the software without such needs, you may proceed to bypass this section.
+> [!NOTE]
+> Please note that the following steps are optional. This section is intended for users who may need to customize and compile the software to adapt to specific deployment scenarios. If you use the software without such requirements, you can skip this section.
 
 <details>
 <summary>Expand/Collapse</summary>
 
-To facilitate users running `X-AnyLabeling` on different platforms, the tool provides instructions for packaging and compilation, along with relevant considerations. Before executing the packaging commands below, modify the `__preferred_device__` parameter in the [app_info.py](../../anylabeling/app_info.py) file according to your environment and requirements to select the appropriate GPU or CPU version for building.
+To facilitate users running `X-AnyLabeling` on different platforms, this tool provides packaging and compilation instructions along with relevant notes. Before executing the following packaging commands, please modify the `__preferred_device__` parameter in the [app_info.py](../../anylabeling/app_info.py) file according to your environment and requirements to select the appropriate GPU or CPU version for building.
 
-Considerations:
+### Notes
 
-1. Before compiling, ensure that the `__preferred_device__` parameter in the `anylabeling/app_info.py` file has been modified according to the desired GPU/CPU version.
+1. **Modify Device Configuration**: Before compiling, ensure that the `__preferred_device__` parameter in the `anylabeling/app_info.py` file has been modified according to the required GPU/CPU version.
 
-2. If compiling the GPU version, activate the corresponding GPU runtime environment first, and execute `pip install | grep onnxruntime-gpu` to ensure it is correctly installed.
+2. **Verify GPU Environment**: If compiling the GPU version, please activate the corresponding GPU runtime environment first and execute `pip list | grep onnxruntime-gpu` to ensure it is properly installed.
 
-3. For compiling the Windows-GPU version, manually modify the `datas` list parameter in the `x-anylabeling-win-gpu.spec` file to add the relevant `*.dll` files of the local `onnxruntime-gpu` dynamic library to the list.
+3. **Windows-GPU Compilation**: Manually modify the `datas` list parameter in the `x-anylabeling-win-gpu.spec` file to add the relevant `*.dll` files of the local `onnxruntime-gpu` dynamic library to the list.
 
-4. For compiling the Linux-GPU version, manually modify the `datas` list parameter in the `x-anylabeling-linux-gpu.spec` file to add the relevant `*.so` files of the local `onnxruntime-gpu` dynamic library to the list. Additionally, ensure that you download the matching `onnxruntime-gpu` package based on your CUDA version. Refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html) for detailed compatibility information.
+4. **Linux-GPU Compilation**: Manually modify the `datas` list parameter in the `x-anylabeling-linux-gpu.spec` file to add the relevant `*.so` files of the local `onnxruntime-gpu` dynamic library to the list. Additionally, ensure that you download a matching `onnxruntime-gpu` package according to your CUDA version. For detailed compatibility information, please refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html).
 
-Reference commands:
+### Build Commands
 
 ```bash
 # Windows-CPU
@@ -197,9 +296,12 @@ bash scripts/build_executable.sh linux-gpu
 bash scripts/build_executable.sh macos
 ```
 
-Note: If you encounter permission issues when executing the above commands on Windows, after ensuring the preparation steps above are completed, you can directly execute the following commands as needed:
-
-> pyinstaller --noconfirm anylabeling-win-cpu.spec</br>
+> [!TIP]
+> If you encounter permission issues when executing the above commands on Windows, after ensuring the above preparation steps are completed, you can directly execute the following commands:
+> ```bash
+> pyinstaller --noconfirm anylabeling-win-cpu.spec
 > pyinstaller --noconfirm anylabeling-win-gpu.spec
+> ```
 
 </details>
+

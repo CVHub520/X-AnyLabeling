@@ -10,7 +10,6 @@ import numpy as np
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
 
-from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import (

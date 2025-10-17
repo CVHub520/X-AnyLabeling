@@ -56,7 +56,11 @@ class RTMDet_Pose(Model):
         self.kpt_thr = self.config.get("kpt_threshold", 0.3)
         self.score_thr = self.config.get("score_threshold", 0.3)
         self.kpt_classes = self.config.get("keypoints", [])
-        self.rtmdet = RTMDet(det_model_abs_path, score_thr=self.score_thr, device=__preferred_device__)
+        self.rtmdet = RTMDet(
+            det_model_abs_path,
+            score_thr=self.score_thr,
+            device=__preferred_device__,
+        )
         if self.config["pose"] == "rtmo":
             self.pose = RTMO(pose_model_abs_path, device=__preferred_device__)
         else:

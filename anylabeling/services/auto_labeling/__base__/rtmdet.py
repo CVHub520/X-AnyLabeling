@@ -1,6 +1,5 @@
 from typing import List, Tuple
 
-import os
 import cv2
 import numpy as np
 
