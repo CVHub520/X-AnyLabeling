@@ -690,135 +690,135 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="973"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="977"/>
         <source>Image not available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1375"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1379"/>
         <source>Inferencing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1375"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1379"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1383"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1387"/>
         <source>Progress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1496"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1500"/>
         <source>Dataset Operations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1507"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1511"/>
         <source>Import Dataset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1510"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1514"/>
         <source>Export Dataset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1651"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1655"/>
         <source>Export Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1663"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1667"/>
         <source>No file is currently open.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1529"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1533"/>
         <source>Select Export Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1560"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1564"/>
         <source>No labeling files found in the current directory.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1611"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1615"/>
         <source>Error processing {json_file}: {str(e)}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1616"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1620"/>
         <source>No valid chat data found to export.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1641"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1645"/>
         <source>Export Successful</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1641"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1645"/>
         <source>Dataset exported successfully to:
 {zip_path}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1651"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1655"/>
         <source>An error occurred during export:
 {str(e)}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1810"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1814"/>
         <source>Import Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1671"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1675"/>
         <source>Select Dataset File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1686"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1690"/>
         <source>Invalid dataset format. Expected a list of records.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1789"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1793"/>
         <source>Import Successful</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1798"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1802"/>
         <source>Import Notice</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1798"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1802"/>
         <source>No valid items were found to import. Make sure images are available.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1810"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1814"/>
         <source>An error occurred during import:
 {str(e)}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2265"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="2269"/>
         <source>Are you sure you want to clear the entire conversation?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1409"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1413"/>
         <source>Processing image %d/%d...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1785"/>
+        <location filename="../../views/labeling/widgets/chatbot_dialog.py" line="1789"/>
         <source>Successfully imported {0} items to:
 {1}</source>
         <translation type="unfinished"></translation>
@@ -1840,52 +1840,52 @@ Results have been saved to:
 <context>
     <name>LabelDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1249"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1323"/>
         <source>Enter object label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1265"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1339"/>
         <source>Group ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1274"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1348"/>
         <source>useDifficult</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1279"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1353"/>
         <source>Enter linking, e.g., [0,1]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1293"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1367"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1324"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1398"/>
         <source>Label description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1393"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1467"/>
         <source>Duplicate Entry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1393"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1467"/>
         <source>This linking pair already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1407"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1481"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1407"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1481"/>
         <source>Please enter a valid list of linking pairs like [1,2].</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1906,23 +1906,33 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1208"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1282"/>
         <source>Invalid Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1208"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1282"/>
         <source>Please enter a valid range.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1098"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1167"/>
         <source>Labels modified successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1106"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1175"/>
         <source>An error occurred while updating the labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1089"/>
+        <source>Select All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1090"/>
+        <source>Deselect All</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2389,107 +2399,107 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5383"/>
+        <location filename="../../views/labeling/label_widget.py" line="5415"/>
         <source>Invalid label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5383"/>
+        <location filename="../../views/labeling/label_widget.py" line="5415"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3745"/>
+        <location filename="../../views/labeling/label_widget.py" line="3768"/>
         <source>Error saving label data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3745"/>
+        <location filename="../../views/labeling/label_widget.py" line="3768"/>
         <source>&lt;b&gt;%s&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4454"/>
+        <location filename="../../views/labeling/label_widget.py" line="4486"/>
         <source>Error opening file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4394"/>
+        <location filename="../../views/labeling/label_widget.py" line="4426"/>
         <source>No such file: &lt;b&gt;%s&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4413"/>
+        <location filename="../../views/labeling/label_widget.py" line="4445"/>
         <source>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Make sure &lt;i&gt;%s&lt;/i&gt; is a valid label file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4461"/>
+        <location filename="../../views/labeling/label_widget.py" line="4493"/>
         <source>Error reading %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4454"/>
+        <location filename="../../views/labeling/label_widget.py" line="4486"/>
         <source>&lt;p&gt;Make sure &lt;i&gt;{0}&lt;/i&gt; is a valid image file.&lt;br/&gt;Supported image formats: {1}&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4761"/>
+        <location filename="../../views/labeling/label_widget.py" line="4793"/>
         <source>Image &amp; Label files (%s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4767"/>
+        <location filename="../../views/labeling/label_widget.py" line="4799"/>
         <source>%s - Choose Image or Label file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4786"/>
+        <location filename="../../views/labeling/label_widget.py" line="4818"/>
         <source>%s - Save/Load Annotations in Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4800"/>
+        <location filename="../../views/labeling/label_widget.py" line="4832"/>
         <source>%s . Annotations will be saved/loaded in %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4832"/>
+        <location filename="../../views/labeling/label_widget.py" line="4864"/>
         <source>%s - Choose File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4857"/>
+        <location filename="../../views/labeling/label_widget.py" line="4889"/>
         <source>Label files (*%s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4857"/>
+        <location filename="../../views/labeling/label_widget.py" line="4889"/>
         <source>Choose File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4913"/>
+        <location filename="../../views/labeling/label_widget.py" line="4945"/>
         <source>You are about to permanently delete this label file, proceed anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4955"/>
+        <location filename="../../views/labeling/label_widget.py" line="4987"/>
         <source>Attention</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5019"/>
+        <location filename="../../views/labeling/label_widget.py" line="5051"/>
         <source>Save annotations to &quot;{self.filename!r}&quot; before closing?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5022"/>
+        <location filename="../../views/labeling/label_widget.py" line="5054"/>
         <source>Save annotations?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5093"/>
+        <location filename="../../views/labeling/label_widget.py" line="5125"/>
         <source>%s - Open Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2645,22 +2655,22 @@ Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3955"/>
+        <location filename="../../views/labeling/label_widget.py" line="3987"/>
         <source>X: %d, Y: %d | H: %d, W: %d</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3969"/>
+        <location filename="../../views/labeling/label_widget.py" line="4001"/>
         <source>X: %d, Y: %d</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5466"/>
+        <location filename="../../views/labeling/label_widget.py" line="5498"/>
         <source>Object Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5475"/>
+        <location filename="../../views/labeling/label_widget.py" line="5507"/>
         <source>Image Description</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2755,7 +2765,7 @@ Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4951"/>
+        <location filename="../../views/labeling/label_widget.py" line="4983"/>
         <source>You are about to permanently delete this image file, proceed anyway?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3100,12 +3110,12 @@ Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3767"/>
+        <location filename="../../views/labeling/label_widget.py" line="3790"/>
         <source>Error pasting shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3767"/>
+        <location filename="../../views/labeling/label_widget.py" line="3790"/>
         <source>Error decoding shapes: %s</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3442,12 +3452,12 @@ This warning will only be shown once. Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4903"/>
+        <location filename="../../views/labeling/label_widget.py" line="4935"/>
         <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the label file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4941"/>
+        <location filename="../../views/labeling/label_widget.py" line="4973"/>
         <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the image file.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3482,7 +3492,7 @@ This warning will only be shown once. Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5486"/>
+        <location filename="../../views/labeling/label_widget.py" line="5518"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>

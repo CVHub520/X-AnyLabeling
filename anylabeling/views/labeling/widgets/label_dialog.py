@@ -908,10 +908,10 @@ class LabelModifyDialog(QtWidgets.QDialog):
             | Qt.WindowMinimizeButtonHint
             | Qt.WindowMaximizeButtonHint
         )
-        self.resize(600, 400)
+        self.resize(700, 400)
         self.move_to_center()
 
-        title_list = ["Category", "Delete", "New Value", "Color"]
+        title_list = ["Category", "Delete", "New Value", "Visible", "Color"]
         self.table_widget = QTableWidget(self)
         self.table_widget.setColumnCount(len(title_list))
         self.table_widget.setHorizontalHeaderLabels(title_list)
@@ -927,6 +927,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.table_widget.horizontalHeaderItem(i).setTextAlignment(
                 QtCore.Qt.AlignCenter
             )
+
+        self.table_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table_widget.customContextMenuRequested.connect(
+            self.show_context_menu
+        )
 
         # Add input fields for range selection
         range_layout = QtWidgets.QHBoxLayout()
@@ -982,7 +987,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.move(qr.topLeft())
 
     def populate_table(self):
-        for i, (label, info) in enumerate(self.parent.label_info.items()):
+        sorted_labels = sorted(
+            self.parent.label_info.items(),
+            key=lambda x: natural_sort_key(x[0]),
+        )
+        for i, (label, info) in enumerate(sorted_labels):
             self.table_widget.insertRow(i)
 
             class_item = QTableWidgetItem(label)
@@ -1011,6 +1020,20 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 else QtGui.QColor("white")
             )
 
+            visible_checkbox = QCheckBox()
+            visible_checkbox.setChecked(info.get("visible", True))
+            visible_checkbox.stateChanged.connect(
+                lambda state, row=i: self.on_visible_checkbox_changed(
+                    row, state
+                )
+            )
+
+            visible_container = QtWidgets.QWidget()
+            visible_layout = QtWidgets.QHBoxLayout(visible_container)
+            visible_layout.setContentsMargins(0, 0, 0, 0)
+            visible_layout.setAlignment(Qt.AlignCenter)
+            visible_layout.addWidget(visible_checkbox)
+
             color = QColor(*info["color"])
             color.setAlpha(info["opacity"])
             color_button = LabelColorButton(color, self)
@@ -1018,7 +1041,8 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.table_widget.setItem(i, 0, class_item)
             self.table_widget.setCellWidget(i, 1, delete_checkbox)
             self.table_widget.setItem(i, 2, value_item)
-            self.table_widget.setCellWidget(i, 3, color_button)
+            self.table_widget.setCellWidget(i, 3, visible_container)
+            self.table_widget.setCellWidget(i, 4, color_button)
 
     def change_color(self, button):
         row = self.table_widget.indexAt(button.pos()).row()
@@ -1053,6 +1077,44 @@ class LabelModifyDialog(QtWidgets.QDialog):
         else:
             delete_checkbox.setCheckable(True)
 
+    def on_visible_checkbox_changed(self, row, state):
+        pass
+
+    def show_context_menu(self, pos):
+        column = self.table_widget.columnAt(pos.x())
+        if column != 3:
+            return
+
+        menu = QtWidgets.QMenu(self)
+        select_all_action = menu.addAction(self.tr("Select All"))
+        deselect_all_action = menu.addAction(self.tr("Deselect All"))
+
+        action = menu.exec_(self.table_widget.mapToGlobal(pos))
+        if action == select_all_action:
+            self.select_all_visible()
+        elif action == deselect_all_action:
+            self.deselect_all_visible()
+
+    def select_all_visible(self):
+        for i in range(self.table_widget.rowCount()):
+            visible_container = self.table_widget.cellWidget(i, 3)
+            if visible_container:
+                visible_checkbox = (
+                    visible_container.layout().itemAt(0).widget()
+                )
+                if visible_checkbox:
+                    visible_checkbox.setChecked(True)
+
+    def deselect_all_visible(self):
+        for i in range(self.table_widget.rowCount()):
+            visible_container = self.table_widget.cellWidget(i, 3)
+            if visible_container:
+                visible_checkbox = (
+                    visible_container.layout().itemAt(0).widget()
+                )
+                if visible_checkbox:
+                    visible_checkbox.setChecked(False)
+
     def confirm_changes(self, start_index: int = -1, end_index: int = -1):
         total_num = self.table_widget.rowCount()
         if total_num == 0:
@@ -1070,9 +1132,14 @@ class LabelModifyDialog(QtWidgets.QDialog):
             is_delete = delete_checkbox.isChecked()
             new_value = value_item.text()
 
+            visible_container = self.table_widget.cellWidget(i, 3)
+            visible_checkbox = visible_container.layout().itemAt(0).widget()
+            is_visible = visible_checkbox.isChecked()
+
             # Update the label info in the temporary dictionary
             self.parent.label_info[label]["delete"] = is_delete
             self.parent.label_info[label]["value"] = new_value
+            self.parent.label_info[label]["visible"] = is_visible
 
             # Update the color
             color = self.parent.label_info[label]["color"]
@@ -1084,7 +1151,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             if is_delete:
                 self.parent.unique_label_list.remove_items_by_label(label)
                 self.parent.label_dialog.remove_label_history(label)
-                continue  # Skip adding this to updated_label_info to effectively delete it
+                continue
             elif new_value:
                 self.parent.unique_label_list.remove_items_by_label(label)
                 self.parent.label_dialog.remove_label_history(label)
@@ -1095,6 +1162,8 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
         if self.modify_label(start_index, end_index):
             self.parent.label_info = updated_label_info
+            if hasattr(self.parent, "apply_label_visibility"):
+                self.parent.apply_label_visibility()
             popup = Popup(
                 self.tr("Labels modified successfully!"),
                 self.parent,
@@ -1180,11 +1249,16 @@ class LabelModifyDialog(QtWidgets.QDialog):
             # Update label info
             color = list(rgb)
             opacity = self.opacity
+            if c in self.parent.label_info:
+                visible = self.parent.label_info[c].get("visible", True)
+            else:
+                visible = True
             self.parent.label_info[c] = dict(
                 delete=False,
                 value=None,
                 color=color,
                 opacity=opacity,
+                visible=visible,
             )
 
     def update_range(self):

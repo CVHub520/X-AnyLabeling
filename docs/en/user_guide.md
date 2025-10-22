@@ -562,7 +562,14 @@ The cropped image saving function can be implemented through the following steps
 **Operations:**
 - **Delete Labels**: Remove specific label classes entirely from the list of available labels.
 - **Rename Labels**: Change the name of existing label classes. This updates the label list but does *not* automatically update existing annotations using the old name.
+- **Control Label Visibility**: Use the `Visible` column checkboxes to show or hide specific labels on the canvas.
 - **Change Label Colors**: Modify the display color for specific label classes *for the current session only*. (For persistent changes, see [7.2 Custom Label Colors](#72-custom-label-colors)).
+
+**Visibility Quick Actions**:
+- Right-click on the `Visible` column to quickly:
+  - **Select All**: Show all labels at once
+  - **Deselect All**: Hide all labels at once
+- Visibility settings persist across image switches and take effect after clicking the `Go` button.
 
 ### 5.4 Shape Type Conversion
 

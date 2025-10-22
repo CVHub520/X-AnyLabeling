@@ -2576,7 +2576,7 @@ class LabelingWidget(LabelDialog):
         )
         result = modify_label_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
-            self.load_file(self.filename)
+            pass
 
     def gid_manager(self):
         modify_gid_dialog = GroupIDModifyDialog(parent=self)
@@ -3566,6 +3566,16 @@ class LabelingWidget(LabelDialog):
                 item, shape.label, rgb, LABEL_OPACITY
             )
 
+        if shape.label not in self.label_info:
+            rgb = self._get_rgb_by_label(shape.label)
+            self.label_info[shape.label] = dict(
+                delete=False,
+                value=None,
+                color=list(rgb),
+                opacity=LABEL_OPACITY,
+                visible=True,
+            )
+
         # Add label to history if it is not a special label
         if shape.label not in [
             AutoLabelingMode.OBJECT,
@@ -3656,6 +3666,7 @@ class LabelingWidget(LabelDialog):
         self.label_list.clearSelection()
         self._no_selection_slot = False
         self.canvas.load_shapes(shapes, replace=replace)
+        self.apply_label_visibility()
 
     def load_flags(self, flags):
         self.flag_widget.clear()
@@ -3664,6 +3675,18 @@ class LabelingWidget(LabelDialog):
             item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
             item.setCheckState(Qt.Checked if flag else Qt.Unchecked)
             self.flag_widget.addItem(item)
+
+    def apply_label_visibility(self):
+        for item in self.label_list:
+            label = item.shape().label
+            if label in self.label_info:
+                is_visible = self.label_info[label].get("visible", True)
+            else:
+                is_visible = True
+            if is_visible:
+                item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
 
     def update_combo_box(self):
         # Get the unique labels and add them to the Combobox.
@@ -3795,8 +3818,17 @@ class LabelingWidget(LabelDialog):
     def text_selection_changed(self, index):
         label = self.label_filter_combobox.text_box.itemText(index)
         for item in self.label_list:
-            if label in ["", item.shape().label]:
-                item.setCheckState(Qt.Checked)
+            item_label = item.shape().label
+            if label in ["", item_label]:
+                if item_label in self.label_info:
+                    is_visible = self.label_info[item_label].get(
+                        "visible", True
+                    )
+                    item.setCheckState(
+                        Qt.Checked if is_visible else Qt.Unchecked
+                    )
+                else:
+                    item.setCheckState(Qt.Checked)
             else:
                 item.setCheckState(Qt.Unchecked)
 
