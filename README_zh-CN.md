@@ -146,7 +146,7 @@
 | 🗣️ **视觉基础模型** | Florence2 |
 | 👁️ **视觉语言模型** | Qwen-VL, Gemini, ChatGPT |
 | 🛣️ **车道线检测** | CLRNet |
-| 📍 **Grounding** | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |
+| 📍 **Grounding** | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 
