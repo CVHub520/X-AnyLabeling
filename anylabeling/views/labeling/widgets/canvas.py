@@ -77,6 +77,7 @@ class Canvas(
         self.rect_scale_step = self.wheel_rectangle_editing.get(
             "scale_step", 0.05
         )
+        self.attributes_config = kwargs.pop("attributes", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         # Initialise local state.
@@ -138,6 +139,17 @@ class Canvas(
         self.cross_line_width = 2.0
         self.cross_line_color = "#00FF00"
         self.cross_line_opacity = 0.5
+
+        # Set attributes color options.
+        self.attr_background_color = self.attributes_config.get(
+            "background_color", [33, 33, 33, 255]
+        )
+        self.attr_border_color = self.attributes_config.get(
+            "border_color", [66, 66, 66, 255]
+        )
+        self.attr_text_color = self.attributes_config.get(
+            "text_color", [33, 150, 243, 255]
+        )
 
         self.is_loading = False
         self.loading_text = self.tr("Loading...")
@@ -1817,18 +1829,18 @@ class Canvas(
                 if not shape.visible:
                     continue
 
-                background_color = QtGui.QColor(33, 33, 33, 255)
+                background_color = QtGui.QColor(*self.attr_background_color)
                 p.fillRect(rect, background_color)
 
                 pen = QtGui.QPen(
-                    QtGui.QColor(66, 66, 66), 1, Qt.SolidLine
-                )  # Lighter grey border
+                    QtGui.QColor(*self.attr_border_color), 1, Qt.SolidLine
+                )
                 p.setPen(pen)
                 p.drawRect(rect)
 
             pen = QtGui.QPen(
-                QtGui.QColor(33, 150, 243), 1, Qt.SolidLine
-            )  # Material Blue 500
+                QtGui.QColor(*self.attr_text_color), 1, Qt.SolidLine
+            )
             p.setPen(pen)
             p.setFont(font)
 

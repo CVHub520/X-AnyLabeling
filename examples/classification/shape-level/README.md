@@ -76,6 +76,21 @@ Click on `Upload -> Upload Attributes File` in the top menu bar and select the p
 > [!TIP]
 > Starting from X-AnyLabeling v3.2.4+, you can use **Loop Select Shapes** (Ctrl+Shift+C) to sequentially select each shape on the canvas for efficient attribute annotation. This enables you to quickly cycle through all shapes and assign attributes without having to manually click each one.
 
+> [!NOTE]
+> **Attributes Label Color Customization (X-AnyLabeling v3.3.0+)**
+> 
+> You can customize the colors of attribute labels displayed on the canvas by configuring the `.xanylabelingrc` file in your user directory. Add or modify the following settings under the `canvas` section:
+> 
+> ```yaml
+> canvas:
+>   attributes:
+>     background_color: [33, 33, 33, 255]  # Background color (RGBA)
+>     border_color: [66, 66, 66, 255]      # Border color (RGBA)
+>     text_color: [33, 150, 243, 255]      # Text color (RGBA)
+> ```
+> 
+> Color values use RGBA format: `[R, G, B, A]`, where each value ranges from 0-255.
+
 For detailed output examples, refer to [this file](./sources/multi-task/elon-musk-tesla.json).
 
 
