@@ -78,6 +78,7 @@ class Canvas(
             "scale_step", 0.05
         )
         self.attributes_config = kwargs.pop("attributes", {})
+        self.rotation_config = kwargs.pop("rotation", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         # Initialise local state.
@@ -149,6 +150,14 @@ class Canvas(
         )
         self.attr_text_color = self.attributes_config.get(
             "text_color", [33, 150, 243, 255]
+        )
+
+        # Set rotation increment options.
+        self.large_rotation_increment = math.radians(
+            self.rotation_config.get("large_increment", 1.0)
+        )
+        self.small_rotation_increment = math.radians(
+            self.rotation_config.get("small_increment", 0.1)
         )
 
         self.is_loading = False
@@ -1455,7 +1464,7 @@ class Canvas(
                     degrees = math.degrees(shape.direction)
                     if abs(degrees - 360.0) < 0.1:
                         degrees = 0.0
-                    degrees = f"{degrees:.1f}°"
+                    degrees = f"{degrees:.2f}°"
                     p.setFont(
                         QtGui.QFont(
                             "Arial",
@@ -2261,13 +2270,13 @@ class Canvas(
             elif key == QtCore.Qt.Key_Right:
                 self.move_by_keyboard(QtCore.QPointF(MOVE_SPEED, 0.0))
             elif key == QtCore.Qt.Key_Z:
-                self.rotate_by_keyboard(LARGE_ROTATION_INCREMENT)
+                self.rotate_by_keyboard(self.large_rotation_increment)
             elif key == QtCore.Qt.Key_X:
-                self.rotate_by_keyboard(SMALL_ROTATION_INCREMENT)
+                self.rotate_by_keyboard(self.small_rotation_increment)
             elif key == QtCore.Qt.Key_C:
-                self.rotate_by_keyboard(-SMALL_ROTATION_INCREMENT)
+                self.rotate_by_keyboard(-self.small_rotation_increment)
             elif key == QtCore.Qt.Key_V:
-                self.rotate_by_keyboard(-LARGE_ROTATION_INCREMENT)
+                self.rotate_by_keyboard(-self.large_rotation_increment)
 
     # QT Overload
     def keyReleaseEvent(self, ev):

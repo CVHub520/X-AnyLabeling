@@ -100,6 +100,9 @@ canvas:
     background_color: [33, 33, 33, 255]
     border_color: [66, 66, 66, 255]
     text_color: [33, 150, 243, 255]
+  rotation:
+    large_increment: 1.0  # degrees, corresponds to Z/V keys
+    small_increment: 0.1  # degrees, corresponds to X/C keys
 
 shortcuts:
   close: Ctrl+W
