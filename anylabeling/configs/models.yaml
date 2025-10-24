@@ -68,8 +68,6 @@
   config_file: ":/groundingdino_swint_sam2_large.yaml"
 - model_name: "groundingdino_swinb_cogcoor_quant-r20231024"
   config_file: ":/groundingdino_swinb_cogcoor_quant.yaml"
-- model_name: "groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant-r20231111"
-  config_file: ":/groundingdino_swinb_attn_fuse_sam_hq_vit_l_quant.yaml"
 - model_name: "hyper_yolos-r20241216"
   config_file: ":/hyper_yolos.yaml"
 - model_name: "hyper_yolos_seg-r20241216"

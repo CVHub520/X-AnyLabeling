@@ -164,6 +164,10 @@ class AutoLabelingWidget(QWidget):
 
         # --- Configuration for: edit_text ---
         self.edit_text.setStyleSheet(get_lineedit_style())
+        self.edit_text.setToolTip(
+            "Enter text prompt here. Use dots (.) to separate multiple classes.\n"
+            "Example: person.car.bicycle"
+        )
 
         # --- Configuration for: button_add_point ---
         self.button_add_point.setShortcut("Q")
@@ -460,6 +464,32 @@ class AutoLabelingWidget(QWidget):
 
             return
 
+        # Validate model status
+        if model_name not in self.model_info:
+            logger.warning(
+                f"Model '{model_name}' is not defined or no longer available. "
+                "Removing from configuration."
+            )
+            # Update config to remove invalid model
+            try:
+                models_data = self.init_model_data()
+                if (
+                    provider in models_data
+                    and model_name in models_data[provider]
+                ):
+                    del models_data[provider][model_name]
+                    save_json(
+                        {"models_data": models_data}, _MODELS_CONFIG_PATH
+                    )
+                    self.model_dropdown.update_models_data(models_data)
+            except Exception as e:
+                logger.warning(f"Failed to update config: {e}")
+
+            self.model_selection_button.setText("No Model")
+            self.model_selection_button.setEnabled(True)
+
+            return
+
         self.clear_auto_labeling_action_requested.emit()
         self.model_selection_button.setText(
             self.model_info[model_name]["display_name"]
@@ -630,9 +660,16 @@ class AutoLabelingWidget(QWidget):
                 self.model_manager.loaded_model_config["type"]
                 in _AUTO_LABELING_CONF_MODELS
             ):
-                initial_conf_value = self.model_manager.loaded_model_config[
-                    "conf_threshold"
-                ]
+                if "conf_threshold" in self.model_manager.loaded_model_config:
+                    initial_conf_value = (
+                        self.model_manager.loaded_model_config[
+                            "conf_threshold"
+                        ]
+                    )
+                elif "box_threshold" in self.model_manager.loaded_model_config:
+                    initial_conf_value = (
+                        self.model_manager.loaded_model_config["box_threshold"]
+                    )
                 self.edit_conf.setValue(initial_conf_value)
             else:
                 initial_conf_value = 0.0

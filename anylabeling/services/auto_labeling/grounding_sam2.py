@@ -54,6 +54,8 @@ class GroundingSAM2(Model):
             "button_clear",
             "button_finish_object",
             "button_auto_decode",
+            "input_conf",
+            "edit_conf",
             "mask_fineness_slider",
             "mask_fineness_value_label",
         ]
@@ -142,6 +144,11 @@ class GroundingSAM2(Model):
 
         self.epsilon = 0.001
 
+    def set_auto_labeling_conf(self, value):
+        """set auto labeling confidence threshold"""
+        if value > 0:
+            self.box_threshold = value
+
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
         self.marks = marks
@@ -215,8 +222,8 @@ class GroundingSAM2(Model):
         self, outputs, caption, with_logits=True, token_spans=None
     ):
         logits, boxes = outputs
-        logits_filt = np.squeeze(
-            logits, 0
+        logits_filt = self.sig(
+            np.squeeze(logits, 0)
         )  # [0]  # prediction_logits.shape = (nq, 256)
         boxes_filt = np.squeeze(
             boxes, 0
@@ -257,7 +264,7 @@ class GroundingSAM2(Model):
             raise NotImplementedError
         return boxes_filt, pred_phrases
 
-    def post_process(self, masks, label=None):
+    def post_process(self, masks, label=None, score=None):
         """
         Post process masks
         """
@@ -286,6 +293,7 @@ class GroundingSAM2(Model):
                 for contour, area in zip(approx_contours, areas)
                 if area < image_size * 0.9
             ]
+            approx_contours = filtered_approx_contours
 
         # Remove small contours (area < 20% of average area)
         if len(approx_contours) > 1:
@@ -313,20 +321,28 @@ class GroundingSAM2(Model):
                 points.append(points[0])
 
                 # Create shape
-                shape = Shape(flags={})
+                shape = Shape(
+                    label="AUTOLABEL_OBJECT" if label is None else label,
+                    score=float(score) if score is not None else None,
+                    shape_type="polygon",
+                    flags={},
+                )
                 for point in points:
                     point[0] = int(point[0])
                     point[1] = int(point[1])
                     shape.add_point(QtCore.QPointF(point[0], point[1]))
-                shape.shape_type = "polygon"
                 shape.closed = True
                 shape.fill_color = "#000000"
                 shape.line_color = "#000000"
-                shape.label = "AUTOLABEL_OBJECT" if label is None else label
                 shape.selected = False
                 shapes.append(shape)
         elif self.output_mode in ["rectangle", "rotation"]:
-            shape = Shape(flags={})
+            shape = Shape(
+                label="AUTOLABEL_OBJECT" if label is None else label,
+                score=float(score) if score is not None else None,
+                shape_type=self.output_mode,
+                flags={},
+            )
             rectangle_box, rotation_box = get_bounding_boxes(
                 approx_contours[0]
             )
@@ -342,11 +358,9 @@ class GroundingSAM2(Model):
                         QtCore.QPointF(int(point[0]), int(point[1]))
                     )
                 shape.direction = calculate_rotation_theta(rotation_box)
-            shape.shape_type = self.output_mode
             shape.closed = True
             shape.fill_color = "#000000"
             shape.line_color = "#000000"
-            shape.label = "AUTOLABEL_OBJECT" if label is None else label
             shape.selected = False
             shapes.append(shape)
 
@@ -391,7 +405,7 @@ class GroundingSAM2(Model):
                 boxes = self.rescale_boxes(boxes_filt, img_h, img_w)
                 shapes = []
                 for box, label_info in zip(boxes, pred_phrases):
-                    label, _ = label_info
+                    label, score = label_info
                     marks = [
                         {
                             "data": box,
@@ -404,7 +418,7 @@ class GroundingSAM2(Model):
                         masks = masks[0][0]
                     else:
                         masks = masks[0]
-                    shape = self.post_process(masks, label=label)
+                    shape = self.post_process(masks, label=label, score=score)
                     shapes.append(shape)
                 result = AutoLabelingResult(shapes, replace=False)
             else:

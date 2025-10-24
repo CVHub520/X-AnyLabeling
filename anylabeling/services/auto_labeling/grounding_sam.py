@@ -480,6 +480,7 @@ class GroundingSAM(Model):
                 for contour, area in zip(approx_contours, areas)
                 if area < image_size * 0.9
             ]
+            approx_contours = filtered_approx_contours
 
         # Remove small contours (area < 20% of average area)
         if len(approx_contours) > 1:
