@@ -4,6 +4,7 @@ import yaml
 import onnx
 import urllib.request
 import time
+import multiprocessing
 from urllib.parse import urlparse
 from urllib.error import URLError
 
@@ -26,6 +27,24 @@ from .types import AutoLabelingResult
 from anylabeling.config import get_config
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
+
+
+def _check_onnx_model_worker(model_path):
+    """子进程中校验ONNX模型"""
+    import onnx
+    onnx.checker.check_model(model_path)
+
+
+def safe_check_onnx_model(model_path, timeout=10):
+    """在子进程中安全校验ONNX模型，防止主进程崩溃"""
+    ctx = multiprocessing.get_context('spawn')
+    p = ctx.Process(target=_check_onnx_model_worker, args=(model_path,))
+    p.start()
+    p.join(timeout)
+    if p.exitcode == 0:
+        return True
+    else:
+        return False
 
 
 class Model(QObject):
@@ -184,19 +203,22 @@ class Model(QObject):
         )
         if os.path.exists(model_abs_path):
             if model_abs_path.lower().endswith(".onnx"):
-                try:
-                    onnx.checker.check_model(model_abs_path)
-                except onnx.checker.ValidationError as e:
-                    logger.error(f"{str(e)}")
+                logger.info("Checking ONNX model integrity (subprocess)...")
+                ok = safe_check_onnx_model(model_abs_path)
+                if ok:
+                    logger.info("ONNX model integrity check passed.")
+                    return model_abs_path
+                else:
+                    logger.warning("ONNX model integrity check failed (subprocess). Will delete and redownload.")
+                    logger.error(f"ONNX check failed in subprocess: {model_abs_path}")
                     logger.warning("Action: Delete and redownload...")
                     try:
                         os.remove(model_abs_path)
                         time.sleep(1)
-                    except Exception as e:  # noqa
-                        logger.error(f"Could not delete: {str(e)}")
-                else:
-                    return model_abs_path
+                    except Exception as e2: # noqa
+                        logger.error(f"Could not delete: {str(e2)}")
             else:
+                logger.info("Model file exists, no integrity check needed.")
                 return model_abs_path
         pathlib.Path(model_abs_path).parent.mkdir(parents=True, exist_ok=True)
 
