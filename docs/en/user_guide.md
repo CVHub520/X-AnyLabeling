@@ -38,6 +38,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [5.4 Shape Type Conversion](#54-shape-type-conversion)
       * [5.5 Digit Shortcut Manager](#55-digit-shortcut-manager)
       * [5.6 Group ID Manager](#56-group-id-manager)
+      * [5.7 Shape Manager](#57-shape-manager)
    * [6. Help and Language](#6-help-and-language)
       * [6.1 About X-AnyLabeling](#61-about-x-anylabeling)
       * [6.2 Setting the Language](#62-setting-the-language)
@@ -627,6 +628,24 @@ The Group ID Manager is a batch management feature for group ID fields, allowing
   <img src="../../assets/resources/gid_manager.png" alt="Information">
 </p>
 
+### 5.7 Shape Manager
+
+The Shape Manager handles batch annotation operations for video frame sequences. Access it via **Tools -> Shape Manager** or press **Alt+S**.
+
+Four operation modes are available (mutually exclusive):
+
+- **Delete All Annotations**: Removes all JSON annotation files within the specified frame range while preserving image files. Automatically unchecks the corresponding frames after execution.
+
+- **Delete All Images with Annotations**: Deletes both images and annotations. Image files are moved to the `_delete_` backup directory rather than being permanently deleted. The file list refreshes automatically after completion.
+
+- **Remove Selected Shapes**: Searches for and removes objects matching the currently selected shape within the frame range. If a frame contains only matching objects, the entire annotation file is deleted; otherwise, only matching objects are removed. At least one shape must be selected on the canvas before use.
+
+- **Add Selected Shapes**: Batch copies the currently selected shapes to specified frames. The system automatically detects boundaries and skips shapes that exceed the image range, while avoiding duplicate additions of existing identical objects. Annotation files are auto-created for frames without them, and corresponding frames are automatically checked upon completion.
+
+Set the start and end frame numbers: From defaults to the current frame, To defaults to empty and must be manually filled. Frame numbers correspond to the file list index (starting from 1). Clicking Go triggers a confirmation dialog before execution. Remove and add operations support progress display and mid-process cancellation.
+
+> ![NOTE]
+> Note that delete annotation operations are irreversible, while deleted images can be manually recovered from the backup directory.
 
 ## 6. Help and Language
 
@@ -676,7 +695,9 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `s`                   | Hide Selected Shapes                             | Temporarily hide                           |
 | `w`                   | Show Hidden Shapes                               | Show previously hidden shapes              |
 | `Alt+d`               | Open Digit Shortcut Manager                      | Configure numeric key shortcuts            |
-| `Alt+g`               | Edit Group ID for Selection                      | Manually set group ID                      |
+| `Alt+g`               | Open Group ID Manager                            | Manually set group ID                      |
+| `Alt+l`               | Open Label Manager                               | Rename, Delete, Hide/Show, Adjust Color    |
+| `Alt+s`               | Open Shape Manager                               | Add, Delete, Remove                        |
 | `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |
 | `Ctrl+Shift+Delete`   | Delete Current Image & Label File                | Moves to `_delete_` folder                 |
 | `Ctrl+1`              | Open Chatbot                                     |                                            |

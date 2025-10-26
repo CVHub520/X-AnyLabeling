@@ -55,6 +55,7 @@ from .widgets import (
     VQADialog,
     CrosshairSettingsDialog,
     FileDialogPreview,
+    ShapeModifyDialog,
     GroupIDFilterComboBox,
     LabelDialog,
     LabelFilterComboBox,
@@ -332,28 +333,28 @@ class LabelingWidget(LabelDialog):
         shortcuts = self._config["shortcuts"]
 
         open_ = action(
-            self.tr("&Open File"),
+            self.tr("Open File"),
             self.open_file,
             shortcuts["open"],
             "file",
             self.tr("Open image or label file"),
         )
         openvideo = action(
-            self.tr("&Open Video"),
+            self.tr("Open Video"),
             lambda: utils.open_video_file(self),
             shortcuts["open_video"],
             "video",
             self.tr("Open video file"),
         )
         opendir = action(
-            self.tr("&Open Dir"),
+            self.tr("Open Dir"),
             self.open_folder_dialog,
             shortcuts["open_dir"],
             "open",
             self.tr("Open Dir"),
         )
         open_next_image = action(
-            self.tr("&Next Image"),
+            self.tr("Next Image"),
             self.open_next_image,
             shortcuts["open_next"],
             "next",
@@ -361,7 +362,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         open_prev_image = action(
-            self.tr("&Prev Image"),
+            self.tr("Prev Image"),
             self.open_prev_image,
             shortcuts["open_prev"],
             "prev",
@@ -369,7 +370,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         open_next_unchecked_image = action(
-            self.tr("&Next Unchecked Image"),
+            self.tr("Next Unchecked Image"),
             self.open_next_unchecked_image,
             shortcuts["open_next_unchecked"],
             "next",
@@ -377,7 +378,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         open_prev_unchecked_image = action(
-            self.tr("&Prev Unchecked Image"),
+            self.tr("Prev Unchecked Image"),
             self.open_prev_unchecked_image,
             shortcuts["open_prev_unchecked"],
             "prev",
@@ -385,7 +386,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         save = action(
-            self.tr("&Save"),
+            self.tr("Save"),
             self.save_file,
             shortcuts["save"],
             "save",
@@ -393,7 +394,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         save_as = action(
-            self.tr("&Save As"),
+            self.tr("Save As"),
             self.save_file_as,
             shortcuts["save_as"],
             "save-as",
@@ -401,7 +402,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         run_all_images = action(
-            self.tr("&Auto Run"),
+            self.tr("Auto Run"),
             lambda: utils.run_all_images(self),
             shortcuts["auto_run"],
             "auto-run",
@@ -410,7 +411,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         delete_file = action(
-            self.tr("&Delete File"),
+            self.tr("Delete File"),
             self.delete_file,
             shortcuts["delete_file"],
             "delete",
@@ -418,7 +419,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         delete_image_file = action(
-            self.tr("&Delete Image File"),
+            self.tr("Delete Image File"),
             self.delete_image_file,
             shortcuts["delete_image_file"],
             "delete",
@@ -427,7 +428,7 @@ class LabelingWidget(LabelDialog):
         )
 
         change_output_dir = action(
-            self.tr("&Change Output Dir"),
+            self.tr("Change Output Dir"),
             slot=self.change_output_dir_dialog,
             shortcut=shortcuts["save_to"],
             icon="open",
@@ -435,7 +436,7 @@ class LabelingWidget(LabelDialog):
         )
 
         save_auto = action(
-            text=self.tr("Save &Automatically"),
+            text=self.tr("Save Automatically"),
             slot=lambda x: self._config.update({"auto_save": x}),
             icon=None,
             tip=self.tr("Save automatically"),
@@ -454,7 +455,7 @@ class LabelingWidget(LabelDialog):
         )
 
         close = action(
-            self.tr("&Close"),
+            self.tr("Close"),
             self.close_file,
             shortcuts["close"],
             "cancel",
@@ -736,14 +737,14 @@ class LabelingWidget(LabelDialog):
         )
 
         overview = action(
-            self.tr("&Overview"),
+            self.tr("Overview"),
             self.overview,
             shortcuts["show_overview"],
             icon="overview",
             tip=self.tr("Show annotations statistics"),
         )
         save_crop = action(
-            self.tr("&Save Cropped Image"),
+            self.tr("Save Cropped Image"),
             lambda: utils.save_crop(self),
             icon="crop",
             tip=self.tr(
@@ -751,7 +752,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         digit_shortcut_manager = action(
-            self.tr("&Digit Shortcut Manager"),
+            self.tr("Digit Shortcut Manager"),
             self.digit_shortcut_manager,
             shortcuts["edit_digit_shortcut"],
             icon="edit",
@@ -760,17 +761,28 @@ class LabelingWidget(LabelDialog):
             ),
         )
         label_manager = action(
-            self.tr("&Label Manager"),
+            self.tr("Label Manager"),
             self.label_manager,
+            shortcuts["edit_labels"],
             icon="edit",
-            tip=self.tr("Manage Labels: Rename, Delete, Adjust Color"),
+            tip=self.tr(
+                "Manage Labels: Rename, Delete, Hide/Show, Adjust Color"
+            ),
         )
         gid_manager = action(
-            self.tr("&Group ID Manager"),
+            self.tr("Group ID Manager"),
             self.gid_manager,
             shortcuts["edit_group_id"],
             icon="edit",
             tip=self.tr("Manage Group ID"),
+        )
+        shape_manager = action(
+            self.tr("Shape Manager"),
+            self.shape_manager,
+            shortcuts["edit_shapes"],
+            icon="edit",
+            tip=self.tr("Manage Shapes: Add, Delete, Remove"),
+            enabled=False,
         )
         copy_coordinates = action(
             self.tr("Copy Coordinates"),
@@ -780,7 +792,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         union_selection = action(
-            self.tr("&Union Selection"),
+            self.tr("Union Selection"),
             self.union_selection,
             shortcuts["union_selected_shapes"],
             icon="union",
@@ -788,7 +800,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         hbb_to_obb = action(
-            self.tr("&Convert HBB to OBB"),
+            self.tr("Convert HBB to OBB"),
             lambda: utils.shape_conversion(self, "hbb_to_obb"),
             icon="convert",
             tip=self.tr(
@@ -796,7 +808,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         obb_to_hbb = action(
-            self.tr("&Convert OBB to HBB"),
+            self.tr("Convert OBB to HBB"),
             lambda: utils.shape_conversion(self, "obb_to_hbb"),
             icon="convert",
             tip=self.tr(
@@ -804,7 +816,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         polygon_to_hbb = action(
-            self.tr("&Convert Polygon to HBB"),
+            self.tr("Convert Polygon to HBB"),
             lambda: utils.shape_conversion(self, "polygon_to_hbb"),
             icon="convert",
             tip=self.tr(
@@ -812,7 +824,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         polygon_to_obb = action(
-            self.tr("&Convert Polygon to OBB"),
+            self.tr("Convert Polygon to OBB"),
             lambda: utils.shape_conversion(self, "polygon_to_obb"),
             icon="convert",
             tip=self.tr(
@@ -820,7 +832,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         circle_to_polygon = action(
-            self.tr("&Convert Circle to Polygon"),
+            self.tr("Convert Circle to Polygon"),
             lambda: utils.shape_conversion(self, "circle_to_polygon"),
             icon="convert",
             tip=self.tr(
@@ -849,20 +861,20 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Open classifier dialog"),
         )
         documentation = action(
-            self.tr("&Documentation"),
+            self.tr("Documentation"),
             self.documentation,
             icon="docs",
             tip=self.tr("Show documentation"),
         )
         about = action(
-            self.tr("&About"),
+            self.tr("About"),
             self.about,
             icon="help",
             tip=self.tr("Open about dialog"),
         )
 
         loop_thru_labels = action(
-            self.tr("&Loop Through Labels"),
+            self.tr("Loop Through Labels"),
             self.loop_thru_labels,
             shortcut=shortcuts["loop_thru_labels"],
             icon="loop",
@@ -870,7 +882,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         loop_select_labels = action(
-            self.tr("&Loop Select Labels"),
+            self.tr("Loop Select Labels"),
             self.loop_select_labels,
             shortcut=shortcuts["loop_select_labels"],
             icon="circle-selection",
@@ -902,7 +914,7 @@ class LabelingWidget(LabelDialog):
         self.zoom_widget.setEnabled(False)
 
         zoom_in = action(
-            self.tr("Zoom &In"),
+            self.tr("Zoom In"),
             functools.partial(self.add_zoom, 1.1),
             shortcuts["zoom_in"],
             "zoom-in",
@@ -910,7 +922,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         zoom_out = action(
-            self.tr("&Zoom Out"),
+            self.tr("Zoom Out"),
             functools.partial(self.add_zoom, 0.9),
             shortcuts["zoom_out"],
             "zoom-out",
@@ -918,7 +930,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         zoom_org = action(
-            self.tr("&Original Size"),
+            self.tr("Original Size"),
             functools.partial(self.set_zoom, 100),
             shortcuts["zoom_to_original"],
             "zoom",
@@ -926,7 +938,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         keep_prev_scale = action(
-            self.tr("&Keep Previous Scale"),
+            self.tr("Keep Previous Scale"),
             lambda x: self._config.update({"keep_prev_scale": x}),
             tip=self.tr("Keep previous zoom scale"),
             checkable=True,
@@ -934,7 +946,7 @@ class LabelingWidget(LabelDialog):
             enabled=True,
         )
         keep_prev_brightness = action(
-            self.tr("&Keep Previous Brightness"),
+            self.tr("Keep Previous Brightness"),
             lambda x: self._config.update({"keep_prev_brightness": x}),
             tip=self.tr("Keep previous brightness"),
             checkable=True,
@@ -942,7 +954,7 @@ class LabelingWidget(LabelDialog):
             enabled=True,
         )
         keep_prev_contrast = action(
-            self.tr("&Keep Previous Contrast"),
+            self.tr("Keep Previous Contrast"),
             lambda x: self._config.update({"keep_prev_contrast": x}),
             tip=self.tr("Keep previous contrast"),
             checkable=True,
@@ -950,7 +962,7 @@ class LabelingWidget(LabelDialog):
             enabled=True,
         )
         fit_window = action(
-            self.tr("&Fit Window"),
+            self.tr("Fit Window"),
             self.set_fit_window,
             shortcuts["fit_window"],
             "fit-window",
@@ -959,7 +971,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         fit_width = action(
-            self.tr("Fit &Width"),
+            self.tr("Fit Width"),
             self.set_fit_width,
             shortcuts["fit_width"],
             "fit-width",
@@ -968,7 +980,7 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         brightness_contrast = action(
-            self.tr("&Set Brightness Contrast"),
+            self.tr("Set Brightness Contrast"),
             self.brightness_contrast,
             None,
             "color",
@@ -976,13 +988,13 @@ class LabelingWidget(LabelDialog):
             enabled=False,
         )
         set_cross_line = action(
-            self.tr("&Set Cross Line"),
+            self.tr("Set Cross Line"),
             self.set_cross_line,
             tip=self.tr("Adjust cross line for mouse position"),
             icon="cartesian",
         )
         show_groups = action(
-            self.tr("&Show Groups"),
+            self.tr("Show Groups"),
             lambda x: self.set_canvas_params("show_groups", x),
             tip=self.tr("Show shape groups"),
             icon=None,
@@ -992,7 +1004,7 @@ class LabelingWidget(LabelDialog):
             auto_trigger=True,
         )
         show_texts = action(
-            self.tr("&Show Texts"),
+            self.tr("Show Texts"),
             lambda x: self.set_canvas_params("show_texts", x),
             shortcut=shortcuts["show_texts"],
             tip=self.tr("Show text above shapes"),
@@ -1003,7 +1015,7 @@ class LabelingWidget(LabelDialog):
             auto_trigger=True,
         )
         show_labels = action(
-            self.tr("&Show Labels"),
+            self.tr("Show Labels"),
             lambda x: self.set_canvas_params("show_labels", x),
             shortcut=shortcuts["show_labels"],
             tip=self.tr("Show label inside shapes"),
@@ -1014,7 +1026,7 @@ class LabelingWidget(LabelDialog):
             auto_trigger=True,
         )
         show_scores = action(
-            self.tr("&Show Scores"),
+            self.tr("Show Scores"),
             lambda x: self.set_canvas_params("show_scores", x),
             tip=self.tr("Show score inside shapes"),
             icon=None,
@@ -1024,7 +1036,7 @@ class LabelingWidget(LabelDialog):
             auto_trigger=True,
         )
         show_attributes = action(
-            self.tr("&Show Attributes"),
+            self.tr("Show Attributes"),
             lambda x: self.set_canvas_params("show_attributes", x),
             shortcut=shortcuts["show_attributes"],
             tip=self.tr("Show attribute inside shapes"),
@@ -1035,7 +1047,7 @@ class LabelingWidget(LabelDialog):
             auto_trigger=True,
         )
         show_degrees = action(
-            self.tr("&Show Degress"),
+            self.tr("Show Degress"),
             lambda x: self.set_canvas_params("show_degrees", x),
             tip=self.tr("Show degrees above rotated shapes"),
             icon=None,
@@ -1045,7 +1057,7 @@ class LabelingWidget(LabelDialog):
             auto_trigger=True,
         )
         show_linking = action(
-            self.tr("&Show KIE Linking"),
+            self.tr("Show KIE Linking"),
             lambda x: self.set_canvas_params("show_linking", x),
             shortcut=shortcuts["show_linking"],
             tip=self.tr("Show KIE linking between key and value"),
@@ -1076,35 +1088,35 @@ class LabelingWidget(LabelDialog):
 
         # Upload
         upload_image_flags_file = action(
-            self.tr("&Upload Image Flags File"),
+            self.tr("Upload Image Flags File"),
             lambda: utils.upload_image_flags_file(self),
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Image Flags File"),
         )
         upload_label_flags_file = action(
-            self.tr("&Upload Label Flags File"),
+            self.tr("Upload Label Flags File"),
             lambda: utils.upload_label_flags_file(self, LABEL_OPACITY),
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Label Flags File"),
         )
         upload_shape_attrs_file = action(
-            self.tr("&Upload Attributes File"),
+            self.tr("Upload Attributes File"),
             lambda: utils.upload_shape_attrs_file(self, LABEL_OPACITY),
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Attributes File"),
         )
         upload_label_classes_file = action(
-            self.tr("&Upload Label Classes File"),
+            self.tr("Upload Label Classes File"),
             lambda: utils.upload_label_classes_file(self),
             None,
             icon="format_classify",
             tip=self.tr("Upload Custom Label Classes File"),
         )
         upload_yolo_hbb_annotation = action(
-            self.tr("&Upload YOLO-Hbb Annotations"),
+            self.tr("Upload YOLO-Hbb Annotations"),
             lambda: utils.upload_yolo_annotation(self, "hbb", LABEL_OPACITY),
             None,
             icon="format_yolo",
@@ -1113,7 +1125,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         upload_yolo_obb_annotation = action(
-            self.tr("&Upload YOLO-Obb Annotations"),
+            self.tr("Upload YOLO-Obb Annotations"),
             lambda: utils.upload_yolo_annotation(self, "obb", LABEL_OPACITY),
             None,
             icon="format_yolo",
@@ -1122,42 +1134,42 @@ class LabelingWidget(LabelDialog):
             ),
         )
         upload_yolo_seg_annotation = action(
-            self.tr("&Upload YOLO-Seg Annotations"),
+            self.tr("Upload YOLO-Seg Annotations"),
             lambda: utils.upload_yolo_annotation(self, "seg", LABEL_OPACITY),
             None,
             icon="format_yolo",
             tip=self.tr("Upload Custom YOLO Segmentation Annotations"),
         )
         upload_yolo_pose_annotation = action(
-            self.tr("&Upload YOLO-Pose Annotations"),
+            self.tr("Upload YOLO-Pose Annotations"),
             lambda: utils.upload_yolo_annotation(self, "pose", LABEL_OPACITY),
             None,
             icon="format_yolo",
             tip=self.tr("Upload Custom YOLO Pose Annotations"),
         )
         upload_voc_det_annotation = action(
-            self.tr("&Upload VOC Detection Annotations"),
+            self.tr("Upload VOC Detection Annotations"),
             lambda: utils.upload_voc_annotation(self, "rectangle"),
             None,
             icon="format_voc",
             tip=self.tr("Upload Custom Pascal VOC Detection Annotations"),
         )
         upload_voc_seg_annotation = action(
-            self.tr("&Upload VOC Segmentation Annotations"),
+            self.tr("Upload VOC Segmentation Annotations"),
             lambda: utils.upload_voc_annotation(self, "polygon"),
             None,
             icon="format_voc",
             tip=self.tr("Upload Custom Pascal VOC Segmentation Annotations"),
         )
         upload_coco_det_annotation = action(
-            self.tr("&Upload COCO Detection Annotations"),
+            self.tr("Upload COCO Detection Annotations"),
             lambda: utils.upload_coco_annotation(self, "rectangle"),
             None,
             icon="format_coco",
             tip=self.tr("Upload Custom COCO Detection Annotations"),
         )
         upload_coco_seg_annotation = action(
-            self.tr("&Upload COCO Instance Segmentation Annotations"),
+            self.tr("Upload COCO Instance Segmentation Annotations"),
             lambda: utils.upload_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
@@ -1166,35 +1178,35 @@ class LabelingWidget(LabelDialog):
             ),
         )
         upload_coco_pose_annotation = action(
-            self.tr("&Upload COCO Keypoint Annotations"),
+            self.tr("Upload COCO Keypoint Annotations"),
             lambda: utils.upload_coco_annotation(self, "pose"),
             None,
             icon="format_coco",
             tip=self.tr("Upload Custom COCO Keypoint Annotations"),
         )
         upload_dota_annotation = action(
-            self.tr("&Upload DOTA Annotations"),
+            self.tr("Upload DOTA Annotations"),
             lambda: utils.upload_dota_annotation(self),
             None,
             icon="format_dota",
             tip=self.tr("Upload Custom DOTA Annotations"),
         )
         upload_mask_annotation = action(
-            self.tr("&Upload MASK Annotations"),
+            self.tr("Upload MASK Annotations"),
             lambda: utils.upload_mask_annotation(self, LABEL_OPACITY),
             None,
             icon="format_mask",
             tip=self.tr("Upload Custom MASK Annotations"),
         )
         upload_mot_annotation = action(
-            self.tr("&Upload MOT Annotations"),
+            self.tr("Upload MOT Annotations"),
             lambda: utils.upload_mot_annotation(self, LABEL_OPACITY),
             None,
             icon="format_mot",
             tip=self.tr("Upload Custom Multi-Object-Tracking Annotations"),
         )
         upload_odvg_annotation = action(
-            self.tr("&Upload ODVG Annotations"),
+            self.tr("Upload ODVG Annotations"),
             lambda: utils.upload_odvg_annotation(self),
             None,
             icon="format_odvg",
@@ -1203,21 +1215,21 @@ class LabelingWidget(LabelDialog):
             ),
         )
         upload_mmgd_annotation = action(
-            self.tr("&Upload MM-Grounding-DINO Annotations"),
+            self.tr("Upload MM-Grounding-DINO Annotations"),
             lambda: utils.upload_mmgd_annotation(self, LABEL_OPACITY),
             None,
             icon="format_mmgd",
             tip=self.tr("Upload Custom MM-Grounding-DINO Annotations"),
         )
         upload_ppocr_rec_annotation = action(
-            self.tr("&Upload PPOCR-Rec Annotations"),
+            self.tr("Upload PPOCR-Rec Annotations"),
             lambda: utils.upload_ppocr_annotation(self, "rec"),
             None,
             icon="format_ppocr",
             tip=self.tr("Upload Custom PPOCR Recognition Annotations"),
         )
         upload_ppocr_kie_annotation = action(
-            self.tr("&Upload PPOCR-KIE Annotations"),
+            self.tr("Upload PPOCR-KIE Annotations"),
             lambda: utils.upload_ppocr_annotation(self, "kie"),
             None,
             icon="format_ppocr",
@@ -1226,7 +1238,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         upload_vlm_r1_ovd_annotation = action(
-            self.tr("&Upload VLM-R1 OVD Annotations"),
+            self.tr("Upload VLM-R1 OVD Annotations"),
             lambda: utils.upload_vlm_r1_ovd_annotation(self),
             None,
             icon="format_vlm_r1_ovd",
@@ -1235,7 +1247,7 @@ class LabelingWidget(LabelDialog):
 
         # Export
         export_yolo_hbb_annotation = action(
-            self.tr("&Export YOLO-Hbb Annotations"),
+            self.tr("Export YOLO-Hbb Annotations"),
             lambda: utils.export_yolo_annotation(self, "hbb"),
             None,
             icon="format_yolo",
@@ -1244,7 +1256,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         export_yolo_obb_annotation = action(
-            self.tr("&Export YOLO-Obb Annotations"),
+            self.tr("Export YOLO-Obb Annotations"),
             lambda: utils.export_yolo_annotation(self, "obb"),
             None,
             icon="format_yolo",
@@ -1253,42 +1265,42 @@ class LabelingWidget(LabelDialog):
             ),
         )
         export_yolo_seg_annotation = action(
-            self.tr("&Export YOLO-Seg Annotations"),
+            self.tr("Export YOLO-Seg Annotations"),
             lambda: utils.export_yolo_annotation(self, "seg"),
             None,
             icon="format_yolo",
             tip=self.tr("Export Custom YOLO Segmentation Annotations"),
         )
         export_yolo_pose_annotation = action(
-            self.tr("&Export YOLO-Pose Annotations"),
+            self.tr("Export YOLO-Pose Annotations"),
             lambda: utils.export_yolo_annotation(self, "pose"),
             None,
             icon="format_yolo",
             tip=self.tr("Export Custom YOLO Pose Annotations"),
         )
         export_voc_det_annotation = action(
-            self.tr("&Export VOC Detection Annotations"),
+            self.tr("Export VOC Detection Annotations"),
             lambda: utils.export_voc_annotation(self, "rectangle"),
             None,
             icon="format_voc",
             tip=self.tr("Export Custom PASCAL VOC Detection Annotations"),
         )
         export_voc_seg_annotation = action(
-            self.tr("&Export VOC Segmentation Annotations"),
+            self.tr("Export VOC Segmentation Annotations"),
             lambda: utils.export_voc_annotation(self, "polygon"),
             None,
             icon="format_voc",
             tip=self.tr("Export Custom PASCAL VOC Segmentation Annotations"),
         )
         export_coco_det_annotation = action(
-            self.tr("&Export COCO Detection Annotations"),
+            self.tr("Export COCO Detection Annotations"),
             lambda: utils.export_coco_annotation(self, "rectangle"),
             None,
             icon="format_coco",
             tip=self.tr("Export Custom COCO Rectangle Annotations"),
         )
         export_coco_seg_annotation = action(
-            self.tr("&Export COCO Instance Segmentation Annotations"),
+            self.tr("Export COCO Instance Segmentation Annotations"),
             lambda: utils.export_coco_annotation(self, "polygon"),
             None,
             icon="format_coco",
@@ -1297,35 +1309,35 @@ class LabelingWidget(LabelDialog):
             ),
         )
         export_coco_pose_annotation = action(
-            self.tr("&Export COCO Keypoint Annotations"),
+            self.tr("Export COCO Keypoint Annotations"),
             lambda: utils.export_coco_annotation(self, "pose"),
             None,
             icon="format_coco",
             tip=self.tr("Export Custom COCO Keypoint Annotations"),
         )
         export_dota_annotation = action(
-            self.tr("&Export DOTA Annotations"),
+            self.tr("Export DOTA Annotations"),
             lambda: utils.export_dota_annotation(self),
             None,
             icon="format_dota",
             tip=self.tr("Export Custom DOTA Annotations"),
         )
         export_mask_annotation = action(
-            self.tr("&Export MASK Annotations"),
+            self.tr("Export MASK Annotations"),
             lambda: utils.export_mask_annotation(self),
             None,
             icon="format_mask",
             tip=self.tr("Export Custom MASK Annotations - RGB/Gray"),
         )
         export_mot_annotation = action(
-            self.tr("&Export MOT Annotations"),
+            self.tr("Export MOT Annotations"),
             lambda: utils.export_mot_annotation(self, "mot"),
             None,
             icon="format_mot",
             tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
         )
         export_mots_annotation = action(
-            self.tr("&Export MOTS Annotations"),
+            self.tr("Export MOTS Annotations"),
             lambda: utils.export_mot_annotation(self, "mots"),
             None,
             icon="format_mot",
@@ -1334,7 +1346,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         export_odvg_annotation = action(
-            self.tr("&Export ODVG Annotations"),
+            self.tr("Export ODVG Annotations"),
             lambda: utils.export_odvg_annotation(self),
             None,
             icon="format_odvg",
@@ -1343,14 +1355,14 @@ class LabelingWidget(LabelDialog):
             ),
         )
         export_pporc_rec_annotation = action(
-            self.tr("&Export PPOCR-Rec Annotations"),
+            self.tr("Export PPOCR-Rec Annotations"),
             lambda: utils.export_pporc_annotation(self, "rec"),
             None,
             icon="format_ppocr",
             tip=self.tr("Export Custom PPOCR Recognition Annotations"),
         )
         export_pporc_kie_annotation = action(
-            self.tr("&Export PPOCR-KIE Annotations"),
+            self.tr("Export PPOCR-KIE Annotations"),
             lambda: utils.export_pporc_annotation(self, "kie"),
             None,
             icon="format_ppocr",
@@ -1359,7 +1371,7 @@ class LabelingWidget(LabelDialog):
             ),
         )
         export_vlm_r1_ovd_annotation = action(
-            self.tr("&Export VLM-R1 OVD Annotations"),
+            self.tr("Export VLM-R1 OVD Annotations"),
             lambda: utils.export_vlm_r1_ovd_annotation(self),
             None,
             icon="format_vlm_r1_ovd",
@@ -1385,7 +1397,7 @@ class LabelingWidget(LabelDialog):
         }
 
         edit = action(
-            self.tr("&Edit Label"),
+            self.tr("Edit Label"),
             self.edit_label,
             shortcuts["edit_label"],
             "edit",
@@ -1416,7 +1428,7 @@ class LabelingWidget(LabelDialog):
 
         # AI Actions
         toggle_auto_labeling_widget = action(
-            self.tr("&Auto Labeling"),
+            self.tr("Auto Labeling"),
             self.toggle_auto_labeling_widget,
             shortcuts["auto_label"],
             "brain",
@@ -1543,6 +1555,7 @@ class LabelingWidget(LabelDialog):
             open_chatbot=open_chatbot,
             open_vqa=open_vqa,
             open_classifier=open_classifier,
+            shape_manager=shape_manager,
             loop_thru_labels=loop_thru_labels,
             loop_select_labels=loop_select_labels,
             file_menu_actions=(
@@ -1617,6 +1630,7 @@ class LabelingWidget(LabelDialog):
                 digit_shortcut_9,
                 edit_mode,
                 brightness_contrast,
+                shape_manager,
                 loop_thru_labels,
                 loop_select_labels,
             ),
@@ -1632,16 +1646,16 @@ class LabelingWidget(LabelDialog):
         )
 
         self.menus = utils.Struct(
-            file=self.menu(self.tr("&File")),
-            edit=self.menu(self.tr("&Edit")),
-            view=self.menu(self.tr("&View")),
-            language=self.menu(self.tr("&Language")),
-            upload=self.menu(self.tr("&Upload")),
-            export=self.menu(self.tr("&Export")),
-            tool=self.menu(self.tr("&Tool")),
-            train=self.menu(self.tr("&Train")),
-            help=self.menu(self.tr("&Help")),
-            recent_files=QtWidgets.QMenu(self.tr("Open &Recent")),
+            file=self.menu(self.tr("File")),
+            edit=self.menu(self.tr("Edit")),
+            view=self.menu(self.tr("View")),
+            language=self.menu(self.tr("Language")),
+            upload=self.menu(self.tr("Upload")),
+            export=self.menu(self.tr("Export")),
+            tool=self.menu(self.tr("Tool")),
+            train=self.menu(self.tr("Train")),
+            help=self.menu(self.tr("Help")),
+            recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
             label_list=label_menu,
         )
 
@@ -1678,6 +1692,7 @@ class LabelingWidget(LabelDialog):
                 digit_shortcut_manager,
                 label_manager,
                 gid_manager,
+                shape_manager,
                 None,
                 hbb_to_obb,
                 obb_to_hbb,
@@ -2342,6 +2357,11 @@ class LabelingWidget(LabelDialog):
         for action in self.actions.on_load_active:
             action.setEnabled(value)
 
+        if value and self.file_list_widget.count() > 0:
+            self.actions.shape_manager.setEnabled(True)
+        else:
+            self.actions.shape_manager.setEnabled(False)
+
     def queue_event(self, function):
         QtCore.QTimer.singleShot(0, function)
 
@@ -2585,6 +2605,13 @@ class LabelingWidget(LabelDialog):
         result = modify_gid_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
             self.load_file(self.filename)
+
+    def shape_manager(self):
+        modify_shape_dialog = ShapeModifyDialog(parent=self)
+        result = modify_shape_dialog.exec_()
+        if result == QtWidgets.QDialog.Accepted:
+            if modify_shape_dialog.need_reload and self.filename:
+                self.load_file(self.filename)
 
     def open_chatbot(self):
         dialog = ChatbotDialog(self)
@@ -5178,6 +5205,7 @@ class LabelingWidget(LabelDialog):
             self.actions.open_next_unchecked_image.setEnabled(True)
             self.actions.open_prev_unchecked_image.setEnabled(True)
 
+        self.toggle_actions(True)
         self.open_next_image()
 
         if valid_files:
@@ -5215,7 +5243,7 @@ class LabelingWidget(LabelDialog):
         self.actions.open_prev_image.setEnabled(True)
         self.actions.open_next_unchecked_image.setEnabled(True)
         self.actions.open_prev_unchecked_image.setEnabled(True)
-
+        self.toggle_actions(True)
         self.open_next_image(load=load)
 
         if image_files:
