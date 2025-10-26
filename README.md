@@ -70,6 +70,7 @@
 
 ## 🥳 What's New
 
+- Add Shape Manager for batch operations on video frame sequences (thanks @ltnetcase) (#1128)
 - Add shape visibility control in Label Manager for showing/hiding labels on canvas (#1172)
 - Add multi-label classification mode to Image Classifier
 - Bump version to [3.2.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.6)
