@@ -30,20 +30,35 @@ from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
 
 
 def _check_onnx_model_worker(model_path):
-    """子进程中校验ONNX模型"""
-    import onnx
-    onnx.checker.check_model(model_path)
+    """Worker function to validate ONNX model in subprocess."""
+    try:
+        import onnx
+        onnx.checker.check_model(model_path)
+    except Exception as e:
+        import sys
+        print(f"ONNX model check failed: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
-def safe_check_onnx_model(model_path, timeout=10):
-    """在子进程中安全校验ONNX模型，防止主进程崩溃"""
-    ctx = multiprocessing.get_context('spawn')
+def safe_check_onnx_model(model_path, timeout=30):
+    """Safely check ONNX model integrity in subprocess to prevent crashes."""
+    ctx = multiprocessing.get_context("spawn")
     p = ctx.Process(target=_check_onnx_model_worker, args=(model_path,))
     p.start()
     p.join(timeout)
+
     if p.exitcode == 0:
         return True
+    elif p.exitcode is None:
+        logger.warning(f"ONNX model check timeout after {timeout}s")
+        p.terminate()
+        p.join(1)
+        if p.is_alive():
+            p.kill()
+            p.join()
+        return False
     else:
+        logger.warning(f"ONNX model check failed with exit code: {p.exitcode}")
         return False
 
 
@@ -203,15 +218,12 @@ class Model(QObject):
         )
         if os.path.exists(model_abs_path):
             if model_abs_path.lower().endswith(".onnx"):
-                logger.info("Checking ONNX model integrity (subprocess)...")
+                logger.info("Validating ONNX model integrity...")
                 ok = safe_check_onnx_model(model_abs_path)
                 if ok:
-                    logger.info("ONNX model integrity check passed.")
                     return model_abs_path
                 else:
-                    logger.warning("ONNX model integrity check failed (subprocess). Will delete and redownload.")
-                    logger.error(f"ONNX check failed in subprocess: {model_abs_path}")
-                    logger.warning("Action: Delete and redownload...")
+                    logger.warning(f"ONNX model validation failed: {model_abs_path}. Deleting and redownloading...")
                     try:
                         os.remove(model_abs_path)
                         time.sleep(1)
