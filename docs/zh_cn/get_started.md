@@ -130,10 +130,36 @@ xanylabeling
 ```
 
 > [!TIP]
-> 您可以通过 `xanylabeling --help` 查看所有可用的命令行选项，完整的参数说明请参见 [1.2.2-命令行参数](#命令行参数) 章节。
+> 您可以通过 `xanylabeling --help` 查看所有可用的命令行选项。完整的参数说明请参考下方的**命令行参数**表格。
+
+| 选项                       | 描述                                                                                               |
+|----------------------------|----------------------------------------------------------------------------------------------------|
+| `filename`                 | 指定图像或标签文件名。如果提供目录路径，则加载文件夹中的所有文件。                                |
+| `--help`, `-h`             | 显示帮助信息并退出。                                                                               |
+| `--reset-config`           | 重置 Qt 配置，清除所有设置。                                                                       |
+| `--logger-level`           | 设置日志记录级别：“debug”、“info”、“warning”、“fatal”、“error”。                              |
+| `--output`, `-O`, `-o`     | 指定输出文件或目录。以 `.json` 结尾的路径被视为文件。                                               |
+| `--config`                 | 指定配置文件或 YAML 格式的配置字符串。默认为用户特定路径。                                          |
+| `--nodata`                 | 防止在 JSON 文件中存储图像数据。                                                                   |
+| `--autosave`               | 启用自动保存注释数据。                                                                             |
+| `--nosortlabels`           | 禁用标签排序。                                                                                     |
+| `--flags`                  | 逗号分隔的标志列表或包含标志的文件路径。                                                           |
+| `--labelflags`             | 用于标签特定标志的 YAML 格式字符串或包含 JSON 格式字符串的文件。                                    |
+| `--labels`                 | 逗号分隔的标签列表或包含标签的文件路径。                                                           |
+| `--validatelabel`          | 指定标签验证的类型。                                                                               |
+| `--keep-prev`              | 保留上一帧的注释。                                                                                 |
+| `--epsilon`                | 确定在画布上找到最近顶点的 epsilon 值。                                                             |
+| `--no-auto-update-check`   | 禁用启动时的自动更新检查。                                                                         |
 
 > [!NOTE]
 > 请参阅 X-AnyLabeling [pyproject.toml](../../pyproject.toml) 文件以获取依赖项列表。请注意，以上所有示例都安装了所有必需的依赖项。
+
+此外，还支持多种标签格式之间的批量转换功能：
+
+```bash
+xanylabeling convert         # 列出所有支持的转换任务
+xanylabeling convert <task>  # 查看特定转换任务的详细帮助和使用示例，例如：xlabel2yolo
+```
 
 **步骤 b.2.** 常规模式
 
@@ -207,39 +233,11 @@ set PYTHONPATH=C:\path\to\X-AnyLabeling
 python anylabeling/app.py
 ```
 
-> [!TIP]
-> 您可以通过 `--help` 参数查看所有可用的命令行选项，完整的参数说明请参见下方的 [命令行参数](#命令行参数) 章节。
-
 > [!NOTE]
 > **Fedora KDE 用户特别说明**：如果遇到鼠标移动缓慢或响应延迟的问题，可以尝试使用 `--qt-platform xcb` 参数来提升性能：
 > ```bash
 > python anylabeling/app.py --qt-platform xcb
 > ```
-
-<a id="命令行参数"></a>
-
-### 命令行参数
-
-以下参数适用于 `xanylabeling` 命令（开发者模式）和 `python anylabeling/app.py` 命令（常规模式）：
-
-| 选项                       | 描述                                                                                               |
-|----------------------------|----------------------------------------------------------------------------------------------------|
-| `filename`                 | 指定图像或标签文件名。如果提供目录路径，则加载文件夹中的所有文件。                                |
-| `--help`, `-h`             | 显示帮助信息并退出。                                                                               |
-| `--reset-config`           | 重置 Qt 配置，清除所有设置。                                                                       |
-| `--logger-level`           | 设置日志记录级别：“debug”、“info”、“warning”、“fatal”、“error”。                              |
-| `--output`, `-O`, `-o`     | 指定输出文件或目录。以 `.json` 结尾的路径被视为文件。                                               |
-| `--config`                 | 指定配置文件或 YAML 格式的配置字符串。默认为用户特定路径。                                          |
-| `--nodata`                 | 防止在 JSON 文件中存储图像数据。                                                                   |
-| `--autosave`               | 启用自动保存注释数据。                                                                             |
-| `--nosortlabels`           | 禁用标签排序。                                                                                     |
-| `--flags`                  | 逗号分隔的标志列表或包含标志的文件路径。                                                           |
-| `--labelflags`             | 用于标签特定标志的 YAML 格式字符串或包含 JSON 格式字符串的文件。                                    |
-| `--labels`                 | 逗号分隔的标签列表或包含标签的文件路径。                                                           |
-| `--validatelabel`          | 指定标签验证的类型。                                                                               |
-| `--keep-prev`              | 保留上一帧的注释。                                                                                 |
-| `--epsilon`                | 确定在画布上找到最近顶点的 epsilon 值。                                                             |
-| `--no-auto-update-check`   | 禁用启动时的自动更新检查。                                                                         |
 
 #### 1.2.3 GUI 安装包
 
@@ -267,17 +265,17 @@ python anylabeling/app.py
 
 为了方便用户在不同平台上运行 `X-AnyLabeling`，该工具提供了打包和编译的说明以及相关注意事项。在执行以下打包命令之前，请根据您的环境和要求修改 [app_info.py](../../anylabeling/app_info.py) 文件中的 `__preferred_device__` 参数，以选择适当的 GPU 或 CPU 版本进行构建。
 
-### 注意事项
+### 3.1 注意事项
 
-1. **修改设备配置**：在编译之前，请确保 `anylabeling/app_info.py` 文件中的 `__preferred_device__` 参数已根据所需的 GPU/CPU 版本进行修改。
+- **修改设备配置**：在编译之前，请确保 `anylabeling/app_info.py` 文件中的 `__preferred_device__` 参数已根据所需的 GPU/CPU 版本进行修改。
 
-2. **验证 GPU 环境**：如果编译 GPU 版本，请先激活相应的 GPU 运行环境，并执行 `pip list | grep onnxruntime-gpu` 以确保其正确安装。
+- **验证 GPU 环境**：如果编译 GPU 版本，请先激活相应的 GPU 运行环境，并执行 `pip list | grep onnxruntime-gpu` 以确保其正确安装。
 
-3. **Windows-GPU 编译**：手动修改 `x-anylabeling-win-gpu.spec` 文件中的 `datas` 列表参数，以将本地 `onnxruntime-gpu` 动态库的相关 `*.dll` 文件添加到列表中。
+- **Windows-GPU 编译**：手动修改 `x-anylabeling-win-gpu.spec` 文件中的 `datas` 列表参数，以将本地 `onnxruntime-gpu` 动态库的相关 `*.dll` 文件添加到列表中。
 
-4. **Linux-GPU 编译**：手动修改 `x-anylabeling-linux-gpu.spec` 文件中的 `datas` 列表参数，以将本地 `onnxruntime-gpu` 动态库的相关 `*.so` 文件添加到列表中。此外，请确保根据您的 CUDA 版本下载匹配的 `onnxruntime-gpu` 包。有关详细的兼容性信息，请参阅[官方文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)。
+- **Linux-GPU 编译**：手动修改 `x-anylabeling-linux-gpu.spec` 文件中的 `datas` 列表参数，以将本地 `onnxruntime-gpu` 动态库的相关 `*.so` 文件添加到列表中。此外，请确保根据您的 CUDA 版本下载匹配的 `onnxruntime-gpu` 包。有关详细的兼容性信息，请参阅[官方文档](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html)。
 
-### 编译命令
+### 3.2 编译命令
 
 ```bash
 # Windows-CPU

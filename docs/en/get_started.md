@@ -130,10 +130,36 @@ xanylabeling
 ```
 
 > [!TIP]
-> You can view all available command-line options using `xanylabeling --help`. For complete parameter descriptions, please refer to the [Command-Line Parameters](#command-line-parameters) section.
+> You can use `xanylabeling --help` to view all available command line options. Please refer to the **Command Line Parameters** table below for complete parameter descriptions.
+
+| Option                     | Description                                                                                                   |
+|----------------------------|---------------------------------------------------------------------------------------------------------------|
+| `filename`                 | Specify the image or label filename. If a directory path is provided, all files in the folder will be loaded. |
+| `--help`, `-h`             | Display help information and exit.                                                                            |
+| `--reset-config`           | Reset Qt configuration, clearing all settings.                                                                |
+| `--logger-level`           | Set the logging level: "debug", "info", "warning", "fatal", "error".                                          |
+| `--output`, `-O`, `-o`     | Specify the output file or directory. Paths ending with `.json` are treated as files.                         |
+| `--config`                 | Specify a configuration file or YAML-formatted configuration string. Defaults to a user-specific path.        |
+| `--nodata`                 | Prevent storing image data in JSON files.                                                                     |
+| `--autosave`               | Enable automatic saving of annotation data.                                                                   |
+| `--nosortlabels`           | Disable label sorting.                                                                                        |
+| `--flags`                  | Comma-separated list of flags or path to a file containing flags.                                             |
+| `--labelflags`             | YAML-formatted string for label-specific flags or a file containing a JSON-formatted string.                  |
+| `--labels`                 | Comma-separated list of labels or path to a file containing labels.                                           |
+| `--validatelabel`          | Specify the type of label validation.                                                                         |
+| `--keep-prev`              | Keep annotations from the previous frame.                                                                     |
+| `--epsilon`                | Determine the epsilon value for finding the nearest vertex on the canvas.                                     |
+| `--no-auto-update-check`   | Disable automatic update checks on startup.                                                                   |
 
 > [!NOTE]
 > Please refer to the X-AnyLabeling [pyproject.toml](../../pyproject.toml) file for a list of dependencies. Note that all the examples above install all required dependencies.
+
+We also supports batch conversion between multiple annotation formats:
+
+```bash
+xanylabeling convert         # List all supported conversion tasks
+xanylabeling convert <task>  # Show detailed help and examples for a specific task, i.e., xlabel2yolo
+```
 
 **Step b.2.** Regular Mode
 
@@ -207,39 +233,11 @@ set PYTHONPATH=C:\path\to\X-AnyLabeling
 python anylabeling/app.py
 ```
 
-> [!TIP]
-> You can view all available command-line options using the `--help` parameter. For complete parameter descriptions, please refer to the [Command-Line Parameters](#command-line-parameters) section below.
-
 > [!NOTE]
 > **Special Note for Fedora KDE Users**: If you encounter slow mouse movement or response lag, try using the `--qt-platform xcb` parameter to improve performance:
 > ```bash
 > python anylabeling/app.py --qt-platform xcb
 > ```
-
-<a id="command-line-parameters"></a>
-
-### Command-Line Parameters
-
-The following parameters are applicable to both the `xanylabeling` command (developer mode) and the `python anylabeling/app.py` command (regular mode):
-
-| Option                     | Description                                                                                        |
-|----------------------------|----------------------------------------------------------------------------------------------------|
-| `filename`                 | Specify the image or label filename. If a directory path is provided, all files in the folder will be loaded. |
-| `--help`, `-h`             | Display help information and exit.                                                                 |
-| `--reset-config`           | Reset Qt configuration, clearing all settings.                                                     |
-| `--logger-level`           | Set the logging level: "debug", "info", "warning", "fatal", "error".                              |
-| `--output`, `-O`, `-o`     | Specify the output file or directory. Paths ending with `.json` are treated as files.             |
-| `--config`                 | Specify a configuration file or YAML-formatted configuration string. Defaults to a user-specific path. |
-| `--nodata`                 | Prevent storing image data in JSON files.                                                          |
-| `--autosave`               | Enable automatic saving of annotation data.                                                        |
-| `--nosortlabels`           | Disable label sorting.                                                                             |
-| `--flags`                  | Comma-separated list of flags or path to a file containing flags.                                 |
-| `--labelflags`             | YAML-formatted string for label-specific flags or a file containing a JSON-formatted string.      |
-| `--labels`                 | Comma-separated list of labels or path to a file containing labels.                               |
-| `--validatelabel`          | Specify the type of label validation.                                                              |
-| `--keep-prev`              | Keep annotations from the previous frame.                                                          |
-| `--epsilon`                | Determine the epsilon value for finding the nearest vertex on the canvas.                          |
-| `--no-auto-update-check`   | Disable automatic update checks on startup.                                                        |
 
 #### 1.2.3 GUI Installer Package
 
@@ -267,17 +265,17 @@ For detailed instructions on how to use X-AnyLabeling, please refer to the corre
 
 To facilitate users running `X-AnyLabeling` on different platforms, this tool provides packaging and compilation instructions along with relevant notes. Before executing the following packaging commands, please modify the `__preferred_device__` parameter in the [app_info.py](../../anylabeling/app_info.py) file according to your environment and requirements to select the appropriate GPU or CPU version for building.
 
-### Notes
+### 3.1 Notes
 
-1. **Modify Device Configuration**: Before compiling, ensure that the `__preferred_device__` parameter in the `anylabeling/app_info.py` file has been modified according to the required GPU/CPU version.
+- **Modify Device Configuration**: Before compiling, ensure that the `__preferred_device__` parameter in the `anylabeling/app_info.py` file has been modified according to the required GPU/CPU version.
 
-2. **Verify GPU Environment**: If compiling the GPU version, please activate the corresponding GPU runtime environment first and execute `pip list | grep onnxruntime-gpu` to ensure it is properly installed.
+- **Verify GPU Environment**: If compiling the GPU version, please activate the corresponding GPU runtime environment first and execute `pip list | grep onnxruntime-gpu` to ensure it is properly installed.
 
-3. **Windows-GPU Compilation**: Manually modify the `datas` list parameter in the `x-anylabeling-win-gpu.spec` file to add the relevant `*.dll` files of the local `onnxruntime-gpu` dynamic library to the list.
+- **Windows-GPU Compilation**: Manually modify the `datas` list parameter in the `x-anylabeling-win-gpu.spec` file to add the relevant `*.dll` files of the local `onnxruntime-gpu` dynamic library to the list.
 
-4. **Linux-GPU Compilation**: Manually modify the `datas` list parameter in the `x-anylabeling-linux-gpu.spec` file to add the relevant `*.so` files of the local `onnxruntime-gpu` dynamic library to the list. Additionally, ensure that you download a matching `onnxruntime-gpu` package according to your CUDA version. For detailed compatibility information, please refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html).
+- **Linux-GPU Compilation**: Manually modify the `datas` list parameter in the `x-anylabeling-linux-gpu.spec` file to add the relevant `*.so` files of the local `onnxruntime-gpu` dynamic library to the list. Additionally, ensure that you download a matching `onnxruntime-gpu` package according to your CUDA version. For detailed compatibility information, please refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html).
 
-### Build Commands
+### 3.2 Build Commands
 
 ```bash
 # Windows-CPU

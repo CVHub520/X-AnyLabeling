@@ -11,6 +11,7 @@ CLI_HELP_MSG = """
         checks            Display system and package information
         version           Show version information
         config            Show config file path
+        convert           Run conversion tasks
 
     Launch Options:
         xanylabeling                                    Launch the GUI application
@@ -18,6 +19,11 @@ CLI_HELP_MSG = """
         xanylabeling --output DIR                       Set output directory
         xanylabeling --config FILE                      Use custom config file
         xanylabeling --reset-config                     Reset Qt config
+
+    Conversion Tasks:
+        xanylabeling convert                            List all conversion tasks
+        xanylabeling convert --task <task>              Show help for a specific task
+        xanylabeling convert --task <task> [options]    Run conversion
 
     Examples:
         1. Launch the app:
@@ -31,6 +37,15 @@ CLI_HELP_MSG = """
 
         4. Show version:
             xanylabeling version
+
+        5. List all conversion tasks:
+            xanylabeling convert
+
+        6. Show help for a conversion task:
+            xanylabeling convert --task yolo2xlabel
+
+        7. Convert YOLO to XLABEL:
+            xanylabeling convert --task yolo2xlabel --mode detect --images ./images --labels ./labels --output ./output --classes classes.txt
 
     For more options, use: xanylabeling --help
 

@@ -54,6 +54,24 @@ def main():
     subparsers.add_parser("version", help="show version information")
     subparsers.add_parser("config", help="show config file path")
 
+    convert_parser = subparsers.add_parser(
+        "convert", help="run conversion tasks"
+    )
+    convert_parser.add_argument(
+        "--task",
+        type=str,
+        help="conversion task name (e.g., yolo2xlabel, xlabel2yolo)",
+    )
+    convert_parser.add_argument("--images", type=str, help="image directory path")
+    convert_parser.add_argument("--labels", type=str, help="label directory path")
+    convert_parser.add_argument("--output", type=str, help="output directory path")
+    convert_parser.add_argument("--classes", type=str, help="classes file path")
+    convert_parser.add_argument("--pose-cfg", type=str, help="pose configuration file path")
+    convert_parser.add_argument("--mode", type=str, help="conversion mode")
+    convert_parser.add_argument("--mapping", type=str, help="mapping table file path")
+    convert_parser.add_argument("--skip-empty-files", action="store_true", 
+        help="skip creating empty output files, only support `xlabel2yolo` and `xlabel2voc` tasks")
+
     parser.add_argument(
         "--reset-config", action="store_true", help="reset qt config"
     )
@@ -167,18 +185,21 @@ def main():
     args = parser.parse_args()
 
     special = {
-        "help": lambda: print(CLI_HELP_MSG),
-        "checks": lambda: __import__(
+        "help": lambda args: print(CLI_HELP_MSG),
+        "checks": lambda args: __import__(
             "anylabeling.views.common.checks", fromlist=["run_checks"]
         ).run_checks(),
-        "version": lambda: print(__version__),
-        "config": lambda: print(
+        "version": lambda args: print(__version__),
+        "config": lambda args: print(
             os.path.join(os.path.expanduser("~"), ".xanylabelingrc")
         ),
+        "convert": lambda args: __import__(
+            "anylabeling.views.common.converter", fromlist=["handle_convert_command"]
+        ).handle_convert_command(args),
     }
 
     if args.command and args.command in special:
-        special[args.command]()
+        special[args.command](args)
         return
 
     if hasattr(args, "flags"):
