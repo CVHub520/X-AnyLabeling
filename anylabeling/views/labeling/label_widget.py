@@ -3974,6 +3974,7 @@ class LabelingWidget(LabelDialog):
             shape.label = text
             shape.difficult = difficult
             shape.kie_linking = kie_linking
+            self.canvas.store_shapes()
             self.add_label(shape)
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)

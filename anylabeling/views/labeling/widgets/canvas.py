@@ -2318,7 +2318,6 @@ class Canvas(
             self.shapes[-1].label = text
         self.shapes[-1].flags = flags
         self.shapes_backups.pop()
-        self.store_shapes()
         return self.shapes[-1]
 
     def undo_last_line(self):
