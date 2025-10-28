@@ -1,7 +1,4 @@
-import os
 import base64
-import contextlib
-import io
 import json
 import os.path as osp
 
@@ -10,11 +7,11 @@ from PIL import ImageFile
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
-from ...app_info import __version__
 from . import utils
-from .shape import Shape
-from .logger import logger
 from .label_converter import LabelConverter
+from .logger import logger
+from .schema import XLABEL_BASIC_FIELDS, create_xlabel_template
+from .shape import Shape
 
 PIL.Image.MAX_IMAGE_PIXELS = None
 
@@ -36,6 +33,27 @@ class LabelFile:
         self.filename = filename
 
     @staticmethod
+    def _check_image_height_and_width(image_data, image_height, image_width):
+        img_arr = utils.img_b64_to_arr(image_data)
+        if image_height is not None and img_arr.shape[0] != image_height:
+            logger.error(
+                "image_height does not match with image_data or image_path, "
+                "so getting image_height from actual image."
+            )
+            image_height = img_arr.shape[0]
+        if image_width is not None and img_arr.shape[1] != image_width:
+            logger.error(
+                "image_width does not match with image_data or image_path, "
+                "so getting image_width from actual image."
+            )
+            image_width = img_arr.shape[1]
+        return image_height, image_width
+
+    @staticmethod
+    def is_label_file(filename):
+        return osp.splitext(filename)[1].lower() == LabelFile.suffix
+
+    @staticmethod
     def load_image_file(filename, default=None):
         try:
             with open(filename, "rb") as f:
@@ -45,15 +63,6 @@ class LabelFile:
             return default
 
     def load(self, filename):
-        keys = [
-            "version",
-            "imageData",
-            "imagePath",
-            "shapes",  # polygonal annotations
-            "flags",  # image level flags
-            "imageHeight",
-            "imageWidth",
-        ]
         try:
             with utils.io_open(filename, "r") as f:
                 data = json.load(f)
@@ -107,7 +116,7 @@ class LabelFile:
 
         other_data = {}
         for key, value in data.items():
-            if key not in keys:
+            if key not in XLABEL_BASIC_FIELDS:
                 other_data[key] = value
 
         # Add new fields if not available
@@ -120,23 +129,6 @@ class LabelFile:
         self.image_data = image_data
         self.filename = filename
         self.other_data = other_data
-
-    @staticmethod
-    def _check_image_height_and_width(image_data, image_height, image_width):
-        img_arr = utils.img_b64_to_arr(image_data)
-        if image_height is not None and img_arr.shape[0] != image_height:
-            logger.error(
-                "image_height does not match with image_data or image_path, "
-                "so getting image_height from actual image."
-            )
-            image_height = img_arr.shape[0]
-        if image_width is not None and img_arr.shape[1] != image_width:
-            logger.error(
-                "image_width does not match with image_data or image_path, "
-                "so getting image_width from actual image."
-            )
-            image_width = img_arr.shape[1]
-        return image_height, image_width
 
     def save(
         self,
@@ -172,15 +164,15 @@ class LabelFile:
                     [xmin, ymax],
                 ]
                 shapes[i] = shape
-        data = {
-            "version": __version__,
-            "flags": flags,
-            "shapes": shapes,
-            "imagePath": image_path,
-            "imageData": image_data,
-            "imageHeight": image_height,
-            "imageWidth": image_width,
-        }
+
+        data = create_xlabel_template(
+            flags=flags,
+            shapes=shapes,
+            image_path=image_path,
+            image_data=image_data,
+            image_height=image_height,
+            image_width=image_width,
+        )
 
         for key, value in other_data.items():
             assert key not in data
@@ -191,7 +183,3 @@ class LabelFile:
             self.filename = filename
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
-
-    @staticmethod
-    def is_label_file(filename):
-        return osp.splitext(filename)[1].lower() == LabelFile.suffix

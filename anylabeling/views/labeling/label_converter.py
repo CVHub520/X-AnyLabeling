@@ -14,12 +14,14 @@ import numpy as np
 import xml.dom.minidom as minidom
 import xml.etree.ElementTree as ET
 
-from PIL import Image
 from datetime import date
 from itertools import chain
+from PIL import Image
+from typing import Any, Dict, List
 
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.schema import create_xlabel_template
 from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
@@ -28,49 +30,142 @@ class LabelConverter:
     def __init__(self, classes_file=None, pose_cfg_file=None):
         self.classes = []
         if classes_file:
-            with open(classes_file, "r", encoding="utf-8") as f:
-                self.classes = f.read().splitlines()
+            self.classes = self.read_lines(classes_file)
             logger.info(f"Loading classes: {self.classes}")
+
         self.pose_classes = {}
         if pose_cfg_file:
             with open(pose_cfg_file, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
+                data = yaml.safe_load(f)	
                 self.has_visible = data["has_visible"]
                 for class_name, keypoint_name in data["classes"].items():
                     self.pose_classes[class_name] = keypoint_name
                 self.classes = list(self.pose_classes.keys())
             logger.info(f"Loading pose classes: {self.pose_classes}")
 
+    #################################################
+    #                Helper Methods                 #
+    #################################################
+    def calculate_normalized_bbox(self, poly, img_w, img_h):
+        """
+        Calculate the minimum bounding box for a set of four points and return the YOLO format rectangle representation (normalized).
+
+        Args:
+        - poly (list): List of four points [(x1, y1), (x2, y2), (x3, y3), (x4, y4)].
+        - img_w (int): Width of the corresponding image.
+        - img_h (int): Height of the corresponding image.
+
+        Returns:
+        - tuple: Tuple representing the YOLO format rectangle in xywh_center form (all normalized).
+        """
+        xmin, ymin, xmax, ymax = self.calculate_bounding_box(poly)
+        x_center = (xmin + xmax) / (2 * img_w)
+        y_center = (ymin + ymax) / (2 * img_h)
+        width = (xmax - xmin) / img_w
+        height = (ymax - ymin) / img_h
+        return x_center, y_center, width, height
+
+    def get_contours_and_labels(self, mask, mapping_table, epsilon_factor=0.001):
+        results = []
+        input_type = mapping_table["type"]
+        mapping_color_data = mapping_table[
+            "colors"
+        ]  # {"label_name": [R, G, B], ...}
+
+        if input_type == "grayscale":
+            color_to_label = {v: k for k, v in mapping_color_data.items()}
+            binary_img = self.imread_unicode(mask, cv2.IMREAD_GRAYSCALE)[0]
+            if binary_img is None:
+                logger.error(f"Failed to read grayscale mask: {mask}")
+                return results
+
+            unique_colors = np.unique(binary_img)
+            for color_value in unique_colors:
+                if color_value == 0 and 0 not in color_to_label:
+                    continue
+                if color_value not in color_to_label:
+                    continue
+
+                class_name = color_to_label.get(color_value)
+
+                # Create a binary map for the current color_value
+                label_map = (binary_img == color_value).astype(np.uint8)
+
+                contours, _ = cv2.findContours(
+                    label_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+                )
+                for contour in contours:
+                    if len(contour) < 3:
+                        continue
+                    epsilon = epsilon_factor * cv2.arcLength(contour, True)
+                    approx = cv2.approxPolyDP(contour, epsilon, True)
+                    if len(approx) < 3:
+                        continue
+
+                    points = [p[0].tolist() for p in approx]
+                    result_item = {"points": points, "label": class_name}
+                    results.append(result_item)
+
+        elif input_type == "rgb":
+            rgb_img_bgr = self.imread_unicode(mask)[0]
+            if rgb_img_bgr is None:
+                logger.error(f"Failed to read RGB mask: {mask}")
+                return results
+
+            for class_name, color_rgb in mapping_color_data.items():
+                if (
+                    not isinstance(color_rgb, (list, tuple, np.ndarray))
+                    or len(color_rgb) != 3
+                ):
+                    logger.warning(
+                        f"Invalid color format for label {class_name}: {color_rgb}. Skipping."
+                    )
+                    continue
+
+                r, g, b = color_rgb
+                lower_bound_bgr = np.array([b, g, r], dtype=np.uint8)
+                upper_bound_bgr = np.array([b, g, r], dtype=np.uint8)
+
+                specific_color_mask = cv2.inRange(
+                    rgb_img_bgr, lower_bound_bgr, upper_bound_bgr
+                )
+
+                contours, _ = cv2.findContours(
+                    specific_color_mask,
+                    cv2.RETR_EXTERNAL,
+                    cv2.CHAIN_APPROX_SIMPLE,
+                )
+
+                for contour in contours:
+                    if len(contour) < 3:
+                        continue
+                    epsilon = epsilon_factor * cv2.arcLength(contour, True)
+                    approx = cv2.approxPolyDP(contour, epsilon, True)
+                    if len(approx) < 3:
+                        continue
+
+                    points = [p[0].tolist() for p in approx]
+                    result_item = {"points": points, "label": class_name}
+                    results.append(result_item)
+
+        return results
+
     def reset(self):
-        self.custom_data = dict(
-            version=__version__,
-            flags={},
-            shapes=[],
-            imagePath="",
-            imageData=None,
-            imageHeight=-1,
-            imageWidth=-1,
-        )
+        self.custom_data = create_xlabel_template()
 
     @staticmethod
-    def calculate_rotation_theta(points):
-        x1, y1 = points[0]
-        x2, y2 = points[1]
+    def calculate_bounding_box(poly):
+        """
+        Calculate the minimum bounding box for a set of four points.
 
-        # Calculate one of the diagonal vectors (after rotation)
-        diagonal_vector_x = x2 - x1
-        diagonal_vector_y = y2 - y1
+        Args:
+        - poly (list): List of four points [(x1, y1), (x2, y2), (x3, y3), (x4, y4)].
 
-        # Calculate the rotation angle in radians
-        rotation_angle = math.atan2(diagonal_vector_y, diagonal_vector_x)
-
-        # Convert radians to degrees
-        rotation_angle_degrees = math.degrees(rotation_angle)
-
-        if rotation_angle_degrees < 0:
-            rotation_angle_degrees += 360
-
-        return rotation_angle_degrees / 360 * (2 * math.pi)
+        Returns:
+        - tuple: Tuple representing the bounding box (xmin, ymin, xmax, ymax).
+        """
+        x_vals, y_vals = zip(*poly)
+        return min(x_vals), min(y_vals), max(x_vals), max(y_vals)
 
     @staticmethod
     def calculate_polygon_area(segmentations):
@@ -132,6 +227,94 @@ class LabelConverter:
         return float(total_area)
 
     @staticmethod
+    def calculate_rotation_theta(points):
+        x1, y1 = points[0]
+        x2, y2 = points[1]
+
+        # Calculate one of the diagonal vectors (after rotation)
+        diagonal_vector_x = x2 - x1
+        diagonal_vector_y = y2 - y1
+
+        # Calculate the rotation angle in radians
+        rotation_angle = math.atan2(diagonal_vector_y, diagonal_vector_x)
+
+        # Convert radians to degrees
+        rotation_angle_degrees = math.degrees(rotation_angle)
+
+        if rotation_angle_degrees < 0:
+            rotation_angle_degrees += 360
+
+        return rotation_angle_degrees / 360 * (2 * math.pi)
+
+    @staticmethod
+    def clamp_points(points, image_width, image_height):
+        """Clamp points to ensure they are within image boundaries.
+
+        Args:
+            points (list): List of points to be clamped.
+            image_width (int): Width of the image.
+            image_height (int): Height of the image.
+
+        Returns:
+            list: Clamped points within the image boundaries.
+        """
+        return [
+            [
+                max(0, min(p[0], image_width - 1)),
+                max(0, min(p[1], image_height - 1)),
+            ]
+            for p in points
+        ]
+
+    @staticmethod
+    def extract_bbox_answer(content):
+        answer_matches = re.findall(
+            r"<answer>(.*?)</answer>", content, re.DOTALL
+        )
+        if answer_matches:
+            text = answer_matches[-1]
+        else:
+            text = content
+
+        try:
+            data = json_repair.loads(text)
+            if isinstance(data, list) and len(data) > 0:
+                return data
+            else:
+                return []
+        except Exception as e:
+            logger.error(f"Error while parsing JSON: {e}")
+            return []
+
+    @staticmethod
+    def get_coco_data(mode):
+        coco_data = {
+            "info": {
+                "year": date.today().year,
+                "version": __version__,
+                "description": "COCO Label Conversion",
+                "contributor": "CVHub",
+                "url": "https://github.com/CVHub520/X-AnyLabeling",
+                "date_created": str(date.today()),
+            },
+            "licenses": [
+                {
+                    "id": 1,
+                    "url": "https://www.gnu.org/licenses/gpl-3.0.html",
+                    "name": "GNU GENERAL PUBLIC LICENSE Version 3",
+                }
+            ],
+            "categories": [],
+            "images": [],
+            "annotations": [],
+        }
+
+        if mode == "polygon":
+            coco_data["type"] = "instances"
+
+        return coco_data
+
+    @staticmethod
     def get_image_size(image_file):
         with Image.open(image_file) as img:
             width, height = img.size
@@ -187,190 +370,13 @@ class LabelConverter:
         return [float(x_min_int), float(y_min_int), bbox_width, bbox_height]
 
     @staticmethod
-    def get_contours_and_labels(mask, mapping_table, epsilon_factor=0.001):
-        results = []
-        input_type = mapping_table["type"]
-        mapping_color_data = mapping_table[
-            "colors"
-        ]  # {"label_name": [R, G, B], ...}
+    def imread_unicode(path, flags=cv2.IMREAD_COLOR):
+        """Read an image with support for Unicode paths on all platforms."""
+        data = np.fromfile(path, dtype=np.uint8)
+        image = cv2.imdecode(data, flags)
 
-        if input_type == "grayscale":
-            color_to_label = {v: k for k, v in mapping_color_data.items()}
-            binary_img = cv2.imread(mask, cv2.IMREAD_GRAYSCALE)
-            if binary_img is None:
-                logger.error(f"Failed to read grayscale mask: {mask}")
-                return results
-
-            unique_colors = np.unique(binary_img)
-            for color_value in unique_colors:
-                if color_value == 0 and 0 not in color_to_label:
-                    continue
-                if color_value not in color_to_label:
-                    continue
-
-                class_name = color_to_label.get(color_value)
-
-                # Create a binary map for the current color_value
-                label_map = (binary_img == color_value).astype(np.uint8)
-
-                contours, _ = cv2.findContours(
-                    label_map, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-                )
-                for contour in contours:
-                    if len(contour) < 3:
-                        continue
-                    epsilon = epsilon_factor * cv2.arcLength(contour, True)
-                    approx = cv2.approxPolyDP(contour, epsilon, True)
-                    if len(approx) < 3:
-                        continue
-
-                    points = [p[0].tolist() for p in approx]
-                    result_item = {"points": points, "label": class_name}
-                    results.append(result_item)
-
-        elif input_type == "rgb":
-            rgb_img_bgr = cv2.imread(mask)
-            if rgb_img_bgr is None:
-                logger.error(f"Failed to read RGB mask: {mask}")
-                return results
-
-            for class_name, color_rgb in mapping_color_data.items():
-                if (
-                    not isinstance(color_rgb, (list, tuple, np.ndarray))
-                    or len(color_rgb) != 3
-                ):
-                    logger.warning(
-                        f"Invalid color format for label {class_name}: {color_rgb}. Skipping."
-                    )
-                    continue
-
-                r, g, b = color_rgb
-                lower_bound_bgr = np.array([b, g, r], dtype=np.uint8)
-                upper_bound_bgr = np.array([b, g, r], dtype=np.uint8)
-
-                specific_color_mask = cv2.inRange(
-                    rgb_img_bgr, lower_bound_bgr, upper_bound_bgr
-                )
-
-                contours, _ = cv2.findContours(
-                    specific_color_mask,
-                    cv2.RETR_EXTERNAL,
-                    cv2.CHAIN_APPROX_SIMPLE,
-                )
-
-                for contour in contours:
-                    if len(contour) < 3:
-                        continue
-                    epsilon = epsilon_factor * cv2.arcLength(contour, True)
-                    approx = cv2.approxPolyDP(contour, epsilon, True)
-                    if len(approx) < 3:
-                        continue
-
-                    points = [p[0].tolist() for p in approx]
-                    result_item = {"points": points, "label": class_name}
-                    results.append(result_item)
-
-        return results
-
-    @staticmethod
-    def clamp_points(points, image_width, image_height):
-        """Clamp points to ensure they are within image boundaries.
-
-        Args:
-            points (list): List of points to be clamped.
-            image_width (int): Width of the image.
-            image_height (int): Height of the image.
-
-        Returns:
-            list: Clamped points within the image boundaries.
-        """
-        return [
-            [
-                max(0, min(p[0], image_width - 1)),
-                max(0, min(p[1], image_height - 1)),
-            ]
-            for p in points
-        ]
-
-    @staticmethod
-    def _extract_bbox_answer(content):
-        answer_matches = re.findall(
-            r"<answer>(.*?)</answer>", content, re.DOTALL
-        )
-        if answer_matches:
-            text = answer_matches[-1]
-        else:
-            text = content
-
-        try:
-            data = json_repair.loads(text)
-            if isinstance(data, list) and len(data) > 0:
-                return data
-            else:
-                return []
-        except Exception as e:
-            logger.error(f"Error while parsing JSON: {e}")
-            return []
-
-    def get_coco_data(self, mode):
-        coco_data = {
-            "info": {
-                "year": 2023,
-                "version": __version__,
-                "description": "COCO Label Conversion",
-                "contributor": "CVHub",
-                "url": "https://github.com/CVHub520/X-AnyLabeling",
-                "date_created": str(date.today()),
-            },
-            "licenses": [
-                {
-                    "id": 1,
-                    "url": "https://www.gnu.org/licenses/gpl-3.0.html",
-                    "name": "GNU GENERAL PUBLIC LICENSE Version 3",
-                }
-            ],
-            "categories": [],
-            "images": [],
-            "annotations": [],
-        }
-
-        if mode == "polygon":
-            coco_data["type"] = "instances"
-
-        return coco_data
-
-    def calculate_normalized_bbox(self, poly, img_w, img_h):
-        """
-        Calculate the minimum bounding box for a set of four points and return the YOLO format rectangle representation (normalized).
-
-        Args:
-        - poly (list): List of four points [(x1, y1), (x2, y2), (x3, y3), (x4, y4)].
-        - img_w (int): Width of the corresponding image.
-        - img_h (int): Height of the corresponding image.
-
-        Returns:
-        - tuple: Tuple representing the YOLO format rectangle in xywh_center form (all normalized).
-        """
-        xmin, ymin, xmax, ymax = self.calculate_bounding_box(poly)
-        x_center = (xmin + xmax) / (2 * img_w)
-        y_center = (ymin + ymax) / (2 * img_h)
-        width = (xmax - xmin) / img_w
-        height = (ymax - ymin) / img_h
-        return x_center, y_center, width, height
-
-    @staticmethod
-    def calculate_bounding_box(poly):
-        """
-        Calculate the minimum bounding box for a set of four points.
-
-        Args:
-        - poly (list): List of four points [(x1, y1), (x2, y2), (x3, y3), (x4, y4)].
-
-        Returns:
-        - tuple: Tuple representing the bounding box (xmin, ymin, xmax, ymax).
-        """
-        x_vals, y_vals = zip(*poly)
-        return min(x_vals), min(y_vals), max(x_vals), max(y_vals)
+        height, width = image.shape[:2]
+        return image, (width, height)
 
     @staticmethod
     def gen_quad_from_poly(poly):
@@ -457,10 +463,33 @@ class LabelConverter:
         except Exception as e:
             logger.error(e)
 
+    @staticmethod
+    def read_lines(file_path: str, encoding: str = "utf-8") -> List[str]:
+        with open(file_path, "r", encoding=encoding) as f:
+            return f.read().splitlines()
+
+    @staticmethod
+    def save_json(
+        data: Dict[str, Any],
+        file_path: str,
+        indent: int = 2,
+        ensure_ascii: bool = False,
+        encoding: str = "utf-8",
+    ) -> None:
+        with open(file_path, "w", encoding=encoding) as f:
+            json.dump(data, f, indent=indent, ensure_ascii=ensure_ascii)
+
+    @staticmethod
+    def read_json(file_path: str, encoding: str = "utf-8") -> Dict[str, Any]:
+        with open(file_path, "r", encoding=encoding) as f:
+            return json.load(f)
+
+    #################################################
+    #                Upload Methods                 #
+    #################################################
     def yolo_obb_to_custom(self, input_file, output_file, image_file):
         self.reset()
-        with open(input_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
+        lines = self.read_lines(input_file)
         img_w, img_h = self.get_image_size(image_file)
         for line in lines:
             line = line.strip().split(" ")
@@ -497,13 +526,11 @@ class LabelConverter:
         self.custom_data["imagePath"] = osp.basename(image_file)
         self.custom_data["imageHeight"] = img_h
         self.custom_data["imageWidth"] = img_w
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+        self.save_json(self.custom_data, output_file)
 
     def yolo_pose_to_custom(self, input_file, output_file, image_file):
         self.reset()
-        with open(input_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
+        lines = self.read_lines(input_file)
         img_w, img_h = self.get_image_size(image_file)
         classes = list(self.pose_classes.keys())
         for i, line in enumerate(lines):
@@ -565,13 +592,11 @@ class LabelConverter:
         self.custom_data["imagePath"] = osp.basename(image_file)
         self.custom_data["imageHeight"] = img_h
         self.custom_data["imageWidth"] = img_w
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+        self.save_json(self.custom_data, output_file)
 
     def yolo_to_custom(self, input_file, output_file, image_file, mode):
         self.reset()
-        with open(input_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
+        lines = self.read_lines(input_file)
         img_w, img_h = self.get_image_size(image_file)
         image_size = np.array([img_w, img_h], np.float64)
         for line in lines:
@@ -615,8 +640,7 @@ class LabelConverter:
         self.custom_data["imagePath"] = osp.basename(image_file)
         self.custom_data["imageHeight"] = img_h
         self.custom_data["imageWidth"] = img_w
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+        self.save_json(self.custom_data, output_file)
 
     def voc_to_custom(self, input_file, output_file, image_filename, mode):
         self.reset()
@@ -626,6 +650,10 @@ class LabelConverter:
 
         image_width = int(root.find("size/width").text)
         image_height = int(root.find("size/height").text)
+
+        filename_elem = root.find("filename")
+        if filename_elem is not None and filename_elem.text:
+            image_filename = filename_elem.text
 
         self.custom_data["imagePath"] = image_filename
         self.custom_data["imageHeight"] = image_height
@@ -673,12 +701,10 @@ class LabelConverter:
 
             self.custom_data["shapes"].append(shape)
 
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+        self.save_json(self.custom_data, output_file)
 
     def coco_to_custom(self, input_file, output_dir_path, mode):
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self.read_json(input_file)
 
         if mode in ["rectangle", "polygon"]:
             if not self.classes:
@@ -859,15 +885,11 @@ class LabelConverter:
                 output_dir_path,
                 osp.splitext(dic_info["imagePath"])[0] + ".json",
             )
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+            self.save_json(self.custom_data, output_file)
 
     def dota_to_custom(self, input_file, output_file, image_file):
         self.reset()
-
-        with open(input_file, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-
+        lines = self.read_lines(input_file)
         image_width, image_height = self.get_image_size(image_file)
 
         for line in lines:
@@ -890,9 +912,7 @@ class LabelConverter:
         self.custom_data["imagePath"] = osp.basename(image_file)
         self.custom_data["imageHeight"] = image_height
         self.custom_data["imageWidth"] = image_width
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+        self.save_json(self.custom_data, output_file)
 
     def mask_to_custom(
         self, input_file, output_file, image_file, mapping_table
@@ -914,9 +934,7 @@ class LabelConverter:
         self.custom_data["imagePath"] = os.path.basename(image_file)
         self.custom_data["imageHeight"] = image_height
         self.custom_data["imageWidth"] = image_width
-
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+        self.save_json(self.custom_data, output_file)
 
     def mot_to_custom(self, input_file, output_path, image_path):
         with open(input_file, "r", encoding="utf-8") as f:
@@ -986,8 +1004,7 @@ class LabelConverter:
             output_file = osp.join(
                 output_path, osp.splitext(file_name)[0] + ".json"
             )
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+            self.save_json(self.custom_data, output_file)
 
     def odvg_to_custom(self, input_file, output_path):
         # Load od.json or od.jsonl
@@ -1023,17 +1040,13 @@ class LabelConverter:
             output_file = osp.join(
                 output_path, osp.splitext(data["filename"])[0] + ".json"
             )
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+            self.save_json(self.custom_data, output_file)
 
     def mmgd_to_custom(
         self, input_file, output_file, image_file, labels, thresholds
     ):
         self.reset()
-
-        with open(input_file, "r", encoding="utf-8") as f:
-            mmgd_data = json.load(f)
-
+        mmgd_data = self.read_json(input_file)
         required_keys = ["labels", "scores", "bboxes"]
         missing_keys = [key for key in required_keys if key not in mmgd_data]
         if missing_keys:
@@ -1084,8 +1097,7 @@ class LabelConverter:
             }
             self.custom_data["shapes"].append(shape)
 
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+        self.save_json(self.custom_data, output_file)
 
     def ppocr_to_custom(self, input_file, output_path, image_path, mode):
         if mode in ["rec", "kie"]:
@@ -1127,15 +1139,12 @@ class LabelConverter:
             output_file = osp.join(
                 output_path, osp.splitext(filename)[0] + ".json"
             )
-            with open(output_file, "w", encoding="utf-8") as f:
-                json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
+            self.save_json(self.custom_data, output_file)
 
     def vlm_r1_ovd_to_custom(self, input_data, output_file, image_file):
         self.reset()
-
         image_width, image_height = self.get_image_size(image_file)
-
-        bbox_data = self._extract_bbox_answer(input_data)
+        bbox_data = self.extract_bbox_answer(input_data)
         for bbox in bbox_data:
             label = bbox["label"]
             xmin, ymin, xmax, ymax = bbox["bbox_2d"]
@@ -1152,18 +1161,17 @@ class LabelConverter:
         self.custom_data["imagePath"] = osp.basename(image_file)
         self.custom_data["imageHeight"] = image_height
         self.custom_data["imageWidth"] = image_width
+        self.save_json(self.custom_data, output_file)
 
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(self.custom_data, f, indent=2, ensure_ascii=False)
-
-    # Export functions
+    #################################################
+    #                Export Methods                 #
+    #################################################
     def custom_to_yolo(  # noqa: C901
         self, input_file, output_file, mode, skip_empty_files=False
     ):
         is_empty_file = True
         if osp.exists(input_file):
-            with open(input_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            data = self.read_json(input_file)
         else:
             if not skip_empty_files:
                 pathlib.Path(output_file).touch()
@@ -1346,11 +1354,10 @@ class LabelConverter:
         self, image_file, input_file, output_dir, mode, skip_empty_files=False
     ):
         is_emtpy_file = True
-        image = cv2.imread(image_file)
+        image = self.imread_unicode(image_file, 1)[0]
         image_height, image_width, image_depth = image.shape
         if osp.exists(input_file):
-            with open(input_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            data = self.read_json(input_file)
             shapes = data["shapes"]
         else:
             if not skip_empty_files:
@@ -1474,8 +1481,7 @@ class LabelConverter:
                 if not osp.exists(label_file):
                     continue
 
-            with open(label_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            data = self.read_json(label_file)
             image_width = data["imageWidth"]
             image_height = data["imageHeight"]
             coco_data["images"].append(
@@ -1669,12 +1675,11 @@ class LabelConverter:
             )
         elif mode == "pose":
             output_file = osp.join(output_path, "coco_keypoints.json")
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(coco_data, f, indent=4, ensure_ascii=False)
+
+        self.save_json(coco_data, output_file, indent=4)
 
     def custom_to_dota(self, input_file, output_file):
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self.read_json(input_file)
         w, h = data["imageWidth"], data["imageHeight"]
         with open(output_file, "w", encoding="utf-8") as f:
             for shape in data["shapes"]:
@@ -1702,9 +1707,7 @@ class LabelConverter:
                 )
 
     def custom_to_mask(self, input_file, output_file, mapping_table):
-        with open(input_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
+        data = self.read_json(input_file)
         image_width = data["imageWidth"]
         image_height = data["imageHeight"]
         image_shape = (image_height, image_width)
@@ -1811,8 +1814,7 @@ class LabelConverter:
             if not label_file_name.endswith("json"):
                 continue
             label_file = os.path.join(input_path, label_file_name)
-            with open(label_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            data = self.read_json(label_file)
 
             seg_len += 1
             if im_widht is None:
@@ -1913,8 +1915,7 @@ class LabelConverter:
             if not label_file_name.endswith("json"):
                 continue
             label_file = os.path.join(input_path, label_file_name)
-            with open(label_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            data = self.read_json(label_file)
 
             seg_len += 1
             if im_widht is None:
@@ -1983,10 +1984,8 @@ class LabelConverter:
             label_file = osp.join(label_path, label_name)
             if not osp.exists(label_file):
                 label_file = osp.join(osp.dirname(image_file), label_name)
-            img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
-            height, width = img.shape[:2]
-            with open(label_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
+            width, height = self.get_image_size(image_file)
+            data = self.read_json(label_file)
             instances = []
             for shape in data["shapes"]:
                 if (
@@ -2028,12 +2027,8 @@ class LabelConverter:
                 if not osp.exists(label_file):
                     label_file = osp.join(osp.dirname(image_file), label_name)
 
-                img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
-                height, width = img.shape[:2]
-
-                with open(label_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-
+                width, height = self.get_image_size(image_file)
+                data = self.read_json(label_file)
                 box_labels, unique_labels = [], set()
                 for shape in data["shapes"]:
                     if shape["shape_type"] != "rectangle":
@@ -2108,8 +2103,7 @@ class LabelConverter:
 
         avaliable_shape_types = ["rectangle", "rotation", "polygon"]
         img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
-        with open(label_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = self.read_json(label_file)
         image_width = data["imageWidth"]
         image_height = data["imageHeight"]
 
