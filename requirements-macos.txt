@@ -21,3 +21,4 @@ jsonlines
 json_repair
 importlib_metadata
 markdown
+requests

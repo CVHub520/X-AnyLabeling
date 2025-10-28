@@ -85,6 +85,7 @@ dependencies = [
     "shapely",
     "termcolor",
     "tokenizers",
+    "requests",
 ]
 
 # Optional dependencies ------------------------------------------------------------------------------------------------
