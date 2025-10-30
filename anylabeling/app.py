@@ -62,15 +62,30 @@ def main():
         type=str,
         help="conversion task name (e.g., yolo2xlabel, xlabel2yolo)",
     )
-    convert_parser.add_argument("--images", type=str, help="image directory path")
-    convert_parser.add_argument("--labels", type=str, help="label directory path")
-    convert_parser.add_argument("--output", type=str, help="output directory path")
-    convert_parser.add_argument("--classes", type=str, help="classes file path")
-    convert_parser.add_argument("--pose-cfg", type=str, help="pose configuration file path")
+    convert_parser.add_argument(
+        "--images", type=str, help="image directory path"
+    )
+    convert_parser.add_argument(
+        "--labels", type=str, help="label directory path"
+    )
+    convert_parser.add_argument(
+        "--output", type=str, help="output directory path"
+    )
+    convert_parser.add_argument(
+        "--classes", type=str, help="classes file path"
+    )
+    convert_parser.add_argument(
+        "--pose-cfg", type=str, help="pose configuration file path"
+    )
     convert_parser.add_argument("--mode", type=str, help="conversion mode")
-    convert_parser.add_argument("--mapping", type=str, help="mapping table file path")
-    convert_parser.add_argument("--skip-empty-files", action="store_true", 
-        help="skip creating empty output files, only support `xlabel2yolo` and `xlabel2voc` tasks")
+    convert_parser.add_argument(
+        "--mapping", type=str, help="mapping table file path"
+    )
+    convert_parser.add_argument(
+        "--skip-empty-files",
+        action="store_true",
+        help="skip creating empty output files, only support `xlabel2yolo` and `xlabel2voc` tasks",
+    )
 
     parser.add_argument(
         "--reset-config", action="store_true", help="reset qt config"
@@ -194,7 +209,8 @@ def main():
             os.path.join(os.path.expanduser("~"), ".xanylabelingrc")
         ),
         "convert": lambda args: __import__(
-            "anylabeling.views.common.converter", fromlist=["handle_convert_command"]
+            "anylabeling.views.common.converter",
+            fromlist=["handle_convert_command"],
         ).handle_convert_command(args),
     }
 

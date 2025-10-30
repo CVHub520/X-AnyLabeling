@@ -70,43 +70,11 @@
 
 ## 🥳 新功能
 
+- 版本更新至 `v3.3.0-beta.2`
+- 新增命令行（CLI）支持标签格式转换任务 (#980)
 - 新增对象管理器对视频帧序列的批量操作功能（感谢 @ltnetcase）(#1128)
 - 新增标签管理器中的对象可见性控制功能，支持在画布上显示/隐藏标签 (#1172)
 - 新增图像分类器多标签模式，支持为每张图片选择多个标签
-- 版本更新至 [3.2.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.6)
-- 新增支持创建多边形和线条对象时使用退格键删除上一个顶点 (#1151)
-- 新增 [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): 基于 DINOv3 的实时目标检测器
-- 新增支持 Florence-2 模型一键处理所有图像功能 (#1152)
-- 新增 YOLO 模型最大检测数量参数 (#1142)
-- 版本更新至 [3.2.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.5)
-- 新增 --qt-platform 参数以提升 Fedora KDE 环境下的性能表现 (#1145)
-- 新增 Ctrl+Shift+G 快捷键自动使用上一次的群组编号功能 (#1143)
-- 实现异步 EXIF 检测以消除图像加载延迟及画面卡顿现象
-- X-AnyLabeling [v3.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.4) 版本发布
-- 新增支持删除对象的组 ID 功能 (#1141)
-- 新增支持 Ultralytics 图像分类任务训练 [[教程](./examples/training/ultralytics/README.md)]
-- 新增循环选中标签功能用于顺序选中单个对象 (#1138)
-- 新增属性和标签组件的可见性控制复选框功能 (#1139)
-- 新增对象属性单选按钮组件，支持单击快速选择 [[教程](./examples/classification/shape-level/README.md)]
-- 新增绘制对象完成后自动显示属性面板功能
-- 修复线条顶点绘制问题 (#1134)
-- 新增支持在画布外绘制矩形框对象并自适应裁剪功能 (#1137)
-- 新增专用多类别图像分类器，优化标注流程 [[文档](./docs/zh_cn/image_classifier.md)]
-- 新增一键选取/反选所有对象功能
-- 新增聊天机器人自定义提供商支持并优化模型下拉列表选择功能
-- 新增上传 YOLO 标签时保留现有标注选项
-- 新增 VQA AI 提示跨组件引用和标注数据引用功能
-- X-AnyLabeling [v3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3) 版本发布
-- 新增 SAM 系列模型的掩码精细度控制滑块，可调节分割精度
-- 新增 PP-OCR 模型的文字重识别功能 [[示例](./examples/optical_character_recognition/text_recognition/README.md)]
-- 新增支持 [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) 模型
-- 新增复制坐标到剪贴板功能
-- 新增导航器功能，支持高分辨率图像的快速导航和缩放控制
-- X-AnyLabeling [v3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2) 版本发布
-- 新增 VQA 任务的 AI 助手功能和提示模板管理系统
-- 支持批量编辑多个对象
-- 支持在画布上显示/隐藏对象属性
-- 在 X-AnyLabeling 中内置一键训练功能，支持 Ultralytics 官方 Detect、Segment、OBB、Pose 四大任务 [[链接](./examples/training/ultralytics/README.md)]
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 

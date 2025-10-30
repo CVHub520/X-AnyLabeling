@@ -36,7 +36,7 @@ class LabelConverter:
         self.pose_classes = {}
         if pose_cfg_file:
             with open(pose_cfg_file, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)	
+                data = yaml.safe_load(f)
                 self.has_visible = data["has_visible"]
                 for class_name, keypoint_name in data["classes"].items():
                     self.pose_classes[class_name] = keypoint_name
@@ -65,7 +65,9 @@ class LabelConverter:
         height = (ymax - ymin) / img_h
         return x_center, y_center, width, height
 
-    def get_contours_and_labels(self, mask, mapping_table, epsilon_factor=0.001):
+    def get_contours_and_labels(
+        self, mask, mapping_table, epsilon_factor=0.001
+    ):
         results = []
         input_type = mapping_table["type"]
         mapping_color_data = mapping_table[

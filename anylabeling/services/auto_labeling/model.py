@@ -1,7 +1,6 @@
 import os
 import pathlib
 import yaml
-import onnx
 import urllib.request
 import time
 import multiprocessing
@@ -33,9 +32,11 @@ def _check_onnx_model_worker(model_path):
     """Worker function to validate ONNX model in subprocess."""
     try:
         import onnx
+
         onnx.checker.check_model(model_path)
     except Exception as e:
         import sys
+
         print(f"ONNX model check failed: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -223,11 +224,13 @@ class Model(QObject):
                 if ok:
                     return model_abs_path
                 else:
-                    logger.warning(f"ONNX model validation failed: {model_abs_path}. Deleting and redownloading...")
+                    logger.warning(
+                        f"ONNX model validation failed: {model_abs_path}. Deleting and redownloading..."
+                    )
                     try:
                         os.remove(model_abs_path)
                         time.sleep(1)
-                    except Exception as e2: # noqa
+                    except Exception as e2:  # noqa
                         logger.error(f"Could not delete: {str(e2)}")
             else:
                 logger.info("Model file exists, no integrity check needed.")

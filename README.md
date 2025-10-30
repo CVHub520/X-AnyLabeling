@@ -70,43 +70,11 @@
 
 ## 🥳 What's New
 
+- Bump version to `3.3.0-beta.2`
+- Add CLI support for annotation conversion tasks (#980)
 - Add Shape Manager for batch operations on video frame sequences (thanks @ltnetcase) (#1128)
 - Add shape visibility control in Label Manager for showing/hiding labels on canvas (#1172)
 - Add multi-label classification mode to Image Classifier
-- Bump version to [3.2.6](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.6)
-- Add support for using backspace key to delete the last vertex when creating polygon and line shapes (#1151)
-- Add [DEIMv2](./tools/onnx_exporter/export_deimv2_onnx.py): A real-time object detector powered by DINOv3 features
-- Add the ability to process all images at once with the Florence-2 model (#1152)
-- Add max_det parameter for maximum detections in YOLO model (#1142)
-- Bump version to [3.2.5](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.5)
-- Add --qt-platform argument for improved performance on Fedora KDE environments (#1145)
-- Add auto_use_last_gid feature with Ctrl+Shift+G shortcut (1143)
-- Implement async EXIF detection to eliminate loading delays
-- Bump version to [3.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.4)
-- Add support for deleting group IDs from objects (#1141)
-- Add support for Ultralytics image classification task training [[Tutorial](./examples/training/ultralytics/README.md)]
-- Add loop select labels functionality for sequential shape selection (#1138)
-- Add checkboxes for description and labels visibility control in the labeling widget (#1139)
-- Add support for radiobutton widgets in shape attributes for faster single-click selection [[Tutorial](./examples/classification/shape-level/README.md)]
-- Add automatic attributes panel display when finishing shape drawing
-- Fix linestrip vertex drawing issues (#1134)
-- Add support for drawing rectangle shapes outside canvas with auto-clipping (#1137)
-- Add dedicated multi-class image classifier with streamlined workflow [[Docs](./docs/en/image_classifier.md)]
-- Add select/deselect all shapes feature
-- Add custom provider support and enhance model dropdown feature for Chatbot
-- Add option to preserve existing annotations when uploading YOLO labels
-- Add cross-component and annotation data reference tokens for VQA AI prompts
-- Bump version to [3.2.3](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.3)
-- Add mask fineness control slider for SAM series models to adjust segmentation precision
-- Add Re-recognition feature for PP-OCR models [[Example](./examples/optical_character_recognition/text_recognition/README.md)]
-- Add support for [PP-OCRv5](https://github.com/PaddlePaddle/PaddleOCR/tree/main/docs/version3.x/algorithm/PP-OCRv5) model
-- Add copy coordinates to clipboard feature
-- Add Navigator feature for high-resolution image navigation and zoom control
-- Bump version to [3.2.2](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.2)
-- Add AI Assistant and prompt template management for VQA
-- Add support for batch editing multiple shapes simultaneously
-- Add support for Show/Hide shape attributes on canvas
-- Add support for automated training platform with Ultralytics tasks in X-AnyLabeling [[Link](./examples/training/ultralytics/README.md)]
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
