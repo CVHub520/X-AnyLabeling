@@ -2309,7 +2309,7 @@ class Canvas(
                 if self.rotating_shape:
                     self.rotating_shape = False
 
-    def set_last_label(self, text, flags):
+    def set_last_label(self, text, flags, group_id):
         """Set label and flags for last shape"""
         assert text
         if self.is_auto_labeling:
@@ -2317,7 +2317,9 @@ class Canvas(
         else:
             self.shapes[-1].label = text
         self.shapes[-1].flags = flags
+        self.shapes[-1].group_id = group_id
         self.shapes_backups.pop()
+        self.store_shapes()
         return self.shapes[-1]
 
     def undo_last_line(self):

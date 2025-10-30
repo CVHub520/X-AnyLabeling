@@ -2437,7 +2437,7 @@ class LabelingWidget(LabelDialog):
     def undo_shape_edit(self):
         self.canvas.restore_shape()
         self.label_list.clear()
-        self.load_shapes(self.canvas.shapes)
+        self.load_shapes(self.canvas.shapes, update_last_label=False)
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
         self.set_dirty()
 
@@ -3073,6 +3073,10 @@ class LabelingWidget(LabelDialog):
 
         # Add to label history
         self.label_dialog.add_label_history(shape.label)
+
+        # Update last group_id
+        if group_id is not None:
+            self.label_dialog._last_gid = group_id
 
         # Update unique label list
         if not self.unique_label_list.find_items_by_label(shape.label):
@@ -3968,13 +3972,12 @@ class LabelingWidget(LabelDialog):
 
         if text:
             self.label_list.clearSelection()
-            shape = self.canvas.set_last_label(text, flags)
+            shape = self.canvas.set_last_label(text, flags, group_id)
             shape.group_id = group_id
             shape.description = description
             shape.label = text
             shape.difficult = difficult
             shape.kie_linking = kie_linking
-            self.canvas.store_shapes()
             self.add_label(shape)
             self.actions.edit_mode.setEnabled(True)
             self.actions.undo_last_point.setEnabled(False)
