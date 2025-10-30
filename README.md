@@ -84,10 +84,10 @@
 - Implement async EXIF detection to eliminate loading delays
 - Bump version to [3.2.4](https://github.com/CVHub520/X-AnyLabeling/releases/tag/v3.2.4)
 - Add support for deleting group IDs from objects (#1141)
-- Add support for Ultralytics image classification task training [[Toturial](./examples/training/ultralytics/README.md)]
+- Add support for Ultralytics image classification task training [[Tutorial](./examples/training/ultralytics/README.md)]
 - Add loop select labels functionality for sequential shape selection (#1138)
 - Add checkboxes for description and labels visibility control in the labeling widget (#1139)
-- Add support for radiobutton widgets in shape attributes for faster single-click selection [[Toturial](./examples/classification/shape-level/README.md)]
+- Add support for radiobutton widgets in shape attributes for faster single-click selection [[Tutorial](./examples/classification/shape-level/README.md)]
 - Add automatic attributes panel display when finishing shape drawing
 - Fix linestrip vertex drawing issues (#1134)
 - Add support for drawing rectangle shapes outside canvas with auto-clipping (#1137)
@@ -145,7 +145,7 @@
 | 🗣️ Vision Foundation Models | Florence2 |
 | 👁️ Vision Language Models | Qwen-VL, Gemini, ChatGPT |
 | 🛣️ Land Detection | CLRNet |
-| 📍 Grounding | CountGD, GeCO, Grunding DINO, YOLO-World, YOLOE |
+| 📍 Grounding | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 
