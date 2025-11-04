@@ -70,9 +70,9 @@
 
 ## 🥳 新功能
 
+- 版本更新至 `v3.3.0-rc.1`
 - 新增基于 [RF-DETR-Seg](./tools/onnx_exporter/export_rfdetr_seg_onnx.py) 的实时图像分割模型 (#1184)
 - 新增支持通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 进行远程推理服务部署 (#1175)
-- 版本更新至 `v3.3.0-beta.2`
 - 新增命令行（CLI）支持标签格式转换任务 (#980)
 - 新增对象管理器对视频帧序列的批量操作功能（感谢 @ltnetcase）(#1128)
 - 新增标签管理器中的对象可见性控制功能，支持在画布上显示/隐藏标签 (#1172)

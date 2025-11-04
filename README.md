@@ -71,9 +71,9 @@
 
 ## 🥳 What's New
 
+- Bump version to `3.3.0-rc.1`
 - Add support for real-time instance segmentation model based on [RF-DETR-Seg](./tools/onnx_exporter/export_rfdetr_seg_onnx.py) (#1184)
 - Add support for remote server inference via [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) (#1175)
-- Bump version to `3.3.0-beta.2`
 - Add CLI support for annotation conversion tasks (#980)
 - Add Shape Manager for batch operations on video frame sequences (thanks @ltnetcase) (#1128)
 - Add shape visibility control in Label Manager for showing/hiding labels on canvas (#1172)

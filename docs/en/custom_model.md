@@ -2,6 +2,9 @@
 
 X-AnyLabeling currently includes many built-in general-purpose models. For a detailed list, please refer to the [Model Zoo](../../docs/en/model_zoo.md).
 
+> [!TIP]
+> If you need to deploy a model inference service via a remote server with multi-user collaboration support, please refer to [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server).
+
 ## Loading Built-in Models
 
 Before enabling the AI-assisted labeling feature, you need to load a model. This can be done via the `AI` icon button in the left sidebar or by using the shortcut `Ctrl+A`.

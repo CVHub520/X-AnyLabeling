@@ -2,6 +2,9 @@
 
 X-AnyLabeling 当前内置了许多通用模型，具体可参考 [模型列表](../../docs/zh_cn/model_zoo.md)。
 
+> [!TIP]
+> 如果你需要通过远程服务器部署模型推理服务并支持多人协作，请参考 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server)。
+
 ## 加载内置模型
 
 在启用 AI 辅助标定功能之前，用户需要先加载模型，可通过左侧菜单栏的 `AI` 标识按钮或直接使用快捷键 `Ctrl+A` 激活。
