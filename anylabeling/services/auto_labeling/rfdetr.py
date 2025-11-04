@@ -12,11 +12,11 @@ from .model import Model
 from .types import AutoLabelingResult
 from .engines.build_onnx_engine import OnnxBaseModel
 from .utils.general import sigmoid
-from .utils.points_conversion import cxcywh2xyxy
+from .utils.points_conversion import cxcywh2xyxy, masks2segments
 
 
 class RFDETR(Model):
-    """Object detection model using RF-DETR"""
+    """Object detection and instance segmentation model using RF-DETR"""
 
     class Meta:
         required_config_names = [
@@ -34,31 +34,44 @@ class RFDETR(Model):
             "toggle_preserve_existing_annotations",
         ]
         output_modes = {
+            "polygon": QCoreApplication.translate("Model", "Polygon"),
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
         default_output_mode = "rectangle"
 
     def __init__(self, model_config, on_message) -> None:
-        # Run the parent class's init method
         super().__init__(model_config, on_message)
-        model_name = self.config["type"]
+
+        self.model_type = self.config["type"]
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
                     "Model",
-                    f"Could not download or initialize {model_name} model.",
+                    f"Could not download or initialize {self.model_type} model.",
                 )
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.classes = self.config["classes"]
 
-        input_width = self.config.get("input_width", 560)
-        input_height = self.config.get("input_height", 560)
+        _, _, input_height, input_width = self.net.get_input_shape()
+        if not isinstance(input_width, int):
+            default_input_width = 432 if "seg" in self.model_type else 560
+            input_width = self.config.get("input_width", default_input_width)
+        if not isinstance(input_height, int):
+            default_input_height = 432 if "seg" in self.model_type else 560
+            input_height = self.config.get(
+                "input_height", default_input_height
+            )
         self.input_shape = (input_height, input_width)
+
+        self.num_outputs = len(self.net.ort_session.get_outputs())
+        self.has_mask = self.num_outputs == 3
 
         self.conf_thres = self.config.get("conf_threshold", 0.50)
         self.num_select = self.config.get("num_select", 300)
+        self.show_boxes = self.config.get("show_boxes", False)
+        self.epsilon = self.config.get("epsilon", 0.001)
         self.replace = True
 
     def set_auto_labeling_conf(self, value):
@@ -69,6 +82,10 @@ class RFDETR(Model):
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
         """Toggle the preservation of existing annotations based on the checkbox state."""
         self.replace = not state
+
+    def set_mask_fineness(self, epsilon):
+        """Set mask fineness epsilon value"""
+        self.epsilon = epsilon
 
     def preprocess(self, input_image):
         """
@@ -118,15 +135,15 @@ class RFDETR(Model):
         Post-processes the network's output.
 
         Args:
-            input_image (numpy.ndarray): The input image.
-            outputs (numpy.ndarray): The output from the network.
+            outs (list): The output from the network.
+            image_shape (tuple): The shape of the input image (height, width).
 
         Returns:
-            list: List of dictionaries containing the output
-                    bounding boxes, labels, and scores.
+            tuple: Tuple containing bounding boxes, scores, labels, and masks.
         """
         out_bbox = outs[0]
         out_logits = outs[1]
+        out_masks = outs[2] if len(outs) == 3 else None
 
         prob = sigmoid(out_logits)
         prob_reshaped = prob.reshape(out_logits.shape[0], -1)
@@ -154,12 +171,30 @@ class RFDETR(Model):
         scale_fct = np.array([[img_w, img_h, img_w, img_h]], dtype=np.float32)
         boxes = boxes * scale_fct[:, None, :]
 
-        keep = scores[0] > self.conf_thres
-        scores = scores[0][keep].tolist()
-        labels = labels[0][keep].tolist()
-        boxes = boxes[0][keep].tolist()
+        if out_masks is not None:
+            masks = np.take_along_axis(
+                out_masks, topk_boxes[:, :, None, None], axis=1
+            )
+            masks = masks[0]
+            resized_masks = np.stack(
+                [
+                    np.array(Image.fromarray(mask).resize((img_w, img_h)))
+                    for mask in masks
+                ],
+                axis=0,
+            )
+            masks = (resized_masks > 0).astype(np.uint8) * 255
+        else:
+            masks = None
 
-        return boxes, scores, labels
+        keep = scores[0] > self.conf_thres
+        scores = scores[0][keep]
+        labels = labels[0][keep]
+        boxes = boxes[0][keep]
+        if masks is not None:
+            masks = masks[keep]
+
+        return boxes, scores, labels, masks
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -171,8 +206,8 @@ class RFDETR(Model):
 
         try:
             image = Image.open(image_path)
-            image_shape = image.size[::-1]  # (height, width)
-        except Exception as e:  # noqa
+            image_shape = image.size[::-1]
+        except Exception as e:
             logger.warning("Could not inference model")
             logger.warning(e)
             return []
@@ -181,24 +216,49 @@ class RFDETR(Model):
         detections = self.net.get_ort_inference(
             blob, extract=False, squeeze=False
         )
-        boxes, scores, labels = self.postprocess(detections, image_shape)
+        boxes, scores, labels, masks = self.postprocess(
+            detections, image_shape
+        )
         shapes = []
 
-        for box, score, label in zip(boxes, scores, labels):
-            xmin = box[0]
-            ymin = box[1]
-            xmax = box[2]
-            ymax = box[3]
-            shape = Shape(
-                label=self.classes[label],
-                score=score,
-                shape_type="rectangle",
-            )
-            shape.add_point(QtCore.QPointF(xmin, ymin))
-            shape.add_point(QtCore.QPointF(xmax, ymin))
-            shape.add_point(QtCore.QPointF(xmax, ymax))
-            shape.add_point(QtCore.QPointF(xmin, ymax))
-            shapes.append(shape)
+        if self.has_mask and masks is not None:
+            segments = masks2segments(masks, self.epsilon)
+            for i, (segment, box, score, label) in enumerate(
+                zip(segments, boxes, scores, labels)
+            ):
+                shape = Shape(
+                    label=self.classes[int(label)],
+                    score=float(score),
+                    shape_type="polygon",
+                )
+                for point in segment:
+                    shape.add_point(QtCore.QPointF(point[0], point[1]))
+                shape.closed = True
+                shapes.append(shape)
+
+                if self.show_boxes:
+                    box_shape = Shape(
+                        label=self.classes[int(label)],
+                        score=float(score),
+                        shape_type="rectangle",
+                    )
+                    box_shape.add_point(QtCore.QPointF(box[0], box[1]))
+                    box_shape.add_point(QtCore.QPointF(box[2], box[1]))
+                    box_shape.add_point(QtCore.QPointF(box[2], box[3]))
+                    box_shape.add_point(QtCore.QPointF(box[0], box[3]))
+                    shapes.append(box_shape)
+        else:
+            for box, score, label in zip(boxes, scores, labels):
+                shape = Shape(
+                    label=self.classes[int(label)],
+                    score=float(score),
+                    shape_type="rectangle",
+                )
+                shape.add_point(QtCore.QPointF(box[0], box[1]))
+                shape.add_point(QtCore.QPointF(box[2], box[1]))
+                shape.add_point(QtCore.QPointF(box[2], box[3]))
+                shape.add_point(QtCore.QPointF(box[0], box[3]))
+                shapes.append(shape)
 
         result = AutoLabelingResult(shapes, replace=self.replace)
         return result

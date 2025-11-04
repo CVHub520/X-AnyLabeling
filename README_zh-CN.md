@@ -70,7 +70,8 @@
 
 ## 🥳 新功能
 
-- 新增支持通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 进行远程服务器推理 (#1175)
+- 新增基于 [RF-DETR-Seg](./tools/onnx_exporter/export_rfdetr_seg_onnx.py) 的实时图像分割模型 (#1184)
+- 新增支持通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 进行远程推理服务部署 (#1175)
 - 版本更新至 `v3.3.0-beta.2`
 - 新增命令行（CLI）支持标签格式转换任务 (#980)
 - 新增对象管理器对视频帧序列的批量操作功能（感谢 @ltnetcase）(#1128)
@@ -88,6 +89,7 @@
 
 <img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
 
+- 支持远程推理服务。
 - 支持`GPU`加速推理。
 - 支持一键预测所有图像。
 - 支持`图像`和`视频`处理。
@@ -103,7 +105,7 @@
 | :--- | :--- |
 | 🖼️ **图像分类** | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
 | 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
-| 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg |
+| 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
 | 👣 **目标跟踪** | Bot-SORT, ByteTrack |
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
@@ -114,7 +116,7 @@
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCRv4, PPOCR-v5 |
 | 🗣️ **视觉基础模型** | Florence2 |
-| 👁️ **视觉语言模型** | Qwen-VL, Gemini, ChatGPT |
+| 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT |
 | 🛣️ **车道线检测** | CLRNet |
 | 📍 **Grounding** | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
@@ -122,6 +124,7 @@
 
 ## 文档
 
+0. [远程推理服务](https://github.com/CVHub520/X-AnyLabeling-Server)
 1. [安装文档](./docs/zh_cn/get_started.md)
 2. [用户手册](./docs/zh_cn/user_guide.md)
 3. [自定义模型](./docs/zh_cn/custom_model.md)

@@ -227,6 +227,7 @@
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
+| rf-detr-seg-preview.onnx  | [RF-DETR Seg-Preview](../../tools/onnx_exporter/export_rfdetr_seg_onnx.py)| [rfdetr_seg_preview.yaml](../../anylabeling/configs/auto_labeling/rfdetr_seg_preview.yaml) | 122.18MB | [baidu](https://pan.baidu.com/s/1cMIwh5NMYhkQY8pJCvYfrw?pwd=ehz7) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rf-detr-seg-preview.onnx) |
 | yolov5s-seg.onnx | [YOLOv5](https://github.com/ultralytics/yolov5)-COCO | [yolov5s_seg.yaml](../../anylabeling/configs/auto_labeling/yolov5s_seg.yaml)  | 29.45MB | [baidu](https://pan.baidu.com/s/10g0PetDeW7VRm2SS513R3g?pwd=mlav) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov5s-seg.onnx) |
 | yolov8x-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8x_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8x_seg.yaml)  | 274.10MB | [baidu](https://pan.baidu.com/s/1KEzlMVCOi7v96TW7tWSv0A?pwd=jc9h) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8x-seg.onnx) |
 | yolov8l-seg.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8l_seg.yaml](../../anylabeling/configs/auto_labeling/yolov8l_seg.yaml)  | 175.59MB | [baidu](https://pan.baidu.com/s/13URaJg3rqHeA1NfooIvWMQ?pwd=5ygm) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8l-seg.onnx) |

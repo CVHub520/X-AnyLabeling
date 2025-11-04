@@ -70,6 +70,7 @@ _CUSTOM_MODELS = [
     "upn",
     "geco",
     "rfdetr",
+    "rfdetr_seg",
     "dfine",
     "yolo12",
     "u_rtdetr",
@@ -118,6 +119,7 @@ _AUTO_LABELING_MASK_FINENESS_MODELS = [
     "grounding_sam",
     "grounding_sam2",
     "edge_sam",
+    "rfdetr_seg",
 ]
 
 
@@ -198,6 +200,7 @@ _AUTO_LABELING_CONF_MODELS = [
     "yolox",
     "doclayout_yolo",
     "rfdetr",
+    "rfdetr_seg",
     "deimv2",
     "dfine",
     "yolo12",
@@ -284,6 +287,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "doclayout_yolo",
     "florence2",
     "rfdetr",
+    "rfdetr_seg",
     "deimv2",
     "dfine",
     "yolo12",

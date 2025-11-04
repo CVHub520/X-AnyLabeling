@@ -71,6 +71,7 @@
 
 ## 🥳 What's New
 
+- Add support for real-time instance segmentation model based on [RF-DETR-Seg](./tools/onnx_exporter/export_rfdetr_seg_onnx.py) (#1184)
 - Add support for remote server inference via [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) (#1175)
 - Bump version to `3.3.0-beta.2`
 - Add CLI support for annotation conversion tasks (#980)
@@ -88,6 +89,7 @@
 
 <img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
 
+- Supports remote inference service.
 - Processes both `images` and `videos`.
 - Accelerates inference with `GPU` support.
 - Allows custom models and secondary development.
@@ -102,7 +104,7 @@
 | :--- | :--- |
 | 🖼️ Image Classification | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
 | 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
-| 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg |
+| 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
 | 👣 Tracking | Bot-SORT, ByteTrack |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
@@ -113,7 +115,7 @@
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCRv4, PP-OCRv5 |
 | 🗣️ Vision Foundation Models | Florence2 |
-| 👁️ Vision Language Models | Qwen-VL, Gemini, ChatGPT |
+| 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT |
 | 🛣️ Land Detection | CLRNet |
 | 📍 Grounding | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
@@ -121,6 +123,7 @@
 
 ## Docs
 
+0. [Remote Inference Service](https://github.com/CVHub520/X-AnyLabeling-Server)
 1. [Installation & Quickstart](./docs/en/get_started.md)
 2. [Usage](./docs/en/user_guide.md)
 3. [Customize a model](./docs/en/custom_model.md)
