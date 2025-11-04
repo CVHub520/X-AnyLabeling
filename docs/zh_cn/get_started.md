@@ -7,6 +7,7 @@ X-AnyLabeling 提供了多种安装方法，您可以通过 `pip` 直接安装�
 > [!NOTE]
 > **高级功能说明**：以下高级功能仅适用于 Git 克隆方式，如需使用，请先参考对应的文档进行配置。
 >
+> 0. **远程推理服务指南**：基于 X-AnyLabeling-Server 的远程推理服务 - [安装指南](https://github.com/CVHub520/X-AnyLabeling-Server)
 > 1. **视频目标追踪**：基于 Segment-Anything-2 的视频目标追踪 - [安装指南](../../examples/interactive_video_object_segmentation/README.md)
 > 2. **目标候选框生成**：基于 UPN 的目标候选框生成 - [安装指南](../../examples/detection/hbb/README.md)
 > 3. **交互式检测分割**：基于视觉和文本提示的交互式目标检测和分割 - [安装指南](../../examples/detection/hbb/README.md)

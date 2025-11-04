@@ -1723,6 +1723,27 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "remote_server":
+            from .remote_server import RemoteServer
+
+            try:
+                logger.info(f"⌛ Loading model: {model_config['type']}")
+                model_config["model"] = RemoteServer(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:
+                template = "Error in loading model: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "florence2":
             from .florence2 import Florence2
 
@@ -2142,6 +2163,23 @@ class ModelManager(QObject):
 
         if self.loaded_model_config["type"] == "florence2":
             self.loaded_model_config["model"].set_florence2_mode(mode)
+
+    def set_remote_server_model(self, model_id):
+        """Set remote server model ID"""
+        if self.loaded_model_config is None:
+            return
+
+        if self.loaded_model_config["type"] == "remote_server":
+            self.loaded_model_config["model"].set_model_id(model_id)
+
+    def get_remote_server_available_models(self):
+        """Get available models from remote server"""
+        if self.loaded_model_config is None:
+            return {}
+
+        if self.loaded_model_config["type"] == "remote_server":
+            return self.loaded_model_config["model"].get_available_models()
+        return {}
 
     def set_mask_fineness(self, epsilon):
         """Set mask fineness (epsilon value for Douglas-Peucker algorithm)"""

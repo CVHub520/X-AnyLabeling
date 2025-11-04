@@ -1,0 +1,7 @@
+type: remote_server
+name: remote_server-r20251104
+provider: CVHub
+display_name: Remote-Server
+server_url: http://localhost:8000
+api_key: ""
+timeout: 30

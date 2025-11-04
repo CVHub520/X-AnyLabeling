@@ -1,6 +1,6 @@
 type: open_vision
 name: open_vision-r20241010
-provider: CVHub
+provider: Others
 display_name: Open Vision
 text_encoder_type: bert-base-uncased  # modify this path to your own path
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/open_vision_fsc147.pth

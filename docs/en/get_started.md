@@ -7,6 +7,7 @@ X-AnyLabeling provides multiple installation methods. You can install the offici
 > [!NOTE]
 > **Advanced Features**: The following advanced features are only available through Git clone installation. Please refer to the corresponding documentation for configuration instructions.
 >
+> 0. **Remote Inference Service**: X-AnyLabeling-Server based remote inference service - [Installation Guide](https://github.com/CVHub520/X-AnyLabeling-Server)
 > 1. **Video Object Tracking**: Segment-Anything-2 based video object tracking - [Installation Guide](../../examples/interactive_video_object_segmentation/README.md)
 > 2. **Bounding Box Generation**: UPN-based bounding box generation - [Installation Guide](../../examples/detection/hbb/README.md)
 > 3. **Interactive Detection & Segmentation**: Interactive object detection and segmentation with visual and text prompts - [Installation Guide](../../examples/detection/hbb/README.md)

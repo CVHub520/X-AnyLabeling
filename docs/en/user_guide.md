@@ -917,6 +917,7 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 
 ## 10. Advanced Features
 
+- Remote Server Guide: [Link](https://github.com/CVHub520/X-AnyLabeling-Server)
 - Chatbot Guide: [Link](../en/chatbot.md)
 - VQA Guide: [Link](../en/vqa.md)
 - Image Classifier: [Link](../en/image_classifier.md)

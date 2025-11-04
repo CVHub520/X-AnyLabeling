@@ -91,6 +91,9 @@ class AutoLabelingWidget(QWidget):
         self.gd_select_combobox.currentIndexChanged.connect(
             self.on_gd_mode_changed
         )
+        self.remote_server_select_combobox.currentIndexChanged.connect(
+            self.on_remote_server_model_changed
+        )
 
         # Disable tools when inference is running
         def set_enable_tools(enable):
@@ -106,6 +109,7 @@ class AutoLabelingWidget(QWidget):
             self.upn_select_combobox.setEnabled(enable)
             self.gd_select_combobox.setEnabled(enable)
             self.florence2_select_combobox.setEnabled(enable)
+            self.remote_server_select_combobox.setEnabled(enable)
 
         self.model_manager.prediction_started.connect(
             lambda: set_enable_tools(False)
@@ -215,27 +219,20 @@ class AutoLabelingWidget(QWidget):
         self.toggle_preserve_existing_annotations.setStyleSheet(
             get_normal_button_style()
         )
-        tooltip_on = self.tr(
+        self.toggle_preserve_existing_annotations_tooltip_on = self.tr(
             "Existing shapes will be preserved during updates. Click to switch to overwriting."
         )
-        tooltip_off = self.tr(
+        self.toggle_preserve_existing_annotations_tooltip_off = self.tr(
             "Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving."
         )
-        self.toggle_preserve_existing_annotations.setToolTip(tooltip_off)
-        self.toggle_preserve_existing_annotations.clicked.connect(
-            lambda checked: (
-                self.toggle_preserve_existing_annotations.setToolTip(
-                    tooltip_on if checked else tooltip_off
-                ),
-                self.toggle_preserve_existing_annotations.setText(
-                    self.tr("Replace (Off)")
-                    if checked
-                    else self.tr("Replace (On)")
-                ),
-            )
+        self.toggle_preserve_existing_annotations.setToolTip(
+            self.toggle_preserve_existing_annotations_tooltip_off
+        )
+        self.toggle_preserve_existing_annotations.setText(
+            self.tr("Replace (On)")
         )
         self.toggle_preserve_existing_annotations.toggled.connect(
-            self.on_preserve_existing_annotations_state_changed
+            self._on_toggle_preserve_existing_annotations_toggled
         )
 
         # --- Configuration for: button_skip_detection ---
@@ -295,6 +292,7 @@ class AutoLabelingWidget(QWidget):
         self.populate_upn_combobox()
         self.populate_florence2_combobox()
         self.populate_gd_combobox()
+        self.populate_remote_server_combobox()
 
     def init_model_data(self):
         """Get models data"""
@@ -386,6 +384,8 @@ class AutoLabelingWidget(QWidget):
         def top_level_sort_key(key: str):
             if key == "Custom":
                 return (0,)
+            if key == "CVHub":
+                return (0.5,)
             if key == "Others":
                 return (2,)
             return (1, key)
@@ -692,6 +692,8 @@ class AutoLabelingWidget(QWidget):
             self.update_florence2_mode_ui()
         elif model_config.get("type") == "groundingdino":
             self.update_groundingdino_mode_ui()
+        elif model_config.get("type") == "remote_server":
+            self.update_remote_server_mode_ui()
 
     def update_upn_mode_ui(self):
         """Update UPN mode combobox to reflect current backend state"""
@@ -780,6 +782,7 @@ class AutoLabelingWidget(QWidget):
             "upn_select_combobox",
             "gd_select_combobox",
             "florence2_select_combobox",
+            "remote_server_select_combobox",
             "button_auto_decode",
             "button_skip_detection",
             "mask_fineness_slider",
@@ -808,6 +811,26 @@ class AutoLabelingWidget(QWidget):
     def on_iou_value_changed(self, value):
         """Handle iou value changed"""
         self.model_manager.set_auto_labeling_iou(value)
+
+    def _on_toggle_preserve_existing_annotations_toggled(self, checked):
+        """Handle toggle button state change - update UI and notify backend"""
+        if checked:
+            self.toggle_preserve_existing_annotations.setText(
+                self.tr("Replace (Off)")
+            )
+            self.toggle_preserve_existing_annotations.setToolTip(
+                self.toggle_preserve_existing_annotations_tooltip_on
+            )
+        else:
+            self.toggle_preserve_existing_annotations.setText(
+                self.tr("Replace (On)")
+            )
+            self.toggle_preserve_existing_annotations.setToolTip(
+                self.toggle_preserve_existing_annotations_tooltip_off
+            )
+
+        # Notify backend
+        self.on_preserve_existing_annotations_state_changed(checked)
 
     def on_preserve_existing_annotations_state_changed(self, state):
         """Handle preserve existing annotations state changed"""
@@ -957,6 +980,118 @@ class AutoLabelingWidget(QWidget):
                 self.on_preserve_existing_annotations_state_changed(
                     preserve_annotations_modes[mode]
                 )
+
+    def populate_remote_server_combobox(self):
+        """Populate remote server combobox"""
+        self.remote_server_select_combobox.clear()
+
+    @pyqtSlot()
+    def on_remote_server_model_changed(self):
+        """Handle remote server model change"""
+        model_id = self.remote_server_select_combobox.currentData()
+        if model_id:
+            self.model_manager.set_remote_server_model(model_id)
+            self.update_remote_server_widgets(model_id)
+
+    def update_remote_server_mode_ui(self):
+        """Update remote server combobox with available models"""
+        if (
+            not self.model_manager.loaded_model_config
+            or self.model_manager.loaded_model_config.get("type")
+            != "remote_server"
+        ):
+            return
+
+        available_models = (
+            self.model_manager.get_remote_server_available_models()
+        )
+
+        self.remote_server_select_combobox.blockSignals(True)
+        self.remote_server_select_combobox.clear()
+
+        for model_id, model_info in available_models.items():
+            display_name = model_info.get("display_name", model_id)
+            self.remote_server_select_combobox.addItem(
+                display_name, userData=model_id
+            )
+
+        self.remote_server_select_combobox.blockSignals(False)
+
+        if available_models:
+            self.remote_server_select_combobox.setCurrentIndex(0)
+            first_model_id = list(available_models.keys())[0]
+            self.model_manager.set_remote_server_model(first_model_id)
+            self.update_remote_server_widgets(first_model_id)
+
+    def update_remote_server_widgets(self, model_id):
+        """Update widget visibility based on remote server model"""
+        if (
+            not self.model_manager.loaded_model_config
+            or self.model_manager.loaded_model_config.get("type")
+            != "remote_server"
+        ):
+            return
+
+        available_models = (
+            self.model_manager.get_remote_server_available_models()
+        )
+        if model_id not in available_models:
+            return
+
+        model_info = available_models[model_id]
+        widgets_config = model_info.get("widgets", [])
+
+        all_widgets = [
+            "button_send",
+            "button_add_point",
+            "button_add_rect",
+            "button_remove_point",
+            "button_clear",
+            "button_finish_object",
+            "input_conf",
+            "edit_conf",
+            "input_iou",
+            "edit_iou",
+            "toggle_preserve_existing_annotations",
+            "button_run",
+            "edit_text",
+            "mask_fineness_slider",
+            "mask_fineness_value_label",
+        ]
+
+        for widget_name in all_widgets:
+            widget = getattr(self, widget_name, None)
+            if widget:
+                widget.hide()
+
+        for widget_item in widgets_config:
+            widget_name = widget_item.get("name")
+            widget_value = widget_item.get("value")
+            widget_placeholder = widget_item.get("placeholder")
+
+            widget = getattr(self, widget_name, None)
+            if widget:
+                widget.show()
+
+                if widget_value is not None:
+                    if hasattr(widget, "setValue"):
+                        widget.setValue(widget_value)
+                    elif hasattr(widget, "setChecked"):
+                        widget.setChecked(widget_value)
+                    elif hasattr(widget, "setText"):
+                        widget.setText(str(widget_value))
+
+                    if widget_name == "edit_conf":
+                        self.on_conf_value_changed(widget_value)
+                    elif widget_name == "edit_iou":
+                        self.on_iou_value_changed(widget_value)
+                    elif widget_name == "mask_fineness_slider":
+                        self.on_mask_fineness_changed(widget_value)
+
+                if widget_placeholder is not None and hasattr(
+                    widget, "setPlaceholderText"
+                ):
+                    widget.setPlaceholderText(widget_placeholder)
 
     def on_auto_decode_toggled(self):
         """Handle AMD button toggle"""

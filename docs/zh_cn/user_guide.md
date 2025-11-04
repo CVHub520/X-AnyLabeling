@@ -995,6 +995,7 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 
 ## 10. 高级功能
 
+- 远程推理服务指南：[链接](https://github.com/CVHub520/X-AnyLabeling-Server)
 - 聊天机器人：[链接](../zh_cn/chatbot.md)
 - 视觉问答: [链接](../zh_cn/vqa.md)
 - 图像分类器：[链接](../zh_cn/image_classifier.md)

@@ -1,4 +1,5 @@
 _CUSTOM_MODELS = [
+    "remote_server",
     "florence2",
     "doclayout_yolo",
     "open_vision",
@@ -86,6 +87,7 @@ _CACHED_AUTO_LABELING_MODELS = [
 
 # --- set_auto_labeling_marks ---
 _AUTO_LABELING_MARKS_MODELS = [
+    "remote_server",
     "segment_anything",
     "segment_anything_2",
     "segment_anything_2_video",
@@ -105,6 +107,7 @@ _AUTO_LABELING_MARKS_MODELS = [
 
 # --- set_mask_fineness ---
 _AUTO_LABELING_MASK_FINENESS_MODELS = [
+    "remote_server",
     "segment_anything",
     "segment_anything_2",
     "segment_anything_2_video",
@@ -133,12 +136,14 @@ _SKIP_PREDICTION_ON_NEW_MARKS_MODELS = [
 
 # --- set_auto_labeling_api_token ---
 _AUTO_LABELING_API_TOKEN_MODELS = [
+    "remote_server",
     "grounding_dino_api",
 ]
 
 
 # --- set_auto_labeling_reset_tracker ---
 _AUTO_LABELING_RESET_TRACKER_MODELS = [
+    "remote_server",
     "yolov5_det_track",
     "yolov8_det_track",
     "yolov8_obb_track",
@@ -154,6 +159,7 @@ _AUTO_LABELING_RESET_TRACKER_MODELS = [
 
 # --- set_auto_labeling_conf ---
 _AUTO_LABELING_CONF_MODELS = [
+    "remote_server",
     "upn",
     "damo_yolo",
     "gold_yolo",
@@ -203,6 +209,7 @@ _AUTO_LABELING_CONF_MODELS = [
 
 # --- set_auto_labeling_iou ---
 _AUTO_LABELING_IOU_MODELS = [
+    "remote_server",
     "upn",
     "damo_yolo",
     "gold_yolo",
@@ -239,6 +246,7 @@ _AUTO_LABELING_IOU_MODELS = [
 
 # --- set_auto_labeling_preserve_existing_annotations_state ---
 _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
+    "remote_server",
     "damo_yolo",
     "gold_yolo",
     "grounding_dino",

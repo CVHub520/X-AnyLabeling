@@ -11,6 +11,7 @@
 <p align="center">
     <a href="./LICENSE"><img src="https://img.shields.io/badge/License-LGPL%20v3-blue.svg"></a>
     <a href=""><img src="https://img.shields.io/github/v/release/CVHub520/X-AnyLabeling?color=ffa"></a>
+    <a href=""><img src="https://img.shields.io/pypi/v/x-anylabeling-cvhub?logo=pypi&logoColor=white"></a>
     <a href=""><img src="https://img.shields.io/badge/python-3.10+-aff.svg"></a>
     <a href=""><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
     <a href=""><img src="https://img.shields.io/github/downloads/CVHub520/X-AnyLabeling/total?label=downloads"></a>
@@ -70,6 +71,7 @@
 
 ## 🥳 What's New
 
+- Add support for remote server inference via [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) (#1175)
 - Bump version to `3.3.0-beta.2`
 - Add CLI support for annotation conversion tasks (#980)
 - Add Shape Manager for batch operations on video frame sequences (thanks @ltnetcase) (#1128)

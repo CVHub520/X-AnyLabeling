@@ -70,6 +70,7 @@
 
 ## 🥳 新功能
 
+- 新增支持通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 进行远程服务器推理 (#1175)
 - 版本更新至 `v3.3.0-beta.2`
 - 新增命令行（CLI）支持标签格式转换任务 (#980)
 - 新增对象管理器对视频帧序列的批量操作功能（感谢 @ltnetcase）(#1128)
