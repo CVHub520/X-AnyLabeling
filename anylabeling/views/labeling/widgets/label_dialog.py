@@ -1240,18 +1240,21 @@ class LabelModifyDialog(QtWidgets.QDialog):
                     self.parent.unique_label_list.create_item_from_label(c)
                 )
                 self.parent.unique_label_list.addItem(unique_label_item)
-                rgb = self.parent._get_rgb_by_label(c, skip_label_info=True)
+                rgb = self.parent._get_rgb_by_label(c)
                 self.parent.unique_label_list.set_item_label(
                     unique_label_item, c, rgb, self.opacity
                 )
             else:
-                rgb = self.parent._get_rgb_by_label(c, skip_label_info=True)
+                rgb = self.parent._get_rgb_by_label(c)
             # Update label info
-            color = list(rgb)
-            opacity = self.opacity
+            # Preserve existing color if label already exists in label_info
             if c in self.parent.label_info:
+                color = self.parent.label_info[c].get("color", list(rgb))
+                opacity = self.parent.label_info[c].get("opacity", self.opacity)
                 visible = self.parent.label_info[c].get("visible", True)
             else:
+                color = list(rgb)
+                opacity = self.opacity
                 visible = True
             self.parent.label_info[c] = dict(
                 delete=False,
