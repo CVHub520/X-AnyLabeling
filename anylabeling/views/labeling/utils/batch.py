@@ -37,6 +37,7 @@ INVALID_MODEL_LIST = [
 ]
 
 TEXT_PROMPT_MODELS = [
+    "remote_server",
     "grounding_dino",
     "grounding_sam",
     "grounding_sam2",
@@ -450,7 +451,7 @@ def run_all_images(self):
             or self.auto_labeling_widget.model_manager.loaded_model_config[
                 "type"
             ]
-            == "yoloe"
+            in ["yoloe", "remote_server"]
         ):
             show_progress_dialog_and_process(self)
     elif (
