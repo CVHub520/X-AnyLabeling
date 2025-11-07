@@ -70,19 +70,15 @@
 
 ## 🥳 新功能
 
-- 版本更新至 `v3.3.0-rc.1`
-- 新增基于 [RF-DETR-Seg](./tools/onnx_exporter/export_rfdetr_seg_onnx.py) 的实时图像分割模型 (#1184)
-- 新增支持通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 进行远程推理服务部署 (#1175)
-- 新增命令行（CLI）支持标签格式转换任务 (#980)
-- 新增对象管理器对视频帧序列的批量操作功能（感谢 @ltnetcase）(#1128)
-- 新增标签管理器中的对象可见性控制功能，支持在画布上显示/隐藏标签 (#1172)
-- 新增图像分类器多标签模式，支持为每张图片选择多个标签
+- 版本更新至 `v3.3.0`
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 
 ## 简介
 
 **X-AnyLabeling** 是一款基于AI推理引擎和丰富功能特性于一体的强大辅助标注工具，其专注于实际应用，致力于为多模态数据工程师提供工业级的一站式解决方案，可自动快速进行各种复杂任务的标定。
+
+此外，我们还开发了 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server)，这是一个简单、轻量且可扩展的服务框架，为 X-AnyLabeling 提供远程推理能力，欢迎体验。
 
 
 ## 新特性
@@ -114,7 +110,7 @@
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
-| 📄 **光学字符识别** | PP-OCRv4, PPOCR-v5 |
+| 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5 |
 | 🗣️ **视觉基础模型** | Florence2 |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT |
 | 🛣️ **车道线检测** | CLRNet |
@@ -127,11 +123,12 @@
 0. [远程推理服务](https://github.com/CVHub520/X-AnyLabeling-Server)
 1. [安装文档](./docs/zh_cn/get_started.md)
 2. [用户手册](./docs/zh_cn/user_guide.md)
-3. [自定义模型](./docs/zh_cn/custom_model.md)
-4. [常见问题答疑](./docs/zh_cn/faq.md)
-5. [聊天机器人](./docs/zh_cn/chatbot.md)
-6. [视觉问答](./docs/zh_cn/vqa.md)
-7. [多类别图像分类器](./docs/en/image_classifier.md)
+3. [命令行界面](./docs/zh_cn/cli.md)
+4. [自定义模型](./docs/zh_cn/custom_model.md)
+5. [常见问题答疑](./docs/zh_cn/faq.md)
+6. [聊天机器人](./docs/zh_cn/chatbot.md)
+7. [视觉问答](./docs/zh_cn/vqa.md)
+8. [多类别图像分类器](./docs/en/image_classifier.md)
 
 
 ## 示例

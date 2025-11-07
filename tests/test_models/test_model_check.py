@@ -7,9 +7,11 @@ import multiprocessing
 def _check_onnx_model_worker(model_path):
     try:
         import onnx
+
         onnx.checker.check_model(model_path)
     except Exception as e:
         import sys
+
         print(f"ONNX model check failed: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -35,6 +37,7 @@ def safe_check_onnx_model(model_path, timeout=30):
 
 def _blocking_worker(path):
     import time
+
     time.sleep(10)
 
 
@@ -77,6 +80,7 @@ class TestONNXModelCheck(unittest.TestCase):
 
     def tearDown(self):
         import shutil
+
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 

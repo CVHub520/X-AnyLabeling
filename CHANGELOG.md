@@ -1,5 +1,48 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.0` (Nov 07, 2025)
+
+### 🚀 New Features
+
+- Add real-time instance segmentation model based on RF-DETR-Seg (#1184)
+- Add support for remote inference via X-AnyLabeling-Server (#1175)
+- Add shape visibility control in Label Manager for showing/hiding labels on canvas (#1172)
+- Add CLI support for conversion tasks (#980)
+- Add batch operations for video frame sequences (thanks @ltnetcase) (#1128)
+- Add multi-label classification mode support
+- Add device support for RTMDet and RTMO models
+- Support customizable rotation increments (#1174)
+- Support customizable attribute label colors in config file (#1178)
+- Auto refresh model list and remove uninstalled models in chatbot
+- Reset flags from current data on dialog initialization
+
+### 🐛 Bug Fixes
+
+- Preserve existing color and opacity for labels in LabelModifyDialog (#1185)
+- Resolve group ID persistence across undo/edit operations (#1149)
+- Ensure shapes are stored after label updates in the labeling widget (#1149)
+- Handle non-ASCII paths in VOC annotation export on Windows (#1181)
+- Enhance ONNX model validation with error handling and timeout management (#1180)
+- Implement subprocess integrity check for ONNX models
+- Apply sigmoid to logits for proper threshold comparison in GroundingSAM2 (thanks @tiucamaria) (#1179)
+- Restore PyQt5 support for macOS
+- Improve bounding box precision by removing int() truncation (thanks @xusuyong) (#1159)
+- Fix empty keypoints check in RTMDet pose models
+
+### 🛠️ Improvements
+
+- Add detailed explanation on copy-paste functionality for annotation objects (#1183)
+- Add troubleshooting information for ImportError related to expat module (#1158)
+- Fix typos in README files
+- Fix image panel resizing and simplify background styling in classifier dialog
+- Add requests package to dependencies
+
+### 🌟 Contributors
+
+A total of 6 developers contributed to this release.
+
+Thank @Liyulingyue, @ltnetcase, @tiucamaria, @xusuyong, @jk4e, @CVHub520
+
 ## `v3.2.6` (Oct 02, 2025)
 
 ### 🚀 New Features

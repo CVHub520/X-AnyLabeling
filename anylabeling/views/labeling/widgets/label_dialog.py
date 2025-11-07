@@ -1250,7 +1250,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
             # Preserve existing color if label already exists in label_info
             if c in self.parent.label_info:
                 color = self.parent.label_info[c].get("color", list(rgb))
-                opacity = self.parent.label_info[c].get("opacity", self.opacity)
+                opacity = self.parent.label_info[c].get(
+                    "opacity", self.opacity
+                )
                 visible = self.parent.label_info[c].get("visible", True)
             else:
                 color = list(rgb)

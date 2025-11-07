@@ -71,19 +71,15 @@
 
 ## 🥳 What's New
 
-- Bump version to `3.3.0-rc.1`
-- Add support for real-time instance segmentation model based on [RF-DETR-Seg](./tools/onnx_exporter/export_rfdetr_seg_onnx.py) (#1184)
-- Add support for remote server inference via [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) (#1175)
-- Add CLI support for annotation conversion tasks (#980)
-- Add Shape Manager for batch operations on video frame sequences (thanks @ltnetcase) (#1128)
-- Add shape visibility control in Label Manager for showing/hiding labels on canvas (#1172)
-- Add multi-label classification mode to Image Classifier
+- Bump version to `v3.3.0`
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 
 ## X-AnyLabeling
 
 **X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It's designed for multi-modal data engineers, offering industrial-grade solutions for complex tasks.
+
+Also, we developed [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server), a simple, lightweight, and extensible serving framework that enables remote inference capabilities for X-AnyLabeling. Feel free to try it out.
 
 ## Features
 
@@ -94,7 +90,7 @@
 - Accelerates inference with `GPU` support.
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.
-- Enable import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, MMGD, VLM-R1.
+- Supports import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, MMGD, VLM-R1.
 - Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 
@@ -126,10 +122,11 @@
 0. [Remote Inference Service](https://github.com/CVHub520/X-AnyLabeling-Server)
 1. [Installation & Quickstart](./docs/en/get_started.md)
 2. [Usage](./docs/en/user_guide.md)
-3. [Customize a model](./docs/en/custom_model.md)
-4. [Chatbot](./docs/en/chatbot.md)
-5. [VQA](./docs/en/vqa.md)
-6. [Multi-class Image Classifier](./docs/en/image_classifier.md)
+3. [Command Line Interface](./docs/en/cli.md)
+4. [Customize a model](./docs/en/custom_model.md)
+5. [Chatbot](./docs/en/chatbot.md)
+6. [VQA](./docs/en/vqa.md)
+7. [Multi-class Image Classifier](./docs/en/image_classifier.md)
 
 
 ## Examples
@@ -187,7 +184,7 @@ This project is licensed under the [GPL-3.0 license](./LICENSE) and is only free
 
 ## Acknowledgement
 
-I extend my heartfelt thanks to the developers and contributors of [AnyLabeling](https://github.com/vietanhdev/anylabeling), [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelIm), [roLabelImg](https://github.com/cgvict/roLabelImg), [PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) and [CVAT](https://github.com/opencv/cvat), whose work has been crucial to the success of this project.
+I extend my heartfelt thanks to the developers and contributors of [AnyLabeling](https://github.com/vietanhdev/anylabeling), [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelImg), [roLabelImg](https://github.com/cgvict/roLabelImg), [PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) and [CVAT](https://github.com/opencv/cvat), whose work has been crucial to the success of this project.
 
 
 ## Citing

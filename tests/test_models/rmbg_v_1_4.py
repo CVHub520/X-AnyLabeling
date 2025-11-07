@@ -22,8 +22,10 @@ class ImageBackgroundRemover:
                 Defaults to ['CPUExecutionProvider'].
         """
         if providers is None:
-            providers = ['CPUExecutionProvider']
-        self.ort_session = onnxruntime.InferenceSession(model_path, providers=providers)
+            providers = ["CPUExecutionProvider"]
+        self.ort_session = onnxruntime.InferenceSession(
+            model_path, providers=providers
+        )
         self.model_input_size = (1024, 1024)
 
     def preprocess_image(self, image: np.ndarray) -> np.ndarray:
@@ -38,13 +40,17 @@ class ImageBackgroundRemover:
         """
         if len(image.shape) < 3:
             image = np.expand_dims(image, axis=2)
-        image = cv2.resize(image, self.model_input_size[::-1], interpolation=cv2.INTER_LINEAR)
+        image = cv2.resize(
+            image, self.model_input_size[::-1], interpolation=cv2.INTER_LINEAR
+        )
         image = image.astype(np.float32) / 255.0
         image = (image - 0.5) / 1.0
         image = np.transpose(image, (2, 0, 1))
         return np.expand_dims(image, axis=0)
 
-    def postprocess_image(self, result: np.ndarray, original_size: tuple) -> np.ndarray:
+    def postprocess_image(
+        self, result: np.ndarray, original_size: tuple
+    ) -> np.ndarray:
         """
         Postprocess the model output.
 
@@ -55,7 +61,11 @@ class ImageBackgroundRemover:
         Returns:
             np.ndarray: Postprocessed image as a numpy array.
         """
-        result = cv2.resize(np.squeeze(result), original_size[::-1], interpolation=cv2.INTER_LINEAR)
+        result = cv2.resize(
+            np.squeeze(result),
+            original_size[::-1],
+            interpolation=cv2.INTER_LINEAR,
+        )
         max_val, min_val = np.max(result), np.min(result)
         result = (result - min_val) / (max_val - min_val)
         return (result * 255).astype(np.uint8)
@@ -74,7 +84,9 @@ class ImageBackgroundRemover:
         preprocessed_image = self.preprocess_image(orig_image)
 
         # Run inference
-        ort_inputs = {self.ort_session.get_inputs()[0].name: preprocessed_image}
+        ort_inputs = {
+            self.ort_session.get_inputs()[0].name: preprocessed_image
+        }
         ort_outs = self.ort_session.run(None, ort_inputs)
         result = ort_outs[0]
 
@@ -84,8 +96,8 @@ class ImageBackgroundRemover:
         # Create the final image with transparent background
         pil_mask = Image.fromarray(result_image)
         pil_image = Image.open(image_path)
-        pil_image = pil_image.convert('RGBA')
-        pil_mask = pil_mask.convert('L')
+        pil_image = pil_image.convert("RGBA")
+        pil_mask = pil_mask.convert("L")
 
         # Create a new image with an alpha channel
         output_image = Image.new("RGBA", pil_image.size, (0, 0, 0, 0))

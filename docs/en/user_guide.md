@@ -306,6 +306,9 @@ This feature is particularly useful when working with ultra-high resolution imag
 
 `X-AnyLabeling` supports importing and exporting annotations in various standard formats. This section provides a guide for each. Access import/export functions via the `File` menu or dedicated toolbar buttons (e.g., `Import Annotations`, `Export Annotations`).
 
+> [!TIP]
+> You can also consider to use the command-line tool for batch conversions! The CLI provides more efficient and flexible label format conversion capabilities, especially suited for large-scale datasets. See the [CLI docs](./cli.md#3-label-format-conversion) for details.
+
 **General Notes:**
 - **Configuration Files:** Many formats require specific configuration files (e.g., listing class names) for import/export. Ensure these are prepared correctly.
 - **Default Export Path:** By default, exported files are saved to a format-specific subfolder (e.g., `labels`, `Annotations`, `mask`) within the current image directory. You can usually specify a different output path during export.
