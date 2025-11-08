@@ -15,6 +15,11 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.app_info import __version__
+from anylabeling.services.auto_labeling import (
+    _BATCH_PROCESSING_INVALID_MODELS,
+    _BATCH_PROCESSING_TEXT_PROMPT_MODELS,
+    _BATCH_PROCESSING_VIDEO_MODELS,
+)
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils._io import io_open
 from anylabeling.views.labeling.utils.qt import new_icon_path
@@ -23,30 +28,6 @@ from anylabeling.views.labeling.widgets.popup import Popup
 
 
 __all__ = ["run_all_images"]
-
-
-INVALID_MODEL_LIST = [
-    "segment_anything",
-    "segment_anything_2",
-    "sam_med2d",
-    "sam_hq",
-    "efficientvit_sam",
-    "edge_sam",
-    "open_vision",
-    "geco",
-]
-
-TEXT_PROMPT_MODELS = [
-    "remote_server",
-    "grounding_dino",
-    "grounding_sam",
-    "grounding_sam2",
-    "yoloe",
-]
-
-VIDEO_MODELS = [
-    "segment_anything_2_video",
-]
 
 
 class TextInputDialog(QDialog):
@@ -253,7 +234,7 @@ def process_next_image(self, progress_dialog):
                 self.auto_labeling_widget.model_manager.loaded_model_config[
                     "type"
                 ]
-                in VIDEO_MODELS
+                in _BATCH_PROCESSING_VIDEO_MODELS
             ):
                 self.filename = image_file
                 self.load_file(self.filename)
@@ -407,7 +388,7 @@ def run_all_images(self):
 
     if (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]
-        in INVALID_MODEL_LIST
+        in _BATCH_PROCESSING_INVALID_MODELS
     ):
         logger.warning(
             f"The model `{self.auto_labeling_widget.model_manager.loaded_model_config['type']}`"
@@ -442,7 +423,7 @@ def run_all_images(self):
 
     if (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]
-        in TEXT_PROMPT_MODELS
+        in _BATCH_PROCESSING_TEXT_PROMPT_MODELS
     ):
         text_input_dialog = TextInputDialog(parent=self)
         self.text_prompt = text_input_dialog.get_input_text()
@@ -462,7 +443,7 @@ def run_all_images(self):
         show_progress_dialog_and_process(self)
     elif (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]
-        in VIDEO_MODELS
+        in _BATCH_PROCESSING_VIDEO_MODELS
     ):
         self.run_tracker = True
         show_progress_dialog_and_process(self)

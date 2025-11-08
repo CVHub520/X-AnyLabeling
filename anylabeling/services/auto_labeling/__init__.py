@@ -325,3 +325,32 @@ _THUMBNAIL_RENDER_MODELS = {
     "depth_anything": ("x-anylabeling-depth", ".png"),
     "depth_anything_v2": ("x-anylabeling-depth", ".png"),
 }
+
+
+# --- batch_processing_invalid_models ---
+_BATCH_PROCESSING_INVALID_MODELS = [
+    "segment_anything",
+    "segment_anything_2",
+    "sam_med2d",
+    "sam_hq",
+    "efficientvit_sam",
+    "edge_sam",
+    "open_vision",
+    "geco",
+]
+
+
+# --- batch_processing_text_prompt_models ---
+_BATCH_PROCESSING_TEXT_PROMPT_MODELS = [
+    "remote_server",
+    "grounding_dino",
+    "grounding_sam",
+    "grounding_sam2",
+    "yoloe",
+]
+
+
+# --- batch_processing_video_models ---
+_BATCH_PROCESSING_VIDEO_MODELS = [
+    "segment_anything_2_video",
+]
