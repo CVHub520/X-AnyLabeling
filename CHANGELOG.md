@@ -1,5 +1,18 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.1` (Nov 10, 2025)
+
+### 🚀 New Features
+
+- Support dynamic label deletion from unique label list via Label Manager (#1191)
+- Add remote server model support for text-prompted batch processing
+
+### 🌟 Contributors
+
+A total of 1 developers contributed to this release.
+
+Thank @CVHub520
+
 ## `v3.3.0` (Nov 07, 2025)
 
 ### 🚀 New Features
