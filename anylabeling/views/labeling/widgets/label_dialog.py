@@ -1233,6 +1233,13 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 label = shape["label"]
                 classes.add(label)
 
+        for i in range(self.parent.unique_label_list.count()):
+            item = self.parent.unique_label_list.item(i)
+            if item:
+                label_text = item.text()
+                if label_text:
+                    classes.add(label_text)
+
         for c in sorted(classes):
             # Update unique label list
             if not self.parent.unique_label_list.find_items_by_label(c):
