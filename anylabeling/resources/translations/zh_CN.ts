@@ -5702,6 +5702,16 @@ Do you want to continue?</source>
         <translation>-点（e）</translation>
     </message>
     <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="1126"/>
+        <source>TinyObj (On)</source>
+        <translation>小目标 (开)</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="1126"/>
+        <source>TinyObj (Off)</source>
+        <translation>小目标 (关)</translation>
+    </message>
+    <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling_ui.py" line="232"/>
         <source>+Rect</source>
         <translation>+矩形</translation>

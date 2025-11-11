@@ -1886,6 +1886,9 @@ class LabelingWidget(LabelDialog):
         self.auto_labeling_widget.auto_decode_mode_changed.connect(
             self.canvas.set_auto_decode_mode
         )
+        self.auto_labeling_widget.cropping_sam_enable.connect(
+            lambda vale: setattr(self.canvas,'enable_cropping_sam',vale)
+        )
         self.auto_labeling_widget.clear_auto_decode_requested.connect(
             self.canvas.reset_auto_decode_state
         )
@@ -4269,6 +4272,7 @@ class LabelingWidget(LabelDialog):
         units = -delta * (0.1 if mode == 0 else 1)
         step = scroll_bar.singleStep() if mode == 0 else scroll_bar.maximum()
         value = scroll_bar.value() + step * units
+        # print(f'src:{orientation}',self.scroll_bars[orientation].value())
         self.set_scroll(orientation, value)
 
     def set_scroll(self, orientation, value):
@@ -4299,8 +4303,15 @@ class LabelingWidget(LabelDialog):
         if delta < 0:
             units = 0.9
         self.add_zoom(units)
-
         canvas_width_new = self.canvas.width()
+        
+        
+        # print("w:",canvas_width_new)
+        # print("h:",self.canvas.height())
+        # print("scale",self.canvas.scale)
+        # bound_rect = self.canvas.visibleRegion().boundingRect()
+        # local_rect = self.mapFromGlobal(bound_rect.topLeft())
+        # print(f"可见区域的边界矩形：x={bound_rect.x()}, y={bound_rect.y()}, 宽={bound_rect.width()}, 高={bound_rect.height()}")
         if canvas_width_old != canvas_width_new:
             canvas_scale_factor = canvas_width_new / canvas_width_old
 
@@ -4311,6 +4322,7 @@ class LabelingWidget(LabelDialog):
                 Qt.Horizontal,
                 self.scroll_bars[Qt.Horizontal].value() + x_shift,
             )
+            # print('src:',self.scroll_bars[Qt.Vertical].value() + y_shift)
             self.set_scroll(
                 Qt.Vertical,
                 self.scroll_bars[Qt.Vertical].value() + y_shift,

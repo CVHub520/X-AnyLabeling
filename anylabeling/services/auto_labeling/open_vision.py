@@ -63,7 +63,7 @@ class OpenVision(Model):
             "button_add_rect",
             "button_clear",
             "button_finish_object",
-            "button_auto_decode",
+            "button_auto_decode","button_cropping_sam",
         ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),

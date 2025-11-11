@@ -40,7 +40,7 @@ class YOLOv5SegmentAnything(YOLO):
             "button_add_rect",
             "button_clear",
             "button_finish_object",
-            "button_auto_decode",
+            "button_auto_decode","button_cropping_sam",
             "output_label",
             "output_select_combobox",
             "mask_fineness_slider",

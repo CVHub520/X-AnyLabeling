@@ -5,7 +5,7 @@ import yaml
 import importlib.resources as pkg_resources
 from threading import Lock
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot,QRect,QPointF
 
 import anylabeling.configs as auto_labeling_configs
 from anylabeling.utils import GenericWorker
@@ -49,7 +49,7 @@ class ModelManager(QObject):
 
         self.loaded_model_config = None
         self.loaded_model_config_lock = Lock()
-
+        self.region = None
         self.model_download_worker = None
         self.model_download_thread = None
         self.model_execution_thread = None
@@ -1947,7 +1947,10 @@ class ModelManager(QObject):
             not in _AUTO_LABELING_MARKS_MODELS
         ):
             return
-        self.loaded_model_config["model"].set_auto_labeling_marks(marks)
+        
+        self.region, true_marks = marks
+        # print(self.region)
+        self.loaded_model_config["model"].set_auto_labeling_marks(true_marks)
 
     def set_auto_labeling_api_token(self, token):
         """Set the API token for the model"""
@@ -2034,26 +2037,37 @@ class ModelManager(QObject):
             )
             self.prediction_finished.emit()
             return
-
+        #适配特征缓存机制
+        filename = filename+str(self.region)
+        #裁剪图片
+        x1,y1,w,h=self.region
+        crop_rect = QRect(x1,y1,w,h)
+        cropped_image = image.copy(crop_rect)
+        # print(f"裁剪成功！新图像尺寸: {cropped_image.width()}x{cropped_image.height()}")
         try:
             if text_prompt is not None:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
-                ].predict_shapes(image, filename, text_prompt=text_prompt)
+                ].predict_shapes(cropped_image, filename, text_prompt=text_prompt)
             elif run_tracker is True:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
-                ].predict_shapes(image, filename, run_tracker=run_tracker)
+                ].predict_shapes(cropped_image, filename, run_tracker=run_tracker)
             elif existing_shapes is not None:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
                 ].predict_shapes(
-                    image, filename, existing_shapes=existing_shapes
+                    cropped_image, filename, existing_shapes=existing_shapes
                 )
             else:
                 auto_labeling_result = self.loaded_model_config[
                     "model"
-                ].predict_shapes(image, filename)
+                ].predict_shapes(cropped_image, filename)
+            #将坐标转换到原图
+            offset = QPointF(x1, y1)
+            for shape in auto_labeling_result.shapes:
+                for i in range(len(shape.points)):
+                    shape.points[i] = shape.points[i] + offset
 
             if batch:
                 return auto_labeling_result
