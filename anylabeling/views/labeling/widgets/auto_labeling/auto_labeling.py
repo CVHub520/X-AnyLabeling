@@ -46,6 +46,7 @@ class AutoLabelingWidget(QWidget):
     finish_auto_labeling_object_action_requested = pyqtSignal()
     cache_auto_label_changed = pyqtSignal()
     auto_decode_mode_changed = pyqtSignal(bool)
+    cropping_sam_enable = pyqtSignal(bool)
     clear_auto_decode_requested = pyqtSignal()
     mask_fineness_changed = pyqtSignal(float)
 
@@ -105,6 +106,7 @@ class AutoLabelingWidget(QWidget):
             self.button_clear.setEnabled(enable)
             self.button_finish_object.setEnabled(enable)
             self.button_auto_decode.setEnabled(enable)
+            self.button_cropping_sam.setEnabled(enable)
             self.button_skip_detection.setEnabled(enable)
             self.upn_select_combobox.setEnabled(enable)
             self.gd_select_combobox.setEnabled(enable)
@@ -210,6 +212,13 @@ class AutoLabelingWidget(QWidget):
         self.button_auto_decode.setToolTip(
             self.tr(
                 "Enable auto mask decode mode for continuous point tracking"
+            )
+        )
+        self.button_cropping_sam.setStyleSheet(get_normal_button_style())
+        self.button_cropping_sam.clicked.connect(self.cropping_sam)
+        self.button_cropping_sam.setToolTip(
+            self.tr(
+                "Enhance small target detection ability of SAM"
             )
         )
 
@@ -607,6 +616,7 @@ class AutoLabelingWidget(QWidget):
             ):
                 existing_shapes = self._extract_shapes_for_recognition()
                 if existing_shapes is not None:
+
                     self.model_manager.predict_shapes_threading(
                         self.parent.image,
                         self.parent.filename,
@@ -783,7 +793,8 @@ class AutoLabelingWidget(QWidget):
             "gd_select_combobox",
             "florence2_select_combobox",
             "remote_server_select_combobox",
-            "button_auto_decode",
+            "button_auto_decode" ,
+            "button_cropping_sam",
             "button_skip_detection",
             "mask_fineness_slider",
             "mask_fineness_value_label",
@@ -1108,6 +1119,20 @@ class AutoLabelingWidget(QWidget):
             self.button_auto_decode.setStyleSheet(get_normal_button_style())
 
         self.auto_decode_mode_changed.emit(is_checked)
+
+    def cropping_sam(self):
+        is_checked = self.button_cropping_sam.isChecked()
+        self.button_cropping_sam.setText(
+            "TinyObj (On)" if is_checked else "TinyObj (Off)"
+        )
+
+        if is_checked:
+            self.button_cropping_sam.setStyleSheet(
+                get_toggle_button_style(button_color="#F8E003")
+            )
+        else:
+            self.button_cropping_sam.setStyleSheet(get_normal_button_style())
+        self.cropping_sam_enable.emit(is_checked)
 
     def on_clear_clicked(self):
         """Handle clear button click"""

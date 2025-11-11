@@ -237,7 +237,7 @@ class GroundingSAM(Model):
             "button_add_rect",
             "button_clear",
             "button_finish_object",
-            "button_auto_decode",
+            "button_auto_decode","button_cropping_sam",
             "mask_fineness_slider",
             "mask_fineness_value_label",
         ]

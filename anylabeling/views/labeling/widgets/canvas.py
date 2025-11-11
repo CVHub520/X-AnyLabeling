@@ -83,6 +83,7 @@ class Canvas(
         super().__init__(*args, **kwargs)
         # Initialise local state.
         self.mode = self.EDIT
+        self.enable_cropping_sam = False
         self.is_auto_labeling = False
         self.is_move_editing = False
         self.auto_labeling_mode: AutoLabelingMode = None
@@ -1915,6 +1916,41 @@ class Canvas(
     def update_auto_labeling_marks(self):
         """Update the auto labeling marks"""
         marks = []
+
+        #计算所有shape点集并上裁剪区域的最小外接矩形并作为最终裁剪区域，避免用户在标注过程中移动画布导致shape中的点跑到画布外
+        all_points=[]
+        region = self.get_visible_region_in_original_image()
+        for shape in self.shapes:
+            if shape.label == AutoLabelingMode.ADD:
+                if shape.shape_type == AutoLabelingMode.POINT:
+                    all_points.append(
+                                [int(shape.points[0].x()),
+                                int(shape.points[0].y())]
+                    )
+                elif shape.shape_type == AutoLabelingMode.RECTANGLE:
+                    all_points.extend(
+                               [[int(shape.points[0].x()),
+                                int(shape.points[0].y())],
+                                [int(shape.points[2].x()),
+                                int(shape.points[2].y())]]
+                    )
+            elif shape.label == AutoLabelingMode.REMOVE:
+                if shape.shape_type == AutoLabelingMode.POINT:
+                    all_points.append(
+                                [int(shape.points[0].x()),
+                                int(shape.points[0].y())]
+                    )
+                elif shape.shape_type == AutoLabelingMode.RECTANGLE:
+                    marks.extend(
+                               [[int(shape.points[0].x()),
+                                int(shape.points[0].y())],
+                                [int(shape.points[2].x()),
+                                int(shape.points[2].y())]]
+                    )
+        all_points = all_points +region
+        region = get_bounding_rect(all_points)
+
+        #转换坐标
         for shape in self.shapes:
             if shape.label == AutoLabelingMode.ADD:
                 if shape.shape_type == AutoLabelingMode.POINT:
@@ -1922,8 +1958,8 @@ class Canvas(
                         {
                             "type": "point",
                             "data": [
-                                int(shape.points[0].x()),
-                                int(shape.points[0].y()),
+                                int(shape.points[0].x())-region[0],
+                                int(shape.points[0].y())-region[1],
                             ],
                             "label": 1,
                         }
@@ -1933,12 +1969,13 @@ class Canvas(
                         {
                             "type": "rectangle",
                             "data": [
-                                int(shape.points[0].x()),
-                                int(shape.points[0].y()),
-                                int(shape.points[2].x()),
-                                int(shape.points[2].y()),
+                                int(shape.points[0].x())-region[0],
+                                int(shape.points[0].y())-region[1],
+                                int(shape.points[2].x())-region[0],
+                                int(shape.points[2].y())-region[1],
                             ],
                             "label": 1,
+
                         }
                     )
             elif shape.label == AutoLabelingMode.REMOVE:
@@ -1947,8 +1984,8 @@ class Canvas(
                         {
                             "type": "point",
                             "data": [
-                                int(shape.points[0].x()),
-                                int(shape.points[0].y()),
+                                int(shape.points[0].x())-region[0],
+                                int(shape.points[0].y())-region[1],
                             ],
                             "label": 0,
                         }
@@ -1958,16 +1995,16 @@ class Canvas(
                         {
                             "type": "rectangle",
                             "data": [
-                                int(shape.points[0].x()),
-                                int(shape.points[0].y()),
-                                int(shape.points[2].x()),
-                                int(shape.points[2].y()),
+                                int(shape.points[0].x())-region[0],
+                                int(shape.points[0].y())-region[1],
+                                int(shape.points[2].x())-region[0],
+                                int(shape.points[2].y())-region[1],
                             ],
                             "label": 0,
                         }
                     )
 
-        self.auto_labeling_marks_updated.emit(marks)
+        self.auto_labeling_marks_updated.emit([region,marks])
 
     def close_enough(self, p1, p2):
         """Check if 2 points are close enough (by an threshold epsilon)"""
@@ -2475,3 +2512,56 @@ class Canvas(
                     shape.group_id = None
 
         self.update()
+
+    def get_visible_region_in_original_image(self):
+
+        # 1. 检查是否有有效图像
+        if self.pixmap.isNull():
+            return [[0,0],[0,0]]
+        #原图在世界地图上的尺寸
+        image_w=self.pixmap.width()
+        image_h=self.pixmap.height()
+        
+        #如果不开启裁剪SAM推理
+        if not self.enable_cropping_sam:
+            return [[0,0],[image_w,image_h]]      
+         
+        visiregion = self.visibleRegion().boundingRect()
+        # 画布视口尺寸（即画布控件的大小）
+        viewport_w = visiregion.width() / self.scale
+        viewport_h = visiregion.height() / self.scale
+        #画布相对于原图的位置
+        world_x1 = int(round(visiregion.x() / self.scale))
+        world_y1 = int(round(visiregion.y() / self.scale))
+        world_x2 = int(round(world_x1 + viewport_w))
+        world_y2 = int(round(world_y1 + viewport_h))
+
+        world_image_rect = [
+            [world_x1,
+            world_y1],
+            [world_x2 if world_x2 < image_w else image_w,
+            world_y2 if world_y2 < image_h else image_h]
+        ]
+       
+        return world_image_rect
+    
+def get_bounding_rect(points: list) -> list:
+    if not points:  # 处理空点集
+        return [] 
+    # 初始化最小/最大坐标为第一个点的坐标
+    x_coords = [point[0] for point in points]
+    y_coords = [point[1] for point in points]
+
+    min_x = min(x_coords)
+    max_x = max(x_coords)
+    min_y = min(y_coords)
+    max_y = max(y_coords)    
+    # 构造并返回外接矩形
+    width = max_x - min_x
+    height = max_y - min_y
+    return [
+        min_x,    # 左上角x
+        min_y,    # 左上角y
+        width,  # 宽度
+        height   # 高度
+    ]
