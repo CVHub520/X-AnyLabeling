@@ -71,7 +71,8 @@
 
 ## 🥳 What's New
 
-- Bump version to `v3.3.0`
+- Add depth calibration feature for Depth Anything models (#1201)
+- Bump version to `v3.3.1`
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 

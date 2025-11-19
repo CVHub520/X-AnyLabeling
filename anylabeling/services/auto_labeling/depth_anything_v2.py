@@ -1,5 +1,6 @@
 import os
 import cv2
+import numpy as np
 
 from PyQt5.QtCore import QCoreApplication
 
@@ -48,6 +49,9 @@ class DepthAnythingV2(Model):
         self.save_dir, self.file_ext = _THUMBNAIL_RENDER_MODELS[
             "depth_anything_v2"
         ]
+        self.min_depth = self.config.get("min_depth", None)
+        self.max_depth = self.config.get("max_depth", None)
+        self.save_raw_depth = self.config.get("save_raw_depth", False)
 
     def preprocess(self, input_image):
         """
@@ -78,19 +82,33 @@ class DepthAnythingV2(Model):
 
         Args:
             depth (numpy.ndarray): The output from the network.
+            orig_shape (tuple): Original image shape.
 
         Returns:
-            depth_color: xxx
+            numpy.ndarray or tuple: Visualization image, or tuple of (visualization, calibrated depth).
         """
         orig_h, orig_w = orig_shape
-        depth = (depth - depth.min()) / (depth.max() - depth.min()) * 255.0
-        depth = depth.transpose(1, 2, 0).astype("uint8")
-        depth = cv2.resize(
-            depth, (orig_w, orig_h), interpolation=cv2.INTER_CUBIC
+        depth_resized = cv2.resize(
+            depth.transpose(1, 2, 0),
+            (orig_w, orig_h),
+            interpolation=cv2.INTER_CUBIC,
         )
+        depth_normalized = (depth_resized - depth_resized.min()) / (
+            depth_resized.max() - depth_resized.min()
+        )
+        depth_visual = (depth_normalized * 255.0).astype("uint8")
         if self.render_mode == "color":
-            return cv2.applyColorMap(depth, cv2.COLORMAP_INFERNO)
-        return depth
+            depth_visual = cv2.applyColorMap(
+                depth_visual, cv2.COLORMAP_INFERNO
+            )
+
+        if self.min_depth is not None and self.max_depth is not None:
+            depth_calibrated = (
+                depth_normalized * (self.max_depth - self.min_depth)
+                + self.min_depth
+            )
+            return depth_visual, depth_calibrated
+        return depth_visual
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -108,7 +126,7 @@ class DepthAnythingV2(Model):
 
         blob, orig_shape = self.preprocess(image)
         outputs = self.forward(blob)
-        depth = self.postprocess(outputs, orig_shape)
+        result = self.postprocess(outputs, orig_shape)
 
         image_dir_path = os.path.dirname(image_path)
         save_path = os.path.join(image_dir_path, "..", self.save_dir)
@@ -117,7 +135,18 @@ class DepthAnythingV2(Model):
         image_file_name = os.path.basename(image_path)
         save_name = os.path.splitext(image_file_name)[0] + self.file_ext
         save_file = os.path.join(save_path, save_name)
-        cv2.imwrite(save_file, depth)
+
+        if isinstance(result, tuple):
+            depth_visual, depth_calibrated = result
+            cv2.imwrite(save_file, depth_visual)
+            if self.save_raw_depth:
+                depth_raw_name = (
+                    os.path.splitext(image_file_name)[0] + "_depth.npy"
+                )
+                depth_raw_file = os.path.join(save_path, depth_raw_name)
+                np.save(depth_raw_file, depth_calibrated)
+        else:
+            cv2.imwrite(save_file, result)
 
         return AutoLabelingResult([], replace=False)
 
