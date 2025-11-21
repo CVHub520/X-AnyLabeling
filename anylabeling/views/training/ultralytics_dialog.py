@@ -410,11 +410,11 @@ class UltralyticsDialog(QDialog):
                 if is_valid:
                     self.config_widgets["data"].setText(file_path)
                     self.names = result
-                logger.info(f"Data file loaded successfully: {file_path}")
-            else:
-                QMessageBox.warning(self, self.tr("Invalid Data File"), result)
-                self.config_widgets["data"].clear()
-                self.names = []
+                    logger.info(f"Data file loaded successfully: {file_path}")
+                else:
+                    QMessageBox.warning(self, self.tr("Invalid Data File"), result)
+                    self.config_widgets["data"].clear()
+                    self.names = []
 
     def browse_pose_config_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
