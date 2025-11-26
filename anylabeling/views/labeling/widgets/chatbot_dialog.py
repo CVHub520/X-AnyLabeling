@@ -6,6 +6,7 @@ import re
 import shutil
 import threading
 import zipfile
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from openai import OpenAI
 from PIL import Image
 
@@ -1366,69 +1367,87 @@ class ChatbotDialog(QDialog):
             return
 
         batch_dialog = BatchProcessDialog(self)
-        prompt = batch_dialog.exec_()
-        if prompt:
+        result = batch_dialog.exec_()
+        if result:
+            prompt, concurrency = result
             self.current_index = self.parent().fn_to_index[
                 str(self.parent().filename)
             ]
-            self.image_index = self.current_index
-            self.show_progress_dialog_and_process(prompt)
+            self.start_concurrent_processing(prompt, concurrency)
 
-    def show_progress_dialog_and_process(self, prompt):
+    def start_concurrent_processing(self, prompt, concurrency):
+        """Start concurrent batch processing"""
         self.cancel_processing = False
-        progress_dialog = QProgressDialog(
+        self.processed_count = 0
+        self.total_images = len(self.parent().image_list)
+        self.batch_results = {}  # Store results by filename
+
+        # Get processing parameters
+        self.batch_temperature = self.temp_slider.value() / 10.0
+        self.batch_system_prompt = self.system_prompt_input.text().strip()
+        self.batch_max_tokens = int(self.max_length_input.text().strip())
+        self.batch_prompt = prompt
+
+        # Process prompt for @image tag
+        if "@image" in self.batch_prompt or "<image>" in self.batch_prompt:
+            pattern = r"@image\s*(?=\S|$)"
+            self.batch_prompt = re.sub(pattern, "<image>", self.batch_prompt).strip()
+
+        # Create progress dialog
+        self.progress_dialog = QProgressDialog(
             self.tr("Inferencing..."),
             self.tr("Cancel"),
-            self.image_index,
-            len(self.parent().image_list),
+            0,
+            self.total_images,
             self,
         )
-        progress_dialog.setWindowModality(Qt.WindowModal)
-        progress_dialog.setWindowTitle(self.tr("Progress"))
-        progress_dialog.setStyleSheet(
+        self.progress_dialog.setWindowModality(Qt.WindowModal)
+        self.progress_dialog.setWindowTitle(self.tr("Progress"))
+        self.progress_dialog.setStyleSheet(
             ChatbotDialogStyle.get_progress_dialog_style()
         )
-        progress_dialog.setFixedSize(400, 150)
-        progress_dialog.setWindowFlags(
-            progress_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint
+        self.progress_dialog.setFixedSize(400, 150)
+        self.progress_dialog.setWindowFlags(
+            self.progress_dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint
         )
-        progress_dialog.setMinimumDuration(0)
+        self.progress_dialog.setMinimumDuration(0)
 
         center_point = self.mapToGlobal(self.rect().center())
-        dialog_rect = progress_dialog.rect()
-        progress_dialog.move(
+        dialog_rect = self.progress_dialog.rect()
+        self.progress_dialog.move(
             center_point.x() - dialog_rect.width() // 2,
             center_point.y() - dialog_rect.height() // 2,
         )
 
-        progress_dialog.canceled.connect(self.cancel_operation)
-        progress_dialog.show()
+        self.progress_dialog.canceled.connect(self.cancel_operation)
+        self.progress_dialog.show()
         QApplication.processEvents()
-        self.process_next_image(progress_dialog, prompt)
 
-    def process_next_image(self, progress_dialog, prompt):
-        total_images = len(self.parent().image_list)
+        # Start processing in a separate thread
+        self.batch_thread = threading.Thread(
+            target=self.run_concurrent_batch,
+            args=(concurrency,)
+        )
+        self.batch_thread.daemon = True
+        self.batch_thread.start()
 
-        if (self.image_index < total_images) and (not self.cancel_processing):
-            template = self.tr("Processing image %d/%d...")
-            display_text = template % (self.image_index + 1, total_images)
-            progress_dialog.setLabelText(display_text)
+        # Start timer to update progress
+        self.progress_timer = QTimer()
+        self.progress_timer.timeout.connect(self.update_batch_progress)
+        self.progress_timer.start(100)
 
-            filename = self.parent().image_list[self.image_index]
-            self.parent().filename = filename
-
-            temperature = self.temp_slider.value() / 10.0
-            system_prompt = self.system_prompt_input.text().strip()
-            max_tokens = int(self.max_length_input.text().strip())
+    def process_single_image(self, filename):
+        """Process a single image and return the result"""
+        try:
+            if self.cancel_processing:
+                return None
 
             messages = []
-            if system_prompt:
-                messages.append({"role": "system", "content": system_prompt})
+            if self.batch_system_prompt:
+                messages.append({"role": "system", "content": self.batch_system_prompt})
 
-            if "@image" in prompt or "<image>" in prompt:
-                pattern = r"@image\s*(?=\S|$)"
-                prompt = re.sub(pattern, "<image>", prompt).strip()
-                with open(self.parent().filename, "rb") as f:
+            if "<image>" in self.batch_prompt:
+                with open(filename, "rb") as f:
                     image_data = base64.b64encode(f.read()).decode("utf-8")
                 messages.append(
                     {
@@ -1440,68 +1459,134 @@ class ChatbotDialog(QDialog):
                                     "url": f"data:image/jpeg;base64,{image_data}"
                                 },
                             },
-                            {"type": "text", "text": prompt},
+                            {"type": "text", "text": self.batch_prompt},
                         ],
                     }
                 )
             else:
-                messages.append({"role": "user", "content": prompt})
+                messages.append({"role": "user", "content": self.batch_prompt})
 
             client = OpenAI(
-                base_url=self.current_api_address, api_key=self.current_api_key
+                base_url=self.current_api_address,
+                api_key=self.current_api_key,
+                timeout=300
             )
             response = client.chat.completions.create(
                 model=self.selected_model,
                 messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens,
+                temperature=self.batch_temperature,
+                max_tokens=self.batch_max_tokens,
                 stream=False,
             )
+
             if not response.choices:
                 logger.warning(f"Empty choices in response for image: {filename}")
-                self.image_index += 1
-                if not self.cancel_processing:
-                    QTimer.singleShot(
-                        0,
-                        lambda: self.process_next_image(progress_dialog, prompt),
-                    )
-                return
+                return {"filename": filename, "content": None, "error": "Empty response"}
+
             content = response.choices[0].message.content
+            return {"filename": filename, "content": content, "error": None}
 
-            self.parent().other_data["chat_history"] = [
-                {
-                    "role": "user",
-                    "content": prompt,
-                    "image": self.parent().filename,
-                },
-                {"role": "assistant", "content": content, "image": None},
-            ]
-            self.parent().set_dirty()
+        except Exception as e:
+            logger.error(f"Error processing image {filename}: {e}")
+            return {"filename": filename, "content": None, "error": str(e)}
 
-            progress_dialog.setValue(self.image_index + 1)
-            self.image_index += 1
-            self.navigate_image()
+    def run_concurrent_batch(self, concurrency):
+        """Run batch processing with concurrent threads"""
+        image_list = self.parent().image_list
 
-            if not self.cancel_processing:
-                delay_ms = 0
-                QTimer.singleShot(
-                    delay_ms,
-                    lambda: self.process_next_image(progress_dialog, prompt),
-                )
-            else:
-                self.finish_processing(progress_dialog)
+        with ThreadPoolExecutor(max_workers=concurrency) as executor:
+            futures = {
+                executor.submit(self.process_single_image, filename): filename
+                for filename in image_list
+            }
+
+            for future in as_completed(futures):
+                if self.cancel_processing:
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    break
+
+                result = future.result()
+                if result:
+                    self.batch_results[result["filename"]] = result
+                    self.processed_count += 1
+
+        # Mark batch as complete
+        self.batch_complete = True
+
+    def update_batch_progress(self):
+        """Update progress dialog during batch processing"""
+        if self.cancel_processing:
+            self.progress_timer.stop()
+            self.finish_batch_processing()
+            return
+
+        template = self.tr("Processing image %d/%d...")
+        display_text = template % (self.processed_count, self.total_images)
+        self.progress_dialog.setLabelText(display_text)
+        self.progress_dialog.setValue(self.processed_count)
+
+        if hasattr(self, 'batch_complete') and self.batch_complete:
+            self.progress_timer.stop()
+            self.finish_batch_processing()
+
+    def finish_batch_processing(self):
+        """Finish batch processing and save results"""
+        # Save results to files
+        for filename, result in self.batch_results.items():
+            if result["content"]:
+                # Get the label file path
+                label_file = os.path.splitext(filename)[0] + ".json"
+
+                # Load existing data or create new
+                if os.path.exists(label_file):
+                    with open(label_file, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                else:
+                    data = {}
+
+                # Update chat history
+                data["chat_history"] = [
+                    {
+                        "role": "user",
+                        "content": self.batch_prompt,
+                        "image": filename,
+                    },
+                    {"role": "assistant", "content": result["content"], "image": None},
+                ]
+
+                # Save the file
+                with open(label_file, "w", encoding="utf-8") as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+
+        # Clean up
+        self.progress_dialog.close()
+        if hasattr(self, 'batch_complete'):
+            del self.batch_complete
+
+        # Navigate to current image and reload
+        self.parent().filename = self.parent().image_list[self.current_index]
+        self.navigate_image(index=self.current_index)
+        del self.current_index
+
+        # Show completion message
+        success_count = sum(1 for r in self.batch_results.values() if r["content"])
+        error_count = sum(1 for r in self.batch_results.values() if r["error"])
+
+        if error_count > 0:
+            QMessageBox.information(
+                self,
+                self.tr("Batch Processing Complete"),
+                self.tr(f"Processed {success_count} images successfully.\n{error_count} images failed."),
+            )
         else:
-            self.finish_processing(progress_dialog)
+            QMessageBox.information(
+                self,
+                self.tr("Batch Processing Complete"),
+                self.tr(f"All {success_count} images processed successfully."),
+            )
 
     def cancel_operation(self):
         self.cancel_processing = True
-
-    def finish_processing(self, progress_dialog):
-        self.parent().filename = self.parent().image_list[self.current_index]
-        self.navigate_image(index=self.current_index)
-        del self.image_index
-        del self.current_index
-        progress_dialog.close()
 
     def import_export_dataset(self):
         """Import/Export the dataset"""

@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
     QTextEdit,
+    QSpinBox,
 )
 
 
@@ -98,6 +99,56 @@ class BatchProcessDialog(QDialog):
         )
         dialog_layout.addWidget(self.batch_message_input)
 
+        # Concurrency setting
+        concurrency_layout = QHBoxLayout()
+        concurrency_layout.setContentsMargins(0, 0, 0, 0)
+        concurrency_layout.setSpacing(12)
+
+        concurrency_label = QLabel(self.tr("Concurrency:"))
+        concurrency_label.setStyleSheet(
+            """
+            QLabel {
+                font-size: 14px;
+                color: #374151;
+                font-weight: 500;
+            }
+        """
+        )
+        concurrency_layout.addWidget(concurrency_label)
+
+        self.concurrency_spinbox = QSpinBox()
+        self.concurrency_spinbox.setMinimum(1)
+        self.concurrency_spinbox.setMaximum(20)
+        self.concurrency_spinbox.setValue(4)
+        self.concurrency_spinbox.setStyleSheet(
+            """
+            QSpinBox {
+                border: 1px solid #E5E7EB;
+                border-radius: 6px;
+                background-color: #F9FAFB;
+                color: #1F2937;
+                font-size: 14px;
+                padding: 6px 12px;
+                min-width: 80px;
+            }
+            QSpinBox:focus {
+                border: 1px solid #6366F1;
+            }
+            QSpinBox::up-button, QSpinBox::down-button {
+                width: 20px;
+                border: none;
+                background: transparent;
+            }
+            QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+                background-color: #E5E7EB;
+            }
+        """
+        )
+        concurrency_layout.addWidget(self.concurrency_spinbox)
+        concurrency_layout.addStretch()
+
+        dialog_layout.addLayout(concurrency_layout)
+
         # Button layout
         button_layout = QHBoxLayout()
         button_layout.setContentsMargins(0, 8, 0, 0)
@@ -178,6 +229,10 @@ class BatchProcessDialog(QDialog):
         """Get the user input prompt"""
         return self.batch_message_input.toPlainText().strip()
 
+    def get_concurrency(self):
+        """Get the concurrency setting"""
+        return self.concurrency_spinbox.value()
+
     def exec_(self):
         """Override exec_ method to adjust position before showing the dialog"""
         self.adjustSize()
@@ -186,7 +241,8 @@ class BatchProcessDialog(QDialog):
 
         if result == QDialog.Accepted:
             prompt = self.get_prompt()
+            concurrency = self.get_concurrency()
             if prompt:
                 self.promptReady.emit(prompt)
-                return prompt
-        return ""
+                return (prompt, concurrency)
+        return None
