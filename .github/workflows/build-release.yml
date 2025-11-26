@@ -1,0 +1,129 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 当推送 v 开头的 tag 时触发，如 v3.3.1-fix2
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build-windows-cpu:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build executable
+        run: |
+          pyinstaller x-anylabeling-win-cpu.spec --noconfirm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: X-AnyLabeling-CPU-Windows
+          path: dist/X-AnyLabeling-CPU.exe
+
+  build-windows-gpu:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-gpu.txt
+          pip install pyinstaller
+
+      - name: Build executable
+        run: |
+          pyinstaller x-anylabeling-win-gpu.spec --noconfirm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: X-AnyLabeling-GPU-Windows
+          path: dist/X-AnyLabeling-GPU.exe
+
+  build-linux-cpu:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb-xinerama0 libxkbcommon-x11-0 libxcb-cursor0
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build executable
+        run: |
+          pyinstaller x-anylabeling-linux-cpu.spec --noconfirm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: X-AnyLabeling-CPU-Linux
+          path: dist/X-Anylabeling-Linux-CPU
+
+  create-release:
+    needs: [build-windows-cpu, build-windows-gpu, build-linux-cpu]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Display structure of downloaded files
+        run: ls -la artifacts/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: X-AnyLabeling ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/X-AnyLabeling-CPU-Windows/X-AnyLabeling-CPU.exe
+            artifacts/X-AnyLabeling-GPU-Windows/X-AnyLabeling-GPU.exe
+            artifacts/X-AnyLabeling-CPU-Linux/X-Anylabeling-Linux-CPU
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
