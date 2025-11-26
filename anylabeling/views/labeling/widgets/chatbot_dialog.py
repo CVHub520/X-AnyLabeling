@@ -1457,6 +1457,15 @@ class ChatbotDialog(QDialog):
                 max_tokens=max_tokens,
                 stream=False,
             )
+            if not response.choices:
+                logger.warning(f"Empty choices in response for image: {filename}")
+                self.image_index += 1
+                if not self.cancel_processing:
+                    QTimer.singleShot(
+                        0,
+                        lambda: self.process_next_image(progress_dialog, prompt),
+                    )
+                return
             content = response.choices[0].message.content
 
             self.parent().other_data["chat_history"] = [
@@ -1960,7 +1969,8 @@ class ChatbotDialog(QDialog):
                 api_params["max_tokens"] = max_tokens
 
             # Create client and prepare API call parameters
-            client = OpenAI(base_url=api_address, api_key=api_key, timeout=10)
+            # Use longer timeout for models that may take more time to respond
+            client = OpenAI(base_url=api_address, api_key=api_key, timeout=120)
 
             # Create a secondary thread to periodically check for cancellation
             stop_event = threading.Event()
@@ -1989,6 +1999,10 @@ class ChatbotDialog(QDialog):
             for chunk in response:
                 if self.stream_handler.stop_requested:
                     break
+
+                # Skip chunks with empty choices
+                if not chunk.choices:
+                    continue
 
                 if (
                     hasattr(chunk.choices[0].delta, "content")

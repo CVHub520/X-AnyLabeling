@@ -446,8 +446,9 @@ class ChatMessage(QFrame):
         self.resize_in_progress = True
         try:
             if isinstance(self.content_label, QWebEngineView):
+                # Check if document.body exists before accessing scrollHeight
                 self.content_label.page().runJavaScript(
-                    "document.body.scrollHeight;", self.apply_webview_height
+                    "document.body ? document.body.scrollHeight : 0;", self.apply_webview_height
                 )
                 return
 
