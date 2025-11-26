@@ -1970,7 +1970,7 @@ class ChatbotDialog(QDialog):
 
             # Create client and prepare API call parameters
             # Use longer timeout for models that may take more time to respond
-            client = OpenAI(base_url=api_address, api_key=api_key, timeout=120)
+            client = OpenAI(base_url=api_address, api_key=api_key, timeout=300)
 
             # Create a secondary thread to periodically check for cancellation
             stop_event = threading.Event()
