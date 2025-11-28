@@ -43,6 +43,7 @@ class RemoteServer(Model):
 
         self.current_model_id = None
         self.timeout = self.config.get("timeout", 30)
+        self.models_info = {}
 
         self.marks = []
         self.conf_threshold = 0.0
@@ -63,10 +64,18 @@ class RemoteServer(Model):
             )
             response.raise_for_status()
             result = response.json()
-            return result.get("data", {})
+            self.models_info = result.get("data", {})
+            return self.models_info
         except Exception as e:
             logger.error(f"Failed to fetch available models: {e}")
             return {}
+
+    def get_batch_processing_mode(self):
+        """Get batch processing mode for current model"""
+        if self.current_model_id is None:
+            return "default"
+        model_info = self.models_info.get(self.current_model_id, {})
+        return model_info.get("batch_processing_mode", "default")
 
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
@@ -100,18 +109,31 @@ class RemoteServer(Model):
             logger.warning("No model selected")
             return AutoLabelingResult([], replace=self.replace)
 
-        try:
-            cv_image = qt_img_to_rgb_cv_img(image, image_path)
-        except Exception as e:
-            logger.warning(f"Could not process image: {e}")
-            return AutoLabelingResult([], replace=self.replace)
+        if image_path and os.path.exists(image_path):
+            with open(image_path, "rb") as f:
+                img_base64 = base64.b64encode(f.read()).decode("utf-8")
+            ext = os.path.splitext(image_path)[1].lower()
+            mime_type = {
+                ".jpg": "image/jpeg",
+                ".jpeg": "image/jpeg",
+                ".png": "image/png",
+                ".bmp": "image/bmp",
+                ".webp": "image/webp",
+            }.get(ext, "image/jpeg")
+            img_data_uri = f"data:{mime_type};base64,{img_base64}"
+        else:
+            try:
+                cv_image = qt_img_to_rgb_cv_img(image, image_path)
+            except Exception as e:
+                logger.warning(f"Could not process image: {e}")
+                return AutoLabelingResult([], replace=self.replace)
 
-        # Encode image to base64 as PNG
-        is_success, buffer = cv2.imencode(".png", cv_image)
-        if not is_success:
-            raise ValueError("Failed to encode image.")
-        img_base64 = base64.b64encode(buffer).decode("utf-8")
-        img_data_uri = f"data:image/png;base64,{img_base64}"
+            cv_image_bgr = cv2.cvtColor(cv_image, cv2.COLOR_RGB2BGR)
+            is_success, buffer = cv2.imencode(".png", cv_image_bgr)
+            if not is_success:
+                raise ValueError("Failed to encode image.")
+            img_base64 = base64.b64encode(buffer).decode("utf-8")
+            img_data_uri = f"data:image/png;base64,{img_base64}"
 
         params = {}
         params["conf_threshold"] = self.conf_threshold
@@ -120,6 +142,8 @@ class RemoteServer(Model):
         if text_prompt:
             logger.debug(f"Received text prompt: {text_prompt}")
             params["text_prompt"] = text_prompt.rstrip(".")
+        if self.marks:
+            params["marks"] = self.marks
         if self.reset_tracker_flag:
             params["reset_tracker"] = True
             self.reset_tracker_flag = False

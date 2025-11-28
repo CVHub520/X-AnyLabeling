@@ -3665,6 +3665,10 @@ class LabelingWidget(LabelDialog):
         shape.select_fill_color = QtGui.QColor(r, g, b, 155)
 
     def _get_rgb_by_label(self, label, skip_label_info=False):
+        if label == "AUTOLABEL_ADD":
+            return (144, 238, 144)
+        if label == "AUTOLABEL_REMOVE":
+            return (255, 182, 193)
         if label in self.label_info and not skip_label_info:
             return tuple(self.label_info[label]["color"])
         if self._config["shape_color"] == "auto":
@@ -3975,7 +3979,8 @@ class LabelingWidget(LabelDialog):
             shape = self.canvas.set_last_label(text, flags, group_id)
             shape.group_id = group_id
             shape.description = description
-            shape.label = text
+            if text not in [AutoLabelingMode.ADD, AutoLabelingMode.REMOVE]:
+                shape.label = text
             shape.difficult = difficult
             shape.kie_linking = kie_linking
             self.add_label(shape)

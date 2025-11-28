@@ -55,6 +55,7 @@ class AutoLabelingWidget(QWidget):
         current_dir = os.path.dirname(__file__)
         uic.loadUi(os.path.join(current_dir, "auto_labeling.ui"), self)
 
+        self.skip_auto_prediction = False
         self.model_manager = ModelManager()
         self.model_manager.new_model_status.connect(self.on_new_model_status)
         self.new_model_selected.connect(self.model_manager.load_model)
@@ -102,6 +103,9 @@ class AutoLabelingWidget(QWidget):
             self.button_add_point.setEnabled(enable)
             self.button_remove_point.setEnabled(enable)
             self.button_add_rect.setEnabled(enable)
+            self.add_pos_rect.setEnabled(enable)
+            self.add_neg_rect.setEnabled(enable)
+            self.button_run_rect.setEnabled(enable)
             self.button_clear.setEnabled(enable)
             self.button_finish_object.setEnabled(enable)
             self.button_auto_decode.setEnabled(enable)
@@ -190,11 +194,17 @@ class AutoLabelingWidget(QWidget):
         )
 
         # --- Configuration for: button_add_rect ---
-        self.button_add_rect.clicked.connect(
-            lambda: self.set_auto_labeling_mode(
-                AutoLabelingMode.ADD, AutoLabelingMode.RECTANGLE
-            )
-        )
+        self.button_add_rect.clicked.connect(self.on_button_add_rect_clicked)
+
+        # --- Configuration for: add_pos_rect ---
+        self.add_pos_rect.clicked.connect(self.on_add_pos_rect_clicked)
+
+        # --- Configuration for: add_neg_rect ---
+        self.add_neg_rect.clicked.connect(self.on_add_neg_rect_clicked)
+
+        # --- Configuration for: button_run_rect ---
+        self.button_run_rect.setStyleSheet(get_highlight_button_style())
+        self.button_run_rect.clicked.connect(self.run_prediction)
 
         # --- Configuration for: button_clear ---
         self.button_clear.clicked.connect(self.on_clear_clicked)
@@ -564,6 +574,8 @@ class AutoLabelingWidget(QWidget):
             self.button_add_point,
             self.button_remove_point,
             self.button_add_rect,
+            self.add_pos_rect,
+            self.add_neg_rect,
             self.button_clear,
             self.button_finish_object,
         ]:
@@ -582,9 +594,19 @@ class AutoLabelingWidget(QWidget):
                 self.button_add_rect.setStyleSheet(
                     get_toggle_button_style(button_color="#90EE90")
                 )
+                self.add_pos_rect.setStyleSheet(
+                    get_toggle_button_style(button_color="#90EE90")
+                )
         elif self.auto_labeling_mode.edit_mode == AutoLabelingMode.REMOVE:
             if self.auto_labeling_mode.shape_type == AutoLabelingMode.POINT:
                 self.button_remove_point.setStyleSheet(
+                    get_toggle_button_style(button_color="#FFB6C1")
+                )
+            elif (
+                self.auto_labeling_mode.shape_type
+                == AutoLabelingMode.RECTANGLE
+            ):
+                self.add_neg_rect.setStyleSheet(
                     get_toggle_button_style(button_color="#FFB6C1")
                 )
 
@@ -621,6 +643,7 @@ class AutoLabelingWidget(QWidget):
     def run_vl_prediction(self):
         """Run visual-language prediction"""
         if self.parent.filename is not None and self.edit_text:
+            self.model_manager.set_auto_labeling_marks([])
             self.model_manager.predict_shapes_threading(
                 self.parent.image,
                 self.parent.filename,
@@ -765,6 +788,9 @@ class AutoLabelingWidget(QWidget):
             "button_add_point",
             "button_remove_point",
             "button_add_rect",
+            "add_pos_rect",
+            "add_neg_rect",
+            "button_run_rect",
             "button_clear",
             "button_finish_object",
             "button_send",
@@ -794,6 +820,8 @@ class AutoLabelingWidget(QWidget):
     def on_new_marks(self, marks):
         """Handle new marks"""
         self.model_manager.set_auto_labeling_marks(marks)
+        if self.skip_auto_prediction:
+            return
         current_model_name = self.model_manager.loaded_model_config["type"]
         if current_model_name not in _SKIP_PREDICTION_ON_NEW_MARKS_MODELS:
             self.run_prediction()
@@ -1045,6 +1073,9 @@ class AutoLabelingWidget(QWidget):
             "button_send",
             "button_add_point",
             "button_add_rect",
+            "add_pos_rect",
+            "add_neg_rect",
+            "button_run_rect",
             "button_remove_point",
             "button_clear",
             "button_finish_object",
@@ -1109,8 +1140,46 @@ class AutoLabelingWidget(QWidget):
 
         self.auto_decode_mode_changed.emit(is_checked)
 
+    def on_button_add_rect_clicked(self):
+        """Handle button_add_rect click"""
+        self.skip_auto_prediction = False
+        self.set_auto_labeling_mode(
+            AutoLabelingMode.ADD, AutoLabelingMode.RECTANGLE
+        )
+
+    def on_add_pos_rect_clicked(self):
+        """Handle add_pos_rect click"""
+        if (
+            self.auto_labeling_mode.edit_mode == AutoLabelingMode.ADD
+            and self.auto_labeling_mode.shape_type
+            == AutoLabelingMode.RECTANGLE
+        ):
+            self.skip_auto_prediction = False
+            self.set_auto_labeling_mode(None, None)
+        else:
+            self.skip_auto_prediction = True
+            self.set_auto_labeling_mode(
+                AutoLabelingMode.ADD, AutoLabelingMode.RECTANGLE
+            )
+
+    def on_add_neg_rect_clicked(self):
+        """Handle add_neg_rect click"""
+        if (
+            self.auto_labeling_mode.edit_mode == AutoLabelingMode.REMOVE
+            and self.auto_labeling_mode.shape_type
+            == AutoLabelingMode.RECTANGLE
+        ):
+            self.skip_auto_prediction = False
+            self.set_auto_labeling_mode(None, None)
+        else:
+            self.skip_auto_prediction = True
+            self.set_auto_labeling_mode(
+                AutoLabelingMode.REMOVE, AutoLabelingMode.RECTANGLE
+            )
+
     def on_clear_clicked(self):
         """Handle clear button click"""
+        self.model_manager.set_auto_labeling_marks([])
         self.clear_auto_decode_requested.emit()
         self.clear_auto_labeling_action_requested.emit()
 

@@ -913,6 +913,7 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
 
 ### 8.12 Grounding
   - YOLOE: [Link](../../examples/grounding/yoloe/README.md)
+  - SAM 3: [Link](../../examples/grounding/sam3/README.md)
 
 ## 9. Custom Models
 

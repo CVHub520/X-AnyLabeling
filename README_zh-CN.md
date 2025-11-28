@@ -70,6 +70,7 @@
 
 ## 🥳 新功能
 
+- 新增支持 [Segment Anything 3](./examples/grounding/sam3/README.md) 模型，实现文本和视觉可提示分割功能 (#1207)
 - 为 Depth Anything 模型新增深度校准功能 (#1201)
 - 版本更新至 `v3.3.1`
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
@@ -107,7 +108,7 @@
 | 👣 **目标跟踪** | Bot-SORT, ByteTrack |
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
 | 📏 **深度估计** | Depth Anything |
-| 🧩 **分割一切** | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
+| 🧩 **分割一切** | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
@@ -165,6 +166,9 @@
   - [Florence 2](./examples/vision_language/florence2/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
+- [Grounding](./examples/grounding/)
+  - [YOLOE](./examples/grounding/yoloe/README.md)
+  - [SAM 3](./examples/grounding/sam3/README.md)
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 

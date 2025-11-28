@@ -71,6 +71,7 @@
 
 ## 🥳 What's New
 
+- Add support for [Segment Anything 3](./examples/grounding/sam3/README.md) model with text and visual promptable segmentation (#1207)
 - Add depth calibration feature for Depth Anything models (#1201)
 - Bump version to `v3.3.1`
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
@@ -106,7 +107,7 @@ Also, we developed [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabel
 | 👣 Tracking | Bot-SORT, ByteTrack |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
 | 📏 Depth Estimation | Depth Anything |
-| 🧩 Segment Anything | SAM, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
+| 🧩 Segment Anything | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
@@ -163,6 +164,9 @@ Also, we developed [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabel
   - [Florence 2](./examples/vision_language/florence2/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
+- [Grounding](./examples/grounding/)
+  - [YOLOE](./examples/grounding/yoloe/README.md)
+  - [SAM 3](./examples/grounding/sam3/README.md)
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 

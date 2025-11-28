@@ -991,6 +991,7 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 ### 8.12 Grounding
 
 - YOLOE: [链接](../../examples/grounding/yoloe/README.md)
+- SAM 3: [链接](../../examples/grounding/sam3/README.md)
 
 ## 9. 模型
 

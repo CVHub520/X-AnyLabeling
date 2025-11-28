@@ -421,19 +421,34 @@ def run_all_images(self):
     self.text_prompt = ""
     self.run_tracker = False
 
-    if (
-        self.auto_labeling_widget.model_manager.loaded_model_config["type"]
-        in _BATCH_PROCESSING_TEXT_PROMPT_MODELS
-    ):
+    model_type = self.auto_labeling_widget.model_manager.loaded_model_config[
+        "type"
+    ]
+    batch_processing_mode = "default"
+
+    if model_type == "remote_server":
+        if hasattr(
+            self.auto_labeling_widget.model_manager.loaded_model_config[
+                "model"
+            ],
+            "get_batch_processing_mode",
+        ):
+            batch_processing_mode = (
+                self.auto_labeling_widget.model_manager.loaded_model_config[
+                    "model"
+                ].get_batch_processing_mode()
+            )
+        if batch_processing_mode == "text_prompt":
+            text_input_dialog = TextInputDialog(parent=self)
+            self.text_prompt = text_input_dialog.get_input_text()
+            if self.text_prompt:
+                show_progress_dialog_and_process(self)
+        else:
+            show_progress_dialog_and_process(self)
+    elif model_type in _BATCH_PROCESSING_TEXT_PROMPT_MODELS:
         text_input_dialog = TextInputDialog(parent=self)
         self.text_prompt = text_input_dialog.get_input_text()
-        if (
-            self.text_prompt
-            or self.auto_labeling_widget.model_manager.loaded_model_config[
-                "type"
-            ]
-            in ["yoloe", "remote_server"]
-        ):
+        if self.text_prompt or model_type == "yoloe":
             show_progress_dialog_and_process(self)
     elif (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]

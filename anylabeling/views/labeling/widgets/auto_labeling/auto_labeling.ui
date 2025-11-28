@@ -313,12 +313,33 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="add_pos_rect">
+       <property name="text">
+        <string>+Rect</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="add_neg_rect">
+       <property name="text">
+        <string>-Rect</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="button_clear">
        <property name="text">
         <string>Clear (b)</string>
        </property>
       </widget>
      </item>
+    <item>
+        <widget class="QPushButton" name="button_run_rect">
+            <property name="text">
+                <string>Run Rect</string>
+            </property>
+        </widget>
+    </item>
      <item>
       <widget class="QPushButton" name="button_finish_object">
        <property name="text">
