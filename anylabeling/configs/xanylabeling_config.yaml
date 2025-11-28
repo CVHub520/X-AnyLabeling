@@ -12,6 +12,7 @@ auto_use_last_label: false
 auto_use_last_gid: false
 auto_highlight_shape: true
 auto_switch_to_edit_mode: true
+exif_scan_enabled: true
 show_groups: false
 show_texts: true
 show_labels: true

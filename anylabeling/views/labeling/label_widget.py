@@ -5257,7 +5257,7 @@ class LabelingWidget(LabelDialog):
         self.toggle_actions(True)
         self.open_next_image()
 
-        if valid_files:
+        if valid_files and self._config.get("exif_scan_enabled", True):
             self.async_exif_scanner.start_scan(valid_files)
 
     def import_image_folder(self, dirpath, pattern=None, load=True):
@@ -5295,7 +5295,7 @@ class LabelingWidget(LabelDialog):
         self.toggle_actions(True)
         self.open_next_image(load=load)
 
-        if image_files:
+        if image_files and self._config.get("exif_scan_enabled", True):
             self.async_exif_scanner.start_scan(image_files)
 
     def toggle_auto_labeling_widget(self):
