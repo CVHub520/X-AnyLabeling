@@ -970,7 +970,13 @@ class LabelConverter:
                 match = re.search(r"\d+", frame_id)
                 frame_id = int(match.group()) if match else 0
 
-            data = data_to_shape[frame_id]
+            data = data_to_shape.get(frame_id, [])
+            if not data:
+                logger.warning(
+                    f"Frame {frame_id} ({file_name}) has no annotations, skipping..."
+                )
+                continue
+
             image_file = osp.join(image_path, file_name)
             imageWidth, imageHeight = self.get_image_size(image_file)
 
