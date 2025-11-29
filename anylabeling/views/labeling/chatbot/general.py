@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import (
     Qt,
     pyqtSignal,
@@ -23,6 +25,11 @@ class BatchProcessDialog(QDialog):
         self.parent = parent
         self.setWindowTitle(self.tr("Batch Process All Images"))
         self.setMinimumWidth(450)
+        
+        self.cpu_count = os.cpu_count() or 1
+        self.max_concurrency = max(1, int(self.cpu_count * 0.95))
+        self.default_concurrency = max(1, int(self.cpu_count * 0.8))
+        
         self.setup_ui()
 
     def setup_ui(self):
@@ -100,54 +107,59 @@ class BatchProcessDialog(QDialog):
         dialog_layout.addWidget(self.batch_message_input)
 
         # Concurrency setting
-        concurrency_layout = QHBoxLayout()
-        concurrency_layout.setContentsMargins(0, 0, 0, 0)
-        concurrency_layout.setSpacing(12)
+        settings_container = QHBoxLayout()
+        settings_container.setContentsMargins(0, 0, 0, 0)
+        settings_container.setSpacing(8)
+        settings_container.addStretch()
 
         concurrency_label = QLabel(self.tr("Concurrency:"))
         concurrency_label.setStyleSheet(
             """
             QLabel {
-                font-size: 14px;
-                color: #374151;
-                font-weight: 500;
+                font-size: 12px;
+                color: #6B7280;
+                font-weight: 400;
             }
         """
         )
-        concurrency_layout.addWidget(concurrency_label)
+        settings_container.addWidget(concurrency_label)
 
         self.concurrency_spinbox = QSpinBox()
         self.concurrency_spinbox.setMinimum(1)
-        self.concurrency_spinbox.setMaximum(20)
-        self.concurrency_spinbox.setValue(4)
+        self.concurrency_spinbox.setMaximum(self.max_concurrency)
+        self.concurrency_spinbox.setValue(self.default_concurrency)
+        tooltip_text = self.tr("Max: {}").format(self.max_concurrency)
+        self.concurrency_spinbox.setToolTip(tooltip_text)
+        self.concurrency_spinbox.setSuffix(f" / {self.max_concurrency}")
         self.concurrency_spinbox.setStyleSheet(
             """
             QSpinBox {
                 border: 1px solid #E5E7EB;
-                border-radius: 6px;
-                background-color: #F9FAFB;
+                border-radius: 4px;
+                background-color: #FFFFFF;
                 color: #1F2937;
-                font-size: 14px;
-                padding: 6px 12px;
+                font-size: 12px;
+                padding: 4px 8px;
                 min-width: 80px;
+                max-width: 80px;
             }
             QSpinBox:focus {
                 border: 1px solid #6366F1;
+                background-color: #F9FAFB;
             }
             QSpinBox::up-button, QSpinBox::down-button {
-                width: 20px;
+                width: 16px;
                 border: none;
                 background: transparent;
             }
             QSpinBox::up-button:hover, QSpinBox::down-button:hover {
-                background-color: #E5E7EB;
+                background-color: #F3F4F6;
             }
         """
         )
-        concurrency_layout.addWidget(self.concurrency_spinbox)
-        concurrency_layout.addStretch()
+        settings_container.addWidget(self.concurrency_spinbox)
 
-        dialog_layout.addLayout(concurrency_layout)
+        dialog_layout.addLayout(settings_container)
 
         # Button layout
         button_layout = QHBoxLayout()
