@@ -81,6 +81,7 @@ Process multiple images with the same prompt to speed up your workflow:
 1. Load an image folder.
 2. Click the "Run All Images" button.
 3. Enter the prompt to apply to all images.
+4. You can set the concurrency level to control processing speed (default is 80% of CPU cores, maximum is 95%).
 
 ## Dataset Import/Export
 

@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import (
     Qt,
     pyqtSignal,
@@ -9,6 +11,7 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QVBoxLayout,
     QTextEdit,
+    QSpinBox,
 )
 
 
@@ -22,6 +25,11 @@ class BatchProcessDialog(QDialog):
         self.parent = parent
         self.setWindowTitle(self.tr("Batch Process All Images"))
         self.setMinimumWidth(450)
+        
+        self.cpu_count = os.cpu_count() or 1
+        self.max_concurrency = max(1, int(self.cpu_count * 0.95))
+        self.default_concurrency = max(1, int(self.cpu_count * 0.8))
+        
         self.setup_ui()
 
     def setup_ui(self):
@@ -97,6 +105,61 @@ class BatchProcessDialog(QDialog):
             Qt.ScrollBarAsNeeded
         )
         dialog_layout.addWidget(self.batch_message_input)
+
+        # Concurrency setting
+        settings_container = QHBoxLayout()
+        settings_container.setContentsMargins(0, 0, 0, 0)
+        settings_container.setSpacing(8)
+        settings_container.addStretch()
+
+        concurrency_label = QLabel(self.tr("Concurrency:"))
+        concurrency_label.setStyleSheet(
+            """
+            QLabel {
+                font-size: 12px;
+                color: #6B7280;
+                font-weight: 400;
+            }
+        """
+        )
+        settings_container.addWidget(concurrency_label)
+
+        self.concurrency_spinbox = QSpinBox()
+        self.concurrency_spinbox.setMinimum(1)
+        self.concurrency_spinbox.setMaximum(self.max_concurrency)
+        self.concurrency_spinbox.setValue(self.default_concurrency)
+        tooltip_text = self.tr("Max: {}").format(self.max_concurrency)
+        self.concurrency_spinbox.setToolTip(tooltip_text)
+        self.concurrency_spinbox.setSuffix(f" / {self.max_concurrency}")
+        self.concurrency_spinbox.setStyleSheet(
+            """
+            QSpinBox {
+                border: 1px solid #E5E7EB;
+                border-radius: 4px;
+                background-color: #FFFFFF;
+                color: #1F2937;
+                font-size: 12px;
+                padding: 4px 8px;
+                min-width: 80px;
+                max-width: 80px;
+            }
+            QSpinBox:focus {
+                border: 1px solid #6366F1;
+                background-color: #F9FAFB;
+            }
+            QSpinBox::up-button, QSpinBox::down-button {
+                width: 16px;
+                border: none;
+                background: transparent;
+            }
+            QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+                background-color: #F3F4F6;
+            }
+        """
+        )
+        settings_container.addWidget(self.concurrency_spinbox)
+
+        dialog_layout.addLayout(settings_container)
 
         # Button layout
         button_layout = QHBoxLayout()
@@ -178,6 +241,10 @@ class BatchProcessDialog(QDialog):
         """Get the user input prompt"""
         return self.batch_message_input.toPlainText().strip()
 
+    def get_concurrency(self):
+        """Get the concurrency setting"""
+        return self.concurrency_spinbox.value()
+
     def exec_(self):
         """Override exec_ method to adjust position before showing the dialog"""
         self.adjustSize()
@@ -186,7 +253,8 @@ class BatchProcessDialog(QDialog):
 
         if result == QDialog.Accepted:
             prompt = self.get_prompt()
+            concurrency = self.get_concurrency()
             if prompt:
                 self.promptReady.emit(prompt)
-                return prompt
-        return ""
+                return (prompt, concurrency)
+        return None

@@ -1,5 +1,6 @@
 from PyQt5.QtCore import (
     QEasingCurve,
+    QEvent,
     QPropertyAnimation,
     QTimer,
     Qt,
@@ -13,6 +14,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QMenu,
     QPushButton,
+    QScrollArea,
     QSizePolicy,
     QVBoxLayout,
     QTextEdit,
@@ -367,6 +369,7 @@ class ChatMessage(QFrame):
             self.original_content = processed_content
             web_view.page().urlChanged.connect(self.handle_external_link)
             web_view.setHtml(convert_markdown_to_html(processed_content))
+            web_view.installEventFilter(self)
             return web_view
 
     def set_action_buttons_enabled(self, enabled):
@@ -419,6 +422,27 @@ class ChatMessage(QFrame):
         if not self.resize_in_progress:
             self.update_width_constraint()
 
+    def wheelEvent(self, event):
+        """Forward wheel events to parent scroll area"""
+        parent = self.parent()
+        while parent:
+            if isinstance(parent, QScrollArea):
+                parent.wheelEvent(event)
+                return
+            parent = parent.parent()
+        super().wheelEvent(event)
+
+    def eventFilter(self, obj, event):
+        """Filter events to forward wheel events from QWebEngineView to scroll area"""
+        if isinstance(obj, QWebEngineView) and event.type() == QEvent.Wheel:
+            parent = self.parent()
+            while parent:
+                if isinstance(parent, QScrollArea):
+                    parent.wheelEvent(event)
+                    return True
+                parent = parent.parent()
+        return super().eventFilter(obj, event)
+
     def copy_content_to_clipboard(self, button=None):
         """Copy message content to clipboard with visual feedback"""
         # Copy the content to clipboard
@@ -446,8 +470,10 @@ class ChatMessage(QFrame):
         self.resize_in_progress = True
         try:
             if isinstance(self.content_label, QWebEngineView):
+                # Check if document.body exists before accessing scrollHeight
                 self.content_label.page().runJavaScript(
-                    "document.body.scrollHeight;", self.apply_webview_height
+                    "document.body ? document.body.scrollHeight : 0;",
+                    self.apply_webview_height,
                 )
                 return
 
