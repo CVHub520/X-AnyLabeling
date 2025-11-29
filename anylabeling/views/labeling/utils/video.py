@@ -44,6 +44,8 @@ class FrameExtractionDialog(QDialog):
         self.setWindowTitle(self.tr("Frame Extraction Settings"))
         self.setStyleSheet(get_msg_box_style())
         layout = QVBoxLayout()
+        layout.setSpacing(8)
+        layout.setContentsMargins(12, 8, 12, 12)
 
         # Interval input
         interval_layout = QHBoxLayout()
@@ -66,12 +68,23 @@ class FrameExtractionDialog(QDialog):
         prefix_layout = QHBoxLayout()
         prefix_label = QLabel(self.tr("Filename prefix:"))
         self.prefix_edit = QLineEdit()
+        base_style = ChatbotDialogStyle.get_settings_edit_style()
         self.prefix_edit.setStyleSheet(
-            ChatbotDialogStyle.get_settings_edit_style()
+            base_style
+            + """
+            QLineEdit {
+                padding-top: 6px;
+                padding-right: 8px;
+                padding-bottom: 0px;
+                padding-left: 8px;
+                min-height: 28px;
+            }
+            """
         )
         self.prefix_edit.setText("frame_")
         prefix_layout.addWidget(prefix_label)
         prefix_layout.addWidget(self.prefix_edit)
+        prefix_layout.setAlignment(Qt.AlignVCenter)
 
         # Sequence length input
         seq_layout = QHBoxLayout()
@@ -341,7 +354,9 @@ def extract_frames_from_video(self, input_file, out_dir):
                                     f"ffmpeg extracted approximately {saved_frame_count} frames to {out_dir}"
                                 )
                                 progress_dialog.setLabelText(
-                                    self.tr(f"Completed! Extracted {saved_frame_count} frames.")
+                                    self.tr(
+                                        f"Completed! Extracted {saved_frame_count} frames."
+                                    )
                                 )
                                 QApplication.processEvents()
                                 time.sleep(0.3)
@@ -354,7 +369,7 @@ def extract_frames_from_video(self, input_file, out_dir):
                                 )
                                 QApplication.processEvents()
                                 time.sleep(0.3)
-                    
+
                     if progress_dialog.isVisible():
                         progress_dialog.close()
 
