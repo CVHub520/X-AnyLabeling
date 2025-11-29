@@ -3,6 +3,7 @@ import os
 import os.path as osp
 import shutil
 import tempfile
+import time
 import subprocess
 
 from PyQt5.QtCore import Qt
@@ -293,9 +294,14 @@ def extract_frames_from_video(self, input_file, out_dir):
                                 True  # Treat cancellation as failure for now
                             )
                             break
-                    progress_dialog.close()  # Close dialog once process finishes or is cancelled
 
                     if not ffmpeg_failed:
+                        progress_dialog.setLabelText(
+                            self.tr("Verifying extracted frames...")
+                        )
+                        QApplication.processEvents()
+                        time.sleep(0.5)
+
                         stdout, stderr = (
                             process.communicate()
                         )  # Get final output
@@ -305,6 +311,12 @@ def extract_frames_from_video(self, input_file, out_dir):
                             )
                             logger.error(f"ffmpeg stderr: {stderr}")
                             logger.error(f"ffmpeg stdout: {stdout}")
+                            progress_dialog.setLabelText(
+                                self.tr("ffmpeg failed. Check logs.")
+                            )
+                            QApplication.processEvents()
+                            time.sleep(0.3)
+                            progress_dialog.close()
                             popup = Popup(
                                 self.tr("ffmpeg failed. Check logs."),
                                 self,
@@ -328,10 +340,23 @@ def extract_frames_from_video(self, input_file, out_dir):
                                 logger.info(
                                     f"ffmpeg extracted approximately {saved_frame_count} frames to {out_dir}"
                                 )
+                                progress_dialog.setLabelText(
+                                    self.tr(f"Completed! Extracted {saved_frame_count} frames.")
+                                )
+                                QApplication.processEvents()
+                                time.sleep(0.3)
                             except Exception as count_e:
                                 logger.warning(
                                     f"Could not count extracted frames: {count_e}"
                                 )
+                                progress_dialog.setLabelText(
+                                    self.tr("Completed!")
+                                )
+                                QApplication.processEvents()
+                                time.sleep(0.3)
+                    
+                    if progress_dialog.isVisible():
+                        progress_dialog.close()
 
                 except FileNotFoundError:
                     logger.error(
