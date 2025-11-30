@@ -1,5 +1,34 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.2` (Dec 01, 2025)
+
+### 🚀 New Features
+
+- Add support for SAM3 model with text and visual promptable segmentation (#1207)
+- Add concurrent batch processing support for chatbot (#1222)
+- Enable EXIF scanning option in configuration and update label widget to utilize it (#1220)
+- Add depth calibration feature for Depth Anything model (#1201)
+
+### 🐛 Bug Fixes
+
+- Improve wheel event handling in chat messages (#1222)
+- Handle missing annotations for frames and log warnings in label converter (#1219)
+- Improve progress dialog updates and error handling during frame extraction (#1219)
+- Prevent unnecessary updates to navigator shapes when dialog is not visible (#1220)
+- Resolve list index out of range and timeout issues in chatbot
+- Correct indentation for data file loading logic in ultralytics dialog (#1216)
+
+### 🛠️ Improvements
+
+- Enhance FrameExtractionDialog layout and input styling for improved user experience (#1219)
+- Increase API timeout to 300s for chatbot (#1222)
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @wangxiaobo775, @CVHub520
+
 ## `v3.3.1` (Nov 10, 2025)
 
 ### 🚀 New Features

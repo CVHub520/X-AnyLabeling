@@ -70,9 +70,9 @@
 
 ## 🥳 新功能
 
+- 版本更新至 `v3.3.2`
 - 新增支持 [Segment Anything 3](./examples/grounding/sam3/README.md) 模型，实现文本和视觉可提示分割功能 (#1207)
 - 为 Depth Anything 模型新增深度校准功能 (#1201)
-- 版本更新至 `v3.3.1`
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 

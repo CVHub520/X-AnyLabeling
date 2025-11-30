@@ -71,9 +71,9 @@
 
 ## 🥳 What's New
 
+- Bump version to `v3.3.2`
 - Add support for [Segment Anything 3](./examples/grounding/sam3/README.md) model with text and visual promptable segmentation (#1207)
 - Add depth calibration feature for Depth Anything models (#1201)
-- Bump version to `v3.3.1`
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 

@@ -412,7 +412,9 @@ class UltralyticsDialog(QDialog):
                     self.names = result
                     logger.info(f"Data file loaded successfully: {file_path}")
                 else:
-                    QMessageBox.warning(self, self.tr("Invalid Data File"), result)
+                    QMessageBox.warning(
+                        self, self.tr("Invalid Data File"), result
+                    )
                     self.config_widgets["data"].clear()
                     self.names = []
 

@@ -25,11 +25,11 @@ class BatchProcessDialog(QDialog):
         self.parent = parent
         self.setWindowTitle(self.tr("Batch Process All Images"))
         self.setMinimumWidth(450)
-        
+
         self.cpu_count = os.cpu_count() or 1
         self.max_concurrency = max(1, int(self.cpu_count * 0.95))
         self.default_concurrency = max(1, int(self.cpu_count * 0.8))
-        
+
         self.setup_ui()
 
     def setup_ui(self):
