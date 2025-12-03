@@ -49,7 +49,7 @@ class FrameExtractionDialog(QDialog):
 
         # Interval input
         interval_layout = QHBoxLayout()
-        template = self.tr("Extract every N frames (fps: %.2f):")
+        template = self.tr("Frame interval (fps: %.2f):")
         interval_label = QLabel(template % self.fps)
         self.interval_spin = QSpinBox()
         self.interval_spin.setRange(1, max(1, self.total_frames))
