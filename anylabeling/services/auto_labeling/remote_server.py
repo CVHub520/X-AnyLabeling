@@ -91,9 +91,6 @@ class RemoteServer(Model):
     def set_auto_labeling_iou(self, iou_thresh):
         self.iou_threshold = iou_thresh
 
-    def set_auto_labeling_preserve_existing_annotations_state(self, state):
-        self.replace = not state
-
     def set_mask_fineness(self, epsilon):
         self.epsilon_factor = epsilon
 
@@ -192,9 +189,10 @@ class RemoteServer(Model):
                 shapes.append(shape)
 
             description = data.get("description", "")
+            replace = data.get("replace", self.replace)
 
             return AutoLabelingResult(
-                shapes, replace=self.replace, description=description
+                shapes, replace=replace, description=description
             )
 
         except Exception as e:
