@@ -44,6 +44,7 @@ class SegmentAnything2(Model):
             "button_clear",
             "button_finish_object",
             "button_auto_decode",
+            "button_cropping",
             "mask_fineness_slider",
             "mask_fineness_value_label",
         ]
@@ -128,7 +129,9 @@ class SegmentAnything2(Model):
                 )
             self.classes = self.config.get("classes", [])
 
-        self.epsilon = 0.001
+        self.epsilon = self.config.get("epsilon", 0.001)
+        self.padding_ratio = self.config.get("padding_ratio", 0.2)
+        self.cropping_mode = False
 
     def set_auto_labeling_marks(self, marks):
         """Set auto labeling marks"""
@@ -137,6 +140,10 @@ class SegmentAnything2(Model):
     def set_mask_fineness(self, epsilon):
         """Set mask fineness epsilon value"""
         self.epsilon = epsilon
+
+    def set_cropping_mode(self, enabled: bool):
+        """Set cropping mode for small object detection"""
+        self.cropping_mode = enabled
 
     def post_process(self, masks, image=None):
         """
@@ -265,26 +272,146 @@ class SegmentAnything2(Model):
 
         shapes = []
         cv_image = qt_img_to_rgb_cv_img(image, filename)
+        original_height, original_width = cv_image.shape[:2]
+
         try:
-            # Use cached image embedding if possible
-            cached_data = self.image_embedding_cache.get(filename)
+            crop_offset_x = 0
+            crop_offset_y = 0
+            cropped_image = cv_image
+            cropped_marks = self.marks
+            rectangle_mark = None
+
+            if self.cropping_mode:
+                for mark in self.marks:
+                    if mark.get("type") == "rectangle":
+                        rectangle_mark = mark
+                        break
+
+                if rectangle_mark:
+                    x1, y1, x2, y2 = rectangle_mark["data"]
+                    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+
+                    box_width = x2 - x1
+                    box_height = y2 - y1
+                    padding_x = int(box_width * self.padding_ratio)
+                    padding_y = int(box_height * self.padding_ratio)
+
+                    crop_x1 = max(0, x1 - padding_x)
+                    crop_y1 = max(0, y1 - padding_y)
+                    crop_x2 = min(original_width, x2 + padding_x)
+                    crop_y2 = min(original_height, y2 + padding_y)
+
+                    crop_offset_x = crop_x1
+                    crop_offset_y = crop_y1
+                    cropped_image = cv_image[crop_y1:crop_y2, crop_x1:crop_x2]
+
+                    cropped_marks = []
+                    for mark in self.marks:
+                        if mark.get("type") == "point":
+                            px, py = mark["data"]
+                            cropped_marks.append(
+                                {
+                                    "type": "point",
+                                    "data": [
+                                        px - crop_offset_x,
+                                        py - crop_offset_y,
+                                    ],
+                                    "label": mark["label"],
+                                }
+                            )
+                        elif mark.get("type") == "rectangle":
+                            rx1, ry1, rx2, ry2 = mark["data"]
+                            cropped_marks.append(
+                                {
+                                    "type": "rectangle",
+                                    "data": [
+                                        rx1 - crop_offset_x,
+                                        ry1 - crop_offset_y,
+                                        rx2 - crop_offset_x,
+                                        ry2 - crop_offset_y,
+                                    ],
+                                    "label": mark["label"],
+                                }
+                            )
+
+            cache_key = (
+                f"{filename}_crop_{crop_offset_x}_{crop_offset_y}"
+                if self.cropping_mode and rectangle_mark
+                else filename
+            )
+
+            cached_data = self.image_embedding_cache.get(cache_key)
             if cached_data is not None:
                 image_embedding = cached_data
             else:
                 if self.stop_inference:
                     return AutoLabelingResult([], replace=False)
-                image_embedding = self.model.encode(cv_image)
-                self.image_embedding_cache.put(
-                    filename,
-                    image_embedding,
-                )
+                image_embedding = self.model.encode(cropped_image)
+                self.image_embedding_cache.put(cache_key, image_embedding)
+
             if self.stop_inference:
                 return AutoLabelingResult([], replace=False)
-            masks = self.model.predict_masks(image_embedding, self.marks)
+
+            masks = self.model.predict_masks(image_embedding, cropped_marks)
             if len(masks.shape) == 4:
                 masks = masks[0][0]
             else:
                 masks = masks[0]
+
+            if self.cropping_mode and rectangle_mark:
+                full_mask = np.zeros(
+                    (original_height, original_width), dtype=masks.dtype
+                )
+                mask_height, mask_width = masks.shape
+                crop_height, crop_width = cropped_image.shape[:2]
+
+                end_y = crop_offset_y + mask_height
+                end_x = crop_offset_x + mask_width
+
+                if end_y > original_height or end_x > original_width:
+                    end_y = min(end_y, original_height)
+                    end_x = min(end_x, original_width)
+                    adjusted_mask_height = end_y - crop_offset_y
+                    adjusted_mask_width = end_x - crop_offset_x
+                    if adjusted_mask_height > 0 and adjusted_mask_width > 0:
+                        masks = masks[
+                            :adjusted_mask_height, :adjusted_mask_width
+                        ]
+                        mask_height = adjusted_mask_height
+                        mask_width = adjusted_mask_width
+                    else:
+                        masks = full_mask
+                        mask_height = 0
+                        mask_width = 0
+
+                if (
+                    mask_height > 0
+                    and mask_width > 0
+                    and mask_height == crop_height
+                    and mask_width == crop_width
+                ):
+                    full_mask[
+                        crop_offset_y : crop_offset_y + mask_height,
+                        crop_offset_x : crop_offset_x + mask_width,
+                    ] = masks
+                else:
+                    target_width = min(
+                        crop_width, original_width - crop_offset_x
+                    )
+                    target_height = min(
+                        crop_height, original_height - crop_offset_y
+                    )
+                    resized_mask = cv2.resize(
+                        masks,
+                        (target_width, target_height),
+                        interpolation=cv2.INTER_NEAREST,
+                    )
+                    full_mask[
+                        crop_offset_y : crop_offset_y + target_height,
+                        crop_offset_x : crop_offset_x + target_width,
+                    ] = resized_mask
+                masks = full_mask
+
             shapes = self.post_process(masks, cv_image)
         except Exception as e:  # noqa
             logger.warning("Could not inference model")

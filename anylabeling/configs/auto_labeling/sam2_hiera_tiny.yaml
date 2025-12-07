@@ -4,3 +4,5 @@ provider: Meta
 display_name: Segment Anything 2.1 (Tiny)
 encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_tiny.encoder.onnx
 decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_tiny.decoder.onnx
+epsilon: 0.001
+padding_ratio: 0.2

@@ -46,6 +46,7 @@ class AutoLabelingWidget(QWidget):
     finish_auto_labeling_object_action_requested = pyqtSignal()
     cache_auto_label_changed = pyqtSignal()
     auto_decode_mode_changed = pyqtSignal(bool)
+    cropping_mode_changed = pyqtSignal(bool)
     clear_auto_decode_requested = pyqtSignal()
     mask_fineness_changed = pyqtSignal(float)
 
@@ -109,6 +110,7 @@ class AutoLabelingWidget(QWidget):
             self.button_clear.setEnabled(enable)
             self.button_finish_object.setEnabled(enable)
             self.button_auto_decode.setEnabled(enable)
+            self.button_cropping.setEnabled(enable)
             self.button_skip_detection.setEnabled(enable)
             self.upn_select_combobox.setEnabled(enable)
             self.gd_select_combobox.setEnabled(enable)
@@ -220,6 +222,16 @@ class AutoLabelingWidget(QWidget):
         self.button_auto_decode.setToolTip(
             self.tr(
                 "Enable auto mask decode mode for continuous point tracking"
+            )
+        )
+
+        # --- Configuration for: button_cropping ---
+        self.button_cropping.setStyleSheet(get_normal_button_style())
+        self.button_cropping.clicked.connect(self.on_cropping_toggled)
+        self.button_cropping.setToolTip(
+            self.tr(
+                "Enable local cropping for rectangle prompts to improve accuracy "
+                "for small objects in high-resolution images"
             )
         )
 
@@ -810,6 +822,7 @@ class AutoLabelingWidget(QWidget):
             "florence2_select_combobox",
             "remote_server_select_combobox",
             "button_auto_decode",
+            "button_cropping",
             "button_skip_detection",
             "mask_fineness_slider",
             "mask_fineness_value_label",
@@ -1139,6 +1152,22 @@ class AutoLabelingWidget(QWidget):
             self.button_auto_decode.setStyleSheet(get_normal_button_style())
 
         self.auto_decode_mode_changed.emit(is_checked)
+
+    def on_cropping_toggled(self):
+        """Handle TinyObj button toggle"""
+        is_checked = self.button_cropping.isChecked()
+        self.button_cropping.setText(
+            self.tr("TinyObj (On)") if is_checked else self.tr("TinyObj (Off)")
+        )
+
+        if is_checked:
+            self.button_cropping.setStyleSheet(
+                get_toggle_button_style(button_color="#F8E003")
+            )
+        else:
+            self.button_cropping.setStyleSheet(get_normal_button_style())
+
+        self.cropping_mode_changed.emit(is_checked)
 
     def on_button_add_rect_clicked(self):
         """Handle button_add_rect click"""

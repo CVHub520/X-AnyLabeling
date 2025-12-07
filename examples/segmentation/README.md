@@ -65,6 +65,17 @@ The AMD feature includes several configurable parameters that can be adjusted in
 > [!TIP]
 > AMD mode works best when you move the mouse slowly along object boundaries to get precise segmentation results. The feature is particularly useful for refining complex boundaries with continuous feedback.
 
+---
+
+When working with high-resolution images containing small objects, enable the TinyObj button to improve segmentation accuracy. This feature automatically crops the image around rectangle prompts with padding (default 20% of the box size), processes the cropped region, and maps the result back to the original coordinates. This is particularly useful when the target region is small relative to the overall image size.
+
+> [!TIP]
+> You can adjust the `padding_ratio` parameter in the model configuration file (e.g., `sam2_hiera_base.yaml`) to control the padding size around the rectangle prompt. The default value is 0.2 (20%) - increase it for more context or decrease it for tighter cropping.
+
+<video src="https://github.com/user-attachments/assets/1d4b1071-29ed-4e4f-843d-1c77772c05c4" width="100%" controls>
+</video>
+
+
 ## Export
 
 ### Semantic Segmentation

@@ -1886,6 +1886,9 @@ class LabelingWidget(LabelDialog):
         self.auto_labeling_widget.auto_decode_mode_changed.connect(
             self.canvas.set_auto_decode_mode
         )
+        self.auto_labeling_widget.cropping_mode_changed.connect(
+            self.auto_labeling_widget.model_manager.set_cropping_mode
+        )
         self.auto_labeling_widget.clear_auto_decode_requested.connect(
             self.canvas.reset_auto_decode_state
         )

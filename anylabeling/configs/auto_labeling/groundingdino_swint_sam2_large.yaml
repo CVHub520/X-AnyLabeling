@@ -12,3 +12,5 @@ text_threshold: 0.25
 # Segment-Anything-2 (large)
 encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_large.encoder.onnx
 decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.0/sam2.1_hiera_large.decoder.onnx
+epsilon: 0.001
+padding_ratio: 0.2

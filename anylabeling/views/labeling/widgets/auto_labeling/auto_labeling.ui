@@ -358,6 +358,16 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_cropping">
+       <property name="text">
+        <string>TinyObj (Off)</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="button_skip_detection">
        <property name="text">
         <string>Skip Det (Off)</string>
