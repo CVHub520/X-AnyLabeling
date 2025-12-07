@@ -1368,7 +1368,7 @@ Results have been saved to:
 <context>
     <name>DigitShortcutDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="110"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="111"/>
         <source>Digit Shortcut Manager</source>
         <translation>数字快捷键管理器</translation>
     </message>
@@ -1378,72 +1378,72 @@ Results have been saved to:
         <translation type="obsolete">数字快捷键管理器</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="183"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="184"/>
         <source>Digit</source>
         <translation>数字</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="183"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="184"/>
         <source>Drawing Mode</source>
         <translation>绘制模式</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="183"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="184"/>
         <source>Label</source>
         <translation>标签</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="208"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="209"/>
         <source>None</source>
         <translation>空</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="252"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="253"/>
         <source>Reset</source>
         <translation>重置</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="273"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="274"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="294"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="295"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="344"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="345"/>
         <source>Required</source>
         <translation>必须填写</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="349"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="350"/>
         <source>Confirm Reset</source>
         <translation>确认重置</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="349"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="350"/>
         <source>Are you sure you want to reset all shortcuts? This cannot be undone.</source>
         <translation>您确定要重置所有快捷键吗？此操作无法撤销。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="398"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="399"/>
         <source>Validation Error</source>
         <translation>验证错误</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="398"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="399"/>
         <source>Please provide a label for each enabled drawing mode.</source>
         <translation>请为每个已启用的绘制模式提供标签名称。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="173"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="174"/>
         <source>Configure digit keys (0-9) for quick shape creation:</source>
         <translation>配置数字键（0-9）用于快速创建对象</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="414"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="415"/>
         <source>Digit shortcuts saved successfully</source>
         <translation>保存成功</translation>
     </message>
@@ -2193,7 +2193,7 @@ Results have been saved to:
 <context>
     <name>GroupIDModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="497"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="498"/>
         <source>Group ID Change Manager</source>
         <translation>群组编号管理器</translation>
     </message>
@@ -2208,22 +2208,22 @@ Results have been saved to:
         <translation type="obsolete">确认</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="781"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="782"/>
         <source>Group IDs modified successfully!</source>
         <translation>群组编号修改成功！</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="789"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="790"/>
         <source>An error occurred while updating the Group IDs.</source>
         <translation>更新群组编号时发生错误。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="729"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="730"/>
         <source>Invalid Range</source>
         <translation>无效范围</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="729"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="730"/>
         <source>Please enter a valid range.</source>
         <translation>请输入有效范围。</translation>
     </message>
@@ -2241,42 +2241,42 @@ Results have been saved to:
         <translation>群组编号</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1360"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1388"/>
         <source>useDifficult</source>
         <translation>困难标志</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1365"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1393"/>
         <source>Enter linking, e.g., [0,1]</source>
         <translation>输入链接，如：[0,1]</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1379"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1407"/>
         <source>Add</source>
         <translation>新增</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1410"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1438"/>
         <source>Label description</source>
         <translation>标签描述</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1479"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1507"/>
         <source>Duplicate Entry</source>
         <translation>重复输入</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1479"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1507"/>
         <source>This linking pair already exists.</source>
         <translation>当前链接已存在。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1493"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1521"/>
         <source>Invalid Input</source>
         <translation>无效输入</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1493"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1521"/>
         <source>Please enter a valid list of linking pairs like [1,2].</source>
         <translation>请输入有效链接，如：[1,2]</translation>
     </message>
@@ -2292,39 +2292,49 @@ Results have been saved to:
 <context>
     <name>LabelModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="905"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="906"/>
         <source>Label Change Manager</source>
         <translation>标签管理器</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1294"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1322"/>
         <source>Invalid Range</source>
         <translation>无效范围</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1294"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1322"/>
         <source>Please enter a valid range.</source>
         <translation>请输入有效范围。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1167"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1195"/>
         <source>Labels modified successfully!</source>
         <translation>标签修改成功！</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1175"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1203"/>
         <source>An error occurred while updating the labels.</source>
         <translation>更新标签时发生错误。</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1089"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1117"/>
         <source>Select All</source>
         <translation>全选</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1090"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1118"/>
         <source>Deselect All</source>
         <translation>取消全选</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1007"/>
+        <source>Double-click to copy label text</source>
+        <translation>双击复制标签文本</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1103"/>
+        <source>Label copied to clipboard</source>
+        <translation>标签已复制到剪贴板</translation>
     </message>
 </context>
 <context>
@@ -4724,7 +4734,7 @@ Polygons</source>
         <translation>无法下载或初始化 YOLOv8 模型。</translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/grounding_sam2.py" line="688"/>
+        <location filename="../../services/auto_labeling/grounding_sam2.py" line="698"/>
         <source>Invalid model_type in GroundingDINO model.</source>
         <translation>GroundingDINO模型中的无效model_type。</translation>
     </message>

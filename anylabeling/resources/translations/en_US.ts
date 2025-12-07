@@ -1333,77 +1333,77 @@ Results have been saved to:
 <context>
     <name>DigitShortcutDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="110"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="111"/>
         <source>Digit Shortcut Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="173"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="174"/>
         <source>Configure digit keys (0-9) for quick shape creation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="183"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="184"/>
         <source>Digit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="183"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="184"/>
         <source>Drawing Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="183"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="184"/>
         <source>Label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="208"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="209"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="252"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="253"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="273"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="274"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="294"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="295"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="344"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="345"/>
         <source>Required</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="349"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="350"/>
         <source>Confirm Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="349"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="350"/>
         <source>Are you sure you want to reset all shortcuts? This cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="398"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="399"/>
         <source>Validation Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="398"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="399"/>
         <source>Please provide a label for each enabled drawing mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="414"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="415"/>
         <source>Digit shortcuts saved successfully</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2132,27 +2132,27 @@ Results have been saved to:
 <context>
     <name>GroupIDModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="497"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="498"/>
         <source>Group ID Change Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="781"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="782"/>
         <source>Group IDs modified successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="789"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="790"/>
         <source>An error occurred while updating the Group IDs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="729"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="730"/>
         <source>Invalid Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="729"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="730"/>
         <source>Please enter a valid range.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2170,42 +2170,42 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1360"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1388"/>
         <source>useDifficult</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1365"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1393"/>
         <source>Enter linking, e.g., [0,1]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1379"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1407"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1410"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1438"/>
         <source>Label description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1479"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1507"/>
         <source>Duplicate Entry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1479"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1507"/>
         <source>This linking pair already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1493"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1521"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1493"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1521"/>
         <source>Please enter a valid list of linking pairs like [1,2].</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2221,38 +2221,48 @@ Results have been saved to:
 <context>
     <name>LabelModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="905"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="906"/>
         <source>Label Change Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1294"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1322"/>
         <source>Invalid Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1294"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1322"/>
         <source>Please enter a valid range.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1167"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1195"/>
         <source>Labels modified successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1175"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1203"/>
         <source>An error occurred while updating the labels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1089"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1117"/>
         <source>Select All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1090"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1118"/>
         <source>Deselect All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1007"/>
+        <source>Double-click to copy label text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1103"/>
+        <source>Label copied to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4222,7 +4232,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/grounding_sam2.py" line="688"/>
+        <location filename="../../services/auto_labeling/grounding_sam2.py" line="698"/>
         <source>Invalid model_type in GroundingDINO model.</source>
         <translation type="unfinished"></translation>
     </message>

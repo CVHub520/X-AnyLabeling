@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QTableWidget,
     QCheckBox,
+    QApplication,
 )
 
 from anylabeling.views.labeling import utils
@@ -927,10 +928,17 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.table_widget.horizontalHeaderItem(i).setTextAlignment(
                 QtCore.Qt.AlignCenter
             )
+            if i == 0:
+                self.table_widget.horizontalHeaderItem(i).setToolTip(
+                    self.tr("Double-click to copy label text")
+                )
 
         self.table_widget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_widget.customContextMenuRequested.connect(
             self.show_context_menu
+        )
+        self.table_widget.itemDoubleClicked.connect(
+            self.on_item_double_clicked
         )
 
         # Add input fields for range selection
@@ -996,6 +1004,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
             class_item = QTableWidgetItem(label)
             class_item.setFlags(class_item.flags() ^ QtCore.Qt.ItemIsEditable)
+            class_item.setToolTip(self.tr("Double-click to copy label text"))
 
             delete_checkbox = QCheckBox()
             delete_checkbox.setChecked(info["delete"])
@@ -1079,6 +1088,25 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def on_visible_checkbox_changed(self, row, state):
         pass
+
+    def on_item_double_clicked(self, item: QTableWidgetItem) -> None:
+        """Copy label text to clipboard on double-click.
+
+        Args:
+            item: The table widget item that was double-clicked.
+        """
+        column = item.column()
+        if column == 0:
+            label_text = item.text()
+            clipboard = QApplication.clipboard()
+            clipboard.setText(label_text)
+            popup = Popup(
+                self.tr("Label copied to clipboard"),
+                self.parent,
+                msec=1000,
+                icon=new_icon_path("copy-green", "svg"),
+            )
+            popup.show_popup(self.parent)
 
     def show_context_menu(self, pos):
         column = self.table_widget.columnAt(pos.x())
