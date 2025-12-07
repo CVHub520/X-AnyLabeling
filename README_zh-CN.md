@@ -19,20 +19,19 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<video src="https://github.com/user-attachments/assets/c0ab2056-2743-4a2c-ba93-13f478d3481e" width="100%" controls>
-</video>
+<img src="https://github.com/user-attachments/assets/8b5f290a-dddf-410c-a004-21e5a7bcd1cc" width="100%" />
 
 <details>
-<summary><strong>自动化标注</strong></summary>
+<summary><strong>自动训练</strong></summary>
 
-<video src="https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079" width="100%" controls>
+<video src="https://github.com/user-attachments/assets/c0ab2056-2743-4a2c-ba93-13f478d3481e" width="100%" controls>
 </video>
 </details>
 
 <details>
-<summary><strong>基于文本/视觉提示或免提示的检测和分割统一模型</strong></summary>
+<summary><strong>自动标注</strong></summary>
 
-<video src="https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8" width="100%" controls>
+<video src="https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079" width="100%" controls>
 </video>
 </details>
 
@@ -49,9 +48,10 @@
 </details>
 
 <details>
-<summary><strong>聊天机器人</strong></summary>
+<summary><strong>可提示概念定位</strong></summary>
 
-<img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
+<video src="https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8" width="100%" controls>
+</video>
 </details>
 
 <details>
@@ -59,6 +59,12 @@
 
 <video src="https://github.com/user-attachments/assets/53adcff4-b962-41b7-a408-3afecd8d8c82" width="100%" controls>
 </video>
+</details>
+
+<details>
+<summary><strong>聊天机器人</strong></summary>
+
+<img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
 </details>
 
 <details>
@@ -70,18 +76,18 @@
 
 ## 🥳 新功能
 
-- 版本更新至 `v3.3.2`
-- 新增支持 [Segment Anything 3](./examples/grounding/sam3/README.md) 模型，实现文本和视觉可提示分割功能 (#1207)
-- 为 Depth Anything 模型新增深度校准功能 (#1201)
+- 新增支持 [Segment Anything 3](./examples/grounding/sam3/README.md) 模型，实现文本和视觉可提示概念分割功能 (#1207)
+- 新增 Segment Anything Model 的 TinyObj 模式，通过局部裁剪提升高分辨率图像中小物体的分割精度 (#1193)
+- [X-AnyLabeling v3.3.x 版本特性介绍](https://mp.weixin.qq.com/s/hKy4oud3IECZTk1N3mMxmQ)
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
-
 
 ## 简介
 
 **X-AnyLabeling** 是一款基于AI推理引擎和丰富功能特性于一体的强大辅助标注工具，其专注于实际应用，致力于为多模态数据工程师提供工业级的一站式解决方案，可自动快速进行各种复杂任务的标定。
 
-此外，我们还开发了 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server)，这是一个简单、轻量且可扩展的服务框架，为 X-AnyLabeling 提供远程推理能力，欢迎体验。
+<img src="https://github.com/user-attachments/assets/632e629b-0dec-407b-95a6-728052e1dd7b" width="100%" />
 
+此外，我们强烈推荐您尝试 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server)，这是一个简单、轻量级且可扩展的框架，为 X-AnyLabeling 提供远程推理能力。
 
 ## 新特性
 
@@ -94,10 +100,11 @@
 - 支持自定义模型和二次开发。
 - 支持一键导入和导出多种标签格式，如 COCO\VOC\YOLO\DOTA\MOT\MASK\PPOCR\MMGF\VLM-R1 等；
 - 支持多种图像标注样式，包括 `多边形`、`矩形`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
-- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`等。
-
+- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`、`视觉问答`等。
 
 ### 模型库
+
+<img src="https://github.com/user-attachments/assets/7da2da2e-f182-4a1b-85f6-bfd0dfcc6a1b" width="100%" />
 
 | **任务类别** | **支持模型** |
 | :--- | :--- |
@@ -119,7 +126,6 @@
 | 📍 **Grounding** | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
-
 ## 文档
 
 0. [远程推理服务](https://github.com/CVHub520/X-AnyLabeling-Server)
@@ -132,6 +138,7 @@
 7. [视觉问答](./docs/zh_cn/vqa.md)
 8. [多类别图像分类器](./docs/en/image_classifier.md)
 
+<img src="https://github.com/user-attachments/assets/0d67311c-f441-44b6-9ee0-932f25f51b1c" width="100%" />
 
 ## 示例
 
@@ -172,17 +179,6 @@
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 
-
-## 赞助
-
-| **微信支付** | **支付宝** |
-| :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/0178cf76-3627-426e-8432-ec031c9278ae" width="200px" /> | <img src="https://github.com/user-attachments/assets/87544ff8-3560-4696-b035-1fd26ecd162b" width="200px" /> |
-
-
-感谢您的支持！
-
-
 ## 贡献指南
 
 我们欢迎社区协作！**X‑AnyLabeling** 项目的成长离不开开发者们的共同参与，无论是修复 Bug、优化文档、还是添加新功能，您的贡献都非常宝贵。
@@ -193,11 +189,21 @@
 
 衷心感谢每一位为项目贡献力量的朋友 🙏
 
-
 ## 许可
 
-本项目遵循 [GPL-3.0 license](./LICENSE) 协议，个人非商业用途可免费使用。若用于学术、科研或教学目的，也可免费使用，但请在[此处](https://forms.gle/MZCKhU7UJ4TRSWxR7)填写登记表。如计划将本项目用于商业或企业环境，请务必联系微信申请商业授权: `ww10874`。
+本项目遵循 [GPL-3.0 license](./LICENSE) 协议，完全开源免费，初衷是希望让更多开发者、研究者和企业能够便捷地使用 AI 应用平台，推动整个行业的发展。我们鼓励大家自由使用（包括商业用途），也可以基于本项目添加功能并进行商业化，但必须保留品牌标识并标注源项目地址。
 
+此外，为了了解 X-AnyLabeling 的生态和使用情况，如果您将本项目用于学术、科研、教学或是企业用户，请在此[填写登记表](https://forms.gle/MZCKhU7UJ4TRSWxR7)。此登记仅用于统计使用情况，不会产生任何费用，我们会对信息严格保密。
+
+X-AnyLabeling 由个人独立开发和维护。如果本项目对您有所帮助，欢迎通过下方捐赠链接支持项目持续发展，您的支持是对我最大的鼓励！如对项目有任何疑问或希望合作，欢迎随时微信联系：ww10874。
+
+## 赞助
+
+| **微信支付** | **支付宝** |
+| :---: | :---: |
+| <img src="https://github.com/user-attachments/assets/0178cf76-3627-426e-8432-ec031c9278ae" width="400px" height="400px" style="object-fit: contain;" /> | <img src="https://github.com/user-attachments/assets/87544ff8-3560-4696-b035-1fd26ecd162b" width="400px" height="400px" style="object-fit: contain;" /> |
+
+感谢您的支持！
 
 ## 引用
 

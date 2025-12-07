@@ -20,20 +20,19 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
+<img src="https://github.com/user-attachments/assets/8b5f290a-dddf-410c-a004-21e5a7bcd1cc" width="100%" />
+
+<details>
+<summary><strong>Auto-Training</strong></summary>
+
 <video src="https://github.com/user-attachments/assets/c0ab2056-2743-4a2c-ba93-13f478d3481e" width="100%" controls>
 </video>
+</details>
 
 <details>
 <summary><strong>Auto-Labeling</strong></summary>
 
 <video src="https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>Text/Visual Prompting and Prompt-free for Detection & Segmentation</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8" width="100%" controls>
 </video>
 </details>
 
@@ -50,9 +49,10 @@
 </details>
 
 <details>
-<summary><strong>Chatbot</strong></summary>
+<summary><strong>Promptable Concept Grounding</strong></summary>
 
-<img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
+<video src="https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8" width="100%" controls>
+</video>
 </details>
 
 <details>
@@ -60,6 +60,12 @@
 
 <video src="https://github.com/user-attachments/assets/53adcff4-b962-41b7-a408-3afecd8d8c82" width="100%" controls>
 </video>
+</details>
+
+<details>
+<summary><strong>Chatbot</strong></summary>
+
+<img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
 </details>
 
 <details>
@@ -71,17 +77,17 @@
 
 ## 🥳 What's New
 
-- Bump version to `v3.3.2`
 - Add support for [Segment Anything 3](./examples/grounding/sam3/README.md) model with text and visual promptable segmentation (#1207)
-- Add depth calibration feature for Depth Anything models (#1201)
+- Add TinyObj mode for Segment Anything Model to improve small object detection accuracy in high-resolution images by local cropping (#1193)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
-
 
 ## X-AnyLabeling
 
 **X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It's designed for multi-modal data engineers, offering industrial-grade solutions for complex tasks.
 
-Also, we developed [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server), a simple, lightweight, and extensible serving framework that enables remote inference capabilities for X-AnyLabeling. Feel free to try it out.
+<img src="https://github.com/user-attachments/assets/632e629b-0dec-407b-95a6-728052e1dd7b" width="100%" />
+
+Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server), a simple, lightweight, and extensible framework that enables remote inference capabilities for X-AnyLabeling.
 
 ## Features
 
@@ -93,11 +99,13 @@ Also, we developed [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabel
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.
 - Supports import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, MMGD, VLM-R1.
-- Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr` and so on.
+- Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr`, `vqa`, `grounding` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `rotated boxes`, `circles`, `lines`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 
-
 ### Model library
+
+<img src="https://github.com/user-attachments/assets/7da2da2e-f182-4a1b-85f6-bfd0dfcc6a1b" width="100%" />
+
 | **Task Category** | **Supported Models** |
 | :--- | :--- |
 | 🖼️ Image Classification | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
@@ -118,7 +126,6 @@ Also, we developed [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabel
 | 📍 Grounding | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
-
 ## Docs
 
 0. [Remote Inference Service](https://github.com/CVHub520/X-AnyLabeling-Server)
@@ -130,6 +137,7 @@ Also, we developed [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabel
 6. [VQA](./docs/en/vqa.md)
 7. [Multi-class Image Classifier](./docs/en/image_classifier.md)
 
+<img src="https://github.com/user-attachments/assets/0d67311c-f441-44b6-9ee0-932f25f51b1c" width="100%" />
 
 ## Examples
 
@@ -181,16 +189,22 @@ If you find this project helpful, please consider giving it a ⭐️ star! Have 
 
 A huge thank you 🙏 to everyone helping to make X‑AnyLabeling better.
 
-
 ## License
 
-This project is licensed under the [GPL-3.0 license](./LICENSE) and is only free to use for personal non-commercial purposes. For academic, research, or educational use, it is also free but requires registration via this form [here](https://forms.gle/MZCKhU7UJ4TRSWxR7). If you intend to use this project for commercial purposes or within a company, please contact cv_hub@163.com to obtain a commercial license.
+This project is licensed under the [GPL-3.0 license](./LICENSE) and is completely open source and free. The original intention is to enable more developers, researchers, and enterprises to conveniently use this AI application platform, promoting the development of the entire industry. We encourage everyone to use it freely (including commercial use), and you can also add features based on this project and commercialize it, but you must retain the brand identity and indicate the source project address.
 
+Additionally, to understand the ecosystem and usage of X-AnyLabeling, if you use this project for academic, research, teaching, or enterprise purposes, please fill out the [registration form](https://forms.gle/MZCKhU7UJ4TRSWxR7). This registration is only for statistical purposes and will not incur any fees. We will strictly keep all information confidential.
+
+X-AnyLabeling is independently developed and maintained by an individual. If this project has been helpful to you, we welcome your support through the donation links below to help sustain the project's continued development. Your support is the greatest encouragement! If you have any questions about the project or would like to collaborate, please feel free to contact via WeChat: ww10874 or email provided above.
+
+## Sponsors
+
+- [buy-me-a-coffee](https://ko-fi.com/cvhub520)
+- [Wechat/Alipay](https://github.com/CVHub520/X-AnyLabeling/blob/main/README_zh-CN.md#%E8%B5%9E%E5%8A%A9)
 
 ## Acknowledgement
 
 I extend my heartfelt thanks to the developers and contributors of [AnyLabeling](https://github.com/vietanhdev/anylabeling), [LabelMe](https://github.com/wkentaro/labelme), [LabelImg](https://github.com/tzutalin/labelImg), [roLabelImg](https://github.com/cgvict/roLabelImg), [PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) and [CVAT](https://github.com/opencv/cvat), whose work has been crucial to the success of this project.
-
 
 ## Citing
 

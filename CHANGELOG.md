@@ -1,5 +1,25 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.3` (Dec 07, 2025)
+
+### 🚀 New Features
+
+- Add cropping mode for improved small object detection in SAM (#1193)
+
+### 🐛 Bug Fixes
+
+- Clarify frame extraction interval label to avoid ambiguity
+
+### 🛠️ Improvements
+
+- Remove deprecated method from remote server
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @fystero, @CVHub520
+
 ## `v3.3.2` (Dec 01, 2025)
 
 ### 🚀 New Features

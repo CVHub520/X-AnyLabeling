@@ -459,7 +459,9 @@ class GroundingSAM2(Model):
 
                         crop_offset_x = crop_x1
                         crop_offset_y = crop_y1
-                        cropped_image = cv_image[crop_y1:crop_y2, crop_x1:crop_x2]
+                        cropped_image = cv_image[
+                            crop_y1:crop_y2, crop_x1:crop_x2
+                        ]
 
                         cropped_marks = []
                         for mark in self.marks:
@@ -468,7 +470,10 @@ class GroundingSAM2(Model):
                                 cropped_marks.append(
                                     {
                                         "type": "point",
-                                        "data": [px - crop_offset_x, py - crop_offset_y],
+                                        "data": [
+                                            px - crop_offset_x,
+                                            py - crop_offset_y,
+                                        ],
                                         "label": mark["label"],
                                     }
                                 )
@@ -505,7 +510,9 @@ class GroundingSAM2(Model):
                 if self.stop_inference:
                     return AutoLabelingResult([], replace=False)
 
-                masks = self.model.predict_masks(image_embedding, cropped_marks)
+                masks = self.model.predict_masks(
+                    image_embedding, cropped_marks
+                )
                 if len(masks.shape) == 4:
                     masks = masks[0][0]
                 else:
@@ -526,7 +533,10 @@ class GroundingSAM2(Model):
                         end_x = min(end_x, original_width)
                         adjusted_mask_height = end_y - crop_offset_y
                         adjusted_mask_width = end_x - crop_offset_x
-                        if adjusted_mask_height > 0 and adjusted_mask_width > 0:
+                        if (
+                            adjusted_mask_height > 0
+                            and adjusted_mask_width > 0
+                        ):
                             masks = masks[
                                 :adjusted_mask_height, :adjusted_mask_width
                             ]
