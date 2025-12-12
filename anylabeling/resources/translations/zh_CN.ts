@@ -331,6 +331,16 @@ Results have been saved to:
         <translation>(用户) </translation>
     </message>
     <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="462"/>
+        <source>Confirm Remote Server URL</source>
+        <translation>确认远程服务器 URL</translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="463"/>
+        <source>Server URL:</source>
+        <translation>服务器 URL：</translation>
+    </message>
+    <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="537"/>
         <source>Coarse Grained</source>
         <translation>粗粒度检测</translation>
