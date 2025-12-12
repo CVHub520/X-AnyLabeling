@@ -2,12 +2,15 @@ import os
 import yaml
 import collections
 
+import importlib.resources as pkg_resources
+import anylabeling.configs as anylabeling_configs
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QPoint
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint
 from PyQt5.QtWidgets import (
     QDialog,
     QFileDialog,
     QWidget,
+    QInputDialog,
 )
 
 from anylabeling.services.auto_labeling.model_manager import ModelManager
@@ -436,7 +439,44 @@ class AutoLabelingWidget(QWidget):
 
     def on_model_selected(self, provider, model_name):
         """Handle the model selected event"""
-
+        
+        if "remote_server" in model_name.lower():
+            config_path = self.model_info[model_name].get("config_path")
+            if config_path:
+                model_config = {}
+                try:
+                    if config_path.startswith(":/"):
+                        config_file_name = config_path[2:]
+                        resource_path = pkg_resources.files(
+                            anylabeling_configs
+                        ).joinpath("auto_labeling", config_file_name)
+                        with open(resource_path, "r", encoding="utf-8") as f:
+                            model_config = yaml.safe_load(f)
+                    else:
+                        with open(config_path, "r", encoding="utf-8") as f:
+                            model_config = yaml.safe_load(f)
+                    
+                    default_url = model_config.get("server_url", "http://127.0.0.1:8000/")
+                    
+                    dialog = QInputDialog(self)
+                    dialog.setWindowTitle(self.tr("Confirm Remote Server URL"))
+                    dialog.setLabelText(self.tr("Server URL:"))
+                    dialog.setTextValue(default_url)
+                    dialog.setInputMode(QInputDialog.TextInput)
+                    dialog.setWindowFlags(dialog.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+                    dialog.resize(300, 100)
+                    ok = dialog.exec_()
+                    new_url = dialog.textValue()
+                    
+                    if ok and new_url:
+                        self.model_manager.update_model_config(
+                            config_path, "server_url", new_url
+                        )
+                    elif not ok:
+                        return
+                except Exception as e:
+                    logger.error(f"Failed to process remote_server config: {e}")
+        
         if model_name == "load_custom_model":
             # Unload current model first
             self.model_manager.unload_model()
