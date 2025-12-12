@@ -455,6 +455,16 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="462"/>
+        <source>Confirm Remote Server URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="463"/>
+        <source>Server URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="231"/>
         <source>Enable local cropping for rectangle prompts to improve accuracy for small objects in high-resolution images</source>
         <translation type="unfinished"></translation>
