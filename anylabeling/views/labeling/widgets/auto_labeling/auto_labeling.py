@@ -1010,17 +1010,15 @@ class AutoLabelingWidget(QWidget):
                 # Temporarily disconnect the signal to avoid triggering the callback
                 self.toggle_preserve_existing_annotations.toggled.disconnect()
                 # Set the state
-                self.toggle_preserve_existing_annotations.setText(
-                    preserve_annotations_modes[mode]
-                )
+                preserve_text = preserve_annotations_modes[mode]
+                self.toggle_preserve_existing_annotations.setText(preserve_text)
+                preserve_state = preserve_text == "Replace (Off)"
+                self.toggle_preserve_existing_annotations.setChecked(preserve_state)
                 # Reconnect the signal
                 self.toggle_preserve_existing_annotations.toggled.connect(
-                    self.on_preserve_existing_annotations_state_changed
+                    self._on_toggle_preserve_existing_annotations_toggled
                 )
-                # Manually trigger the state change to update the model
-                self.on_preserve_existing_annotations_state_changed(
-                    preserve_annotations_modes[mode]
-                )
+                self.on_preserve_existing_annotations_state_changed(preserve_state)
 
     def populate_remote_server_combobox(self):
         """Populate remote server combobox"""

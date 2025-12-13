@@ -189,7 +189,10 @@ class RemoteServer(Model):
                 shapes.append(shape)
 
             description = data.get("description", "")
-            replace = data.get("replace", self.replace)
+
+            replace = data.get("replace")
+            if replace is None:
+                replace = self.replace
 
             return AutoLabelingResult(
                 shapes, replace=replace, description=description
