@@ -123,6 +123,19 @@ class ModelManager(QObject):
         self.model_configs = model_configs
         self.model_configs_changed.emit(model_configs)
 
+    def update_model_config(self, config_file, key, value):
+        """Update a specific key in a model's configuration."""
+        for config in self.model_configs:
+            if config.get("config_file") == config_file:
+                config[key] = value
+                if (
+                    self.loaded_model_config
+                    and self.loaded_model_config.get("config_file")
+                    == config_file
+                ):
+                    self.loaded_model_config[key] = value
+                break
+
     def get_model_configs(self):
         """Return model infos"""
         return self.model_configs

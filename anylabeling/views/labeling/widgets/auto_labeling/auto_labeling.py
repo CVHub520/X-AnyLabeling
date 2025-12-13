@@ -2,8 +2,10 @@ import os
 import yaml
 import collections
 
+import importlib.resources as pkg_resources
+import anylabeling.configs as anylabeling_configs
 from PyQt5 import uic
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, QPoint
+from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint
 from PyQt5.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -28,6 +30,9 @@ from anylabeling.views.labeling.utils.style import (
     get_toggle_button_style,
 )
 from anylabeling.views.labeling.widgets.api_token_dialog import ApiTokenDialog
+from anylabeling.views.labeling.widgets.remote_server_dialog import (
+    RemoteServerDialog,
+)
 from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
     load_json,
     save_json,
@@ -436,6 +441,44 @@ class AutoLabelingWidget(QWidget):
 
     def on_model_selected(self, provider, model_name):
         """Handle the model selected event"""
+
+        if "remote_server" in model_name.lower():
+            config_path = self.model_info[model_name].get("config_path")
+            if config_path and config_path.startswith(":/"):
+                model_config = {}
+                try:
+                    config_file_name = config_path[2:]
+                    resource_path = pkg_resources.files(
+                        anylabeling_configs
+                    ).joinpath("auto_labeling", config_file_name)
+                    with open(resource_path, "r", encoding="utf-8") as f:
+                        model_config = yaml.safe_load(f)
+
+                    default_url = model_config.get(
+                        "server_url", "http://127.0.0.1:8000/"
+                    )
+                    default_api_key = model_config.get("api_key", "")
+                    dialog = RemoteServerDialog(
+                        self, default_url, default_api_key
+                    )
+
+                    if dialog.exec_() == QDialog.Accepted:
+                        new_url = dialog.get_server_url()
+                        new_api_key = dialog.get_api_key()
+                        if new_url:
+                            self.model_manager.update_model_config(
+                                config_path, "server_url", new_url
+                            )
+                        self.model_manager.update_model_config(
+                            config_path, "api_key", new_api_key
+                        )
+                    else:
+                        return
+                except Exception as e:
+                    logger.error(
+                        f"Failed to process remote_server config: {e}"
+                    )
+                    return
 
         if model_name == "load_custom_model":
             # Unload current model first

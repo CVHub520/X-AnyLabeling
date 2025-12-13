@@ -305,137 +305,137 @@ Results have been saved to:
 <context>
     <name>AutoLabelingWidget</name>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="537"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="576"/>
         <source>Coarse Grained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="538"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="577"/>
         <source>Fine Grained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="563"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="602"/>
         <source>Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="564"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="603"/>
         <source>Detailed Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="565"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="604"/>
         <source>More Detailed Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="566"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="605"/>
         <source>Object Detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="567"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="606"/>
         <source>Region Proposal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="568"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="607"/>
         <source>Dense Region Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="569"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="608"/>
         <source>Refer-Exp Segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="570"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="609"/>
         <source>Region to Segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="571"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="610"/>
         <source>OVD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="572"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="611"/>
         <source>Caption to Parse Grounding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="573"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="612"/>
         <source>Region to Category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="574"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="613"/>
         <source>Region to Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="575"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="614"/>
         <source>OCR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="576"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="615"/>
         <source>OCR with Region</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="244"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="249"/>
         <source>Existing shapes will be preserved during updates. Click to switch to overwriting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="247"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="252"/>
         <source>Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="156"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="161"/>
         <source>You can set the API token via the GROUNDING_DINO_API_TOKEN environment variable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="859"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="898"/>
         <source>Replace (Off)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="866"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="905"/>
         <source>Replace (On)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="222"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="227"/>
         <source>Enable auto mask decode mode for continuous point tracking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="264"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="269"/>
         <source>Skip detection model and use existing annotations as detection boxes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1225"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1264"/>
         <source>Skip Det (On)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1225"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1264"/>
         <source>Skip Det (Off)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1247"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1286"/>
         <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="280"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="285"/>
         <source>Adjust mask fineness: lower=finer, higher=coarser [Default: 0.001]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -455,17 +455,17 @@ Results have been saved to:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="231"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="236"/>
         <source>Enable local cropping for rectangle prompts to improve accuracy for small objects in high-resolution images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1159"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1198"/>
         <source>TinyObj (On)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1159"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1198"/>
         <source>TinyObj (Off)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4177,7 +4177,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model.py" line="190"/>
+        <location filename="../../services/auto_labeling/model.py" line="198"/>
         <source>Downloading model from registry...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4192,7 +4192,7 @@ Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../services/auto_labeling/model.py" line="185"/>
+        <location filename="../../services/auto_labeling/model.py" line="193"/>
         <source>Model path not found: {model_path}</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4602,6 +4602,59 @@ Results have been saved to:
     <message>
         <location filename="../../views/labeling/vqa/dialogs.py" line="236"/>
         <source>Are you sure you want to delete this template?</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>RemoteServerDialog</name>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="24"/>
+        <source>Remote Server Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="33"/>
+        <source>Server URL:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="38"/>
+        <source>Enter remote server URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="39"/>
+        <source>Set the remote server URL for model inference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="44"/>
+        <source>API Key (Optional):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="50"/>
+        <source>Enter API key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="74"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="79"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="88"/>
+        <source>Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/remote_server_dialog.py" line="89"/>
+        <source>Hide</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

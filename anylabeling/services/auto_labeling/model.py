@@ -28,30 +28,40 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
 
 
-def _check_onnx_model_worker(model_path):
-    """Worker function to validate ONNX model in subprocess."""
+def _check_model_worker(model_path):
+    """Worker function to validate model in subprocess."""
     try:
-        import onnx
+        file_extension = os.path.splitext(model_path)[1].lower()
+        if file_extension == ".onnx":
+            import onnx
 
-        onnx.checker.check_model(model_path)
+            onnx.checker.check_model(model_path)
+        elif file_extension in [".pth", ".pt"]:
+            import torch
+
+            torch.load(model_path, map_location="cpu")
+        else:
+            raise ValueError(f"Unsupported model format: {file_extension}")
     except Exception as e:
         import sys
 
-        print(f"ONNX model check failed: {e}", file=sys.stderr)
+        print(f"Model check failed: {e}", file=sys.stderr)
         sys.exit(1)
 
 
-def safe_check_onnx_model(model_path, timeout=30):
-    """Safely check ONNX model integrity in subprocess to prevent crashes."""
+def safe_check_model(model_path, timeout=60):
+    """Safely check model integrity in subprocess to prevent crashes."""
     ctx = multiprocessing.get_context("spawn")
-    p = ctx.Process(target=_check_onnx_model_worker, args=(model_path,))
+    p = ctx.Process(target=_check_model_worker, args=(model_path,))
     p.start()
     p.join(timeout)
 
     if p.exitcode == 0:
         return True
     elif p.exitcode is None:
-        logger.warning(f"ONNX model check timeout after {timeout}s")
+        logger.warning(
+            f"Model check timeout after {timeout}s for {model_path}"
+        )
         p.terminate()
         p.join(1)
         if p.is_alive():
@@ -59,7 +69,9 @@ def safe_check_onnx_model(model_path, timeout=30):
             p.join()
         return False
     else:
-        logger.warning(f"ONNX model check failed with exit code: {p.exitcode}")
+        logger.warning(
+            f"Model check failed with exit code {p.exitcode} for {model_path}"
+        )
         return False
 
 
@@ -218,23 +230,34 @@ class Model(QObject):
             )
         )
         if os.path.exists(model_abs_path):
-            if model_abs_path.lower().endswith(".onnx"):
-                logger.info("Validating ONNX model integrity...")
-                ok = safe_check_onnx_model(model_abs_path)
-                if ok:
-                    return model_abs_path
-                else:
-                    logger.warning(
-                        f"ONNX model validation failed: {model_abs_path}. Deleting and redownloading..."
-                    )
-                    try:
-                        os.remove(model_abs_path)
-                        time.sleep(1)
-                    except Exception as e2:  # noqa
-                        logger.error(f"Could not delete: {str(e2)}")
-            else:
-                logger.info("Model file exists, no integrity check needed.")
+            file_extension = os.path.splitext(model_abs_path)[1].lower()
+            is_known_type = file_extension in (".onnx", ".pth", ".pt")
+            is_valid = False
+            # file_not_empty = os.path.getsize(model_abs_path) > 0
+
+            if is_known_type:
+                logger.info(f"Validating model integrity: {filename}")
+                is_valid = safe_check_model(model_abs_path)
+            elif os.path.getsize(model_abs_path) > 0:
+                logger.info(
+                    f"Model file exists and is not empty: {model_abs_path}"
+                )
+                is_valid = True
+
+            if is_valid:
+                logger.info(f"Model file is valid: {model_abs_path}")
                 return model_abs_path
+            else:
+                logger.warning(
+                    f"Model validation failed or file is empty: {model_abs_path}. Deleting and redownloading..."
+                )
+                try:
+                    os.remove(model_abs_path)
+                    logger.info(
+                        f"Model file {model_abs_path} deleted successfully"
+                    )
+                except Exception as e2:  # noqa
+                    logger.error(f"Could not delete corrupted file: {str(e2)}")
         pathlib.Path(model_abs_path).parent.mkdir(parents=True, exist_ok=True)
 
         # Download url
