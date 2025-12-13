@@ -34,11 +34,11 @@ def _check_model_worker(model_path):
         file_extension = os.path.splitext(model_path)[1].lower()
         if file_extension == ".onnx":
             import onnx
-            
+
             onnx.checker.check_model(model_path)
         elif file_extension in [".pth", ".pt"]:
             import torch
-            
+
             torch.load(model_path, map_location="cpu")
         else:
             raise ValueError(f"Unsupported model format: {file_extension}")
@@ -59,7 +59,9 @@ def safe_check_model(model_path, timeout=60):
     if p.exitcode == 0:
         return True
     elif p.exitcode is None:
-        logger.warning(f"Model check timeout after {timeout}s for {model_path}")
+        logger.warning(
+            f"Model check timeout after {timeout}s for {model_path}"
+        )
         p.terminate()
         p.join(1)
         if p.is_alive():
@@ -67,7 +69,9 @@ def safe_check_model(model_path, timeout=60):
             p.join()
         return False
     else:
-        logger.warning(f"Model check failed with exit code {p.exitcode} for {model_path}")
+        logger.warning(
+            f"Model check failed with exit code {p.exitcode} for {model_path}"
+        )
         return False
 
 
@@ -235,7 +239,9 @@ class Model(QObject):
                 logger.info(f"Validating model integrity: {filename}")
                 is_valid = safe_check_model(model_abs_path)
             elif os.path.getsize(model_abs_path) > 0:
-                logger.info(f"Model file exists and is not empty: {model_abs_path}")
+                logger.info(
+                    f"Model file exists and is not empty: {model_abs_path}"
+                )
                 is_valid = True
 
             if is_valid:
@@ -247,7 +253,9 @@ class Model(QObject):
                 )
                 try:
                     os.remove(model_abs_path)
-                    logger.info(f"Model file {model_abs_path} deleted successfully")
+                    logger.info(
+                        f"Model file {model_abs_path} deleted successfully"
+                    )
                 except Exception as e2:  # noqa
                     logger.error(f"Could not delete corrupted file: {str(e2)}")
         pathlib.Path(model_abs_path).parent.mkdir(parents=True, exist_ok=True)
