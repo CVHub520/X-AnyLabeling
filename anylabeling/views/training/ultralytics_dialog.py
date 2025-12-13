@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
 )
 
+from anylabeling.config import get_config
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.training.widgets.ultralytics_widgets import *
@@ -117,6 +118,11 @@ class UltralyticsDialog(QDialog):
         self.current_project_path = None
         self.training_status = "idle"  # idle, training, completed, error
         self.current_epochs = 0
+
+        app_config = get_config()
+        self.project_readonly = app_config.get("training", {}).get(
+            "ultralytics", {}
+        ).get("project_readonly", True)
 
         self.init_ui()
         self.refresh_dataset_summary()
@@ -346,7 +352,7 @@ class UltralyticsDialog(QDialog):
             DEFAULT_PROJECT_DIR, self.selected_task_type.lower()
         )
         self.config_widgets["project"].setText(project)
-        self.config_widgets["project"].setReadOnly(True)
+        self.config_widgets["project"].setReadOnly(self.project_readonly)
 
         self.go_to_specific_tab(1)
 
