@@ -5241,7 +5241,10 @@ class LabelingWidget(LabelDialog):
                 label_file_without_path = osp.basename(label_file)
                 label_file = self.output_dir + "/" + label_file_without_path
             item = QtWidgets.QListWidgetItem(file)
-            item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            if self._config.get("file_list_checkbox_editable", False):
+                flags |= Qt.ItemIsUserCheckable
+            item.setFlags(flags)
             if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
                 label_file
             ):
@@ -5281,7 +5284,10 @@ class LabelingWidget(LabelDialog):
                 label_file_without_path = osp.basename(label_file)
                 label_file = self.output_dir + "/" + label_file_without_path
             item = QtWidgets.QListWidgetItem(filename)
-            item.setFlags(Qt.ItemIsEnabled | Qt.ItemIsSelectable)
+            flags = Qt.ItemIsEnabled | Qt.ItemIsSelectable
+            if self._config.get("file_list_checkbox_editable", False):
+                flags |= Qt.ItemIsUserCheckable
+            item.setFlags(flags)
             if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
                 label_file
             ):

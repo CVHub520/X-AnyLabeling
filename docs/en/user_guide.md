@@ -99,6 +99,8 @@ Navigate between images in your dataset using these methods:
     *(Note: The behavior of `Ctrl+Shift+D`/`Ctrl+Shift+A` can be configured to jump to the next/previous *unannotated* image instead. Modify the `switch_to_checked` field in the user configuration file.)*
 - **Jump to Specific Image**: Type the exact filename (including extension) into the file search bar at the bottom right and press `Enter`.
 
+The checkboxes in the file list are not editable by default. To enable editing, set `file_list_checkbox_editable` to `true` in the configuration file.
+
 ### 1.4 Saving Label Data
 
 X-AnyLabeling enables auto-save by default. You can verify or toggle this setting via `File` > `Auto Save`.

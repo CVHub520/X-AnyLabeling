@@ -24,6 +24,7 @@ show_attributes: true
 logger_level: info
 system_clipboard: false
 switch_to_checked: false
+file_list_checkbox_editable: false
 
 flags: null
 label_flags: null

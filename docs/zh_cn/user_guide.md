@@ -102,6 +102,8 @@ X-AnyLabeling 提供数据删除功能，具体操作如下：
 
 这里，`switch_to_checked` 字段定义了不同的切换模式，可在用户目录下的 `~/.xanylabelingrc` 文件中修改。
 
+文件列表中的复选框默认不可编辑，如需启用编辑功能，可在配置文件中将 `file_list_checkbox_editable` 设置为 `true`。
+
 ### 1.4 保存标签数据
 
 X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，可点击菜单栏中的 `文件` 下拉框查看 `自动保存` 选项是否被勾选。
