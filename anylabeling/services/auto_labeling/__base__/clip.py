@@ -156,14 +156,34 @@ class ChineseClipONNX:
 
 @lru_cache()
 def default_vocab():
-    import importlib.resources
+    import os
+    from importlib.resources import files
     from anylabeling.services.auto_labeling import configs
 
     try:
-        with importlib.resources.path(configs.clip, "clip_vocab.txt") as p:
-            return str(p)
+        vocab_resource = files(configs.clip).joinpath("clip_vocab.txt")
+        vocab_content = vocab_resource.read_text(encoding="utf-8")
+        import tempfile
+
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".txt", delete=False, encoding="utf-8"
+        ) as f:
+            f.write(vocab_content)
+            return f.name
     except Exception as e:
         logger.error(f"Error loading default vocab: {e}")
+
+    try:
+        clip_dir = os.path.dirname(configs.clip.__file__)
+        vocab_path = os.path.join(clip_dir, "clip_vocab.txt")
+        if os.path.exists(vocab_path):
+            return vocab_path
+        else:
+            logger.error(f"Vocab file not found: {vocab_path}")
+            return None
+    except Exception as e:
+        logger.error(f"Error loading vocab from fallback path: {e}")
+        return None
 
 
 def convert_to_unicode(text):

@@ -172,6 +172,15 @@ python -m anylabeling
 ### 模型相关问题
 
 <details>
+<summary>Q: 在 venv 环境中运行时出现 "Error loading tokenizer: No such file or directory (os error 2)"</summary>
+
+这个问题的根源在于 Python 的资源加载机制。当我们用 `importlib.resources.files()` 获取包内资源时，它返回的实际上是一个 `Traversable` 对象。这个对象在不同环境下的行为会有差异：在某些情况下（比如通过 `pip install -e .` 可编辑模式安装时），直接把 `Traversable` 对象当作文件路径传给需要真实路径的函数（如 `Tokenizer.from_file()`）就会出现文件找不到的错误。
+
+我们将会在 v3.3.4+ 版本中修复了此问题，统一将资源加载方式改为 `read_text()` 方法，直接读取资源内容而不是依赖文件路径，这样就能确保在任何安装方式和运行环境下都能正常工作。如果你遇到此问题，建议更新到合适的版本。
+
+</details>
+
+<details>
 <summary>Q: Error in model predict_shapes: ModelManager.new_auto_labeling_result[AutolabelingResult].emit(): argument 1 has unexpected type 'list'</summary>
 
 通常是加载了损坏或无效的图像文件，或者当前图像格式不支持等原因所造成。

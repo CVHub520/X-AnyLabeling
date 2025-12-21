@@ -330,11 +330,11 @@ class YOLOE(Model):
     @staticmethod
     def load_tag_list():
         """Load default tag list from resources"""
-        import importlib.resources as pkg_resources
+        from importlib.resources import files
         from anylabeling.services.auto_labeling.configs import ram
 
-        with pkg_resources.path(ram, "ram_tag_list.txt") as p:
-            tag_list = p.read_text(encoding="utf-8").splitlines()
+        tag_list_resource = files(ram).joinpath("ram_tag_list.txt")
+        tag_list = tag_list_resource.read_text(encoding="utf-8").splitlines()
 
         return tag_list
 

@@ -772,16 +772,31 @@ class GroundingSAM(Model):
 
     @staticmethod
     def get_tokenlizer(text_encoder_type):
-        import importlib.resources
+        import os
+        from importlib.resources import files
         from anylabeling.services.auto_labeling import configs
 
         cfg_name = text_encoder_type.replace("-", "_") + "_tokenizer.json"
+
         try:
-            with importlib.resources.path(configs.bert, cfg_name) as p:
-                tokenizer = Tokenizer.from_file(str(p))
+            tokenizer_resource = files(configs.bert).joinpath(cfg_name)
+            tokenizer_json = tokenizer_resource.read_text(encoding="utf-8")
+            tokenizer = Tokenizer.from_str(tokenizer_json)
             return tokenizer
         except Exception as e:
             logger.error(f"Error loading tokenizer: {e}")
+
+        try:
+            bert_dir = os.path.dirname(configs.bert.__file__)
+            tokenizer_path = os.path.join(bert_dir, cfg_name)
+            if os.path.exists(tokenizer_path):
+                tokenizer = Tokenizer.from_file(tokenizer_path)
+                return tokenizer
+            else:
+                logger.error(f"Tokenizer file not found: {tokenizer_path}")
+                return None
+        except Exception as e:
+            logger.error(f"Error loading tokenizer from fallback path: {e}")
             return None
 
     @staticmethod

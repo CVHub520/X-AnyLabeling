@@ -451,8 +451,8 @@ class AutoLabelingWidget(QWidget):
                     resource_path = pkg_resources.files(
                         anylabeling_configs
                     ).joinpath("auto_labeling", config_file_name)
-                    with open(resource_path, "r", encoding="utf-8") as f:
-                        model_config = yaml.safe_load(f)
+                    config_content = resource_path.read_text(encoding="utf-8")
+                    model_config = yaml.safe_load(config_content)
 
                     default_url = model_config.get(
                         "server_url", "http://127.0.0.1:8000/"
@@ -1054,14 +1054,20 @@ class AutoLabelingWidget(QWidget):
                 self.toggle_preserve_existing_annotations.toggled.disconnect()
                 # Set the state
                 preserve_text = preserve_annotations_modes[mode]
-                self.toggle_preserve_existing_annotations.setText(preserve_text)
+                self.toggle_preserve_existing_annotations.setText(
+                    preserve_text
+                )
                 preserve_state = preserve_text == "Replace (Off)"
-                self.toggle_preserve_existing_annotations.setChecked(preserve_state)
+                self.toggle_preserve_existing_annotations.setChecked(
+                    preserve_state
+                )
                 # Reconnect the signal
                 self.toggle_preserve_existing_annotations.toggled.connect(
                     self._on_toggle_preserve_existing_annotations_toggled
                 )
-                self.on_preserve_existing_annotations_state_changed(preserve_state)
+                self.on_preserve_existing_annotations_state_changed(
+                    preserve_state
+                )
 
     def populate_remote_server_combobox(self):
         """Populate remote server combobox"""

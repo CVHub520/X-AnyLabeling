@@ -93,9 +93,9 @@ class ModelManager(QObject):
                 resource_path = pkg_resources.files(
                     auto_labeling_configs
                 ).joinpath("auto_labeling", config_file_name)
-                with open(resource_path, "r", encoding="utf-8") as f:
-                    model_config = yaml.safe_load(f)
-                    model_config["config_file"] = str(config_file)
+                config_content = resource_path.read_text(encoding="utf-8")
+                model_config = yaml.safe_load(config_content)
+                model_config["config_file"] = str(config_file)
             else:  # Config file is in local file system
                 with open(config_file, "r", encoding="utf-8") as f:
                     model_config = yaml.safe_load(f)

@@ -120,9 +120,11 @@ class UltralyticsDialog(QDialog):
         self.current_epochs = 0
 
         app_config = get_config()
-        self.project_readonly = app_config.get("training", {}).get(
-            "ultralytics", {}
-        ).get("project_readonly", True)
+        self.project_readonly = (
+            app_config.get("training", {})
+            .get("ultralytics", {})
+            .get("project_readonly", True)
+        )
 
         self.init_ui()
         self.refresh_dataset_summary()
