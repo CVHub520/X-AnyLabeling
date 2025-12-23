@@ -218,6 +218,22 @@ class UltralyticsDialog(QDialog):
                     widget.setVisible(False)
 
     def on_task_type_selected(self, task_type):
+        normalized_task_type = None
+        for task in TASK_TYPES:
+            if task.lower() == task_type.lower():
+                normalized_task_type = task
+                break
+
+        if normalized_task_type is None:
+            logger.warning(f"Unknown task type: {task_type}")
+            return
+
+        task_type = normalized_task_type
+
+        if task_type not in self.task_type_buttons:
+            logger.warning(f"Task type button not found: {task_type}")
+            return
+     
         if self.selected_task_type == task_type:
             self.selected_task_type = None
             self.task_type_buttons[task_type].set_selected(False)
