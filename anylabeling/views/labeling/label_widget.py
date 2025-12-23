@@ -4567,11 +4567,12 @@ class LabelingWidget(LabelDialog):
             return False
         self.image = image
         self.filename = filename
-        self.navigator_dialog.set_image(QtGui.QPixmap.fromImage(image))
+
         if (
             hasattr(self, "navigator_dialog")
             and self.navigator_dialog.isVisible()
         ):
+            self.navigator_dialog.set_image(QtGui.QPixmap.fromImage(image))
             self.update_navigator_shapes()
         if (
             hasattr(self, "_should_restore_navigator")
