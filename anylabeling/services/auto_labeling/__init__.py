@@ -369,4 +369,5 @@ _BATCH_PROCESSING_TEXT_PROMPT_MODELS = [
 # --- batch_processing_video_models ---
 _BATCH_PROCESSING_VIDEO_MODELS = [
     "segment_anything_2_video",
+    "remote_server",
 ]

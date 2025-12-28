@@ -137,8 +137,10 @@ def get_image_size(image_path):
 
 
 def finish_processing(self, progress_dialog):
-    self.filename = self.image_list[self.current_index]
-    self.import_image_folder(osp.dirname(self.filename))
+    target_index = self.current_index
+    target_file = self.image_list[self.current_index]
+    self.import_image_folder(osp.dirname(target_file), load=False)
+    self.file_list_widget.setCurrentRow(target_index)
 
     del self.text_prompt
     del self.run_tracker
@@ -224,17 +226,35 @@ def process_next_image(self, progress_dialog):
     try:
         batch = True
         total_images = len(self.image_list)
+        self._progress_dialog = progress_dialog
 
         while (self.image_index < total_images) and (
             not self.cancel_processing
         ):
             image_file = self.image_list[self.image_index]
 
-            if (
+            model_type = (
                 self.auto_labeling_widget.model_manager.loaded_model_config[
                     "type"
                 ]
-                in _BATCH_PROCESSING_VIDEO_MODELS
+            )
+            batch_processing_mode = "default"
+            if model_type == "remote_server":
+                model = self.auto_labeling_widget.model_manager.loaded_model_config[
+                    "model"
+                ]
+                if hasattr(model, "get_batch_processing_mode"):
+                    batch_processing_mode = model.get_batch_processing_mode()
+                if batch_processing_mode == "video":
+                    model._widget = self
+                    if self.run_tracker:
+                        self.filename = image_file
+                        self.load_file(self.filename)
+                        batch = False
+
+            if (
+                model_type in _BATCH_PROCESSING_VIDEO_MODELS
+                and batch_processing_mode != "video"
             ):
                 self.filename = image_file
                 self.load_file(self.filename)
@@ -258,6 +278,10 @@ def process_next_image(self, progress_dialog):
                         batch=batch,
                     )
                 )
+                if batch_processing_mode == "video":
+                    logger.info("Video propagation completed, breaking loop")
+                    self.image_index = total_images
+                    break
             else:
                 auto_labeling_result = (
                     self.auto_labeling_widget.model_manager.predict_shapes(
@@ -308,9 +332,22 @@ def show_progress_dialog_and_process(self):
     progress_bar = progress_dialog.findChild(QtWidgets.QProgressBar)
 
     if progress_bar:
+        model_type = (
+            self.auto_labeling_widget.model_manager.loaded_model_config.get(
+                "type", ""
+            )
+        )
+        batch_processing_mode = "default"
+        if model_type == "remote_server":
+            model = self.auto_labeling_widget.model_manager.loaded_model_config.get(
+                "model"
+            )
+            if model and hasattr(model, "get_batch_processing_mode"):
+                batch_processing_mode = model.get_batch_processing_mode()
 
         def update_progress(value):
-            progress_dialog.setLabelText(f"{value}/{len(self.image_list)}")
+            if batch_processing_mode != "video":
+                progress_dialog.setLabelText(f"{value}/{len(self.image_list)}")
 
         progress_bar.valueChanged.connect(update_progress)
 
@@ -427,18 +464,17 @@ def run_all_images(self):
     batch_processing_mode = "default"
 
     if model_type == "remote_server":
-        if hasattr(
-            self.auto_labeling_widget.model_manager.loaded_model_config[
-                "model"
-            ],
-            "get_batch_processing_mode",
-        ):
-            batch_processing_mode = (
-                self.auto_labeling_widget.model_manager.loaded_model_config[
-                    "model"
-                ].get_batch_processing_mode()
-            )
-        if batch_processing_mode == "text_prompt":
+        model = self.auto_labeling_widget.model_manager.loaded_model_config[
+            "model"
+        ]
+        if hasattr(model, "get_batch_processing_mode"):
+            batch_processing_mode = model.get_batch_processing_mode()
+        else:
+            batch_processing_mode = "default"
+        if batch_processing_mode == "video":
+            self.run_tracker = True
+            show_progress_dialog_and_process(self)
+        elif batch_processing_mode == "text_prompt":
             text_input_dialog = TextInputDialog(parent=self)
             self.text_prompt = text_input_dialog.get_input_text()
             if self.text_prompt:

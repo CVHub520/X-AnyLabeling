@@ -1,10 +1,13 @@
 import base64
 import cv2
+import glob
+import json
 import os
 import requests
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtWidgets import QApplication
 
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.logger import logger
@@ -52,6 +55,11 @@ class RemoteServer(Model):
         self.replace = True
         self.reset_tracker_flag = False
 
+        self.video_session_id = None
+        self.video_initialized = False
+        self.video_prompt_frame = None
+        self.video_session_image_list = None
+
     def set_model_id(self, model_id):
         self.current_model_id = model_id
 
@@ -98,13 +106,22 @@ class RemoteServer(Model):
         """Reset tracker state for tracking models."""
         self.reset_tracker_flag = True
 
-    def predict_shapes(self, image, image_path=None, text_prompt=None):
+    def predict_shapes(
+        self, image, image_path=None, text_prompt=None, run_tracker=False
+    ):
         if image is None:
             return AutoLabelingResult([], replace=self.replace)
 
         if self.current_model_id is None:
             logger.warning("No model selected")
             return AutoLabelingResult([], replace=self.replace)
+
+        batch_mode = self.get_batch_processing_mode()
+        if batch_mode == "video" and text_prompt:
+            return self._handle_video_prompt(image_path, text_prompt)
+        elif batch_mode == "video" and run_tracker:
+            logger.info("Starting video propagation...")
+            return self._handle_video_propagation()
 
         if image_path and os.path.exists(image_path):
             with open(image_path, "rb") as f:
@@ -202,6 +219,376 @@ class RemoteServer(Model):
             logger.error(f"Remote server error: {e}")
             self.on_message(f"Remote server error: {e}")
             return AutoLabelingResult([], replace=self.replace)
+
+    def _handle_video_prompt(self, image_path, text_prompt):
+        """Handle video prompt: initialize or reuse session and add prompt.
+
+        Args:
+            image_path: Path to current image file.
+            text_prompt: Text prompt string.
+
+        Returns:
+            AutoLabelingResult with shapes from prompt frame.
+        """
+        if not image_path or not os.path.exists(image_path):
+            return AutoLabelingResult([], replace=self.replace)
+
+        try:
+            image_list = []
+            widget = getattr(self, "_widget", None)
+            if widget:
+                image_list = getattr(widget, "image_list", [])
+
+            if not image_list:
+                dir_path = os.path.dirname(image_path)
+                image_extensions = [
+                    "*.jpg",
+                    "*.jpeg",
+                    "*.png",
+                    "*.bmp",
+                    "*.webp",
+                ]
+                all_images = []
+                for ext in image_extensions:
+                    all_images.extend(glob.glob(os.path.join(dir_path, ext)))
+                    all_images.extend(
+                        glob.glob(os.path.join(dir_path, ext.upper()))
+                    )
+
+                try:
+                    all_images.sort(
+                        key=lambda p: int(
+                            "".join(filter(str.isdigit, os.path.basename(p)))
+                        )
+                    )
+                except ValueError:
+                    all_images.sort()
+
+                image_list = all_images
+
+            current_index = 0
+            try:
+                current_index = image_list.index(image_path)
+            except ValueError:
+                logger.warning(
+                    f"Current image {image_path} not found in image list, using index 0"
+                )
+
+            logger.info(
+                f"Video prompt: current_frame_index={current_index}, "
+                f"image_path={image_path}, total_frames={len(image_list)}"
+            )
+
+            if not image_list:
+                return AutoLabelingResult([], replace=self.replace)
+
+            if (
+                self.video_session_id
+                and self.video_session_image_list != image_list
+            ):
+                logger.info("Image list changed, resetting video session")
+                self._reset_video_session()
+
+            if not self.video_session_id:
+                frames_data = []
+                for frame_path in image_list:
+                    if os.path.exists(frame_path):
+                        with open(frame_path, "rb") as f:
+                            frame_base64 = base64.b64encode(f.read()).decode(
+                                "utf-8"
+                            )
+                        ext = os.path.splitext(frame_path)[1].lower()
+                        mime_type = {
+                            ".jpg": "image/jpeg",
+                            ".jpeg": "image/jpeg",
+                            ".png": "image/png",
+                            ".bmp": "image/bmp",
+                            ".webp": "image/webp",
+                        }.get(ext, "image/jpeg")
+                        frames_data.append(
+                            f"data:{mime_type};base64,{frame_base64}"
+                        )
+
+                message = self.tr(
+                    "Packing completed, initializing video session... "
+                    "(This may take some time, please wait patiently)"
+                )
+                logger.info(message)
+                self.on_message(message)
+
+                init_url = f"{self.server_url}/v1/video/init"
+                init_response = requests.post(
+                    url=init_url,
+                    json={
+                        "model": self.current_model_id,
+                        "frames": frames_data,
+                        "start_frame_index": 0,
+                    },
+                    headers=self.headers,
+                    timeout=self.timeout * 2,
+                )
+                init_response.raise_for_status()
+                init_result = init_response.json()
+                self.video_session_id = init_result.get("data", {}).get(
+                    "session_id"
+                )
+                self.video_initialized = True
+                self.video_session_image_list = image_list.copy()
+                logger.info(
+                    f"Video session initialized: {self.video_session_id}"
+                )
+
+            prompt_url = f"{self.server_url}/v1/video/prompt"
+            prompt_response = requests.post(
+                url=prompt_url,
+                json={
+                    "session_id": self.video_session_id,
+                    "model": self.current_model_id,
+                    "text_prompt": text_prompt.rstrip("."),
+                    "frame_index": current_index,
+                    "params": {
+                        "conf_threshold": self.conf_threshold,
+                        "epsilon_factor": self.epsilon_factor,
+                    },
+                },
+                headers=self.headers,
+                timeout=self.timeout,
+            )
+            prompt_response.raise_for_status()
+            prompt_result = prompt_response.json()
+            data = prompt_result.get("data", {})
+
+            self.video_prompt_frame = current_index
+
+            shapes = []
+            for shape_data in data.get("masks", []):
+                shape = Shape(
+                    label=shape_data.get("label", "AUTOLABEL_OBJECT"),
+                    shape_type=shape_data.get("shape_type", "rectangle"),
+                    score=shape_data.get("score", None),
+                    group_id=shape_data.get("group_id", None),
+                )
+                for point in shape_data.get("points", []):
+                    shape.add_point(QtCore.QPointF(point[0], point[1]))
+                shapes.append(shape)
+
+            return AutoLabelingResult(
+                shapes, replace=self.replace, description=""
+            )
+
+        except Exception as e:
+            logger.error(f"Video prompt error: {e}")
+            self.on_message(f"Video prompt error: {e}")
+            self._reset_video_session()
+            return AutoLabelingResult([], replace=self.replace)
+
+    def _handle_video_propagation(self):
+        """Handle video propagation using SSE streaming."""
+        if not self.video_session_id:
+            logger.warning("No video session initialized")
+            return AutoLabelingResult([], replace=False)
+
+        widget = getattr(self, "_widget", None)
+        image_list = getattr(widget, "image_list", []) if widget else []
+        progress_dialog = (
+            getattr(widget, "_progress_dialog", None) if widget else None
+        )
+
+        try:
+            stream_url = f"{self.server_url}/v1/video/propagate/stream"
+            logger.info(
+                f"Starting streaming propagation: session_id={self.video_session_id}"
+            )
+
+            request_json = {
+                "session_id": self.video_session_id,
+                "model": self.current_model_id,
+            }
+            if self.video_prompt_frame is not None:
+                request_json["start_frame"] = self.video_prompt_frame
+
+            response = requests.post(
+                url=stream_url,
+                json=request_json,
+                headers=self.headers,
+                stream=True,
+                timeout=None,
+            )
+            response.raise_for_status()
+
+            results = {}
+            total_frames = 0
+            is_first_progress = True
+            hotstart_delay = 15
+
+            cancelled = False
+            for line in response.iter_lines(decode_unicode=True):
+                if widget and getattr(widget, "cancel_processing", False):
+                    logger.info("Propagation cancelled by user")
+                    cancelled = True
+                    response.close()
+                    break
+
+                if not line:
+                    continue
+
+                if not line.startswith("data: "):
+                    continue
+
+                try:
+                    event = json.loads(line[6:])
+                except json.JSONDecodeError:
+                    continue
+
+                event_type = event.get("type")
+
+                if event_type == "started":
+                    total_frames = event.get("total_frames", 0)
+                    start_frame_index = event.get("start_frame_index", 0)
+                    frames_to_process = total_frames - start_frame_index
+                    if progress_dialog and frames_to_process > 0:
+                        progress_dialog.setMaximum(frames_to_process)
+                        progress_dialog.setValue(0)
+                        progress_dialog.setLabelText(
+                            self.tr("Model warming up, please wait...")
+                        )
+                        QApplication.processEvents()
+                    logger.info(
+                        f"Propagation started: total_frames={total_frames}, "
+                        f"start_frame_index={start_frame_index}"
+                    )
+
+                elif event_type == "progress":
+                    current_frame = event.get("current_frame", 0)
+                    start_idx = self.video_prompt_frame or 0
+                    relative_frame = current_frame - start_idx + 1
+                    display_frame = relative_frame + hotstart_delay
+                    frames_to_process = total_frames - start_idx
+
+                    if progress_dialog:
+                        try:
+                            if is_first_progress:
+                                is_first_progress = False
+                                QApplication.processEvents()
+
+                            progress_dialog.setValue(display_frame)
+                            template = self.tr("Processing frame %s/%s")
+                            message_text = template % (
+                                display_frame,
+                                frames_to_process,
+                            )
+                            progress_dialog.setLabelText(message_text)
+                            QApplication.processEvents()
+                        except Exception as e:
+                            logger.warning(f"Error updating progress: {e}")
+
+                elif event_type == "completed":
+                    results = event.get("results", {})
+                    logger.info(
+                        f"Propagation completed: {len(results)} frame results"
+                    )
+
+                elif event_type == "error":
+                    error_msg = event.get("message", "Unknown error")
+                    logger.error(f"Propagation error: {error_msg}")
+                    self.on_message(f"Propagation failed: {error_msg}")
+                    self._reset_video_session()
+                    return AutoLabelingResult([], replace=False)
+
+            if cancelled:
+                self._reset_video_session()
+                return AutoLabelingResult([], replace=False)
+
+            if not results:
+                logger.warning("No results received from propagation")
+                return AutoLabelingResult([], replace=False)
+
+            if not widget or not image_list:
+                logger.warning("Widget or image list not available")
+                return AutoLabelingResult([], replace=False)
+
+            saved_count = 0
+            for frame_idx_str, frame_result in results.items():
+                try:
+                    frame_idx = int(frame_idx_str)
+                    if 0 <= frame_idx < len(image_list):
+                        frame_file = image_list[frame_idx]
+                        masks = frame_result.get("masks", [])
+                        if not masks:
+                            continue
+
+                        shapes = []
+                        for shape_data in masks:
+                            points = shape_data.get("points", [])
+                            if not points:
+                                continue
+                            shape = Shape(
+                                label=shape_data.get(
+                                    "label", "AUTOLABEL_OBJECT"
+                                ),
+                                shape_type=shape_data.get(
+                                    "shape_type", "rectangle"
+                                ),
+                                score=shape_data.get("score", None),
+                                group_id=shape_data.get("group_id", None),
+                            )
+                            for point in points:
+                                shape.add_point(
+                                    QtCore.QPointF(point[0], point[1])
+                                )
+                            if shape.points:
+                                shapes.append(shape)
+
+                        if shapes:
+                            from anylabeling.views.labeling.utils.batch import (
+                                save_auto_labeling_result,
+                            )
+
+                            save_auto_labeling_result(
+                                widget,
+                                frame_file,
+                                AutoLabelingResult(
+                                    shapes, replace=self.replace
+                                ),
+                            )
+                            saved_count += 1
+                except (ValueError, KeyError) as e:
+                    logger.warning(
+                        f"Error processing frame {frame_idx_str}: {e}"
+                    )
+
+            logger.info(f"Saved results for {saved_count} frames")
+            return AutoLabelingResult([], replace=False)
+
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Video propagation request error: {e}")
+            self.on_message(f"Video propagation error: {e}")
+            self._reset_video_session()
+            return AutoLabelingResult([], replace=False)
+        except Exception as e:
+            logger.error(f"Video propagation error: {e}", exc_info=True)
+            self.on_message(f"Video propagation error: {e}")
+            self._reset_video_session()
+            return AutoLabelingResult([], replace=False)
+
+    def _reset_video_session(self):
+        """Reset video session state and cleanup server session."""
+        if self.video_session_id:
+            try:
+                cleanup_url = f"{self.server_url}/v1/video/cleanup/{self.video_session_id}"
+                requests.post(
+                    url=cleanup_url,
+                    params={"model": self.current_model_id},
+                    headers=self.headers,
+                    timeout=self.timeout,
+                )
+                logger.debug(f"Cleaned up session {self.video_session_id}")
+            except Exception as e:
+                logger.warning(f"Failed to cleanup session: {e}")
+        self.video_session_id = None
+        self.video_initialized = False
+        self.video_prompt_frame = None
+        self.video_session_image_list = None
 
     def unload(self):
         """Unload the model"""
