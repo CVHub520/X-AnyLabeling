@@ -1,9 +1,9 @@
 import base64
 import cv2
-import glob
 import json
 import os
 import requests
+from pathlib import Path
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
@@ -240,25 +240,19 @@ class RemoteServer(Model):
                 image_list = getattr(widget, "image_list", [])
 
             if not image_list:
-                dir_path = os.path.dirname(image_path)
-                image_extensions = [
-                    "*.jpg",
-                    "*.jpeg",
-                    "*.png",
-                    "*.bmp",
-                    "*.webp",
+                dir_path = Path(image_path).parent
+                valid_extensions = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+                all_images = [
+                    str(file_path)
+                    for file_path in dir_path.iterdir()
+                    if file_path.is_file()
+                    and file_path.suffix.lower() in valid_extensions
                 ]
-                all_images = []
-                for ext in image_extensions:
-                    all_images.extend(glob.glob(os.path.join(dir_path, ext)))
-                    all_images.extend(
-                        glob.glob(os.path.join(dir_path, ext.upper()))
-                    )
 
                 try:
                     all_images.sort(
                         key=lambda p: int(
-                            "".join(filter(str.isdigit, os.path.basename(p)))
+                            "".join(filter(str.isdigit, Path(p).name))
                         )
                     )
                 except ValueError:
