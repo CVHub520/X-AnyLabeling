@@ -76,6 +76,7 @@
 
 ## 🥳 新功能
 
+- 新增基于 [Segment Anything 3](./examples/interactive_video_object_segmentation/sam3/README.md) 的文本提示视频目标跟踪功能 (#1258)
 - 新增支持 [Segment Anything 3](./examples/grounding/sam3/README.md) 模型，实现文本和视觉可提示概念分割功能 (#1207)
 - 新增 Segment Anything Model 的 TinyObj 模式，通过局部裁剪提升高分辨率图像中小物体的分割精度 (#1193)
 - [X-AnyLabeling v3.3.x 版本特性介绍](https://mp.weixin.qq.com/s/hKy4oud3IECZTk1N3mMxmQ)
@@ -112,7 +113,7 @@
 | 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
-| 👣 **目标跟踪** | Bot-SORT, ByteTrack |
+| 👣 **目标跟踪** | Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
 | 📏 **深度估计** | Depth Anything |
 | 🧩 **分割一切** | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
@@ -166,7 +167,9 @@
   - [Tracking by OBB Object Detection](./examples/multiple_object_tracking/README.md)
   - [Tracking by Instance Segmentation](./examples/multiple_object_tracking/README.md)
   - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
-- [iVOS](./examples/interactive_video_object_segmentation/README.md)
+- [iVOS](./examples/interactive_video_object_segmentation)
+  - [SAM2-Video](./examples/interactive_video_object_segmentation/sam2/README.md)
+  - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
 - [Vision-Language](./examples/vision_language/)

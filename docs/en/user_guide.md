@@ -902,7 +902,9 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
   - Key Information Extraction (KIE): [Link](../../examples/optical_character_recognition/kie/README.md)
 
 ### 8.8 Interactive Video Object Segmentation (IVOS)
-  - IVOS: [Link](../../examples/interactive_video_object_segmentation/README.md)
+  - SAM2-Video: [Link](../../examples/interactive_video_object_segmentation/sam2/README.md)
+  - SAM3-Video: [Link](../../examples/interactive_video_object_segmentation/sam3/README.md)
+
 
 ### 8.9 Matting
   - Image Matting (Alpha Masks): [Link](../../examples/matting/image_matting/README.md)

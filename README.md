@@ -77,6 +77,7 @@
 
 ## 🥳 What's New
 
+- Add text-prompted video object tracking feature based on [Segment Anything 3](./examples/interactive_video_object_segmentation/sam3/README.md) (#1258)
 - Add support for [Segment Anything 3](./examples/grounding/sam3/README.md) model with text and visual promptable segmentation (#1207)
 - Add TinyObj mode for Segment Anything Model to improve small object detection accuracy in high-resolution images by local cropping (#1193)
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
@@ -112,7 +113,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
-| 👣 Tracking | Bot-SORT, ByteTrack |
+| 👣 Tracking | Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb |
 | 📏 Depth Estimation | Depth Anything |
 | 🧩 Segment Anything | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
@@ -165,7 +166,9 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
   - [Tracking by OBB Object Detection](./examples/multiple_object_tracking/README.md)
   - [Tracking by Instance Segmentation](./examples/multiple_object_tracking/README.md)
   - [Tracking by Pose Estimation](./examples/multiple_object_tracking/README.md)
-- [iVOS](./examples/interactive_video_object_segmentation/README.md)
+- [iVOS](./examples/interactive_video_object_segmentation)
+  - [SAM2-Video](./examples/interactive_video_object_segmentation/sam2/README.md)
+  - [SAM3-Video](./examples/interactive_video_object_segmentation/sam3/README.md)
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
 - [Vision-Language](./examples/vision_language/)

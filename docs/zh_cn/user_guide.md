@@ -321,7 +321,7 @@ X-AnyLabeling v3.2.3+ 版本新增了导航器功能，当你处理高分辨率�
 > 要以 YOLO-Pose 格式导出，您需要在标注过程中为每个组（检测框及其关键点）指定 group_id，以便 X-AnyLabeling 在导出时能够理解它们之间的从属关系。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 上传准备好的配置文件。
 4. 选择标签文件所在目录。
@@ -342,7 +342,7 @@ X-AnyLabeling v3.2.3+ 版本新增了导航器功能，当你处理高分辨率�
 当前 X-AnyLabeling 最新版本支持一键导入/导出检测和分割任务相关的 Pascal-VOC 标签文件（*.xml）。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 选择标签文件所在目录，点击确定即可。
 
@@ -365,7 +365,7 @@ X-AnyLabeling v3.2.3+ 版本新增了导航器功能，当你处理高分辨率�
 3. 对于 COCO 实例分割任务，请参考 [labels.txt](../../assets/labels.txt) 进行准备。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 上传准备好的配置文件。
 4. 选择标签文件所在目录，点击确定即可.
@@ -387,7 +387,7 @@ X-AnyLabeling v3.2.3+ 版本新增了导航器功能，当你处理高分辨率�
 > x1 y1 x2 y2 x3 y3 x4 y4 class_name difficult
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 选择标签文件所在目录，点击确定即可。
 
@@ -409,7 +409,7 @@ instances_default
 2. 对于灰度图颜色映射表文件，可参考 [mask_grayscale_map.json](../../assets/mask_grayscale_map.json)。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 上传准备好的配置文件。
 4. 选择标签文件所在目录，点击确定即可。
@@ -433,7 +433,7 @@ instances_default
 3. 选择保存路径，点击确定即可。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 上传准备好的配置文件。
 4. 选择标签文件（`gt.txt`）所在目录，点击确定即可。
@@ -493,7 +493,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 - 关键信息提取：用于从图像中提取所需要的关键信息，包含语义实体识别和关系抽取两个字任务。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 选择相应的标签文件，点击确定上传即可。
 
@@ -519,7 +519,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 在导入/导出 ODVG 标注文件之前，需要准备好一份标签配置文件，具体可参考 [classes.txt](../../assets/classes.txt)，其中每一行代表一个类别，编号从上至下依次递增。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 选择标签文件所在目录，点击确定即可.
 
@@ -536,7 +536,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 当前 X-AnyLabeling 最新版本支持一键导入/导出 VLM-R1-OVD 标签文件。
 
 **导入任务**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 选择标签文件所在目录，点击确定即可.
 
@@ -554,7 +554,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 当前 X-AnyLabeling v3.1.2+ 版本支持一键导入基于 [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) 预测所获取的标签文件。
 
 **导入流程**：
-1. 点击上方菜单栏的 `导入` 按钮。
+1. 点击上方菜单栏的 `上传` 按钮。
 2. 选择对应的任务。
 3. 上传类别文件。
 4. 选择标签文件所在目录，并根据自己需求勾选感兴趣的类别并设置过滤阈值，点击确定即可。
@@ -976,7 +976,8 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 
 ### 8.8 交互式视频目标分割
 
-- 交互式视频目标分割: [链接](../../examples/interactive_video_object_segmentation/README.md)
+- SAM2-Video: [链接](../../examples/interactive_video_object_segmentation/sam2/README.md)
+- SAM3-Video: [链接](../../examples/interactive_video_object_segmentation/sam3/README.md)
 
 ### 8.9 抠图
 

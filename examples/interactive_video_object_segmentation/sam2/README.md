@@ -1,4 +1,4 @@
-# Interactive Video Object Segmentation Example
+# SAM2 Interactive Video Object Segmentation Example
 
 ## Introduction
 
