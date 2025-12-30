@@ -1,6 +1,7 @@
 import base64
 import cv2
 import json
+import numpy as np
 import os
 import requests
 from pathlib import Path
@@ -55,10 +56,19 @@ class RemoteServer(Model):
         self.replace = True
         self.reset_tracker_flag = False
 
+        # Segment Anything 3
+        self.label = None
+        self.group_id = None
         self.video_session_id = None
         self.video_initialized = False
         self.video_prompt_frame = None
         self.video_session_image_list = None
+        self.video_prompt_type = None
+
+    def set_cache_auto_label(self, text, gid):
+        """Set cache auto label"""
+        self.label = text
+        self.group_id = gid
 
     def set_model_id(self, model_id):
         self.current_model_id = model_id
@@ -119,6 +129,12 @@ class RemoteServer(Model):
         batch_mode = self.get_batch_processing_mode()
         if batch_mode == "video" and text_prompt:
             return self._handle_video_prompt(image_path, text_prompt)
+        elif batch_mode == "video" and self.marks:
+            result = self._handle_video_point_prompt(image_path)
+            if run_tracker:
+                logger.info("Starting video propagation after point prompt...")
+                return self._handle_video_propagation()
+            return result
         elif batch_mode == "video" and run_tracker:
             logger.info("Starting video propagation...")
             return self._handle_video_propagation()
@@ -283,6 +299,12 @@ class RemoteServer(Model):
                 logger.info("Image list changed, resetting video session")
                 self._reset_video_session()
 
+            if self.video_session_id and self.video_prompt_type != "text":
+                logger.info(
+                    "Switching from point prompt to text prompt, resetting video session"
+                )
+                self._reset_video_session()
+
             if not self.video_session_id:
                 frames_data = []
                 for frame_path in image_list:
@@ -353,6 +375,7 @@ class RemoteServer(Model):
             data = prompt_result.get("data", {})
 
             self.video_prompt_frame = current_index
+            self.video_prompt_type = "text"
 
             shapes = []
             for shape_data in data.get("masks", []):
@@ -375,6 +398,198 @@ class RemoteServer(Model):
             self.on_message(f"Video prompt error: {e}")
             self._reset_video_session()
             return AutoLabelingResult([], replace=self.replace)
+
+    def _handle_video_point_prompt(self, image_path):
+        """Handle video point prompt: initialize or reuse session and add point prompt.
+
+        Args:
+            image_path: Path to current image file.
+
+        Returns:
+            AutoLabelingResult with shapes from prompt frame.
+        """
+        if not image_path or not os.path.exists(image_path):
+            return AutoLabelingResult([], replace=False)
+
+        try:
+            image_list = []
+            widget = getattr(self, "_widget", None)
+            if widget:
+                image_list = getattr(widget, "image_list", [])
+
+            if not image_list:
+                dir_path = Path(image_path).parent
+                valid_extensions = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+                all_images = [
+                    str(file_path)
+                    for file_path in dir_path.iterdir()
+                    if file_path.is_file()
+                    and file_path.suffix.lower() in valid_extensions
+                ]
+
+                try:
+                    all_images.sort(
+                        key=lambda p: int(
+                            "".join(filter(str.isdigit, Path(p).name))
+                        )
+                    )
+                except ValueError:
+                    all_images.sort()
+
+                image_list = all_images
+
+            current_index = 0
+            try:
+                current_index = image_list.index(image_path)
+            except ValueError:
+                logger.warning(
+                    f"Current image {image_path} not found in image list, using index 0"
+                )
+
+            logger.info(
+                f"Video point prompt: current_frame_index={current_index}, "
+                f"image_path={image_path}, total_frames={len(image_list)}"
+            )
+
+            if not image_list:
+                return AutoLabelingResult([], replace=False)
+
+            if (
+                self.video_session_id
+                and self.video_session_image_list != image_list
+            ):
+                logger.info("Image list changed, resetting video session")
+                self._reset_video_session()
+
+            if self.video_session_id and self.video_prompt_type != "point":
+                logger.info(
+                    "Switching from text prompt to point prompt, resetting video session"
+                )
+                self._reset_video_session()
+
+            if not self.video_session_id:
+                frames_data = []
+                for frame_path in image_list:
+                    if os.path.exists(frame_path):
+                        with open(frame_path, "rb") as f:
+                            frame_base64 = base64.b64encode(f.read()).decode(
+                                "utf-8"
+                            )
+                        ext = os.path.splitext(frame_path)[1].lower()
+                        mime_type = {
+                            ".jpg": "image/jpeg",
+                            ".jpeg": "image/jpeg",
+                            ".png": "image/png",
+                            ".bmp": "image/bmp",
+                            ".webp": "image/webp",
+                        }.get(ext, "image/jpeg")
+                        frames_data.append(
+                            f"data:{mime_type};base64,{frame_base64}"
+                        )
+
+                message = self.tr(
+                    "Packing completed, initializing video session... "
+                    "(This may take some time, please wait patiently)"
+                )
+                logger.info(message)
+                self.on_message(message)
+
+                init_url = f"{self.server_url}/v1/video/init"
+                init_response = requests.post(
+                    url=init_url,
+                    json={
+                        "model": self.current_model_id,
+                        "frames": frames_data,
+                        "start_frame_index": 0,
+                    },
+                    headers=self.headers,
+                    timeout=self.timeout * 2,
+                )
+                init_response.raise_for_status()
+                init_result = init_response.json()
+                self.video_session_id = init_result.get("data", {}).get(
+                    "session_id"
+                )
+                self.video_initialized = True
+                self.video_session_image_list = image_list.copy()
+                logger.info(
+                    f"Video session initialized: {self.video_session_id}"
+                )
+
+            frame_img = cv2.imread(image_path)
+            if frame_img is None:
+                return AutoLabelingResult([], replace=False)
+            img_height, img_width = frame_img.shape[:2]
+
+            point_coords = []
+            point_labels = []
+
+            for mark in self.marks:
+                mark_type = mark.get("type")
+                if mark_type == "point":
+                    data = mark.get("data", [])
+                    if len(data) == 2:
+                        point_coords.append(data)
+                        label = mark.get("label", 1)
+                        point_labels.append(label)
+
+            if not point_coords:
+                logger.warning("No valid point prompts provided")
+                return AutoLabelingResult([], replace=False)
+
+            points_abs = np.array(point_coords, dtype=np.float32)
+            labels = np.array(point_labels, dtype=np.int32)
+
+            points_rel = points_abs / np.array(
+                [img_width, img_height], dtype=np.float32
+            )
+            points_tensor = points_rel.tolist()
+            point_labels_tensor = labels.tolist()
+
+            prompt_url = f"{self.server_url}/v1/video/prompt"
+            prompt_response = requests.post(
+                url=prompt_url,
+                json={
+                    "session_id": self.video_session_id,
+                    "model": self.current_model_id,
+                    "frame_index": current_index,
+                    "points": points_tensor,
+                    "point_labels": point_labels_tensor,
+                    "obj_id": 10000,
+                    "params": {
+                        "conf_threshold": self.conf_threshold,
+                        "epsilon_factor": self.epsilon_factor,
+                    },
+                },
+                headers=self.headers,
+                timeout=self.timeout,
+            )
+            prompt_response.raise_for_status()
+            prompt_result = prompt_response.json()
+            data = prompt_result.get("data", {})
+
+            self.video_prompt_frame = current_index
+            self.video_prompt_type = "point"
+
+            shapes = []
+            for shape_data in data.get("masks", []):
+                shape = Shape(
+                    label="AUTOLABEL_OBJECT",
+                    shape_type=shape_data.get("shape_type", "rectangle"),
+                    score=shape_data.get("score", None),
+                    group_id=shape_data.get("group_id", None),
+                )
+                for point in shape_data.get("points", []):
+                    shape.add_point(QtCore.QPointF(point[0], point[1]))
+                shapes.append(shape)
+
+            return AutoLabelingResult(shapes, replace=False, description="")
+
+        except Exception as e:
+            logger.error(f"Video point prompt error: {e}")
+            self.on_message(f"Video point prompt error: {e}")
+            self._reset_video_session()
+            return AutoLabelingResult([], replace=False)
 
     def _handle_video_propagation(self):
         """Handle video propagation using SSE streaming."""
@@ -413,7 +628,6 @@ class RemoteServer(Model):
             results = {}
             total_frames = 0
             is_first_progress = True
-            hotstart_delay = 15
 
             cancelled = False
             for line in response.iter_lines(decode_unicode=True):
@@ -439,7 +653,8 @@ class RemoteServer(Model):
                 if event_type == "started":
                     total_frames = event.get("total_frames", 0)
                     start_frame_index = event.get("start_frame_index", 0)
-                    frames_to_process = total_frames - start_frame_index
+                    start_idx = self.video_prompt_frame or start_frame_index
+                    frames_to_process = total_frames - start_idx
                     if progress_dialog and frames_to_process > 0:
                         progress_dialog.setMaximum(frames_to_process)
                         progress_dialog.setValue(0)
@@ -455,8 +670,10 @@ class RemoteServer(Model):
                 elif event_type == "progress":
                     current_frame = event.get("current_frame", 0)
                     start_idx = self.video_prompt_frame or 0
-                    relative_frame = current_frame - start_idx + 1
-                    display_frame = relative_frame + hotstart_delay
+                    relative_frame = current_frame - start_idx
+                    if relative_frame < 0:
+                        relative_frame = 0
+                    display_frame = relative_frame + 1
                     frames_to_process = total_frames - start_idx
 
                     if progress_dialog:
@@ -465,7 +682,8 @@ class RemoteServer(Model):
                                 is_first_progress = False
                                 QApplication.processEvents()
 
-                            progress_dialog.setValue(display_frame)
+                            if display_frame <= frames_to_process:
+                                progress_dialog.setValue(display_frame)
                             template = self.tr("Processing frame %s/%s")
                             message_text = template % (
                                 display_frame,
@@ -516,15 +734,19 @@ class RemoteServer(Model):
                             points = shape_data.get("points", [])
                             if not points:
                                 continue
+                            label = shape_data.get("label", "AUTOLABEL_OBJECT")
+                            if self.label is not None:
+                                label = self.label
+                            group_id = shape_data.get("group_id", None)
+                            if self.group_id is not None:
+                                group_id = self.group_id
                             shape = Shape(
-                                label=shape_data.get(
-                                    "label", "AUTOLABEL_OBJECT"
-                                ),
+                                label=label,
                                 shape_type=shape_data.get(
                                     "shape_type", "rectangle"
                                 ),
                                 score=shape_data.get("score", None),
-                                group_id=shape_data.get("group_id", None),
+                                group_id=group_id,
                             )
                             for point in points:
                                 shape.add_point(
@@ -538,11 +760,16 @@ class RemoteServer(Model):
                                 save_auto_labeling_result,
                             )
 
+                            replace_value = (
+                                False
+                                if self.video_prompt_type == "point"
+                                else self.replace
+                            )
                             save_auto_labeling_result(
                                 widget,
                                 frame_file,
                                 AutoLabelingResult(
-                                    shapes, replace=self.replace
+                                    shapes, replace=replace_value
                                 ),
                             )
                             saved_count += 1
@@ -551,6 +778,7 @@ class RemoteServer(Model):
                         f"Error processing frame {frame_idx_str}: {e}"
                     )
 
+            self.label, self.group_id = None, None
             logger.info(f"Saved results for {saved_count} frames")
             return AutoLabelingResult([], replace=False)
 
@@ -558,11 +786,13 @@ class RemoteServer(Model):
             logger.error(f"Video propagation request error: {e}")
             self.on_message(f"Video propagation error: {e}")
             self._reset_video_session()
+            self.label, self.group_id = None, None
             return AutoLabelingResult([], replace=False)
         except Exception as e:
             logger.error(f"Video propagation error: {e}", exc_info=True)
             self.on_message(f"Video propagation error: {e}")
             self._reset_video_session()
+            self.label, self.group_id = None, None
             return AutoLabelingResult([], replace=False)
 
     def _reset_video_session(self):
@@ -579,10 +809,14 @@ class RemoteServer(Model):
                 logger.debug(f"Cleaned up session {self.video_session_id}")
             except Exception as e:
                 logger.warning(f"Failed to cleanup session: {e}")
+
+        self.label = None
+        self.group_id = None
         self.video_session_id = None
         self.video_initialized = False
         self.video_prompt_frame = None
         self.video_session_image_list = None
+        self.video_prompt_type = None
 
     def unload(self):
         """Unload the model"""

@@ -1259,6 +1259,18 @@ class AutoLabelingWidget(QWidget):
         self.clear_auto_decode_requested.emit()
         self.clear_auto_labeling_action_requested.emit()
 
+        # Adaptation for Segment Anything 3 Video Integration
+        if (
+            self.model_manager.loaded_model_config.get("type")
+            == "remote_server"
+        ):
+            if self.model_manager.loaded_model_config["model"].models_info.get(
+                "auto_clear_cache_label_and_gid", False
+            ):
+                self.model_manager.loaded_model_config[
+                    "model"
+                ].set_cache_auto_label(None, None)
+
     def on_finish_clicked(self):
         """Handle finish button click"""
         self.clear_auto_decode_requested.emit()

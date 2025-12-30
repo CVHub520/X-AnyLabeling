@@ -83,6 +83,7 @@ _CUSTOM_MODELS = [
 # --- set_cache_auto_label ---
 _CACHED_AUTO_LABELING_MODELS = [
     "segment_anything_2_video",
+    "remote_server",
 ]
 
 
