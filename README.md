@@ -77,9 +77,10 @@
 
 ## 🥳 What's New
 
-- Add text-prompted video object tracking feature based on [Segment Anything 3](./examples/interactive_video_object_segmentation/sam3/README.md) (#1258)
-- Add support for [Segment Anything 3](./examples/grounding/sam3/README.md) model with text and visual promptable segmentation (#1207)
-- Add TinyObj mode for Segment Anything Model to improve small object detection accuracy in high-resolution images by local cropping (#1193)
+<video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
+</video>
+
+- Added one-click text and visual prompt video detection and segmentation tracking based on Segment Anything 3 [[docs](./examples/interactive_video_object_segmentation/sam3/README.md)]
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 ## X-AnyLabeling

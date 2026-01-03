@@ -76,10 +76,10 @@
 
 ## 🥳 新功能
 
-- 新增基于 [Segment Anything 3](./examples/interactive_video_object_segmentation/sam3/README.md) 的文本提示视频目标跟踪功能 (#1258)
-- 新增支持 [Segment Anything 3](./examples/grounding/sam3/README.md) 模型，实现文本和视觉可提示概念分割功能 (#1207)
-- 新增 Segment Anything Model 的 TinyObj 模式，通过局部裁剪提升高分辨率图像中小物体的分割精度 (#1193)
-- [X-AnyLabeling v3.3.x 版本特性介绍](https://mp.weixin.qq.com/s/hKy4oud3IECZTk1N3mMxmQ)
+<video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
+</video>
+
+- 新增基于 Segment Anything 3 的一键文本和视觉提示视频检测及分割跟踪 [[教程](./examples/interactive_video_object_segmentation/sam3/README.md)]
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 ## 简介

@@ -1,5 +1,36 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.4` (Jan 01, 2026)
+
+### 🚀 New Features
+
+- Add support for SAM3-based "Track Concepts" with both Visual and Text Prompts (#1258)
+- Add file_list_checkbox_editable option to control checkbox editability in file list (#678)
+- Add project_readonly configuration to control project editability (#1242)
+- Enhance remote server dialog for URL and API key configuration (#1241)
+- Add support for modifying the remote_server URL (#1241)
+- Add support for verifying PTH and PT model validation (#1241)
+- Add double-click functionality to copy label text to clipboard (#1236)
+
+### 🐛 Bug Fixes
+
+- Fix Windows image file counting bug by using pathlib (#1258)
+- Normalize task type selection and add warnings for unknown task types (#1253)
+- Ensure image is set in navigator dialog when visible (#1220)
+- Resolve resource loading failure in venv editable install mode (#1250)
+- Handle None value for replace parameter in AutoLabelingResult
+
+### 🛠️ Improvements
+
+- Update user guide with note on YOLO label file directory placement (#1259)
+- Update user guide to include new SAM3 video tracking features (#1258)
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @Atletico1999, @CVHub520
+
 ## `v3.3.3` (Dec 07, 2025)
 
 ### 🚀 New Features

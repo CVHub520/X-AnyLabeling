@@ -233,7 +233,7 @@ class UltralyticsDialog(QDialog):
         if task_type not in self.task_type_buttons:
             logger.warning(f"Task type button not found: {task_type}")
             return
-     
+
         if self.selected_task_type == task_type:
             self.selected_task_type = None
             self.task_type_buttons[task_type].set_selected(False)
