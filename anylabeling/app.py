@@ -19,6 +19,12 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
+if any(
+    arg.startswith(("parent_pid=", "pipe_handle=", "--multiprocessing-"))
+    for arg in sys.argv[1:]
+):
+    sys.exit(0)
+
 import yaml
 from PyQt5 import QtCore, QtWidgets
 
@@ -47,7 +53,11 @@ def main():
 
     filtered_argv = []
     for arg in sys.argv[1:]:
-        if not arg.startswith("parent_pid="):
+        if not (
+            arg.startswith("parent_pid=")
+            or arg.startswith("pipe_handle=")
+            or arg.startswith("--multiprocessing-")
+        ):
             filtered_argv.append(arg)
     sys.argv = [sys.argv[0]] + filtered_argv
 
