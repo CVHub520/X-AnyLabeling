@@ -5,6 +5,7 @@ import zipfile
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QBrush, QColor
 from PyQt5.QtWidgets import (
     QSpinBox,
     QFileDialog,
@@ -91,6 +92,8 @@ class OverviewDialog(QtWidgets.QDialog):
     It allows the user to select a range of images to display and export the data as a CSV file.
     """
 
+    DIFFICULT_HIGHLIGHT_COLOR = QColor(255, 153, 0, 128)
+
     def __init__(self, parent):
         super().__init__(parent)
         self.parent = parent
@@ -99,6 +102,8 @@ class OverviewDialog(QtWidgets.QDialog):
         self.start_index = 1
         self.end_index = len(self.image_file_list)
         self.showing_label_infos = True
+        self.current_shape_infos = []
+        self.shape_to_image_file = []
         if self.image_file_list:
             self.init_ui()
 
@@ -112,7 +117,7 @@ class OverviewDialog(QtWidgets.QDialog):
             | Qt.WindowMinimizeButtonHint
             | Qt.WindowMaximizeButtonHint
         )
-        self.resize(600, 400)
+        self.resize(960, 480)
         self.move_to_center()
 
         layout = QVBoxLayout(self)
@@ -125,6 +130,7 @@ class OverviewDialog(QtWidgets.QDialog):
         self.table.horizontalHeader().setSectionResizeMode(
             QtWidgets.QHeaderView.ResizeToContents
         )
+        self.table.cellDoubleClicked.connect(self.on_cell_double_clicked)
 
         range_layout = QHBoxLayout()
         range_layout.addStretch(1)
@@ -207,6 +213,7 @@ class OverviewDialog(QtWidgets.QDialog):
         initial_nums = [0 for _ in range(len(self.supported_shape))]
         label_infos = {}
         shape_infos = []
+        self.shape_to_image_file = []
 
         progress_dialog = QProgressDialog(
             self.tr("Loading..."),
@@ -277,6 +284,7 @@ class OverviewDialog(QtWidgets.QDialog):
                     kie_linking=kie_linking,
                 )
                 shape_infos.append(current_shape)
+                self.shape_to_image_file.append(image_file)
 
             progress_dialog.setValue(i)
             if progress_dialog.wasCanceled():
@@ -342,6 +350,8 @@ class OverviewDialog(QtWidgets.QDialog):
         Populate the table with the label or shape information.
         """
         if self.showing_label_infos:
+            self.current_shape_infos = []
+            self.shape_to_image_file = []
             total_infos, _ = self.get_total_infos(start_index, end_index)
             rows = len(total_infos) - 1
             cols = len(total_infos[0])
@@ -357,15 +367,31 @@ class OverviewDialog(QtWidgets.QDialog):
                     self.table.setItem(row, col, item)
         else:
             _, shape_infos = self.get_label_infos(start_index, end_index)
+            self.current_shape_infos = shape_infos
             headers, table_data = self.get_shape_infos_table(shape_infos)
             self.table.setRowCount(len(table_data))
             self.table.setColumnCount(len(headers))
             self.table.setHorizontalHeaderLabels(headers)
 
+            difficult_col_index = headers.index("Difficult")
+            difficult_header_item = self.table.horizontalHeaderItem(
+                difficult_col_index
+            )
+            if difficult_header_item:
+                difficult_header_item.setBackground(
+                    QBrush(self.DIFFICULT_HIGHLIGHT_COLOR)
+                )
+
+            highlight_brush = QBrush(self.DIFFICULT_HIGHLIGHT_COLOR)
             for row, data in enumerate(table_data):
+                is_difficult = row < len(shape_infos) and shape_infos[row].get(
+                    "difficult", False
+                )
                 for col, value in enumerate(data):
                     item = QTableWidgetItem(value)
                     item.setToolTip(value)
+                    if is_difficult:
+                        item.setBackground(highlight_brush)
                     self.table.setItem(row, col, item)
             self.table.horizontalHeader().setSectionResizeMode(
                 QtWidgets.QHeaderView.Stretch
@@ -492,3 +518,24 @@ class OverviewDialog(QtWidgets.QDialog):
         else:
             self.toggle_button.setText(self.tr("Label"))
         self.populate_table(self.start_index, self.end_index)
+
+    def on_cell_double_clicked(self, row: int, col: int) -> None:
+        """
+        Handle double-click on table cell to navigate to corresponding image.
+
+        Args:
+            row (int): The row index of the clicked cell.
+            col (int): The column index of the clicked cell.
+        """
+        if not self.showing_label_infos and self.current_shape_infos:
+            if row < len(self.current_shape_infos):
+                shape_info = self.current_shape_infos[row]
+                filename = shape_info.get("filename")
+                if filename and self.parent:
+                    if not os.path.isabs(filename) and row < len(
+                        self.shape_to_image_file
+                    ):
+                        image_file = self.shape_to_image_file[row]
+                        image_dir = os.path.dirname(image_file)
+                        filename = os.path.join(image_dir, filename)
+                    self.parent.load_file(filename)
