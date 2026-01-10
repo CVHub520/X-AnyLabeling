@@ -79,6 +79,7 @@ class Canvas(
         )
         self.attributes_config = kwargs.pop("attributes", {})
         self.rotation_config = kwargs.pop("rotation", {})
+        self.mask_config = kwargs.pop("mask", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         # Initialise local state.
@@ -160,6 +161,9 @@ class Canvas(
         self.small_rotation_increment = math.radians(
             self.rotation_config.get("small_increment", 0.1)
         )
+
+        # Set mask opacity options.
+        self.mask_opacity = self.mask_config.get("opacity", 80)
 
         self.is_loading = False
         self.loading_text = self.tr("Loading...")
@@ -1503,7 +1507,10 @@ class Canvas(
                     else shape.line_color
                 )
                 fill_color_alpha = QtGui.QColor(
-                    fill_color.red(), fill_color.green(), fill_color.blue(), 80
+                    fill_color.red(),
+                    fill_color.green(),
+                    fill_color.blue(),
+                    self.mask_opacity,
                 )
                 p.setPen(Qt.NoPen)
                 p.setBrush(fill_color_alpha)

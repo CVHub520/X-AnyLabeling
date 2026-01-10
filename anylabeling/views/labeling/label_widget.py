@@ -279,6 +279,7 @@ class LabelingWidget(LabelDialog):
             ],
             attributes=self._config["canvas"].get("attributes", {}),
             rotation=self._config["canvas"].get("rotation", {}),
+            mask=self._config["canvas"].get("mask", {}),
         )
         self.canvas.zoom_request.connect(self.zoom_request)
 
