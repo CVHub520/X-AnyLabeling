@@ -1,5 +1,26 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.5` (Jan 11, 2026)
+
+### 🚀 New Features
+
+- Introduce powerful file search feature with text, regex, and attribute filtering support (#1264)
+- Enhance shape info display with difficult shape highlighting and double-click navigation in overview dialog (#1264)
+- Apply dashed line style for difficult shapes in shape and canvas rendering (#1264)
+- Integrate mask opacity configuration into canvas rendering
+- Add semi-transparent mask rendering for shapes with toggle support (Ctrl+M)
+
+### 🐛 Bug Fixes
+
+- Suppress stderr output and filter command-line arguments
+- Refresh canvas immediately after label modification
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v3.3.4` (Jan 01, 2026)
 
 ### 🚀 New Features
