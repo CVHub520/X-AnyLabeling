@@ -128,6 +128,7 @@ class Canvas(
         self.setMouseTracking(True)
         self.setFocusPolicy(QtCore.Qt.WheelFocus)
         self.show_groups = False
+        self.show_masks = True
         self.show_texts = True
         self.show_labels = True
         self.show_scores = True
@@ -1437,6 +1438,89 @@ class Canvas(
                     ),
                 ]
                 p.drawPolygon(arrow_points)
+
+        # Draw shape masks
+        if self.show_masks:
+            for shape in self.shapes:
+                if not shape.visible:
+                    continue
+                if shape.shape_type not in [
+                    "polygon",
+                    "rectangle",
+                    "rotation",
+                    "circle",
+                ]:
+                    continue
+                if shape.shape_type == "polygon" and len(shape.points) < 3:
+                    continue
+                if shape.shape_type == "rectangle" and len(shape.points) < 2:
+                    continue
+                if shape.shape_type == "rotation" and len(shape.points) < 2:
+                    continue
+                if shape.shape_type == "circle" and len(shape.points) < 2:
+                    continue
+                if not (
+                    (shape.selected or not self._hide_backround)
+                    and self.is_visible(shape)
+                ):
+                    continue
+
+                mask_path = QtGui.QPainterPath()
+                if shape.shape_type == "polygon":
+                    mask_path.moveTo(shape.points[0])
+                    for point in shape.points[1:]:
+                        mask_path.lineTo(point)
+                    if shape.is_closed() or len(shape.points) >= 3:
+                        mask_path.closeSubpath()
+                elif shape.shape_type == "rectangle":
+                    if len(shape.points) == 2:
+                        rectangle = shape.get_rect_from_line(*shape.points)
+                        mask_path.addRect(rectangle)
+                    elif len(shape.points) == 4:
+                        mask_path.moveTo(shape.points[0])
+                        for point in shape.points[1:]:
+                            mask_path.lineTo(point)
+                        mask_path.closeSubpath()
+                elif shape.shape_type == "rotation":
+                    if len(shape.points) == 2:
+                        rectangle = shape.get_rect_from_line(*shape.points)
+                        mask_path.addRect(rectangle)
+                    elif len(shape.points) == 4:
+                        mask_path.moveTo(shape.points[0])
+                        for point in shape.points[1:]:
+                            mask_path.lineTo(point)
+                        mask_path.closeSubpath()
+                elif shape.shape_type == "circle":
+                    if len(shape.points) == 2:
+                        rectangle = shape.get_circle_rect_from_line(
+                            shape.points
+                        )
+                        mask_path.addEllipse(rectangle)
+
+                fill_color = (
+                    shape.select_line_color
+                    if shape.selected
+                    else shape.line_color
+                )
+                fill_color_alpha = QtGui.QColor(
+                    fill_color.red(), fill_color.green(), fill_color.blue(), 80
+                )
+                p.setPen(Qt.NoPen)
+                p.setBrush(fill_color_alpha)
+                p.drawPath(mask_path)
+
+                outline_color = (
+                    shape.select_line_color
+                    if shape.selected
+                    else shape.line_color
+                )
+                pen = QtGui.QPen(outline_color)
+                pen.setWidth(
+                    max(1, int(round(shape.line_width / Shape.scale)))
+                )
+                p.setPen(pen)
+                p.setBrush(Qt.NoBrush)
+                p.drawPath(mask_path)
 
         # Draw degrees
         for shape in self.shapes:

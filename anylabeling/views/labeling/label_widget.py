@@ -1003,6 +1003,17 @@ class LabelingWidget(LabelDialog):
             enabled=True,
             auto_trigger=True,
         )
+        show_masks = action(
+            self.tr("Show Masks"),
+            lambda x: self.set_canvas_params("show_masks", x),
+            shortcut=shortcuts["show_masks"],
+            tip=self.tr("Show semi-transparent masks for shapes"),
+            icon=None,
+            checkable=True,
+            checked=self._config["show_masks"],
+            enabled=True,
+            auto_trigger=True,
+        )
         show_texts = action(
             self.tr("Show Texts"),
             lambda x: self.set_canvas_params("show_texts", x),
@@ -1540,6 +1551,7 @@ class LabelingWidget(LabelDialog):
             brightness_contrast=brightness_contrast,
             set_cross_line=set_cross_line,
             show_groups=show_groups,
+            show_masks=show_masks,
             show_texts=show_texts,
             show_labels=show_labels,
             show_scores=show_scores,
@@ -1802,6 +1814,7 @@ class LabelingWidget(LabelDialog):
                 None,
                 brightness_contrast,
                 set_cross_line,
+                show_masks,
                 show_texts,
                 show_labels,
                 show_scores,

@@ -784,9 +784,10 @@ digit_shortcuts:
 | Ctrl + p              | 切换保留上一个模式                     |
 | Ctrl + y              | 切换自动使用上一个标签                |
 | Ctrl + Shift + g      | 切换自动使用上一个群组编号           |
-| Ctrl + m              | 唤醒批量标注                           |
+| Ctrl + b              | 唤醒批量标注                           |
 | Ctrl + a              | 启用自动标注                           |
 | Ctrl + s              | 保存当前标注                           |
+| Ctrl + m              | 显示/隐藏掩码                           |
 | Ctrl + l              | 显示/隐藏标签                           |
 | Ctrl + t              | 显示/隐藏文本                           |
 | Ctrl + k              | 显示/隐藏连接线                         |
