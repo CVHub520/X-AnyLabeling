@@ -241,6 +241,8 @@ class Shape:
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             pen.setWidth(max(1, int(round(self.line_width / self.scale))))
+            if self.difficult and self.shape_type != "point":
+                pen.setStyle(QtCore.Qt.DashLine)
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()

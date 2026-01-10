@@ -1525,6 +1525,8 @@ class Canvas(
                 pen.setWidth(
                     max(1, int(round(shape.line_width / Shape.scale)))
                 )
+                if shape.difficult:
+                    pen.setStyle(Qt.DashLine)
                 p.setPen(pen)
                 p.setBrush(Qt.NoBrush)
                 p.drawPath(mask_path)
