@@ -2618,7 +2618,8 @@ class LabelingWidget(LabelDialog):
         )
         result = modify_label_dialog.exec_()
         if result == QtWidgets.QDialog.Accepted:
-            pass
+            if self.filename:
+                self.load_file(self.filename)
 
     def gid_manager(self):
         modify_gid_dialog = GroupIDModifyDialog(parent=self)
