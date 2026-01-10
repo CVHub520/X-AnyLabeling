@@ -79,6 +79,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- 新增强大的文件搜索功能，支持文本搜索、正则表达式搜索和属性搜索 [[教程](./docs/zh_cn/user_guide.md#25-搜索图片)]
 - 新增多边形、矩形、旋转框和圆形对象的半透明掩码渲染功能，支持快捷键切换显示（`Ctrl+M`）
 - 新增基于 Segment Anything 3 的一键文本和视觉提示视频检测及分割跟踪 [[教程](./examples/interactive_video_object_segmentation/sam3/README.md)]
 - 更多详情，请参考[更新日志](./CHANGELOG.md)

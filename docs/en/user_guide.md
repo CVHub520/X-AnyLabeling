@@ -14,6 +14,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [2.2 Editing Shapes](#22-editing-shapes)
       * [2.3 Editing Labels](#23-editing-labels)
       * [2.4 Adding Image Captions](#24-adding-image-captions)
+      * [2.5 Searching Images](#25-searching-images)
    * [3. View Options](#3-view-options)
       * [3.1 Canvas Controls](#31-canvas-controls)
       * [3.2 Image Display](#32-image-display)
@@ -237,6 +238,37 @@ X-AnyLabeling allows you to add a description or caption to the entire image:
 1. Enter Edit Mode (`Ctrl+E`).
 2. Click on an empty area of the canvas (not on a shape).
 3. Enter your text in the `Description` field in the right panel. This is saved in the `flags` field of the main JSON structure.
+
+### 2.5 Searching Images
+
+X-AnyLabeling v3.3.5+ introduces a powerful file search feature that supports multiple search modes to help you quickly locate target images. Enter your search criteria in the search box above the file list on the right panel and press Enter to execute the search.
+
+The following search modes are currently supported:
+
+**Text Search**
+
+Enter plain text directly, and the system will search for files whose names contain that text. For example, entering `test` will find all images with "test" in their filename.
+
+**Regular Expression Search**
+
+Use the `<pattern>` format for regular expression searches. Examples:
+- `<\.png$>` searches for all PNG format images
+- `<test.*\.jpg$>` searches for images whose filenames start with "test" and end with ".jpg"
+
+**Attribute Search**
+
+Filter images by object attributes using the format `attribute::value`:
+
+- `difficult::1` or `difficult::true`: Find images containing difficult annotations
+- `gid::0`: Find images containing objects with group ID 0 (supports any integer group ID)
+- `shape::1` or `shape::true`: Find annotated images (containing at least one annotation object)
+- `label::person`: Find images containing objects labeled "person"
+- `type::rectangle`: Find images containing rectangle objects. Supported types include: `rectangle`, `polygon`, `rotation`, `point`, `line`, `circle`, `linestrip`
+- `score::[0,0.5]`: Find images containing objects with scores in the range [0, 0.5] (closed interval)
+- `score::(0,0.6]`: Find images containing objects with scores in the range (0, 0.6] (left-open, right-closed)
+- `score::[0,0.6)`: Find images containing objects with scores in the range [0, 0.6) (left-closed, right-open)
+- `score::(0,0.6)`: Find images containing objects with scores in the range (0, 0.6) (open interval)
+- `description::1` or `description::true`: Find images containing objects with non-empty descriptions
 
 ## 3. View Options
 

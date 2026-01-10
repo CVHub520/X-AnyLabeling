@@ -45,6 +45,11 @@ from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
 from .logger import logger
 from .shape import Shape
+from .utils.file_search import (
+    parse_search_pattern,
+    matches_filename,
+    matches_label_attribute,
+)
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -227,8 +232,19 @@ class LabelingWidget(LabelDialog):
         )
 
         self.file_search = SearchBar()
-        self.file_search.setPlaceholderText(self.tr("Search Filename"))
-        self.file_search.textChanged.connect(self.file_search_changed)
+        self.file_search.setPlaceholderText(self.tr("Search files..."))
+        self.file_search.setToolTip(
+            self.tr(
+                "Supported search modes:\n"
+                "- Text: plain text search\n"
+                "- Regex: <pattern> (e.g., <\\.png$>)\n"
+                "- Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx\n"
+                "- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)\n"
+                "- Description: description::1, description::true, description::yes\n"
+                "Press Enter to search."
+            )
+        )
+        self.file_search.returnPressed.connect(self.file_search_changed)
         self.file_list_widget = QtWidgets.QListWidget()
         self.file_list_widget.itemSelectionChanged.connect(
             self.file_selection_changed
@@ -3136,9 +3152,10 @@ class LabelingWidget(LabelDialog):
         self.update_gid_box()
 
     def file_search_changed(self):
+        search_text = self.file_search.text()
         self.import_image_folder(
             self.last_open_dir,
-            pattern=self.file_search.text(),
+            pattern=search_text,
             load=False,
         )
 
@@ -5291,9 +5308,26 @@ class LabelingWidget(LabelDialog):
         self.file_list_widget.clear()
         image_files = []
 
+        search_pattern = parse_search_pattern(pattern) if pattern else None
+
         for filename in utils.scan_all_images(dirpath):
-            if pattern and pattern not in filename:
-                continue
+            if search_pattern:
+                if not matches_filename(filename, search_pattern):
+                    continue
+
+                if search_pattern.mode == "attribute":
+                    label_file = osp.splitext(filename)[0] + ".json"
+                    if self.output_dir:
+                        label_file_without_path = osp.basename(label_file)
+                        label_file = (
+                            self.output_dir + "/" + label_file_without_path
+                        )
+
+                    if not matches_label_attribute(
+                        filename, label_file, search_pattern
+                    ):
+                        continue
+
             image_files.append(filename)
             label_file = osp.splitext(filename)[0] + ".json"
             if self.output_dir:
