@@ -4426,7 +4426,7 @@ Continue processing or cancel import?</source>
     <message>
         <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1325"/>
         <source>Export MASK Annotations</source>
-        <translation>导出掩码标注</translation>
+        <translation>导出Mask标注</translation>
     </message>
     <message>
         <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1332"/>

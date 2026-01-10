@@ -42,6 +42,15 @@ from anylabeling.resources import resources
 
 
 def main():
+    if sys.stderr is None:
+        sys.stderr = open(os.devnull, "w")
+
+    filtered_argv = []
+    for arg in sys.argv[1:]:
+        if not arg.startswith("parent_pid="):
+            filtered_argv.append(arg)
+    sys.argv = [sys.argv[0]] + filtered_argv
+
     parser = argparse.ArgumentParser()
 
     subparsers = parser.add_subparsers(
