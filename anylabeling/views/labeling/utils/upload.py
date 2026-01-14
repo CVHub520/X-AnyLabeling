@@ -602,8 +602,8 @@ def upload_mmgd_annotation(self, LABEL_OPACITY):
         for i, image_filename in enumerate(image_file_list):
             label_filename = osp.splitext(image_filename)[0] + ".json"
             if (
-                image_filename.endswith(".json")
-                or label_filename not in label_file_list
+                    image_filename.endswith(".json")
+                    or label_filename not in label_file_list
             ):
                 continue
 
@@ -1581,6 +1581,233 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
             icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
+
+
+def upload_yolo_labels(self, LABEL_OPACITY):
+    """Upload YOLO labels for all images by selecting a directory"""
+    if not _check_filename_exist(self):
+        return
+
+    # Select YOLO labels directory
+    labels_dir = QtWidgets.QFileDialog.getExistingDirectory(
+        self,
+        self.tr("Select YOLO Labels Directory"),
+        "",
+        QtWidgets.QFileDialog.ShowDirsOnly
+        | QtWidgets.QFileDialog.DontResolveSymlinks
+        | QtWidgets.QFileDialog.DontUseNativeDialog,
+    )
+
+    if not labels_dir:
+        return
+
+    # Select classes file
+    filter = "Classes Files (*.txt);;All Files (*)"
+    classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+        self,
+        self.tr("Select YOLO Classes File"),
+        labels_dir,
+        filter,
+    )
+
+    if not classes_file:
+        return
+
+    # Read classes
+    try:
+        with open(classes_file, "r", encoding="utf-8") as f:
+            classes = f.read().splitlines()
+    except Exception as e:
+        popup = Popup(
+            self.tr("Error reading classes file: {}").format(str(e)),
+            self,
+            icon=new_icon_path("error", "svg"),
+        )
+        popup.show_popup(self, position="center")
+        return
+
+    # Get all image files from the image list
+    image_list = self.image_list if self.image_list else [self.filename]
+
+    # Build a dictionary of label files for quick lookup
+    # Key: filename without extension, Value: full path to label file
+    label_files_dict = {}
+    for root, dirs, files in os.walk(labels_dir):
+        for file in files:
+            if file.endswith(".txt"):
+                file_name_no_ext = osp.splitext(file)[0]
+                label_files_dict[file_name_no_ext] = osp.join(root, file)
+
+    # Check if any label files were found
+    if not label_files_dict:
+        popup = Popup(
+            self.tr("No label files found in the selected directory"),
+            self,
+            icon=new_icon_path("error", "svg"),
+        )
+        popup.show_popup(self, position="center")
+        return
+
+    # Confirm overwrite
+    response = QtWidgets.QMessageBox()
+    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setWindowTitle(self.tr("Warning"))
+    response.setText(self.tr("Current annotations will be lost"))
+    response.setInformativeText(
+        self.tr(
+            "You are going to upload new annotations for all matching images. Continue?"
+        )
+    )
+    response.setStandardButtons(
+        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+    )
+    response.setStyleSheet(get_msg_box_style())
+
+    if response.exec_() != QtWidgets.QMessageBox.Ok:
+        return
+
+    # Initialize converter
+    converter = LabelConverter(classes_file=classes_file)
+
+    # Initialize progress dialog
+    progress_dialog = QProgressDialog(
+        self.tr("Uploading YOLO labels..."),
+        self.tr("Cancel"),
+        0,
+        len(image_list),
+        self
+    )
+    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowTitle(self.tr("Progress"))
+    progress_dialog.setMinimumWidth(500)
+    progress_dialog.setMinimumHeight(150)
+    progress_dialog.setStyleSheet(
+        get_progress_dialog_style(color="#1d1d1f", height=20)
+    )
+    progress_dialog.show()
+
+    # Process each image
+    success_count = 0
+    error_count = 0
+
+    for i, image_path in enumerate(image_list):
+        # Update progress
+        progress_dialog.setValue(i)
+        if progress_dialog.wasCanceled():
+            break
+
+        # Get image filename and name without extension
+        image_filename = osp.basename(image_path)
+        image_name_no_ext = osp.splitext(image_filename)[0]
+
+        # Check if there's a corresponding label file
+        if image_name_no_ext not in label_files_dict:
+            logger.warning(f"No label file found for image: {image_filename}")
+            error_count += 1
+            continue
+
+        # Get label file path
+        label_file = label_files_dict[image_name_no_ext]
+
+        # Detect YOLO mode
+        mode = "hbb"  # Default to horizontal bounding box
+        try:
+            with open(label_file, "r", encoding="utf-8") as f:
+                first_line = f.readline().strip()
+
+            if not first_line:
+                logger.warning(f"Empty label file: {label_file}")
+                error_count += 1
+                continue
+
+            parts = first_line.split()
+            if len(parts) < 5:
+                logger.warning(f"Invalid YOLO annotation format in file: {label_file}")
+                error_count += 1
+                continue
+
+            # Detect mode based on the number of coordinates
+            try:
+                # Check if it's segmentation (has more than 5 values per line)
+                if len(parts) > 5:
+                    # Check if the first 5 values can be parsed as float
+                    float(parts[1])
+                    float(parts[2])
+                    float(parts[3])
+                    float(parts[4])
+                    # Check if there are at least 6 values for segmentation
+                    if len(parts) >= 7 and len(parts) % 2 == 1:
+                        mode = "seg"
+
+                # Check if it's OBB (9 values total: class + 8 coordinates)
+                if len(parts) == 9:
+                    # Try to parse all 8 coordinates
+                    for i in range(1, 9):
+                        float(parts[i])
+                    mode = "obb"
+            except ValueError:
+                pass
+        except Exception as e:
+            logger.error(f"Error reading label file {label_file}: {str(e)}")
+            error_count += 1
+            continue
+
+        # Get output file path
+        output_file = image_path
+        if self.output_dir:
+            output_file = osp.join(self.output_dir, osp.basename(image_path))
+        output_file = osp.splitext(output_file)[0] + ".json"
+
+        # Import annotations
+        try:
+            if mode in ["hbb", "seg"]:
+                converter.yolo_to_custom(
+                    input_file=label_file,
+                    output_file=output_file,
+                    image_file=image_path,
+                    mode=mode,
+                )
+            elif mode == "obb":
+                converter.yolo_obb_to_custom(
+                    input_file=label_file,
+                    output_file=output_file,
+                    image_file=image_path,
+                )
+
+            success_count += 1
+        except Exception as e:
+            logger.error(f"Error importing labels for {image_filename}: {str(e)}")
+            error_count += 1
+
+    # Close progress dialog
+    progress_dialog.close()
+
+    # Reload the current file to show the imported labels
+    self.load_file(self.filename)
+
+    # Show summary message
+    summary_msg = self.tr(
+        "YOLO labels upload completed!\n"
+        "Successfully processed: {}\n"
+        "Failed to process: {}"
+    ).format(success_count, error_count)
+
+    popup = Popup(
+        summary_msg,
+        self,
+        icon=new_icon_path("copy-green", "svg"),
+    )
+    popup.show_popup(self, position="center")
+
+    # Initialize unique labels in the UI
+    for label in classes:
+        if not self.unique_label_list.find_items_by_label(label):
+            item = self.unique_label_list.create_item_from_label(label)
+            self.unique_label_list.addItem(item)
+            rgb = self._get_rgb_by_label(label)
+            self.unique_label_list.set_item_label(
+                item, label, rgb, LABEL_OPACITY
+            )
 
 
 def upload_label_classes_file(self):

@@ -177,6 +177,17 @@ class Canvas(
         self.auto_decode_tracklet = []
         self.last_mouse_pos = None
 
+        # Multimodal image support
+        self.multimodal_pixmap = None
+        self.modal_mix_ratio = 0.0
+
+        # Split view support
+        self.split_position = 0.5  # 0.0 to 1.0, represents the split position
+        self.is_dragging_split = False
+        self.split_line_width = 3
+        self.split_line_color = QtGui.QColor(255, 0, 0, 255)  # Red color
+        self.split_handle_radius = 15  # Increased size
+
     def set_loading(self, is_loading: bool, loading_text: str = None):
         """Set loading state"""
         self.is_loading = is_loading
@@ -442,6 +453,23 @@ class Canvas(
                 self.last_mouse_pos = pos
                 if not self.auto_decode_timer.isActive():
                     self.auto_decode_timer.start(AUTO_DECODE_DELAY_MS)
+
+        # Handle split line dragging
+        if self.is_dragging_split:
+            if QtCore.Qt.LeftButton & ev.buttons():
+                # Calculate new split position
+                delta = ev.localPos().x() - self.prev_point.x()
+                self.prev_point = ev.localPos()
+
+                # Convert delta to normalized split position (0.0 to 1.0)
+                delta_norm = delta / (self.pixmap.width() * self.scale)
+                new_position = self.split_position + delta_norm
+
+                # Clamp to valid range
+                self.split_position = max(0.0, min(1.0, new_position))
+
+                self.update()
+                return
 
         # Polygon drawing.
         if self.drawing():
@@ -750,6 +778,23 @@ class Canvas(
         if self.is_loading:
             return
         pos = self.transform_pos(ev.localPos())
+
+        # Check if click is on split line handle
+        if self.multimodal_pixmap is not None and not self.multimodal_pixmap.isNull():
+            split_x = int(self.split_position * self.pixmap.width())
+            handle_y = self.pixmap.height() - self.split_handle_radius - 10  # 10 pixels from bottom inside image
+            handle_rect = QtCore.QRectF(
+                split_x - self.split_handle_radius,
+                handle_y - self.split_handle_radius,
+                self.split_handle_radius * 2,
+                self.split_handle_radius * 2
+            )
+            if handle_rect.contains(pos):
+                self.is_dragging_split = True
+                self.prev_point = ev.localPos()
+                self.override_cursor(Qt.SizeHorCursor)
+                return
+
         if ev.button() == QtCore.Qt.LeftButton:
             if self.drawing():
                 if self.current:
@@ -885,6 +930,13 @@ class Canvas(
         """Mouse release event"""
         if self.is_loading:
             return
+
+        # Handle split line dragging release
+        if self.is_dragging_split:
+            self.is_dragging_split = False
+            self.restore_cursor()
+            return
+
         if ev.button() == QtCore.Qt.RightButton:
             menu = self.menus[len(self.selected_shapes_copy) > 0]
             self.restore_cursor()
@@ -1280,7 +1332,16 @@ class Canvas(
         p.scale(self.scale, self.scale)
         p.translate(self.offset_to_center())
 
+        # Draw main image
         p.drawPixmap(0, 0, self.pixmap)
+
+        # Draw multimodal image if available
+        if self.multimodal_pixmap is not None and not self.multimodal_pixmap.isNull():
+            # Calculate split position in pixels
+            split_x = int(self.split_position * self.pixmap.width())
+
+            # Draw multimodal image on the left side
+            p.drawPixmap(0, 0, self.multimodal_pixmap, 0, 0, split_x, self.pixmap.height())
         Shape.scale = self.scale
 
         # Draw loading/waiting screen
@@ -1951,6 +2012,26 @@ class Canvas(
                     zip(text_positions, attribute_lines)
                 ):
                     p.drawText(text_pos, line_text)
+
+        # Draw split line and handle on top of everything
+        if self.multimodal_pixmap is not None and not self.multimodal_pixmap.isNull():
+            # Calculate split position in pixels
+            split_x = int(self.split_position * self.pixmap.width())
+
+            # Draw split line within the image
+            p.setPen(QtGui.QPen(self.split_line_color, self.split_line_width))
+            p.drawLine(split_x, 0, split_x, self.pixmap.height())
+
+            # Draw split handle (circle) at the bottom inside the image
+            p.setBrush(self.split_line_color)
+            p.setPen(QtCore.Qt.NoPen)
+            handle_y = self.pixmap.height() - self.split_handle_radius - 10  # 10 pixels from bottom inside image
+            p.drawEllipse(
+                split_x - self.split_handle_radius,
+                handle_y - self.split_handle_radius,
+                self.split_handle_radius * 2,
+                self.split_handle_radius * 2
+            )
 
         p.end()
 
