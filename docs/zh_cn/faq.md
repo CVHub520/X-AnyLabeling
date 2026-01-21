@@ -397,6 +397,12 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 ### 文件相关问题
 
 <details>
+<summary>Q: YOLO-Pose 导出的关键点ID均显示为0？</summary>
+
+详情可参考此[#1270](https://github.com/CVHub520/X-AnyLabeling/issues/1153)。
+</details>
+
+<details>
 <summary>Q: 导出 Mask 图为空</summary>
 
 请按照以下步骤依次检查下：
