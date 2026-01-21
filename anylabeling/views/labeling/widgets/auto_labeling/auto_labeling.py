@@ -55,6 +55,28 @@ class AutoLabelingWidget(QWidget):
     clear_auto_decode_requested = pyqtSignal()
     mask_fineness_changed = pyqtSignal(float)
 
+    supported_remote_widgets = [
+        "button_send",
+        "button_add_point",
+        "button_add_rect",
+        "add_pos_rect",
+        "add_neg_rect",
+        "button_run_rect",
+        "button_remove_point",
+        "button_clear",
+        "button_finish_object",
+        "input_conf",
+        "edit_conf",
+        "input_iou",
+        "edit_iou",
+        "toggle_preserve_existing_annotations",
+        "button_run",
+        "edit_text",
+        "mask_fineness_slider",
+        "mask_fineness_value_label",
+        "remote_task_select_combobox",
+    ]
+
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
@@ -101,6 +123,9 @@ class AutoLabelingWidget(QWidget):
         self.remote_server_select_combobox.currentIndexChanged.connect(
             self.on_remote_server_model_changed
         )
+        self.remote_task_select_combobox.currentIndexChanged.connect(
+            self.on_task_changed
+        )
 
         # Disable tools when inference is running
         def set_enable_tools(enable):
@@ -121,6 +146,7 @@ class AutoLabelingWidget(QWidget):
             self.gd_select_combobox.setEnabled(enable)
             self.florence2_select_combobox.setEnabled(enable)
             self.remote_server_select_combobox.setEnabled(enable)
+            self.remote_task_select_combobox.setEnabled(enable)
 
         self.model_manager.prediction_started.connect(
             lambda: set_enable_tools(False)
@@ -864,6 +890,7 @@ class AutoLabelingWidget(QWidget):
             "gd_select_combobox",
             "florence2_select_combobox",
             "remote_server_select_combobox",
+            "remote_task_select_combobox",
             "button_auto_decode",
             "button_cropping",
             "button_skip_detection",
@@ -1081,6 +1108,16 @@ class AutoLabelingWidget(QWidget):
             self.model_manager.set_remote_server_model(model_id)
             self.update_remote_server_widgets(model_id)
 
+            available_models = (
+                self.model_manager.get_remote_server_available_models()
+            )
+            model_info = available_models[model_id]
+            available_tasks = model_info.get("available_tasks", [])
+            if available_tasks:
+                self.update_task_mode_ui(available_tasks)
+            else:
+                self.remote_task_select_combobox.hide()
+
     def update_remote_server_mode_ui(self):
         """Update remote server combobox with available models"""
         if (
@@ -1111,6 +1148,84 @@ class AutoLabelingWidget(QWidget):
             self.model_manager.set_remote_server_model(first_model_id)
             self.update_remote_server_widgets(first_model_id)
 
+            model_info = available_models[first_model_id]
+            available_tasks = model_info.get("available_tasks", [])
+            if available_tasks:
+                self.update_task_mode_ui(available_tasks)
+            else:
+                self.remote_task_select_combobox.hide()
+
+    @pyqtSlot()
+    def on_task_changed(self):
+        """Handle task change"""
+
+        current_index = self.remote_task_select_combobox.currentIndex()
+        task_id = self.remote_task_select_combobox.currentData()
+        logger.debug(
+            f"Task changed - index: {current_index}, task_id: {task_id}"
+        )
+
+        self.model_manager.set_task(task_id)
+
+        available_models = (
+            self.model_manager.get_remote_server_available_models()
+        )
+        current_model_id = (
+            self.model_manager.get_remote_server_current_model_id()
+        )
+        model_info = available_models[current_model_id]
+        available_tasks = model_info.get("available_tasks", [])
+        task_info = next(
+            (t for t in available_tasks if t.get("id") == task_id),
+            None,
+        )
+        if task_info:
+            self.update_task_widgets(task_info)
+        else:
+            logger.warning(f"Task info not found for task_id: {task_id}")
+
+    def update_task_mode_ui(self, available_tasks):
+        """Update task combobox with available tasks"""
+
+        self.remote_task_select_combobox.show()
+        self.remote_task_select_combobox.blockSignals(True)
+        self.remote_task_select_combobox.clear()
+
+        for task in available_tasks:
+            task_id = task.get("id")
+            task_name = task.get("name", task_id)
+            self.remote_task_select_combobox.addItem(
+                task_name, userData=task_id
+            )
+
+        self.remote_task_select_combobox.blockSignals(False)
+        self.remote_task_select_combobox.setCurrentIndex(0)
+        first_task_id = available_tasks[0].get("id")
+        self.model_manager.set_task(first_task_id)
+        self.update_task_widgets(available_tasks[0])
+
+    def update_task_widgets(self, task_info):
+        """Update widget visibility based on selected task"""
+        for widget_name in self.supported_remote_widgets:
+            if widget_name == "remote_task_select_combobox":
+                continue
+            widget = getattr(self, widget_name, None)
+            if widget:
+                widget.hide()
+
+        for widget_name, widget_info in task_info["active_widgets"].items():
+            widget = getattr(self, widget_name, None)
+            if not widget:
+                continue
+
+            widget.show()
+            if "placeholder" in widget_info and hasattr(
+                widget, "setPlaceholderText"
+            ):
+                widget.setPlaceholderText(widget_info["placeholder"])
+            if "tooltip" in widget_info:
+                widget.setToolTip(widget_info["tooltip"])
+
     def update_remote_server_widgets(self, model_id):
         """Update widget visibility based on remote server model"""
         if (
@@ -1128,32 +1243,15 @@ class AutoLabelingWidget(QWidget):
 
         model_info = available_models[model_id]
         widgets_config = model_info.get("widgets", [])
+        available_tasks = model_info.get("available_tasks", [])
 
-        all_widgets = [
-            "button_send",
-            "button_add_point",
-            "button_add_rect",
-            "add_pos_rect",
-            "add_neg_rect",
-            "button_run_rect",
-            "button_remove_point",
-            "button_clear",
-            "button_finish_object",
-            "input_conf",
-            "edit_conf",
-            "input_iou",
-            "edit_iou",
-            "toggle_preserve_existing_annotations",
-            "button_run",
-            "edit_text",
-            "mask_fineness_slider",
-            "mask_fineness_value_label",
-        ]
-
-        for widget_name in all_widgets:
+        for widget_name in self.supported_remote_widgets:
             widget = getattr(self, widget_name, None)
             if widget:
                 widget.hide()
+
+        if available_tasks:
+            self.remote_task_select_combobox.show()
 
         for widget_item in widgets_config:
             widget_name = widget_item.get("name")
@@ -1178,6 +1276,10 @@ class AutoLabelingWidget(QWidget):
                         self.on_iou_value_changed(widget_value)
                     elif widget_name == "mask_fineness_slider":
                         self.on_mask_fineness_changed(widget_value)
+                    elif widget_name == "toggle_preserve_existing_annotations":
+                        self._on_toggle_preserve_existing_annotations_toggled(
+                            widget_value
+                        )
 
                 if widget_placeholder is not None and hasattr(
                     widget, "setPlaceholderText"

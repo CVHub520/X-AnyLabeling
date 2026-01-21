@@ -2215,6 +2215,23 @@ class ModelManager(QObject):
             return self.loaded_model_config["model"].get_available_models()
         return {}
 
+    def get_remote_server_current_model_id(self):
+        """Get current remote server model ID"""
+        if self.loaded_model_config is None:
+            return None
+
+        if self.loaded_model_config["type"] == "remote_server":
+            return self.loaded_model_config["model"].current_model_id
+        return None
+
+    def set_task(self, task_id):
+        """Set task ID for the current model"""
+        if self.loaded_model_config is None:
+            return
+
+        if self.loaded_model_config["type"] == "remote_server":
+            self.loaded_model_config["model"].set_task(task_id)
+
     def set_mask_fineness(self, epsilon):
         """Set mask fineness (epsilon value for Douglas-Peucker algorithm)"""
         if (

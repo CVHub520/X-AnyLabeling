@@ -56,6 +56,8 @@ class RemoteServer(Model):
         self.replace = True
         self.reset_tracker_flag = False
 
+        self.current_task = None
+
         # Segment Anything 3
         self.label = None
         self.group_id = None
@@ -73,6 +75,10 @@ class RemoteServer(Model):
     def set_model_id(self, model_id):
         self.current_model_id = model_id
 
+    def set_task(self, task_id):
+        """Set task ID for the current model"""
+        self.current_task = task_id
+
     def get_available_models(self):
         """Fetch available models from remote server"""
         try:
@@ -89,10 +95,27 @@ class RemoteServer(Model):
             return {}
 
     def get_batch_processing_mode(self):
-        """Get batch processing mode for current model"""
+        """Get batch processing mode for current model and task.
+
+        Returns:
+            str | None: Batch processing mode ("default", "text_prompt", "video", or None).
+                 Returns None if mode is not supported (e.g., visual_prompting).
+                 Falls back to global batch_processing_mode if task-specific mode
+                 is not available.
+        """
         if self.current_model_id is None:
             return "default"
         model_info = self.models_info.get(self.current_model_id, {})
+
+        available_tasks = model_info.get("available_tasks", [])
+        if available_tasks and self.current_task:
+            for task in available_tasks:
+                if task.get("id") == self.current_task:
+                    task_mode = task.get("batch_processing_mode")
+                    if "batch_processing_mode" in task:
+                        return task_mode
+                    break
+
         return model_info.get("batch_processing_mode", "default")
 
     def set_auto_labeling_marks(self, marks):
@@ -169,14 +192,16 @@ class RemoteServer(Model):
         params["conf_threshold"] = self.conf_threshold
         params["iou_threshold"] = self.iou_threshold
         params["epsilon_factor"] = self.epsilon_factor
+
         if text_prompt:
-            logger.debug(f"Received text prompt: {text_prompt}")
             params["text_prompt"] = text_prompt.rstrip(".")
         if self.marks:
             params["marks"] = self.marks
         if self.reset_tracker_flag:
             params["reset_tracker"] = True
             self.reset_tracker_flag = False
+        if self.current_task:
+            params["current_task"] = self.current_task
 
         payload = {
             "model": self.current_model_id,

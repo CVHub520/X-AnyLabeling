@@ -938,12 +938,12 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
   - SAM2-Video: [Link](../../examples/interactive_video_object_segmentation/sam2/README.md)
   - SAM3-Video: [Link](../../examples/interactive_video_object_segmentation/sam3/README.md)
 
-
 ### 8.9 Matting
   - Image Matting (Alpha Masks): [Link](../../examples/matting/image_matting/README.md)
 
 ### 8.10 Vision-Language Tasks
-  - Florence 2 Examples: [Link](../../examples/vision_language/florence2/README.md)
+  - Rex-Omni: [Link](../../examples/vision_language/rexomni/README.md)
+  - Florence 2: [Link](../../examples/vision_language/florence2/README.md)
 
 ### 8.11 Zero-Shot Counting
   - GeCo Counting by Detection/Segmentation: [Link](../../examples/counting/geco/README.md)

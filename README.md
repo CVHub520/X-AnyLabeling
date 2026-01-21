@@ -80,6 +80,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- Added multimodal large language model [Rex-Omni](https://github.com/IDEA-Research/Rex-Omni) with support for grounding, keypoints, referring pointing, OCR, and visual prompting tasks [[docs](./examples/vision_language/rexomni/README.md)]
 - Added powerful file search feature upporting text search, regular expression search, and attribute-based filtering [[docs](./docs/en/user_guide.md#25-searching-images)]
 - Added semi-transparent mask rendering for polygon, rectangle, rotation, and circle shapes with toggle support (`Ctrl+M`)
 - Added one-click text and visual prompt video detection and segmentation tracking based on Segment Anything 3 [[docs](./examples/interactive_video_object_segmentation/sam3/README.md)]
@@ -124,7 +125,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCRv4, PP-OCRv5 |
-| 🗣️ Vision Foundation Models | Florence2 |
+| 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT |
 | 🛣️ Land Detection | CLRNet |
 | 📍 Grounding | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |

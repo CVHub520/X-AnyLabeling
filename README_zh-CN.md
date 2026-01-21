@@ -79,6 +79,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- 新增多模态大型语言模型[Rex-Omni](https://github.com/IDEA-Research/Rex-Omni)，支持目标检测、关键点、指代、OCR和视觉提示等多种视觉任务 [[教程](./examples/vision_language/rexomni/README.md)]
 - 新增强大的文件搜索功能，支持文本搜索、正则表达式搜索和属性搜索 [[教程](./docs/zh_cn/user_guide.md#25-搜索图片)]
 - 新增多边形、矩形、旋转框和圆形对象的半透明掩码渲染功能，支持快捷键切换显示（`Ctrl+M`）
 - 新增基于 Segment Anything 3 的一键文本和视觉提示视频检测及分割跟踪 [[教程](./examples/interactive_video_object_segmentation/sam3/README.md)]
@@ -123,7 +124,7 @@
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5 |
-| 🗣️ **视觉基础模型** | Florence2 |
+| 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT |
 | 🛣️ **车道线检测** | CLRNet |
 | 📍 **Grounding** | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |

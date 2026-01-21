@@ -208,6 +208,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="remote_task_select_combobox">
+        <property name="currentIndex">
+            <number>-1</number>
+        </property>
+      </widget>
+     </item>
+     <item>
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Vertical</enum>

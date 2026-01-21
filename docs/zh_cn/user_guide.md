@@ -1021,6 +1021,7 @@ X-AnyLabeling 支持从不同的模型中心下载预训练模型。用户可以
 
 ### 8.10 视觉-语言
 
+- Rex-Omni: [链接](../../examples/vision_language/rexomni/README.md)
 - Florence 2：[链接](../../examples/vision_language/florence2/README.md)
 
 ### 8.11 基于检测与分割的零样本计数

@@ -4,4 +4,4 @@ provider: CVHub
 display_name: Remote-Server
 server_url: http://localhost:8000
 api_key: ""
-timeout: 30
+timeout: 180

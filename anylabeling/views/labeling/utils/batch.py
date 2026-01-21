@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (
     QLabel,
     QLineEdit,
     QDialogButtonBox,
+    QApplication,
 )
 
 from anylabeling.app_info import __version__
@@ -222,40 +223,45 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
         )
 
 
-def process_next_image(self, progress_dialog):
-    try:
-        batch = True
-        total_images = len(self.image_list)
-        self._progress_dialog = progress_dialog
+def process_next_image(self, progress_dialog, batch=True):
+    """Process images in batch mode.
 
+    Args:
+        progress_dialog: Progress dialog widget for displaying progress.
+        batch: If True, results are saved directly without updating canvas.
+               If False, results trigger UI updates and canvas refresh.
+               Defaults to True for batch processing mode.
+    """
+    model_type = self.auto_labeling_widget.model_manager.loaded_model_config[
+        "type"
+    ]
+    model = self.auto_labeling_widget.model_manager.loaded_model_config[
+        "model"
+    ]
+    total_images = len(self.image_list)
+    self._progress_dialog = progress_dialog
+
+    try:
         while (self.image_index < total_images) and (
             not self.cancel_processing
         ):
             image_file = self.image_list[self.image_index]
-
-            model_type = (
-                self.auto_labeling_widget.model_manager.loaded_model_config[
-                    "type"
-                ]
+            current_progress = self.image_index + 1
+            progress_dialog.setValue(current_progress)
+            progress_dialog.setLabelText(
+                f"Progress: {current_progress}/{total_images}"
             )
+            QApplication.processEvents()
+
             batch_processing_mode = "default"
             if model_type == "remote_server":
-                model = self.auto_labeling_widget.model_manager.loaded_model_config[
-                    "model"
-                ]
-                if hasattr(model, "get_batch_processing_mode"):
-                    batch_processing_mode = model.get_batch_processing_mode()
+                batch_processing_mode = model.get_batch_processing_mode()
                 if batch_processing_mode == "video":
                     model._widget = self
-                    if self.run_tracker:
-                        self.filename = image_file
-                        self.load_file(self.filename)
-                        batch = False
-
-            if (
-                model_type in _BATCH_PROCESSING_VIDEO_MODELS
-                and batch_processing_mode != "video"
-            ):
+                    self.filename = image_file
+                    self.load_file(self.filename)
+                    batch = False
+            elif model_type in _BATCH_PROCESSING_VIDEO_MODELS:
                 self.filename = image_file
                 self.load_file(self.filename)
                 batch = False
@@ -294,7 +300,6 @@ def process_next_image(self, progress_dialog):
                     self, image_file, auto_labeling_result
                 )
 
-            progress_dialog.setValue(self.image_index)
             self.image_index += 1
 
         finish_processing(self, progress_dialog)
@@ -317,7 +322,7 @@ def show_progress_dialog_and_process(self):
     progress_dialog = QProgressDialog(
         self.tr("Processing..."),
         self.tr("Cancel"),
-        self.image_index,
+        0,
         len(self.image_list),
         self,
     )
@@ -326,8 +331,14 @@ def show_progress_dialog_and_process(self):
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
 
+    initial_progress = (
+        self.image_index + 1
+        if self.image_index < len(self.image_list)
+        else len(self.image_list)
+    )
+    progress_dialog.setValue(initial_progress)
     progress_dialog.setLabelText(
-        f"Progress: {self.image_index}/{len(self.image_list)}"
+        f"Progress: {initial_progress}/{len(self.image_list)}"
     )
     progress_bar = progress_dialog.findChild(QtWidgets.QProgressBar)
 
@@ -342,8 +353,7 @@ def show_progress_dialog_and_process(self):
             model = self.auto_labeling_widget.model_manager.loaded_model_config.get(
                 "model"
             )
-            if model and hasattr(model, "get_batch_processing_mode"):
-                batch_processing_mode = model.get_batch_processing_mode()
+            batch_processing_mode = model.get_batch_processing_mode()
 
         def update_progress(value):
             if batch_processing_mode != "video":
@@ -447,7 +457,6 @@ def run_all_images(self):
         QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
     )
     response.setStyleSheet(get_msg_box_style())
-
     if response.exec_() != QtWidgets.QMessageBox.Ok:
         return
 
@@ -461,9 +470,9 @@ def run_all_images(self):
     model_type = self.auto_labeling_widget.model_manager.loaded_model_config[
         "type"
     ]
-    batch_processing_mode = "default"
 
     if model_type == "remote_server":
+        batch_processing_mode = "default"
         model = self.auto_labeling_widget.model_manager.loaded_model_config[
             "model"
         ]
@@ -471,6 +480,13 @@ def run_all_images(self):
             batch_processing_mode = model.get_batch_processing_mode()
         else:
             batch_processing_mode = "default"
+        if batch_processing_mode is None:
+            self.auto_labeling_widget.model_manager.new_model_status.emit(
+                self.tr(
+                    "Batch processing is not supported for the current task."
+                )
+            )
+            return
         if batch_processing_mode == "video":
             self.run_tracker = True
             show_progress_dialog_and_process(self)
