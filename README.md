@@ -80,6 +80,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- Added [YOLO26](https://github.com/ultralytics/ultralytics) object detection model
 - Added multimodal large language model [Rex-Omni](https://github.com/IDEA-Research/Rex-Omni) with support for grounding, keypoints, referring pointing, OCR, and visual prompting tasks [[docs](./examples/vision_language/rexomni/README.md)]
 - Added powerful file search feature upporting text search, regular expression search, and attribute-based filtering [[docs](./docs/en/user_guide.md#25-searching-images)]
 - Added semi-transparent mask rendering for polygon, rectangle, rotation, and circle shapes with toggle support (`Ctrl+M`)
@@ -114,7 +115,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | **Task Category** | **Supported Models** |
 | :--- | :--- |
 | 🖼️ Image Classification | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
-| 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
+| 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12/26, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
 | 👣 Tracking | Bot-SORT, ByteTrack, SAM2/3-Video |

@@ -66,6 +66,7 @@
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
+| yolo26s.onnx | [YOLO26s](https://docs.ultralytics.com/tasks/detect/)-COCO | [yolo26s.yaml](../../anylabeling/configs/auto_labeling/yolo26s.yaml) | 36.47MB | [百度网盘](https://pan.baidu.com/s/1EYN6xIFVrUdkHm2mgcLgKA?pwd=z51j) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s.onnx) |
 | deimv2_hgnetv2_n_coco.onnx | [DEIMv2-HGNetv2-N-COCO](https://github.com/Intellindust-AI-Lab/DEIMv2) | [deimv2_hgnetv2_n_coco.yaml](../../anylabeling/configs/auto_labeling/deimv2_hgnetv2_n_coco.yaml) | 14.15MB  | [百度网盘](https://pan.baidu.com/s/1Q-zK8W6w0mRm6DHXTWvMvg?pwd=v67d) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/deimv2_hgnetv2_n_coco.onnx) |
 | deimv2_dinov3_s_coco.onnx | [DEIMv2-DINOv3-S-COCO](https://github.com/Intellindust-AI-Lab/DEIMv2) | [deimv2_dinov3_s_coco.yaml](../../anylabeling/configs/auto_labeling/deimv2_dinov3_s_coco.yaml) | 38.22MB  | [百度网盘](https://pan.baidu.com/s/10JU1KOFjnI8XnS7H7VOzQg?pwd=a3ij) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/deimv2_dinov3_s_coco.onnx) |
 | deimv2_dinov3_m_coco.onnx | [DEIMv2-DINOv3-M-COCO](https://github.com/Intellindust-AI-Lab/DEIMv2) | [deimv2_dinov3_m_coco.yaml](../../anylabeling/configs/auto_labeling/deimv2_dinov3_m_coco.yaml) | 70.35MB  | [百度网盘](https://pan.baidu.com/s/1brgSg_Avc_-T1b9bJSwNpA?pwd=r3cq) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/deimv2_dinov3_m_coco.onnx) |

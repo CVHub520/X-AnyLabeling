@@ -153,6 +153,7 @@ class YOLO(Model):
             "yolov8_det_track",
             "yolo11_det_track",
             "u_rtdetr",
+            "yolo26",
         ]:
             self.task = "det"
         elif self.model_type in [
@@ -326,7 +327,7 @@ class YOLO(Model):
                 max_det=self.max_det,
                 nc=self.nc,
             )
-        elif self.model_type in ["yolov10", "doclayout_yolo"]:
+        elif self.model_type in ["yolov10", "doclayout_yolo", "yolo26"]:
             p = self.postprocess_v10(
                 preds[0][0],
                 conf_thres=self.conf_thres,

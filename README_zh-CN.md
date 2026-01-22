@@ -79,6 +79,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- 新增[YOLO26](https://github.com/ultralytics/ultralytics)目标检测模型
 - 新增多模态大型语言模型[Rex-Omni](https://github.com/IDEA-Research/Rex-Omni)，支持目标检测、关键点、指代、OCR和视觉提示等多种视觉任务 [[教程](./examples/vision_language/rexomni/README.md)]
 - 新增强大的文件搜索功能，支持文本搜索、正则表达式搜索和属性搜索 [[教程](./docs/zh_cn/user_guide.md#25-搜索图片)]
 - 新增多边形、矩形、旋转框和圆形对象的半透明掩码渲染功能，支持快捷键切换显示（`Ctrl+M`）
@@ -113,7 +114,7 @@
 | **任务类别** | **支持模型** |
 | :--- | :--- |
 | 🖼️ **图像分类** | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
-| 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
+| 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12/26, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, DWPose, RTMO |
 | 👣 **目标跟踪** | Bot-SORT, ByteTrack, SAM2/3-Video |

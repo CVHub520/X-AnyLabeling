@@ -200,6 +200,8 @@
   config_file: ":/yolo12s.yaml"
 - model_name: "yolo12x-r20250514"
   config_file: ":/yolo12x.yaml"
+- model_name: "yolo26s-r20260124"
+  config_file: ":/yolo26s.yaml"
 - model_name: "yoloe_11s-r20250524"
   config_file: ":/yoloe_11s.yaml"
 - model_name: "yoloe_v8l-r20250524"
