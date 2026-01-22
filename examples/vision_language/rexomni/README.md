@@ -46,11 +46,11 @@ The **Detection** task detects objects and returns bounding boxes based on text 
 
 Rex-Omni supports two keypoint detection modes:
 
-#### Keypoint (Person)
-Detects human keypoints with skeleton visualization. No text prompt required.
+#### Keypoint (Person/Hand)
+Detects human/hand keypoints with skeleton visualization. No text prompt required.
 
 **Usage:**
-1. Select the "Keypoint (Person)" task from the task dropdown
+1. Select the "Keypoint (Person/Hand)" task from the task dropdown
 2. Click the "Run" button to detect person keypoints
 
 #### Keypoint (Animal)
