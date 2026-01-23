@@ -136,6 +136,13 @@ class ModelManager(QObject):
                     self.loaded_model_config[key] = value
                 break
 
+        if config_file and config_file.startswith(":/"):
+            user_config = get_config()
+            if "remote_server_settings" not in user_config:
+                user_config["remote_server_settings"] = {}
+            user_config["remote_server_settings"][key] = value
+            save_config(user_config)
+
     def get_model_configs(self):
         """Return model infos"""
         return self.model_configs

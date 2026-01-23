@@ -33,16 +33,17 @@ class RemoteServer(Model):
     def __init__(self, model_config, on_message) -> None:
         super().__init__(model_config, on_message)
 
-        self.server_url = self.config.get(
+        remote_settings = self._config.get("remote_server_settings", {})
+        self.server_url = remote_settings.get(
             "server_url",
             os.getenv("XANYLABELING_SERVER_URL", "http://localhost:8000"),
         )
         self.predict_url = f"{self.server_url}/v1/predict"
 
-        print(f'{self.config.get("api_key", "")}')
+        api_key = remote_settings.get("api_key", "")
         self.headers = {
             "Content-Type": "application/json",
-            "Token": self.config.get("api_key", ""),
+            "Token": api_key,
         }
 
         self.current_model_id = None

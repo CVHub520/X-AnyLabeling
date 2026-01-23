@@ -184,6 +184,10 @@ shortcuts:
 
 # Auto labeling
 custom_models: []
+remote_server_settings:
+  server_url: http://127.0.0.1:8000
+  api_key: null
+  timeout: 180
 
 # Digit shortcuts
 digit_shortcuts: null

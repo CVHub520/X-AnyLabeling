@@ -4,6 +4,8 @@ import collections
 
 import importlib.resources as pkg_resources
 import anylabeling.configs as anylabeling_configs
+from anylabeling.config import get_config
+
 from PyQt5 import uic
 from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint
 from PyQt5.QtWidgets import (
@@ -471,19 +473,16 @@ class AutoLabelingWidget(QWidget):
         if "remote_server" in model_name.lower():
             config_path = self.model_info[model_name].get("config_path")
             if config_path and config_path.startswith(":/"):
-                model_config = {}
                 try:
-                    config_file_name = config_path[2:]
-                    resource_path = pkg_resources.files(
-                        anylabeling_configs
-                    ).joinpath("auto_labeling", config_file_name)
-                    config_content = resource_path.read_text(encoding="utf-8")
-                    model_config = yaml.safe_load(config_content)
-
-                    default_url = model_config.get(
-                        "server_url", "http://127.0.0.1:8000/"
+                    user_config = get_config()
+                    remote_settings = user_config.get(
+                        "remote_server_settings", {}
                     )
-                    default_api_key = model_config.get("api_key", "")
+                    default_url = remote_settings.get(
+                        "server_url",
+                        "http://127.0.0.1:8000",
+                    )
+                    default_api_key = remote_settings.get("api_key", "")
                     dialog = RemoteServerDialog(
                         self, default_url, default_api_key
                     )
@@ -498,6 +497,17 @@ class AutoLabelingWidget(QWidget):
                         self.model_manager.update_model_config(
                             config_path, "api_key", new_api_key
                         )
+                        if not hasattr(self.parent, "_config"):
+                            self.parent._config = {}
+                        if "remote_server_settings" not in self.parent._config:
+                            self.parent._config["remote_server_settings"] = {}
+                        if new_url:
+                            self.parent._config["remote_server_settings"][
+                                "server_url"
+                            ] = new_url
+                        self.parent._config["remote_server_settings"][
+                            "api_key"
+                        ] = new_api_key
                     else:
                         return
                 except Exception as e:
