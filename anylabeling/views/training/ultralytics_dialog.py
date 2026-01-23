@@ -1199,6 +1199,40 @@ class UltralyticsDialog(QDialog):
         config = self.get_current_config()
         is_valid, error_message = validate_basic_config(config)
         if is_valid == "directory_exists":
+            project_dir = error_message
+            potential_model_path = os.path.join(
+                project_dir, "weights", "best.pt"
+            )
+
+            if os.path.exists(potential_model_path):
+                reply = QMessageBox.question(
+                    self,
+                    self.tr("Existing Model Detected"),
+                    self.tr(
+                        "A trained model already exists at this location.\n\n"
+                        "Do you want to:\n"
+                        "Yes - Export the existing model directly\n"
+                        "No - Continue to retrain (will overwrite)"
+                    ),
+                    QMessageBox.Yes | QMessageBox.No,
+                    QMessageBox.Yes,
+                )
+
+                if reply == QMessageBox.Yes:
+                    self.current_project_path = project_dir
+                    self.training_status = "completed"
+                    save_config(config)
+                    self.go_to_specific_tab(2)
+                    self.update_training_status_display()
+                    self.start_training_button.setVisible(False)
+                    self.export_button.setVisible(True)
+                    self.previous_button.setVisible(True)
+                    self.update_training_images()
+                    self.append_training_log(
+                        f"Loaded existing model from: {potential_model_path}"
+                    )
+                    return
+
             reply = QMessageBox.question(
                 self,
                 self.tr("Directory Exists"),
