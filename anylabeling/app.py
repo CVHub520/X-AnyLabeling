@@ -13,17 +13,12 @@ os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.gui.icc=false"
 import argparse
 import codecs
 import logging
+import multiprocessing
 
 import sys
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-
-if any(
-    arg.startswith(("parent_pid=", "pipe_handle=", "--multiprocessing-"))
-    for arg in sys.argv[1:]
-):
-    sys.exit(0)
 
 import yaml
 from PyQt5 import QtCore, QtWidgets
@@ -52,18 +47,10 @@ from anylabeling.resources import resources
 
 
 def main():
+    multiprocessing.freeze_support()
+    
     if sys.stderr is None:
         sys.stderr = open(os.devnull, "w")
-
-    filtered_argv = []
-    for arg in sys.argv[1:]:
-        if not (
-            arg.startswith("parent_pid=")
-            or arg.startswith("pipe_handle=")
-            or arg.startswith("--multiprocessing-")
-        ):
-            filtered_argv.append(arg)
-    sys.argv = [sys.argv[0]] + filtered_argv
 
     parser = argparse.ArgumentParser()
 
