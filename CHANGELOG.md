@@ -1,5 +1,31 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.6` (Jan 24, 2026)
+
+### 🚀 New Features
+
+- Add Rex-Omni unified vision model support (#1223)
+- Add YOLO26 object detection model (#1226)
+- Add option to export existing model or retrain when a model is detected in the project directory (#1226)
+- Add '--work-dir' parameter for configurable working directory (#1226)
+- Persist remote server settings in user config (#1267)
+- Streamline argument handling for multiprocessing support in PyInstaller builds (#1180)
+
+### 🐛 Bug Fixes
+
+- Fix the problem with the display of the title progress
+
+### 🛠️ Improvements
+
+- Add FAQ entry for YOLO-Pose keypoint ID issue (#1270)
+- Update installation guides
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @zhixuwei, @CVHub520
+
 ## `v3.3.5` (Jan 11, 2026)
 
 ### 🚀 New Features
