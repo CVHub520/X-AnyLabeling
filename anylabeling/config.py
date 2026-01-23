@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 import shutil
 import yaml
@@ -8,6 +9,30 @@ from anylabeling.views.labeling.logger import logger
 
 
 current_config_file = None
+_work_directory = None
+
+
+def set_work_directory(directory: str) -> None:
+    """
+    Sets the working directory for X-AnyLabeling.
+
+    Args:
+        directory (str): The path to the working directory.
+    """
+    global _work_directory
+    _work_directory = osp.abspath(osp.expanduser(directory))
+
+
+def get_work_directory() -> str:
+    """
+    Gets the working directory for X-AnyLabeling.
+
+    Returns:
+        str: The absolute path to the working directory.
+    """
+    if _work_directory is None:
+        return osp.expanduser("~")
+    return _work_directory
 
 
 def update_dict(target_dict, new_dict, validate_item=None):
@@ -24,7 +49,7 @@ def update_dict(target_dict, new_dict, validate_item=None):
 
 
 def save_config(config):
-    user_config_file = osp.join(osp.expanduser("~"), ".xanylabelingrc")
+    user_config_file = osp.join(get_work_directory(), ".xanylabelingrc")
     try:
         with open(user_config_file, "w", encoding="utf-8") as f:
             yaml.safe_dump(config, f, allow_unicode=True)
@@ -33,8 +58,9 @@ def save_config(config):
 
 
 def get_default_config():
-    old_cfg_file = osp.join(osp.expanduser("~"), ".anylabelingrc")
-    new_cfg_file = osp.join(osp.expanduser("~"), ".xanylabelingrc")
+    work_dir = get_work_directory()
+    old_cfg_file = osp.join(work_dir, ".anylabelingrc")
+    new_cfg_file = osp.join(work_dir, ".xanylabelingrc")
     if osp.exists(old_cfg_file) and not osp.exists(new_cfg_file):
         shutil.copyfile(old_cfg_file, new_cfg_file)
 
@@ -42,8 +68,7 @@ def get_default_config():
     with pkg_resources.open_text(anylabeling_configs, config_file) as f:
         config = yaml.safe_load(f)
 
-    # Save default config to ~/.xanylabelingrc
-    if not osp.exists(osp.join(osp.expanduser("~"), ".xanylabelingrc")):
+    if not osp.exists(osp.join(work_dir, ".xanylabelingrc")):
         save_config(config)
 
     return config

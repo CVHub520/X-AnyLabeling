@@ -23,7 +23,7 @@ from PyQt5.QtCore import QCoreApplication, QFile, QObject
 from PyQt5.QtGui import QImage
 
 from .types import AutoLabelingResult
-from anylabeling.config import get_config
+from anylabeling.config import get_config, get_work_directory
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
 
@@ -129,16 +129,16 @@ class Model(QObject):
     @staticmethod
     def allow_migrate_data():
         """Check if the current env have write permissions"""
-        home_dir = os.path.expanduser("~")
-        old_model_path = os.path.join(home_dir, "anylabeling_data")
-        new_model_path = os.path.join(home_dir, "xanylabeling_data")
+        work_dir = get_work_directory()
+        old_model_path = os.path.join(work_dir, "anylabeling_data")
+        new_model_path = os.path.join(work_dir, "xanylabeling_data")
 
         if os.path.exists(new_model_path) or not os.path.exists(
             old_model_path
         ):
             return True
 
-        if not os.access(home_dir, os.W_OK):
+        if not os.access(work_dir, os.W_OK):
             return False
 
         try:
@@ -215,12 +215,11 @@ class Model(QObject):
 
         # Continue with the rest of your function logic
         migrate_flag = self.allow_migrate_data()
-        home_dir = os.path.expanduser("~")
+        work_dir = get_work_directory()
         data_dir = "xanylabeling_data" if migrate_flag else "anylabeling_data"
 
         # Create model folder
-        home_dir = os.path.expanduser("~")
-        model_path = os.path.abspath(os.path.join(home_dir, data_dir))
+        model_path = os.path.abspath(os.path.join(work_dir, data_dir))
         model_abs_path = os.path.abspath(
             os.path.join(
                 model_path,

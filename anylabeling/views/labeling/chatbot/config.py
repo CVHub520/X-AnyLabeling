@@ -1,8 +1,8 @@
 import os
 
-# Chatbot config path
-home_dir = os.path.expanduser("~")
-root_dir = os.path.join(home_dir, "xanylabeling_data/chatbot")
+from anylabeling.config import get_work_directory
+
+root_dir = os.path.join(get_work_directory(), "xanylabeling_data/chatbot")
 MODELS_CONFIG_PATH = os.path.join(root_dir, "models.json")
 SETTINGS_CONFIG_PATH = os.path.join(root_dir, "settings.json")
 PROVIDERS_CONFIG_PATH = os.path.join(root_dir, "providers.json")

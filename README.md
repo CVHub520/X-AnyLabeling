@@ -177,6 +177,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 - [Matting](./examples/matting/)
   - [Image Matting](./examples/matting/image_matting/README.md)
 - [Vision-Language](./examples/vision_language/)
+  - [Rex-Omni](./examples/vision_language/rexomni/README.md)
   - [Florence 2](./examples/vision_language/florence2/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)

@@ -34,7 +34,11 @@ from anylabeling.app_info import (
     __url__,
     CLI_HELP_MSG,
 )
-from anylabeling.config import get_config
+from anylabeling.config import (
+    get_config,
+    set_work_directory,
+    get_work_directory,
+)
 from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
@@ -145,17 +149,11 @@ def main():
             "recognized as file, else as directory)"
         ),
     )
-    default_config_file = os.path.join(
-        os.path.expanduser("~"), ".xanylabelingrc"
-    )
     parser.add_argument(
         "--config",
         dest="config",
-        help=(
-            "config file or yaml-format string (default:"
-            f" {default_config_file})"
-        ),
-        default=default_config_file,
+        help="config file or yaml-format string",
+        default=None,
     )
     # config for the gui
     parser.add_argument(
@@ -216,7 +214,15 @@ def main():
         help="epsilon to find nearest vertex on canvas",
         default=argparse.SUPPRESS,
     )
+    parser.add_argument(
+        "--work-dir",
+        type=str,
+        help="working directory for configuration and data files",
+        default=os.path.expanduser("~"),
+    )
     args = parser.parse_args()
+
+    set_work_directory(args.work_dir)
 
     special = {
         "help": lambda args: print(CLI_HELP_MSG),
@@ -225,7 +231,7 @@ def main():
         ).run_checks(),
         "version": lambda args: print(__version__),
         "config": lambda args: print(
-            os.path.join(os.path.expanduser("~"), ".xanylabelingrc")
+            os.path.join(get_work_directory(), ".xanylabelingrc")
         ),
         "convert": lambda args: __import__(
             "anylabeling.views.common.converter",
@@ -260,10 +266,15 @@ def main():
 
     config_from_args = args.__dict__
     config_from_args.pop("command", None)
+    config_from_args.pop("work_dir")
     reset_config = config_from_args.pop("reset_config")
     filename = config_from_args.pop("filename")
     output = config_from_args.pop("output")
     config_file_or_yaml = config_from_args.pop("config")
+    if config_file_or_yaml is None:
+        config_file_or_yaml = os.path.join(
+            get_work_directory(), ".xanylabelingrc"
+        )
     logger_level = config_from_args.pop("logger_level")
     no_auto_update_check = config_from_args.pop("no_auto_update_check", False)
     qt_platform = config_from_args.pop("qt_platform", None)

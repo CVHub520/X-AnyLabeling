@@ -42,6 +42,7 @@ from PyQt5.QtGui import (
 )
 
 from anylabeling.app_info import __version__
+from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
@@ -1696,7 +1697,7 @@ class ChatbotDialog(QDialog):
             zip_path = os.path.join(export_dir, zip_filename)
 
             # Create temporary directory structure
-            temp_dir = os.path.join(os.path.expanduser("~"), ".temp_export")
+            temp_dir = os.path.join(get_work_directory(), ".temp_export")
             temp_images_dir = os.path.join(temp_dir, "images")
 
             # Clean previous temp dir if exists

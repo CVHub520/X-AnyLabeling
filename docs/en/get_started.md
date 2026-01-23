@@ -142,6 +142,7 @@ xanylabeling
 | `--logger-level`           | Set the logging level: "debug", "info", "warning", "fatal", "error".                                          |
 | `--output`, `-O`, `-o`     | Specify the output file or directory. Paths ending with `.json` are treated as files.                         |
 | `--config`                 | Specify a configuration file or YAML-formatted configuration string. Defaults to a user-specific path.        |
+| `--work-dir`               | Specify the working directory for configuration and data files. Defaults to home directory.                   |
 | `--nodata`                 | Prevent storing image data in JSON files.                                                                     |
 | `--autosave`               | Enable automatic saving of annotation data.                                                                   |
 | `--nosortlabels`           | Disable label sorting.                                                                                        |

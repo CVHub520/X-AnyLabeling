@@ -13,13 +13,14 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QSize, pyqtSignal
 from PyQt5.QtGui import QIcon
 
+from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.utils import load_json, save_json
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 
 
 _MODELS_CONFIG_PATH = os.path.join(
-    os.path.expanduser("~"), "xanylabeling_data/models.json"
+    get_work_directory(), "xanylabeling_data/models.json"
 )
 
 

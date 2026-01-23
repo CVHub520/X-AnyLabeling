@@ -74,10 +74,9 @@ class DeviceManager:
     def _load_from_config(self) -> Optional[str]:
         try:
             import yaml
+            from anylabeling.config import get_work_directory
 
-            config_path = os.path.join(
-                os.path.expanduser("~"), ".xanylabelingrc"
-            )
+            config_path = os.path.join(get_work_directory(), ".xanylabelingrc")
             if os.path.exists(config_path):
                 with open(config_path) as f:
                     config = yaml.safe_load(f)

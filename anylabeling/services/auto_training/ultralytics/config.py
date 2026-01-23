@@ -1,9 +1,11 @@
 import os
 import multiprocessing
 
-# Ultralytics config path
-home_dir = os.path.expanduser("~")
-root_dir = os.path.join(home_dir, "xanylabeling_data/trainer/ultralytics")
+from anylabeling.config import get_work_directory
+
+root_dir = os.path.join(
+    get_work_directory(), "xanylabeling_data/trainer/ultralytics"
+)
 DATA_PATH = os.path.join(root_dir, "data.yaml")
 DATASET_PATH = os.path.join(root_dir, "datasets")
 SETTINGS_CONFIG_PATH = os.path.join(root_dir, "settings.json")

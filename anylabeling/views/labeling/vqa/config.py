@@ -1,9 +1,8 @@
 import os
 
+from anylabeling.config import get_work_directory
 
-# VQA config path
-home_dir = os.path.expanduser("~")
-root_dir = os.path.join(home_dir, "xanylabeling_data/vqa")
+root_dir = os.path.join(get_work_directory(), "xanylabeling_data/vqa")
 PROMPTS_CONFIG_PATH = os.path.join(root_dir, "prompts.json")
 COMPONENTS_CONFIG_PATH = os.path.join(root_dir, "components.json")
 
