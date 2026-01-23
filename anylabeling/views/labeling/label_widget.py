@@ -2360,6 +2360,14 @@ class LabelingWidget(LabelDialog):
             title = f"{title} - {self.filename}*"
         self.setWindowTitle(title)
 
+    def update_progress_title(self):
+        title = __appname__
+        if self.filename is not None:
+            current_index, total_count = self.get_image_progress_info()
+            basename = osp.basename(str(self.filename))
+            title = f"{title} - {basename} [{current_index}/{total_count}]"
+        self.parent.parent.setWindowTitle(title)
+
     def set_clean(self):
         self.dirty = False
         self.actions.save.setEnabled(False)
@@ -2381,12 +2389,8 @@ class LabelingWidget(LabelDialog):
         self.actions.digit_shortcut_7.setEnabled(True)
         self.actions.digit_shortcut_8.setEnabled(True)
         self.actions.digit_shortcut_9.setEnabled(True)
-        title = __appname__
-        if self.filename is not None:
-            current_index, total_count = self.get_image_progress_info()
-            basename = osp.basename(str(self.filename))
-            title = f"{title} - {basename} [{current_index}/{total_count}]"
-        self.parent.parent.setWindowTitle(title)
+
+        self.update_progress_title()
 
         if self.has_label_file():
             self.actions.delete_file.setEnabled(True)
@@ -4644,6 +4648,7 @@ class LabelingWidget(LabelDialog):
                 prev_shapes, replace=False, update_last_label=False
             )
             self.set_dirty()
+            self.update_progress_title()
         else:
             self.set_clean()
         self.canvas.setEnabled(True)
