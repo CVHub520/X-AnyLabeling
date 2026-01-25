@@ -20,8 +20,10 @@ from anylabeling.services.auto_labeling import (
     _BATCH_PROCESSING_INVALID_MODELS,
     _BATCH_PROCESSING_TEXT_PROMPT_MODELS,
     _BATCH_PROCESSING_VIDEO_MODELS,
+    _SKIP_DET_MODELS,
 )
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils._io import io_open
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import get_msg_box_style
@@ -135,6 +137,44 @@ class TextInputDialog(QDialog):
 def get_image_size(image_path):
     with Image.open(image_path) as img:
         return img.size
+
+
+def load_existing_shapes(image_file):
+    """
+    Loads existing shapes from the JSON file for skip detection.
+
+    Args:
+        image_file (str): The path to the image file.
+
+    Returns:
+        list: A list of Shape objects loaded from the JSON file, or None if
+              the file does not exist or contains no shapes.
+    """
+    label_file = osp.splitext(image_file)[0] + ".json"
+    if not osp.exists(label_file):
+        return None
+
+    try:
+        with io_open(label_file, "r") as f:
+            data = json.load(f)
+
+        shapes = data.get("shapes", [])
+        if not shapes:
+            return None
+
+        existing_shapes = []
+        for shape_data in shapes:
+            shape = Shape()
+            shape.load_from_dict(shape_data, close=False)
+            if shape.shape_type in ["rectangle", "rotation", "polygon"]:
+                shape.selected = True
+                existing_shapes.append(shape)
+
+        return existing_shapes if existing_shapes else None
+
+    except Exception as e:
+        logger.warning(f"Failed to load existing shapes: {e}")
+        return None
 
 
 def finish_processing(self, progress_dialog):
@@ -289,9 +329,19 @@ def process_next_image(self, progress_dialog, batch=True):
                     self.image_index = total_images
                     break
             else:
+                existing_shapes = None
+                if (
+                    model_type in _SKIP_DET_MODELS
+                    and self.auto_labeling_widget.button_skip_detection.isChecked()
+                ):
+                    existing_shapes = load_existing_shapes(image_file)
+
                 auto_labeling_result = (
                     self.auto_labeling_widget.model_manager.predict_shapes(
-                        self.image, image_file, batch=batch
+                        self.image,
+                        image_file,
+                        batch=batch,
+                        existing_shapes=existing_shapes,
                     )
                 )
 

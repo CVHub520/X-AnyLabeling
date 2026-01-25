@@ -30,6 +30,9 @@ Here's how to proceed with automatic annotation:
 > [!TIP]
 > Starting from v3.2.3+, we support partial re-recognition functionality. When detection results are inaccurate, you can manually draw text boxes and use only the recognition part of the OCR pipeline. Simply draw your text regions first (currently only rectangle, rotation and polygon shapes are supported), select the shapes you want to re-recognize, then ensure the "Skip Det (On)" button is activated before running inference, otherwise, it will override your existing shapes.
 
+> [!NOTE]
+> In batch processing mode, when "Skip Det (On)" is enabled, the system will automatically load existing annotations from JSON files and use them as detection boxes for recognition. This allows you to efficiently rerun text recognition on all images without manually selecting shapes for each image.
+
 When annotating PPOCR data, the `label` field values can be ignored; instead, you should focus on the `description` field. 
 - To hide the text labels, you can use the shortcut `Ctrl+L`. 
 - To modify the `description` field, you can use `Ctrl+E` to open the label manager and make corrections in the section of the pop-up dialog.
