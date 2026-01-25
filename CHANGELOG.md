@@ -1,5 +1,18 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.7` (Jan 25, 2026)
+
+### 🚀 New Features
+
+- Add automatic skip detection support for batch processing mode in PPOCR models (#687)
+- Introduce Compare View feature for side-by-side image comparison, enhancing usability for tasks such as infrared/visible fusion, mask preview, and super-resolution (#1269)
+
+### 🌟 Contributors
+
+A total of 2 developer contributed to this release.
+
+Thank @xy200303, @CVHub520
+
 ## `v3.3.6` (Jan 24, 2026)
 
 ### 🚀 New Features
