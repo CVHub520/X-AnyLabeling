@@ -49,6 +49,7 @@ class Canvas(
     auto_decode_requested = QtCore.pyqtSignal(list)
     auto_decode_finish_requested = QtCore.pyqtSignal()
     shape_hover_changed = QtCore.pyqtSignal()
+    split_position_changed = QtCore.pyqtSignal(float)
 
     CREATE, EDIT = 0, 1
 
@@ -176,6 +177,10 @@ class Canvas(
         self.auto_decode_timer.setSingleShot(True)
         self.auto_decode_tracklet = []
         self.last_mouse_pos = None
+
+        # Compare view support
+        self.compare_pixmap = None
+        self.split_position = 0.5
 
     def set_loading(self, is_loading: bool, loading_text: str = None):
         """Set loading state"""
@@ -595,7 +600,7 @@ class Canvas(
         # - Highlight shapes
         # - Highlight vertex
         # Update shape/vertex fill and tooltip value accordingly.
-        self.setToolTip(self.tr("Image"))
+        # self.setToolTip(self.tr("Image"))
         for shape in reversed([s for s in self.shapes if self.is_visible(s)]):
             # Look for a nearby vertex to highlight. If that fails,
             # check if we happen to be inside a shape.
@@ -750,6 +755,7 @@ class Canvas(
         if self.is_loading:
             return
         pos = self.transform_pos(ev.localPos())
+
         if ev.button() == QtCore.Qt.LeftButton:
             if self.drawing():
                 if self.current:
@@ -885,6 +891,7 @@ class Canvas(
         """Mouse release event"""
         if self.is_loading:
             return
+
         if ev.button() == QtCore.Qt.RightButton:
             menu = self.menus[len(self.selected_shapes_copy) > 0]
             self.restore_cursor()
@@ -1281,6 +1288,25 @@ class Canvas(
         p.translate(self.offset_to_center())
 
         p.drawPixmap(0, 0, self.pixmap)
+
+        # Draw compare view: left side shows compare image, right side shows original
+        # split_position: 0 = all original, 1 = all compare
+        if (
+            self.compare_pixmap is not None
+            and not self.compare_pixmap.isNull()
+        ):
+            split_x = int(self.split_position * self.pixmap.width())
+            if split_x > 0:
+                p.drawPixmap(
+                    0,
+                    0,
+                    self.compare_pixmap,
+                    0,
+                    0,
+                    split_x,
+                    self.pixmap.height(),
+                )
+
         Shape.scale = self.scale
 
         # Draw loading/waiting screen
@@ -1952,6 +1978,73 @@ class Canvas(
                 ):
                     p.drawText(text_pos, line_text)
 
+        # Draw compare view split line
+        if (
+            self.compare_pixmap is not None
+            and not self.compare_pixmap.isNull()
+        ):
+            split_x = int(self.split_position * self.pixmap.width())
+            img_h = self.pixmap.height()
+            if 0 < split_x < self.pixmap.width():
+                p.setRenderHint(QtGui.QPainter.Antialiasing)
+                line_pen = QtGui.QPen(QtGui.QColor(255, 255, 255, 180), 1.5)
+                line_pen.setCapStyle(Qt.RoundCap)
+                p.setPen(line_pen)
+                p.drawLine(split_x, 0, split_x, img_h)
+                handle_radius = 16
+                handle_y = img_h // 2
+                gradient = QtGui.QRadialGradient(
+                    split_x, handle_y, handle_radius
+                )
+                gradient.setColorAt(0, QtGui.QColor(255, 255, 255, 200))
+                gradient.setColorAt(1, QtGui.QColor(255, 255, 255, 0))
+                p.setPen(Qt.NoPen)
+                p.setBrush(gradient)
+                p.drawEllipse(
+                    split_x - handle_radius,
+                    handle_y - handle_radius,
+                    handle_radius * 2,
+                    handle_radius * 2,
+                )
+                p.setBrush(QtGui.QColor(255, 255, 255, 200))
+                p.drawEllipse(split_x - 8, handle_y - 8, 16, 16)
+                arrow_pen = QtGui.QPen(QtGui.QColor(100, 100, 100, 180), 1.5)
+                arrow_pen.setCapStyle(Qt.RoundCap)
+                arrow_pen.setJoinStyle(Qt.RoundJoin)
+                p.setPen(arrow_pen)
+                arrow_size = 4
+                p.drawLine(
+                    split_x - arrow_size, handle_y, split_x - 1, handle_y
+                )
+                p.drawLine(
+                    split_x - arrow_size,
+                    handle_y,
+                    split_x - arrow_size + 2,
+                    handle_y - 2,
+                )
+                p.drawLine(
+                    split_x - arrow_size,
+                    handle_y,
+                    split_x - arrow_size + 2,
+                    handle_y + 2,
+                )
+                p.drawLine(
+                    split_x + 1, handle_y, split_x + arrow_size, handle_y
+                )
+                p.drawLine(
+                    split_x + arrow_size,
+                    handle_y,
+                    split_x + arrow_size - 2,
+                    handle_y - 2,
+                )
+                p.drawLine(
+                    split_x + arrow_size,
+                    handle_y,
+                    split_x + arrow_size - 2,
+                    handle_y + 2,
+                )
+                p.setRenderHint(QtGui.QPainter.Antialiasing, False)
+
         p.end()
 
     def transform_pos(self, point):
@@ -2172,6 +2265,21 @@ class Canvas(
 
             self.store_shapes()
             self.shape_moved.emit()
+            self.update()
+            ev.accept()
+            return
+
+        # Shift+wheel: adjust compare view split position
+        if (
+            QtCore.Qt.ShiftModifier == int(mods)
+            and self.compare_pixmap is not None
+            and not self.compare_pixmap.isNull()
+        ):
+            step = 0.02 if delta.y() > 0 else -0.02
+            self.split_position = max(
+                0.0, min(1.0, self.split_position + step)
+            )
+            self.split_position_changed.emit(self.split_position)
             self.update()
             ev.accept()
             return
@@ -2492,6 +2600,7 @@ class Canvas(
         self.pixmap = None
         self.shapes_backups = []
         self.is_move_editing = False
+        self.compare_pixmap = None
         self.update()
 
     def set_cross_line(self, show, width, color, opacity):

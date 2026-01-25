@@ -80,6 +80,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- Added Compare View feature for split-screen image comparison, ideal for infrared/visible fusion, mask preview, and super-resolution [[docs](./docs/en/user_guide.md#36-compare-view)]
 - Added [YOLO26](https://github.com/ultralytics/ultralytics) object detection model
 - Added multimodal large language model [Rex-Omni](https://github.com/IDEA-Research/Rex-Omni) with support for grounding, keypoints, referring pointing, OCR, and visual prompting tasks [[docs](./examples/vision_language/rexomni/README.md)]
 - Added powerful file search feature upporting text search, regular expression search, and attribute-based filtering [[docs](./docs/en/user_guide.md#25-searching-images)]

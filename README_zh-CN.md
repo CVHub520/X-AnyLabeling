@@ -79,6 +79,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- 新增对比视图功能，支持分屏图像对比，适用于红外/可见光融合、掩码预览、图像超分等场景 [[教程](./docs/zh_cn/user_guide.md#36-对比视图)]
 - 新增[YOLO26](https://github.com/ultralytics/ultralytics)目标检测模型
 - 新增多模态大型语言模型[Rex-Omni](https://github.com/IDEA-Research/Rex-Omni)，支持目标检测、关键点、指代、OCR和视觉提示等多种视觉任务 [[教程](./examples/vision_language/rexomni/README.md)]
 - 新增强大的文件搜索功能，支持文本搜索、正则表达式搜索和属性搜索 [[教程](./docs/zh_cn/user_guide.md#25-搜索图片)]
@@ -99,7 +100,7 @@
 <img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
 
 - 支持远程推理服务。
-- 支持`GPU`加速推理。
+- 支持`GPU`、`FFmpeg`加速推理。
 - 支持一键预测所有图像。
 - 支持`图像`和`视频`处理。
 - 支持自定义模型和二次开发。

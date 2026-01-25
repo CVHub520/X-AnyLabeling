@@ -48,7 +48,7 @@ from anylabeling.resources import resources
 
 def main():
     multiprocessing.freeze_support()
-    
+
     if sys.stderr is None:
         sys.stderr = open(os.devnull, "w")
 

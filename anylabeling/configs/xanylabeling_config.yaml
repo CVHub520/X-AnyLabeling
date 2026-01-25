@@ -176,6 +176,7 @@ shortcuts:
   toggle_auto_use_last_label: Ctrl+Y
   toggle_auto_use_last_gid: Ctrl+Shift+G
   toggle_visibility_shapes: Ctrl+H
+  toggle_compare_view: Ctrl+Alt+C
 
   auto_label: Ctrl+A
   auto_run: Ctrl+B
