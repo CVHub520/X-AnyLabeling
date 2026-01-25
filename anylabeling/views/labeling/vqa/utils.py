@@ -4,7 +4,7 @@ import os
 import re
 import requests
 
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt6.QtCore import QThread, pyqtSignal
 
 from anylabeling.views.labeling.chatbot.config import (
     MODELS_CONFIG_PATH,

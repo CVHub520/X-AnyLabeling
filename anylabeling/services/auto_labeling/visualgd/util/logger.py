@@ -4,7 +4,11 @@ import logging
 import os
 import sys
 
-from termcolor import colored
+try:
+    from termcolor import colored
+except Exception:
+    def colored(text, *args, **kwargs):
+        return text
 
 
 class _ColorfulFormatter(logging.Formatter):

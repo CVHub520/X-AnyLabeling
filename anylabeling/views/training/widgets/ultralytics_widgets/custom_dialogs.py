@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QVBoxLayout
+from PyQt6.QtWidgets import QDialog, QHBoxLayout, QLabel, QVBoxLayout
 from .custom_widgets import CustomComboBox, PrimaryButton, SecondaryButton
 
 

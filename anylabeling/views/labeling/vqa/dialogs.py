@@ -1,9 +1,9 @@
 import json
 import os
 
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QColor, QWheelEvent, QTextCharFormat, QTextCursor
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QColor, QWheelEvent, QTextCharFormat, QTextCursor
+from PyQt6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
     QComboBox,
@@ -76,8 +76,8 @@ class PromptTemplateDialog(QDialog):
         )
 
         self.table.setStyleSheet(get_table_style())
-        self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.table.setSelectionMode(QAbstractItemView.NoSelection)
+        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         self.table.setAlternatingRowColors(True)
         self.table.setShowGrid(False)
         self.table.verticalHeader().setVisible(False)
@@ -153,7 +153,7 @@ class PromptTemplateDialog(QDialog):
             checkbox_widget = QWidget()
             checkbox_layout = QVBoxLayout(checkbox_widget)
             checkbox_layout.addWidget(checkbox)
-            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)
             checkbox_layout.setSpacing(0)
 
@@ -165,7 +165,9 @@ class PromptTemplateDialog(QDialog):
             else:
                 name_item.setForeground(QColor("#374151"))
             name_item.setToolTip(template["content"])
-            name_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            name_item.setTextAlignment(
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+            )
             self.table.setItem(row, 1, name_item)
 
             delete_btn = QPushButton(self.tr("Delete"))
@@ -189,7 +191,7 @@ class PromptTemplateDialog(QDialog):
             delete_widget = QWidget()
             delete_layout = QVBoxLayout(delete_widget)
             delete_layout.addWidget(delete_btn)
-            delete_layout.setAlignment(Qt.AlignCenter)
+            delete_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             delete_layout.setContentsMargins(0, 0, 0, 0)
             delete_layout.setSpacing(0)
 
@@ -220,7 +222,7 @@ class PromptTemplateDialog(QDialog):
     def add_template(self):
         """Add new template"""
         dialog = AddTemplateDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             template_data = dialog.get_template_data()
             self.save_user_template(
                 template_data["name"], template_data["content"]
@@ -237,11 +239,11 @@ class PromptTemplateDialog(QDialog):
             self,
             self.tr("Delete Template"),
             self.tr("Are you sure you want to delete this template?"),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             self.remove_user_template(name_item.text())
             self.load_templates()
 
@@ -303,7 +305,7 @@ class PromptTemplateDialog(QDialog):
         }
 
         dialog = AddTemplateDialog(self, edit_data=template_data)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             new_data = dialog.get_template_data()
             self.update_user_template(
                 template_data["name"], new_data["name"], new_data["content"]
@@ -454,14 +456,14 @@ class AILoadingDialog(QDialog):
         content_layout.setSpacing(12)
 
         title_label = QLabel(self.tr("AI Processing"))
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet(get_title_label_style())
         content_layout.addWidget(title_label)
 
         self.message_label = QLabel(
             self.tr("Generating content, please wait.")
         )
-        self.message_label.setAlignment(Qt.AlignCenter)
+        self.message_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.message_label.setStyleSheet(get_message_label_style())
         content_layout.addWidget(self.message_label)
 
@@ -476,14 +478,16 @@ class AILoadingDialog(QDialog):
         self.cancel_button.setStyleSheet(
             get_dialog_button_style("secondary", "medium")
         )
-        self.cancel_button.setCursor(Qt.PointingHandCursor)
+        self.cancel_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.cancel_button.clicked.connect(self.reject)
         button_layout.addWidget(self.cancel_button)
 
         layout.addLayout(button_layout)
 
         self.setWindowFlags(
-            Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+            Qt.WindowType.Dialog
+            | Qt.WindowType.FramelessWindowHint
+            | Qt.WindowType.WindowStaysOnTopHint
         )
         shadow = QGraphicsDropShadowEffect()
         shadow.setBlurRadius(15)
@@ -514,7 +518,7 @@ class AILoadingDialog(QDialog):
 
     def exec_(self):
         self.center_on_parent()
-        return super().exec_()
+        return super().exec()
 
     def closeEvent(self, event):
         self.timer.stop()
@@ -551,7 +555,9 @@ class AIPromptDialog(QDialog):
         self.prompt_input.textChanged.connect(self.on_text_changed)
         self.prompt_input.setMinimumHeight(120)
         self.prompt_input.setMaximumHeight(160)
-        self.prompt_input.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.prompt_input.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
         dialog_layout.addWidget(self.prompt_input)
 
         button_layout = QHBoxLayout()
@@ -562,7 +568,7 @@ class AIPromptDialog(QDialog):
         template_btn.setStyleSheet(
             get_dialog_button_style("secondary", "medium")
         )
-        template_btn.setCursor(Qt.PointingHandCursor)
+        template_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         template_btn.clicked.connect(self.open_template_library)
 
         button_layout.addWidget(template_btn)
@@ -572,25 +578,27 @@ class AIPromptDialog(QDialog):
         cancel_btn.setStyleSheet(
             get_dialog_button_style("secondary", "medium")
         )
-        cancel_btn.setCursor(Qt.PointingHandCursor)
+        cancel_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         cancel_btn.clicked.connect(self.reject)
 
         confirm_btn = QPushButton(self.tr("Generate"))
         confirm_btn.setStyleSheet(get_dialog_button_style("primary", "medium"))
-        confirm_btn.setCursor(Qt.PointingHandCursor)
+        confirm_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         confirm_btn.clicked.connect(self.accept)
 
         button_layout.addWidget(cancel_btn)
         button_layout.addWidget(confirm_btn)
         dialog_layout.addLayout(button_layout)
 
-        self.setAttribute(Qt.WA_TranslucentBackground, False)
-        self.setWindowFlags(self.windowFlags() & ~Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, False)
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowType.FramelessWindowHint
+        )
 
     def open_template_library(self):
         """Open template library dialog"""
         dialog = PromptTemplateDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             selected_template = dialog.get_selected_template()
             if selected_template:
                 self.prompt_input.setPlainText(selected_template["content"])
@@ -613,7 +621,7 @@ class AIPromptDialog(QDialog):
         """Override exec_ method to adjust position before showing the dialog"""
         self.adjustSize()
         self.center_on_parent()
-        return super().exec_()
+        return super().exec()
 
     def on_text_changed(self):
         """Handle text changes in the message input to highlight @image and @text tags"""
@@ -903,12 +911,18 @@ class DeleteComponentDialog(QDialog):
         headers = [self.tr("Type"), self.tr("Title"), self.tr("Select")]
         self.component_table.setHorizontalHeaderLabels(headers)
 
-        self.component_table.setSelectionBehavior(QTableWidget.SelectItems)
-        self.component_table.setSelectionMode(QTableWidget.NoSelection)
-        self.component_table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.component_table.setSelectionBehavior(
+            QAbstractItemView.SelectionBehavior.SelectItems
+        )
+        self.component_table.setSelectionMode(
+            QAbstractItemView.SelectionMode.NoSelection
+        )
+        self.component_table.setEditTriggers(
+            QAbstractItemView.EditTrigger.NoEditTriggers
+        )
         self.component_table.setAlternatingRowColors(True)
         self.component_table.verticalHeader().setVisible(False)
-        self.component_table.setFocusPolicy(Qt.NoFocus)
+        self.component_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.component_table.verticalHeader().setDefaultSectionSize(32)
         min_table_height = len(components) * 32 + 30
         self.component_table.setMinimumHeight(min_table_height)
@@ -955,7 +969,7 @@ class DeleteComponentDialog(QDialog):
         for row, component in enumerate(self.components):
             # First column: Component type
             type_item = QTableWidgetItem(component["type"])
-            type_item.setTextAlignment(Qt.AlignCenter)
+            type_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             type_colors = {
                 "QLineEdit": QColor("#4299e1"),  # Blue
                 "QRadioButton": QColor("#48bb78"),  # Green
@@ -963,19 +977,21 @@ class DeleteComponentDialog(QDialog):
                 "QCheckBox": QColor("#9f7aea"),  # Purple
             }
             color = type_colors.get(component["type"], QColor("#718096"))
-            type_item.setData(Qt.ForegroundRole, color)
+            type_item.setData(Qt.ItemDataRole.ForegroundRole, color)
             self.component_table.setItem(row, 0, type_item)
 
             # Second column: Component title
             title_item = QTableWidgetItem(component["title"])
-            title_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            title_item.setTextAlignment(
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+            )
             self.component_table.setItem(row, 1, title_item)
 
             # Third column: Checkbox with default style
             checkbox_widget = QWidget()
             checkbox_layout = QHBoxLayout(checkbox_widget)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)
-            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             checkbox = QCheckBox()
             checkbox.stateChanged.connect(self.on_item_selection_changed)
@@ -985,7 +1001,7 @@ class DeleteComponentDialog(QDialog):
 
     def on_select_all_changed(self, state):
         """Handle select all checkbox state change"""
-        is_checked = state == Qt.Checked
+        is_checked = state == Qt.CheckState.Checked.value
 
         for row in range(self.component_table.rowCount()):
             checkbox_widget = self.component_table.cellWidget(row, 2)
@@ -1005,11 +1021,11 @@ class DeleteComponentDialog(QDialog):
 
         self.select_all_checkbox.blockSignals(True)
         if selected_count == 0:
-            self.select_all_checkbox.setCheckState(Qt.Unchecked)
+            self.select_all_checkbox.setCheckState(Qt.CheckState.Unchecked)
         elif selected_count == total_count:
-            self.select_all_checkbox.setCheckState(Qt.Checked)
+            self.select_all_checkbox.setCheckState(Qt.CheckState.Checked)
         else:
-            self.select_all_checkbox.setCheckState(Qt.PartiallyChecked)
+            self.select_all_checkbox.setCheckState(Qt.CheckState.PartiallyChecked)
         self.select_all_checkbox.blockSignals(False)
 
         self.update_ui_state()
@@ -1116,11 +1132,15 @@ class ExportLabelsDialog(QDialog):
         ]
         self.export_table.setHorizontalHeaderLabels(headers)
 
-        self.export_table.setSelectionBehavior(QTableWidget.SelectItems)
-        self.export_table.setSelectionMode(QTableWidget.NoSelection)
+        self.export_table.setSelectionBehavior(
+            QAbstractItemView.SelectionBehavior.SelectItems
+        )
+        self.export_table.setSelectionMode(
+            QAbstractItemView.SelectionMode.NoSelection
+        )
         self.export_table.setAlternatingRowColors(True)
         self.export_table.verticalHeader().setVisible(False)
-        self.export_table.setFocusPolicy(Qt.NoFocus)
+        self.export_table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.export_table.verticalHeader().setDefaultSectionSize(32)
         min_table_height = field_count * 32 + 30
         max_table_height = total_height - 120
@@ -1182,14 +1202,20 @@ class ExportLabelsDialog(QDialog):
 
         for field_type, original_key, export_key in basic_fields:
             type_item = QTableWidgetItem(field_type)
-            type_item.setTextAlignment(Qt.AlignCenter)
-            type_item.setData(Qt.ForegroundRole, QColor("#718096"))
-            type_item.setFlags(type_item.flags() & ~Qt.ItemIsEditable)
+            type_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            type_item.setData(
+                Qt.ItemDataRole.ForegroundRole, QColor("#718096")
+            )
+            type_item.setFlags(type_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
             self.export_table.setItem(row, 0, type_item)
 
             original_item = QTableWidgetItem(original_key)
-            original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            original_item.setFlags(original_item.flags() & ~Qt.ItemIsEditable)
+            original_item.setTextAlignment(
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+            )
+            original_item.setFlags(
+                original_item.flags() & ~Qt.ItemFlag.ItemIsEditable
+            )
             self.export_table.setItem(row, 1, original_item)
 
             export_input = QLineEdit()
@@ -1200,7 +1226,7 @@ class ExportLabelsDialog(QDialog):
             checkbox_widget = QWidget()
             checkbox_layout = QHBoxLayout(checkbox_widget)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)
-            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             checkbox = QCheckBox()
             checkbox.setChecked(original_key != "shapes")
@@ -1220,15 +1246,19 @@ class ExportLabelsDialog(QDialog):
         for component in self.components:
 
             type_item = QTableWidgetItem(component["type"])
-            type_item.setTextAlignment(Qt.AlignCenter)
+            type_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             color = type_colors.get(component["type"], QColor("#718096"))
-            type_item.setData(Qt.ForegroundRole, color)
-            type_item.setFlags(type_item.flags() & ~Qt.ItemIsEditable)
+            type_item.setData(Qt.ItemDataRole.ForegroundRole, color)
+            type_item.setFlags(type_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
             self.export_table.setItem(row, 0, type_item)
 
             original_item = QTableWidgetItem(component["title"])
-            original_item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-            original_item.setFlags(original_item.flags() & ~Qt.ItemIsEditable)
+            original_item.setTextAlignment(
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+            )
+            original_item.setFlags(
+                original_item.flags() & ~Qt.ItemFlag.ItemIsEditable
+            )
             self.export_table.setItem(row, 1, original_item)
 
             export_input = QLineEdit()
@@ -1239,7 +1269,7 @@ class ExportLabelsDialog(QDialog):
             checkbox_widget = QWidget()
             checkbox_layout = QHBoxLayout(checkbox_widget)
             checkbox_layout.setContentsMargins(0, 0, 0, 0)
-            checkbox_layout.setAlignment(Qt.AlignCenter)
+            checkbox_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             checkbox = QCheckBox()
             checkbox.setChecked(True)
@@ -1253,7 +1283,7 @@ class ExportLabelsDialog(QDialog):
 
     def on_select_all_changed(self, state):
         """Handle select all checkbox state change"""
-        is_checked = state == Qt.Checked
+        is_checked = state == Qt.CheckState.Checked.value
 
         for row in range(self.export_table.rowCount()):
             checkbox_widget = self.export_table.cellWidget(row, 3)
@@ -1273,11 +1303,11 @@ class ExportLabelsDialog(QDialog):
 
         self.select_all_checkbox.blockSignals(True)
         if selected_count == 0:
-            self.select_all_checkbox.setCheckState(Qt.Unchecked)
+            self.select_all_checkbox.setCheckState(Qt.CheckState.Unchecked)
         elif selected_count == total_count:
-            self.select_all_checkbox.setCheckState(Qt.Checked)
+            self.select_all_checkbox.setCheckState(Qt.CheckState.Checked)
         else:
-            self.select_all_checkbox.setCheckState(Qt.PartiallyChecked)
+            self.select_all_checkbox.setCheckState(Qt.CheckState.PartiallyChecked)
         self.select_all_checkbox.blockSignals(False)
 
         self.update_ui_state()

@@ -2,8 +2,8 @@
 
 import PIL.Image
 import PIL.ImageEnhance
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt6 import QtGui, QtWidgets
+from PyQt6.QtCore import Qt
 
 from ..utils.image import pil_to_qimage
 
@@ -17,7 +17,7 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         self.setWindowTitle(self.tr("Brightness/Contrast"))
         self.setFixedSize(350, 160)
         self.setWindowFlags(
-            self.windowFlags() & ~Qt.WindowContextHelpButtonHint
+            self.windowFlags() & ~Qt.WindowType.WindowContextHelpButtonHint
         )
 
         self.setStyleSheet(
@@ -72,7 +72,9 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
             f"{self.slider_brightness.value() / 50:.2f}"
         )
         self.brightness_label.setFixedWidth(40)
-        self.brightness_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.brightness_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
         brightness_layout.addWidget(self.brightness_label)
 
         self.slider_brightness.valueChanged.connect(
@@ -94,7 +96,9 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
             f"{self.slider_contrast.value() / 50:.2f}"
         )
         self.contrast_label.setFixedWidth(40)
-        self.contrast_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.contrast_label.setAlignment(
+            Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignVCenter
+        )
         contrast_layout.addWidget(self.contrast_label)
 
         self.slider_contrast.valueChanged.connect(self.update_contrast_label)
@@ -166,7 +170,10 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
     def move_to_center(self):
         """Move dialog to center of the screen"""
         qr = self.frameGeometry()
-        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
+        screen = self.screen()
+        if screen is None:
+            screen = QtGui.QGuiApplication.primaryScreen()
+        cp = screen.availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
@@ -191,10 +198,21 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         contrast = self.slider_contrast.value() / 50.0
 
         img = self.img
+        alpha = None
+        if "A" in img.getbands():
+            alpha = img.getchannel("A")
+            img = img.convert("RGB")
+        elif img.mode not in ("RGB", "L"):
+            img = img.convert("RGB")
+
         if brightness != 1:
             img = PIL.ImageEnhance.Brightness(img).enhance(brightness)
         if contrast != 1:
             img = PIL.ImageEnhance.Contrast(img).enhance(contrast)
+
+        if alpha is not None:
+            img = img.convert("RGBA")
+            img.putalpha(alpha)
 
         qimage = pil_to_qimage(img)
         self.callback(qimage)
@@ -211,7 +229,7 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
 
     def _create_slider(self):
         """Create brightness/contrast slider"""
-        slider = QtWidgets.QSlider(Qt.Horizontal)
+        slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         slider.setRange(0, 150)
         slider.setValue(50)
         slider.setTracking(True)

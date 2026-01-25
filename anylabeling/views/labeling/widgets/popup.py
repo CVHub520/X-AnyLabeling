@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget,
     QLabel,
     QHBoxLayout,
@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (
     QApplication,
     QSizePolicy,
 )
-from PyQt5.QtCore import Qt, QTimer, QRectF, QSize
-from PyQt5.QtGui import QPainter, QPainterPath, QColor, QIcon
+from PyQt6.QtCore import Qt, QTimer, QRectF, QSize
+from PyQt6.QtGui import QPainter, QPainterPath, QColor, QIcon
 
 
 def is_wsl():
@@ -25,7 +25,8 @@ def is_wsl():
 class Popup(QWidget):
     def __init__(self, text, parent=None, msec=3000, icon=None):
         super().__init__(
-            parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+            parent,
+            Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint,
         )
 
         self.setStyleSheet(
@@ -52,7 +53,9 @@ class Popup(QWidget):
 
         # Add text label
         self.label = QLabel(text)
-        self.label.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+        self.label.setAlignment(
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
+        )
         hbox.addWidget(self.label)
 
         # Main layout
@@ -62,8 +65,10 @@ class Popup(QWidget):
         self.setLayout(layout)
 
         # Set window properties
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint
+        )
 
         # Add drop shadow effect
         self.shadow = QGraphicsDropShadowEffect(self)
@@ -80,7 +85,7 @@ class Popup(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         path = QPainterPath()
         rect = QRectF(self.rect())

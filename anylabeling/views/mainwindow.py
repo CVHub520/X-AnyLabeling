@@ -1,6 +1,6 @@
 """This module defines the main application window"""
 
-from PyQt5.QtWidgets import QMainWindow, QStatusBar, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QMainWindow, QStatusBar, QVBoxLayout, QWidget
 
 from ..app_info import __appdescription__, __appname__, __version__
 from .labeling.label_wrapper import LabelingWrapper

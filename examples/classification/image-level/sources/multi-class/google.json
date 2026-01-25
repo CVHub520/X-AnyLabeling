@@ -1,13 +1,44 @@
 {
-  "version": "2.4.0",
+  "version": "3.3.6",
   "flags": {
     "Apple": false,
     "Meta": false,
     "Google": true
   },
-  "shapes": [],
+  "shapes": [
+    {
+      "label": "stop sign",
+      "score": 0.36008307337760925,
+      "points": [
+        [
+          375.0,
+          57.0
+        ],
+        [
+          900.0,
+          57.0
+        ],
+        [
+          900.0,
+          613.0
+        ],
+        [
+          375.0,
+          613.0
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
   "imagePath": "google.webp",
   "imageData": null,
   "imageHeight": 670,
-  "imageWidth": 1280
+  "imageWidth": 1280,
+  "description": ""
 }

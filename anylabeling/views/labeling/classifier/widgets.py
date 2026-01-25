@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
     QCheckBox,
     QLabel,
     QLineEdit,
@@ -90,7 +90,7 @@ class PageInputLineEdit(QLineEdit):
         self.classifier_dialog = None
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+        if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
             text = self.text().strip()
             if not text:
                 if self.classifier_dialog:

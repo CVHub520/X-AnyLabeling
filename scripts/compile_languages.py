@@ -8,6 +8,6 @@ for language in supported_languages:
     os.system(command)
 
 # Generate resources
-command = "pyrcc5 -o anylabeling/resources/resources.py \
+command = "pyrcc6 -o anylabeling/resources/resources.py \
     anylabeling/resources/resources.qrc"
 os.system(command)

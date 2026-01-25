@@ -5,8 +5,8 @@ from typing import List
 
 import PIL.Image
 import PIL.ImageOps
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtCore import Qt, QObject, pyqtSignal
 
 from ...labeling.logger import logger
 
@@ -106,10 +106,11 @@ class ExifProcessingDialog:
                 "Continue processing or ignore?"
             )
             % exif_count,
-            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
-            QtWidgets.QMessageBox.Ok,
+            QtWidgets.QMessageBox.StandardButton.Ok
+            | QtWidgets.QMessageBox.StandardButton.Cancel,
+            QtWidgets.QMessageBox.StandardButton.Ok,
         )
-        return reply == QtWidgets.QMessageBox.Ok
+        return reply == QtWidgets.QMessageBox.StandardButton.Ok
 
     @staticmethod
     def process_exif_files_with_progress(parent, exif_files: List[str]):
@@ -120,7 +121,7 @@ class ExifProcessingDialog:
             len(exif_files),
             parent,
         )
-        progress.setWindowModality(Qt.WindowModal)
+        progress.setWindowModality(Qt.WindowModality.WindowModal)
         progress.setAutoClose(True)
 
         template = parent.tr("Processing: %s")

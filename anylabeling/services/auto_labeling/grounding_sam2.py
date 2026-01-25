@@ -6,9 +6,9 @@ import numpy as np
 from typing import Dict
 from tokenizers import Tokenizer
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import QThread
-from PyQt5.QtCore import QCoreApplication
+from PyQt6 import QtCore
+from PyQt6.QtCore import QThread
+from PyQt6.QtCore import QCoreApplication
 
 from anylabeling.utils import GenericWorker
 from anylabeling.app_info import __preferred_device__

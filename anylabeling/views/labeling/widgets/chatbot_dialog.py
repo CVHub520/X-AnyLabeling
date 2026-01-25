@@ -10,8 +10,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from openai import OpenAI
 from PIL import Image
 
-from PyQt5.QtCore import QTimer, Qt, QSize, QPoint, QEvent
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import QTimer, Qt, QSize, QPoint, QEvent
+from PyQt6.QtWidgets import (
     QDialog,
     QHBoxLayout,
     QLabel,
@@ -32,7 +32,7 @@ from PyQt5.QtWidgets import (
     QProgressDialog,
     QFileDialog,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QCursor,
     QIcon,
     QPixmap,
@@ -57,10 +57,10 @@ class ChatbotDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
         self.setWindowFlags(
-            Qt.Window
-            | Qt.WindowMinimizeButtonHint
-            | Qt.WindowMaximizeButtonHint
-            | Qt.WindowCloseButtonHint
+            Qt.WindowType.Window
+            | Qt.WindowType.WindowMinimizeButtonHint
+            | Qt.WindowType.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowCloseButtonHint
         )
         self.resize(*DEFAULT_WINDOW_SIZE)
 
@@ -108,7 +108,9 @@ class ChatbotDialog(QDialog):
 
         pixmap = QPixmap(new_icon_path("click", "svg"))
         scaled_pixmap = pixmap.scaled(
-            *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            *ICON_SIZE_SMALL,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
         )
         self.click_cursor = QCursor(scaled_pixmap)
 
@@ -125,7 +127,7 @@ class ChatbotDialog(QDialog):
         main_layout.setSpacing(0)
 
         # Create main splitter for three columns
-        self.main_splitter = QSplitter(Qt.Horizontal)
+        self.main_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.main_splitter.setHandleWidth(1)
         self.main_splitter.setStyleSheet(
             ChatbotDialogStyle.get_main_splitter_style()
@@ -195,9 +197,9 @@ class ChatbotDialog(QDialog):
         # Scroll area for chat messages
         self.chat_scroll_area = QScrollArea()
         self.chat_scroll_area.setWidgetResizable(True)
-        self.chat_scroll_area.setFrameShape(QFrame.NoFrame)
+        self.chat_scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         self.chat_scroll_area.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarAlwaysOff
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
         self.chat_scroll_area.setStyleSheet(
             ChatbotDialogStyle.get_chat_scroll_area_style()
@@ -248,11 +250,15 @@ class ChatbotDialog(QDialog):
         self.message_input.setAcceptRichText(False)
         self.message_input.setMinimumHeight(MIN_MSG_INPUT_HEIGHT)
         self.message_input.setMaximumHeight(MAX_MSG_INPUT_HEIGHT)
-        self.message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.message_input.setFrameShape(QFrame.NoFrame)
-        self.message_input.setFrameShadow(QFrame.Plain)
-        self.message_input.setLineWrapMode(QTextEdit.WidgetWidth)
-        self.message_input.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.message_input.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.message_input.setFrameShape(QFrame.Shape.NoFrame)
+        self.message_input.setFrameShadow(QFrame.Shadow.Plain)
+        self.message_input.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
+        self.message_input.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
         self.message_input.customContextMenuRequested.connect(
             self.show_message_input_context_menu
         )
@@ -307,7 +313,9 @@ class ChatbotDialog(QDialog):
         self.clear_chat_btn.setObjectName("clear_chat_btn")
 
         # Add buttons to layout
-        button_bar_layout.addWidget(self.clear_chat_btn, 0, Qt.AlignBottom)
+        button_bar_layout.addWidget(
+            self.clear_chat_btn, 0, Qt.AlignmentFlag.AlignBottom
+        )
         button_bar_layout.addStretch(1)  # Push buttons to left and right edges
 
         # Create the send button (right side)
@@ -320,8 +328,12 @@ class ChatbotDialog(QDialog):
         self.send_btn.setEnabled(False)
 
         # Add send button to layout
-        button_bar_layout.addWidget(self.send_btn, 0, Qt.AlignBottom)
-        input_with_button_layout.addWidget(button_bar, 0, Qt.AlignBottom)
+        button_bar_layout.addWidget(
+            self.send_btn, 0, Qt.AlignmentFlag.AlignBottom
+        )
+        input_with_button_layout.addWidget(
+            button_bar, 0, Qt.AlignmentFlag.AlignBottom
+        )
         input_frame_layout.addWidget(input_with_button)
         input_layout.addWidget(input_frame)
 
@@ -348,7 +360,7 @@ class ChatbotDialog(QDialog):
             ChatbotDialogStyle.get_image_preview_style()
         )
         self.image_preview.setMinimumHeight(200)
-        self.image_preview.setAlignment(Qt.AlignCenter)
+        self.image_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_preview.setScaledContents(False)
         image_layout.addWidget(self.image_preview)
 
@@ -448,7 +460,7 @@ class ChatbotDialog(QDialog):
         )
         self.settings_tabs.setUsesScrollButtons(False)
         self.settings_tabs.setDocumentMode(True)
-        self.settings_tabs.setElideMode(Qt.ElideNone)
+        self.settings_tabs.setElideMode(Qt.TextElideMode.ElideNone)
 
         # First tab - API Settings
         api_settings_tab = QWidget()
@@ -641,7 +653,7 @@ class ChatbotDialog(QDialog):
         self.temp_value.setStyleSheet(
             ChatbotDialogStyle.get_settings_label_style()
         )
-        self.temp_value.setAlignment(Qt.AlignRight)
+        self.temp_value.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         temp_header.addWidget(temp_label)
         temp_header.addWidget(temp_info_btn)
@@ -650,7 +662,7 @@ class ChatbotDialog(QDialog):
         model_params_layout.addLayout(temp_header)
 
         # Temperature slider
-        self.temp_slider = QSlider(Qt.Horizontal)
+        self.temp_slider = QSlider(Qt.Orientation.Horizontal)
         self.temp_slider.setMinimum(0)
         self.temp_slider.setMaximum(20)  # 0.0 to 2.0 with step of 0.1
         self.temp_slider.setValue(_model_settings["temperature"])
@@ -667,19 +679,19 @@ class ChatbotDialog(QDialog):
         precise_label.setStyleSheet(
             ChatbotDialogStyle.get_temperature_label_style()
         )
-        precise_label.setAlignment(Qt.AlignLeft)
+        precise_label.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         neutral_label = QLabel(self.tr("Neutral"))
         neutral_label.setStyleSheet(
             ChatbotDialogStyle.get_temperature_label_style()
         )
-        neutral_label.setAlignment(Qt.AlignCenter)
+        neutral_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         creative_label = QLabel(self.tr("Creative"))
         creative_label.setStyleSheet(
             ChatbotDialogStyle.get_temperature_label_style()
         )
-        creative_label.setAlignment(Qt.AlignRight)
+        creative_label.setAlignment(Qt.AlignmentFlag.AlignRight)
 
         temp_labels_layout.addWidget(precise_label)
         temp_labels_layout.addWidget(neutral_label)
@@ -726,7 +738,7 @@ class ChatbotDialog(QDialog):
         settings_layout.addWidget(self.settings_tabs)
 
         # Create a splitter for the right panel to separate image and settings
-        right_splitter = QSplitter(Qt.Vertical)
+        right_splitter = QSplitter(Qt.Orientation.Vertical)
         right_splitter.setHandleWidth(1)
         right_splitter.setStyleSheet(
             ChatbotDialogStyle.get_right_splitter_style()
@@ -924,7 +936,9 @@ class ChatbotDialog(QDialog):
             # Use maximum height and enable scrollbar
             self.message_input.setMinimumHeight(int(max_height))
             self.message_input.setMaximumHeight(int(max_height))
-            self.message_input.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+            self.message_input.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOn
+            )
 
             # Ensure cursor is visible by scrolling to it
             cursor = self.message_input.textCursor()
@@ -935,7 +949,7 @@ class ChatbotDialog(QDialog):
             self.message_input.setMinimumHeight(int(actual_height))
             self.message_input.setMaximumHeight(int(actual_height))
             self.message_input.setVerticalScrollBarPolicy(
-                Qt.ScrollBarAlwaysOff
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             )
 
         # Force update to ensure changes take effect immediately
@@ -964,12 +978,12 @@ class ChatbotDialog(QDialog):
                     scaled_pixmap = pixmap.scaled(
                         preview_size.width(),
                         preview_size.height(),
-                        Qt.KeepAspectRatio,
-                        Qt.SmoothTransformation,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
                     )
 
                     self.image_preview.setPixmap(scaled_pixmap)
-                    self.image_preview.setAlignment(Qt.AlignCenter)
+                    self.image_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 else:
                     # If the preview size isn't valid yet, schedule another update
                     QTimer.singleShot(
@@ -1175,7 +1189,9 @@ class ChatbotDialog(QDialog):
         role_label = QLabel()
         icon_pixmap = QPixmap(new_icon_path(self.default_provider.lower()))
         scaled_icon = icon_pixmap.scaled(
-            *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            *ICON_SIZE_SMALL,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
         )
         role_label.setPixmap(scaled_icon)
         role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
@@ -1203,7 +1219,7 @@ class ChatbotDialog(QDialog):
         # Set maximum width for the bubble
         bubble.setMaximumWidth(2000)
         loading_layout.addWidget(bubble)
-        loading_layout.setAlignment(Qt.AlignLeft)
+        loading_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
         # Store bubble reference for later updates
         self.loading_message.bubble = bubble
@@ -1226,7 +1242,9 @@ class ChatbotDialog(QDialog):
             if not hasattr(self.loading_message, "content_label"):
                 self.loading_message.content_label = QLabel("")
                 self.loading_message.content_label.setWordWrap(True)
-                self.loading_message.content_label.setTextFormat(Qt.PlainText)
+                self.loading_message.content_label.setTextFormat(
+                    Qt.TextFormat.PlainText
+                )
                 self.loading_message.content_label.setStyleSheet(
                     ChatMessageStyle.get_fade_in_text_style()
                 )
@@ -1368,7 +1386,7 @@ class ChatbotDialog(QDialog):
             return
 
         batch_dialog = BatchProcessDialog(self)
-        result = batch_dialog.exec_()
+        result = batch_dialog.exec()
         if result:
             prompt, concurrency = result
             self.current_index = self.parent().fn_to_index[
@@ -1405,7 +1423,7 @@ class ChatbotDialog(QDialog):
             self.total_images,
             self,
         )
-        self.progress_dialog.setWindowModality(Qt.WindowModal)
+        self.progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
         self.progress_dialog.setWindowTitle(self.tr("Progress"))
         self.progress_dialog.setStyleSheet(
             ChatbotDialogStyle.get_progress_dialog_style()
@@ -1413,7 +1431,7 @@ class ChatbotDialog(QDialog):
         self.progress_dialog.setFixedSize(400, 150)
         self.progress_dialog.setWindowFlags(
             self.progress_dialog.windowFlags()
-            & ~Qt.WindowContextHelpButtonHint
+            & ~Qt.WindowType.WindowContextHelpButtonHint
         )
         self.progress_dialog.setMinimumDuration(0)
 
@@ -1656,13 +1674,13 @@ class ChatbotDialog(QDialog):
         layout = QVBoxLayout()
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(20)
-        layout.setAlignment(Qt.AlignCenter)
+        layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         import_btn = QPushButton(self.tr("Import Dataset"))
-        import_btn.setCursor(Qt.PointingHandCursor)
+        import_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
         export_btn = QPushButton(self.tr("Export Dataset"))
-        export_btn.setCursor(Qt.PointingHandCursor)
+        export_btn.setCursor(Qt.CursorShape.PointingHandCursor)
 
         layout.addWidget(import_btn)
         layout.addWidget(export_btn)
@@ -1684,7 +1702,7 @@ class ChatbotDialog(QDialog):
                 self,
                 self.tr("Select Export Directory"),
                 current_dir,
-                QFileDialog.ShowDirsOnly,
+                QFileDialog.Option.ShowDirsOnly,
             )
 
             if not export_dir:
@@ -1970,7 +1988,7 @@ class ChatbotDialog(QDialog):
         import_btn.clicked.connect(import_dataset)
         export_btn.clicked.connect(export_dataset)
 
-        option_dialog.exec_()
+        option_dialog.exec()
 
     def eventFilter(self, obj, event):
         """Event filter for handling events"""
@@ -2011,14 +2029,14 @@ class ChatbotDialog(QDialog):
 
         if obj == self.message_input and event.type() == event.KeyPress:
             if (
-                event.key() == Qt.Key_Return
-                and event.modifiers() & Qt.ControlModifier
+                event.key() == Qt.Key.Key_Return
+                and event.modifiers() & Qt.KeyboardModifier.ControlModifier
             ):
                 self.start_generation()
                 return True
             elif (
-                event.key() == Qt.Key_Return
-                and not event.modifiers() & Qt.ControlModifier
+                event.key() == Qt.Key.Key_Return
+                and not event.modifiers() & Qt.KeyboardModifier.ControlModifier
             ):
                 # Enter without Ctrl adds a new line
                 return False
@@ -2032,7 +2050,10 @@ class ChatbotDialog(QDialog):
                 obj in [self.api_address, self.model_button, self.api_key]
                 and event.type() == event.KeyPress
             ):
-                if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+                if (
+                    event.key() == Qt.Key.Key_Return
+                    or event.key() == Qt.Key.Key_Enter
+                ):
                     return True
         return super().eventFilter(obj, event)
 
@@ -2179,7 +2200,7 @@ class ChatbotDialog(QDialog):
 
         # Update cursor for input
         if enabled:
-            self.message_input.setCursor(Qt.IBeamCursor)
+            self.message_input.setCursor(Qt.CursorShape.IBeamCursor)
         else:
             self.message_input.setCursor(Qt.ForbiddenCursor)
 
@@ -2424,13 +2445,15 @@ class ChatbotDialog(QDialog):
         confirm_dialog.setText(
             self.tr("Are you sure you want to clear the entire conversation?")
         )
-        confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        confirm_dialog.setDefaultButton(QMessageBox.No)
-        confirm_dialog.setIcon(QMessageBox.Warning)
+        confirm_dialog.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        confirm_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+        confirm_dialog.setIcon(QMessageBox.Icon.Warning)
 
         # Show dialog and handle response
-        response = confirm_dialog.exec_()
-        if response == QMessageBox.Yes:
+        response = confirm_dialog.exec()
+        if response == QMessageBox.StandardButton.Yes:
             while self.chat_messages_layout.count() > 0:
                 item = self.chat_messages_layout.takeAt(0)
                 if item and item.widget():
@@ -2500,4 +2523,4 @@ class ChatbotDialog(QDialog):
         """Show a custom styled context menu for the message input."""
         menu = self.message_input.createStandardContextMenu()
         menu.setStyleSheet(ChatbotDialogStyle.get_menu_style())
-        menu.exec_(self.message_input.mapToGlobal(position))
+        menu.exec(self.message_input.mapToGlobal(position))

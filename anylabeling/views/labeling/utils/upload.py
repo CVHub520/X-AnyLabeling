@@ -5,9 +5,9 @@ import os.path as osp
 import time
 import yaml
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtWidgets import (
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
     QProgressDialog,
@@ -145,7 +145,7 @@ def upload_vlm_r1_ovd_annotation(self):
         output_dir_path = self.output_dir
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -154,18 +154,19 @@ def upload_vlm_r1_ovd_annotation(self):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     image_list = self.image_list if self.image_list else [self.filename]
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, len(image_list), self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -257,7 +258,7 @@ def upload_ppocr_annotation(self, mode):
             return
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -266,17 +267,18 @@ def upload_ppocr_annotation(self, mode):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, 0, self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -340,7 +342,7 @@ def upload_odvg_annotation(self):
         return
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -349,17 +351,18 @@ def upload_odvg_annotation(self):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, 0, self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -456,9 +459,9 @@ def upload_mmgd_annotation(self, LABEL_OPACITY):
             self,
             self.tr("Select Upload Folder"),
             None,
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks
-            | QtWidgets.QFileDialog.DontUseNativeDialog,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly
+            | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+            | QtWidgets.QFileDialog.Option.DontUseNativeDialog,
         )
         if path:
             path_edit.setText(path)
@@ -538,7 +541,7 @@ def upload_mmgd_annotation(self, LABEL_OPACITY):
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-    result = dialog.exec_()
+    result = dialog.exec()
 
     if not result:
         return
@@ -567,7 +570,7 @@ def upload_mmgd_annotation(self, LABEL_OPACITY):
     converter = LabelConverter(classes_file=classes_file)
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -576,11 +579,12 @@ def upload_mmgd_annotation(self, LABEL_OPACITY):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     progress_dialog = QProgressDialog(
@@ -590,7 +594,7 @@ def upload_mmgd_annotation(self, LABEL_OPACITY):
         len(image_file_list),
         self,
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -690,7 +694,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
         return
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -699,11 +703,12 @@ def upload_mot_annotation(self, LABEL_OPACITY):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     # Initialize unique labels
@@ -721,7 +726,7 @@ def upload_mot_annotation(self, LABEL_OPACITY):
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, 0, self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -808,9 +813,9 @@ def upload_mask_annotation(self, LABEL_OPACITY):
             self,
             self.tr("Select Upload Folder"),
             path_edit.text(),
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks
-            | QtWidgets.QFileDialog.DontUseNativeDialog,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly
+            | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+            | QtWidgets.QFileDialog.Option.DontUseNativeDialog,
         )
         if path:
             path_edit.setText(path)
@@ -842,13 +847,13 @@ def upload_mask_annotation(self, LABEL_OPACITY):
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-    result = dialog.exec_()
+    result = dialog.exec()
 
     if not result:
         return
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -857,11 +862,12 @@ def upload_mask_annotation(self, LABEL_OPACITY):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     # Initialize unique labels
@@ -888,7 +894,7 @@ def upload_mask_annotation(self, LABEL_OPACITY):
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, len(image_list), self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -979,9 +985,9 @@ def upload_dota_annotation(self):
             self,
             self.tr("Select Upload Folder"),
             path_edit.text(),
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks
-            | QtWidgets.QFileDialog.DontUseNativeDialog,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly
+            | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+            | QtWidgets.QFileDialog.Option.DontUseNativeDialog,
         )
         if path:
             path_edit.setText(path)
@@ -1014,7 +1020,7 @@ def upload_dota_annotation(self):
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-    result = dialog.exec_()
+    result = dialog.exec()
 
     if not result:
         return
@@ -1026,7 +1032,7 @@ def upload_dota_annotation(self):
     converter = LabelConverter()
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -1035,18 +1041,19 @@ def upload_dota_annotation(self):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     image_list = self.image_list if self.image_list else [self.filename]
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, len(image_list), self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -1127,7 +1134,7 @@ def upload_coco_annotation(self, mode):
         output_dir_path = self.output_dir
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -1136,17 +1143,18 @@ def upload_coco_annotation(self, mode):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, 0, self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -1217,9 +1225,9 @@ def upload_voc_annotation(self, mode):
             self,
             self.tr("Select Upload Folder"),
             path_edit.text(),
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks
-            | QtWidgets.QFileDialog.DontUseNativeDialog,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly
+            | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+            | QtWidgets.QFileDialog.Option.DontUseNativeDialog,
         )
         if path:
             path_edit.setText(path)
@@ -1251,7 +1259,7 @@ def upload_voc_annotation(self, mode):
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-    result = dialog.exec_()
+    result = dialog.exec()
 
     if not result:
         return
@@ -1263,7 +1271,7 @@ def upload_voc_annotation(self, mode):
     converter = LabelConverter()
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be lost"))
     response.setInformativeText(
@@ -1272,18 +1280,19 @@ def upload_voc_annotation(self, mode):
         )
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     image_list = self.image_list if self.image_list else [self.filename]
     progress_dialog = QProgressDialog(
         self.tr("Uploading..."), self.tr("Cancel"), 0, len(image_list), self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -1405,9 +1414,9 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
             self,
             self.tr("Select Upload Folder"),
             path_edit.text(),
-            QtWidgets.QFileDialog.ShowDirsOnly
-            | QtWidgets.QFileDialog.DontResolveSymlinks
-            | QtWidgets.QFileDialog.DontUseNativeDialog,
+            QtWidgets.QFileDialog.Option.ShowDirsOnly
+            | QtWidgets.QFileDialog.Option.DontResolveSymlinks
+            | QtWidgets.QFileDialog.Option.DontUseNativeDialog,
         )
         if path:
             path_edit.setText(path)
@@ -1445,7 +1454,7 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-    result = dialog.exec_()
+    result = dialog.exec()
 
     if not result:
         return
@@ -1458,7 +1467,7 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
     output_dir_path = self.output_dir if self.output_dir else image_dir_path
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     if preserve_existing:
         response.setText(
@@ -1477,11 +1486,12 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
             )
         )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     progress_dialog = QProgressDialog(
@@ -1491,7 +1501,7 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
         len(image_file_list),
         self,
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(500)
     progress_dialog.setMinimumHeight(150)
@@ -1608,7 +1618,7 @@ def upload_label_classes_file(self):
             return
 
         response = QtWidgets.QMessageBox()
-        response.setIcon(QtWidgets.QMessageBox.Warning)
+        response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
         response.setWindowTitle(self.tr("Warning"))
         response.setText(self.tr("Current labels will be lost"))
         response.setInformativeText(
@@ -1617,11 +1627,12 @@ def upload_label_classes_file(self):
             )
         )
         response.setStandardButtons(
-            QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+            QtWidgets.QMessageBox.StandardButton.Cancel
+            | QtWidgets.QMessageBox.StandardButton.Ok
         )
         response.setStyleSheet(get_msg_box_style())
 
-        if response.exec_() != QtWidgets.QMessageBox.Ok:
+        if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
             return
 
         # Update unique_label_list

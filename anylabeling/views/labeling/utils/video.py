@@ -6,8 +6,8 @@ import tempfile
 import time
 import subprocess
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
     QFileDialog,
     QMessageBox,
     QProgressDialog,
@@ -84,7 +84,7 @@ class FrameExtractionDialog(QDialog):
         self.prefix_edit.setText("frame_")
         prefix_layout.addWidget(prefix_label)
         prefix_layout.addWidget(self.prefix_edit)
-        prefix_layout.setAlignment(Qt.AlignVCenter)
+        prefix_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
         # Sequence length input
         seq_layout = QHBoxLayout()
@@ -215,7 +215,7 @@ def extract_frames_from_video(self, input_file, out_dir):
         )
 
         dialog = FrameExtractionDialog(self, total_frames, fps)
-        if not dialog.exec_():
+        if not dialog.exec():
             logger.info(
                 "Frame extraction cancelled by user in settings dialog."
             )
@@ -244,7 +244,7 @@ def extract_frames_from_video(self, input_file, out_dir):
                     0,
                     self,  # Range (0,0) makes it indeterminate
                 )
-                progress_dialog.setWindowModality(Qt.WindowModal)
+                progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
                 progress_dialog.setWindowTitle(self.tr("Progress"))
                 progress_dialog.setMinimumWidth(400)
                 progress_dialog.setMinimumHeight(150)
@@ -418,7 +418,7 @@ def extract_frames_from_video(self, input_file, out_dir):
                     estimated_frames,
                     self,
                 )
-                progress_dialog.setWindowModality(Qt.WindowModal)
+                progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
                 progress_dialog.setWindowTitle(self.tr("Progress"))
                 progress_dialog.setMinimumWidth(400)
                 progress_dialog.setMinimumHeight(150)
@@ -556,7 +556,7 @@ def open_video_file(self):
 
     if osp.exists(out_dir):
         response = QMessageBox()
-        response.setIcon(QMessageBox.Warning)
+        response.setIcon(QMessageBox.Icon.Warning)
         response.setWindowTitle(self.tr("Warning"))
         response.setText(self.tr("Directory Already Exists"))
 
@@ -566,11 +566,13 @@ def open_video_file(self):
         translated_template = self.tr(template)
         final_text = translated_template.format(osp.basename(out_dir))
         response.setInformativeText(final_text)
-        response.setStandardButtons(QMessageBox.Cancel | QMessageBox.Ok)
-        response.setDefaultButton(QMessageBox.Ok)
+        response.setStandardButtons(
+            QMessageBox.StandardButton.Cancel | QMessageBox.StandardButton.Ok
+        )
+        response.setDefaultButton(QMessageBox.StandardButton.Ok)
         response.setStyleSheet(get_msg_box_style())
 
-        if response.exec_() != QMessageBox.Ok:
+        if response.exec() != QMessageBox.StandardButton.Ok:
             logger.info(
                 f"User chose not to overwrite existing directory: {out_dir}"
             )

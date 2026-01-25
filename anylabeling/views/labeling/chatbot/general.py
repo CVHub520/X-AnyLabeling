@@ -1,10 +1,10 @@
 import os
 
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     Qt,
     pyqtSignal,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDialog,
     QHBoxLayout,
     QLabel,
@@ -102,7 +102,7 @@ class BatchProcessDialog(QDialog):
         self.batch_message_input.setMinimumHeight(160)
         self.batch_message_input.setMaximumHeight(200)
         self.batch_message_input.setVerticalScrollBarPolicy(
-            Qt.ScrollBarAsNeeded
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
         )
         dialog_layout.addWidget(self.batch_message_input)
 
@@ -191,7 +191,7 @@ class BatchProcessDialog(QDialog):
         """
         )
         cancel_btn.setMinimumHeight(36)
-        cancel_btn.setCursor(Qt.PointingHandCursor)
+        cancel_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         cancel_btn.clicked.connect(self.reject)
 
         # Confirm button
@@ -217,15 +217,17 @@ class BatchProcessDialog(QDialog):
         """
         )
         confirm_btn.setMinimumHeight(36)
-        confirm_btn.setCursor(Qt.PointingHandCursor)
+        confirm_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         confirm_btn.clicked.connect(self.accept)
 
         button_layout.addWidget(cancel_btn)
         button_layout.addWidget(confirm_btn)
         dialog_layout.addLayout(button_layout)
 
-        self.setAttribute(Qt.WA_TranslucentBackground, False)
-        self.setWindowFlags(self.windowFlags() & ~Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, False)
+        self.setWindowFlags(
+            self.windowFlags() & ~Qt.WindowType.FramelessWindowHint
+        )
 
     def center_on_parent(self):
         """Center the dialog on the parent window"""
@@ -249,9 +251,9 @@ class BatchProcessDialog(QDialog):
         """Override exec_ method to adjust position before showing the dialog"""
         self.adjustSize()
         self.center_on_parent()
-        result = super().exec_()
+        result = super().exec()
 
-        if result == QDialog.Accepted:
+        if result == QDialog.DialogCode.Accepted:
             prompt = self.get_prompt()
             concurrency = self.get_concurrency()
             if prompt:

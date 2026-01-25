@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtProperty
-from PyQt5.QtGui import QPainter, QColor, QBrush
+from PyQt6.QtWidgets import QWidget
+from PyQt6.QtCore import Qt, QPropertyAnimation, QEasingCurve, pyqtProperty
+from PyQt6.QtGui import QPainter, QColor, QBrush
 
 
 class PulsatingDot(QWidget):
@@ -119,14 +119,14 @@ class PulsatingDot(QWidget):
     def paintEvent(self, event):
         """Paint the pulsating dot"""
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
         # Calculate center position
         width, height = self.width(), self.height()
         center_x, center_y = width // 2, height // 2
 
         # Draw dot
-        painter.setPen(Qt.NoPen)
+        painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QBrush(self._current_color))
         painter.drawEllipse(
             int(center_x - self._current_size // 2),

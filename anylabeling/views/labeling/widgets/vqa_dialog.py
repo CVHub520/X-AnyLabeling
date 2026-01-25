@@ -1,8 +1,8 @@
 import os
 import json
 
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import (
     QButtonGroup,
     QCheckBox,
     QComboBox,
@@ -15,17 +15,17 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QRadioButton,
     QScrollArea,
-    QShortcut,
     QSplitter,
     QTextEdit,
     QVBoxLayout,
     QWidget,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QIcon,
     QIntValidator,
     QKeySequence,
     QPixmap,
+    QShortcut,
 )
 
 from anylabeling.views.labeling.vqa import *
@@ -47,10 +47,10 @@ class VQADialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
         self.setWindowFlags(
-            Qt.Window
-            | Qt.WindowMinimizeButtonHint
-            | Qt.WindowMaximizeButtonHint
-            | Qt.WindowCloseButtonHint
+            Qt.WindowType.Window
+            | Qt.WindowType.WindowMinimizeButtonHint
+            | Qt.WindowType.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowCloseButtonHint
         )
         self.setModal(False)
         self.resize(*DEFAULT_WINDOW_SIZE)
@@ -77,7 +77,7 @@ class VQADialog(QDialog):
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(20)
 
-        self.main_splitter = QSplitter(Qt.Horizontal)
+        self.main_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.main_splitter.setHandleWidth(3)
         self.main_splitter.setStyleSheet(get_main_splitter_style())
 
@@ -95,7 +95,7 @@ class VQADialog(QDialog):
         header_layout.setSpacing(10)
 
         self.filename_label = QLabel(self.tr("No image loaded"))
-        self.filename_label.setAlignment(Qt.AlignCenter)
+        self.filename_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.filename_label.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
         self.filename_label.setStyleSheet(get_filename_label_style())
 
@@ -125,7 +125,7 @@ class VQADialog(QDialog):
         container_layout.setContentsMargins(8, 8, 8, 8)
 
         self.image_label = QLabel()
-        self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setStyleSheet(get_image_label_style())
         container_layout.addWidget(self.image_label, 1)
 
@@ -200,7 +200,7 @@ class VQADialog(QDialog):
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameStyle(QFrame.NoFrame)
+        self.scroll_area.setFrameStyle(QFrame.Shape.NoFrame)
 
         self.scroll_widget = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_widget)
@@ -232,7 +232,7 @@ class VQADialog(QDialog):
         self.page_input = PageInputLineEdit()
         self.page_input.vqa_dialog = self
         self.page_input.setFixedSize(68, DEFAULT_COMPONENT_HEIGHT)
-        self.page_input.setAlignment(Qt.AlignCenter)
+        self.page_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.page_input.setStyleSheet(get_page_input_style())
         self.page_input.textChanged.connect(self.validate_page_input)
         self.page_input.editingFinished.connect(self.on_page_input_finished)
@@ -440,8 +440,8 @@ class VQADialog(QDialog):
                     scaled_pixmap = pixmap.scaled(
                         available_width,
                         available_height,
-                        Qt.KeepAspectRatio,
-                        Qt.SmoothTransformation,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
                     )
                     self.image_label.setPixmap(scaled_pixmap)
         else:
@@ -563,7 +563,7 @@ class VQADialog(QDialog):
         Open dialog to add a new custom component.
         """
         dialog = ComponentDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             component_data = dialog.get_component_data()
             self.create_component(component_data)
 
@@ -600,7 +600,7 @@ class VQADialog(QDialog):
         }
 
         dialog = ComponentDialog(self, edit_data)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             new_data = dialog.get_component_data()
             self.update_component(index, new_data)
 
@@ -690,10 +690,10 @@ class VQADialog(QDialog):
                 self,
                 self.tr("Confirm Option Delete"),
                 msg_text,
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
-            if reply != QMessageBox.Yes:
+            if reply != QMessageBox.StandardButton.Yes:
                 return False
 
             self.reset_deleted_options_to_default(
@@ -907,7 +907,7 @@ class VQADialog(QDialog):
             return
 
         dialog = DeleteComponentDialog(self.custom_components, self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             selected_indices = dialog.get_selected_indices()
 
             if not selected_indices:
@@ -936,11 +936,11 @@ class VQADialog(QDialog):
                 self,
                 self.tr("Confirm Delete"),
                 msg_text,
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
             )
 
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 for index in selected_indices:
                     component_title = self.custom_components[index]["title"]
                     self.remove_component(index)
@@ -979,7 +979,7 @@ class VQADialog(QDialog):
         current_text = widget.toPlainText().strip()
 
         dialog = AIPromptDialog(self, current_text)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             prompt = dialog.get_prompt()
             if prompt:
                 self.loading_msg = AILoadingDialog(self)
@@ -1009,7 +1009,7 @@ class VQADialog(QDialog):
                     self.cancel_ai_processing
                 )
                 self.ai_worker.start()
-                if self.loading_msg.exec_() == QDialog.Rejected:
+                if self.loading_msg.exec() == QDialog.DialogCode.Rejected:
                     self.cancel_ai_processing()
 
     def cancel_ai_processing(self):
@@ -1038,7 +1038,7 @@ class VQADialog(QDialog):
             dialog.setWindowTitle(self.tr("AI Generated Result"))
             dialog.setModal(True)
             dialog.setWindowFlags(
-                dialog.windowFlags() | Qt.WindowStaysOnTopHint
+                dialog.windowFlags() | Qt.WindowType.WindowStaysOnTopHint
             )
             dialog.resize(500, 400)
 
@@ -1070,9 +1070,9 @@ class VQADialog(QDialog):
             cancel_button.clicked.connect(dialog.reject)
             apply_button.setDefault(True)
 
-            reply = dialog.exec_()
+            reply = dialog.exec()
 
-            if reply == QDialog.Accepted:
+            if reply == QDialog.DialogCode.Accepted:
                 widget.blockSignals(True)
                 widget.setPlainText(result)
                 widget.blockSignals(False)
@@ -1441,7 +1441,7 @@ class VQADialog(QDialog):
             return
 
         export_dialog = ExportLabelsDialog(self.custom_components, self)
-        if export_dialog.exec_() != QDialog.Accepted:
+        if export_dialog.exec() != QDialog.DialogCode.Accepted:
             return
 
         export_config = export_dialog.get_export_config()
@@ -1533,11 +1533,11 @@ class VQADialog(QDialog):
             self,
             self.tr("Confirm Clear"),
             self.tr("Are you sure you want to clear all current annotations?"),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply != QMessageBox.Yes:
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         for component_data in self.custom_components:

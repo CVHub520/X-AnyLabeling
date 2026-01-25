@@ -7,7 +7,7 @@ import threading
 from io import StringIO
 from typing import Dict, Tuple
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt6.QtCore import QObject, pyqtSignal
 
 from .config import SETTINGS_CONFIG_PATH
 

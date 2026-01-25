@@ -1,5 +1,5 @@
 {
-  "version": "2.4.0",
+  "version": "3.3.6",
   "flags": {
     "plum": true,
     "pear": true,
@@ -15,9 +15,40 @@
     "watermelon": true,
     "melon": true
   },
-  "shapes": [],
+  "shapes": [
+    {
+      "label": "refrigerator",
+      "score": 0.35280343890190125,
+      "points": [
+        [
+          4.0,
+          1.0
+        ],
+        [
+          1491.0,
+          1.0
+        ],
+        [
+          1491.0,
+          998.0
+        ],
+        [
+          4.0,
+          998.0
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
   "imagePath": "fruit.png",
   "imageData": null,
   "imageHeight": 1000,
-  "imageWidth": 1500
+  "imageWidth": 1500,
+  "description": ""
 }

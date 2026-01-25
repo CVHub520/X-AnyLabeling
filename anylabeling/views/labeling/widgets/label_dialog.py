@@ -2,10 +2,10 @@ import os
 import re
 import json
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QFont, QColor, QIntValidator
-from PyQt5.QtCore import QCoreApplication, Qt
-from PyQt5.QtWidgets import (
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtGui import QFont, QColor, QIntValidator
+from PyQt6.QtCore import QCoreApplication, Qt
+from PyQt6.QtWidgets import (
     QColorDialog,
     QTableWidgetItem,
     QTableWidget,
@@ -50,17 +50,21 @@ class ColoredComboBox(QtWidgets.QComboBox):
         if text in self.mode_colors:
             index = self.count() - 1
             self.setItemData(
-                index, self.mode_colors[text], QtCore.Qt.ForegroundRole
+                index,
+                self.mode_colors[text],
+                Qt.ItemDataRole.ForegroundRole,
             )
 
     def paintEvent(self, event):
         painter = QtWidgets.QStylePainter(self)
-        painter.setPen(self.palette().color(QtGui.QPalette.Text))
+        painter.setPen(self.palette().color(QtGui.QPalette.ColorRole.Text))
 
         # Draw the combobox frame, button, etc.
         opt = QtWidgets.QStyleOptionComboBox()
         self.initStyleOption(opt)
-        painter.drawComplexControl(QtWidgets.QStyle.CC_ComboBox, opt)
+        painter.drawComplexControl(
+            QtWidgets.QStyle.ComplexControl.CC_ComboBox, opt
+        )
 
         # Draw the current text with proper color
         current_text = self.currentText()
@@ -70,11 +74,13 @@ class ColoredComboBox(QtWidgets.QComboBox):
         # Draw the text
         opt.currentText = current_text
         rect = self.style().subElementRect(
-            QtWidgets.QStyle.SE_ComboBoxFocusRect, opt, self
+            QtWidgets.QStyle.SubElement.SE_ComboBoxFocusRect, opt, self
         )
         rect.adjust(2, 0, -2, 0)  # adjust the text rectangle
         painter.drawText(
-            rect, QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter, current_text
+            rect,
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter,
+            current_text,
         )
 
 
@@ -112,7 +118,7 @@ class DigitShortcutDialog(QtWidgets.QDialog):
         self.setModal(True)
         self.setMinimumSize(500, 435)
         self.setWindowFlags(
-            self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint
+            self.windowFlags() & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint
         )
 
         self.setStyleSheet(
@@ -184,7 +190,9 @@ class DigitShortcutDialog(QtWidgets.QDialog):
         self.table.setHorizontalHeaderLabels(
             [self.tr("Digit"), self.tr("Drawing Mode"), self.tr("Label")]
         )
-        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.table.setSelectionBehavior(
+            QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows
+        )
         self.table.horizontalHeader().setSectionResizeMode(
             0, QtWidgets.QHeaderView.ResizeToContents
         )
@@ -195,13 +203,15 @@ class DigitShortcutDialog(QtWidgets.QDialog):
             2, QtWidgets.QHeaderView.Stretch
         )
         self.table.verticalHeader().setVisible(False)
-        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.table.setEditTriggers(
+            QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers
+        )
 
         # Populate table
         for digit in range(10):
             # Digit column
             digit_item = QtWidgets.QTableWidgetItem(str(digit))
-            digit_item.setTextAlignment(QtCore.Qt.AlignCenter)
+            digit_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             self.table.setItem(digit, 0, digit_item)
 
             # Mode combobox column
@@ -353,12 +363,13 @@ class DigitShortcutDialog(QtWidgets.QDialog):
             self.tr(
                 "Are you sure you want to reset all shortcuts? This cannot be undone."
             ),
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.StandardButton.Yes
+            | QtWidgets.QMessageBox.StandardButton.No,
+            QtWidgets.QMessageBox.StandardButton.No,
         )
 
         # Only proceed if user confirmed
-        if confirm == QtWidgets.QMessageBox.Yes:
+        if confirm == QtWidgets.QMessageBox.StandardButton.Yes:
             for digit in range(10):
                 mode_combo = self.table.cellWidget(digit, 1)
                 mode_combo.setCurrentIndex(0)  # "None" option
@@ -402,7 +413,7 @@ class DigitShortcutDialog(QtWidgets.QDialog):
                 self.tr(
                     "Please provide a label for each enabled drawing mode."
                 ),
-                QtWidgets.QMessageBox.Ok,
+                QtWidgets.QMessageBox.StandardButton.Ok,
             )
             return
 
@@ -498,8 +509,8 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.setWindowTitle(self.tr("Group ID Change Manager"))
         self.setWindowFlags(
             self.windowFlags()
-            | Qt.WindowMinimizeButtonHint
-            | Qt.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowMinimizeButtonHint
+            | Qt.WindowType.WindowMaximizeButtonHint
         )
 
         self.resize(960, 480)
@@ -592,7 +603,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         self.table_widget.verticalHeader().setStyleSheet(
             "color: #666666; font-size: 13px;"
         )
-        self.table_widget.verticalHeader().setDefaultAlignment(Qt.AlignCenter)
+        self.table_widget.verticalHeader().setDefaultAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
         self.table_widget.verticalHeader().setFixedWidth(50)
 
         layout.addWidget(self.table_widget)
@@ -634,7 +647,10 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
     def move_to_center(self):
         """Move the dialog to the center of the screen."""
         qr = self.frameGeometry()
-        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
+        screen = self.screen()
+        if screen is None:
+            screen = QtGui.QGuiApplication.primaryScreen()
+        cp = screen.availableGeometry().center()
         qr.moveCenter(cp)
 
         self.move(qr.topLeft())
@@ -646,23 +662,23 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
 
             # Ori Group-ID
             old_gid_item = QTableWidgetItem(str(group_id))
-            old_gid_item.setTextAlignment(Qt.AlignCenter)
+            old_gid_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             old_gid_item.setFlags(
-                old_gid_item.flags() ^ QtCore.Qt.ItemIsEditable
+                old_gid_item.flags() & ~Qt.ItemFlag.ItemIsEditable
             )
 
             # New Group-ID
             line_edit = QtWidgets.QLineEdit(self.table_widget)
             line_edit.setValidator(QIntValidator(0, 9999, self))
             line_edit.setPlaceholderText("Enter new ID")
-            line_edit.setAlignment(Qt.AlignCenter)
+            line_edit.setAlignment(Qt.AlignmentFlag.AlignCenter)
             line_edit.setFixedHeight(28)
 
             # Create a widget to hold the line edit and center it vertically
             container = QtWidgets.QWidget()
             layout = QtWidgets.QHBoxLayout(container)
             layout.setContentsMargins(4, 4, 4, 4)
-            layout.setAlignment(Qt.AlignCenter)
+            layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(line_edit)
 
             # Delete Group by ID
@@ -676,7 +692,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             delete_container = QtWidgets.QWidget()
             delete_layout = QtWidgets.QHBoxLayout(delete_container)
             delete_layout.setContentsMargins(4, 4, 4, 4)
-            delete_layout.setAlignment(Qt.AlignCenter)
+            delete_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             delete_layout.addWidget(delete_gid_checkbox)
 
             self.table_widget.setItem(i, 0, old_gid_item)
@@ -694,7 +710,7 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         delete_container = self.table_widget.cellWidget(row, 2)
         delete_checkbox = delete_container.layout().itemAt(0).widget()
 
-        if state == QtCore.Qt.Checked:
+        if state == Qt.CheckState.Checked.value:
             value_item.clear()
             value_item.setReadOnly(True)
             value_item.setStyleSheet("background-color: lightgray;")
@@ -871,7 +887,7 @@ class LabelColorButton(QtWidgets.QWidget):
         )
 
     def mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
+        if event.button() == QtCore.Qt.MouseButton.LeftButton:
             self.parent.change_color(self)
 
 
@@ -906,8 +922,8 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.setWindowTitle(self.tr("Label Change Manager"))
         self.setWindowFlags(
             self.windowFlags()
-            | Qt.WindowMinimizeButtonHint
-            | Qt.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowMinimizeButtonHint
+            | Qt.WindowType.WindowMaximizeButtonHint
         )
         self.resize(700, 400)
         self.move_to_center()
@@ -926,14 +942,16 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 QFont("Arial", 8, QFont.Bold)
             )
             self.table_widget.horizontalHeaderItem(i).setTextAlignment(
-                QtCore.Qt.AlignCenter
+                Qt.AlignmentFlag.AlignCenter
             )
             if i == 0:
                 self.table_widget.horizontalHeaderItem(i).setToolTip(
                     self.tr("Double-click to copy label text")
                 )
 
-        self.table_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.table_widget.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
         self.table_widget.customContextMenuRequested.connect(
             self.show_context_menu
         )
@@ -990,7 +1008,10 @@ class LabelModifyDialog(QtWidgets.QDialog):
 
     def move_to_center(self):
         qr = self.frameGeometry()
-        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
+        screen = self.screen()
+        if screen is None:
+            screen = QtGui.QGuiApplication.primaryScreen()
+        cp = screen.availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
@@ -1003,7 +1024,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.table_widget.insertRow(i)
 
             class_item = QTableWidgetItem(label)
-            class_item.setFlags(class_item.flags() ^ QtCore.Qt.ItemIsEditable)
+            class_item.setFlags(
+                class_item.flags() & ~Qt.ItemFlag.ItemIsEditable
+            )
             class_item.setToolTip(self.tr("Double-click to copy label text"))
 
             delete_checkbox = QCheckBox()
@@ -1019,9 +1042,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 info["value"] if info["value"] else ""
             )
             value_item.setFlags(
-                value_item.flags() & ~QtCore.Qt.ItemIsEditable
+                value_item.flags() & ~Qt.ItemFlag.ItemIsEditable
                 if info["delete"]
-                else value_item.flags() | QtCore.Qt.ItemIsEditable
+                else value_item.flags() | Qt.ItemFlag.ItemIsEditable
             )
             value_item.setBackground(
                 QtGui.QColor("lightgray")
@@ -1040,7 +1063,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             visible_container = QtWidgets.QWidget()
             visible_layout = QtWidgets.QHBoxLayout(visible_container)
             visible_layout.setContentsMargins(0, 0, 0, 0)
-            visible_layout.setAlignment(Qt.AlignCenter)
+            visible_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             visible_layout.addWidget(visible_checkbox)
 
             color = QColor(*info["color"])
@@ -1072,12 +1095,12 @@ class LabelModifyDialog(QtWidgets.QDialog):
         value_item = self.table_widget.item(row, 2)
         delete_checkbox = self.table_widget.cellWidget(row, 1)
 
-        if state == QtCore.Qt.Checked:
-            value_item.setFlags(value_item.flags() & ~QtCore.Qt.ItemIsEditable)
+        if state == Qt.CheckState.Checked.value:
+            value_item.setFlags(value_item.flags() & ~Qt.ItemFlag.ItemIsEditable)
             value_item.setBackground(QtGui.QColor("lightgray"))
             delete_checkbox.setCheckable(True)
         else:
-            value_item.setFlags(value_item.flags() | QtCore.Qt.ItemIsEditable)
+            value_item.setFlags(value_item.flags() | Qt.ItemFlag.ItemIsEditable)
             value_item.setBackground(QtGui.QColor("white"))
             delete_checkbox.setCheckable(False)
 
@@ -1117,7 +1140,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
         select_all_action = menu.addAction(self.tr("Select All"))
         deselect_all_action = menu.addAction(self.tr("Deselect All"))
 
-        action = menu.exec_(self.table_widget.mapToGlobal(pos))
+        action = menu.exec(self.table_widget.mapToGlobal(pos))
         if action == select_all_action:
             self.select_all_visible()
         elif action == deselect_all_action:
@@ -1340,7 +1363,7 @@ class LabelQLineEdit(QtWidgets.QLineEdit):
 
     # QT Overload
     def keyPressEvent(self, e):
-        if e.key() in [QtCore.Qt.Key_Up, QtCore.Qt.Key_Down]:
+        if e.key() in [QtCore.Qt.Key.Key_Up, QtCore.Qt.Key.Key_Down]:
             self.list_widget.keyPressEvent(e)
         else:
             super(LabelQLineEdit, self).keyPressEvent(e)
@@ -1382,7 +1405,7 @@ class LabelDialog(QtWidgets.QDialog):
                 QtCore.QRegularExpression(r"\d*"), None
             )
         )
-        self.edit_group_id.setAlignment(QtCore.Qt.AlignCenter)
+        self.edit_group_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Add difficult checkbox
         self.edit_difficult = QtWidgets.QCheckBox(self.tr("useDifficult"))
@@ -1424,12 +1447,17 @@ class LabelDialog(QtWidgets.QDialog):
 
         # buttons
         self.button_box = bb = QtWidgets.QDialogButtonBox(
-            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
-            QtCore.Qt.Horizontal,
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel,
+            QtCore.Qt.Orientation.Horizontal,
             self,
         )
-        bb.button(bb.Ok).setIcon(utils.new_icon("done"))
-        bb.button(bb.Cancel).setIcon(utils.new_icon("undo"))
+        bb.button(QtWidgets.QDialogButtonBox.StandardButton.Ok).setIcon(
+            utils.new_icon("done")
+        )
+        bb.button(QtWidgets.QDialogButtonBox.StandardButton.Cancel).setIcon(
+            utils.new_icon("undo")
+        )
         bb.accepted.connect(self.validate)
         bb.rejected.connect(self.reject)
 
@@ -1449,11 +1477,11 @@ class LabelDialog(QtWidgets.QDialog):
         self.label_list = QtWidgets.QListWidget()
         if self._fit_to_content["row"]:
             self.label_list.setHorizontalScrollBarPolicy(
-                QtCore.Qt.ScrollBarAlwaysOff
+                QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             )
         if self._fit_to_content["column"]:
             self.label_list.setVerticalScrollBarPolicy(
-                QtCore.Qt.ScrollBarAlwaysOff
+                QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             )
         self._sort_labels = sort_labels
         if labels:
@@ -1462,7 +1490,7 @@ class LabelDialog(QtWidgets.QDialog):
             self.sort_labels()
         else:
             self.label_list.setDragDropMode(
-                QtWidgets.QAbstractItemView.InternalMove
+                QtWidgets.QAbstractItemView.DragDropMode.InternalMove
             )
         self.label_list.currentItemChanged.connect(self.label_selected)
         self.label_list.itemDoubleClicked.connect(self.label_double_clicked)
@@ -1480,12 +1508,16 @@ class LabelDialog(QtWidgets.QDialog):
         # completion
         completer = QtWidgets.QCompleter()
         if completion == "startswith":
-            completer.setCompletionMode(QtWidgets.QCompleter.InlineCompletion)
+            completer.setCompletionMode(
+                QtWidgets.QCompleter.CompletionMode.InlineCompletion
+            )
             # Default settings.
-            # completer.setFilterMode(QtCore.Qt.MatchStartsWith)
+            # completer.setFilterMode(QtCore.Qt.MatchFlag.MatchStartsWith)
         elif completion == "contains":
-            completer.setCompletionMode(QtWidgets.QCompleter.PopupCompletion)
-            completer.setFilterMode(QtCore.Qt.MatchContains)
+            completer.setCompletionMode(
+                QtWidgets.QCompleter.CompletionMode.PopupCompletion
+            )
+            completer.setFilterMode(QtCore.Qt.MatchFlag.MatchContains)
         else:
             raise ValueError(f"Unsupported completion: {completion}")
         completer.setModel(self.label_list.model())
@@ -1527,7 +1559,7 @@ class LabelDialog(QtWidgets.QDialog):
             )
 
     def keyPressEvent(self, event):
-        if event.key() == QtCore.Qt.Key_Delete:
+        if event.key() == QtCore.Qt.Key.Key_Delete:
             if hasattr(self, "linking_list") and self.linking_list is not None:
                 selected_items = self.linking_list.selectedItems()
                 if selected_items:
@@ -1565,17 +1597,17 @@ class LabelDialog(QtWidgets.QDialog):
     def add_label_history(self, label, update_last_label=True):
         if update_last_label:
             self._last_label = label
-        if self.label_list.findItems(label, QtCore.Qt.MatchExactly):
+        if self.label_list.findItems(label, QtCore.Qt.MatchFlag.MatchExactly):
             return
         self.label_list.addItem(label)
         if self._sort_labels:
             self.sort_labels()
-        items = self.label_list.findItems(label, QtCore.Qt.MatchExactly)
+        items = self.label_list.findItems(label, QtCore.Qt.MatchFlag.MatchExactly)
         if items:
             self.label_list.setCurrentItem(items[0])
 
     def remove_label_history(self, label):
-        items = self.label_list.findItems(label, QtCore.Qt.MatchExactly)
+        items = self.label_list.findItems(label, QtCore.Qt.MatchFlag.MatchExactly)
         if not items:
             logger.warning(f"Skipping empty items.")
             return
@@ -1720,7 +1752,7 @@ class LabelDialog(QtWidgets.QDialog):
             self.edit_group_id.clear()
         else:
             self.edit_group_id.setText(str(group_id))
-        items = self.label_list.findItems(text, QtCore.Qt.MatchFixedString)
+        items = self.label_list.findItems(text, QtCore.Qt.MatchFlag.MatchFixedString)
 
         if items:
             if len(items) != 1:
@@ -1728,17 +1760,21 @@ class LabelDialog(QtWidgets.QDialog):
             self.label_list.setCurrentItem(items[0])
             row = self.label_list.row(items[0])
             self.edit.completer().setCurrentRow(row)
-        self.edit.setFocus(QtCore.Qt.PopupFocusReason)
+        focus_reason = getattr(QtCore.Qt, "PopupFocusReason", None)
+        if focus_reason is None:
+            focus_reason = QtCore.Qt.FocusReason.PopupFocusReason
+        self.edit.setFocus(focus_reason)
 
         if move:
             if move_mode == "auto":
                 cursor_pos = QtGui.QCursor.pos()
-                screen = QtWidgets.QApplication.desktop().screenGeometry(
-                    cursor_pos
-                )
+                screen_obj = QtGui.QGuiApplication.screenAt(cursor_pos)
+                if screen_obj is None:
+                    screen_obj = QtGui.QGuiApplication.primaryScreen()
+                screen = screen_obj.availableGeometry()
                 dialog_frame_size = self.frameGeometry()
                 # Calculate the ideal top-left corner position for the dialog based on the mouse click
-                ideal_pos = cursor_pos
+                ideal_pos = QtCore.QPoint(cursor_pos)
                 # Adjust to prevent the dialog from exceeding the right screen boundary
                 if (
                     ideal_pos.x() + dialog_frame_size.width()
@@ -1754,19 +1790,16 @@ class LabelDialog(QtWidgets.QDialog):
                 self.move(ideal_pos)
             elif move_mode == "center":
                 # Calculate the center position to move the dialog to
-                screen = QtWidgets.QApplication.desktop().screenNumber(
-                    QtWidgets.QApplication.desktop().cursor().pos()
-                )
-                centerPoint = (
-                    QtWidgets.QApplication.desktop()
-                    .screenGeometry(screen)
-                    .center()
-                )
+                cursor_pos = QtGui.QCursor.pos()
+                screen_obj = QtGui.QGuiApplication.screenAt(cursor_pos)
+                if screen_obj is None:
+                    screen_obj = QtGui.QGuiApplication.primaryScreen()
+                centerPoint = screen_obj.availableGeometry().center()
                 qr = self.frameGeometry()
                 qr.moveCenter(centerPoint)
                 self.move(qr.topLeft())
 
-        if self.exec_():
+        if self.exec():
             return (
                 self.edit.text(),
                 self.get_flags(),

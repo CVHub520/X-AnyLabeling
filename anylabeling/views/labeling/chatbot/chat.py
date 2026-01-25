@@ -1,12 +1,12 @@
-from PyQt5.QtCore import (
+from PyQt6.QtCore import (
     QEasingCurve,
     QEvent,
     QPropertyAnimation,
     QTimer,
     Qt,
 )
-from PyQt5.QtGui import QIcon, QPixmap, QTextCursor, QDesktopServices
-from PyQt5.QtWidgets import (
+from PyQt6.QtGui import QIcon, QPixmap, QTextCursor, QDesktopServices
+from PyQt6.QtWidgets import (
     QApplication,
     QFrame,
     QHBoxLayout,
@@ -21,7 +21,7 @@ from PyQt5.QtWidgets import (
 )
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView
+    from PyQt6.QtWebEngineWidgets import QWebEngineView
 except ImportError:
     QWebEngineView = None
 
@@ -47,7 +47,7 @@ class ChatMessage(QFrame):
         self.edit_area_min_height = 80
 
         # Enable context menu policy for the frame
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
         # Create message container with appropriate styling
@@ -94,7 +94,9 @@ class ChatMessage(QFrame):
             role_label = QLabel()
             icon_pixmap = QPixmap(new_icon_path(self.provider))
             scaled_icon = icon_pixmap.scaled(
-                *ICON_SIZE_SMALL, Qt.KeepAspectRatio, Qt.SmoothTransformation
+                *ICON_SIZE_SMALL,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
             )
             role_label.setPixmap(scaled_icon)
             role_label.setStyleSheet(ChatMessageStyle.get_role_label_style())
@@ -164,7 +166,9 @@ class ChatMessage(QFrame):
 
         # Set alignment and minimum height to avoid excessive height
         if self.role == "user":
-            content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            content_label.setAlignment(
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+            )
 
         content_label.setMinimumHeight(10)
         self.content_label = content_label
@@ -212,8 +216,8 @@ class ChatMessage(QFrame):
         self.edit_area = QTextEdit()
         self.edit_area.setPlainText(content)
         self.edit_area.setStyleSheet(ChatMessageStyle.get_edit_area_style())
-        self.edit_area.setFrameShape(QFrame.NoFrame)
-        self.edit_area.setFrameShadow(QFrame.Plain)
+        self.edit_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.edit_area.setFrameShadow(QFrame.Shadow.Plain)
         self.edit_area.setWordWrapMode(True)
         self.edit_area.setMinimumHeight(self.edit_area_min_height)
         self.edit_area.setVisible(False)
@@ -332,15 +336,16 @@ class ChatMessage(QFrame):
 
             # Set text format based on content
             if "\u200b" in processed_content or self.is_error:
-                content_label.setTextFormat(Qt.RichText)
+                content_label.setTextFormat(Qt.TextFormat.RichText)
             else:
-                content_label.setTextFormat(Qt.PlainText)
+                content_label.setTextFormat(Qt.TextFormat.PlainText)
 
             content_label.setStyleSheet(
                 ChatMessageStyle.get_content_label_style(self.is_error)
             )
             content_label.setTextInteractionFlags(
-                Qt.TextSelectableByMouse | Qt.TextSelectableByKeyboard
+                Qt.TextInteractionFlag.TextSelectableByMouse
+                | Qt.TextInteractionFlag.TextSelectableByKeyboard
             )
             content_label.setSizePolicy(
                 QSizePolicy.Expanding, QSizePolicy.Preferred
@@ -350,7 +355,9 @@ class ChatMessage(QFrame):
             default_font = content_label.font()
             content_label.setFont(default_font)
 
-            content_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+            content_label.setAlignment(
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+            )
             content_label.setMinimumHeight(10)
 
             return content_label
@@ -691,13 +698,15 @@ class ChatMessage(QFrame):
         confirm_dialog.setText(
             self.tr("Are you sure to delete this message forever?")
         )
-        confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        confirm_dialog.setDefaultButton(QMessageBox.No)
-        confirm_dialog.setIcon(QMessageBox.Warning)
+        confirm_dialog.setStandardButtons(
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        confirm_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+        confirm_dialog.setIcon(QMessageBox.Icon.Warning)
 
         # Show dialog and handle response
-        response = confirm_dialog.exec_()
-        if response == QMessageBox.Yes:
+        response = confirm_dialog.exec()
+        if response == QMessageBox.StandardButton.Yes:
             self.delete_message()
 
     def delete_message(self):
@@ -793,7 +802,7 @@ class ChatMessage(QFrame):
         delete_action = context_menu.addAction(self.tr("Delete message"))
         delete_action.triggered.connect(self.confirm_delete_message)
 
-        context_menu.exec_(self.mapToGlobal(position))
+        context_menu.exec(self.mapToGlobal(position))
 
     def handle_external_link(self, url):
         """Handle the external url"""

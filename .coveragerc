@@ -1,0 +1,16 @@
+[run]
+branch = True
+source =
+    anylabeling
+omit =
+    anylabeling/resources/*
+    anylabeling/services/auto_labeling/visualgd/*
+    anylabeling/services/auto_labeling/utils/sahi/*
+
+[report]
+skip_empty = True
+show_missing = True
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+

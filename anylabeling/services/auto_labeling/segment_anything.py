@@ -3,9 +3,9 @@ import traceback
 import cv2
 import numpy as np
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import QThread
-from PyQt5.QtCore import QCoreApplication
+from PyQt6 import QtCore
+from PyQt6.QtCore import QThread
+from PyQt6.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.utils import GenericWorker

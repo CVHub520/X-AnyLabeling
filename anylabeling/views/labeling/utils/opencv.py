@@ -3,8 +3,8 @@ import os.path
 import cv2
 import numpy as np
 import qimage2ndarray
-from PyQt5 import QtGui
-from PyQt5.QtGui import QImage
+from PyQt6 import QtGui
+from PyQt6.QtGui import QImage
 
 
 def qt_img_to_rgb_cv_img(qt_img, img_path=None):
@@ -19,9 +19,9 @@ def qt_img_to_rgb_cv_img(qt_img, img_path=None):
         cv_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
     else:
         if (
-            qt_img.format() == QImage.Format_RGB32
-            or qt_img.format() == QImage.Format_ARGB32
-            or qt_img.format() == QImage.Format_ARGB32_Premultiplied
+            qt_img.format() == QImage.Format.Format_RGB32
+            or qt_img.format() == QImage.Format.Format_ARGB32
+            or qt_img.format() == QImage.Format.Format_ARGB32_Premultiplied
         ):
             cv_image = qimage2ndarray.rgb_view(qt_img)
         else:

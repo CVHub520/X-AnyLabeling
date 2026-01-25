@@ -6,9 +6,9 @@ import numpy as np
 import PIL.Image
 import PIL.ImageDraw
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QProgressDialog
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QDialog, QProgressDialog
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.opencv import get_bounding_boxes
@@ -29,7 +29,7 @@ def get_conversion_params(self, mode: str):
     """
     if mode == "circle_to_polygon":
         dialog = PolygonSidesDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             return {"num_sides": dialog.get_value()}
         else:
             return None
@@ -47,24 +47,25 @@ def shape_conversion(self, mode):
         return
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Warning"))
     response.setText(self.tr("Current annotation will be changed"))
     response.setInformativeText(
         self.tr("Are you sure you want to perform this conversion?")
     )
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
 
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     progress_dialog = QProgressDialog(
         self.tr("Converting..."), self.tr("Cancel"), 0, 0, self
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)

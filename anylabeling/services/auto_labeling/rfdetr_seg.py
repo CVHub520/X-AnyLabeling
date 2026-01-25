@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QCoreApplication
+from PyQt6.QtCore import QCoreApplication
 
 from .rfdetr import RFDETR
 

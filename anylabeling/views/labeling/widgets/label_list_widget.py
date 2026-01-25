@@ -1,7 +1,7 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPalette
-from PyQt5.QtWidgets import QStyle
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QPalette
+from PyQt6.QtWidgets import QStyle
 
 
 # https://stackoverflow.com/a/2039745/4158863
@@ -25,24 +25,30 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
             if options.widget is None
             else options.widget.style()
         )
-        style.drawControl(QStyle.CE_ItemViewItem, options, painter)
+        style.drawControl(QStyle.ControlElement.CE_ItemViewItem, options, painter)
 
         ctx = QtGui.QAbstractTextDocumentLayout.PaintContext()
 
-        if option.state & QStyle.State_Selected:
+        if option.state & QStyle.StateFlag.State_Selected:
             ctx.palette.setColor(
-                QPalette.Text,
+                QPalette.ColorRole.Text,
                 option.palette.color(
-                    QPalette.Active, QPalette.HighlightedText
+                    QPalette.ColorGroup.Active,
+                    QPalette.ColorRole.HighlightedText,
                 ),
             )
         else:
             ctx.palette.setColor(
-                QPalette.Text,
-                option.palette.color(QPalette.Active, QPalette.Text),
+                QPalette.ColorRole.Text,
+                option.palette.color(
+                    QPalette.ColorGroup.Active,
+                    QPalette.ColorRole.Text,
+                ),
             )
 
-        text_rect = style.subElementRect(QStyle.SE_ItemViewItemText, options)
+        text_rect = style.subElementRect(
+            QStyle.SubElement.SE_ItemViewItemText, options
+        )
 
         if index.column() != 0:
             text_rect.adjust(5, 0, 0, 0)
@@ -74,18 +80,18 @@ class LabelListWidgetItem(QtGui.QStandardItem):
         self.set_shape(shape)
 
         self.setCheckable(True)
-        self.setCheckState(Qt.Checked)
+        self.setCheckState(Qt.CheckState.Checked)
         self.setEditable(False)
-        self.setTextAlignment(Qt.AlignBottom)
+        self.setTextAlignment(Qt.AlignmentFlag.AlignBottom)
 
     def clone(self):
         return LabelListWidgetItem(self.text(), self.shape())
 
     def set_shape(self, shape):
-        self.setData(shape, Qt.UserRole)
+        self.setData(shape, Qt.ItemDataRole.UserRole)
 
     def shape(self):
-        return self.data(Qt.UserRole)
+        return self.data(Qt.ItemDataRole.UserRole)
 
     def __hash__(self):
         return id(self)
@@ -112,13 +118,17 @@ class LabelListWidget(QtWidgets.QListView):
         super().__init__()
         self._selected_items = []
 
-        self.setWindowFlags(Qt.Window)
+        self.setWindowFlags(Qt.WindowType.Window)
         self.setModel(StandardItemModel())
         self.model().setItemPrototype(LabelListWidgetItem())
         self.setItemDelegate(HTMLDelegate())
-        self.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-        self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
-        self.setDefaultDropAction(Qt.MoveAction)
+        self.setSelectionMode(
+            QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
+        )
+        self.setDragDropMode(
+            QtWidgets.QAbstractItemView.DragDropMode.InternalMove
+        )
+        self.setDefaultDropAction(Qt.DropAction.MoveAction)
 
         self.doubleClicked.connect(self.item_double_clicked_event)
         self.selectionModel().selectionChanged.connect(
@@ -171,7 +181,10 @@ class LabelListWidget(QtWidgets.QListView):
 
     def select_item(self, item):
         index = self.model().indexFromItem(item)
-        self.selectionModel().select(index, QtCore.QItemSelectionModel.Select)
+        select_flag = getattr(QtCore.QItemSelectionModel, "Select", None)
+        if select_flag is None:
+            select_flag = QtCore.QItemSelectionModel.SelectionFlag.Select
+        self.selectionModel().select(index, select_flag)
 
     def find_item_by_shape(self, shape):
         for row in range(self.model().rowCount()):

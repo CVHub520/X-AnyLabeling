@@ -67,8 +67,8 @@ dependencies = [
     "numpy<=1.26.4",
     "pillow>=7.1.2",
     "opencv-contrib-python-headless>=4.7.0.72",
-    "PyQt5>=5.15.7",
-    "PyQtWebEngine>=5.15.7",
+    "PyQt6>=6.6.1",
+    "PyQt6-WebEngine>=6.6.0",
     "qimage2ndarray>=1.10.0",
     "lapx>=0.5.5",
     "tqdm>=4.64.0",
@@ -97,6 +97,9 @@ dev = [
     "flake8",
     "pyinstaller",
     "pytest",
+    "pytest-qt",
+    "pytest-timeout",
+    "pytest-cov",
     "twine",
 ]
 
@@ -133,9 +136,15 @@ packages = { find = { where = ["."], include = ["anylabeling*"], exclude = ["res
 version = {attr = "anylabeling.app_info.__version__"}
 
 [tool.pytest.ini_options]
-addopts = "--doctest-modules --durations=30 --color=yes"
+addopts = "--durations=30 --color=yes"
+faulthandler_timeout = 60
+timeout = 120
+timeout_method = "thread"
 markers = [
     "slow: skip slow tests unless --slow is set",
+    "integration: tests requiring external dependencies",
+    "online: tests requiring network or API keys",
+    "model: tests requiring model files or runtimes",
 ]
 norecursedirs = [".git", "dist", "build"]
 

@@ -6,9 +6,9 @@ import os
 import requests
 from pathlib import Path
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QApplication
+from PyQt6 import QtCore
+from PyQt6.QtCore import QCoreApplication
+from PyQt6.QtWidgets import QApplication
 
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.logger import logger

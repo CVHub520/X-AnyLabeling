@@ -2,9 +2,9 @@ import json
 import os
 import shutil
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QHBoxLayout,
@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
     QMessageBox,
     QProgressDialog,
 )
-from PyQt5.QtGui import QImage
+from PyQt6.QtGui import QImage
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.shape import Shape
@@ -299,11 +299,11 @@ class ShapeModifyDialog(QDialog):
             self,
             self.tr("Confirm Operation"),
             confirm_msg,
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply != QMessageBox.Yes:
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         if self.delete_annotations_cb.isChecked():
@@ -349,7 +349,7 @@ class ShapeModifyDialog(QDialog):
 
                     item = self.parent.file_list_widget.item(i)
                     if item:
-                        item.setCheckState(Qt.Unchecked)
+                        item.setCheckState(Qt.CheckState.Unchecked)
                 except Exception as e:
                     logger.error(f"Error deleting {label_file}: {e}")
 
@@ -490,7 +490,7 @@ class ShapeModifyDialog(QDialog):
             end_idx - start_idx + 1,
             self,
         )
-        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Removing Shapes"))
         progress_dialog.setMinimumWidth(400)
 
@@ -591,7 +591,7 @@ class ShapeModifyDialog(QDialog):
             end_idx - start_idx + 1,
             self,
         )
-        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Adding Shapes"))
         progress_dialog.setMinimumWidth(400)
 
@@ -678,7 +678,7 @@ class ShapeModifyDialog(QDialog):
 
                 item = self.parent.file_list_widget.item(i)
                 if item:
-                    item.setCheckState(Qt.Checked)
+                    item.setCheckState(Qt.CheckState.Checked)
 
             except Exception as e:
                 logger.error(f"Error processing {label_file}: {e}")

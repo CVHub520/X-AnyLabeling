@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QComboBox
+from PyQt6.QtWidgets import QWidget, QHBoxLayout, QComboBox
 
 
 class GroupIDFilterComboBox(QWidget):

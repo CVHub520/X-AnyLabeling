@@ -5,7 +5,7 @@ import yaml
 import importlib.resources as pkg_resources
 from threading import Lock
 
-from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 import anylabeling.configs as auto_labeling_configs
 from anylabeling.utils import GenericWorker

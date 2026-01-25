@@ -1,8 +1,8 @@
 import os
 from collections import Counter
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
     QDialog,
     QFileDialog,
     QFrame,
@@ -322,9 +322,9 @@ class NewLabelDialog(QDialog):
                     "3. Add new labels to matching files\n\n"
                     "Continue?"
                 ),
-                QMessageBox.Yes | QMessageBox.No,
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             )
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.StandardButton.Yes:
                 self.accept()
         else:
             self.accept()
@@ -394,9 +394,9 @@ class DeleteLabelDialog(QDialog):
             self,
             self.tr("Confirm Delete"),
             template % ", ".join(selected_labels),
-            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             self.accept()
 
     def get_selected_labels(self):
@@ -433,7 +433,9 @@ class EditLabelDialog(QDialog):
 
         for i, label_text in enumerate(self.labels):
             current_label = QTableWidgetItem(label_text)
-            current_label.setFlags(current_label.flags() & ~Qt.ItemIsEditable)
+            current_label.setFlags(
+                current_label.flags() & ~Qt.ItemFlag.ItemIsEditable
+            )
             self.table_widget.setItem(i, 0, current_label)
             new_label = QTableWidgetItem(label_text)
             self.table_widget.setItem(i, 1, new_label)
@@ -498,10 +500,10 @@ class EditLabelDialog(QDialog):
             self,
             self.tr("Confirm Changes"),
             self.tr("Save changes to %d labels?") % len(new_labels),
-            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
 
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             self.accept()
 
     def get_edit_info(self):
@@ -546,7 +548,7 @@ class StatisticsViewDialog(QDialog):
         layout.addLayout(self.kpi_layout)
 
         separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
+        separator.setFrameShape(QFrame.Shape.HLine)
         separator.setStyleSheet(
             """
             QFrame {
@@ -627,7 +629,7 @@ class StatisticsViewDialog(QDialog):
             }}
         """
         )
-        value_label.setAlignment(Qt.AlignCenter)
+        value_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         title_label = QLabel(title)
         title_label.setStyleSheet(
@@ -640,7 +642,7 @@ class StatisticsViewDialog(QDialog):
             }
         """
         )
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         layout.addWidget(value_label)
         layout.addWidget(title_label)
@@ -667,7 +669,7 @@ class StatisticsViewDialog(QDialog):
                 }
             """
             )
-            no_data_label.setAlignment(Qt.AlignCenter)
+            no_data_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             chart_layout.addWidget(no_data_label)
             return
 

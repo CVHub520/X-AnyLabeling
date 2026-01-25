@@ -61,8 +61,7 @@ def check_for_updates_async(callback=None, timeout=10):
                         callback(update_info)
 
         except Exception:
-            # Silently ignore all errors - just treat as no update available
-            pass
+            logger.debug("Update check failed", exc_info=True)
 
     thread = threading.Thread(target=update_check_thread, daemon=True)
     thread.start()
@@ -104,4 +103,5 @@ def check_for_updates_sync(timeout=10):
             return None
 
     except Exception:
+        logger.debug("Update check failed", exc_info=True)
         return None

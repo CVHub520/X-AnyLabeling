@@ -2,15 +2,15 @@
 
 from typing import List, Optional, Any
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import (
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import (
     QPoint,
     QRect,
     QSize,
     Qt,
     pyqtSignal,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QBrush,
     QColor,
     QMouseEvent,
@@ -18,7 +18,7 @@ from PyQt5.QtGui import (
     QPen,
     QPixmap,
 )
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QLineEdit,
@@ -39,10 +39,10 @@ class ClickableSlider(QSlider):
 
     def mousePressEvent(self, event: QMouseEvent):
         """Handle mouse press events for click-to-jump functionality"""
-        if event.button() == Qt.LeftButton:
-            if self.orientation() == Qt.Horizontal:
+        if event.button() == Qt.MouseButton.LeftButton:
+            if self.orientation() == Qt.Orientation.Horizontal:
                 handle_width = self.style().pixelMetric(
-                    self.style().PM_SliderThickness
+                    QtWidgets.QStyle.PixelMetric.PM_SliderThickness
                 )
                 slider_min = self.minimum()
                 slider_max = self.maximum()
@@ -150,7 +150,9 @@ class NavigatorWidget(QWidget):
 
         # Scale image to fit available space while keeping aspect ratio
         self.thumbnail = self.original_image.scaled(
-            available_size, Qt.KeepAspectRatio, Qt.SmoothTransformation
+            available_size,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation,
         )
 
         # Calculate thumbnail position (centered)
@@ -201,7 +203,7 @@ class NavigatorWidget(QWidget):
     def paintEvent(self, event) -> None:
         """Paint the navigator widget with thumbnail, shapes, and viewport overlay."""
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.fillRect(self.rect(), self.background_brush)
 
         if self.thumbnail and not self.thumbnail.isNull():
@@ -209,7 +211,7 @@ class NavigatorWidget(QWidget):
             self._draw_shapes_overlay(painter)
             if not self.viewport_rect.isEmpty():
                 painter.setPen(self.viewport_pen)
-                painter.setBrush(QBrush(Qt.NoBrush))  # No fill
+                painter.setBrush(QBrush(Qt.BrushStyle.NoBrush))  # No fill
                 painter.drawRect(self.viewport_rect)
 
     def _draw_shapes_overlay(self, painter):
@@ -310,7 +312,7 @@ class NavigatorWidget(QWidget):
         should_fill: bool = getattr(shape, "fill", False)
 
         if not should_fill:
-            return QBrush(Qt.NoBrush)
+            return QBrush(Qt.BrushStyle.NoBrush)
 
         fill_color: Optional[QColor] = None
 
@@ -325,7 +327,7 @@ class NavigatorWidget(QWidget):
         if fill_color and fill_color.isValid():
             return QBrush(fill_color)
 
-        return QBrush(Qt.NoBrush)
+        return QBrush(Qt.BrushStyle.NoBrush)
 
     def _points_in_bounds(self, points: List[QPoint]) -> bool:
         """Check if shape points are within reasonable bounds for rendering."""
@@ -368,7 +370,7 @@ class NavigatorWidget(QWidget):
     def _draw_polygon_on_thumbnail(self, painter, points):
         """Draw polygon on thumbnail"""
         if len(points) >= 2:
-            from PyQt5.QtGui import QPolygon
+            from PyQt6.QtGui import QPolygon
 
             polygon = QPolygon(points)
             painter.drawPolygon(polygon)
@@ -414,7 +416,7 @@ class NavigatorWidget(QWidget):
 
     def mousePressEvent(self, event) -> None:
         """Handle mouse press events for navigation interaction."""
-        if event.button() == Qt.LeftButton and self.image_rect.contains(
+        if event.button() == Qt.MouseButton.LeftButton and self.image_rect.contains(
             event.pos()
         ):
             self.dragging = True
@@ -429,7 +431,7 @@ class NavigatorWidget(QWidget):
 
     def mouseReleaseEvent(self, event) -> None:
         """Handle mouse release events to end navigation interaction."""
-        if event.button() == Qt.LeftButton:
+        if event.button() == Qt.MouseButton.LeftButton:
             self.dragging = False
 
     def wheelEvent(self, event) -> None:
@@ -466,7 +468,9 @@ class NavigatorDialog(QtWidgets.QDialog):
 
         self.setWindowTitle(self.tr("Navigator"))
         self.setWindowFlags(
-            Qt.Window | Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint
+            Qt.WindowType.Window
+            | Qt.WindowType.WindowStaysOnTopHint
+            | Qt.WindowType.WindowCloseButtonHint
         )
 
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -509,7 +513,7 @@ class NavigatorDialog(QtWidgets.QDialog):
 
         self.zoom_input = QLineEdit()
         self.zoom_input.setFixedWidth(35)
-        self.zoom_input.setAlignment(Qt.AlignRight)
+        self.zoom_input.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.zoom_input.setText("100")
         self.zoom_input.setStyleSheet(
             """
@@ -549,7 +553,7 @@ class NavigatorDialog(QtWidgets.QDialog):
 
         zoom_out_icon = QLabel("−")
         zoom_out_icon.setFixedSize(16, 16)
-        zoom_out_icon.setAlignment(Qt.AlignCenter)
+        zoom_out_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         zoom_out_icon.setStyleSheet(
             """
             QLabel { 
@@ -561,7 +565,7 @@ class NavigatorDialog(QtWidgets.QDialog):
         """
         )
 
-        self.zoom_slider = ClickableSlider(Qt.Horizontal)
+        self.zoom_slider = ClickableSlider(Qt.Orientation.Horizontal)
         self.zoom_slider.setRange(1, 1000)
         self.zoom_slider.setValue(100)
         self.zoom_slider.setStyleSheet(ChatbotDialogStyle.get_slider_style())
@@ -569,7 +573,7 @@ class NavigatorDialog(QtWidgets.QDialog):
 
         zoom_in_icon = QLabel("+")
         zoom_in_icon.setFixedSize(16, 16)
-        zoom_in_icon.setAlignment(Qt.AlignCenter)
+        zoom_in_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
         zoom_in_icon.setStyleSheet(
             """
             QLabel { 

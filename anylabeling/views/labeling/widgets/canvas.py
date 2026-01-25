@@ -2,9 +2,9 @@
 
 import math
 from copy import deepcopy
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QWheelEvent
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QWheelEvent
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.views.labeling.utils.colormap import label_colormap
@@ -12,11 +12,11 @@ from anylabeling.views.labeling.utils.colormap import label_colormap
 from .. import utils
 from ..shape import Shape
 
-CURSOR_DEFAULT = QtCore.Qt.ArrowCursor
-CURSOR_POINT = QtCore.Qt.PointingHandCursor
-CURSOR_DRAW = QtCore.Qt.CrossCursor
-CURSOR_MOVE = QtCore.Qt.ClosedHandCursor
-CURSOR_GRAB = QtCore.Qt.OpenHandCursor
+CURSOR_DEFAULT = QtCore.Qt.CursorShape.ArrowCursor
+CURSOR_POINT = QtCore.Qt.CursorShape.PointingHandCursor
+CURSOR_DRAW = QtCore.Qt.CursorShape.CrossCursor
+CURSOR_MOVE = QtCore.Qt.CursorShape.ClosedHandCursor
+CURSOR_GRAB = QtCore.Qt.CursorShape.OpenHandCursor
 
 AUTO_DECODE_DELAY_MS = 100
 MAX_AUTO_DECODE_MARKS = 42
@@ -34,7 +34,7 @@ class Canvas(
     """Canvas widget to handle label drawing"""
 
     zoom_request = QtCore.pyqtSignal(int, QtCore.QPoint)
-    scroll_request = QtCore.pyqtSignal(float, int, int)
+    scroll_request = QtCore.pyqtSignal(float, object, int)
     # [Feature] support for automatically switching to editing mode
     # when the cursor moves over an object
     mode_changed = QtCore.pyqtSignal()
@@ -99,9 +99,9 @@ class Canvas(
         #   - create_mode == 'line': the line
         #   - create_mode == 'point': the point
         self.line = Shape()
-        self.prev_point = QtCore.QPoint()
-        self.prev_pan_point = QtCore.QPoint()
-        self.prev_move_point = QtCore.QPoint()
+        self.prev_point = QtCore.QPointF()
+        self.prev_pan_point = QtCore.QPointF()
+        self.prev_move_point = QtCore.QPointF()
         self.offsets = QtCore.QPointF(), QtCore.QPointF()
         self.scale = 1.0
         self.pixmap = QtGui.QPixmap()
@@ -128,7 +128,7 @@ class Canvas(
         self.menus = (QtWidgets.QMenu(), QtWidgets.QMenu())
         # Set widget options.
         self.setMouseTracking(True)
-        self.setFocusPolicy(QtCore.Qt.WheelFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.WheelFocus)
         self.show_groups = False
         self.show_masks = True
         self.show_texts = True
@@ -428,10 +428,7 @@ class Canvas(
         """Update line with last point and current coordinates"""
         if self.is_loading:
             return
-        try:
-            pos = self.transform_pos(ev.localPos())
-        except AttributeError:
-            return
+        pos = self.transform_pos(self._event_pos(ev))
 
         prev_hover_shape = self.h_hape
         self.prev_move_point = pos
@@ -514,7 +511,7 @@ class Canvas(
             return
 
         # Polygon copy moving.
-        if QtCore.Qt.RightButton & ev.buttons():
+        if Qt.MouseButton.RightButton & ev.buttons():
             if self.selected_shapes_copy and self.prev_point:
                 self.override_cursor(CURSOR_MOVE)
                 self.bounded_move_shapes(self.selected_shapes_copy, pos)
@@ -527,7 +524,7 @@ class Canvas(
             return
 
         # Polygon/Vertex moving.
-        if QtCore.Qt.LeftButton & ev.buttons():
+        if Qt.MouseButton.LeftButton & ev.buttons():
             if self.selected_vertex():
                 self.is_move_editing = False
                 try:
@@ -560,15 +557,15 @@ class Canvas(
                     and self.pixmap.height()
                 ):
                     self.override_cursor(CURSOR_MOVE)
-                    delta = ev.localPos() - self.prev_pan_point
+                    delta = self._event_pos(ev) - self.prev_pan_point
                     self.scroll_request.emit(
                         delta.x() / (self.pixmap.width() * self.scale),
-                        Qt.Horizontal,
+                        Qt.Orientation.Horizontal,
                         1,
                     )
                     self.scroll_request.emit(
                         delta.y() / (self.pixmap.height() * self.scale),
-                        Qt.Vertical,
+                        Qt.Orientation.Vertical,
                         1,
                     )
                     self.repaint()
@@ -670,7 +667,7 @@ class Canvas(
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
                 if self.h_shape_is_hovered:
                     group_mode = (
-                        int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                        ev.modifiers() == Qt.KeyboardModifier.ControlModifier
                     )
                     self.select_shape_point(
                         pos, multiple_selection_mode=group_mode
@@ -754,9 +751,8 @@ class Canvas(
         """Mouse press event"""
         if self.is_loading:
             return
-        pos = self.transform_pos(ev.localPos())
-
-        if ev.button() == QtCore.Qt.LeftButton:
+        pos = self.transform_pos(self._event_pos(ev))
+        if ev.button() == Qt.MouseButton.LeftButton:
             if self.drawing():
                 if self.current:
                     # Add point to existing shape.
@@ -802,7 +798,7 @@ class Canvas(
                     elif self.create_mode == "linestrip":
                         self.current.add_point(self.line[1])
                         self.line[0] = self.current[-1]
-                        if int(ev.modifiers()) == QtCore.Qt.ControlModifier:
+                        if ev.modifiers() == Qt.KeyboardModifier.ControlModifier:
                             self.finalise()
                     # [Feature] support for automatically switching to editing mode
                     # when the cursor moves over an object
@@ -812,7 +808,7 @@ class Canvas(
                         and not self.is_auto_labeling
                         and not self.current
                     ):
-                        self.prev_pan_point = ev.localPos()
+                        self.prev_pan_point = self._event_pos(ev)
                         self.mode_changed.emit()
                 elif not self.out_off_pixmap(pos):
                     # Handle auto decode mode first click
@@ -853,7 +849,7 @@ class Canvas(
                     self.add_point_to_edge()
                 elif (
                     self.selected_vertex()
-                    and int(ev.modifiers()) == QtCore.Qt.ShiftModifier
+                    and ev.modifiers() == Qt.KeyboardModifier.ShiftModifier
                     and self.h_hape.shape_type
                     not in ["rectangle", "rotation", "line"]
                 ):
@@ -867,15 +863,15 @@ class Canvas(
                     else:
                         self.override_cursor(CURSOR_POINT)
 
-                group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
+                group_mode = ev.modifiers() == Qt.KeyboardModifier.ControlModifier
                 self.select_shape_point(
                     pos, multiple_selection_mode=group_mode
                 )
                 self.prev_point = pos
-                self.prev_pan_point = ev.localPos()
+                self.prev_pan_point = self._event_pos(ev)
                 self.repaint()
-        elif ev.button() == QtCore.Qt.RightButton and self.editing():
-            group_mode = int(ev.modifiers()) == QtCore.Qt.ControlModifier
+        elif ev.button() == Qt.MouseButton.RightButton and self.editing():
+            group_mode = ev.modifiers() == Qt.KeyboardModifier.ControlModifier
             if not self.selected_shapes or (
                 self.h_hape is not None
                 and self.h_hape not in self.selected_shapes
@@ -891,18 +887,17 @@ class Canvas(
         """Mouse release event"""
         if self.is_loading:
             return
-
-        if ev.button() == QtCore.Qt.RightButton:
+        if ev.button() == Qt.MouseButton.RightButton:
             menu = self.menus[len(self.selected_shapes_copy) > 0]
             self.restore_cursor()
             if (
-                not menu.exec_(self.mapToGlobal(ev.pos()))
+                not menu.exec(self.mapToGlobal(self._event_pos_point(ev)))
                 and self.selected_shapes_copy
             ):
                 # Cancel the move by deleting the shadow copy.
                 self.selected_shapes_copy = []
                 self.repaint()
-        elif ev.button() == QtCore.Qt.LeftButton:
+        elif ev.button() == Qt.MouseButton.LeftButton:
             if self.editing():
                 if (
                     self.h_hape is not None
@@ -1154,12 +1149,14 @@ class Canvas(
         if len(shape_types) == 0:
             o1 = pos + self.offsets[0]
             if self.out_off_pixmap(o1):
-                pos -= QtCore.QPoint(min(0, int(o1.x())), min(0, int(o1.y())))
+                pos -= QtCore.QPointF(
+                    float(min(0, int(o1.x()))), float(min(0, int(o1.y())))
+                )
             o2 = pos + self.offsets[1]
             if self.out_off_pixmap(o2):
-                pos += QtCore.QPoint(
-                    min(0, int(self.pixmap.width() - o2.x())),
-                    min(0, int(self.pixmap.height() - o2.y())),
+                pos += QtCore.QPointF(
+                    float(min(0, int(self.pixmap.width() - o2.x()))),
+                    float(min(0, int(self.pixmap.height() - o2.y()))),
                 )
         # XXX: The next line tracks the new position of the cursor
         # relative to the shape, but also results in making it
@@ -1280,9 +1277,12 @@ class Canvas(
 
         p = self._painter
         p.begin(self)
-        p.setRenderHint(QtGui.QPainter.Antialiasing)
-        p.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
-        p.setRenderHint(QtGui.QPainter.HighQualityAntialiasing)
+        p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        p.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
+        if hasattr(QtGui.QPainter.RenderHint, "HighQualityAntialiasing"):
+            p.setRenderHint(
+                QtGui.QPainter.RenderHint.HighQualityAntialiasing
+            )
 
         p.scale(self.scale, self.scale)
         p.translate(self.offset_to_center())
@@ -1312,13 +1312,13 @@ class Canvas(
         # Draw loading/waiting screen
         if self.is_loading:
             # Draw a semi-transparent rectangle
-            p.setPen(Qt.NoPen)
+            p.setPen(Qt.PenStyle.NoPen)
             p.setBrush(QtGui.QColor(0, 0, 0, 20))
             p.drawRect(self.pixmap.rect())
 
             # Draw a spinning wheel
             p.setPen(QtGui.QColor(255, 255, 255))
-            p.setBrush(Qt.NoBrush)
+            p.setBrush(Qt.BrushStyle.NoBrush)
             p.save()
             p.translate(self.pixmap.width() / 2, self.pixmap.height() / 2 - 50)
             p.rotate(self.loading_angle)
@@ -1334,7 +1334,7 @@ class Canvas(
             p.setFont(QtGui.QFont("Arial", 20))
             p.drawText(
                 self.pixmap.rect(),
-                Qt.AlignCenter,
+                Qt.AlignmentFlag.AlignCenter,
                 self.loading_text,
             )
             p.end()
@@ -1343,7 +1343,9 @@ class Canvas(
 
         # Draw groups
         if self.show_groups:
-            pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.SolidLine)
+            pen = QtGui.QPen(
+                QtGui.QColor("#AAAAAA"), 2, Qt.PenStyle.SolidLine
+            )
             p.setPen(pen)
             grouped_shapes = {}
             for shape in self.shapes:
@@ -1377,7 +1379,7 @@ class Canvas(
                     group_color = LABEL_COLORMAP[
                         int(group_id) % len(LABEL_COLORMAP)
                     ]
-                    pen.setStyle(Qt.SolidLine)
+                    pen.setStyle(Qt.PenStyle.SolidLine)
                     pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
                     pen.setColor(QtGui.QColor(*group_color))
                     p.setPen(pen)
@@ -1401,7 +1403,7 @@ class Canvas(
                     # Draw the triangle
                     p.drawPolygon(triangle_points)
 
-                pen.setStyle(Qt.DashLine)
+                pen.setStyle(Qt.PenStyle.DashLine)
                 pen.setWidth(max(1, int(round(1.0 / Shape.scale))))
                 pen.setColor(QtGui.QColor("#EEEEEE"))
                 p.setPen(pen)
@@ -1412,7 +1414,9 @@ class Canvas(
 
         # Draw KIE linking
         if self.show_linking:
-            pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.SolidLine)
+            pen = QtGui.QPen(
+                QtGui.QColor("#AAAAAA"), 2, Qt.PenStyle.SolidLine
+            )
             p.setPen(pen)
             gid2point = {}
             linking_pairs = []
@@ -1438,7 +1442,7 @@ class Canvas(
                 gid2point[shape.group_id] = (cx, cy)
 
             for linking in linking_pairs:
-                pen.setStyle(Qt.SolidLine)
+                pen.setStyle(Qt.PenStyle.SolidLine)
                 pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
                 pen.setColor(QtGui.QColor(*group_color))
                 p.setPen(pen)
@@ -1538,7 +1542,7 @@ class Canvas(
                     fill_color.blue(),
                     self.mask_opacity,
                 )
-                p.setPen(Qt.NoPen)
+                p.setPen(Qt.PenStyle.NoPen)
                 p.setBrush(fill_color_alpha)
                 p.drawPath(mask_path)
 
@@ -1552,9 +1556,9 @@ class Canvas(
                     max(1, int(round(shape.line_width / Shape.scale)))
                 )
                 if shape.difficult:
-                    pen.setStyle(Qt.DashLine)
+                    pen.setStyle(Qt.PenStyle.DashLine)
                 p.setPen(pen)
-                p.setBrush(Qt.NoBrush)
+                p.setBrush(Qt.BrushStyle.NoBrush)
                 p.drawPath(mask_path)
 
         # Draw degrees
@@ -1591,7 +1595,7 @@ class Canvas(
                         )
                     )
                     pen = QtGui.QPen(
-                        QtGui.QColor("#FF9900"), 8, QtCore.Qt.SolidLine
+                        QtGui.QColor("#FF9900"), 8, Qt.PenStyle.SolidLine
                     )
                     p.setPen(pen)
                     fm = QtGui.QFontMetrics(p.font())
@@ -1604,7 +1608,7 @@ class Canvas(
                         QtGui.QColor("#FF9900"),
                     )
                     pen = QtGui.QPen(
-                        QtGui.QColor("#FFFFFF"), 7, QtCore.Qt.SolidLine
+                        QtGui.QColor("#FFFFFF"), 7, Qt.PenStyle.SolidLine
                     )
                     p.setPen(pen)
                     p.drawText(
@@ -1650,7 +1654,9 @@ class Canvas(
                     "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
                 )
             )
-            pen = QtGui.QPen(QtGui.QColor(background_color), 8, Qt.SolidLine)
+            pen = QtGui.QPen(
+                QtGui.QColor(background_color), 8, Qt.PenStyle.SolidLine
+            )
             p.setPen(pen)
             for shape in self.shapes:
                 if not shape.visible:
@@ -1677,7 +1683,9 @@ class Canvas(
                         QtGui.QColor(background_color),
                     )
 
-            pen = QtGui.QPen(QtGui.QColor(text_color), 8, Qt.SolidLine)
+            pen = QtGui.QPen(
+                QtGui.QColor(text_color), 8, Qt.PenStyle.SolidLine
+            )
             p.setPen(pen)
             for shape in self.shapes:
                 if not shape.visible:
@@ -1805,16 +1813,20 @@ class Canvas(
                     continue
                 labels.append((shape, rect, text_pos, label_text))
 
-            pen = QtGui.QPen(QtGui.QColor("#FFA500"), 8, Qt.SolidLine)
+            pen = QtGui.QPen(
+                QtGui.QColor("#FFA500"), 8, Qt.PenStyle.SolidLine
+            )
             p.setPen(pen)
             for shape, rect, _, _ in labels:
                 if not shape.visible:
                     continue
                 p.fillRect(rect, shape.line_color)
 
-            pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.SolidLine)
+            pen = QtGui.QPen(
+                QtGui.QColor("#000000"), 8, Qt.PenStyle.SolidLine
+            )
             p.setPen(pen)
-            for _, _, text_pos, label_text in labels:
+            for shape, _, text_pos, label_text in labels:
                 if not shape.visible:
                     continue
                 p.drawText(text_pos, label_text)
@@ -1824,7 +1836,7 @@ class Canvas(
             pen = QtGui.QPen(
                 QtGui.QColor(self.cross_line_color),
                 max(1, int(round(self.cross_line_width / Shape.scale))),
-                Qt.DashLine,
+                Qt.PenStyle.DashLine,
             )
             p.setPen(pen)
             p.setOpacity(self.cross_line_opacity)
@@ -1840,7 +1852,7 @@ class Canvas(
         # Draw attributes
         if self.show_attributes:
             font_size = int(max(8.0, int(round(10.0 / Shape.scale))))
-            font = QtGui.QFont("Arial", font_size, QtGui.QFont.Bold)
+            font = QtGui.QFont("Arial", font_size, QtGui.QFont.Weight.Bold)
             p.setFont(font)
             attributes_list = []
 
@@ -1961,13 +1973,15 @@ class Canvas(
                 p.fillRect(rect, background_color)
 
                 pen = QtGui.QPen(
-                    QtGui.QColor(*self.attr_border_color), 1, Qt.SolidLine
+                    QtGui.QColor(*self.attr_border_color),
+                    1,
+                    Qt.PenStyle.SolidLine,
                 )
                 p.setPen(pen)
                 p.drawRect(rect)
 
             pen = QtGui.QPen(
-                QtGui.QColor(*self.attr_text_color), 1, Qt.SolidLine
+                QtGui.QColor(*self.attr_text_color), 1, Qt.PenStyle.SolidLine
             )
             p.setPen(pen)
             p.setFont(font)
@@ -2050,6 +2064,16 @@ class Canvas(
     def transform_pos(self, point):
         """Convert from widget-logical coordinates to painter-logical ones."""
         return point / self.scale - self.offset_to_center()
+
+    def _event_pos(self, ev) -> QtCore.QPointF:
+        if hasattr(ev, "position"):
+            return ev.position()
+        if hasattr(ev, "localPos"):
+            return ev.localPos()
+        return QtCore.QPointF(ev.pos())
+
+    def _event_pos_point(self, ev) -> QtCore.QPoint:
+        return self._event_pos(ev).toPoint()
 
     def offset_to_center(self):
         """Calculate offset to the center"""
@@ -2247,13 +2271,10 @@ class Canvas(
             and self.enable_wheel_rectangle_editing
             and len(self.selected_shapes) == 1
             and self.selected_shapes[0].shape_type == "rectangle"
-            and not (QtCore.Qt.ControlModifier & int(mods))
+            and not (mods & Qt.KeyboardModifier.ControlModifier)
         ):
 
-            try:
-                pos = self.transform_pos(ev.posF())
-            except AttributeError:
-                pos = self.transform_pos(ev.localPos())
+            pos = self.transform_pos(self._event_pos(ev))
 
             shape = self.selected_shapes[0]
             wheel_up = delta.y() > 0
@@ -2271,7 +2292,7 @@ class Canvas(
 
         # Shift+wheel: adjust compare view split position
         if (
-            QtCore.Qt.ShiftModifier == int(mods)
+            mods == Qt.KeyboardModifier.ShiftModifier
             and self.compare_pixmap is not None
             and not self.compare_pixmap.isNull()
         ):
@@ -2284,14 +2305,14 @@ class Canvas(
             ev.accept()
             return
 
-        if QtCore.Qt.ControlModifier == int(mods):
+        if mods == Qt.KeyboardModifier.ControlModifier:
             # with Ctrl/Command key
             # zoom
-            self.zoom_request.emit(delta.y(), ev.pos())
+            self.zoom_request.emit(delta.y(), self._event_pos_point(ev))
         else:
             # scroll
-            self.scroll_request.emit(delta.x(), QtCore.Qt.Horizontal, 0)
-            self.scroll_request.emit(delta.y(), QtCore.Qt.Vertical, 0)
+            self.scroll_request.emit(delta.x(), Qt.Orientation.Horizontal, 0)
+            self.scroll_request.emit(delta.y(), Qt.Orientation.Vertical, 0)
         ev.accept()
 
     def _scale_rectangle(self, shape, scale_up):
@@ -2443,11 +2464,11 @@ class Canvas(
         modifiers = ev.modifiers()
         key = ev.key()
         if self.drawing():
-            if key == QtCore.Qt.Key_Escape and self.current:
+            if key == Qt.Key.Key_Escape and self.current:
                 self.current = None
                 self.drawing_polygon.emit(False)
                 self.update()
-            elif key == QtCore.Qt.Key_Backspace and self.current:
+            elif key == Qt.Key.Key_Backspace and self.current:
                 if self.create_mode in ["polygon", "linestrip"]:
                     if len(self.current.points) > 1:
                         self.current.points.pop()
@@ -2457,26 +2478,26 @@ class Canvas(
                         self.current = None
                         self.drawing_polygon.emit(False)
                         self.update()
-            elif key == QtCore.Qt.Key_Return and self.can_close_shape():
+            elif key == Qt.Key.Key_Return and self.can_close_shape():
                 self.finalise()
-            elif modifiers == QtCore.Qt.AltModifier:
+            elif modifiers == Qt.KeyboardModifier.AltModifier:
                 self.snapping = False
         elif self.editing():
-            if key == QtCore.Qt.Key_Up:
+            if key == Qt.Key.Key_Up:
                 self.move_by_keyboard(QtCore.QPointF(0.0, -MOVE_SPEED))
-            elif key == QtCore.Qt.Key_Down:
+            elif key == Qt.Key.Key_Down:
                 self.move_by_keyboard(QtCore.QPointF(0.0, MOVE_SPEED))
-            elif key == QtCore.Qt.Key_Left:
+            elif key == Qt.Key.Key_Left:
                 self.move_by_keyboard(QtCore.QPointF(-MOVE_SPEED, 0.0))
-            elif key == QtCore.Qt.Key_Right:
+            elif key == Qt.Key.Key_Right:
                 self.move_by_keyboard(QtCore.QPointF(MOVE_SPEED, 0.0))
-            elif key == QtCore.Qt.Key_Z:
+            elif key == Qt.Key.Key_Z:
                 self.rotate_by_keyboard(self.large_rotation_increment)
-            elif key == QtCore.Qt.Key_X:
+            elif key == Qt.Key.Key_X:
                 self.rotate_by_keyboard(self.small_rotation_increment)
-            elif key == QtCore.Qt.Key_C:
+            elif key == Qt.Key.Key_C:
                 self.rotate_by_keyboard(-self.small_rotation_increment)
-            elif key == QtCore.Qt.Key_V:
+            elif key == Qt.Key.Key_V:
                 self.rotate_by_keyboard(-self.large_rotation_increment)
 
     # QT Overload
@@ -2484,7 +2505,7 @@ class Canvas(
         """Key release event"""
         modifiers = ev.modifiers()
         if self.drawing():
-            if int(modifiers) == 0:
+            if modifiers == Qt.KeyboardModifier.NoModifier:
                 self.snapping = True
         elif self.editing():
             # NOTE: Temporary fix to avoid ValueError

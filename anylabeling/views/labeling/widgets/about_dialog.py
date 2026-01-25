@@ -1,6 +1,6 @@
 import threading
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QDialog,
     QLabel,
     QHBoxLayout,
@@ -8,11 +8,11 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QSizePolicy,
 )
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, QTimer
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import Qt, QSize, pyqtSignal, QTimer
+from PyQt6.QtGui import QIcon
 
 try:
-    from PyQt5.QtWebEngineWidgets import QWebEngineView
+    from PyQt6.QtWebEngineWidgets import QWebEngineView
 except ImportError:
     QWebEngineView = None
 
@@ -108,13 +108,13 @@ class AboutDialog(QDialog):
         # App name and version
         title_label = QLabel(f"<b>X-AnyLabeling</b> v{__version__}")
         title_label.setStyleSheet("font-size: 16px;")
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title_label)
 
         # Links row - centered
         links_layout = QHBoxLayout()
         links_layout.setSpacing(8)
-        links_layout.setAlignment(Qt.AlignCenter)
+        links_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         website_btn = QPushButton(self.tr("Website"))
         website_btn.setObjectName("link-btn")
@@ -138,7 +138,7 @@ class AboutDialog(QDialog):
         # Social links - centered
         social_layout = QHBoxLayout()
         social_layout.setSpacing(4)
-        social_layout.setAlignment(Qt.AlignCenter)
+        social_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # Email
         email_btn = QPushButton()
@@ -180,7 +180,7 @@ class AboutDialog(QDialog):
         # Changelog and update - centered
         update_layout = QHBoxLayout()
         update_layout.setSpacing(8)
-        update_layout.setAlignment(Qt.AlignCenter)
+        update_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         changelog_btn = QPushButton(self.tr("Changelog"))
         changelog_btn.setObjectName("link-btn")
@@ -203,7 +203,7 @@ class AboutDialog(QDialog):
             "Copyright © 2023 CVHub. All rights reserved."
         )
         copyright_label.setStyleSheet("color: #86868b; font-size: 12px;")
-        copyright_label.setAlignment(Qt.AlignCenter)
+        copyright_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(copyright_label)
 
         self.move_to_center()
@@ -303,7 +303,7 @@ class AboutDialog(QDialog):
             version=update_info["latest_version"]
         )
         title_label = QLabel(display_text)
-        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         title_label.setStyleSheet(
             """
             font-size: 16px;
@@ -340,7 +340,7 @@ class AboutDialog(QDialog):
         button_layout.addWidget(ok_btn)
         layout.addLayout(button_layout)
 
-        dialog.exec_()
+        dialog.exec()
 
     def _handle_update_ok(self, dialog, url):
         """Handle OK button click in update dialog"""

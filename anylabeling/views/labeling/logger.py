@@ -1,9 +1,21 @@
+from __future__ import annotations
+
 import logging
 import sys
 from functools import wraps
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Callable, Dict
 
-import termcolor
+try:
+    import termcolor
+except Exception:
+    class _TermColor:
+        @staticmethod
+        def colored(text, *args, **kwargs):
+            return text
+
+    termcolor = _TermColor()
 
 
 COLORS: Dict[str, str] = {
@@ -76,6 +88,39 @@ class AppLogger:
 
     def set_level(self, level: str):
         self.logger.setLevel(level)
+
+    def add_rotating_file_handler(
+        self,
+        log_file: str | Path,
+        *,
+        max_bytes: int = 10 * 1024 * 1024,
+        backup_count: int = 5,
+        level: int | None = None,
+    ) -> None:
+        log_path = Path(log_file).expanduser()
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        log_path_str = str(log_path.resolve())
+
+        for handler in self.logger.handlers:
+            if isinstance(handler, RotatingFileHandler) and getattr(
+                handler, "baseFilename", None
+            ) == log_path_str:
+                return
+
+        file_handler = RotatingFileHandler(
+            log_path_str,
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding="utf-8",
+        )
+        if level is not None:
+            file_handler.setLevel(level)
+        file_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s | %(levelname)s | %(module)s:%(funcName)s:%(lineno)d - %(message)s"
+            )
+        )
+        self.logger.addHandler(file_handler)
 
 
 logger = AppLogger()

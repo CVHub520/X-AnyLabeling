@@ -3,9 +3,9 @@ import json
 import os.path as osp
 from PIL import Image
 
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import (
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import (
     QVBoxLayout,
     QProgressDialog,
     QDialog,
@@ -41,7 +41,9 @@ class TextInputDialog(QDialog):
     def init_ui(self):
         self.setWindowTitle(self.tr("Enter Text Prompt"))
         self.setFixedSize(400, 180)
-        self.setWindowFlags(Qt.Dialog | Qt.MSWindowsFixedSizeDialogHint)
+        self.setWindowFlags(
+            Qt.WindowType.Dialog | Qt.WindowType.MSWindowsFixedSizeDialogHint
+        )
 
         layout = QVBoxLayout()
         layout.setContentsMargins(24, 24, 24, 24)
@@ -58,7 +60,8 @@ class TextInputDialog(QDialog):
         layout.addWidget(self.text_input)
 
         button_box = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
         )
         button_box.accepted.connect(self.accept)
         button_box.rejected.connect(self.reject)
@@ -129,7 +132,7 @@ class TextInputDialog(QDialog):
         )
 
     def get_input_text(self):
-        if self.exec_() == QDialog.Accepted:
+        if self.exec() == QDialog.DialogCode.Accepted:
             return self.text_input.text().strip()
         return ""
 
@@ -376,7 +379,7 @@ def show_progress_dialog_and_process(self):
         len(self.image_list),
         self,
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Batch Processing"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
@@ -500,14 +503,15 @@ def run_all_images(self):
         return
 
     response = QtWidgets.QMessageBox()
-    response.setIcon(QtWidgets.QMessageBox.Warning)
+    response.setIcon(QtWidgets.QMessageBox.Icon.Warning)
     response.setWindowTitle(self.tr("Confirmation"))
     response.setText(self.tr("Do you want to process all images?"))
     response.setStandardButtons(
-        QtWidgets.QMessageBox.Cancel | QtWidgets.QMessageBox.Ok
+        QtWidgets.QMessageBox.StandardButton.Cancel
+        | QtWidgets.QMessageBox.StandardButton.Ok
     )
     response.setStyleSheet(get_msg_box_style())
-    if response.exec_() != QtWidgets.QMessageBox.Ok:
+    if response.exec() != QtWidgets.QMessageBox.StandardButton.Ok:
         return
 
     logger.info("Start running all images...")

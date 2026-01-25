@@ -4,8 +4,8 @@ import os
 import os.path as osp
 from typing import Optional
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import Qt
 
 from anylabeling.views.labeling.chatbot.style import ChatbotDialogStyle
 
@@ -236,7 +236,7 @@ class CompareViewSlider(QtWidgets.QWidget):
         self._left_label.setStyleSheet("color: #666; font-size: 11px;")
         layout.addWidget(self._left_label)
 
-        self._slider = QtWidgets.QSlider(Qt.Horizontal)
+        self._slider = QtWidgets.QSlider(Qt.Orientation.Horizontal)
         self._slider.setRange(0, 100)
         self._slider.setValue(50)
         self._slider.setMinimumWidth(200)

@@ -1,8 +1,8 @@
 import os
 import re
 
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtWidgets import (
     QDialog,
     QFrame,
     QHBoxLayout,
@@ -12,16 +12,16 @@ from PyQt5.QtWidgets import (
     QProgressDialog,
     QPushButton,
     QScrollArea,
-    QShortcut,
     QSplitter,
     QVBoxLayout,
     QWidget,
 )
-from PyQt5.QtGui import (
+from PyQt6.QtGui import (
     QIcon,
     QIntValidator,
     QKeySequence,
     QPixmap,
+    QShortcut,
 )
 
 from anylabeling.views.labeling.classifier import *
@@ -42,10 +42,10 @@ class ClassifierDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(self.tr(DEFAULT_WINDOW_TITLE))
         self.setWindowFlags(
-            Qt.Window
-            | Qt.WindowMinimizeButtonHint
-            | Qt.WindowMaximizeButtonHint
-            | Qt.WindowCloseButtonHint
+            Qt.WindowType.Window
+            | Qt.WindowType.WindowMinimizeButtonHint
+            | Qt.WindowType.WindowMaximizeButtonHint
+            | Qt.WindowType.WindowCloseButtonHint
         )
         self.resize(*DEFAULT_WINDOW_SIZE)
 
@@ -80,7 +80,7 @@ class ClassifierDialog(QDialog):
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(20)
 
-        self.main_splitter = QSplitter(Qt.Horizontal)
+        self.main_splitter = QSplitter(Qt.Orientation.Horizontal)
         self.main_splitter.setHandleWidth(3)
         self.main_splitter.setStyleSheet(get_main_splitter_style())
         self.main_splitter.setChildrenCollapsible(False)
@@ -91,7 +91,7 @@ class ClassifierDialog(QDialog):
         left_layout.setSpacing(10)
 
         self.filename_label = QLabel(self.tr("No image loaded"))
-        self.filename_label.setAlignment(Qt.AlignCenter)
+        self.filename_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.filename_label.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
         self.filename_label.setStyleSheet(get_filename_label_style())
         left_layout.addWidget(self.filename_label)
@@ -102,7 +102,7 @@ class ClassifierDialog(QDialog):
         container_layout.setContentsMargins(8, 8, 8, 8)
 
         self.image_label = QLabel()
-        self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setStyleSheet(get_image_label_style())
         self.image_label.setFixedSize(PANEL_SIZE - 16, PANEL_SIZE - 16)
         self.image_label.setScaledContents(False)
@@ -168,7 +168,7 @@ class ClassifierDialog(QDialog):
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameStyle(QFrame.NoFrame)
+        self.scroll_area.setFrameStyle(QFrame.Shape.NoFrame)
 
         self.scroll_widget = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_widget)
@@ -258,7 +258,7 @@ class ClassifierDialog(QDialog):
         self.page_input = PageInputLineEdit()
         self.page_input.classifier_dialog = self
         self.page_input.setFixedSize(68, DEFAULT_COMPONENT_HEIGHT)
-        self.page_input.setAlignment(Qt.AlignCenter)
+        self.page_input.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.page_input.setStyleSheet(get_page_input_style())
         self.page_input.textChanged.connect(self.validate_page_input)
         self.page_input.editingFinished.connect(self.on_page_input_finished)
@@ -423,7 +423,7 @@ class ClassifierDialog(QDialog):
 
     def add_new_label(self):
         dialog = NewLabelDialog(self.labels, self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             new_labels = dialog.get_labels()
             self.labels.extend(new_labels)
             self.parent().image_flags.extend(new_labels)
@@ -442,7 +442,7 @@ class ClassifierDialog(QDialog):
             return
 
         dialog = DeleteLabelDialog(self.labels, self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             selected_labels = dialog.get_selected_labels()
             for label in selected_labels:
                 self.labels.remove(label)
@@ -455,7 +455,7 @@ class ClassifierDialog(QDialog):
             return
 
         dialog = EditLabelDialog(self.labels, self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             labels_map = dialog.get_edit_info()
 
             new_labels = []
@@ -492,7 +492,7 @@ class ClassifierDialog(QDialog):
         dialog = StatisticsViewDialog(
             self.labels, self.image_files, self.parent().output_dir, self
         )
-        dialog.exec_()
+        dialog.exec()
 
     def switch_to_multiclass(self):
         if self.is_multiclass:
@@ -505,11 +505,11 @@ class ClassifierDialog(QDialog):
                 "Switching to MultiClass mode will only keep the first label for each image. "
                 "Other labels will be discarded. Continue?"
             ),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply == QMessageBox.Yes:
+        if reply == QMessageBox.StandardButton.Yes:
             self.is_multiclass = True
             self.multiclass_button.setStyleSheet(
                 get_dialog_button_style("light_green", "medium")
@@ -550,7 +550,7 @@ class ClassifierDialog(QDialog):
             return
 
         dialog = ExportPathDialog(self.output_dir, self)
-        if dialog.exec_() != QDialog.Accepted:
+        if dialog.exec() != QDialog.DialogCode.Accepted:
             return
 
         self.output_dir = dialog.get_path()
@@ -603,7 +603,7 @@ class ClassifierDialog(QDialog):
         prompt = create_ai_prompt_template(self.labels, self.is_multiclass)
         dialog = AIPromptDialog(self)
         dialog.prompt_input.setPlainText(prompt)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             final_prompt = dialog.get_prompt()
             if final_prompt:
                 self.loading_msg = AILoadingDialog(self)
@@ -622,7 +622,7 @@ class ClassifierDialog(QDialog):
                 )
 
                 self.ai_worker.start()
-                if self.loading_msg.exec_() == QDialog.Rejected:
+                if self.loading_msg.exec() == QDialog.DialogCode.Rejected:
                     self.cancel_ai_processing()
 
     def handle_ai_result(self, result, success, error_message):
@@ -686,7 +686,7 @@ class ClassifierDialog(QDialog):
         prompt = create_ai_prompt_template(self.labels, self.is_multiclass)
         dialog = AIPromptDialog(self)
         dialog.prompt_input.setPlainText(prompt)
-        if dialog.exec_() != QDialog.Accepted:
+        if dialog.exec() != QDialog.DialogCode.Accepted:
             return
 
         final_prompt = dialog.get_prompt()
@@ -697,11 +697,11 @@ class ClassifierDialog(QDialog):
             self,
             self.tr("Confirmation"),
             self.tr(f"Process {len(self.image_files)} images with AI?"),
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
         )
 
-        if reply != QMessageBox.Yes:
+        if reply != QMessageBox.StandardButton.Yes:
             return
 
         self.batch_progress = QProgressDialog(
@@ -711,7 +711,7 @@ class ClassifierDialog(QDialog):
             len(self.image_files),
             self,
         )
-        self.batch_progress.setWindowModality(Qt.WindowModal)
+        self.batch_progress.setWindowModality(Qt.WindowModality.WindowModal)
         self.batch_progress.setWindowTitle(self.tr("Progress"))
         self.batch_progress.setMinimumWidth(500)
         self.batch_progress.setMinimumHeight(150)
@@ -781,7 +781,9 @@ class ClassifierDialog(QDialog):
                         key = item.text()
                         if key in flags:
                             item.setCheckState(
-                                Qt.Checked if flags[key] else Qt.Unchecked
+                                Qt.CheckState.Checked
+                                if flags[key]
+                                else Qt.CheckState.Unchecked
                             )
 
                 if hasattr(self.parent(), "set_dirty"):
@@ -972,8 +974,8 @@ class ClassifierDialog(QDialog):
                 scaled_pixmap = pixmap.scaled(
                     label_size.width(),
                     label_size.height(),
-                    Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
                 )
                 self.image_label.setPixmap(scaled_pixmap)
 
@@ -1023,7 +1025,9 @@ class ClassifierDialog(QDialog):
                     for i in range(flag_widget.count()):
                         item = flag_widget.item(i)
                         if item.text() == label:
-                            flags[label] = item.checkState() == Qt.Checked
+                            flags[label] = (
+                                item.checkState() == Qt.CheckState.Checked
+                            )
                             found = True
                             break
                     if not found:
@@ -1074,8 +1078,8 @@ class ClassifierDialog(QDialog):
 
             if not found:
                 item = QListWidgetItem(label)
-                item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
-                item.setCheckState(Qt.Unchecked)
+                item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+                item.setCheckState(Qt.CheckState.Unchecked)
                 flag_widget.addItem(item)
 
     def sync_to_main_flag_widget(self, flags):
@@ -1087,7 +1091,9 @@ class ClassifierDialog(QDialog):
                 key = item.text()
                 if key in flags:
                     item.setCheckState(
-                        Qt.Checked if flags[key] else Qt.Unchecked
+                        Qt.CheckState.Checked
+                        if flags[key]
+                        else Qt.CheckState.Unchecked
                     )
         except Exception as e:
             logger.error(f"Error syncing to flag_widget: {e}")
@@ -1123,7 +1129,7 @@ class ClassifierDialog(QDialog):
             len(self.image_files),
             self,
         )
-        progress_dialog.setWindowModality(Qt.WindowModal)
+        progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
         progress_dialog.setWindowTitle(self.tr("Progress"))
         progress_dialog.setMinimumWidth(500)
         progress_dialog.setMinimumHeight(150)

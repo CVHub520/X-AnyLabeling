@@ -1,7 +1,7 @@
 from difflib import SequenceMatcher
 from pathlib import Path
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QFrame,
@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt5.QtCore import Qt, QSize, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtGui import QIcon
 
 from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.utils import load_json, save_json
@@ -70,7 +70,7 @@ class ModelItem(QFrame):
         self.in_favorites_section = in_favorites_section
 
         self.setFixedHeight(DEFAULT_FIXED_HEIGHT)
-        self.setFrameShape(QFrame.NoFrame)
+        self.setFrameShape(QFrame.Shape.NoFrame)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 0, 8, 0)
@@ -235,7 +235,9 @@ class ModelDropdown(QWidget):
         self, models_data: dict = {}, current_provider: str = None, parent=None
     ):
         super().__init__(parent)
-        self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
+        self.setWindowFlags(
+            Qt.WindowType.Popup | Qt.WindowType.FramelessWindowHint
+        )
         self.resize(360, 500)
         self.current_provider = current_provider
 
@@ -288,7 +290,7 @@ class ModelDropdown(QWidget):
         # Scroll area for models
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameShape(QFrame.NoFrame)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
 
         container = QWidget()
         self.container_layout = QVBoxLayout(container)
@@ -368,8 +370,8 @@ class ModelDropdown(QWidget):
                 self.model_items[model_name] = model_item
 
             separator = QFrame()
-            separator.setFrameShape(QFrame.HLine)
-            separator.setFrameShadow(QFrame.Plain)
+            separator.setFrameShape(QFrame.Shape.HLine)
+            separator.setFrameShadow(QFrame.Shadow.Plain)
             self.container_layout.addWidget(separator)
 
         if current_provider_models:
@@ -411,8 +413,8 @@ class ModelDropdown(QWidget):
                 self.model_items[model_name] = model_item
 
             separator = QFrame()
-            separator.setFrameShape(QFrame.HLine)
-            separator.setFrameShadow(QFrame.Plain)
+            separator.setFrameShape(QFrame.Shape.HLine)
+            separator.setFrameShadow(QFrame.Shadow.Plain)
             self.container_layout.addWidget(separator)
 
         # Add provider sections
@@ -431,8 +433,8 @@ class ModelDropdown(QWidget):
                 self.model_items[model_name] = model_item
 
             separator = QFrame()
-            separator.setFrameShape(QFrame.HLine)
-            separator.setFrameShadow(QFrame.Plain)
+            separator.setFrameShape(QFrame.Shape.HLine)
+            separator.setFrameShadow(QFrame.Shadow.Plain)
             self.container_layout.addWidget(separator)
 
         # Add stretch at the end to push content to the top
@@ -517,7 +519,7 @@ class ModelDropdown(QWidget):
                     widget.setVisible(False)
 
             no_results = QLabel(empty_text)
-            no_results.setAlignment(Qt.AlignCenter)
+            no_results.setAlignment(Qt.AlignmentFlag.AlignCenter)
             no_results.setStyleSheet(
                 """
                 color: #09090b;
@@ -542,7 +544,7 @@ class ModelDropdown(QWidget):
                     widget.setVisible(has_visible_models)
                 elif (
                     isinstance(widget, QFrame)
-                    and widget.frameShape() == QFrame.HLine
+                    and widget.frameShape() == QFrame.Shape.HLine
                 ):
                     prev_widget = (
                         self.container_layout.itemAt(i - 1).widget()

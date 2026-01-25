@@ -1,6 +1,6 @@
 """Defines toolbar for anylabeling, including"""
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets
 
 
 class ToolBar(QtWidgets.QToolBar):
@@ -13,7 +13,9 @@ class ToolBar(QtWidgets.QToolBar):
         layout.setSpacing(0)
         layout.setContentsMargins(*margin)
         self.setContentsMargins(*margin)
-        self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlags(
+            self.windowFlags() | QtCore.Qt.WindowType.FramelessWindowHint
+        )
 
         self.setStyleSheet(
             """
@@ -41,6 +43,8 @@ class ToolBar(QtWidgets.QToolBar):
             if isinstance(
                 self.layout().itemAt(i).widget(), QtWidgets.QToolButton
             ):
-                self.layout().itemAt(i).setAlignment(QtCore.Qt.AlignCenter)
+                self.layout().itemAt(i).setAlignment(
+                    QtCore.Qt.AlignmentFlag.AlignCenter
+                )
 
         return True

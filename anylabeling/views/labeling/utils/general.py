@@ -104,6 +104,7 @@ def collect_system_info():
     gpu_info = get_gpu_info()
     cuda_info = get_cuda_version()
     python_info = platform.python_version()
+    pyqt6_info = get_installed_package_version("PyQt6")
     pyqt5_info = get_installed_package_version("PyQt5")
     onnx_info = get_installed_package_version("onnx")
     ort_info = get_installed_package_version("onnxruntime")
@@ -123,6 +124,7 @@ def collect_system_info():
         "Python Version": python_info,
     }
     pkg_info = {
+        "PyQt6 Version": pyqt6_info,
         "PyQt5 Version": pyqt5_info,
         "ONNX Version": onnx_info,
         "ONNX Runtime Version": ort_info,

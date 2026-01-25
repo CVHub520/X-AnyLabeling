@@ -2,8 +2,8 @@
 
 import html
 
-from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtCore import Qt
+from PyQt6 import QtWidgets, QtGui
+from PyQt6.QtCore import Qt
 
 from .escapable_qlist_widget import EscapableQListWidget
 
@@ -44,7 +44,7 @@ class UniqueLabelQListWidget(EscapableQListWidget):
                 ");"
             )
             qlabel.setStyleSheet(style_sheet)
-        qlabel.setAlignment(Qt.AlignBottom)
+        qlabel.setAlignment(Qt.AlignmentFlag.AlignBottom)
         item.setSizeHint(qlabel.sizeHint())
         self.setItemWidget(item, qlabel)
 

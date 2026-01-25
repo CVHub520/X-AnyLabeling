@@ -1,6 +1,6 @@
 from difflib import SequenceMatcher
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QLabel,
     QLineEdit,
     QFrame,
@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt5.QtCore import Qt, QSize, pyqtSignal
-from PyQt5.QtGui import QIcon
+from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtGui import QIcon
 
 from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.chatbot.config import *
@@ -124,7 +124,7 @@ class ModelItem(QFrame):
         self.in_favorites_section = in_favorites_section
 
         self.setFixedHeight(DEFAULT_FIXED_HEIGHT)
-        self.setFrameShape(QFrame.NoFrame)
+        self.setFrameShape(QFrame.Shape.NoFrame)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 0, 8, 0)
@@ -233,7 +233,9 @@ class SearchableModelDropdownPopup(QWidget):
     def __init__(self, models_data: dict = {}, parent=None):
         super().__init__(parent)
 
-        self.setWindowFlags(Qt.Popup | Qt.FramelessWindowHint)
+        self.setWindowFlags(
+            Qt.WindowType.Popup | Qt.WindowType.FramelessWindowHint
+        )
         self.setMinimumWidth(360)
         self.setFixedHeight(640)
 
@@ -286,8 +288,10 @@ class SearchableModelDropdownPopup(QWidget):
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameShape(QFrame.NoFrame)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
 
         container = QWidget()
         self.container_layout = QVBoxLayout(container)
@@ -336,8 +340,8 @@ class SearchableModelDropdownPopup(QWidget):
                 self.model_items[model_name] = model_item
 
             separator = QFrame()
-            separator.setFrameShape(QFrame.HLine)
-            separator.setFrameShadow(QFrame.Plain)
+            separator.setFrameShape(QFrame.Shape.HLine)
+            separator.setFrameShadow(QFrame.Shadow.Plain)
             self.container_layout.addWidget(separator)
 
         # Add provider sections
@@ -356,8 +360,8 @@ class SearchableModelDropdownPopup(QWidget):
                 self.model_items[model_name] = model_item
 
             separator = QFrame()
-            separator.setFrameShape(QFrame.HLine)
-            separator.setFrameShadow(QFrame.Plain)
+            separator.setFrameShape(QFrame.Shape.HLine)
+            separator.setFrameShadow(QFrame.Shadow.Plain)
             self.container_layout.addWidget(separator)
 
         # Add stretch at the end to push content to the top
@@ -457,7 +461,7 @@ class SearchableModelDropdownPopup(QWidget):
                     widget.setVisible(False)
 
             no_results = QLabel(empty_text)
-            no_results.setAlignment(Qt.AlignCenter)
+            no_results.setAlignment(Qt.AlignmentFlag.AlignCenter)
             no_results.setStyleSheet(
                 """
                 color: #09090b;
@@ -482,7 +486,7 @@ class SearchableModelDropdownPopup(QWidget):
                     widget.setVisible(has_visible_models)
                 elif (
                     isinstance(widget, QFrame)
-                    and widget.frameShape() == QFrame.HLine
+                    and widget.frameShape() == QFrame.Shape.HLine
                 ):
                     prev_widget = (
                         self.container_layout.itemAt(i - 1).widget()

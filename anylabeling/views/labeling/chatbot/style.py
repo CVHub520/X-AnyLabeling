@@ -1,13 +1,13 @@
 from typing import Dict, List, Tuple
 
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QWidget,
     QFrame,
     QVBoxLayout,
     QLabel,
     QGridLayout,
 )
-from PyQt5.QtCore import Qt
+from PyQt6.QtCore import Qt
 
 from anylabeling.views.labeling.chatbot.config import *
 
@@ -24,9 +24,11 @@ class CustomTooltip(QWidget):
         value_pairs: List[Tuple[str, str]] = None,
     ):
         super().__init__(parent)
-        self.setWindowFlags(Qt.ToolTip | Qt.FramelessWindowHint)
-        self.setAttribute(Qt.WA_TranslucentBackground)
-        self.setAttribute(Qt.WA_ShowWithoutActivating)
+        self.setWindowFlags(
+            Qt.WindowType.ToolTip | Qt.WindowType.FramelessWindowHint
+        )
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setAttribute(Qt.WidgetAttribute.WA_ShowWithoutActivating)
 
         self.container = QFrame(self)
         self.container.setObjectName("tooltip_container")
@@ -53,7 +55,7 @@ class CustomTooltip(QWidget):
                 name_label.setStyleSheet(f"color: {text_color};")
                 value_label = QLabel(value)
                 value_label.setStyleSheet(f"color: {text_color};")
-                value_label.setAlignment(Qt.AlignRight)
+                value_label.setAlignment(Qt.AlignmentFlag.AlignRight)
                 grid_layout.addWidget(name_label, i, 0)
                 grid_layout.addWidget(value_label, i, 1)
 

@@ -8,7 +8,7 @@ import numpy as np
 import PIL.Image
 import PIL.ImageOps
 
-from PyQt5 import QtGui
+from PyQt6 import QtGui
 
 from ...labeling.logger import logger
 
@@ -46,7 +46,11 @@ def pil_to_qimage(img):
     height, width, channel = data.shape
     bytes_per_line = 4 * width
     qimage = QtGui.QImage(
-        data, width, height, bytes_per_line, QtGui.QImage.Format_RGBA8888
+        data,
+        width,
+        height,
+        bytes_per_line,
+        QtGui.QImage.Format.Format_RGBA8888,
     )
     return qimage
 

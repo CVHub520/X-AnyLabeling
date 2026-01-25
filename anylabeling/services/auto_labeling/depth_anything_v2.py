@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 
-from PyQt5.QtCore import QCoreApplication
+from PyQt6.QtCore import QCoreApplication
 
 from anylabeling.app_info import __preferred_device__
 from anylabeling.views.labeling.logger import logger

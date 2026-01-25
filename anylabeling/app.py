@@ -21,7 +21,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import yaml
-from PyQt5 import QtCore, QtWidgets
 
 from anylabeling.app_info import (
     __appname__,
@@ -35,15 +34,7 @@ from anylabeling.config import (
     get_work_directory,
 )
 from anylabeling import config as anylabeling_config
-from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
-from anylabeling.views.labeling.utils import new_icon, gradient_text
-from anylabeling.views.labeling.utils.update_checker import (
-    check_for_updates_async,
-)
-
-# NOTE: Do not remove this import, it is required for loading translations
-from anylabeling.resources import resources
 
 
 def main():
@@ -63,6 +54,16 @@ def main():
     )
     subparsers.add_parser("version", help="show version information")
     subparsers.add_parser("config", help="show config file path")
+    diagnostics_parser = subparsers.add_parser(
+        "diagnostics", help="export diagnostics bundle"
+    )
+    diagnostics_parser.add_argument(
+        "--output-zip",
+        dest="output_zip",
+        type=str,
+        default=None,
+        help="output zip path",
+    )
 
     convert_parser = subparsers.add_parser(
         "convert", help="run conversion tasks"
@@ -220,6 +221,19 @@ def main():
         "config": lambda args: print(
             os.path.join(get_work_directory(), ".xanylabelingrc")
         ),
+        "diagnostics": lambda args: print(
+            __import__(
+                "anylabeling.diagnostics", fromlist=["export_diagnostics_zip"]
+            ).export_diagnostics_zip(
+                args.output_zip
+                or os.path.join(get_work_directory(), "diagnostics.zip"),
+                log_dir=__import__(
+                    "anylabeling.diagnostics", fromlist=["get_log_dir"]
+                ).get_log_dir(),
+                config_file=args.config
+                or os.path.join(get_work_directory(), ".xanylabelingrc"),
+            )
+        ),
         "convert": lambda args: __import__(
             "anylabeling.views.common.converter",
             fromlist=["handle_convert_command"],
@@ -229,6 +243,26 @@ def main():
     if args.command and args.command in special:
         special[args.command](args)
         return
+
+    try:
+        from PyQt6 import QtCore, QtWidgets
+    except Exception as exc:
+        raise RuntimeError(
+            "PyQt6 is required to run X-AnyLabeling GUI. "
+            "Install with: pip install PyQt6 PyQt6-WebEngine"
+        ) from exc
+
+    from anylabeling.qt_compat import apply_qt5_compat
+
+    apply_qt5_compat()
+
+    from anylabeling.views.labeling.utils.general import gradient_text
+    from anylabeling.views.labeling.utils.qt import new_icon
+    from anylabeling.views.labeling.utils.update_checker import (
+        check_for_updates_async,
+    )
+    from anylabeling.views.mainwindow import MainWindow
+    from anylabeling.resources import resources
 
     if hasattr(args, "flags"):
         if os.path.isfile(args.flags):
@@ -267,10 +301,26 @@ def main():
     qt_platform = config_from_args.pop("qt_platform", None)
 
     logger.setLevel(getattr(logging, logger_level.upper()))
+    from anylabeling.diagnostics import (
+        enable_faulthandler,
+        get_log_dir,
+        install_exception_hooks,
+        install_qt_message_handler,
+    )
+
+    log_dir = get_log_dir()
+    logger.add_rotating_file_handler(
+        log_dir / "xanylabeling.log",
+        level=getattr(logging, logger_level.upper()),
+    )
+    install_exception_hooks(logger.logger, log_dir=log_dir)
+    install_qt_message_handler(logger.logger)
+    enable_faulthandler(log_dir=log_dir)
     logger.info(
         f"🚀 {gradient_text(f'X-AnyLabeling v{__version__} launched!')}"
     )
     logger.info(f"⭐ If you like it, give us a star: {__url__}")
+    logger.info(f"📝 Logs: {log_dir}")
     if qt_platform:
         os.environ["QT_QPA_PLATFORM"] = qt_platform
         logger.info(f"🖥️ Using Qt platform: {qt_platform}")
@@ -299,14 +349,12 @@ def main():
     loaded_language = translator.load(
         ":/languages/translations/" + language + ".qm"
     )
-    # Enable scaling for high dpi screens
-    QtWidgets.QApplication.setAttribute(
-        QtCore.Qt.AA_EnableHighDpiScaling, True
-    )  # enable highdpi scaling
-    QtWidgets.QApplication.setAttribute(
-        QtCore.Qt.AA_UseHighDpiPixmaps, True
-    )  # use highdpi icons
-    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
+    app_attr = QtCore.Qt.ApplicationAttribute
+    if hasattr(app_attr, "AA_EnableHighDpiScaling"):
+        QtWidgets.QApplication.setAttribute(app_attr.AA_EnableHighDpiScaling, True)
+    if hasattr(app_attr, "AA_UseHighDpiPixmaps"):
+        QtWidgets.QApplication.setAttribute(app_attr.AA_UseHighDpiPixmaps, True)
+    QtCore.QCoreApplication.setAttribute(app_attr.AA_ShareOpenGLContexts)
 
     app = QtWidgets.QApplication(sys.argv)
     app.processEvents()

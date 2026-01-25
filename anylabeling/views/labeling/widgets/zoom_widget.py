@@ -1,16 +1,18 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 
 class ZoomWidget(QtWidgets.QSpinBox):
     def __init__(self, value=100):
         super().__init__()
-        self.setButtonSymbols(QtWidgets.QAbstractSpinBox.NoButtons)
+        self.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
         self.setRange(1, 1000)
         self.setSuffix("%")
         self.setValue(value)
         self.setToolTip(self.tr("Zoom Level"))
         self.setStatusTip(self.toolTip())
-        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         font = self.font()
         font.setPointSize(9)
         self.setFont(font)

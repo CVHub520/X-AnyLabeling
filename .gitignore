@@ -181,3 +181,5 @@ pnnx*
 
 # calibration image
 calibration_*.npy
+.trae/
+examples/**/*.json

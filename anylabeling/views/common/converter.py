@@ -3,7 +3,11 @@ import os.path as osp
 import sys
 from glob import glob
 from pathlib import Path
-from termcolor import colored
+try:
+    from termcolor import colored
+except Exception:
+    def colored(text, *args, **kwargs):
+        return text
 from tqdm import tqdm
 
 sys.path.append(str(Path(__file__).parent.parent.parent.parent))

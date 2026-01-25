@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt, QSize, QRect, QPoint
-from PyQt5.QtWidgets import QLayout, QSizePolicy
+from PyQt6.QtCore import Qt, QSize, QRect, QPoint
+from PyQt6.QtWidgets import QLayout, QSizePolicy
 
 
 class FlowLayout(QLayout):
@@ -162,10 +162,14 @@ class FlowLayout(QLayout):
         for item in self.itemList:
             wid = item.widget()
             spaceX = spacing + wid.style().layoutSpacing(
-                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Horizontal
+                QSizePolicy.PushButton,
+                QSizePolicy.PushButton,
+                Qt.Orientation.Horizontal,
             )
             spaceY = spacing + wid.style().layoutSpacing(
-                QSizePolicy.PushButton, QSizePolicy.PushButton, Qt.Vertical
+                QSizePolicy.PushButton,
+                QSizePolicy.PushButton,
+                Qt.Orientation.Vertical,
             )
 
             nextX = x + item.sizeHint().width() + spaceX

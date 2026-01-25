@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (
+from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
@@ -16,9 +16,9 @@ from PyQt5.QtWidgets import (
     QHeaderView,
     QAbstractItemView,
 )
-from PyQt5 import QtCore
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QColor
+from PyQt6 import QtCore
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QBrush, QColor
 
 from anylabeling.services.auto_training.ultralytics.config import *
 from anylabeling.services.auto_training.ultralytics.style import *
@@ -202,7 +202,7 @@ class CustomDoubleSpinBox(QDoubleSpinBox):
 
 
 class CustomSlider(QSlider):
-    def __init__(self, orientation=QtCore.Qt.Horizontal, parent=None):
+    def __init__(self, orientation=QtCore.Qt.Orientation.Horizontal, parent=None):
         super().__init__(orientation, parent)
         self.setStyleSheet(
             """
@@ -264,7 +264,7 @@ class CustomQPushButton(QPushButton):
         self.setFixedHeight(32)
         self.setMinimumWidth(80)
         self.selected = False
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.update_style()
 
     def set_selected(self, selected):
@@ -450,9 +450,9 @@ class CustomTable(QTableWidget):
         self.setup_table()
 
     def setup_table(self):
-        self.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.setSelectionMode(QAbstractItemView.NoSelection)
-        self.setFocusPolicy(Qt.NoFocus)
+        self.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setAlternatingRowColors(True)
         self.setShowGrid(False)
         self.verticalHeader().setVisible(False)
@@ -484,9 +484,11 @@ class CustomTable(QTableWidget):
         for row, row_data in enumerate(data_rows):
             for col, value in enumerate(row_data):
                 item = QTableWidgetItem(str(value))
-                item.setTextAlignment(Qt.AlignCenter)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
 
                 if col == 0:
-                    item.setTextAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+                    item.setTextAlignment(
+                        Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+                    )
 
                 self.setItem(row, col, item)

@@ -1,7 +1,7 @@
 import copy
 import math
 
-from PyQt5 import QtCore, QtGui
+from PyQt6 import QtCore, QtGui
 
 from . import utils
 from ..labeling.logger import logger

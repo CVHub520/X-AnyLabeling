@@ -1,13 +1,73 @@
 {
-  "version": "2.4.0",
+  "version": "3.3.6",
   "flags": {
     "Apple": true,
     "Meta": false,
     "Google": false
   },
-  "shapes": [],
+  "shapes": [
+    {
+      "kie_linking": [],
+      "label": "traffic light",
+      "score": 0.49463948607444763,
+      "points": [
+        [
+          386.0,
+          207.0
+        ],
+        [
+          613.0,
+          207.0
+        ],
+        [
+          613.0,
+          483.0
+        ],
+        [
+          386.0,
+          483.0
+        ]
+      ],
+      "group_id": null,
+      "description": null,
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": null,
+      "attributes": {}
+    },
+    {
+      "label": "stop sign",
+      "score": null,
+      "points": [
+        [
+          273.37002840909093,
+          104.46022727272731
+        ],
+        [
+          363.6044034090909,
+          104.46022727272731
+        ],
+        [
+          363.6044034090909,
+          211.99218750000006
+        ],
+        [
+          273.37002840909093,
+          211.99218750000006
+        ]
+      ],
+      "group_id": null,
+      "description": "",
+      "difficult": false,
+      "shape_type": "rectangle",
+      "flags": {},
+      "attributes": {},
+      "kie_linking": []
+    }
+  ],
   "imagePath": "apple.jpg",
   "imageData": null,
   "imageHeight": 700,
-  "imageWidth": 1000
+  "imageWidth": 1000,
+  "description": ""
 }

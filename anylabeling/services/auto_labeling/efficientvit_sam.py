@@ -7,9 +7,9 @@ import onnxruntime as ort
 from copy import deepcopy
 from typing import Any, Union, Tuple
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import QThread
-from PyQt5.QtCore import QCoreApplication
+from PyQt6 import QtCore
+from PyQt6.QtCore import QThread
+from PyQt6.QtCore import QCoreApplication
 
 from anylabeling.utils import GenericWorker
 from anylabeling.views.labeling.shape import Shape

@@ -6,9 +6,9 @@ import importlib.resources as pkg_resources
 import anylabeling.configs as anylabeling_configs
 from anylabeling.config import get_config
 
-from PyQt5 import uic
-from PyQt5.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint
-from PyQt5.QtWidgets import (
+from PyQt6 import uic
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint
+from PyQt6.QtWidgets import (
     QDialog,
     QFileDialog,
     QWidget,
@@ -487,7 +487,7 @@ class AutoLabelingWidget(QWidget):
                         self, default_url, default_api_key
                     )
 
-                    if dialog.exec_() == QDialog.Accepted:
+                    if dialog.exec() == QDialog.DialogCode.Accepted:
                         new_url = dialog.get_server_url()
                         new_api_key = dialog.get_api_key()
                         if new_url:
@@ -525,7 +525,7 @@ class AutoLabelingWidget(QWidget):
             file_dialog.setFileMode(QFileDialog.ExistingFile)
             file_dialog.setNameFilter("Config file (*.yaml)")
 
-            if file_dialog.exec_():
+            if file_dialog.exec():
                 self.hide_labeling_widgets()
                 config_file = file_dialog.selectedFiles()[0]
                 flag = self.model_manager.load_custom_model(config_file)
@@ -967,7 +967,7 @@ class AutoLabelingWidget(QWidget):
     def on_set_api_token(self):
         """Show a dialog to input the API token."""
         dialog = ApiTokenDialog(self)
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             token = dialog.get_token()
             try:
                 self.model_manager.set_auto_labeling_api_token(token)

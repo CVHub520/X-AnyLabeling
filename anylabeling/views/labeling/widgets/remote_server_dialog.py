@@ -1,6 +1,6 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QHBoxLayout,
@@ -46,7 +46,7 @@ class RemoteServerDialog(QDialog):
 
         api_key_container = QHBoxLayout()
         self.api_key_input = QLineEdit(default_api_key)
-        self.api_key_input.setEchoMode(QLineEdit.Password)
+        self.api_key_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.api_key_input.setPlaceholderText(self.tr("Enter API key"))
         self.api_key_input.setStyleSheet(get_lineedit_style())
         self.api_key_input.setSizePolicy(
@@ -113,9 +113,9 @@ class RemoteServerDialog(QDialog):
     def toggle_api_key_visibility(self, checked):
         """Toggles the visibility of the API key input."""
         if checked:
-            self.api_key_input.setEchoMode(QLineEdit.Normal)
+            self.api_key_input.setEchoMode(QLineEdit.EchoMode.Normal)
         else:
-            self.api_key_input.setEchoMode(QLineEdit.Password)
+            self.api_key_input.setEchoMode(QLineEdit.EchoMode.Password)
         self._update_visibility_button(checked)
 
     def get_server_url(self):

@@ -1,6 +1,6 @@
 """This module defines labeling wrapper and related functions"""
 
-from PyQt5.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtWidgets import QVBoxLayout, QWidget
 
 from .label_widget import LabelingWidget
 

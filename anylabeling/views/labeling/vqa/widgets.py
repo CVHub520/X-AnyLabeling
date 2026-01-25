@@ -1,5 +1,5 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLineEdit, QTextEdit
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QLineEdit, QTextEdit
 
 
 class AutoResizeTextEdit(QTextEdit):
@@ -22,9 +22,11 @@ class AutoResizeTextEdit(QTextEdit):
         self.max_height = max_height
 
         self.setFixedHeight(self.initial_height)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.setLineWrapMode(QTextEdit.WidgetWidth)
+        self.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.setLineWrapMode(QTextEdit.LineWrapMode.WidgetWidth)
 
         self.textChanged.connect(self.adjust_height)
 
@@ -40,9 +42,13 @@ class AutoResizeTextEdit(QTextEdit):
 
         if new_height > self.max_height:
             new_height = self.max_height
-            self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            self.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAsNeeded
+            )
         else:
-            self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            self.setVerticalScrollBarPolicy(
+                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+            )
 
         if self.height() != new_height:
             self.setFixedHeight(new_height)
@@ -54,7 +60,7 @@ class PageInputLineEdit(QLineEdit):
         self.vqa_dialog = None
 
     def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+        if event.key() == Qt.Key.Key_Return or event.key() == Qt.Key.Key_Enter:
             text = self.text().strip()
 
             if not text:
@@ -97,7 +103,9 @@ def create_truncated_widget(text, widget_class, max_width=500):
     text_width = font_metrics.horizontalAdvance(text)
 
     if text_width > max_width:
-        elided_text = font_metrics.elidedText(text, Qt.ElideRight, max_width)
+        elided_text = font_metrics.elidedText(
+            text, Qt.TextElideMode.ElideRight, max_width
+        )
         widget.setText(elided_text)
         widget.setToolTip(text)
         widget.setMaximumWidth(max_width + 20)

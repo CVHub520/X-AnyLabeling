@@ -9,8 +9,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
     QApplication,
     QDialog,
     QFileDialog,
@@ -259,7 +259,7 @@ def save_crop(self):
             self,
             self.tr("Select Save Directory"),
             path_edit.text(),
-            QFileDialog.DontUseNativeDialog,
+            QFileDialog.Option.DontUseNativeDialog,
         )
         if path:
             path_edit.setText(path)
@@ -323,7 +323,7 @@ def save_crop(self):
     layout.addLayout(button_layout)
 
     dialog.setLayout(layout)
-    result = dialog.exec_()
+    result = dialog.exec()
 
     if not result:
         return
@@ -332,7 +332,7 @@ def save_crop(self):
 
     if osp.exists(save_path):
         msg_box = QMessageBox(self)
-        msg_box.setIcon(QMessageBox.Warning)
+        msg_box.setIcon(QMessageBox.Icon.Warning)
         msg_box.setWindowTitle(self.tr("Output Directory Exists!"))
         msg_box.setText(self.tr("Directory already exists. Choose an action:"))
         msg_box.setInformativeText(
@@ -342,12 +342,12 @@ def save_crop(self):
             )
         )
 
-        msg_box.addButton(self.tr("Overwrite"), QMessageBox.YesRole)
+        msg_box.addButton(self.tr("Overwrite"), QMessageBox.ButtonRole.YesRole)
         cancel_button = msg_box.addButton(
-            self.tr("Cancel"), QMessageBox.RejectRole
+            self.tr("Cancel"), QMessageBox.ButtonRole.RejectRole
         )
         msg_box.setStyleSheet(get_msg_box_style())
-        msg_box.exec_()
+        msg_box.exec()
 
         clicked_button = msg_box.clickedButton()
         if clicked_button == cancel_button:
@@ -370,7 +370,7 @@ def save_crop(self):
         len(image_file_list),
         self,
     )
-    progress_dialog.setWindowModality(Qt.WindowModal)
+    progress_dialog.setWindowModality(Qt.WindowModality.WindowModal)
     progress_dialog.setWindowTitle(self.tr("Progress"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)

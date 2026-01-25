@@ -19,8 +19,8 @@ socket.setdefaulttimeout(240)  # Prevent timeout when downloading models
 
 from abc import abstractmethod
 
-from PyQt5.QtCore import QCoreApplication, QFile, QObject
-from PyQt5.QtGui import QImage
+from PyQt6.QtCore import QCoreApplication, QFile, QObject
+from PyQt6.QtGui import QImage
 
 from .types import AutoLabelingResult
 from anylabeling.config import get_config, get_work_directory

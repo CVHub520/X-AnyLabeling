@@ -1,6 +1,10 @@
 from pathlib import Path
 from typing import Dict
-from termcolor import colored
+try:
+    from termcolor import colored
+except Exception:
+    def colored(text, *args, **kwargs):
+        return text
 
 import sys
 

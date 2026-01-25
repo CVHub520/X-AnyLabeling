@@ -1,7 +1,7 @@
 import numpy as np
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import QCoreApplication
+from PyQt6 import QtCore
+from PyQt6.QtCore import QCoreApplication
 
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.logger import logger

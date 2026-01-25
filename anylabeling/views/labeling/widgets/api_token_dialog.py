@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import (
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import (
     QDialog,
     QVBoxLayout,
     QHBoxLayout,
@@ -37,7 +37,7 @@ class ApiTokenDialog(QDialog):
         # API key input with toggle visibility
         api_key_container = QHBoxLayout()
         self.api_key_input = QLineEdit(_cached_api_token)
-        self.api_key_input.setEchoMode(QLineEdit.Password)
+        self.api_key_input.setEchoMode(QLineEdit.EchoMode.Password)
         self.api_key_input.setPlaceholderText(self.tr("Enter API key"))
         self.api_key_input.setStyleSheet(get_lineedit_style())
         self.api_key_input.setSizePolicy(
@@ -64,10 +64,13 @@ class ApiTokenDialog(QDialog):
 
         # OK and Cancel buttons
         self.button_box = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
         )
-        ok_button = self.button_box.button(QDialogButtonBox.Ok)
-        cancel_button = self.button_box.button(QDialogButtonBox.Cancel)
+        ok_button = self.button_box.button(QDialogButtonBox.StandardButton.Ok)
+        cancel_button = self.button_box.button(
+            QDialogButtonBox.StandardButton.Cancel
+        )
         if ok_button:
             ok_button.setStyleSheet(get_ok_btn_style())
             ok_button.setIcon(QIcon())
@@ -109,9 +112,9 @@ class ApiTokenDialog(QDialog):
 
     def toggle_api_key_visibility(self, checked):
         if checked:
-            self.api_key_input.setEchoMode(QLineEdit.Normal)
+            self.api_key_input.setEchoMode(QLineEdit.EchoMode.Normal)
         else:
-            self.api_key_input.setEchoMode(QLineEdit.Password)
+            self.api_key_input.setEchoMode(QLineEdit.EchoMode.Password)
         self._update_visibility_button(checked)
 
     def get_token(self):
