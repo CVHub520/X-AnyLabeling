@@ -1,0 +1,23 @@
+type: yolo26_obb
+name: yolo26s-obb-r20260127
+provider: Ultralytics
+display_name: YOLO26s-OBB (DOTA-v1.0)
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-obb.onnx
+conf_threshold: 0.25
+max_det: 300
+classes:
+  - plane
+  - ship
+  - storage tank
+  - baseball diamond
+  - tennis court
+  - basketball court
+  - ground track field
+  - harbor
+  - bridge
+  - large vehicle
+  - small vehicle
+  - helicopter
+  - roundabout
+  - soccer ball field
+  - swimming pool

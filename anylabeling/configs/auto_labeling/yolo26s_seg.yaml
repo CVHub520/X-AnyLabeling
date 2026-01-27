@@ -1,9 +1,8 @@
-type: yolo26
-name: yolo26s-r20260127
+type: yolo26_seg
+name: yolo26s-seg-r20260127
 provider: Ultralytics
-display_name: YOLO26s
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s.onnx
-iou_threshold: 0.70
+display_name: YOLO26s-Seg
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-seg.onnx
 conf_threshold: 0.25
 max_det: 300
 classes:

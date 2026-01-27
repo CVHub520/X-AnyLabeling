@@ -387,3 +387,100 @@ def non_max_suppression_v8(
         output[xi] = x[i]
 
     return output
+
+
+def non_max_suppression_end2end(
+    prediction,
+    task="det",
+    conf_thres=0.25,
+    classes=None,
+    max_det=300,
+    nm=0,  # number of masks (for seg task)
+    nkpt=0,  # number of keypoints (for pose task)
+    ndim=3,  # keypoint dimensions (for pose task)
+):
+    """
+    Process end-to-end model output (no NMS needed).
+
+    End-to-end models like YOLO26 output predictions that are already
+    post-processed, so this function only performs confidence filtering,
+    class filtering, and max_det limiting.
+
+    Arguments:
+        prediction (np.array):
+            End-to-end model output with shape (batch_size, num_boxes, num_features)
+            - det: (batch, num_boxes, 6) where 6 = [x1, y1, x2, y2, score, class_id]
+            - obb: (batch, num_boxes, 7) where 7 = [x, y, w, h, score, class_id, angle]
+            - seg: (batch, num_boxes, 6+nm) where 6+nm = [x1, y1, x2, y2, score, class_id, mask_coeffs...]
+            - pose: (batch, num_boxes, 6+nkpt*ndim) where 6+nkpt*ndim = [x1, y1, x2, y2, score, class_id, keypoints...]
+        task: `det` | `seg` | `obb` | `pose`
+        conf_thres (float):
+            The confidence threshold below which boxes will be filtered out.
+            Valid values are between 0.0 and 1.0.
+        classes (List[int]): A list of class indices to consider.
+            If None, all classes will be considered.
+        max_det (int): The maximum number of boxes to keep.
+        nm (int): Number of mask coefficients (for seg task).
+        nkpt (int): Number of keypoints (for pose task).
+        ndim (int): Keypoint dimensions, typically 2 (x,y) or 3 (x,y,visibility) (for pose task).
+
+    Returns:
+        (List[np.array]):
+            A list of length batch_size, where each element is a tensor of
+            shape (num_boxes, num_features) containing the kept boxes.
+            - det: (num_boxes, 6) with columns [x1, y1, x2, y2, confidence, class]
+            - obb: (num_boxes, 7) with columns [x, y, w, h, confidence, class, angle]
+            - seg: (num_boxes, 6+nm) with columns [x1, y1, x2, y2, confidence, class, mask_coeffs...]
+            - pose: (num_boxes, 6+nkpt*ndim) with columns [x1, y1, x2, y2, confidence, class, keypoints...]
+    """
+    # Checks
+    assert (
+        0 <= conf_thres <= 1
+    ), f"Invalid Confidence threshold {conf_thres}, \
+        valid values are between 0.0 and 1.0"
+
+    if isinstance(prediction, (list, tuple)):
+        prediction = prediction[0]  # select only inference output
+
+    # Handle shape: ensure (batch, num_boxes, features)
+    if len(prediction.shape) == 2:
+        prediction = prediction[np.newaxis, ...]  # add batch dimension
+
+    bs = prediction.shape[0]  # batch size
+
+    # Determine output feature size based on task
+    if task == "obb":
+        out_features = 7  # x, y, w, h, conf, class, angle
+    elif task == "seg":
+        out_features = 6 + nm  # x1, y1, x2, y2, conf, class, mask_coeffs...
+    elif task == "pose":
+        out_features = 6 + nkpt * ndim  # x1, y1, x2, y2, conf, class, keypoints...
+    else:  # det
+        out_features = 6  # x1, y1, x2, y2, conf, class
+
+    output = [np.zeros((0, out_features))] * bs
+
+    for xi, x in enumerate(prediction):  # image index, image inference
+        # Filter by confidence threshold (score is at index 4)
+        mask = x[:, 4] >= conf_thres
+        x = x[mask]
+
+        if not x.shape[0]:
+            continue
+
+        # Filter by classes (class_id is at index 5)
+        if classes is not None:
+            class_mask = np.isin(x[:, 5].astype(int), classes)
+            x = x[class_mask]
+
+        if not x.shape[0]:
+            continue
+
+        # Sort by confidence and limit to max_det
+        if x.shape[0] > max_det:
+            indices = np.argsort(x[:, 4])[::-1][:max_det]
+            x = x[indices]
+
+        output[xi] = x
+
+    return output

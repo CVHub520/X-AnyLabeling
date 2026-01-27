@@ -1,0 +1,28 @@
+type: yolo26_pose
+name: yolo26s-pose-r20260127
+provider: Ultralytics
+display_name: YOLO26s-Pose
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-pose.onnx
+conf_threshold: 0.5
+kpt_threshold: 0.25
+max_det: 300
+has_visible: true
+classes:
+  person:
+    - nose
+    - left_eye
+    - right_eye
+    - left_ear
+    - right_ear
+    - left_shoulder
+    - right_shoulder
+    - left_elbow
+    - right_elbow
+    - left_wrist
+    - right_wrist
+    - left_hip
+    - right_hip
+    - left_knee
+    - right_knee
+    - left_ankle
+    - right_ankle

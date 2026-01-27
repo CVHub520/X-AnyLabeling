@@ -73,11 +73,14 @@ _CUSTOM_MODELS = [
     "rfdetr_seg",
     "dfine",
     "yolo12",
+    "yolo26",
+    "yolo26_seg",
+    "yolo26_obb",
+    "yolo26_pose",
     "u_rtdetr",
     "yoloe",
     "ppocr_v5",
     "deimv2",
-    "yolo26",
 ]
 
 
@@ -223,6 +226,9 @@ _AUTO_LABELING_CONF_MODELS = [
     "dfine",
     "yolo12",
     "yolo26",
+    "yolo26_seg",
+    "yolo26_obb",
+    "yolo26_pose",
     "u_rtdetr",
     "yoloe",
     "grounding_sam2",
@@ -310,10 +316,13 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "deimv2",
     "dfine",
     "yolo12",
+    "yolo26",
+    "yolo26_seg",
+    "yolo26_obb",
+    "yolo26_pose",
     "u_rtdetr",
     "yoloe",
     "segment_anything_2_video",
-    "yolo26",
 ]
 
 
