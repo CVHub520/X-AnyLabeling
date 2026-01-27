@@ -25,6 +25,7 @@ from ..utils import (
     xywhr2xyxyxyxy,
     non_max_suppression_v5,
     non_max_suppression_v8,
+    non_max_suppression_end2end,
     calculate_rotation_theta,
 )
 
@@ -146,6 +147,7 @@ class YOLO(Model):
             "doclayout_yolo",
             "yolo11",
             "yolo12",
+            "yolo26",
             "gold_yolo",
             "yolow",
             "yolow_ram",
@@ -153,7 +155,6 @@ class YOLO(Model):
             "yolov8_det_track",
             "yolo11_det_track",
             "u_rtdetr",
-            "yolo26",
         ]:
             self.task = "det"
         elif self.model_type in [
@@ -162,6 +163,7 @@ class YOLO(Model):
             "yolov8_seg_track",
             "yolo11_seg",
             "yolo11_seg_track",
+            "yolo26_seg",
         ]:
             self.task = "seg"
         elif self.model_type in [
@@ -169,6 +171,7 @@ class YOLO(Model):
             "yolov8_obb_track",
             "yolo11_obb",
             "yolo11_obb_track",
+            "yolo26_obb",
         ]:
             self.task = "obb"
         elif self.model_type in [
@@ -327,30 +330,60 @@ class YOLO(Model):
                 max_det=self.max_det,
                 nc=self.nc,
             )
-        elif self.model_type in ["yolov10", "doclayout_yolo", "yolo26"]:
+        elif self.model_type in ["yolov10", "doclayout_yolo"]:
             p = self.postprocess_v10(
                 preds[0][0],
                 conf_thres=self.conf_thres,
                 classes=self.filter_classes,
             )
+        elif self.model_type in ["yolo26", "yolo26_obb", "yolo26_seg"]:
+            # End-to-end models: determine nm for seg task
+            nm = 0
+            if self.task == "seg":
+                proto = preds[1][0] if len(preds[1].shape) == 4 else preds[1]
+                nm = proto.shape[0]
+                self.mask_height, self.mask_width = proto.shape[1:]
+            p = non_max_suppression_end2end(
+                preds[0],
+                task=self.task,
+                conf_thres=self.conf_thres,
+                classes=self.filter_classes,
+                max_det=self.max_det,
+                nm=nm,
+            )
         elif self.model_type == "u_rtdetr":
             return self.postprocess_rtdetr(preds)
         masks, keypoints = None, None
         img_shape = (self.img_height, self.img_width)
-        if self.task == "seg":
+        is_end2end = self.model_type in ["yolo26", "yolo26_obb", "yolo26_seg"]
+        if self.task == "seg" and not is_end2end:
             proto = preds[1][-1] if len(preds[1]) == 3 else preds[1]
             self.mask_height, self.mask_width = proto.shape[2:]
         for i, pred in enumerate(p):
             if self.task == "seg":
                 if np.size(pred) == 0:
                     continue
-                masks = self.process_mask(
-                    proto[i],
-                    pred[:, 6:],
-                    pred[:, :4],
-                    self.input_shape,
-                    upsample=True,
-                )  # HWC
+                if is_end2end:
+                    # End-to-end seg: pred format is [x1,y1,x2,y2,score,class,mask_coeffs...]
+                    proto = preds[1][0] if len(preds[1].shape) == 4 else preds[1]
+                    masks = self.process_mask(
+                        proto,
+                        pred[:, 6:],
+                        pred[:, :4],
+                        self.input_shape,
+                        upsample=True,
+                    )
+                    pred[:, :4] = scale_boxes(
+                        self.input_shape, pred[:, :4], img_shape
+                    )
+                else:
+                    masks = self.process_mask(
+                        proto[i],
+                        pred[:, 6:],
+                        pred[:, :4],
+                        self.input_shape,
+                        upsample=True,
+                    )  # HWC
             elif self.task == "obb":
                 pred[:, :4] = scale_boxes(
                     self.input_shape, pred[:, :4], img_shape, xywh=True
@@ -361,9 +394,16 @@ class YOLO(Model):
                 )
 
         if self.task == "obb":
-            pred = np.concatenate(
-                [pred[:, :4], pred[:, -1:], pred[:, 4:6]], axis=-1
-            )
+            if is_end2end:
+                # End-to-end obb: pred format is [x,y,w,h,score,class,angle]
+                # Reformat to [x,y,w,h,angle,score,class]
+                pred = np.concatenate(
+                    [pred[:, :4], pred[:, 6:7], pred[:, 4:6]], axis=-1
+                )
+            else:
+                pred = np.concatenate(
+                    [pred[:, :4], pred[:, -1:], pred[:, 4:6]], axis=-1
+                )
             bbox = pred[:, :5]
             conf = pred[:, -2]
             clas = pred[:, -1]

@@ -136,13 +136,6 @@ class ModelManager(QObject):
                     self.loaded_model_config[key] = value
                 break
 
-        if config_file and config_file.startswith(":/"):
-            user_config = get_config()
-            if "remote_server_settings" not in user_config:
-                user_config["remote_server_settings"] = {}
-            user_config["remote_server_settings"][key] = value
-            save_config(user_config)
-
     def get_model_configs(self):
         """Return model infos"""
         return self.model_configs
@@ -1923,6 +1916,46 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo26_seg":
+            from .yolo26_seg import YOLO26_Seg
+
+            try:
+                model_config["model"] = YOLO26_Seg(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                template = "Error in loading model: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
+        elif model_config["type"] == "yolo26_obb":
+            from .yolo26_obb import YOLO26_OBB
+
+            try:
+                model_config["model"] = YOLO26_OBB(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                template = "Error in loading model: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yoloe":
             from .yoloe import YOLOE
 
@@ -2241,23 +2274,6 @@ class ModelManager(QObject):
         if self.loaded_model_config["type"] == "remote_server":
             return self.loaded_model_config["model"].get_available_models()
         return {}
-
-    def get_remote_server_current_model_id(self):
-        """Get current remote server model ID"""
-        if self.loaded_model_config is None:
-            return None
-
-        if self.loaded_model_config["type"] == "remote_server":
-            return self.loaded_model_config["model"].current_model_id
-        return None
-
-    def set_task(self, task_id):
-        """Set task ID for the current model"""
-        if self.loaded_model_config is None:
-            return
-
-        if self.loaded_model_config["type"] == "remote_server":
-            self.loaded_model_config["model"].set_task(task_id)
 
     def set_mask_fineness(self, epsilon):
         """Set mask fineness (epsilon value for Douglas-Peucker algorithm)"""
