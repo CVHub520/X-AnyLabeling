@@ -1,5 +1,17 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.8` (Jan 28, 2026)
+
+### 🚀 New Features
+
+- Add YOLO26 seg/pose/obb model (#1226)
+
+### 🌟 Contributors
+
+A total of 2 developer contributed to this release.
+
+Thank @iPengXPro, @CVHub520
+
 ## `v3.3.7` (Jan 25, 2026)
 
 ### 🚀 New Features
