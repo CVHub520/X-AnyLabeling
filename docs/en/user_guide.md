@@ -372,7 +372,7 @@ X-AnyLabeling provides a Compare View feature that allows you to compare two ima
 
 ### 4.1 YOLO Format
 
-Supports YOLOv5/v8 format (`*.txt`) labels for object detection, instance segmentation, rotated bounding boxes, and keypoint detection.
+Supports YOLO format (`*.txt`) labels for object detection, instance segmentation, rotated bounding boxes, and keypoint detection.
 
 **Configuration:**
 - **Detection/Segmentation/Rotation:** Prepare a `classes.txt` file listing class names, one per line (0-indexed). See example: [`classes.txt`](../../assets/classes.txt).

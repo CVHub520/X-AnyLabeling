@@ -29,6 +29,7 @@
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
+| yolo26s-pose.onnx | [YOLO26](https://docs.ultralytics.com/tasks/pose/)-COCO | [yolo26s_pose.yaml](../../anylabeling/configs/auto_labeling/yolo26s_pose.yaml) | 39.86MB | [百度网盘](https://pan.baidu.com/s/1LifSl5V5lMk7GOqwtPHO1w?pwd=8kta) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-pose.onnx) |
 | yolo11s-pose.onnx | [YOLO11](https://github.com/ultralytics/ultralytics)-COCO | [yolo11s_pose.yaml](../../anylabeling/configs/auto_labeling/yolo11s_pose.yaml) | 38.09MB | [百度网盘](https://pan.baidu.com/s/1LzdbGYO215UiG7na2NgkJA?pwd=5jcu) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-pose.onnx) |
 | yolov8n-pose.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8n_pose.yaml](../../anylabeling/configs/auto_labeling/yolov8n_pose.yaml) | 12.75MB | [百度网盘](https://pan.baidu.com/s/1nFxtNTuLn9vQJWId-EOAKQ?pwd=37ej) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8n-pose.onnx) |
 | yolov8x-pose-p6.onnx | [YOLOv8](https://github.com/ultralytics/ultralytics)-COCO | [yolov8x_pose_p6.yaml](../../anylabeling/configs/auto_labeling/yolov8x_pose_p6.yaml) | 378.92MB | [百度网盘](https://pan.baidu.com/s/1VRszCtMnHo2zeshuk93Aew?pwd=xvko) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x-pose-p6.onnx) |
@@ -156,6 +157,7 @@
 | yolov5m_obb_csl_dotav20.onnx | [YOLOv5-OBB](https://github.com/hukaixuan19970627/yolov5_obb)-DOTA-v2.0 | [yolov5m_obb_csl_dotav20.yaml](../../anylabeling/configs/auto_labeling/yolov5m_obb_csl_dotav20.yaml) | 83.62MB | [百度网盘](https://pan.baidu.com/s/1IXo65WLAcxHYkz9bQgzhNQ?pwd=7r7b) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov5m_obb_csl_dotav20.onnx) |
 | yolov8s-obb.onnx | [YOLOv8-OBB](https://github.com/ultralytics/ultralytics)-DOTA-v1.0 | [yolov8s_obb.yaml](../../anylabeling/configs/auto_labeling/yolov8s_obb.yaml) | 43.84MB | [百度网盘](https://pan.baidu.com/s/1gz6fR_Js0MOXLtL06mMr5w?pwd=8cb8) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov8s-obb.onnx) |
 | yolo11s-obb.onnx | [YOLO11s-Obb](https://github.com/ultralytics/ultralytics)-DOTA-v1.0  | [yolo11s_obb.yaml](../../anylabeling/configs/auto_labeling/yolo11s_obb.yaml) | 37.36MB | [百度网盘](https://pan.baidu.com/s/1caHKHZvVnyuAqrXaTvklLA?pwd=x2v7) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-obb.onnx) |
+| yolo26s-obb.onnx | [YOLO26s-Obb](https://docs.ultralytics.com/tasks/obb/)-DOTA-v1.0| [yolo26s_obb.yaml](../../anylabeling/configs/auto_labeling/yolo26s_obb.yaml) | 37.56MB | [百度网盘](https://pan.baidu.com/s/1eKmD0iYPCF0K2KPH32PJvQ?pwd=8grq) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-obb.onnx) |
 
 
 ### 光学字符识别
@@ -241,6 +243,7 @@
 | hyper-yolon-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolon-seg.yaml | 16.77MB | [百度网盘](https://pan.baidu.com/s/1o-LIV0z6OFQXGbSbJ_HsVw?pwd=dxex) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolon-seg.onnx) |
 | hyper-yolos-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | [hyper-yolos-seg.yaml](../../anylabeling/configs/auto_labeling/hyper_yolos_seg.yaml) | 59.34MB | [百度网盘](https://pan.baidu.com/s/1NsGVI5FQIYuoAVNrZF2VNg?pwd=bptv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolos-seg.onnx) |
 | hyper-yolom-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolom-seg.yaml | 132.85MB | [百度网盘](https://pan.baidu.com/s/1ObhO04dF6JEpvrtzLse6hg?pwd=q5hn) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolom-seg.onnx) |
+| yolo26s-seg.onnx | [YOLO26s-Seg](https://docs.ultralytics.com/tasks/seg/)-COCO| [yolo26s_seg.yaml](../../anylabeling/configs/auto_labeling/yolo26s_seg.yaml) | 39.91MB | [百度网盘](https://pan.baidu.com/s/1Bjzf4aX3Pq2jW67k_DxGNA?pwd=599s) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-seg.onnx) |
 
 
 ###  图像抠图

@@ -337,7 +337,12 @@ class YOLO(Model):
                 conf_thres=self.conf_thres,
                 classes=self.filter_classes,
             )
-        elif self.model_type in ["yolo26", "yolo26_obb", "yolo26_seg", "yolo26_pose"]:
+        elif self.model_type in [
+            "yolo26",
+            "yolo26_obb",
+            "yolo26_seg",
+            "yolo26_pose",
+        ]:
             # End-to-end models: determine nm for seg task, nkpt/ndim for pose task
             nm = 0
             nkpt = 0
@@ -363,7 +368,12 @@ class YOLO(Model):
             return self.postprocess_rtdetr(preds)
         masks, keypoints = None, None
         img_shape = (self.img_height, self.img_width)
-        is_end2end = self.model_type in ["yolo26", "yolo26_obb", "yolo26_seg", "yolo26_pose"]
+        is_end2end = self.model_type in [
+            "yolo26",
+            "yolo26_obb",
+            "yolo26_seg",
+            "yolo26_pose",
+        ]
         if self.task == "seg" and not is_end2end:
             proto = preds[1][-1] if len(preds[1]) == 3 else preds[1]
             self.mask_height, self.mask_width = proto.shape[2:]
@@ -373,7 +383,9 @@ class YOLO(Model):
                     continue
                 if is_end2end:
                     # End-to-end seg: pred format is [x1,y1,x2,y2,score,class,mask_coeffs...]
-                    proto = preds[1][0] if len(preds[1].shape) == 4 else preds[1]
+                    proto = (
+                        preds[1][0] if len(preds[1].shape) == 4 else preds[1]
+                    )
                     masks = self.process_mask(
                         proto,
                         pred[:, 6:],

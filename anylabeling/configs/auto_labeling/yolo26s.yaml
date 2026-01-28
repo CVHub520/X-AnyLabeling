@@ -1,5 +1,5 @@
 type: yolo26
-name: yolo26s-r20260127
+name: yolo26s-r20260124
 provider: Ultralytics
 display_name: YOLO26s
 model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s.onnx

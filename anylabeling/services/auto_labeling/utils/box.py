@@ -454,7 +454,9 @@ def non_max_suppression_end2end(
     elif task == "seg":
         out_features = 6 + nm  # x1, y1, x2, y2, conf, class, mask_coeffs...
     elif task == "pose":
-        out_features = 6 + nkpt * ndim  # x1, y1, x2, y2, conf, class, keypoints...
+        out_features = (
+            6 + nkpt * ndim
+        )  # x1, y1, x2, y2, conf, class, keypoints...
     else:  # det
         out_features = 6  # x1, y1, x2, y2, conf, class
 
