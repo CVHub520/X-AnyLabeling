@@ -33,6 +33,8 @@ uv pip install ultralytics --torch-backend=auto
 
 > **Note**: To select a specific CUDA backend (e.g., `cu121`), set `--torch-backend=cu121`. See the [`uv` PyTorch integration guide](https://docs.astral.sh/uv/guides/integration/pytorch/) for more details.
 
+> **License Notice**: [Ultralytics](https://github.com/ultralytics/ultralytics) is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). If you use the training feature and provide it as a network service, you must comply with AGPL-3.0's source code disclosure requirements (Section 13). X-AnyLabeling itself remains under GPL-3.0 and does not require Ultralytics for its core annotation functionality.
+
 3. **Clone the repository and install dependencies**
 
 ```bash
