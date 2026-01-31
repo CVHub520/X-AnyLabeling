@@ -59,7 +59,7 @@ def predict(
     box_threshold: float,
     text_threshold: float,
     device: str = "cuda",
-    remove_combined: bool = False,
+    remove_combined: bool = True,
 ) -> Tuple[torch.Tensor, torch.Tensor, List[str]]:
     caption = preprocess_caption(caption=caption)
 
