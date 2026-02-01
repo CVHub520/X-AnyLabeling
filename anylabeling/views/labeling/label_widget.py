@@ -4608,6 +4608,9 @@ class LabelingWidget(LabelDialog):
             if self.image_data:
                 self.image_path = filename
             self.label_file = None
+            self.shape_text_edit.textChanged.disconnect()
+            self.shape_text_edit.setPlainText("")
+            self.shape_text_edit.textChanged.connect(self.shape_text_changed)
 
         # Reset the label loop count
         self.label_loop_count = -1
