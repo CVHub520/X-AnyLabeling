@@ -1,5 +1,27 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.9` (Feb 02, 2026)
+
+### 🚀 New Features
+
+- Add PP-DocLayoutV3 and PaddleOCR-VL-1.5 model support (#1226)
+
+### 🐛 Bug Fixes
+
+- Fix label decoding issues in Grounding DINO series models (#1286)
+- Clear image description when loading unlabeled images
+
+### 🛠️ Improvements
+
+- Update README and model zoo documentation
+- Add license notice for Ultralytics under AGPL-3.0
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v3.3.8` (Jan 28, 2026)
 
 ### 🚀 New Features
