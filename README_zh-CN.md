@@ -76,10 +76,15 @@
 
 ## 🥳 新功能
 
+<video src="https://github.com/user-attachments/assets/493183fd-6cbe-45fb-9808-ec2b0af7a0f9" width="100%" controls>
+</video>
+
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
-- 新增[YOLO26](https://github.com/ultralytics/ultralytics)实例分割、关键点检测、旋转目标检测模型
+- 新增 [PP-DocLayoutV3](./examples/optical_character_recognition/document_layout_analysis/README.md)，支持多点定位（四边形/多边形）和逻辑阅读顺序预测
+- 新增 [PaddleOCR-VL-1.5](./examples/optical_character_recognition/multi_task/README.md)，支持 OCR、表格识别、公式识别、图表识别、文本检测与识别及印章识别
+- 新增[YOLO26](https://github.com/ultralytics/ultralytics)系列模型，支持目标检测、实例分割、姿态估计和旋转检测
 - 新增对比视图功能，支持分屏图像对比，适用于红外/可见光融合、掩码预览、图像超分等场景 [[教程](./docs/zh_cn/user_guide.md#36-对比视图)]
 - 新增[YOLO26](https://github.com/ultralytics/ultralytics)目标检测模型
 - 新增多模态大型语言模型[Rex-Omni](https://github.com/IDEA-Research/Rex-Omni)，支持目标检测、关键点、指代、OCR和视觉提示等多种视觉任务 [[教程](./examples/vision_language/rexomni/README.md)]
@@ -126,7 +131,7 @@
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
-| 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5 |
+| 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5, PP-DocLayoutV3, PaddleOCR-VL-1.5 |
 | 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT |
 | 🛣️ **车道线检测** | CLRNet |

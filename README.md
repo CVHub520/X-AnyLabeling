@@ -77,12 +77,16 @@
 
 ## 🥳 What's New
 
+<video src="https://github.com/user-attachments/assets/493183fd-6cbe-45fb-9808-ec2b0af7a0f9" width="100%" controls>
+</video>
+
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
-- Added [YOLO26](https://github.com/ultralytics/ultralytics) seg/pose/obb model
-- Added Compare View feature for split-screen image comparison, ideal for infrared/visible fusion, mask preview, and super-resolution [[docs](./docs/en/user_guide.md#36-compare-view)]
-- Added [YOLO26](https://github.com/ultralytics/ultralytics) object detection model
+- Added [PP-DocLayoutV3](./examples/optical_character_recognition/document_layout_analysis/README.md), supporting multi-point localization (quadrilaterals/polygons) and logical reading order prediction
+- Added [PaddleOCR-VL-1.5](./examples/optical_character_recognition/multi_task/README.md), supporting OCR, table recognition, formula recognition, chart recognition, text spotting, and seal recognition
+- Added [YOLO26](https://github.com/ultralytics/ultralytics) series models for object detection, instance segmentation, pose estimation, and rotated object detection
+- Added Compare View feature for split-screen image comparison (ideal for infrared/visible fusion, mask preview, and super-resolution) [[docs](./docs/en/user_guide.md#36-compare-view)]
 - Added multimodal large language model [Rex-Omni](https://github.com/IDEA-Research/Rex-Omni) with support for grounding, keypoints, referring pointing, OCR, and visual prompting tasks [[docs](./examples/vision_language/rexomni/README.md)]
 - Added powerful file search feature upporting text search, regular expression search, and attribute-based filtering [[docs](./docs/en/user_guide.md#25-searching-images)]
 - Added semi-transparent mask rendering for polygon, rectangle, rotation, and circle shapes with toggle support (`Ctrl+M`)
@@ -127,7 +131,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
-| 📄 OCR | PP-OCRv4, PP-OCRv5 |
+| 📄 OCR | PP-OCRv4, PP-OCRv5, PP-DocLayoutV3, PaddleOCR-VL-1.5 |
 | 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT |
 | 🛣️ Land Detection | CLRNet |

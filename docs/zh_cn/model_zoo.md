@@ -341,6 +341,13 @@
 | GeCo_encoder_quant.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 646.48MB | [百度网盘](https://pan.baidu.com/s/1R7mInx4N9t7eXgAUFY15eg?pwd=yyd6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder_quant.onnx) |
 
 
-### 视觉-语言模型
+### 其它
 
 - [Florence 2](../../examples/vision_language/florence2/README.md)
+- [GLM-4.6-V](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/glm_4_6v.py)
+- [PaddleOCR-VL-1.5](../../examples/optical_character_recognition/multi_task/README.md)
+- [PP-DocLayoutV3](../../examples/optical_character_recognition/document_layout_analysis/README.md)
+- [Qwen3-VL](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/qwen3vl.py)
+- [Rex-Omni](../../examples/vision_language/rexomni/README.md)
+- [Segment-Anything-3](../../examples/grounding/sam3/README.md)
+- [Segment-Anything-3-Video](../../examples/interactive_video_object_segmentation/sam3/README.md)

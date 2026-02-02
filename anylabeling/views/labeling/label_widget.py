@@ -2892,7 +2892,8 @@ class LabelingWidget(LabelDialog):
             self.clear_auto_labeling_marks()
             self.auto_labeling_widget.set_auto_labeling_mode(None)
 
-        self.set_text_editing(False)
+        if not edit:
+            self.set_text_editing(False)
 
         self.canvas.set_editing(edit)
         self.canvas.create_mode = create_mode
@@ -4611,6 +4612,8 @@ class LabelingWidget(LabelDialog):
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText("")
             self.shape_text_edit.textChanged.connect(self.shape_text_changed)
+        self.shape_text_label.setText(self.tr("Image Description"))
+        self.shape_text_edit.setDisabled(False)
 
         # Reset the label loop count
         self.label_loop_count = -1
@@ -5478,7 +5481,9 @@ class LabelingWidget(LabelDialog):
         if auto_labeling_result.description:
             description = auto_labeling_result.description
             self.shape_text_label.setText(self.tr("Image Description"))
+            self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText(description)
+            self.shape_text_edit.textChanged.connect(self.shape_text_changed)
             self.other_data["description"] = description
             self.shape_text_edit.setDisabled(False)
 
@@ -5724,7 +5729,7 @@ class LabelingWidget(LabelDialog):
                 self.shape_text_label.setText(self.tr("Object Description"))
                 self.shape_text_edit.textChanged.disconnect()
                 self.shape_text_edit.setPlainText(
-                    self.canvas.selected_shapes[0].description
+                    self.canvas.selected_shapes[0].description or ""
                 )
                 self.shape_text_edit.textChanged.connect(
                     self.shape_text_changed
