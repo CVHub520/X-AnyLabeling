@@ -396,6 +396,8 @@ class Shape:
 
     def make_path(self):
         """Create a path from shape"""
+        if not self.points:
+            return QtGui.QPainterPath()
         if self.shape_type == "rectangle":
             path = QtGui.QPainterPath(self.points[0])
             for p in self.points[1:]:
