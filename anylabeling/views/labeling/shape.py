@@ -249,7 +249,12 @@ class Shape:
             vrtx_path = QtGui.QPainterPath()
 
             if self.shape_type == "rectangle":
-                assert len(self.points) in [1, 2, 4]
+                if len(self.points) not in [1, 2, 4]:
+                    logger.error(
+                        f"Invalid points count for rectangle: "
+                        f"expected 1, 2 or 4, got {len(self.points)}"
+                    )
+                    return
                 if len(self.points) == 2:
                     rectangle = self.get_rect_from_line(*self.points)
                     line_path.addRect(rectangle)
@@ -262,7 +267,12 @@ class Shape:
                     if self.is_closed() or self.label is not None:
                         line_path.lineTo(self.points[0])
             elif self.shape_type == "rotation":
-                assert len(self.points) in [1, 2, 4]
+                if len(self.points) not in [1, 2, 4]:
+                    logger.error(
+                        f"Invalid points count for rotation: "
+                        f"expected 1, 2 or 4, got {len(self.points)}"
+                    )
+                    return
                 if len(self.points) == 2:
                     rectangle = self.get_rect_from_line(*self.points)
                     line_path.addRect(rectangle)
@@ -275,7 +285,12 @@ class Shape:
                     if self.is_closed() or self.label is not None:
                         line_path.lineTo(self.points[0])
             elif self.shape_type == "circle":
-                assert len(self.points) in [1, 2]
+                if len(self.points) not in [1, 2]:
+                    logger.error(
+                        f"Invalid points count for circle: "
+                        f"expected 1 or 2, got {len(self.points)}"
+                    )
+                    return
                 if len(self.points) == 2:
                     rectangle = self.get_circle_rect_from_line(self.points)
                     line_path.addEllipse(rectangle)
@@ -288,7 +303,12 @@ class Shape:
                     line_path.lineTo(p)
                     self.draw_vertex(vrtx_path, i)
             elif self.shape_type == "point":
-                assert len(self.points) == 1
+                if len(self.points) != 1:
+                    logger.error(
+                        f"Invalid points count for point: "
+                        f"expected 1, got {len(self.points)}"
+                    )
+                    return
                 self.draw_vertex(vrtx_path, 0, True)
             else:
                 line_path.moveTo(self.points[0])
