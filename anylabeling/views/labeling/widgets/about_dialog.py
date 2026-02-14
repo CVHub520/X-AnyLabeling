@@ -37,6 +37,8 @@ class AboutDialog(QDialog):
     update_available = pyqtSignal(dict)
     no_update = pyqtSignal()
     error = pyqtSignal(str)
+    _copy_info_ready = pyqtSignal(str)
+    _bg_update_ready = pyqtSignal(dict)
 
     email_address = "cv_hub@163.com"
     website_url = "https://github.com/CVHub520/X-AnyLabeling"
@@ -55,6 +57,10 @@ class AboutDialog(QDialog):
         self.parent = parent
 
         self._cached_update_info = None
+
+        # Thread-safe signal connections
+        self._copy_info_ready.connect(self._show_copy_popup)
+        self._bg_update_ready.connect(self.show_update_dialog)
 
         self.setWindowTitle(" ")
         self.setFixedSize(350, 250)
@@ -218,21 +224,36 @@ class AboutDialog(QDialog):
         self.move(qr.topLeft())
 
     def copy_app_info(self):
-        """Copy app info to clipboard"""
-        app_info = (
-            f"App name: {__appname__}\n"
-            f"App version: {__version__}\n"
-            f"Device: {__preferred_device__}\n"
-        )
-        system_info, pkg_info = collect_system_info()
-        system_info_str = "\n".join(
-            [f"{key}: {value}" for key, value in system_info.items()]
-        )
-        pkg_info_str = "\n".join(
-            [f"{key}: {value}" for key, value in pkg_info.items()]
-        )
-        msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
+        """Copy app info to clipboard (non-blocking)"""
 
+        def _collect_and_copy():
+            try:
+                app_info = (
+                    f"App name: {__appname__}\n"
+                    f"App version: {__version__}\n"
+                    f"Device: {__preferred_device__}\n"
+                )
+                system_info, pkg_info = collect_system_info()
+                system_info_str = "\n".join(
+                    [f"{key}: {value}" for key, value in system_info.items()]
+                )
+                pkg_info_str = "\n".join(
+                    [f"{key}: {value}" for key, value in pkg_info.items()]
+                )
+                msg = f"{app_info}\n{system_info_str}\n\n{pkg_info_str}"
+            except Exception:
+                msg = (
+                    f"App name: {__appname__}\n"
+                    f"App version: {__version__}\n"
+                    f"Device: {__preferred_device__}\n"
+                )
+            self._copy_info_ready.emit(msg)
+
+        thread = threading.Thread(target=_collect_and_copy, daemon=True)
+        thread.start()
+
+    def _show_copy_popup(self, msg):
+        """Show copy-to-clipboard popup on the main thread"""
         popup = Popup(
             self.tr("Copied!"),
             self.parent,
@@ -282,9 +303,7 @@ class AboutDialog(QDialog):
             update_info = check_for_updates_sync(timeout=5)
             if update_info and update_info["has_update"]:
                 self._cached_update_info = update_info
-                QTimer.singleShot(
-                    0, lambda: self.show_update_dialog(update_info)
-                )
+                self._bg_update_ready.emit(update_info)
 
         thread = threading.Thread(target=update_check_thread, daemon=True)
         thread.start()
