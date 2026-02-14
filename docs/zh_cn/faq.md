@@ -172,6 +172,17 @@ python -m anylabeling
 ### 模型相关问题
 
 <details>
+<summary>Q: 如何使用带 NMS 的 YOLO26 模型（自动标注时出现多个重叠框如何解决）？</summary>
+
+YOLO26 默认导出为 end2end（NMS-free）模型，若希望使用带 NMS 的后处理以消除重叠框，可按以下方式操作：
+
+1. 从 PT 导出 ONNX 时，将参数设置为 **end2end=false**；
+2. end2end=false 时后处理与 YOLO11 一致，因此在自定义模型配置文件中需将 **type 设为 yolo11**，不要使用 type: yolo26。
+
+详情可参考 [#1280](https://github.com/CVHub520/X-AnyLabeling/issues/1280)。
+</details>
+
+<details>
 <summary>Q: 在 venv 环境中运行时出现 "Error loading tokenizer: No such file or directory (os error 2)"</summary>
 
 这个问题的根源在于 Python 的资源加载机制。当我们用 `importlib.resources.files()` 获取包内资源时，它返回的实际上是一个 `Traversable` 对象。这个对象在不同环境下的行为会有差异：在某些情况下（比如通过 `pip install -e .` 可编辑模式安装时），直接把 `Traversable` 对象当作文件路径传给需要真实路径的函数（如 `Tokenizer.from_file()`）就会出现文件找不到的错误。
