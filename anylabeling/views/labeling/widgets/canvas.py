@@ -78,6 +78,7 @@ class Canvas(
         self.rect_scale_step = self.wheel_rectangle_editing.get(
             "scale_step", 0.05
         )
+        self.auto_highlight_shape = kwargs.pop("auto_highlight_shape", False)
         self.attributes_config = kwargs.pop("attributes", {})
         self.rotation_config = kwargs.pop("rotation", {})
         self.mask_config = kwargs.pop("mask", {})
@@ -2245,6 +2246,7 @@ class Canvas(
         if (
             self.editing()
             and self.enable_wheel_rectangle_editing
+            and not self.auto_highlight_shape
             and len(self.selected_shapes) == 1
             and self.selected_shapes[0].shape_type == "rectangle"
             and not (QtCore.Qt.ControlModifier & int(mods))

@@ -208,7 +208,7 @@ X-AnyLabeling provides two shape interaction modes:
 
 Press `Ctrl+J` to quickly switch between Drawing and Editing modes. Additional object-specific operations:
 
-- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is also supported; when enabled via the `wheel_rectangle_editing` setting, scrolling inside the rectangle scales it, while scrolling outside adjusts the nearest edge.
+- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is also supported; when enabled via the `wheel_rectangle_editing` setting, scrolling inside the rectangle scales it, while scrolling outside adjusts the nearest edge. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
 - **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. Polygons also support merging via the right-click menu.
 - **Rotated Rectangles**: Select a rotated rectangle and press `Z`, `X`, `C`, or `V` to rotate it in different directions. A real-time display of the rotation angle is available via the View menu.
 
