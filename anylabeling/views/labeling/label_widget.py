@@ -3521,12 +3521,13 @@ class LabelingWidget(LabelDialog):
                 row_counter += 1
             elif widget_type == "group_id":
                 property_combo = QComboBox()
-                if widget_type == "group_id":
-                    options = [""] + [
+                options = [""] + sorted(
+                    {
                         str(obj.group_id)
                         for obj in self.canvas.shapes
                         if obj.group_id is not None
-                    ]
+                    }
+                )
                 property_combo.addItems(options)
                 if current_value:
                     index = property_combo.findText(current_value)
