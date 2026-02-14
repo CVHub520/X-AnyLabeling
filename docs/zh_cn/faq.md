@@ -183,6 +183,16 @@ YOLO26 默认导出为 end2end（NMS-free）模型，若希望使用带 NMS 的�
 </details>
 
 <details>
+<summary>Q: 为什么使用预编译的 EXE 运行 Ultralytics（YOLO）训练会报错？</summary>
+
+目前，通过 X-AnyLabeling 的预编译可执行文件（EXE）版本直接进行 Ultralytics/YOLO 模型训练暂不支持。主要原因包括：1）官方发布的 EXE 默认未打包 Ultralytics 训练环境；2）将应用打包成独立 EXE 后，Python 在子进程调用、动态脚本执行（例如 train_script.py）等方面存在固有的复杂性和限制，无法像在源码环境中一样正确生成并调用训练脚本。
+
+在 Python 源码环境中运行 X-AnyLabeling 时，训练功能可正常使用。因此如需进行 YOLO 模型训练，请使用 Python 环境运行本软件。
+
+详情可参考 [#1100](https://github.com/CVHub520/X-AnyLabeling/issues/1100)。
+</details>
+
+<details>
 <summary>Q: 在 venv 环境中运行时出现 "Error loading tokenizer: No such file or directory (os error 2)"</summary>
 
 这个问题的根源在于 Python 的资源加载机制。当我们用 `importlib.resources.files()` 获取包内资源时，它返回的实际上是一个 `Traversable` 对象。这个对象在不同环境下的行为会有差异：在某些情况下（比如通过 `pip install -e .` 可编辑模式安装时），直接把 `Traversable` 对象当作文件路径传给需要真实路径的函数（如 `Tokenizer.from_file()`）就会出现文件找不到的错误。
