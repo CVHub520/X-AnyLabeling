@@ -234,9 +234,6 @@ def export_yolo_annotation(self, mode):
         os.makedirs(save_path)
 
     image_list = self.image_list if self.image_list else [self.filename]
-    label_dir_path = osp.dirname(self.filename)
-    if self.output_dir:
-        label_dir_path = self.output_dir
 
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
@@ -255,7 +252,12 @@ def export_yolo_annotation(self, mode):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
 
-            src_file = osp.join(label_dir_path, label_file_name)
+            if self.output_dir:
+                src_file = osp.join(self.output_dir, label_file_name)
+            else:
+                src_file = osp.join(
+                    osp.dirname(image_file), label_file_name
+                )
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_yolo(
@@ -419,9 +421,6 @@ def export_voc_annotation(self, mode):
     converter = LabelConverter()
 
     image_list = self.image_list if self.image_list else [self.filename]
-    label_dir_path = osp.dirname(self.filename)
-    if self.output_dir:
-        label_dir_path = self.output_dir
 
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
@@ -440,7 +439,12 @@ def export_voc_annotation(self, mode):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".xml"
 
-            src_file = osp.join(label_dir_path, label_file_name)
+            if self.output_dir:
+                src_file = osp.join(self.output_dir, label_file_name)
+            else:
+                src_file = osp.join(
+                    osp.dirname(image_file), label_file_name
+                )
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_voc(
@@ -773,9 +777,6 @@ def export_dota_annotation(self):
     converter = LabelConverter(classes_file=self.classes_file)
 
     image_list = self.image_list if self.image_list else [self.filename]
-    label_dir_path = osp.dirname(self.filename)
-    if self.output_dir:
-        label_dir_path = self.output_dir
 
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
@@ -794,7 +795,12 @@ def export_dota_annotation(self):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
 
-            src_file = osp.join(label_dir_path, label_file_name)
+            if self.output_dir:
+                src_file = osp.join(self.output_dir, label_file_name)
+            else:
+                src_file = osp.join(
+                    osp.dirname(image_file), label_file_name
+                )
             dst_file = osp.join(save_path, dst_file_name)
 
             if not osp.exists(src_file):
@@ -965,7 +971,12 @@ def export_mask_annotation(self):
             label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".png"
 
-            src_file = osp.join(label_dir_path, label_file_name)
+            if self.output_dir:
+                src_file = osp.join(self.output_dir, label_file_name)
+            else:
+                src_file = osp.join(
+                    osp.dirname(image_file), label_file_name
+                )
             dst_file = osp.join(save_path, dst_file_name)
 
             if not osp.exists(src_file):
