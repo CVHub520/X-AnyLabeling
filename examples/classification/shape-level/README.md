@@ -59,9 +59,28 @@ Prepare a attributes file like [attributes.json](./attributes.json). An example 
 > 
 > You can specify the widget type for each attribute using the `__widget_types__` section:
 > - `"radiobutton"`: Single-click selection, ideal for yes/no or few options
+> - `"group_id"`: Dropdown selection containing the `group_id`s of all objects, if any
+> - `"lineedit"`: Free-form text input
 > - `"combobox"`: Dropdown selection, suitable for many options (default)
 > 
 > If `__widget_types__` is not specified, all attributes default to combobox.
+
+Example of group_id and lineedit attributes:
+
+```json
+{
+    "vehicle": {
+        "occluded_by": [],
+        "occluded_by_string": ""
+    },
+    "__widget_types__": {
+      "vehicle": {
+        "occluded_by": "group_id",
+        "occluded_by_string": "lineedit"
+      }
+    }
+}
+```
 
 **Step 1: Run the Application**
 

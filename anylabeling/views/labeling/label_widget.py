@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWhatsThis,
     QWidget,
+    QLineEdit,
 )
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
@@ -3244,6 +3245,14 @@ class LabelingWidget(LabelDialog):
             self.save_attributes(self.canvas.shapes)
             self.canvas.update()
 
+    def attribute_line_changed(self, i, property, line: QLineEdit):
+        line_text = line.text()
+        if i < len(self.canvas.shapes):
+            if not self.canvas.shapes[i].attributes:
+                self.canvas.shapes[i].attributes = {}
+            self.canvas.shapes[i].attributes[property] = line_text
+            self.save_attributes(self.canvas.shapes)
+
     def update_selected_options(self, selected_options):
         if not isinstance(selected_options, dict):
             return
@@ -3517,6 +3526,40 @@ class LabelingWidget(LabelDialog):
                 self.grid_layout.addWidget(
                     radio_container, row_counter, 0, 1, 2
                 )
+                row_counter += 1
+            elif widget_type == "group_id":
+                property_combo = QComboBox()
+                options = [""] + sorted(
+                    {
+                        str(obj.group_id)
+                        for obj in self.canvas.shapes
+                        if obj.group_id is not None
+                    }
+                )
+                property_combo.addItems(options)
+                if current_value:
+                    index = property_combo.findText(current_value)
+                    if index >= 0:
+                        property_combo.setCurrentIndex(index)
+                property_combo.currentIndexChanged.connect(
+                    lambda _, prop=property, combo=property_combo, shape_idx=shape_index: self.attribute_selection_changed(
+                        shape_idx, prop, combo
+                    )
+                )
+                self.grid_layout.addWidget(
+                    property_combo, row_counter, 0, 1, 2
+                )
+                row_counter += 1
+            elif widget_type == "lineedit":
+                property_line = QLineEdit()
+                if current_value:
+                    property_line.setText(current_value)
+                property_line.textChanged.connect(
+                    lambda _, prop=property, line=property_line, shape_idx=shape_index: self.attribute_line_changed(
+                        shape_idx, prop, line
+                    )
+                )
+                self.grid_layout.addWidget(property_line, row_counter, 0, 1, 2)
                 row_counter += 1
             else:
                 property_combo = QComboBox()
