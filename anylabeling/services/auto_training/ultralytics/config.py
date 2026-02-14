@@ -109,8 +109,8 @@ def is_torch_available() -> bool:
     try:
         import torch
 
-        return True
-    except ImportError:
+        return hasattr(torch, "__version__")
+    except Exception:
         return False
 
 
@@ -119,7 +119,7 @@ def is_cuda_available() -> bool:
         import torch
 
         return torch.cuda.is_available() if is_torch_available() else False
-    except ImportError:
+    except Exception:
         return False
 
 
@@ -132,7 +132,7 @@ def is_mps_available() -> bool:
             if is_torch_available()
             else False
         )
-    except ImportError:
+    except Exception:
         return False
 
 
