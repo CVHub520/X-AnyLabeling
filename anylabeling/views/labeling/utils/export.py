@@ -255,9 +255,7 @@ def export_yolo_annotation(self, mode):
             if self.output_dir:
                 src_file = osp.join(self.output_dir, label_file_name)
             else:
-                src_file = osp.join(
-                    osp.dirname(image_file), label_file_name
-                )
+                src_file = osp.join(osp.dirname(image_file), label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_yolo(
@@ -442,9 +440,7 @@ def export_voc_annotation(self, mode):
             if self.output_dir:
                 src_file = osp.join(self.output_dir, label_file_name)
             else:
-                src_file = osp.join(
-                    osp.dirname(image_file), label_file_name
-                )
+                src_file = osp.join(osp.dirname(image_file), label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_voc(
@@ -798,9 +794,7 @@ def export_dota_annotation(self):
             if self.output_dir:
                 src_file = osp.join(self.output_dir, label_file_name)
             else:
-                src_file = osp.join(
-                    osp.dirname(image_file), label_file_name
-                )
+                src_file = osp.join(osp.dirname(image_file), label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             if not osp.exists(src_file):
@@ -974,9 +968,7 @@ def export_mask_annotation(self):
             if self.output_dir:
                 src_file = osp.join(self.output_dir, label_file_name)
             else:
-                src_file = osp.join(
-                    osp.dirname(image_file), label_file_name
-                )
+                src_file = osp.join(osp.dirname(image_file), label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
             if not osp.exists(src_file):

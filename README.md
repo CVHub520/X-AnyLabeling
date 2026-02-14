@@ -133,7 +133,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCRv4, PP-OCRv5, PP-DocLayoutV3, PaddleOCR-VL-1.5 |
 | 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
-| 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT |
+| 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
 | 📍 Grounding | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |

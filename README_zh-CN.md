@@ -133,7 +133,7 @@
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5, PP-DocLayoutV3, PaddleOCR-VL-1.5 |
 | 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |
-| 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT |
+| 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |
 | 📍 **Grounding** | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
 | 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |

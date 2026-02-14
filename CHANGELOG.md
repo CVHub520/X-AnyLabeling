@@ -1,5 +1,36 @@
 # X-AnyLabeling Changelog
 
+## `v3.3.10` (Feb 15, 2026)
+
+### 🚀 New Features
+
+- Respect auto_highlight_shape and disable wheel editing when it is enabled (wheel rectangle editing)
+- Add handling for custom attribute types (group_id, lineedit) in label widget
+
+### 🐛 Bug Fixes
+
+- Add Meta class with widget configuration for YOLO26 variants (#1280)
+- Resolve export only from current folder when images are in multiple subfolders (#1303)
+- Improve error handling in availability checks for torch, cuda, and mps (#1294)
+- Resolve UI freeze when copying app info in packaged exe (about dialog)
+- Deduplicate group_id options in attribute combo (#1304)
+- Fix several bugs about the update of attributes panel (#1301)
+- Fix paint assertion crash issues (#1296)
+- Fix occasional GUI crashes when switching modes after automatic labeling
+- Fix GUI crashes due to empty self.points in shape.py (#1295)
+- Fix typo (#1299)
+
+### 🛠️ Improvements
+
+- Add FAQ entry regarding errors when using precompiled EXE for Ultralytics training (#1100)
+- Add example of group_id and lineedit attributes in classification shape-level README
+
+### 🌟 Contributors
+
+A total of 6 developers contributed to this release.
+
+Thank @Jingnan-Jia, @ParshikovMM, @hehuaiyu, @jk4e, @yuliangzhong, @CVHub520
+
 ## `v3.3.9` (Feb 02, 2026)
 
 ### 🚀 New Features

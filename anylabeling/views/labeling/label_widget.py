@@ -296,7 +296,9 @@ class LabelingWidget(LabelDialog):
             wheel_rectangle_editing=self._config["canvas"][
                 "wheel_rectangle_editing"
             ],
-            auto_highlight_shape=self._config.get("auto_highlight_shape", False),
+            auto_highlight_shape=self._config.get(
+                "auto_highlight_shape", False
+            ),
             attributes=self._config["canvas"].get("attributes", {}),
             rotation=self._config["canvas"].get("rotation", {}),
             mask=self._config["canvas"].get("mask", {}),
@@ -2506,7 +2508,10 @@ class LabelingWidget(LabelDialog):
             )
             text = most_similar_label
 
-        new_attributes = {attrs_key: attrs_val[0] for attrs_key, attrs_val in self.attributes[text].items()}
+        new_attributes = {
+            attrs_key: attrs_val[0]
+            for attrs_key, attrs_val in self.attributes[text].items()
+        }
         shape.attributes = new_attributes
         return text
 
@@ -3191,11 +3196,11 @@ class LabelingWidget(LabelDialog):
         self.set_dirty()
         self.update_combo_box()
         self.update_gid_box()
-        
+
         # update top-right attributes panel
         selected_idx = self.canvas.shapes.index(selected_shapes[0])
         self.update_attributes(selected_idx)
-        
+
     def file_search_changed(self):
         search_text = self.file_search.text()
         self.import_image_folder(
