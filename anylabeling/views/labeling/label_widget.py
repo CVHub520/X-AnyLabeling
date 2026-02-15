@@ -302,6 +302,7 @@ class LabelingWidget(LabelDialog):
             attributes=self._config["canvas"].get("attributes", {}),
             rotation=self._config["canvas"].get("rotation", {}),
             mask=self._config["canvas"].get("mask", {}),
+            brush=self._config["canvas"].get("brush", {}),
             double_click_edit_label=self._config["canvas"].get(
                 "double_click_edit_label", True
             ),
@@ -570,6 +571,14 @@ class LabelingWidget(LabelDialog):
             shortcuts["create_polygon"],
             "polygon",
             self.tr("Start drawing polygons"),
+            enabled=False,
+        )
+        create_brush_polygon_mode = action(
+            self.tr("Create Brush Polygons"),
+            self.toggle_brush_polygon_mode,
+            shortcuts["create_brush_polygon"],
+            "brush_polygon",
+            self.tr("Toggle brush mode for drawing polygons"),
             enabled=False,
         )
         create_rectangle_mode = action(
@@ -1053,6 +1062,12 @@ class LabelingWidget(LabelDialog):
             self.set_cross_line,
             tip=self.tr("Adjust cross line for mouse position"),
             icon="cartesian",
+        )
+        set_brush_point_distance = action(
+            self.tr("Set Brush Point Distance"),
+            self.set_brush_point_distance,
+            tip=self.tr("Adjust point distance for brush drawing mode"),
+            icon="polygon",
         )
         show_groups = action(
             self.tr("Show Groups"),
@@ -1545,6 +1560,7 @@ class LabelingWidget(LabelDialog):
             undo=undo,
             remove_point=remove_point,
             create_mode=create_mode,
+            create_brush_polygon_mode=create_brush_polygon_mode,
             edit_mode=edit_mode,
             create_rectangle_mode=create_rectangle_mode,
             create_rotation_mode=create_rotation_mode,
@@ -1655,6 +1671,7 @@ class LabelingWidget(LabelDialog):
                 copy_coordinates,
                 remove_point,
                 union_selection,
+                set_brush_point_distance,
                 None,
                 keep_prev_mode,
                 auto_use_last_label_mode,
@@ -1665,6 +1682,7 @@ class LabelingWidget(LabelDialog):
             # menu shown at right click
             menu=(
                 create_mode,
+                create_brush_polygon_mode,
                 create_rectangle_mode,
                 create_rotation_mode,
                 create_quadrilateral_mode,
@@ -1687,6 +1705,7 @@ class LabelingWidget(LabelDialog):
             on_load_active=(
                 close,
                 create_mode,
+                create_brush_polygon_mode,
                 create_rectangle_mode,
                 create_rotation_mode,
                 create_quadrilateral_mode,
@@ -1917,6 +1936,7 @@ class LabelingWidget(LabelDialog):
             delete_file,
             None,
             create_mode,
+            self.actions.create_brush_polygon_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_rotation_mode,
             self.actions.create_quadrilateral_mode,
@@ -2364,6 +2384,7 @@ class LabelingWidget(LabelDialog):
         self.menus.edit.clear()
         actions = (
             self.actions.create_mode,
+            self.actions.create_brush_polygon_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_rotation_mode,
             self.actions.create_quadrilateral_mode,
@@ -2426,6 +2447,7 @@ class LabelingWidget(LabelDialog):
         self.actions.save.setEnabled(False)
         self.actions.union_selection.setEnabled(False)
         self.actions.create_mode.setEnabled(True)
+        self.actions.create_brush_polygon_mode.setEnabled(True)
         self.actions.create_rectangle_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
         self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2919,8 +2941,10 @@ class LabelingWidget(LabelDialog):
 
         self.canvas.set_editing(edit)
         self.canvas.create_mode = create_mode
+        self.canvas._brush_drawing = False
         if edit:
             self.actions.create_mode.setEnabled(True)
+            self.actions.create_brush_polygon_mode.setEnabled(True)
             self.actions.create_rectangle_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
             self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2943,6 +2967,7 @@ class LabelingWidget(LabelDialog):
             self.actions.union_selection.setEnabled(False)
             if create_mode == "polygon":
                 self.actions.create_mode.setEnabled(False)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2952,6 +2977,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_line_strip_mode.setEnabled(True)
             elif create_mode == "rectangle":
                 self.actions.create_mode.setEnabled(True)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(False)
                 self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2961,6 +2987,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_line_strip_mode.setEnabled(True)
             elif create_mode == "line":
                 self.actions.create_mode.setEnabled(True)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2970,6 +2997,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_line_strip_mode.setEnabled(True)
             elif create_mode == "point":
                 self.actions.create_mode.setEnabled(True)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2979,6 +3007,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_line_strip_mode.setEnabled(True)
             elif create_mode == "circle":
                 self.actions.create_mode.setEnabled(True)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2988,6 +3017,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_line_strip_mode.setEnabled(True)
             elif create_mode == "linestrip":
                 self.actions.create_mode.setEnabled(True)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -2997,6 +3027,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_line_strip_mode.setEnabled(False)
             elif create_mode == "rotation":
                 self.actions.create_mode.setEnabled(True)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(False)
                 self.actions.create_quadrilateral_mode.setEnabled(True)
@@ -3006,6 +3037,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_line_strip_mode.setEnabled(True)
             elif create_mode == "quadrilateral":
                 self.actions.create_mode.setEnabled(True)
+                self.actions.create_brush_polygon_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
                 self.actions.create_quadrilateral_mode.setEnabled(False)
@@ -3017,6 +3049,20 @@ class LabelingWidget(LabelDialog):
                 raise ValueError(f"Unsupported create_mode: {create_mode}")
         self.actions.edit_mode.setEnabled(not edit)
         self.label_instruction.setText(self.get_labeling_instruction())
+
+    def toggle_brush_polygon_mode(self):
+        """Toggle brush drawing mode for polygons."""
+        if (
+            self.canvas.drawing()
+            and self.canvas.create_mode == "polygon"
+            and self.canvas._brush_drawing
+        ):
+            self.toggle_draw_mode(True)
+            return
+        self.toggle_draw_mode(False, create_mode="polygon")
+        self.canvas._brush_drawing = True
+        self.actions.create_mode.setEnabled(True)
+        self.actions.create_brush_polygon_mode.setEnabled(False)
 
     def set_edit_mode(self):
         # Disable auto labeling
@@ -4524,6 +4570,24 @@ class LabelingWidget(LabelDialog):
             opacity = crosshair_settings["opacity"]
             self.canvas.set_cross_line(show, width, color, opacity)
             self._config["canvas"]["crosshair"] = crosshair_settings
+
+    def set_brush_point_distance(self):
+        """Open dialog to set the brush drawing point distance."""
+        current_value = self.canvas.brush_point_distance
+        value, ok = QtWidgets.QInputDialog.getDouble(
+            self,
+            self.tr("Brush Point Distance"),
+            self.tr("Point distance (screen pixels):"),
+            current_value,
+            1.0,
+            200.0,
+            1,
+        )
+        if ok:
+            self.canvas.brush_point_distance = value
+            self._config["canvas"].setdefault("brush", {})[
+                "point_distance"
+            ] = value
 
     def set_canvas_params(self, key, value):
         self._config[key] = value

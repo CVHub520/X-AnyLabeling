@@ -191,7 +191,7 @@ X-AnyLabeling supports creating the following types of shapes:
 
 - **Rectangle** (`R`): Click and drag to define opposite corners, or click once for the first corner and again for the second.
 - **Rotated Rectangle** (`O`): Click to set the first point, click again for the second point defining one side, then move the cursor to set the height and click a third time.
-- **Polygon** (`P`): Click along the object's boundary to place vertices. Click the starting point or double-click the last point to close the polygon. Requires at least 3 points.
+- **Polygon** (`P`): Click along the object's boundary to place vertices. Click the starting point or double-click the last point to close the polygon. Requires at least 3 points. A brush mode (`Ctrl+N`) is also available: once activated, click to place the first point, then move the mouse to automatically trace polygon vertices along the cursor path. Move near the starting point to auto-close. The point distance can be adjusted via `Edit > Set Brush Point Distance`.
 - **Quadrilateral** (`T`): Click to place the first corner, then click the remaining three corners in order to complete the quadrilateral.
 - **Point**: Click to place a point.
 - **Line**: Click to set the start point, move the cursor, and click again to set the end point.
@@ -744,6 +744,7 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Ctrl+Shift+d`        | Next Annotated/Unannotated Image                 | Behavior depends on `switch_to_checked` config |
 | `Ctrl+Shift+a`        | Previous Annotated/Unannotated Image             | Behavior depends on `switch_to_checked` config |
 | `p`                   | Create Polygon Shape                             | Shortcut might vary (check interface)      |
+| `Ctrl+n`              | Create Brush Polygon                             | Toggle brush mode for polygon drawing      |
 | `o`                   | Create Rotated Rectangle Shape                   | Shortcut might vary                        |
 | `r`                   | Create Rectangle Shape                           | Shortcut might vary                        |
 | `t`                   | Create Quadrilateral Shape                       | Shortcut might vary                        |

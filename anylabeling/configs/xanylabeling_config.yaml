@@ -112,6 +112,8 @@ canvas:
   rotation:
     large_increment: 1.0  # degrees, corresponds to Z/V keys
     small_increment: 0.1  # degrees, corresponds to X/C keys
+  brush:
+    point_distance: 25.0  # minimum screen pixel distance between auto-added points in brush drawing mode
   mask:
     opacity: 80  # transparency value (0-255), 0 is fully transparent, 255 is fully opaque
 
@@ -142,7 +144,8 @@ shortcuts:
   fit_width: Ctrl+Shift+F
   show_navigator: F9
 
-  create_polygon: [P, Ctrl+N]
+  create_polygon: P
+  create_brush_polygon: Ctrl+N
   create_rectangle: [R, Ctrl+R]
   create_rotation: O
   create_quadrilateral: T

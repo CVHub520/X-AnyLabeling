@@ -86,6 +86,7 @@ class Canvas(
         self.attributes_config = kwargs.pop("attributes", {})
         self.rotation_config = kwargs.pop("rotation", {})
         self.mask_config = kwargs.pop("mask", {})
+        self.brush_config = kwargs.pop("brush", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         # Initialise local state.
@@ -183,6 +184,12 @@ class Canvas(
         self.auto_decode_timer.setSingleShot(True)
         self.auto_decode_tracklet = []
         self.last_mouse_pos = None
+
+        # Brush drawing mode for polygon
+        self._brush_drawing = False
+        self.brush_point_distance = self.brush_config.get(
+            "point_distance", 25.0
+        )
 
         # Compare view support
         self.compare_pixmap = None
@@ -516,6 +523,19 @@ class Canvas(
             elif self.create_mode == "point":
                 self.line.points = [self.current[0]]
                 self.line.close()
+            if self._brush_drawing and self.create_mode == "polygon":
+                if (
+                    self.snapping
+                    and len(self.current) > 2
+                    and self.close_enough(pos, self.current[0])
+                ):
+                    self.current.highlight_clear()
+                    self.finalise()
+                    return
+                point_dist = utils.distance(pos - self.current[-1])
+                if point_dist * self.scale >= self.brush_point_distance:
+                    self.current.add_point(pos)
+                    self.line[0] = self.current[-1]
             self.repaint()
             self.current.highlight_clear()
             return
@@ -2190,6 +2210,7 @@ class Canvas(
     def finalise(self):
         """Finish drawing for a shape"""
         assert self.current
+        self._brush_drawing = False
         if (
             self.is_auto_labeling
             and self.auto_labeling_mode != AutoLabelingMode.NONE
@@ -2563,6 +2584,7 @@ class Canvas(
         if self.drawing():
             if key == QtCore.Qt.Key_Escape and self.current:
                 self.current = None
+                self._brush_drawing = False
                 self.drawing_polygon.emit(False)
                 self.update()
             elif key == QtCore.Qt.Key_Backspace and self.current:
@@ -2573,6 +2595,7 @@ class Canvas(
                         self.update()
                     elif len(self.current.points) == 1:
                         self.current = None
+                        self._brush_drawing = False
                         self.drawing_polygon.emit(False)
                         self.update()
             elif key == QtCore.Qt.Key_Return and self.can_close_shape():
@@ -2663,6 +2686,7 @@ class Canvas(
             self.line[0] = self.current[-1]
         else:
             self.current = None
+            self._brush_drawing = False
             self.drawing_polygon.emit(False)
         self.update()
 
@@ -2681,6 +2705,7 @@ class Canvas(
             self.shapes.extend(shapes)
         self.store_shapes()
         self.current = None
+        self._brush_drawing = False
         self.h_hape = None
         self.h_vertex = None
         self.h_edge = None
