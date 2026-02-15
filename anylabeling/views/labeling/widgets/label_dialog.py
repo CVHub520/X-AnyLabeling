@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import (
 
 from anylabeling.views.labeling import utils
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
@@ -39,6 +40,7 @@ class ColoredComboBox(QtWidgets.QComboBox):
             "polygon": QtGui.QColor("#D81B60"),  # Magenta
             "rectangle": QtGui.QColor("#1E88E5"),  # Bright Blue
             "rotation": QtGui.QColor("#8E24AA"),  # Purple
+            "quadrilateral": QtGui.QColor("#7B1FA2"),  # Dark Purple
             "circle": QtGui.QColor("#00C853"),  # Bright Green
             "line": QtGui.QColor("#FF6D00"),  # Bright Orange
             "point": QtGui.QColor("#00ACC1"),  # Teal
@@ -98,15 +100,7 @@ class DigitShortcutDialog(QtWidgets.QDialog):
         ):
             self.digit_shortcuts = self.parent.drawing_digit_shortcuts.copy()
 
-        self.available_modes = [
-            "polygon",
-            "rectangle",
-            "rotation",
-            "circle",
-            "line",
-            "point",
-            "linestrip",
-        ]
+        self.available_modes = Shape.get_supported_shape()
 
         self.setWindowTitle(self.tr("Digit Shortcut Manager"))
         self.setModal(True)

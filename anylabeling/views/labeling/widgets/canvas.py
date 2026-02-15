@@ -120,7 +120,7 @@ class Canvas(
         self.snapping = True
         self.h_shape_is_selected = False
         self.h_shape_is_hovered = None
-        self.allowed_oop_shape_types = ["rotation"]
+        self.allowed_oop_shape_types = ["rotation", "quadrilateral"]
         self._painter = QtGui.QPainter()
         self._cursor = CURSOR_DEFAULT
         # Menus:
@@ -232,15 +232,7 @@ class Canvas(
     @create_mode.setter
     def create_mode(self, value):
         """Set create mode for canvas"""
-        if value not in [
-            "polygon",
-            "rectangle",
-            "rotation",
-            "circle",
-            "line",
-            "point",
-            "linestrip",
-        ]:
+        if value not in Shape.get_supported_shape():
             raise ValueError(f"Unsupported create_mode: {value}")
         self._create_mode = value
 
@@ -468,6 +460,7 @@ class Canvas(
             if self.out_off_pixmap(pos) and self.create_mode not in [
                 "rectangle",
                 "rotation",
+                "quadrilateral",
             ]:
                 pos = self.intersection_point(self.current[-1], pos)
             elif (
@@ -490,9 +483,17 @@ class Canvas(
                 color = self.current.line_color
                 self.override_cursor(CURSOR_POINT)
                 self.current.highlight_vertex(0, Shape.NEAR_VERTEX)
+            elif (
+                self.create_mode == "quadrilateral"
+                and len(self.current) >= 3
+                and self.close_enough(pos, self.current[0])
+            ):
+                pos = self.current[0]
+                self.override_cursor(CURSOR_POINT)
+                self.current.highlight_vertex(0, Shape.NEAR_VERTEX)
             else:
                 self.override_cursor(CURSOR_DRAW)
-            if self.create_mode in ["polygon", "linestrip"]:
+            if self.create_mode in ["polygon", "linestrip", "quadrilateral"]:
                 self.line[0] = self.current[-1]
                 self.line[1] = pos
             elif self.create_mode == "rectangle":
@@ -623,7 +624,11 @@ class Canvas(
                 self.setStatusTip(self.toolTip())
                 self.update()
                 break
-            if index_edge is not None and shape.can_add_point():
+            if (
+                index_edge is not None
+                and shape.can_add_point()
+                and shape.shape_type != "quadrilateral"
+            ):
                 if self.selected_vertex():
                     self.h_hape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex
@@ -800,6 +805,11 @@ class Canvas(
                         self.line[0] = self.current[-1]
                         if self.current.is_closed():
                             self.finalise()
+                    elif self.create_mode == "quadrilateral":
+                        self.current.add_point(self.line[1])
+                        self.line[0] = self.current[-1]
+                        if self.current.is_closed():
+                            self.finalise()
                     elif self.create_mode == "linestrip":
                         self.current.add_point(self.line[1])
                         self.line[0] = self.current[-1]
@@ -809,7 +819,14 @@ class Canvas(
                     # when the cursor moves over an object
                     if (
                         self.create_mode
-                        in ["rectangle", "rotation", "circle", "line", "point"]
+                        in [
+                            "rectangle",
+                            "rotation",
+                            "quadrilateral",
+                            "circle",
+                            "line",
+                            "point",
+                        ]
                         and not self.is_auto_labeling
                         and not self.current
                     ):
@@ -841,6 +858,7 @@ class Canvas(
                 elif self.out_off_pixmap(pos) and self.create_mode in [
                     "rectangle",
                     "rotation",
+                    "quadrilateral",
                 ]:
                     # Create new shape.
                     self.current = Shape(shape_type=self.create_mode)
@@ -856,9 +874,10 @@ class Canvas(
                     self.selected_vertex()
                     and int(ev.modifiers()) == QtCore.Qt.ShiftModifier
                     and self.h_hape.shape_type
-                    not in ["rectangle", "rotation", "line"]
+                    not in ["rectangle", "rotation", "quadrilateral", "line"]
                 ):
                     # Delete point if: left-click + SHIFT on a point
+                    # (quadrilateral must keep exactly 4 points)
                     self.remove_selected_point()
 
                 if self.selected_vertex():
@@ -1431,6 +1450,7 @@ class Canvas(
                     "rectangle",
                     "polygon",
                     "rotation",
+                    "quadrilateral",
                 ]:
                     continue
                 rect = shape.bounding_rect()
@@ -1479,6 +1499,7 @@ class Canvas(
                     "polygon",
                     "rectangle",
                     "rotation",
+                    "quadrilateral",
                     "circle",
                 ]:
                     continue
@@ -1487,6 +1508,11 @@ class Canvas(
                 if shape.shape_type == "rectangle" and len(shape.points) < 2:
                     continue
                 if shape.shape_type == "rotation" and len(shape.points) < 2:
+                    continue
+                if (
+                    shape.shape_type == "quadrilateral"
+                    and len(shape.points) < 4
+                ):
                     continue
                 if shape.shape_type == "circle" and len(shape.points) < 2:
                     continue
@@ -1517,6 +1543,12 @@ class Canvas(
                         rectangle = shape.get_rect_from_line(*shape.points)
                         mask_path.addRect(rectangle)
                     elif len(shape.points) == 4:
+                        mask_path.moveTo(shape.points[0])
+                        for point in shape.points[1:]:
+                            mask_path.lineTo(point)
+                        mask_path.closeSubpath()
+                elif shape.shape_type == "quadrilateral":
+                    if len(shape.points) == 4:
                         mask_path.moveTo(shape.points[0])
                         for point in shape.points[1:]:
                             mask_path.lineTo(point)
@@ -1627,6 +1659,24 @@ class Canvas(
         if self.current:
             self.current.paint(p)
             self.line.paint(p)
+
+            if (
+                self.create_mode == "quadrilateral"
+                and len(self.current.points) == 3
+                and len(self.line.points) >= 2
+            ):
+                color = (
+                    self.current.select_line_color
+                    if self.current.selected
+                    else self.current.line_color
+                )
+                pen = QtGui.QPen(color)
+                pen.setWidth(
+                    max(1, int(round(self.current.line_width / Shape.scale)))
+                )
+                p.setPen(pen)
+                p.setBrush(Qt.NoBrush)
+                p.drawLine(QtCore.QLineF(self.line[1], self.current.points[0]))
         if self.selected_shapes_copy:
             for s in self.selected_shapes_copy:
                 s.paint(p)
@@ -1640,6 +1690,20 @@ class Canvas(
             drawing_shape = self.current.copy()
             drawing_shape.add_point(self.line[1])
             drawing_shape.fill = True
+            drawing_shape.paint(p)
+        if (
+            self.fill_drawing()
+            and self.create_mode == "quadrilateral"
+            and self.current is not None
+            and len(self.current.points) == 3
+            and len(self.line.points) >= 2
+        ):
+            drawing_shape = self.current.copy()
+            drawing_shape.points = list(self.current.points) + [
+                QtCore.QPointF(self.line[1].x(), self.line[1].y())
+            ]
+            drawing_shape.fill = True
+            drawing_shape._closed = True
             drawing_shape.paint(p)
 
         # Draw texts
@@ -1742,7 +1806,12 @@ class Canvas(
                 rect_width = text_rect.width() + 2 * padding_x
                 rect_height = fm.height() + 2 * padding_y
 
-                if shape.shape_type in ["rectangle", "polygon", "rotation"]:
+                if shape.shape_type in [
+                    "rectangle",
+                    "polygon",
+                    "rotation",
+                    "quadrilateral",
+                ]:
                     try:
                         bbox = shape.bounding_rect()
                     except IndexError:
@@ -1884,7 +1953,12 @@ class Canvas(
                 rect_height = total_height + 2 * padding_y
                 d_react = shape.point_size / shape.scale
 
-                if shape.shape_type in ["rectangle", "polygon", "rotation"]:
+                if shape.shape_type in [
+                    "rectangle",
+                    "polygon",
+                    "rotation",
+                    "quadrilateral",
+                ]:
                     try:
                         bbox = shape.bounding_rect()
                     except IndexError:
@@ -2530,7 +2604,7 @@ class Canvas(
         assert self.shapes
         self.current = self.shapes.pop()
         self.current.set_open()
-        if self.create_mode in ["polygon", "linestrip"]:
+        if self.create_mode in ["polygon", "linestrip", "quadrilateral"]:
             self.line.points = [self.current[-1], self.current[0]]
         elif self.create_mode in ["rectangle", "line", "circle", "rotation"]:
             self.current.points = self.current.points[0:1]

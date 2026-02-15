@@ -16,7 +16,7 @@ Currently, X-AnyLabeling supports both manual and automatic annotation of the PP
 The following modes are avaliable:
 - **rectangle**: For drawing rectangle shape around text regions.
 - **rotation**: For annotating text regions with a rotation shape.
-- **polygon**: For "four-point" or "irregular polygon" annotation of text regions.
+- **quadrilateral**: For four-point (quad) annotation of text regions.
 
 2. Automatic Annotation Mode
 
@@ -28,7 +28,7 @@ Here's how to proceed with automatic annotation:
 - Click to run the annotation process.
 
 > [!TIP]
-> Starting from v3.2.3+, we support partial re-recognition functionality. When detection results are inaccurate, you can manually draw text boxes and use only the recognition part of the OCR pipeline. Simply draw your text regions first (currently only rectangle, rotation and polygon shapes are supported), select the shapes you want to re-recognize, then ensure the "Skip Det (On)" button is activated before running inference, otherwise, it will override your existing shapes.
+> Starting from v3.2.3+, we support partial re-recognition functionality. When detection results are inaccurate, you can manually draw text boxes and use only the recognition part of the OCR pipeline. Simply draw your text regions first (rectangle, rotation or quadrilateral shapes are supported), select the shapes you want to re-recognize, then ensure the "Skip Det (On)" button is activated before running inference, otherwise, it will override your existing shapes.
 
 > [!NOTE]
 > In batch processing mode, when "Skip Det (On)" is enabled, the system will automatically load existing annotations from JSON files and use them as detection boxes for recognition. This allows you to efficiently rerun text recognition on all images without manually selecting shapes for each image.

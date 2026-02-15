@@ -143,6 +143,7 @@ shortcuts:
   create_polygon: [P, Ctrl+N]
   create_rectangle: [R, Ctrl+R]
   create_rotation: O
+  create_quadrilateral: T
   create_circle: null
   create_line: null
   create_point: null

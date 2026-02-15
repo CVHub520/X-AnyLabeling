@@ -82,6 +82,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+|- 新增 **四边形**标注形状，支持键盘快捷键 `T` 进行高效的四点对象标注
 - 新增 [PP-DocLayoutV3](./examples/optical_character_recognition/document_layout_analysis/README.md)，支持多点定位（四边形/多边形）和逻辑阅读顺序预测
 - 新增 [PaddleOCR-VL-1.5](./examples/optical_character_recognition/multi_task/README.md)，支持 OCR、表格识别、公式识别、图表识别、文本检测与识别及印章识别
 - 新增[YOLO26](https://github.com/ultralytics/ultralytics)系列模型，支持目标检测、实例分割、姿态估计和旋转检测

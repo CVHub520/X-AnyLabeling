@@ -584,6 +584,14 @@ class LabelingWidget(LabelDialog):
             self.tr("Start drawing rotations"),
             enabled=False,
         )
+        create_quadrilateral_mode = action(
+            self.tr("Create Quadrilateral"),
+            lambda: self.toggle_draw_mode(False, create_mode="quadrilateral"),
+            shortcuts["create_quadrilateral"],
+            "quadrilateral",
+            self.tr("Start drawing quadrilaterals (4 points, auto-closed)"),
+            enabled=False,
+        )
         create_circle_mode = action(
             self.tr("Create Circle"),
             lambda: self.toggle_draw_mode(False, create_mode="circle"),
@@ -1536,6 +1544,7 @@ class LabelingWidget(LabelDialog):
             edit_mode=edit_mode,
             create_rectangle_mode=create_rectangle_mode,
             create_rotation_mode=create_rotation_mode,
+            create_quadrilateral_mode=create_quadrilateral_mode,
             create_circle_mode=create_circle_mode,
             create_line_mode=create_line_mode,
             create_point_mode=create_point_mode,
@@ -1654,6 +1663,7 @@ class LabelingWidget(LabelDialog):
                 create_mode,
                 create_rectangle_mode,
                 create_rotation_mode,
+                create_quadrilateral_mode,
                 create_circle_mode,
                 create_line_mode,
                 create_point_mode,
@@ -1675,6 +1685,7 @@ class LabelingWidget(LabelDialog):
                 create_mode,
                 create_rectangle_mode,
                 create_rotation_mode,
+                create_quadrilateral_mode,
                 create_circle_mode,
                 create_line_mode,
                 create_point_mode,
@@ -1904,6 +1915,7 @@ class LabelingWidget(LabelDialog):
             create_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_rotation_mode,
+            self.actions.create_quadrilateral_mode,
             self.actions.create_circle_mode,
             self.actions.create_line_mode,
             self.actions.create_point_mode,
@@ -2270,6 +2282,7 @@ class LabelingWidget(LabelDialog):
         text_rectangle = self.tr("Rectangle")
         text_polygon = self.tr("Polygon")
         text_rotation = self.tr("Rotation")
+        text_quadrilateral = self.tr("Quadrilateral")
         return (
             f"<b>{text_mode}</b> {self.canvas.get_mode()} | "
             f"<b>{text_shortcuts}</b>"
@@ -2278,6 +2291,7 @@ class LabelingWidget(LabelDialog):
             f" {text_rectangle}(<b>R</b>),"
             f" {text_polygon}(<b>P</b>),"
             f" {text_rotation}(<b>O</b>),"
+            f" {text_quadrilateral}(<b>T</b>),"
             f" {text_chatbot}(<b>Ctrl+1</b>),"
             f" {text_vqa}(<b>Ctrl+2</b>),"
             f" {text_classifier}(<b>Ctrl+3</b>)"
@@ -2348,6 +2362,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_rotation_mode,
+            self.actions.create_quadrilateral_mode,
             self.actions.create_circle_mode,
             self.actions.create_line_mode,
             self.actions.create_point_mode,
@@ -2409,6 +2424,7 @@ class LabelingWidget(LabelDialog):
         self.actions.create_mode.setEnabled(True)
         self.actions.create_rectangle_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
+        self.actions.create_quadrilateral_mode.setEnabled(True)
         self.actions.create_circle_mode.setEnabled(True)
         self.actions.create_line_mode.setEnabled(True)
         self.actions.create_point_mode.setEnabled(True)
@@ -2876,15 +2892,7 @@ class LabelingWidget(LabelDialog):
         label = data.get("label", "object")
         create_mode = data.get("mode", None)
 
-        if create_mode not in [
-            "polygon",
-            "rectangle",
-            "rotation",
-            "circle",
-            "line",
-            "point",
-            "linestrip",
-        ]:
+        if create_mode not in Shape.get_supported_shape():
             return
 
         self.digit_to_label = label
@@ -2911,6 +2919,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_mode.setEnabled(True)
             self.actions.create_rectangle_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
+            self.actions.create_quadrilateral_mode.setEnabled(True)
             self.actions.create_circle_mode.setEnabled(True)
             self.actions.create_line_mode.setEnabled(True)
             self.actions.create_point_mode.setEnabled(True)
@@ -2932,6 +2941,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(False)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
+                self.actions.create_quadrilateral_mode.setEnabled(True)
                 self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
@@ -2940,6 +2950,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(False)
                 self.actions.create_rotation_mode.setEnabled(True)
+                self.actions.create_quadrilateral_mode.setEnabled(True)
                 self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
@@ -2948,6 +2959,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
+                self.actions.create_quadrilateral_mode.setEnabled(True)
                 self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(False)
                 self.actions.create_point_mode.setEnabled(True)
@@ -2956,6 +2968,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
+                self.actions.create_quadrilateral_mode.setEnabled(True)
                 self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(False)
@@ -2964,6 +2977,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
+                self.actions.create_quadrilateral_mode.setEnabled(True)
                 self.actions.create_circle_mode.setEnabled(False)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
@@ -2972,6 +2986,7 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(True)
+                self.actions.create_quadrilateral_mode.setEnabled(True)
                 self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)
@@ -2980,6 +2995,16 @@ class LabelingWidget(LabelDialog):
                 self.actions.create_mode.setEnabled(True)
                 self.actions.create_rectangle_mode.setEnabled(True)
                 self.actions.create_rotation_mode.setEnabled(False)
+                self.actions.create_quadrilateral_mode.setEnabled(True)
+                self.actions.create_circle_mode.setEnabled(True)
+                self.actions.create_line_mode.setEnabled(True)
+                self.actions.create_point_mode.setEnabled(True)
+                self.actions.create_line_strip_mode.setEnabled(True)
+            elif create_mode == "quadrilateral":
+                self.actions.create_mode.setEnabled(True)
+                self.actions.create_rectangle_mode.setEnabled(True)
+                self.actions.create_rotation_mode.setEnabled(True)
+                self.actions.create_quadrilateral_mode.setEnabled(False)
                 self.actions.create_circle_mode.setEnabled(True)
                 self.actions.create_line_mode.setEnabled(True)
                 self.actions.create_point_mode.setEnabled(True)

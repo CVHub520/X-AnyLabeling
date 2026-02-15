@@ -192,6 +192,7 @@ X-AnyLabeling supports creating the following types of shapes:
 - **Rectangle** (`R`): Click and drag to define opposite corners, or click once for the first corner and again for the second.
 - **Rotated Rectangle** (`O`): Click to set the first point, click again for the second point defining one side, then move the cursor to set the height and click a third time.
 - **Polygon** (`P`): Click along the object's boundary to place vertices. Click the starting point or double-click the last point to close the polygon. Requires at least 3 points.
+- **Quadrilateral** (`T`): Click to place the first corner, then click the remaining three corners in order to complete the quadrilateral.
 - **Point**: Click to place a point.
 - **Line**: Click to set the start point, move the cursor, and click again to set the end point.
 - **Line Strip**: Click to place the first point, then click to add subsequent points for connected line segments. Double-click to finish.
@@ -264,7 +265,7 @@ Filter images by object attributes using the format `attribute::value`:
 - `gid::0`: Find images containing objects with group ID 0 (supports any integer group ID)
 - `shape::1` or `shape::true`: Find annotated images (containing at least one annotation object)
 - `label::person`: Find images containing objects labeled "person"
-- `type::rectangle`: Find images containing rectangle objects. Supported types include: `rectangle`, `polygon`, `rotation`, `point`, `line`, `circle`, `linestrip`
+- `type::rectangle`: Find images containing rectangle objects. Supported types include: `rectangle`, `polygon`, `rotation`, `quadrilateral`, `point`, `line`, `circle`, `linestrip`
 - `score::[0,0.5]`: Find images containing objects with scores in the range [0, 0.5] (closed interval)
 - `score::(0,0.6]`: Find images containing objects with scores in the range (0, 0.6] (left-open, right-closed)
 - `score::[0,0.6)`: Find images containing objects with scores in the range [0, 0.6) (left-closed, right-open)
@@ -654,7 +655,7 @@ To open the Digit Shortcut Manager, select **Tools** in the top menu bar of the 
 In the Digit Shortcut Manager dialog, users can see a table containing all numeric keys (0-9), with each row including the following information:
 
 - **Digit**: Represents the numeric key (0-9) on the keyboard
-- **Drawing Mode**: Choose the type of shape to draw from the dropdown menu, including rectangle, polygon, rotation, circle, line, point, linestrip, or none
+- **Drawing Mode**: Choose the type of shape to draw from the dropdown menu, including rectangle, polygon, rotation, quadrilateral, circle, line, point, linestrip, or none
 - **Label**: Specify the default label name for the shape (required)
 
 **Configuring Shortcuts**: Select the drawing mode corresponding to the digit, enter the default label name for that shape (required when a drawing mode is enabled), then click **OK** to save the settings.
@@ -742,9 +743,10 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `a`                   | Previous Image                                   |                                            |
 | `Ctrl+Shift+d`        | Next Annotated/Unannotated Image                 | Behavior depends on `switch_to_checked` config |
 | `Ctrl+Shift+a`        | Previous Annotated/Unannotated Image             | Behavior depends on `switch_to_checked` config |
-| `p`                   | Create Polygon Tool                              | Shortcut might vary (check interface)      |
-| `o`                   | Create Rotated Rectangle Tool                    | Shortcut might vary                        |
-| `r`                   | Create Rectangle Tool                            | Shortcut might vary                        |
+| `p`                   | Create Polygon Shape                             | Shortcut might vary (check interface)      |
+| `o`                   | Create Rotated Rectangle Shape                   | Shortcut might vary                        |
+| `r`                   | Create Rectangle Shape                           | Shortcut might vary                        |
+| `t`                   | Create Quadrilateral Shape                       | Shortcut might vary                        |
 | `i`                   | Run AI Model Inference                           | If model loaded                            |
 | `q`                   | Add Positive Point (SAM)                         | SAM Interactive Segmentation Mode          |
 | `e`                   | Add Negative Point (SAM)                         | SAM Interactive Segmentation Mode          |
