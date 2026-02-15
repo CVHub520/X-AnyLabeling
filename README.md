@@ -83,6 +83,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- Added double-click on canvas shape to edit label in Edit Mode
 - Support for **Quadrilateral** annotation shapes with keyboard shortcut `T` for efficient four-point object labeling
 - Added [PP-DocLayoutV3](./examples/optical_character_recognition/document_layout_analysis/README.md), supporting multi-point localization (quadrilaterals/polygons) and logical reading order prediction
 - Added [PaddleOCR-VL-1.5](./examples/optical_character_recognition/multi_task/README.md), supporting OCR, table recognition, formula recognition, chart recognition, text spotting, and seal recognition

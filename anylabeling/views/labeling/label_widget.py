@@ -302,6 +302,9 @@ class LabelingWidget(LabelDialog):
             attributes=self._config["canvas"].get("attributes", {}),
             rotation=self._config["canvas"].get("rotation", {}),
             mask=self._config["canvas"].get("mask", {}),
+            double_click_edit_label=self._config["canvas"].get(
+                "double_click_edit_label", True
+            ),
         )
         self.canvas.zoom_request.connect(self.zoom_request)
 
@@ -342,6 +345,7 @@ class LabelingWidget(LabelDialog):
         self.canvas.shape_rotated.connect(self.set_dirty)
         self.canvas.selection_changed.connect(self.shape_selection_changed)
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
+        self.canvas.edit_label_requested.connect(self.edit_label)
         # [Feature] support for automatically switching to editing mode
         # when the cursor moves over an object
         self.canvas.h_shape_is_hovered = self._config.get(

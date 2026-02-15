@@ -91,6 +91,8 @@ canvas:
   # None: do nothing
   # close: close polygon
   double_click: close
+  # Double-click on a shape in edit mode to open the label editor
+  double_click_edit_label: true
   # change mode
   # The max number of edits we can undo
   num_backups: 10

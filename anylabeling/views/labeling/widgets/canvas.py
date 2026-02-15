@@ -50,6 +50,7 @@ class Canvas(
     auto_decode_finish_requested = QtCore.pyqtSignal()
     shape_hover_changed = QtCore.pyqtSignal()
     split_position_changed = QtCore.pyqtSignal(float)
+    edit_label_requested = QtCore.pyqtSignal()
 
     CREATE, EDIT = 0, 1
 
@@ -65,6 +66,9 @@ class Canvas(
             raise ValueError(
                 f"Unexpected value for double_click event: {self.double_click}"
             )
+        self.double_click_edit_label = kwargs.pop(
+            "double_click_edit_label", True
+        )
         self.num_backups = kwargs.pop("num_backups", 10)
         self.wheel_rectangle_editing = kwargs.pop(
             "wheel_rectangle_editing", {}
@@ -116,6 +120,7 @@ class Canvas(
         self.h_edge = None
         self.prev_h_edge = None
         self.moving_shape = False
+        self._pending_edge_point = None
         self.rotating_shape = False
         self.snapping = True
         self.h_shape_is_selected = False
@@ -711,6 +716,18 @@ class Canvas(
         self.h_vertex = index
         self.h_edge = None
         self.moving_shape = True
+        self._pending_edge_point = (shape, index)
+
+    def _undo_pending_edge_point(self):
+        """Undo the edge point inserted by the preceding mousePressEvent"""
+        if self._pending_edge_point is None:
+            return
+        shape, index = self._pending_edge_point
+        self._pending_edge_point = None
+        shape.remove_point(index)
+        shape.highlight_clear()
+        if len(self.shapes_backups) >= 2 and shape in self.shapes:
+            self.shapes_backups.pop()
 
     def remove_selected_point(self):
         """Remove a point from current shape"""
@@ -760,6 +777,7 @@ class Canvas(
         """Mouse press event"""
         if self.is_loading:
             return
+        self._pending_edge_point = None
         pos = self.transform_pos(ev.localPos())
 
         if ev.button() == QtCore.Qt.LeftButton:
@@ -970,7 +988,7 @@ class Canvas(
         return self.drawing() and self.current and len(self.current) > 2
 
     # QT Overload
-    def mouseDoubleClickEvent(self, _):
+    def mouseDoubleClickEvent(self, ev):
         """Mouse double click event"""
         if self.is_loading:
             return
@@ -983,6 +1001,30 @@ class Canvas(
         ):
             self.auto_decode_finish_requested.emit()
             return
+
+        if self.editing() and self.double_click_edit_label:
+            pos = self.transform_pos(ev.localPos())
+            for shape in reversed(self.shapes):
+                if not self.is_visible(shape):
+                    continue
+                hit = False
+                if shape.shape_type in ["point", "line", "linestrip"]:
+                    if (
+                        shape.nearest_vertex(
+                            pos, self.epsilon * 3 / self.scale
+                        )
+                        is not None
+                    ):
+                        hit = True
+                elif len(shape.points) > 1 and shape.contains_point(pos):
+                    hit = True
+                if hit:
+                    self._undo_pending_edge_point()
+                    if shape not in self.selected_shapes:
+                        self.selection_changed.emit([shape])
+                    self.h_shape_is_selected = False
+                    self.edit_label_requested.emit()
+                    return
 
         # We need at least 4 points here, since the mousePress handler
         # adds an extra one before this handler is called.
