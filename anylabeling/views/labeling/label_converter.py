@@ -1129,9 +1129,12 @@ class LabelConverter:
             annotations = json.loads(data[1])
             for annotation in annotations:
                 points = annotation["points"]
-                shape_type = (
-                    "rectangle" if is_possible_rectangle(points) else "polygon"
-                )
+                if len(points) == 4:
+                    shape_type = (
+                        "rectangle" if is_possible_rectangle(points) else "quadrilateral"
+                    )
+                else:
+                    shape_type = "polygon"
                 shape = {
                     "label": annotation.get("label", "text"),
                     "description": annotation["transcription"],
@@ -2109,7 +2112,7 @@ class LabelConverter:
         prefix = osp.splitext(image_name)[0]
         dir_name = osp.basename(osp.dirname(image_file))
 
-        avaliable_shape_types = ["rectangle", "rotation", "polygon"]
+        avaliable_shape_types = ["rectangle", "rotation", "polygon", "quadrilateral"]
         img = cv2.imdecode(np.fromfile(image_file, dtype=np.uint8), 1)
         data = self.read_json(label_file)
         image_width = data["imageWidth"]
