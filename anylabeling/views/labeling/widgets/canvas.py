@@ -312,6 +312,52 @@ class Canvas(
         ]
         return True
 
+    def clip_rotation_to_pixmap(self, shape):
+        """Clip an axis-aligned rotation shape's bounding box to pixmap boundaries.
+
+        Only clamps shapes whose direction is zero, i.e. freshly drawn in
+        manual mode before any rotation has been applied.
+
+        Args:
+            shape (Shape): The rotation shape to clip.
+
+        Returns:
+            bool: True if the resulting shape is valid, False if it degenerates
+                to zero area and should be discarded.
+        """
+        if self.pixmap is None or shape.shape_type != "rotation":
+            return True
+        if shape.direction != 0:
+            return True
+        if len(shape.points) != 4:
+            return True
+
+        w, h = self.pixmap.width(), self.pixmap.height()
+        x_coords = [p.x() for p in shape.points]
+        y_coords = [p.y() for p in shape.points]
+        min_x, max_x = min(x_coords), max(x_coords)
+        min_y, max_y = min(y_coords), max(y_coords)
+
+        clipped_min_x = max(0, min_x)
+        clipped_min_y = max(0, min_y)
+        clipped_max_x = min(w - 1, max_x)
+        clipped_max_y = min(h - 1, max_y)
+
+        if clipped_max_x <= clipped_min_x or clipped_max_y <= clipped_min_y:
+            return False
+
+        shape.points = [
+            QtCore.QPointF(clipped_min_x, clipped_min_y),
+            QtCore.QPointF(clipped_max_x, clipped_min_y),
+            QtCore.QPointF(clipped_max_x, clipped_max_y),
+            QtCore.QPointF(clipped_min_x, clipped_max_y),
+        ]
+        shape.center = QtCore.QPointF(
+            (clipped_min_x + clipped_max_x) / 2,
+            (clipped_min_y + clipped_max_y) / 2,
+        )
+        return True
+
     @property
     def is_shape_restorable(self):
         """Check if shape can be restored from backup"""
@@ -2221,6 +2267,13 @@ class Canvas(
         self.current.close()
         if self.current.shape_type == "rectangle":
             if not self.clip_rectangle_to_pixmap(self.current):
+                self.current = None
+                self.set_hiding(False)
+                self.drawing_polygon.emit(False)
+                self.update()
+                return
+        elif self.current.shape_type == "rotation":
+            if not self.clip_rotation_to_pixmap(self.current):
                 self.current = None
                 self.set_hiding(False)
                 self.drawing_polygon.emit(False)
