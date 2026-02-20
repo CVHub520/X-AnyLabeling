@@ -2476,7 +2476,7 @@ class LabelingWidget(LabelDialog):
     def get_image_progress_info(self):
         if self.filename and self.filename in self.fn_to_index:
             current_index = self.fn_to_index[str(self.filename)]
-            total_count = len(self.image_list)
+            total_count = self.file_list_widget.count()
             return current_index + 1, total_count
         return 1, 1
 
@@ -4698,18 +4698,19 @@ class LabelingWidget(LabelDialog):
         # self.inform_next_files(filename)
 
         # Changing file_list_widget loads file
-        if filename in self.image_list and (
+        if str(filename) in self.fn_to_index and (
             self.file_list_widget.currentRow()
             != self.fn_to_index[str(filename)]
         ):
             self.file_list_widget.setCurrentRow(
                 self.fn_to_index[str(filename)]
             )
-            self.file_list_widget.repaint()
+            self.file_list_widget.update()
             return False
 
         self.reset_state()
         self.canvas.setEnabled(False)
+
         if filename is None:
             filename = self.settings.value("filename", "")
         filename = str(filename)
@@ -4727,6 +4728,7 @@ class LabelingWidget(LabelDialog):
             image_dir = osp.dirname(filename)
             label_file_without_path = osp.basename(label_file)
             label_file = self.output_dir + "/" + label_file_without_path
+
         if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
             label_file
         ):
@@ -4839,6 +4841,7 @@ class LabelingWidget(LabelDialog):
         else:
             self.set_clean()
         self.canvas.setEnabled(True)
+
         # set zoom values
         is_initial_load = not self.zoom_values
         if self.filename in self.zoom_values:
@@ -4852,11 +4855,8 @@ class LabelingWidget(LabelDialog):
                 self.set_scroll(
                     orientation, self.scroll_values[orientation][self.filename]
                 )
-        # set brightness contrast values
-        self.brightness_contrast_dialog.update_image(
-            utils.img_data_to_pil(self.image_data)
-        )
 
+        # set brightness contrast values
         brightness, contrast = self.brightness_contrast_values.get(
             self.filename, (None, None)
         )
@@ -4868,14 +4868,19 @@ class LabelingWidget(LabelDialog):
             _, contrast = self.brightness_contrast_values.get(
                 self.recent_files[0], (None, None)
             )
-        if brightness is not None:
-            self.brightness_contrast_dialog.slider_brightness.setValue(
-                brightness
-            )
-        if contrast is not None:
-            self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
         if brightness is not None or contrast is not None:
+            self.brightness_contrast_dialog.update_image(
+                utils.img_data_to_pil(self.image_data)
+            )
+            if brightness is not None:
+                self.brightness_contrast_dialog.slider_brightness.setValue(
+                    brightness
+                )
+            if contrast is not None:
+                self.brightness_contrast_dialog.slider_contrast.setValue(
+                    contrast
+                )
             self.brightness_contrast_dialog.on_new_value()
 
         self.paint_canvas()
@@ -5053,37 +5058,32 @@ class LabelingWidget(LabelDialog):
     def open_prev_image(self, _value=False):
         if not self.may_continue():
             return
-
-        if len(self.image_list) <= 0:
+        if self.file_list_widget.count() <= 0:
             return
-
         if self.filename is None:
             return
-
         current_index = self.fn_to_index[str(self.filename)]
         if current_index - 1 >= 0:
-            filename = self.image_list[current_index - 1]
+            filename = self.file_list_widget.item(current_index - 1).text()
             if filename:
                 self.load_file(filename)
 
     def open_next_image(self, _value=False, load=True):
         if not self.may_continue():
             return
-
-        if len(self.image_list) <= 0:
+        count = self.file_list_widget.count()
+        if count <= 0:
             return
-
         filename = None
         if self.filename is None:
-            filename = self.image_list[0]
+            filename = self.file_list_widget.item(0).text()
         else:
             current_index = self.fn_to_index[str(self.filename)]
-            if current_index + 1 < len(self.image_list):
-                filename = self.image_list[current_index + 1]
+            if current_index + 1 < count:
+                filename = self.file_list_widget.item(current_index + 1).text()
             else:
-                filename = self.image_list[-1]
+                filename = self.file_list_widget.item(count - 1).text()
         self.filename = filename
-
         if self.filename and load:
             self.load_file(self.filename)
 
