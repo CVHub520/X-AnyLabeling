@@ -17,6 +17,7 @@ from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.utils import load_json, save_json
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
+from anylabeling.views.labeling.utils.theme import get_theme
 
 
 _MODELS_CONFIG_PATH = os.path.join(
@@ -27,18 +28,21 @@ _MODELS_CONFIG_PATH = os.path.join(
 class SearchBar(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
+        t = get_theme()
         self.setPlaceholderText("Search models")
         self.setFixedHeight(DEFAULT_FIXED_HEIGHT)
         self.setStyleSheet(
             f"""
             QLineEdit {{
-                background-color: #d4d4d8;
+                background-color: {t["background_secondary"]};
+                color: {t["text"]};
+                border: 1px solid {t["border"]};
                 border-radius: {BORDER_RADIUS};
                 padding: 5px 5px 5px 32px;
                 font-size: {FONT_SIZE_SMALL};
             }}
             QLineEdit:focus {{
-                border: 3px solid #60A5FA;
+                border: 2px solid {t["highlight"]};
             }}
         """
         )
@@ -83,12 +87,13 @@ class ProviderSection(QFrame):
         )
         header.addWidget(icon)
 
+        _t = get_theme()
         label = QLabel(provider_name)
         label.setStyleSheet(
-            """
+            f"""
             font-weight: 700;
             font-size: 13px;
-            color: black;
+            color: {_t["text"]};
         """
         )
         header.addWidget(label)
@@ -128,19 +133,25 @@ class ModelItem(QFrame):
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(8, 0, 8, 0)
+        layout.setAlignment(Qt.AlignVCenter)
 
+        _t = get_theme()
         self.name_label = QLabel(self.display_name)
-        self.name_label.setStyleSheet(f"font-size: {FONT_SIZE_SMALL};")
+        self.name_label.setStyleSheet(
+            f"font-size: {FONT_SIZE_SMALL}; color: {_t['text']}; background: transparent;"
+        )
         layout.addWidget(self.name_label)
         layout.addStretch()
 
         # Checkmark for selected item
         self.check_icon = QLabel()
+        self.check_icon.setStyleSheet("background: transparent; border: none;")
+        self.check_icon.setFixedSize(QSize(*ICON_SIZE_SMALL))
         if self.is_selected:
             self.check_icon.setPixmap(
                 QIcon(new_icon("check", "svg")).pixmap(QSize(*ICON_SIZE_SMALL))
             )
-        layout.addWidget(self.check_icon)
+        layout.addWidget(self.check_icon, 0, Qt.AlignVCenter)
 
         # Favorite star (initially hidden, shows on hover)
         self.star_icon = QPushButton()
@@ -162,8 +173,9 @@ class ModelItem(QFrame):
             self.star_icon.setVisible(False)
 
         self.star_icon.clicked.connect(self.toggle_favorite)
-        layout.addWidget(self.star_icon)
+        layout.addWidget(self.star_icon, 0, Qt.AlignVCenter)
 
+        t = get_theme()
         self.setStyleSheet(
             f"""
             ModelItem {{
@@ -171,7 +183,7 @@ class ModelItem(QFrame):
                 border-radius: 4px;
             }}
             ModelItem:hover {{
-                background-color: #d1d0d4;
+                background-color: {t["surface_hover"]};
             }}
         """
         )
@@ -199,15 +211,13 @@ class ModelItem(QFrame):
 
     def update_selection(self, is_selected):
         self.is_selected = is_selected
+        t = get_theme()
         if is_selected:
             self.check_icon.setPixmap(
                 QIcon(new_icon("check", "svg")).pixmap(QSize(*ICON_SIZE_SMALL))
             )
             self.setStyleSheet(
-                """
-                background-color: #d1d0d4;
-                border-radius: 4px;
-            """
+                f"background-color: {t['surface_pressed']}; border-radius: 4px;"
             )
         else:
             self.check_icon.clear()
@@ -237,25 +247,33 @@ class SearchableModelDropdownPopup(QWidget):
         self.setMinimumWidth(360)
         self.setFixedHeight(640)
 
+        t = get_theme()
         self.setStyleSheet(
             f"""
             SearchableModelDropdownPopup {{
-                background-color: #e3e2e6;
+                background-color: {t["surface"]};
                 border-radius: 8px;
             }}
+            QWidget, QFrame {{
+                background-color: {t["surface"]};
+            }}
+            QScrollArea {{
+                background-color: transparent;
+                border: none;
+            }}
             QScrollBar:vertical {{
-                background-color: #fcfcfc;
+                background-color: {t["background_secondary"]};
                 width: 10px;
                 margin: 16px 0 16px 0;
             }}
             QScrollBar::handle:vertical {{
-                background-color: #636363;
+                background-color: {t["scrollbar"]};
                 min-height: 20px;
                 border-radius: 5px;
             }}
             QScrollBar::add-line:vertical {{
                 border: none;
-                background: #fcfcfc;
+                background: {t["background_secondary"]};
                 height: 16px;
                 subcontrol-position: bottom;
                 subcontrol-origin: margin;
@@ -263,14 +281,14 @@ class SearchableModelDropdownPopup(QWidget):
             }}
             QScrollBar::sub-line:vertical {{
                 border: none;
-                background: #fcfcfc;
+                background: {t["background_secondary"]};
                 height: 16px;
                 subcontrol-position: top;
                 subcontrol-origin: margin;
                 image: url({new_icon_path("caret-up", "svg")});
             }}
             QFrame[frameShape="4"] {{
-                color: #e5e5e8;
+                color: {t["border"]};
                 max-height: 1px;
             }}
         """
@@ -458,9 +476,10 @@ class SearchableModelDropdownPopup(QWidget):
 
             no_results = QLabel(empty_text)
             no_results.setAlignment(Qt.AlignCenter)
+            _t = get_theme()
             no_results.setStyleSheet(
-                """
-                color: #09090b;
+                f"""
+                color: {_t["text_secondary"]};
                 font-size: 14px;
                 padding: 20px;
             """

@@ -8,6 +8,7 @@ from PyQt5.QtGui import QWheelEvent
 
 from anylabeling.services.auto_labeling.types import AutoLabelingMode
 from anylabeling.views.labeling.utils.colormap import label_colormap
+from anylabeling.views.labeling.utils.theme import get_theme
 
 from .. import utils
 from ..shape import Shape
@@ -89,6 +90,13 @@ class Canvas(
         self.brush_config = kwargs.pop("brush", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
+        self.setAutoFillBackground(True)
+        palette = self.palette()
+        palette.setColor(
+            QtGui.QPalette.Window,
+            QtGui.QColor(get_theme()["background"]),
+        )
+        self.setPalette(palette)
         # Initialise local state.
         self.mode = self.EDIT
         self.is_auto_labeling = False

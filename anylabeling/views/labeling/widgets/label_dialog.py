@@ -19,9 +19,14 @@ from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
+    get_cancel_btn_style,
+    get_dialog_style,
     get_ok_btn_style,
     get_spinbox_style,
+    get_table_item_bg_color,
+    get_table_item_disabled_bg_color,
 )
+from anylabeling.views.labeling.utils.theme import get_mode, get_theme
 
 # TODO(unknown):
 # - Calculate optimal position so as not to go out of screen area.
@@ -34,18 +39,33 @@ def natural_sort_key(s):
 
 
 class ColoredComboBox(QtWidgets.QComboBox):
+    LIGHT_COLORS = {
+        "polygon": "#D81B60",
+        "rectangle": "#1E88E5",
+        "rotation": "#8E24AA",
+        "quadrilateral": "#7B1FA2",
+        "circle": "#2E7D32",
+        "line": "#E65100",
+        "point": "#00838F",
+        "linestrip": "#6D4C41",
+    }
+    DARK_COLORS = {
+        "polygon": "#F06292",
+        "rectangle": "#64B5F6",
+        "rotation": "#CE93D8",
+        "quadrilateral": "#BA68C8",
+        "circle": "#81C784",
+        "line": "#FFB74D",
+        "point": "#4DD0E1",
+        "linestrip": "#BCAAA4",
+    }
+
     def __init__(self, parent=None):
         super(ColoredComboBox, self).__init__(parent)
-        self.mode_colors = {
-            "polygon": QtGui.QColor("#D81B60"),  # Magenta
-            "rectangle": QtGui.QColor("#1E88E5"),  # Bright Blue
-            "rotation": QtGui.QColor("#8E24AA"),  # Purple
-            "quadrilateral": QtGui.QColor("#7B1FA2"),  # Dark Purple
-            "circle": QtGui.QColor("#00C853"),  # Bright Green
-            "line": QtGui.QColor("#FF6D00"),  # Bright Orange
-            "point": QtGui.QColor("#00ACC1"),  # Teal
-            "linestrip": QtGui.QColor("#6D4C41"),  # Brown
-        }
+        palette = (
+            self.DARK_COLORS if get_mode() == "dark" else self.LIGHT_COLORS
+        )
+        self.mode_colors = {k: QtGui.QColor(v) for k, v in palette.items()}
 
     def addModeItem(self, text, userData=None):
         self.addItem(text, userData)
@@ -104,60 +124,12 @@ class DigitShortcutDialog(QtWidgets.QDialog):
 
         self.setWindowTitle(self.tr("Digit Shortcut Manager"))
         self.setModal(True)
-        self.setMinimumSize(500, 435)
+        self.setMinimumSize(520, 560)
         self.setWindowFlags(
             self.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint
         )
 
-        self.setStyleSheet(
-            f"""
-                QDialog {{
-                    background-color: #f5f5f7;
-                    border-radius: 10px;
-                }}
-                QLabel {{
-                    color: #1d1d1f;
-                    font-size: 13px;
-                }}
-                QComboBox {{
-                    padding: 2px 6px;
-                    background: white;
-                    border: 1px solid #d2d2d7;
-                    border-radius: 4px;
-                    min-height: 20px;
-                    selection-background-color: #0071e3;
-                }}
-                QComboBox::drop-down {{
-                    subcontrol-origin: padding;
-                    subcontrol-position: center right;
-                    width: 20px;
-                    border: none;
-                }}
-                QComboBox::down-arrow {{
-                    image: url({new_icon_path("caret-down", "svg")});
-                    width: 12px;
-                    height: 12px;
-                }}
-                QLineEdit {{
-                    padding: 2px 6px;
-                    background: white;
-                    border: 1px solid #d2d2d7;
-                    border-radius: 4px;
-                    min-height: 20px;
-                    selection-background-color: #0071e3;
-                }}
-                QLineEdit:disabled {{
-                    background: #f0f0f0;
-                    color: #999999;
-                }}
-                QHeaderView::section {{
-                    background-color: #f0f0f0;
-                    padding: 5px;
-                    border: 1px solid #d2d2d7;
-                    font-weight: bold;
-                }}
-        """
-        )
+        self.setStyleSheet(get_dialog_style())
 
         # Create layout with proper spacing
         layout = QtWidgets.QVBoxLayout()
@@ -178,7 +150,8 @@ class DigitShortcutDialog(QtWidgets.QDialog):
         self.table.setHorizontalHeaderLabels(
             [self.tr("Digit"), self.tr("Drawing Mode"), self.tr("Label")]
         )
-        self.table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.table.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
+        self.table.setFocusPolicy(QtCore.Qt.NoFocus)
         self.table.horizontalHeader().setSectionResizeMode(
             0, QtWidgets.QHeaderView.ResizeToContents
         )
@@ -218,17 +191,22 @@ class DigitShortcutDialog(QtWidgets.QDialog):
             mode_combo.currentIndexChanged.connect(
                 lambda idx, d=digit: self.on_mode_changed(d, idx)
             )
-            self.table.setCellWidget(digit, 1, mode_combo)
+            mode_combo.setFixedHeight(30)
+            combo_container = QtWidgets.QWidget()
+            combo_layout = QtWidgets.QHBoxLayout(combo_container)
+            combo_layout.setContentsMargins(6, 0, 6, 0)
+            combo_layout.setAlignment(QtCore.Qt.AlignVCenter)
+            combo_layout.addWidget(mode_combo)
+            self.table.setCellWidget(digit, 1, combo_container)
 
-            # Label text field
             label_edit = QtWidgets.QLineEdit()
+            label_edit.setFixedHeight(30)
             if (
                 int(digit) in self.digit_shortcuts
                 and "label" in self.digit_shortcuts[int(digit)]
             ):
                 label_edit.setText(self.digit_shortcuts[int(digit)]["label"])
 
-            # Initially disable if no mode is selected
             if (
                 int(digit) not in self.digit_shortcuts
                 or "mode" not in self.digit_shortcuts[int(digit)]
@@ -236,7 +214,12 @@ class DigitShortcutDialog(QtWidgets.QDialog):
             ):
                 label_edit.setEnabled(False)
 
-            self.table.setCellWidget(digit, 2, label_edit)
+            label_container = QtWidgets.QWidget()
+            label_layout = QtWidgets.QHBoxLayout(label_container)
+            label_layout.setContentsMargins(6, 0, 6, 0)
+            label_layout.setAlignment(QtCore.Qt.AlignVCenter)
+            label_layout.addWidget(label_edit)
+            self.table.setCellWidget(digit, 2, label_container)
 
         layout.addWidget(self.table)
 
@@ -245,67 +228,16 @@ class DigitShortcutDialog(QtWidgets.QDialog):
         button_layout.setSpacing(8)
 
         self.reset_button = QtWidgets.QPushButton(self.tr("Reset"))
-        self.reset_button.setFixedSize(100, 32)
         self.reset_button.clicked.connect(self.reset_settings)
-        self.reset_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #f5f5f7;
-                color: #1d1d1f;
-                border: 1px solid #d2d2d7;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #e5e5e5;
-            }
-            QPushButton:pressed {
-                background-color: #d5d5d5;
-            }
-            """
-        )
+        self.reset_button.setStyleSheet(get_cancel_btn_style())
 
         ok_button = QtWidgets.QPushButton(self.tr("OK"))
-        ok_button.setFixedSize(100, 32)
         ok_button.clicked.connect(self.save_settings)
-        ok_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #0071e3;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #0077ED;
-            }
-            QPushButton:pressed {
-                background-color: #0068D0;
-            }
-            """
-        )
+        ok_button.setStyleSheet(get_ok_btn_style())
 
         cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
-        cancel_button.setFixedSize(100, 32)
         cancel_button.clicked.connect(self.reject)
-        cancel_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #f5f5f7;
-                color: #1d1d1f;
-                border: 1px solid #d2d2d7;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #e5e5e5;
-            }
-            QPushButton:pressed {
-                background-color: #d5d5d5;
-            }
-            """
-        )
+        cancel_button.setStyleSheet(get_cancel_btn_style())
 
         button_layout.addWidget(self.reset_button)
         button_layout.addStretch()
@@ -319,12 +251,20 @@ class DigitShortcutDialog(QtWidgets.QDialog):
         self.move_to_center()
 
         # Set compact row heights
-        self.table.verticalHeader().setDefaultSectionSize(28)
+        self.table.verticalHeader().setDefaultSectionSize(44)
+
+    def _get_combo(self, digit):
+        container = self.table.cellWidget(digit, 1)
+        return container.findChild(QtWidgets.QComboBox)
+
+    def _get_label_edit(self, digit):
+        container = self.table.cellWidget(digit, 2)
+        return container.findChild(QtWidgets.QLineEdit)
 
     def on_mode_changed(self, digit, index):
         """Enable/disable label field based on mode selection"""
-        combo = self.table.cellWidget(digit, 1)
-        label_edit = self.table.cellWidget(digit, 2)
+        combo = self._get_combo(digit)
+        label_edit = self._get_label_edit(digit)
 
         # Enable label field only if a valid mode is selected
         mode = combo.itemData(index)
@@ -332,9 +272,9 @@ class DigitShortcutDialog(QtWidgets.QDialog):
 
         if mode is None:
             label_edit.clear()
+            label_edit.setPlaceholderText("")
             label_edit.setStyleSheet("")
         else:
-            # Reset style but add a placeholder to indicate requirement
             label_edit.setStyleSheet("")
             label_edit.setPlaceholderText(self.tr("Required"))
 
@@ -354,10 +294,10 @@ class DigitShortcutDialog(QtWidgets.QDialog):
         # Only proceed if user confirmed
         if confirm == QtWidgets.QMessageBox.Yes:
             for digit in range(10):
-                mode_combo = self.table.cellWidget(digit, 1)
+                mode_combo = self._get_combo(digit)
                 mode_combo.setCurrentIndex(0)  # "None" option
 
-                label_edit = self.table.cellWidget(digit, 2)
+                label_edit = self._get_label_edit(digit)
                 label_edit.clear()
                 label_edit.setEnabled(False)
 
@@ -368,12 +308,12 @@ class DigitShortcutDialog(QtWidgets.QDialog):
 
         # Reset all error styling
         for digit in range(10):
-            label_edit = self.table.cellWidget(digit, 2)
+            label_edit = self._get_label_edit(digit)
             label_edit.setStyleSheet("")
 
         for digit in range(10):
-            mode_combo = self.table.cellWidget(digit, 1)
-            label_edit = self.table.cellWidget(digit, 2)
+            mode_combo = self._get_combo(digit)
+            label_edit = self._get_label_edit(digit)
 
             mode = mode_combo.currentData()
             label = label_edit.text().strip()
@@ -382,9 +322,8 @@ class DigitShortcutDialog(QtWidgets.QDialog):
             if mode is not None and not label:
                 has_error = True
                 # Highlight the empty label field
-                label_edit.setStyleSheet(
-                    "border: 2px solid #FF3B30; background-color: #FFEEEE;"
-                )
+                t = get_theme()
+                label_edit.setStyleSheet(f"border: 2px solid {t['error']};")
 
             if mode is not None and label:
                 result[int(digit)] = {"mode": mode, "label": label}
@@ -518,23 +457,20 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
 
         # Table style
         self.table_widget.setStyleSheet(
-            """
+            get_dialog_style()
+            + """
             QTableWidget {
                 border: none;
                 border-radius: 8px;
-                background-color: #FAFAFA;
                 outline: none;
                 selection-background-color: transparent;
                 show-decoration-selected: 0;
-                gridline-color: #EBEBEB;
             }
             QTableWidget::item {
                 padding: 8px;
-                border-bottom: 1px solid #EBEBEB;
             }
             QTableWidget::item:selected {
                 background-color: transparent;
-                color: #000000;
                 border: none;
             }
             QTableWidget::item:focus {
@@ -545,46 +481,29 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             QTableWidget::focus {
                 outline: none;
             }
-            QHeaderView::section {
-                background-color: #F5F5F7;
-                padding: 12px 8px;
-                border: none;
-                font-weight: 600;
-                color: #1d1d1f;
-            }
-            QTableWidget QLineEdit {
-                padding: 2px 8px;
-                margin: 2px 4px;
-                border: 1px solid #D8D8D8;
-                border-radius: 6px;
-                background: white;
-                selection-background-color: #0071e3;
-                min-width: 200px;
-            }
-            QTableWidget QLineEdit:focus {
-                border: 3px solid #60A5FA;
-                outline: none;
-            }
-            QTableView QTableCornerButton::section {
-                background-color: #FAFAFA;
-                border: none;
-            }
-            QHeaderView {
-                background-color: #FAFAFA;
-            }
-            QHeaderView::section:vertical {
-                background-color: #FAFAFA;
-                color: #666666;
-                font-weight: 500;
-                padding: 8px;
-                border: none;
-                border-right: 1px solid #EBEBEB;
-            }
             """
         )
 
+        from anylabeling.views.labeling.utils.theme import get_theme as _gt
+
+        _t = _gt()
         self.table_widget.verticalHeader().setStyleSheet(
-            "color: #666666; font-size: 13px;"
+            f"QHeaderView::section {{"
+            f" background-color: {_t['surface']};"
+            f" color: {_t['text_secondary']};"
+            f" font-size: 13px;"
+            f" border: none;"
+            f" border-right: 1px solid {_t['border']};"
+            f" border-bottom: 1px solid {_t['border']};"
+            f"}}"
+        )
+        self.table_widget.setStyleSheet(
+            self.table_widget.styleSheet() + f" QTableCornerButton::section {{"
+            f" background-color: {_t['surface']};"
+            f" border: none;"
+            f" border-right: 1px solid {_t['border']};"
+            f" border-bottom: 1px solid {_t['border']};"
+            f" }}"
         )
         self.table_widget.verticalHeader().setDefaultAlignment(Qt.AlignCenter)
         self.table_widget.verticalHeader().setFixedWidth(50)
@@ -651,6 +570,9 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             line_edit.setPlaceholderText("Enter new ID")
             line_edit.setAlignment(Qt.AlignCenter)
             line_edit.setFixedHeight(28)
+            line_edit.textChanged.connect(
+                lambda text, r=i: self._on_gid_value_changed(r, text)
+            )
 
             # Create a widget to hold the line edit and center it vertically
             container = QtWidgets.QWidget()
@@ -681,27 +603,25 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
             self.table_widget.setRowHeight(i, 50)
 
     def on_delete_checkbox_changed(self, row, state):
-        """Deactivate linedit when checkbox is checked"""
+        """Deactivate linedit when checkbox is checked."""
         container = self.table_widget.cellWidget(row, 1)
         value_item = container.layout().itemAt(0).widget()
 
-        delete_container = self.table_widget.cellWidget(row, 2)
-        delete_checkbox = delete_container.layout().itemAt(0).widget()
-
         if state == QtCore.Qt.Checked:
             value_item.clear()
+            value_item.setPlaceholderText("")
             value_item.setReadOnly(True)
             value_item.setStyleSheet("background-color: lightgray;")
-            delete_checkbox.setCheckable(True)
         else:
+            value_item.setPlaceholderText(self.tr("Enter new ID"))
             value_item.setReadOnly(False)
-            value_item.setStyleSheet("background-color: white;")
-            delete_checkbox.setCheckable(False)
+            value_item.setStyleSheet("")
 
-        if value_item.text():
-            delete_checkbox.setCheckable(False)
-        else:
-            delete_checkbox.setCheckable(True)
+    def _on_gid_value_changed(self, row, text):
+        """Disable delete checkbox when new group ID is entered."""
+        delete_container = self.table_widget.cellWidget(row, 2)
+        delete_checkbox = delete_container.layout().itemAt(0).widget()
+        delete_checkbox.setEnabled(not bool(text))
 
     def update_range(self):
         from_value = (
@@ -913,6 +833,11 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.table_widget.setEditTriggers(
             QtWidgets.QAbstractItemView.DoubleClicked
         )
+        self.table_widget.setSelectionMode(
+            QtWidgets.QAbstractItemView.NoSelection
+        )
+        self.table_widget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.table_widget.verticalHeader().setDefaultSectionSize(40)
 
         # Set header font and alignment
         for i in range(len(title_list)):
@@ -1009,18 +934,33 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 )
             )
 
-            value_item = QTableWidgetItem(
-                info["value"] if info["value"] else ""
+            value_edit = QtWidgets.QLineEdit()
+            value_edit.setText(info["value"] if info["value"] else "")
+            t = get_theme()
+            _base_style = (
+                f"QLineEdit {{"
+                f" border: none;"
+                f" border-radius: 0;"
+                f" background: transparent;"
+                f" padding: 0 8px;"
+                f" color: {t['text']};"
+                f"}}"
+                f"QLineEdit:focus {{"
+                f" background-color: {t['background_secondary']};"
+                f"}}"
             )
-            value_item.setFlags(
-                value_item.flags() & ~QtCore.Qt.ItemIsEditable
-                if info["delete"]
-                else value_item.flags() | QtCore.Qt.ItemIsEditable
-            )
-            value_item.setBackground(
-                QtGui.QColor("lightgray")
-                if info["delete"]
-                else QtGui.QColor("white")
+            if info["delete"]:
+                value_edit.setReadOnly(True)
+                value_edit.setStyleSheet(
+                    _base_style
+                    + f"QLineEdit {{ background-color: {t['surface']};"
+                    f" color: {t['text_secondary']}; }}"
+                )
+            else:
+                value_edit.setStyleSheet(_base_style)
+
+            value_edit.textChanged.connect(
+                lambda text, r=i: self.on_value_edit_changed(r, text)
             )
 
             visible_checkbox = QCheckBox()
@@ -1043,9 +983,12 @@ class LabelModifyDialog(QtWidgets.QDialog):
             color_button.setParent(self.table_widget)
             self.table_widget.setItem(i, 0, class_item)
             self.table_widget.setCellWidget(i, 1, delete_checkbox)
-            self.table_widget.setItem(i, 2, value_item)
+            self.table_widget.setCellWidget(i, 2, value_edit)
             self.table_widget.setCellWidget(i, 3, visible_container)
             self.table_widget.setCellWidget(i, 4, color_button)
+
+    def _get_value_edit(self, row):
+        return self.table_widget.cellWidget(row, 2)
 
     def change_color(self, button):
         row = self.table_widget.indexAt(button.pos()).row()
@@ -1063,22 +1006,29 @@ class LabelModifyDialog(QtWidgets.QDialog):
             button.set_color(color)
 
     def on_delete_checkbox_changed(self, row, state):
-        value_item = self.table_widget.item(row, 2)
-        delete_checkbox = self.table_widget.cellWidget(row, 1)
-
+        t = get_theme()
+        _base = (
+            f"QLineEdit {{"
+            f" border: none; border-radius: 0;"
+            f" background: transparent; padding: 0 8px;"
+            f" color: {t['text']};"
+            f"}}"
+            f"QLineEdit:focus {{ background-color: {t['background_secondary']}; }}"
+        )
+        value_edit = self._get_value_edit(row)
         if state == QtCore.Qt.Checked:
-            value_item.setFlags(value_item.flags() & ~QtCore.Qt.ItemIsEditable)
-            value_item.setBackground(QtGui.QColor("lightgray"))
-            delete_checkbox.setCheckable(True)
+            value_edit.setReadOnly(True)
+            value_edit.setStyleSheet(
+                _base + f"QLineEdit {{ background-color: {t['surface']};"
+                f" color: {t['text_secondary']}; }}"
+            )
         else:
-            value_item.setFlags(value_item.flags() | QtCore.Qt.ItemIsEditable)
-            value_item.setBackground(QtGui.QColor("white"))
-            delete_checkbox.setCheckable(False)
+            value_edit.setReadOnly(False)
+            value_edit.setStyleSheet(_base)
 
-        if value_item.text():
-            delete_checkbox.setCheckable(False)
-        else:
-            delete_checkbox.setCheckable(True)
+    def on_value_edit_changed(self, row, text):
+        delete_checkbox = self.table_widget.cellWidget(row, 1)
+        delete_checkbox.setEnabled(not bool(text))
 
     def on_visible_checkbox_changed(self, row, state):
         pass
@@ -1149,10 +1099,10 @@ class LabelModifyDialog(QtWidgets.QDialog):
         for i in range(total_num):
             label = self.table_widget.item(i, 0).text()
             delete_checkbox = self.table_widget.cellWidget(i, 1)
-            value_item = self.table_widget.item(i, 2)
+            value_edit = self._get_value_edit(i)
 
             is_delete = delete_checkbox.isChecked()
-            new_value = value_item.text()
+            new_value = value_edit.text()
 
             visible_container = self.table_widget.cellWidget(i, 3)
             visible_checkbox = visible_container.layout().itemAt(0).widget()

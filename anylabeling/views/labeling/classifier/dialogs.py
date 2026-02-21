@@ -29,6 +29,7 @@ from anylabeling.views.labeling.classifier.utils import (
     get_label_file_path,
     load_flags_from_json,
 )
+from anylabeling.views.labeling.utils.theme import get_theme
 
 
 class ExportPathDialog(QDialog):
@@ -95,26 +96,27 @@ class ExportPathDialog(QDialog):
         layout.addLayout(button_layout)
 
     def _get_input_style(self):
-        return """
-            QLineEdit {
-                border: 1px solid #e2e8f0;
+        t = get_theme()
+        return f"""
+            QLineEdit {{
+                border: 1px solid {t["border"]};
                 border-radius: 8px;
                 padding: 0 16px;
-                background-color: #f8fafc;
-                color: #374151;
+                background-color: {t["background_secondary"]};
+                color: {t["text"]};
                 font-size: 13px;
                 font-weight: 500;
                 height: 32px;
-            }
-            QLineEdit:hover {
-                background-color: #f1f5f9;
-                border-color: #cbd5e1;
-            }
-            QLineEdit:focus {
-                border: 2px solid #0077ed;
-                background-color: #ffffff;
+            }}
+            QLineEdit:hover {{
+                background-color: {t["background_hover"]};
+                border-color: {t["border_light"]};
+            }}
+            QLineEdit:focus {{
+                border: 2px solid {t["highlight"]};
+                background-color: {t["background"]};
                 outline: none;
-            }
+            }}
         """
 
     def browse_path(self):
@@ -148,20 +150,21 @@ class NewLabelDialog(QDialog):
             existing_label.setStyleSheet(get_filename_label_style())
             layout.addWidget(existing_label)
 
+            t = get_theme()
             self.existing_text = QTextEdit()
             self.existing_text.setPlainText("\n".join(self.existing_labels))
             self.existing_text.setReadOnly(True)
             self.existing_text.setMaximumHeight(120)
             self.existing_text.setStyleSheet(
-                """
-                QTextEdit {
-                    border: 1px solid #e2e8f0;
+                f"""
+                QTextEdit {{
+                    border: 1px solid {t["border"]};
                     border-radius: 8px;
                     padding: 8px;
-                    background-color: #f8fafc;
-                    color: #6b7280;
+                    background-color: {t["surface"]};
+                    color: {t["text_secondary"]};
                     font-size: 13px;
-                }
+                }}
             """
             )
             layout.addWidget(self.existing_text)
@@ -170,21 +173,22 @@ class NewLabelDialog(QDialog):
         new_label.setStyleSheet(get_filename_label_style())
         layout.addWidget(new_label)
 
+        t = get_theme()
         self.text_edit = QTextEdit()
         self.text_edit.setStyleSheet(
-            """
-            QTextEdit {
-                border: 1px solid #e2e8f0;
+            f"""
+            QTextEdit {{
+                border: 1px solid {t["border"]};
                 border-radius: 8px;
                 padding: 8px;
-                background-color: #ffffff;
-                color: #374151;
+                background-color: {t["background_secondary"]};
+                color: {t["text"]};
                 font-size: 13px;
-            }
-            QTextEdit:focus {
-                border: 2px solid #0077ed;
+            }}
+            QTextEdit:focus {{
+                border: 2px solid {t["highlight"]};
                 outline: none;
-            }
+            }}
         """
         )
         layout.addWidget(self.text_edit)
@@ -545,17 +549,18 @@ class StatisticsViewDialog(QDialog):
         self.kpi_layout.setSpacing(12)
         layout.addLayout(self.kpi_layout)
 
+        t = get_theme()
         separator = QFrame()
         separator.setFrameShape(QFrame.HLine)
         separator.setStyleSheet(
-            """
-            QFrame {
-                color: #e5e7eb;
-                background-color: #e5e7eb;
+            f"""
+            QFrame {{
+                color: {t["border"]};
+                background-color: {t["border"]};
                 border: none;
                 height: 1px;
                 margin: 8px 0;
-            }
+            }}
         """
         )
         layout.addWidget(separator)
@@ -601,14 +606,15 @@ class StatisticsViewDialog(QDialog):
             self.kpi_layout.addWidget(chip)
 
     def create_kpi_chip(self, title, value, color):
+        _t = get_theme()
         widget = QWidget()
         widget.setStyleSheet(
-            """
-            QWidget {
-                background-color: #f9fafb;
+            f"""
+            QWidget {{
+                background-color: {_t["surface"]};
                 border-radius: 8px;
                 padding: 12px 16px;
-            }
+            }}
         """
         )
 
@@ -631,13 +637,13 @@ class StatisticsViewDialog(QDialog):
 
         title_label = QLabel(title)
         title_label.setStyleSheet(
-            """
-            QLabel {
+            f"""
+            QLabel {{
                 font-size: 11px;
-                color: #6b7280;
+                color: {_t["text_secondary"]};
                 font-weight: 500;
                 margin: 0;
-            }
+            }}
         """
         )
         title_label.setAlignment(Qt.AlignCenter)
@@ -656,15 +662,16 @@ class StatisticsViewDialog(QDialog):
         chart_layout.setContentsMargins(0, 0, 0, 0)
 
         if not label_counts:
+            _t = get_theme()
             no_data_label = QLabel(self.tr("No labeled data available"))
             no_data_label.setStyleSheet(
-                """
-                QLabel {
-                    color: #9ca3af;
+                f"""
+                QLabel {{
+                    color: {_t["text_secondary"]};
                     font-size: 13px;
                     font-style: italic;
                     padding: 20px;
-                }
+                }}
             """
             )
             no_data_label.setAlignment(Qt.AlignCenter)
@@ -699,17 +706,18 @@ class StatisticsViewDialog(QDialog):
         display_name = (
             label_name if len(label_name) <= 15 else label_name[:12] + "..."
         )
+        _t = get_theme()
         label_widget = QLabel(display_name)
         label_widget.setFixedWidth(label_width)
         if len(label_name) > 15:
             label_widget.setToolTip(label_name)
         label_widget.setStyleSheet(
-            """
-            QLabel {
+            f"""
+            QLabel {{
                 font-size: 12px;
-                color: #374151;
+                color: {_t["text"]};
                 font-weight: 500;
-            }
+            }}
         """
         )
         layout.addWidget(label_widget)
@@ -727,16 +735,16 @@ class StatisticsViewDialog(QDialog):
         if fill_ratio >= 0.6:
             text_color = "#ffffff"
         elif fill_ratio >= 0.3:
-            text_color = "#1f2937"
+            text_color = _t["text"]
         else:
-            text_color = "#374151"
+            text_color = _t["text_secondary"]
 
         progress_bar.setStyleSheet(
             f"""
             QProgressBar {{
                 border: none;
                 border-radius: 10px;
-                background-color: #f1f5f9;
+                background-color: {_t["surface"]};
                 text-align: center;
                 font-size: 10px;
                 font-weight: 600;

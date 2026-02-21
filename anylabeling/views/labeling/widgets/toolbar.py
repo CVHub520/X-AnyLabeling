@@ -1,6 +1,7 @@
 """Defines toolbar for anylabeling, including"""
 
 from PyQt5 import QtCore, QtWidgets
+from anylabeling.views.labeling.utils.theme import get_mode, get_theme
 
 
 class ToolBar(QtWidgets.QToolBar):
@@ -9,23 +10,44 @@ class ToolBar(QtWidgets.QToolBar):
     def __init__(self, title):
         super().__init__(title)
         layout = self.layout()
-        margin = (0, 0, 0, 0)
         layout.setSpacing(0)
-        layout.setContentsMargins(*margin)
-        self.setContentsMargins(*margin)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setContentsMargins(0, 0, 0, 0)
         self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint)
 
-        self.setStyleSheet(
+        self._is_dark = get_mode() == "dark"
+        t = get_theme()
+        separator_qss = ""
+        if self._is_dark:
+            separator_qss = f"""
+            QToolBar::separator {{
+                background: {t["border"]};
+                height: 1px;
+                margin: 4px 6px;
+            }}
             """
-            QToolBar {
-                background: #fff;
+        self.setStyleSheet(
+            f"""
+            QToolBar {{
+                background: {t["background"]};
                 padding: 0px;
-                border: 0px;
+                border: 2px solid {t["border"]};
                 border-radius: 5px;
-                border: 2px solid #aaa;
-            }
+            }}
+            {separator_qss}
             """
         )
+        if self._is_dark:
+            layout.setContentsMargins(0, 4, 0, 4)
+
+    def clear(self):
+        super().clear()
+        layout = self.layout()
+        layout.setSpacing(0)
+        if self._is_dark:
+            layout.setContentsMargins(0, 4, 0, 4)
+        else:
+            layout.setContentsMargins(0, 0, 0, 0)
 
     def add_action(self, action):
         """Add an action (button) to the toolbar"""

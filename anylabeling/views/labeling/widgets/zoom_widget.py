@@ -1,5 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from anylabeling.views.labeling.utils.theme import get_theme
+
 
 class ZoomWidget(QtWidgets.QSpinBox):
     def __init__(self, value=100):
@@ -15,9 +17,15 @@ class ZoomWidget(QtWidgets.QSpinBox):
         font.setPointSize(9)
         self.setFont(font)
 
-    # QT Overload
-    def minimumSizeHint(self):
-        height = super().minimumSizeHint().height()
-        font_metric = QtGui.QFontMetrics(self.font())
-        width = font_metric.horizontalAdvance(str(self.maximum()))
-        return QtCore.QSize(width, height)
+        t = get_theme()
+        self.setStyleSheet(
+            f"""
+            QSpinBox {{
+                background-color: transparent;
+                color: {t["text"]};
+                border: none;
+                padding: 0;
+                min-height: 0;
+            }}
+            """
+        )

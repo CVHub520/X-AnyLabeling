@@ -1,5 +1,9 @@
 from PyQt5.QtWidgets import QDialog, QHBoxLayout, QLabel, QVBoxLayout
 from .custom_widgets import CustomComboBox, PrimaryButton, SecondaryButton
+from anylabeling.services.auto_training.ultralytics.style import (
+    get_ultralytics_dialog_style,
+)
+from anylabeling.views.labeling.utils.theme import get_theme
 
 
 class ExportFormatDialog(QDialog):
@@ -9,6 +13,7 @@ class ExportFormatDialog(QDialog):
         self.setFixedSize(400, 220)
         self.setModal(True)
         self.selected_format = "onnx"
+        self.setStyleSheet(get_ultralytics_dialog_style())
 
         layout = QVBoxLayout()
         layout.setSpacing(8)
@@ -17,7 +22,10 @@ class ExportFormatDialog(QDialog):
         desc_label = QLabel(
             self.tr("Select the format for exporting your trained model:")
         )
-        desc_label.setStyleSheet("color: #718096; margin-bottom: 8px;")
+        t = get_theme()
+        desc_label.setStyleSheet(
+            f"color: {t['text_secondary']}; margin-bottom: 8px;"
+        )
         layout.addWidget(desc_label)
 
         self.format_combo = CustomComboBox()
@@ -50,8 +58,8 @@ class ExportFormatDialog(QDialog):
             )
         )
         info_label.setStyleSheet(
-            """
-            color: #e69500;
+            f"""
+            color: {t['warning']};
             font-size: 12px;
             margin-top: 8px;
             padding: 4px;

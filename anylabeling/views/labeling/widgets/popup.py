@@ -1,5 +1,6 @@
 import os
 
+from anylabeling.views.labeling.utils.theme import get_theme
 from PyQt5.QtWidgets import (
     QWidget,
     QLabel,
@@ -28,12 +29,19 @@ class Popup(QWidget):
             parent, Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
         )
 
+        t = get_theme()
+        self._bg_color = t["surface_hover"]
+        self._text_color = t["text"]
         self.setStyleSheet(
-            """
-            QWidget {
-                background-color: #f2edec;
+            f"""
+            QWidget {{
+                background-color: {self._bg_color};
                 border-radius: 16px;
-            }
+            }}
+            QLabel {{
+                background-color: transparent;
+                color: {self._text_color};
+            }}
         """
         )
 
@@ -86,7 +94,7 @@ class Popup(QWidget):
         rect = QRectF(self.rect())
         path.addRoundedRect(rect, 10, 10)
 
-        painter.fillPath(path, QColor("#f2edec"))
+        painter.fillPath(path, QColor(self._bg_color))
 
     def show_popup(
         self, parent_widget, copy_msg="", popup_height=36, position="default"

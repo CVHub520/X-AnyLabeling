@@ -6,6 +6,8 @@ import markdown.extensions.toc
 import markdown.extensions.attr_list
 import markdown.extensions.smarty
 
+from anylabeling.views.labeling.utils.theme import get_theme
+
 
 def convert_markdown_to_html(content):
     """Set the HTML style for the content label with GitHub-style markdown rendering and LaTeX support"""
@@ -33,6 +35,7 @@ def convert_markdown_to_html(content):
         extension_configs=extension_configs,
     )
 
+    t = get_theme()
     return f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -48,16 +51,16 @@ def convert_markdown_to_html(content):
 
         <style>
             :root {{
-                --primary: #60A5FA;
-                --background: #FFFFFF;
-                --background-secondary: #F9F9F9;
-                --background-hover: #DBDBDB;
-                --border: #E5E5E5;
-                --text: #2C2C2E;
-                --highlight-text: #2196F3;
-                --success: #30D158;
-                --warning: #FF9F0A;
-                --error: #FF453A;
+                --primary: {t["primary"]};
+                --background: {t["background"]};
+                --background-secondary: {t["background_secondary"]};
+                --background-hover: {t["background_hover"]};
+                --border: {t["border"]};
+                --text: {t["text"]};
+                --highlight-text: {t["highlight"]};
+                --success: {t["success"]};
+                --warning: {t["warning"]};
+                --error: {t["error"]};
                 --font-size-normal: 13px;
                 --font-size-h1: 24px;
                 --font-size-h2: 20px;
@@ -158,7 +161,7 @@ def convert_markdown_to_html(content):
             /* Blockquotes */
             .markdown-body blockquote {{
                 padding: 0 1em;
-                color: #6a737d;
+                color: {t["text_secondary"]};
                 border-left: 0.25em solid var(--border);
                 margin-bottom: 16px;
             }}
@@ -227,7 +230,7 @@ def convert_markdown_to_html(content):
                 right: 8px;
                 padding: 4px 8px;
                 font-size: 12px;
-                color: #666;
+                color: {t["text_secondary"]};
                 background-color: var(--background);
                 border: 1px solid var(--border);
                 border-radius: 4px;

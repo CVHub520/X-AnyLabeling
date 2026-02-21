@@ -52,6 +52,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [7.5 Hover Auto-Highlight](#75-hover-auto-highlight)
       * [7.6 Shape Appearance](#76-shape-appearance)
       * [7.7 Model Download Source](#77-model-download-source)
+      * [7.8 Appearance Settings](#78-appearance-settings)
    * [8. Supported Tasks](#8-supported-tasks)
       * [8.1 Image Classification](#81-image-classification)
       * [8.2 Object Detection](#82-object-detection)
@@ -932,6 +933,24 @@ shape:
     *   If neither the environment variable nor the config file is explicitly set to `modelscope`, the default behavior depends on the language setting in `.xanylabelingrc`:
         *   If `language: zh_CN` (Chinese), it defaults to `modelscope`.
         *   Otherwise (e.g., `language: en_US`), it defaults to `github`.
+
+### 7.8 Appearance Settings
+
+X-AnyLabeling supports three appearance modes, accessible from the menu bar at **View → Appearance**:
+
+| Option | Description |
+|--------|-------------|
+| **System** | Automatically follows the operating system's light/dark preference. This is the default. |
+| **Light** | Always uses the light theme. |
+| **Dark** | Always uses the dark theme. |
+
+After selecting an option, a confirmation dialog appears. Click **OK** to save the setting and immediately restart the application for the theme to take full effect; click **Cancel** to discard the change.
+
+You can also set the theme directly in `~/.xanylabelingrc`:
+
+```yaml
+theme: auto  # Options: auto, light, dark
+```
 
 ## 8. Supported Tasks
 

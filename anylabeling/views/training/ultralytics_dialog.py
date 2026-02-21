@@ -127,6 +127,7 @@ class UltralyticsDialog(QDialog):
         )
 
         self.init_ui()
+        self.setStyleSheet(get_ultralytics_dialog_style())
         self.refresh_dataset_summary()
 
     def init_ui(self):

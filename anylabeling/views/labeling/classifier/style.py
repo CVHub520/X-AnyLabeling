@@ -5,12 +5,12 @@ from anylabeling.views.labeling.classifier.config import (
     BUTTON_COLORS,
     FONT_SIZE_SMALL,
     FONT_SIZE_NORMAL,
-    THEME,
 )
+from anylabeling.views.labeling.utils.theme import get_theme
 
 
 def get_filename_label_style(theme: Dict[str, str] = None) -> str:
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QLabel {{
             color: {theme["text"]};
@@ -23,13 +23,14 @@ def get_filename_label_style(theme: Dict[str, str] = None) -> str:
 
 
 def get_image_label_style() -> str:
-    return """
-        QLabel {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+    t = get_theme()
+    return f"""
+        QLabel {{
+            background-color: {t["background_secondary"]};
+            border: 1px solid {t["border"]};
             border-radius: 8px;
             padding: 4px;
-        }
+        }}
     """
 
 
@@ -44,7 +45,7 @@ def get_image_container_style() -> str:
 
 def get_button_style(theme: Dict[str, str] = None) -> str:
     """Style for common buttion"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QPushButton {{
             border: none;
@@ -63,8 +64,9 @@ def get_dialog_button_style(
     colors = BUTTON_COLORS.get(variant, BUTTON_COLORS["primary"])
 
     height = (
-        "32px" if size == "medium" else "28px" if size == "small" else "36px"
+        "36px" if size == "medium" else "28px" if size == "small" else "36px"
     )
+    min_width = "100px" if size != "small" else "50px"
     font_size = FONT_SIZE_NORMAL if size == "medium" else FONT_SIZE_SMALL
 
     border = (
@@ -82,6 +84,7 @@ def get_dialog_button_style(
             {border}
             border-radius: {BORDER_RADIUS};
             padding: 0 16px;
+            min-width: {min_width};
             height: {height};
         }}
         QPushButton:hover {{
@@ -91,23 +94,24 @@ def get_dialog_button_style(
             background-color: {colors["pressed"]};
         }}
         QPushButton:disabled {{
-            background-color: #f3f4f6;
-            color: #9ca3af;
-            border: 1px solid #e5e7eb;
+            background-color: {get_theme()["surface"]};
+            color: {get_theme()["text_secondary"]};
+            border: 1px solid {get_theme()["border"]};
         }}
     """
 
 
 def get_main_splitter_style() -> str:
-    return """
-        QSplitter::handle {
-            background-color: #e2e8f0;
+    t = get_theme()
+    return f"""
+        QSplitter::handle {{
+            background-color: {t["border"]};
             width: 3px;
             border-radius: 1px;
-        }
-        QSplitter::handle:hover {
-            background-color: #cbd5e1;
-        }
+        }}
+        QSplitter::handle:hover {{
+            background-color: {t["border_light"]};
+        }}
     """
 
 

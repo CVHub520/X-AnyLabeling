@@ -6,6 +6,8 @@ import os
 import os.path as osp
 import re
 import shutil
+import subprocess
+import sys
 from typing import Optional
 
 import cv2
@@ -18,6 +20,7 @@ from PyQt5.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDockWidget,
+    QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
@@ -42,6 +45,16 @@ from ...app_info import (
     __preferred_device__,
 )
 from . import utils
+from .utils.style import (
+    get_cancel_btn_style,
+    get_checkbox_indicator_style,
+    get_dialog_style,
+    get_dock_style,
+    get_double_spinbox_style,
+    get_ok_btn_style,
+    get_panel_style,
+    get_plain_text_edit_style,
+)
 from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
 from .logger import logger
@@ -193,9 +206,7 @@ class LabelingWidget(LabelDialog):
             self.flag_dock.hide()
         self.flag_dock.setWidget(self.flag_widget)
         self.flag_widget.itemChanged.connect(self.set_dirty)
-        self.flag_dock.setStyleSheet(
-            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
-        )
+        self.flag_dock.setStyleSheet(get_dock_style())
 
         # Create and add combobox for showing unique labels or group ids in group
         self.label_filter_combobox = LabelFilterComboBox(self)
@@ -205,6 +216,9 @@ class LabelingWidget(LabelDialog):
         self.select_toggle_button = QPushButton(self.tr("Select"), self)
         self.select_toggle_button.setCheckable(True)
         self.select_toggle_button.clicked.connect(self.toggle_select_all)
+        longer_text = max(self.tr("Select"), self.tr("Unselect"), key=len)
+        text_width = self.select_toggle_button.fontMetrics().width(longer_text)
+        self.select_toggle_button.setFixedWidth(text_width + 32)
 
         self.label_list.item_selection_changed.connect(
             self.label_selection_changed
@@ -214,9 +228,7 @@ class LabelingWidget(LabelDialog):
         self.label_list.item_dropped.connect(self.label_order_changed)
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Objects"), self)
         self.shape_dock.setWidget(self.label_list)
-        self.shape_dock.setStyleSheet(
-            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
-        )
+        self.shape_dock.setStyleSheet(get_dock_style())
         self.shape_dock.setTitleBarWidget(QtWidgets.QWidget())
 
         self.unique_label_list = UniqueLabelQListWidget()
@@ -230,8 +242,9 @@ class LabelingWidget(LabelDialog):
         self.label_dock = QtWidgets.QDockWidget(self.tr("Labels"), self)
         self.label_dock.setObjectName("Labels")
         self.label_dock.setWidget(self.unique_label_list)
-        self.label_dock.setStyleSheet(
-            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
+        self.label_dock.setStyleSheet(get_dock_style())
+        self.unique_label_list.setStyleSheet(
+            "QListWidget::item { padding: 0; }"
         )
 
         self.file_search = SearchBar()
@@ -253,9 +266,8 @@ class LabelingWidget(LabelDialog):
             self.file_selection_changed
         )
         file_list_layout = QtWidgets.QVBoxLayout()
-        file_list_layout.setContentsMargins(0, 4, 0, 0)
-        file_list_layout.setSpacing(4)
-        file_list_layout.addWidget(self.file_search)
+        file_list_layout.setContentsMargins(0, 0, 0, 0)
+        file_list_layout.setSpacing(0)
         file_list_layout.addWidget(self.file_list_widget)
         self.file_dock = QtWidgets.QDockWidget("", self)
         self.file_dock.setObjectName("Files")
@@ -263,9 +275,7 @@ class LabelingWidget(LabelDialog):
         file_list_widget = QtWidgets.QWidget()
         file_list_widget.setLayout(file_list_layout)
         self.file_dock.setWidget(file_list_widget)
-        self.file_dock.setStyleSheet(
-            "QDockWidget::title {" "text-align: center;" "padding: 0px;" "}"
-        )
+        self.file_dock.setStyleSheet(get_dock_style())
 
         self.zoom_widget = ZoomWidget()
 
@@ -1173,6 +1183,28 @@ class LabelingWidget(LabelDialog):
             enabled=self._config["language"] != "zh_CN",
         )
 
+        # Appearance submenu (System / Light / Dark)
+        appearance_menu = QtWidgets.QMenu(self.tr("Appearance"), self)
+        appearance_menu.setIcon(utils.new_icon("color"))
+        appearance_group = QtWidgets.QActionGroup(self)
+        appearance_group.setExclusive(True)
+        self._appearance_actions = {}
+        current_appearance = self._config.get("theme", "auto")
+        for _mode, _label in (
+            ("auto", self.tr("System")),
+            ("light", self.tr("Light")),
+            ("dark", self.tr("Dark")),
+        ):
+            _act = QtWidgets.QAction(_label, appearance_group)
+            _act.setCheckable(True)
+            _act.setChecked(current_appearance == _mode)
+            _act.setData(_mode)
+            _act.triggered.connect(
+                functools.partial(self._on_appearance_changed, _mode)
+            )
+            appearance_menu.addAction(_act)
+            self._appearance_actions[_mode] = _act
+
         # Upload
         upload_image_flags_file = action(
             self.tr("Upload Image Flags File"),
@@ -1898,6 +1930,8 @@ class LabelingWidget(LabelDialog):
                 None,
                 brightness_contrast,
                 set_cross_line,
+                appearance_menu,
+                None,
                 show_masks,
                 show_texts,
                 show_labels,
@@ -2051,6 +2085,7 @@ class LabelingWidget(LabelDialog):
 
         right_sidebar_layout = QVBoxLayout()
         right_sidebar_layout.setContentsMargins(0, 0, 0, 0)
+        right_sidebar_layout.setSpacing(4)
 
         # Thumbnail image display
         self.thumbnail_pixmap = None
@@ -2091,8 +2126,10 @@ class LabelingWidget(LabelDialog):
         # Shape text label with checkbox
         self.shape_text_label = QLabel("Object Text")
         self.shape_text_edit = QPlainTextEdit()
+        self.shape_text_edit.setStyleSheet(get_plain_text_edit_style())
         self.description_checkbox = QCheckBox()
         self.description_checkbox.setChecked(True)
+        self.description_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.description_checkbox.toggled.connect(
             self.toggle_description_visibility
         )
@@ -2106,13 +2143,22 @@ class LabelingWidget(LabelDialog):
         description_header_widget = QWidget()
         description_header_widget.setLayout(description_header_layout)
 
-        right_sidebar_layout.addWidget(description_header_widget)
-        right_sidebar_layout.addWidget(self.shape_text_edit)
+        desc_panel = QFrame()
+        desc_panel.setObjectName("sidebarPanel")
+        desc_panel.setStyleSheet(get_panel_style())
+        desc_panel_layout = QVBoxLayout(desc_panel)
+        desc_panel_layout.setContentsMargins(0, 0, 0, 0)
+        desc_panel_layout.setSpacing(0)
+        desc_panel_layout.addWidget(description_header_widget)
+        desc_panel_layout.addWidget(self.shape_text_edit)
+        right_sidebar_layout.addWidget(desc_panel)
+
         right_sidebar_layout.addWidget(self.flag_dock)
 
         # Labels with checkbox
         self.labels_checkbox = QCheckBox()
         self.labels_checkbox.setChecked(True)
+        self.labels_checkbox.setStyleSheet(get_checkbox_indicator_style())
         self.labels_checkbox.toggled.connect(self.toggle_labels_visibility)
 
         labels_header_layout = QHBoxLayout()
@@ -2124,13 +2170,21 @@ class LabelingWidget(LabelDialog):
         labels_header_layout.addWidget(self.labels_checkbox)
         labels_header_widget = QWidget()
         labels_header_widget.setLayout(labels_header_layout)
-        right_sidebar_layout.addWidget(labels_header_widget)
 
         # Hide the original dock title bar
         empty_widget = QWidget()
         empty_widget.setFixedHeight(0)
         self.label_dock.setTitleBarWidget(empty_widget)
-        right_sidebar_layout.addWidget(self.label_dock)
+
+        labels_panel = QFrame()
+        labels_panel.setObjectName("sidebarPanel")
+        labels_panel.setStyleSheet(get_panel_style())
+        labels_panel_layout = QVBoxLayout(labels_panel)
+        labels_panel_layout.setContentsMargins(0, 0, 0, 0)
+        labels_panel_layout.setSpacing(0)
+        labels_panel_layout.addWidget(labels_header_widget)
+        labels_panel_layout.addWidget(self.label_dock)
+        right_sidebar_layout.addWidget(labels_panel)
 
         # Create a horizontal layout for the filters and select button
         filter_layout = QHBoxLayout()
@@ -2139,9 +2193,27 @@ class LabelingWidget(LabelDialog):
         filter_layout.addWidget(self.label_filter_combobox, 2)
         filter_layout.addWidget(self.gid_filter_combobox, 1)
         filter_layout.addWidget(self.select_toggle_button, 0)
-        right_sidebar_layout.addLayout(filter_layout)
-        right_sidebar_layout.addWidget(self.shape_dock)
-        right_sidebar_layout.addWidget(self.file_dock)
+
+        objects_panel = QFrame()
+        objects_panel.setObjectName("sidebarPanel")
+        objects_panel.setStyleSheet(get_panel_style())
+        objects_panel_layout = QVBoxLayout(objects_panel)
+        objects_panel_layout.setContentsMargins(4, 4, 4, 4)
+        objects_panel_layout.setSpacing(4)
+        objects_panel_layout.addLayout(filter_layout)
+        objects_panel_layout.addWidget(self.shape_dock)
+        right_sidebar_layout.addWidget(objects_panel)
+
+        right_sidebar_layout.addWidget(self.file_search)
+
+        files_panel = QFrame()
+        files_panel.setObjectName("sidebarPanel")
+        files_panel.setStyleSheet(get_panel_style())
+        files_panel_layout = QVBoxLayout(files_panel)
+        files_panel_layout.setContentsMargins(0, 0, 0, 0)
+        files_panel_layout.setSpacing(0)
+        files_panel_layout.addWidget(self.file_dock)
+        right_sidebar_layout.addWidget(files_panel)
         self.file_dock.setFeatures(QDockWidget.DockWidgetFloatable)
         dock_features = (
             ~QDockWidget.DockWidgetMovable
@@ -2294,6 +2366,58 @@ class LabelingWidget(LabelDialog):
         )
         msg_box.exec_()
         self.parent.parent.close()
+
+    def _on_appearance_changed(self, mode: str) -> None:
+        """Handle Appearance submenu selection (System / Light / Dark)."""
+        prev_mode = self._config.get("theme", "auto")
+        if prev_mode == mode:
+            return
+
+        dialog = QtWidgets.QDialog(self)
+        dialog.setWindowTitle(self.tr("Appearance"))
+        dialog.setFixedWidth(360)
+        dialog.setWindowFlags(
+            dialog.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint
+        )
+        dialog.setStyleSheet(get_dialog_style())
+
+        layout = QtWidgets.QVBoxLayout(dialog)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(16)
+
+        label = QLabel(
+            self.tr(
+                "The application needs to restart to apply the new appearance. Restart now?"
+            )
+        )
+        label.setWordWrap(True)
+        layout.addWidget(label)
+
+        btn_layout = QtWidgets.QHBoxLayout()
+        btn_layout.setSpacing(8)
+        cancel_btn = QtWidgets.QPushButton(self.tr("Cancel"))
+        cancel_btn.setFixedWidth(100)
+        cancel_btn.setStyleSheet(get_cancel_btn_style())
+        cancel_btn.clicked.connect(dialog.reject)
+        ok_btn = QtWidgets.QPushButton(self.tr("OK"))
+        ok_btn.setFixedWidth(100)
+        ok_btn.setStyleSheet(get_ok_btn_style())
+        ok_btn.clicked.connect(dialog.accept)
+        btn_layout.addStretch()
+        btn_layout.addWidget(cancel_btn)
+        btn_layout.addWidget(ok_btn)
+        layout.addLayout(btn_layout)
+
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            self._config["theme"] = mode
+            save_config(self._config)
+            subprocess.Popen([sys.executable] + sys.argv)
+            QtWidgets.QApplication.quit()
+        else:
+            # Revert the checkmark to the previously active mode
+            prev_act = self._appearance_actions.get(prev_mode)
+            if prev_act:
+                prev_act.setChecked(True)
 
     def get_labeling_instruction(self):
         text_mode = self.tr("Mode:")
@@ -4574,16 +4698,46 @@ class LabelingWidget(LabelDialog):
     def set_brush_point_distance(self):
         """Open dialog to set the brush drawing point distance."""
         current_value = self.canvas.brush_point_distance
-        value, ok = QtWidgets.QInputDialog.getDouble(
-            self,
-            self.tr("Brush Point Distance"),
-            self.tr("Point distance (screen pixels):"),
-            current_value,
-            1.0,
-            200.0,
-            1,
+
+        dialog = QtWidgets.QDialog(self)
+        dialog.setWindowTitle(self.tr("Brush Point Distance"))
+        dialog.setFixedWidth(320)
+        dialog.setWindowFlags(
+            dialog.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint
         )
-        if ok:
+        dialog.setStyleSheet(get_dialog_style())
+
+        layout = QtWidgets.QVBoxLayout(dialog)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(16)
+
+        label = QLabel(self.tr("Point distance (screen pixels):"))
+        layout.addWidget(label)
+
+        spinbox = QtWidgets.QDoubleSpinBox()
+        spinbox.setRange(1.0, 200.0)
+        spinbox.setDecimals(1)
+        spinbox.setSingleStep(1.0)
+        spinbox.setValue(current_value)
+        spinbox.setStyleSheet(get_double_spinbox_style())
+        spinbox.setFixedHeight(36)
+        layout.addWidget(spinbox)
+
+        btn_layout = QtWidgets.QHBoxLayout()
+        btn_layout.setSpacing(8)
+        cancel_btn = QtWidgets.QPushButton(self.tr("Cancel"))
+        cancel_btn.setStyleSheet(get_cancel_btn_style())
+        cancel_btn.clicked.connect(dialog.reject)
+        ok_btn = QtWidgets.QPushButton(self.tr("OK"))
+        ok_btn.setStyleSheet(get_ok_btn_style())
+        ok_btn.clicked.connect(dialog.accept)
+        btn_layout.addStretch()
+        btn_layout.addWidget(cancel_btn)
+        btn_layout.addWidget(ok_btn)
+        layout.addLayout(btn_layout)
+
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            value = spinbox.value()
             self.canvas.brush_point_distance = value
             self._config["canvas"].setdefault("brush", {})[
                 "point_distance"

@@ -30,6 +30,7 @@ class UniqueLabelQListWidget(EscapableQListWidget):
 
     def set_item_label(self, item, label, color=None, opacity=255):
         qlabel = QtWidgets.QLabel()
+        qlabel.setContentsMargins(8, 4, 8, 4)
         if color is None:
             qlabel.setText(f"{label}")
         else:
@@ -44,7 +45,7 @@ class UniqueLabelQListWidget(EscapableQListWidget):
                 ");"
             )
             qlabel.setStyleSheet(style_sheet)
-        qlabel.setAlignment(Qt.AlignBottom)
+        qlabel.setAlignment(Qt.AlignVCenter | Qt.AlignLeft)
         item.setSizeHint(qlabel.sizeHint())
         self.setItemWidget(item, qlabel)
 

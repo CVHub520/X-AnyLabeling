@@ -1,6 +1,7 @@
 import os
 
 from anylabeling.config import get_work_directory
+from anylabeling.views.labeling.utils.theme import get_theme
 
 root_dir = os.path.join(get_work_directory(), "xanylabeling_data/vqa")
 PROMPTS_CONFIG_PATH = os.path.join(root_dir, "prompts.json")
@@ -21,34 +22,23 @@ DEFAULT_WINDOW_TITLE = "VQA"
 DEFAULT_WINDOW_SIZE = (1200, 700)  # (w, h)
 DEFAULT_COMPONENT_WINDOW_SIZE = (600, 350)
 
-# Theme configuration
-THEME = {
-    "primary": "#60A5FA",  # Tailwind CSS blue-500
-    "background": "#FFFFFF",  # Clean white background
-    "background_secondary": "#F9F9F9",  # Light gray background
-    "background_hover": "#DBDBDB",  # Light gray for hover
-    "border": "#E5E5E5",  # Subtle border color
-    "text": "#718096",  # Dark gray for better readability
-    "highlight_text": "#2196F3",  # Highlight text color
-    "success": "#30D158",  # Softer green
-    "warning": "#FF9F0A",  # Warm orange
-    "error": "#FF453A",  # Refined red
-}
+# Theme configuration — derived from the central theme at import time
+THEME = get_theme()
 
 # Button color schemes
 BUTTON_COLORS = {
     "primary": {
-        "background": "#0077ed",
-        "hover": "#0066cc",
-        "pressed": "#005bb5",
+        "background": THEME["primary"],
+        "hover": THEME["primary_hover"],
+        "pressed": THEME["primary_pressed"],
         "text": "white",
     },
     "secondary": {
-        "background": "#f5f5f7",
-        "hover": "#e5e5e5",
-        "pressed": "#d6d6d6",
-        "text": "#1d1d1f",
-        "border": "#d2d2d7",
+        "background": THEME["surface"],
+        "hover": THEME["surface_hover"],
+        "pressed": THEME["surface_pressed"],
+        "text": THEME["text"],
+        "border": THEME["border_light"],
     },
     "success": {
         "background": "#10b981",

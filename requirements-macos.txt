@@ -22,3 +22,4 @@ json_repair
 importlib_metadata
 markdown
 requests
+darkdetect>=0.8.0

@@ -86,6 +86,7 @@ dependencies = [
     "termcolor",
     "tokenizers",
     "requests",
+    "darkdetect>=0.8.0",
 ]
 
 # Optional dependencies ------------------------------------------------------------------------------------------------

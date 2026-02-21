@@ -1,6 +1,7 @@
 import os
 
 from anylabeling.config import get_work_directory
+from anylabeling.views.labeling.utils.theme import get_theme
 
 root_dir = os.path.join(get_work_directory(), "xanylabeling_data/chatbot")
 MODELS_CONFIG_PATH = os.path.join(root_dir, "models.json")
@@ -28,19 +29,7 @@ MAX_MSG_INPUT_HEIGHT = 300
 USER_MESSAGE_MAX_WIDTH_PERCENT = 70
 REFRESH_INTERVAL = 300  # seconds
 
-# Theme configuration
-THEME = {
-    "primary": "#60A5FA",  # Tailwind CSS blue-500
-    "background": "#FFFFFF",  # Clean white background
-    "background_secondary": "#F9F9F9",  # Light gray background
-    "background_hover": "#DBDBDB",  # Light gray for hover
-    "border": "#E5E5E5",  # Subtle border color
-    "text": "#2C2C2E",  # Dark gray for better readability
-    "highlight_text": "#2196F3",  # Highlight text color
-    "success": "#30D158",  # Softer green
-    "warning": "#FF9F0A",  # Warm orange
-    "error": "#FF453A",  # Refined red
-}
+THEME = get_theme()
 
 
 # Providers config

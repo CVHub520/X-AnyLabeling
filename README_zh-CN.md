@@ -82,6 +82,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- 新增**外观设置**，支持 System/Light/Dark 三种主题 [[教程](./docs/zh_cn/user_guide.md#78-外观设置)]
 - 新增**画笔多边形**绘制模式（`Ctrl+N`）：移动鼠标即可自动沿轨迹添加多边形顶点，点间距可通过 `Edit > Set Brush Point Distance` 调整
 - 新增双击画布对象编辑标签功能
 - 新增 **四边形**标注形状，支持键盘快捷键 `T` 进行高效的四点对象标注

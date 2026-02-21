@@ -1,4 +1,5 @@
 language: en_US
+theme: auto  # auto, light, dark
 model_hub: github  # github, modelscope
 device: null  # CPU, GPU
 auto_save: true

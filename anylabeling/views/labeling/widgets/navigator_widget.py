@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.views.labeling.chatbot import ChatbotDialogStyle
+from anylabeling.views.labeling.utils.theme import get_theme
 
 
 class ClickableSlider(QSlider):
@@ -488,18 +489,19 @@ class NavigatorDialog(QtWidgets.QDialog):
         zoom_layout.setContentsMargins(0, 0, 0, 0)
         zoom_layout.setSpacing(8)
 
+        t = get_theme()
         zoom_input_container = QWidget()
         zoom_input_container.setFixedSize(60, 24)
         zoom_input_container.setStyleSheet(
-            """
-            QWidget {
-                border: 1px solid #ddd;
+            f"""
+            QWidget {{
+                border: 1px solid {t["border"]};
                 border-radius: 4px;
-                background-color: #ffffff;
-            }
-            QWidget:hover {
-                background-color: #f5f5f5;
-            }
+                background-color: {t["background_secondary"]};
+            }}
+            QWidget:hover {{
+                background-color: {t["background_hover"]};
+            }}
         """
         )
 
@@ -512,19 +514,19 @@ class NavigatorDialog(QtWidgets.QDialog):
         self.zoom_input.setAlignment(Qt.AlignRight)
         self.zoom_input.setText("100")
         self.zoom_input.setStyleSheet(
-            """
-            QLineEdit {
+            f"""
+            QLineEdit {{
                 border: none;
                 background: transparent;
-                color: #495057;
+                color: {t["text"]};
                 font-size: 10px;
                 font-weight: 500;
                 padding: 0px;
-            }
-            QLineEdit:focus {
+            }}
+            QLineEdit:focus {{
                 border: none;
                 background: transparent;
-            }
+            }}
         """
         )
         self.zoom_input.returnPressed.connect(self.on_zoom_input_changed)
@@ -532,15 +534,15 @@ class NavigatorDialog(QtWidgets.QDialog):
 
         percentage_label = QLabel("%")
         percentage_label.setStyleSheet(
-            """
-            QLabel { 
-                color: #6c757d; 
+            f"""
+            QLabel {{ 
+                color: {t["text_secondary"]}; 
                 font-size: 10px; 
                 font-weight: 500;
                 background: transparent;
                 border: none;
                 padding: 0px;
-            }
+            }}
         """
         )
 
@@ -551,13 +553,13 @@ class NavigatorDialog(QtWidgets.QDialog):
         zoom_out_icon.setFixedSize(16, 16)
         zoom_out_icon.setAlignment(Qt.AlignCenter)
         zoom_out_icon.setStyleSheet(
-            """
-            QLabel { 
-                color: #6c757d; 
+            f"""
+            QLabel {{ 
+                color: {t["text_secondary"]}; 
                 font-size: 14px; 
                 font-weight: bold;
                 background: transparent;
-            }
+            }}
         """
         )
 
@@ -571,13 +573,13 @@ class NavigatorDialog(QtWidgets.QDialog):
         zoom_in_icon.setFixedSize(16, 16)
         zoom_in_icon.setAlignment(Qt.AlignCenter)
         zoom_in_icon.setStyleSheet(
-            """
-            QLabel { 
-                color: #6c757d; 
+            f"""
+            QLabel {{ 
+                color: {t["text_secondary"]}; 
                 font-size: 14px; 
                 font-weight: bold;
                 background: transparent;
-            }
+            }}
         """
         )
 

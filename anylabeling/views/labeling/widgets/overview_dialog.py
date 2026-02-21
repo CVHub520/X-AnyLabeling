@@ -20,70 +20,61 @@ from PyQt5.QtWidgets import (
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon_path
-from anylabeling.views.labeling.utils.style import get_progress_dialog_style
+from anylabeling.views.labeling.utils.style import (
+    get_dialog_style,
+    get_progress_dialog_style,
+)
 from anylabeling.views.labeling.widgets.popup import Popup
 
 
-overview_dialog_styles = f"""
-    QSpinBox {{
-        padding: 5px 8px;
-        background: white;
-        border: 1px solid #d2d2d7;
-        border-radius: 6px;
-        min-height: 24px;
-        selection-background-color: #0071e3;
-    }}
-    QSpinBox::up-button, QSpinBox::down-button {{
-        width: 20px;
-        border: none;
-        background: #f0f0f0;
-    }}
-    QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
-        background: #e0e0e0;
-    }}
-    QSpinBox::up-arrow {{
-        image: url({new_icon_path("caret-up", "svg")});
-        width: 12px;
-        height: 12px;
-    }}
-    QSpinBox::down-arrow {{
-        image: url({new_icon_path("caret-down", "svg")});
-        width: 12px;
-        height: 12px;
-    }}
+def _get_overview_style() -> str:
+    """
+    Returns the combined stylesheet for the Overview dialog.
 
-    .secondary-button {{
-        background-color: #f5f5f7;
-        color: #1d1d1f;
-        border: 1px solid #d2d2d7;
-        border-radius: 8px;
-        font-weight: 500;
-        min-width: 100px;
-        height: 36px;
-    }}
-    .secondary-button:hover {{
-        background-color: #e5e5e5;
-    }}
-    .secondary-button:pressed {{
-        background-color: #d5d5d5;
-    }}
+    Builds on the unified get_dialog_style() and adds dialog-specific
+    QPushButton class selectors for primary/secondary variants.
 
-    .primary-button {{
-        background-color: #0071e3;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 500;
-        min-width: 100px;
-        height: 36px;
-    }}
-    .primary-button:hover {{
-        background-color: #0077ED;
-    }}
-    .primary-button:pressed {{
-        background-color: #0068D0;
-    }}
-"""
+    Returns:
+        str: QSS stylesheet string for OverviewDialog.
+    """
+    from anylabeling.views.labeling.utils.theme import get_theme
+
+    t = get_theme()
+    return (
+        get_dialog_style()
+        + f"""
+        .secondary-button {{
+            background-color: {t["surface"]};
+            color: {t["text"]};
+            border: 1px solid {t["border_light"]};
+            border-radius: 8px;
+            font-weight: 500;
+            min-width: 100px;
+            height: 36px;
+        }}
+        .secondary-button:hover {{
+            background-color: {t["surface_hover"]};
+        }}
+        .secondary-button:pressed {{
+            background-color: {t["surface_pressed"]};
+        }}
+        .primary-button {{
+            background-color: {t["primary"]};
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            min-width: 100px;
+            height: 36px;
+        }}
+        .primary-button:hover {{
+            background-color: {t["primary_hover"]};
+        }}
+        .primary-button:pressed {{
+            background-color: {t["primary_pressed"]};
+        }}
+    """
+    )
 
 
 class OverviewDialog(QtWidgets.QDialog):
@@ -182,7 +173,7 @@ class OverviewDialog(QtWidgets.QDialog):
 
         self.export_button.clicked.connect(self.export_to_csv)
 
-        self.setStyleSheet(overview_dialog_styles)
+        self.setStyleSheet(_get_overview_style())
 
         self.exec_()
 

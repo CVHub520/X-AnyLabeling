@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QApplication,
     QDialog,
     QFileDialog,
+    QGridLayout,
     QLabel,
     QLineEdit,
     QHBoxLayout,
@@ -24,7 +25,6 @@ from PyQt5.QtWidgets import (
     QMessageBox,
 )
 
-from anylabeling.views.labeling.chatbot.style import ChatbotDialogStyle
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
 from anylabeling.views.labeling.utils.qt import new_icon_path
@@ -34,6 +34,7 @@ from anylabeling.views.labeling.utils.style import (
     get_ok_btn_style,
     get_msg_box_style,
     get_progress_dialog_style,
+    get_spinbox_style,
 )
 
 
@@ -241,9 +242,8 @@ def save_crop(self):
     layout.setContentsMargins(24, 24, 24, 24)
     layout.setSpacing(16)
 
-    path_layout = QVBoxLayout()
     path_label = QLabel(self.tr("Save Path"))
-    path_layout.addWidget(path_label)
+    layout.addWidget(path_label)
 
     path_input_layout = QHBoxLayout()
     path_input_layout.setSpacing(8)
@@ -270,44 +270,29 @@ def save_crop(self):
 
     path_input_layout.addWidget(path_edit)
     path_input_layout.addWidget(path_button)
-    path_layout.addLayout(path_input_layout)
-    layout.addLayout(path_layout)
+    layout.addLayout(path_input_layout)
 
-    min_width_layout = QHBoxLayout()
+    # Grid keeps spinboxes and buttons in the same right-side column
+    grid = QGridLayout()
+    grid.setHorizontalSpacing(12)
+    grid.setVerticalSpacing(12)
+    grid.setColumnStretch(0, 1)
+
     min_width_label = QLabel(self.tr("Minimum width:"))
     min_width_spin = QSpinBox()
     min_width_spin.setRange(0, 10000)
     min_width_spin.setValue(0)
-    min_width_spin.setMinimumWidth(100)
-    min_width_spin.setStyleSheet(
-        ChatbotDialogStyle.get_spinbox_style(
-            up_arrow_url=new_icon_path("caret-up", "svg"),
-            down_arrow_url=new_icon_path("caret-down", "svg"),
-        )
-    )
-    min_width_layout.addWidget(min_width_label)
-    min_width_layout.addWidget(min_width_spin)
-    layout.addLayout(min_width_layout)
+    min_width_spin.setStyleSheet(get_spinbox_style())
+    grid.addWidget(min_width_label, 0, 0)
+    grid.addWidget(min_width_spin, 0, 1)
 
-    min_height_layout = QHBoxLayout()
     min_height_label = QLabel(self.tr("Minimum height:"))
     min_height_spin = QSpinBox()
     min_height_spin.setRange(0, 10000)
     min_height_spin.setValue(0)
-    min_height_spin.setMinimumWidth(100)
-    min_height_spin.setStyleSheet(
-        ChatbotDialogStyle.get_spinbox_style(
-            up_arrow_url=new_icon_path("caret-up", "svg"),
-            down_arrow_url=new_icon_path("caret-down", "svg"),
-        )
-    )
-    min_height_layout.addWidget(min_height_label)
-    min_height_layout.addWidget(min_height_spin)
-    layout.addLayout(min_height_layout)
-
-    button_layout = QHBoxLayout()
-    button_layout.setContentsMargins(0, 16, 0, 0)
-    button_layout.setSpacing(8)
+    min_height_spin.setStyleSheet(get_spinbox_style())
+    grid.addWidget(min_height_label, 1, 0)
+    grid.addWidget(min_height_spin, 1, 1)
 
     cancel_button = QPushButton(self.tr("Cancel"))
     cancel_button.clicked.connect(dialog.reject)
@@ -317,10 +302,14 @@ def save_crop(self):
     ok_button.clicked.connect(dialog.accept)
     ok_button.setStyleSheet(get_ok_btn_style())
 
-    button_layout.addStretch()
+    button_layout = QHBoxLayout()
+    button_layout.setContentsMargins(0, 4, 0, 0)
+    button_layout.setSpacing(8)
     button_layout.addWidget(cancel_button)
     button_layout.addWidget(ok_button)
-    layout.addLayout(button_layout)
+    grid.addLayout(button_layout, 2, 1)
+
+    layout.addLayout(grid)
 
     dialog.setLayout(layout)
     result = dialog.exec_()

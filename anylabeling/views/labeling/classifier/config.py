@@ -1,3 +1,5 @@
+from anylabeling.views.labeling.utils.theme import get_theme
+
 BORDER_RADIUS = "8px"
 FONT_SIZE_SMALL = "11px"
 FONT_SIZE_NORMAL = "13px"
@@ -11,39 +13,28 @@ IMAGE_DISPLAY_MAX_SIZE = (PANEL_SIZE, PANEL_SIZE)
 DEFAULT_WINDOW_TITLE = "Image Classifier"
 DEFAULT_WINDOW_SIZE = (1200, 700)
 
-THEME = {
-    "primary": "#60A5FA",
-    "background": "#FFFFFF",
-    "background_secondary": "#F9F9F9",
-    "background_hover": "#DBDBDB",
-    "border": "#E5E5E5",
-    "text": "#718096",
-    "highlight_text": "#2196F3",
-    "success": "#30D158",
-    "warning": "#FF9F0A",
-    "error": "#FF453A",
-}
+THEME = get_theme()
 
 BUTTON_COLORS = {
     "primary": {
-        "background": "#0077ed",
-        "hover": "#0066cc",
-        "pressed": "#005bb5",
+        "background": THEME["primary"],
+        "hover": THEME["primary_hover"],
+        "pressed": THEME["primary_pressed"],
         "text": "white",
     },
     "secondary": {
-        "background": "#f5f5f7",
-        "hover": "#e5e5e5",
-        "pressed": "#d6d6d6",
-        "text": "#1d1d1f",
-        "border": "#d2d2d7",
+        "background": THEME["surface"],
+        "hover": THEME["surface_hover"],
+        "pressed": THEME["surface_pressed"],
+        "text": THEME["text"],
+        "border": THEME["border_light"],
     },
     "outline": {
         "background": "transparent",
-        "hover": "#f8fafc",
-        "pressed": "#f1f5f9",
-        "text": "#64748b",
-        "border": "#e2e8f0",
+        "hover": THEME["background_secondary"],
+        "pressed": THEME["surface"],
+        "text": THEME["text_secondary"],
+        "border": THEME["border"],
     },
     "success": {
         "background": "#10b981",

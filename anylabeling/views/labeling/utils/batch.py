@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
 )
 
 from anylabeling.app_info import __version__
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.services.auto_labeling import (
     _BATCH_PROCESSING_INVALID_MODELS,
     _BATCH_PROCESSING_TEXT_PROMPT_MODELS,
@@ -49,7 +50,7 @@ class TextInputDialog(QDialog):
 
         prompt_label = QLabel(self.tr("Please enter your text prompt:"))
         prompt_label.setStyleSheet(
-            "font-size: 13px; color: #1d1d1f; font-weight: 500;"
+            f"font-size: 13px; color: {get_theme()['text']}; font-weight: 500;"
         )
         layout.addWidget(prompt_label)
 
@@ -65,66 +66,68 @@ class TextInputDialog(QDialog):
         layout.addWidget(button_box)
 
         self.setLayout(layout)
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QDialog {
-                background-color: #ffffff;
+            f"""
+            QDialog {{
+                background-color: {t["background"]};
                 border-radius: 10px;
-            }
-            
-            QLineEdit {
-                border: 1px solid #E5E5E5;
+            }}
+
+            QLineEdit {{
+                border: 1px solid {t["border"]};
                 border-radius: 8px;
-                background-color: #F9F9F9;
+                background-color: {t["background_secondary"]};
                 font-size: 13px;
                 height: 36px;
                 padding: 0 12px;
-            }
-            
-            QLineEdit:hover {
-                background-color: #DBDBDB;
-            }
-            
-            QLineEdit:focus {
-                border: 2px solid #0066FF;
-                background-color: #F9F9F9;
-            }
-            
-            QPushButton {
+                color: {t["text"]};
+            }}
+
+            QLineEdit:hover {{
+                background-color: {t["background_hover"]};
+            }}
+
+            QLineEdit:focus {{
+                border: 2px solid {t["highlight"]};
+                background-color: {t["background_secondary"]};
+            }}
+
+            QPushButton {{
                 min-width: 100px;
                 height: 36px;
                 border-radius: 8px;
                 font-weight: 500;
                 font-size: 13px;
-            }
-            
-            QPushButton[text="OK"] {
-                background-color: #0066FF;
+            }}
+
+            QPushButton[text="OK"] {{
+                background-color: {t["primary"]};
                 color: white;
                 border: none;
-            }
-            
-            QPushButton[text="OK"]:hover {
-                background-color: #0077ED;
-            }
-            
-            QPushButton[text="OK"]:pressed {
-                background-color: #0068D0;
-            }
-            
-            QPushButton[text="Cancel"] {
-                background-color: #f5f5f7;
-                color: #1d1d1f;
-                border: 1px solid #d2d2d7;
-            }
-            
-            QPushButton[text="Cancel"]:hover {
-                background-color: #e5e5e5;
-            }
-            
-            QPushButton[text="Cancel"]:pressed {
-                background-color: #d5d5d5;
-            }
+            }}
+
+            QPushButton[text="OK"]:hover {{
+                background-color: {t["primary_hover"]};
+            }}
+
+            QPushButton[text="OK"]:pressed {{
+                background-color: {t["primary"]};
+            }}
+
+            QPushButton[text="Cancel"] {{
+                background-color: {t["surface"]};
+                color: {t["text"]};
+                border: 1px solid {t["border"]};
+            }}
+
+            QPushButton[text="Cancel"]:hover {{
+                background-color: {t["background_hover"]};
+            }}
+
+            QPushButton[text="Cancel"]:pressed {{
+                background-color: {t["surface"]};
+            }}
         """
         )
 
@@ -411,60 +414,58 @@ def show_progress_dialog_and_process(self):
 
         progress_bar.valueChanged.connect(update_progress)
 
+    t = get_theme()
     progress_dialog.setStyleSheet(
-        """
-        QProgressDialog {
-            background-color: rgba(255, 255, 255, 0.95);
+        f"""
+        QProgressDialog {{
+            background-color: {t["background"]};
             border-radius: 12px;
             min-width: 280px;
             min-height: 120px;
             padding: 20px;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08),
-                        0 2px 6px rgba(0, 0, 0, 0.04);
-        }
-        QProgressBar {
+        }}
+        QProgressBar {{
             border: none;
             border-radius: 4px;
-            background-color: rgba(0, 0, 0, 0.05);
+            background-color: {t["surface"]};
             text-align: center;
-            color: #1d1d1f;
+            color: {t["text"]};
             font-size: 13px;
             min-height: 20px;
             max-height: 20px;
             margin: 16px 0;
-        }
-        QProgressBar::chunk {
+        }}
+        QProgressBar::chunk {{
             background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 #0066FF,
-                stop:0.5 #00A6FF,
-                stop:1 #0066FF);
+                stop:0 {t["primary"]},
+                stop:0.5 {t["highlight"]},
+                stop:1 {t["primary"]});
             border-radius: 3px;
-        }
-        QLabel {
-            color: #1d1d1f;
+        }}
+        QLabel {{
+            color: {t["text"]};
             font-size: 13px;
             font-weight: 500;
             margin-bottom: 8px;
-        }
-        QPushButton {
-            background-color: rgba(255, 255, 255, 0.8);
-            border: 0.5px solid rgba(0, 0, 0, 0.1);
+        }}
+        QPushButton {{
+            background-color: {t["surface"]};
+            border: 1px solid {t["border"]};
             border-radius: 6px;
             font-weight: 500;
             font-size: 13px;
-            color: #0066FF;
+            color: {t["primary"]};
             min-width: 82px;
             height: 36px;
             padding: 0 16px;
             margin-top: 16px;
-        }
-        QPushButton:hover {
-            background-color: rgba(0, 0, 0, 0.05);
-        }
-        QPushButton:pressed {
-            background-color: rgba(0, 0, 0, 0.08);
-        }
+        }}
+        QPushButton:hover {{
+            background-color: {t["background_hover"]};
+        }}
+        QPushButton:pressed {{
+            background-color: {t["surface"]};
+        }}
     """
     )
     progress_dialog.canceled.connect(lambda: cancel_operation(self))

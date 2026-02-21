@@ -6,14 +6,15 @@ from anylabeling.views.labeling.vqa.config import (
     FONT_SIZE_SMALL,
     FONT_SIZE_NORMAL,
     FONT_SIZE_LARGE,
-    THEME,
 )
 from anylabeling.views.labeling.utils.qt import new_icon_path
+from anylabeling.views.labeling.utils.theme import get_theme, get_mode
+from anylabeling.views.labeling.utils.style import get_checkbox_indicator_style
 
 
 def get_filename_label_style(theme: Dict[str, str] = None) -> str:
     """Style for filename label"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QLabel {{
             color: {theme["text"]};
@@ -27,22 +28,24 @@ def get_filename_label_style(theme: Dict[str, str] = None) -> str:
 
 def get_image_label_style() -> str:
     """Style for image display label"""
-    return """
-        QLabel {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
+    t = get_theme()
+    return f"""
+        QLabel {{
+            background-color: {t["background"]};
+            border: 1px solid {t["border"]};
             border-radius: 8px;
             padding: 4px;
-        }
+        }}
     """
 
 
 def get_image_container_style() -> str:
     """Style for image container widget"""
+    t = get_theme()
     return f"""
         QWidget {{
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+            background-color: {t["background_secondary"]};
+            border: 1px solid {t["border"]};
             border-radius: {BORDER_RADIUS};
         }}
     """
@@ -50,7 +53,7 @@ def get_image_container_style() -> str:
 
 def get_page_label_style(theme: Dict[str, str] = None) -> str:
     """Style for page labels"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QLabel {{
             color: {theme["text"]};
@@ -64,7 +67,7 @@ def get_page_label_style(theme: Dict[str, str] = None) -> str:
 
 def get_message_label_style(theme: Dict[str, str] = None) -> str:
     """Style for message labels"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QLabel {{
             font-size: {FONT_SIZE_NORMAL};
@@ -77,7 +80,7 @@ def get_message_label_style(theme: Dict[str, str] = None) -> str:
 
 def get_title_label_style(theme: Dict[str, str] = None) -> str:
     """Style for title labels"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QLabel {{
             font-size: {FONT_SIZE_LARGE};
@@ -91,18 +94,19 @@ def get_title_label_style(theme: Dict[str, str] = None) -> str:
 
 def get_status_label_style() -> str:
     """Style for status labels in dialogs"""
-    return """
-        QLabel {
-            color: #718096;
+    t = get_theme()
+    return f"""
+        QLabel {{
+            color: {t["text_placeholder"]};
             font-size: 12px;
             font-style: italic;
-        }
+        }}
     """
 
 
 def get_ui_style(theme: Dict[str, str] = None) -> str:
     """Style for setup ui"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QDialog {{
             background-color: {theme["background"]};
@@ -112,7 +116,7 @@ def get_ui_style(theme: Dict[str, str] = None) -> str:
 
 
 def get_main_splitter_style(theme: Dict[str, str] = None) -> str:
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QSplitter::handle {{
             background-color: {theme["border"]};
@@ -122,84 +126,87 @@ def get_main_splitter_style(theme: Dict[str, str] = None) -> str:
 
 def get_component_dialog_combobox_style() -> str:
     """Style for combobox in component dialogs"""
-    return """
-        QTableWidget {
-            gridline-color: #e2e8f0;
-            background-color: #ffffff;
-            alternate-background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
+    t = get_theme()
+    return f"""
+        QTableWidget {{
+            gridline-color: {t["border"]};
+            background-color: {t["background"]};
+            alternate-background-color: {t["background_secondary"]};
+            border: 1px solid {t["border"]};
             border-radius: 6px;
             outline: none;
-        }
-        QTableWidget::item {
+        }}
+        QTableWidget::item {{
             padding: 6px 8px;
             border: none;
             min-height: 20px;
             outline: none;
-        }
-        QTableWidget::item:focus {
+        }}
+        QTableWidget::item:focus {{
             outline: none;
             border: none;
-        }
-        QHeaderView::section {
-            background-color: #f7fafc;
+        }}
+        QHeaderView::section {{
+            background-color: {t["surface"]};
             padding: 8px;
             border: 0px;
-            border-bottom: 2px solid #e2e8f0;
-            border-right: 1px solid #e2e8f0;
+            border-bottom: 2px solid {t["border"]};
+            border-right: 1px solid {t["border"]};
             font-weight: 600;
-            color: #4a5568;
+            color: {t["text_secondary"]};
             min-height: 25px;
             outline: none;
-        }
-        QHeaderView::section:last {
+        }}
+        QHeaderView::section:last {{
             border-right: none;
-        }
+        }}
     """
 
 
 def get_content_input_style(theme: Dict[str, str] = None) -> str:
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QTextEdit {{
             background-color: {theme["background"]};
+            color: {theme["text"]};
             border-radius: {BORDER_RADIUS};
             padding: 8px 12px;
             font-size: {FONT_SIZE_NORMAL};
-            border: 1px solid #e2e8f0;
+            border: 1px solid {theme["border"]};
         }}
         QTextEdit:focus {{
-            border: 2px solid #60A5FA;
+            border: 2px solid {theme["highlight"]};
         }}
     """
 
 
 def get_name_input_style(theme: Dict[str, str] = None) -> str:
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QLineEdit {{
             background-color: {theme["background"]};
+            color: {theme["text"]};
             border-radius: {BORDER_RADIUS};
             padding: 8px 12px;
             font-size: {FONT_SIZE_NORMAL};
-            border: 1px solid #e2e8f0;
+            border: 1px solid {theme["border"]};
         }}
         QLineEdit:focus {{
-            border: 2px solid #60A5FA;
+            border: 2px solid {theme["highlight"]};
         }}
     """
 
 
 def get_page_input_style(theme: Dict[str, str] = None) -> str:
     """Style for page input field"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QLineEdit {{
             border: 1px solid {theme["border"]};
             border-radius: {BORDER_RADIUS};
             padding: 6px 8px;
             background-color: {theme["background_secondary"]};
-            color: #718096;
+            color: {theme["text_placeholder"]};
             font-size: {FONT_SIZE_NORMAL};
             font-weight: 500;
         }}
@@ -217,26 +224,26 @@ def get_page_input_style(theme: Dict[str, str] = None) -> str:
 
 def get_prompt_input_style(theme: Dict[str, str] = None) -> str:
     """Style for prompt input field"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QTextEdit {{
-            border: 1px solid #E5E7EB;
+            border: 1px solid {theme["border"]};
             border-radius: {BORDER_RADIUS};
-            background-color: #F9FAFB;
+            background-color: {theme["background_secondary"]};
             color: {theme["text"]};
             font-size: {FONT_SIZE_NORMAL};
             line-height: 1.5;
             padding: 12px;
         }}
         QTextEdit:focus {{
-            border: 1px solid #6366F1;
+            border: 1px solid {theme["highlight"]};
         }}
         QScrollBar:vertical {{
             width: 8px;
             background: transparent;
         }}
         QScrollBar::handle:vertical {{
-            background: #D1D5DB;
+            background: {theme["scrollbar"]};
             border-radius: 4px;
             min-height: 30px;
         }}
@@ -247,60 +254,50 @@ def get_prompt_input_style(theme: Dict[str, str] = None) -> str:
 
 
 def get_table_style():
+    t = get_theme()
     return f"""
         QTableWidget {{
-            border: 1px solid #E5E7EB;
+            border: 1px solid {t["border"]};
             border-radius: 0px;
-            background-color: white;
+            background-color: {t["background"]};
             gridline-color: transparent;
             outline: none;
         }}
         QTableWidget::item {{
             padding: 6px 12px;
             border: none;
-            border-bottom: 1px solid #F3F4F6;
-            color: #374151;
+            border-bottom: 1px solid {t["border"]};
+            color: {t["text"]};
             font-size: 13px;
             outline: none;
         }}
         QTableWidget::item:hover {{
-            background-color: #F9FAFB;
+            background-color: {t["surface_hover"]};
         }}
         QHeaderView::section {{
-            background-color: #F8FAFC;
-            color: #6B7280;
+            background-color: {t["surface"]};
+            color: {t["text_secondary"]};
             font-weight: 600;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             padding: 8px 12px;
             border: none;
-            border-bottom: 2px solid #E5E7EB;
-            border-right: 1px solid #F3F4F6;
+            border-bottom: 2px solid {t["border"]};
+            border-right: 1px solid {t["border"]};
             outline: none;
             height: 28px;
         }}
         QCheckBox {{
             spacing: 6px;
         }}
-        QCheckBox::indicator {{
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-            border: 1px solid #D2D2D7;
-            background-color: white;
-        }}
-        QCheckBox::indicator:checked {{
-            background-color: white;
-            border: 1px solid #D2D2D7;
-            image: url({new_icon_path("checkmark", "svg")});
-        }}
+        {get_checkbox_indicator_style()}
     """
 
 
 def get_button_style(theme: Dict[str, str] = None) -> str:
     """Style for common buttion"""
-    theme = theme or THEME
+    theme = theme or get_theme()
     return f"""
         QPushButton {{
             border: none;
@@ -336,7 +333,7 @@ def get_dialog_button_style(
             "height": "36px",
             "padding": "0 10px",
             "font_size": FONT_SIZE_NORMAL,
-            "min_width": "70px",
+            "min_width": "100px",
         },
         "large": {
             "height": "44px",
@@ -349,11 +346,12 @@ def get_dialog_button_style(
 
     # Handle disabled state
     if disabled:
+        _t = get_theme()
         style = f"""
             QPushButton {{
-                background-color: #F3F4F6;
-                color: #9CA3AF;
-                border: 1px solid #E5E7EB;
+                background-color: {_t["surface"]};
+                color: {_t["text_secondary"]};
+                border: 1px solid {_t["border"]};
                 border-radius: 8px;
                 font-weight: 500;
                 font-size: {size_config["font_size"]};

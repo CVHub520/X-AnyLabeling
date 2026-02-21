@@ -24,6 +24,7 @@ from anylabeling.services.auto_labeling import (
 )
 from anylabeling.views.labeling.chatbot.style import ChatbotDialogStyle
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.utils.style import (
     get_lineedit_style,
     get_double_spinbox_style,
@@ -316,15 +317,15 @@ class AutoLabelingWidget(QWidget):
             )
         )
         self.mask_fineness_value_label.setStyleSheet(
-            """
-            QLabel { 
-                color: #6c757d; 
+            f"""
+            QLabel {{ 
+                color: {get_theme()["text_secondary"]}; 
                 font-size: 10px; 
                 font-weight: 500;
                 background: transparent;
                 border: none;
                 padding: 0px;
-            }
+            }}
         """
         )
         self.on_mask_fineness_changed(self.mask_fineness_slider.value())

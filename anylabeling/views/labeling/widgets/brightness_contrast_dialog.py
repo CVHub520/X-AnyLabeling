@@ -6,6 +6,11 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from ..utils.image import pil_to_qimage
+from ..utils.style import (
+    get_dialog_style,
+    get_ok_btn_style,
+    get_cancel_btn_style,
+)
 
 
 class BrightnessContrastDialog(QtWidgets.QDialog):
@@ -15,148 +20,81 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         super(BrightnessContrastDialog, self).__init__(parent)
         self.setModal(True)
         self.setWindowTitle(self.tr("Brightness/Contrast"))
-        self.setFixedSize(350, 160)
+        self.setFixedSize(400, 160)
         self.setWindowFlags(
             self.windowFlags() & ~Qt.WindowContextHelpButtonHint
         )
 
-        self.setStyleSheet(
-            """
-            QDialog {
-                background-color: #f5f5f7;
-                border-radius: 10px;
-            }
-            QLabel {
-                color: #1d1d1f;
-                font-size: 13px;
-            }
-            QSlider {
-                height: 28px;
-            }
-            QSlider::groove:horizontal {
-                height: 4px;
-                background: #d2d2d7;
-                border-radius: 2px;
-            }
-            QSlider::handle:horizontal {
-                background: #0071e3;
-                border: none;
-                width: 16px;
-                height: 16px;
-                margin: -6px 0;
-                border-radius: 8px;
-            }
-            QSlider::sub-page:horizontal {
-                background: #0071e3;
-                border-radius: 2px;
-            }
-        """
-        )
+        self.setStyleSheet(get_dialog_style())
 
         main_layout = QtWidgets.QVBoxLayout()
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(16)
 
-        # Brightness slider and label
-        brightness_layout = QtWidgets.QHBoxLayout()
-        brightness_layout.setSpacing(10)
-
-        brightness_label = QtWidgets.QLabel(self.tr("Brightness:"))
-        brightness_label.setMinimumWidth(85)
-        brightness_layout.addWidget(brightness_label)
-
         self.slider_brightness = self._create_slider()
-        brightness_layout.addWidget(self.slider_brightness)
+        self.slider_contrast = self._create_slider()
 
         self.brightness_label = QtWidgets.QLabel(
             f"{self.slider_brightness.value() / 50:.2f}"
         )
         self.brightness_label.setFixedWidth(40)
         self.brightness_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        brightness_layout.addWidget(self.brightness_label)
-
-        self.slider_brightness.valueChanged.connect(
-            self.update_brightness_label
-        )
-
-        # Contrast slider and label
-        contrast_layout = QtWidgets.QHBoxLayout()
-        contrast_layout.setSpacing(10)
-
-        contrast_label = QtWidgets.QLabel(self.tr("Contrast:"))
-        contrast_label.setMinimumWidth(85)
-        contrast_layout.addWidget(contrast_label)
-
-        self.slider_contrast = self._create_slider()
-        contrast_layout.addWidget(self.slider_contrast)
 
         self.contrast_label = QtWidgets.QLabel(
             f"{self.slider_contrast.value() / 50:.2f}"
         )
         self.contrast_label.setFixedWidth(40)
         self.contrast_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        contrast_layout.addWidget(self.contrast_label)
 
+        self.slider_brightness.valueChanged.connect(
+            self.update_brightness_label
+        )
         self.slider_contrast.valueChanged.connect(self.update_contrast_label)
-
-        # Add layouts to main layout
-        main_layout.addLayout(brightness_layout)
-        main_layout.addLayout(contrast_layout)
-        main_layout.addSpacing(5)
-
-        # Buttons layout
-        buttons_layout = QtWidgets.QHBoxLayout()
-        buttons_layout.setSpacing(8)
 
         # Reset button
         self.reset_button = QtWidgets.QPushButton(self.tr("Reset"))
-        self.reset_button.setFixedSize(100, 32)
         self.reset_button.clicked.connect(self.reset_values)
-        self.reset_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #f5f5f7;
-                color: #1d1d1f;
-                border: none;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #e5e5e5;
-            }
-            QPushButton:pressed {
-                background-color: #d5d5d5;
-            }
-        """
-        )
+        self.reset_button.setStyleSheet(get_cancel_btn_style())
 
         # Confirm button
         self.confirm_button = QtWidgets.QPushButton(self.tr("Confirm"))
-        self.confirm_button.setFixedSize(100, 32)
         self.confirm_button.clicked.connect(self.confirm_values)
-        self.confirm_button.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #0071e3;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #0077ED;
-            }
-            QPushButton:pressed {
-                background-color: #0068D0;
-            }
-        """
-        )
+        self.confirm_button.setStyleSheet(get_ok_btn_style())
 
-        buttons_layout.addStretch()
-        buttons_layout.addWidget(self.reset_button)
-        buttons_layout.addWidget(self.confirm_button)
+        # Grid: col 0 = fixed labels, col 1 = sliders + buttons (same column)
+        grid = QtWidgets.QGridLayout()
+        grid.setHorizontalSpacing(10)
+        grid.setVerticalSpacing(16)
+        grid.setColumnStretch(1, 1)
 
-        main_layout.addLayout(buttons_layout)
+        brightness_name = QtWidgets.QLabel(self.tr("Brightness:"))
+        brightness_name.setFixedWidth(85)
+        contrast_name = QtWidgets.QLabel(self.tr("Contrast:"))
+        contrast_name.setFixedWidth(85)
+
+        b_row = QtWidgets.QHBoxLayout()
+        b_row.setSpacing(10)
+        b_row.addWidget(self.slider_brightness)
+        b_row.addWidget(self.brightness_label)
+
+        c_row = QtWidgets.QHBoxLayout()
+        c_row.setSpacing(10)
+        c_row.addWidget(self.slider_contrast)
+        c_row.addWidget(self.contrast_label)
+
+        btn_row = QtWidgets.QHBoxLayout()
+        btn_row.setSpacing(8)
+        btn_row.addStretch()
+        btn_row.addWidget(self.reset_button)
+        btn_row.addWidget(self.confirm_button)
+
+        grid.addWidget(brightness_name, 0, 0, Qt.AlignVCenter)
+        grid.addLayout(b_row, 0, 1)
+        grid.addWidget(contrast_name, 1, 0, Qt.AlignVCenter)
+        grid.addLayout(c_row, 1, 1)
+        grid.addLayout(btn_row, 2, 1)
+
+        main_layout.addLayout(grid)
         self.setLayout(main_layout)
         self.callback = callback
 

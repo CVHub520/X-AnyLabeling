@@ -23,28 +23,25 @@ from PyQt5.QtGui import QBrush, QColor
 from anylabeling.services.auto_training.ultralytics.config import *
 from anylabeling.services.auto_training.ultralytics.style import *
 from anylabeling.views.labeling.utils.qt import new_icon_path
+from anylabeling.views.labeling.utils.theme import get_theme
+from anylabeling.views.labeling.utils.style import (
+    get_cancel_btn_style,
+    get_checkbox_indicator_style,
+    get_ok_btn_style,
+)
 
 
 class CustomCheckBox(QCheckBox):
     def __init__(self, text="", parent=None):
         super().__init__(text, parent)
+        t = get_theme()
         self.setStyleSheet(
             f"""
             QCheckBox {{
                 spacing: 8px;
+                color: {t["text"]};
             }}
-            QCheckBox::indicator {{
-                width: 18px;
-                height: 18px;
-                border-radius: 3px;
-                border: 1px solid #d2d2d7;
-                background-color: white;
-            }}
-            QCheckBox::indicator:checked {{
-                background-color: white;
-                border: 1px solid #d2d2d7;
-                image: url({new_icon_path("checkmark", "svg")});
-            }}
+            {get_checkbox_indicator_style()}
         """
         )
 
@@ -52,64 +49,63 @@ class CustomCheckBox(QCheckBox):
 class CustomComboBox(QComboBox):
     def __init__(self, parent=None):
         super().__init__(parent)
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QComboBox {
+            f"""
+            QComboBox {{
                 padding: 5px 8px;
-                background: white;
-                border: 1px solid #d2d2d7;
+                background: {t["background_secondary"]};
+                border: 1px solid {t["border_light"]};
                 border-radius: 6px;
                 min-height: 24px;
-                selection-background-color: #0071e3;
-                color: #1d1d1f;
-            }
-            QComboBox:hover {
-                border-color: #0071e3;
-            }
-            QComboBox:focus {
-                border-color: #0071e3;
+                selection-background-color: {t["primary"]};
+                color: {t["text"]};
+            }}
+            QComboBox:hover {{
+                border-color: {t["primary"]};
+            }}
+            QComboBox:focus {{
+                border-color: {t["primary"]};
                 outline: none;
-            }
-            QComboBox::drop-down {
+            }}
+            QComboBox::drop-down {{
                 subcontrol-origin: padding;
                 subcontrol-position: top right;
                 width: 20px;
                 border: none;
-                background: #f0f0f0;
+                background: {t["spinbox_button"]};
                 border-top-right-radius: 6px;
                 border-bottom-right-radius: 6px;
-            }
-            QComboBox::drop-down:hover {
-                background: #e0e0e0;
-            }
-            QComboBox::down-arrow {
-                image: url("""
-            + new_icon_path("caret-down", "svg")
-            + """);
+            }}
+            QComboBox::drop-down:hover {{
+                background: {t["spinbox_button_hover"]};
+            }}
+            QComboBox::down-arrow {{
+                image: url({new_icon_path("caret-down", "svg")});
                 width: 12px;
                 height: 12px;
-            }
-            QComboBox QAbstractItemView {
-                background: white;
-                border: 1px solid #d2d2d7;
+            }}
+            QComboBox QAbstractItemView {{
+                background: {t["background_secondary"]};
+                border: 1px solid {t["border_light"]};
                 border-radius: 6px;
                 padding: 4px;
-                selection-background-color: #0071e3;
+                selection-background-color: {t["primary"]};
                 selection-color: white;
-                color: #1d1d1f;
-            }
-            QComboBox QAbstractItemView::item {
+                color: {t["text"]};
+            }}
+            QComboBox QAbstractItemView::item {{
                 padding: 6px 8px;
                 border-radius: 4px;
                 min-height: 20px;
-            }
-            QComboBox QAbstractItemView::item:hover {
-                background-color: #f0f8ff;
-            }
-            QComboBox QAbstractItemView::item:selected {
-                background-color: #0071e3;
+            }}
+            QComboBox QAbstractItemView::item:hover {{
+                background-color: {t["surface_hover"]};
+            }}
+            QComboBox QAbstractItemView::item:selected {{
+                background-color: {t["primary"]};
                 color: white;
-            }
+            }}
         """
         )
 
@@ -120,38 +116,36 @@ class CustomComboBox(QComboBox):
 class CustomSpinBox(QSpinBox):
     def __init__(self, parent=None):
         super().__init__(parent)
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QSpinBox {
+            f"""
+            QSpinBox {{
                 padding: 5px 8px;
-                background: white;
-                border: 1px solid #d2d2d7;
+                background: {t["background_secondary"]};
+                color: {t["text"]};
+                border: 1px solid {t["border_light"]};
                 border-radius: 6px;
                 min-height: 24px;
-                selection-background-color: #0071e3;
-            }
-            QSpinBox::up-button, QSpinBox::down-button {
+                selection-background-color: {t["primary"]};
+            }}
+            QSpinBox::up-button, QSpinBox::down-button {{
                 width: 20px;
                 border: none;
-                background: #f0f0f0;
-            }
-            QSpinBox::up-button:hover, QSpinBox::down-button:hover {
-                background: #e0e0e0;
-            }
-            QSpinBox::up-arrow {
-                image: url("""
-            + new_icon_path("caret-up", "svg")
-            + """);
+                background: {t["spinbox_button"]};
+            }}
+            QSpinBox::up-button:hover, QSpinBox::down-button:hover {{
+                background: {t["spinbox_button_hover"]};
+            }}
+            QSpinBox::up-arrow {{
+                image: url({new_icon_path("caret-up", "svg")});
                 width: 12px;
                 height: 12px;
-            }
-            QSpinBox::down-arrow {
-                image: url("""
-            + new_icon_path("caret-down", "svg")
-            + """);
+            }}
+            QSpinBox::down-arrow {{
+                image: url({new_icon_path("caret-down", "svg")});
                 width: 12px;
                 height: 12px;
-            }
+            }}
         """
         )
 
@@ -162,38 +156,36 @@ class CustomSpinBox(QSpinBox):
 class CustomDoubleSpinBox(QDoubleSpinBox):
     def __init__(self, parent=None):
         super().__init__(parent)
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QDoubleSpinBox {
+            f"""
+            QDoubleSpinBox {{
                 padding: 5px 8px;
-                background: white;
-                border: 1px solid #d2d2d7;
+                background: {t["background_secondary"]};
+                color: {t["text"]};
+                border: 1px solid {t["border_light"]};
                 border-radius: 6px;
                 min-height: 24px;
-                selection-background-color: #0071e3;
-            }
-            QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
+                selection-background-color: {t["primary"]};
+            }}
+            QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{
                 width: 20px;
                 border: none;
-                background: #f0f0f0;
-            }
-            QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {
-                background: #e0e0e0;
-            }
-            QDoubleSpinBox::up-arrow {
-                image: url("""
-            + new_icon_path("caret-up", "svg")
-            + """);
+                background: {t["spinbox_button"]};
+            }}
+            QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {{
+                background: {t["spinbox_button_hover"]};
+            }}
+            QDoubleSpinBox::up-arrow {{
+                image: url({new_icon_path("caret-up", "svg")});
                 width: 12px;
                 height: 12px;
-            }
-            QDoubleSpinBox::down-arrow {
-                image: url("""
-            + new_icon_path("caret-down", "svg")
-            + """);
+            }}
+            QDoubleSpinBox::down-arrow {{
+                image: url({new_icon_path("caret-down", "svg")});
                 width: 12px;
                 height: 12px;
-            }
+            }}
         """
         )
 
@@ -204,28 +196,29 @@ class CustomDoubleSpinBox(QDoubleSpinBox):
 class CustomSlider(QSlider):
     def __init__(self, orientation=QtCore.Qt.Horizontal, parent=None):
         super().__init__(orientation, parent)
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QSlider {
+            f"""
+            QSlider {{
                 height: 28px;
-            }
-            QSlider::groove:horizontal {
+            }}
+            QSlider::groove:horizontal {{
                 height: 4px;
-                background: #d2d2d7;
+                background: {t["border"]};
                 border-radius: 2px;
-            }
-            QSlider::handle:horizontal {
-                background: #0071e3;
+            }}
+            QSlider::handle:horizontal {{
+                background: {t["primary"]};
                 border: none;
                 width: 16px;
                 height: 16px;
                 margin: -6px 0;
                 border-radius: 8px;
-            }
-            QSlider::sub-page:horizontal {
-                background: #0071e3;
+            }}
+            QSlider::sub-page:horizontal {{
+                background: {t["primary"]};
                 border-radius: 2px;
-            }
+            }}
         """
         )
 
@@ -236,24 +229,26 @@ class CustomSlider(QSlider):
 class CustomLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QLineEdit {
-                border: 1px solid #E5E5E5;
-                border-radius: 8;
-                background-color: #F9F9F9;
+            f"""
+            QLineEdit {{
+                border: 1px solid {t["border"]};
+                border-radius: 8px;
+                background-color: {t["background_secondary"]};
+                color: {t["text"]};
                 font-size: 13px;
                 height: 36px;
                 padding-left: 4px;
-            }
-            QLineEdit:hover {
-                background-color: #DBDBDB;
+            }}
+            QLineEdit:hover {{
+                background-color: {t["background_hover"]};
                 border-radius: 8px;
-            }
-            QLineEdit:focus {
-                border: 3px solid "#60A5FA";
-                background-color: "#F9F9F9";
-            }
+            }}
+            QLineEdit:focus {{
+                border: 2px solid {t["highlight"]};
+                background-color: {t["background_secondary"]};
+            }}
         """
         )
 
@@ -261,7 +256,7 @@ class CustomLineEdit(QLineEdit):
 class CustomQPushButton(QPushButton):
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
-        self.setFixedHeight(32)
+        self.setFixedHeight(36)
         self.setMinimumWidth(80)
         self.selected = False
         self.setFocusPolicy(Qt.NoFocus)
@@ -272,45 +267,46 @@ class CustomQPushButton(QPushButton):
         self.update_style()
 
     def update_style(self):
+        t = get_theme()
         if self.selected:
             self.setStyleSheet(
-                """
-                QPushButton {
-                    background-color: #007ACC;
+                f"""
+                QPushButton {{
+                    background-color: {t["primary"]};
                     color: white;
                     border-radius: 4px;
                     padding: 4px 8px;
                     font-weight: bold;
                     outline: none;
-                }
-                QPushButton:hover {
-                    background-color: #005A9E;
-                }
-                QPushButton:focus {
+                }}
+                QPushButton:hover {{
+                    background-color: {t["primary_hover"]};
+                }}
+                QPushButton:focus {{
                     outline: none;
-                }
+                }}
             """
             )
         else:
             self.setStyleSheet(
-                """
-                QPushButton {
-                    background-color: #F0F0F0;
-                    color: #333333;
-                    border: 1px solid #CCCCCC;
+                f"""
+                QPushButton {{
+                    background-color: {t["surface"]};
+                    color: {t["text"]};
+                    border: 1px solid {t["border_light"]};
                     border-radius: 4px;
                     padding: 4px 8px;
                     outline: none;
-                }
-                QPushButton:hover {
-                    background-color: #E0E0E0;
-                }
-                QPushButton:pressed {
-                    background-color: #D0D0D0;
-                }
-                QPushButton:focus {
+                }}
+                QPushButton:hover {{
+                    background-color: {t["surface_hover"]};
+                }}
+                QPushButton:pressed {{
+                    background-color: {t["surface_pressed"]};
+                }}
+                QPushButton:focus {{
                     outline: none;
-                }
+                }}
             """
             )
 
@@ -318,46 +314,13 @@ class CustomQPushButton(QPushButton):
 class PrimaryButton(QPushButton):
     def __init__(self, text="OK", parent=None):
         super().__init__(text, parent)
-        self.setFixedSize(100, 32)
-        self.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #0071e3;
-                color: white;
-                border: none;
-                border-radius: 6px;
-                font-weight: 500;
-            }
-            QPushButton:hover {
-                background-color: #0077ED;
-            }
-            QPushButton:pressed {
-                background-color: #0068D0;
-            }
-        """
-        )
+        self.setStyleSheet(get_ok_btn_style())
 
 
 class SecondaryButton(QPushButton):
     def __init__(self, text="Cancel", parent=None):
         super().__init__(text, parent)
-        self.setFixedSize(100, 32)
-        self.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #f5f5f7;
-                color: #1d1d1f;
-                border: 1px solid #d2d2d7;
-                border-radius: 6px;
-            }
-            QPushButton:hover {
-                background-color: #e5e5e5;
-            }
-            QPushButton:pressed {
-                background-color: #d5d5d5;
-            }
-        """
-        )
+        self.setStyleSheet(get_cancel_btn_style())
 
 
 class TrainingConfirmDialog(QDialog):
@@ -365,12 +328,17 @@ class TrainingConfirmDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle("Start Training")
         self.setFixedSize(752, 320)
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QDialog {
-                background-color: white;
+            f"""
+            QDialog {{
+                background-color: {t["background"]};
                 border-radius: 8px;
-            }
+            }}
+            QLabel {{
+                background-color: transparent;
+                color: {t["text"]};
+            }}
         """
         )
 
@@ -380,16 +348,14 @@ class TrainingConfirmDialog(QDialog):
 
         title_label = QLabel("Ready to Start Training")
         title_label.setStyleSheet(
-            """
-            font-size: 16px;
-            font-weight: bold;
-            color: #1d1d1f;
-        """
+            f"font-size: 16px; font-weight: bold; color: {t['text']};"
         )
         layout.addWidget(title_label)
 
         desc_label = QLabel("The following command will be executed:")
-        desc_label.setStyleSheet("color: #6e6e73; font-size: 13px;")
+        desc_label.setStyleSheet(
+            f"color: {t['text_secondary']}; font-size: 13px;"
+        )
         layout.addWidget(desc_label)
 
         cmd_text = self._format_command(cmd_parts)
@@ -398,17 +364,17 @@ class TrainingConfirmDialog(QDialog):
         command_display.setReadOnly(True)
         command_display.setFixedHeight(160)
         command_display.setStyleSheet(
-            """
-            QTextEdit {
-                background-color: #2d3748;
-                color: #e2e8f0;
+            f"""
+            QTextEdit {{
+                background-color: {t["surface"]};
+                color: {t["text"]};
                 font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
                 font-size: 12px;
-                border: 1px solid #4a5568;
+                border: 1px solid {t["border"]};
                 border-radius: 6px;
                 padding: 12px;
                 line-height: 1.4;
-            }
+            }}
         """
         )
         layout.addWidget(command_display)

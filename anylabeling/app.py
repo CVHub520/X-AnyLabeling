@@ -38,6 +38,10 @@ from anylabeling import config as anylabeling_config
 from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils import new_icon, gradient_text
+from anylabeling.views.labeling.utils.theme import (
+    init_theme,
+    get_app_stylesheet,
+)
 from anylabeling.views.labeling.utils.update_checker import (
     check_for_updates_async,
 )
@@ -309,6 +313,8 @@ def main():
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_ShareOpenGLContexts)
 
     app = QtWidgets.QApplication(sys.argv)
+    init_theme(config.get("theme", "light"))
+    app.setStyleSheet(get_app_stylesheet())
     app.processEvents()
 
     app.setApplicationName(__appname__)

@@ -29,6 +29,7 @@ from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.update_checker import (
     check_for_updates_sync,
 )
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.chatbot.render import convert_markdown_to_html
 
@@ -65,45 +66,47 @@ class AboutDialog(QDialog):
         self.setWindowTitle(" ")
         self.setFixedSize(350, 250)
 
+        t = get_theme()
         self.setStyleSheet(
-            """
-            QDialog {
-                background-color: #FFFFFF;
+            f"""
+            QDialog {{
+                background-color: {t["background"]};
                 border-radius: 10px;
-            }
-            QLabel {
-                color: #1d1d1f;
-            }
-            QPushButton {
+            }}
+            QLabel {{
+                color: {t["text"]};
+                background-color: transparent;
+            }}
+            QPushButton {{
                 border: none;
                 background: transparent;
-                color: #0066FF;
+                color: {t["primary"]};
                 text-align: center;
                 padding: 4px;
-            }
-            QPushButton:hover {
-                background-color: #F0F0F0;
+            }}
+            QPushButton:hover {{
+                background-color: {t["surface_hover"]};
                 border-radius: 4px;
-            }
-            QPushButton#link-btn {
-                color: #0066FF;
-            }
-            QPushButton#social-btn {
+            }}
+            QPushButton#link-btn {{
+                color: {t["primary"]};
+            }}
+            QPushButton#social-btn {{
                 padding: 8px;
-            }
-            QPushButton#social-btn:hover {
-                background-color: #F0F0F0;
+            }}
+            QPushButton#social-btn:hover {{
+                background-color: {t["surface_hover"]};
                 border-radius: 4px;
-            }
-            QPushButton#close-btn {
-                color: #86868b;
+            }}
+            QPushButton#close-btn {{
+                color: {t["text_secondary"]};
                 font-size: 16px;
                 padding: 8px;
-            }
-            QPushButton#close-btn:hover {
-                background-color: #F0F0F0;
+            }}
+            QPushButton#close-btn:hover {{
+                background-color: {t["surface_hover"]};
                 border-radius: 4px;
-            }
+            }}
         """
         )
 
@@ -208,7 +211,9 @@ class AboutDialog(QDialog):
         copyright_label = QLabel(
             "Copyright © 2023 CVHub. All rights reserved."
         )
-        copyright_label.setStyleSheet("color: #86868b; font-size: 12px;")
+        copyright_label.setStyleSheet(
+            f"color: {t['text_secondary']}; font-size: 12px;"
+        )
         copyright_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(copyright_label)
 
@@ -323,14 +328,10 @@ class AboutDialog(QDialog):
         )
         title_label = QLabel(display_text)
         title_label.setAlignment(Qt.AlignCenter)
+        _t = get_theme()
         title_label.setStyleSheet(
-            """
-            font-size: 16px;
-            font-weight: bold;
-            color: #0066FF;
-            margin: 15px 0;
-            padding: 10px;
-        """
+            f"font-size: 16px; font-weight: bold; color: {_t['primary']};"
+            " margin: 15px 0; padding: 10px;"
         )
         layout.addWidget(title_label)
 

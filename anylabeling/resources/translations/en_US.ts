@@ -24,12 +24,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="366"/>
+        <location filename="../../views/labeling/utils/crop.py" line="355"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="374"/>
+        <location filename="../../views/labeling/utils/crop.py" line="363"/>
         <source>Progress</source>
         <translation type="unfinished"></translation>
     </message>
@@ -44,12 +44,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="226"/>
+        <location filename="../../views/labeling/utils/crop.py" line="227"/>
         <source>Please load an image folder before proceeding!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="236"/>
+        <location filename="../../views/labeling/utils/crop.py" line="237"/>
         <source>Cropped Image Options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -69,55 +69,55 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="277"/>
+        <location filename="../../views/labeling/utils/crop.py" line="281"/>
         <source>Minimum width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="293"/>
+        <location filename="../../views/labeling/utils/crop.py" line="289"/>
         <source>Minimum height:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="316"/>
+        <location filename="../../views/labeling/utils/crop.py" line="301"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="336"/>
+        <location filename="../../views/labeling/utils/crop.py" line="325"/>
         <source>Output Directory Exists!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="337"/>
+        <location filename="../../views/labeling/utils/crop.py" line="326"/>
         <source>Directory already exists. Choose an action:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="338"/>
+        <location filename="../../views/labeling/utils/crop.py" line="327"/>
         <source>• Overwrite - Overwrite existing directory
 • Cancel - Abort export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="345"/>
+        <location filename="../../views/labeling/utils/crop.py" line="334"/>
         <source>Overwrite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="366"/>
+        <location filename="../../views/labeling/utils/crop.py" line="355"/>
         <source>Processing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="449"/>
+        <location filename="../../views/labeling/utils/crop.py" line="438"/>
         <source>Cropped images successfully!
 Results have been saved to:
 {save_path}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/crop.py" line="461"/>
+        <location filename="../../views/labeling/utils/crop.py" line="450"/>
         <source>Error occurred while exporting cropped images!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -171,57 +171,57 @@ Results have been saved to:
 <context>
     <name>AboutDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="125"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="128"/>
         <source>Website</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="129"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="132"/>
         <source>Copy App Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="133"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="136"/>
         <source>Report Issue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="191"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="194"/>
         <source>Changelog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="195"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="198"/>
         <source>Check for Updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="371"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="372"/>
         <source>Copied!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="285"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="290"/>
         <source>No Updates Available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="314"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="319"/>
         <source>Update Available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="349"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="350"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="352"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="353"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/about_dialog.py" line="292"/>
+        <location filename="../../views/labeling/widgets/about_dialog.py" line="297"/>
         <source>Check update failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -305,152 +305,152 @@ Results have been saved to:
 <context>
     <name>AutoLabelingWidget</name>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="616"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="617"/>
         <source>Coarse Grained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="617"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="618"/>
         <source>Fine Grained</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="642"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="643"/>
         <source>Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="643"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="644"/>
         <source>Detailed Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="644"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="645"/>
         <source>More Detailed Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="645"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="646"/>
         <source>Object Detection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="646"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="647"/>
         <source>Region Proposal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="647"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="648"/>
         <source>Dense Region Caption</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="648"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="649"/>
         <source>Refer-Exp Segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="649"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="650"/>
         <source>Region to Segmentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="650"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="651"/>
         <source>OVD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="651"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="652"/>
         <source>Caption to Parse Grounding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="652"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="653"/>
         <source>Region to Category</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="653"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="654"/>
         <source>Region to Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="654"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="655"/>
         <source>OCR</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="655"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="656"/>
         <source>OCR with Region</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="277"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="278"/>
         <source>Existing shapes will be preserved during updates. Click to switch to overwriting.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="280"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="281"/>
         <source>Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="189"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="190"/>
         <source>You can set the API token via the GROUNDING_DINO_API_TOKEN environment variable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="939"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="940"/>
         <source>Replace (Off)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="946"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="947"/>
         <source>Replace (On)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="255"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="256"/>
         <source>Enable auto mask decode mode for continuous point tracking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="297"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="298"/>
         <source>Skip detection model and use existing annotations as detection boxes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1396"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1397"/>
         <source>Skip Det (On)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1396"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1397"/>
         <source>Skip Det (Off)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1418"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1419"/>
         <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="313"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="314"/>
         <source>Adjust mask fineness: lower=finer, higher=coarser [Default: 0.001]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="264"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="265"/>
         <source>Enable local cropping for rectangle prompts to improve accuracy for small objects in high-resolution images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1318"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1319"/>
         <source>TinyObj (On)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1318"/>
+        <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1319"/>
         <source>TinyObj (Off)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -458,37 +458,37 @@ Results have been saved to:
 <context>
     <name>BatchProcessDialog</name>
     <message>
-        <location filename="../../views/labeling/chatbot/general.py" line="26"/>
+        <location filename="../../views/labeling/chatbot/general.py" line="32"/>
         <source>Batch Process All Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/chatbot/general.py" line="52"/>
+        <location filename="../../views/labeling/chatbot/general.py" line="59"/>
         <source>Enter the prompt to apply to all images:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/chatbot/general.py" line="68"/>
+        <location filename="../../views/labeling/chatbot/general.py" line="75"/>
         <source>Type your prompt here and use `@image` to reference the image.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/chatbot/general.py" line="171"/>
+        <location filename="../../views/labeling/chatbot/general.py" line="177"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/chatbot/general.py" line="198"/>
+        <location filename="../../views/labeling/chatbot/general.py" line="182"/>
         <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/chatbot/general.py" line="115"/>
+        <location filename="../../views/labeling/chatbot/general.py" line="122"/>
         <source>Concurrency:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/chatbot/general.py" line="131"/>
+        <location filename="../../views/labeling/chatbot/general.py" line="138"/>
         <source>Max: {}</source>
         <translation type="unfinished"></translation>
     </message>
@@ -496,27 +496,27 @@ Results have been saved to:
 <context>
     <name>BrightnessContrastDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="17"/>
+        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="22"/>
         <source>Brightness/Contrast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="112"/>
+        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="55"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="134"/>
+        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="60"/>
         <source>Confirm</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="64"/>
+        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="70"/>
         <source>Brightness:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="86"/>
+        <location filename="../../views/labeling/widgets/brightness_contrast_dialog.py" line="72"/>
         <source>Contrast:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -524,42 +524,42 @@ Results have been saved to:
 <context>
     <name>Canvas</name>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="177"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="185"/>
         <source>Loading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="385"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="439"/>
         <source>Auto Labeling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="387"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="441"/>
         <source>Drawing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="389"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="443"/>
         <source>Editing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="391"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="445"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="695"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="749"/>
         <source>Click &amp; drag to move shape &apos;%s&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="645"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="699"/>
         <source>Click &amp; drag to move point of shape &apos;%s&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/canvas.py" line="664"/>
+        <location filename="../../views/labeling/widgets/canvas.py" line="718"/>
         <source>Click to create point of shape &apos;%s&apos;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1154,47 +1154,47 @@ Results have been saved to:
 <context>
     <name>CrosshairSettingsDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="17"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="22"/>
         <source>Crosshair Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="118"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="38"/>
         <source>Show Crosshair:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="129"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="49"/>
         <source>Line width:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="151"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="71"/>
         <source>Line Opacity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="174"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="94"/>
         <source>Line Color:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="192"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="100"/>
         <source>Choose Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="221"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="113"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="242"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="117"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="263"/>
+        <location filename="../../views/labeling/widgets/crosshair_settings_dialog.py" line="121"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1260,32 +1260,32 @@ Results have been saved to:
 <context>
     <name>DeleteLabelDialog</name>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="345"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="349"/>
         <source>Delete Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="355"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="359"/>
         <source>Select labels to delete:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="368"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="372"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="375"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="379"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="390"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="394"/>
         <source>This will remove %s and all related data. Continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="393"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="397"/>
         <source>Confirm Delete</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1293,77 +1293,77 @@ Results have been saved to:
 <context>
     <name>DigitShortcutDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="105"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="125"/>
         <source>Digit Shortcut Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="168"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="140"/>
         <source>Configure digit keys (0-9) for quick shape creation:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="178"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="150"/>
         <source>Digit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="178"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="150"/>
         <source>Drawing Mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="178"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="150"/>
         <source>Label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="203"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="176"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="247"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="230"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="268"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="234"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="289"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="238"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="339"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="279"/>
         <source>Required</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="344"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="284"/>
         <source>Confirm Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="344"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="284"/>
         <source>Are you sure you want to reset all shortcuts? This cannot be undone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="393"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="332"/>
         <source>Validation Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="393"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="332"/>
         <source>Please provide a label for each enabled drawing mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="409"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="348"/>
         <source>Digit shortcuts saved successfully</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1371,72 +1371,72 @@ Results have been saved to:
 <context>
     <name>EditLabelDialog</name>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="410"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="414"/>
         <source>Edit Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="420"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="424"/>
         <source>Edit labels:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="426"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="430"/>
         <source>Current</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="426"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="430"/>
         <source>New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="446"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="450"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="451"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="455"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="469"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="473"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="469"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="473"/>
         <source>Label name cannot be empty!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="477"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="481"/>
         <source>Duplicate Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="477"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="481"/>
         <source>Label %s is used multiple times!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="490"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="494"/>
         <source>No Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="490"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="494"/>
         <source>No labels were modified.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="497"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="501"/>
         <source>Confirm Changes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="497"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="501"/>
         <source>Save changes to %d labels?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1444,27 +1444,27 @@ Results have been saved to:
 <context>
     <name>ExportFormatDialog</name>
     <message>
-        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="8"/>
+        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="12"/>
         <source>Export Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="17"/>
+        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="22"/>
         <source>Select the format for exporting your trained model:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="47"/>
+        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="55"/>
         <source>Note: Some formats may require additional dependencies to be installed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="67"/>
+        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="75"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="71"/>
+        <location filename="../../views/training/widgets/ultralytics_widgets/custom_dialogs.py" line="79"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1535,32 +1535,32 @@ Results have been saved to:
 <context>
     <name>ExportPathDialog</name>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="37"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="38"/>
         <source>Export Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="48"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="49"/>
         <source>Export Directory:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="68"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="69"/>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="81"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="82"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="87"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="88"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="121"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="123"/>
         <source>Select Export Directory</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1863,80 +1863,85 @@ Results have been saved to:
 <context>
     <name>GroupIDModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="492"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="431"/>
         <source>Group ID Change Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="776"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="696"/>
         <source>Group IDs modified successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="784"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="704"/>
         <source>An error occurred while updating the Group IDs.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="724"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="644"/>
         <source>Invalid Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="724"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="644"/>
         <source>Please enter a valid range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="616"/>
+        <source>Enter new ID</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>LabelDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1357"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1307"/>
         <source>Enter object label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1373"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1323"/>
         <source>Group ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1382"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1332"/>
         <source>useDifficult</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1387"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1337"/>
         <source>Enter linking, e.g., [0,1]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1401"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1351"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1432"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1382"/>
         <source>Label description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1501"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1451"/>
         <source>Duplicate Entry</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1501"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1451"/>
         <source>This linking pair already exists.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1515"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1465"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1515"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1465"/>
         <source>Please enter a valid list of linking pairs like [1,2].</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1952,47 +1957,47 @@ Results have been saved to:
 <context>
     <name>LabelModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="900"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="820"/>
         <source>Label Change Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1316"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1266"/>
         <source>Invalid Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1316"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1266"/>
         <source>Please enter a valid range.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1189"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1139"/>
         <source>Labels modified successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1197"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1147"/>
         <source>An error occurred while updating the labels.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1111"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1061"/>
         <source>Select All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1112"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1062"/>
         <source>Deselect All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1001"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="926"/>
         <source>Double-click to copy label text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/label_dialog.py" line="1097"/>
+        <location filename="../../views/labeling/widgets/label_dialog.py" line="1047"/>
         <source>Label copied to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2000,873 +2005,873 @@ Results have been saved to:
 <context>
     <name>LabelingWidget</name>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="186"/>
+        <location filename="../../views/labeling/label_widget.py" line="199"/>
         <source>Flags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="215"/>
+        <location filename="../../views/labeling/label_widget.py" line="229"/>
         <source>Objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="223"/>
+        <location filename="../../views/labeling/label_widget.py" line="235"/>
         <source>Select label to start annotating for it. Press &apos;Esc&apos; to deselect.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2121"/>
+        <location filename="../../views/labeling/label_widget.py" line="2167"/>
         <source>Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="380"/>
+        <location filename="../../views/labeling/label_widget.py" line="390"/>
         <source>Open image or label file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="394"/>
+        <location filename="../../views/labeling/label_widget.py" line="404"/>
         <source>Open Dir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="433"/>
+        <location filename="../../views/labeling/label_widget.py" line="443"/>
         <source>Save labels to file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="441"/>
+        <location filename="../../views/labeling/label_widget.py" line="451"/>
         <source>Save labels to a different file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="458"/>
+        <location filename="../../views/labeling/label_widget.py" line="468"/>
         <source>Delete current label file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="484"/>
+        <location filename="../../views/labeling/label_widget.py" line="494"/>
         <source>Change where annotations are loaded/saved</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="492"/>
+        <location filename="../../views/labeling/label_widget.py" line="502"/>
         <source>Save automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="502"/>
+        <location filename="../../views/labeling/label_widget.py" line="512"/>
         <source>Save With Image Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="502"/>
+        <location filename="../../views/labeling/label_widget.py" line="512"/>
         <source>Save image data in label file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="511"/>
+        <location filename="../../views/labeling/label_widget.py" line="521"/>
         <source>Close current file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="519"/>
+        <location filename="../../views/labeling/label_widget.py" line="529"/>
         <source>Keep Previous Annotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="568"/>
+        <location filename="../../views/labeling/label_widget.py" line="578"/>
         <source>Create Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="568"/>
+        <location filename="../../views/labeling/label_widget.py" line="578"/>
         <source>Start drawing polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="584"/>
+        <location filename="../../views/labeling/label_widget.py" line="594"/>
         <source>Create Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="584"/>
+        <location filename="../../views/labeling/label_widget.py" line="594"/>
         <source>Start drawing rectangles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="608"/>
+        <location filename="../../views/labeling/label_widget.py" line="618"/>
         <source>Create Circle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="608"/>
+        <location filename="../../views/labeling/label_widget.py" line="618"/>
         <source>Start drawing circles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="616"/>
+        <location filename="../../views/labeling/label_widget.py" line="626"/>
         <source>Create Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="616"/>
+        <location filename="../../views/labeling/label_widget.py" line="626"/>
         <source>Start drawing lines</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="624"/>
+        <location filename="../../views/labeling/label_widget.py" line="634"/>
         <source>Create Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="624"/>
+        <location filename="../../views/labeling/label_widget.py" line="634"/>
         <source>Start drawing points</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="632"/>
+        <location filename="../../views/labeling/label_widget.py" line="642"/>
         <source>Create LineStrip</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="632"/>
+        <location filename="../../views/labeling/label_widget.py" line="642"/>
         <source>Start drawing linestrip. Ctrl+LeftClick ends creation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="710"/>
+        <location filename="../../views/labeling/label_widget.py" line="720"/>
         <source>Edit Object</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="710"/>
+        <location filename="../../views/labeling/label_widget.py" line="720"/>
         <source>Move and edit the selected polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="718"/>
+        <location filename="../../views/labeling/label_widget.py" line="728"/>
         <source>Group Selected Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="718"/>
+        <location filename="../../views/labeling/label_widget.py" line="728"/>
         <source>Group shapes by assigning a same group_id</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="726"/>
+        <location filename="../../views/labeling/label_widget.py" line="736"/>
         <source>Ungroup Selected Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="726"/>
+        <location filename="../../views/labeling/label_widget.py" line="736"/>
         <source>Ungroup shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="735"/>
+        <location filename="../../views/labeling/label_widget.py" line="745"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="735"/>
+        <location filename="../../views/labeling/label_widget.py" line="745"/>
         <source>Delete the selected polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="743"/>
+        <location filename="../../views/labeling/label_widget.py" line="753"/>
         <source>Duplicate Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="743"/>
+        <location filename="../../views/labeling/label_widget.py" line="753"/>
         <source>Create a duplicate of the selected polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="751"/>
+        <location filename="../../views/labeling/label_widget.py" line="761"/>
         <source>Copy Object</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="751"/>
+        <location filename="../../views/labeling/label_widget.py" line="761"/>
         <source>Copy selected polygons to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="759"/>
+        <location filename="../../views/labeling/label_widget.py" line="769"/>
         <source>Paste Object</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="759"/>
+        <location filename="../../views/labeling/label_widget.py" line="769"/>
         <source>Paste copied polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="767"/>
+        <location filename="../../views/labeling/label_widget.py" line="777"/>
         <source>Undo last point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="767"/>
+        <location filename="../../views/labeling/label_widget.py" line="777"/>
         <source>Undo last drawn point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="775"/>
+        <location filename="../../views/labeling/label_widget.py" line="785"/>
         <source>Remove Selected Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="775"/>
+        <location filename="../../views/labeling/label_widget.py" line="785"/>
         <source>Remove selected point from polygon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="784"/>
+        <location filename="../../views/labeling/label_widget.py" line="794"/>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="784"/>
+        <location filename="../../views/labeling/label_widget.py" line="794"/>
         <source>Undo last add and edit of shape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="933"/>
+        <location filename="../../views/labeling/label_widget.py" line="943"/>
         <source>Show documentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="971"/>
+        <location filename="../../views/labeling/label_widget.py" line="981"/>
         <source>Zoom in or out of the image. Also accessible with {} and {} from the canvas.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="971"/>
+        <location filename="../../views/labeling/label_widget.py" line="981"/>
         <source>Ctrl+Wheel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="986"/>
+        <location filename="../../views/labeling/label_widget.py" line="996"/>
         <source>Increase zoom level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="994"/>
+        <location filename="../../views/labeling/label_widget.py" line="1004"/>
         <source>Decrease zoom level</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1002"/>
+        <location filename="../../views/labeling/label_widget.py" line="1012"/>
         <source>Zoom to original size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1010"/>
+        <location filename="../../views/labeling/label_widget.py" line="1020"/>
         <source>Keep previous zoom scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1034"/>
+        <location filename="../../views/labeling/label_widget.py" line="1044"/>
         <source>Zoom follows window size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1043"/>
+        <location filename="../../views/labeling/label_widget.py" line="1053"/>
         <source>Zoom follows window width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1072"/>
+        <location filename="../../views/labeling/label_widget.py" line="1082"/>
         <source>Show shape groups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1093"/>
+        <location filename="../../views/labeling/label_widget.py" line="1103"/>
         <source>Show text above shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1486"/>
+        <location filename="../../views/labeling/label_widget.py" line="1518"/>
         <source>Modify the label of the selected polygon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1495"/>
+        <location filename="../../views/labeling/label_widget.py" line="1527"/>
         <source>Fill Drawing Polygon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1495"/>
+        <location filename="../../views/labeling/label_widget.py" line="1527"/>
         <source>Fill polygon while drawing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1517"/>
+        <location filename="../../views/labeling/label_widget.py" line="1549"/>
         <source>Auto Labeling</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2019"/>
+        <location filename="../../views/labeling/label_widget.py" line="2053"/>
         <source>Please wait...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2292"/>
+        <location filename="../../views/labeling/label_widget.py" line="2364"/>
         <source>Please restart the application to apply changes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2299"/>
+        <location filename="../../views/labeling/label_widget.py" line="2423"/>
         <source>Mode:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2300"/>
+        <location filename="../../views/labeling/label_widget.py" line="2424"/>
         <source>Shortcuts:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5796"/>
+        <location filename="../../views/labeling/label_widget.py" line="5950"/>
         <source>Invalid label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5796"/>
+        <location filename="../../views/labeling/label_widget.py" line="5950"/>
         <source>Invalid label &apos;{}&apos; with validation type &apos;{}&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4025"/>
+        <location filename="../../views/labeling/label_widget.py" line="4149"/>
         <source>Error saving label data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4025"/>
+        <location filename="../../views/labeling/label_widget.py" line="4149"/>
         <source>&lt;b&gt;%s&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4782"/>
+        <location filename="../../views/labeling/label_widget.py" line="4938"/>
         <source>Error opening file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4717"/>
+        <location filename="../../views/labeling/label_widget.py" line="4872"/>
         <source>No such file: &lt;b&gt;%s&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4736"/>
+        <location filename="../../views/labeling/label_widget.py" line="4892"/>
         <source>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Make sure &lt;i&gt;%s&lt;/i&gt; is a valid label file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4789"/>
+        <location filename="../../views/labeling/label_widget.py" line="4945"/>
         <source>Error reading %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4782"/>
+        <location filename="../../views/labeling/label_widget.py" line="4938"/>
         <source>&lt;p&gt;Make sure &lt;i&gt;{0}&lt;/i&gt; is a valid image file.&lt;br/&gt;Supported image formats: {1}&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5099"/>
+        <location filename="../../views/labeling/label_widget.py" line="5253"/>
         <source>Image &amp; Label files (%s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5105"/>
+        <location filename="../../views/labeling/label_widget.py" line="5259"/>
         <source>%s - Choose Image or Label file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5124"/>
+        <location filename="../../views/labeling/label_widget.py" line="5278"/>
         <source>%s - Save/Load Annotations in Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5138"/>
+        <location filename="../../views/labeling/label_widget.py" line="5292"/>
         <source>%s . Annotations will be saved/loaded in %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5170"/>
+        <location filename="../../views/labeling/label_widget.py" line="5324"/>
         <source>%s - Choose File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5195"/>
+        <location filename="../../views/labeling/label_widget.py" line="5349"/>
         <source>Label files (*%s)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5195"/>
+        <location filename="../../views/labeling/label_widget.py" line="5349"/>
         <source>Choose File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5293"/>
+        <location filename="../../views/labeling/label_widget.py" line="5447"/>
         <source>You are about to permanently delete this label file, proceed anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5335"/>
+        <location filename="../../views/labeling/label_widget.py" line="5489"/>
         <source>Attention</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5399"/>
+        <location filename="../../views/labeling/label_widget.py" line="5553"/>
         <source>Save annotations to &quot;{self.filename!r}&quot; before closing?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5402"/>
+        <location filename="../../views/labeling/label_widget.py" line="5556"/>
         <source>Save annotations?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5477"/>
+        <location filename="../../views/labeling/label_widget.py" line="5631"/>
         <source>%s - Open Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="519"/>
+        <location filename="../../views/labeling/label_widget.py" line="529"/>
         <source>Toggle &quot;Keep Previous Annotation&quot; mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="529"/>
+        <location filename="../../views/labeling/label_widget.py" line="539"/>
         <source>Auto Use Last Label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="529"/>
+        <location filename="../../views/labeling/label_widget.py" line="539"/>
         <source>Toggle &quot;Auto Use Last Label&quot; mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="387"/>
+        <location filename="../../views/labeling/label_widget.py" line="397"/>
         <source>Open video file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="449"/>
+        <location filename="../../views/labeling/label_widget.py" line="459"/>
         <source>Auto run all images at once</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="592"/>
+        <location filename="../../views/labeling/label_widget.py" line="602"/>
         <source>Create Rotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="592"/>
+        <location filename="../../views/labeling/label_widget.py" line="602"/>
         <source>Start drawing rotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1136"/>
+        <location filename="../../views/labeling/label_widget.py" line="1146"/>
         <source>Show degrees above rotated shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1018"/>
+        <location filename="../../views/labeling/label_widget.py" line="1028"/>
         <source>Keep previous brightness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1026"/>
+        <location filename="../../views/labeling/label_widget.py" line="1036"/>
         <source>Keep previous contrast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2071"/>
+        <location filename="../../views/labeling/label_widget.py" line="2106"/>
         <source>Attributes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2304"/>
+        <location filename="../../views/labeling/label_widget.py" line="2428"/>
         <source>Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2305"/>
+        <location filename="../../views/labeling/label_widget.py" line="2429"/>
         <source>Next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2306"/>
+        <location filename="../../views/labeling/label_widget.py" line="2430"/>
         <source>Rectangle</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2307"/>
+        <location filename="../../views/labeling/label_widget.py" line="2431"/>
         <source>Polygon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2308"/>
+        <location filename="../../views/labeling/label_widget.py" line="2432"/>
         <source>Rotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="558"/>
+        <location filename="../../views/labeling/label_widget.py" line="568"/>
         <source>Visibility Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="558"/>
+        <location filename="../../views/labeling/label_widget.py" line="568"/>
         <source>Toggle &quot;Visibility Shapes&quot; mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="792"/>
+        <location filename="../../views/labeling/label_widget.py" line="802"/>
         <source>Hide Selected Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="792"/>
+        <location filename="../../views/labeling/label_widget.py" line="802"/>
         <source>Hide selected polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1191"/>
+        <location filename="../../views/labeling/label_widget.py" line="1223"/>
         <source>Upload Custom Attributes File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2544"/>
+        <location filename="../../views/labeling/label_widget.py" line="2668"/>
         <source>Invalid label &apos;{}&apos; with validation type: {}!
 Reset the label as {}.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4249"/>
+        <location filename="../../views/labeling/label_widget.py" line="4373"/>
         <source>X: %d, Y: %d | H: %d, W: %d</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4263"/>
+        <location filename="../../views/labeling/label_widget.py" line="4387"/>
         <source>X: %d, Y: %d</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5879"/>
+        <location filename="../../views/labeling/label_widget.py" line="6033"/>
         <source>Object Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5888"/>
+        <location filename="../../views/labeling/label_widget.py" line="6042"/>
         <source>Image Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="800"/>
+        <location filename="../../views/labeling/label_widget.py" line="810"/>
         <source>Show Hidden Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="800"/>
+        <location filename="../../views/labeling/label_widget.py" line="810"/>
         <source>Show hidden polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1274"/>
+        <location filename="../../views/labeling/label_widget.py" line="1306"/>
         <source>Upload Custom DOTA Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1281"/>
+        <location filename="../../views/labeling/label_widget.py" line="1313"/>
         <source>Upload Custom MASK Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1288"/>
+        <location filename="../../views/labeling/label_widget.py" line="1320"/>
         <source>Upload Custom Multi-Object-Tracking Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1405"/>
+        <location filename="../../views/labeling/label_widget.py" line="1437"/>
         <source>Export Custom DOTA Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1419"/>
+        <location filename="../../views/labeling/label_widget.py" line="1451"/>
         <source>Export Custom Multi-Object-Tracking Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="466"/>
+        <location filename="../../views/labeling/label_widget.py" line="476"/>
         <source>Delete current image file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5331"/>
+        <location filename="../../views/labeling/label_widget.py" line="5485"/>
         <source>You are about to permanently delete this image file, proceed anyway?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="872"/>
+        <location filename="../../views/labeling/label_widget.py" line="882"/>
         <source>Perform conversion from horizontal bounding box to oriented bounding box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="809"/>
+        <location filename="../../views/labeling/label_widget.py" line="819"/>
         <source>Show annotations statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1205"/>
+        <location filename="../../views/labeling/label_widget.py" line="1237"/>
         <source>Upload Custom YOLO Horizontal Bounding Boxes Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1214"/>
+        <location filename="../../views/labeling/label_widget.py" line="1246"/>
         <source>Upload Custom YOLO Oriented Bounding Boxes Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1223"/>
+        <location filename="../../views/labeling/label_widget.py" line="1255"/>
         <source>Upload Custom YOLO Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1104"/>
+        <location filename="../../views/labeling/label_widget.py" line="1114"/>
         <source>Show label inside shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="880"/>
+        <location filename="../../views/labeling/label_widget.py" line="890"/>
         <source>Perform conversion from oriented bounding box to horizontal bounding box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="549"/>
+        <location filename="../../views/labeling/label_widget.py" line="559"/>
         <source>Use System Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="549"/>
+        <location filename="../../views/labeling/label_widget.py" line="559"/>
         <source>Use system clipboard for copy and paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="816"/>
+        <location filename="../../views/labeling/label_widget.py" line="826"/>
         <source>Save cropped image. (Support rectangle/rotation/polygon shape_type)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="864"/>
+        <location filename="../../views/labeling/label_widget.py" line="874"/>
         <source>Union multiple selected rectangle shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="888"/>
+        <location filename="../../views/labeling/label_widget.py" line="898"/>
         <source>Perform conversion from polygon to horizontal bounding box</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1060"/>
+        <location filename="../../views/labeling/label_widget.py" line="1070"/>
         <source>Adjust cross line for mouse position</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1115"/>
+        <location filename="../../views/labeling/label_widget.py" line="1125"/>
         <source>Show score inside shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1146"/>
+        <location filename="../../views/labeling/label_widget.py" line="1156"/>
         <source>Show KIE linking between key and value</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1177"/>
+        <location filename="../../views/labeling/label_widget.py" line="1209"/>
         <source>Upload Custom Image Flags File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1184"/>
+        <location filename="../../views/labeling/label_widget.py" line="1216"/>
         <source>Upload Custom Label Flags File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1230"/>
+        <location filename="../../views/labeling/label_widget.py" line="1262"/>
         <source>Upload Custom YOLO Pose Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1237"/>
+        <location filename="../../views/labeling/label_widget.py" line="1269"/>
         <source>Upload Custom Pascal VOC Detection Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1244"/>
+        <location filename="../../views/labeling/label_widget.py" line="1276"/>
         <source>Upload Custom Pascal VOC Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1251"/>
+        <location filename="../../views/labeling/label_widget.py" line="1283"/>
         <source>Upload Custom COCO Detection Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1295"/>
+        <location filename="../../views/labeling/label_widget.py" line="1327"/>
         <source>Upload Custom Object Detection Visual Grounding Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1311"/>
+        <location filename="../../views/labeling/label_widget.py" line="1343"/>
         <source>Upload Custom PPOCR Recognition Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1318"/>
+        <location filename="../../views/labeling/label_widget.py" line="1350"/>
         <source>Upload Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition &amp; Relation Extraction) Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1336"/>
+        <location filename="../../views/labeling/label_widget.py" line="1368"/>
         <source>Export Custom YOLO Horizontal Bounding Boxes Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1345"/>
+        <location filename="../../views/labeling/label_widget.py" line="1377"/>
         <source>Export Custom YOLO Oriented Bounding Boxes Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1354"/>
+        <location filename="../../views/labeling/label_widget.py" line="1386"/>
         <source>Export Custom YOLO Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1361"/>
+        <location filename="../../views/labeling/label_widget.py" line="1393"/>
         <source>Export Custom YOLO Pose Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1368"/>
+        <location filename="../../views/labeling/label_widget.py" line="1400"/>
         <source>Export Custom PASCAL VOC Detection Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1375"/>
+        <location filename="../../views/labeling/label_widget.py" line="1407"/>
         <source>Export Custom PASCAL VOC Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1382"/>
+        <location filename="../../views/labeling/label_widget.py" line="1414"/>
         <source>Export Custom COCO Rectangle Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1412"/>
+        <location filename="../../views/labeling/label_widget.py" line="1444"/>
         <source>Export Custom MASK Annotations - RGB/Gray</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1435"/>
+        <location filename="../../views/labeling/label_widget.py" line="1467"/>
         <source>Export Custom Object Detection Visual Grounding Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1444"/>
+        <location filename="../../views/labeling/label_widget.py" line="1476"/>
         <source>Export Custom PPOCR Recognition Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1451"/>
+        <location filename="../../views/labeling/label_widget.py" line="1483"/>
         <source>Export Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition &amp; Relation Extraction) Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4047"/>
+        <location filename="../../views/labeling/label_widget.py" line="4171"/>
         <source>Error pasting shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4047"/>
+        <location filename="../../views/labeling/label_widget.py" line="4171"/>
         <source>Error decoding shapes: %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2892"/>
+        <location filename="../../views/labeling/label_widget.py" line="3016"/>
         <source>Copied</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2892"/>
+        <location filename="../../views/labeling/label_widget.py" line="3016"/>
         <source>The information has been copied to the clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="842"/>
+        <location filename="../../views/labeling/label_widget.py" line="852"/>
         <source>Manage Group ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1426"/>
+        <location filename="../../views/labeling/label_widget.py" line="1458"/>
         <source>Export Custom Multi-Object-Tracking-Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="401"/>
+        <location filename="../../views/labeling/label_widget.py" line="411"/>
         <source>Open next image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="409"/>
+        <location filename="../../views/labeling/label_widget.py" line="419"/>
         <source>Open prev image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="417"/>
+        <location filename="../../views/labeling/label_widget.py" line="427"/>
         <source>Open next unchecked image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="425"/>
+        <location filename="../../views/labeling/label_widget.py" line="435"/>
         <source>Open previous unchecked image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="946"/>
+        <location filename="../../views/labeling/label_widget.py" line="956"/>
         <source>Loop through labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1267"/>
+        <location filename="../../views/labeling/label_widget.py" line="1299"/>
         <source>Upload Custom COCO Keypoint Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1398"/>
+        <location filename="../../views/labeling/label_widget.py" line="1430"/>
         <source>Export Custom COCO Keypoint Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="912"/>
+        <location filename="../../views/labeling/label_widget.py" line="922"/>
         <source>ChatBot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="912"/>
+        <location filename="../../views/labeling/label_widget.py" line="922"/>
         <source>Open chatbot dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2301"/>
+        <location filename="../../views/labeling/label_widget.py" line="2425"/>
         <source>Chatbot</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="896"/>
+        <location filename="../../views/labeling/label_widget.py" line="906"/>
         <source>Perform conversion from polygon to oriented bounding box</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2876,719 +2881,719 @@ Reset the label as {}.</source>
         <translation type="obsolete">&amp;Convert Circle to Polygon</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="904"/>
+        <location filename="../../views/labeling/label_widget.py" line="914"/>
         <source>Perform conversion from circle to polygon with user-specified points</source>
         <translation>Perform conversion from circle to polygon with user-specified points</translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="939"/>
+        <location filename="../../views/labeling/label_widget.py" line="949"/>
         <source>Open about dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1327"/>
+        <location filename="../../views/labeling/label_widget.py" line="1359"/>
         <source>Upload Custom VLM-R1 OVD Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1460"/>
+        <location filename="../../views/labeling/label_widget.py" line="1492"/>
         <source>Export Custom VLM-R1 OVD Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1258"/>
+        <location filename="../../views/labeling/label_widget.py" line="1290"/>
         <source>Upload Custom COCO Instance Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1389"/>
+        <location filename="../../views/labeling/label_widget.py" line="1421"/>
         <source>Export Custom COCO Instance Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="824"/>
+        <location filename="../../views/labeling/label_widget.py" line="834"/>
         <source>Manage Digit Shortcuts: Assign Drawing Modes and Labels to Number Keys</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="640"/>
+        <location filename="../../views/labeling/label_widget.py" line="650"/>
         <source>Digit Shortcut 0</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="647"/>
+        <location filename="../../views/labeling/label_widget.py" line="657"/>
         <source>Digit Shortcut 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="654"/>
+        <location filename="../../views/labeling/label_widget.py" line="664"/>
         <source>Digit Shortcut 2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="661"/>
+        <location filename="../../views/labeling/label_widget.py" line="671"/>
         <source>Digit Shortcut 3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="668"/>
+        <location filename="../../views/labeling/label_widget.py" line="678"/>
         <source>Digit Shortcut 4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="675"/>
+        <location filename="../../views/labeling/label_widget.py" line="685"/>
         <source>Digit Shortcut 5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="682"/>
+        <location filename="../../views/labeling/label_widget.py" line="692"/>
         <source>Digit Shortcut 6</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="689"/>
+        <location filename="../../views/labeling/label_widget.py" line="699"/>
         <source>Digit Shortcut 7</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="696"/>
+        <location filename="../../views/labeling/label_widget.py" line="706"/>
         <source>Digit Shortcut 8</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="703"/>
+        <location filename="../../views/labeling/label_widget.py" line="713"/>
         <source>Digit Shortcut 9</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2302"/>
+        <location filename="../../views/labeling/label_widget.py" line="2426"/>
         <source>VQA</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="919"/>
+        <location filename="../../views/labeling/label_widget.py" line="929"/>
         <source>Open VQA dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1198"/>
+        <location filename="../../views/labeling/label_widget.py" line="1230"/>
         <source>Upload Custom Label Classes File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1304"/>
+        <location filename="../../views/labeling/label_widget.py" line="1336"/>
         <source>Upload Custom MM-Grounding-DINO Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1125"/>
+        <location filename="../../views/labeling/label_widget.py" line="1135"/>
         <source>Show attribute inside shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2779"/>
+        <location filename="../../views/labeling/label_widget.py" line="2903"/>
         <source>No images loaded</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2760"/>
+        <location filename="../../views/labeling/label_widget.py" line="2884"/>
         <source>Please load an image folder before opening the VQA dialog.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3110"/>
+        <location filename="../../views/labeling/label_widget.py" line="3234"/>
         <source>Batch Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="3110"/>
+        <location filename="../../views/labeling/label_widget.py" line="3234"/>
         <source>You are about to edit multiple shapes in batch mode. This operation cannot be undone.
 
 This warning will only be shown once. Do you want to continue?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1506"/>
+        <location filename="../../views/labeling/label_widget.py" line="1538"/>
         <source>Navigator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1506"/>
+        <location filename="../../views/labeling/label_widget.py" line="1538"/>
         <source>Show/hide the navigator window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="857"/>
+        <location filename="../../views/labeling/label_widget.py" line="867"/>
         <source>Copy Coordinates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="857"/>
+        <location filename="../../views/labeling/label_widget.py" line="867"/>
         <source>Copy shape coordinates to clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5283"/>
+        <location filename="../../views/labeling/label_widget.py" line="5437"/>
         <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the label file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5321"/>
+        <location filename="../../views/labeling/label_widget.py" line="5475"/>
         <source>Please disable &apos;Keep Previous Annotation&apos; before deleting the image file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2528"/>
+        <location filename="../../views/labeling/label_widget.py" line="2652"/>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2525"/>
+        <location filename="../../views/labeling/label_widget.py" line="2649"/>
         <source>Unselect</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2303"/>
+        <location filename="../../views/labeling/label_widget.py" line="2427"/>
         <source>Classifier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="926"/>
+        <location filename="../../views/labeling/label_widget.py" line="936"/>
         <source>Open classifier dialog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2779"/>
+        <location filename="../../views/labeling/label_widget.py" line="2903"/>
         <source>Please load an image folder before opening the Classification dialog.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="954"/>
+        <location filename="../../views/labeling/label_widget.py" line="964"/>
         <source>Loop select labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5899"/>
+        <location filename="../../views/labeling/label_widget.py" line="6053"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="539"/>
+        <location filename="../../views/labeling/label_widget.py" line="549"/>
         <source>Auto Use Last Group ID</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="539"/>
+        <location filename="../../views/labeling/label_widget.py" line="549"/>
         <source>Toggle &quot;Auto Use Last Group ID&quot; mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="380"/>
+        <location filename="../../views/labeling/label_widget.py" line="390"/>
         <source>Open File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="387"/>
+        <location filename="../../views/labeling/label_widget.py" line="397"/>
         <source>Open Video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="401"/>
+        <location filename="../../views/labeling/label_widget.py" line="411"/>
         <source>Next Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="409"/>
+        <location filename="../../views/labeling/label_widget.py" line="419"/>
         <source>Prev Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="417"/>
+        <location filename="../../views/labeling/label_widget.py" line="427"/>
         <source>Next Unchecked Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="425"/>
+        <location filename="../../views/labeling/label_widget.py" line="435"/>
         <source>Prev Unchecked Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="433"/>
+        <location filename="../../views/labeling/label_widget.py" line="443"/>
         <source>Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="441"/>
+        <location filename="../../views/labeling/label_widget.py" line="451"/>
         <source>Save As</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="449"/>
+        <location filename="../../views/labeling/label_widget.py" line="459"/>
         <source>Auto Run</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="458"/>
+        <location filename="../../views/labeling/label_widget.py" line="468"/>
         <source>Delete File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="466"/>
+        <location filename="../../views/labeling/label_widget.py" line="476"/>
         <source>Delete Image File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="484"/>
+        <location filename="../../views/labeling/label_widget.py" line="494"/>
         <source>Change Output Dir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="492"/>
+        <location filename="../../views/labeling/label_widget.py" line="502"/>
         <source>Save Automatically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="511"/>
+        <location filename="../../views/labeling/label_widget.py" line="521"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="809"/>
+        <location filename="../../views/labeling/label_widget.py" line="819"/>
         <source>Overview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="816"/>
+        <location filename="../../views/labeling/label_widget.py" line="826"/>
         <source>Save Cropped Image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="824"/>
+        <location filename="../../views/labeling/label_widget.py" line="834"/>
         <source>Digit Shortcut Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="833"/>
+        <location filename="../../views/labeling/label_widget.py" line="843"/>
         <source>Label Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="833"/>
+        <location filename="../../views/labeling/label_widget.py" line="843"/>
         <source>Manage Labels: Rename, Delete, Hide/Show, Adjust Color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="842"/>
+        <location filename="../../views/labeling/label_widget.py" line="852"/>
         <source>Group ID Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="849"/>
+        <location filename="../../views/labeling/label_widget.py" line="859"/>
         <source>Shape Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="849"/>
+        <location filename="../../views/labeling/label_widget.py" line="859"/>
         <source>Manage Shapes: Add, Delete, Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="864"/>
+        <location filename="../../views/labeling/label_widget.py" line="874"/>
         <source>Union Selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="872"/>
+        <location filename="../../views/labeling/label_widget.py" line="882"/>
         <source>Convert HBB to OBB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="880"/>
+        <location filename="../../views/labeling/label_widget.py" line="890"/>
         <source>Convert OBB to HBB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="888"/>
+        <location filename="../../views/labeling/label_widget.py" line="898"/>
         <source>Convert Polygon to HBB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="896"/>
+        <location filename="../../views/labeling/label_widget.py" line="906"/>
         <source>Convert Polygon to OBB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="904"/>
+        <location filename="../../views/labeling/label_widget.py" line="914"/>
         <source>Convert Circle to Polygon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="933"/>
+        <location filename="../../views/labeling/label_widget.py" line="943"/>
         <source>Documentation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="939"/>
+        <location filename="../../views/labeling/label_widget.py" line="949"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="946"/>
+        <location filename="../../views/labeling/label_widget.py" line="956"/>
         <source>Loop Through Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="954"/>
+        <location filename="../../views/labeling/label_widget.py" line="964"/>
         <source>Loop Select Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="986"/>
+        <location filename="../../views/labeling/label_widget.py" line="996"/>
         <source>Zoom In</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="994"/>
+        <location filename="../../views/labeling/label_widget.py" line="1004"/>
         <source>Zoom Out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1002"/>
+        <location filename="../../views/labeling/label_widget.py" line="1012"/>
         <source>Original Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1010"/>
+        <location filename="../../views/labeling/label_widget.py" line="1020"/>
         <source>Keep Previous Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1018"/>
+        <location filename="../../views/labeling/label_widget.py" line="1028"/>
         <source>Keep Previous Brightness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1026"/>
+        <location filename="../../views/labeling/label_widget.py" line="1036"/>
         <source>Keep Previous Contrast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1034"/>
+        <location filename="../../views/labeling/label_widget.py" line="1044"/>
         <source>Fit Window</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1043"/>
+        <location filename="../../views/labeling/label_widget.py" line="1053"/>
         <source>Fit Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1052"/>
+        <location filename="../../views/labeling/label_widget.py" line="1062"/>
         <source>Set Brightness Contrast</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1060"/>
+        <location filename="../../views/labeling/label_widget.py" line="1070"/>
         <source>Set Cross Line</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1072"/>
+        <location filename="../../views/labeling/label_widget.py" line="1082"/>
         <source>Show Groups</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1093"/>
+        <location filename="../../views/labeling/label_widget.py" line="1103"/>
         <source>Show Texts</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1104"/>
+        <location filename="../../views/labeling/label_widget.py" line="1114"/>
         <source>Show Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1115"/>
+        <location filename="../../views/labeling/label_widget.py" line="1125"/>
         <source>Show Scores</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1125"/>
+        <location filename="../../views/labeling/label_widget.py" line="1135"/>
         <source>Show Attributes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1136"/>
+        <location filename="../../views/labeling/label_widget.py" line="1146"/>
         <source>Show Degress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1146"/>
+        <location filename="../../views/labeling/label_widget.py" line="1156"/>
         <source>Show KIE Linking</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1177"/>
+        <location filename="../../views/labeling/label_widget.py" line="1209"/>
         <source>Upload Image Flags File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1184"/>
+        <location filename="../../views/labeling/label_widget.py" line="1216"/>
         <source>Upload Label Flags File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1191"/>
+        <location filename="../../views/labeling/label_widget.py" line="1223"/>
         <source>Upload Attributes File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1198"/>
+        <location filename="../../views/labeling/label_widget.py" line="1230"/>
         <source>Upload Label Classes File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1205"/>
+        <location filename="../../views/labeling/label_widget.py" line="1237"/>
         <source>Upload YOLO-Hbb Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1214"/>
+        <location filename="../../views/labeling/label_widget.py" line="1246"/>
         <source>Upload YOLO-Obb Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1223"/>
+        <location filename="../../views/labeling/label_widget.py" line="1255"/>
         <source>Upload YOLO-Seg Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1230"/>
+        <location filename="../../views/labeling/label_widget.py" line="1262"/>
         <source>Upload YOLO-Pose Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1237"/>
+        <location filename="../../views/labeling/label_widget.py" line="1269"/>
         <source>Upload VOC Detection Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1244"/>
+        <location filename="../../views/labeling/label_widget.py" line="1276"/>
         <source>Upload VOC Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1251"/>
+        <location filename="../../views/labeling/label_widget.py" line="1283"/>
         <source>Upload COCO Detection Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1258"/>
+        <location filename="../../views/labeling/label_widget.py" line="1290"/>
         <source>Upload COCO Instance Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1267"/>
+        <location filename="../../views/labeling/label_widget.py" line="1299"/>
         <source>Upload COCO Keypoint Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1274"/>
+        <location filename="../../views/labeling/label_widget.py" line="1306"/>
         <source>Upload DOTA Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1281"/>
+        <location filename="../../views/labeling/label_widget.py" line="1313"/>
         <source>Upload MASK Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1288"/>
+        <location filename="../../views/labeling/label_widget.py" line="1320"/>
         <source>Upload MOT Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1295"/>
+        <location filename="../../views/labeling/label_widget.py" line="1327"/>
         <source>Upload ODVG Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1304"/>
+        <location filename="../../views/labeling/label_widget.py" line="1336"/>
         <source>Upload MM-Grounding-DINO Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1311"/>
+        <location filename="../../views/labeling/label_widget.py" line="1343"/>
         <source>Upload PPOCR-Rec Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1318"/>
+        <location filename="../../views/labeling/label_widget.py" line="1350"/>
         <source>Upload PPOCR-KIE Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1327"/>
+        <location filename="../../views/labeling/label_widget.py" line="1359"/>
         <source>Upload VLM-R1 OVD Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1336"/>
+        <location filename="../../views/labeling/label_widget.py" line="1368"/>
         <source>Export YOLO-Hbb Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1345"/>
+        <location filename="../../views/labeling/label_widget.py" line="1377"/>
         <source>Export YOLO-Obb Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1354"/>
+        <location filename="../../views/labeling/label_widget.py" line="1386"/>
         <source>Export YOLO-Seg Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1361"/>
+        <location filename="../../views/labeling/label_widget.py" line="1393"/>
         <source>Export YOLO-Pose Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1368"/>
+        <location filename="../../views/labeling/label_widget.py" line="1400"/>
         <source>Export VOC Detection Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1375"/>
+        <location filename="../../views/labeling/label_widget.py" line="1407"/>
         <source>Export VOC Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1382"/>
+        <location filename="../../views/labeling/label_widget.py" line="1414"/>
         <source>Export COCO Detection Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1389"/>
+        <location filename="../../views/labeling/label_widget.py" line="1421"/>
         <source>Export COCO Instance Segmentation Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1398"/>
+        <location filename="../../views/labeling/label_widget.py" line="1430"/>
         <source>Export COCO Keypoint Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1405"/>
+        <location filename="../../views/labeling/label_widget.py" line="1437"/>
         <source>Export DOTA Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1412"/>
+        <location filename="../../views/labeling/label_widget.py" line="1444"/>
         <source>Export MASK Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1419"/>
+        <location filename="../../views/labeling/label_widget.py" line="1451"/>
         <source>Export MOT Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1426"/>
+        <location filename="../../views/labeling/label_widget.py" line="1458"/>
         <source>Export MOTS Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1435"/>
+        <location filename="../../views/labeling/label_widget.py" line="1467"/>
         <source>Export ODVG Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1444"/>
+        <location filename="../../views/labeling/label_widget.py" line="1476"/>
         <source>Export PPOCR-Rec Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1451"/>
+        <location filename="../../views/labeling/label_widget.py" line="1483"/>
         <source>Export PPOCR-KIE Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1460"/>
+        <location filename="../../views/labeling/label_widget.py" line="1492"/>
         <source>Export VLM-R1 OVD Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1486"/>
+        <location filename="../../views/labeling/label_widget.py" line="1518"/>
         <source>Edit Label</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Edit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Upload</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Tool</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Train</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1743"/>
+        <location filename="../../views/labeling/label_widget.py" line="1775"/>
         <source>Open Recent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1082"/>
+        <location filename="../../views/labeling/label_widget.py" line="1092"/>
         <source>Show Masks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1082"/>
+        <location filename="../../views/labeling/label_widget.py" line="1092"/>
         <source>Show semi-transparent masks for shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="238"/>
+        <location filename="../../views/labeling/label_widget.py" line="251"/>
         <source>Search files...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="239"/>
+        <location filename="../../views/labeling/label_widget.py" line="252"/>
         <source>Supported search modes:
 - Text: plain text search
 - Regex: &lt;pattern&gt; (e.g., &lt;\.png$&gt;)
@@ -3599,83 +3604,118 @@ Press Enter to search.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="475"/>
+        <location filename="../../views/labeling/label_widget.py" line="485"/>
         <source>Compare View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="475"/>
+        <location filename="../../views/labeling/label_widget.py" line="485"/>
         <source>Toggle split-screen compare view</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5226"/>
+        <location filename="../../views/labeling/label_widget.py" line="5380"/>
         <source>Please open an image first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5229"/>
+        <location filename="../../views/labeling/label_widget.py" line="5383"/>
         <source>Select Compare Image Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5240"/>
+        <location filename="../../views/labeling/label_widget.py" line="5394"/>
         <source>Invalid compare directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5249"/>
+        <location filename="../../views/labeling/label_widget.py" line="5403"/>
         <source>Close Compare View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="5249"/>
+        <location filename="../../views/labeling/label_widget.py" line="5403"/>
         <source>Are you sure you want to close the compare view?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="600"/>
+        <location filename="../../views/labeling/label_widget.py" line="610"/>
         <source>Create Quadrilateral</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="600"/>
+        <location filename="../../views/labeling/label_widget.py" line="610"/>
         <source>Start drawing quadrilaterals (4 points, auto-closed)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="576"/>
+        <location filename="../../views/labeling/label_widget.py" line="586"/>
         <source>Create Brush Polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="576"/>
+        <location filename="../../views/labeling/label_widget.py" line="586"/>
         <source>Toggle brush mode for drawing polygons</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1066"/>
+        <location filename="../../views/labeling/label_widget.py" line="1076"/>
         <source>Set Brush Point Distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="1066"/>
+        <location filename="../../views/labeling/label_widget.py" line="1076"/>
         <source>Adjust point distance for brush drawing mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="2309"/>
+        <location filename="../../views/labeling/label_widget.py" line="2433"/>
         <source>Quadrilateral</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4577"/>
+        <location filename="../../views/labeling/label_widget.py" line="4703"/>
         <source>Brush Point Distance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/label_widget.py" line="4577"/>
+        <location filename="../../views/labeling/label_widget.py" line="4714"/>
         <source>Point distance (screen pixels):</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4728"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="4731"/>
+        <source>OK</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="2377"/>
+        <source>Appearance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="1193"/>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="1193"/>
+        <source>Light</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="1193"/>
+        <source>Dark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../views/labeling/label_widget.py" line="2388"/>
+        <source>The application needs to restart to apply the new appearance. Restart now?</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3841,7 +3881,7 @@ Press Enter to search.</source>
 <context>
     <name>NavigatorDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/navigator_widget.py" line="467"/>
+        <location filename="../../views/labeling/widgets/navigator_widget.py" line="468"/>
         <source>Navigator</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3849,7 +3889,7 @@ Press Enter to search.</source>
 <context>
     <name>NavigatorWidget</name>
     <message>
-        <location filename="../../views/labeling/widgets/navigator_widget.py" line="93"/>
+        <location filename="../../views/labeling/widgets/navigator_widget.py" line="94"/>
         <source>Navigator</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3857,112 +3897,112 @@ Press Enter to search.</source>
 <context>
     <name>NewLabelDialog</name>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="136"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="138"/>
         <source>Add Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="147"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="149"/>
         <source>Existing Labels:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="169"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="172"/>
         <source>Enter new labels (one per line):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="194"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="198"/>
         <source>Upload</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="202"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="206"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="207"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="211"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="218"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="222"/>
         <source>Select Labels File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="240"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="244"/>
         <source>Success</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="240"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="244"/>
         <source>Loaded %d labels from file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="252"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="256"/>
         <source>Warning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="246"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="250"/>
         <source>No valid labels found in the file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="252"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="256"/>
         <source>The selected file is empty.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="259"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="263"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="259"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="263"/>
         <source>Failed to read file: %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="281"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="285"/>
         <source>Invalid Input</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="268"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="272"/>
         <source>Please enter at least one label!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="281"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="285"/>
         <source>Please enter valid label names!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="305"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="309"/>
         <source>Duplicate Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="292"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="296"/>
         <source>These labels already exist: {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="305"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="309"/>
         <source>Duplicate labels found in input: {}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="315"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="319"/>
         <source>Confirm Add Labels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="315"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="319"/>
         <source>This will:
 1. Skip files that don&apos;t exist
 2. Reset files with mismatched labels to current template
@@ -3975,54 +4015,54 @@ Continue?</source>
 <context>
     <name>OverviewDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="114"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="105"/>
         <source>Overview</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="166"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="157"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="218"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="209"/>
         <source>Loading...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="218"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="209"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="226"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="217"/>
         <source>Progress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="431"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="422"/>
         <source>Select Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="502"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="493"/>
         <source>Error occurred while exporting annotations statistics file.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="485"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="476"/>
         <source>Exporting annotations successfully!
 Results have been saved to:
 %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="517"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="508"/>
         <source>Shape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/overview_dialog.py" line="519"/>
+        <location filename="../../views/labeling/widgets/overview_dialog.py" line="510"/>
         <source>Label</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4030,22 +4070,22 @@ Results have been saved to:
 <context>
     <name>PolygonSidesDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="16"/>
+        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="22"/>
         <source>Set Polygon Sides</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="27"/>
+        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="35"/>
         <source>Enter number of polygon sides:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="105"/>
+        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="57"/>
         <source>OK</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="126"/>
+        <location filename="../../views/labeling/widgets/polygon_sides_dialog.py" line="61"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4159,127 +4199,127 @@ Results have been saved to:
 <context>
     <name>ShapeModifyDialog</name>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="80"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="34"/>
         <source>Shape Manager</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="278"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="206"/>
         <source>Delete All Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="154"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="82"/>
         <source>Delete annotation files in the selected frame range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="280"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="208"/>
         <source>Delete All Images with Annotations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="162"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="90"/>
         <source>Delete both image and annotation files in the selected frame range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="282"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="210"/>
         <source>Remove Selected Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="170"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="98"/>
         <source>Remove shapes matching selected objects from frames in the range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="284"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="212"/>
         <source>Add Selected Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="178"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="106"/>
         <source>Add selected shapes to frames in the selected range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="269"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="197"/>
         <source>Invalid Range</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="261"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="189"/>
         <source>Please specify the end frame index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="269"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="197"/>
         <source>Start index cannot be greater than end index</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="286"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="214"/>
         <source>No Operation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="286"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="214"/>
         <source>Please select an operation to perform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="293"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="221"/>
         <source>Are you sure you want to perform &apos;%s&apos; on frames %s to %s?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="298"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="226"/>
         <source>Confirm Operation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="360"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="288"/>
         <source>Deleted %s annotation files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="421"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="349"/>
         <source>Deleted %s image files</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="587"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="515"/>
         <source>Processing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="587"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="515"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="494"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="422"/>
         <source>Removing Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="565"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="493"/>
         <source>Removed %s shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="595"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="523"/>
         <source>Adding Shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="695"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="623"/>
         <source>Added %s shapes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/widgets/shape_dialog.py" line="698"/>
+        <location filename="../../views/labeling/widgets/shape_dialog.py" line="626"/>
         <source> and skipped %s out-of-bounds shapes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4287,12 +4327,12 @@ Results have been saved to:
 <context>
     <name>StatisticsViewDialog</name>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="533"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="537"/>
         <source>Dataset Statistics</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/classifier/dialogs.py" line="659"/>
+        <location filename="../../views/labeling/classifier/dialogs.py" line="666"/>
         <source>No labeled data available</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4300,67 +4340,67 @@ Results have been saved to:
 <context>
     <name>TextInputDialog</name>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="372"/>
+        <location filename="../../views/labeling/utils/batch.py" line="375"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="42"/>
+        <location filename="../../views/labeling/utils/batch.py" line="43"/>
         <source>Enter Text Prompt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="50"/>
+        <location filename="../../views/labeling/utils/batch.py" line="51"/>
         <source>Please enter your text prompt:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="57"/>
+        <location filename="../../views/labeling/utils/batch.py" line="58"/>
         <source>Enter prompt here...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="193"/>
+        <location filename="../../views/labeling/utils/batch.py" line="196"/>
         <source>Processing completed successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="361"/>
+        <location filename="../../views/labeling/utils/batch.py" line="364"/>
         <source>Error occurred while processing images!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="372"/>
+        <location filename="../../views/labeling/utils/batch.py" line="375"/>
         <source>Processing...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="380"/>
+        <location filename="../../views/labeling/utils/batch.py" line="383"/>
         <source>Batch Processing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="481"/>
+        <location filename="../../views/labeling/utils/batch.py" line="482"/>
         <source>Model is not loaded. Choose a mode to continue.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="495"/>
+        <location filename="../../views/labeling/utils/batch.py" line="496"/>
         <source>Invalid model type, please choose a valid model_type to run.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="504"/>
+        <location filename="../../views/labeling/utils/batch.py" line="505"/>
         <source>Confirmation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="505"/>
+        <location filename="../../views/labeling/utils/batch.py" line="506"/>
         <source>Do you want to process all images?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/labeling/utils/batch.py" line="534"/>
+        <location filename="../../views/labeling/utils/batch.py" line="535"/>
         <source>Batch processing is not supported for the current task.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4368,354 +4408,354 @@ Results have been saved to:
 <context>
     <name>UltralyticsDialog</name>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="138"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="139"/>
         <source>Data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="139"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="140"/>
         <source>Config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="140"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="141"/>
         <source>Train</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="267"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="268"/>
         <source>Task Type:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="353"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="354"/>
         <source>Dataset Summary:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1259"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1260"/>
         <source>Validation Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="380"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="381"/>
         <source>Load Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1320"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1321"/>
         <source>Next</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="409"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="410"/>
         <source>Select Model File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="426"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="427"/>
         <source>Select Data File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="439"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="440"/>
         <source>Invalid Data File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="446"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="447"/>
         <source>Select Pose Config File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="502"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="503"/>
         <source>Basic Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="593"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="594"/>
         <source>Train Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="597"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="598"/>
         <source>Basic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="632"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="633"/>
         <source>Class indices (e.g., 0,1,2) or leave empty for all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="656"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="657"/>
         <source>Advanced Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1307"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1308"/>
         <source>Import Config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1182"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1183"/>
         <source>Success</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1067"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1068"/>
         <source>Config imported successfully</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1914"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1915"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1073"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1074"/>
         <source>Failed to import config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1180"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1181"/>
         <source>Configuration saved successfully to %s</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1190"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1191"/>
         <source>Training in Progress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1190"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1191"/>
         <source>Training is currently in progress. Please stop the training first if you need to reconfigure.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1236"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1237"/>
         <source>Directory Exists</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1236"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1237"/>
         <source>Project directory already exists! Do you want to overwrite it?
 If not, please manually modify the `Name` field value.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1266"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1267"/>
         <source>Please select a task type first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1276"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1277"/>
         <source>Please select a valid pose configuration file for pose detection tasks</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1286"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1287"/>
         <source>Reset Training</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1286"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1287"/>
         <source>Training traces detected. Do you want to reset the training tab?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1311"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1312"/>
         <source>Save Config</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1842"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1843"/>
         <source>Previous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1955"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1956"/>
         <source>No image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1476"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1477"/>
         <source>Training is about to start...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1488"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1489"/>
         <source>Training completed successfully!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1511"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1512"/>
         <source>Training stopped by user</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1527"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1528"/>
         <source>Training Status</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1530"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1531"/>
         <source>Ready to train</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1535"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1536"/>
         <source>Progress:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1547"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1548"/>
         <source>Clear Logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1547"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1548"/>
         <source>Are you sure you want to clear all training logs?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1565"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1566"/>
         <source>Training Logs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1577"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1578"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1581"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1582"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1589"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1590"/>
         <source>Training Images</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1696"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1697"/>
         <source>Info</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1696"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1697"/>
         <source>No training directory available</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1703"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1704"/>
         <source>Confirm Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1703"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1704"/>
         <source>Are you sure you want to stop the training?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1714"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1715"/>
         <source>Stopping training...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1716"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1717"/>
         <source>Cancel to stop training</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1814"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1815"/>
         <source>Preparing training...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1827"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1828"/>
         <source>Training Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1832"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1833"/>
         <source>Open Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1837"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1838"/>
         <source>Stop Training</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1849"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1850"/>
         <source>Start Training</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1855"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1856"/>
         <source>Export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1884"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1885"/>
         <source>Export started...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1889"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1890"/>
         <source>Export completed successfully! File saved to: {exported_path}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1894"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1895"/>
         <source>Export Successful</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1894"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1895"/>
         <source>Model successfully exported to {export_format.upper()} format:
 {exported_path}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1939"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1940"/>
         <source>Export Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1914"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1915"/>
         <source>No training project available for export</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1925"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1926"/>
         <source>Model Not Found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1925"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1926"/>
         <source>Model weights not found at: {weights_path}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="178"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="179"/>
         <source>Cannot close window while training is in progress. Please stop training first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="420"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="421"/>
         <source>Select Classification Dataset Directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1208"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1209"/>
         <source>Existing Model Detected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../views/training/ultralytics_dialog.py" line="1208"/>
+        <location filename="../../views/training/ultralytics_dialog.py" line="1209"/>
         <source>A trained model already exists at this location.
 
 Do you want to:
@@ -5099,7 +5139,7 @@ Do you want to continue?</source>
 <context>
     <name>ZoomWidget</name>
     <message>
-        <location filename="../../views/labeling/widgets/zoom_widget.py" line="11"/>
+        <location filename="../../views/labeling/widgets/zoom_widget.py" line="13"/>
         <source>Zoom Level</source>
         <translation type="unfinished"></translation>
     </message>

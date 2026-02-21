@@ -1,135 +1,158 @@
+from anylabeling.views.labeling.utils.theme import get_theme
+
+
+def get_ultralytics_dialog_style():
+    t = get_theme()
+    return f"""
+        QWidget {{
+            background-color: {t["background"]};
+            color: {t["text"]};
+        }}
+    """
+
+
 def get_advanced_toggle_btn_style():
-    return """
-        QPushButton {
+    t = get_theme()
+    return f"""
+        QPushButton {{
             border: none;
             text-align: center;
             font-weight: bold;
             font-size: 10px;
             margin-left: 3px;
-        }
-        QPushButton:hover {
-            background-color: #e0e0e0;
+            color: {t["text"]};
+        }}
+        QPushButton:hover {{
+            background-color: {t["surface_hover"]};
             border-radius: 3px;
-        }
+        }}
     """
 
 
 def get_custom_table_style():
-    return """
-        QTableWidget {
-            border: 1px solid #e5e7eb;
+    t = get_theme()
+    return f"""
+        QTableWidget {{
+            border: 1px solid {t["border"]};
             border-radius: 8px;
-            background-color: white;
+            background-color: {t["background"]};
             gridline-color: transparent;
             outline: none;
-        }
-        QTableWidget::item {
+        }}
+        QTableWidget::item {{
             padding: 12px 16px;
             border: none;
-            border-bottom: 1px solid #f3f4f6;
-            color: #374151;
+            border-bottom: 1px solid {t["border"]};
+            color: {t["text"]};
             font-size: 13px;
             outline: none;
-        }
-        QTableWidget::item:hover {
-            background-color: #f9fafb;
-        }
-        QHeaderView::section {
-            background-color: #f8fafc;
-            color: #6b7280;
+        }}
+        QTableWidget::item:hover {{
+            background-color: {t["surface_hover"]};
+        }}
+        QHeaderView::section {{
+            background-color: {t["surface"]};
+            color: {t["text_secondary"]};
             font-weight: 600;
             font-size: 12px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             padding: 16px;
             border: none;
-            border-bottom: 2px solid #e5e7eb;
-            border-right: 1px solid #f3f4f6;
+            border-bottom: 2px solid {t["border"]};
+            border-right: 1px solid {t["border"]};
             outline: none;
-        }
-        QHeaderView::section:first {
+        }}
+        QHeaderView::section:first {{
             border-top-left-radius: 8px;
-        }
-        QHeaderView::section:last {
+        }}
+        QHeaderView::section:last {{
             border-top-right-radius: 8px;
             border-right: none;
-        }
-        QTableWidget::item:alternate {
-            background-color: #fafafa;
-        }
-        QScrollBar:vertical {
-            background: #f3f4f6;
+        }}
+        QTableWidget::item:alternate {{
+            background-color: {t["background_secondary"]};
+        }}
+        QScrollBar:vertical {{
+            background: {t["background_secondary"]};
             width: 8px;
             border-radius: 4px;
             margin: 0px;
-        }
-        QScrollBar::handle:vertical {
-            background: #d1d5db;
+        }}
+        QScrollBar::handle:vertical {{
+            background: {t["scrollbar"]};
             border-radius: 4px;
             min-height: 20px;
-        }
-        QScrollBar::handle:vertical:hover {
-            background: #9ca3af;
-        }
-        QScrollBar::add-line:vertical {
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:vertical {{
             height: 0px;
             subcontrol-position: bottom;
             subcontrol-origin: margin;
-        }
-        QScrollBar::sub-line:vertical {
+        }}
+        QScrollBar::sub-line:vertical {{
             height: 0px;
             subcontrol-position: top;
             subcontrol-origin: margin;
-        }
-        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+        }}
+        QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {{
             background: transparent;
-        }
+        }}
     """
 
 
 def get_image_row_label_style():
-    return "font-weight: bold; margin-bottom: 5px;"
+    t = get_theme()
+    return f"font-weight: bold; margin-bottom: 5px; color: {t['text']};"
 
 
 def get_image_label_style():
-    return """
-        QLabel {
-            border: 1px solid #d2d2d7;
-            background-color: #f8f9fa;
-        }
+    t = get_theme()
+    return f"""
+        QLabel {{
+            border: 1px solid {t["border_light"]};
+            background-color: {t["background_secondary"]};
+        }}
     """
 
 
 def get_log_display_style():
-    return """
-        QTextEdit {
-            background-color: #1e1e1e;
-            color: #d4d4d4;
+    t = get_theme()
+    return f"""
+        QTextEdit {{
+            background-color: {t["surface"]};
+            color: {t["text"]};
             font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
             font-size: 11px;
-            border: 1px solid #3c3c3c;
+            border: 1px solid {t["border"]};
             padding: 8px;
-        }
+        }}
     """
 
 
 def get_progress_bar_style():
-    return """
-        QProgressBar {
-            border: 1px solid #d2d2d7;
+    t = get_theme()
+    return f"""
+        QProgressBar {{
+            border: 1px solid {t["border_light"]};
             text-align: center;
             height: 20px;
-        }
-        QProgressBar::chunk {
-            background-color: #0071e3;
-        }
+            background-color: {t["surface"]};
+            color: {t["text"]};
+        }}
+        QProgressBar::chunk {{
+            background-color: {t["primary"]};
+        }}
     """
 
 
-def get_status_label_style(color="#6c757d"):
+def get_status_label_style(color=None):
+    if color is None:
+        color = get_theme()["text_secondary"]
     return f"""
         font-size: 14px;
         font-weight: bold;
         color: {color};
-        /* qproperty-alignment: AlignCenter; */
     """
