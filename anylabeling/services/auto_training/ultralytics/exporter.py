@@ -351,6 +351,9 @@ class ExportManager:
                 sys.stdout = original_stdout
                 sys.stderr = original_stderr
 
+                if os.environ.get("CUDA_VISIBLE_DEVICES") == "":
+                    del os.environ["CUDA_VISIBLE_DEVICES"]
+
         except Exception as e:
             self.notify_callbacks(
                 "export_error",
