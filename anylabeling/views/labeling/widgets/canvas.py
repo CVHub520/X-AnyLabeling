@@ -967,6 +967,20 @@ class Canvas(
                         self.set_hiding()
                         self.drawing_polygon.emit(True)
                         self.update()
+                elif self.out_off_pixmap(pos) and self.create_mode == "linestrip":
+                    w = self.pixmap.width()
+                    h = self.pixmap.height()
+                    if w > 0 and h > 0:
+                        pos = QtCore.QPointF(
+                            min(max(pos.x(), 0), w - 1),
+                            min(max(pos.y(), 0), h - 1),
+                        )
+                        self.current = Shape(shape_type=self.create_mode)
+                        self.current.add_point(pos)
+                        self.line.points = [pos, pos]
+                        self.set_hiding()
+                        self.drawing_polygon.emit(True)
+                        self.update()
                 elif self.out_off_pixmap(pos) and self.create_mode in [
                     "rectangle",
                     "rotation",
