@@ -1,5 +1,6 @@
 import os
 import glob
+import sys
 import shutil
 import subprocess
 from PyQt6 import QtCore
@@ -7,28 +8,38 @@ from PyQt6 import QtCore
 
 def compile_resources(output: str, qrc: str) -> None:
     """Compile a .qrc file to a PyQt6-compatible resources.py."""
-    if shutil.which("pyside6-rcc"):
-        result = subprocess.run(
-            ["pyside6-rcc", "-o", output, qrc],
-            stderr=subprocess.DEVNULL,
-        )
-        if result.returncode == 0:
-            with open(output, "r", encoding="utf-8") as f:
-                content = f.read()
-            content = content.replace("from PySide6", "from PyQt6")
-            with open(output, "w", encoding="utf-8") as f:
-                f.write(content)
-            return
-    if shutil.which("pyrcc5"):
-        subprocess.run(["pyrcc5", "-o", output, qrc], check=True)
-        with open(output, "r", encoding="utf-8") as f:
+
+    def normalize_imports(path: str) -> None:
+        with open(path, "r", encoding="utf-8") as f:
             content = f.read()
-        content = content.replace("from PyQt5", "from PyQt6")
-        with open(output, "w", encoding="utf-8") as f:
+        content = content.replace("from PySide6", "from PyQt6")
+        with open(path, "w", encoding="utf-8") as f:
             f.write(content)
+
+    commands = [
+        ([sys.executable, "-m", "PyQt6.pyrcc_main", "-o", output, qrc], False),
+        (["pyrcc6", "-o", output, qrc], False),
+        (["pyside6-rcc", "-o", output, qrc], True),
+        (["rcc", "-g", "python", "-o", output, qrc], True),
+    ]
+    lrelease = shutil.which("lrelease")
+    if lrelease:
+        sibling_rcc = os.path.join(os.path.dirname(lrelease), "rcc")
+        commands.append(
+            ([sibling_rcc, "-g", "python", "-o", output, qrc], True)
+        )
+    for command, needs_rewrite in commands:
+        executable = command[0]
+        if executable != sys.executable and not shutil.which(executable):
+            continue
+        result = subprocess.run(command, stderr=subprocess.DEVNULL)
+        if result.returncode != 0:
+            continue
+        if needs_rewrite:
+            normalize_imports(output)
         return
     print(
-        "Error: neither pyside6-rcc nor pyrcc5 found. Install pyside6 or pyqt5-tools."
+        "Error: no Qt resource compiler found. Tried python -m PyQt6.pyrcc_main, pyrcc6, pyside6-rcc, rcc -g python, and lrelease-sibling rcc."
     )
 
 

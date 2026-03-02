@@ -130,7 +130,7 @@ System
 ────────────────────────────────────────────────────────────
 Packages
 ────────────────────────────────────────────────────────────
-  PyQt5 Version:                           5.15.11
+  PyQt6 Version:                           6.9.1
   ONNX Version:                            1.19.1
   ONNX Runtime Version:                    1.23.2
   ONNX Runtime GPU Version:                None

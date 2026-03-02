@@ -967,7 +967,10 @@ class Canvas(
                         self.set_hiding()
                         self.drawing_polygon.emit(True)
                         self.update()
-                elif self.out_off_pixmap(pos) and self.create_mode == "linestrip":
+                elif (
+                    self.out_off_pixmap(pos)
+                    and self.create_mode == "linestrip"
+                ):
                     w = self.pixmap.width()
                     h = self.pixmap.height()
                     if w > 0 and h > 0:
