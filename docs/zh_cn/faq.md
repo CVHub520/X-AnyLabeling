@@ -4,6 +4,12 @@
 ### 安装与运行相关问题
 
 <details>
+<summary>Q: 启动时报错：仅完成部分的ReadProcessMemory或 WriteProcessMemory请求。</summary>
+
+可尝试重新打开一次。
+</details>
+
+<details>
 <summary>Q: 启动时报错：ImportError: No module named expat; use SimpleXMLTreeBuilder instead</summary>
 
 `Conda` 会自动更新系统库（如 expat）到最新版本，导致与预编译的 Python 模块不兼容。可尝试下载低版本 expat 解决，如：
