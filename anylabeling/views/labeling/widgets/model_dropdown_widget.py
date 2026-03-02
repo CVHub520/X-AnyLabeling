@@ -319,14 +319,15 @@ class ModelDropdown(QWidget):
     def save_models_data(self, provider: str = None, model_id: str = None):
         """Save models data to the config file"""
         try:
-            model_config = load_json(MODELS_CONFIG_PATH)
+            model_config_path = get_models_config_path()
+            model_config = load_json(model_config_path)
             model_config["models_data"] = self.models_data
 
             if provider and model_id:
                 model_config["settings"]["provider"] = provider
                 model_config["settings"]["model_id"] = model_id
 
-            save_json(model_config, MODELS_CONFIG_PATH)
+            save_json(model_config, model_config_path)
 
         except Exception as e:
             logger.error(f"Failed to save models data: {e}")

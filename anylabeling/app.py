@@ -35,20 +35,6 @@ from anylabeling.config import (
     get_work_directory,
 )
 from anylabeling import config as anylabeling_config
-from anylabeling.views.mainwindow import MainWindow
-from anylabeling.views.labeling.logger import logger
-from anylabeling.views.labeling.utils import new_icon, gradient_text
-from anylabeling.views.labeling.utils.theme import (
-    init_theme,
-    get_app_stylesheet,
-    get_dark_palette,
-)
-from anylabeling.views.labeling.utils.update_checker import (
-    check_for_updates_async,
-)
-
-# NOTE: Do not remove this import, it is required for loading translations
-from anylabeling.resources import resources
 
 
 def main():
@@ -234,6 +220,21 @@ def main():
     if args.command and args.command in special:
         special[args.command](args)
         return
+
+    from anylabeling.views.mainwindow import MainWindow
+    from anylabeling.views.labeling.logger import logger
+    from anylabeling.views.labeling.utils import new_icon, gradient_text
+    from anylabeling.views.labeling.utils.theme import (
+        init_theme,
+        get_app_stylesheet,
+        get_dark_palette,
+    )
+    from anylabeling.views.labeling.utils.update_checker import (
+        check_for_updates_async,
+    )
+
+    # NOTE: Do not remove this import, it is required for loading translations
+    from anylabeling.resources import resources  # noqa: F401
 
     if hasattr(args, "flags"):
         if os.path.isfile(args.flags):

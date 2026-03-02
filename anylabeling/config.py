@@ -50,6 +50,7 @@ def update_dict(target_dict, new_dict, validate_item=None):
 def save_config(config):
     user_config_file = osp.join(get_work_directory(), ".xanylabelingrc")
     try:
+        os.makedirs(osp.dirname(user_config_file), exist_ok=True)
         with open(user_config_file, "w", encoding="utf-8") as f:
             yaml.safe_dump(config, f, allow_unicode=True)
     except Exception:  # noqa

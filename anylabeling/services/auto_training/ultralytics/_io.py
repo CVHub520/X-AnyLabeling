@@ -3,14 +3,14 @@ import os
 import yaml
 from typing import Dict, Any
 
-from .config import SETTINGS_CONFIG_PATH
+from .config import get_settings_config_path
 
 
 def ensure_config_dir():
     """
     Ensure the configuration directory exists, create it if it doesn't.
     """
-    config_dir = os.path.dirname(SETTINGS_CONFIG_PATH)
+    config_dir = os.path.dirname(get_settings_config_path())
     if not os.path.exists(config_dir):
         os.makedirs(config_dir)
 
@@ -27,7 +27,7 @@ def save_config(config: Dict[str, Any]) -> bool:
     """
     try:
         ensure_config_dir()
-        with open(SETTINGS_CONFIG_PATH, "w", encoding="utf-8") as f:
+        with open(get_settings_config_path(), "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2)
         return True
     except Exception:
@@ -61,8 +61,9 @@ def load_config() -> Dict[str, Any]:
         Dict: Configuration dictionary if successful, empty dict otherwise
     """
     try:
-        if os.path.exists(SETTINGS_CONFIG_PATH):
-            with open(SETTINGS_CONFIG_PATH, "r", encoding="utf-8") as f:
+        settings_config_path = get_settings_config_path()
+        if os.path.exists(settings_config_path):
+            with open(settings_config_path, "r", encoding="utf-8") as f:
                 return json.load(f)
     except Exception:
         pass

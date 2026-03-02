@@ -48,7 +48,7 @@ from anylabeling.views.labeling.widgets.remote_server_dialog import (
 from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
     load_json,
     save_json,
-    _MODELS_CONFIG_PATH,
+    _get_models_config_path,
     SearchableModelDropdownPopup,
 )
 
@@ -394,7 +394,9 @@ class AutoLabelingWidget(QWidget):
         }
 
         try:
-            local_model_data = load_json(_MODELS_CONFIG_PATH)["models_data"]
+            local_model_data = load_json(_get_models_config_path())[
+                "models_data"
+            ]
             for model_name, model_dict in local_model_data["Custom"].items():
                 if model_name == "load_custom_model":
                     continue
@@ -580,7 +582,9 @@ class AutoLabelingWidget(QWidget):
                     "display_name": config_info["display_name"],
                     "config_path": config_file,
                 }
-                save_json({"models_data": models_data}, _MODELS_CONFIG_PATH)
+                save_json(
+                    {"models_data": models_data}, _get_models_config_path()
+                )
                 self.model_dropdown.update_models_data(models_data)
 
                 self.clear_auto_labeling_action_requested.emit()
@@ -606,7 +610,8 @@ class AutoLabelingWidget(QWidget):
                 ):
                     del models_data[provider][model_name]
                     save_json(
-                        {"models_data": models_data}, _MODELS_CONFIG_PATH
+                        {"models_data": models_data},
+                        _get_models_config_path(),
                     )
                     self.model_dropdown.update_models_data(models_data)
             except Exception as e:

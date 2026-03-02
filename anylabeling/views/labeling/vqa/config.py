@@ -3,9 +3,18 @@ import os
 from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.utils.theme import get_theme
 
-root_dir = os.path.join(get_work_directory(), "xanylabeling_data/vqa")
-PROMPTS_CONFIG_PATH = os.path.join(root_dir, "prompts.json")
-COMPONENTS_CONFIG_PATH = os.path.join(root_dir, "components.json")
+
+def get_vqa_root_dir():
+    return os.path.join(get_work_directory(), "xanylabeling_data", "vqa")
+
+
+def get_prompts_config_path():
+    return os.path.join(get_vqa_root_dir(), "prompts.json")
+
+
+def get_components_config_path():
+    return os.path.join(get_vqa_root_dir(), "components.json")
+
 
 # Global design system
 BORDER_RADIUS = "8px"

@@ -26,7 +26,7 @@ from anylabeling.views.labeling.vqa.config import (
     AI_PROMPT_PLACEHOLDER,
     DEFAULT_COMPONENT_WINDOW_SIZE,
     DEFAULT_TEMPLATES,
-    PROMPTS_CONFIG_PATH,
+    get_prompts_config_path,
     SUPPORTED_WIDGETS,
 )
 from anylabeling.views.labeling.vqa.style import (
@@ -126,10 +126,11 @@ class PromptTemplateDialog(QDialog):
         """Load templates from config file"""
         user_templates = []
         system_templates = self.get_default_templates()
+        prompts_config_path = get_prompts_config_path()
 
-        if os.path.exists(PROMPTS_CONFIG_PATH):
+        if os.path.exists(prompts_config_path):
             try:
-                with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                with open(prompts_config_path, "r", encoding="utf-8") as f:
                     user_templates = json.load(f)
                     for template in user_templates:
                         template["is_system"] = False
@@ -251,32 +252,34 @@ class PromptTemplateDialog(QDialog):
     def save_user_template(self, name, content):
         """Save user template to config file"""
         user_templates = []
+        prompts_config_path = get_prompts_config_path()
 
-        if os.path.exists(PROMPTS_CONFIG_PATH):
+        if os.path.exists(prompts_config_path):
             try:
-                with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+                with open(prompts_config_path, "r", encoding="utf-8") as f:
                     user_templates = json.load(f)
             except Exception:
                 user_templates = []
 
         user_templates.append({"name": name, "content": content})
 
-        os.makedirs(os.path.dirname(PROMPTS_CONFIG_PATH), exist_ok=True)
-        with open(PROMPTS_CONFIG_PATH, "w", encoding="utf-8") as f:
+        os.makedirs(os.path.dirname(prompts_config_path), exist_ok=True)
+        with open(prompts_config_path, "w", encoding="utf-8") as f:
             json.dump(user_templates, f, ensure_ascii=False, indent=2)
 
     def remove_user_template(self, name):
         """Remove user template from config file"""
-        if not os.path.exists(PROMPTS_CONFIG_PATH):
+        prompts_config_path = get_prompts_config_path()
+        if not os.path.exists(prompts_config_path):
             return
 
         try:
-            with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+            with open(prompts_config_path, "r", encoding="utf-8") as f:
                 user_templates = json.load(f)
 
             user_templates = [t for t in user_templates if t["name"] != name]
 
-            with open(PROMPTS_CONFIG_PATH, "w", encoding="utf-8") as f:
+            with open(prompts_config_path, "w", encoding="utf-8") as f:
                 json.dump(user_templates, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Error removing template: {e}")
@@ -315,11 +318,12 @@ class PromptTemplateDialog(QDialog):
 
     def update_user_template(self, old_name, new_name, new_content):
         """Update existing user template"""
-        if not os.path.exists(PROMPTS_CONFIG_PATH):
+        prompts_config_path = get_prompts_config_path()
+        if not os.path.exists(prompts_config_path):
             return
 
         try:
-            with open(PROMPTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+            with open(prompts_config_path, "r", encoding="utf-8") as f:
                 user_templates = json.load(f)
 
             for template in user_templates:
@@ -328,7 +332,7 @@ class PromptTemplateDialog(QDialog):
                     template["content"] = new_content
                     break
 
-            with open(PROMPTS_CONFIG_PATH, "w", encoding="utf-8") as f:
+            with open(prompts_config_path, "w", encoding="utf-8") as f:
                 json.dump(user_templates, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Error updating template: {e}")

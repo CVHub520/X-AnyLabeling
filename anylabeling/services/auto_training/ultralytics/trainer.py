@@ -9,7 +9,7 @@ from typing import Dict, Tuple
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from .config import SETTINGS_CONFIG_PATH
+from .config import get_settings_config_path
 
 
 class TrainingEventRedirector(QObject):
@@ -200,7 +200,7 @@ if __name__ == "__main__":
                 while not os.path.exists(save_path):
                     time.sleep(1)
 
-                shutil.copy2(SETTINGS_CONFIG_PATH, save_file)
+                shutil.copy2(get_settings_config_path(), save_file)
 
             training_thread = threading.Thread(target=run_training)
             training_thread.daemon = True

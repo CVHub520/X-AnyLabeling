@@ -7,7 +7,11 @@ from datetime import datetime
 from typing import List
 
 from ._io import load_yaml_config, save_yaml_config
-from .config import DATASET_PATH, TASK_LABEL_MAPPINGS, TASK_SHAPE_MAPPINGS
+from .config import (
+    get_dataset_path,
+    TASK_LABEL_MAPPINGS,
+    TASK_SHAPE_MAPPINGS,
+)
 
 
 def create_yolo_dataset(
@@ -105,7 +109,7 @@ def create_yolo_dataset(
         data_file_name = os.path.splitext(os.path.basename(data_file))[0]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     temp_dir = os.path.join(
-        DATASET_PATH, task_type.lower(), f"{data_file_name}_{timestamp}"
+        get_dataset_path(), task_type.lower(), f"{data_file_name}_{timestamp}"
     )
 
     if task_type == "Classify":

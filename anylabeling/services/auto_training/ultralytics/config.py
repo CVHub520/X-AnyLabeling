@@ -3,13 +3,28 @@ import multiprocessing
 
 from anylabeling.config import get_work_directory
 
-root_dir = os.path.join(
-    get_work_directory(), "xanylabeling_data/trainer/ultralytics"
-)
-DATA_PATH = os.path.join(root_dir, "data.yaml")
-DATASET_PATH = os.path.join(root_dir, "datasets")
-SETTINGS_CONFIG_PATH = os.path.join(root_dir, "settings.json")
-DEFAULT_PROJECT_DIR = os.path.join(root_dir, "runs")
+
+def get_trainer_root_dir():
+    return os.path.join(
+        get_work_directory(), "xanylabeling_data", "trainer", "ultralytics"
+    )
+
+
+def get_data_path():
+    return os.path.join(get_trainer_root_dir(), "data.yaml")
+
+
+def get_dataset_path():
+    return os.path.join(get_trainer_root_dir(), "datasets")
+
+
+def get_settings_config_path():
+    return os.path.join(get_trainer_root_dir(), "settings.json")
+
+
+def get_default_project_dir():
+    return os.path.join(get_trainer_root_dir(), "runs")
+
 
 # UI configuration
 DEFAULT_WINDOW_TITLE = "Ultralytics Training Platforms 🚀"

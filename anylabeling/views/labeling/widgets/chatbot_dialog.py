@@ -901,7 +901,7 @@ class ChatbotDialog(QDialog):
                 self.providers[provider][
                     "api_address"
                 ] = self.api_address.text()
-                save_json(self.providers, PROVIDERS_CONFIG_PATH)
+                save_json(self.providers, get_providers_config_path())
 
                 if provider == self.default_provider:
                     self.current_api_address = self.api_address.text()
@@ -912,7 +912,7 @@ class ChatbotDialog(QDialog):
         for provider in self.providers:
             if getattr(self, f"{provider}_btn").isChecked():
                 self.providers[provider]["api_key"] = self.api_key.text()
-                save_json(self.providers, PROVIDERS_CONFIG_PATH)
+                save_json(self.providers, get_providers_config_path())
 
                 if provider == self.default_provider:
                     self.current_api_key = self.api_key.text()

@@ -7,8 +7,8 @@ import requests
 from PyQt6.QtCore import QThread, pyqtSignal
 
 from anylabeling.views.labeling.chatbot.config import (
-    MODELS_CONFIG_PATH,
-    PROVIDERS_CONFIG_PATH,
+    get_models_config_path,
+    get_providers_config_path,
 )
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.vqa.config import REQUEST_TIMEOUT
@@ -165,8 +165,9 @@ class AIWorkerThread(QThread):
     def load_models_config(self):
         """Load models configuration"""
         try:
-            if os.path.exists(MODELS_CONFIG_PATH):
-                with open(MODELS_CONFIG_PATH, "r", encoding="utf-8") as f:
+            models_config_path = get_models_config_path()
+            if os.path.exists(models_config_path):
+                with open(models_config_path, "r", encoding="utf-8") as f:
                     return json.load(f)
         except Exception as e:
             logger.error(f"Failed to load models config: {e}")
@@ -175,8 +176,9 @@ class AIWorkerThread(QThread):
     def load_providers_config(self):
         """Load providers configuration"""
         try:
-            if os.path.exists(PROVIDERS_CONFIG_PATH):
-                with open(PROVIDERS_CONFIG_PATH, "r", encoding="utf-8") as f:
+            providers_config_path = get_providers_config_path()
+            if os.path.exists(providers_config_path):
+                with open(providers_config_path, "r", encoding="utf-8") as f:
                     return json.load(f)
         except Exception as e:
             logger.error(f"Failed to load providers config: {e}")

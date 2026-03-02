@@ -292,26 +292,27 @@ class VQADialog(QDialog):
         """
         Load component configuration from the config file.
         """
-        if not os.path.exists(COMPONENTS_CONFIG_PATH):
+        components_config_path = get_components_config_path()
+        if not os.path.exists(components_config_path):
             logger.info(
-                f"Config file not found at {COMPONENTS_CONFIG_PATH}, creating new one"
+                f"Config file not found at {components_config_path}, creating new one"
             )
             self.save_config()
             return
 
         try:
-            with open(COMPONENTS_CONFIG_PATH, "r", encoding="utf-8") as f:
+            with open(components_config_path, "r", encoding="utf-8") as f:
                 config = json.load(f)
                 self.load_components_from_config(config)
             logger.info(
-                f"Successfully loaded config from {COMPONENTS_CONFIG_PATH}"
+                f"Successfully loaded config from {components_config_path}"
             )
 
         except (json.JSONDecodeError, KeyError):
             logger.error(
-                f"Failed to parse config file {COMPONENTS_CONFIG_PATH}, creating new one"
+                f"Failed to parse config file {components_config_path}, creating new one"
             )
-            os.remove(COMPONENTS_CONFIG_PATH)
+            os.remove(components_config_path)
             self.save_config()
 
     def save_config(self):
@@ -326,9 +327,10 @@ class VQADialog(QDialog):
             )
             config["components"].append(component_data)
 
-        os.makedirs(os.path.dirname(COMPONENTS_CONFIG_PATH), exist_ok=True)
+        components_config_path = get_components_config_path()
+        os.makedirs(os.path.dirname(components_config_path), exist_ok=True)
 
-        with open(COMPONENTS_CONFIG_PATH, "w", encoding="utf-8") as f:
+        with open(components_config_path, "w", encoding="utf-8") as f:
             json.dump(config, f, ensure_ascii=False, indent=2)
 
     def load_images_folder(self):

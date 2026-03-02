@@ -3,10 +3,22 @@ import os
 from anylabeling.config import get_work_directory
 from anylabeling.views.labeling.utils.theme import get_theme
 
-root_dir = os.path.join(get_work_directory(), "xanylabeling_data/chatbot")
-MODELS_CONFIG_PATH = os.path.join(root_dir, "models.json")
-SETTINGS_CONFIG_PATH = os.path.join(root_dir, "settings.json")
-PROVIDERS_CONFIG_PATH = os.path.join(root_dir, "providers.json")
+
+def get_chatbot_root_dir():
+    return os.path.join(get_work_directory(), "xanylabeling_data", "chatbot")
+
+
+def get_models_config_path():
+    return os.path.join(get_chatbot_root_dir(), "models.json")
+
+
+def get_settings_config_path():
+    return os.path.join(get_chatbot_root_dir(), "settings.json")
+
+
+def get_providers_config_path():
+    return os.path.join(get_chatbot_root_dir(), "providers.json")
+
 
 # Global design system
 ANIMATION_DURATION = "200ms"

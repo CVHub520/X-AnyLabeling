@@ -19,15 +19,16 @@ api_call_tracker = EventTracker()
 
 def init_model_config():
     """Initialize the model config"""
-    if not os.path.exists(MODELS_CONFIG_PATH):
+    models_config_path = get_models_config_path()
+    if not os.path.exists(models_config_path):
         model_config = dict(
             settings=DEFAULT_SETTINGS,
             models_data={},
             supported_vision_models=SUPPORTED_VISION_MODELS,
         )
-        save_json(model_config, MODELS_CONFIG_PATH)
+        save_json(model_config, models_config_path)
 
-    model_config = load_json(MODELS_CONFIG_PATH)
+    model_config = load_json(models_config_path)
     return model_config["settings"]
 
 
@@ -42,7 +43,7 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
     Returns:
         dict: Models data
     """
-    config_path = MODELS_CONFIG_PATH
+    config_path = get_models_config_path()
     total_data = load_json(config_path)
 
     api_call_tracker.increment(provider)
@@ -130,10 +131,11 @@ def get_default_model_id(provider: str) -> str:
     """Get the default model id"""
     default_model_id = "Select Model"
 
-    if not os.path.exists(MODELS_CONFIG_PATH):
+    models_config_path = get_models_config_path()
+    if not os.path.exists(models_config_path):
         return default_model_id
 
-    model_config = load_json(MODELS_CONFIG_PATH)
+    model_config = load_json(models_config_path)
 
     if model_config["settings"]["model_id"]:
         return model_config["settings"]["model_id"] + f" ({provider})"
@@ -144,12 +146,13 @@ def get_default_model_id(provider: str) -> str:
 def get_providers_data() -> dict:
     """Get the providers configs"""
     default_providers_data = DEFAULT_PROVIDERS_DATA
+    providers_config_path = get_providers_config_path()
 
-    if not os.path.exists(PROVIDERS_CONFIG_PATH):
-        save_json(default_providers_data, PROVIDERS_CONFIG_PATH)
+    if not os.path.exists(providers_config_path):
+        save_json(default_providers_data, providers_config_path)
         return default_providers_data
 
-    custom_providers_data = load_json(PROVIDERS_CONFIG_PATH)
+    custom_providers_data = load_json(providers_config_path)
     for provider, provider_data in custom_providers_data.items():
         if provider not in custom_providers_data:
             custom_providers_data[provider] = provider_data

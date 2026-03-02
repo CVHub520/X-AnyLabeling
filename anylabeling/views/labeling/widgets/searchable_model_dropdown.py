@@ -19,9 +19,11 @@ from anylabeling.views.labeling.chatbot.utils import load_json, save_json
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.theme import get_theme
 
-_MODELS_CONFIG_PATH = os.path.join(
-    get_work_directory(), "xanylabeling_data/models.json"
-)
+
+def _get_models_config_path():
+    return os.path.join(
+        get_work_directory(), "xanylabeling_data", "models.json"
+    )
 
 
 class SearchBar(QLineEdit):
@@ -418,12 +420,13 @@ class SearchableModelDropdownPopup(QWidget):
 
     def save_models_data(self):
         """Save models data to the config file"""
-        if not os.path.exists(_MODELS_CONFIG_PATH):
+        models_config_path = _get_models_config_path()
+        if not os.path.exists(models_config_path):
             model_config = {"models_data": {}}
         else:
-            model_config = load_json(_MODELS_CONFIG_PATH)
+            model_config = load_json(models_config_path)
         model_config["models_data"] = self.models_data
-        save_json(model_config, _MODELS_CONFIG_PATH)
+        save_json(model_config, models_config_path)
 
     def filter_models(self, search_text, match_threshold=0.7):
         empty_text = "No models found."

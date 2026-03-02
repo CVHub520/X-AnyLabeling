@@ -368,7 +368,7 @@ class UltralyticsDialog(QDialog):
             return
 
         project = os.path.join(
-            DEFAULT_PROJECT_DIR, self.selected_task_type.lower()
+            get_default_project_dir(), self.selected_task_type.lower()
         )
         self.config_widgets["project"].setText(project)
         self.config_widgets["project"].setReadOnly(self.project_readonly)
@@ -513,7 +513,9 @@ class UltralyticsDialog(QDialog):
             if self.selected_task_type
             else "detect"
         )
-        text_project = os.path.join(DEFAULT_PROJECT_DIR, selected_task_type)
+        text_project = os.path.join(
+            get_default_project_dir(), selected_task_type
+        )
         self.config_widgets["project"].setText(text_project)
         layout.addRow("Project:", self.config_widgets["project"])
 
@@ -1182,7 +1184,7 @@ class UltralyticsDialog(QDialog):
         try:
             save_config(self.get_current_config())
             template = self.tr("Configuration saved successfully to %s")
-            msg_test = template % SETTINGS_CONFIG_PATH
+            msg_test = template % get_settings_config_path()
             QMessageBox.information(self, self.tr("Success"), msg_test)
         except Exception as e:
             QMessageBox.warning(
