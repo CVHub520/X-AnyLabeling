@@ -5343,13 +5343,13 @@ class LabelingWidget(LabelDialog):
             formats + [f"*{LabelFile.suffix}"]
         )
         file_dialog = FileDialogPreview(self)
-        file_dialog.setFileMode(FileDialogPreview.ExistingFile)
+        file_dialog.setFileMode(QtWidgets.QFileDialog.FileMode.ExistingFile)
         file_dialog.setNameFilter(filters)
         file_dialog.setWindowTitle(
             self.tr("%s - Choose Image or Label file") % __appname__,
         )
         file_dialog.setWindowFilePath(path)
-        file_dialog.setViewMode(FileDialogPreview.Detail)
+        file_dialog.setViewMode(QtWidgets.QFileDialog.ViewMode.Detail)
         if file_dialog.exec():
             filename = file_dialog.selectedFiles()[0]
             if filename:
