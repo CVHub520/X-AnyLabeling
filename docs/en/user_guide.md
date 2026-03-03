@@ -636,14 +636,25 @@ The cropped image saving function can be implemented through the following steps
 
 ### 5.4 Shape Type Conversion
 
-You can convert between certain shape types using the `Tools` menu. Supported conversions include:
+X-AnyLabeling provides a unified **Shape Converter**.
+Open it from **Tools -> Shape Converter**, then select a source shape type and a target shape type to run batch conversion.
 
-- **Rectangle to Rotated Box**
-- **Rotated Box to Rectangle**
-- **Polygon to Bounding Box**
-- **Polygon to Rotated Box**
+Currently supported conversion mappings:
 
-> **Note:** Converting *to* Rectangle or Bounding Box uses the axis-aligned bounding box, losing rotation or precise boundary information. This conversion is **irreversible** within the tool, so use it carefully.
+- `polygon` -> `rectangle`, `rotation`
+- `rectangle` -> `rotation`, `polygon`, `circle`, `quadrilateral`
+- `rotation` -> `rectangle`, `quadrilateral`, `polygon`, `circle`
+- `line` -> `linestrip`
+- `circle` -> `rectangle`, `rotation`, `quadrilateral`, `polygon`
+- `quadrilateral` -> `polygon`
+
+Rules:
+
+- Conversions *to* `circle` use an **inscribed-circle** strategy.
+- `polygon`/`rotation` -> `rectangle` uses an axis-aligned bounding box (AABB).
+- `circle` -> `rectangle`/`rotation`/`quadrilateral` generates a four-point shape from circle center and radius.
+
+> **Note:** Some conversions are lossy (e.g., rotation angle, exact boundaries, curve details) and are **irreversible**. Back up annotations before large batch conversions.
 
 ### 5.5 Digit Shortcut Manager
 

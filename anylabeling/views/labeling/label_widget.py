@@ -889,45 +889,11 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Union multiple selected rectangle shapes"),
             enabled=False,
         )
-        hbb_to_obb = action(
-            self.tr("Convert HBB to OBB"),
-            lambda: utils.shape_conversion(self, "hbb_to_obb"),
+        shape_converter = action(
+            self.tr("Shape Converter"),
+            lambda: utils.open_shape_converter(self),
             icon="convert",
-            tip=self.tr(
-                "Perform conversion from horizontal bounding box to oriented bounding box"
-            ),
-        )
-        obb_to_hbb = action(
-            self.tr("Convert OBB to HBB"),
-            lambda: utils.shape_conversion(self, "obb_to_hbb"),
-            icon="convert",
-            tip=self.tr(
-                "Perform conversion from oriented bounding box to horizontal bounding box"
-            ),
-        )
-        polygon_to_hbb = action(
-            self.tr("Convert Polygon to HBB"),
-            lambda: utils.shape_conversion(self, "polygon_to_hbb"),
-            icon="convert",
-            tip=self.tr(
-                "Perform conversion from polygon to horizontal bounding box"
-            ),
-        )
-        polygon_to_obb = action(
-            self.tr("Convert Polygon to OBB"),
-            lambda: utils.shape_conversion(self, "polygon_to_obb"),
-            icon="convert",
-            tip=self.tr(
-                "Perform conversion from polygon to oriented bounding box"
-            ),
-        )
-        circle_to_polygon = action(
-            self.tr("Convert Circle to Polygon"),
-            lambda: utils.shape_conversion(self, "circle_to_polygon"),
-            icon="convert",
-            tip=self.tr(
-                "Perform conversion from circle to polygon with user-specified points"
-            ),
+            tip=self.tr("Open shape converter"),
         )
         open_chatbot = action(
             self.tr("ChatBot"),
@@ -1834,11 +1800,7 @@ class LabelingWidget(LabelDialog):
                 gid_manager,
                 shape_manager,
                 None,
-                hbb_to_obb,
-                obb_to_hbb,
-                polygon_to_hbb,
-                polygon_to_obb,
-                circle_to_polygon,
+                shape_converter,
             ),
         )
         utils.add_actions(
