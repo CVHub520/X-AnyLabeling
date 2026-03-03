@@ -5790,8 +5790,7 @@ class LabelingWidget(LabelDialog):
                         if self.output_dir:
                             label_file_without_path = osp.basename(label_file)
                             label_file = (
-                                self.output_dir + "/"
-                                + label_file_without_path
+                                self.output_dir + "/" + label_file_without_path
                             )
 
                         if not matches_label_attribute(

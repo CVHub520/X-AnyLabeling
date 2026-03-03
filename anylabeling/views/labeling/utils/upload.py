@@ -1367,13 +1367,22 @@ def upload_yolo_annotation(self, mode, LABEL_OPACITY):
         if not self.yaml_file:
             return
 
+        try:
+            converter = LabelConverter(pose_cfg_file=self.yaml_file)
+        except Exception as e:
+            logger.error(f"Failed to load pose config: {self.yaml_file}: {e}")
+            popup = Popup(
+                self.tr("Invalid pose config file:\n%s") % str(e),
+                self,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self, popup_height=65, position="center")
+            return
+
         labels = []
-        with open(self.yaml_file, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
-            for class_name, keypoint_name in data["classes"].items():
-                labels.append(class_name)
-                labels.extend(keypoint_name)
-        converter = LabelConverter(pose_cfg_file=self.yaml_file)
+        for class_name, keypoint_name in converter.pose_classes.items():
+            labels.append(class_name)
+            labels.extend(keypoint_name)
 
     elif mode in ["hbb", "obb", "seg"]:
         filter = "Classes Files (*.txt);;All Files (*)"

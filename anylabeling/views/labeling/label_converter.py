@@ -36,9 +36,20 @@ class LabelConverter:
         self.pose_classes = {}
         if pose_cfg_file:
             with open(pose_cfg_file, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
-                self.has_visible = data["has_visible"]
-                for class_name, keypoint_name in data["classes"].items():
+                data = yaml.safe_load(f) or {}
+                if not isinstance(data, dict):
+                    raise ValueError(
+                        "Invalid pose config: root node must be a mapping."
+                    )
+
+                classes = data.get("classes")
+                if not isinstance(classes, dict) or not classes:
+                    raise ValueError(
+                        "Invalid pose config: missing or invalid 'classes' mapping."
+                    )
+
+                self.has_visible = data.get("has_visible", True)
+                for class_name, keypoint_name in classes.items():
                     self.pose_classes[class_name] = keypoint_name
                 self.classes = list(self.pose_classes.keys())
             logger.info(f"Loading pose classes: {self.pose_classes}")
