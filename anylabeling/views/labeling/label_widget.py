@@ -254,6 +254,7 @@ class LabelingWidget(LabelDialog):
             self.tr(
                 "Supported search modes:\n"
                 "- Text: plain text search\n"
+                "- Index: #N (e.g., #1, #10)\n"
                 "- Regex: <pattern> (e.g., <\\.png$>)\n"
                 "- Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx\n"
                 "- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)\n"
@@ -5773,23 +5774,30 @@ class LabelingWidget(LabelDialog):
 
         search_pattern = parse_search_pattern(pattern) if pattern else None
 
-        for filename in utils.scan_all_images(dirpath):
+        for file_index, filename in enumerate(
+            utils.scan_all_images(dirpath), start=1
+        ):
             if search_pattern:
-                if not matches_filename(filename, search_pattern):
-                    continue
-
-                if search_pattern.mode == "attribute":
-                    label_file = osp.splitext(filename)[0] + ".json"
-                    if self.output_dir:
-                        label_file_without_path = osp.basename(label_file)
-                        label_file = (
-                            self.output_dir + "/" + label_file_without_path
-                        )
-
-                    if not matches_label_attribute(
-                        filename, label_file, search_pattern
-                    ):
+                if search_pattern.mode == "index":
+                    if search_pattern.index != file_index:
                         continue
+                else:
+                    if not matches_filename(filename, search_pattern):
+                        continue
+
+                    if search_pattern.mode == "attribute":
+                        label_file = osp.splitext(filename)[0] + ".json"
+                        if self.output_dir:
+                            label_file_without_path = osp.basename(label_file)
+                            label_file = (
+                                self.output_dir + "/"
+                                + label_file_without_path
+                            )
+
+                        if not matches_label_attribute(
+                            filename, label_file, search_pattern
+                        ):
+                            continue
 
             image_files.append(filename)
             label_file = osp.splitext(filename)[0] + ".json"

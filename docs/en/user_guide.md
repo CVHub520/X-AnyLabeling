@@ -252,6 +252,12 @@ The following search modes are currently supported:
 
 Enter plain text directly, and the system will search for files whose names contain that text. For example, entering `test` will find all images with "test" in their filename.
 
+**Index Search**
+
+Use the `#N` format to target an image by index, where `N` must be a positive integer. Examples:
+- `#1` targets the 1st image in the current file list
+- `#10` targets the 10th image in the current file list
+
 **Regular Expression Search**
 
 Use the `<pattern>` format for regular expression searches. Examples:

@@ -13,11 +13,13 @@ class SearchPattern:
         pattern: Optional[str] = None,
         regex: Optional[re.Pattern] = None,
         attribute_filter: Optional[Dict] = None,
+        index: Optional[int] = None,
     ):
         self.mode = mode
         self.pattern = pattern
         self.regex = regex
         self.attribute_filter = attribute_filter
+        self.index = index
 
 
 def parse_search_pattern(search_text: str) -> SearchPattern:
@@ -32,6 +34,7 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
 
     Examples:
         - "test" -> normal text search
+        - "#1" -> index search for the first image
         - "<\\.png$>" -> regex search
         - "difficult::1" -> attribute search for difficult objects
         - "gid::0" -> attribute search for files with group_id 0
@@ -50,6 +53,11 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
     search_text = search_text.strip()
     if not search_text:
         return SearchPattern(mode="normal", pattern=None)
+
+    if search_text.startswith("#") and search_text[1:].isdigit():
+        index_value = int(search_text[1:])
+        if index_value > 0:
+            return SearchPattern(mode="index", index=index_value)
 
     if (
         search_text.startswith("<")
@@ -337,6 +345,14 @@ def filter_image_files(
     Returns:
         Filtered list of image files.
     """
+    if search_pattern.mode == "index":
+        if not search_pattern.index:
+            return []
+        target_index = search_pattern.index - 1
+        if target_index < 0 or target_index >= len(image_files):
+            return []
+        return [image_files[target_index]]
+
     filtered_files = []
 
     for filename in image_files:
