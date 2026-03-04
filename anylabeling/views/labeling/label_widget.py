@@ -4344,7 +4344,7 @@ class LabelingWidget(LabelDialog):
             return
 
         if self.attributes and text:
-            text = self.reset_attribute(text, shape)
+            text = self.reset_attribute(text, self.canvas.shapes[-1])
 
         if text:
             self.label_list.clearSelection()
