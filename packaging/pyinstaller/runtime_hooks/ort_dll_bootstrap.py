@@ -1,4 +1,3 @@
-import ctypes
 import os
 import sys
 
@@ -11,18 +10,25 @@ def configure_ort_dll_search_path():
 
     base_dir = sys._MEIPASS
     search_dirs = [os.path.join(base_dir, "onnxruntime", "capi"), base_dir]
+    valid_dirs = [
+        directory for directory in search_dirs if os.path.isdir(directory)
+    ]
 
     if hasattr(os, "add_dll_directory"):
-        for directory in search_dirs:
-            if os.path.isdir(directory):
-                _HANDLES.append(os.add_dll_directory(directory))
+        for directory in valid_dirs:
+            _HANDLES.append(os.add_dll_directory(directory))
 
-    for dll_name in ("onnxruntime_providers_shared.dll", "onnxruntime.dll"):
-        for directory in search_dirs:
-            dll_path = os.path.join(directory, dll_name)
-            if os.path.isfile(dll_path):
-                ctypes.WinDLL(dll_path)
-                break
+    path_value = os.environ.get("PATH", "")
+    path_parts = [part for part in path_value.split(os.pathsep) if part]
+    existing = {os.path.normcase(os.path.abspath(part)) for part in path_parts}
+    extra_dirs = [
+        directory
+        for directory in valid_dirs
+        if os.path.normcase(os.path.abspath(directory)) not in existing
+    ]
+    if not extra_dirs:
+        return
+    os.environ["PATH"] = os.pathsep.join(extra_dirs + path_parts)
 
 
 configure_ort_dll_search_path()

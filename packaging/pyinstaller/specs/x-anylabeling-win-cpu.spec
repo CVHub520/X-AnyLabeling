@@ -39,9 +39,11 @@ MSVC_RUNTIME_DLLS = {
     'msvcp140.dll',
     'msvcp140_1.dll',
     'msvcp140_2.dll',
+    'msvcp140_atomic_wait.dll',
     'vcruntime140.dll',
     'vcruntime140_1.dll',
     'concrt140.dll',
+    'vcomp140.dll',
 }
 
 def _entry_dll_names(entry):
@@ -80,6 +82,48 @@ def _collect_onnxruntime_dlls():
         + [(dll, '.') for dll in root_copy_dlls]
     )
 
+def _collect_msvc_runtime_dlls():
+    system_root = os.environ.get('SystemRoot') or os.environ.get('WINDIR')
+    candidate_dirs = []
+    if system_root:
+        candidate_dirs.append(os.path.join(system_root, 'System32'))
+    candidate_dirs.append(os.path.dirname(sys.executable))
+    candidate_dirs.append(sys.base_prefix)
+    candidate_dirs.extend(os.environ.get('PATH', '').split(os.pathsep))
+
+    search_dirs = []
+    seen_dirs = set()
+    for directory in candidate_dirs:
+        if not directory or not os.path.isdir(directory):
+            continue
+        normalized = os.path.normcase(os.path.abspath(directory))
+        if normalized in seen_dirs:
+            continue
+        seen_dirs.add(normalized)
+        search_dirs.append(directory)
+
+    binaries = []
+    collected = []
+    for dll_name in sorted(MSVC_RUNTIME_DLLS):
+        for directory in search_dirs:
+            dll_path = os.path.join(directory, dll_name)
+            if os.path.isfile(dll_path):
+                binaries.append((dll_path, '.'))
+                collected.append(dll_name)
+                break
+    if collected:
+        print(
+            "PyInstaller spec: bundled MSVC runtime DLLs:",
+            ", ".join(sorted(set(collected))),
+        )
+    return binaries
+
+def _to_binary_toc_entries(binaries):
+    toc_entries = []
+    for src_path, _ in binaries:
+        toc_entries.append((os.path.basename(src_path), src_path, 'BINARY'))
+    return toc_entries
+
 def _strip_msvc_runtime_binaries(binaries):
     kept = []
     removed = []
@@ -97,6 +141,7 @@ def _strip_msvc_runtime_binaries(binaries):
     return kept
 
 onnxruntime_binaries = _collect_onnxruntime_dlls()
+msvc_runtime_binaries = _collect_msvc_runtime_dlls()
 
 a = Analysis(
     [_p('anylabeling', 'app.py')],
@@ -117,6 +162,8 @@ a = Analysis(
     excludes=[],
 )
 a.binaries = _strip_msvc_runtime_binaries(a.binaries)
+if msvc_runtime_binaries:
+    a.binaries += _to_binary_toc_entries(msvc_runtime_binaries)
 pyz = PYZ(a.pure, a.zipped_data)
 exe = EXE(
     pyz,
@@ -124,7 +171,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name=f'X-AnyLabeling-{__version__}-CPU',
+    name=f'X-AnyLabeling-v{__version__}-CPU',
     debug=False,
     strip=False,
     upx=False,

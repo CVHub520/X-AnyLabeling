@@ -74,7 +74,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name=f'X-AnyLabeling-{__version__}-Linux-GPU',
+    name=f'X-AnyLabeling-v{__version__}-Linux-GPU',
     debug=False,
     strip=False,
     upx=False,

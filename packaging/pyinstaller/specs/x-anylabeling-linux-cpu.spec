@@ -66,7 +66,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name=f'X-AnyLabeling-{__version__}-Linux-CPU',
+    name=f'X-AnyLabeling-v{__version__}-Linux-CPU',
     debug=False,
     strip=False,
     upx=False,

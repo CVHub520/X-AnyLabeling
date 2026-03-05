@@ -66,7 +66,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name=f'X-AnyLabeling-{__version__}-macOS.app',
+    name=f'X-AnyLabeling-v{__version__}-macOS.app',
     icon=_p('anylabeling', 'resources', 'images', 'icon.icns'),
     bundle_identifier=None,
     info_plist={'NSHighResolutionCapable': 'True'},
