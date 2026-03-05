@@ -11,7 +11,7 @@ class DownloadCancelledError(Exception):
 
 
 class AutoLabelingResult:
-    def __init__(self, shapes, replace=True, description=""):
+    def __init__(self, shapes, replace=True, description="", image_path=None):
         """Initialize AutoLabelingResult
 
         Args:
@@ -20,11 +20,14 @@ class AutoLabelingResult:
             new shapes. Defaults to True.
             description (str, optional): Description of the image.
             Defaults to "".
+            image_path (str, optional): Source image path used for
+            prediction. Defaults to None.
         """
 
         self.shapes = shapes
         self.replace = replace
         self.description = description
+        self.image_path = image_path
 
 
 class AutoLabelingMode:

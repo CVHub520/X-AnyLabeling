@@ -2187,6 +2187,9 @@ class ModelManager(QObject):
                     "model"
                 ].predict_shapes(image, filename)
 
+            if isinstance(auto_labeling_result, AutoLabelingResult):
+                auto_labeling_result.image_path = filename
+
             if batch:
                 return auto_labeling_result
             else:

@@ -5843,6 +5843,17 @@ class LabelingWidget(LabelDialog):
         if not self.image or not self.image_path:
             return
 
+        result_image_path = getattr(auto_labeling_result, "image_path", None)
+        if result_image_path and self.filename:
+            current_filename = osp.normpath(osp.abspath(self.filename))
+            result_filename = osp.normpath(osp.abspath(result_image_path))
+            if result_filename != current_filename:
+                logger.warning(
+                    "Ignore stale auto labeling result for "
+                    f"{result_filename}; current file is {current_filename}"
+                )
+                return
+
         # Clear existing shapes
         if auto_labeling_result.replace:
             self.load_shapes([], replace=True)
