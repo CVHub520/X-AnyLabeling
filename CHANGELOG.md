@@ -1,5 +1,35 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.2` (Mar 06, 2026)
+
+### 🚀 New Features
+
+- Add index search mode for targeting images by their position in the file list.
+- Introduce a shape converter dialog for shape transformation workflows.
+- Add support for creating line strips when drawing starts outside pixmap boundaries. (#1144)
+
+### 🐛 Bug Fixes
+
+- Bind auto-labeling inference results to their source image to prevent stale apply.
+- Update attribute reset logic to follow the last shape on the canvas. (#1316)
+- Improve pose config loading validation and error handling in label conversion.
+- Update file dialog modes to use `QtWidgets` enumerations for better PyQt6 compatibility.
+- Defer GUI imports and lazily resolve config/data paths to fix `--work-dir` startup issues.
+- Prevent canvas painting when the current image is null. (#391)
+
+### 🛠️ Improvements
+
+- Add PyInstaller spec files under `packaging/pyinstaller/specs`.
+- Enhance MSVC runtime DLL collection in Windows PyInstaller specs.
+- Update development dependencies.
+- Add a FAQ troubleshooting note for `ReadProcessMemory` startup errors.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.0-beta.1` (Mar 01, 2026)
 
 ### 🚀 New Features
