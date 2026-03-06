@@ -131,7 +131,9 @@ class AboutDialog(QDialog):
 
         website_btn = QPushButton(self.tr("Website"))
         website_btn.setObjectName("link-btn")
-        website_btn.clicked.connect(lambda: open_url(self.website_url))
+        website_btn.clicked.connect(
+            lambda: self._open_url_and_close(self.website_url)
+        )
 
         copy_btn = QPushButton(self.tr("Copy App Info"))
         copy_btn.setObjectName("link-btn")
@@ -139,7 +141,9 @@ class AboutDialog(QDialog):
 
         report_btn = QPushButton(self.tr("Report Issue"))
         report_btn.setObjectName("link-btn")
-        report_btn.clicked.connect(lambda: open_url(self.github_issues_url))
+        report_btn.clicked.connect(
+            lambda: self._open_url_and_close(self.github_issues_url)
+        )
 
         links_layout.addWidget(website_btn)
         links_layout.addWidget(QLabel("·"))
@@ -168,21 +172,27 @@ class AboutDialog(QDialog):
         discord_btn.setObjectName("social-btn")
         discord_btn.setIcon(QIcon(new_icon("discord")))
         discord_btn.setIconSize(QSize(20, 20))
-        discord_btn.clicked.connect(lambda: open_url(self.discord_url))
+        discord_btn.clicked.connect(
+            lambda: self._open_url_and_close(self.discord_url)
+        )
 
         # Twitter
         twitter_btn = QPushButton()
         twitter_btn.setObjectName("social-btn")
         twitter_btn.setIcon(QIcon(new_icon("twitter")))
         twitter_btn.setIconSize(QSize(20, 20))
-        twitter_btn.clicked.connect(lambda: open_url(self.twitter_url))
+        twitter_btn.clicked.connect(
+            lambda: self._open_url_and_close(self.twitter_url)
+        )
 
         # GitHub
         github_btn = QPushButton()
         github_btn.setObjectName("social-btn")
         github_btn.setIcon(QIcon(new_icon("github")))
         github_btn.setIconSize(QSize(20, 20))
-        github_btn.clicked.connect(lambda: open_url(self.github_url))
+        github_btn.clicked.connect(
+            lambda: self._open_url_and_close(self.github_url)
+        )
 
         social_layout.addWidget(email_btn)
         social_layout.addWidget(discord_btn)
@@ -197,7 +207,9 @@ class AboutDialog(QDialog):
 
         changelog_btn = QPushButton(self.tr("Changelog"))
         changelog_btn.setObjectName("link-btn")
-        changelog_btn.clicked.connect(lambda: open_url(self.changelog_url))
+        changelog_btn.clicked.connect(
+            lambda: self._open_url_and_close(self.changelog_url)
+        )
 
         check_update_btn = QPushButton(self.tr("Check for Updates"))
         check_update_btn.setObjectName("link-btn")
@@ -231,6 +243,10 @@ class AboutDialog(QDialog):
         cp = self.screen().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+
+    def _open_url_and_close(self, url):
+        self.accept()
+        open_url(url)
 
     def copy_app_info(self):
         """Copy app info to clipboard (non-blocking)"""
