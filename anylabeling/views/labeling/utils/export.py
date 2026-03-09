@@ -1040,16 +1040,18 @@ def export_mot_annotation(self, mode):
     if not _check_filename_exist(self):
         return
 
-    filter = "Classes Files (*.txt);;All Files (*)"
-    self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
-        self,
-        self.tr("Select a specific classes file"),
-        "",
-        filter,
-    )
-    if not self.classes_file:
-        return
-    converter = LabelConverter(classes_file=self.classes_file)
+    converter = LabelConverter()
+    if mode in ["mot", "mots", "odvg"]:
+        filter = "Classes Files (*.txt);;All Files (*)"
+        self.classes_file, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select a specific classes file"),
+            "",
+            filter,
+        )
+        if not self.classes_file:
+            return
+        converter = LabelConverter(classes_file=self.classes_file)
 
     dialog = QtWidgets.QDialog(self)
     dialog.setWindowTitle(self.tr("Export options"))

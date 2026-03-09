@@ -28,7 +28,6 @@ from PyQt6.QtWidgets import (
     QRadioButton,
     QScrollArea,
     QVBoxLayout,
-    QWhatsThis,
     QWidget,
     QLineEdit,
 )
@@ -316,6 +315,7 @@ class LabelingWidget(LabelDialog):
             rotation=self._config["canvas"].get("rotation", {}),
             mask=self._config["canvas"].get("mask", {}),
             brush=self._config["canvas"].get("brush", {}),
+            cuboid=self._config["canvas"].get("cuboid", {}),
             double_click_edit_label=self._config["canvas"].get(
                 "double_click_edit_label", True
             ),
@@ -656,6 +656,14 @@ class LabelingWidget(LabelDialog):
             shortcuts["create_linestrip"],
             "line-strip",
             self.tr("Start drawing linestrip. Ctrl+LeftClick ends creation."),
+            enabled=False,
+        )
+        create_cuboid_mode = action(
+            self.tr("Create Cuboid"),
+            lambda: self.toggle_draw_mode(False, create_mode="cuboid"),
+            shortcuts.get("create_cuboid"),
+            "cuboid",
+            self.tr("Start drawing cuboids from rectangle"),
             enabled=False,
         )
         digit_shortcut_0 = action(
@@ -1573,6 +1581,7 @@ class LabelingWidget(LabelDialog):
             create_brush_polygon_mode=create_brush_polygon_mode,
             edit_mode=edit_mode,
             create_rectangle_mode=create_rectangle_mode,
+            create_cuboid_mode=create_cuboid_mode,
             create_rotation_mode=create_rotation_mode,
             create_quadrilateral_mode=create_quadrilateral_mode,
             create_circle_mode=create_circle_mode,
@@ -1694,6 +1703,7 @@ class LabelingWidget(LabelDialog):
                 create_mode,
                 create_brush_polygon_mode,
                 create_rectangle_mode,
+                create_cuboid_mode,
                 create_rotation_mode,
                 create_quadrilateral_mode,
                 create_circle_mode,
@@ -1717,6 +1727,7 @@ class LabelingWidget(LabelDialog):
                 create_mode,
                 create_brush_polygon_mode,
                 create_rectangle_mode,
+                create_cuboid_mode,
                 create_rotation_mode,
                 create_quadrilateral_mode,
                 create_circle_mode,
@@ -1950,6 +1961,7 @@ class LabelingWidget(LabelDialog):
             create_mode,
             self.actions.create_brush_polygon_mode,
             self.actions.create_rectangle_mode,
+            self.actions.create_cuboid_mode,
             self.actions.create_rotation_mode,
             self.actions.create_quadrilateral_mode,
             self.actions.create_circle_mode,
@@ -2497,6 +2509,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_mode,
             self.actions.create_brush_polygon_mode,
             self.actions.create_rectangle_mode,
+            self.actions.create_cuboid_mode,
             self.actions.create_rotation_mode,
             self.actions.create_quadrilateral_mode,
             self.actions.create_circle_mode,
@@ -2560,6 +2573,7 @@ class LabelingWidget(LabelDialog):
         self.actions.create_mode.setEnabled(True)
         self.actions.create_brush_polygon_mode.setEnabled(True)
         self.actions.create_rectangle_mode.setEnabled(True)
+        self.actions.create_cuboid_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
         self.actions.create_quadrilateral_mode.setEnabled(True)
         self.actions.create_circle_mode.setEnabled(True)
@@ -3085,6 +3099,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_mode.setEnabled(True)
             self.actions.create_brush_polygon_mode.setEnabled(True)
             self.actions.create_rectangle_mode.setEnabled(True)
+            self.actions.create_cuboid_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
             self.actions.create_quadrilateral_mode.setEnabled(True)
             self.actions.create_circle_mode.setEnabled(True)
@@ -3104,88 +3119,30 @@ class LabelingWidget(LabelDialog):
         else:
             self.hide_attributes_panel()
             self.actions.union_selection.setEnabled(False)
-            if create_mode == "polygon":
-                self.actions.create_mode.setEnabled(False)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(True)
-                self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_quadrilateral_mode.setEnabled(True)
-                self.actions.create_circle_mode.setEnabled(True)
-                self.actions.create_line_mode.setEnabled(True)
-                self.actions.create_point_mode.setEnabled(True)
-                self.actions.create_line_strip_mode.setEnabled(True)
-            elif create_mode == "rectangle":
-                self.actions.create_mode.setEnabled(True)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(False)
-                self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_quadrilateral_mode.setEnabled(True)
-                self.actions.create_circle_mode.setEnabled(True)
-                self.actions.create_line_mode.setEnabled(True)
-                self.actions.create_point_mode.setEnabled(True)
-                self.actions.create_line_strip_mode.setEnabled(True)
-            elif create_mode == "line":
-                self.actions.create_mode.setEnabled(True)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(True)
-                self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_quadrilateral_mode.setEnabled(True)
-                self.actions.create_circle_mode.setEnabled(True)
-                self.actions.create_line_mode.setEnabled(False)
-                self.actions.create_point_mode.setEnabled(True)
-                self.actions.create_line_strip_mode.setEnabled(True)
-            elif create_mode == "point":
-                self.actions.create_mode.setEnabled(True)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(True)
-                self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_quadrilateral_mode.setEnabled(True)
-                self.actions.create_circle_mode.setEnabled(True)
-                self.actions.create_line_mode.setEnabled(True)
-                self.actions.create_point_mode.setEnabled(False)
-                self.actions.create_line_strip_mode.setEnabled(True)
-            elif create_mode == "circle":
-                self.actions.create_mode.setEnabled(True)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(True)
-                self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_quadrilateral_mode.setEnabled(True)
-                self.actions.create_circle_mode.setEnabled(False)
-                self.actions.create_line_mode.setEnabled(True)
-                self.actions.create_point_mode.setEnabled(True)
-                self.actions.create_line_strip_mode.setEnabled(True)
-            elif create_mode == "linestrip":
-                self.actions.create_mode.setEnabled(True)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(True)
-                self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_quadrilateral_mode.setEnabled(True)
-                self.actions.create_circle_mode.setEnabled(True)
-                self.actions.create_line_mode.setEnabled(True)
-                self.actions.create_point_mode.setEnabled(True)
-                self.actions.create_line_strip_mode.setEnabled(False)
-            elif create_mode == "rotation":
-                self.actions.create_mode.setEnabled(True)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(True)
-                self.actions.create_rotation_mode.setEnabled(False)
-                self.actions.create_quadrilateral_mode.setEnabled(True)
-                self.actions.create_circle_mode.setEnabled(True)
-                self.actions.create_line_mode.setEnabled(True)
-                self.actions.create_point_mode.setEnabled(True)
-                self.actions.create_line_strip_mode.setEnabled(True)
-            elif create_mode == "quadrilateral":
-                self.actions.create_mode.setEnabled(True)
-                self.actions.create_brush_polygon_mode.setEnabled(True)
-                self.actions.create_rectangle_mode.setEnabled(True)
-                self.actions.create_rotation_mode.setEnabled(True)
-                self.actions.create_quadrilateral_mode.setEnabled(False)
-                self.actions.create_circle_mode.setEnabled(True)
-                self.actions.create_line_mode.setEnabled(True)
-                self.actions.create_point_mode.setEnabled(True)
-                self.actions.create_line_strip_mode.setEnabled(True)
-            else:
+            create_actions = {
+                "polygon": self.actions.create_mode,
+                "rectangle": self.actions.create_rectangle_mode,
+                "cuboid": self.actions.create_cuboid_mode,
+                "line": self.actions.create_line_mode,
+                "point": self.actions.create_point_mode,
+                "circle": self.actions.create_circle_mode,
+                "linestrip": self.actions.create_line_strip_mode,
+                "rotation": self.actions.create_rotation_mode,
+                "quadrilateral": self.actions.create_quadrilateral_mode,
+            }
+            if create_mode not in create_actions:
                 raise ValueError(f"Unsupported create_mode: {create_mode}")
+            self.actions.create_mode.setEnabled(True)
+            self.actions.create_brush_polygon_mode.setEnabled(True)
+            self.actions.create_rectangle_mode.setEnabled(True)
+            self.actions.create_cuboid_mode.setEnabled(True)
+            self.actions.create_rotation_mode.setEnabled(True)
+            self.actions.create_quadrilateral_mode.setEnabled(True)
+            self.actions.create_circle_mode.setEnabled(True)
+            self.actions.create_line_mode.setEnabled(True)
+            self.actions.create_point_mode.setEnabled(True)
+            self.actions.create_line_strip_mode.setEnabled(True)
+            create_actions[create_mode].setEnabled(False)
         self.actions.edit_mode.setEnabled(not edit)
         self.label_instruction.setText(self.get_labeling_instruction())
 
