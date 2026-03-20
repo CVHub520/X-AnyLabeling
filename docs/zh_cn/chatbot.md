@@ -33,6 +33,7 @@
 | Anthropic | [Link](https://console.anthropic.com/settings/keys) | [Link](https://docs.anthropic.com/en/docs) | [Link](https://docs.anthropic.com/en/docs/about-claude/models/all-models) |
 | DeepSeek   | [Link](https://platform.deepseek.com/api_keys)         | [Link](https://platform.deepseek.com/docs)                  | [Link](https://platform.deepseek.com/models)                                |
 | Google AI  | [Link](https://aistudio.google.com/app/apikey)         | [Link](https://ai.google.dev/gemini-api/docs)               | [Link](https://ai.google.dev/gemini-api/docs/models)                        |
+| MiniMax    | [Link](https://platform.minimaxi.com/user-center/basic-information/interface-key) | [Link](https://platform.minimax.io/docs/api-reference/text-openai-api) | [Link](https://platform.minimax.io/docs/guides/chat)                        |
 | Ollama     | -                                                             | [Link](https://github.com/ollama/ollama/blob/main/docs/api.md) | [Link](https://ollama.com/search)                                           |
 | OpenAI     | [Link](https://platform.openai.com/api-keys)           | [Link](https://platform.openai.com/docs)                    | [Link](https://platform.openai.com/docs/models)                             |
 | OpenRouter | [Link](https://openrouter.ai/settings/keys)            | [Link](https://openrouter.ai/docs/quick-start)              | [Link](https://openrouter.ai/models)                                        |
