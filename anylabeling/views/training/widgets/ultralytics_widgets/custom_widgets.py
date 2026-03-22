@@ -35,20 +35,23 @@ class CustomCheckBox(QCheckBox):
     def __init__(self, text="", parent=None):
         super().__init__(text, parent)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QCheckBox {{
                 spacing: 8px;
                 color: {t["text"]};
             }}
             {get_checkbox_indicator_style()}
-        """)
+        """
+        )
 
 
 class CustomComboBox(QComboBox):
     def __init__(self, parent=None):
         super().__init__(parent)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QComboBox {{
                 padding: 5px 8px;
                 background: {t["background_secondary"]};
@@ -103,7 +106,8 @@ class CustomComboBox(QComboBox):
                 background-color: {t["primary"]};
                 color: white;
             }}
-        """)
+        """
+        )
 
     def wheelEvent(self, event):
         event.ignore()
@@ -113,7 +117,8 @@ class CustomSpinBox(QSpinBox):
     def __init__(self, parent=None):
         super().__init__(parent)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QSpinBox {{
                 padding: 5px 8px;
                 background: {t["background_secondary"]};
@@ -141,7 +146,8 @@ class CustomSpinBox(QSpinBox):
                 width: 12px;
                 height: 12px;
             }}
-        """)
+        """
+        )
 
     def wheelEvent(self, event):
         event.ignore()
@@ -151,7 +157,8 @@ class CustomDoubleSpinBox(QDoubleSpinBox):
     def __init__(self, parent=None):
         super().__init__(parent)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QDoubleSpinBox {{
                 padding: 5px 8px;
                 background: {t["background_secondary"]};
@@ -179,7 +186,8 @@ class CustomDoubleSpinBox(QDoubleSpinBox):
                 width: 12px;
                 height: 12px;
             }}
-        """)
+        """
+        )
 
     def wheelEvent(self, event):
         event.ignore()
@@ -191,7 +199,8 @@ class CustomSlider(QSlider):
     ):
         super().__init__(orientation, parent)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QSlider {{
                 height: 28px;
             }}
@@ -212,7 +221,8 @@ class CustomSlider(QSlider):
                 background: {t["primary"]};
                 border-radius: 2px;
             }}
-        """)
+        """
+        )
 
     def wheelEvent(self, event):
         event.ignore()
@@ -222,7 +232,8 @@ class CustomLineEdit(QLineEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QLineEdit {{
                 border: 1px solid {t["border"]};
                 border-radius: 8px;
@@ -240,7 +251,8 @@ class CustomLineEdit(QLineEdit):
                 border: 2px solid {t["highlight"]};
                 background-color: {t["background_secondary"]};
             }}
-        """)
+        """
+        )
 
 
 class CustomQPushButton(QPushButton):
@@ -259,7 +271,8 @@ class CustomQPushButton(QPushButton):
     def update_style(self):
         t = get_theme()
         if self.selected:
-            self.setStyleSheet(f"""
+            self.setStyleSheet(
+                f"""
                 QPushButton {{
                     background-color: {t["primary"]};
                     color: white;
@@ -274,9 +287,11 @@ class CustomQPushButton(QPushButton):
                 QPushButton:focus {{
                     outline: none;
                 }}
-            """)
+            """
+            )
         else:
-            self.setStyleSheet(f"""
+            self.setStyleSheet(
+                f"""
                 QPushButton {{
                     background-color: {t["surface"]};
                     color: {t["text"]};
@@ -294,7 +309,8 @@ class CustomQPushButton(QPushButton):
                 QPushButton:focus {{
                     outline: none;
                 }}
-            """)
+            """
+            )
 
 
 class PrimaryButton(QPushButton):
@@ -315,7 +331,8 @@ class TrainingConfirmDialog(QDialog):
         self.setWindowTitle("Start Training")
         self.setFixedSize(752, 320)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QDialog {{
                 background-color: {t["background"]};
                 border-radius: 8px;
@@ -324,7 +341,8 @@ class TrainingConfirmDialog(QDialog):
                 background-color: transparent;
                 color: {t["text"]};
             }}
-        """)
+        """
+        )
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -347,7 +365,8 @@ class TrainingConfirmDialog(QDialog):
         command_display.setPlainText(cmd_text)
         command_display.setReadOnly(True)
         command_display.setFixedHeight(160)
-        command_display.setStyleSheet(f"""
+        command_display.setStyleSheet(
+            f"""
             QTextEdit {{
                 background-color: {t["surface"]};
                 color: {t["text"]};
@@ -358,7 +377,8 @@ class TrainingConfirmDialog(QDialog):
                 padding: 12px;
                 line-height: 1.4;
             }}
-        """)
+        """
+        )
         layout.addWidget(command_display)
 
         button_layout = QHBoxLayout()

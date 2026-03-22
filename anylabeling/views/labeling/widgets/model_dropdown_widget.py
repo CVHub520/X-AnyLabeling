@@ -27,7 +27,8 @@ class SearchBar(QLineEdit):
         t = get_theme()
         self.setPlaceholderText("Search models")
         self.setFixedHeight(DEFAULT_FIXED_HEIGHT)
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QLineEdit {{
                 background-color: {t["background_secondary"]};
                 color: {t["text"]};
@@ -39,7 +40,8 @@ class SearchBar(QLineEdit):
             QLineEdit:focus {{
                 border: 2px solid {t["highlight"]};
             }}
-        """)
+        """
+        )
 
         self.search_icon = QLabel(self)
         self.search_icon.setPixmap(
@@ -99,12 +101,14 @@ class ModelItem(QFrame):
         # Favorite star (initially hidden, shows on hover)
         self.star_icon = QPushButton()
         self.star_icon.setFixedSize(*ICON_SIZE_SMALL)
-        self.star_icon.setStyleSheet("""
+        self.star_icon.setStyleSheet(
+            """
             QPushButton {
                 border: none;
                 background-color: transparent;
             }
-        """)
+        """
+        )
         if self.is_favorite:
             self.star_icon.setIcon(QIcon(new_icon("starred", "svg")))
             if self.in_favorites_section:
@@ -127,7 +131,8 @@ class ModelItem(QFrame):
             layout.addWidget(vision_icon, 0, Qt.AlignmentFlag.AlignVCenter)
 
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             ModelItem {{
                 background-color: transparent;
                 border-radius: 4px;
@@ -135,7 +140,8 @@ class ModelItem(QFrame):
             ModelItem:hover {{
                 background-color: {t["surface_hover"]};
             }}
-        """)
+        """
+        )
 
     def enterEvent(self, event):
         self.star_icon.setVisible(True)
@@ -203,12 +209,14 @@ class ProviderSection(QFrame):
 
         _t = get_theme()
         label = QLabel(provider_name)
-        label.setStyleSheet(f"""
+        label.setStyleSheet(
+            f"""
             font-family: "sans-serif";
             font-weight: 700;
             font-size: 13px;
             color: {_t["text"]};
-        """)
+        """
+        )
         header.addWidget(label)
         header.addStretch()
         layout.addLayout(header)
@@ -237,7 +245,8 @@ class ModelDropdown(QWidget):
         self.current_provider = current_provider
 
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             ModelDropdown {{
                 background-color: {t["surface"]};
                 border-radius: 8px;
@@ -279,7 +288,8 @@ class ModelDropdown(QWidget):
                 color: {t["border"]};
                 max-height: 1px;
             }}
-        """)
+        """
+        )
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(12, 12, 12, 12)
@@ -523,11 +533,13 @@ class ModelDropdown(QWidget):
             no_results = QLabel(empty_text)
             no_results.setAlignment(Qt.AlignmentFlag.AlignCenter)
             _t = get_theme()
-            no_results.setStyleSheet(f"""
+            no_results.setStyleSheet(
+                f"""
                 color: {_t["text_secondary"]};
                 font-size: 14px;
                 padding: 20px;
-            """)
+            """
+            )
 
             self.container_layout.addWidget(no_results)
         else:

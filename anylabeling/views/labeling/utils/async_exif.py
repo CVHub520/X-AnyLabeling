@@ -91,7 +91,6 @@ class AsyncExifScanner(QObject):
 
 
 class ExifProcessingDialog:
-
     @staticmethod
     def show_detection_dialog(parent, exif_count: int) -> bool:
         reply = QtWidgets.QMessageBox.question(

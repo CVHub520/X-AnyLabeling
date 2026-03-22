@@ -93,7 +93,7 @@ def convert_markdown_to_html(content):
         <title>GitHub-Style Markdown Renderer with LaTeX</title>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/github.min.css">
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-        
+
         <!-- MathJax for LaTeX rendering -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
 
@@ -146,13 +146,13 @@ def convert_markdown_to_html(content):
             .markdown-body::-webkit-scrollbar {{
                 display: none; /* Chrome, Safari, and Opera */
             }}
-            
+
             /* Typography */
-            .markdown-body h1, 
-            .markdown-body h2, 
-            .markdown-body h3, 
-            .markdown-body h4, 
-            .markdown-body h5, 
+            .markdown-body h1,
+            .markdown-body h2,
+            .markdown-body h3,
+            .markdown-body h4,
+            .markdown-body h5,
             .markdown-body h6 {{
                 margin-top: 24px;
                 margin-bottom: 16px;
@@ -192,7 +192,7 @@ def convert_markdown_to_html(content):
             }}
 
             /* Lists */
-            .markdown-body ul, 
+            .markdown-body ul,
             .markdown-body ol {{
                 padding-left: 2em;
                 margin-bottom: 16px;
@@ -331,7 +331,7 @@ def convert_markdown_to_html(content):
             .markdown-body hr {{
                 display: none;
             }}
-            
+
             /* Styles for LaTeX blocks */
             .math-block {{
                 overflow-x: auto;
@@ -367,12 +367,12 @@ def convert_markdown_to_html(content):
                             range.selectNode(code);
                             window.getSelection().removeAllRanges();
                             window.getSelection().addRange(range);
-                            
+
                             try {{
                                 document.execCommand('copy');
                                 copyButton.textContent = 'Copied!';
                                 copyButton.classList.add('copied');
-                                
+
                                 setTimeout(function() {{
                                     copyButton.textContent = 'Copy';
                                     copyButton.classList.remove('copied');
@@ -381,7 +381,7 @@ def convert_markdown_to_html(content):
                                 console.error('Failed to copy: ', err);
                                 copyButton.textContent = 'Failed';
                             }}
-                            
+
                             window.getSelection().removeAllRanges();
                         }});
                     }}
@@ -391,7 +391,7 @@ def convert_markdown_to_html(content):
                 document.querySelectorAll('pre code').forEach((el) => {{
                     hljs.highlightElement(el);
                 }});
-                
+
                 // Configure MathJax
                 window.MathJax = {{
                     tex: {{

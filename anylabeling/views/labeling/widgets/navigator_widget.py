@@ -502,7 +502,8 @@ class NavigatorDialog(QtWidgets.QDialog):
         t = get_theme()
         zoom_input_container = QWidget()
         zoom_input_container.setFixedSize(60, 24)
-        zoom_input_container.setStyleSheet(f"""
+        zoom_input_container.setStyleSheet(
+            f"""
             QWidget {{
                 border: 1px solid {t["border"]};
                 border-radius: 4px;
@@ -511,7 +512,8 @@ class NavigatorDialog(QtWidgets.QDialog):
             QWidget:hover {{
                 background-color: {t["background_hover"]};
             }}
-        """)
+        """
+        )
 
         zoom_input_layout = QHBoxLayout(zoom_input_container)
         zoom_input_layout.setContentsMargins(6, 2, 6, 2)
@@ -521,7 +523,8 @@ class NavigatorDialog(QtWidgets.QDialog):
         self.zoom_input.setFixedWidth(35)
         self.zoom_input.setAlignment(Qt.AlignmentFlag.AlignRight)
         self.zoom_input.setText("100")
-        self.zoom_input.setStyleSheet(f"""
+        self.zoom_input.setStyleSheet(
+            f"""
             QLineEdit {{
                 border: none;
                 background: transparent;
@@ -534,21 +537,24 @@ class NavigatorDialog(QtWidgets.QDialog):
                 border: none;
                 background: transparent;
             }}
-        """)
+        """
+        )
         self.zoom_input.returnPressed.connect(self.on_zoom_input_changed)
         self.zoom_input.editingFinished.connect(self.on_zoom_input_changed)
 
         percentage_label = QLabel("%")
-        percentage_label.setStyleSheet(f"""
-            QLabel {{ 
-                color: {t["text_secondary"]}; 
-                font-size: 10px; 
+        percentage_label.setStyleSheet(
+            f"""
+            QLabel {{
+                color: {t["text_secondary"]};
+                font-size: 10px;
                 font-weight: 500;
                 background: transparent;
                 border: none;
                 padding: 0px;
             }}
-        """)
+        """
+        )
 
         zoom_input_layout.addWidget(self.zoom_input)
         zoom_input_layout.addWidget(percentage_label)
@@ -556,14 +562,16 @@ class NavigatorDialog(QtWidgets.QDialog):
         zoom_out_icon = QLabel("−")
         zoom_out_icon.setFixedSize(16, 16)
         zoom_out_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        zoom_out_icon.setStyleSheet(f"""
-            QLabel {{ 
-                color: {t["text_secondary"]}; 
-                font-size: 14px; 
+        zoom_out_icon.setStyleSheet(
+            f"""
+            QLabel {{
+                color: {t["text_secondary"]};
+                font-size: 14px;
                 font-weight: bold;
                 background: transparent;
             }}
-        """)
+        """
+        )
 
         self.zoom_slider = ClickableSlider(Qt.Orientation.Horizontal)
         self.zoom_slider.setRange(1, 1000)
@@ -574,14 +582,16 @@ class NavigatorDialog(QtWidgets.QDialog):
         zoom_in_icon = QLabel("+")
         zoom_in_icon.setFixedSize(16, 16)
         zoom_in_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        zoom_in_icon.setStyleSheet(f"""
-            QLabel {{ 
-                color: {t["text_secondary"]}; 
-                font-size: 14px; 
+        zoom_in_icon.setStyleSheet(
+            f"""
+            QLabel {{
+                color: {t["text_secondary"]};
+                font-size: 14px;
                 font-weight: bold;
                 background: transparent;
             }}
-        """)
+        """
+        )
 
         zoom_layout.addWidget(zoom_input_container)
         zoom_layout.addWidget(zoom_out_icon)

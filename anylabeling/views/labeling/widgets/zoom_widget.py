@@ -20,7 +20,8 @@ class ZoomWidget(QtWidgets.QSpinBox):
         self.setFont(font)
 
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QSpinBox {{
                 background-color: transparent;
                 color: {t["text"]};
@@ -28,4 +29,5 @@ class ZoomWidget(QtWidgets.QSpinBox):
                 padding: 0;
                 min-height: 0;
             }}
-            """)
+            """
+        )

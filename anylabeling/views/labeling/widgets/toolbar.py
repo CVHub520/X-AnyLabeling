@@ -28,7 +28,8 @@ class ToolBar(QtWidgets.QToolBar):
                 margin: 4px 6px;
             }}
             """
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QToolBar {{
                 background: {t["background"]};
                 padding: 0px;
@@ -36,7 +37,8 @@ class ToolBar(QtWidgets.QToolBar):
                 border-radius: 5px;
             }}
             {separator_qss}
-            """)
+            """
+        )
         if self._is_dark:
             layout.setContentsMargins(0, 4, 0, 4)
 

@@ -16,7 +16,7 @@ from onnx.external_data_helper import convert_model_to_external_data
 
 """
 The ONNX Export of the GeCo
-Written by TaleBolano 
+Written by TaleBolano
     Usage:
         1. git clone https://github.com/jerpelhan/GeCo.git
         2. cd GeCo and pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118

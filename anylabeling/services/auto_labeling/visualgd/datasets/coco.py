@@ -513,7 +513,7 @@ class CocoDetection(torchvision.datasets.CocoDetection):
             - target: dict of multiple items
                 - boxes: Tensor[num_box, 4]. \
                     Init type: x0,y0,x1,y1. unnormalized data.
-                    Final type: cx,cy,w,h. normalized data. 
+                    Final type: cx,cy,w,h. normalized data.
         """
         try:
             img, target = super(CocoDetection, self).__getitem__(idx)

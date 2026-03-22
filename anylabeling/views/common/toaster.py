@@ -19,14 +19,16 @@ class QToaster(QtWidgets.QFrame):
             QtWidgets.QSizePolicy.Policy.Maximum,
         )
 
-        self.setStyleSheet("""
+        self.setStyleSheet(
+            """
             QToaster {
                 border: 1px solid black;
                 border-radius: 0px;
                 color: rgb(30, 30, 30);
                 background-color: rgb(255, 255, 255);
             }
-        """)
+        """
+        )
         # alternatively:
         self.setAutoFillBackground(True)
         self.setFrameShape(self.Box)

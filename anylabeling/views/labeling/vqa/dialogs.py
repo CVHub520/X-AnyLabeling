@@ -1245,7 +1245,6 @@ class ExportLabelsDialog(QDialog):
         }
 
         for component in self.components:
-
             type_item = QTableWidgetItem(component["type"])
             type_item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             color = type_colors.get(component["type"], QColor("#718096"))

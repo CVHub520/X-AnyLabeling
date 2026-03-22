@@ -165,10 +165,13 @@ class GroundingSAM2(Model):
 
     def preprocess(self, image, text_prompt):
         blob = GroundingDINOBase.preprocess_image(image, self.target_size)
-        tokenized, text_self_attention_masks, position_ids, caption = (
-            GroundingDINOBase.encode_text(
-                text_prompt, self.net.tokenizer, self.net.max_text_len
-            )
+        (
+            tokenized,
+            text_self_attention_masks,
+            position_ids,
+            caption,
+        ) = GroundingDINOBase.encode_text(
+            text_prompt, self.net.tokenizer, self.net.max_text_len
         )
         inputs = {
             "img": blob,

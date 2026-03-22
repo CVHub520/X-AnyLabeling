@@ -36,7 +36,6 @@ from anylabeling.views.labeling.widgets.popup import Popup
 
 
 class VQADialog(QDialog):
-
     def __init__(self, parent=None):
         """
         Initialize the VQA dialog with default settings and UI components.

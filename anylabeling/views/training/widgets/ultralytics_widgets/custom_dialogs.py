@@ -57,13 +57,15 @@ class ExportFormatDialog(QDialog):
                 "Note: Some formats may require additional dependencies to be installed."
             )
         )
-        info_label.setStyleSheet(f"""
+        info_label.setStyleSheet(
+            f"""
             color: {t['warning']};
             font-size: 12px;
             margin-top: 8px;
             padding: 4px;
             min-height: 20px;
-        """)
+        """
+        )
         info_label.setWordWrap(True)
         layout.addWidget(info_label)
 

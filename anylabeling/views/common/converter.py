@@ -530,7 +530,6 @@ def run_conversion(
         )
 
         if "2xlabel" in task:
-
             if task == "yolo2xlabel":
                 if not images:
                     raise ValueError(
@@ -993,7 +992,6 @@ def run_conversion(
                 )
 
         elif "xlabel2" in task:
-
             if task == "xlabel2yolo":
                 if not images:
                     raise ValueError(

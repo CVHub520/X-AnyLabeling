@@ -69,7 +69,8 @@ class TextInputDialog(QDialog):
 
         self.setLayout(layout)
         t = get_theme()
-        self.setStyleSheet(f"""
+        self.setStyleSheet(
+            f"""
             QDialog {{
                 background-color: {t["background"]};
                 border-radius: 10px;
@@ -129,7 +130,8 @@ class TextInputDialog(QDialog):
             QPushButton[text="Cancel"]:pressed {{
                 background-color: {t["surface"]};
             }}
-        """)
+        """
+        )
 
     def get_input_text(self):
         if self.exec() == QDialog.DialogCode.Accepted:
@@ -415,7 +417,8 @@ def show_progress_dialog_and_process(self):
         progress_bar.valueChanged.connect(update_progress)
 
     t = get_theme()
-    progress_dialog.setStyleSheet(f"""
+    progress_dialog.setStyleSheet(
+        f"""
         QProgressDialog {{
             background-color: {t["background"]};
             border-radius: 12px;
@@ -465,7 +468,8 @@ def show_progress_dialog_and_process(self):
         QPushButton:pressed {{
             background-color: {t["surface"]};
         }}
-    """)
+    """
+    )
     progress_dialog.canceled.connect(lambda: cancel_operation(self))
     progress_dialog.show()
 
