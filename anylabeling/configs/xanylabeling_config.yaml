@@ -72,6 +72,11 @@ shape_dock:
   closable: false
   movable: false
   floatable: false
+description_dock:
+  show: true
+  closable: false
+  movable: false
+  floatable: false
 file_dock:
   show: true
   closable: false
@@ -87,8 +92,8 @@ fit_to_content:
   row: false
 
 # canvas
-epsilon: 10.0
 canvas:
+  epsilon: 10.0
   # None: do nothing
   # close: close polygon
   double_click: close
@@ -141,9 +146,9 @@ shortcuts:
   open_next_unchecked: Ctrl+Shift+D
   open_prev_unchecked: Ctrl+Shift+A
 
-  zoom_in: [Ctrl++, Ctrl+=]
+  zoom_in: [Ctrl++]
   zoom_out: Ctrl+-
-  zoom_to_original: Ctrl+0
+  zoom_to_original: Ctrl+=
   fit_window: Ctrl+F
   fit_width: Ctrl+Shift+F
   show_navigator: F9
@@ -171,6 +176,7 @@ shortcuts:
   edit_group_id: Alt+G
   edit_labels: Alt+L
   edit_shapes: Alt+S
+  open_settings: Ctrl+0
   toggle_keep_prev_mode: Ctrl+P
   remove_selected_point: Backspace
   group_selected_shapes: G
@@ -193,6 +199,12 @@ shortcuts:
   auto_run: Ctrl+B
   loop_thru_labels: Ctrl+Shift+N
   loop_select_labels: Ctrl+Shift+C
+
+  auto_labeling_add_point: Q
+  auto_labeling_remove_point: E
+  auto_labeling_run: I
+  auto_labeling_clear: B
+  auto_labeling_finish_object: F
 
 # Auto labeling
 custom_models: []

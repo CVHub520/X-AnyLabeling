@@ -33,14 +33,12 @@ class PolygonSidesDialog(QDialog):
         layout.setContentsMargins(20, 20, 20, 20)
 
         label = QLabel(self.tr("Enter number of polygon sides:"))
-        label.setStyleSheet(
-            """
+        label.setStyleSheet("""
             QLabel {
                 font-size: 14px;
                 font-weight: 500;
             }
-        """
-        )
+        """)
         layout.addWidget(label)
 
         self.spinbox = QSpinBox()

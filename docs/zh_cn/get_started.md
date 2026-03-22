@@ -113,6 +113,19 @@ uv pip install x-anylabeling-cvhub[gpu]
 uv pip install x-anylabeling-cvhub[gpu-cu11]
 ```
 
+如果您希望体验最新的 Beta 预发布版本，可在安装命令中增加 `--pre` 参数，例如：
+
+```bash
+# CPU [Windows/Linux/macOS]
+uv pip install --pre x-anylabeling-cvhub[cpu]
+
+# CUDA 12.x [Windows/Linux]
+uv pip install --pre x-anylabeling-cvhub[gpu]
+
+# CUDA 11.x [Windows/Linux]
+uv pip install --pre x-anylabeling-cvhub[gpu-cu11]
+```
+
 #### 1.2.2 Git 克隆（推荐）
 
 **步骤 a.** 克隆代码仓库。
@@ -142,6 +155,9 @@ uv pip install -e .[gpu-cu11]
 ```bash
 uv pip install -e .[cpu,dev]
 ```
+
+> [!NOTE]
+> 如果切换到新的工程目录，请在该目录下重新执行一次上述安装命令，否则环境将引用旧目录中的源码。
 
 安装完成后，可执行以下命令进行验证：
 
@@ -183,7 +199,6 @@ xanylabeling
 | `--labels`                 | 逗号分隔的标签列表或包含标签的文件路径。                          |
 | `--validatelabel`          | 指定标签验证的类型。                                            |
 | `--keep-prev`              | 保留上一帧的注释。                                              |
-| `--epsilon`                | 确定在画布上找到最近顶点的 epsilon 值。                          |
 | `--no-auto-update-check`   | 禁用启动时的自动更新检查。                                       |
 
 > [!NOTE]

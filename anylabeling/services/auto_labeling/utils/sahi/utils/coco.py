@@ -954,9 +954,9 @@ class Coco:
             current_category_id = coco_category.id
             current_category_name = coco_category.name
             if current_category_name in desired_name2id.keys():
-                currentid2desiredid_mapping[
-                    current_category_id
-                ] = desired_name2id[current_category_name]
+                currentid2desiredid_mapping[current_category_id] = (
+                    desired_name2id[current_category_name]
+                )
             else:
                 # ignore categories that are not included in desired_name2id
                 currentid2desiredid_mapping[current_category_id] = None

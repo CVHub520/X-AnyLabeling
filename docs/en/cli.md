@@ -60,7 +60,6 @@ xanylabeling --help
 ```bash
 usage: xanylabeling [-h] [--reset-config] [--logger-level {debug,info,warning,fatal,error}] [--no-auto-update-check] [--qt-platform QT_PLATFORM] [--filename [FILENAME]] [--output OUTPUT]
                     [--config CONFIG] [--nodata] [--autosave] [--nosortlabels] [--flags FLAGS] [--labelflags LABEL_FLAGS] [--labels LABELS] [--validatelabel {exact}] [--keep-prev]
-                    [--epsilon EPSILON]
                     {help,checks,version,config,convert} ...
 
 positional arguments:
@@ -97,7 +96,6 @@ options:
   --validatelabel {exact}
                         label validation types
   --keep-prev           keep annotation of previous frame
-  --epsilon EPSILON     epsilon to find nearest vertex on canvas
 ```
 
 ### 2.2 Display System and Package Information

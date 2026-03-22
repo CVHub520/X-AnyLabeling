@@ -22,8 +22,10 @@
         <file>images/claude.svg</file>
         <file>images/clear.svg</file>
         <file>images/click.svg</file>
+        <file>images/close.svg</file>
         <file>images/cn.png</file>
         <file>images/color.png</file>
+        <file>images/color.svg</file>
         <file>images/contact.png</file>
         <file>images/convert.png</file>
         <file>images/copy-green.svg</file>
@@ -65,19 +67,8 @@
         <file>images/fit-window.png</file>
         <file>images/fit.png</file>
         <file>images/folder.svg</file>
-        <file>images/format_classify.png</file>
-        <file>images/format_coco.png</file>
         <file>images/format_default.png</file>
-        <file>images/format_dota.png</file>
-        <file>images/format_mask.png</file>
-        <file>images/format_mmgd.png</file>
-        <file>images/format_mot.png</file>
         <file>images/format_obb.png</file>
-        <file>images/format_odvg.png</file>
-        <file>images/format_ppocr.png</file>
-        <file>images/format_vlm_r1_ovd.png</file>
-        <file>images/format_voc.png</file>
-        <file>images/format_yolo.png</file>
         <file>images/github.png</file>
         <file>images/google.png</file>
         <file>images/help-circle.svg</file>
@@ -97,6 +88,7 @@
         <file>images/lightning.svg</file>
         <file>images/line-strip.png</file>
         <file>images/line.png</file>
+        <file>images/label.png</file>
         <file>images/logo.png</file>
         <file>images/loop.png</file>
         <file>images/megvii.png</file>
@@ -143,6 +135,7 @@
         <file>images/scissors.png</file>
         <file>images/search.svg</file>
         <file>images/send.svg</file>
+        <file>images/settings.svg</file>
         <file>images/sidebar.svg</file>
         <file>images/star-black.svg</file>
         <file>images/star.svg</file>

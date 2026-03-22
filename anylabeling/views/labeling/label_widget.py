@@ -47,14 +47,16 @@ from .utils.style import (
     get_checkbox_indicator_style,
     get_dialog_style,
     get_dock_style,
-    get_double_spinbox_style,
     get_ok_btn_style,
     get_panel_style,
     get_plain_text_edit_style,
+    get_settings_button_style,
 )
 from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
 from .logger import logger
+from .settings import SettingsController, SettingsDialog
+from .settings.runtime_applier import SettingsRuntimeApplier
 from .shape import Shape
 from .utils.file_search import (
     parse_search_pattern,
@@ -144,6 +146,13 @@ class LabelingWidget(LabelDialog):
         self.select_loop_count = -1
         self.digit_to_label = None
         self.drawing_digit_shortcuts = self._config.get("digit_shortcuts", {})
+        self._runtime_shape_color_shift = int(
+            self._config.get("shift_auto_shape_color", 0)
+        )
+        self._settings_controller = None
+        self._settings_dialog = None
+        self._settings_runtime_applier = SettingsRuntimeApplier(self)
+        self._auto_switch_signal_connected = False
 
         # set default shape colors
         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
@@ -191,6 +200,7 @@ class LabelingWidget(LabelDialog):
         )
 
         self.label_list = LabelListWidget()
+        self.label_list.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.last_open_dir = None
 
         self.flag_dock = self.flag_widget = None
@@ -206,19 +216,11 @@ class LabelingWidget(LabelDialog):
         self.flag_widget.itemChanged.connect(self.set_dirty)
         self.flag_dock.setStyleSheet(get_dock_style())
 
-        # Create and add combobox for showing unique labels or group ids in group
         self.label_filter_combobox = LabelFilterComboBox(self)
         self.gid_filter_combobox = GroupIDFilterComboBox(self)
-
-        # Create select all/none toggle button
-        self.select_toggle_button = QPushButton(self.tr("Select"), self)
-        self.select_toggle_button.setCheckable(True)
-        self.select_toggle_button.clicked.connect(self.toggle_select_all)
-        longer_text = max(self.tr("Select"), self.tr("Unselect"), key=len)
-        text_width = self.select_toggle_button.fontMetrics().horizontalAdvance(
-            longer_text
-        )
-        self.select_toggle_button.setFixedWidth(text_width + 32)
+        self.label_filter_combobox.hide()
+        self.gid_filter_combobox.hide()
+        self.select_toggle_action = None
 
         self.label_list.item_selection_changed.connect(
             self.label_selection_changed
@@ -229,7 +231,6 @@ class LabelingWidget(LabelDialog):
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Objects"), self)
         self.shape_dock.setWidget(self.label_list)
         self.shape_dock.setStyleSheet(get_dock_style())
-        self.shape_dock.setTitleBarWidget(QtWidgets.QWidget())
 
         self.unique_label_list = UniqueLabelQListWidget()
         self.unique_label_list.setToolTip(
@@ -247,6 +248,24 @@ class LabelingWidget(LabelDialog):
             "QListWidget::item { padding: 0; }"
         )
 
+        self.shape_text_label = QLabel("Object Text")
+        self.shape_text_edit = QPlainTextEdit()
+        self.shape_text_edit.setStyleSheet(get_plain_text_edit_style())
+        self.description_checkbox = QCheckBox()
+        self.description_checkbox.setChecked(
+            self._config["description_dock"]["show"]
+        )
+        self.description_checkbox.setStyleSheet(get_checkbox_indicator_style())
+        self.description_checkbox.toggled.connect(
+            self.toggle_description_visibility
+        )
+        self.description_dock = QtWidgets.QDockWidget(
+            self.tr("Description"), self
+        )
+        self.description_dock.setObjectName("Description")
+        self.description_dock.setWidget(self.shape_text_edit)
+        self.description_dock.setStyleSheet(get_dock_style())
+
         self.file_search = SearchBar()
         self.file_search.setPlaceholderText(self.tr("Search files..."))
         self.file_search.setToolTip(
@@ -263,6 +282,16 @@ class LabelingWidget(LabelDialog):
         )
         self.file_search.returnPressed.connect(self.file_search_changed)
         self.file_search.returnPressed.connect(self.file_search.setFocus)
+        self.settings_button = QPushButton(self)
+        self.settings_button.setFixedSize(32, 32)
+        self.settings_button.setCursor(
+            QtCore.Qt.CursorShape.PointingHandCursor
+        )
+        self.settings_button.setToolTip(self.tr("Settings"))
+        self.settings_button.setIcon(utils.new_icon("settings", "svg"))
+        self.settings_button.setIconSize(QtCore.QSize(28, 28))
+        self.settings_button.setStyleSheet(get_settings_button_style())
+        self.settings_button.clicked.connect(self.open_settings_dialog)
         self.file_list_widget = QtWidgets.QListWidget()
         self.file_list_widget.itemSelectionChanged.connect(
             self.file_selection_changed
@@ -302,7 +331,7 @@ class LabelingWidget(LabelDialog):
 
         self.canvas = self.label_list.canvas = Canvas(
             parent=self,
-            epsilon=self._config["epsilon"],
+            epsilon=self._config["canvas"]["epsilon"],
             double_click=self._config["canvas"]["double_click"],
             num_backups=self._config["canvas"]["num_backups"],
             wheel_rectangle_editing=self._config["canvas"][
@@ -365,8 +394,9 @@ class LabelingWidget(LabelDialog):
         self.canvas.h_shape_is_hovered = self._config.get(
             "auto_highlight_shape", False
         )
-        if self._config["auto_switch_to_edit_mode"]:
-            self.canvas.mode_changed.connect(self.set_edit_mode)
+        self._settings_runtime_applier.set_auto_switch_to_edit_mode(
+            self._config["auto_switch_to_edit_mode"]
+        )
 
         # Crosshair
         self.crosshair_settings = self._config["canvas"]["crosshair"]
@@ -375,7 +405,13 @@ class LabelingWidget(LabelDialog):
         self._central_widget = scroll_area
 
         features = QtWidgets.QDockWidget.DockWidgetFeature(0)
-        for dock in ["flag_dock", "label_dock", "shape_dock", "file_dock"]:
+        for dock in [
+            "flag_dock",
+            "label_dock",
+            "shape_dock",
+            "description_dock",
+            "file_dock",
+        ]:
             if self._config[dock]["closable"]:
                 features = (
                     features
@@ -954,6 +990,14 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Loop select labels"),
             enabled=False,
         )
+        select_toggle_shapes = action(
+            self.tr("Toggle Shapes Visibility"),
+            self.toggle_select_all,
+            icon="eye",
+            tip=self.tr("Hide all shapes"),
+            enabled=False,
+        )
+        self.select_toggle_action = select_toggle_shapes
 
         ultralytics_train = action(
             "Ultralytics",
@@ -1057,12 +1101,6 @@ class LabelingWidget(LabelDialog):
             self.set_cross_line,
             tip=self.tr("Adjust cross line for mouse position"),
             icon="cartesian",
-        )
-        set_brush_point_distance = action(
-            self.tr("Set Brush Point Distance"),
-            self.set_brush_point_distance,
-            tip=self.tr("Adjust point distance for brush drawing mode"),
-            icon="polygon",
         )
         show_groups = action(
             self.tr("Show Groups"),
@@ -1190,294 +1228,295 @@ class LabelingWidget(LabelDialog):
             self._theme_actions[_mode] = _act
 
         # Upload
+        upload_export_icon = "label"
         upload_image_flags_file = action(
-            self.tr("Upload Image Flags File"),
+            self.tr("Image Flags"),
             lambda: utils.upload_image_flags_file(self),
             None,
-            icon="format_classify",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom Image Flags File"),
         )
         upload_label_flags_file = action(
-            self.tr("Upload Label Flags File"),
+            self.tr("Label Flags"),
             lambda: utils.upload_label_flags_file(self, LABEL_OPACITY),
             None,
-            icon="format_classify",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom Label Flags File"),
         )
         upload_shape_attrs_file = action(
-            self.tr("Upload Attributes File"),
+            self.tr("Attributes"),
             lambda: utils.upload_shape_attrs_file(self, LABEL_OPACITY),
             None,
-            icon="format_classify",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom Attributes File"),
         )
         upload_label_classes_file = action(
-            self.tr("Upload Label Classes File"),
+            self.tr("Label Classes"),
             lambda: utils.upload_label_classes_file(self),
             None,
-            icon="format_classify",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom Label Classes File"),
         )
         upload_yolo_hbb_annotation = action(
-            self.tr("Upload YOLO-Hbb Annotations"),
+            self.tr("YOLO HBB"),
             lambda: utils.upload_yolo_annotation(self, "hbb", LABEL_OPACITY),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Upload Custom YOLO Horizontal Bounding Boxes Annotations"
             ),
         )
         upload_yolo_obb_annotation = action(
-            self.tr("Upload YOLO-Obb Annotations"),
+            self.tr("YOLO OBB"),
             lambda: utils.upload_yolo_annotation(self, "obb", LABEL_OPACITY),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Upload Custom YOLO Oriented Bounding Boxes Annotations"
             ),
         )
         upload_yolo_seg_annotation = action(
-            self.tr("Upload YOLO-Seg Annotations"),
+            self.tr("YOLO Seg"),
             lambda: utils.upload_yolo_annotation(self, "seg", LABEL_OPACITY),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom YOLO Segmentation Annotations"),
         )
         upload_yolo_pose_annotation = action(
-            self.tr("Upload YOLO-Pose Annotations"),
+            self.tr("YOLO Pose"),
             lambda: utils.upload_yolo_annotation(self, "pose", LABEL_OPACITY),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom YOLO Pose Annotations"),
         )
         upload_voc_det_annotation = action(
-            self.tr("Upload VOC Detection Annotations"),
+            self.tr("VOC Detection"),
             lambda: utils.upload_voc_annotation(self, "rectangle"),
             None,
-            icon="format_voc",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom Pascal VOC Detection Annotations"),
         )
         upload_voc_seg_annotation = action(
-            self.tr("Upload VOC Segmentation Annotations"),
+            self.tr("VOC Segmentation"),
             lambda: utils.upload_voc_annotation(self, "polygon"),
             None,
-            icon="format_voc",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom Pascal VOC Segmentation Annotations"),
         )
         upload_coco_det_annotation = action(
-            self.tr("Upload COCO Detection Annotations"),
+            self.tr("COCO Detection"),
             lambda: utils.upload_coco_annotation(self, "rectangle"),
             None,
-            icon="format_coco",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom COCO Detection Annotations"),
         )
         upload_coco_seg_annotation = action(
-            self.tr("Upload COCO Instance Segmentation Annotations"),
+            self.tr("COCO Segmentation"),
             lambda: utils.upload_coco_annotation(self, "polygon"),
             None,
-            icon="format_coco",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Upload Custom COCO Instance Segmentation Annotations"
             ),
         )
         upload_coco_pose_annotation = action(
-            self.tr("Upload COCO Keypoint Annotations"),
+            self.tr("COCO Keypoints"),
             lambda: utils.upload_coco_annotation(self, "pose"),
             None,
-            icon="format_coco",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom COCO Keypoint Annotations"),
         )
         upload_dota_annotation = action(
-            self.tr("Upload DOTA Annotations"),
+            self.tr("DOTA"),
             lambda: utils.upload_dota_annotation(self),
             None,
-            icon="format_dota",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom DOTA Annotations"),
         )
         upload_mask_annotation = action(
-            self.tr("Upload MASK Annotations"),
+            self.tr("MASK"),
             lambda: utils.upload_mask_annotation(self, LABEL_OPACITY),
             None,
-            icon="format_mask",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom MASK Annotations"),
         )
         upload_mot_annotation = action(
-            self.tr("Upload MOT Annotations"),
+            self.tr("MOT"),
             lambda: utils.upload_mot_annotation(self, LABEL_OPACITY),
             None,
-            icon="format_mot",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom Multi-Object-Tracking Annotations"),
         )
         upload_odvg_annotation = action(
-            self.tr("Upload ODVG Annotations"),
+            self.tr("ODVG"),
             lambda: utils.upload_odvg_annotation(self),
             None,
-            icon="format_odvg",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Upload Custom Object Detection Visual Grounding Annotations"
             ),
         )
         upload_mmgd_annotation = action(
-            self.tr("Upload MM-Grounding-DINO Annotations"),
+            self.tr("MM-Grounding-DINO"),
             lambda: utils.upload_mmgd_annotation(self, LABEL_OPACITY),
             None,
-            icon="format_mmgd",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom MM-Grounding-DINO Annotations"),
         )
         upload_ppocr_rec_annotation = action(
-            self.tr("Upload PPOCR-Rec Annotations"),
+            self.tr("PPOCR Rec"),
             lambda: utils.upload_ppocr_annotation(self, "rec"),
             None,
-            icon="format_ppocr",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom PPOCR Recognition Annotations"),
         )
         upload_ppocr_kie_annotation = action(
-            self.tr("Upload PPOCR-KIE Annotations"),
+            self.tr("PPOCR KIE"),
             lambda: utils.upload_ppocr_annotation(self, "kie"),
             None,
-            icon="format_ppocr",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Upload Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition & Relation Extraction) Annotations"
             ),
         )
         upload_vlm_r1_ovd_annotation = action(
-            self.tr("Upload VLM-R1 OVD Annotations"),
+            self.tr("VLM-R1 OVD"),
             lambda: utils.upload_vlm_r1_ovd_annotation(self),
             None,
-            icon="format_vlm_r1_ovd",
+            icon=upload_export_icon,
             tip=self.tr("Upload Custom VLM-R1 OVD Annotations"),
         )
 
         # Export
         export_yolo_hbb_annotation = action(
-            self.tr("Export YOLO-Hbb Annotations"),
+            self.tr("YOLO HBB"),
             lambda: utils.export_yolo_annotation(self, "hbb"),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Export Custom YOLO Horizontal Bounding Boxes Annotations"
             ),
         )
         export_yolo_obb_annotation = action(
-            self.tr("Export YOLO-Obb Annotations"),
+            self.tr("YOLO OBB"),
             lambda: utils.export_yolo_annotation(self, "obb"),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Export Custom YOLO Oriented Bounding Boxes Annotations"
             ),
         )
         export_yolo_seg_annotation = action(
-            self.tr("Export YOLO-Seg Annotations"),
+            self.tr("YOLO Seg"),
             lambda: utils.export_yolo_annotation(self, "seg"),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom YOLO Segmentation Annotations"),
         )
         export_yolo_pose_annotation = action(
-            self.tr("Export YOLO-Pose Annotations"),
+            self.tr("YOLO Pose"),
             lambda: utils.export_yolo_annotation(self, "pose"),
             None,
-            icon="format_yolo",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom YOLO Pose Annotations"),
         )
         export_voc_det_annotation = action(
-            self.tr("Export VOC Detection Annotations"),
+            self.tr("VOC Detection"),
             lambda: utils.export_voc_annotation(self, "rectangle"),
             None,
-            icon="format_voc",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom PASCAL VOC Detection Annotations"),
         )
         export_voc_seg_annotation = action(
-            self.tr("Export VOC Segmentation Annotations"),
+            self.tr("VOC Segmentation"),
             lambda: utils.export_voc_annotation(self, "polygon"),
             None,
-            icon="format_voc",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom PASCAL VOC Segmentation Annotations"),
         )
         export_coco_det_annotation = action(
-            self.tr("Export COCO Detection Annotations"),
+            self.tr("COCO Detection"),
             lambda: utils.export_coco_annotation(self, "rectangle"),
             None,
-            icon="format_coco",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom COCO Rectangle Annotations"),
         )
         export_coco_seg_annotation = action(
-            self.tr("Export COCO Instance Segmentation Annotations"),
+            self.tr("COCO Segmentation"),
             lambda: utils.export_coco_annotation(self, "polygon"),
             None,
-            icon="format_coco",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Export Custom COCO Instance Segmentation Annotations"
             ),
         )
         export_coco_pose_annotation = action(
-            self.tr("Export COCO Keypoint Annotations"),
+            self.tr("COCO Keypoints"),
             lambda: utils.export_coco_annotation(self, "pose"),
             None,
-            icon="format_coco",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom COCO Keypoint Annotations"),
         )
         export_dota_annotation = action(
-            self.tr("Export DOTA Annotations"),
+            self.tr("DOTA"),
             lambda: utils.export_dota_annotation(self),
             None,
-            icon="format_dota",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom DOTA Annotations"),
         )
         export_mask_annotation = action(
-            self.tr("Export MASK Annotations"),
+            self.tr("MASK"),
             lambda: utils.export_mask_annotation(self),
             None,
-            icon="format_mask",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom MASK Annotations - RGB/Gray"),
         )
         export_mot_annotation = action(
-            self.tr("Export MOT Annotations"),
+            self.tr("MOT"),
             lambda: utils.export_mot_annotation(self, "mot"),
             None,
-            icon="format_mot",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom Multi-Object-Tracking Annotations"),
         )
         export_mots_annotation = action(
-            self.tr("Export MOTS Annotations"),
+            self.tr("MOTS"),
             lambda: utils.export_mot_annotation(self, "mots"),
             None,
-            icon="format_mot",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Export Custom Multi-Object-Tracking-Segmentation Annotations"
             ),
         )
         export_odvg_annotation = action(
-            self.tr("Export ODVG Annotations"),
+            self.tr("ODVG"),
             lambda: utils.export_odvg_annotation(self),
             None,
-            icon="format_odvg",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Export Custom Object Detection Visual Grounding Annotations"
             ),
         )
         export_pporc_rec_annotation = action(
-            self.tr("Export PPOCR-Rec Annotations"),
+            self.tr("PPOCR Rec"),
             lambda: utils.export_pporc_annotation(self, "rec"),
             None,
-            icon="format_ppocr",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom PPOCR Recognition Annotations"),
         )
         export_pporc_kie_annotation = action(
-            self.tr("Export PPOCR-KIE Annotations"),
+            self.tr("PPOCR KIE"),
             lambda: utils.export_pporc_annotation(self, "kie"),
             None,
-            icon="format_ppocr",
+            icon=upload_export_icon,
             tip=self.tr(
                 "Export Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition & Relation Extraction) Annotations"
             ),
         )
         export_vlm_r1_ovd_annotation = action(
-            self.tr("Export VLM-R1 OVD Annotations"),
+            self.tr("VLM-R1 OVD"),
             lambda: utils.export_vlm_r1_ovd_annotation(self),
             None,
-            icon="format_vlm_r1_ovd",
+            icon=upload_export_icon,
             tip=self.tr("Export Custom VLM-R1 OVD Annotations"),
         )
 
@@ -1543,10 +1582,10 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(
             label_menu, (edit, delete, copy_coordinates, union_selection)
         )
-        self.label_list.setContextMenuPolicy(
+        self.label_list.viewport().setContextMenuPolicy(
             Qt.ContextMenuPolicy.CustomContextMenu
         )
-        self.label_list.customContextMenuRequested.connect(
+        self.label_list.viewport().customContextMenuRequested.connect(
             self.pop_label_list_menu
         )
 
@@ -1558,7 +1597,10 @@ class LabelingWidget(LabelDialog):
             save=save,
             save_as=save_as,
             open=open_,
+            open_video=openvideo,
+            open_dir=opendir,
             close=close,
+            toggle_compare_view=toggle_compare_view,
             delete_file=delete_file,
             delete_image_file=delete_image_file,
             keep_prev_mode=keep_prev_mode,
@@ -1574,6 +1616,7 @@ class LabelingWidget(LabelDialog):
             copy=copy,
             copy_coordinates=copy_coordinates,
             paste=paste,
+            overview=overview,
             undo_last_point=undo_last_point,
             undo=undo,
             remove_point=remove_point,
@@ -1664,9 +1707,14 @@ class LabelingWidget(LabelDialog):
             open_chatbot=open_chatbot,
             open_vqa=open_vqa,
             open_classifier=open_classifier,
+            toggle_auto_labeling_widget=toggle_auto_labeling_widget,
+            digit_shortcut_manager=digit_shortcut_manager,
+            label_manager=label_manager,
+            gid_manager=gid_manager,
             shape_manager=shape_manager,
             loop_thru_labels=loop_thru_labels,
             loop_select_labels=loop_select_labels,
+            select_toggle_shapes=select_toggle_shapes,
             file_menu_actions=(
                 open_,
                 openvideo,
@@ -1690,7 +1738,6 @@ class LabelingWidget(LabelDialog):
                 copy_coordinates,
                 remove_point,
                 union_selection,
-                set_brush_point_distance,
                 None,
                 keep_prev_mode,
                 auto_use_last_label_mode,
@@ -1710,13 +1757,16 @@ class LabelingWidget(LabelDialog):
                 create_line_mode,
                 create_point_mode,
                 create_line_strip_mode,
+                None,
                 edit_mode,
                 edit,
+                None,
                 copy_coordinates,
                 union_selection,
                 duplicate,
                 copy,
                 paste,
+                None,
                 delete,
                 undo,
                 undo_last_point,
@@ -1749,6 +1799,7 @@ class LabelingWidget(LabelDialog):
                 shape_manager,
                 loop_thru_labels,
                 loop_select_labels,
+                select_toggle_shapes,
             ),
             on_shapes_present=(save_as, delete),
             hide_selected_polygons=hide_selected_polygons,
@@ -1756,6 +1807,20 @@ class LabelingWidget(LabelDialog):
             group_selected_shapes=group_selected_shapes,
             ungroup_selected_shapes=ungroup_selected_shapes,
         )
+
+        for digit_action in (
+            self.actions.digit_shortcut_0,
+            self.actions.digit_shortcut_1,
+            self.actions.digit_shortcut_2,
+            self.actions.digit_shortcut_3,
+            self.actions.digit_shortcut_4,
+            self.actions.digit_shortcut_5,
+            self.actions.digit_shortcut_6,
+            self.actions.digit_shortcut_7,
+            self.actions.digit_shortcut_8,
+            self.actions.digit_shortcut_9,
+        ):
+            self.addAction(digit_action)
 
         self.canvas.vertex_selected.connect(
             self.actions.remove_point.setEnabled
@@ -1775,6 +1840,14 @@ class LabelingWidget(LabelDialog):
             recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
             label_list=label_menu,
         )
+        (
+            self.label_filter_menu,
+            self.gid_filter_menu,
+        ) = self._append_filter_submenus(self.menus.label_list, prepend=True)
+        self.canvas_label_filter_menu_0 = None
+        self.canvas_gid_filter_menu_0 = None
+        self.canvas_label_filter_menu_1 = None
+        self.canvas_gid_filter_menu_1 = None
 
         utils.add_actions(
             self.menus.file,
@@ -1894,11 +1967,6 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(
             self.menus.view,
             (
-                self.flag_dock.toggleViewAction(),
-                self.label_dock.toggleViewAction(),
-                self.shape_dock.toggleViewAction(),
-                self.file_dock.toggleViewAction(),
-                None,
                 show_navigator,
                 fill_drawing,
                 loop_thru_labels,
@@ -1947,6 +2015,11 @@ class LabelingWidget(LabelDialog):
                 action("&Move here", self.move_shape),
             ),
         )
+        (
+            self.canvas_label_filter_menu_0,
+            self.canvas_gid_filter_menu_0,
+        ) = self._append_filter_submenus(self.canvas.menus[0], prepend=True)
+        self.canvas.menus[0].aboutToShow.connect(self.refresh_filter_menus)
 
         self.tools = self.toolbar("Tools")
         # Menu buttons on Left
@@ -1974,6 +2047,7 @@ class LabelingWidget(LabelDialog):
             undo,
             loop_thru_labels,
             loop_select_labels,
+            select_toggle_shapes,
             run_all_images,
             toggle_auto_labeling_widget,
             None,
@@ -2065,7 +2139,7 @@ class LabelingWidget(LabelDialog):
         central_layout.addWidget(self.auto_labeling_widget)
         central_layout.addWidget(scroll_area)
         central_layout.addWidget(self.compare_view_slider)
-        layout.addItem(central_layout)
+        layout.addLayout(central_layout)
 
         # Save central area for resize
         self._central_widget = scroll_area
@@ -2117,17 +2191,6 @@ class LabelingWidget(LabelDialog):
         )
         right_sidebar_layout.addWidget(self.scroll_area)
 
-        # Shape text label with checkbox
-        self.shape_text_label = QLabel("Object Text")
-        self.shape_text_edit = QPlainTextEdit()
-        self.shape_text_edit.setStyleSheet(get_plain_text_edit_style())
-        self.description_checkbox = QCheckBox()
-        self.description_checkbox.setChecked(True)
-        self.description_checkbox.setStyleSheet(get_checkbox_indicator_style())
-        self.description_checkbox.toggled.connect(
-            self.toggle_description_visibility
-        )
-
         description_header_layout = QHBoxLayout()
         description_header_layout.setContentsMargins(0, 2, 0, 2)
         description_header_layout.addStretch()
@@ -2137,6 +2200,10 @@ class LabelingWidget(LabelDialog):
         description_header_widget = QWidget()
         description_header_widget.setLayout(description_header_layout)
 
+        description_empty_widget = QWidget()
+        description_empty_widget.setFixedHeight(0)
+        self.description_dock.setTitleBarWidget(description_empty_widget)
+
         desc_panel = QFrame()
         desc_panel.setObjectName("sidebarPanel")
         desc_panel.setStyleSheet(get_panel_style())
@@ -2144,7 +2211,7 @@ class LabelingWidget(LabelDialog):
         desc_panel_layout.setContentsMargins(0, 0, 0, 0)
         desc_panel_layout.setSpacing(0)
         desc_panel_layout.addWidget(description_header_widget)
-        desc_panel_layout.addWidget(self.shape_text_edit)
+        desc_panel_layout.addWidget(self.description_dock)
         right_sidebar_layout.addWidget(desc_panel)
 
         right_sidebar_layout.addWidget(self.flag_dock)
@@ -2180,25 +2247,41 @@ class LabelingWidget(LabelDialog):
         labels_panel_layout.addWidget(self.label_dock)
         right_sidebar_layout.addWidget(labels_panel)
 
-        # Create a horizontal layout for the filters and select button
-        filter_layout = QHBoxLayout()
-        filter_layout.setContentsMargins(0, 0, 0, 0)
-        filter_layout.setSpacing(5)
-        filter_layout.addWidget(self.label_filter_combobox, 2)
-        filter_layout.addWidget(self.gid_filter_combobox, 1)
-        filter_layout.addWidget(self.select_toggle_button, 0)
+        self.shapes_checkbox = QCheckBox()
+        self.shapes_checkbox.setChecked(True)
+        self.shapes_checkbox.setStyleSheet(get_checkbox_indicator_style())
+        self.shapes_checkbox.toggled.connect(self.toggle_shapes_visibility)
+
+        shapes_header_layout = QHBoxLayout()
+        shapes_header_layout.setContentsMargins(0, 2, 0, 2)
+        shapes_header_layout.addStretch()
+        shapes_title = QLabel(self.tr("Shapes"))
+        shapes_header_layout.addWidget(shapes_title)
+        shapes_header_layout.addStretch()
+        shapes_header_layout.addWidget(self.shapes_checkbox)
+        shapes_header_widget = QWidget()
+        shapes_header_widget.setLayout(shapes_header_layout)
+
+        shape_empty_widget = QWidget()
+        shape_empty_widget.setFixedHeight(0)
+        self.shape_dock.setTitleBarWidget(shape_empty_widget)
 
         objects_panel = QFrame()
         objects_panel.setObjectName("sidebarPanel")
         objects_panel.setStyleSheet(get_panel_style())
         objects_panel_layout = QVBoxLayout(objects_panel)
-        objects_panel_layout.setContentsMargins(4, 4, 4, 4)
-        objects_panel_layout.setSpacing(4)
-        objects_panel_layout.addLayout(filter_layout)
+        objects_panel_layout.setContentsMargins(0, 0, 0, 0)
+        objects_panel_layout.setSpacing(0)
+        objects_panel_layout.addWidget(shapes_header_widget)
         objects_panel_layout.addWidget(self.shape_dock)
         right_sidebar_layout.addWidget(objects_panel)
 
-        right_sidebar_layout.addWidget(self.file_search)
+        file_search_row_layout = QHBoxLayout()
+        file_search_row_layout.setContentsMargins(0, 0, 0, 0)
+        file_search_row_layout.setSpacing(6)
+        file_search_row_layout.addWidget(self.file_search, 1)
+        file_search_row_layout.addWidget(self.settings_button, 0)
+        right_sidebar_layout.addLayout(file_search_row_layout)
 
         files_panel = QFrame()
         files_panel.setObjectName("sidebarPanel")
@@ -2229,10 +2312,13 @@ class LabelingWidget(LabelDialog):
         self.shape_dock.setFeatures(
             self.shape_dock.features() & rev_dock_features
         )
+        self.description_dock.setFeatures(
+            self.description_dock.features() & rev_dock_features
+        )
 
         self.shape_text_edit.textChanged.connect(self.shape_text_changed)
 
-        layout.addItem(right_sidebar_layout)
+        layout.addLayout(right_sidebar_layout)
         self.setLayout(layout)
 
         if output_file is not None and self._config["auto_save"]:
@@ -2273,13 +2359,6 @@ class LabelingWidget(LabelDialog):
         self.settings = QtCore.QSettings("anylabeling", "anylabeling")
         self.recent_files = self.settings.value("recent_files", []) or []
         self.last_open_dir = self.settings.value("last_open_dir", None) or None
-        size = self.settings.value("window/size", QtCore.QSize(600, 500))
-        position = self.settings.value("window/position", QtCore.QPoint(0, 0))
-        # state = self.settings.value("window/state", QtCore.QByteArray())
-        self.resize(size)
-        self.move(position)
-        # or simply:
-        # self.restoreGeometry(settings['window/geometry']
 
         # Populate the File menu dynamically.
         self.update_file_menu()
@@ -2293,6 +2372,13 @@ class LabelingWidget(LabelDialog):
         self.zoom_widget.valueChanged.connect(self.paint_canvas)
 
         self.populate_mode_actions()
+        self._settings_controller = SettingsController(
+            config=self._config,
+            apply_callback=self._settings_runtime_applier.apply_change,
+            parent=self,
+            defer_runtime_apply=True,
+        )
+        self._settings_runtime_applier.build_shortcut_action_map()
 
         self.set_text_editing(False)
 
@@ -2421,28 +2507,50 @@ class LabelingWidget(LabelDialog):
     def get_labeling_instruction(self):
         text_mode = self.tr("Mode:")
         text_shortcuts = self.tr("Shortcuts:")
-        text_chatbot = self.tr("Chatbot")
-        text_vqa = self.tr("VQA")
-        text_classifier = self.tr("Classifier")
+        text_settings = self.tr("Settings")
         text_previous = self.tr("Previous")
         text_next = self.tr("Next")
         text_rectangle = self.tr("Rectangle")
         text_polygon = self.tr("Polygon")
         text_rotation = self.tr("Rotation")
         text_quadrilateral = self.tr("Quadrilateral")
+        shortcuts = self._config.get("shortcuts", {})
         return (
             f"<b>{text_mode}</b> {self.canvas.get_mode()} | "
             f"<b>{text_shortcuts}</b>"
-            f" {text_previous}(<b>A</b>),"
-            f" {text_next}(<b>D</b>),"
-            f" {text_rectangle}(<b>R</b>),"
-            f" {text_polygon}(<b>P</b>),"
-            f" {text_rotation}(<b>O</b>),"
-            f" {text_quadrilateral}(<b>T</b>),"
-            f" {text_chatbot}(<b>Ctrl+1</b>),"
-            f" {text_vqa}(<b>Ctrl+2</b>),"
-            f" {text_classifier}(<b>Ctrl+3</b>)"
+            f" {text_previous}({self._format_instruction_shortcut(shortcuts.get('open_prev'))}),"
+            f" {text_next}({self._format_instruction_shortcut(shortcuts.get('open_next'))}),"
+            f" {text_rectangle}({self._format_instruction_shortcut(shortcuts.get('create_rectangle'))}),"
+            f" {text_polygon}({self._format_instruction_shortcut(shortcuts.get('create_polygon'))}),"
+            f" {text_rotation}({self._format_instruction_shortcut(shortcuts.get('create_rotation'))}),"
+            f" {text_quadrilateral}({self._format_instruction_shortcut(shortcuts.get('create_quadrilateral'))}),"
+            f" {text_settings}({self._format_instruction_shortcut(shortcuts.get('open_settings'))})"
         )
+
+    def _format_instruction_shortcut(self, value):
+        text = self._settings_runtime_applier.shortcut_value_to_text(
+            value
+        ).strip()
+        if not text:
+            return "<b>-</b>"
+        sequences = [
+            chunk.strip() for chunk in text.split(",") if chunk.strip()
+        ]
+        if not sequences:
+            return "<b>-</b>"
+        formatted = []
+        for sequence in sequences:
+            keys = [
+                part.strip() for part in sequence.split("+") if part.strip()
+            ]
+            if not keys:
+                continue
+            formatted.append(
+                "+".join(f"<b>{html.escape(key)}</b>" for key in keys)
+            )
+        if not formatted:
+            return "<b>-</b>"
+        return ", ".join(formatted)
 
     @pyqtSlot()
     def on_auto_segmentation_requested(self):
@@ -2504,6 +2612,10 @@ class LabelingWidget(LabelDialog):
 
         self.canvas.menus[0].clear()
         utils.add_actions(self.canvas.menus[0], menu)
+        (
+            self.canvas_label_filter_menu_0,
+            self.canvas_gid_filter_menu_0,
+        ) = self._append_filter_submenus(self.canvas.menus[0], prepend=True)
         self.menus.edit.clear()
         actions = (
             self.actions.create_mode,
@@ -2516,16 +2628,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_line_mode,
             self.actions.create_point_mode,
             self.actions.create_line_strip_mode,
-            self.actions.digit_shortcut_0,
-            self.actions.digit_shortcut_1,
-            self.actions.digit_shortcut_2,
-            self.actions.digit_shortcut_3,
-            self.actions.digit_shortcut_4,
-            self.actions.digit_shortcut_5,
-            self.actions.digit_shortcut_6,
-            self.actions.digit_shortcut_7,
-            self.actions.digit_shortcut_8,
-            self.actions.digit_shortcut_9,
+            None,
             self.actions.edit_mode,
         )
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
@@ -2634,25 +2737,42 @@ class LabelingWidget(LabelDialog):
         self.compare_view_manager.reset()
         self.label_filter_combobox.text_box.clear()
         self.gid_filter_combobox.gid_box.clear()
-        self.select_toggle_button.setChecked(False)
-        self.select_toggle_button.setText(self.tr("Select"))
+        self._update_select_toggle_button_tooltip()
 
     def toggle_select_all(self):
+        if self.select_toggle_action is None:
+            return
         if not self.canvas.shapes:
-            if self.select_toggle_button.isChecked():
-                self.select_toggle_button.setText(self.tr("Unselect"))
-            else:
-                self.select_toggle_button.setText(self.tr("Select"))
+            self._update_select_toggle_button_tooltip()
             return
 
-        if self.select_toggle_button.isChecked():
-            self.canvas.select_shapes(self.canvas.shapes)
-            self.select_toggle_button.setText(self.tr("Unselect"))
-            self._set_all_objects_visibility(True)
+        all_visible = self._are_all_shapes_visible()
+        self._set_all_objects_visibility(not all_visible)
+        self._update_select_toggle_button_tooltip()
+
+    def _update_select_toggle_button_tooltip(self):
+        if self.select_toggle_action is None:
+            return
+        if self._are_all_shapes_visible():
+            tooltip = self.tr("Hide all shapes")
+            icon = utils.new_icon("eye")
         else:
-            self.canvas.select_shapes([])
-            self.select_toggle_button.setText(self.tr("Select"))
-            self._set_all_objects_visibility(False)
+            tooltip = self.tr("Show all shapes")
+            icon = utils.new_icon("hidden")
+        self.select_toggle_action.setIcon(icon)
+        self.select_toggle_action.setToolTip(tooltip)
+        self.select_toggle_action.setStatusTip(tooltip)
+
+    def _are_all_shapes_visible(self):
+        if len(self.label_list) == 0:
+            return True
+        for item in self.label_list:
+            if item.checkState() != Qt.CheckState.Checked:
+                return False
+            shape = item.shape()
+            if shape is not None and not shape.visible:
+                return False
+        return True
 
     def _set_all_objects_visibility(self, visible):
         """Set all Objects panel checkboxes and shape visibility to visible (True/False)."""
@@ -3187,7 +3307,96 @@ class LabelingWidget(LabelDialog):
             menu.addAction(action)
 
     def pop_label_list_menu(self, point):
-        self.menus.label_list.exec(self.label_list.mapToGlobal(point))
+        self.refresh_filter_menus()
+        global_pos = self.label_list.viewport().mapToGlobal(point)
+        self.menus.label_list.exec(global_pos)
+
+    def _append_filter_submenus(self, parent_menu, prepend=False):
+        label_menu = QtWidgets.QMenu(self.tr("Filter by Label"), parent_menu)
+        gid_menu = QtWidgets.QMenu(self.tr("Filter by Group ID"), parent_menu)
+        if prepend and parent_menu.actions():
+            first_action = parent_menu.actions()[0]
+            parent_menu.insertMenu(first_action, label_menu)
+            parent_menu.insertMenu(first_action, gid_menu)
+            parent_menu.insertSeparator(first_action)
+        else:
+            parent_menu.addSeparator()
+            parent_menu.addMenu(label_menu)
+            parent_menu.addMenu(gid_menu)
+        return label_menu, gid_menu
+
+    def _populate_label_filter_menu(self, menu):
+        menu.clear()
+        action_group = QtGui.QActionGroup(menu)
+        action_group.setExclusive(True)
+        current_label = self.label_filter_combobox.text_box.currentText()
+        for label in self.label_filter_combobox.items:
+            text = self.tr("All Labels") if label == "" else label
+            action = menu.addAction(text)
+            action.setCheckable(True)
+            action.setChecked(label == current_label)
+            action.triggered.connect(
+                functools.partial(self.set_label_filter_value, label)
+            )
+            action_group.addAction(action)
+
+    def _populate_gid_filter_menu(self, menu):
+        menu.clear()
+        action_group = QtGui.QActionGroup(menu)
+        action_group.setExclusive(True)
+        current_gid = self.gid_filter_combobox.gid_box.currentText()
+        for gid in self.gid_filter_combobox.items:
+            text = self.tr("All Group IDs") if gid == "-1" else gid
+            action = menu.addAction(text)
+            action.setCheckable(True)
+            action.setChecked(gid == current_gid)
+            action.triggered.connect(
+                functools.partial(self.set_gid_filter_value, gid)
+            )
+            action_group.addAction(action)
+
+    def refresh_filter_menus(self):
+        self.update_combo_box(block_signal=True)
+        self.update_gid_box(block_signal=True)
+
+        menus = [
+            (self.label_filter_menu, self.gid_filter_menu),
+            (self.canvas_label_filter_menu_0, self.canvas_gid_filter_menu_0),
+            (self.canvas_label_filter_menu_1, self.canvas_gid_filter_menu_1),
+        ]
+        for label_menu, gid_menu in menus:
+            if label_menu is not None:
+                self._populate_label_filter_menu(label_menu)
+            if gid_menu is not None:
+                self._populate_gid_filter_menu(gid_menu)
+
+    def set_label_filter_value(
+        self, label, _checked=False, block_signal=False
+    ):
+        index = self.label_filter_combobox.text_box.findText(str(label))
+        if index < 0:
+            index = self.label_filter_combobox.text_box.findText("")
+        if index >= 0:
+            blocker = None
+            if block_signal:
+                blocker = QtCore.QSignalBlocker(
+                    self.label_filter_combobox.text_box
+                )
+            self.label_filter_combobox.text_box.setCurrentIndex(index)
+            del blocker
+
+    def set_gid_filter_value(self, gid, _checked=False, block_signal=False):
+        index = self.gid_filter_combobox.gid_box.findText(str(gid))
+        if index < 0:
+            index = self.gid_filter_combobox.gid_box.findText("-1")
+        if index >= 0:
+            blocker = None
+            if block_signal:
+                blocker = QtCore.QSignalBlocker(
+                    self.gid_filter_combobox.gid_box
+                )
+            self.gid_filter_combobox.gid_box.setCurrentIndex(index)
+            del blocker
 
     def validate_label(self, label):
         # no validation
@@ -3585,9 +3794,10 @@ class LabelingWidget(LabelDialog):
                         idx += 1
                     else:
                         if len(current_row_buttons) == 1:
-                            first_display, first_original = (
-                                current_row_buttons[0]
-                            )
+                            (
+                                first_display,
+                                first_original,
+                            ) = current_row_buttons[0]
                             first_truncated, _ = get_truncated_text(
                                 first_original, available_width - button_width
                             )
@@ -3996,7 +4206,7 @@ class LabelingWidget(LabelDialog):
                 self.unique_label_list.addItem(item)
             item = self.unique_label_list.find_items_by_label(label)[0]
             label_id = self.unique_label_list.indexFromItem(item).row() + 1
-            label_id += self._config["shift_auto_shape_color"]
+            label_id += self._runtime_shape_color_shift
             return LABEL_COLORMAP[label_id % len(LABEL_COLORMAP)]
         if (
             self._config["shape_color"] == "manual"
@@ -4045,8 +4255,11 @@ class LabelingWidget(LabelDialog):
                 item.setCheckState(Qt.CheckState.Checked)
             else:
                 item.setCheckState(Qt.CheckState.Unchecked)
+        self._update_select_toggle_button_tooltip()
 
-    def update_combo_box(self):
+    def update_combo_box(self, block_signal=False):
+        current_label = self.label_filter_combobox.text_box.currentText()
+
         # Get the unique labels and add them to the Combobox.
         labels_list = []
         for item in self.label_list:
@@ -4057,9 +4270,23 @@ class LabelingWidget(LabelDialog):
         # Add a null row for showing all the labels
         unique_labels_list.append("")
         unique_labels_list.sort()
+        blocker = None
+        if block_signal:
+            blocker = QtCore.QSignalBlocker(
+                self.label_filter_combobox.text_box
+            )
         self.label_filter_combobox.update_items(unique_labels_list)
+        if current_label in unique_labels_list:
+            self.set_label_filter_value(
+                current_label, block_signal=block_signal
+            )
+        else:
+            self.set_label_filter_value("", block_signal=block_signal)
+        del blocker
 
-    def update_gid_box(self):
+    def update_gid_box(self, block_signal=False):
+        current_gid = self.gid_filter_combobox.gid_box.currentText()
+
         # Get the unique group ids and add them to the Combobox.
         gid_list = []
         for item in self.label_list:
@@ -4071,7 +4298,15 @@ class LabelingWidget(LabelDialog):
         # Add a null row for showing all the labels
         unique_gid_list.append("-1")
         unique_gid_list.sort()
+        blocker = None
+        if block_signal:
+            blocker = QtCore.QSignalBlocker(self.gid_filter_combobox.gid_box)
         self.gid_filter_combobox.update_items(unique_gid_list)
+        if current_gid in unique_gid_list:
+            self.set_gid_filter_value(current_gid, block_signal=block_signal)
+        else:
+            self.set_gid_filter_value("-1", block_signal=block_signal)
+        del blocker
 
     def save_labels(self, filename):
         label_file = LabelFile()
@@ -4222,6 +4457,7 @@ class LabelingWidget(LabelDialog):
         self.canvas.set_shape_visible(
             shape, item.checkState() == Qt.CheckState.Checked
         )
+        self._update_select_toggle_button_tooltip()
         if (
             hasattr(self, "navigator_dialog")
             and self.navigator_dialog.isVisible()
@@ -4691,60 +4927,32 @@ class LabelingWidget(LabelDialog):
             self.canvas.set_cross_line(show, width, color, opacity)
             self._config["canvas"]["crosshair"] = crosshair_settings
 
-    def set_brush_point_distance(self):
-        """Open dialog to set the brush drawing point distance."""
-        current_value = self.canvas.brush_point_distance
-
-        dialog = QtWidgets.QDialog(self)
-        dialog.setWindowTitle(self.tr("Brush Point Distance"))
-        dialog.setFixedWidth(320)
-        dialog.setWindowFlags(
-            dialog.windowFlags()
-            & ~QtCore.Qt.WindowType.WindowContextHelpButtonHint
-        )
-        dialog.setStyleSheet(get_dialog_style())
-
-        layout = QtWidgets.QVBoxLayout(dialog)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(16)
-
-        label = QLabel(self.tr("Point distance (screen pixels):"))
-        layout.addWidget(label)
-
-        spinbox = QtWidgets.QDoubleSpinBox()
-        spinbox.setRange(1.0, 200.0)
-        spinbox.setDecimals(1)
-        spinbox.setSingleStep(1.0)
-        spinbox.setValue(current_value)
-        spinbox.setStyleSheet(get_double_spinbox_style())
-        spinbox.setFixedHeight(36)
-        layout.addWidget(spinbox)
-
-        btn_layout = QtWidgets.QHBoxLayout()
-        btn_layout.setSpacing(8)
-        cancel_btn = QtWidgets.QPushButton(self.tr("Cancel"))
-        cancel_btn.setStyleSheet(get_cancel_btn_style())
-        cancel_btn.clicked.connect(dialog.reject)
-        ok_btn = QtWidgets.QPushButton(self.tr("OK"))
-        ok_btn.setStyleSheet(get_ok_btn_style())
-        ok_btn.clicked.connect(dialog.accept)
-        btn_layout.addStretch()
-        btn_layout.addWidget(cancel_btn)
-        btn_layout.addWidget(ok_btn)
-        layout.addLayout(btn_layout)
-
-        if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
-            value = spinbox.value()
-            self.canvas.brush_point_distance = value
-            self._config["canvas"].setdefault("brush", {})[
-                "point_distance"
-            ] = value
-
     def set_canvas_params(self, key, value):
         self._config[key] = value
         assert hasattr(self.canvas, key), f"Canvas has no attribute {key}"
         setattr(self.canvas, key, value)
         self.canvas.update()
+
+    def open_settings_dialog(self):
+        if self._settings_controller is None:
+            return
+        if self._settings_dialog is None:
+            self._settings_dialog = SettingsDialog(
+                self, self._settings_controller
+            )
+        self._settings_dialog.show()
+        self._settings_dialog.raise_()
+        self._settings_dialog.activateWindow()
+
+    def add_point_to_edge(self):
+        shape = self.canvas.prev_h_shape
+        edge_index = self.canvas.prev_h_edge
+        point = self.canvas.prev_move_point
+        if shape is None or edge_index is None or point is None:
+            return
+        self.canvas.add_point_to_edge()
+        self.canvas.update()
+        self.set_dirty()
 
     def on_new_brightness_contrast(self, qimage):
         self.canvas.load_pixmap(
@@ -5101,9 +5309,6 @@ class LabelingWidget(LabelDialog):
         self.settings.setValue(
             "filename", self.filename if self.filename else ""
         )
-        self.settings.setValue("window/size", self.size())
-        self.settings.setValue("window/position", self.pos())
-        self.settings.setValue("window/state", self.parent.parent.saveState())
         self.settings.setValue("recent_files", self.recent_files)
         if self.last_open_dir:
             self.settings.setValue("last_open_dir", self.last_open_dir)
@@ -5121,6 +5326,9 @@ class LabelingWidget(LabelDialog):
                 self.settings.setValue(
                     "navigator/position", self.navigator_dialog.pos()
                 )
+
+        if self._settings_controller is not None:
+            self._settings_controller.close_session()
 
         save_config(self._config)
 
@@ -5607,6 +5815,7 @@ class LabelingWidget(LabelDialog):
             )
             self.label_list[index].shape().visible = True if value else False
         self._config["show_shapes"] = value
+        self._update_select_toggle_button_tooltip()
         if (
             hasattr(self, "navigator_dialog")
             and self.navigator_dialog.isVisible()
@@ -6097,10 +6306,6 @@ class LabelingWidget(LabelDialog):
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText("")
             self.shape_text_edit.textChanged.connect(self.shape_text_changed)
-        font = QtGui.QFont()
-        font.setPointSize(10)
-        self.shape_text_edit.setFont(font)
-        self.shape_text_label.setFont(font)
 
     def group_selected_shapes(self):
         self.canvas.group_selected_shapes()
@@ -6162,14 +6367,10 @@ class LabelingWidget(LabelDialog):
             logger.error(f"Failed to load thumbnail image: {str(e)}")
 
     def toggle_description_visibility(self, checked):
-        self.shape_text_edit.setVisible(checked)
+        self.description_dock.setVisible(checked)
 
     def toggle_labels_visibility(self, checked):
-        if checked:
-            self.label_dock.widget().setVisible(True)
-            self.label_dock.setMinimumHeight(2)
-            self.label_dock.setMaximumHeight(16777215)
-        else:
-            self.label_dock.widget().setVisible(False)
-            self.label_dock.setMinimumHeight(2)
-            self.label_dock.setMaximumHeight(2)
+        self.label_dock.setVisible(checked)
+
+    def toggle_shapes_visibility(self, checked):
+        self.shape_dock.setVisible(checked)

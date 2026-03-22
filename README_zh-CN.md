@@ -86,6 +86,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- `2026-03-22`: 新增支持在 GUI 中通过内置设置面板直接调整常用选项。
 - `2026-03-10`: 新增支持从矩形生成 3D Cuboid 对象标注。
 - `2026-03-01`: 完成 PyQt5 到 PyQt6 的升级重构（Beta 版本），并同步修复与优化若干功能细节。
 - 更多详情，请参考[更新日志](./CHANGELOG.md)

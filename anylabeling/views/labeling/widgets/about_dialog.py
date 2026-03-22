@@ -73,8 +73,7 @@ class AboutDialog(QDialog):
         self.setFixedSize(350, 250)
 
         t = get_theme()
-        self.setStyleSheet(
-            f"""
+        self.setStyleSheet(f"""
             QDialog {{
                 background-color: {t["background"]};
                 border-radius: 10px;
@@ -113,8 +112,7 @@ class AboutDialog(QDialog):
                 background-color: {t["surface_hover"]};
                 border-radius: 4px;
             }}
-        """
-        )
+        """)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 24, 24, 24)

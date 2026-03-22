@@ -122,10 +122,8 @@ class BaseLabelConverter:
         if osp.isfile(output_path):
             # Check if the file has the expected extension
             if not output_path.lower().endswith(ext.lower()):
-                raise ValueError(
-                    f"The specified file '{output_path}' \
-                        does not have the expected '{ext}' extension."
-                )
+                raise ValueError(f"The specified file '{output_path}' \
+                        does not have the expected '{ext}' extension.")
         else:
             # Check if the folder exists, and create it if it doesn't
             if not osp.exists(output_path):

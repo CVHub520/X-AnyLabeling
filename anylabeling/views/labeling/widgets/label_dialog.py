@@ -22,11 +22,12 @@ from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
     get_dialog_style,
     get_ok_btn_style,
+    get_settings_combo_style,
     get_spinbox_style,
     get_table_item_bg_color,
     get_table_item_disabled_bg_color,
 )
-from anylabeling.views.labeling.utils.theme import get_mode, get_theme
+from anylabeling.views.labeling.utils.theme import get_theme
 
 # TODO(unknown):
 # - Calculate optimal position so as not to go out of screen area.
@@ -39,72 +40,15 @@ def natural_sort_key(s):
 
 
 class ColoredComboBox(QtWidgets.QComboBox):
-    LIGHT_COLORS = {
-        "polygon": "#D81B60",
-        "rectangle": "#1E88E5",
-        "rotation": "#8E24AA",
-        "quadrilateral": "#7B1FA2",
-        "circle": "#2E7D32",
-        "line": "#E65100",
-        "point": "#00838F",
-        "linestrip": "#6D4C41",
-    }
-    DARK_COLORS = {
-        "polygon": "#F06292",
-        "rectangle": "#64B5F6",
-        "rotation": "#CE93D8",
-        "quadrilateral": "#BA68C8",
-        "circle": "#81C784",
-        "line": "#FFB74D",
-        "point": "#4DD0E1",
-        "linestrip": "#BCAAA4",
-    }
-
     def __init__(self, parent=None):
         super(ColoredComboBox, self).__init__(parent)
-        palette = (
-            self.DARK_COLORS if get_mode() == "dark" else self.LIGHT_COLORS
-        )
-        self.mode_colors = {k: QtGui.QColor(v) for k, v in palette.items()}
+        self.setStyleSheet(get_settings_combo_style())
 
     def addModeItem(self, text, userData=None):
         self.addItem(text, userData)
-        if text in self.mode_colors:
-            index = self.count() - 1
-            self.setItemData(
-                index,
-                self.mode_colors[text],
-                QtCore.Qt.ItemDataRole.ForegroundRole,
-            )
 
-    def paintEvent(self, event):
-        painter = QtWidgets.QStylePainter(self)
-        painter.setPen(self.palette().color(QtGui.QPalette.ColorRole.Text))
-
-        # Draw the combobox frame, button, etc.
-        opt = QtWidgets.QStyleOptionComboBox()
-        self.initStyleOption(opt)
-        painter.drawComplexControl(
-            QtWidgets.QStyle.ComplexControl.CC_ComboBox, opt
-        )
-
-        # Draw the current text with proper color
-        current_text = self.currentText()
-        if current_text in self.mode_colors:
-            painter.setPen(self.mode_colors[current_text])
-
-        # Draw the text
-        opt.currentText = current_text
-        rect = self.style().subElementRect(
-            QtWidgets.QStyle.SubElement.SE_ComboBoxFocusRect, opt, self
-        )
-        rect.adjust(2, 0, -2, 0)  # adjust the text rectangle
-        painter.drawText(
-            rect,
-            QtCore.Qt.AlignmentFlag.AlignLeft
-            | QtCore.Qt.AlignmentFlag.AlignVCenter,
-            current_text,
-        )
+    def wheelEvent(self, event):
+        event.ignore()
 
 
 class DigitShortcutDialog(QtWidgets.QDialog):
@@ -701,7 +645,6 @@ class GroupIDModifyDialog(QtWidgets.QDialog):
         if self.modify_group_id(
             updated_gid_info, deleted_gid_info, start_index, end_index
         ):
-
             # Update original gid info
             self.gid_info = new_gid_info
 

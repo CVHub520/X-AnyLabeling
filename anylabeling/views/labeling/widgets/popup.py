@@ -34,8 +34,7 @@ class Popup(QWidget):
         t = get_theme()
         self._bg_color = t["surface_hover"]
         self._text_color = t["text"]
-        self.setStyleSheet(
-            f"""
+        self.setStyleSheet(f"""
             QWidget {{
                 background-color: {self._bg_color};
                 border-radius: 16px;
@@ -44,8 +43,7 @@ class Popup(QWidget):
                 background-color: transparent;
                 color: {self._text_color};
             }}
-        """
-        )
+        """)
 
         # Use horizontal layout to place icon and text side by side
         hbox = QHBoxLayout()

@@ -69,9 +69,7 @@ class FrameExtractionDialog(QDialog):
         prefix_label = QLabel(self.tr("Filename prefix:"))
         self.prefix_edit = QLineEdit()
         base_style = ChatbotDialogStyle.get_settings_edit_style()
-        self.prefix_edit.setStyleSheet(
-            base_style
-            + """
+        self.prefix_edit.setStyleSheet(base_style + """
             QLineEdit {
                 padding-top: 6px;
                 padding-right: 8px;
@@ -79,8 +77,7 @@ class FrameExtractionDialog(QDialog):
                 padding-left: 8px;
                 min-height: 28px;
             }
-            """
-        )
+            """)
         self.prefix_edit.setText("frame_")
         prefix_layout.addWidget(prefix_label)
         prefix_layout.addWidget(self.prefix_edit)

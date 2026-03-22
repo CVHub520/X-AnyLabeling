@@ -1,6 +1,7 @@
 import os
 import os.path as osp
 import shutil
+import copy
 import yaml
 import importlib.resources as pkg_resources
 
@@ -9,6 +10,11 @@ from anylabeling.views.labeling.logger import logger
 
 current_config_file = None
 _work_directory = None
+_LEGACY_KEY_MAP = {
+    "epsilon": "canvas.epsilon",
+    "show_cross_line": "canvas.crosshair.show",
+}
+_LEGACY_DROP_KEYS = {"ui"}
 
 
 def set_work_directory(directory: str) -> None:
@@ -45,6 +51,75 @@ def update_dict(target_dict, new_dict, validate_item=None):
             update_dict(target_dict[key], value, validate_item=validate_item)
         else:
             target_dict[key] = value
+
+
+def _set_nested_value(target_dict, key_path, value):
+    parts = key_path.split(".")
+    current = target_dict
+    for part in parts[:-1]:
+        node = current.get(part)
+        if not isinstance(node, dict):
+            node = {}
+            current[part] = node
+        current = node
+    current[parts[-1]] = value
+
+
+def _has_nested_key(target_dict, key_path):
+    current = target_dict
+    for part in key_path.split("."):
+        if not isinstance(current, dict) or part not in current:
+            return False
+        current = current[part]
+    return True
+
+
+def _normalize_shortcut_value(value):
+    if value in (None, ""):
+        return None
+    if isinstance(value, (list, tuple)):
+        values = [item for item in value if item not in (None, "")]
+        if not values:
+            return None
+        value = values[0]
+    text = str(value).strip()
+    return text or None
+
+
+def _normalize_multi_shortcut_value(value):
+    if value in (None, ""):
+        return []
+    if isinstance(value, (list, tuple)):
+        raw_values = [item for item in value if item not in (None, "")]
+    else:
+        raw_values = [value]
+    normalized = []
+    for item in raw_values:
+        text = str(item).strip()
+        if text and text not in normalized:
+            normalized.append(text)
+    return normalized
+
+
+def normalize_user_config(config):
+    if not isinstance(config, dict):
+        return config
+    normalized = copy.deepcopy(config)
+    for key, target_path in _LEGACY_KEY_MAP.items():
+        if key in normalized:
+            value = normalized.pop(key)
+            if not _has_nested_key(normalized, target_path):
+                _set_nested_value(normalized, target_path, value)
+    for key in _LEGACY_DROP_KEYS:
+        normalized.pop(key, None)
+    shortcuts = normalized.get("shortcuts")
+    if isinstance(shortcuts, dict):
+        for key, value in list(shortcuts.items()):
+            if key == "zoom_in":
+                shortcuts[key] = _normalize_multi_shortcut_value(value)
+            else:
+                shortcuts[key] = _normalize_shortcut_value(value)
+    return normalized
 
 
 def save_config(config):
@@ -103,6 +178,7 @@ def get_config(
     if not isinstance(config_from_yaml, dict):
         with open(config_file_or_yaml, encoding="utf-8") as f:
             config_from_yaml = yaml.safe_load(f)
+    config_from_yaml = normalize_user_config(config_from_yaml)
     update_dict(config, config_from_yaml, validate_item=validate_config_item)
     if show_msg:
         logger.info(
@@ -111,6 +187,7 @@ def get_config(
 
     # 3. Update configuration with command line arguments
     if config_from_args:
+        config_from_args = normalize_user_config(config_from_args)
         update_dict(
             config, config_from_args, validate_item=validate_config_item
         )

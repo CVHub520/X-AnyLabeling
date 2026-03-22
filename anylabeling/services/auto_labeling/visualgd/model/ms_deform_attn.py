@@ -210,12 +210,10 @@ class MultiScaleDeformableAttention(nn.Module):
         self.batch_first = batch_first
 
         if not _is_power_of_2(head_dim):
-            warnings.warn(
-                """
+            warnings.warn("""
                 You'd better set d_model in MSDeformAttn to make sure that
                 each dim of the attention head a power of 2, which is more efficient.
-                """
-            )
+                """)
 
         self.im2col_step = img2col_step
         self.embed_dim = embed_dim

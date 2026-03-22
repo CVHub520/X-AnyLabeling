@@ -1,7 +1,7 @@
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.theme import (
-    get_theme,
     get_mode,
+    get_theme,
     _checkbox_indicator_qss,
 )
 from PyQt6.QtGui import QColor
@@ -203,6 +203,94 @@ def get_normal_button_style():
         }}
         QPushButton:pressed {{
             background-color: {t["surface_pressed"]};
+        }}
+    """
+
+
+def get_settings_button_style():
+    t = get_theme()
+    return f"""
+        QPushButton {{
+            border: 1px solid {t["border"]};
+            border-radius: 8px;
+            background: {t["background_secondary"]};
+            padding: 0;
+        }}
+        QPushButton:hover {{
+            background: {t["surface_hover"]};
+        }}
+        QPushButton:pressed {{
+            background: {t["surface_pressed"]};
+        }}
+    """
+
+
+def get_settings_combo_style() -> str:
+    down_arrow = new_icon_path("caret-down", "svg")
+    if get_mode() == "dark":
+        right_bg = (24, 24, 24)
+        card_bg = (44, 44, 46)
+        title_text = (245, 245, 247)
+        line = (72, 72, 74)
+        left_selected = (72, 72, 74)
+    else:
+        right_bg = (239, 238, 239)
+        card_bg = (234, 234, 235)
+        title_text = (0, 0, 0)
+        line = (228, 228, 231)
+        left_selected = (212, 212, 216)
+
+    def _rgb(rgb):
+        return f"rgb({rgb[0]}, {rgb[1]}, {rgb[2]})"
+
+    return f"""
+        QComboBox {{
+            combobox-popup: 0;
+            background-color: {_rgb(right_bg)};
+            color: {_rgb(title_text)};
+            border: 1px solid {_rgb(line)};
+            border-radius: 0px;
+            padding: 0 8px;
+            min-height: 30px;
+        }}
+        QComboBox:hover {{
+            background-color: {_rgb(card_bg)};
+        }}
+        QComboBox::drop-down {{
+            border: none;
+            width: 20px;
+            subcontrol-origin: padding;
+            subcontrol-position: top right;
+        }}
+        QComboBox::down-arrow {{
+            image: url({down_arrow});
+            width: 12px;
+            height: 12px;
+        }}
+        QComboBox QAbstractItemView {{
+            background-color: {_rgb(right_bg)};
+            color: {_rgb(title_text)};
+            border: 1px solid {_rgb(line)};
+            border-radius: 0px;
+            margin: 0px;
+            padding: 0px;
+            selection-background-color: {_rgb(left_selected)};
+            selection-color: {_rgb(title_text)};
+            outline: none;
+        }}
+        QComboBox QAbstractItemView::item {{
+            background-color: {_rgb(right_bg)};
+            min-height: 24px;
+            padding: 2px 8px;
+            border-radius: 0px;
+            border-bottom: 1px solid {_rgb(line)};
+        }}
+        QComboBox QAbstractItemView::item:hover {{
+            background-color: {_rgb(card_bg)};
+        }}
+        QComboBox QAbstractItemView::item:selected {{
+            background-color: {_rgb(left_selected)};
+            color: {_rgb(title_text)};
         }}
     """
 

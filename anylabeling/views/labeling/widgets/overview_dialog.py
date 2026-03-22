@@ -40,9 +40,7 @@ def _get_overview_style() -> str:
     from anylabeling.views.labeling.utils.theme import get_theme
 
     t = get_theme()
-    return (
-        get_dialog_style()
-        + f"""
+    return get_dialog_style() + f"""
         .secondary-button {{
             background-color: {t["surface"]};
             color: {t["text"]};
@@ -74,7 +72,6 @@ def _get_overview_style() -> str:
             background-color: {t["primary_pressed"]};
         }}
     """
-    )
 
 
 class OverviewDialog(QtWidgets.QDialog):

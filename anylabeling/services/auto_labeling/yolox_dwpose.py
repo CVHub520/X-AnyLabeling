@@ -126,9 +126,9 @@ class YOLOX_DWPose(Model):
             (int(img.shape[1] * r), int(img.shape[0] * r)),
             interpolation=cv2.INTER_LINEAR,
         ).astype(np.uint8)
-        padded_img[
-            : int(img.shape[0] * r), : int(img.shape[1] * r)
-        ] = resized_img
+        padded_img[: int(img.shape[0] * r), : int(img.shape[1] * r)] = (
+            resized_img
+        )
 
         padded_img = padded_img.transpose(swap)
         padded_img = np.ascontiguousarray(padded_img, dtype=np.float32)

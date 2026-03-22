@@ -616,9 +616,9 @@ class ChatMessage(QFrame):
                             parent, "filename"
                         ):
                             if parent.filename:
-                                parent.other_data[
-                                    "chat_history"
-                                ] = dialog.chat_history
+                                parent.other_data["chat_history"] = (
+                                    dialog.chat_history
+                                )
                                 parent.set_dirty()
 
         self.exit_edit_mode()
@@ -755,9 +755,9 @@ class ChatMessage(QFrame):
                             parent.filename
                             and "chat_history" in parent.other_data
                         ):
-                            parent.other_data[
-                                "chat_history"
-                            ] = dialog.chat_history
+                            parent.other_data["chat_history"] = (
+                                dialog.chat_history
+                            )
                             parent.set_dirty()
 
             # Delete the widget

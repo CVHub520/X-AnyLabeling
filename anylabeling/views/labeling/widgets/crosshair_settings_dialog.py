@@ -6,6 +6,7 @@ from anylabeling.views.labeling.utils.style import (
     get_ok_btn_style,
     get_cancel_btn_style,
 )
+from anylabeling.views.labeling.utils.theme import get_theme
 
 
 class CrosshairSettingsDialog(QtWidgets.QDialog):
@@ -92,15 +93,32 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
 
         # Color controls
         color_layout = QtWidgets.QHBoxLayout()
-        color_layout.setSpacing(8)
+        color_layout.setSpacing(12)
 
         self.color_label = QtWidgets.QLabel(self.tr("Line Color:"))
         self.color_label.setMinimumWidth(100)
 
+        theme = get_theme()
         self.color_lineedit = QtWidgets.QLineEdit()
         self.color_lineedit.setText(self._color)
-        self.color_lineedit.setFixedSize(100, 32)
+        self.color_lineedit.setFixedHeight(36)
+        self.color_lineedit.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.color_lineedit.setStyleSheet(f"""
+            QLineEdit {{
+                background-color: {theme["surface"]};
+                color: {theme["text"]};
+                border: 1px solid {theme["border_light"]};
+                border-radius: 8px;
+                font-weight: 500;
+                padding: 0 8px;
+            }}
+            QLineEdit:focus {{
+                background-color: {theme["surface"]};
+                border: 1px solid {theme["border_light"]};
+            }}
+            """)
         self.color_button = QtWidgets.QPushButton(self.tr("Choose Color"))
+        self.color_button.setFixedHeight(36)
         self.color_button.clicked.connect(self.choose_color)
         self.color_button.setStyleSheet(get_cancel_btn_style())
 
@@ -121,13 +139,26 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
         ok_button.clicked.connect(self.accept)
         ok_button.setStyleSheet(get_ok_btn_style())
 
-        cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
-        cancel_button.clicked.connect(self.reject)
-        cancel_button.setStyleSheet(get_cancel_btn_style())
+        self.cancel_button = QtWidgets.QPushButton(self.tr("Cancel"))
+        self.cancel_button.clicked.connect(self.reject)
+        self.cancel_button.setStyleSheet(get_cancel_btn_style())
+
+        for button in (self.reset_button, self.cancel_button, ok_button):
+            button.ensurePolished()
+
+        aligned_width = max(
+            self.reset_button.minimumSizeHint().width(),
+            self.cancel_button.minimumSizeHint().width(),
+            ok_button.minimumSizeHint().width(),
+        )
+        self.reset_button.setFixedWidth(aligned_width)
+        self.cancel_button.setFixedWidth(aligned_width)
+        ok_button.setFixedWidth(aligned_width)
+        self._sync_color_control_widths(aligned_width)
 
         button_layout.addWidget(self.reset_button)
         button_layout.addStretch()
-        button_layout.addWidget(cancel_button)
+        button_layout.addWidget(self.cancel_button)
         button_layout.addWidget(ok_button)
 
         # Add all layouts to the main layout
@@ -139,6 +170,7 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
         layout.addLayout(button_layout)
 
         self.setLayout(layout)
+        self._sync_color_control_widths()
 
         # Connect signals for slider and spinbox synchronization
         self.width_slider.valueChanged.connect(self.update_width_spinbox)
@@ -147,6 +179,20 @@ class CrosshairSettingsDialog(QtWidgets.QDialog):
         self.opacity_spinbox.valueChanged.connect(self.update_opacity_slider)
 
         self.move_to_center()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._sync_color_control_widths()
+
+    def _sync_color_control_widths(self, fallback_width=None):
+        target_width = self.cancel_button.width()
+        if target_width <= 0:
+            if fallback_width is not None and int(fallback_width) > 0:
+                target_width = int(fallback_width)
+            else:
+                target_width = self.cancel_button.minimumSizeHint().width()
+        self.color_lineedit.setFixedWidth(int(target_width))
+        self.color_button.setFixedWidth(int(target_width))
 
     def move_to_center(self):
         """Move dialog to center of the screen"""

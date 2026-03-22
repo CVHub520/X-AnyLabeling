@@ -187,12 +187,6 @@ def main():
         default=argparse.SUPPRESS,
     )
     parser.add_argument(
-        "--epsilon",
-        type=float,
-        help="epsilon to find nearest vertex on canvas",
-        default=argparse.SUPPRESS,
-    )
-    parser.add_argument(
         "--work-dir",
         type=str,
         help="working directory for configuration and data files",
@@ -328,6 +322,13 @@ def main():
             f"Failed to load translation for {language}. "
             "Using default language.",
         )
+    if reset_config:
+        settings = QtCore.QSettings("anylabeling", "anylabeling")
+        logger.info(f"Resetting Qt config: {settings.fileName()}")
+        settings.clear()
+        settings.sync()
+        return
+
     win = MainWindow(
         app,
         config=config,
@@ -335,11 +336,6 @@ def main():
         output_file=output_file,
         output_dir=output_dir,
     )
-
-    if reset_config:
-        logger.info(f"Resetting Qt config: {win.settings.fileName()}")
-        win.settings.clear()
-        sys.exit(0)
 
     if not no_auto_update_check:
 

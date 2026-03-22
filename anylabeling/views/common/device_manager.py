@@ -97,6 +97,10 @@ class DeviceManager:
         self._preferred_device = device
         logger.info(f"Device manually set to: {device}")
 
+    def reset_device_preference(self):
+        self._preferred_device = None
+        logger.info("Device preference reset to auto")
+
     def get_available_devices(self) -> list:
         devices = ["CPU"]
         if self._is_gpu_available():

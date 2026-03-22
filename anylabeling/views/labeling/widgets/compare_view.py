@@ -256,8 +256,7 @@ class CompareViewSlider(QtWidgets.QWidget):
         self._close_btn = QtWidgets.QToolButton()
         self._close_btn.setText("\u00d7")
         self._close_btn.setToolTip("Close Compare View")
-        self._close_btn.setStyleSheet(
-            f"""
+        self._close_btn.setStyleSheet(f"""
             QToolButton {{
                 background-color: {t["surface"]};
                 border: none;
@@ -274,8 +273,7 @@ class CompareViewSlider(QtWidgets.QWidget):
             QToolButton:pressed {{
                 background-color: {t["border_light"]};
             }}
-        """
-        )
+        """)
         self._close_btn.setFixedSize(20, 20)
         self._close_btn.clicked.connect(self.close_requested.emit)
         layout.addWidget(self._close_btn)

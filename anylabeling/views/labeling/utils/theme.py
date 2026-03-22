@@ -272,6 +272,25 @@ def get_app_stylesheet() -> str:
         QMenu::item:selected {{
             background-color: {t["surface_hover"]};
         }}
+        QMenu::icon {{
+            padding: 2px;
+        }}
+        QMenu::icon:checked {{
+            background-color: {t["surface_pressed"]};
+            border: 1px solid {t["border_light"]};
+            border-radius: 4px;
+        }}
+        QMenu::icon:checked:selected {{
+            background-color: {t["surface_hover"]};
+        }}
+        QMenu::indicator {{
+            width: 14px;
+            height: 14px;
+        }}
+        QMenu::indicator:non-exclusive:checked,
+        QMenu::indicator:exclusive:checked {{
+            image: url(:/images/images/checkmark.svg);
+        }}
         QMenu::item:disabled {{
             color: {t["text_secondary"]};
         }}

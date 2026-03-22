@@ -113,6 +113,19 @@ uv pip install x-anylabeling-cvhub[gpu]
 uv pip install x-anylabeling-cvhub[gpu-cu11]
 ```
 
+If you want to try the latest beta pre-release, add the `--pre` flag to the install command, for example:
+
+```bash
+# CPU [Windows/Linux/macOS]
+uv pip install --pre x-anylabeling-cvhub[cpu]
+
+# CUDA 12.x [Windows/Linux]
+uv pip install --pre x-anylabeling-cvhub[gpu]
+
+# CUDA 11.x [Windows/Linux]
+uv pip install --pre x-anylabeling-cvhub[gpu-cu11]
+```
+
 #### 1.2.2 Git Clone (Recommended)
 
 **Step a.** Clone the repository.
@@ -144,6 +157,9 @@ If you need to perform secondary development or package compilation, you can ins
 ```bash
 uv pip install -e .[cpu,dev]
 ```
+
+> [!NOTE]
+> If you switch to a new project directory, rerun the install command there, otherwise the environment will reference the source code from the previous directory.
 
 After installation, you can verify it by running the following command:
 
@@ -185,7 +201,6 @@ xanylabeling
 | `--labels`                 | Comma-separated list of labels or path to a file containing labels.                                           |
 | `--validatelabel`          | Specify the type of label validation.                                                                         |
 | `--keep-prev`              | Keep annotations from the previous frame.                                                                     |
-| `--epsilon`                | Determine the epsilon value for finding the nearest vertex on the canvas.                                     |
 | `--no-auto-update-check`   | Disable automatic update checks on startup.                                                                   |
 
 > [!NOTE]

@@ -65,8 +65,7 @@ class CustomTooltip(QWidget):
 
             layout.addLayout(grid_layout)
 
-        self.setStyleSheet(
-            f"""
+        self.setStyleSheet(f"""
             QWidget {{
                 background-color: transparent;
             }}
@@ -75,8 +74,7 @@ class CustomTooltip(QWidget):
                 border-radius: 16px;
                 border: 1px solid rgba(0, 0, 0, 0.1);
             }}
-        """
-        )
+        """)
 
     def show_at(self, pos):
         """Show tooltip at specified position"""

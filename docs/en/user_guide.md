@@ -99,10 +99,10 @@ Navigate between images in your dataset using these methods:
 - **Jump to Annotated/Unannotated**:
     - `Ctrl+Shift+D`: Jump to the next image that already has annotations.
     - `Ctrl+Shift+A`: Jump to the previous image that already has annotations.
-    *(Note: The behavior of `Ctrl+Shift+D`/`Ctrl+Shift+A` can be configured to jump to the next/previous *unannotated* image instead. Modify the `switch_to_checked` field in the user configuration file.)*
+    *(Note: To make `Ctrl+Shift+D`/`Ctrl+Shift+A` jump to the next/previous *unannotated* image instead, open `Settings` (`Ctrl+0`) and adjust `Switch To Checked` under `General`, or edit the `switch_to_checked` field in the user configuration file.)*
 - **Jump to Specific Image**: Type the exact filename (including extension) into the file search bar at the bottom right and press `Enter`.
 
-The checkboxes in the file list are not editable by default. To enable editing, set `file_list_checkbox_editable` to `true` in the configuration file.
+The checkboxes in the file list are not editable by default. To enable editing, open `Settings` (`Ctrl+0`) and enable `File List Checkbox Editable` under `General`, or set `file_list_checkbox_editable` to `true` in the configuration file.
 
 ### 1.4 Saving Label Data
 
@@ -193,13 +193,13 @@ X-AnyLabeling supports creating the following types of shapes:
 
 - **Rectangle** (`R`): Click and drag to define opposite corners, or click once for the first corner and again for the second.
 - **Rotated Rectangle** (`O`): Click to set the first point, click again for the second point defining one side, then move the cursor to set the height and click a third time.
-- **Polygon** (`P`): Click along the object's boundary to place vertices. Click the starting point or double-click the last point to close the polygon. Requires at least 3 points. A brush mode (`Ctrl+N`) is also available: once activated, click to place the first point, then move the mouse to automatically trace polygon vertices along the cursor path. Move near the starting point to auto-close. The point distance can be adjusted via `Edit > Set Brush Point Distance`.
+- **Polygon** (`P`): Click along the object's boundary to place vertices. Click the starting point or double-click the last point to close the polygon. Requires at least 3 points. A brush mode (`Ctrl+N`) is also available: once activated, click to place the first point, then move the mouse to automatically trace polygon vertices along the cursor path. Move near the starting point to auto-close. The point distance can be adjusted via `Settings > Canvas > brush.point_distance`.
 - **Quadrilateral** (`T`): Click to place the first corner, then click the remaining three corners in order to complete the quadrilateral.
 - **Point**: Click to place a point.
 - **Line**: Click to set the start point, move the cursor, and click again to set the end point. Hold `Shift` while drawing to snap the segment horizontally or vertically.
 - **Line Strip**: Click to place the first point, then click to add subsequent points for connected line segments. Hold `Shift` while drawing each segment to snap it horizontally or vertically. Double-click to finish.
 - **Circle**: Click to set the center, move the cursor to define the radius, and click again.
-- **Cuboid** (`Ctrl+R`): Draw the front face as a rectangle (same gesture as rectangle creation). The rear face is auto-generated using `canvas.cuboid.default_depth_vector`; if depth is too small, it is normalized to satisfy `canvas.cuboid.min_depth`.
+- **Cuboid** (`Ctrl+R`): Draw the front face as a rectangle (same gesture as rectangle creation). The rear face is auto-generated using `canvas.cuboid.default_depth_vector` (adjustable in `Settings > Canvas > Cuboid`); if depth is too small, it is normalized to satisfy `canvas.cuboid.min_depth`.
 
 You can create shapes using the tools in the left toolbar, the right-click context menu, or keyboard shortcuts.
 
@@ -212,12 +212,12 @@ X-AnyLabeling provides two shape interaction modes:
 
 Press `Ctrl+J` to quickly switch between Drawing and Editing modes. Additional object-specific operations:
 
-- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is also supported; when enabled via the `wheel_rectangle_editing` setting, scrolling inside the rectangle scales it, while scrolling outside adjusts the nearest edge. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
+- **Rectangles**: You can drag a rectangle's corner handles to resize it, or select multiple rectangles and merge them using the right-click menu. Mouse wheel editing is also supported; you can enable it in `Settings > Canvas > Wheel Editing > Enable Wheel Rectangle Editing`, or via the `wheel_rectangle_editing` setting. When enabled, scrolling inside the rectangle scales it, while scrolling outside adjusts the nearest edge. Note: wheel rectangle editing is automatically disabled when `auto_highlight_shape` is enabled.
 - **Polygons**: In Editing Mode, dragging an edge adds a new vertex, and holding `Shift` while clicking a vertex removes it. Polygons also support merging via the right-click menu.
 - **Rotated Rectangles**: Select a rotated rectangle and press `Z`, `X`, `C`, or `V` to rotate it in different directions. A real-time display of the rotation angle is available via the View menu.
 - **Cuboid**: In Edit Mode, cuboid controls include 11 visible handles: 4 front vertices, 4 front edge centers, 2 visible rear vertices, and 1 visible rear edge center (depth handle). Dragging the front face moves the whole cuboid. Dragging the left/right/back faces adjusts geometry. Dragging rear visible vertices adjusts vertical alignment of top/bottom planes, while dragging the rear center adjusts depth with geometric constraints. The visible rear side is determined automatically from the depth vector direction.
 
-Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this via the `double_click_edit_label` canvas setting (default: true).
+Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Interaction > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
 
 > [!TIP]
 > X-AnyLabeling provides two convenient shape navigation features:
@@ -288,9 +288,9 @@ This section explains how to customize the view settings in X-AnyLabeling, inclu
 
 ### 3.1 Canvas Controls
 
-- **Zoom In** (`Ctrl + +` or `Ctrl + =`)
+- **Zoom In** (`Ctrl + +`)
 - **Zoom Out** (`Ctrl + -`)
-- **Zoom to Actual Size (100%)** (`Ctrl + 0`)
+- **Zoom to Actual Size (100%)** (`Ctrl + =`)
 - **Zoom to Fit Window** (`Ctrl + F`)
 - **Zoom to Fit Width** (`Ctrl + Shift + F`)
 
@@ -321,12 +321,9 @@ You can control the visibility of various shape attributes:
 
 When you hover over a shape, its dimensions (width and height) are displayed in the status bar.
 
-<p align="center">
-  <img src="../../assets/resources/filter.png" alt="Shape Display Filters">
-</p>
-
 > [!TIP]
-> The right panel features **Label Filters** and **Group ID Filters** for filtering shapes by label or group ID. X-AnyLabeling v3.2.4+ adds the ability to select/deselect all shapes at once, making it easier to manage multiple shapes simultaneously.
+> In the **Shapes** list on the right panel, you can right-click to open **Filter by Label** and **Filter by Group ID** submenus for quick filtering.  
+> The global show/hide control for all shapes is available in the left toolbar as an **eye/hidden** toggle button (click once to hide all, click again to show all).
 
 ### 3.4 Crosshair Customization
 
@@ -752,11 +749,12 @@ Select your preferred interface language (`Chinese` or `English`) from the `Lang
 - **Linux/macOS**: `~/.xanylabelingrc`
 - **Windows**: `C:\Users\<YourUsername>\.xanylabelingrc`
 
-You can manually edit this file (it's in YAML format) to customize settings like keyboard shortcuts, label colors, and default behaviors. Close X-AnyLabeling before editing and restart it afterwards for changes to take effect.
+Most common options can now be changed directly in `Settings` (`Ctrl+0`), while the configuration file remains useful for manual editing and advanced customization. Close X-AnyLabeling before editing the file manually and restart it afterwards for changes to take effect.
 
 ### 7.1 Keyboard Shortcuts
 
 The default keyboard shortcuts are listed below. You can customize these in the `.xanylabelingrc` file if needed (e.g., to resolve conflicts with system shortcuts or match personal preferences).
+You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit them in the right-side `Shortcuts` panel.
 
 | Shortcut              | Function                                         | Notes                                      |
 |-----------------------|--------------------------------------------------|--------------------------------------------|
@@ -783,6 +781,7 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Alt+g`               | Open Group ID Manager                            | Manually set group ID                      |
 | `Alt+l`               | Open Label Manager                               | Rename, Delete, Hide/Show, Adjust Color    |
 | `Alt+s`               | Open Shape Manager                               | Add, Delete, Remove                        |
+| `Ctrl+0`              | Open Settings                                    | Shortcut settings can be edited in GUI     |
 | `Ctrl+Delete`         | Delete Current Label File (`.json`)              | **Irreversible**                           |
 | `Ctrl+Shift+Delete`   | Delete Current Image & Label File                | Moves to `_delete_` folder                 |
 | `Ctrl+1`              | Open Chatbot                                     |                                            |
@@ -811,8 +810,8 @@ The default keyboard shortcuts are listed below. You can customize these in the 
 | `Ctrl+k`              | Toggle Linking Display                           | Show/Hide shape linking visualization      |
 | `Ctrl+Shift+l`        | Toggle Attributes Display                        | Show/Hide shape attributes on canvas       |
 | `Ctrl+Shift+s`        | Set Output Directory                             | Change where `.json` files are saved       |
-| `Ctrl+0`              | Zoom to Actual Size (100%)                       |                                            |
-| `Ctrl++` / `Ctrl+=`   | Zoom In                                          |                                            |
+| `Ctrl+=`              | Zoom to Actual Size (100%)                       |                                            |
+| `Ctrl++`              | Zoom In                                          |                                            |
 | `Ctrl+-`              | Zoom Out                                         |                                            |
 | `Ctrl+f`              | Zoom to Fit Window                               |                                            |
 | `Ctrl+Shift+f`        | Zoom to Fit Width                                |                                            |
@@ -894,14 +893,14 @@ Then upload it through the menu: `Upload` → `Upload Label Classes File`.
 
 ### 7.4 Auto-Switch to Edit Mode
 
-To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. This behavior is controlled by the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
+To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. You can change this in `Settings > General > Behavior > Auto Switch To Edit Mode`, or through the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to enable automatic switching to Edit Mode.
 - Set to `false` (the default) to remain in Drawing Mode, which allows for the continuous creation of multiple shapes.
 
 ### 7.5 Hover Auto-Highlight
 
-For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. This is controlled by the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
+For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. You can change this in `Settings > General > Behavior > Auto Highlight Shape`, or through the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to highlight shapes on hover.
 - Set to `false` (the default) to only highlight shapes upon clicking them.
@@ -910,7 +909,7 @@ For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When t
 
 ### 7.6 Shape Appearance
 
-Customize the default appearance of shapes (colors during drawing/selection, point size, line width) by editing the `shape:` section in the `.xanylabelingrc` file:
+Customize the default appearance of shapes (colors during drawing/selection, point size, line width) in `Settings > Shape`, or by editing the `shape:` section in the `.xanylabelingrc` file:
 
 ```YAML
 shape:
@@ -940,7 +939,7 @@ shape:
     *   Setting this to `modelscope` forces downloads from ModelScope (often faster for users in China). Any other value (or if unset) falls back to the next priority level.
 
 2.  **Configuration File (Medium Priority)**:
-    *   Edit the `model_hub:` setting in `.xanylabelingrc`.
+    *   Open `Settings` (`Ctrl+0`) and change `General > Behavior > Model Hub`, or edit the `model_hub:` setting in `.xanylabelingrc`.
     *   Set it to `modelscope` to use ModelScope, or `github` (default) to use models hosted on GitHub Releases.
     *   This setting is used only if the `XANYLABELING_MODEL_HUB` environment variable is not set to `modelscope`.
     ```yaml

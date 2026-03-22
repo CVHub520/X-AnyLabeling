@@ -180,9 +180,9 @@ class PredictionResult:
     ):
         self.image: Image.Image = read_image_as_pil(image)
         self.image_width, self.image_height = self.image.size
-        self.object_prediction_list: List[
-            ObjectPrediction
-        ] = object_prediction_list
+        self.object_prediction_list: List[ObjectPrediction] = (
+            object_prediction_list
+        )
         self.durations_in_seconds = durations_in_seconds
 
     def export_visuals(

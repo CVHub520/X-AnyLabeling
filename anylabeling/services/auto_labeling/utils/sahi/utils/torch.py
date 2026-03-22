@@ -74,13 +74,13 @@ def select_device(device: str):
     cpu = device == "cpu"
     mps = device == "mps"  # Apple Metal Performance Shaders (MPS)
     if cpu or mps:
-        os.environ[
-            "CUDA_VISIBLE_DEVICES"
-        ] = "-1"  # force torch.cuda.is_available() = False
+        os.environ["CUDA_VISIBLE_DEVICES"] = (
+            "-1"  # force torch.cuda.is_available() = False
+        )
     elif device:  # non-cpu device requested
-        os.environ[
-            "CUDA_VISIBLE_DEVICES"
-        ] = device  # set environment variable - must be before assert is_available()
+        os.environ["CUDA_VISIBLE_DEVICES"] = (
+            device  # set environment variable - must be before assert is_available()
+        )
 
     if (
         not cpu and not mps and is_torch_cuda_available()

@@ -486,9 +486,9 @@ class UltralyticsDialog(QDialog):
                     torch.cuda.empty_cache()
                     device_count = torch.cuda.device_count()
                     if cuda_visible_devices_backup != "-1":
-                        os.environ[
-                            "CUDA_VISIBLE_DEVICES"
-                        ] = cuda_visible_devices_backup
+                        os.environ["CUDA_VISIBLE_DEVICES"] = (
+                            cuda_visible_devices_backup
+                        )
                 else:
                     device_count = torch.cuda.device_count()
 

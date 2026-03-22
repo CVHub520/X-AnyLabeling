@@ -358,10 +358,10 @@ class ModelManager(QObject):
 
         model_config = copy.deepcopy(self.model_configs[model_id])
         model_config["_cancel_event"] = self._cancel_event
-        model_config[
-            "_on_progress"
-        ] = lambda downloaded, total: self.download_progress.emit(
-            downloaded, total
+        model_config["_on_progress"] = (
+            lambda downloaded, total: self.download_progress.emit(
+                downloaded, total
+            )
         )
         if model_config["type"] == "yolov5":
             from .yolov5 import YOLOv5

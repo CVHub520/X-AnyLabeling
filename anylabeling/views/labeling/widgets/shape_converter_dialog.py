@@ -17,6 +17,7 @@ from anylabeling.views.labeling.utils.style import (
     get_dialog_style,
     get_msg_box_style,
     get_ok_btn_style,
+    get_settings_combo_style,
     get_theme,
 )
 from anylabeling.views.labeling.widgets.popup import Popup
@@ -44,6 +45,11 @@ class ShapeConverterDialog(QDialog):
         self.source_combo = QtWidgets.QComboBox(self)
         self.source_combo.addItems(list(CONVERSION_TARGETS.keys()))
         self.target_combo = QtWidgets.QComboBox(self)
+        self._combo_style = get_settings_combo_style()
+        self.source_combo.setStyleSheet(self._combo_style)
+        self.target_combo.setStyleSheet(self._combo_style)
+        self._prepare_combo_popup(self.source_combo)
+        self._prepare_combo_popup(self.target_combo)
         self.arrow_label = QtWidgets.QLabel(self)
         self.arrow_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.arrow_label.setMinimumWidth(56)
@@ -70,7 +76,7 @@ class ShapeConverterDialog(QDialog):
             QProgressBar {{
                 background-color: {theme["surface"]};
                 border: 1px solid {theme["border_light"]};
-                border-radius: 8px;
+                border-radius: 0px;
                 text-align: center;
                 color: {theme["text"]};
                 font-size: 12px;
@@ -82,7 +88,7 @@ class ShapeConverterDialog(QDialog):
                     stop:0 #0066FF,
                     stop:0.5 #00A6FF,
                     stop:1 #0066FF);
-                border-radius: 7px;
+                border-radius: 0px;
             }}
             """)
         main_layout.addWidget(self.progress_bar)
@@ -154,6 +160,25 @@ class ShapeConverterDialog(QDialog):
     def _update_target_options(self, source_type):
         self.target_combo.clear()
         self.target_combo.addItems(CONVERSION_TARGETS.get(source_type, []))
+        self.target_combo.setStyleSheet(self._combo_style)
+        self.target_combo.setMaxVisibleItems(
+            min(12, max(1, self.target_combo.count()))
+        )
+
+    def _prepare_combo_popup(self, combo):
+        popup_view = QtWidgets.QListView(combo)
+        combo.setView(popup_view)
+        combo.setMaxVisibleItems(min(12, max(1, combo.count())))
+        popup_view.setUniformItemSizes(True)
+        popup_view.setMouseTracking(True)
+        popup_view.viewport().setMouseTracking(True)
+        popup_view.setVerticalScrollMode(
+            QtWidgets.QAbstractItemView.ScrollMode.ScrollPerPixel
+        )
+        popup_view.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        popup_view.doItemsLayout()
 
     def _set_progress(self, current, total):
         safe_total = max(total, 1)

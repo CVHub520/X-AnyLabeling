@@ -113,9 +113,9 @@ def get_prediction(
         shift_amount=shift_amount,
         full_shape=full_shape,
     )
-    object_prediction_list: List[
-        ObjectPrediction
-    ] = detection_model.object_prediction_list
+    object_prediction_list: List[ObjectPrediction] = (
+        detection_model.object_prediction_list
+    )
 
     # postprocess matching predictions
     if postprocess is not None:

@@ -275,6 +275,7 @@ class Canvas(
     def set_fill_drawing(self, value):
         """Set shape filling option"""
         self._fill_drawing = value
+        self.update()
 
     @property
     def create_mode(self):
@@ -3183,7 +3184,6 @@ class Canvas(
             and self.selected_shapes[0].shape_type == "rectangle"
             and not (mods & QtCore.Qt.KeyboardModifier.ControlModifier)
         ):
-
             try:
                 pos = self.transform_pos(ev.position())
             except AttributeError:

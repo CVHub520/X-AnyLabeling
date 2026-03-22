@@ -157,9 +157,9 @@ def _subprocess_kwargs():
     """Extra kwargs for subprocess calls to avoid console window on Windows."""
     kwargs = {}
     if platform.system() == "Windows":
-        kwargs[
-            "creationflags"
-        ] = subprocess.CREATE_NO_WINDOW  # hide console flash
+        kwargs["creationflags"] = (
+            subprocess.CREATE_NO_WINDOW
+        )  # hide console flash
     return kwargs
 
 

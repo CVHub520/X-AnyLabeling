@@ -2,8 +2,6 @@ import os
 import yaml
 import collections
 
-import importlib.resources as pkg_resources
-import anylabeling.configs as anylabeling_configs
 from anylabeling.config import get_config
 
 from PyQt6 import uic
@@ -34,6 +32,7 @@ from anylabeling.views.labeling.utils.style import (
     get_double_spinbox_style,
     get_normal_button_style,
     get_highlight_button_style,
+    get_settings_combo_style,
     get_toggle_button_style,
     get_download_progress_bar_style,
     get_cancel_download_button_style,
@@ -195,14 +194,28 @@ class AutoLabelingWidget(QWidget):
         self.model_selection_button.setDefault(False)
         self.model_selection_button.setStyleSheet(get_normal_button_style())
         self.model_selection_button.clicked.connect(self.show_model_dropdown)
+        combo_style = get_settings_combo_style()
+        for combo in (
+            self.output_select_combobox,
+            self.upn_select_combobox,
+            self.florence2_select_combobox,
+            self.gd_select_combobox,
+            self.remote_server_select_combobox,
+            self.remote_task_select_combobox,
+        ):
+            combo.setStyleSheet(combo_style)
+
+        # --- Configuration for: output_label ---
+        self.output_label.setText(self.tr("Output"))
 
         # --- Configuration for: button_run ---
-        self.button_run.setShortcut("I")
         self.button_run.setStyleSheet(get_highlight_button_style())
+        self.button_run.setText(self.tr("Run (i)"))
         self.button_run.clicked.connect(self.run_prediction)
 
         # --- Configuration for: button_reset_tracker ---
         self.button_reset_tracker.setStyleSheet(get_normal_button_style())
+        self.button_reset_tracker.setText(self.tr("Reset Tracker"))
         self.button_reset_tracker.clicked.connect(self.on_reset_tracker)
 
         # --- Configuration for: button_classes_filter ---
@@ -221,13 +234,23 @@ class AutoLabelingWidget(QWidget):
         )
         self.button_set_api_token.clicked.connect(self.on_set_api_token)
 
+        # --- Configuration for: input_box_thres ---
+        self.input_box_thres.setText(self.tr("Box threshold"))
+
         # --- Configuration for: button_send ---
         self.button_send.setStyleSheet(get_highlight_button_style())
+        self.button_send.setText(self.tr("Send"))
         self.button_send.clicked.connect(self.run_vl_prediction)
+
+        # --- Configuration for: input_conf ---
+        self.input_conf.setText(self.tr("Confidence"))
 
         # --- Configuration for: edit_conf ---
         self.edit_conf.setStyleSheet(get_double_spinbox_style())
         self.edit_conf.valueChanged.connect(self.on_conf_value_changed)
+
+        # --- Configuration for: input_iou ---
+        self.input_iou.setText(self.tr("IoU"))
 
         # --- Configuration for: edit_iou ---
         self.edit_iou.setStyleSheet(get_double_spinbox_style())
@@ -241,7 +264,6 @@ class AutoLabelingWidget(QWidget):
         )
 
         # --- Configuration for: button_add_point ---
-        self.button_add_point.setShortcut("Q")
         self.button_add_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
                 AutoLabelingMode.ADD, AutoLabelingMode.POINT
@@ -249,7 +271,6 @@ class AutoLabelingWidget(QWidget):
         )
 
         # --- Configuration for: button_remove_point ---
-        self.button_remove_point.setShortcut("E")
         self.button_remove_point.clicked.connect(
             lambda: self.set_auto_labeling_mode(
                 AutoLabelingMode.REMOVE, AutoLabelingMode.POINT
@@ -257,25 +278,29 @@ class AutoLabelingWidget(QWidget):
         )
 
         # --- Configuration for: button_add_rect ---
+        self.button_add_rect.setText(self.tr("+Rect"))
         self.button_add_rect.clicked.connect(self.on_button_add_rect_clicked)
 
         # --- Configuration for: add_pos_rect ---
+        self.add_pos_rect.setText(self.tr("+Rect"))
         self.add_pos_rect.clicked.connect(self.on_add_pos_rect_clicked)
 
         # --- Configuration for: add_neg_rect ---
+        self.add_neg_rect.setText(self.tr("-Rect"))
         self.add_neg_rect.clicked.connect(self.on_add_neg_rect_clicked)
 
         # --- Configuration for: button_run_rect ---
         self.button_run_rect.setStyleSheet(get_highlight_button_style())
+        self.button_run_rect.setText(self.tr("Run Rect"))
         self.button_run_rect.clicked.connect(self.run_prediction)
 
         # --- Configuration for: button_clear ---
+        self.button_clear.setText(self.tr("Clear (b)"))
         self.button_clear.clicked.connect(self.on_clear_clicked)
-        self.button_clear.setShortcut("B")
 
         # --- Configuration for: button_finish_object ---
+        self.button_finish_object.setText(self.tr("Finish (f)"))
         self.button_finish_object.clicked.connect(self.on_finish_clicked)
-        self.button_finish_object.setShortcut("F")
 
         # --- Configuration for: button_auto_decode ---
         self.button_auto_decode.setStyleSheet(get_normal_button_style())
@@ -344,9 +369,9 @@ class AutoLabelingWidget(QWidget):
             )
         )
         self.mask_fineness_value_label.setStyleSheet(f"""
-            QLabel {{ 
-                color: {get_theme()["text_secondary"]}; 
-                font-size: 10px; 
+            QLabel {{
+                color: {get_theme()["text_secondary"]};
+                font-size: 10px;
                 font-weight: 500;
                 background: transparent;
                 border: none;
@@ -374,6 +399,67 @@ class AutoLabelingWidget(QWidget):
         self.populate_florence2_combobox()
         self.populate_gd_combobox()
         self.populate_remote_server_combobox()
+        self.update_shortcut_button_texts()
+
+    def _split_label_and_shortcut(self, text):
+        normalized = str(text).strip()
+        if "(" in normalized and normalized.endswith(")"):
+            prefix, suffix = normalized.rsplit("(", 1)
+            base = prefix.strip()
+            shortcut = suffix[:-1].strip()
+            if base:
+                return base, shortcut
+        return normalized, ""
+
+    def _shortcut_value_to_text(self, value):
+        if isinstance(value, (list, tuple)):
+            return ",".join(str(v).strip() for v in value if str(v).strip())
+        if value in (None, ""):
+            return ""
+        return str(value).strip()
+
+    def _format_button_with_shortcut(
+        self, current_text, value, default_shortcut=""
+    ):
+        base, existing_shortcut = self._split_label_and_shortcut(current_text)
+        shortcut = self._shortcut_value_to_text(value)
+        if not shortcut:
+            shortcut = existing_shortcut or str(default_shortcut).strip()
+        if shortcut:
+            return f"{base} ({shortcut})"
+        return base
+
+    def update_shortcut_button_texts(self, shortcuts=None):
+        if shortcuts is None:
+            shortcuts = self.parent._config.get("shortcuts", {})
+        self.button_add_point.setText(
+            self._format_button_with_shortcut(
+                self.button_add_point.text(),
+                shortcuts.get("auto_labeling_add_point"),
+                "q",
+            )
+        )
+        self.button_remove_point.setText(
+            self._format_button_with_shortcut(
+                self.button_remove_point.text(),
+                shortcuts.get("auto_labeling_remove_point"),
+                "e",
+            )
+        )
+        self.button_clear.setText(
+            self._format_button_with_shortcut(
+                self.button_clear.text(),
+                shortcuts.get("auto_labeling_clear"),
+                "b",
+            )
+        )
+        self.button_finish_object.setText(
+            self._format_button_with_shortcut(
+                self.button_finish_object.text(),
+                shortcuts.get("auto_labeling_finish_object"),
+                "f",
+            )
+        )
 
     def init_model_data(self):
         """Get models data"""
@@ -617,7 +703,7 @@ class AutoLabelingWidget(QWidget):
             except Exception as e:
                 logger.warning(f"Failed to update config: {e}")
 
-            self.model_selection_button.setText("No Model")
+            self.model_selection_button.setText(self.tr("No Model"))
             self.model_selection_button.setEnabled(True)
 
             return
@@ -644,8 +730,8 @@ class AutoLabelingWidget(QWidget):
         self.upn_select_combobox.clear()
         # Define modes with display names
         modes = {
-            "coarse_grained_prompt": self.tr("Coarse Grained"),
-            "fine_grained_prompt": self.tr("Fine Grained"),
+            "coarse_grained_prompt": "Coarse Grained",
+            "fine_grained_prompt": "Fine Grained",
         }
         # Add modes to combobox
         for mode, display_name in modes.items():
@@ -670,20 +756,20 @@ class AutoLabelingWidget(QWidget):
         self.florence2_select_combobox.clear()
         # Define modes with display names
         modes = {
-            "caption": self.tr("Caption"),
-            "detailed_cap": self.tr("Detailed Caption"),
-            "more_detailed_cap": self.tr("More Detailed Caption"),
-            "od": self.tr("Object Detection"),
-            "region_proposal": self.tr("Region Proposal"),
-            "dense_region_cap": self.tr("Dense Region Caption"),
-            "refer_exp_seg": self.tr("Refer-Exp Segmentation"),
-            "region_to_seg": self.tr("Region to Segmentation"),
-            "ovd": self.tr("OVD"),
-            "cap_to_pg": self.tr("Caption to Parse Grounding"),
-            "region_to_cat": self.tr("Region to Category"),
-            "region_to_desc": self.tr("Region to Description"),
-            "ocr": self.tr("OCR"),
-            "ocr_with_region": self.tr("OCR with Region"),
+            "caption": "Caption",
+            "detailed_cap": "Detailed Caption",
+            "more_detailed_cap": "More Detailed Caption",
+            "od": "Object Detection",
+            "region_proposal": "Region Proposal",
+            "dense_region_cap": "Dense Region Caption",
+            "refer_exp_seg": "Refer-Exp Segmentation",
+            "region_to_seg": "Region to Segmentation",
+            "ovd": "OVD",
+            "cap_to_pg": "Caption to Parse Grounding",
+            "region_to_cat": "Region to Category",
+            "region_to_desc": "Region to Description",
+            "ocr": "OCR",
+            "ocr_with_region": "OCR with Region",
         }
         # Add modes to combobox
         for mode, display_name in modes.items():

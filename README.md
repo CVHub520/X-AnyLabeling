@@ -87,6 +87,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- `2026-03-22`: Added support for built-in Settings in the GUI for directly adjusting common options.
 - `2026-03-10`: Added support for 3D Cuboid shape annotation from rectangle.
 - `2026-03-01`: Completed the PyQt5-to-PyQt6 upgrade refactor (Beta release), along with additional feature fixes and optimizations.
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
