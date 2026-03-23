@@ -2742,6 +2742,9 @@ class LabelingWidget(LabelDialog):
     def toggle_select_all(self):
         if self.select_toggle_action is None:
             return
+        if self._has_active_shape_filter():
+            self._update_select_toggle_button_tooltip()
+            return
         if not self.canvas.shapes:
             self._update_select_toggle_button_tooltip()
             return
@@ -2750,9 +2753,23 @@ class LabelingWidget(LabelDialog):
         self._set_all_objects_visibility(not all_visible)
         self._update_select_toggle_button_tooltip()
 
+    def _has_active_shape_filter(self):
+        current_label = self.label_filter_combobox.text_box.currentText()
+        current_gid = self.gid_filter_combobox.gid_box.currentText()
+        return bool(current_label) or current_gid not in ["", "-1"]
+
     def _update_select_toggle_button_tooltip(self):
         if self.select_toggle_action is None:
             return
+        if self._has_active_shape_filter():
+            tooltip = self.tr(
+                "Toggle shapes visibility is unavailable while a label or group filter is active"
+            )
+            self.select_toggle_action.setEnabled(False)
+            self.select_toggle_action.setToolTip(tooltip)
+            self.select_toggle_action.setStatusTip(tooltip)
+            return
+        self.select_toggle_action.setEnabled(bool(self.canvas.shapes))
         if self._are_all_shapes_visible():
             tooltip = self.tr("Hide all shapes")
             icon = utils.new_icon("eye")
@@ -2776,27 +2793,11 @@ class LabelingWidget(LabelDialog):
 
     def _set_all_objects_visibility(self, visible):
         """Set all Objects panel checkboxes and shape visibility to visible (True/False)."""
-        model = self.label_list.model()
-        model.blockSignals(True)
-        try:
-            check_state = (
-                Qt.CheckState.Checked if visible else Qt.CheckState.Unchecked
-            )
-            for item in self.label_list:
-                item.setCheckState(check_state)
-                shape = item.shape()
-                shape.visible = visible
-                self.canvas.set_shape_visible(shape, visible)
-                label = shape.label
-                if label in self.label_info:
-                    self.label_info[label]["visible"] = visible
-        finally:
-            model.blockSignals(False)
-        if (
-            hasattr(self, "navigator_dialog")
-            and self.navigator_dialog.isVisible()
-        ):
-            self.update_navigator_shapes()
+        for item in self.label_list:
+            label = item.shape().label
+            if label in self.label_info:
+                self.label_info[label]["visible"] = visible
+        self._sync_label_list_visibility(lambda _item: visible)
 
     def reset_attribute(self, text, shape):
         # Skip validation for auto-labeling special constants
@@ -3492,8 +3493,7 @@ class LabelingWidget(LabelDialog):
             )
 
         self.set_dirty()
-        self.update_combo_box()
-        self.update_gid_box()
+        self._refresh_shape_filters()
 
     def edit_label(self, item=None):
         if item and not isinstance(item, LabelListWidgetItem):
@@ -3577,8 +3577,7 @@ class LabelingWidget(LabelDialog):
         else:
             item.setText(f"{shape.label} ({shape.group_id})")
         self.set_dirty()
-        self.update_combo_box()
-        self.update_gid_box()
+        self._refresh_shape_filters()
 
         # update top-right attributes panel
         selected_idx = self.canvas.shapes.index(selected_shapes[0])
@@ -4113,7 +4112,7 @@ class LabelingWidget(LabelDialog):
         else:
             self.hide_attributes_panel()
 
-    def add_label(self, shape, update_last_label=True):
+    def add_label(self, shape, update_last_label=True, refresh_filters=True):
         if shape.group_id is None:
             text = shape.label
         else:
@@ -4157,8 +4156,8 @@ class LabelingWidget(LabelDialog):
         color = shape.fill_color.getRgb()[:3]
         label_list_item.setText("{}".format(html.escape(text)))
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
-        self.update_combo_box()
-        self.update_gid_box()
+        if refresh_filters:
+            self._refresh_shape_filters()
 
     def load_labels(self, labels, clear_existing=True):
         """
@@ -4222,17 +4221,24 @@ class LabelingWidget(LabelDialog):
         for shape in shapes:
             item = self.label_list.find_item_by_shape(shape)
             self.label_list.remove_item(item)
-        self.update_combo_box()
-        self.update_gid_box()
+        self._refresh_shape_filters()
 
     def load_shapes(self, shapes, replace=True, update_last_label=True):
         self._no_selection_slot = True
-        for shape in shapes:
-            self.add_label(shape, update_last_label=update_last_label)
-        self.label_list.clearSelection()
-        self._no_selection_slot = False
+        self.label_list.setUpdatesEnabled(False)
+        try:
+            for shape in shapes:
+                self.add_label(
+                    shape,
+                    update_last_label=update_last_label,
+                    refresh_filters=False,
+                )
+            self.label_list.clearSelection()
+        finally:
+            self.label_list.setUpdatesEnabled(True)
+            self._no_selection_slot = False
         self.canvas.load_shapes(shapes, replace=replace)
-        self.apply_label_visibility()
+        self._refresh_shape_filters()
 
     def load_flags(self, flags):
         self.flag_widget.clear()
@@ -4244,18 +4250,57 @@ class LabelingWidget(LabelDialog):
             )
             self.flag_widget.addItem(item)
 
-    def apply_label_visibility(self):
-        for item in self.label_list:
-            label = item.shape().label
-            if label in self.label_info:
-                is_visible = self.label_info[label].get("visible", True)
-            else:
-                is_visible = True
-            if is_visible:
-                item.setCheckState(Qt.CheckState.Checked)
-            else:
-                item.setCheckState(Qt.CheckState.Unchecked)
+    def _sync_label_list_visibility(self, get_visible):
+        model = self.label_list.model()
+        blocker = QtCore.QSignalBlocker(model)
+        self.label_list.setUpdatesEnabled(False)
+        try:
+            for item in self.label_list:
+                is_visible = bool(get_visible(item))
+                check_state = (
+                    Qt.CheckState.Checked
+                    if is_visible
+                    else Qt.CheckState.Unchecked
+                )
+                if item.checkState() != check_state:
+                    item.setCheckState(check_state)
+                shape = item.shape()
+                shape.visible = is_visible
+                self.canvas.visible[shape] = is_visible
+        finally:
+            self.label_list.setUpdatesEnabled(True)
+            del blocker
+        self.canvas.update()
         self._update_select_toggle_button_tooltip()
+        if (
+            hasattr(self, "navigator_dialog")
+            and self.navigator_dialog.isVisible()
+        ):
+            self.update_navigator_shapes()
+
+    def _refresh_shape_filters(self):
+        self.update_combo_box(block_signal=True)
+        self.update_gid_box(block_signal=True)
+        current_gid = self.gid_filter_combobox.gid_box.currentText()
+        if current_gid and current_gid != "-1":
+            self.gid_selection_changed(
+                self.gid_filter_combobox.gid_box.currentIndex()
+            )
+            return
+        current_label = self.label_filter_combobox.text_box.currentText()
+        if current_label:
+            self.text_selection_changed(
+                self.label_filter_combobox.text_box.currentIndex()
+            )
+            return
+        self.apply_label_visibility()
+
+    def apply_label_visibility(self):
+        self._sync_label_list_visibility(
+            lambda item: self.label_info.get(item.shape().label, {}).get(
+                "visible", True
+            )
+        )
 
     def update_combo_box(self, block_signal=False):
         current_label = self.label_filter_combobox.text_box.currentText()
@@ -4366,8 +4411,14 @@ class LabelingWidget(LabelDialog):
     def duplicate_selected_shape(self):
         added_shapes = self.canvas.duplicate_selected_shapes()
         self.label_list.clearSelection()
-        for shape in added_shapes:
-            self.add_label(shape)
+        self.label_list.setUpdatesEnabled(False)
+        try:
+            for shape in added_shapes:
+                self.add_label(shape, refresh_filters=False)
+        finally:
+            self.label_list.setUpdatesEnabled(True)
+        if added_shapes:
+            self._refresh_shape_filters()
         self.set_dirty()
 
     def paste_selected_shape(self):
@@ -4410,34 +4461,23 @@ class LabelingWidget(LabelDialog):
 
     def text_selection_changed(self, index):
         label = self.label_filter_combobox.text_box.itemText(index)
-        for item in self.label_list:
-            item_label = item.shape().label
-            if label in ["", item_label]:
-                if item_label in self.label_info:
-                    is_visible = self.label_info[item_label].get(
-                        "visible", True
-                    )
-                    item.setCheckState(
-                        Qt.CheckState.Checked
-                        if is_visible
-                        else Qt.CheckState.Unchecked
-                    )
-                else:
-                    item.setCheckState(Qt.CheckState.Checked)
-            else:
-                item.setCheckState(Qt.CheckState.Unchecked)
+        self._sync_label_list_visibility(
+            lambda item: label in ["", item.shape().label]
+            and self.label_info.get(item.shape().label, {}).get(
+                "visible", True
+            )
+        )
 
     def gid_selection_changed(self, index):
         gid = self.gid_filter_combobox.gid_box.itemText(index)
-        for item in self.label_list:
-            if item.shape().group_id is not None:
-                checked_gid = ["-1", str(item.shape().group_id)]
-            else:
-                checked_gid = ["-1"]
-            if str(gid) in checked_gid:
-                item.setCheckState(Qt.CheckState.Checked)
-            else:
-                item.setCheckState(Qt.CheckState.Unchecked)
+        self._sync_label_list_visibility(
+            lambda item: str(gid)
+            in (
+                ["-1", str(item.shape().group_id)]
+                if item.shape().group_id is not None
+                else ["-1"]
+            )
+        )
 
     def label_selection_changed(self):
         if self._no_selection_slot:
@@ -5183,8 +5223,6 @@ class LabelingWidget(LabelDialog):
                         **default_flags,
                         **shape.flags,
                     }
-            self.update_combo_box()
-            self.update_gid_box()
             self.load_shapes(self.label_file.shapes, update_last_label=False)
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
@@ -5842,8 +5880,14 @@ class LabelingWidget(LabelDialog):
 
     def copy_shape(self):
         self.canvas.end_move(copy=True)
-        for shape in self.canvas.selected_shapes:
-            self.add_label(shape)
+        self.label_list.setUpdatesEnabled(False)
+        try:
+            for shape in self.canvas.selected_shapes:
+                self.add_label(shape, refresh_filters=False)
+        finally:
+            self.label_list.setUpdatesEnabled(True)
+        if self.canvas.selected_shapes:
+            self._refresh_shape_filters()
         self.label_list.clearSelection()
         self.set_dirty()
 
