@@ -33,7 +33,7 @@ name = "x-anylabeling-cvhub"
 dynamic = ["version"]
 description = "Advanced Auto Labeling Solution with Added Features"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = { "text" = "GPLv3" }
 keywords = ["machine-learning", "deep-learning", "computer-vision", "multi-modal", "auto-labeling", "image-annotation", "AI", "LLM", "VLM", "YOLO", "SAM", "CLIP", "Grounding-DINO", "X-AnyLabeling"]
 authors = [
@@ -49,7 +49,6 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -75,7 +74,6 @@ dependencies = [
     "lapx>=0.5.5",
     "tqdm>=4.64.0",
     "scipy>=1.4.1",
-    "ml_dtypes>=0.5.0",
     "PyYAML",
     "importlib_metadata",
     "json_repair",
@@ -133,6 +131,22 @@ gpu-cu11 = [
 
 [project.scripts]
 xanylabeling = "anylabeling.app:main"
+
+[tool.uv]
+conflicts = [
+    [
+        { extra = "cpu" },
+        { extra = "gpu" },
+    ],
+    [
+        { extra = "cpu" },
+        { extra = "gpu-cu11" },
+    ],
+    [
+        { extra = "gpu" },
+        { extra = "gpu-cu11" },
+    ],
+]
 
 # Tools settings -------------------------------------------------------------------------------------------------------
 [tool.setuptools]  # configuration specific to the `setuptools` build backend.

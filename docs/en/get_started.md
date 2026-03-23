@@ -23,18 +23,18 @@ If you are already using Miniconda, follow these steps:
 
 **Step 0.** Download and install Miniconda from the [official website](https://docs.anaconda.com/miniconda/).
 
-**Step 1.** Create a conda environment with Python 3.10 ~ 3.13 (Python 3.12 is recommended) and activate it.
+**Step 1.** Create a conda environment with Python 3.11 ~ 3.13 (Python 3.12 is recommended) and activate it.
 
 > [!NOTE]
 > Other Python versions require compatibility verification on your own.
 
 ```bash
 # CPU Environment [Windows/Linux/macOS]
-conda create --name x-anylabeling-cpu python=3.10 -y
+conda create --name x-anylabeling-cpu python=3.12 -y
 conda activate x-anylabeling-cpu
 
 # CUDA 11.x Environment [Windows/Linux]
-conda create --name x-anylabeling-cu11 python=3.11 -y
+conda create --name x-anylabeling-cu11 python=3.12 -y
 conda activate x-anylabeling-cu11
 
 # CUDA 12.x Environment [Windows/Linux]
@@ -48,7 +48,7 @@ You can also use Python's built-in `venv` module to create virtual environments:
 
 ```bash
 # CPU [Windows/Linux/macOS]
-python3.10 -m venv venv-cpu
+python3.12 -m venv venv-cpu
 source venv-cpu/bin/activate  # Linux/macOS
 # venv-cpu\Scripts\activate    # Windows
 
@@ -58,7 +58,7 @@ source venv-cu12/bin/activate  # Linux
 # venv-cu12\Scripts\activate    # Windows
 
 # CUDA 11.x [Windows/Linux]
-python3.11 -m venv venv-cu11
+python3.12 -m venv venv-cu11
 source venv-cu11/bin/activate  # Linux
 # venv-cu11\Scripts\activate    # Windows
 ```
@@ -79,7 +79,7 @@ powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 
 ```bash
 # CPU Environment [Windows/Linux/macOS]
-uv venv --python 3.10 .venv-cpu
+uv venv --python 3.12 .venv-cpu
 source .venv-cpu/bin/activate      # Linux/macOS/WSL2
 # .venv-cpu\Scripts\activate       # Windows
 
@@ -89,7 +89,7 @@ source .venv-cu12/bin/activate     # Linux
 # .venv-cu12\Scripts\activate      # Windows
 
 # CUDA 11.x Environment [Windows/Linux]
-uv venv --python 3.11 .venv-cu11
+uv venv --python 3.12 .venv-cu11
 source .venv-cu11/bin/activate     # Linux
 # .venv-cu11\Scripts\activate      # Windows
 ```
