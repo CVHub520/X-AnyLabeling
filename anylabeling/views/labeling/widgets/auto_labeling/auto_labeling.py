@@ -832,6 +832,7 @@ class AutoLabelingWidget(QWidget):
             if (
                 self.button_skip_detection.isChecked()
                 and self.parent.canvas.shapes
+                and self.model_manager.loaded_model_config
                 and self.model_manager.loaded_model_config["type"]
                 in _SKIP_DET_MODELS
             ):
@@ -1118,6 +1119,8 @@ class AutoLabelingWidget(QWidget):
         """Handle new marks"""
         self.model_manager.set_auto_labeling_marks(marks)
         if self.skip_auto_prediction:
+            return
+        if not self.model_manager.loaded_model_config:
             return
         current_model_name = self.model_manager.loaded_model_config["type"]
         if current_model_name not in _SKIP_PREDICTION_ON_NEW_MARKS_MODELS:
@@ -1613,7 +1616,8 @@ class AutoLabelingWidget(QWidget):
 
         # Adaptation for Segment Anything 3 Video Integration
         if (
-            self.model_manager.loaded_model_config.get("type")
+            self.model_manager.loaded_model_config
+            and self.model_manager.loaded_model_config.get("type")
             == "remote_server"
         ):
             if self.model_manager.loaded_model_config["model"].models_info.get(
