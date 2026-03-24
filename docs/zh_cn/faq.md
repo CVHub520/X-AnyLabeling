@@ -319,7 +319,12 @@ export https_proxy=http://ip:port
 <details>
 <summary>Q: 下载完的模型每次重新启动应用时都被自动删除重新下载</summary>
 
-- 注意模型路径不得有中文字符，否则会有异常。（[#600](https://github.com/CVHub520/X-AnyLabeling/issues/600)）
+当前程序的处理逻辑是：当检测到本地已有缓存模型时，会先进行完整性校验；若校验失败或文件为空，则删除本地缓存并重新下载；若下载在达到最大尝试次数后仍失败，则停止本次加载并直接报错。该行为不会在单次加载流程中无限循环。
+
+因此，如果是网络问题导致下载失败，可先检查当前网络环境，必要时配置代理，或尝试切换模型下载源（`GitHub` / `ModelScope`），相关说明可参考[用户手册](./user_guide.md#模型下载源-model-hub)；如果是模型加载异常，例如当前环境中的 `CUDA`、`cuDNN`、`ONNX`、`ONNX Runtime` 等版本不匹配，请参考[快速入门指南](./get_started.md)中的安装与兼容性说明重新检查环境。最后，如果本地环境仍难以排查或长期不稳定，可考虑基于 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 使用 Pytorch 原生框架进行远程推理部署。
+
+其它失败原因可参考：模型路径存在中文字符([#600](https://github.com/CVHub520/X-AnyLabeling/issues/600)).
+
 </details>
 
 <details>
