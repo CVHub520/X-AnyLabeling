@@ -1,5 +1,28 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.3` (Mar 27, 2026)
+
+### 🚀 New Features
+
+- Add a unified settings panel for centralized application configuration. (#1226)
+- Add 3D cuboid shape annotation generated from rectangles. (#162)
+
+### 🐛 Bug Fixes
+
+- Prevent crashes when triggering auto-labeling shortcuts with no model loaded.
+- Resolve `uv sync` extra conflicts and align supported Python versions. (#1325)
+
+### 🛠️ Improvements
+
+- Batch shape visibility updates and disable visibility toggles while filters are active.
+- Clarify model re-download troubleshooting in the Chinese FAQ. (#1328)
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.0-beta.2` (Mar 06, 2026)
 
 ### 🚀 New Features
