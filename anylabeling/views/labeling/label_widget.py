@@ -1206,6 +1206,15 @@ class LabelingWidget(LabelDialog):
             enabled=self._config["language"] != "zh_CN",
         )
 
+        select_lang_jp = action(
+            "日本語",
+            functools.partial(self.set_language, "ja_JP"),
+            icon="ja",
+            checkable=True,
+            checked=self._config["language"] == "ja_JP",
+            enabled=self._config["language"] != "ja_JP",
+        )
+
         # Theme menu options (System / Light / Dark)
         theme_mode_actions = []
         theme_group = QtGui.QActionGroup(self)
@@ -1901,6 +1910,7 @@ class LabelingWidget(LabelDialog):
             (
                 select_lang_en,
                 select_lang_zh,
+                select_lang_jp,
             ),
         )
         utils.add_actions(self.menus.theme, theme_mode_actions)

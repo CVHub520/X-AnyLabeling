@@ -168,5 +168,6 @@
     <qresource prefix="/languages">
         <file>translations/en_US.qm</file>
         <file>translations/zh_CN.qm</file>
+        <file>translations/ja_JP.qm</file>
     </qresource>
 </RCC>
