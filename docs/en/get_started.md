@@ -225,11 +225,15 @@ xanylabeling convert <task>  # Show detailed help and examples for a specific ta
 > - `onnx >= 1.15.0, < 1.16.1`
 > - `onnxruntime-gpu >= 1.15.0, < 1.19.0`
 
-**Optional Step**: Generate Resource Files
+**Optional Step**: Refresh Translation and Resource Files
 
-After completing the necessary steps, you can generate resource files using the following command:
+If you update UI text or maintain localization files, refresh the translation artifacts for all supported interface languages (`en_US`, `zh_CN`, `ja_JP`) with:
 
 ```bash
+# Regenerate .ts catalogs from source strings
+python scripts/generate_languages.py
+
+# Compile .qm files and rebuild Qt resources
 python scripts/compile_languages.py
 ```
 

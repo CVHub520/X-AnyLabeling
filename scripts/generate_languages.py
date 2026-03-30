@@ -43,7 +43,7 @@ def compile_resources(output: str, qrc: str) -> None:
     )
 
 
-supported_languages = ["en_US", "zh_CN"]
+supported_languages = ["en_US", "zh_CN", "ja_JP"]
 translations_path = "anylabeling/resources/translations"
 
 for language in supported_languages:

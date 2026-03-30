@@ -7,7 +7,7 @@
       <location filename="../../views/labeling/vqa/dialogs.py" line="459" />
       <location filename="../../views/labeling/vqa/dialogs.py" line="444" />
       <source>AI Processing</source>
-      <translation>AI 処理中</translation>
+      <translation>AI処理中</translation>
     </message>
     <message>
       <location filename="../../views/labeling/vqa/dialogs.py" line="465" />
@@ -30,7 +30,7 @@
     <message>
       <location filename="../../views/labeling/vqa/dialogs.py" line="540" />
       <source>AI Assistance</source>
-      <translation>AIアシスタント</translation>
+      <translation>AI支援</translation>
     </message>
     <message>
       <location filename="../../views/labeling/vqa/dialogs.py" line="566" />
@@ -63,12 +63,12 @@
     <message>
       <location filename="../../views/labeling/widgets/about_dialog.py" line="142" />
       <source>Report Issue</source>
-      <translation>問題報告</translation>
+      <translation>問題を報告</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/about_dialog.py" line="208" />
       <source>Changelog</source>
-      <translation>更新情報</translation>
+      <translation>更新履歴</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/about_dialog.py" line="214" />
@@ -85,7 +85,7 @@
       <location filename="../../views/labeling/widgets/about_dialog.py" line="311" />
       <location filename="../../views/labeling/widgets/about_dialog.py" line="296" />
       <source>No Updates Available</source>
-      <translation>更新情報はありません</translation>
+      <translation>利用可能なアップデートはありません</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/about_dialog.py" line="318" />
@@ -95,7 +95,7 @@
     <message>
       <location filename="../../views/labeling/widgets/about_dialog.py" line="339" />
       <source>Update Available</source>
-      <translation>アップデートが利用可能です</translation>
+      <translation>利用可能なアップデートがあります</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/about_dialog.py" line="380" />
@@ -195,7 +195,7 @@
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="213" />
       <source>Run (i)</source>
-      <translation>実行（i）</translation>
+      <translation>実行 (i)</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="218" />
@@ -210,7 +210,7 @@
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="231" />
       <source>You can set the API token via the GROUNDING_DINO_API_TOKEN environment variable</source>
-      <translation>GROUNDING_DINO_API_TOKEN 環境変数でAPIキーを設定できます</translation>
+      <translation>GROUNDING_DINO_API_TOKEN 環境変数でAPIトークンを設定できます</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="238" />
@@ -246,7 +246,7 @@
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="294" />
       <source>Run Rect</source>
-      <translation>矩形を実行</translation>
+      <translation>矩形で実行</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="298" />
@@ -266,17 +266,17 @@
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="318" />
       <source>Enable local cropping for rectangle prompts to improve accuracy for small objects in high-resolution images</source>
-      <translation>矩形プロンプトのローカルクロップを有効にして、高解像度画像での小さなオブジェクト検出精度を向上させる</translation>
+      <translation>矩形プロンプトにローカルクロップを適用し、高解像度画像内の小さな物体に対する精度を向上させます</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="330" />
       <source>Existing shapes will be preserved during updates. Click to switch to overwriting.</source>
-      <translation>既存のオブジェクトは更新時に保持されます。クリックして上書きモードに切り替えます。</translation>
+      <translation>更新時に既存の図形を保持します。クリックすると上書きモードに切り替わります。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="333" />
       <source>Existing shapes will be overwritten by new shapes during updates. Click to switch to preserving.</source>
-      <translation>既存のオブジェクトは更新時に新しいオブジェクトで上書きされます。クリックして保持モードに切り替えます。</translation>
+      <translation>更新時に既存の図形を新しい図形で上書きします。クリックすると保持モードに切り替わります。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1151" />
@@ -337,7 +337,7 @@
     <message>
       <location filename="../../views/labeling/widgets/auto_labeling/auto_labeling.py" line="1658" />
       <source>Existing unsupported shape type. Only rectangle, rotation and polygon shapes are supported for detection boxes.</source>
-      <translation>サポートされていないオブジェクトタイプが存在します。検出ボックスは矩形、回転ボックス、ポリゴンオブジェクトのみをサポートします。</translation>
+      <translation>サポートされていない図形タイプが含まれています。検出ボックスとして使用できるのは、矩形、回転ボックス、ポリゴンのみです。</translation>
     </message>
   </context>
   <context>
@@ -355,7 +355,7 @@
     <message>
       <location filename="../../views/labeling/chatbot/general.py" line="72" />
       <source>Type your prompt here and use `@image` to reference the image.</source>
-      <translation>こちらにプロンプトを入力し、`@image` で画像を参照してください：</translation>
+      <translation>ここにプロンプトを入力し、`@image` で画像を参照してください。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/chatbot/general.py" line="116" />
@@ -421,7 +421,7 @@
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="474" />
       <source>Drawing</source>
-      <translation>描画中</translation>
+      <translation>描画</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="476" />
@@ -436,34 +436,34 @@
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="828" />
       <source>Click &amp; drag to adjust cuboid depth of shape '%s'</source>
-      <translation>クリックしてドラッグし、オブジェクト '%s' の直方体の深度を調整</translation>
+      <translation>クリックしてドラッグし、図形 '%s' の直方体の奥行きを調整</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="835" />
       <source>Click &amp; drag to adjust rear edge of cuboid shape '%s'</source>
-      <translation>クリックしてドラッグし、直方体オブジェクト '%s' の後端を調整</translation>
+      <translation>クリックしてドラッグし、図形 '%s' の直方体の後端を調整</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="904" />
       <location filename="../../views/labeling/widgets/canvas.py" line="842" />
       <source>Click &amp; drag to move point of shape '%s'</source>
-      <translation>クリックしてドラッグし、オブジェクト '%s' の頂点を移動</translation>
+      <translation>クリックしてドラッグし、図形 '%s' の頂点を移動</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="961" />
       <location filename="../../views/labeling/widgets/canvas.py" line="860" />
       <source>Click &amp; drag to move shape '%s'</source>
-      <translation>クリックしてドラッグし、オブジェクト '%s' を移動</translation>
+      <translation>クリックしてドラッグし、図形 '%s' を移動</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="880" />
       <source>Click &amp; drag to adjust cuboid %s face of shape '%s'</source>
-      <translation>クリックしてドラッグし、直方体 %s 面を調整（オブジェクト: '%s'）</translation>
+      <translation>クリックしてドラッグし、図形 '%s' の直方体の %s 面を調整</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/canvas.py" line="925" />
       <source>Click to create point of shape '%s'</source>
-      <translation>クリックしてオブジェクト "%s" の頂点を作成</translation>
+      <translation>クリックして図形 '%s' の頂点を作成</translation>
     </message>
   </context>
   <context>
@@ -486,7 +486,7 @@
     <message>
       <location filename="../../views/labeling/chatbot/chat.py" line="704" />
       <source>Are you sure to delete this message forever?</source>
-      <translation>このメッセージを完全に削除してもよいですか？</translation>
+      <translation>このメッセージを完全に削除してもよろしいですか？</translation>
     </message>
     <message>
       <location filename="../../views/labeling/chatbot/chat.py" line="790" />
@@ -501,7 +501,7 @@
     <message>
       <location filename="../../views/labeling/chatbot/chat.py" line="802" />
       <source>Regenerate response</source>
-      <translation>レスポンスを再生成</translation>
+      <translation>応答を再生成</translation>
     </message>
     <message>
       <location filename="../../views/labeling/chatbot/chat.py" line="807" />
@@ -1237,7 +1237,7 @@
     <message>
       <location filename="../../views/labeling/widgets/label_dialog.py" line="93" />
       <source>Configure digit keys (0-9) for quick shape creation:</source>
-      <translation>オブジェクトをすばやく作成するための数字キー（0-9）を設定</translation>
+      <translation>図形をすばやく作成するための数字キー（0〜9）を設定します：</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/label_dialog.py" line="103" />
@@ -2017,7 +2017,7 @@ Enterキーで検索を実行。</translation>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="620" />
       <source>Toggle "Visibility Shapes" mode</source>
-      <translation>「オブジェクト表示」モードを切り替え</translation>
+      <translation>「図形の表示」モードを切り替え</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="626" />
@@ -2307,7 +2307,7 @@ Enterキーで検索を実行。</translation>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="885" />
       <source>Save cropped image. (Support rectangle/rotation/polygon shape_type)</source>
-      <translation>切り取り画像を保存（矩形/回転/ポリゴン図形タイプをサポート）</translation>
+      <translation>切り取り画像を保存（矩形/回転/ポリゴンの図形タイプに対応）</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="890" />
@@ -3216,7 +3216,7 @@ Reset the label as {}.</source>
       <source>You are about to edit multiple shapes in batch mode. This operation cannot be undone.
 
 This warning will only be shown once. Do you want to continue?</source>
-      <translation>一括モードで複数のオブジェクトを編集しようとしています。この操作は元に戻せません。
+      <translation>一括モードで複数の図形を編集しようとしています。この操作は元に戻せません。
 
 この警告は一度だけ表示されます。続行しますか？</translation>
     </message>
@@ -3248,7 +3248,7 @@ This warning will only be shown once. Do you want to continue?</source>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="4385" />
       <source>Error decoding shapes: %s</source>
-      <translation>オブジェクトのデコードに失敗しました：%s</translation>
+      <translation>図形のデコードに失敗しました：%s</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="4597" />
@@ -4168,7 +4168,7 @@ Results have been saved to:
     <message>
       <location filename="../../views/labeling/settings/dialog.py" line="1368" />
       <source>Finish the current object annotation.</source>
-      <translation>現在のオブジェクトアノテーションを完了します。</translation>
+      <translation>現在のオブジェクトのアノテーションを完了します。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/dialog.py" line="1371" />
@@ -4627,23 +4627,23 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <source>Set the default outline color for shapes.</source>
-      <translation>オブジェクトのデフォルト輪郭色を設定します。</translation>
+      <translation>図形のデフォルトの輪郭色を設定します。</translation>
     </message>
     <message>
       <source>Set the default fill color for shapes.</source>
-      <translation>オブジェクトのデフォルト塗りつぶし色を設定します。</translation>
+      <translation>図形のデフォルトの塗りつぶし色を設定します。</translation>
     </message>
     <message>
       <source>Set the default fill color for shape vertices.</source>
-      <translation>オブジェクト頂点のデフォルト塗りつぶし色を設定します。</translation>
+      <translation>図形の頂点のデフォルトの塗りつぶし色を設定します。</translation>
     </message>
     <message>
       <source>Set the outline color for selected shapes.</source>
-      <translation>選択したオブジェクトの輪郭色を設定します。</translation>
+      <translation>選択した図形の輪郭色を設定します。</translation>
     </message>
     <message>
       <source>Set the fill color for selected shapes.</source>
-      <translation>選択したオブジェクトの塗りつぶし色を設定します。</translation>
+      <translation>選択した図形の塗りつぶし色を設定します。</translation>
     </message>
     <message>
       <source>Set the highlight color for hovered vertices.</source>
@@ -4651,15 +4651,15 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <source>Control the displayed size of shape vertices.</source>
-      <translation>オブジェクト頂点の表示サイズを制御します。</translation>
+      <translation>図形の頂点の表示サイズを制御します。</translation>
     </message>
     <message>
       <source>Control the default stroke width for shapes.</source>
-      <translation>オブジェクトのデフォルトストローク幅を制御します。</translation>
+      <translation>図形のデフォルトのストローク幅を制御します。</translation>
     </message>
     <message>
       <source>Open label editing when a shape is double-clicked in edit mode.</source>
-      <translation>編集モードでオブジェクトをダブルクリックするとラベル編集を開きます。</translation>
+      <translation>編集モードで図形をダブルクリックするとラベル編集を開きます。</translation>
     </message>
     <message>
       <source>Set how many undo history snapshots are kept in memory.</source>
@@ -4723,7 +4723,7 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <source>Set the minimum depth allowed for cuboid shapes.</source>
-      <translation>直方体オブジェクトに許可される最小深度を設定します。</translation>
+      <translation>直方体の図形に許可される最小奥行きを設定します。</translation>
     </message>
     <message>
       <source>Set the opacity used when rendering masks.</source>
@@ -4952,7 +4952,7 @@ Changes will not be saved until you click Save.</source>
     <message>
       <location filename="../../views/labeling/widgets/shape_dialog.py" line="493" />
       <source>Removed %s shapes</source>
-      <translation>%s 個のオブジェクトを削除しました</translation>
+      <translation>%s 個の図形を削除しました</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/shape_dialog.py" line="523" />
@@ -4962,12 +4962,12 @@ Changes will not be saved until you click Save.</source>
     <message>
       <location filename="../../views/labeling/widgets/shape_dialog.py" line="623" />
       <source>Added %s shapes</source>
-      <translation>%s 個のオブジェクトを追加しました</translation>
+      <translation>%s 個の図形を追加しました</translation>
     </message>
     <message>
       <location filename="../../views/labeling/widgets/shape_dialog.py" line="626" />
       <source> and skipped %s out-of-bounds shapes</source>
-      <translation>境界外の %s 個のオブジェクトをスキップしました</translation>
+      <translation>範囲外の %s 個の図形をスキップしました</translation>
     </message>
   </context>
   <context>
