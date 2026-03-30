@@ -161,7 +161,7 @@ anylabeling/app_info.py-*
 weights/
 *.weights
 *.pt
-# *.ts
+*.ts
 *.pb
 *.onnx
 *.engine
