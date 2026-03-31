@@ -738,7 +738,7 @@ Select `Help` > `About` to view the application version and runtime environment 
 
 ### 6.2 Setting the Language
 
-Select your preferred interface language (`Chinese`, `English`, or `Japanese`) from the `Language` menu.
+Select your preferred interface language (`Chinese`, `English`, `Japanese`, or `Korean`) from the `Language` menu.
 
 **Important:** The application will restart automatically after changing the language. Save your work before switching languages to avoid data loss.
 
@@ -944,7 +944,7 @@ shape:
     *   This setting is used only if the `XANYLABELING_MODEL_HUB` environment variable is not set to `modelscope`.
     ```yaml
     # In .xanylabelingrc
-    language: en_US # Or zh_CN / ja_JP
+    language: en_US # Or zh_CN / ja_JP / ko_KR
     model_hub: github  # Options: github, modelscope
     # ... other settings ...
     ```
@@ -952,7 +952,7 @@ shape:
 3.  **Language Setting (Lowest Priority)**:
     *   If neither the environment variable nor the config file is explicitly set to `modelscope`, the default behavior depends on the language setting in `.xanylabelingrc`:
         *   If `language: zh_CN` (Chinese), it defaults to `modelscope`.
-        *   Otherwise (e.g., `language: en_US` or `language: ja_JP`), it defaults to `github`.
+        *   Otherwise (e.g., `language: en_US`, `language: ja_JP`, or `language: ko_KR`), it defaults to `github`.
 
 ### 7.8 Theme Settings
 

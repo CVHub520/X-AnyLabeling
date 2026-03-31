@@ -87,6 +87,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- `2026-04-01`: Added support for Japanese and Korean UI languages (`ja_JP`, `ko_KR`).
 - `2026-03-22`: Added support for built-in Settings in the GUI for directly adjusting common options.
 - `2026-03-10`: Added support for 3D Cuboid shape annotation from rectangle.
 - `2026-03-01`: Completed the PyQt5-to-PyQt6 upgrade refactor (Beta release), along with additional feature fixes and optimizations.
@@ -107,6 +108,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 - Supports remote inference service.
 - Processes both `images` and `videos`.
 - Accelerates inference with `GPU` and `FFmpeg` support.
+- Supports UI localization in `English`, `Chinese`, `Japanese`, and `Korean`.
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.
 - Supports import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, MMGD, VLM-R1.

@@ -227,7 +227,7 @@ xanylabeling convert <task>  # Show detailed help and examples for a specific ta
 
 **Optional Step**: Refresh Translation and Resource Files
 
-If you update UI text or maintain localization files, refresh the translation artifacts for all supported interface languages (`en_US`, `zh_CN`, `ja_JP`) with:
+If you update UI text or maintain localization files, refresh the translation artifacts for all supported interface languages (`en_US`, `zh_CN`, `ja_JP`, `ko_KR`) with:
 
 ```bash
 # Regenerate .ts catalogs from source strings

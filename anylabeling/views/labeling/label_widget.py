@@ -1214,6 +1214,14 @@ class LabelingWidget(LabelDialog):
             checked=self._config["language"] == "ja_JP",
             enabled=self._config["language"] != "ja_JP",
         )
+        select_lang_ko = action(
+            "한국어",
+            functools.partial(self.set_language, "ko_KR"),
+            icon="ko",
+            checkable=True,
+            checked=self._config["language"] == "ko_KR",
+            enabled=self._config["language"] != "ko_KR",
+        )
 
         # Theme menu options (System / Light / Dark)
         theme_mode_actions = []
@@ -1911,6 +1919,7 @@ class LabelingWidget(LabelDialog):
                 select_lang_en,
                 select_lang_zh,
                 select_lang_jp,
+                select_lang_ko,
             ),
         )
         utils.add_actions(self.menus.theme, theme_mode_actions)
