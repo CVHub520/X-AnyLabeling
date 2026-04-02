@@ -16,18 +16,28 @@ def compile_resources(output: str, qrc: str) -> None:
         with open(path, "w", encoding="utf-8") as f:
             f.write(content)
 
-    commands = [
-        ([sys.executable, "-m", "PyQt6.pyrcc_main", "-o", output, qrc], False),
-        (["pyrcc6", "-o", output, qrc], False),
-        (["pyside6-rcc", "-o", output, qrc], True),
-        (["rcc", "-g", "python", "-o", output, qrc], True),
-    ]
+    def add_rcc_commands(commands, base_command, needs_rewrite):
+        # Force zlib resources when supported. Newer RCC builds may emit zstd
+        # entries by default, which are not readable in some Windows Qt runtimes.
+        commands.append(
+            (
+                [*base_command, "--compress-algo", "zlib", "-o", output, qrc],
+                needs_rewrite,
+            )
+        )
+        commands.append(([*base_command, "-o", output, qrc], needs_rewrite))
+
+    commands = []
+    add_rcc_commands(
+        commands, [sys.executable, "-m", "PyQt6.pyrcc_main"], False
+    )
+    add_rcc_commands(commands, ["pyrcc6"], False)
+    add_rcc_commands(commands, ["pyside6-rcc"], True)
+    add_rcc_commands(commands, ["rcc", "-g", "python"], True)
     lrelease = shutil.which("lrelease")
     if lrelease:
         sibling_rcc = os.path.join(os.path.dirname(lrelease), "rcc")
-        commands.append(
-            ([sibling_rcc, "-g", "python", "-o", output, qrc], True)
-        )
+        add_rcc_commands(commands, [sibling_rcc, "-g", "python"], True)
     for command, needs_rewrite in commands:
         executable = command[0]
         if executable != sys.executable and not shutil.which(executable):
