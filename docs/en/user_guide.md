@@ -192,7 +192,7 @@ For detailed field definitions, see [`shape.py`](../../anylabeling/views/labelin
 X-AnyLabeling supports creating the following types of shapes:
 
 - **Rectangle** (`R`): Click and drag to define opposite corners, or click once for the first corner and again for the second.
-- **Rotated Rectangle** (`O`): Click to set the first point, click again for the second point defining one side, then move the cursor to set the height and click a third time.
+- **Rotated Rectangle** (`O`): Click once to set the first corner, move the cursor, and click again to create an axis-aligned box first. To rotate it, select the shape in Editing Mode and press `Z`, `X`, `C`, or `V`.
 - **Polygon** (`P`): Click along the object's boundary to place vertices. Click the starting point or double-click the last point to close the polygon. Requires at least 3 points. A brush mode (`Ctrl+N`) is also available: once activated, click to place the first point, then move the mouse to automatically trace polygon vertices along the cursor path. Move near the starting point to auto-close. The point distance can be adjusted via `Settings > Canvas > brush.point_distance`.
 - **Quadrilateral** (`T`): Click to place the first corner, then click the remaining three corners in order to complete the quadrilateral.
 - **Point**: Click to place a point.

@@ -1,7 +1,6 @@
 """This module defines Canvas widget - the core component for drawing image labels"""
 
 import math
-from copy import deepcopy
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QWheelEvent
@@ -2039,33 +2038,29 @@ class Canvas(
 
     def bounded_rotate_shapes(self, i, shape, theta):
         """Rotate shapes. Adjust position to be bounded by pixmap border"""
-        new_shape = deepcopy(shape)
         if len(shape.points) == 2:
-            new_shape.points[0] = shape.points[0]
-            new_shape.points[1] = QtCore.QPointF(
-                (shape.points[0].x() + shape.points[1].x()) / 2,
-                shape.points[0].y(),
-            )
-            new_shape.points.append(shape.points[1])
-            new_shape.points.append(
+            p0 = shape.points[0]
+            p1 = shape.points[1]
+            shape.points = [
+                p0,
                 QtCore.QPointF(
-                    shape.points[1].x(),
-                    (shape.points[0].y() + shape.points[1].y()) / 2,
-                )
-            )
+                    (p0.x() + p1.x()) / 2,
+                    p0.y(),
+                ),
+                p1,
+                QtCore.QPointF(p1.x(), (p0.y() + p1.y()) / 2),
+            ]
         center = QtCore.QPointF(
-            (new_shape.points[0].x() + new_shape.points[2].x()) / 2,
-            (new_shape.points[0].y() + new_shape.points[2].y()) / 2,
+            (shape.points[0].x() + shape.points[2].x()) / 2,
+            (shape.points[0].y() + shape.points[2].y()) / 2,
         )
-        for j, p in enumerate(new_shape.points):
+        for j, p in enumerate(shape.points):
             pos = self.rotate_point(p, center, theta)
             # TODO: Reserved for now
             # if self.out_off_pixmap(pos):
             #     return False  # No need to rotate
-            new_shape.points[j] = pos
-        new_shape.direction = (new_shape.direction - theta) % (2 * math.pi)
-        self.selected_shapes[i].points = new_shape.points
-        self.selected_shapes[i].direction = new_shape.direction
+            shape.points[j] = pos
+        shape.direction = (shape.direction - theta) % (2 * math.pi)
         return True
 
     def deselect_shape(self):
@@ -3369,11 +3364,14 @@ class Canvas(
     def rotate_by_keyboard(self, theta):
         """Rotate selected shapes by an theta (using keyboard)"""
         if self.selected_shapes:
+            rotating_shape = False
             for i, shape in enumerate(self.selected_shapes):
                 if shape._shape_type == "rotation":
                     self.bounded_rotate_shapes(i, shape, theta)
-                    self.repaint()
-                    self.rotating_shape = True
+                    rotating_shape = True
+            if rotating_shape:
+                self.repaint()
+                self.rotating_shape = True
 
     # QT Overload
     def keyPressEvent(self, ev):
