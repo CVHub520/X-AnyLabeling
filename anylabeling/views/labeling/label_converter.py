@@ -666,7 +666,12 @@ class LabelConverter:
 
         filename_elem = root.find("filename")
         if filename_elem is not None and filename_elem.text:
-            image_filename = filename_elem.text
+            xml_image_filename = filename_elem.text
+            if (
+                osp.splitext(osp.basename(xml_image_filename))[1]
+                or not image_filename
+            ):
+                image_filename = xml_image_filename
 
         self.custom_data["imagePath"] = image_filename
         self.custom_data["imageHeight"] = image_height
