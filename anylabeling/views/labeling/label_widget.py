@@ -97,6 +97,12 @@ LABEL_COLORMAP = utils.label_colormap()
 LABEL_OPACITY = 128
 
 
+def _measure_text_width(font_metrics, text):
+    if hasattr(font_metrics, "horizontalAdvance"):
+        return font_metrics.horizontalAdvance(text)
+    return font_metrics.width(text)
+
+
 class LabelingWidget(LabelDialog):
     """The main widget for labeling images"""
 
@@ -3720,12 +3726,12 @@ class LabelingWidget(LabelDialog):
             if hasattr(self, "grid_layout_container"):
                 font_metrics = QFontMetrics(self.grid_layout_container.font())
             else:
-                font_metrics = QLabel().font()
+                font_metrics = QFontMetrics(QLabel().font())
             available_width = self.scroll_area.width() - 30
             property_display = property
-            if font_metrics.width(property) > available_width:
+            if _measure_text_width(font_metrics, property) > available_width:
                 while (
-                    font_metrics.width(property_display + "...")
+                    _measure_text_width(font_metrics, property_display + "...")
                     > available_width
                     and len(property_display) > 1
                 ):
@@ -3747,18 +3753,19 @@ class LabelingWidget(LabelDialog):
                 main_layout.setSpacing(2)
 
                 def get_truncated_text(text, max_width):
-                    if font_metrics.width(text) <= max_width:
+                    if _measure_text_width(font_metrics, text) <= max_width:
                         return text, text
                     truncated = text
                     while (
-                        font_metrics.width(truncated + "...") > max_width
+                        _measure_text_width(font_metrics, truncated + "...")
+                        > max_width
                         and len(truncated) > 1
                     ):
                         truncated = truncated[:-1]
                     return truncated + "...", text
 
                 def get_button_width(text):
-                    return font_metrics.width(text) + 30
+                    return _measure_text_width(font_metrics, text) + 30
 
                 def create_radio_button_with_handler(
                     display_text, original_text, prop, shape_idx
