@@ -6,6 +6,8 @@ import os
 import re
 import sys
 
+from PyInstaller.utils.hooks import collect_data_files
+
 sys.setrecursionlimit(5000)  # required on Windows
 
 def _resolve_root_dir():
@@ -142,6 +144,7 @@ def _strip_msvc_runtime_binaries(binaries):
 
 onnxruntime_binaries = _collect_onnxruntime_dlls()
 msvc_runtime_binaries = _collect_msvc_runtime_dlls()
+matplotlib_datas = collect_data_files('matplotlib')
 
 a = Analysis(
     [_p('anylabeling', 'app.py')],
@@ -155,8 +158,13 @@ a = Analysis(
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'clip', '*'), 'anylabeling/services/auto_labeling/configs/clip'),
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ppocr', '*'), 'anylabeling/services/auto_labeling/configs/ppocr'),
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ram', '*'), 'anylabeling/services/auto_labeling/configs/ram')
+    ] + matplotlib_datas,
+    hiddenimports=[
+        'matplotlib',
+        'matplotlib.backends.backend_agg',
+        'matplotlib.font_manager',
+        'matplotlib.mathtext',
     ],
-    hiddenimports=[],
     hookspath=[],
     runtime_hooks=[_p('packaging', 'pyinstaller', 'runtime_hooks', 'ort_dll_bootstrap.py')],
     excludes=[],

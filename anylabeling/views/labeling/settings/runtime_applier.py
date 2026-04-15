@@ -58,6 +58,7 @@ class SettingsRuntimeApplier:
             "shortcuts.open_chatbot": self._widget.actions.open_chatbot,
             "shortcuts.open_vqa": self._widget.actions.open_vqa,
             "shortcuts.open_classifier": self._widget.actions.open_classifier,
+            "shortcuts.open_paddleocr": self._widget.actions.open_paddleocr,
             "shortcuts.save": self._widget.actions.save,
             "shortcuts.save_as": self._widget.actions.save_as,
             "shortcuts.save_to": self._widget.actions.change_output_dir,

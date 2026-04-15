@@ -134,6 +134,7 @@ shortcuts:
   open_chatbot: Ctrl+1
   open_vqa: Ctrl+2
   open_classifier: Ctrl+3
+  open_paddleocr: Ctrl+4
   quit: Ctrl+Q
   save: Ctrl+S
   save_as: Ctrl+Shift+S

@@ -88,6 +88,7 @@ dependencies = [
     "tokenizers",
     "requests",
     "darkdetect>=0.8.0",
+    "matplotlib",
 ]
 
 # Optional dependencies ------------------------------------------------------------------------------------------------

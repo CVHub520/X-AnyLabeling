@@ -259,6 +259,9 @@ def _shortcut_label(short_key: str) -> str:
         "open_chatbot": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Open Chatbot Dialog"
         ),
+        "open_paddleocr": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Open PaddleOCR Dialog"
+        ),
         "edit_digit_shortcut": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT,
             "Open Digit Shortcut Manager Dialog",
@@ -972,6 +975,7 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "open_chatbot",
             "open_vqa",
             "open_classifier",
+            "open_paddleocr",
             "show_overview",
             "show_navigator",
             "edit_digit_shortcut",

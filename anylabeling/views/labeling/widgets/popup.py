@@ -1,4 +1,7 @@
 import os
+import shutil
+import subprocess
+import sys
 
 from anylabeling.views.labeling.utils.theme import get_theme
 from PyQt6.QtWidgets import (
@@ -21,6 +24,64 @@ def is_wsl():
             if "microsoft" in f.read().lower():
                 return True
     return False
+
+
+def _copy_via_command(command, text):
+    if isinstance(command, str):
+        command = [command]
+    executable = command[0]
+    if os.sep in executable:
+        exists = os.path.exists(executable)
+    else:
+        exists = shutil.which(executable) is not None
+    if not exists:
+        return False
+    try:
+        result = subprocess.run(
+            command,
+            input=text,
+            text=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    except Exception:
+        return False
+    return result.returncode == 0
+
+
+def copy_text_to_system_clipboard(text):
+    if not text:
+        return
+
+    clipboard = QApplication.clipboard()
+    if clipboard is not None:
+        try:
+            clipboard.setText(text)
+            if clipboard.text() == text:
+                return
+        except Exception:
+            pass
+
+    if is_wsl():
+        if _copy_via_command(["clip.exe"], text):
+            return
+        _copy_via_command(["/mnt/c/Windows/System32/clip.exe"], text)
+        return
+
+    if sys.platform.startswith("win"):
+        _copy_via_command(["clip"], text)
+        return
+
+    if sys.platform == "darwin":
+        _copy_via_command(["pbcopy"], text)
+        return
+
+    if _copy_via_command(["wl-copy"], text):
+        return
+    if _copy_via_command(["xclip", "-selection", "clipboard"], text):
+        return
+    _copy_via_command(["xsel", "--clipboard", "--input"], text)
 
 
 class Popup(QWidget):
@@ -107,14 +168,7 @@ class Popup(QWidget):
         self, parent_widget, copy_msg="", popup_height=36, position="default"
     ):
         if copy_msg:
-            if is_wsl():
-                # Use clip.exe for WSL environment
-                escaped_msg = copy_msg.replace('"', '\\"')
-                os.system(f'echo "{escaped_msg}" | clip.exe')
-            else:
-                # Use Qt clipboard for Windows/other environments
-                clipboard = QApplication.clipboard()
-                clipboard.setText(copy_msg)
+            copy_text_to_system_clipboard(copy_msg)
 
         # Calculate position based on preference
         parent_geo = parent_widget.geometry()

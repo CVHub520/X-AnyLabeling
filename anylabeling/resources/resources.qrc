@@ -10,6 +10,8 @@
         <file>images/brush_polygon.png</file>
         <file>images/cancel.png</file>
         <file>images/caret-down.svg</file>
+        <file>images/caret-left.svg</file>
+        <file>images/caret-right.svg</file>
         <file>images/caret-up.svg</file>
         <file>images/cartesian.png</file>
         <file>images/chatbot.png</file>
@@ -51,7 +53,9 @@
         <file>images/digit9.png</file>
         <file>images/discord.png</file>
         <file>images/docs.png</file>
+        <file>images/document.svg</file>
         <file>images/done.png</file>
+        <file>images/download.svg</file>
         <file>images/edit.png</file>
         <file>images/edit.svg</file>
         <file>images/email.png</file>
@@ -85,6 +89,7 @@
         <file>images/imoonlab.png</file>
         <file>images/import-export.svg</file>
         <file>images/ja.png</file>
+        <file>images/json.svg</file>
         <file>images/ko.png</file>
         <file>images/labels.png</file>
         <file>images/lightning.svg</file>
@@ -117,6 +122,7 @@
         <file>images/overview.png</file>
         <file>images/paddlepaddle.png</file>
         <file>images/paste.png</file>
+        <file>images/pdf.svg</file>
         <file>images/plus.png</file>
         <file>images/point.png</file>
         <file>images/polygon.png</file>
@@ -164,7 +170,9 @@
         <file>images/warning.svg</file>
         <file>images/xmu.png</file>
         <file>images/zoom-in.png</file>
+        <file>images/zoom-in.svg</file>
         <file>images/zoom-out.png</file>
+        <file>images/zoom-out.svg</file>
         <file>images/zoom.png</file>
     </qresource>
     <qresource prefix="/languages">

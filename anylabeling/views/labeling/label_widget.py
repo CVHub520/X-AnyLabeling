@@ -75,6 +75,7 @@ from .widgets import (
     VQADialog,
     CrosshairSettingsDialog,
     FileDialogPreview,
+    PPOCRDialog,
     ShapeModifyDialog,
     GroupIDFilterComboBox,
     LabelDialog,
@@ -967,6 +968,13 @@ class LabelingWidget(LabelDialog):
             icon="ragdoll",
             tip=self.tr("Open classifier dialog"),
         )
+        open_paddleocr = action(
+            self.tr("PaddleOCR"),
+            self.open_paddleocr,
+            shortcuts["open_paddleocr"],
+            icon="paddlepaddle",
+            tip=self.tr("Open PaddleOCR dialog"),
+        )
         documentation = action(
             self.tr("Documentation"),
             self.documentation,
@@ -1730,6 +1738,7 @@ class LabelingWidget(LabelDialog):
             open_chatbot=open_chatbot,
             open_vqa=open_vqa,
             open_classifier=open_classifier,
+            open_paddleocr=open_paddleocr,
             toggle_auto_labeling_widget=toggle_auto_labeling_widget,
             digit_shortcut_manager=digit_shortcut_manager,
             label_manager=label_manager,
@@ -2079,6 +2088,7 @@ class LabelingWidget(LabelDialog):
             open_chatbot,
             open_vqa,
             open_classifier,
+            open_paddleocr,
             None,
             fit_width,
             zoom,
@@ -3072,6 +3082,18 @@ class LabelingWidget(LabelDialog):
             self.vqa_window.activateWindow()
         else:
             self.vqa_window.show()
+
+    def open_paddleocr(self):
+        if not hasattr(self, "ppocr_window") or self.ppocr_window is None:
+            self.ppocr_window = PPOCRDialog(self)
+            self.ppocr_window.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose, False
+            )
+        if self.ppocr_window.isVisible():
+            self.ppocr_window.raise_()
+            self.ppocr_window.activateWindow()
+        else:
+            self.ppocr_window.show()
 
     def open_classifier(self):
         if not self.image_list:

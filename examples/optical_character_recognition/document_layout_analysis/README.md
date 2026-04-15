@@ -36,6 +36,7 @@ PP-DocLayoutV3 supports 25 layout element categories:
 | Math & Formulas | `inline_formula`, `display_formula`, `formula_number`, `algorithm` |
 | Tables | `table` |
 | Other | `number` |
+
 ### Installation
 
 You'll need to get X-AnyLabeling-Server up and running first. Check out the [installation guide](https://github.com/CVHub520/X-AnyLabeling-Server) for the details. Make sure you're running at least v0.0.7 of the server and v3.3.9 of the X-AnyLabeling client, otherwise you might run into compatibility issues.

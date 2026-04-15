@@ -24,6 +24,22 @@ PaddleOCR-VL-1.5 supports six distinct tasks:
 | **Text Spotting** | Detect and recognize text with bounding boxes | Polygon shapes with text |
 | **Seal Recognition** | Recognize seal stamps and chop marks | Text content |
 
+## PP-DocLayoutV3 Label Routing
+
+When the PPOCR panel uses `PP-DocLayoutV3` for layout detection and then sends each cropped block to `PaddleOCR-VL-1.5`, labels are routed as follows:
+
+| Routed Task | PP-DocLayoutV3 Labels |
+|-------------|------------------------|
+| **OCR** | `doc_title`, `paragraph_title`, `header`, `footer`, `content`, `reference`, `reference_content`, `text`, `vertical_text`, `aside_text`, `abstract`, `footnote`, `vision_footnote`, `figure_title`, `number` |
+| **Table Recognition** | `table` |
+| **Formula Recognition** | `inline_formula`, `display_formula`, `formula_number`, `algorithm` |
+| **Chart Recognition** | `chart` |
+| **Seal Recognition** | `seal` |
+| **Image Only (no text task)** | `image`, `header_image`, `footer_image` |
+
+> [!NOTE]
+> `PP-DocLayoutV3` officially provides 25 labels. X-AnyLabeling also routes an additional compatibility label `formula` to Formula Recognition when it appears in layout output.
+
 ## Installation
 
 You'll need to get X-AnyLabeling-Server up and running first. Check out the [installation guide](https://github.com/CVHub520/X-AnyLabeling-Server) for the details. Make sure you're running at least **v0.0.7** of the server and **v3.3.9** of the X-AnyLabeling client, otherwise you might run into compatibility issues.

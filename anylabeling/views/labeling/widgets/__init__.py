@@ -23,6 +23,7 @@ from .model_dropdown_widget import SearchBar
 from .navigator_widget import NavigatorDialog
 from .overview_dialog import OverviewDialog
 from .polygon_sides_dialog import PolygonSidesDialog
+from .ppocr_dialog import PPOCRDialog
 from .popup import Popup
 from .toolbar import ToolBar
 from .unique_label_qlist_widget import UniqueLabelQListWidget
