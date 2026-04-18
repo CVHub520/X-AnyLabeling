@@ -63,6 +63,7 @@ from .utils.file_search import (
     matches_filename,
     matches_label_attribute,
 )
+from .utils.qt import new_icon_path
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -302,6 +303,12 @@ class LabelingWidget(LabelDialog):
         self.file_list_widget = QtWidgets.QListWidget()
         self.file_list_widget.itemSelectionChanged.connect(
             self.file_selection_changed
+        )
+        self.file_list_widget.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.CustomContextMenu
+        )
+        self.file_list_widget.customContextMenuRequested.connect(
+            self.pop_file_list_menu
         )
         file_list_layout = QtWidgets.QVBoxLayout()
         file_list_layout.setContentsMargins(0, 0, 0, 0)
@@ -3375,6 +3382,32 @@ class LabelingWidget(LabelDialog):
         self.refresh_filter_menus()
         global_pos = self.label_list.viewport().mapToGlobal(point)
         self.menus.label_list.exec(global_pos)
+
+    def pop_file_list_menu(self, point):
+        item = self.file_list_widget.itemAt(point)
+        if item is None:
+            return
+
+        menu = QtWidgets.QMenu(self.file_list_widget)
+        copy_name_action = menu.addAction(
+            utils.new_icon("copy", "svg"), self.tr("Copy File Name")
+        )
+        copy_path_action = menu.addAction(
+            utils.new_icon("copy", "svg"), self.tr("Copy File Path")
+        )
+        action = menu.exec(self.file_list_widget.mapToGlobal(point))
+        if action == copy_name_action:
+            self.copy_file_path(osp.basename(item.text()))
+        elif action == copy_path_action:
+            self.copy_file_path(item.text())
+
+    def copy_file_path(self, file_path):
+        popup = Popup(
+            self.tr("Copy Successful"),
+            parent=self,
+            icon=new_icon_path("copy-green", "svg"),
+        )
+        popup.show_popup(self, copy_msg=file_path, position="default")
 
     def _append_filter_submenus(self, parent_menu, prepend=False):
         label_menu = QtWidgets.QMenu(self.tr("Filter by Label"), parent_menu)

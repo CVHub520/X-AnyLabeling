@@ -249,6 +249,11 @@ X-AnyLabeling allows you to add a description or caption to the entire image:
 
 X-AnyLabeling v3.3.5+ introduces a powerful file search feature that supports multiple search modes to help you quickly locate target images. Enter your search criteria in the search box above the file list on the right panel and press Enter to execute the search.
 
+You can also right-click an image in the file list to open a context menu for quick copy operations:
+
+- **Copy File Name**: Copies only the selected image filename, such as `image001.jpg`.
+- **Copy File Path**: Copies the full selected image path to the clipboard.
+
 The following search modes are currently supported:
 
 **Text Search**
