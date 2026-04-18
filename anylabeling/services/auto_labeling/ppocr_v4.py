@@ -79,16 +79,41 @@ class PPOCRv4(Model):
         self.drop_score = self.config.get("drop_score", 0.5)
         self.use_angle_cls = self.config["use_angle_cls"]
         self.current_dir = os.path.dirname(__file__)
-        self.lang = self.config.get("lang", "ch")
-        if self.lang == "ch":
-            self.rec_char_dict = "ppocr_keys_v1.txt"
-        elif self.lang == "japan":
-            self.rec_char_dict = "japan_dict.txt"
-        elif self.lang == "ppocrv5_dict":
-            self.rec_char_dict = "ppocrv5_dict.txt"
+        self.rec_char_dict_path = self.get_rec_char_dict_path(
+            self.config, self.current_dir
+        )
 
         self.args = self.parse_args()
         self.text_sys = TextSystem(self.args)
+
+    @staticmethod
+    def get_rec_char_dict_path(config, current_dir):
+        rec_char_dict_path = config.get("rec_char_dict_path")
+        if rec_char_dict_path:
+            rec_char_dict_abs_path = os.path.abspath(rec_char_dict_path)
+            if os.path.exists(rec_char_dict_abs_path):
+                return rec_char_dict_abs_path
+
+            config_file_path = config.get("config_file")
+            if config_file_path:
+                config_folder = os.path.dirname(config_file_path)
+                rec_char_dict_abs_path = os.path.abspath(
+                    os.path.join(config_folder, rec_char_dict_path)
+                )
+                if os.path.exists(rec_char_dict_abs_path):
+                    return rec_char_dict_abs_path
+
+            return os.path.abspath(rec_char_dict_path)
+
+        lang = config.get("lang", "ch")
+        if lang == "ch":
+            rec_char_dict = "ppocr_keys_v1.txt"
+        elif lang == "japan":
+            rec_char_dict = "japan_dict.txt"
+        elif lang == "ppocrv5_dict":
+            rec_char_dict = "ppocrv5_dict.txt"
+
+        return os.path.join(current_dir, f"configs/ppocr/{rec_char_dict}")
 
     def parse_args(self):
         args = Args(
@@ -141,9 +166,7 @@ class PPOCRv4(Model):
             rec_image_shape="3, 48, 320",
             rec_batch_num=6,
             max_text_length=25,
-            rec_char_dict_path=os.path.join(
-                self.current_dir, f"configs/ppocr/{self.rec_char_dict}"
-            ),
+            rec_char_dict_path=self.rec_char_dict_path,
             use_space_char=True,
             drop_score=self.drop_score,
             # params for e2e
