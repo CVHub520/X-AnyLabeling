@@ -629,6 +629,8 @@ The cropped image saving function can be implemented through the following steps
    - Min Height: Set minimum height in pixels for filtering
 3. After clicking OK, the system will automatically export all annotated objects sorted by category name to the specified path.
 
+You can also use **Tools** > **Save Visualization Image** or **Save Visualization Video** to export the current annotation visualization as an image or video file.
+
 ### 5.3 Label Manager
 
 `X-AnyLabeling` provides tools for managing labels globally across your dataset via `Tools` > `Label Manager`.

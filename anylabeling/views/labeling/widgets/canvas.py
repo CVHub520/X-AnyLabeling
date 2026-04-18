@@ -2966,6 +2966,58 @@ class Canvas(
 
         p.end()
 
+    def render_visualization(
+        self,
+        pixmap,
+        shapes,
+        show_labels=True,
+        show_scores=True,
+        show_groups=False,
+        show_texts=True,
+        show_masks=True,
+    ):
+        old_shape_scale = Shape.scale
+        scratch = type(self)(parent=self.parent)
+        scratch.resize(pixmap.size())
+        scratch.pixmap = pixmap
+        scratch.shapes = list(shapes)
+        scratch.scale = 1.0
+        scratch.current = None
+        scratch.selected_shapes = []
+        scratch.selected_shapes_copy = []
+        scratch.h_hape = None
+        scratch.h_vertex = None
+        scratch.h_edge = None
+        scratch.h_cuboid_face = None
+        scratch.compare_pixmap = None
+        scratch.cross_line_show = False
+        scratch.show_labels = show_labels
+        scratch.show_scores = show_scores
+        scratch.show_groups = show_groups
+        scratch.show_texts = show_texts
+        scratch.show_masks = show_masks
+        scratch.show_degrees = self.show_degrees
+        scratch.show_attributes = self.show_attributes
+        scratch.show_linking = self.show_linking
+        scratch.mask_opacity = self.mask_opacity
+        scratch.attr_background_color = self.attr_background_color
+        scratch.attr_border_color = self.attr_border_color
+        scratch.attr_text_color = self.attr_text_color
+        scratch.visible = {shape: shape.visible for shape in scratch.shapes}
+
+        image = QtGui.QImage(pixmap.size(), QtGui.QImage.Format.Format_ARGB32)
+        image.fill(QtCore.Qt.GlobalColor.transparent)
+
+        painter = QtGui.QPainter(image)
+        try:
+            scratch.render(painter)
+        finally:
+            painter.end()
+            Shape.scale = old_shape_scale
+            scratch.deleteLater()
+
+        return image
+
     def transform_pos(self, point):
         """Convert from widget-logical coordinates to painter-logical ones."""
         return point / self.scale - self.offset_to_center()

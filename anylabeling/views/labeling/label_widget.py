@@ -900,6 +900,18 @@ class LabelingWidget(LabelDialog):
                 "Save cropped image. (Support rectangle/rotation/polygon shape_type)"
             ),
         )
+        save_visualization_image = action(
+            self.tr("Save Visualization Image"),
+            lambda: utils.save_visualization(self, export_type="image"),
+            icon="file",
+            tip=self.tr("Save visualization image"),
+        )
+        save_visualization_video = action(
+            self.tr("Save Visualization Video"),
+            lambda: utils.save_visualization(self, export_type="video"),
+            icon="video",
+            tip=self.tr("Save visualization video"),
+        )
         digit_shortcut_manager = action(
             self.tr("Digit Shortcut Manager"),
             self.digit_shortcut_manager,
@@ -1655,6 +1667,8 @@ class LabelingWidget(LabelDialog):
             copy_coordinates=copy_coordinates,
             paste=paste,
             overview=overview,
+            save_visualization_image=save_visualization_image,
+            save_visualization_video=save_visualization_video,
             undo_last_point=undo_last_point,
             undo=undo,
             remove_point=remove_point,
@@ -1919,6 +1933,8 @@ class LabelingWidget(LabelDialog):
                 overview,
                 None,
                 save_crop,
+                save_visualization_image,
+                save_visualization_video,
                 None,
                 digit_shortcut_manager,
                 label_manager,

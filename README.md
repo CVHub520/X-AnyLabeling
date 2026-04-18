@@ -87,6 +87,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- `2026-04-18`: Added supports exporting annotation visualizations as images or videos.
 - `2026-04-18`: Added support for [PaddleOCR](./docs/en/paddle_ocr.md) document parsing and intelligent text recognition annotation panel.
 - `2026-04-01`: Added support for Japanese and Korean UI languages (`ja_JP`, `ko_KR`).
 - `2026-03-22`: Added support for built-in Settings in the GUI for directly adjusting common options.
