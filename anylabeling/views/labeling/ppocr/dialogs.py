@@ -1,17 +1,36 @@
 from __future__ import annotations
 
 from PyQt6.QtCore import QRectF, QSize, Qt, pyqtSignal
-from PyQt6.QtGui import QColor, QPainter, QPainterPath, QPainterPathStroker
+from PyQt6.QtGui import (
+    QColor,
+    QFont,
+    QIcon,
+    QPainter,
+    QPainterPath,
+    QPainterPathStroker,
+)
 from PyQt6.QtWidgets import (
     QButtonGroup,
     QDialog,
+    QDialogButtonBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
+    QMessageBox,
     QPlainTextEdit,
     QPushButton,
+    QSizePolicy,
     QRadioButton,
     QVBoxLayout,
     QWidget,
+)
+
+from anylabeling.views.labeling.utils.qt import new_icon
+from anylabeling.views.labeling.utils.style import (
+    get_cancel_btn_style,
+    get_lineedit_style,
+    get_normal_button_style,
+    get_ok_btn_style,
 )
 
 from .style import (
@@ -87,6 +106,203 @@ class PPOCRConfirmDeleteDialog(QDialog):
         buttons_layout.addWidget(self.cancel_button)
         buttons_layout.addWidget(self.delete_button)
         layout.addLayout(buttons_layout)
+
+
+class PPOCRApiSettingsDialog(QDialog):
+    def __init__(
+        self,
+        parent=None,
+        current_api_url: str = "",
+        current_api_key: str = "",
+    ) -> None:
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("PPOCR API Settings"))
+        self.setMinimumWidth(600)
+        self._current_api_url = str(current_api_url or "").strip()
+        self._current_api_key = str(current_api_key or "").strip()
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
+
+        self.api_url_input = QLineEdit("")
+        self.api_url_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.api_url_input.setPlaceholderText("API_URL")
+        self.api_url_input.setStyleSheet(get_lineedit_style())
+        self.api_url_input.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed,
+        )
+        url_row = QHBoxLayout()
+        url_row.setContentsMargins(0, 0, 0, 0)
+        url_row.setSpacing(8)
+        url_row.addWidget(self.api_url_input)
+
+        self.toggle_api_url_visibility_btn = QPushButton()
+        self.toggle_api_url_visibility_btn.setCheckable(True)
+        self.toggle_api_url_visibility_btn.setFixedSize(
+            self.api_url_input.sizeHint().height(),
+            self.api_url_input.sizeHint().height(),
+        )
+        self.toggle_api_url_visibility_btn.setStyleSheet(
+            get_normal_button_style()
+        )
+        self.toggle_api_url_visibility_btn.clicked.connect(
+            self.toggle_api_url_visibility
+        )
+        url_row.addWidget(self.toggle_api_url_visibility_btn)
+        layout.addLayout(url_row)
+
+        self.api_key_input = QLineEdit("")
+        self.api_key_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.api_key_input.setPlaceholderText("API_KEY")
+        self.api_key_input.setStyleSheet(get_lineedit_style())
+        self.api_key_input.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Fixed,
+        )
+        key_row = QHBoxLayout()
+        key_row.setContentsMargins(0, 0, 0, 0)
+        key_row.setSpacing(8)
+        key_row.addWidget(self.api_key_input)
+
+        self.toggle_api_key_visibility_btn = QPushButton()
+        self.toggle_api_key_visibility_btn.setCheckable(True)
+        self.toggle_api_key_visibility_btn.setFixedSize(
+            self.api_key_input.sizeHint().height(),
+            self.api_key_input.sizeHint().height(),
+        )
+        self.toggle_api_key_visibility_btn.setStyleSheet(
+            get_normal_button_style()
+        )
+        self.toggle_api_key_visibility_btn.clicked.connect(
+            self.toggle_api_key_visibility
+        )
+        key_row.addWidget(self.toggle_api_key_visibility_btn)
+        layout.addLayout(key_row)
+
+        self.description_label = QLabel(
+            self.tr(
+                'Get API_URL and API_KEY from the <a href="https://aistudio.baidu.com/paddleocr/task">PaddleOCR website</a>.<br/>See the API invocation examples.'
+            )
+        )
+        self.description_label.setWordWrap(True)
+        desc_font = QFont(self.description_label.font())
+        desc_font.setPointSize(max(9, desc_font.pointSize() - 1))
+        self.description_label.setFont(desc_font)
+        self.description_label.setOpenExternalLinks(True)
+        self.description_label.setTextFormat(Qt.TextFormat.RichText)
+        self.description_label.setTextInteractionFlags(
+            Qt.TextInteractionFlag.TextBrowserInteraction
+        )
+        self.description_label.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
+        )
+
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        ok_button = self.button_box.button(QDialogButtonBox.StandardButton.Ok)
+        cancel_button = self.button_box.button(
+            QDialogButtonBox.StandardButton.Cancel
+        )
+        if ok_button:
+            ok_button.setStyleSheet(get_ok_btn_style())
+            ok_button.setIcon(QIcon())
+        if cancel_button:
+            cancel_button.setStyleSheet(get_cancel_btn_style())
+            cancel_button.setIcon(QIcon())
+        self.button_box.accepted.connect(self.accept_with_validation)
+        self.button_box.rejected.connect(self.reject)
+        footer_row = QHBoxLayout()
+        footer_row.setContentsMargins(0, 0, 0, 0)
+        footer_row.setSpacing(10)
+        footer_row.addWidget(
+            self.description_label,
+            1,
+            Qt.AlignmentFlag.AlignVCenter,
+        )
+        footer_row.addWidget(
+            self.button_box,
+            0,
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignRight,
+        )
+        layout.addLayout(footer_row)
+
+        self.api_url_input.setText(self._current_api_url)
+        self.api_key_input.setText(self._current_api_key)
+        self._update_visibility_buttons(False, False)
+
+    def _update_visibility_buttons(
+        self, show_url: bool, show_key: bool
+    ) -> None:
+        if show_url:
+            self.toggle_api_url_visibility_btn.setIcon(
+                QIcon(new_icon("eye", "svg"))
+            )
+            self.toggle_api_url_visibility_btn.setToolTip(self.tr("Hide"))
+        else:
+            self.toggle_api_url_visibility_btn.setIcon(
+                QIcon(new_icon("eye-off", "svg"))
+            )
+            self.toggle_api_url_visibility_btn.setToolTip(self.tr("Show"))
+
+        if show_key:
+            self.toggle_api_key_visibility_btn.setIcon(
+                QIcon(new_icon("eye", "svg"))
+            )
+            self.toggle_api_key_visibility_btn.setToolTip(self.tr("Hide"))
+        else:
+            self.toggle_api_key_visibility_btn.setIcon(
+                QIcon(new_icon("eye-off", "svg"))
+            )
+            self.toggle_api_key_visibility_btn.setToolTip(self.tr("Show"))
+
+    def toggle_api_url_visibility(self, checked: bool) -> None:
+        self.api_url_input.setEchoMode(
+            QLineEdit.EchoMode.Normal
+            if checked
+            else QLineEdit.EchoMode.Password
+        )
+        self._update_visibility_buttons(
+            checked,
+            self.toggle_api_key_visibility_btn.isChecked(),
+        )
+
+    def toggle_api_key_visibility(self, checked: bool) -> None:
+        self.api_key_input.setEchoMode(
+            QLineEdit.EchoMode.Normal
+            if checked
+            else QLineEdit.EchoMode.Password
+        )
+        self._update_visibility_buttons(
+            self.toggle_api_url_visibility_btn.isChecked(),
+            checked,
+        )
+
+    def get_api_url(self) -> str:
+        value = self.api_url_input.text().strip()
+        if value:
+            return value
+        return self._current_api_url
+
+    def get_api_key(self) -> str:
+        value = self.api_key_input.text().strip()
+        if value:
+            return value
+        return self._current_api_key
+
+    def accept_with_validation(self) -> None:
+        if not self.get_api_url() or not self.get_api_key():
+            QMessageBox.warning(
+                self,
+                self.tr("Invalid Settings"),
+                self.tr("API_URL and API_KEY are required."),
+            )
+            return
+        self.accept()
 
 
 class PPOCRFilterRadioButton(QRadioButton):

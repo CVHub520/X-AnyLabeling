@@ -60,9 +60,49 @@ class PPOCRDataManager:
         self.root_dir = base_dir / PPOCR_ROOT_DIRNAME
         self.files_dir = self.root_dir / PPOCR_FILES_DIRNAME
         self.jsons_dir = self.root_dir / PPOCR_JSONS_DIRNAME
+        self.api_settings_path = self.root_dir / "api_settings.json"
         self.state_path = self.root_dir / "ui_state.json"
         self.files_dir.mkdir(parents=True, exist_ok=True)
         self.jsons_dir.mkdir(parents=True, exist_ok=True)
+
+    def load_api_settings(self) -> dict[str, str]:
+        if not self.api_settings_path.exists():
+            return {
+                "api_url": "",
+                "api_key": "",
+            }
+        try:
+            with open(self.api_settings_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception as exc:
+            logger.warning(
+                f"Failed to load PaddleOCR API settings: {self.api_settings_path}, {exc}"
+            )
+            return {
+                "api_url": "",
+                "api_key": "",
+            }
+        if not isinstance(data, dict):
+            return {
+                "api_url": "",
+                "api_key": "",
+            }
+        return {
+            "api_url": str(data.get("api_url") or "").strip(),
+            "api_key": str(data.get("api_key") or "").strip(),
+        }
+
+    def save_api_settings(
+        self,
+        api_url: str,
+        api_key: str,
+    ) -> None:
+        payload = {
+            "api_url": str(api_url or "").strip(),
+            "api_key": str(api_key or "").strip(),
+        }
+        with open(self.api_settings_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
 
     def scan_records(self) -> list[PPOCRFileRecord]:
         records = []

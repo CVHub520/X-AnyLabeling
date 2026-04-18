@@ -1353,6 +1353,21 @@ class AutoLabelingWidget(QWidget):
         """Populate remote server combobox"""
         self.remote_server_select_combobox.clear()
 
+    @staticmethod
+    def _is_capabilities_remote_model(model_info):
+        if not isinstance(model_info, dict):
+            return False
+        return "capabilities" in model_info
+
+    def _filter_remote_server_available_models(self, available_models):
+        if not isinstance(available_models, dict):
+            return {}
+        return {
+            model_id: model_info
+            for model_id, model_info in available_models.items()
+            if not self._is_capabilities_remote_model(model_info)
+        }
+
     @pyqtSlot()
     def on_remote_server_model_changed(self):
         """Handle remote server model change"""
@@ -1361,9 +1376,12 @@ class AutoLabelingWidget(QWidget):
             self.model_manager.set_remote_server_model(model_id)
             self.update_remote_server_widgets(model_id)
 
-            available_models = (
+            available_models = self._filter_remote_server_available_models(
                 self.model_manager.get_remote_server_available_models()
             )
+            if model_id not in available_models:
+                self.remote_task_select_combobox.hide()
+                return
             model_info = available_models[model_id]
             available_tasks = model_info.get("available_tasks", [])
             if available_tasks:
@@ -1380,7 +1398,7 @@ class AutoLabelingWidget(QWidget):
         ):
             return
 
-        available_models = (
+        available_models = self._filter_remote_server_available_models(
             self.model_manager.get_remote_server_available_models()
         )
 
@@ -1407,6 +1425,12 @@ class AutoLabelingWidget(QWidget):
                 self.update_task_mode_ui(available_tasks)
             else:
                 self.remote_task_select_combobox.hide()
+        else:
+            for widget_name in self.supported_remote_widgets:
+                widget = getattr(self, widget_name, None)
+                if widget:
+                    widget.hide()
+            self.remote_task_select_combobox.hide()
 
     @pyqtSlot()
     def on_task_changed(self):
@@ -1420,12 +1444,15 @@ class AutoLabelingWidget(QWidget):
 
         self.model_manager.set_task(task_id)
 
-        available_models = (
+        available_models = self._filter_remote_server_available_models(
             self.model_manager.get_remote_server_available_models()
         )
         current_model_id = (
             self.model_manager.get_remote_server_current_model_id()
         )
+        if current_model_id not in available_models:
+            self.remote_task_select_combobox.hide()
+            return
         model_info = available_models[current_model_id]
         available_tasks = model_info.get("available_tasks", [])
         task_info = next(
@@ -1488,7 +1515,7 @@ class AutoLabelingWidget(QWidget):
         ):
             return
 
-        available_models = (
+        available_models = self._filter_remote_server_available_models(
             self.model_manager.get_remote_server_available_models()
         )
         if model_id not in available_models:

@@ -41,11 +41,13 @@ from anylabeling.views.labeling.ppocr.config import (
     LEFT_PANEL_WIDTH,
     MIN_DIALOG_HEIGHT,
     MIN_DIALOG_WIDTH,
+    PPOCR_API_MODEL_ID,
+    PPOCR_API_MODEL_LABEL,
+    PPOCR_API_MODEL_SERVER_ID,
     PPOCR_COLOR_TEXT,
     PPOCR_FILE_TYPE_ALL,
     PPOCR_FILE_TYPE_IMAGE,
     PPOCR_FILE_TYPE_PDF,
-    PPOCR_OFFLINE_MODEL_LABEL,
     PPOCR_SORT_NEWEST,
     PPOCR_SORT_OLDEST,
     PPOCR_STATUS_ERROR,
@@ -57,8 +59,8 @@ from anylabeling.views.labeling.ppocr.data_manager import (
     PPOCRFileRecord,
 )
 from anylabeling.views.labeling.ppocr.dialogs import (
+    PPOCRApiSettingsDialog,
     PPOCRFilterDialog,
-    PPOCRServiceUnavailableDialog,
 )
 from anylabeling.views.labeling.ppocr.editors import create_ppocr_block_editor
 from anylabeling.views.labeling.ppocr.pipeline import (
@@ -243,6 +245,7 @@ class PPOCRDialog(QDialog):
         self.current_sidebar_tab = "recents"
         self.workspace_splitter: PPOCRWorkspaceSplitter | None = None
         self._updating_workspace_splitter = False
+        self._prompting_api_settings = False
 
         self.init_ui()
         self.refresh_service_state()
@@ -636,6 +639,15 @@ class PPOCRDialog(QDialog):
         actions_layout.setContentsMargins(0, 0, 0, 0)
         actions_layout.setSpacing(2)
 
+        self.api_settings_button = QPushButton()
+        self.api_settings_button.setObjectName("PPOCRResultActionButton")
+        self.api_settings_button.setIcon(QIcon(new_icon("settings", "svg")))
+        self.api_settings_button.setIconSize(QSize(14, 14))
+        self.api_settings_button.setFixedSize(26, 26)
+        self.api_settings_button.setToolTip(self.tr("Settings"))
+        self.api_settings_button.clicked.connect(self.open_api_settings_dialog)
+        actions_layout.addWidget(self.api_settings_button)
+
         self.reshape_button = QPushButton()
         self.reshape_button.setObjectName("PPOCRResultActionButton")
         self.reshape_button.setIcon(QIcon(new_icon("refresh", "svg")))
@@ -720,29 +732,35 @@ class PPOCRDialog(QDialog):
 
     def refresh_service_state(self) -> None:
         service_probe = self.pipeline.probe_service()
+        selected_model = str(
+            self.model_combo.currentData() or self.pipeline.pipeline_model
+        ).strip()
         self.model_combo.blockSignals(True)
         self.model_combo.clear()
-        if service_probe.is_online:
-            for model_info in service_probe.pipeline_models:
-                self.model_combo.addItem(
-                    model_info.display_name,
-                    userData=model_info.model_id,
-                )
-            selected_index = self.model_combo.findData(
-                service_probe.pipeline_model
-            )
-            if selected_index < 0 and self.model_combo.count() > 0:
-                selected_index = 0
-            if selected_index >= 0:
-                self.model_combo.setCurrentIndex(selected_index)
-            self.model_combo.setEnabled(True)
-        else:
+        self.model_combo.addItem(
+            PPOCR_API_MODEL_LABEL,
+            userData=PPOCR_API_MODEL_ID,
+        )
+        seen_model_ids = {PPOCR_API_MODEL_ID}
+        for model_info in service_probe.pipeline_models:
+            model_id = str(model_info.model_id or "").strip()
+            if not model_id or model_id in seen_model_ids:
+                continue
+            if model_id == PPOCR_API_MODEL_SERVER_ID:
+                continue
             self.model_combo.addItem(
-                PPOCR_OFFLINE_MODEL_LABEL,
-                userData=PPOCR_OFFLINE_MODEL_LABEL,
+                model_info.display_name,
+                userData=model_id,
             )
-            self.model_combo.setCurrentText(PPOCR_OFFLINE_MODEL_LABEL)
-            self.model_combo.setEnabled(False)
+            seen_model_ids.add(model_id)
+        selected_index = self.model_combo.findData(selected_model)
+        if selected_index < 0:
+            selected_index = 0
+        self.model_combo.setCurrentIndex(selected_index)
+        self.model_combo.setEnabled(True)
+        self.pipeline.set_pipeline_model(
+            str(self.model_combo.currentData() or PPOCR_API_MODEL_ID)
+        )
         for index in range(self.model_combo.count()):
             self.model_combo.setItemData(
                 index,
@@ -753,6 +771,33 @@ class PPOCRDialog(QDialog):
         self.model_combo.blockSignals(False)
         QTimer.singleShot(0, self.update_model_combo_width)
         QTimer.singleShot(60, self.update_model_combo_width)
+
+    def open_api_settings_dialog(self, _checked: bool = False) -> None:
+        if self._prompting_api_settings:
+            return
+        self._prompting_api_settings = True
+        try:
+            dialog = PPOCRApiSettingsDialog(
+                self,
+                current_api_url=self.pipeline.api_url,
+                current_api_key=self.pipeline.api_key,
+            )
+            if dialog.exec() != QDialog.DialogCode.Accepted:
+                return
+            api_url = dialog.get_api_url()
+            api_key = dialog.get_api_key()
+            self.pipeline.update_api_settings(
+                api_url,
+                api_key,
+            )
+            self.refresh_service_state()
+        finally:
+            self._prompting_api_settings = False
+
+    def prompt_api_settings_if_needed(self) -> None:
+        if self.pipeline.has_required_api_settings():
+            return
+        self.open_api_settings_dialog()
 
     def update_model_combo_width(self) -> None:
         self.model_combo.updateGeometry()
@@ -1090,6 +1135,9 @@ class PPOCRDialog(QDialog):
         self.reset_zoom_button.setEnabled(False)
 
     def render_right_panel(self) -> None:
+        self.cleanup_stale_parsing_state()
+        if self.sync_current_record_status_from_disk():
+            return
         self.json_viewer.setPlainText(self.current_json_text())
         self.reshape_button.setEnabled(self.current_record is not None)
         self.copy_result_button.setEnabled(
@@ -1165,6 +1213,43 @@ class PPOCRDialog(QDialog):
         self._stop_pending_status_animation()
         self.rebuild_cards()
         self.document_stack.setCurrentWidget(self.cards_scroll)
+
+    def cleanup_stale_parsing_state(self) -> None:
+        batch_active = bool(
+            self.worker_thread is not None and self.worker_thread.isRunning()
+        )
+        if batch_active:
+            return
+        if (
+            not self.queued_filenames
+            and not self.parsing_filenames
+            and not self.parsing_progress_map
+        ):
+            return
+        self.queued_filenames = set()
+        self.parsing_filenames = set()
+        self.parsing_progress_map.clear()
+
+    def sync_current_record_status_from_disk(self) -> bool:
+        if self.current_record is None:
+            return False
+        if self.current_record.status != PPOCR_STATUS_PENDING:
+            return False
+        if self.queued_filenames or self.parsing_filenames:
+            return False
+        data = self.data_manager.load_record_data(self.current_record)
+        if not isinstance(data, dict):
+            return False
+        meta = data.get("_ppocr_meta") or {}
+        disk_status = str(meta.get("status") or "").strip()
+        if disk_status not in {PPOCR_STATUS_PARSED, PPOCR_STATUS_ERROR}:
+            return False
+        self.current_record.status = disk_status
+        self.current_record.error_message = str(
+            meta.get("error_message") or ""
+        )
+        self.load_current_record()
+        return True
 
     def _set_pending_status_banner(
         self,
@@ -2001,8 +2086,16 @@ class PPOCRDialog(QDialog):
             self.show_empty_state()
 
     def start_parsing(self, records: list[PPOCRFileRecord]) -> None:
+        self.cleanup_stale_parsing_state()
         if self.worker_thread is not None and self.worker_thread.isRunning():
             return
+        if (
+            self.pipeline.pipeline_model == PPOCR_API_MODEL_ID
+            and not self.pipeline.has_required_api_settings()
+        ):
+            self.prompt_api_settings_if_needed()
+            if not self.pipeline.has_required_api_settings():
+                return
         records = [
             record
             for record in records
@@ -2122,15 +2215,24 @@ class PPOCRDialog(QDialog):
             )
             self.load_current_record()
 
-    def stop_worker(self) -> None:
+    def stop_worker(
+        self, wait: bool = True, wait_timeout_ms: int = 2000
+    ) -> None:
         self._stop_pending_status_animation()
-        if self.worker_thread is not None:
-            self.worker_thread.quit()
-            self.worker_thread.wait()
-            self.worker_thread = None
-        if self.worker is not None:
-            self.worker.deleteLater()
-            self.worker = None
+        worker_thread = self.worker_thread
+        worker = self.worker
+        self.worker_thread = None
+        self.worker = None
+        if worker_thread is not None:
+            worker_thread.quit()
+            if wait:
+                worker_thread.wait(wait_timeout_ms)
+            if worker_thread.isFinished():
+                worker_thread.deleteLater()
+            else:
+                worker_thread.finished.connect(worker_thread.deleteLater)
+        if worker is not None:
+            worker.deleteLater()
 
     def goto_previous_page(self) -> None:
         if self.current_page_no <= 1:
@@ -2240,6 +2342,11 @@ class PPOCRDialog(QDialog):
             self.model_combo.currentData() or self.model_combo.currentText()
         ).strip()
         self.pipeline.set_pipeline_model(model_id)
+        if (
+            model_id == PPOCR_API_MODEL_ID
+            and not self.pipeline.has_required_api_settings()
+        ):
+            QTimer.singleShot(0, self.prompt_api_settings_if_needed)
 
     def copy_text_to_clipboard(self, text: str) -> None:
         self.show_toast(
@@ -2277,6 +2384,8 @@ class PPOCRDialog(QDialog):
 
     def showEvent(self, event) -> None:
         super().showEvent(event)
+        QTimer.singleShot(0, self.refresh_service_state)
+        QTimer.singleShot(0, self.prompt_api_settings_if_needed)
         QTimer.singleShot(0, self.update_model_combo_width)
         QTimer.singleShot(60, self.update_model_combo_width)
 
@@ -2301,5 +2410,5 @@ class PPOCRDialog(QDialog):
 
     def closeEvent(self, event) -> None:
         self.cancel_event.set()
-        self.stop_worker()
+        self.stop_worker(wait=False)
         super().closeEvent(event)

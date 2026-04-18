@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 import threading
 from typing import Any
+from urllib.parse import urlsplit, urlunsplit
 
 from PIL import Image, ImageOps
 from PyQt6.QtCore import QObject, pyqtSignal
@@ -14,8 +15,8 @@ import requests
 from anylabeling.views.labeling.logger import logger
 
 from .config import (
+    PPOCR_API_MODEL_ID,
     PPOCR_FILE_TYPE_IMAGE,
-    PPOCR_OFFLINE_MODEL_LABEL,
     PPOCR_PIPELINE_CAPABILITY_KEY,
     PPOCRPipelineModel,
     PPOCRServiceProbe,
@@ -31,6 +32,28 @@ IMAGE_ONLY_LABELS = {
     "image",
     "header_image",
     "footer_image",
+}
+
+_SUPPORTED_API_PARAM_KEYS = {
+    "fileType",
+    "promptLabel",
+    "markdownIgnoreLabels",
+    "useDocOrientationClassify",
+    "useDocUnwarping",
+    "useLayoutDetection",
+    "useChartRecognition",
+    "useSealRecognition",
+    "useOcrForImageBlock",
+    "mergeTables",
+    "relevelTitles",
+    "layoutShapeMode",
+    "repetitionPenalty",
+    "temperature",
+    "topP",
+    "minPixels",
+    "maxPixels",
+    "layoutNms",
+    "restructurePages",
 }
 
 
@@ -51,21 +74,106 @@ class PPOCRPipeline:
     ) -> None:
         self.data_manager = data_manager
         remote_settings = (config or {}).get("remote_server_settings") or {}
-        self.server_url = remote_settings.get(
-            "server_url",
-            "http://127.0.0.1:8000",
-        )
-        self.api_key = remote_settings.get("api_key", "") or ""
+        self.server_url = str(
+            remote_settings.get(
+                "server_url",
+                "http://127.0.0.1:8000",
+            )
+            or ""
+        ).strip()
+        self.server_api_key = str(remote_settings.get("api_key") or "").strip()
         self.timeout = int(remote_settings.get("timeout", 180) or 180)
-        self.pipeline_model = ""
+        api_settings = self.data_manager.load_api_settings()
+        self.api_url = api_settings.get("api_url", "")
+        self.api_key = api_settings.get("api_key", "")
+        self.pipeline_model = PPOCR_API_MODEL_ID
         self.pipeline_models: list[PPOCRPipelineModel] = []
+        self.auth_schemes = ["token", "bearer"]
+        self.client_platform = "x-anylabeling-client"
+        self.default_api_payload = {
+            "fileType": 1,
+            "useDocOrientationClassify": False,
+            "useDocUnwarping": False,
+            "useLayoutDetection": True,
+            "useChartRecognition": False,
+            "useSealRecognition": True,
+            "useOcrForImageBlock": False,
+            "mergeTables": True,
+            "relevelTitles": True,
+            "layoutShapeMode": "auto",
+            "repetitionPenalty": 1,
+            "temperature": 0,
+            "topP": 1,
+            "minPixels": 147384,
+            "maxPixels": 2822400,
+            "layoutNms": True,
+            "restructurePages": True,
+        }
         self.service_probe = PPOCRServiceProbe(
             is_online=False,
             server_url=self.server_url,
-            pipeline_model=PPOCR_OFFLINE_MODEL_LABEL,
+            pipeline_model=PPOCR_API_MODEL_ID,
             pipeline_models=tuple(),
             error_message="Service probing has not run yet.",
         )
+
+    def update_api_settings(
+        self,
+        api_url: str,
+        api_key: str,
+    ) -> None:
+        self.api_url = str(api_url or "").strip()
+        self.api_key = str(api_key or "").strip()
+        self.data_manager.save_api_settings(self.api_url, self.api_key)
+
+    def has_required_api_settings(self) -> bool:
+        return bool(self.api_url and self.api_key)
+
+    def has_remote_server_settings(self) -> bool:
+        return bool(str(self.server_url or "").strip())
+
+    def _server_headers(self) -> dict[str, str]:
+        if self.server_api_key:
+            return {"Token": self.server_api_key}
+        return {}
+
+    def _candidate_server_base_urls(self) -> list[str]:
+        raw_url = str(self.server_url or "").strip()
+        if not raw_url:
+            return []
+        candidates: list[str] = []
+
+        def append_candidate(url_text: str) -> None:
+            normalized = str(url_text or "").strip().rstrip("/")
+            if normalized and normalized not in candidates:
+                candidates.append(normalized)
+
+        append_candidate(raw_url)
+        try:
+            parsed = urlsplit(raw_url)
+        except Exception:
+            return candidates
+        if not parsed.scheme or not parsed.netloc:
+            return candidates
+
+        path = (parsed.path or "").rstrip("/")
+        suffixes = ("/v1/predict", "/predict", "/v1/models")
+        for suffix in suffixes:
+            if not path.endswith(suffix):
+                continue
+            base_path = path[: -len(suffix)]
+            append_candidate(
+                urlunsplit(
+                    (
+                        parsed.scheme,
+                        parsed.netloc,
+                        base_path,
+                        "",
+                        "",
+                    )
+                )
+            )
+        return candidates
 
     @staticmethod
     def _is_ppocr_pipeline_model(model_info: Any) -> bool:
@@ -128,50 +236,66 @@ class PPOCRPipeline:
         return pipeline_models[0].model_id
 
     def probe_service(self) -> PPOCRServiceProbe:
-        headers = {"Token": self.api_key}
-        models_url = f"{self.server_url.rstrip('/')}/v1/models"
-        try:
-            response = requests.get(
-                models_url,
-                headers=headers,
-                timeout=min(self.timeout, 10),
-            )
-            response.raise_for_status()
-            payload = response.json()
-            models_data = payload.get("data") or {}
-            if not isinstance(models_data, dict):
-                raise RuntimeError("Invalid /v1/models response data")
-
-            pipeline_models = self._collect_pipeline_models(models_data)
-            if not pipeline_models:
-                raise RuntimeError(
-                    "No PPOCR pipeline model found. "
-                    "Expected capabilities.ppocr_pipeline = true."
-                )
-
-            self.pipeline_models = pipeline_models
-            self.pipeline_model = self._select_pipeline_model(pipeline_models)
-            self.service_probe = PPOCRServiceProbe(
-                is_online=True,
-                server_url=self.server_url,
-                pipeline_model=self.pipeline_model,
-                pipeline_models=tuple(self.pipeline_models),
-                error_message="",
-            )
-            return self.service_probe
-        except Exception as exc:
-            logger.warning(f"Failed to probe PaddleOCR service: {exc}")
+        if not self.has_remote_server_settings():
+            self.pipeline_models = []
             self.service_probe = PPOCRServiceProbe(
                 is_online=False,
-                server_url=self.server_url,
-                pipeline_model=PPOCR_OFFLINE_MODEL_LABEL,
-                pipeline_models=tuple(self.pipeline_models),
-                error_message=str(exc),
+                server_url="",
+                pipeline_model=self.pipeline_model,
+                pipeline_models=tuple(),
+                error_message="Remote server URL is not configured.",
             )
             return self.service_probe
+        last_error = "Server probing has not run yet."
+        for base_url in self._candidate_server_base_urls():
+            normalized_base_url = base_url.rstrip("/")
+            if normalized_base_url.endswith("/v1/models"):
+                normalized_base_url = normalized_base_url[: -len("/v1/models")]
+            models_url = f"{normalized_base_url}/v1/models"
+            try:
+                response = requests.get(
+                    models_url,
+                    headers=self._server_headers(),
+                    timeout=min(self.timeout, 10),
+                )
+                response.raise_for_status()
+                payload = response.json()
+                models_data = payload.get("data") or {}
+                if not isinstance(models_data, dict):
+                    raise RuntimeError("Invalid /v1/models response data")
+
+                pipeline_models = self._collect_pipeline_models(models_data)
+                if not pipeline_models:
+                    raise RuntimeError(
+                        "No PPOCR pipeline model found. "
+                        "Expected capabilities.ppocr_pipeline = true."
+                    )
+
+                self.pipeline_models = pipeline_models
+                selected_model = self._select_pipeline_model(pipeline_models)
+                self.service_probe = PPOCRServiceProbe(
+                    is_online=True,
+                    server_url=normalized_base_url,
+                    pipeline_model=selected_model,
+                    pipeline_models=tuple(self.pipeline_models),
+                    error_message="",
+                )
+                return self.service_probe
+            except Exception as exc:
+                last_error = str(exc)
+                continue
+        logger.debug(f"Failed to probe PaddleOCR service: {last_error}")
+        self.service_probe = PPOCRServiceProbe(
+            is_online=False,
+            server_url=self.server_url,
+            pipeline_model=self.pipeline_model,
+            pipeline_models=tuple(self.pipeline_models),
+            error_message=last_error,
+        )
+        return self.service_probe
 
     def set_pipeline_model(self, model_id: str) -> None:
-        if model_id and model_id != PPOCR_OFFLINE_MODEL_LABEL:
+        if model_id:
             self.pipeline_model = model_id
 
     def parse_record(
@@ -182,11 +306,13 @@ class PPOCRPipeline:
         index: int = 1,
         total: int = 1,
     ) -> dict[str, Any]:
-        service_probe = self.probe_service()
-        if not service_probe.is_online:
-            raise RuntimeError(
-                service_probe.error_message or "PaddleOCR service is offline"
-            )
+        if self.pipeline_model != PPOCR_API_MODEL_ID:
+            service_probe = self.probe_service()
+            if not service_probe.is_online:
+                raise RuntimeError(
+                    service_probe.error_message
+                    or "PaddleOCR service is offline"
+                )
         if record.file_type == PPOCR_FILE_TYPE_IMAGE:
             page_paths = [record.source_path]
         else:
@@ -215,6 +341,7 @@ class PPOCRPipeline:
                 record,
                 page_path,
                 page_index,
+                cancel_event=cancel_event,
             )
             layout_results.append(page_result)
             page_sizes.append({"width": page_size[0], "height": page_size[1]})
@@ -246,6 +373,7 @@ class PPOCRPipeline:
         record: PPOCRFileRecord,
         page_path: Path,
         page_no: int,
+        cancel_event: threading.Event | None = None,
     ) -> tuple[dict[str, Any], tuple[int, int], dict[str, str]]:
         with Image.open(page_path) as image:
             image = ImageOps.exif_transpose(image)
@@ -263,14 +391,23 @@ class PPOCRPipeline:
                 )
             else:
                 image = image.convert("RGB")
-            page_result_data = self._predict_remote(
-                self.pipeline_model,
-                image,
-                params={
-                    "page_no": page_no,
-                    "source_file_type": record.file_type,
-                },
-            )
+            params = {
+                "page_no": page_no,
+                "source_file_type": record.file_type,
+            }
+            if self.pipeline_model == PPOCR_API_MODEL_ID:
+                page_result_data = self._predict_ppocr_api(
+                    image,
+                    params,
+                    cancel_event=cancel_event,
+                )
+            else:
+                page_result_data = self._predict_remote(
+                    self.pipeline_model,
+                    image,
+                    params=params,
+                    cancel_event=cancel_event,
+                )
             page_result = self._normalize_page_result(
                 page_result_data,
                 page_path,
@@ -535,11 +672,209 @@ class PPOCRPipeline:
         except ValueError:
             return str(candidate)
 
+    @staticmethod
+    def _normalize_auth_schemes(raw_schemes: Any) -> list[str]:
+        if isinstance(raw_schemes, str):
+            return [
+                item.strip() for item in raw_schemes.split(",") if item.strip()
+            ]
+        if isinstance(raw_schemes, list):
+            return [
+                str(item).strip() for item in raw_schemes if str(item).strip()
+            ]
+        return []
+
+    def _resolve_auth_schemes(
+        self,
+        params: dict[str, Any],
+        api_key: str,
+    ) -> list[str]:
+        schemes = self._normalize_auth_schemes(params.get("auth_schemes"))
+        if not schemes:
+            schemes = self._normalize_auth_schemes(params.get("auth_scheme"))
+        if not schemes:
+            schemes = list(self.auth_schemes)
+        if api_key:
+            lowered = {item.casefold() for item in schemes}
+            if "token" not in lowered:
+                schemes.append("token")
+            if "bearer" not in lowered:
+                schemes.append("bearer")
+        return [item for item in schemes if item] or ["token"]
+
+    def _build_api_headers_candidates(
+        self,
+        api_key: str,
+        auth_schemes: list[str],
+    ) -> list[dict[str, str]]:
+        base_headers = {
+            "Content-Type": "application/json",
+            "Client-Platform": self.client_platform,
+        }
+        if not api_key:
+            return [base_headers]
+        candidates: list[dict[str, str]] = []
+        used: set[str] = set()
+        for scheme in auth_schemes:
+            key = scheme.casefold()
+            if key in used:
+                continue
+            used.add(key)
+            headers = dict(base_headers)
+            headers["Authorization"] = f"{scheme} {api_key}"
+            candidates.append(headers)
+        return candidates or [base_headers]
+
+    def _build_ppocr_api_payload(
+        self,
+        image_b64: str,
+        params: dict[str, Any],
+    ) -> dict[str, Any]:
+        payload: dict[str, Any] = {"file": image_b64}
+        payload.update(self.default_api_payload)
+        for key in _SUPPORTED_API_PARAM_KEYS:
+            if key in params:
+                payload[key] = params[key]
+        if not payload.get("useLayoutDetection", True):
+            prompt_label = str(payload.get("promptLabel") or "ocr").strip()
+            payload["promptLabel"] = prompt_label or "ocr"
+        else:
+            payload.pop("promptLabel", None)
+        return payload
+
+    def _resolve_server_predict_url(self) -> str:
+        if self.service_probe.is_online and self.service_probe.server_url:
+            return (
+                f"{str(self.service_probe.server_url).rstrip('/')}/v1/predict"
+            )
+        server_url = str(self.server_url or "").strip().rstrip("/")
+        if not server_url:
+            raise RuntimeError("Server URL is empty.")
+        if server_url.endswith("/predict"):
+            return server_url
+        base_urls = self._candidate_server_base_urls()
+        if base_urls:
+            for base_url in base_urls:
+                normalized = base_url.rstrip("/")
+                if normalized.endswith("/v1/models"):
+                    normalized = normalized[: -len("/v1/models")]
+                if normalized.endswith("/predict"):
+                    return normalized
+                if normalized:
+                    return f"{normalized}/v1/predict"
+        return f"{server_url}/v1/predict"
+
+    def _predict_ppocr_api(
+        self,
+        image: Image.Image,
+        params: dict[str, Any],
+        cancel_event: threading.Event | None = None,
+    ) -> dict[str, Any]:
+        api_url = str(self.api_url or "").strip()
+        if not api_url:
+            raise RuntimeError("API_URL is empty.")
+        api_key = str(
+            params.get("api_key") or params.get("token") or self.api_key or ""
+        ).strip()
+        if not api_key:
+            raise RuntimeError("API_KEY is empty.")
+
+        auth_schemes = self._resolve_auth_schemes(params, api_key)
+        buffer = BytesIO()
+        image.save(buffer, format="PNG")
+        payload = self._build_ppocr_api_payload(
+            base64.b64encode(buffer.getvalue()).decode("utf-8"),
+            params,
+        )
+        headers_candidates = self._build_api_headers_candidates(
+            api_key=api_key,
+            auth_schemes=auth_schemes,
+        )
+
+        response = None
+        for index, headers in enumerate(headers_candidates):
+            response = self._post_json_with_cancel(
+                api_url,
+                payload=payload,
+                headers=headers,
+                timeout_seconds=self.timeout,
+                cancel_event=cancel_event,
+            )
+            if response.status_code != 401:
+                break
+            if index < len(headers_candidates) - 1:
+                logger.warning(
+                    "PPOCR API unauthorized with current auth scheme, retrying with next scheme."
+                )
+        if response is None:
+            raise RuntimeError("PPOCR API request failed: empty response")
+        if response.status_code == 401:
+            raise RuntimeError(
+                "PPOCR API unauthorized (401). Please set a valid API_KEY."
+            )
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            message = ""
+            try:
+                error_data = response.json()
+                message = str(
+                    error_data.get("errorMsg")
+                    or error_data.get("message")
+                    or ""
+                ).strip()
+            except Exception:
+                message = str(response.text or "").strip()
+            detail = f" ({message})" if message else ""
+            raise RuntimeError(
+                f"PPOCR API request failed with status={response.status_code}{detail}"
+            ) from exc
+
+        data = response.json()
+        if not isinstance(data, dict):
+            raise RuntimeError("PPOCR API response is invalid.")
+
+        if "result" in data:
+            error_code = data.get("errorCode", -1)
+            try:
+                error_code_value = int(error_code)
+            except (TypeError, ValueError):
+                error_code_value = -1
+            if error_code_value != 0:
+                raise RuntimeError(
+                    str(
+                        data.get("errorMsg")
+                        or data.get("message")
+                        or "PPOCR API failed"
+                    )
+                )
+            result = data.get("result")
+            if not isinstance(result, dict):
+                raise RuntimeError("PPOCR API response missing result object")
+            return result
+
+        if "success" in data:
+            if not data.get("success", True):
+                error = data.get("error") or {}
+                message = error.get("message") or "Remote inference failed"
+                raise RuntimeError(str(message))
+            payload_data = data.get("data") or {}
+            if isinstance(payload_data, dict):
+                return payload_data
+            raise RuntimeError("Remote inference returned invalid data")
+
+        if isinstance(data.get("layoutParsingResults"), list) or isinstance(
+            data.get("prunedResult"), dict
+        ):
+            return data
+        raise RuntimeError("PPOCR API response missing result object")
+
     def _predict_remote(
         self,
         model_id: str,
         image: Image.Image,
         params: dict[str, Any],
+        cancel_event: threading.Event | None = None,
     ) -> dict[str, Any]:
         if not model_id:
             raise RuntimeError("No PPOCR pipeline model selected")
@@ -551,11 +886,13 @@ class PPOCRPipeline:
             "image": f"data:image/png;base64,{image_b64}",
             "params": params,
         }
-        response = requests.post(
-            f"{self.server_url.rstrip('/')}/v1/predict",
-            json=payload,
-            headers={"Token": self.api_key},
-            timeout=self.timeout,
+        predict_url = self._resolve_server_predict_url()
+        response = self._post_json_with_cancel(
+            predict_url,
+            payload=payload,
+            headers=self._server_headers(),
+            timeout_seconds=self.timeout,
+            cancel_event=cancel_event,
         )
         response.raise_for_status()
         response_data = response.json()
@@ -564,6 +901,51 @@ class PPOCRPipeline:
             message = error.get("message") or "Remote inference failed"
             raise RuntimeError(message)
         return response_data.get("data") or {}
+
+    @staticmethod
+    def _post_json_with_cancel(
+        url: str,
+        payload: dict[str, Any],
+        headers: dict[str, str],
+        timeout_seconds: int,
+        cancel_event: threading.Event | None = None,
+    ):
+        timeout_value = max(1, int(timeout_seconds or 1))
+        if cancel_event is None:
+            return requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=timeout_value,
+            )
+        if cancel_event.is_set():
+            raise RuntimeError("Parsing cancelled")
+
+        result_holder: dict[str, Any] = {}
+        error_holder: dict[str, Exception] = {}
+        completed = threading.Event()
+
+        def _runner() -> None:
+            try:
+                result_holder["response"] = requests.post(
+                    url,
+                    json=payload,
+                    headers=headers,
+                    timeout=timeout_value,
+                )
+            except Exception as exc:  # pragma: no cover - requests path
+                error_holder["error"] = exc
+            finally:
+                completed.set()
+
+        request_thread = threading.Thread(target=_runner, daemon=True)
+        request_thread.start()
+        while not completed.wait(0.1):
+            if cancel_event.is_set():
+                raise RuntimeError("Parsing cancelled")
+        if "error" in error_holder:
+            raise error_holder["error"]
+        return result_holder["response"]
 
     @staticmethod
     def _normalize_points(points: list[Any]) -> list[list[int]]:
@@ -663,30 +1045,58 @@ class PPOCRPipelineWorker(QObject):
 
     def run(self) -> None:
         total = max(1, len(self.records))
-        for index, record in enumerate(self.records, start=1):
+        active_record: PPOCRFileRecord | None = None
+        try:
+            for index, record in enumerate(self.records, start=1):
+                active_record = record
+                if self.cancel_event.is_set():
+                    self.batchCancelled.emit()
+                    return
+                self.recordStarted.emit(record.filename)
+                try:
+                    document_data = self.pipeline.parse_record(
+                        record,
+                        cancel_event=self.cancel_event,
+                        progress_callback=self.progressChanged.emit,
+                        index=index,
+                        total=total,
+                    )
+                    if self.cancel_event.is_set():
+                        self.pipeline.data_manager.reset_to_pending(record)
+                        self.batchCancelled.emit()
+                        return
+                    self.recordFinished.emit(record.filename, document_data)
+                    active_record = None
+                except Exception as exc:
+                    if self.cancel_event.is_set():
+                        self.pipeline.data_manager.reset_to_pending(record)
+                        self.batchCancelled.emit()
+                        return
+                    error_message = str(exc)
+                    try:
+                        self.pipeline.data_manager.mark_error(
+                            record,
+                            error_message,
+                        )
+                    except Exception as mark_exc:
+                        error_message = (
+                            f"{error_message} (mark_error failed: {mark_exc})"
+                        )
+                    self.recordFailed.emit(record.filename, error_message)
+                    active_record = None
+            self.batchFinished.emit()
+        except Exception as exc:
             if self.cancel_event.is_set():
                 self.batchCancelled.emit()
                 return
-            self.recordStarted.emit(record.filename)
-            try:
-                document_data = self.pipeline.parse_record(
-                    record,
-                    cancel_event=self.cancel_event,
-                    progress_callback=self.progressChanged.emit,
-                    index=index,
-                    total=total,
-                )
-                if self.cancel_event.is_set():
-                    self.pipeline.data_manager.reset_to_pending(record)
-                    self.batchCancelled.emit()
-                    return
-                self.recordFinished.emit(record.filename, document_data)
-            except Exception as exc:
-                if self.cancel_event.is_set():
-                    self.pipeline.data_manager.reset_to_pending(record)
-                    self.batchCancelled.emit()
-                    return
-                error_message = str(exc)
-                self.pipeline.data_manager.mark_error(record, error_message)
-                self.recordFailed.emit(record.filename, error_message)
-        self.batchFinished.emit()
+            if active_record is not None:
+                error_message = f"Unexpected worker error: {exc}"
+                try:
+                    self.pipeline.data_manager.mark_error(
+                        active_record,
+                        error_message,
+                    )
+                except Exception:
+                    pass
+                self.recordFailed.emit(active_record.filename, error_message)
+            self.batchFinished.emit()
