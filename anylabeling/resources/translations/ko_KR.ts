@@ -3204,6 +3204,11 @@ Reset the label as {}.</source>
       <translation>정보가 클립보드에 복사되었습니다.</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="3357" />
+      <source>Open Last Dir: %s</source>
+      <translation>마지막 폴더 열기: %s</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="3363" />
       <source>Filter by Label</source>
       <translation>라벨로 필터링</translation>

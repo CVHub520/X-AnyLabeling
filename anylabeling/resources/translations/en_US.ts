@@ -3195,6 +3195,11 @@ Reset the label as {}.</translation>
       <translation>The information has been copied to the clipboard.</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="3357" />
+      <source>Open Last Dir: %s</source>
+      <translation>Open Last Dir: %s</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="3363" />
       <source>Filter by Label</source>
       <translation>Filter by Label</translation>

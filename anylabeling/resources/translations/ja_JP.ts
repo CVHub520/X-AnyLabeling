@@ -3202,6 +3202,11 @@ Reset the label as {}.</source>
       <translation>情報がクリップボードにコピーされました。</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="3357" />
+      <source>Open Last Dir: %s</source>
+      <translation>前回のフォルダを開く: %s</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="3363" />
       <source>Filter by Label</source>
       <translation>ラベルでフィルター</translation>

@@ -3202,6 +3202,11 @@ Reset the label as {}.</source>
       <translation>环境信息已复制到剪切板</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="3357" />
+      <source>Open Last Dir: %s</source>
+      <translation>打开上一次文件夹：%s</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/label_widget.py" line="3363" />
       <source>Filter by Label</source>
       <translation>按标签筛选</translation>
