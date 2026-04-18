@@ -1007,6 +1007,7 @@ class PPOCRDialog(QDialog):
             self.tr(
                 "PaddleOCR Inputs (*.pdf *.png *.jpg *.jpeg *.bmp *.gif *.tif *.tiff *.webp *.cif)"
             ),
+            options=QFileDialog.Option.DontUseNativeDialog,
         )
         if file_paths:
             self.import_source_paths(file_paths)
@@ -1559,6 +1560,7 @@ class PPOCRDialog(QDialog):
             self.tr("Download Document Parsing"),
             default_name,
             self.tr("ZIP Files (*.zip)"),
+            options=QFileDialog.Option.DontUseNativeDialog,
         )[0]
         if not export_path:
             return
@@ -1621,6 +1623,7 @@ class PPOCRDialog(QDialog):
             self.tr("Download JSON"),
             filename,
             self.tr("JSON Files (*.json)"),
+            options=QFileDialog.Option.DontUseNativeDialog,
         )[0]
         if not export_path:
             return
