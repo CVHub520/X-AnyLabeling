@@ -463,6 +463,46 @@ class ModelManager(QObject):
                     f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
                 )
                 return
+        elif model_config["type"] == "yolo26_sahi":
+            from .yolo26_sahi import YOLO26_SAHI
+
+            try:
+                model_config["model"] = YOLO26_SAHI(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                template = "Error in loading model: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
+        elif model_config["type"] == "yolo11_sahi":
+            from .yolo11_sahi import YOLO11_SAHI
+
+            try:
+                model_config["model"] = YOLO11_SAHI(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_unselected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                template = "Error in loading model: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
+                )
+                return
         elif model_config["type"] == "yolov8":
             from .yolov8 import YOLOv8
 

@@ -962,9 +962,14 @@ class AutoLabelingWidget(QWidget):
                 self.model_manager.loaded_model_config["type"]
                 in _AUTO_LABELING_IOU_MODELS
             ):
-                initial_iou_value = self.model_manager.loaded_model_config[
-                    "iou_threshold"
-                ]
+                if "iou_threshold" in self.model_manager.loaded_model_config:
+                    initial_iou_value = self.model_manager.loaded_model_config[
+                        "iou_threshold"
+                    ]
+                elif "nms_threshold" in self.model_manager.loaded_model_config:
+                    initial_iou_value = self.model_manager.loaded_model_config[
+                        "nms_threshold"
+                    ]
                 self.edit_iou.setValue(initial_iou_value)
             else:
                 initial_iou_value = 0.0
@@ -987,6 +992,15 @@ class AutoLabelingWidget(QWidget):
                 elif "box_threshold" in self.model_manager.loaded_model_config:
                     initial_conf_value = (
                         self.model_manager.loaded_model_config["box_threshold"]
+                    )
+                elif (
+                    "confidence_threshold"
+                    in self.model_manager.loaded_model_config
+                ):
+                    initial_conf_value = (
+                        self.model_manager.loaded_model_config[
+                            "confidence_threshold"
+                        ]
                     )
                 self.edit_conf.setValue(initial_conf_value)
             else:

@@ -11,11 +11,11 @@ from .model import Model
 from .types import AutoLabelingResult
 
 from .utils.sahi.predict import get_sliced_prediction
-from .utils.sahi.models.yolov5_onnx import Yolov5OnnxDetectionModel
+from .utils.sahi.models.yolo26_onnx import Yolo26OnnxDetectionModel
 
 
-class YOLOv5_SAHI(Model):
-    """Object detection model using YOLOv5 with SAHI"""
+class YOLO26_SAHI(Model):
+    """Object detection model using YOLO26 with SAHI"""
 
     class Meta:
         required_config_names = [
@@ -35,8 +35,6 @@ class YOLOv5_SAHI(Model):
             "button_run",
             "input_conf",
             "edit_conf",
-            "input_iou",
-            "edit_iou",
             "toggle_preserve_existing_annotations",
             "button_classes_filter",
         ]
@@ -46,26 +44,25 @@ class YOLOv5_SAHI(Model):
         default_output_mode = "rectangle"
 
     def __init__(self, model_config, on_message) -> None:
-        # Run the parent class's init method
         super().__init__(model_config, on_message)
 
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLOv8 model."
+                    "Model", "Could not download or initialize YOLO26 model."
                 )
             )
         category_mapping = {
             str(ind): category_name
             for ind, category_name in enumerate(self.config["classes"])
         }
-        self.net = Yolov5OnnxDetectionModel(
+        self.net = Yolo26OnnxDetectionModel(
             model_path=model_abs_path,
-            nms_threshold=self.config["nms_threshold"],
             confidence_threshold=self.config["confidence_threshold"],
             category_mapping=category_mapping,
             device=__preferred_device__,
+            max_det=self.config.get("max_det", 300),
         )
         self.slice_height = self.config["slice_height"]
         self.slice_width = self.config["slice_width"]
@@ -81,13 +78,6 @@ class YOLOv5_SAHI(Model):
         if value > 0:
             self.net.confidence_threshold = value
             self.net.model.conf_thres = value
-
-    def set_auto_labeling_iou(self, value):
-        """set auto labeling iou threshold"""
-        if value > 0:
-            self.nms_threshold = value
-            self.net.nms_threshold = value
-            self.net.model.nms_thres = value
 
     def set_auto_labeling_preserve_existing_annotations_state(self, state):
         """Toggle the preservation of existing annotations based on the checkbox state."""

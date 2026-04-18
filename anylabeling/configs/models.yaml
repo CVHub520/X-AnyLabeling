@@ -190,6 +190,8 @@
   config_file: ":/yolo11s_seg.yaml"
 - model_name: "yolo11s-r20240930"
   config_file: ":/yolo11s.yaml"
+- model_name: "yolo11s_sahi-r20260418"
+  config_file: ":/yolo11s_sahi.yaml"
 - model_name: "yolo12l-r20250514"
   config_file: ":/yolo12l.yaml"
 - model_name: "yolo12m-r20250514"
@@ -335,6 +337,8 @@
 
 - model_name: "yolo26s-r20260127"
   config_file: ":/yolo26s.yaml"
+- model_name: "yolo26s_sahi-r20260418"
+  config_file: ":/yolo26s_sahi.yaml"
 - model_name: "yolo26s-seg-r20260127"
   config_file: ":/yolo26s_seg.yaml"
 - model_name: "yolo26s-obb-r20260127"

@@ -31,7 +31,15 @@ class YOLOv8_SAHI(Model):
             "confidence_threshold",
             "classes",
         ]
-        widgets = ["button_run"]
+        widgets = [
+            "button_run",
+            "input_conf",
+            "edit_conf",
+            "input_iou",
+            "edit_iou",
+            "toggle_preserve_existing_annotations",
+            "button_classes_filter",
+        ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
         }
@@ -63,6 +71,34 @@ class YOLOv8_SAHI(Model):
         self.slice_width = self.config["slice_width"]
         self.overlap_height_ratio = self.config["overlap_height_ratio"]
         self.overlap_width_ratio = self.config["overlap_width_ratio"]
+        self.nms_threshold = self.config["nms_threshold"]
+        self.classes = self.config["classes"]
+        self.filter_classes = self.config.get("filter_classes", None)
+        self.replace = True
+
+    def set_auto_labeling_conf(self, value):
+        """set auto labeling confidence threshold"""
+        if value > 0:
+            self.net.confidence_threshold = value
+            self.net.model.conf_thres = value
+
+    def set_auto_labeling_iou(self, value):
+        """set auto labeling iou threshold"""
+        if value > 0:
+            self.nms_threshold = value
+            self.net.nms_threshold = value
+            self.net.model.nms_thres = value
+
+    def set_auto_labeling_preserve_existing_annotations_state(self, state):
+        """Toggle the preservation of existing annotations based on the checkbox state."""
+        self.replace = not state
+
+    def set_auto_labeling_filter_classes(self, class_names):
+        """Updates the active class filter from a list of class names."""
+        if not class_names or len(class_names) == len(self.classes):
+            self.filter_classes = None
+        else:
+            self.filter_classes = class_names
 
     def predict_shapes(self, image, image_path=None):
         """
@@ -86,11 +122,17 @@ class YOLOv8_SAHI(Model):
             slice_width=self.slice_width,
             overlap_height_ratio=self.overlap_height_ratio,
             overlap_width_ratio=self.overlap_width_ratio,
+            postprocess_match_threshold=self.nms_threshold,
             verbose=0,
         )
         shapes = []
 
         for out in results.object_prediction_list:
+            if (
+                self.filter_classes
+                and out.category.name not in self.filter_classes
+            ):
+                continue
             xmin = out.bbox.minx
             ymin = out.bbox.miny
             xmax = out.bbox.maxx
@@ -102,9 +144,10 @@ class YOLOv8_SAHI(Model):
             shape.add_point(QtCore.QPointF(xmax, ymin))
             shape.add_point(QtCore.QPointF(xmax, ymax))
             shape.add_point(QtCore.QPointF(xmin, ymax))
+            shape.score = float(out.score.value)
             shapes.append(shape)
 
-        result = AutoLabelingResult(shapes, replace=True)
+        result = AutoLabelingResult(shapes, replace=self.replace)
         return result
 
     def unload(self):

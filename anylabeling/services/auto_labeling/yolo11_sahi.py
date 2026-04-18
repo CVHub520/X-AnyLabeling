@@ -11,11 +11,11 @@ from .model import Model
 from .types import AutoLabelingResult
 
 from .utils.sahi.predict import get_sliced_prediction
-from .utils.sahi.models.yolov5_onnx import Yolov5OnnxDetectionModel
+from .utils.sahi.models.yolov8_onnx import Yolov8OnnxDetectionModel
 
 
-class YOLOv5_SAHI(Model):
-    """Object detection model using YOLOv5 with SAHI"""
+class YOLO11_SAHI(Model):
+    """Object detection model using YOLO11 with SAHI"""
 
     class Meta:
         required_config_names = [
@@ -46,21 +46,20 @@ class YOLOv5_SAHI(Model):
         default_output_mode = "rectangle"
 
     def __init__(self, model_config, on_message) -> None:
-        # Run the parent class's init method
         super().__init__(model_config, on_message)
 
         model_abs_path = self.get_model_abs_path(self.config, "model_path")
         if not model_abs_path or not os.path.isfile(model_abs_path):
             raise FileNotFoundError(
                 QCoreApplication.translate(
-                    "Model", "Could not download or initialize YOLOv8 model."
+                    "Model", "Could not download or initialize YOLO11 model."
                 )
             )
         category_mapping = {
             str(ind): category_name
             for ind, category_name in enumerate(self.config["classes"])
         }
-        self.net = Yolov5OnnxDetectionModel(
+        self.net = Yolov8OnnxDetectionModel(
             model_path=model_abs_path,
             nms_threshold=self.config["nms_threshold"],
             confidence_threshold=self.config["confidence_threshold"],

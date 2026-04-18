@@ -1,10 +1,14 @@
-type: yolo26
-name: yolo26s-r20260124
+type: yolo11_sahi
+name: yolo11s_sahi-r20260418
 provider: Ultralytics
-display_name: YOLO26s
-model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s.onnx
-conf_threshold: 0.25
-max_det: 300
+display_name: YOLO11s-SAHI
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s.onnx
+slice_height: 512
+slice_width: 512
+overlap_height_ratio: 0.2
+overlap_width_ratio: 0.2
+nms_threshold: 0.45
+confidence_threshold: 0.3
 classes:
   - person
   - bicycle

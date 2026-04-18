@@ -123,7 +123,9 @@ anchors:
   - [116,90, 156,198, 373,326]  # P5/32
 ```
 
-> **Tip**: For segmentation models, you can specify the `epsilon_factor` parameter to control the smoothness of the output contour points. The default value is `0.005`.
+> [!TIP]
+>   1. For segmentation models, you can specify the `epsilon_factor` parameter to control the smoothness of the output contour points. The default value is `0.005`.
+>   2. For `YOLO26` series models, if the exported `ONNX` file already includes `NMS` post-processing, inherit from the `YOLO11` template for adaptation; the default `YOLO26` template is intended for `nms-free` outputs.
 
 **c. Model Loading**
 
