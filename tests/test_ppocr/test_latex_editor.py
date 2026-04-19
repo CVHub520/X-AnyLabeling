@@ -14,6 +14,7 @@ try:
         PPOCRRichTextBlockEditor,
         _configure_latex_preview_rcparams,
         _normalized_latex_source,
+        _sanitize_latex_preview_source,
         create_ppocr_block_editor,
         render_latex_preview_pixmap,
     )
@@ -63,6 +64,18 @@ class TestPPOCRLatexEditor(unittest.TestCase):
         self.assertEqual(
             _normalized_latex_source(r"\(\angle HBC = \pi / 2\)"),
             r"\angle HBC = \pi / 2",
+        )
+
+    def test_sanitize_latex_preview_source_preserves_arrow_commands(self):
+        self.assertEqual(
+            _sanitize_latex_preview_source(
+                r"\left(\xrightarrow[\mathrm{cool}]{heat}\right)"
+            ),
+            r"(\underset{\mathrm{cool}}{\overset{heat}{\rightarrow}})",
+        )
+        self.assertEqual(
+            _sanitize_latex_preview_source(r"\xleftarrow{back}"),
+            r"\overset{back}{\leftarrow}",
         )
 
     def test_render_latex_preview_pixmap_supports_single_and_multiline(self):

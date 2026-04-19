@@ -464,8 +464,12 @@ _LATEX_ARRAY_ENV_PATTERN = re.compile(
 _LATEX_DELIMITER_SIZE_COMMAND_PATTERN = re.compile(
     r"\\(?:big|Big|bigg|Bigg)(?:l|r|m)?"
 )
-_LATEX_NULL_AUTO_DELIMITER_PATTERN = re.compile(r"\\(?:left|right)\s*\.")
-_LATEX_AUTO_DELIMITER_COMMAND_PATTERN = re.compile(r"\\(?:left|right)\s*")
+_LATEX_NULL_AUTO_DELIMITER_PATTERN = re.compile(
+    r"\\(?:left|right)(?![A-Za-z])\s*\."
+)
+_LATEX_AUTO_DELIMITER_COMMAND_PATTERN = re.compile(
+    r"\\(?:left|right)(?![A-Za-z])\s*"
+)
 _LATEX_LIMITS_COMMAND_PATTERN = re.compile(r"\\limits")
 _LATEX_ARRAY_RULE_PATTERN = re.compile(
     r"\\(?:hline|toprule|midrule|bottomrule|cline\{[^{}]*\})"
