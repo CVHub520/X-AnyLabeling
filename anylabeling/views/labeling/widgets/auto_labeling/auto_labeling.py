@@ -80,6 +80,8 @@ class AutoLabelingWidget(QWidget):
         "edit_conf",
         "input_iou",
         "edit_iou",
+        "output_label",
+        "output_select_combobox",
         "toggle_preserve_existing_annotations",
         "button_run",
         "edit_text",
@@ -1371,7 +1373,25 @@ class AutoLabelingWidget(QWidget):
     def _is_capabilities_remote_model(model_info):
         if not isinstance(model_info, dict):
             return False
-        return "capabilities" in model_info
+        capabilities = model_info.get("capabilities")
+        if not isinstance(capabilities, dict):
+            return False
+        capability = capabilities.get("ppocr_pipeline")
+        if isinstance(capability, bool):
+            return capability
+        if isinstance(capability, dict):
+            enabled = capability.get("enabled")
+            if isinstance(enabled, bool):
+                return enabled
+            return True
+        if isinstance(capability, str):
+            return capability.casefold() in {
+                "1",
+                "true",
+                "yes",
+                "enabled",
+            }
+        return False
 
     def _filter_remote_server_available_models(self, available_models):
         if not isinstance(available_models, dict):
