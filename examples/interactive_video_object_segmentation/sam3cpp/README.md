@@ -8,13 +8,20 @@ It is **side-by-side** with the original SAM 2 video integration — nothing abo
 
 ## Installation
 
-**Step 0:** Download and install Miniconda from the [official website](https://docs.anaconda.com/miniconda/).
-
-**Step 1:** Create a new Conda environment with Python `3.10`–`3.13`, and activate it:
+**Step 0:** Install [`uv`](https://docs.astral.sh/uv/getting-started/installation/), the fast Python package and project manager.
 
 ```bash
-conda create -n x-anylabeling-sam3cpp python=3.10 -y
-conda activate x-anylabeling-sam3cpp
+curl -LsSf https://astral.sh/uv/install.sh | sh   # macOS / Linux
+# Windows (PowerShell):
+# powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+**Step 1:** Create a Python `3.10`–`3.13` virtual environment and activate it:
+
+```bash
+uv venv --python 3.10 .venv
+source .venv/bin/activate          # bash / zsh
+# .venv\Scripts\Activate.ps1       # Windows PowerShell
 ```
 
 **Step 2:** Build sam3.cpp from source. The instructions below come from the upstream [sam3.cpp Quick Start](https://github.com/PABannier/sam3.cpp#quick-start) and [Building from Source](https://github.com/PABannier/sam3.cpp#building-from-source) sections. Prerequisites (also from upstream): a C++14 compiler (Clang, GCC, or MSVC) and CMake 3.14+.
@@ -40,7 +47,7 @@ cmake .. -DSAM3_BUILD_PYBIND=ON
 make -j
 ```
 
-**Step 4:** Make the `sam3cpp` module importable from your Conda environment. Either keep `PYTHONPATH` exported in the shell that launches X-AnyLabeling, or copy the built extension into your environment's `site-packages/`:
+**Step 4:** Make the `sam3cpp` module importable from your virtual environment. Either keep `PYTHONPATH` exported in the shell that launches X-AnyLabeling, or copy the built extension into your environment's `site-packages/`:
 
 ```bash
 # Per-shell (bash/zsh):
