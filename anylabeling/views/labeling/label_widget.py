@@ -97,12 +97,28 @@ from .widgets import (
 
 LABEL_COLORMAP = utils.label_colormap()
 LABEL_OPACITY = 128
+CHECKED_FIELD = "checked"
+FILE_CHECKED_COLOR = "#22A06B"
+FILE_UNCHECKED_COLOR = "#8C98A4"
+CHECKED_FIELD_PATTERN = re.compile(r'"checked"\s*:\s*(true|false)')
 
 
 def _measure_text_width(font_metrics, text):
     if hasattr(font_metrics, "horizontalAdvance"):
         return font_metrics.horizontalAdvance(text)
     return font_metrics.width(text)
+
+
+def _create_file_status_icon(color):
+    pixmap = QtGui.QPixmap(12, 12)
+    pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QtGui.QPainter(pixmap)
+    painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+    painter.setBrush(QtGui.QColor(color))
+    painter.setPen(Qt.PenStyle.NoPen)
+    painter.drawEllipse(2, 2, 8, 8)
+    painter.end()
+    return QtGui.QIcon(pixmap)
 
 
 class LabelingWidget(LabelDialog):
@@ -301,6 +317,10 @@ class LabelingWidget(LabelDialog):
         self.settings_button.setStyleSheet(get_settings_button_style())
         self.settings_button.clicked.connect(self.open_settings_dialog)
         self.file_list_widget = QtWidgets.QListWidget()
+        self.file_status_icons = {
+            True: _create_file_status_icon(FILE_CHECKED_COLOR),
+            False: _create_file_status_icon(FILE_UNCHECKED_COLOR),
+        }
         self.file_list_widget.itemSelectionChanged.connect(
             self.file_selection_changed
         )
@@ -541,6 +561,15 @@ class LabelingWidget(LabelDialog):
             "delete",
             self.tr("Delete current image file"),
             enabled=True,
+        )
+        toggle_annotation_checked = action(
+            self.tr("Mark as Checked"),
+            self.set_annotation_checked,
+            shortcuts.get("toggle_annotation_checked"),
+            None,
+            self.tr("Mark current annotation as checked"),
+            checkable=True,
+            enabled=False,
         )
 
         toggle_compare_view = action(
@@ -1653,6 +1682,7 @@ class LabelingWidget(LabelDialog):
             toggle_compare_view=toggle_compare_view,
             delete_file=delete_file,
             delete_image_file=delete_image_file,
+            toggle_annotation_checked=toggle_annotation_checked,
             keep_prev_mode=keep_prev_mode,
             auto_use_last_label_mode=auto_use_last_label_mode,
             auto_use_last_gid_mode=auto_use_last_gid_mode,
@@ -1849,6 +1879,7 @@ class LabelingWidget(LabelDialog):
                 digit_shortcut_9,
                 edit_mode,
                 brightness_contrast,
+                toggle_annotation_checked,
                 shape_manager,
                 loop_thru_labels,
                 loop_select_labels,
@@ -1874,6 +1905,7 @@ class LabelingWidget(LabelDialog):
             self.actions.digit_shortcut_9,
         ):
             self.addAction(digit_action)
+        self.addAction(self.actions.toggle_annotation_checked)
 
         self.canvas.vertex_selected.connect(
             self.actions.remove_point.setEnabled
@@ -2076,7 +2108,11 @@ class LabelingWidget(LabelDialog):
         (
             self.canvas_label_filter_menu_0,
             self.canvas_gid_filter_menu_0,
-        ) = self._append_filter_submenus(self.canvas.menus[0], prepend=True)
+        ) = self._append_filter_submenus(
+            self.canvas.menus[0],
+            prepend=True,
+            after_filter_actions=(self.actions.toggle_annotation_checked,),
+        )
         self.canvas.menus[0].aboutToShow.connect(self.refresh_filter_menus)
 
         self.tools = self.toolbar("Tools")
@@ -2674,7 +2710,11 @@ class LabelingWidget(LabelDialog):
         (
             self.canvas_label_filter_menu_0,
             self.canvas_gid_filter_menu_0,
-        ) = self._append_filter_submenus(self.canvas.menus[0], prepend=True)
+        ) = self._append_filter_submenus(
+            self.canvas.menus[0],
+            prepend=True,
+            after_filter_actions=(self.actions.toggle_annotation_checked,),
+        )
         self.menus.edit.clear()
         actions = (
             self.actions.create_mode,
@@ -2715,18 +2755,25 @@ class LabelingWidget(LabelDialog):
             and self.navigator_dialog.isVisible()
         ):
             self.update_navigator_shapes()
-        title = __appname__
-        if self.filename is not None:
-            title = f"{title} - {self.filename}*"
-        self.setWindowTitle(title)
+        self.update_progress_title()
 
-    def update_progress_title(self):
+    def _window_title(self):
         title = __appname__
         if self.filename is not None:
             current_index, total_count = self.get_image_progress_info()
             basename = osp.basename(str(self.filename))
-            title = f"{title} - {basename} [{current_index}/{total_count}]"
-        self.parent.parent.setWindowTitle(title)
+            dirty_marker = "*" if self.dirty else ""
+            image_size = ""
+            if hasattr(self, "image") and not self.image.isNull():
+                image_size = f" [{self.image.width()}x{self.image.height()}]"
+            title = (
+                f"{title} - {basename}{dirty_marker}{image_size} "
+                f"[{current_index}/{total_count}]"
+            )
+        return title
+
+    def update_progress_title(self):
+        self.parent.parent.setWindowTitle(self._window_title())
 
     def set_clean(self):
         self.dirty = False
@@ -3425,7 +3472,93 @@ class LabelingWidget(LabelDialog):
         )
         popup.show_popup(self, copy_msg=file_path, position="default")
 
-    def _append_filter_submenus(self, parent_menu, prepend=False):
+    def _label_file_checked(self, label_file):
+        if not QtCore.QFile.exists(label_file):
+            return False
+        try:
+            buffer = ""
+            with open(label_file, "r", encoding="utf-8") as f:
+                while True:
+                    chunk = f.read(8192)
+                    if not chunk:
+                        break
+                    buffer = buffer[-32:] + chunk
+                    match = CHECKED_FIELD_PATTERN.search(buffer)
+                    if match:
+                        return match.group(1) == "true"
+        except Exception:
+            return False
+        return False
+
+    def _set_file_item_checked(self, item, checked):
+        if item.data(Qt.ItemDataRole.UserRole) is checked:
+            return
+        item.setIcon(self.file_status_icons[checked])
+        item.setData(Qt.ItemDataRole.UserRole, checked)
+
+    def _file_item_annotation_checked(self, item):
+        return item.data(Qt.ItemDataRole.UserRole) is True
+
+    def _create_file_list_item(self, file, label_file):
+        item = QtWidgets.QListWidgetItem(file)
+        flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
+        if self._config.get("file_list_checkbox_editable", False):
+            flags |= Qt.ItemFlag.ItemIsUserCheckable
+        item.setFlags(flags)
+        if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
+            label_file
+        ):
+            item.setCheckState(Qt.CheckState.Checked)
+        else:
+            item.setCheckState(Qt.CheckState.Unchecked)
+        self._set_file_item_checked(item, self._label_file_checked(label_file))
+        return item
+
+    def _current_file_item(self):
+        if str(self.filename) not in self.fn_to_index:
+            return None
+        return self.file_list_widget.item(self.fn_to_index[str(self.filename)])
+
+    def _annotation_checked(self):
+        return self.other_data.get(CHECKED_FIELD, False) is True
+
+    def _update_annotation_checked_action(self):
+        if not hasattr(self, "actions"):
+            return
+        action = self.actions.toggle_annotation_checked
+        checked = self._annotation_checked()
+        if action.isChecked() != checked:
+            action.setChecked(checked)
+        if checked:
+            action.setText(self.tr("Mark as Unchecked"))
+            tip = self.tr("Mark current annotation as unchecked")
+        else:
+            action.setText(self.tr("Mark as Checked"))
+            tip = self.tr("Mark current annotation as checked")
+        action.setToolTip(tip)
+        action.setStatusTip(tip)
+
+    def _update_current_file_checked_item(self):
+        item = self._current_file_item()
+        if item is not None:
+            self._set_file_item_checked(item, self._annotation_checked())
+
+    def _sync_annotation_checked_state(self):
+        self._update_annotation_checked_action()
+        self._update_current_file_checked_item()
+
+    def set_annotation_checked(self, checked):
+        if self.filename is None or self.image.isNull():
+            return
+        self.other_data[CHECKED_FIELD] = bool(checked)
+        self._sync_annotation_checked_state()
+        label_file = self.get_label_file()
+        if self.save_labels(label_file):
+            self.set_clean()
+
+    def _append_filter_submenus(
+        self, parent_menu, prepend=False, after_filter_actions=None
+    ):
         label_menu = QtWidgets.QMenu(self.tr("Filter by Label"), parent_menu)
         gid_menu = QtWidgets.QMenu(self.tr("Filter by Group ID"), parent_menu)
         if prepend and parent_menu.actions():
@@ -3433,10 +3566,17 @@ class LabelingWidget(LabelDialog):
             parent_menu.insertMenu(first_action, label_menu)
             parent_menu.insertMenu(first_action, gid_menu)
             parent_menu.insertSeparator(first_action)
+            if after_filter_actions:
+                for action in after_filter_actions:
+                    parent_menu.insertAction(first_action, action)
+                parent_menu.insertSeparator(first_action)
         else:
             parent_menu.addSeparator()
             parent_menu.addMenu(label_menu)
             parent_menu.addMenu(gid_menu)
+            if after_filter_actions:
+                parent_menu.addSeparator()
+                utils.add_actions(parent_menu, after_filter_actions)
         return label_menu, gid_menu
 
     def _populate_label_filter_menu(self, menu):
@@ -4144,6 +4284,7 @@ class LabelingWidget(LabelDialog):
             key = item.text()
             flag = item.checkState() == Qt.CheckState.Checked
             flags[key] = flag
+        self.other_data[CHECKED_FIELD] = self._annotation_checked()
         try:
             image_path = osp.relpath(self.image_path, osp.dirname(filename))
             image_data = (
@@ -4169,6 +4310,9 @@ class LabelingWidget(LabelDialog):
                 if len(items) != 1:
                     raise RuntimeError("There are duplicate files.")
                 items[0].setCheckState(Qt.CheckState.Checked)
+                self._set_file_item_checked(
+                    items[0], self._annotation_checked()
+                )
             # disable allows next and previous image to proceed
             # self.filename = filename
             return True
@@ -4487,6 +4631,7 @@ class LabelingWidget(LabelDialog):
             key = item.text()
             flag = item.checkState() == Qt.CheckState.Checked
             flags[key] = flag
+        self.other_data[CHECKED_FIELD] = self._annotation_checked()
         try:
             image_path = osp.relpath(self.image_path, osp.dirname(filename))
             image_data = (
@@ -4513,6 +4658,9 @@ class LabelingWidget(LabelDialog):
                 if len(items) != 1:
                     raise RuntimeError("There are duplicate files.")
                 items[0].setCheckState(Qt.CheckState.Checked)
+                self._set_file_item_checked(
+                    items[0], self._annotation_checked()
+                )
             # disable allows next and previous image to proceed
             # self.filename = filename
             return True
@@ -5264,6 +5412,7 @@ class LabelingWidget(LabelDialog):
                 self.label_file.image_path,
             )
             self.other_data = self.label_file.other_data
+            self.other_data[CHECKED_FIELD] = self._annotation_checked()
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText(
                 self.other_data.get("description", "")
@@ -5274,6 +5423,7 @@ class LabelingWidget(LabelDialog):
             if self.image_data:
                 self.image_path = filename
             self.label_file = None
+            self.other_data = {CHECKED_FIELD: False}
             self.shape_text_edit.textChanged.disconnect()
             self.shape_text_edit.setPlainText("")
             self.shape_text_edit.textChanged.connect(self.shape_text_changed)
@@ -5348,7 +5498,6 @@ class LabelingWidget(LabelDialog):
                 prev_shapes, replace=False, update_last_label=False
             )
             self.set_dirty()
-            self.update_progress_title()
         else:
             self.set_clean()
         self.canvas.setEnabled(True)
@@ -5398,6 +5547,7 @@ class LabelingWidget(LabelDialog):
         self.add_recent_file(self.filename)
         self.toggle_actions(True)
         self.canvas.setFocus()
+        self._sync_annotation_checked_state()
         self.update_thumbnail_display()
 
         if self.compare_view_manager.is_active():
@@ -5521,25 +5671,7 @@ class LabelingWidget(LabelDialog):
     def load_recent_dir(self, dirpath):
         self.import_image_folder(dirpath)
 
-    def open_checked_image(self, end_index, step, load=True):
-        if not self.may_continue():
-            return
-        current_index = self.fn_to_index[str(self.filename)]
-        for i in range(current_index + step, end_index, step):
-            if (
-                self.file_list_widget.item(i).checkState()
-                == Qt.CheckState.Checked
-            ):
-                self.filename = self.image_list[i]
-                if self.filename and load:
-                    self.load_file(self.filename)
-                break
-
     def open_prev_unchecked_image(self):
-        if self._config["switch_to_checked"]:
-            self.open_checked_image(-1, -1)
-            return
-
         if (
             not self.may_continue()
             or len(self.image_list) <= 0
@@ -5549,9 +5681,8 @@ class LabelingWidget(LabelDialog):
 
         current_index = self.fn_to_index[str(self.filename)]
         for i in range(current_index - 1, -1, -1):
-            if (
-                self.file_list_widget.item(i).checkState()
-                == Qt.CheckState.Unchecked
+            if not self._file_item_annotation_checked(
+                self.file_list_widget.item(i)
             ):
                 filename = self.image_list[i]
                 if filename:
@@ -5559,10 +5690,6 @@ class LabelingWidget(LabelDialog):
                 break
 
     def open_next_unchecked_image(self, _value=False):
-        if self._config["switch_to_checked"]:
-            self.open_checked_image(self.file_list_widget.count(), 1)
-            return
-
         if (
             not self.may_continue()
             or len(self.image_list) <= 0
@@ -5572,9 +5699,8 @@ class LabelingWidget(LabelDialog):
 
         current_index = self.fn_to_index[str(self.filename)]
         for i in range(current_index + 1, len(self.image_list)):
-            if (
-                self.file_list_widget.item(i).checkState()
-                == Qt.CheckState.Unchecked
+            if not self._file_item_annotation_checked(
+                self.file_list_widget.item(i)
             ):
                 filename = self.image_list[i]
                 if filename:
@@ -5839,6 +5965,7 @@ class LabelingWidget(LabelDialog):
 
             item = self.file_list_widget.currentItem()
             item.setCheckState(Qt.CheckState.Unchecked)
+            self._set_file_item_checked(item, False)
 
             filename = self.filename
             self.reset_state()
@@ -6061,17 +6188,7 @@ class LabelingWidget(LabelDialog):
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
                 label_file = self.output_dir + "/" + label_file_without_path
-            item = QtWidgets.QListWidgetItem(file)
-            flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
-            if self._config.get("file_list_checkbox_editable", False):
-                flags |= Qt.ItemFlag.ItemIsUserCheckable
-            item.setFlags(flags)
-            if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
-                label_file
-            ):
-                item.setCheckState(Qt.CheckState.Checked)
-            else:
-                item.setCheckState(Qt.CheckState.Unchecked)
+            item = self._create_file_list_item(file, label_file)
             self.file_list_widget.addItem(item)
             self.fn_to_index[file] = self.file_list_widget.count() - 1
 
@@ -6130,17 +6247,7 @@ class LabelingWidget(LabelDialog):
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
                 label_file = self.output_dir + "/" + label_file_without_path
-            item = QtWidgets.QListWidgetItem(filename)
-            flags = Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
-            if self._config.get("file_list_checkbox_editable", False):
-                flags |= Qt.ItemFlag.ItemIsUserCheckable
-            item.setFlags(flags)
-            if QtCore.QFile.exists(label_file) and LabelFile.is_label_file(
-                label_file
-            ):
-                item.setCheckState(Qt.CheckState.Checked)
-            else:
-                item.setCheckState(Qt.CheckState.Unchecked)
+            item = self._create_file_list_item(filename, label_file)
             self.file_list_widget.addItem(item)
             self.fn_to_index[filename] = self.file_list_widget.count() - 1
 

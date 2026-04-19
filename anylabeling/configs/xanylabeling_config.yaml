@@ -146,6 +146,7 @@ shortcuts:
   open_prev: A
   open_next_unchecked: Ctrl+Shift+D
   open_prev_unchecked: Ctrl+Shift+A
+  toggle_annotation_checked: Ctrl+Alt+K
 
   zoom_in: [Ctrl++]
   zoom_out: Ctrl+-

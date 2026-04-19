@@ -64,11 +64,7 @@ def _settings_translation_markers() -> None:
         "SettingsDialog",
         "Scan EXIF metadata when loading directories; this adds overhead.",
     )
-    QCoreApplication.translate("SettingsDialog", "Switch To Checked")
-    QCoreApplication.translate(
-        "SettingsDialog",
-        "If enabled, next/prev unchecked actions jump to checked images.",
-    )
+    QCoreApplication.translate("SettingsDialog", "Toggle Annotation Checked")
     QCoreApplication.translate("SettingsDialog", "File List Checkbox Editable")
     QCoreApplication.translate("SettingsDialog", "Use System Clipboard")
     QCoreApplication.translate("SettingsDialog", "Shape Color Strategy")
@@ -122,7 +118,6 @@ SETTINGS_GENERAL_KEYS = (
     "auto_switch_to_edit_mode",
     "exif_scan_enabled",
     "file_list_checkbox_editable",
-    "switch_to_checked",
     "system_clipboard",
     "model_hub",
     "logger_level",
@@ -299,6 +294,9 @@ def _shortcut_label(short_key: str) -> str:
         "open_prev_unchecked": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Switch Prev Unchecked Image"
         ),
+        "toggle_annotation_checked": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Toggle Annotation Checked"
+        ),
         "auto_labeling_add_point": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Add Point"
         ),
@@ -373,20 +371,6 @@ def _non_shortcut_fields() -> list[SettingField]:
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
                 "Scan EXIF metadata when loading directories; this adds overhead.",
-            ),
-        ),
-        SettingField(
-            "switch_to_checked",
-            QT_TRANSLATE_NOOP(
-                SETTINGS_TRANSLATION_CONTEXT, "Switch To Checked"
-            ),
-            "bool",
-            "General",
-            "File List",
-            "Navigation",
-            description=QT_TRANSLATE_NOOP(
-                SETTINGS_TRANSLATION_CONTEXT,
-                "If enabled, next/prev unchecked actions jump to checked images.",
             ),
         ),
         SettingField(
@@ -998,6 +982,7 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "open_next_unchecked",
             "open_prev",
             "open_prev_unchecked",
+            "toggle_annotation_checked",
         ),
         "Shape": (
             "add_point_to_edge",

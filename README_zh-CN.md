@@ -86,6 +86,7 @@
 <video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
 </video>
 
+- `2026-04-19`: 新增标注检查状态流程，便于快速复核已标注图片。
 - `2026-04-18`: 新增支持将标注可视化结果导出为图片或视频。
 - `2026-04-18`: 新增支持 [PaddleOCR](./docs/zh_cn/paddle_ocr.md) 文档解析与智能文字识别标注面板。
 - `2026-04-01`: 新增支持日语和韩语界面语言（`ja_JP`、`ko_KR`）。

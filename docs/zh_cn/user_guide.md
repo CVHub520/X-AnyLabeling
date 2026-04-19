@@ -98,17 +98,16 @@ X-AnyLabeling 提供数据删除功能，具体操作如下：
 除了常规的切换图片操作外，还支持以下几种方式：
 
 
-| 快捷键          | switch_to_checked | 描述           |
-| ------------ | ----------------- | ------------ |
-| Ctrl+Shift+A | true              | 跳转到上一张已标注的图片 |
-| Ctrl+Shift+D | true              | 跳转到下一张已标注的图片 |
-| Ctrl+Shift+A | false             | 跳转到上一张未标注的图片 |
-| Ctrl+Shift+D | false             | 跳转到下一张未标注的图片 |
+| 快捷键          | 描述           |
+| ------------ | ------------ |
+| Ctrl+Shift+A | 跳转到上一张未检查的标注 |
+| Ctrl+Shift+D | 跳转到下一张未检查的标注 |
 
 
-这里，`switch_to_checked` 字段定义了不同的切换模式，可通过 `Settings`（`Ctrl+0`）在 `General` 中调整，也可在用户目录下的配置文件 `~/.xanylabelingrc` 文件中修改。
+检查状态保存在标注 JSON 的顶层 `checked` 字段中，右下角文件列表会用圆点展示该状态：绿色表示已检查，灰色表示未检查。可以在画布右键菜单中选择 `Mark as Checked` / `Mark as Unchecked`，也可以按 `Ctrl+Alt+K` 切换当前图像的检查状态。
 
 文件列表中的复选框默认不可编辑，如需启用编辑功能，可通过 `Settings`（`Ctrl+0`）在 `General` 中开启 `File List Checkbox Editable`，或在配置文件中将 `file_list_checkbox_editable` 设置为 `true`。
+该复选框表示是否存在标注文件，与圆点展示的检查状态相互独立。
 
 ### 1.4 保存标签数据
 
@@ -135,6 +134,7 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
     // ... 更多对象
   ],
   "description": null,      // 图片的文本描述
+  "checked": false,         // 标注检查状态
   "chat_history": [         // 聊天历史 (for chatbot)
     {
       "role": "user",
@@ -836,8 +836,9 @@ digit_shortcuts:
 | --------------------- | ------------------------------- |
 | d                     | 打开下一个文件                         |
 | a                     | 打开上一个文件                         |
-| Ctrl + Shift + d      | 打开下一个已标注或未标注的文件                 |
-| Ctrl + Shift + a      | 打开上一个已标注或未标注的文件                 |
+| Ctrl + Shift + d      | 打开下一个未检查的标注                      |
+| Ctrl + Shift + a      | 打开上一个未检查的标注                      |
+| Ctrl + Alt + k        | 切换当前标注的检查状态                      |
 | p                     | 创建多边形                           |
 | Ctrl + n              | 创建画笔多边形（切换画笔模式）                 |
 | o                     | 创建旋转框                           |

@@ -5,6 +5,7 @@ from anylabeling.app_info import __version__
 XLABEL_BASIC_FIELDS = [
     "version",
     "flags",
+    "checked",
     "shapes",
     "imagePath",
     "imageData",
@@ -16,6 +17,7 @@ XLABEL_BASIC_FIELDS = [
 def create_xlabel_template(
     version: str = __version__,
     flags: Optional[Dict[str, Any]] = None,
+    checked: bool = False,
     shapes: Optional[List[Dict[str, Any]]] = None,
     image_path: str = "",
     image_data: Optional[str] = None,
@@ -25,6 +27,7 @@ def create_xlabel_template(
     return {
         "version": version,
         "flags": flags if flags is not None else {},
+        "checked": checked,
         "shapes": shapes if shapes is not None else [],
         "imagePath": image_path,
         "imageData": image_data,

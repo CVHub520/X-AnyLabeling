@@ -121,6 +121,7 @@ class LabelFile:
 
         # Add new fields if not available
         other_data["description"] = other_data.get("description", "")
+        other_data["checked"] = data.get("checked", False) is True
 
         # Only replace data after everything is loaded.
         self.flags = flags
@@ -151,6 +152,7 @@ class LabelFile:
             other_data = {}
         if flags is None:
             flags = {}
+        checked = other_data.get("checked", False) is True
         for i, shape in enumerate(shapes):
             if shape["shape_type"] == "rectangle":
                 sorted_box = LabelConverter.calculate_bounding_box(
@@ -167,6 +169,7 @@ class LabelFile:
 
         data = create_xlabel_template(
             flags=flags,
+            checked=checked,
             shapes=shapes,
             image_path=image_path,
             image_data=image_data,
@@ -175,6 +178,8 @@ class LabelFile:
         )
 
         for key, value in other_data.items():
+            if key == "checked":
+                continue
             assert key not in data
             data[key] = value
         try:

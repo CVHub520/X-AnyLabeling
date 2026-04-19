@@ -96,13 +96,14 @@ X-AnyLabeling offers the following options for deleting data:
 Navigate between images in your dataset using these methods:
 
 - **Next/Previous Image**: Use the `D` key (next) or `A` key (previous) to move sequentially through the image list.
-- **Jump to Annotated/Unannotated**:
-    - `Ctrl+Shift+D`: Jump to the next image that already has annotations.
-    - `Ctrl+Shift+A`: Jump to the previous image that already has annotations.
-    *(Note: To make `Ctrl+Shift+D`/`Ctrl+Shift+A` jump to the next/previous *unannotated* image instead, open `Settings` (`Ctrl+0`) and adjust `Switch To Checked` under `General`, or edit the `switch_to_checked` field in the user configuration file.)*
+- **Jump by Annotation Check Status**:
+    - `Ctrl+Shift+D`: Jump to the next unchecked annotation.
+    - `Ctrl+Shift+A`: Jump to the previous unchecked annotation.
+- **Toggle Annotation Check Status**: Right-click the canvas and choose `Mark as Checked` or `Mark as Unchecked`, or press `Ctrl+Alt+K`. The file list shows this review state with a colored dot: green means checked, gray means unchecked.
 - **Jump to Specific Image**: Type the exact filename (including extension) into the file search bar at the bottom right and press `Enter`.
 
 The checkboxes in the file list are not editable by default. To enable editing, open `Settings` (`Ctrl+0`) and enable `File List Checkbox Editable` under `General`, or set `file_list_checkbox_editable` to `true` in the configuration file.
+These checkboxes indicate whether a label file exists and are separate from the annotation check status dot.
 
 ### 1.4 Saving Label Data
 
@@ -129,6 +130,7 @@ Label files are saved in `*.json` format in the same directory as the images by 
     // ... more shapes
   ],
   "description": null,      // Optional text description for the image
+  "checked": false,         // Annotation review status
   "chat_history": [         // Chat history (for chatbot)
     {
       "role": "user",
@@ -767,8 +769,9 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 |-----------------------|--------------------------------------------------|--------------------------------------------|
 | `d`                   | Next Image                                       |                                            |
 | `a`                   | Previous Image                                   |                                            |
-| `Ctrl+Shift+d`        | Next Annotated/Unannotated Image                 | Behavior depends on `switch_to_checked` config |
-| `Ctrl+Shift+a`        | Previous Annotated/Unannotated Image             | Behavior depends on `switch_to_checked` config |
+| `Ctrl+Shift+d`        | Next Unchecked Annotation                        | Uses the label JSON `checked` field        |
+| `Ctrl+Shift+a`        | Previous Unchecked Annotation                    | Uses the label JSON `checked` field        |
+| `Ctrl+Alt+k`          | Toggle Annotation Check Status                   | Saved as `checked` in the label JSON        |
 | `p`                   | Create Polygon Shape                             | Shortcut might vary (check interface)      |
 | `Ctrl+n`              | Create Brush Polygon                             | Toggle brush mode for polygon drawing      |
 | `o`                   | Create Rotated Rectangle Shape                   | Shortcut might vary                        |
