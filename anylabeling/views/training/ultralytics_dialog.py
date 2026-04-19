@@ -978,6 +978,11 @@ class UltralyticsDialog(QDialog):
         )
         self.config_widgets["skip_empty_files"].setChecked(False)
         ckpt_layout.addWidget(self.config_widgets["skip_empty_files"])
+        self.config_widgets["only_checked_files"] = CustomCheckBox(
+            "Only Checked Files"
+        )
+        self.config_widgets["only_checked_files"].setChecked(False)
+        ckpt_layout.addWidget(self.config_widgets["only_checked_files"])
         ckpt_layout.addStretch()
         advanced_layout.addWidget(ckpt_group)
 
@@ -1050,7 +1055,10 @@ class UltralyticsDialog(QDialog):
                     elif key == "pose_config":
                         if value:
                             self.config_widgets[key].setText(value)
-                    elif key == "skip_empty_files":
+                    elif key in (
+                        "skip_empty_files",
+                        "only_checked_files",
+                    ):
                         set_widget_value(key, value)
                     else:
                         set_widget_value(key, value)
@@ -1175,6 +1183,7 @@ class UltralyticsDialog(QDialog):
                 "resume": get_widget_value("resume"),
                 "cache": get_widget_value("cache"),
                 "skip_empty_files": get_widget_value("skip_empty_files"),
+                "only_checked_files": get_widget_value("only_checked_files"),
             },
         }
 
@@ -1740,6 +1749,7 @@ class UltralyticsDialog(QDialog):
                     self.output_dir,
                     config["basic"].get("pose_config"),
                     config["checkpoint"].get("skip_empty_files", False),
+                    config["checkpoint"].get("only_checked_files", False),
                 )
                 logger.info(f"Successfully created YOLO dataset at {temp_dir}")
                 self.append_training_log(f"Created dataset: {temp_dir}")

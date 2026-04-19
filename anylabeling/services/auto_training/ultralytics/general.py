@@ -22,6 +22,7 @@ def create_yolo_dataset(
     output_dir: str = None,
     pose_cfg_file: str = None,
     skip_empty_files: bool = False,
+    only_checked_files: bool = False,
 ) -> str:
     """Create YOLO dataset from image list and annotations.
 
@@ -33,6 +34,7 @@ def create_yolo_dataset(
         output_dir: Optional output directory for labels
         pose_cfg_file: Optional pose config file for pose detection
         skip_empty_files: Whether to skip empty label files
+        only_checked_files: Whether to use only checked files
 
     Returns:
         Path to created dataset directory
@@ -143,12 +145,20 @@ def create_yolo_dataset(
         )
 
         if not os.path.exists(label_file):
+            if only_checked_files:
+                continue
             background_images.append(image_file)
             continue
 
         try:
             with open(label_file, "r", encoding="utf-8") as f:
                 label_info = json.load(f)
+
+            if (
+                only_checked_files
+                and label_info.get("checked", False) is not True
+            ):
+                continue
 
             if task_type == "Classify":
                 flags = label_info.get("flags", {})
@@ -171,6 +181,8 @@ def create_yolo_dataset(
                 else:
                     background_images.append(image_file)
         except Exception:
+            if only_checked_files:
+                continue
             background_images.append(image_file)
             continue
 
@@ -225,6 +237,7 @@ def create_yolo_dataset(
             f.write(f"Val images: {len(val_valid_images)}\n")
             f.write(f"Background images: {len(background_images)}\n")
             f.write(f"Skip empty files: {skip_empty_files}\n")
+            f.write(f"Only checked files: {only_checked_files}\n")
         f.write(f"Valid labeled images: {len(valid_images)}\n")
         f.write(f"Dataset ratio: {dataset_ratio}\n")
 

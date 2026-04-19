@@ -102,6 +102,7 @@ Here, you'll set up the core training parameters and hyperparameters.
 -   **Data**: Path to your dataset's configuration file (`.yaml`) for det/seg/obb/pose tasks, or dataset directory for classification tasks. For classification one, you can leave this blank, as the tool will automatically generate one based on `flag` filed for you. For details on the format, see the [official Ultralytics documentation](https://docs.ultralytics.com/datasets/).
 -   **Device**: Automatically detects available hardware (`CPU`, `CUDA`, `MPS`). Select your desired training device.
 -   **Dataset Ratio**: A slider to set the train/validation split for your dataset.
+-   **Only Checked Files**: In **Advanced Settings** > **Checkpoint and Validation**, enable this option to train only with files that have been marked as checked in X-AnyLabeling.
 
 > ![NOTE]
 > For `Pose` estimation tasks, an additional field will appear to specify a keypoint configuration YAML file. See the [example file](https://github.com/CVHub520/X-AnyLabeling/blob/main/assets/yolov8_pose.yaml) for the required format.
