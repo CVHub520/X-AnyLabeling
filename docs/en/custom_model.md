@@ -127,6 +127,49 @@ anchors:
 >   1. For segmentation models, you can specify the `epsilon_factor` parameter to control the smoothness of the output contour points. The default value is `0.005`.
 >   2. For `YOLO26` series models, if the exported `ONNX` file already includes `NMS` post-processing, inherit from the `YOLO11` template for adaptation; the default `YOLO26` template is intended for `nms-free` outputs.
 
+**Optional: Switch YOLO Inference Backends (`engine` field)**
+
+For YOLO series models, you can also switch inference backends through the `engine` field in the configuration file. This field is part of the model configuration and is usually modified together with `model_path`:
+
+| Value | Description | Dependency |
+|-------|-------------|------------|
+| `ort` | Default, use ONNX Runtime inference (`*.onnx`) | Built-in |
+| `dnn` | Use OpenCV DNN inference (`*.onnx`) | Built-in |
+| `trt` | Use NVIDIA TensorRT inference (`*.engine`) | Requires additional TensorRT runtime dependencies |
+
+> TensorRT is not included in X-AnyLabeling's default dependencies. Install it only when you want to accelerate NVIDIA GPU inference through the TensorRT backend. If these dependencies are not installed, other features of the application are not affected.
+
+To use TensorRT inference, complete the following additional steps:
+
+- **Prepare the environment**
+
+Make sure the NVIDIA driver and CUDA are installed correctly, then install the TensorRT runtime dependencies in the Python environment used by X-AnyLabeling:
+
+```bash
+uv pip install tensorrt cuda-python
+```
+
+> [!NOTE]
+> If you are not using `uv` to manage the environment, you can replace the command above with `pip install tensorrt cuda-python`. Make sure the installed `tensorrt` version is compatible with your local CUDA version. The `*.engine` file used for inference must be exported with the same major TensorRT version and the same GPU architecture; otherwise, deserialization may fail.
+
+- **Prepare the `.engine` file**
+
+Taking `YOLO26` as an example, you can refer to the official [Ultralytics YOLO26](https://docs.ultralytics.com/modes/export/#how-do-i-export-a-yolo26-model-to-onnx-format) guide to export a TensorRT backend model file.
+
+The exported `.engine` file may include a JSON metadata header written by Ultralytics. X-AnyLabeling handles this automatically, so you do not need to remove it manually.
+
+- **Configure the model**
+
+Refer to [yolo26s_trt.yaml](../../anylabeling/configs/auto_labeling/yolo26s_trt.yaml), point `model_path` to the `.engine` file, and explicitly set `engine: trt`:
+
+```YAML
+type: yolo26
+model_path: /path/to/yolo26s.engine
+engine: trt
+```
+
+Then follow the [Offline Model Download](#offline-model-download) workflow and import the yaml file through **Load Custom Model** in the interface to use TensorRT inference.
+
 **c. Model Loading**
 
 After understanding the above, modify the `model_path` field in the configuration file and optionally adjust other hyperparameters as needed.

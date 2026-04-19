@@ -75,6 +75,20 @@ class YOLO(Model):
             self.net = DnnBaseModel(model_abs_path, __preferred_device__)
             self.input_width = self.config.get("input_width", 640)
             self.input_height = self.config.get("input_height", 640)
+        elif self.engine.lower() == "trt":
+            from ..engines import TrtBaseModel
+
+            self.net = TrtBaseModel(model_abs_path, __preferred_device__)
+            (
+                _,
+                _,
+                self.input_height,
+                self.input_width,
+            ) = self.net.get_input_shape()
+            if not isinstance(self.input_width, int):
+                self.input_width = self.config.get("input_width", -1)
+            if not isinstance(self.input_height, int):
+                self.input_height = self.config.get("input_height", -1)
         else:
             self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
             (

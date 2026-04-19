@@ -87,6 +87,7 @@
 </video>
 
 - `2026-04-19`: 新增标注检查状态流程，便于快速复核已标注图片。
+- `2026-04-19`: 新增支持 YOLO 模型 TensorRT 后端推理。
 - `2026-04-18`: 新增支持将标注可视化结果导出为图片或视频。
 - `2026-04-18`: 新增支持 [PaddleOCR](./docs/zh_cn/paddle_ocr.md) 文档解析与智能文字识别标注面板。
 - `2026-04-01`: 新增支持日语和韩语界面语言（`ja_JP`、`ko_KR`）。
@@ -108,7 +109,7 @@
 <img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
 
 - 支持远程推理服务。
-- 支持`GPU`、`FFmpeg`加速推理。
+- 支持通过 `GPU`、`FFmpeg` 以及 `ONNX Runtime`、`TensorRT`、`OpenCV DNN` 等灵活后端加速推理。
 - 支持一键预测所有图像。
 - 支持`图像`和`视频`处理。
 - 支持 `英文`、`中文`、`日文`、`韩文` 四种界面语言。

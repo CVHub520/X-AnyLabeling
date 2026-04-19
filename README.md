@@ -88,6 +88,7 @@
 </video>
 
 - `2026-04-19`: Added annotation check status workflow for reviewing labeled images.
+- `2026-04-19`: Added support for TensorRT backend inference for YOLO models.
 - `2026-04-18`: Added support exporting annotation visualizations as images or videos.
 - `2026-04-18`: Added support for [PaddleOCR](./docs/en/paddle_ocr.md) document parsing and intelligent text recognition annotation panel.
 - `2026-04-01`: Added support for Japanese and Korean UI languages (`ja_JP`, `ko_KR`).
@@ -110,7 +111,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 
 - Supports remote inference service.
 - Processes both `images` and `videos`.
-- Accelerates inference with `GPU` and `FFmpeg` support.
+- Accelerates inference with `GPU`, `FFmpeg`, and flexible backends including `ONNX Runtime`, `TensorRT`, and `OpenCV DNN`.
 - Supports UI localization in `English`, `Chinese`, `Japanese`, and `Korean`.
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.

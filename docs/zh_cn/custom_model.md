@@ -127,6 +127,49 @@ anchors:
 >   1. 对于分割模型，可指定 `epsilon_factor` 参数来控制输出轮廓点的平滑程度，默认值为 `0.005`。
 >   2. 对于 `YOLO26` 系列模型，如果导出的 `ONNX` 文件已经包含 `NMS` 后处理，请继承 `YOLO11` 模板进行适配；默认的 `YOLO26` 模板适用于 `nms-free` 输出。
 
+**可选：切换 YOLO 推理后端（`engine` 字段）**
+
+对于 YOLO 系列模型，还可以在配置文件中通过 `engine` 字段切换推理后端。该字段属于模型配置的一部分，通常与 `model_path` 一起修改：
+
+| 取值 | 说明 | 依赖 |
+|------|------|------|
+| `ort` | 默认值，使用 ONNX Runtime 推理 (`*.onnx`) | 内置 |
+| `dnn` | 使用 OpenCV DNN 推理 (`*.onnx`) | 内置 |
+| `trt` | 使用 NVIDIA TensorRT 推理 (`*.engine`) | 需额外安装 TensorRT 运行时依赖 |
+
+> TensorRT 不属于 X-AnyLabeling 的默认依赖，仅在希望以 TensorRT 后端加速 NVIDIA GPU 推理时才需要安装。如未安装相关依赖，软件其他功能不会受到影响。
+
+使用 TensorRT 推理时，还需要额外完成以下准备：
+
+- **环境准备**
+
+请先确认本机已正确安装 NVIDIA 驱动和 CUDA，然后在 X-AnyLabeling 所在的 Python 环境中安装 TensorRT 运行时依赖：
+
+```bash
+uv pip install tensorrt cuda-python
+```
+
+> [!NOTE]
+> 如果未使用 `uv` 管理环境，也可以将上述命令替换为 `pip install tensorrt cuda-python`。请确保所安装的 `tensorrt` 版本与本地 CUDA 版本兼容；用于推理的 `*.engine` 文件必须使用相同主版本的 TensorRT 在相同 GPU 架构下导出，否则反序列化会失败。
+
+- **准备 `.engine` 文件**
+
+以 `YOLO26` 模型为例，可参考官方手册 [Ultralytics YOLO26](https://docs.ultralytics.com/modes/export/#how-do-i-export-a-yolo26-model-to-onnx-format) 导出 TensorRT 后端模型文件。
+
+导出的 `.engine` 文件会自带一段 Ultralytics 写入的 JSON 元数据头，X-AnyLabeling 已自动兼容，无需手工剥离。
+
+- **配置模型**
+
+参考 [yolo26s_trt.yaml](../../anylabeling/configs/auto_labeling/yolo26s_trt.yaml) 配置，将 `model_path` 指向 `.engine` 文件，并显式指定 `engine: trt`：
+
+```YAML
+type: yolo26
+model_path: /path/to/yolo26s.engine
+engine: trt
+```
+
+随后按照 [离线下载模型](#离线下载模型) 的流程，在界面上通过**加载自定义模型**导入该 yaml 即可使用 TensorRT 推理。
+
 **c. 模型加载**
 
 了解完上述内容后，修改配置文件中的 `model_path` 字段，并根据需要选择性地修改其他超参数即可。
