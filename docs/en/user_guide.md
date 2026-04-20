@@ -1039,3 +1039,4 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 - VQA Guide: [Link](../en/vqa.md)
 - Image Classifier: [Link](../en/image_classifier.md)
 - Ultralytics Training Platforms: [Link](../../examples/training/ultralytics/README.md)
+- Document Parsing and Intelligent Text Recognition: [Link](../en/paddle_ocr.md)

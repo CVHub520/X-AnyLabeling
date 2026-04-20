@@ -15,16 +15,21 @@ Two service modes are supported: you can call the official PaddleOCR API directl
 
 ### Official API (Recommended)
 
-The X-AnyLabeling client supports the official PaddleOCR API by default, so you do not need to deploy an additional inference service. When the PaddleOCR panel is opened for the first time and no API information has been configured, the `PPOCR_API_Settings` dialog appears automatically. Enter the corresponding `API_URL` and `API_KEY`, and then use the `PPOCR (API)` model to submit document parsing requests. To update the configuration later, click the gear button at the top of the right-side result panel.
+The X-AnyLabeling client supports the official PaddleOCR API by default, so you do not need to deploy an additional inference service. When the PaddleOCR panel is opened for the first time and no API information has been configured, the `PPOCR API Settings` dialog appears automatically. Enter the corresponding `API_KEY` to enable official API parsing. To update the configuration later, click the gear button at the top of the right-side result panel.
 
-<video src="https://github.com/user-attachments/assets/59be57c3-b95e-4f4b-9c02-8bb52496a419" width="100%" controls>
+The following official API model options are currently supported in the parsing-model drop-down list:
+
+- `PaddleOCR-VL-1.5 (API)`
+- `PaddleOCR-VL (API)`
+
+<video src="https://github.com/user-attachments/assets/f570dbda-20a4-4e8c-8d97-4c42083be98a" width="100%" controls>
 </video>
 
 To obtain the required API information:
 
 1. Visit the [PaddleOCR website](https://aistudio.baidu.com/paddleocr/task).
-2. Open the API call example and copy the `API_URL` and `API_KEY`.
-3. Return to `PPOCR_API_Settings` in X-AnyLabeling, paste the values, and confirm.
+2. Open the API call example, switch to the `Async Parse` tab, and copy the `API_KEY`.
+3. Return to `PPOCR API Settings` in X-AnyLabeling, paste the key, and confirm.
 
 The configuration is saved locally:
 
@@ -47,7 +52,7 @@ capabilities:
 ...
 ```
 
-After the service starts, reopen the PaddleOCR annotation panel. The `Parsing Model` drop-down list at the top right displays the currently available models. When you select a model other than `PPOCR (API)`, parsing requests are sent to the deployed inference service automatically.
+After the service starts, reopen the PaddleOCR annotation panel. The `Parsing Model` drop-down list at the top right displays the currently available models. When you select a model other than the official `(API)` entries, parsing requests are sent to the deployed inference service automatically.
 
 ## User Guide
 
@@ -62,7 +67,7 @@ The X-AnyLabeling PaddleOCR panel currently supports the following file types:
 | PDF document | `.pdf` |
 | Image | `.bmp`, `.cif`, `.gif`, `.jpeg`, `.jpg`, `.png`, `.tif`, `.tiff`, `.webp` |
 
-PDF files are first rendered locally into per-page PNG previews, and then parsed page by page. For multi-page PDFs, the page count, preview images, and recognition results are all retained in the local workspace.
+PDF files are first rendered locally into per-page PNG previews. Official API parsing submits the original PDF once through Async Jobs, while remote-service parsing continues to use the local preview pages. For multi-page PDFs, the page count, preview images, and recognition results are all retained in the local workspace.
 
 > [!TIP]
 > - Hold `Ctrl` and scroll the mouse wheel in the source-file preview area to zoom the preview page quickly.
@@ -73,7 +78,7 @@ PDF files are first rendered locally into per-page PNG previews, and then parsed
 > - After you manually correct recognition results, the edited blocks are recorded in the JSON file. To fetch model results again, use the reparse button on the right.
 
 > [!NOTE]
-> - The official PaddleOCR API requires a valid `API_URL` and `API_KEY`. If the API returns `401`, check whether the key is valid.
+> - The official PaddleOCR API requires a valid `API_KEY`. If the API returns `401`, check whether the key is valid.
 > - Remote-service models appear in the model drop-down list only when `/v1/models` returns models with the `ppocr_pipeline` capability.
 > - Imported files are copied to the PaddleOCR workspace. Deleting the original external file does not affect the imported copy.
 
@@ -111,10 +116,10 @@ The PaddleOCR panel consists of three main areas:
 | Middle page bar | Zoom out / zoom in buttons | Zoom the source-file preview area |
 | Middle page bar | Reset zoom button | Restore the preview scale to fit width |
 | Source-file preview area | Floating `Copy` | Copy the content of the currently hovered block |
-| Top right | `Parsing Model` | Select `PPOCR (API)` or a remote PaddleOCR model |
+| Top right | `Parsing Model` | Select an official `(API)` model or a remote PaddleOCR model |
 | Right view | `Document parsing` | View layout blocks, text, formulas, tables, and images as cards |
 | Right view | `JSON` | View the complete JSON result for the current file |
-| Right tools | Gear button | Configure the official PaddleOCR `API_URL` and `API_KEY` |
+| Right tools | Gear button | Configure the official PaddleOCR `API_KEY` |
 | Right tools | Reparse button | Reparse the current file |
 | Right tools | Copy button | Copy Markdown content in the document view, or copy JSON in the JSON view |
 | Right tools | Download button | Download a ZIP file in the document view, or download JSON in the JSON view |
@@ -171,7 +176,7 @@ ${workspace}/xanylabeling_data/paddleocr/
 
 | Path | Description |
 | :--- | :--- |
-| `api_settings.json` | Cached `API_URL` and `API_KEY` for the official PaddleOCR API |
+| `api_settings.json` | Cached `API_KEY`, selected API model, and compatibility API URL for the official PaddleOCR API |
 | `ui_state.json` | UI state, such as the list of favorited files |
 | `files/` | Local copies of imported files |
 | `files/__PDF_<filename>/` | Per-page PNG previews rendered from a PDF |
@@ -194,7 +199,8 @@ Each imported file has a corresponding JSON file. The core structure is as follo
         "width": 1240,
         "height": 1754,
         "model_settings": {
-          "pipeline_model": "__ppocr_api__"
+          "pipeline_model": "PaddleOCR-VL-1.5",
+          "api_mode": "async_jobs"
         },
         "parsing_res_list": [
           {
@@ -243,7 +249,9 @@ Each imported file has a corresponding JSON file. The core structure is as follo
     "error_message": "",
     "edited_blocks": [],
     "block_image_paths": {},
-    "pipeline_model": "__ppocr_api__"
+    "pipeline_model": "PaddleOCR-VL-1.5",
+    "api_mode": "async_jobs",
+    "api_job_id": "39373553546153984"
   }
 }
 ```
@@ -266,6 +274,8 @@ Key fields:
 | `_ppocr_meta.edited_blocks` | List of block keys that have been manually edited |
 | `_ppocr_meta.block_image_paths` | Local resource paths for image-type blocks |
 | `_ppocr_meta.pipeline_model` | Parsing model that generated the result |
+| `_ppocr_meta.api_mode` | Official API mode, such as `async_jobs` |
+| `_ppocr_meta.api_job_id` | Official Async Jobs task id, when available |
 
 ### Downloading Results
 

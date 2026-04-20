@@ -15,16 +15,21 @@
 
 ### 官方 API（推荐）
 
-X-AnyLabeling 客户端默认支持 PaddleOCR 官方 API 调用形式，无需额外部署推理服务。首次加载 PaddleOCR 面板且尚未配置 API 信息时，界面会自动弹出 `PPOCR API Settings` 配置窗口；用户只需填写相应的 `API_URL` 和 `API_KEY`，即可通过 `PPOCR (API)` 模型发起文档解析请求。后续如需修改配置，也可以点击右侧结果面板顶部的齿轮按钮手动打开该窗口。
+X-AnyLabeling 客户端默认支持 PaddleOCR 官方 API 调用形式，无需额外部署推理服务。首次加载 PaddleOCR 面板且尚未配置 API 信息时，界面会自动弹出 `PPOCR API Settings` 配置窗口；用户只需填写相应的 `API_KEY` 即可启用官方 API 解析。后续如需修改配置，也可以点击右侧结果面板顶部的齿轮按钮手动打开该窗口。
 
-<video src="https://github.com/user-attachments/assets/59be57c3-b95e-4f4b-9c02-8bb52496a419" width="100%" controls>
+右侧解析模型下拉框当前支持以下官方 API 选项：
+
+- `PaddleOCR-VL-1.5 (API)`
+- `PaddleOCR-VL (API)`
+
+<video src="https://github.com/user-attachments/assets/f570dbda-20a4-4e8c-8d97-4c42083be98a" width="100%" controls>
 </video>
 
 获取方式：
 
 1. 访问 [PaddleOCR 官网](https://aistudio.baidu.com/paddleocr/task)。
-2. 进入 API 调用示例，复制 `API_URL` 和 `API_KEY`。
-3. 回到 X-AnyLabeling 的 `PPOCR API Settings`，粘贴并确认。
+2. 进入 API 调用示例，切换到 `Async Parse` 标签页，复制 `API_KEY`。
+3. 回到 X-AnyLabeling 的 `PPOCR API Settings`，粘贴密钥，确认即可。
 
 配置会保存在本地：
 
@@ -47,7 +52,7 @@ capabilities:
 ...
 ```
 
-服务启动后，重新打开 PaddleOCR 标注面板，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择非 `PPOCR (API)` 的模型时，解析任务会自动发送至已部署的推理服务。
+服务启动后，重新打开 PaddleOCR 标注面板，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择非官方 `(API)` 条目的模型时，解析任务会自动发送至已部署的推理服务。
 
 
 ## 使用手册
@@ -63,7 +68,7 @@ capabilities:
 | PDF 文档 | `.pdf` |
 | 图片 | `.bmp`, `.cif`, `.gif`, `.jpeg`, `.jpg`, `.png`, `.tif`, `.tiff`, `.webp` |
 
-这里，PDF 文件会先在本地渲染为逐页 PNG 预览图，再按页进行解析。因此多页 PDF 的页数、预览图和识别结果都会在本地工作目录中保留。
+这里，PDF 文件会先在本地渲染为逐页 PNG 预览图。官方 API 解析会通过 Async Jobs 一次性提交原始 PDF，远程服务解析则继续使用本地预览页。因此多页 PDF 的页数、预览图和识别结果都会在本地工作目录中保留。
 
 > [!TIP]
 > - 在源文件预览区按住 `Ctrl` 并滚动鼠标滚轮，可以快速缩放预览页面。
@@ -74,7 +79,7 @@ capabilities:
 > - 对识别结果做人工修正后，JSON 中会记录已编辑块；如需重新获取模型结果，可使用右侧重解析按钮。
 
 > [!NOTE]
-> - PaddleOCR 官方 API 需要可用的 `API_URL` 和 `API_KEY`；如果接口返回 401，请检查密钥是否有效。
+> - PaddleOCR 官方 API 需要可用的 `API_KEY`；如果接口返回 401，请检查密钥是否有效。
 > - 远程服务只有在 `/v1/models` 返回具备 `ppocr_pipeline` 能力的模型时，才会出现在模型下拉框中。
 > - 导入文件会复制到 PaddleOCR 工作目录中；删除原始外部文件不会影响已经导入的副本。
 
@@ -113,10 +118,10 @@ PaddleOCR 面板由三部分组成：
 | 中间页码栏 | 缩小/放大按钮 | 缩放源文件预览区 |
 | 中间页码栏 | 重置缩放按钮 | 恢复为适合宽度的预览比例 |
 | 源文件预览区 | 悬浮 `复制` | 复制当前悬浮块的内容 |
-| 右侧顶部 | `解析模型` | 选择 `PPOCR (API)` 或远程 PaddleOCR 模型 |
+| 右侧顶部 | `解析模型` | 选择官方 `(API)` 模型或远程 PaddleOCR 模型 |
 | 右侧视图 | `文档解析` | 以卡片形式查看版面块、文本、公式、表格、图片 |
 | 右侧视图 | `JSON` | 查看当前文件完整 JSON 结果 |
-| 右侧工具 | 齿轮按钮 | 配置 PaddleOCR 官方 `API_URL` 和 `API_KEY` |
+| 右侧工具 | 齿轮按钮 | 配置 PaddleOCR 官方 `API_KEY` |
 | 右侧工具 | 重解析按钮 | 重新解析当前文件 |
 | 右侧工具 | 复制按钮 | 在文档视图复制 Markdown 内容，在 JSON 视图复制 JSON |
 | 右侧工具 | 下载按钮 | 在文档视图下载 ZIP，在 JSON 视图下载 JSON |
@@ -173,7 +178,7 @@ ${workspace}/xanylabeling_data/paddleocr/
 
 | 路径 | 说明 |
 | :--- | :--- |
-| `api_settings.json` | 缓存 PaddleOCR 官方 API 的 `API_URL` 和 `API_KEY` |
+| `api_settings.json` | 缓存 PaddleOCR 官方 API 的 `API_KEY`、已选 API 模型以及兼容保留的 API URL |
 | `ui_state.json` | UI 状态，例如收藏文件列表 |
 | `files/` | 导入文件的本地副本 |
 | `files/__PDF_<文件名>/` | PDF 渲染后的逐页 PNG 预览图 |
@@ -196,7 +201,8 @@ ${workspace}/xanylabeling_data/paddleocr/
         "width": 1240,
         "height": 1754,
         "model_settings": {
-          "pipeline_model": "__ppocr_api__"
+          "pipeline_model": "PaddleOCR-VL-1.5",
+          "api_mode": "async_jobs"
         },
         "parsing_res_list": [
           {
@@ -245,7 +251,9 @@ ${workspace}/xanylabeling_data/paddleocr/
     "error_message": "",
     "edited_blocks": [],
     "block_image_paths": {},
-    "pipeline_model": "__ppocr_api__"
+    "pipeline_model": "PaddleOCR-VL-1.5",
+    "api_mode": "async_jobs",
+    "api_job_id": "39373553546153984"
   }
 }
 ```
@@ -268,6 +276,8 @@ ${workspace}/xanylabeling_data/paddleocr/
 | `_ppocr_meta.edited_blocks` | 已被人工编辑过的 block key 列表 |
 | `_ppocr_meta.block_image_paths` | 图片类 block 的本地资源路径 |
 | `_ppocr_meta.pipeline_model` | 生成该结果的解析模型 |
+| `_ppocr_meta.api_mode` | 官方 API 调用模式，例如 `async_jobs` |
+| `_ppocr_meta.api_job_id` | 官方 Async Jobs 任务 id（如果可用） |
 
 ### 下载结果
 

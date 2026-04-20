@@ -116,7 +116,7 @@
 - 支持自定义模型和二次开发。
 - 支持一键导入和导出多种标签格式，如 COCO\VOC\YOLO\DOTA\MOT\MASK\PPOCR\MMGF\VLM-R1 等；
 - 支持多种图像标注样式，包括 `多边形`、`矩形`、`长方体`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
-- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`、`视觉问答`等。
+- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`、`视觉问答`、`文档解析`等。
 
 ### 模型库
 
@@ -135,7 +135,9 @@
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
-| 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5, PP-DocLayoutV3, PaddleOCR-VL-1.5 |
+| 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5 |
+| 🧾 **综合版面分析** | PP-DocLayoutV3 |
+| 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.5 |
 | 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |
@@ -152,7 +154,8 @@
 5. [常见问题答疑](./docs/zh_cn/faq.md)
 6. [聊天机器人](./docs/zh_cn/chatbot.md)
 7. [视觉问答](./docs/zh_cn/vqa.md)
-8. [多类别图像分类器](./docs/en/image_classifier.md)
+8. [多类别图像分类器](./docs/zh_cn/image_classifier.md)
+9. [文档解析与智能文字识别](./docs/zh_cn/paddle_ocr.md)
 
 <img src="https://github.com/user-attachments/assets/0d67311c-f441-44b6-9ee0-932f25f51b1c" width="100%" />
 

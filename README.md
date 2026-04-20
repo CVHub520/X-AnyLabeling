@@ -116,7 +116,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.
 - Supports import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, MMGD, VLM-R1.
-- Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr`, `vqa`, `grounding` and so on.
+- Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr`, `vqa`, `grounding`, `document parsing` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `cuboids`, `rotated boxes`, `quadrilaterals`, `circles`, `lines`, `line strips`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 
 ### Model library
@@ -136,7 +136,9 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
-| 📄 OCR | PP-OCRv4, PP-OCRv5, PP-DocLayoutV3, PaddleOCR-VL-1.5 |
+| 📄 OCR | PP-OCRv4, PP-OCRv5 |
+| 🧾 Layout Analysis | PP-DocLayoutV3 |
+| 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.5 |
 | 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
@@ -153,6 +155,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 5. [Chatbot](./docs/en/chatbot.md)
 6. [VQA](./docs/en/vqa.md)
 7. [Multi-class Image Classifier](./docs/en/image_classifier.md)
+8. [Document Parsing and Intelligent Text Recognition](./docs/en/paddle_ocr.md)
 
 <img src="https://github.com/user-attachments/assets/0d67311c-f441-44b6-9ee0-932f25f51b1c" width="100%" />
 

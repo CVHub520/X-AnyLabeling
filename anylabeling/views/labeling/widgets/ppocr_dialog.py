@@ -42,8 +42,8 @@ from anylabeling.views.labeling.ppocr.config import (
     MIN_DIALOG_HEIGHT,
     MIN_DIALOG_WIDTH,
     PPOCR_API_MODEL_ID,
-    PPOCR_API_MODEL_LABEL,
     PPOCR_API_MODEL_SERVER_ID,
+    PPOCR_API_SUPPORTED_MODELS,
     PPOCR_COLOR_TEXT,
     PPOCR_FILE_TYPE_ALL,
     PPOCR_FILE_TYPE_IMAGE,
@@ -53,6 +53,9 @@ from anylabeling.views.labeling.ppocr.config import (
     PPOCR_STATUS_ERROR,
     PPOCR_STATUS_PARSED,
     PPOCR_STATUS_PENDING,
+    build_ppocr_api_model_id,
+    is_ppocr_api_model_id,
+    ppocr_api_model_label,
 )
 from anylabeling.views.labeling.ppocr.data_manager import (
     PPOCRDataManager,
@@ -732,16 +735,17 @@ class PPOCRDialog(QDialog):
 
     def refresh_service_state(self) -> None:
         service_probe = self.pipeline.probe_service()
-        selected_model = str(
-            self.model_combo.currentData() or self.pipeline.pipeline_model
-        ).strip()
+        selected_model = str(self.pipeline.pipeline_model or "").strip()
         self.model_combo.blockSignals(True)
         self.model_combo.clear()
-        self.model_combo.addItem(
-            PPOCR_API_MODEL_LABEL,
-            userData=PPOCR_API_MODEL_ID,
-        )
         seen_model_ids = {PPOCR_API_MODEL_ID}
+        for api_model in PPOCR_API_SUPPORTED_MODELS:
+            api_model_id = build_ppocr_api_model_id(api_model)
+            self.model_combo.addItem(
+                ppocr_api_model_label(api_model),
+                userData=api_model_id,
+            )
+            seen_model_ids.add(api_model_id)
         for model_info in service_probe.pipeline_models:
             model_id = str(model_info.model_id or "").strip()
             if not model_id or model_id in seen_model_ids:
@@ -2093,7 +2097,7 @@ class PPOCRDialog(QDialog):
         if self.worker_thread is not None and self.worker_thread.isRunning():
             return
         if (
-            self.pipeline.pipeline_model == PPOCR_API_MODEL_ID
+            is_ppocr_api_model_id(self.pipeline.pipeline_model)
             and not self.pipeline.has_required_api_settings()
         ):
             self.prompt_api_settings_if_needed()
@@ -2345,10 +2349,10 @@ class PPOCRDialog(QDialog):
             self.model_combo.currentData() or self.model_combo.currentText()
         ).strip()
         self.pipeline.set_pipeline_model(model_id)
-        if (
-            model_id == PPOCR_API_MODEL_ID
-            and not self.pipeline.has_required_api_settings()
-        ):
+        if not is_ppocr_api_model_id(model_id):
+            return
+        self.pipeline.update_api_model(self.pipeline.api_model)
+        if not self.pipeline.has_required_api_settings():
             QTimer.singleShot(0, self.prompt_api_settings_if_needed)
 
     def copy_text_to_clipboard(self, text: str) -> None:

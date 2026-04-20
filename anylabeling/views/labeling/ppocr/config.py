@@ -28,7 +28,12 @@ PPOCR_SORT_OLDEST = "oldest"
 
 PPOCR_OFFLINE_MODEL_LABEL = "Offline Mode"
 PPOCR_API_MODEL_ID = "__ppocr_api__"
-PPOCR_API_MODEL_LABEL = "PPOCR (API)"
+PPOCR_API_MODEL_ID_PREFIX = f"{PPOCR_API_MODEL_ID}:"
+PPOCR_API_JOB_URL = "https://paddleocr.aistudio-app.com/api/v2/ocr/jobs"
+PPOCR_API_DEFAULT_MODEL = "PaddleOCR-VL-1.5"
+PPOCR_API_SUPPORTED_MODELS = ("PaddleOCR-VL-1.5", "PaddleOCR-VL")
+PPOCR_API_MODE_ASYNC_JOBS = "async_jobs"
+PPOCR_API_MODEL_LABEL = f"{PPOCR_API_DEFAULT_MODEL} (API)"
 PPOCR_API_MODEL_SERVER_ID = "ppocr_api"
 PPOCR_PIPELINE_CAPABILITY_KEY = "ppocr_pipeline"
 
@@ -75,3 +80,37 @@ class PPOCRServiceProbe:
     pipeline_model: str
     pipeline_models: tuple[PPOCRPipelineModel, ...]
     error_message: str = ""
+
+
+def build_ppocr_api_model_id(api_model: str) -> str:
+    model = str(api_model or "").strip() or PPOCR_API_DEFAULT_MODEL
+    return f"{PPOCR_API_MODEL_ID_PREFIX}{model}"
+
+
+def is_ppocr_api_model_id(model_id: str) -> bool:
+    value = str(model_id or "").strip()
+    return value == PPOCR_API_MODEL_ID or value.startswith(
+        PPOCR_API_MODEL_ID_PREFIX
+    )
+
+
+def normalize_ppocr_api_model(api_model: str) -> str:
+    model = str(api_model or "").strip()
+    if model in PPOCR_API_SUPPORTED_MODELS:
+        return model
+    return PPOCR_API_DEFAULT_MODEL
+
+
+def resolve_ppocr_api_model(model_id: str, fallback: str = "") -> str:
+    value = str(model_id or "").strip()
+    if value.startswith(PPOCR_API_MODEL_ID_PREFIX):
+        return normalize_ppocr_api_model(
+            value[len(PPOCR_API_MODEL_ID_PREFIX) :]
+        )
+    if value == PPOCR_API_MODEL_ID:
+        return normalize_ppocr_api_model(fallback)
+    return normalize_ppocr_api_model(value)
+
+
+def ppocr_api_model_label(api_model: str) -> str:
+    return f"{normalize_ppocr_api_model(api_model)} (API)"

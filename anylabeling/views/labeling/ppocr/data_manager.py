@@ -21,6 +21,9 @@ from anylabeling.views.labeling.logger import logger
 
 from .config import (
     PPOCR_BLOCK_IMAGES_DIR_PREFIX,
+    PPOCR_API_DEFAULT_MODEL,
+    PPOCR_API_JOB_URL,
+    PPOCR_API_MODE_ASYNC_JOBS,
     PPOCR_FILE_TYPE_ALL,
     PPOCR_FILE_TYPE_IMAGE,
     PPOCR_FILE_TYPE_PDF,
@@ -35,6 +38,7 @@ from .config import (
     PPOCR_SUPPORTED_IMAGE_SUFFIXES,
     PPOCR_SUPPORTED_PDF_SUFFIXES,
     PPOCR_SUPPORTED_SUFFIXES,
+    normalize_ppocr_api_model,
 )
 from .render import build_unique_block_key
 
@@ -68,8 +72,10 @@ class PPOCRDataManager:
     def load_api_settings(self) -> dict[str, str]:
         if not self.api_settings_path.exists():
             return {
-                "api_url": "",
+                "api_url": PPOCR_API_JOB_URL,
                 "api_key": "",
+                "api_model": PPOCR_API_DEFAULT_MODEL,
+                "api_mode": PPOCR_API_MODE_ASYNC_JOBS,
             }
         try:
             with open(self.api_settings_path, "r", encoding="utf-8") as f:
@@ -79,27 +85,39 @@ class PPOCRDataManager:
                 f"Failed to load PaddleOCR API settings: {self.api_settings_path}, {exc}"
             )
             return {
-                "api_url": "",
+                "api_url": PPOCR_API_JOB_URL,
                 "api_key": "",
+                "api_model": PPOCR_API_DEFAULT_MODEL,
+                "api_mode": PPOCR_API_MODE_ASYNC_JOBS,
             }
         if not isinstance(data, dict):
             return {
-                "api_url": "",
+                "api_url": PPOCR_API_JOB_URL,
                 "api_key": "",
+                "api_model": PPOCR_API_DEFAULT_MODEL,
+                "api_mode": PPOCR_API_MODE_ASYNC_JOBS,
             }
         return {
-            "api_url": str(data.get("api_url") or "").strip(),
+            "api_url": str(data.get("api_url") or PPOCR_API_JOB_URL).strip(),
             "api_key": str(data.get("api_key") or "").strip(),
+            "api_model": normalize_ppocr_api_model(data.get("api_model")),
+            "api_mode": str(
+                data.get("api_mode") or PPOCR_API_MODE_ASYNC_JOBS
+            ).strip(),
         }
 
     def save_api_settings(
         self,
         api_url: str,
         api_key: str,
+        api_model: str = PPOCR_API_DEFAULT_MODEL,
+        api_mode: str = PPOCR_API_MODE_ASYNC_JOBS,
     ) -> None:
         payload = {
-            "api_url": str(api_url or "").strip(),
+            "api_url": str(api_url or PPOCR_API_JOB_URL).strip(),
             "api_key": str(api_key or "").strip(),
+            "api_model": normalize_ppocr_api_model(api_model),
+            "api_mode": str(api_mode or PPOCR_API_MODE_ASYNC_JOBS).strip(),
         }
         with open(self.api_settings_path, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)

@@ -33,6 +33,7 @@ from anylabeling.views.labeling.utils.style import (
     get_ok_btn_style,
 )
 
+from .config import PPOCR_API_JOB_URL
 from .style import (
     get_danger_button_style,
     get_primary_button_style,
@@ -118,7 +119,9 @@ class PPOCRApiSettingsDialog(QDialog):
         super().__init__(parent)
         self.setWindowTitle(self.tr("PPOCR API Settings"))
         self.setMinimumWidth(600)
-        self._current_api_url = str(current_api_url or "").strip()
+        self._current_api_url = str(
+            current_api_url or PPOCR_API_JOB_URL
+        ).strip()
         self._current_api_key = str(current_api_key or "").strip()
 
         layout = QVBoxLayout(self)
@@ -126,7 +129,7 @@ class PPOCRApiSettingsDialog(QDialog):
         layout.setSpacing(12)
 
         self.api_url_input = QLineEdit("")
-        self.api_url_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.api_url_input.setEchoMode(QLineEdit.EchoMode.Normal)
         self.api_url_input.setPlaceholderText("API_URL")
         self.api_url_input.setStyleSheet(get_lineedit_style())
         self.api_url_input.setSizePolicy(
@@ -183,7 +186,7 @@ class PPOCRApiSettingsDialog(QDialog):
 
         self.description_label = QLabel(
             self.tr(
-                'Get API_URL and API_KEY from the <a href="https://aistudio.baidu.com/paddleocr/task">PaddleOCR website</a>.<br/>See the API invocation examples.'
+                'Get API_KEY from the <a href="https://aistudio.baidu.com/paddleocr/task">PaddleOCR website</a>.<br/>Async Jobs use the official PaddleOCR endpoint.'
             )
         )
         self.description_label.setWordWrap(True)
@@ -233,7 +236,8 @@ class PPOCRApiSettingsDialog(QDialog):
 
         self.api_url_input.setText(self._current_api_url)
         self.api_key_input.setText(self._current_api_key)
-        self._update_visibility_buttons(False, False)
+        self.toggle_api_url_visibility_btn.setChecked(True)
+        self._update_visibility_buttons(True, False)
 
     def _update_visibility_buttons(
         self, show_url: bool, show_key: bool
@@ -295,11 +299,11 @@ class PPOCRApiSettingsDialog(QDialog):
         return self._current_api_key
 
     def accept_with_validation(self) -> None:
-        if not self.get_api_url() or not self.get_api_key():
+        if not self.get_api_key():
             QMessageBox.warning(
                 self,
                 self.tr("Invalid Settings"),
-                self.tr("API_URL and API_KEY are required."),
+                self.tr("API_KEY is required."),
             )
             return
         self.accept()
