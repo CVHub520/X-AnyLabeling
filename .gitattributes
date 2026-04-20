@@ -1,0 +1,50 @@
+* text=auto
+
+# Source code and text files
+*.py text eol=lf
+*.pyi text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.rst text eol=lf
+*.txt text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.cff text eol=lf
+*.qrc text eol=lf
+*.ui text eol=lf
+*.ts text eol=lf
+*.svg text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+
+# Windows scripts
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary assets and model artifacts
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.icns binary
+*.webp binary
+*.bmp binary
+*.qm binary
+*.onnx binary
+*.pth binary
+*.pt binary
+*.engine binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.7z binary
+*.pdf binary
+*.mp4 binary
+*.avi binary
+*.mov binary

@@ -11,11 +11,11 @@
 # - [tool.*]: Configures settings for various tools (pytest, yapf, etc.) used in the project.
 
 # Installation:
-# The X-AnyLabeling library can be installed using the command: 'pip install x-anylabeling-cvhub[xxx]'
+# The X-AnyLabeling library can be installed using the command: 'pip install "x-anylabeling-cvhub[xxx]"'
 # For development purposes, you MUST specify a runtime environment (includes dev tools):
-#   - CPU:       pip install -e .[cpu,dev]
-#   - CUDA 12.x: pip install -e .[gpu,dev]
-#   - CUDA 11.x: pip install -e .[gpu-cu11,dev]
+#   - CPU:       pip install -e ".[cpu,dev]"
+#   - CUDA 12.x: pip install -e ".[gpu,dev]"
+#   - CUDA 11.x: pip install -e ".[gpu-cu11,dev]"
 # Note: Ensure onnxruntime and onnxruntime-gpu are not installed simultaneously.
 # This approach allows for real-time code modifications without the need for re-installation.
 

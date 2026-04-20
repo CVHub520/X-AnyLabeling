@@ -96,34 +96,21 @@ source .venv-cu11/bin/activate     # Linux
 
 ### 1.2 Installation
 
-#### 1.2.1 Pip Installation (Stable Version)
+#### 1.2.1 Pip Installation (Beta Pre-release)
 
-You can easily install the latest stable version of X-AnyLabeling with the following commands (using `uv pip` is recommended):
+You can easily install the latest beta pre-release version of X-AnyLabeling with the following commands (using `uv pip` is recommended):
 
 ```bash
 pip install -U uv
 
 # CPU [Windows/Linux/macOS]
-uv pip install x-anylabeling-cvhub[cpu]
+uv pip install --pre "x-anylabeling-cvhub[cpu]"
 
 # CUDA 12.x is the default GPU option [Windows/Linux]
-uv pip install x-anylabeling-cvhub[gpu]
+uv pip install --pre "x-anylabeling-cvhub[gpu]"
 
 # CUDA 11.x [Windows/Linux]
-uv pip install x-anylabeling-cvhub[gpu-cu11]
-```
-
-If you want to try the latest beta pre-release, add the `--pre` flag to the install command, for example:
-
-```bash
-# CPU [Windows/Linux/macOS]
-uv pip install --pre x-anylabeling-cvhub[cpu]
-
-# CUDA 12.x [Windows/Linux]
-uv pip install --pre x-anylabeling-cvhub[gpu]
-
-# CUDA 11.x [Windows/Linux]
-uv pip install --pre x-anylabeling-cvhub[gpu-cu11]
+uv pip install --pre "x-anylabeling-cvhub[gpu-cu11]"
 ```
 
 #### 1.2.2 Git Clone (Recommended)
@@ -143,19 +130,19 @@ After cloning the repository, you can choose to install the dependencies in eith
 pip install -U uv
 
 # CPU [Windows/Linux/macOS]
-uv pip install -e .[cpu]
+uv pip install -e ".[cpu]"
 
 # CUDA 12.x is the default GPU option [Windows/Linux]
-uv pip install -e .[gpu]
+uv pip install -e ".[gpu]"
 
 # CUDA 11.x [Windows/Linux]
-uv pip install -e .[gpu-cu11]
+uv pip install -e ".[gpu-cu11]"
 ```
 
 If you need to perform secondary development or package compilation, you can install the `dev` dependencies simultaneously, for example:
 
 ```bash
-uv pip install -e .[cpu,dev]
+uv pip install -e ".[cpu,dev]"
 ```
 
 > [!NOTE]

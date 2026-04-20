@@ -20,7 +20,8 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<img src="https://github.com/user-attachments/assets/8b5f290a-dddf-410c-a004-21e5a7bcd1cc" width="100%" />
+<video src="https://github.com/user-attachments/assets/25957cae-4dbd-494c-9923-e959d985674e" width="100%" controls>
+</video>
 
 <details>
 <summary><strong>Auto-Training</strong></summary>
@@ -84,9 +85,6 @@
 
 ## 🥳 What's New
 
-<video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
-</video>
-
 - `2026-04-19`: Added annotation check status workflow for reviewing labeled images.
 - `2026-04-19`: Added support for TensorRT backend inference for YOLO models.
 - `2026-04-18`: Added support exporting annotation visualizations as images or videos.
@@ -101,8 +99,6 @@
 
 **X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It's designed for multi-modal data engineers, offering industrial-grade solutions for complex tasks.
 
-<img src="https://github.com/user-attachments/assets/632e629b-0dec-407b-95a6-728052e1dd7b" width="100%" />
-
 Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server), a simple, lightweight, and extensible framework that enables remote inference capabilities for X-AnyLabeling.
 
 ## Features
@@ -111,17 +107,15 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 
 - Supports remote inference service.
 - Processes both `images` and `videos`.
-- Accelerates inference with `GPU`, `FFmpeg`, and flexible backends including `ONNX Runtime`, `TensorRT`, and `OpenCV DNN`.
+- Supports flexible backends including `ONNX Runtime`, `TensorRT`, and `OpenCV DNN`.
 - Supports UI localization in `English`, `Chinese`, `Japanese`, and `Korean`.
 - Allows custom models and secondary development.
 - Supports one-click inference for all images in the current task.
-- Supports import/export for formats like COCO, VOC, YOLO, DOTA, MOT, MASK, PPOCR, MMGD, VLM-R1.
+- Supports import/export for formats like `COCO`, `VOC`, `YOLO`, `DOTA`, `MOT`, `MASK`, `PPOCR`, `MMGD`, `VLM-R1`, `ShareGPT`.
 - Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr`, `vqa`, `grounding`, `document parsing` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `cuboids`, `rotated boxes`, `quadrilaterals`, `circles`, `lines`, `line strips`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 
 ### Model library
-
-<img src="https://github.com/user-attachments/assets/7da2da2e-f182-4a1b-85f6-bfd0dfcc6a1b" width="100%" />
 
 | **Task Category** | **Supported Models** |
 | :--- | :--- |
@@ -156,8 +150,6 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 6. [VQA](./docs/en/vqa.md)
 7. [Multi-class Image Classifier](./docs/en/image_classifier.md)
 8. [Document Parsing and Intelligent Text Recognition](./docs/en/paddle_ocr.md)
-
-<img src="https://github.com/user-attachments/assets/0d67311c-f441-44b6-9ee0-932f25f51b1c" width="100%" />
 
 ## Examples
 

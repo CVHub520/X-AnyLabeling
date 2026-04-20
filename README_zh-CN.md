@@ -19,7 +19,8 @@
 
 ![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
 
-<img src="https://github.com/user-attachments/assets/8b5f290a-dddf-410c-a004-21e5a7bcd1cc" width="100%" />
+<video src="https://github.com/user-attachments/assets/25957cae-4dbd-494c-9923-e959d985674e" width="100%" controls>
+</video>
 
 <details>
 <summary><strong>自动训练</strong></summary>
@@ -83,9 +84,6 @@
 
 ## 🥳 新功能
 
-<video src="https://github.com/user-attachments/assets/4a676ebf-d2ae-4327-b078-8e63a5323793" width="100%" controls>
-</video>
-
 - `2026-04-19`: 新增标注检查状态流程，便于快速复核已标注图片。
 - `2026-04-19`: 新增支持 YOLO 模型 TensorRT 后端推理。
 - `2026-04-18`: 新增支持将标注可视化结果导出为图片或视频。
@@ -100,8 +98,6 @@
 
 **X-AnyLabeling** 是一款基于AI推理引擎和丰富功能特性于一体的强大辅助标注工具，其专注于实际应用，致力于为多模态数据工程师提供工业级的一站式解决方案，可自动快速进行各种复杂任务的标定。
 
-<img src="https://github.com/user-attachments/assets/632e629b-0dec-407b-95a6-728052e1dd7b" width="100%" />
-
 此外，我们强烈推荐您尝试 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server)，这是一个简单、轻量级且可扩展的框架，为 X-AnyLabeling 提供远程推理能力。
 
 ## 新特性
@@ -109,18 +105,16 @@
 <img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
 
 - 支持远程推理服务。
-- 支持通过 `GPU`、`FFmpeg` 以及 `ONNX Runtime`、`TensorRT`、`OpenCV DNN` 等灵活后端加速推理。
+- 支持 `ONNX Runtime`、`TensorRT`、`OpenCV DNN` 等灵活后端加速推理。
 - 支持一键预测所有图像。
 - 支持`图像`和`视频`处理。
-- 支持 `英文`、`中文`、`日文`、`韩文` 四种界面语言。
+- 支持`英文`、`中文`、`日文`、`韩文` 四种界面语言。
 - 支持自定义模型和二次开发。
-- 支持一键导入和导出多种标签格式，如 COCO\VOC\YOLO\DOTA\MOT\MASK\PPOCR\MMGF\VLM-R1 等；
+- 支持一键导入和导出多种标签格式，如 `COCO`、`VOC`、`YOLO`、`DOTA`、`MOT`、`MASK`、`PPOCR`、`MMGF`、`VLM-R1`、`ShareGPT` 等；
 - 支持多种图像标注样式，包括 `多边形`、`矩形`、`长方体`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
 - 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`、`视觉问答`、`文档解析`等。
 
 ### 模型库
-
-<img src="https://github.com/user-attachments/assets/7da2da2e-f182-4a1b-85f6-bfd0dfcc6a1b" width="100%" />
 
 | **任务类别** | **支持模型** |
 | :--- | :--- |
@@ -156,8 +150,6 @@
 7. [视觉问答](./docs/zh_cn/vqa.md)
 8. [多类别图像分类器](./docs/zh_cn/image_classifier.md)
 9. [文档解析与智能文字识别](./docs/zh_cn/paddle_ocr.md)
-
-<img src="https://github.com/user-attachments/assets/0d67311c-f441-44b6-9ee0-932f25f51b1c" width="100%" />
 
 ## 示例
 

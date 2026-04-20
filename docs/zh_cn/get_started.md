@@ -96,34 +96,21 @@ source .venv-cu11/bin/activate     # Linux
 
 ### 1.2 安装
 
-#### 1.2.1 Pip 安装（稳定版本）
+#### 1.2.1 Pip 安装（Beta 预发布版本）
 
-您可以通过以下命令轻松安装 X-AnyLabeling 的最新稳定版本（推荐使用 `uv pip`）：
+您可以通过以下命令轻松安装 X-AnyLabeling 的最新 Beta 预发布版本（推荐使用 `uv pip`）：
 
 ```bash
 pip install -U uv
 
 # CPU [Windows/Linux/macOS]
-uv pip install x-anylabeling-cvhub[cpu]
+uv pip install --pre "x-anylabeling-cvhub[cpu]"
 
 # CUDA 12.x 是 GPU 版本的默认选项 [Windows/Linux]
-uv pip install x-anylabeling-cvhub[gpu]
+uv pip install --pre "x-anylabeling-cvhub[gpu]"
 
 # CUDA 11.x [Windows/Linux]
-uv pip install x-anylabeling-cvhub[gpu-cu11]
-```
-
-如果您希望体验最新的 Beta 预发布版本，可在安装命令中增加 `--pre` 参数，例如：
-
-```bash
-# CPU [Windows/Linux/macOS]
-uv pip install --pre x-anylabeling-cvhub[cpu]
-
-# CUDA 12.x [Windows/Linux]
-uv pip install --pre x-anylabeling-cvhub[gpu]
-
-# CUDA 11.x [Windows/Linux]
-uv pip install --pre x-anylabeling-cvhub[gpu-cu11]
+uv pip install --pre "x-anylabeling-cvhub[gpu-cu11]"
 ```
 
 #### 1.2.2 Git 克隆（推荐）
@@ -141,19 +128,19 @@ cd X-AnyLabeling
 pip install -U uv
 
 # CPU [Windows/Linux/macOS]
-uv pip install -e .[cpu]
+uv pip install -e ".[cpu]"
 
 # CUDA 12.x 是 GPU 版本的默认选项 [Windows/Linux]
-uv pip install -e .[gpu]
+uv pip install -e ".[gpu]"
 
 # CUDA 11.x [Windows/Linux]
-uv pip install -e .[gpu-cu11]
+uv pip install -e ".[gpu-cu11]"
 ```
 
 如果您需要进行二次开发或打包编译，可同步安装 `dev` 依赖，例如：
 
 ```bash
-uv pip install -e .[cpu,dev]
+uv pip install -e ".[cpu,dev]"
 ```
 
 > [!NOTE]

@@ -1,5 +1,41 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.4` (Apr 21, 2026)
+
+### 🚀 New Features
+
+- Add PaddleOCR document parsing workspace with an official API client mode and asynchronous API job parsing.
+- Add TensorRT inference backend support for auto-labeling. (#1343)
+- Add annotation check status workflow for labeling quality review. (#1340)
+- Add option to train Ultralytics models with checked files only. (#1340)
+- Add annotation visualization export for images and videos.
+- Add YOLO11 and YOLO26 SAHI support for auto-labeling. (#1321)
+- Add file list copy actions and a recent menu action for reopening the last directory. (#1338,#1346)
+- Add Japanese UI localization support and Japanese language selection in the labeling widget. (#1331,#1332)
+
+### 🐛 Bug Fixes
+
+- Keep standard models visible in the remote server model dropdown.
+- Support custom PPOCR recognition dictionaries in auto-labeling. (#1344)
+- Preserve LaTeX arrow commands in PaddleOCR formula previews.
+- Keep the PaddleOCR export dialog open when canceling on macOS.
+- Prevent PyQt6 attribute panel crashes in the label widget. (#1337)
+- Preserve provided image filenames when VOC filenames lack extensions. (#1334)
+- Force zlib resource compression for Windows translation loading. (#1332)
+
+### 🛠️ Improvements
+
+- Package macOS PyInstaller release archives with checksums. (#1285)
+- Align rotated-box documentation and optimize keyboard rotation repaint behavior. (#1333)
+- Update setup guides to install beta pre-release packages by default with quoted optional dependency extras for zsh compatibility.
+- Add repository line-ending attributes to keep source, docs, and config files on LF while preserving CRLF for Windows scripts.
+
+### 🌟 Contributors
+
+A total of 3 developers contributed to this release.
+
+Thank @CVHub520, @kame3mikan3, @tribf
+
 ## `v4.0.0-beta.3` (Mar 27, 2026)
 
 ### 🚀 New Features
