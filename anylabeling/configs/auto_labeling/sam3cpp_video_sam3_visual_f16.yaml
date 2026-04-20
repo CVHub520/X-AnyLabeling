@@ -1,0 +1,7 @@
+type: sam3cpp_video
+name: sam3cpp_video-sam3_visual-f16
+provider: PABannier (sam3.cpp)
+display_name: "SAM 3 Visual Video (sam3.cpp / Metal, f16, 946 MB)"
+model_path: https://huggingface.co/PABannier/sam3.cpp/resolve/main/sam3-visual-f16.ggml
+n_threads: 4
+use_gpu: true

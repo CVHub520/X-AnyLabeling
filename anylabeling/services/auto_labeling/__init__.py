@@ -6,6 +6,7 @@ _CUSTOM_MODELS = [
     "segment_anything",
     "segment_anything_2",
     "segment_anything_2_video",
+    "sam3cpp_video",
     "sam_med2d",
     "sam_hq",
     "yolov5",
@@ -89,6 +90,7 @@ _CUSTOM_MODELS = [
 # --- set_cache_auto_label ---
 _CACHED_AUTO_LABELING_MODELS = [
     "segment_anything_2_video",
+    "sam3cpp_video",
     "remote_server",
 ]
 
@@ -99,6 +101,7 @@ _AUTO_LABELING_MARKS_MODELS = [
     "segment_anything",
     "segment_anything_2",
     "segment_anything_2_video",
+    "sam3cpp_video",
     "sam_med2d",
     "sam_hq",
     "yolov5_sam",
@@ -119,6 +122,7 @@ _AUTO_LABELING_MASK_FINENESS_MODELS = [
     "segment_anything",
     "segment_anything_2",
     "segment_anything_2_video",
+    "sam3cpp_video",
     "sam_med2d",
     "sam_hq",
     "yolov5_sam",
@@ -136,6 +140,7 @@ _AUTO_LABELING_CROPPING_MODE_MODELS = [
     "segment_anything",
     "segment_anything_2",
     "segment_anything_2_video",
+    "sam3cpp_video",
     "sam_med2d",
     "sam_hq",
     "yolov5_sam",
@@ -175,6 +180,7 @@ _AUTO_LABELING_RESET_TRACKER_MODELS = [
     "yolov8_seg_track",
     "yolov8_pose_track",
     "segment_anything_2_video",
+    "sam3cpp_video",
     "yolo11_det_track",
     "yolo11_seg_track",
     "yolo11_obb_track",
@@ -336,12 +342,14 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "u_rtdetr",
     "yoloe",
     "segment_anything_2_video",
+    "sam3cpp_video",
 ]
 
 
 # --- set_auto_labeling_prompt ---
 _AUTO_LABELING_PROMPT_MODELS = [
     "segment_anything_2_video",
+    "sam3cpp_video",
 ]
 
 
@@ -395,5 +403,6 @@ _BATCH_PROCESSING_TEXT_PROMPT_MODELS = [
 # --- batch_processing_video_models ---
 _BATCH_PROCESSING_VIDEO_MODELS = [
     "segment_anything_2_video",
+    "sam3cpp_video",
     # "remote_server",
 ]

@@ -1,0 +1,7 @@
+type: sam3cpp_video
+name: sam3cpp_video-edgetam-f16
+provider: PABannier (sam3.cpp)
+display_name: "EdgeTAM Video (sam3.cpp / Metal, f16, 27 MB)"
+model_path: https://huggingface.co/PABannier/sam3.cpp/resolve/main/edgetam_f16.ggml
+n_threads: 4
+use_gpu: true
