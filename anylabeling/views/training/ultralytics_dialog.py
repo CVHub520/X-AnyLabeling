@@ -1830,7 +1830,7 @@ class UltralyticsDialog(QDialog):
         try:
             self.append_training_log(self.tr("Preparing training..."))
             train_args = self.get_training_args(config)
-            success, message = self.training_manager.start_training(train_args)
+            success, message = self.training_manager.start_training_mp(train_args)
             if not success:
                 self.append_training_log(
                     f"Failed to start training: {message}"

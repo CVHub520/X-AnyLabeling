@@ -4,6 +4,9 @@ import shutil
 import subprocess
 import time
 import threading
+import sys
+import multiprocessing
+from multiprocessing import Process, Queue
 from io import StringIO
 from typing import Dict, Tuple
 
@@ -220,6 +223,105 @@ if __name__ == "__main__":
         except Exception as e:
             return False, f"Failed to start training: {str(e)}"
 
+    def start_training_mp(self, train_args: Dict) -> Tuple[bool, str]:
+        """replaced python train_script.py with multiprocessing.process"""
+        if self.is_training:
+            return False, "Training is already in progress"
+
+        try:
+            import sys
+            self.total_epochs = train_args.get("epochs", 100)
+            self.stop_event.clear()
+
+            def run_training():
+                try:
+                    self.is_training = True
+                    self.notify_callbacks(
+                        "training_started", {"total_epochs": self.total_epochs}
+                    )
+
+                    logstr_queue = Queue()
+                    train_is_finished = multiprocessing.Event()
+                    train_is_failed = multiprocessing.Event()
+                    self.training_process = Process(
+                        name="train_process",
+                        target=train_process_func, 
+                        args=(logstr_queue, train_args, train_is_finished, train_is_failed))
+                    self.training_process.start()
+
+                    while True:
+                        if self.stop_event.is_set():
+                            self.training_process.terminate()
+                            self.training_process.join(timeout=5)
+                            if self.training_process.is_alive():
+                                self.training_process.kill()
+                            self.notify_callbacks("training_stopped", {})
+                            self.is_training = False
+                            return
+
+                        if train_is_finished.is_set() and logstr_queue.empty():
+                            self.notify_callbacks("training_completed",{"results": "Training completed successfully"})
+                            self.is_training = False
+                            break
+                        
+                        if train_is_failed.is_set() and logstr_queue.empty():
+                            self.notify_callbacks("training_error", {"error": str(e)})
+                            self.stop_training()
+                            return
+
+                        if not logstr_queue.empty():
+                            output = logstr_queue.get_nowait()
+                            if output:
+                                cleaned_output = output.strip()
+                                if cleaned_output:
+                                    self.notify_callbacks("training_log", {"message": cleaned_output})
+
+                    self.training_process.join()
+                    if self.training_process.is_alive():
+                        self.training_process.kill()
+                    logstr_queue.close()
+                    
+                    self.is_training = False
+                    self.notify_callbacks(
+                            "training_completed",
+                            {"results": "Training completed successfully"},
+                        )
+
+                except Exception as e:
+                    self.is_training = False
+                    self.notify_callbacks("training_error", {"error": str(e)})
+                finally:
+                    pass
+
+            def save_settings_config():
+                save_path = os.path.join(
+                    train_args["project"], train_args["name"]
+                )
+                save_file = os.path.join(save_path, "settings.json")
+
+                while not os.path.exists(save_path):
+                    time.sleep(1)
+
+                shutil.copy2(get_settings_config_path(), save_file)
+
+            training_thread = threading.Thread(target=run_training)
+            training_thread.daemon = True
+            training_thread.start()
+
+            config_thread = threading.Thread(target=save_settings_config)
+            config_thread.daemon = True
+            config_thread.start()
+
+            return True, "Training started successfully"
+
+        except ImportError:
+            return (
+                False,
+                "Ultralytics is not installed. Please install it with: pip install ultralytics",
+            )
+        except Exception as e:
+            return False, f"Failed to start training: {str(e)}"
+
     def stop_training(self) -> bool:
         if not self.is_training:
             return False
@@ -229,6 +331,40 @@ if __name__ == "__main__":
             return True
         except Exception:
             return False
+
+def train_process_func(str_queue, train_args, train_is_finished, train_is_failed):
+    "contents of train_script.py"
+
+    old_stdout = sys.stdout
+    old_stderr = sys.stderr
+
+    class Logger:
+        def write(self, data):
+            str_queue.put(data)
+        def flush(self):
+            pass
+
+    # must set stdout and stderr before import ultralytics
+    sys.stdout = Logger()
+    sys.stderr = Logger()
+    
+    from ultralytics import YOLO
+    
+    try:
+        task =  str(train_args['model']) 
+        model = YOLO(train_args['model'])
+
+        train_args['verbose'] = False
+        train_args['show'] = False
+
+        results = model.train(**train_args)
+    except Exception as e:
+        train_is_failed.set()
+        return
+        
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
+    train_is_finished.set()
 
 
 _training_manager = TrainingManager()
