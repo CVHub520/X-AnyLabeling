@@ -58,6 +58,32 @@ class TestSettingsController(unittest.TestCase):
         self.assertEqual(self.controller.get_value("canvas.epsilon"), 12.5)
         self.assertIn(("canvas.epsilon", 12.5), self.applied)
 
+    def test_optional_integer_accepts_none_and_non_negative_values(self):
+        self.assertIsNone(
+            self.controller.get_value("qt_image_allocation_limit")
+        )
+
+        changed = self.controller.update_field(
+            "qt_image_allocation_limit", 1024, schedule_save=False
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            self.controller.get_value("qt_image_allocation_limit"), 1024
+        )
+
+        changed = self.controller.update_field(
+            "qt_image_allocation_limit", None, schedule_save=False
+        )
+        self.assertTrue(changed)
+        self.assertIsNone(
+            self.controller.get_value("qt_image_allocation_limit")
+        )
+
+        with self.assertRaises(SettingsValidationError):
+            self.controller.update_field(
+                "qt_image_allocation_limit", -1, schedule_save=False
+            )
+
     def test_canvas_field_validation(self):
         self.controller.update_field(
             "canvas.crosshair.width",

@@ -111,6 +111,11 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate("SettingsDialog", "Model Hub")
     QCoreApplication.translate("SettingsDialog", "Model download source.")
     QCoreApplication.translate("SettingsDialog", "Logger Level")
+    QCoreApplication.translate("SettingsDialog", "Qt Image Allocation Limit")
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Qt default is 256 MB. Use 0 to disable the limit.",
+    )
 
 
 SETTINGS_GENERAL_KEYS = (
@@ -121,6 +126,7 @@ SETTINGS_GENERAL_KEYS = (
     "system_clipboard",
     "model_hub",
     "logger_level",
+    "qt_image_allocation_limit",
 )
 
 SETTINGS_SHAPE_KEYS = (
@@ -938,6 +944,23 @@ def _non_shortcut_fields() -> list[SettingField]:
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
                 "Set the minimum log level shown in the application.",
+            ),
+        ),
+        SettingField(
+            "qt_image_allocation_limit",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Qt Image Allocation Limit"
+            ),
+            "int",
+            "General",
+            "Behavior",
+            "Startup",
+            minimum=0,
+            maximum=16384,
+            allow_none=True,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Qt default is 256 MB. Use 0 to disable the limit.",
             ),
         ),
     ]

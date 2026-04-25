@@ -180,6 +180,7 @@ xanylabeling
 | `--output`, `-O`, `-o`     | Specify the output file or directory. Paths ending with `.json` are treated as files.                         |
 | `--config`                 | Specify a configuration file or YAML-formatted configuration string. Defaults to a user-specific path.        |
 | `--work-dir`               | Specify the working directory for configuration and data files. Defaults to home directory.                   |
+| `--qt-image-allocation-limit` | Override the Qt image allocation limit in MB. Qt default is `256 MB`. Use `0` to disable the limit.     |
 | `--nodata`                 | Prevent storing image data in JSON files.                                                                     |
 | `--autosave`               | Enable automatic saving of annotation data.                                                                   |
 | `--nosortlabels`           | Disable label sorting.                                                                                        |

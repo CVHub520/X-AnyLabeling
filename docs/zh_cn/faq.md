@@ -174,6 +174,39 @@ python -m anylabeling
 可参考[#823](https://github.com/CVHub520/X-AnyLabeling/issues/823)。
 </details>
 
+<details>
+<summary>Q: 打不开超大分辨率图片，或打开大图时提示内存限制？</summary>
+
+这通常不是图片文件本身体积过大，而是 Qt 在解码图片时命中了 `QImageReader` 的默认分配上限（默认约为 `256 MB`）。
+
+从当前版本开始，你可以按需手动调整这个限制：
+
+- 方式1：通过 GUI 设置
+  打开 `Settings`（`Ctrl+0`）> `General`，修改 `Qt Image Allocation Limit`
+- 方式2：通过配置文件
+  编辑用户目录下的 `.xanylabelingrc`，设置 `qt_image_allocation_limit`
+- 方式3：通过启动参数
+  使用 `--qt-image-allocation-limit`
+
+示例：
+
+```yaml
+qt_image_allocation_limit: 1024
+```
+
+```bash
+xanylabeling --qt-image-allocation-limit 1024
+```
+
+说明：
+
+- `null`：保留 Qt 默认限制
+- `0`：禁用该限制
+- 其他正整数：按 MB 指定新的上限，例如 `512`、`1024`
+
+修改该设置后需要重启应用才能生效。若机器内存较小，不建议直接设置为 `0`。
+</details>
+
 
 ### 模型相关问题
 

@@ -136,6 +136,15 @@ class TestSettingsDialogLayout(unittest.TestCase):
             first_row_texts,
         )
 
+    def test_general_optional_integer_shows_qt_default_value(self):
+        dialog = self._create_dialog()
+        dialog._render_primary("General")
+        self.app.processEvents()
+
+        spinboxes = dialog.content_body.findChildren(QtWidgets.QSpinBox)
+        self.assertEqual(len(spinboxes), 1)
+        self.assertEqual(spinboxes[0].value(), 256)
+
     def test_shortcuts_reset_viewport_margins(self):
         dialog = self._create_dialog()
         dialog._render_primary("General")

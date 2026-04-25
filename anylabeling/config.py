@@ -154,6 +154,12 @@ def validate_config_item(key, value):
         raise ValueError(
             f"Unexpected value for config key 'validate_label': {value}"
         )
+    if key == "qt_image_allocation_limit" and value is not None:
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            raise ValueError(
+                "Unexpected value for config key "
+                f"'qt_image_allocation_limit': {value}"
+            )
     if key == "shape_color" and value not in [None, "auto", "manual"]:
         raise ValueError(
             f"Unexpected value for config key 'shape_color': {value}"

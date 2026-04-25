@@ -178,6 +178,7 @@ xanylabeling
 | `--output`, `-O`, `-o`     | 指定输出文件或目录。以 `.json` 结尾的路径被视为文件。             |
 | `--config`                 | 指定配置文件或 YAML 格式的配置字符串。默认为用户特定路径。         |
 | `--work-dir`               | 指定配置文件和数据文件的工作目录。默认为用户主目录。               |
+| `--qt-image-allocation-limit` | 以 MB 为单位覆盖 Qt 图像分配上限。Qt 默认值为 `256 MB`。设为 `0` 可完全禁用该限制。 |
 | `--nodata`                 | 防止在 JSON 文件中存储图像数据。                                |
 | `--autosave`               | 启用自动保存注释数据。                                          |
 | `--nosortlabels`           | 禁用标签排序。                                                  |

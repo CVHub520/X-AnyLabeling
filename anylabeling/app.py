@@ -21,7 +21,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import yaml
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets
 
 from anylabeling.app_info import (
     __appname__,
@@ -115,6 +115,15 @@ def main():
             "If not specified, Qt will auto-detect the platform."
         ),
         default=None,
+    )
+    parser.add_argument(
+        "--qt-image-allocation-limit",
+        type=int,
+        help=(
+            "Override Qt image allocation limit in MB. "
+            "Qt default is 256 MB. Use 0 to disable the limit."
+        ),
+        default=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--filename",
@@ -312,6 +321,16 @@ def main():
     QtCore.QCoreApplication.setAttribute(
         QtCore.Qt.ApplicationAttribute.AA_ShareOpenGLContexts
     )
+    qt_image_allocation_limit = config.get("qt_image_allocation_limit")
+    if qt_image_allocation_limit is not None:
+        QtGui.QImageReader.setAllocationLimit(qt_image_allocation_limit)
+        if qt_image_allocation_limit == 0:
+            logger.info("🖼️ Disabled Qt image allocation limit")
+        else:
+            logger.info(
+                "🖼️ Set Qt image allocation limit to "
+                f"{qt_image_allocation_limit} MB"
+            )
 
     app = QtWidgets.QApplication(sys.argv)
     init_theme(config.get("theme", "light"))

@@ -24,6 +24,7 @@ show_shapes: true
 show_linking: true
 show_attributes: true
 logger_level: info
+qt_image_allocation_limit: null  # null keeps Qt default (256 MB); 0 disables the limit
 system_clipboard: false
 switch_to_checked: false
 file_list_checkbox_editable: false

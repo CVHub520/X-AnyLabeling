@@ -43,6 +43,9 @@ xanylabeling --logger-level debug
 
 # 禁用自动更新检查
 xanylabeling --no-auto-update-check
+
+# 将 Qt 图像分配上限提高到 1024 MB
+xanylabeling --qt-image-allocation-limit 1024
 ```
 
 ## 2. 系统命令
@@ -58,7 +61,8 @@ xanylabeling --help
 - 输出
 
 ```bash
-usage: xanylabeling [-h] [--reset-config] [--logger-level {debug,info,warning,fatal,error}] [--no-auto-update-check] [--qt-platform QT_PLATFORM] [--filename [FILENAME]] [--output OUTPUT]
+usage: xanylabeling [-h] [--reset-config] [--logger-level {debug,info,warning,fatal,error}] [--no-auto-update-check] [--qt-platform QT_PLATFORM]
+                    [--qt-image-allocation-limit QT_IMAGE_ALLOCATION_LIMIT] [--filename [FILENAME]] [--output OUTPUT]
                     [--config CONFIG] [--nodata] [--autosave] [--nosortlabels] [--flags FLAGS] [--labelflags LABEL_FLAGS] [--labels LABELS] [--validatelabel {exact}] [--keep-prev]
                     {help,checks,version,config,convert} ...
 
@@ -80,6 +84,8 @@ options:
                         disable automatic update check on startup
   --qt-platform QT_PLATFORM
                         Force Qt platform plugin (e.g., 'xcb', 'wayland'). If not specified, Qt will auto-detect the platform.
+  --qt-image-allocation-limit QT_IMAGE_ALLOCATION_LIMIT
+                        Override Qt image allocation limit in MB. Qt default is 256 MB. Use 0 to disable the limit.
   --filename [FILENAME]
                         image or label filename; If a directory path is passed in, the folder will be loaded automatically
   --output OUTPUT, -O OUTPUT, -o OUTPUT

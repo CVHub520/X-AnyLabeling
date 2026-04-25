@@ -230,6 +230,8 @@ class SettingsController(QtCore.QObject):
             return normalized
 
         if control == "int":
+            if value is None and field.allow_none:
+                return None
             if isinstance(value, bool) or not isinstance(value, int):
                 raise SettingsValidationError(
                     f"{field.label} requires an integer value"

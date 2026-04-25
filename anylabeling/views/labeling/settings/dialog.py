@@ -1143,7 +1143,9 @@ class SettingsDialog(QtWidgets.QDialog):
         )
         return (
             editor,
-            lambda value, w=editor: self._set_int_spinbox_value(w, value),
+            lambda value, w=editor, f=field: self._set_int_spinbox_value(
+                w, value, f
+            ),
             lambda enabled, w=editor: self._set_error_style(
                 w, enabled, get_spinbox_style()
             ),
@@ -1721,11 +1723,27 @@ class SettingsDialog(QtWidgets.QDialog):
         combo.blockSignals(False)
 
     def _set_int_spinbox_value(
-        self, spinbox: QtWidgets.QSpinBox, value: Any
+        self,
+        spinbox: QtWidgets.QSpinBox,
+        value: Any,
+        field: SettingField | None = None,
     ) -> None:
         spinbox.blockSignals(True)
-        spinbox.setValue(int(value))
+        if value is None and field is not None:
+            spinbox.setValue(self._default_int_display_value(field))
+        else:
+            spinbox.setValue(int(value))
         spinbox.blockSignals(False)
+
+    def _default_int_display_value(self, field: SettingField) -> int:
+        if field.key == "qt_image_allocation_limit":
+            try:
+                return int(QtGui.QImageReader.allocationLimit())
+            except Exception:
+                return 256
+        if field.minimum is not None:
+            return int(field.minimum)
+        return 0
 
     def _set_float_spinbox_value(
         self, spinbox: QtWidgets.QDoubleSpinBox, value: Any
@@ -1960,12 +1978,27 @@ class SettingsDialog(QtWidgets.QDialog):
         self._dirty_primaries.clear()
         self.shortcuts_save_button.setEnabled(False)
         self._set_status(self.tr("Settings saved"), "success")
+        self._show_restart_required_notice(self._controller.last_saved_keys)
 
     def _on_save_failed(self, message: str) -> None:
         self._set_status(
             self.tr("Save failed: {message}").format(message=message),
             "error",
         )
+
+    def _show_restart_required_notice(self, changed_keys: list[str]) -> None:
+        if "qt_image_allocation_limit" not in changed_keys:
+            return
+        msg_box = QtWidgets.QMessageBox(self)
+        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Information)
+        msg_box.setWindowTitle(self.tr("Restart Required"))
+        msg_box.setText(
+            self.tr(
+                "Qt image allocation limit changes will take effect after restarting the application."
+            )
+        )
+        msg_box.setStyleSheet(self._message_box_style())
+        msg_box.exec()
 
     def _set_status(self, text: str, level: str) -> None:
         self._status_level = level
