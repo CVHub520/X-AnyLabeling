@@ -2,6 +2,9 @@ import json
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
+from .. import utils
+from ..label_file import LabelFile
+
 
 class ScrollAreaPreview(QtWidgets.QScrollArea):
     def __init__(self, *args, **kwargs):
@@ -59,11 +62,17 @@ class FileDialogPreview(QtWidgets.QFileDialog):
             )
             self.label_preview.setHidden(False)
         else:
-            pixmap = QtGui.QPixmap(path)
-            if pixmap.isNull():
+            image_data = LabelFile.load_image_file(path)
+            image = (
+                utils.img_data_to_qimage(image_data, path)
+                if image_data
+                else None
+            )
+            if image is None or image.isNull():
                 self.label_preview.clear()
                 self.label_preview.setHidden(True)
             else:
+                pixmap = QtGui.QPixmap.fromImage(image)
                 self.label_preview.set_pixmap(
                     pixmap.scaled(
                         self.label_preview.width() - 30,

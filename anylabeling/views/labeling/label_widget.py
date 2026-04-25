@@ -5437,12 +5437,11 @@ class LabelingWidget(LabelDialog):
         # TODO(jack): icc profile issue warning
         # - qt.gui.icc: fromIccProfile: failed minimal tag size sanity
         # - qt.gui.icc: fromIccProfile: invalid tag offset alignment
-        image = QtGui.QImage.fromData(self.image_data)
+        image = utils.img_data_to_qimage(self.image_data, filename)
 
         if image.isNull():
             formats = [
-                f"*.{fmt.data().decode()}"
-                for fmt in QtGui.QImageReader.supportedImageFormats()
+                f"*{ext}" for ext in utils.get_supported_image_extensions()
             ]
             self.error_message(
                 self.tr("Error opening file"),
@@ -5645,10 +5644,7 @@ class LabelingWidget(LabelDialog):
 
     # QT Overload
     def dragEnterEvent(self, event):
-        extensions = [
-            f".{fmt.data().decode().lower()}"
-            for fmt in QtGui.QImageReader.supportedImageFormats()
-        ]
+        extensions = utils.get_supported_image_extensions()
         if event.mimeData().hasUrls():
             items = [i.toLocalFile() for i in event.mimeData().urls()]
             if any(i.lower().endswith(tuple(extensions)) for i in items):
@@ -5744,10 +5740,7 @@ class LabelingWidget(LabelDialog):
         if not self.may_continue():
             return
         path = osp.dirname(str(self.filename)) if self.filename else "."
-        formats = [
-            f"*.{fmt.data().decode()}"
-            for fmt in QtGui.QImageReader.supportedImageFormats()
-        ]
+        formats = [f"*{ext}" for ext in utils.get_supported_image_extensions()]
         filters = self.tr("Image & Label files (%s)") % " ".join(
             formats + [f"*{LabelFile.suffix}"]
         )
@@ -6171,10 +6164,7 @@ class LabelingWidget(LabelDialog):
         return lst
 
     def import_dropped_image_files(self, image_files):
-        extensions = [
-            f".{fmt.data().decode().lower()}"
-            for fmt in QtGui.QImageReader.supportedImageFormats()
-        ]
+        extensions = utils.get_supported_image_extensions()
 
         self.filename = None
         valid_files = []

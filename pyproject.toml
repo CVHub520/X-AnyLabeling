@@ -65,6 +65,7 @@ classifiers = [
 dependencies = [
     "natsort>=8.1.0",
     "pillow>=7.1.2",
+    "pillow-heif>=0.18.0",
     "opencv-contrib-python-headless>=4.7.0.72",
     "PyQt6>=6.6.0,<6.10.0; sys_platform == 'linux'",
     "PyQt6>=6.6.0; sys_platform != 'linux'",

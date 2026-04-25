@@ -20,12 +20,11 @@ socket.setdefaulttimeout(240)  # Prevent timeout when downloading models
 from abc import abstractmethod
 
 from PyQt6.QtCore import QCoreApplication, QFile, QObject
-from PyQt6.QtGui import QImage
-
 from .types import AutoLabelingResult, DownloadCancelledError
 from anylabeling.config import get_config, get_work_directory
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
+from anylabeling.views.labeling import utils
 
 
 def _check_model_worker(model_path):
@@ -403,7 +402,7 @@ class Model(QObject):
             image_data = label_file.image_data
         else:
             image_data = LabelFile.load_image_file(filename)
-        image = QImage.fromData(image_data)
+        image = utils.img_data_to_qimage(image_data, filename)
         if image.isNull():
             logger.error("Error reading {}".format(filename))
         return image

@@ -12,8 +12,38 @@ from PyQt6 import QtGui
 
 from ...labeling.logger import logger
 
+EXTRA_IMAGE_EXTENSIONS = (".heic", ".heif")
+_PILLOW_HEIF_REGISTERED = False
+
+
+def ensure_pillow_heif_registered():
+    global _PILLOW_HEIF_REGISTERED
+
+    if _PILLOW_HEIF_REGISTERED:
+        return True
+
+    try:
+        import pillow_heif
+
+        pillow_heif.register_heif_opener()
+    except ImportError:
+        return False
+
+    _PILLOW_HEIF_REGISTERED = True
+    return True
+
+
+def get_supported_image_extensions():
+    extensions = {
+        f".{fmt.data().decode().lower()}"
+        for fmt in QtGui.QImageReader.supportedImageFormats()
+    }
+    extensions.update(EXTRA_IMAGE_EXTENSIONS)
+    return sorted(extensions)
+
 
 def img_data_to_pil(img_data):
+    ensure_pillow_heif_registered()
     f = io.BytesIO()
     f.write(img_data)
     img_pil = PIL.Image.open(f)
@@ -55,6 +85,20 @@ def pil_to_qimage(img):
     return qimage
 
 
+def img_data_to_qimage(img_data, filename=None):
+    image = QtGui.QImage.fromData(img_data)
+    if not image.isNull():
+        return image
+
+    if not filename or not filename.lower().endswith(EXTRA_IMAGE_EXTENSIONS):
+        return image
+
+    try:
+        return pil_to_qimage(img_data_to_pil(img_data)).copy()
+    except Exception:
+        return image
+
+
 def img_arr_to_b64(img_arr):
     img_pil = PIL.Image.fromarray(img_arr)
     f = io.BytesIO()
@@ -89,6 +133,7 @@ def get_pil_img_dim(img_path):
         tuple: The dimensions of the image (width, height).
     """
     try:
+        ensure_pillow_heif_registered()
         if isinstance(img_path, str):
             with PIL.Image.open(img_path) as img:
                 return img.size[0], img.size[1]
@@ -110,6 +155,7 @@ def get_pil_img_dim(img_path):
 def check_img_exif(filename):
     """Check if image needs EXIF orientation correction"""
     try:
+        ensure_pillow_heif_registered()
         with PIL.Image.open(filename) as img:
             exif = img.getexif()
             orientation = exif.get(0x0112, 1)
@@ -122,6 +168,7 @@ def check_img_exif(filename):
 def process_image_exif(filename):
     """Process image EXIF orientation."""
     try:
+        ensure_pillow_heif_registered()
         with PIL.Image.open(filename) as img:
             exif = img.getexif()
             orientation = exif.get(0x0112, 1)

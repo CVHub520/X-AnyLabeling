@@ -23,13 +23,16 @@ from .general import (
 )
 from .image import (
     check_img_exif,
+    ensure_pillow_heif_registered,
     get_pil_img_dim,
     img_arr_to_b64,
     img_b64_to_arr,
     img_data_to_arr,
     img_data_to_pil,
     img_data_to_png_data,
+    img_data_to_qimage,
     img_pil_to_data,
+    get_supported_image_extensions,
     process_image_exif,
 )
 from ._io import io_open

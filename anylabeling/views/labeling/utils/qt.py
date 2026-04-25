@@ -8,14 +8,12 @@ from PyQt6.QtCore import Qt
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 from anylabeling.views.labeling.logger import logger
+from .image import get_supported_image_extensions
 
 
 def scan_all_images(folder_path):
     try:
-        extensions = [
-            f".{fmt.data().decode().lower()}"
-            for fmt in QtGui.QImageReader.supportedImageFormats()
-        ]
+        extensions = get_supported_image_extensions()
 
         images = []
         folder_path = osp.normpath(osp.abspath(folder_path))
