@@ -387,6 +387,8 @@ class LabelConverter:
         """Read an image with support for Unicode paths on all platforms."""
         data = np.fromfile(path, dtype=np.uint8)
         image = cv2.imdecode(data, flags)
+        if image is None:
+            return None, None
 
         height, width = image.shape[:2]
         return image, (width, height)
