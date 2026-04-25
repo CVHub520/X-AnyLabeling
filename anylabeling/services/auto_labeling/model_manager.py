@@ -351,9 +351,12 @@ class ModelManager(QObject):
 
     def _load_model(self, model_id):  # noqa: C901
         """Load and return model info"""
-        if self.loaded_model_config is not None:
-            self.loaded_model_config["model"].unload()
-            self.loaded_model_config = None
+        with self.loaded_model_config_lock:
+            old_config = self.loaded_model_config
+            if old_config is not None:
+                self.loaded_model_config = None
+        if old_config is not None:
+            old_config["model"].unload()
             self.auto_segmentation_model_unselected.emit()
 
         model_config = copy.deepcopy(self.model_configs[model_id])
@@ -2089,8 +2092,9 @@ class ModelManager(QObject):
         else:
             raise Exception(f"Unknown model type: {model_config['type']}")
 
-        self.loaded_model_config = model_config
-        return self.loaded_model_config
+        with self.loaded_model_config_lock:
+            self.loaded_model_config = model_config
+        return model_config
 
     def set_cache_auto_label(self, text, gid):
         """Set cache auto label"""
@@ -2200,7 +2204,9 @@ class ModelManager(QObject):
         NOTE: This function is blocking. The model can take a long time to
         predict. So it is recommended to use predict_shapes_threading instead.
         """
-        if self.loaded_model_config is None:
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
+        if model_config is None:
             self.new_model_status.emit(
                 self.tr("Model is not loaded. Choose a mode to continue.")
             )
@@ -2209,21 +2215,21 @@ class ModelManager(QObject):
 
         try:
             if text_prompt is not None:
-                auto_labeling_result = self.loaded_model_config[
+                auto_labeling_result = model_config[
                     "model"
                 ].predict_shapes(image, filename, text_prompt=text_prompt)
             elif run_tracker is True:
-                auto_labeling_result = self.loaded_model_config[
+                auto_labeling_result = model_config[
                     "model"
                 ].predict_shapes(image, filename, run_tracker=run_tracker)
             elif existing_shapes is not None:
-                auto_labeling_result = self.loaded_model_config[
+                auto_labeling_result = model_config[
                     "model"
                 ].predict_shapes(
                     image, filename, existing_shapes=existing_shapes
                 )
             else:
-                auto_labeling_result = self.loaded_model_config[
+                auto_labeling_result = model_config[
                     "model"
                 ].predict_shapes(image, filename)
 
@@ -2259,7 +2265,9 @@ class ModelManager(QObject):
         """Predict shapes.
         This function starts a thread to run the prediction.
         """
-        if self.loaded_model_config is None:
+        with self.loaded_model_config_lock:
+            _config_snapshot = self.loaded_model_config
+        if _config_snapshot is None:
             self.new_model_status.emit(
                 self.tr("Model is not loaded. Choose a mode to continue.")
             )
