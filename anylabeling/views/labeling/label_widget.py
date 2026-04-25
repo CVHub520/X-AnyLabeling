@@ -5413,20 +5413,18 @@ class LabelingWidget(LabelDialog):
             )
             self.other_data = self.label_file.other_data
             self.other_data[CHECKED_FIELD] = self._annotation_checked()
-            self.shape_text_edit.textChanged.disconnect()
-            self.shape_text_edit.setPlainText(
-                self.other_data.get("description", "")
-            )
-            self.shape_text_edit.textChanged.connect(self.shape_text_changed)
+            with QtCore.QSignalBlocker(self.shape_text_edit):
+                self.shape_text_edit.setPlainText(
+                    self.other_data.get("description", "")
+                )
         else:
             self.image_data = LabelFile.load_image_file(filename)
             if self.image_data:
                 self.image_path = filename
             self.label_file = None
             self.other_data = {CHECKED_FIELD: False}
-            self.shape_text_edit.textChanged.disconnect()
-            self.shape_text_edit.setPlainText("")
-            self.shape_text_edit.textChanged.connect(self.shape_text_changed)
+            with QtCore.QSignalBlocker(self.shape_text_edit):
+                self.shape_text_edit.setPlainText("")
         self.shape_text_label.setText(self.tr("Image Description"))
         self.shape_text_edit.setDisabled(False)
 
@@ -6298,9 +6296,8 @@ class LabelingWidget(LabelDialog):
         if auto_labeling_result.description:
             description = auto_labeling_result.description
             self.shape_text_label.setText(self.tr("Image Description"))
-            self.shape_text_edit.textChanged.disconnect()
-            self.shape_text_edit.setPlainText(description)
-            self.shape_text_edit.textChanged.connect(self.shape_text_changed)
+            with QtCore.QSignalBlocker(self.shape_text_edit):
+                self.shape_text_edit.setPlainText(description)
             self.other_data["description"] = description
             self.shape_text_edit.setDisabled(False)
 
@@ -6544,29 +6541,22 @@ class LabelingWidget(LabelDialog):
             # Enable text editing and set shape text from selected shape
             if len(self.canvas.selected_shapes) == 1:
                 self.shape_text_label.setText(self.tr("Object Description"))
-                self.shape_text_edit.textChanged.disconnect()
-                self.shape_text_edit.setPlainText(
-                    self.canvas.selected_shapes[0].description or ""
-                )
-                self.shape_text_edit.textChanged.connect(
-                    self.shape_text_changed
-                )
+                with QtCore.QSignalBlocker(self.shape_text_edit):
+                    self.shape_text_edit.setPlainText(
+                        self.canvas.selected_shapes[0].description or ""
+                    )
             else:
                 self.shape_text_label.setText(self.tr("Image Description"))
-                self.shape_text_edit.textChanged.disconnect()
-                self.shape_text_edit.setPlainText(
-                    self.other_data.get("description", "")
-                )
-                self.shape_text_edit.textChanged.connect(
-                    self.shape_text_changed
-                )
+                with QtCore.QSignalBlocker(self.shape_text_edit):
+                    self.shape_text_edit.setPlainText(
+                        self.other_data.get("description", "")
+                    )
             self.shape_text_edit.setDisabled(False)
         else:
             self.shape_text_edit.setDisabled(True)
             self.shape_text_label.setText(self.tr("Description"))
-            self.shape_text_edit.textChanged.disconnect()
-            self.shape_text_edit.setPlainText("")
-            self.shape_text_edit.textChanged.connect(self.shape_text_changed)
+            with QtCore.QSignalBlocker(self.shape_text_edit):
+                self.shape_text_edit.setPlainText("")
 
     def group_selected_shapes(self):
         self.canvas.group_selected_shapes()
