@@ -1,3 +1,4 @@
+import ast
 import os
 import re
 import json
@@ -1405,7 +1406,7 @@ class LabelDialog(QtWidgets.QDialog):
     def add_linking_pair(self):
         linking_text = self.linking_input.text()
         try:
-            linking_pairs = eval(linking_text)
+            linking_pairs = ast.literal_eval(linking_text)
             if (
                 isinstance(linking_pairs, list)
                 and len(linking_pairs) == 2
