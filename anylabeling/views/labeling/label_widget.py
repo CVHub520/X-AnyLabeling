@@ -5591,17 +5591,20 @@ class LabelingWidget(LabelDialog):
         e = 2.0  # So that no scrollbars are generated.
         w1 = self.central_widget().width() - e
         h1 = self.central_widget().height() - e
-        wh_ratio1 = w1 / h1
         # Calculate a new scale value based on the pixmap's aspect ratio.
         w2 = self.canvas.pixmap.width() - 0.0
         h2 = self.canvas.pixmap.height() - 0.0
+        if h1 <= 0 or w2 <= 0 or h2 <= 0:
+            return 1.0
+        wh_ratio1 = w1 / h1
         wh_ratio2 = w2 / h2
         return w1 / w2 if wh_ratio2 >= wh_ratio1 else h1 / h2
 
     def scale_fit_width(self):
         # The epsilon does not seem to work too well here.
         w = self.central_widget().width() - 2.0
-        return w / self.canvas.pixmap.width()
+        pw = self.canvas.pixmap.width()
+        return w / pw if pw > 0 else 1.0
 
     # QT Overload
     def closeEvent(self, event):
