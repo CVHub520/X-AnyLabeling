@@ -162,16 +162,14 @@ def extract_frames_from_video(self, input_file, out_dir):
             )
 
             try:
-                with open(input_file, "rb") as f:
-                    video_data = f.read()
                 _, ext = osp.splitext(input_file)
                 suffix = ext if ext else ".mp4"
                 temp_file = tempfile.NamedTemporaryFile(
                     suffix=suffix, delete=False
                 )
                 temp_video_path = temp_file.name
-                temp_file.write(video_data)
                 temp_file.close()
+                shutil.copy2(input_file, temp_video_path)
                 logger.debug(
                     f"Writing video data to temporary file: {temp_video_path}"
                 )
