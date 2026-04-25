@@ -84,6 +84,7 @@
 
 ## 🥳 新功能
 
+- `2026-04-25`: 新增支持 [GeCo2](./examples/counting/geco2/README.md) 目标计数模型。
 - `2026-04-19`: 新增标注检查状态流程，便于快速复核已标注图片。
 - `2026-04-19`: 新增支持 YOLO 模型 TensorRT 后端推理。
 - `2026-04-18`: 新增支持将标注可视化结果导出为图片或视频。
@@ -135,7 +136,8 @@
 | 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |
-| 📍 **Grounding** | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
+| 🔢 **目标计数** | CountGD, GeCO, GeCo2 |
+| 📍 **视觉定位** | Grounding DINO, YOLO-World, YOLOE |
 | 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 ## 文档
@@ -187,6 +189,7 @@
   - [Florence 2](./examples/vision_language/florence2/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
+  - [GeCo2](./examples/counting/geco2/README.md)
 - [Grounding](./examples/grounding/)
   - [YOLOE](./examples/grounding/yoloe/README.md)
   - [SAM 3](./examples/grounding/sam3/README.md)

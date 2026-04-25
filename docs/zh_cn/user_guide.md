@@ -65,8 +65,8 @@
   - [8.8 交互式视频目标分割](#88-交互式视频目标分割)
   - [8.9 抠图](#89-抠图)
   - [8.10 视觉-语言](#810-视觉-语言)
-  - [8.11 基于检测与分割的零样本计数](#811-基于检测与分割的零样本计数)
-  - [8.12 Grounding](#812-grounding)
+  - [8.11 目标计数](#811-目标计数)
+  - [8.12 视觉定位](#812-视觉定位)
 - [9. 模型](#9-模型)
 - [10. 高级功能](#10-高级功能)
 
@@ -1105,11 +1105,12 @@ theme: auto  # 可选: auto, light, dark
 - Rex-Omni: [链接](../../examples/vision_language/rexomni/README.md)
 - Florence 2：[链接](../../examples/vision_language/florence2/README.md)
 
-### 8.11 基于检测与分割的零样本计数
+### 8.11 目标计数
 
 - GeCo：[链接](../../examples/counting/geco/README.md)
+- GeCo2：[链接](../../examples/counting/geco2/README.md)
 
-### 8.12 Grounding
+### 8.12 视觉定位
 
 - YOLOE: [链接](../../examples/grounding/yoloe/README.md)
 - SAM 3: [链接](../../examples/grounding/sam3/README.md)

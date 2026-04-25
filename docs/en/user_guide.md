@@ -1023,6 +1023,7 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
 
 ### 8.11 Zero-Shot Counting
   - GeCo Counting by Detection/Segmentation: [Link](../../examples/counting/geco/README.md)
+  - GeCo2 Counting by Detection/Segmentation: [Link](../../examples/counting/geco2/README.md)
 
 ### 8.12 Grounding
   - YOLOE: [Link](../../examples/grounding/yoloe/README.md)

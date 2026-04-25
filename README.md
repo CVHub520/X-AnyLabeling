@@ -85,6 +85,7 @@
 
 ## 🥳 What's New
 
+- `2026-04-25`: Added support for the [GeCo2](./examples/counting/geco2/README.md) object counting model.
 - `2026-04-19`: Added annotation check status workflow for reviewing labeled images.
 - `2026-04-19`: Added support for TensorRT backend inference for YOLO models.
 - `2026-04-18`: Added support exporting annotation visualizations as images or videos.
@@ -136,7 +137,8 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
-| 📍 Grounding | CountGD, GeCO, Grounding DINO, YOLO-World, YOLOE |
+| 🔢 Object Counting | CountGD, GeCO, GeCo2 |
+| 📍 Grounding | Grounding DINO, YOLO-World, YOLOE |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 ## Docs
@@ -187,6 +189,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
   - [Florence 2](./examples/vision_language/florence2/README.md)
 - [Counting](./examples/counting/)
   - [GeCo](./examples/counting/geco/README.md)
+  - [GeCo2](./examples/counting/geco2/README.md)
 - [Grounding](./examples/grounding/)
   - [YOLOE](./examples/grounding/yoloe/README.md)
   - [SAM 3](./examples/grounding/sam3/README.md)
