@@ -1312,9 +1312,16 @@ def export_pporc_annotation(self, mode):
         if osp.exists(save_crop_img_path):
             shutil.rmtree(save_crop_img_path)
         os.makedirs(save_crop_img_path, exist_ok=True)
+        for fname in ("Label.txt", "rec_gt.txt"):
+            fpath = osp.join(save_path, fname)
+            if osp.exists(fpath):
+                os.remove(fpath)
     elif mode == "kie":
         total_class_set = set()
         class_list_file = osp.join(save_path, "class_list.txt")
+        ppocr_kie_file = osp.join(save_path, "ppocr_kie.json")
+        if osp.exists(ppocr_kie_file):
+            os.remove(ppocr_kie_file)
 
     converter = LabelConverter()
 
