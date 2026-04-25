@@ -4,7 +4,7 @@ import os.path as osp
 from PIL import Image
 
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt6.QtWidgets import (
     QVBoxLayout,
     QProgressDialog,
@@ -266,6 +266,81 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
         )
 
 
+class BatchProcessingThread(QThread):
+    progress_updated = pyqtSignal(int, str)
+    processing_finished = pyqtSignal()
+    error_occurred = pyqtSignal(str)
+
+    def __init__(
+        self,
+        app,
+        image_list,
+        image_index,
+        model_type,
+        text_prompt,
+        run_tracker,
+        skip_detection,
+    ):
+        super().__init__()
+        self.app = app
+        self.image_list = image_list
+        self.image_index = image_index
+        self.model_type = model_type
+        self.text_prompt = text_prompt
+        self.run_tracker = run_tracker
+        self.skip_detection = skip_detection
+
+    def run(self):
+        total_images = len(self.image_list)
+        try:
+            while (
+                self.image_index < total_images
+                and not self.app.cancel_processing
+            ):
+                image_file = self.image_list[self.image_index]
+                current = self.image_index + 1
+                self.progress_updated.emit(
+                    current, f"Progress: {current}/{total_images}"
+                )
+
+                if self.text_prompt:
+                    result = self.app.auto_labeling_widget.model_manager.predict_shapes(
+                        self.app.image,
+                        image_file,
+                        text_prompt=self.text_prompt,
+                        batch=True,
+                    )
+                elif self.run_tracker:
+                    result = self.app.auto_labeling_widget.model_manager.predict_shapes(
+                        self.app.image,
+                        image_file,
+                        run_tracker=self.run_tracker,
+                        batch=True,
+                    )
+                else:
+                    existing_shapes = None
+                    if (
+                        self.model_type in _SKIP_DET_MODELS
+                        and self.skip_detection
+                    ):
+                        existing_shapes = load_existing_shapes(image_file)
+                    result = self.app.auto_labeling_widget.model_manager.predict_shapes(
+                        self.app.image,
+                        image_file,
+                        batch=True,
+                        existing_shapes=existing_shapes,
+                    )
+
+                save_auto_labeling_result(self.app, image_file, result)
+                self.image_index += 1
+
+            self.app.image_index = self.image_index
+            self.processing_finished.emit()
+        except Exception as e:
+            self.app.image_index = self.image_index
+            self.error_occurred.emit(str(e))
+
+
 def process_next_image(self, progress_dialog, batch=True):
     """Process images in batch mode.
 
@@ -283,6 +358,49 @@ def process_next_image(self, progress_dialog, batch=True):
     ]
     total_images = len(self.image_list)
     self._progress_dialog = progress_dialog
+
+    batch_processing_mode = "default"
+    if model_type == "remote_server":
+        batch_processing_mode = model.get_batch_processing_mode()
+
+    if (
+        model_type not in _BATCH_PROCESSING_VIDEO_MODELS
+        and batch_processing_mode != "video"
+    ):
+        skip_detection = (
+            self.auto_labeling_widget.button_skip_detection.isChecked()
+        )
+        self._batch_thread = BatchProcessingThread(
+            self,
+            self.image_list,
+            self.image_index,
+            model_type,
+            self.text_prompt,
+            self.run_tracker,
+            skip_detection,
+        )
+
+        def _on_progress(value, label):
+            progress_dialog.setValue(value)
+            progress_dialog.setLabelText(label)
+
+        def _on_error(msg):
+            progress_dialog.close()
+            logger.error(f"Error occurred while processing images: {msg}")
+            popup = Popup(
+                self.tr("Error occurred while processing images!"),
+                self,
+                icon=new_icon_path("error", "svg"),
+            )
+            popup.show_popup(self, position="center")
+
+        self._batch_thread.progress_updated.connect(_on_progress)
+        self._batch_thread.processing_finished.connect(
+            lambda: finish_processing(self, progress_dialog)
+        )
+        self._batch_thread.error_occurred.connect(_on_error)
+        self._batch_thread.start()
+        return
 
     try:
         while (self.image_index < total_images) and (
