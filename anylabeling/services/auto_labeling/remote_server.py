@@ -211,8 +211,8 @@ class RemoteServer(Model):
         }
         logger.debug(
             f"Sending request to {self.predict_url} with payload: "
-            f"model: {self.set_model_id}, "
-            f"paramters: {params}"
+            f"model: {self.current_model_id}, "
+            f"parameters: {params}"
         )
 
         try:
