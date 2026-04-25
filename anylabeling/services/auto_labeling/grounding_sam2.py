@@ -525,7 +525,7 @@ class GroundingSAM2(Model):
         del self.net
         self.stop_inference = True
         if self.pre_inference_thread:
-            self.pre_inference_thread.quit
+            self.pre_inference_thread.quit()
 
     def preload_worker(self, files):
         """
