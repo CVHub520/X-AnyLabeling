@@ -54,6 +54,12 @@ def main():
     )
     subparsers.add_parser("version", help="show version information")
     subparsers.add_parser("config", help="show config file path")
+    train_worker_parser = subparsers.add_parser(
+        "train-worker", help=argparse.SUPPRESS
+    )
+    train_worker_parser.add_argument(
+        "--payload", required=True, help=argparse.SUPPRESS
+    )
 
     convert_parser = subparsers.add_parser(
         "convert", help="run conversion tasks"
@@ -209,6 +215,10 @@ def main():
             "anylabeling.views.common.converter",
             fromlist=["handle_convert_command"],
         ).handle_convert_command(args),
+        "train-worker": lambda args: __import__(
+            "anylabeling.services.auto_training.ultralytics.trainer",
+            fromlist=["run_training_worker_command"],
+        ).run_training_worker_command(args),
     }
 
     if args.command and args.command in special:

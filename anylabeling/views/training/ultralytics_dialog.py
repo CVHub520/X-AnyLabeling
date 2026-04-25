@@ -80,6 +80,9 @@ class UltralyticsDialog(QDialog):
         self.config_widgets = {}
         self._classification_cache = None
         self._detection_cache = None
+        self._summary_view_mode = None
+        self._config_tab_initialized = False
+        self._train_tab_initialized = False
         self.task_type_buttons = {}
         self.names = []
 
@@ -144,8 +147,18 @@ class UltralyticsDialog(QDialog):
         main_layout.addWidget(self.tab_widget)
 
         self.init_data_tab()
+
+    def ensure_config_tab_initialized(self):
+        if self._config_tab_initialized:
+            return
         self.init_config_tab()
+        self._config_tab_initialized = True
+
+    def ensure_train_tab_initialized(self):
+        if self._train_tab_initialized:
+            return
         self.init_train_tab()
+        self._train_tab_initialized = True
 
     def save_training_logs_to_file(self):
         """Save training logs to a local file with timestamp"""
@@ -193,6 +206,10 @@ class UltralyticsDialog(QDialog):
 
     def go_to_specific_tab(self, index):
         """Go to specific tab by index"""
+        if index >= 1:
+            self.ensure_config_tab_initialized()
+        if index >= 2:
+            self.ensure_train_tab_initialized()
         self.tab_widget.setCurrentIndex(index)
 
     # Data Tab
@@ -279,14 +296,22 @@ class UltralyticsDialog(QDialog):
     def refresh_dataset_summary(self):
         if not self.image_list:
             self.summary_table.clear()
+            self._summary_view_mode = None
             return
 
-        if self.selected_task_type == "Classify":
+        summary_view_mode = (
+            "classify" if self.selected_task_type == "Classify" else "detect"
+        )
+        if self._summary_view_mode == summary_view_mode:
+            return
+
+        if summary_view_mode == "classify":
             table_data = self._get_classification_table_data()
         else:
             table_data = self._get_detection_table_data()
 
         self.summary_table.load_data(table_data)
+        self._summary_view_mode = summary_view_mode
 
     def _get_classification_table_data(self):
         if self._classification_cache is None:
@@ -337,6 +362,7 @@ class UltralyticsDialog(QDialog):
     def clear_cache(self):
         self._classification_cache = None
         self._detection_cache = None
+        self._summary_view_mode = None
 
     def closeEvent(self, event):
         self.clear_cache()
@@ -367,6 +393,7 @@ class UltralyticsDialog(QDialog):
             )
             return
 
+        self.ensure_config_tab_initialized()
         project = os.path.join(
             get_default_project_dir(), self.selected_task_type.lower()
         )

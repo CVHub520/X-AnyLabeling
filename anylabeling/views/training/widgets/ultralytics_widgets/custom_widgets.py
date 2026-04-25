@@ -48,6 +48,7 @@ class CustomComboBox(QComboBox):
     def __init__(self, parent=None):
         super().__init__(parent)
         t = get_theme()
+        self.view().setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.setStyleSheet(f"""
             QComboBox {{
                 padding: 5px 8px;
@@ -90,11 +91,14 @@ class CustomComboBox(QComboBox):
                 selection-background-color: {t["primary"]};
                 selection-color: white;
                 color: {t["text"]};
+                outline: none;
             }}
             QComboBox QAbstractItemView::item {{
                 padding: 6px 8px;
                 border-radius: 4px;
                 min-height: 20px;
+                border: none;
+                outline: none;
             }}
             QComboBox QAbstractItemView::item:hover {{
                 background-color: {t["surface_hover"]};
@@ -102,6 +106,14 @@ class CustomComboBox(QComboBox):
             QComboBox QAbstractItemView::item:selected {{
                 background-color: {t["primary"]};
                 color: white;
+                border: none;
+                outline: none;
+            }}
+            QComboBox QAbstractItemView::item:selected:active {{
+                background-color: {t["primary"]};
+                color: white;
+                border: none;
+                outline: none;
             }}
         """)
 
