@@ -343,6 +343,9 @@ class ModelManager(QObject):
         self.model_download_worker.finished.connect(
             self.model_download_thread.quit
         )
+        self.model_download_thread.finished.connect(
+            self.model_download_thread.deleteLater
+        )
         self.model_download_worker.moveToThread(self.model_download_thread)
         self.model_download_thread.started.connect(
             self.model_download_worker.run
@@ -2317,6 +2320,9 @@ class ModelManager(QObject):
                 )
             self.model_execution_worker.finished.connect(
                 self.model_execution_thread.quit
+            )
+            self.model_execution_thread.finished.connect(
+                self.model_execution_thread.deleteLater
             )
             self.model_execution_worker.moveToThread(
                 self.model_execution_thread
