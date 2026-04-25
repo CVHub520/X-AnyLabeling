@@ -1237,6 +1237,8 @@ class LabelConverter:
                         )
                         points = rectangle_from_diagonal(points)
 
+                    if label not in self.classes:
+                        continue
                     class_index = self.classes.index(label)
 
                     x_center = (points[0][0] + points[2][0]) / (
@@ -1261,6 +1263,8 @@ class LabelConverter:
                         )
                     )
                     if len(points) < 3:
+                        continue
+                    if label not in self.classes:
                         continue
                     class_index = self.classes.index(label)
                     norm_points = points / image_size
@@ -1296,6 +1300,8 @@ class LabelConverter:
                         for i in range(8)
                     ]
                     x0, y0, x1, y1, x2, y2, x3, y3 = normalized_coords
+                    if label not in self.classes:
+                        continue
                     class_index = self.classes.index(label)
                     f.write(
                         f"{class_index} {x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3}\n"
@@ -1594,6 +1600,8 @@ class LabelConverter:
                     height = y_max - y_min
                     bbox = [x_min, y_min, width, height]
                     area = width * height
+                    if label not in self.classes:
+                        continue
                     class_id = self.classes.index(label)
 
                     annotation = {
@@ -1635,6 +1643,8 @@ class LabelConverter:
                 for data in pose_data.values():
                     points = data["rectangle"]
                     box_label = data["box_label"]
+                    if box_label not in self.classes:
+                        continue
                     class_id = self.classes.index(box_label)
                     if len(points) == 2:
                         logger.warning(
@@ -1875,6 +1885,8 @@ class LabelConverter:
                 if shape["shape_type"] != "rectangle":
                     continue
                 difficult = shape.get("difficult", False)
+                if shape["label"] not in self.classes:
+                    continue
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
                 points = self.clamp_points(
@@ -1974,6 +1986,8 @@ class LabelConverter:
 
             for shape in data["shapes"]:
                 if shape["shape_type"] != "polygon":
+                    continue
+                if shape["label"] not in self.classes:
                     continue
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
