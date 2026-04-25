@@ -9,10 +9,6 @@ from urllib.error import URLError
 
 import ssl
 
-ssl._create_default_https_context = (
-    ssl._create_unverified_context
-)  # Prevent issue when downloading models behind a proxy
-
 import socket
 
 socket.setdefaulttimeout(240)  # Prevent timeout when downloading models
@@ -170,8 +166,9 @@ class Model(QObject):
                 self._check_cancelled()
 
                 req = urllib.request.Request(url)
+                ssl_context = ssl._create_unverified_context()
                 response = urllib.request.urlopen(
-                    req, timeout=self.DOWNLOAD_TIMEOUT
+                    req, timeout=self.DOWNLOAD_TIMEOUT, context=ssl_context
                 )
                 total_size = int(response.headers.get("Content-Length", 0))
                 downloaded = 0
