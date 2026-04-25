@@ -3487,7 +3487,9 @@ class Canvas(
             ):
                 index = self.shapes.index(self.selected_shapes[0])
                 if (
-                    self.shapes_backups[-1][index].points
+                    self.shapes_backups
+                    and index < len(self.shapes_backups[-1])
+                    and self.shapes_backups[-1][index].points
                     != self.shapes[index].points
                 ):
                     self.store_shapes()
