@@ -75,9 +75,13 @@ class Shape:
         description=None,
         difficult=False,
         direction=0,
-        attributes={},
-        kie_linking=[],
+        attributes=None,
+        kie_linking=None,
     ):
+        if attributes is None:
+            attributes = {}
+        if kie_linking is None:
+            kie_linking = []
         self.label = label
         self.score = score
         self.group_id = group_id

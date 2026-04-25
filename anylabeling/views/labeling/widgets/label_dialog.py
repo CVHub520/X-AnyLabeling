@@ -1449,7 +1449,9 @@ class LabelDialog(QtWidgets.QDialog):
         self.linking_list.takeItem(self.linking_list.row(list_item))
         item_widget.deleteLater()
 
-    def reset_linking(self, kie_linking=[]):
+    def reset_linking(self, kie_linking=None):
+        if kie_linking is None:
+            kie_linking = []
         self.linking_list.clear()
         for linking_pair in kie_linking:
             self.linking_list.addItem(str(linking_pair))
@@ -1599,8 +1601,10 @@ class LabelDialog(QtWidgets.QDialog):
         group_id=None,
         description=None,
         difficult=False,
-        kie_linking=[],
+        kie_linking=None,
     ):
+        if kie_linking is None:
+            kie_linking = []
         if self._fit_to_content["row"]:
             self.label_list.setMinimumHeight(
                 self.label_list.sizeHintForRow(0) * self.label_list.count() + 2
