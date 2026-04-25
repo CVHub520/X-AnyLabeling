@@ -1874,7 +1874,7 @@ class LabelConverter:
             for shape in data["shapes"]:
                 if shape["shape_type"] != "rectangle":
                     continue
-                diccicult = shape.get("diccicult", False)
+                difficult = shape.get("difficult", False)
                 class_id = int(self.classes.index(shape["label"]))
                 track_id = int(shape["group_id"]) if shape["group_id"] else -1
                 points = self.clamp_points(
@@ -1900,7 +1900,7 @@ class LabelConverter:
                     ymin,
                     boxw,
                     boxh,
-                    int(not diccicult),
+                    int(not difficult),
                     class_id,
                     1,
                 ]
