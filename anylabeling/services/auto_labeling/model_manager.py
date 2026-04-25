@@ -2215,23 +2215,21 @@ class ModelManager(QObject):
 
         try:
             if text_prompt is not None:
-                auto_labeling_result = model_config[
-                    "model"
-                ].predict_shapes(image, filename, text_prompt=text_prompt)
+                auto_labeling_result = model_config["model"].predict_shapes(
+                    image, filename, text_prompt=text_prompt
+                )
             elif run_tracker is True:
-                auto_labeling_result = model_config[
-                    "model"
-                ].predict_shapes(image, filename, run_tracker=run_tracker)
+                auto_labeling_result = model_config["model"].predict_shapes(
+                    image, filename, run_tracker=run_tracker
+                )
             elif existing_shapes is not None:
-                auto_labeling_result = model_config[
-                    "model"
-                ].predict_shapes(
+                auto_labeling_result = model_config["model"].predict_shapes(
                     image, filename, existing_shapes=existing_shapes
                 )
             else:
-                auto_labeling_result = model_config[
-                    "model"
-                ].predict_shapes(image, filename)
+                auto_labeling_result = model_config["model"].predict_shapes(
+                    image, filename
+                )
 
             if isinstance(auto_labeling_result, AutoLabelingResult):
                 auto_labeling_result.image_path = filename

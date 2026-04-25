@@ -2725,7 +2725,7 @@ class Canvas(
 
             pen = QtGui.QPen(QtGui.QColor("#000000"), 8, Qt.PenStyle.SolidLine)
             p.setPen(pen)
-            for _, _, text_pos, label_text in labels:
+            for shape, _, text_pos, label_text in labels:
                 if not shape.visible:
                     continue
                 p.drawText(text_pos, label_text)
