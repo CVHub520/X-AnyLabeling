@@ -663,8 +663,14 @@ class LabelConverter:
         tree = ET.parse(input_file)
         root = tree.getroot()
 
-        image_width = int(root.find("size/width").text)
-        image_height = int(root.find("size/height").text)
+        size_width = root.find("size/width")
+        size_height = root.find("size/height")
+        if size_width is None or size_height is None:
+            raise ValueError(
+                f"Missing <size> element in VOC XML: {input_file}"
+            )
+        image_width = int(size_width.text)
+        image_height = int(size_height.text)
 
         filename_elem = root.find("filename")
         if filename_elem is not None and filename_elem.text:
@@ -680,7 +686,10 @@ class LabelConverter:
         self.custom_data["imageWidth"] = image_width
 
         for obj in root.findall("object"):
-            label = obj.find("name").text
+            name_elem = obj.find("name")
+            if name_elem is None:
+                continue
+            label = name_elem.text
             difficult = "0"
             if obj.find("difficult") is not None:
                 difficult = str(obj.find("difficult").text)
