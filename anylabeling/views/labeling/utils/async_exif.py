@@ -34,8 +34,8 @@ class ExifScannerWorker(QObject):
                     orientation = exif.get(0x0112, 1)
                     if orientation not in (1, None):
                         exif_files.append(filename)
-            except Exception:
-                continue
+            except Exception as e:
+                logger.debug("Skipping %s: %s", filename, e)
 
         if not self._should_stop and exif_files:
             self.exif_files_found.emit(exif_files)
