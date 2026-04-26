@@ -66,6 +66,11 @@ class AsyncExifScanner(QObject):
         self.thread.start()
 
     def _cleanup_thread(self):
+        if self.worker:
+            try:
+                self.worker.scan_finished.disconnect(self._cleanup_thread)
+            except (RuntimeError, TypeError):
+                pass
         if self.thread:
             try:
                 if self.thread.isRunning():
