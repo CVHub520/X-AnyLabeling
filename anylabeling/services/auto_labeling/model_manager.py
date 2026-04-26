@@ -60,6 +60,7 @@ class ModelManager(QObject):
         self.model_download_thread = None
         self.model_execution_thread = None
         self.model_execution_thread_lock = Lock()
+        self.model_execution_worker = None
         self._cancel_event = Event()
 
         self.load_model_configs()
@@ -188,7 +189,7 @@ class ModelManager(QObject):
         config_file = os.path.normpath(os.path.abspath(config_file))
         if (
             self.model_download_thread is not None
-            and self.model_download_thread.isRunning()
+            and self.is_model_download_running()
         ):
             logger.info(
                 "Another model is being loaded. Please wait for it to finish."
@@ -291,10 +292,7 @@ class ModelManager(QObject):
 
     def load_model(self, config_file):
         """Run model loading in a thread"""
-        if (
-            self.model_download_thread is not None
-            and self.model_download_thread.isRunning()
-        ):
+        if self.is_model_download_running():
             logger.info(
                 "Another model is being loaded. Please wait for it to finish."
             )
@@ -344,6 +342,9 @@ class ModelManager(QObject):
             self.model_download_thread.quit
         )
         self.model_download_thread.finished.connect(
+            self.on_model_download_thread_finished
+        )
+        self.model_download_thread.finished.connect(
             self.model_download_thread.deleteLater
         )
         self.model_download_worker.moveToThread(self.model_download_thread)
@@ -351,6 +352,24 @@ class ModelManager(QObject):
             self.model_download_worker.run
         )
         self.model_download_thread.start()
+
+    def is_model_download_running(self):
+        """Return whether the model download thread is still running."""
+        try:
+            return (
+                self.model_download_thread is not None
+                and self.model_download_thread.isRunning()
+            )
+        except RuntimeError:
+            self.model_download_thread = None
+            self.model_download_worker = None
+            return False
+
+    @pyqtSlot()
+    def on_model_download_thread_finished(self):
+        """Clear finished model download thread references."""
+        self.model_download_thread = None
+        self.model_download_worker = None
 
     def _load_model(self, model_id):  # noqa: C901
         """Load and return model info"""
@@ -1163,6 +1182,27 @@ class ModelManager(QObject):
                 return
             # Request next files for prediction
             self.request_next_files_requested.emit()
+        elif model_config["type"] == "segment_anything_3":
+            from .segment_anything_3 import SegmentAnything3
+
+            try:
+                model_config["model"] = SegmentAnything3(
+                    model_config, on_message=self.new_model_status.emit
+                )
+                self.auto_segmentation_model_selected.emit()
+                logger.info(
+                    f"✅ Model loaded successfully: {model_config['type']}"
+                )
+            except Exception as e:  # noqa
+                logger.error(
+                    f"❌ Error in loading model: {model_config['type']} "
+                    f"with error: {str(e)}"
+                )
+                template = "Error in loading model: {error_message}"
+                translated_template = self.tr(template)
+                error_text = translated_template.format(error_message=str(e))
+                self.new_model_status.emit(error_text)
+                return
         elif model_config["type"] == "segment_anything_2_video":
             try:
                 from .segment_anything_2_video import SegmentAnything2Video
@@ -2279,10 +2319,17 @@ class ModelManager(QObject):
         self.prediction_started.emit()
 
         with self.model_execution_thread_lock:
-            if (
-                self.model_execution_thread is not None
-                and self.model_execution_thread.isRunning()
-            ):
+            try:
+                execution_running = (
+                    self.model_execution_thread is not None
+                    and self.model_execution_thread.isRunning()
+                )
+            except RuntimeError:
+                self.model_execution_thread = None
+                self.model_execution_worker = None
+                execution_running = False
+
+            if execution_running:
                 self.new_model_status.emit(
                     self.tr(
                         "Another model is being executed."
@@ -2322,6 +2369,9 @@ class ModelManager(QObject):
                 self.model_execution_thread.quit
             )
             self.model_execution_thread.finished.connect(
+                self.on_model_execution_finished
+            )
+            self.model_execution_thread.finished.connect(
                 self.model_execution_thread.deleteLater
             )
             self.model_execution_worker.moveToThread(
@@ -2331,6 +2381,13 @@ class ModelManager(QObject):
                 self.model_execution_worker.run
             )
             self.model_execution_thread.start()
+
+    @pyqtSlot()
+    def on_model_execution_finished(self):
+        """Clear finished model execution thread references."""
+        with self.model_execution_thread_lock:
+            self.model_execution_thread = None
+            self.model_execution_worker = None
 
     def on_next_files_changed(self, next_files):
         """Run prediction on next files in advance to save inference time later"""

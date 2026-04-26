@@ -5,6 +5,7 @@ _CUSTOM_MODELS = [
     "open_vision",
     "segment_anything",
     "segment_anything_2",
+    "segment_anything_3",
     "segment_anything_2_video",
     "sam_med2d",
     "sam_hq",
@@ -98,6 +99,7 @@ _AUTO_LABELING_MARKS_MODELS = [
     "remote_server",
     "segment_anything",
     "segment_anything_2",
+    "segment_anything_3",
     "segment_anything_2_video",
     "sam_med2d",
     "sam_hq",
@@ -118,6 +120,7 @@ _AUTO_LABELING_MASK_FINENESS_MODELS = [
     "remote_server",
     "segment_anything",
     "segment_anything_2",
+    "segment_anything_3",
     "segment_anything_2_video",
     "sam_med2d",
     "sam_hq",
@@ -186,6 +189,7 @@ _AUTO_LABELING_RESET_TRACKER_MODELS = [
 _AUTO_LABELING_CONF_MODELS = [
     "remote_server",
     "upn",
+    "segment_anything_3",
     "damo_yolo",
     "gold_yolo",
     "grounding_dino",
@@ -325,6 +329,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "florence2",
     "rfdetr",
     "rfdetr_seg",
+    "segment_anything_3",
     "deimv2",
     "dfine",
     "yolo12",
@@ -388,6 +393,7 @@ _BATCH_PROCESSING_TEXT_PROMPT_MODELS = [
     "grounding_dino",
     "grounding_sam",
     "grounding_sam2",
+    "segment_anything_3",
     "yoloe",
 ]
 

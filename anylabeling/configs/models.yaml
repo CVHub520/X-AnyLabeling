@@ -154,6 +154,8 @@
   config_file: ":/sam2_hiera_tiny_video.yaml"
 - model_name: "sam2_hiera_tiny-r20240801"
   config_file: ":/sam2_hiera_tiny.yaml"
+- model_name: "sam3_vit_h-r20260426"
+  config_file: ":/sam3_vit_h.yaml"
 - model_name: "segment_anything_vit_b_quant-r20230810"
   config_file: ":/segment_anything_vit_b_quant.yaml"
 - model_name: "segment_anything_vit_b-r20230810"

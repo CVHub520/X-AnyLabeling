@@ -1,0 +1,12 @@
+type: segment_anything_3
+name: sam3_vit_h-r20260426
+provider: Meta
+display_name: Segment Anything 3 (ViT-H)
+encoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/sam3_image_encoder.onnx
+encoder_model_data_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/sam3_image_encoder.onnx.data
+decoder_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/sam3_decoder.onnx
+decoder_model_data_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/sam3_decoder.onnx.data
+language_encoder_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/sam3_language_encoder.onnx
+language_encoder_data_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/sam3_language_encoder.onnx.data
+conf_threshold: 0.5
+epsilon: 0.001

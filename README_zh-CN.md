@@ -84,6 +84,7 @@
 
 ## 🥳 新功能
 
+- `2026-04-26`: 新增客户端（本地 ONNX）支持 [SAM 3](./examples/grounding/sam3/README.md) 文本驱动分割。
 - `2026-04-25`: 新增支持 [GeCo2](./examples/counting/geco2/README.md) 目标计数模型。
 - `2026-04-19`: 新增标注检查状态流程，便于快速复核已标注图片。
 - `2026-04-19`: 新增支持 YOLO 模型 TensorRT 后端推理。

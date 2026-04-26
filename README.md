@@ -85,6 +85,7 @@
 
 ## 🥳 What's New
 
+- `2026-04-26`: Added client-side (local ONNX) support for [SAM 3](./examples/grounding/sam3/README.md) text-grounded segmentation.
 - `2026-04-25`: Added support for the [GeCo2](./examples/counting/geco2/README.md) object counting model.
 - `2026-04-19`: Added annotation check status workflow for reviewing labeled images.
 - `2026-04-19`: Added support for TensorRT backend inference for YOLO models.
