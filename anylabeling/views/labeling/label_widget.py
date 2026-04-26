@@ -3262,7 +3262,7 @@ class LabelingWidget(LabelDialog):
         self.set_scroll(Qt.Orientation.Vertical, y_scroll)
         for shape in self.canvas.selected_shapes:
             shape.selected = False
-        self.canvas.prev_h_shape = self.canvas.h_hape = item.shape()
+        self.canvas.prev_h_shape = self.canvas.h_shape = item.shape()
         self.canvas.update()
 
     def loop_select_labels(self):
@@ -4971,7 +4971,7 @@ class LabelingWidget(LabelDialog):
 
         shapes = getattr(self.canvas, "shapes", [])
         canvas_visible = getattr(self.canvas, "visible", {})
-        h_shape = getattr(self.canvas, "h_hape", None)
+        h_shape = getattr(self.canvas, "h_shape", None)
         for shape in shapes:
             shape._is_highlighted = shape == h_shape
         self.navigator_dialog.set_shapes(shapes, canvas_visible)
@@ -6101,9 +6101,9 @@ class LabelingWidget(LabelDialog):
     def remove_selected_point(self):
         self.canvas.remove_selected_point()
         self.canvas.update()
-        if self.canvas.h_hape is not None and not self.canvas.h_hape.points:
-            self.canvas.delete_shape(self.canvas.h_hape)
-            self.remove_labels([self.canvas.h_hape])
+        if self.canvas.h_shape is not None and not self.canvas.h_shape.points:
+            self.canvas.delete_shape(self.canvas.h_shape)
+            self.remove_labels([self.canvas.h_shape])
             self.set_dirty()
             if self.no_shape():
                 for action in self.actions.on_shapes_present:

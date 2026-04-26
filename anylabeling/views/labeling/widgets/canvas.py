@@ -139,7 +139,7 @@ class Canvas(
         self.visible = {}
         self._hide_backround = False
         self.hide_backround = False
-        self.h_hape = None
+        self.h_shape = None
         self.prev_h_shape = None
         self.h_vertex = None
         self.prev_h_vertex = None
@@ -302,8 +302,8 @@ class Canvas(
         """Store a moving shape"""
         if self.moving_shape:
             moving_shapes = (
-                [self.h_hape] + self.selected_shapes
-                if self.h_hape and self.h_hape not in self.selected_shapes
+                [self.h_shape] + self.selected_shapes
+                if self.h_shape and self.h_shape not in self.selected_shapes
                 else self.selected_shapes.copy()
             )
             for shape in moving_shapes:
@@ -488,14 +488,14 @@ class Canvas(
 
     def un_highlight(self):
         """Unhighlight shape/vertex/edge"""
-        if self.h_hape:
-            self.h_hape.highlight_clear()
+        if self.h_shape:
+            self.h_shape.highlight_clear()
             self.update()
-        self.prev_h_shape = self.h_hape
+        self.prev_h_shape = self.h_shape
         self.prev_h_vertex = self.h_vertex
         self.prev_h_edge = self.h_edge
         self.prev_h_cuboid_face = self.h_cuboid_face
-        self.h_hape = self.h_vertex = self.h_edge = self.h_cuboid_face = None
+        self.h_shape = self.h_vertex = self.h_edge = self.h_cuboid_face = None
 
     def selected_vertex(self):
         """Check if selected a vertex"""
@@ -538,7 +538,7 @@ class Canvas(
         except AttributeError:
             return
 
-        prev_hover_shape = self.h_hape
+        prev_hover_shape = self.h_shape
         self.prev_move_point = pos
         self.repaint()
 
@@ -675,37 +675,37 @@ class Canvas(
                     self.moving_shape = True
                 except IndexError:
                     return
-                if self.h_hape.shape_type == "rectangle":
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
+                if self.h_shape.shape_type == "rectangle":
+                    p1 = self.h_shape[0]
+                    p2 = self.h_shape[2]
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_height, shape_width, pos)
                 elif (
-                    self.h_hape.shape_type == "cuboid"
-                    and len(self.h_hape) >= 4
+                    self.h_shape.shape_type == "cuboid"
+                    and len(self.h_shape) >= 4
                 ):
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
+                    p1 = self.h_shape[0]
+                    p2 = self.h_shape[2]
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_height, shape_width, pos)
             elif (
                 self.selected_cuboid_face()
-                and self.h_hape is not None
-                and self.h_hape.shape_type == "cuboid"
+                and self.h_shape is not None
+                and self.h_shape.shape_type == "cuboid"
                 and self.prev_point is not None
             ):
                 self.is_move_editing = False
                 offset = pos - self.prev_point
                 self.move_cuboid_face_by(
-                    self.h_hape, self.h_cuboid_face, offset
+                    self.h_shape, self.h_cuboid_face, offset
                 )
                 self.prev_point = pos
                 self.repaint()
                 self.moving_shape = True
-                p1 = self.h_hape[0]
-                p2 = self.h_hape[2]
+                p1 = self.h_shape[0]
+                p2 = self.h_shape[2]
                 shape_width = int(abs(p2.x() - p1.x()))
                 shape_height = int(abs(p2.y() - p1.y()))
                 self.show_shape.emit(shape_height, shape_width, pos)
@@ -761,36 +761,36 @@ class Canvas(
                     self.moving_shape = True
                 except IndexError:
                     return
-                if self.h_hape.shape_type == "rectangle":
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
+                if self.h_shape.shape_type == "rectangle":
+                    p1 = self.h_shape[0]
+                    p2 = self.h_shape[2]
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_height, shape_width, pos)
                 elif (
-                    self.h_hape.shape_type == "cuboid"
-                    and len(self.h_hape) >= 4
+                    self.h_shape.shape_type == "cuboid"
+                    and len(self.h_shape) >= 4
                 ):
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
+                    p1 = self.h_shape[0]
+                    p2 = self.h_shape[2]
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_height, shape_width, pos)
             elif (
                 self.selected_cuboid_face()
-                and self.h_hape is not None
-                and self.h_hape.shape_type == "cuboid"
+                and self.h_shape is not None
+                and self.h_shape.shape_type == "cuboid"
                 and self.prev_point is not None
             ):
                 offset = pos - self.prev_point
                 self.move_cuboid_face_by(
-                    self.h_hape, self.h_cuboid_face, offset
+                    self.h_shape, self.h_cuboid_face, offset
                 )
                 self.prev_point = pos
                 self.repaint()
                 self.moving_shape = True
-                p1 = self.h_hape[0]
-                p2 = self.h_hape[2]
+                p1 = self.h_shape[0]
+                p2 = self.h_shape[2]
                 shape_width = int(abs(p2.x() - p1.x()))
                 shape_height = int(abs(p2.y() - p1.y()))
                 self.show_shape.emit(shape_height, shape_width, pos)
@@ -813,10 +813,10 @@ class Canvas(
                 )
                 if index is not None:
                     if self.selected_vertex():
-                        self.h_hape.highlight_clear()
+                        self.h_shape.highlight_clear()
                     self.prev_h_vertex = self.h_vertex
                     self.h_vertex = index
-                    self.prev_h_shape = self.h_hape = shape
+                    self.prev_h_shape = self.h_shape = shape
                     self.prev_h_edge = self.h_edge
                     self.h_edge = None
                     self.prev_h_cuboid_face = self.h_cuboid_face
@@ -848,10 +848,10 @@ class Canvas(
                 front_path = self.cuboid_face_path(shape, CUBOID_FACE_FRONT)
                 if front_path is not None and front_path.contains(pos):
                     if self.selected_vertex():
-                        self.h_hape.highlight_clear()
+                        self.h_shape.highlight_clear()
                     self.prev_h_vertex = self.h_vertex
                     self.h_vertex = None
-                    self.prev_h_shape = self.h_hape = shape
+                    self.prev_h_shape = self.h_shape = shape
                     self.prev_h_edge = self.h_edge
                     self.h_edge = None
                     self.prev_h_cuboid_face = self.h_cuboid_face
@@ -867,10 +867,10 @@ class Canvas(
                 face_name = self.cuboid_face_hit_test(shape, pos)
                 if face_name and face_name != CUBOID_FACE_FRONT:
                     if self.selected_vertex():
-                        self.h_hape.highlight_clear()
+                        self.h_shape.highlight_clear()
                     self.prev_h_vertex = self.h_vertex
                     self.h_vertex = None
-                    self.prev_h_shape = self.h_hape = shape
+                    self.prev_h_shape = self.h_shape = shape
                     self.prev_h_edge = self.h_edge
                     self.h_edge = None
                     self.prev_h_cuboid_face = self.h_cuboid_face
@@ -891,9 +891,9 @@ class Canvas(
             index_edge = shape.nearest_edge(pos, self.epsilon / self.scale)
             if index is not None:
                 if self.selected_vertex():
-                    self.h_hape.highlight_clear()
+                    self.h_shape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex = index
-                self.prev_h_shape = self.h_hape = shape
+                self.prev_h_shape = self.h_shape = shape
                 self.prev_h_edge = self.h_edge
                 self.h_edge = None
                 self.prev_h_cuboid_face = self.h_cuboid_face
@@ -913,10 +913,10 @@ class Canvas(
                 and shape.shape_type != "quadrilateral"
             ):
                 if self.selected_vertex():
-                    self.h_hape.highlight_clear()
+                    self.h_shape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex
                 self.h_vertex = None
-                self.prev_h_shape = self.h_hape = shape
+                self.prev_h_shape = self.h_shape = shape
                 self.prev_h_edge = self.h_edge = index_edge
                 self.prev_h_cuboid_face = self.h_cuboid_face
                 self.h_cuboid_face = None
@@ -943,10 +943,10 @@ class Canvas(
 
             if shape_hit:
                 if self.selected_vertex():
-                    self.h_hape.highlight_clear()
+                    self.h_shape.highlight_clear()
                 self.prev_h_vertex = self.h_vertex
                 self.h_vertex = None
-                self.prev_h_shape = self.h_hape = shape
+                self.prev_h_shape = self.h_shape = shape
                 self.prev_h_edge = self.h_edge
                 self.h_edge = None
                 self.prev_h_cuboid_face = self.h_cuboid_face
@@ -975,14 +975,14 @@ class Canvas(
                 self.update()
 
                 if shape.shape_type == "rectangle":
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
+                    p1 = self.h_shape[0]
+                    p2 = self.h_shape[2]
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_height, shape_width, pos)
-                elif shape.shape_type == "cuboid" and len(self.h_hape) >= 4:
-                    p1 = self.h_hape[0]
-                    p2 = self.h_hape[2]
+                elif shape.shape_type == "cuboid" and len(self.h_shape) >= 4:
+                    p1 = self.h_shape[0]
+                    p2 = self.h_shape[2]
                     shape_width = int(abs(p2.x() - p1.x()))
                     shape_height = int(abs(p2.y() - p1.y()))
                     self.show_shape.emit(shape_height, shape_width, pos)
@@ -994,7 +994,7 @@ class Canvas(
             self.setStatusTip("")
         self.vertex_selected.emit(self.h_vertex is not None)
 
-        if prev_hover_shape != self.h_hape:
+        if prev_hover_shape != self.h_shape:
             self.shape_hover_changed.emit()
 
     def add_point_to_edge(self):
@@ -1006,7 +1006,7 @@ class Canvas(
             return
         shape.insert_point(index, point)
         shape.highlight_vertex(index, shape.MOVE_VERTEX)
-        self.h_hape = shape
+        self.h_shape = shape
         self.h_vertex = index
         self.h_edge = None
         self.moving_shape = True
@@ -1031,7 +1031,7 @@ class Canvas(
             return
         shape.remove_point(index)
         shape.highlight_clear()
-        self.h_hape = shape
+        self.h_shape = shape
         self.prev_h_vertex = None
         self.moving_shape = True  # Save changes
 
@@ -1232,7 +1232,7 @@ class Canvas(
                     self.selected_vertex()
                     and ev.modifiers()
                     == QtCore.Qt.KeyboardModifier.ShiftModifier
-                    and self.h_hape.shape_type
+                    and self.h_shape.shape_type
                     not in [
                         "rectangle",
                         "rotation",
@@ -1273,8 +1273,8 @@ class Canvas(
                 ev.modifiers() == QtCore.Qt.KeyboardModifier.ControlModifier
             )
             if not self.selected_shapes or (
-                self.h_hape is not None
-                and self.h_hape not in self.selected_shapes
+                self.h_shape is not None
+                and self.h_shape not in self.selected_shapes
             ):
                 self.select_shape_point(
                     pos, multiple_selection_mode=group_mode
@@ -1301,12 +1301,12 @@ class Canvas(
         elif ev.button() == QtCore.Qt.MouseButton.LeftButton:
             if self.editing():
                 if (
-                    self.h_hape is not None
+                    self.h_shape is not None
                     and self.h_shape_is_selected
                     and not self.moving_shape
                 ):
                     self.selection_changed.emit(
-                        [x for x in self.selected_shapes if x != self.h_hape]
+                        [x for x in self.selected_shapes if x != self.h_shape]
                     )
 
         self.store_moving_shape()
@@ -1404,7 +1404,7 @@ class Canvas(
     def select_shape_point(self, point, multiple_selection_mode):
         """Select the first shape created which contains this point."""
         if self.selected_vertex():  # A vertex is marked for selection.
-            index, shape = self.h_vertex, self.h_hape
+            index, shape = self.h_vertex, self.h_shape
             if shape.shape_type == "cuboid":
                 self.set_hiding()
                 if shape not in self.selected_shapes:
@@ -1436,10 +1436,10 @@ class Canvas(
                 return
         elif (
             self.selected_cuboid_face()
-            and self.h_hape is not None
-            and self.h_hape.shape_type == "cuboid"
+            and self.h_shape is not None
+            and self.h_shape.shape_type == "cuboid"
         ):
-            shape = self.h_hape
+            shape = self.h_shape
             self.set_hiding()
             if shape not in self.selected_shapes:
                 if multiple_selection_mode:
@@ -1944,7 +1944,7 @@ class Canvas(
 
     def bounded_move_vertex(self, pos):
         """Move a vertex. Adjust position to be bounded by pixmap border"""
-        index, shape = self.h_vertex, self.h_hape
+        index, shape = self.h_vertex, self.h_shape
         if shape.shape_type == "cuboid":
             self.move_cuboid_control(shape, index, pos)
             return
@@ -2133,7 +2133,6 @@ class Canvas(
         p.begin(self)
         p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
         p.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
-        p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
 
         p.scale(self.scale, self.scale)
         p.translate(self.offset_to_center())
@@ -2427,10 +2426,10 @@ class Canvas(
             if (
                 shape.selected or not self._hide_backround
             ) and self.is_visible(shape):
-                shape.hovered = shape == self.h_hape
+                shape.hovered = shape == self.h_shape
                 shape.fill = (
                     self._fill_drawing
-                    and (shape.selected or shape == self.h_hape)
+                    and (shape.selected or shape == self.h_shape)
                     and not (self.selected_vertex() and self.moving_shape)
                 )
                 shape.paint(p)
@@ -2617,8 +2616,6 @@ class Canvas(
                 if not shape.visible:
                     continue
                 d_react = shape.point_size / shape.scale
-                if not shape.visible:
-                    continue
                 if shape.label in [
                     "AUTOLABEL_OBJECT",
                     "AUTOLABEL_ADD",
@@ -2986,7 +2983,7 @@ class Canvas(
         scratch.current = None
         scratch.selected_shapes = []
         scratch.selected_shapes_copy = []
-        scratch.h_hape = None
+        scratch.h_shape = None
         scratch.h_vertex = None
         scratch.h_edge = None
         scratch.h_cuboid_face = None
@@ -3564,7 +3561,7 @@ class Canvas(
         self.store_shapes()
         self.current = None
         self._brush_drawing = False
-        self.h_hape = None
+        self.h_shape = None
         self.h_vertex = None
         self.h_edge = None
         self.h_cuboid_face = None
