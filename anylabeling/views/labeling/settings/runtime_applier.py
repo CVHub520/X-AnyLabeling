@@ -288,6 +288,8 @@ class SettingsRuntimeApplier:
             return
         if key.startswith("shortcuts."):
             self.apply_shortcuts(key, value)
+            return
+        logger.debug("No runtime handler for settings key: %s", key)
 
     def apply_canvas_basic(self) -> None:
         self._widget.canvas.epsilon = float(
