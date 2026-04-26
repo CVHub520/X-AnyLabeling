@@ -61,7 +61,7 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
 
     thread = threading.Thread(
         target=fetch_models_async,
-        args=(provider, base_url, api_key, total_data, config_path),
+        args=(provider, base_url, api_key, config_path),
     )
     thread.daemon = True
     thread.start()
@@ -72,11 +72,10 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
     return total_data["models_data"]
 
 
-def fetch_models_async(
-    provider_display_name, base_url, api_key, total_data, config_path
-):
+def fetch_models_async(provider_display_name, base_url, api_key, config_path):
     """Fetch models data asynchronously"""
     try:
+        total_data = load_json(config_path)
         supported_vision_models = total_data["supported_vision_models"]
         models_id_list = get_models_id_list(base_url, api_key, timeout=5)
 
