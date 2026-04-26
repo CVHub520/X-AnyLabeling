@@ -152,10 +152,6 @@ def get_providers_data() -> dict:
         return default_providers_data
 
     custom_providers_data = load_json(providers_config_path)
-    for provider, provider_data in custom_providers_data.items():
-        if provider not in custom_providers_data:
-            custom_providers_data[provider] = provider_data
-
     for provider, provider_data in default_providers_data.items():
         if provider not in custom_providers_data:
             custom_providers_data[provider] = provider_data
