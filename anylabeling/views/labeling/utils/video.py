@@ -536,12 +536,12 @@ def open_video_file(self):
     if not self.may_continue():
         return
 
-    filter = "Video Files (*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv);;All Files (*)"
+    file_filter = "Video Files (*.asf *.avi *.m4v *.mkv *.mov *.mp4 *.mpeg *.mpg *.ts *.wmv);;All Files (*)"
     input_file, _ = QFileDialog.getOpenFileName(
         self,
         self.tr("Open Video file"),
         "",
-        filter,
+        file_filter,
     )
 
     if not input_file or not osp.exists(input_file):
