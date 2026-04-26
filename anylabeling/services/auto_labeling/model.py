@@ -360,7 +360,9 @@ class Model(QObject):
             )
             self.on_message("Download failed! Please try again later.")
             time.sleep(1)
-            return None
+            raise Exception(
+                f"Could not download model: {ellipsis_download_url}"
+            ) from e
 
         return model_abs_path
 
