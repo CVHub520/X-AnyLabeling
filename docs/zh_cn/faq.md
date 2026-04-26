@@ -303,6 +303,16 @@ export https_proxy=http://ip:port
 </details>
 
 <details>
+<summary>Q: 使用 Chatbot 时报错 "Using SOCKS proxy, but the 'socksio' package is not installed"</summary>
+
+当系统环境变量中配置了 SOCKS 代理（如 `ALL_PROXY=socks5://...`）时，Chatbot 所依赖的 `httpx` 需要额外安装 `socksio` 才能支持 SOCKS 协议。手动安装即可解决：
+
+```bash
+pip install httpx[socks]
+```
+</details>
+
+<details>
 <summary>Q: ERROR | model_manager:predict_shapes:2031 - Error in predict_shapes: '<=' not supported between instances of 'int' and 'str'</summary>
 
 请检查模型配置文件（*.yaml）是否正确，具体可参考此[#902](https://github.com/CVHub520/X-AnyLabeling/issues/902)。
