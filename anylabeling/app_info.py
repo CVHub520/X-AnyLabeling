@@ -1,6 +1,6 @@
 __appname__ = "X-AnyLabeling"
 __appdescription__ = "Advanced Auto Labeling Solution with Added Features"
-__version__ = "4.0.0-beta.4"
+__version__ = "4.0.0-beta.5"
 __url__ = "https://github.com/CVHub520/X-AnyLabeling"
 
 CLI_HELP_MSG = """

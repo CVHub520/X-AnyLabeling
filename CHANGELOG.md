@@ -1,5 +1,55 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.5` (Apr 26, 2026)
+
+### 🚀 New Features
+
+- Add client-side SAM 3 ONNX support for text-grounded segmentation. (#1232)
+- Add HEIC and HEIF image loading support.
+- Add configurable Qt image allocation limit via `--qt-image-allocation-limit` flag.
+
+### 🐛 Bug Fixes
+
+- Replace `eval` with `ast.literal_eval` in label dialog to prevent arbitrary code injection.
+- Scope SSL verification bypass to model downloads only to avoid unintended side effects.
+- Avoid shared mutable defaults in shape and label dialogs.
+- Guard `loaded_model_config` reads and writes with a lock to prevent race condition.
+- Connect QThread `finished` to `deleteLater` in model manager to prevent use-after-free.
+- Load an independent config copy in `fetch_models_async` to eliminate shared-dict race with main thread.
+- Move non-video batch inference loop to QThread to prevent UI freeze.
+- Call `quit()` on `pre_inference_thread` in GroundingSAM2 unload to actually stop the thread.
+- Disconnect `scan_finished` signal before EXIF cleanup to prevent a stale signal from killing a new scan.
+- Launch Ultralytics training via a stable worker subprocess. (#1354)
+- Return `(None, None)` from `imread_unicode` when `imdecode` fails on corrupt images.
+- Guard VOC XML `size` and object `name` element lookups against missing elements.
+- Correct "diccicult" typo to "difficult" in MOT export shape lookup.
+- Guard all `classes.index` calls against unknown labels to prevent `ValueError`.
+- Unpack shape in canvas label-text loop to fix stale variable reference in `paintEvent`.
+- Guard `shapes_backups` access in `mouseReleaseEvent` against empty list and out-of-range index.
+- Guard `scale_fit_window` and `scale_fit_width` against zero pixmap or widget dimensions.
+- Replace `textChanged` disconnect/connect with `QSignalBlocker` to prevent `TypeError` on first load.
+- Raise on download failure in `get_model_abs_path` instead of silently returning `None`.
+- Remove always-false membership loop in provider config handling.
+- Clear stale PPOCR output files before each export run to prevent data accumulation.
+- Log unhandled settings keys instead of silently ignoring them.
+- Log skipped files in async EXIF scan instead of silently swallowing exceptions.
+- Correct remote server debug log to use `current_model_id` and fix `parameters` typo.
+
+### 🛠️ Improvements
+
+- Speed up canvas `fill_drawing` path by replacing `deepcopy` with a shallow copy.
+- Avoid redundant base64 decode-encode round-trip in `LabelFile.load`.
+- Speed up temporary video handling by using `shutil.copy2` instead of a full in-memory read.
+- Add GeCo2 counting example and usage documentation. (#1293)
+- Add troubleshooting tip for SOCKS proxy error in the Chatbot FAQ.
+- Harden PyInstaller executable build script and normalize repository line endings.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @CVHub520, @fhong-jpg
+
 ## `v4.0.0-beta.4` (Apr 21, 2026)
 
 ### 🚀 New Features
