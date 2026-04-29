@@ -317,6 +317,8 @@ class LabelingWidget(LabelDialog):
         self.settings_button.setStyleSheet(get_settings_button_style())
         self.settings_button.clicked.connect(self.open_settings_dialog)
         self.file_list_widget = QtWidgets.QListWidget()
+        self.file_list_widget.setObjectName("FileList")
+        self.file_list_widget.setIconSize(QtCore.QSize(12, 12))
         self.file_status_icons = {
             True: _create_file_status_icon(FILE_CHECKED_COLOR),
             False: _create_file_status_icon(FILE_UNCHECKED_COLOR),

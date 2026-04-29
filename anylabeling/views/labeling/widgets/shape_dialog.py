@@ -118,11 +118,14 @@ class ShapeModifyDialog(QDialog):
         layout.addStretch()
 
         bottom_layout = QHBoxLayout()
+        bottom_layout.setContentsMargins(0, 0, 0, 0)
+        bottom_layout.setSpacing(8)
         from_label = QLabel("From:")
         self.from_input = QtWidgets.QSpinBox()
         self.from_input.setMinimum(1)
         self.from_input.setMaximum(len(self.image_file_list))
         self.from_input.setValue(self.start_index)
+        self.from_input.setFixedWidth(104)
         self.from_input.setStyleSheet(get_spinbox_style())
 
         to_label = QLabel("To:")
@@ -131,15 +134,16 @@ class ShapeModifyDialog(QDialog):
         self.to_input.setMaximum(len(self.image_file_list))
         self.to_input.setSpecialValueText(" ")
         self.to_input.setValue(self.end_index)
+        self.to_input.setFixedWidth(104)
         self.to_input.setStyleSheet(get_spinbox_style())
 
         self.ok_button = QPushButton("Go")
+        self.ok_button.setFixedSize(124, 36)
         self.ok_button.setStyleSheet(get_ok_btn_style())
         self.ok_button.clicked.connect(self.accept)
 
         bottom_layout.addWidget(from_label)
         bottom_layout.addWidget(self.from_input)
-        bottom_layout.addSpacing(10)
         bottom_layout.addWidget(to_label)
         bottom_layout.addWidget(self.to_input)
         bottom_layout.addStretch()
