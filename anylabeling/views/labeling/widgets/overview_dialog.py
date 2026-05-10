@@ -443,7 +443,7 @@ class OverviewDialog(QtWidgets.QDialog):
 
             # Write label_infos.csv
             with open(
-                label_infos_path, "w", newline="", encoding="utf-8"
+                label_infos_path, "w", newline="", encoding="utf-8-sig"
             ) as csvfile:
                 writer = csv.writer(csvfile)
                 for row in label_infos:
@@ -451,7 +451,7 @@ class OverviewDialog(QtWidgets.QDialog):
 
             # Write shape_infos.csv
             with open(
-                shape_infos_path, "w", newline="", encoding="utf-8"
+                shape_infos_path, "w", newline="", encoding="utf-8-sig"
             ) as csvfile:
                 writer = csv.writer(csvfile)
                 writer.writerow(headers)
