@@ -295,6 +295,46 @@ def get_settings_combo_style() -> str:
     """
 
 
+def get_model_selection_scroll_area_style():
+    return """
+        QScrollArea#model_selection_scroll_area {
+            background: transparent;
+            border: none;
+        }
+        QScrollArea#model_selection_scroll_area QScrollBar:horizontal {
+            background: transparent;
+            height: 16px;
+            margin: 2px 12px 2px 12px;
+            border: none;
+        }
+        QScrollArea#model_selection_scroll_area QScrollBar::handle:horizontal {
+            background: rgb(206, 213, 230);
+            min-width: 34px;
+            border-radius: 4px;
+        }
+        QScrollArea#model_selection_scroll_area QScrollBar::add-line:horizontal {
+            background: transparent;
+            border: none;
+            subcontrol-origin: margin;
+            subcontrol-position: right;
+            width: 12px;
+            image: url(:/images/images/caret-right.svg);
+        }
+        QScrollArea#model_selection_scroll_area QScrollBar::sub-line:horizontal {
+            background: transparent;
+            border: none;
+            subcontrol-origin: margin;
+            subcontrol-position: left;
+            width: 12px;
+            image: url(:/images/images/caret-left.svg);
+        }
+        QScrollArea#model_selection_scroll_area QScrollBar::add-page:horizontal,
+        QScrollArea#model_selection_scroll_area QScrollBar::sub-page:horizontal {
+            background: transparent;
+        }
+    """
+
+
 def get_toggle_button_style(button_color: str):
     t = get_theme()
     return f"""

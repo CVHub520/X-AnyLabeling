@@ -5,7 +5,7 @@ import collections
 from anylabeling.config import get_config
 
 from PyQt6 import uic
-from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint
+from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint, QTimer
 from PyQt6.QtWidgets import (
     QDialog,
     QFileDialog,
@@ -33,6 +33,7 @@ from anylabeling.views.labeling.utils.style import (
     get_normal_button_style,
     get_highlight_button_style,
     get_settings_combo_style,
+    get_model_selection_scroll_area_style,
     get_toggle_button_style,
     get_download_progress_bar_style,
     get_cancel_download_button_style,
@@ -50,6 +51,26 @@ from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
     _get_models_config_path,
     SearchableModelDropdownPopup,
 )
+
+
+def update_model_selection_scroll_area_height(scroll_area):
+    content_widget = scroll_area.widget()
+    if content_widget is None:
+        return
+    scroll_bar = scroll_area.horizontalScrollBar()
+    scroll_bar_height = (
+        scroll_bar.sizeHint().height()
+        if scroll_bar.maximum() > scroll_bar.minimum()
+        else 0
+    )
+    scroll_area.setFixedHeight(
+        content_widget.sizeHint().height() + scroll_bar_height
+    )
+    content_layout = content_widget.layout()
+    if content_layout is not None:
+        content_layout.invalidate()
+        content_layout.activate()
+        content_layout.setGeometry(content_widget.rect())
 
 
 class AutoLabelingWidget(QWidget):
@@ -95,6 +116,14 @@ class AutoLabelingWidget(QWidget):
         self.parent = parent
         current_dir = os.path.dirname(__file__)
         uic.loadUi(os.path.join(current_dir, "auto_labeling.ui"), self)
+        self.model_selection_scroll_area.setStyleSheet(
+            get_model_selection_scroll_area_style()
+        )
+        scroll_bar = self.model_selection_scroll_area.horizontalScrollBar()
+        scroll_bar.rangeChanged.connect(
+            self._update_model_selection_scroll_area_height
+        )
+        self._update_model_selection_scroll_area_height()
 
         self.skip_auto_prediction = False
         self.model_manager = ModelManager()
@@ -359,6 +388,7 @@ class AutoLabelingWidget(QWidget):
         )
 
         # --- Configuration for: mask_fineness_slider ---
+        self.mask_fineness_slider.setMinimumWidth(120)
         self.mask_fineness_slider.setStyleSheet(
             ChatbotDialogStyle.get_slider_style()
         )
@@ -402,6 +432,7 @@ class AutoLabelingWidget(QWidget):
         self.populate_gd_combobox()
         self.populate_remote_server_combobox()
         self.update_shortcut_button_texts()
+        self._queue_model_selection_scroll_area_height_update()
 
     def _split_label_and_shortcut(self, text):
         normalized = str(text).strip()
@@ -1091,6 +1122,7 @@ class AutoLabelingWidget(QWidget):
                 logger.warning(
                     f"Warning: Widget '{widget_name}' not found in AutoLabelingWidget."
                 )
+        self._update_model_selection_scroll_area_height()
 
     def hide_labeling_widgets(self):
         """Hide labeling widgets by default"""
@@ -1130,6 +1162,19 @@ class AutoLabelingWidget(QWidget):
         ]
         for widget in widgets:
             getattr(self, widget).hide()
+        self._update_model_selection_scroll_area_height()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self._queue_model_selection_scroll_area_height_update()
+
+    def _queue_model_selection_scroll_area_height_update(self):
+        QTimer.singleShot(0, self._update_model_selection_scroll_area_height)
+
+    def _update_model_selection_scroll_area_height(self, *_):
+        update_model_selection_scroll_area_height(
+            self.model_selection_scroll_area
+        )
 
     def on_new_marks(self, marks):
         """Handle new marks"""
