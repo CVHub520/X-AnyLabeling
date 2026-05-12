@@ -1,7 +1,7 @@
 import os
 import re
 
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QSize
 from PyQt6.QtWidgets import (
     QDialog,
     QFrame,
@@ -17,9 +17,11 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 from PyQt6.QtGui import (
+    QColor,
     QIcon,
     QIntValidator,
     QKeySequence,
+    QPainter,
     QPixmap,
     QShortcut,
 )
@@ -28,6 +30,7 @@ from anylabeling.views.labeling.classifier import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.style import get_progress_dialog_style
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.vqa.dialogs import (
     AILoadingDialog,
@@ -35,6 +38,36 @@ from anylabeling.views.labeling.vqa.dialogs import (
 )
 from anylabeling.views.labeling.vqa.style import get_page_input_style
 from anylabeling.views.labeling.vqa.utils import AIWorkerThread
+
+PANEL_BUTTON_SIZE = 28
+PANEL_ICON_SIZE = 16
+PANEL_ICON_RENDER_SCALE = 2
+
+
+def _new_panel_icon(icon_name):
+    real_size = PANEL_ICON_SIZE * PANEL_ICON_RENDER_SCALE
+    source_pixmap = QIcon(new_icon_path(icon_name, "svg")).pixmap(
+        QSize(real_size, real_size)
+    )
+    if source_pixmap.isNull():
+        return QIcon(new_icon(icon_name, "svg"))
+
+    tinted_pixmap = QPixmap(source_pixmap.size())
+    tinted_pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(tinted_pixmap)
+    painter.drawPixmap(0, 0, source_pixmap)
+    painter.setCompositionMode(
+        QPainter.CompositionMode.CompositionMode_SourceIn
+    )
+    painter.fillRect(
+        tinted_pixmap.rect(), QColor(get_theme()["text_secondary"])
+    )
+    painter.end()
+
+    icon = QIcon()
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Normal)
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Disabled)
+    return icon
 
 
 class ClassifierDialog(QDialog):
@@ -118,9 +151,9 @@ class ClassifierDialog(QDialog):
         right_layout.setSpacing(10)
 
         action_widget = QWidget()
-        action_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
+        action_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT + 12)
         action_layout = QHBoxLayout(action_widget)
-        action_layout.setContentsMargins(10, 0, 10, 0)
+        action_layout.setContentsMargins(10, 4, 10, 4)
         action_layout.setSpacing(8)
 
         self.export_button = QPushButton(self.tr("Export"))
@@ -178,6 +211,7 @@ class ClassifierDialog(QDialog):
         title_widget = QWidget()
         title_layout = QHBoxLayout(title_widget)
         title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(4)
 
         title_label = QLabel(self.tr("Category"))
         title_label.setStyleSheet(get_filename_label_style())
@@ -188,41 +222,46 @@ class ClassifierDialog(QDialog):
         title_layout.addStretch()
 
         self.ai_button = QPushButton()
-        self.ai_button.setIcon(QIcon(new_icon("wand", "svg")))
-        self.ai_button.setFixedSize(*ICON_SIZE_SMALL)
-        self.ai_button.setStyleSheet(get_button_style())
+        self.ai_button.setIcon(_new_panel_icon("wand"))
+        self.ai_button.setIconSize(QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE))
+        self.ai_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+        self.ai_button.setStyleSheet(get_panel_button_style())
         self.ai_button.setToolTip(self.tr("AI Assistant"))
         self.ai_button.clicked.connect(self.ai_classify_current)
         title_layout.addWidget(self.ai_button)
 
         self.new_button = QPushButton()
-        self.new_button.setIcon(QIcon(new_icon("new", "svg")))
-        self.new_button.setFixedSize(*ICON_SIZE_SMALL)
-        self.new_button.setStyleSheet(get_button_style())
+        self.new_button.setIcon(_new_panel_icon("new"))
+        self.new_button.setIconSize(QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE))
+        self.new_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+        self.new_button.setStyleSheet(get_panel_button_style())
         self.new_button.setToolTip(self.tr("Add Label"))
         self.new_button.clicked.connect(self.add_new_label)
         title_layout.addWidget(self.new_button)
 
         self.delete_button = QPushButton()
-        self.delete_button.setIcon(QIcon(new_icon("minus", "svg")))
-        self.delete_button.setFixedSize(*ICON_SIZE_SMALL)
-        self.delete_button.setStyleSheet(get_button_style())
+        self.delete_button.setIcon(_new_panel_icon("minus"))
+        self.delete_button.setIconSize(QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE))
+        self.delete_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+        self.delete_button.setStyleSheet(get_panel_button_style())
         self.delete_button.setToolTip(self.tr("Delete Label"))
         self.delete_button.clicked.connect(self.delete_label)
         title_layout.addWidget(self.delete_button)
 
         self.edit_button = QPushButton()
-        self.edit_button.setIcon(QIcon(new_icon("edit", "svg")))
-        self.edit_button.setFixedSize(*ICON_SIZE_SMALL)
-        self.edit_button.setStyleSheet(get_button_style())
+        self.edit_button.setIcon(_new_panel_icon("edit"))
+        self.edit_button.setIconSize(QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE))
+        self.edit_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+        self.edit_button.setStyleSheet(get_panel_button_style())
         self.edit_button.setToolTip(self.tr("Edit Label"))
         self.edit_button.clicked.connect(self.edit_label)
         title_layout.addWidget(self.edit_button)
 
         self.view_button = QPushButton()
-        self.view_button.setIcon(QIcon(new_icon("view", "svg")))
-        self.view_button.setFixedSize(*ICON_SIZE_SMALL)
-        self.view_button.setStyleSheet(get_button_style())
+        self.view_button.setIcon(_new_panel_icon("view"))
+        self.view_button.setIconSize(QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE))
+        self.view_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+        self.view_button.setStyleSheet(get_panel_button_style())
         self.view_button.setToolTip(self.tr("View Statistics"))
         self.view_button.clicked.connect(self.view_statistics)
         title_layout.addWidget(self.view_button)

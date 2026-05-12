@@ -53,7 +53,15 @@ def get_dialog_style() -> str:
             outline: none;
         }}
         QListWidget::item {{
+            background: transparent;
             padding: 0px;
+            border: none;
+        }}
+        QListWidget::item:hover,
+        QListWidget::item:selected,
+        QListWidget::item:selected:active,
+        QListWidget::item:selected:!active {{
+            background: transparent;
             border: none;
         }}
         QTabWidget::pane {{
@@ -179,6 +187,29 @@ def get_icon_button_style() -> str:
         QPushButton:hover {{
             background: {_selected_background()};
             color: {PPOCR_COLOR_TEXT};
+        }}
+    """
+
+
+def get_sidebar_icon_button_style() -> str:
+    t = get_theme()
+    return f"""
+        QPushButton {{
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            padding: 0px;
+            color: {t["text"]};
+            min-width: 0px;
+            min-height: 0px;
+            text-align: center;
+        }}
+        QPushButton:hover {{
+            background: {_selected_background()};
+            color: {PPOCR_COLOR_TEXT};
+        }}
+        QPushButton:pressed {{
+            background: {_selected_background()};
         }}
     """
 

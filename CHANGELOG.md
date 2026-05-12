@@ -1,5 +1,27 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.6` (May 13, 2026)
+
+### 🚀 New Features
+
+- Add a confirmation step before starting PaddleOCR parsing and update the PaddleOCR documentation to match the confirmed import workflow.
+
+### 🐛 Bug Fixes
+
+- Add horizontal scrolling for overflowing auto-labeling toolbar controls. (#1360)
+- Export overview CSV files with UTF-8 BOM to prevent garbled filenames in spreadsheet applications. (#1359)
+
+### 🛠️ Improvements
+
+- Polish PaddleOCR dark mode across block editors, preview canvas, result action icons, table editing, and LaTeX preview rendering.
+- Align sidebar, file list, shape dialog, and Ultralytics training dialog scroll styling with the current application theme.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.0-beta.5` (Apr 26, 2026)
 
 ### 🚀 New Features

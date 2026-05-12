@@ -58,6 +58,25 @@ def get_button_style(theme: Dict[str, str] = None) -> str:
     """
 
 
+def get_panel_button_style(theme: Dict[str, str] = None) -> str:
+    theme = theme or get_theme()
+    return f"""
+        QPushButton {{
+            border: none;
+            background: transparent;
+            padding: 0px;
+            margin: 0px;
+            border-radius: 6px;
+        }}
+        QPushButton:hover {{
+            background-color: {theme["surface"]};
+        }}
+        QPushButton:pressed {{
+            background-color: {theme["surface_hover"]};
+        }}
+    """
+
+
 def get_dialog_button_style(
     variant: str = "primary", size: str = "medium"
 ) -> str:

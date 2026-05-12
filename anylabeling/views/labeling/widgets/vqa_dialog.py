@@ -1,7 +1,7 @@
 import os
 import json
 
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QSize
 from PyQt6.QtWidgets import (
     QButtonGroup,
     QCheckBox,
@@ -21,18 +21,51 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 from PyQt6.QtGui import (
+    QColor,
     QIcon,
     QIntValidator,
     QKeySequence,
+    QPainter,
     QPixmap,
     QShortcut,
 )
 
 from anylabeling.views.labeling.vqa import *
-from anylabeling.views.labeling.utils.qt import new_icon
+from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.vqa.dialogs import ExportLabelsDialog
 from anylabeling.views.labeling.widgets.popup import Popup
+
+PANEL_BUTTON_SIZE = 28
+PANEL_ICON_SIZE = 16
+PANEL_ICON_RENDER_SCALE = 2
+
+
+def _new_panel_icon(icon_name):
+    real_size = PANEL_ICON_SIZE * PANEL_ICON_RENDER_SCALE
+    source_pixmap = QIcon(new_icon_path(icon_name, "svg")).pixmap(
+        QSize(real_size, real_size)
+    )
+    if source_pixmap.isNull():
+        return QIcon(new_icon(icon_name, "svg"))
+
+    tinted_pixmap = QPixmap(source_pixmap.size())
+    tinted_pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(tinted_pixmap)
+    painter.drawPixmap(0, 0, source_pixmap)
+    painter.setCompositionMode(
+        QPainter.CompositionMode.CompositionMode_SourceIn
+    )
+    painter.fillRect(
+        tinted_pixmap.rect(), QColor(get_theme()["text_secondary"])
+    )
+    painter.end()
+
+    icon = QIcon()
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Normal)
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Disabled)
+    return icon
 
 
 class VQADialog(QDialog):
@@ -91,7 +124,7 @@ class VQADialog(QDialog):
         header_widget = QWidget()
         header_layout = QHBoxLayout(header_widget)
         header_layout.setContentsMargins(0, 0, 0, 0)
-        header_layout.setSpacing(10)
+        header_layout.setSpacing(4)
 
         self.filename_label = QLabel(self.tr("No image loaded"))
         self.filename_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -99,16 +132,24 @@ class VQADialog(QDialog):
         self.filename_label.setStyleSheet(get_filename_label_style())
 
         self.refresh_button = QPushButton()
-        self.refresh_button.setIcon(QIcon(new_icon("refresh", "svg")))
-        self.refresh_button.setFixedSize(*ICON_SIZE_NORMAL)
-        self.refresh_button.setStyleSheet(get_button_style())
+        self.refresh_button.setIcon(_new_panel_icon("refresh"))
+        self.refresh_button.setIconSize(
+            QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE)
+        )
+        self.refresh_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+        self.refresh_button.setStyleSheet(get_panel_button_style())
         self.refresh_button.setToolTip(self.tr("Refresh Data"))
         self.refresh_button.clicked.connect(self.refresh_data)
 
         self.toggle_panel_button = QPushButton()
-        self.toggle_panel_button.setIcon(QIcon(new_icon("sidebar", "svg")))
-        self.toggle_panel_button.setFixedSize(*ICON_SIZE_NORMAL)
-        self.toggle_panel_button.setStyleSheet(get_button_style())
+        self.toggle_panel_button.setIcon(_new_panel_icon("sidebar"))
+        self.toggle_panel_button.setIconSize(
+            QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE)
+        )
+        self.toggle_panel_button.setFixedSize(
+            PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE
+        )
+        self.toggle_panel_button.setStyleSheet(get_panel_button_style())
         self.toggle_panel_button.setToolTip(self.tr("Toggle Sidebar"))
         self.toggle_panel_button.clicked.connect(self.toggle_left_panel)
 
@@ -139,25 +180,33 @@ class VQADialog(QDialog):
         right_layout.setSpacing(10)
 
         action_widget = QWidget()
-        action_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT)
+        action_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT + 12)
         action_layout = QHBoxLayout(action_widget)
-        action_layout.setContentsMargins(10, 0, 10, 0)
+        action_layout.setContentsMargins(10, 4, 10, 4)
         action_layout.setSpacing(8)
 
         self.refresh_button_right = QPushButton()
-        self.refresh_button_right.setIcon(QIcon(new_icon("refresh", "svg")))
-        self.refresh_button_right.setFixedSize(*ICON_SIZE_NORMAL)
-        self.refresh_button_right.setStyleSheet(get_button_style())
+        self.refresh_button_right.setIcon(_new_panel_icon("refresh"))
+        self.refresh_button_right.setIconSize(
+            QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE)
+        )
+        self.refresh_button_right.setFixedSize(
+            PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE
+        )
+        self.refresh_button_right.setStyleSheet(get_panel_button_style())
         self.refresh_button_right.setToolTip(self.tr("Refresh Data"))
         self.refresh_button_right.clicked.connect(self.refresh_data)
         self.refresh_button_right.setVisible(False)
 
         self.toggle_panel_button_right = QPushButton()
-        self.toggle_panel_button_right.setIcon(
-            QIcon(new_icon("sidebar", "svg"))
+        self.toggle_panel_button_right.setIcon(_new_panel_icon("sidebar"))
+        self.toggle_panel_button_right.setIconSize(
+            QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE)
         )
-        self.toggle_panel_button_right.setFixedSize(*ICON_SIZE_NORMAL)
-        self.toggle_panel_button_right.setStyleSheet(get_button_style())
+        self.toggle_panel_button_right.setFixedSize(
+            PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE
+        )
+        self.toggle_panel_button_right.setStyleSheet(get_panel_button_style())
         self.toggle_panel_button_right.setToolTip(self.tr("Toggle Sidebar"))
         self.toggle_panel_button_right.clicked.connect(self.toggle_left_panel)
         self.toggle_panel_button_right.setVisible(False)
@@ -1108,6 +1157,7 @@ class VQADialog(QDialog):
         title_widget = QWidget()
         title_layout = QHBoxLayout(title_widget)
         title_layout.setContentsMargins(0, 0, 0, 0)
+        title_layout.setSpacing(4)
 
         title_label = QLabel(f"{title}")
         title_label.setStyleSheet(get_filename_label_style())
@@ -1116,16 +1166,18 @@ class VQADialog(QDialog):
 
         if comp_type == "QLineEdit":
             ai_button = QPushButton()
-            ai_button.setIcon(QIcon(new_icon("wand", "svg")))
-            ai_button.setFixedSize(*ICON_SIZE_SMALL)
-            ai_button.setStyleSheet(get_button_style())
+            ai_button.setIcon(_new_panel_icon("wand"))
+            ai_button.setIconSize(QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE))
+            ai_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+            ai_button.setStyleSheet(get_panel_button_style())
             ai_button.setToolTip(self.tr("AI Assistant"))
             title_layout.addWidget(ai_button)
 
         edit_button = QPushButton()
-        edit_button.setIcon(QIcon(new_icon("edit", "svg")))
-        edit_button.setFixedSize(*ICON_SIZE_SMALL)
-        edit_button.setStyleSheet(get_button_style())
+        edit_button.setIcon(_new_panel_icon("edit"))
+        edit_button.setIconSize(QSize(PANEL_ICON_SIZE, PANEL_ICON_SIZE))
+        edit_button.setFixedSize(PANEL_BUTTON_SIZE, PANEL_BUTTON_SIZE)
+        edit_button.setStyleSheet(get_panel_button_style())
         edit_button.setToolTip(self.tr("Edit Content"))
         title_layout.addWidget(edit_button)
 

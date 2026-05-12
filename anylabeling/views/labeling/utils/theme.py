@@ -63,7 +63,7 @@ DARK: Dict[str, str] = {
     "scrollbar_hover": "#636366",
     "selection": "#0A84FF",
     "selection_text": "#ffffff",
-    "tooltip_bg": "#3a3a3c",
+    "tooltip_bg": "#2c2c2e",
     "tooltip_text": "#f5f5f7",
     "spinbox_button": "#3a3a3c",
     "spinbox_button_hover": "#48484a",
@@ -594,9 +594,9 @@ def get_app_stylesheet() -> str:
         QToolTip {{
             background-color: {t["tooltip_bg"]};
             color: {t["tooltip_text"]};
-            border: 1px solid {t["border"]};
+            border: none;
             border-radius: 4px;
-            padding: 4px 8px;
+            padding: 2px 6px;
         }}
 
         QSpinBox, QDoubleSpinBox {{

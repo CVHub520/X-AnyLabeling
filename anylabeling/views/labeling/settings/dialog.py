@@ -591,10 +591,10 @@ class SettingsDialog(QtWidgets.QDialog):
         self.shortcuts_footer_layout = QtWidgets.QHBoxLayout(
             self.shortcuts_footer
         )
-        self.shortcuts_footer_layout.setContentsMargins(0, 1, 0, 1)
+        self.shortcuts_footer_layout.setContentsMargins(0, 2, 0, 2)
         self.shortcuts_footer_layout.setSpacing(8)
         self.shortcuts_footer_layout.addStretch(1)
-        self.shortcuts_footer.setMinimumHeight(34)
+        self.shortcuts_footer.setMinimumHeight(36)
 
         self.shortcuts_reset_button = QtWidgets.QPushButton(
             self.tr("Reset"), self.shortcuts_footer
@@ -648,7 +648,7 @@ class SettingsDialog(QtWidgets.QDialog):
 
         self.shortcuts_bottom_panel = QtWidgets.QWidget(content_area)
         self.shortcuts_bottom_panel.setObjectName("shortcutsBottomPanel")
-        self.shortcuts_bottom_panel.setFixedHeight(48)
+        self.shortcuts_bottom_panel.setFixedHeight(56)
         self.shortcuts_bottom_panel.setStyleSheet(
             "QWidget#shortcutsBottomPanel { border: none; background: transparent; }"
         )

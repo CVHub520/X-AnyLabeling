@@ -365,6 +365,8 @@ class ChatbotDialogStyle:
             QPushButton {{
                 border: none;
                 background: transparent;
+                padding: 0px;
+                margin: 0px;
             }}
             QPushButton:hover {{
                 background-color: {theme["background_secondary"]};

@@ -38,6 +38,7 @@ from PyQt6.QtGui import (
     QIcon,
     QPixmap,
     QColor,
+    QPainter,
     QTextCursor,
     QTextCharFormat,
 )
@@ -48,9 +49,39 @@ from anylabeling.views.labeling.chatbot import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.general import open_url
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.widgets.model_dropdown_widget import (
     ModelDropdown,
 )
+
+HELP_ICON_SIZE = 14
+HELP_ICON_RENDER_SCALE = 2
+
+
+def _new_help_icon():
+    real_size = HELP_ICON_SIZE * HELP_ICON_RENDER_SCALE
+    source_pixmap = QIcon(new_icon_path("help-circle", "svg")).pixmap(
+        QSize(real_size, real_size)
+    )
+    if source_pixmap.isNull():
+        return QIcon(new_icon("help-circle", "svg"))
+
+    tinted_pixmap = QPixmap(source_pixmap.size())
+    tinted_pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(tinted_pixmap)
+    painter.drawPixmap(0, 0, source_pixmap)
+    painter.setCompositionMode(
+        QPainter.CompositionMode.CompositionMode_SourceIn
+    )
+    painter.fillRect(
+        tinted_pixmap.rect(), QColor(get_theme()["text_secondary"])
+    )
+    painter.end()
+
+    icon = QIcon()
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Normal)
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Disabled)
+    return icon
 
 
 class ChatbotDialog(QDialog):
@@ -480,17 +511,23 @@ class ChatbotDialog(QDialog):
         label_with_help = QWidget()
         label_help_layout = QHBoxLayout(label_with_help)
         label_help_layout.setContentsMargins(0, 0, 0, 0)
+        label_help_layout.setSpacing(4)
 
         api_docs_url = self.providers[self.default_provider]["api_docs_url"]
         api_help_btn = QPushButton()
         api_help_btn.setObjectName("api_help_btn")
-        api_help_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
+        api_help_btn.setIcon(_new_help_icon())
+        api_help_btn.setIconSize(QSize(HELP_ICON_SIZE, HELP_ICON_SIZE))
         api_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_help_btn.setCursor(self.click_cursor)
         api_help_btn.clicked.connect(lambda: open_url(api_docs_url))
-        label_help_layout.addWidget(api_address_label)
-        label_help_layout.addWidget(api_help_btn)
+        label_help_layout.addWidget(
+            api_address_label, 0, Qt.AlignmentFlag.AlignVCenter
+        )
+        label_help_layout.addWidget(
+            api_help_btn, 0, Qt.AlignmentFlag.AlignVCenter
+        )
         label_help_layout.addStretch()
         if not api_docs_url:
             api_help_btn.setVisible(False)
@@ -526,18 +563,24 @@ class ChatbotDialog(QDialog):
         key_label_with_help = QWidget()
         key_label_help_layout = QHBoxLayout(key_label_with_help)
         key_label_help_layout.setContentsMargins(0, 0, 0, 0)
-        key_label_help_layout.addWidget(api_key_label)
+        key_label_help_layout.setSpacing(4)
+        key_label_help_layout.addWidget(
+            api_key_label, 0, Qt.AlignmentFlag.AlignVCenter
+        )
         api_key_url = self.providers[self.default_provider]["api_key_url"]
         api_key_help_btn = QPushButton()
         api_key_help_btn.setObjectName("api_key_help_btn")
-        api_key_help_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
+        api_key_help_btn.setIcon(_new_help_icon())
+        api_key_help_btn.setIconSize(QSize(HELP_ICON_SIZE, HELP_ICON_SIZE))
         api_key_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         api_key_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         api_key_help_btn.setCursor(self.click_cursor)
         api_key_help_btn.clicked.connect(lambda: open_url(api_key_url))
         if not api_key_url:
             api_key_help_btn.setVisible(False)
-        key_label_help_layout.addWidget(api_key_help_btn)
+        key_label_help_layout.addWidget(
+            api_key_help_btn, 0, Qt.AlignmentFlag.AlignVCenter
+        )
         key_label_help_layout.addStretch()
 
         api_key_container.addWidget(key_label_with_help)
@@ -591,7 +634,8 @@ class ChatbotDialog(QDialog):
         ]
         model_help_btn = QPushButton()
         model_help_btn.setObjectName("model_help_btn")
-        model_help_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
+        model_help_btn.setIcon(_new_help_icon())
+        model_help_btn.setIconSize(QSize(HELP_ICON_SIZE, HELP_ICON_SIZE))
         model_help_btn.setFixedSize(*ICON_SIZE_SMALL)
         model_help_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         model_help_btn.setCursor(self.click_cursor)
@@ -599,8 +643,12 @@ class ChatbotDialog(QDialog):
         if not model_docs_url:
             model_help_btn.setVisible(False)
 
-        model_label_help_layout.addWidget(model_name_label)
-        model_label_help_layout.addWidget(model_help_btn)
+        model_label_help_layout.addWidget(
+            model_name_label, 0, Qt.AlignmentFlag.AlignVCenter
+        )
+        model_label_help_layout.addWidget(
+            model_help_btn, 0, Qt.AlignmentFlag.AlignVCenter
+        )
         model_name_container.addWidget(model_label_with_help)
         model_name_container.addStretch()
         api_settings_layout.addLayout(model_name_container)
@@ -644,7 +692,8 @@ class ChatbotDialog(QDialog):
         temp_label.setStyleSheet(ChatbotDialogStyle.get_settings_label_style())
 
         temp_info_btn = QPushButton()
-        temp_info_btn.setIcon(QIcon(new_icon("help-circle", "svg")))
+        temp_info_btn.setIcon(_new_help_icon())
+        temp_info_btn.setIconSize(QSize(HELP_ICON_SIZE, HELP_ICON_SIZE))
         temp_info_btn.setFixedSize(*ICON_SIZE_SMALL)
         temp_info_btn.setStyleSheet(ChatbotDialogStyle.get_help_btn_style())
         temp_info_btn.installEventFilter(self)
@@ -656,10 +705,12 @@ class ChatbotDialog(QDialog):
         )
         self.temp_value.setAlignment(Qt.AlignmentFlag.AlignRight)
 
-        temp_header.addWidget(temp_label)
-        temp_header.addWidget(temp_info_btn)
+        temp_header.addWidget(temp_label, 0, Qt.AlignmentFlag.AlignVCenter)
+        temp_header.addWidget(temp_info_btn, 0, Qt.AlignmentFlag.AlignVCenter)
         temp_header.addStretch()
-        temp_header.addWidget(self.temp_value)
+        temp_header.addWidget(
+            self.temp_value, 0, Qt.AlignmentFlag.AlignVCenter
+        )
         model_params_layout.addLayout(temp_header)
 
         # Temperature slider

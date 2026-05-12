@@ -731,12 +731,17 @@ class PPOCRRecentListItemWidget(QWidget):
             Qt.AspectRatioMode.KeepAspectRatio,
             Qt.TransformationMode.SmoothTransformation,
         )
-        if hovered and not pixmap.isNull():
+        if not pixmap.isNull() and (hovered or icon_name != "starred"):
+            icon_color = (
+                "rgb(70, 88, 255)"
+                if hovered
+                else get_theme()["text_secondary"]
+            )
             painter = QPainter(pixmap)
             painter.setCompositionMode(
                 QPainter.CompositionMode.CompositionMode_SourceIn
             )
-            painter.fillRect(pixmap.rect(), QColor(70, 88, 255))
+            painter.fillRect(pixmap.rect(), QColor(icon_color))
             painter.end()
         button.setIcon(QIcon(pixmap))
 
@@ -776,8 +781,8 @@ class PPOCRRecentListItemWidget(QWidget):
             painter.drawRoundedRect(rect, 10, 10)
         elif self._hovered:
             if get_mode() == "dark":
-                fill = QColor(theme["surface_hover"])
-                border = QColor(theme["border"])
+                fill = QColor(theme["surface_pressed"])
+                border = QColor(theme["primary"])
             else:
                 fill = QColor(249, 251, 255)
                 border = QColor(229, 234, 244)

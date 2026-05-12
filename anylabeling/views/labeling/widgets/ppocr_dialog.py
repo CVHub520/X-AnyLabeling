@@ -89,6 +89,7 @@ from anylabeling.views.labeling.ppocr.style import (
     get_preview_panel_style,
     get_result_header_style,
     get_secondary_button_style,
+    get_sidebar_icon_button_style,
     get_source_file_info_style,
     get_sidebar_panel_style,
     get_sidebar_search_style,
@@ -348,16 +349,22 @@ class PPOCRDialog(QDialog):
         actions_row.setSpacing(2)
 
         self.search_button = QPushButton()
-        self.search_button.setIcon(new_icon("search", "svg"))
-        self.search_button.setFixedSize(28, 28)
-        self.search_button.setStyleSheet(get_icon_button_style())
+        self.search_button.setIcon(_result_action_icon("search"))
+        self.search_button.setIconSize(
+            QSize(PPOCR_RESULT_ACTION_ICON_SIZE, PPOCR_RESULT_ACTION_ICON_SIZE)
+        )
+        self.search_button.setFixedSize(26, 26)
+        self.search_button.setStyleSheet(get_sidebar_icon_button_style())
         self.search_button.clicked.connect(self.toggle_search)
         actions_row.addWidget(self.search_button)
 
         self.filter_button = QPushButton()
-        self.filter_button.setIcon(new_icon("import-export", "svg"))
-        self.filter_button.setFixedSize(28, 28)
-        self.filter_button.setStyleSheet(get_icon_button_style())
+        self.filter_button.setIcon(_result_action_icon("import-export"))
+        self.filter_button.setIconSize(
+            QSize(PPOCR_RESULT_ACTION_ICON_SIZE, PPOCR_RESULT_ACTION_ICON_SIZE)
+        )
+        self.filter_button.setFixedSize(26, 26)
+        self.filter_button.setStyleSheet(get_sidebar_icon_button_style())
         self.filter_button.clicked.connect(self.open_filter_dialog)
         actions_row.addWidget(self.filter_button)
         toolbar_row.addLayout(actions_row)

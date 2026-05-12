@@ -11,7 +11,7 @@ class ToolBar(QtWidgets.QToolBar):
         super().__init__(title)
         layout = self.layout()
         layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(2, 2, 2, 2)
         self.setContentsMargins(0, 0, 0, 0)
         self.setWindowFlags(
             self.windowFlags() | QtCore.Qt.WindowType.FramelessWindowHint
@@ -35,19 +35,22 @@ class ToolBar(QtWidgets.QToolBar):
                 border: 2px solid {t["border"]};
                 border-radius: 5px;
             }}
+            QToolBar QToolButton {{
+                min-width: 28px;
+                min-height: 28px;
+                max-width: 28px;
+                max-height: 28px;
+                padding: 0px;
+                margin: 0px;
+            }}
             {separator_qss}
             """)
-        if self._is_dark:
-            layout.setContentsMargins(0, 4, 0, 4)
 
     def clear(self):
         super().clear()
         layout = self.layout()
         layout.setSpacing(0)
-        if self._is_dark:
-            layout.setContentsMargins(0, 4, 0, 4)
-        else:
-            layout.setContentsMargins(0, 0, 0, 0)
+        layout.setContentsMargins(2, 2, 2, 2)
 
     def add_action(self, action):
         """Add an action (button) to the toolbar"""
