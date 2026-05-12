@@ -1,12 +1,40 @@
 from __future__ import annotations
 
-from anylabeling.views.labeling.utils.theme import get_theme
+from anylabeling.views.labeling.utils.theme import get_mode, get_theme
 
 from .config import (
     PPOCR_COLOR_EDITED,
     PPOCR_COLOR_TEXT,
     PPOCR_COLOR_OVERLAY,
 )
+
+
+def _is_dark_mode() -> bool:
+    return get_mode() == "dark"
+
+
+def _panel_background() -> str:
+    return (
+        get_theme()["background_secondary"]
+        if _is_dark_mode()
+        else "rgb(247, 249, 255)"
+    )
+
+
+def _header_background() -> str:
+    return get_theme()["surface"] if _is_dark_mode() else "rgb(228, 236, 255)"
+
+
+def _selected_background() -> str:
+    return (
+        get_theme()["surface_pressed"]
+        if _is_dark_mode()
+        else "rgb(241, 245, 255)"
+    )
+
+
+def _card_background() -> str:
+    return get_theme()["surface"] if _is_dark_mode() else "rgb(255, 255, 255)"
 
 
 def get_dialog_style() -> str:
@@ -17,7 +45,7 @@ def get_dialog_style() -> str:
             color: {t["text"]};
         }}
         QSplitter::handle {{
-            background: rgb(229, 234, 244);
+            background: {t["border"]};
         }}
         QListWidget {{
             background: {t["background"]};
@@ -29,7 +57,7 @@ def get_dialog_style() -> str:
             border: none;
         }}
         QTabWidget::pane {{
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             background: {t["background"]};
             border-radius: 8px;
         }}
@@ -50,7 +78,7 @@ def get_dialog_style() -> str:
         QTextEdit, QPlainTextEdit, QLineEdit, QComboBox {{
             background: {t["background"]};
             color: {t["text"]};
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             border-radius: 6px;
             padding: 6px 10px;
             selection-background-color: {PPOCR_COLOR_TEXT};
@@ -87,7 +115,7 @@ def get_secondary_button_style() -> str:
         QPushButton {{
             background: {t["background"]};
             color: {t["text"]};
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             border-radius: 8px;
             padding: 8px 16px;
             font-weight: 600;
@@ -119,8 +147,9 @@ def get_danger_button_style() -> str:
 
 
 def get_recents_item_style(selected: bool) -> str:
-    bg = "rgb(241, 245, 255)" if selected else "transparent"
-    border = "rgb(220, 228, 255)" if selected else "transparent"
+    t = get_theme()
+    bg = _selected_background() if selected else "transparent"
+    border = t["primary"] if selected else "transparent"
     return f"""
         QWidget {{
             background: {bg};
@@ -135,15 +164,20 @@ def get_recents_item_style(selected: bool) -> str:
 
 
 def get_icon_button_style() -> str:
+    t = get_theme()
     return f"""
         QPushButton {{
             background: transparent;
             border: none;
             border-radius: 8px;
-            color: {get_theme()["text"]};
+            color: {t["text"]};
+            padding: 0px;
+            min-width: 0px;
+            min-height: 0px;
+            text-align: center;
         }}
         QPushButton:hover {{
-            background: rgb(241, 245, 255);
+            background: {_selected_background()};
             color: {PPOCR_COLOR_TEXT};
         }}
     """
@@ -154,10 +188,10 @@ def get_sidebar_panel_style() -> str:
     return f"""
         QWidget#PPOCRSidebar {{
             background: {t["background"]};
-            border-right: 1px solid rgb(229, 234, 244);
+            border-right: 1px solid {t["border"]};
         }}
         QFrame#PPOCRSidebarDivider {{
-            background: rgb(229, 234, 244);
+            background: {t["border"]};
             min-height: 1px;
             max-height: 1px;
             border: none;
@@ -189,7 +223,7 @@ def get_sidebar_search_style() -> str:
         QLineEdit {{
             background: {t["background"]};
             color: {t["text"]};
-            border: 1px solid rgb(220, 226, 242);
+            border: 1px solid {t["border_light"]};
             border-radius: 10px;
             padding: 8px 12px;
         }}
@@ -202,7 +236,7 @@ def get_chip_button_style() -> str:
         QPushButton {{
             background: {t["background"]};
             color: {t["text"]};
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             border-radius: 8px;
             padding: 6px 14px;
         }}
@@ -221,7 +255,7 @@ def get_card_style(
     resolved_border = border if (active or edited) else "transparent"
     return f"""
         QFrame#PPOCRBlockCardContentFrame {{
-            background: rgb(255, 255, 255);
+            background: {_card_background()};
             border: 1px solid {resolved_border};
             border-radius: 0px;
         }}
@@ -243,12 +277,13 @@ def get_card_label_style(category_color: str) -> str:
 
 
 def get_floating_action_bar_style() -> str:
-    return """
-        QFrame {
-            background: rgb(255, 255, 255);
-            border: 1px solid rgb(229, 234, 244);
+    t = get_theme()
+    return f"""
+        QFrame {{
+            background: {_card_background()};
+            border: 1px solid {t["border"]};
             border-radius: 18px;
-        }
+        }}
     """
 
 
@@ -277,7 +312,7 @@ def get_section_panel_style() -> str:
     return f"""
         QWidget {{
             background: {t["background"]};
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             border-radius: 8px;
         }}
     """
@@ -285,9 +320,10 @@ def get_section_panel_style() -> str:
 
 def get_preview_panel_style() -> str:
     t = get_theme()
+    panel_background = _panel_background()
     return f"""
         QWidget#PPOCRPreviewPanel {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
         }}
         QFrame#PPOCRPreviewFrame {{
             background: {t["background"]};
@@ -300,13 +336,13 @@ def get_preview_panel_style() -> str:
             border-radius: 0px;
         }}
         QFrame#PPOCRSourceFileDivider {{
-            background: rgb(229, 234, 244);
+            background: {t["border"]};
             min-height: 1px;
             max-height: 1px;
             border: none;
         }}
         QFrame#PPOCRPageControlDivider {{
-            background: rgb(229, 234, 244);
+            background: {t["border"]};
             min-width: 1px;
             max-width: 1px;
             border: none;
@@ -316,18 +352,18 @@ def get_preview_panel_style() -> str:
             border: none;
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar:vertical {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             width: 12px;
             margin: 12px 0px 12px 0px;
             border: none;
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar::handle:vertical {{
-            background: rgb(206, 213, 230);
+            background: {t["scrollbar"]};
             min-height: 34px;
             border-radius: 5px;
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar::add-line:vertical {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: bottom;
@@ -335,7 +371,7 @@ def get_preview_panel_style() -> str:
             image: url(:/images/images/caret-down.svg);
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar::sub-line:vertical {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: top;
@@ -347,18 +383,18 @@ def get_preview_panel_style() -> str:
             background: transparent;
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar:horizontal {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             height: 12px;
             margin: 0px 12px 0px 12px;
             border: none;
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar::handle:horizontal {{
-            background: rgb(206, 213, 230);
+            background: {t["scrollbar"]};
             min-width: 34px;
             border-radius: 5px;
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar::add-line:horizontal {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: right;
@@ -366,7 +402,7 @@ def get_preview_panel_style() -> str:
             image: url(:/images/images/caret-right.svg);
         }}
         QScrollArea#PPOCRPreviewScrollArea QScrollBar::sub-line:horizontal {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: left;
@@ -378,7 +414,7 @@ def get_preview_panel_style() -> str:
             background: transparent;
         }}
         QScrollArea#PPOCRPreviewScrollArea::corner {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             width: 12px;
             height: 12px;
@@ -394,7 +430,7 @@ def get_source_file_info_style() -> str:
             border: none;
         }}
         QLabel#PPOCRSourceFileTitle {{
-            background: rgb(228, 236, 255);
+            background: {_header_background()};
             color: {PPOCR_COLOR_TEXT};
             border: none;
             border-top-left-radius: 8px;
@@ -422,6 +458,7 @@ def get_source_file_info_style() -> str:
 
 def get_model_combo_style() -> str:
     t = get_theme()
+    selected_background = _selected_background()
     return f"""
         QComboBox {{
             combobox-popup: 0;
@@ -454,12 +491,12 @@ def get_model_combo_style() -> str:
         QComboBox QAbstractItemView {{
             background: {t["background"]};
             color: {t["text"]};
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             border-radius: 0px;
             margin: 0px;
             padding: 0px;
             outline: none;
-            selection-background-color: rgb(241, 245, 255);
+            selection-background-color: {selected_background};
             selection-color: {PPOCR_COLOR_TEXT};
         }}
         QComboBox QAbstractItemView::item {{
@@ -467,13 +504,13 @@ def get_model_combo_style() -> str:
             min-height: 24px;
             padding: 2px 8px;
             border-radius: 0px;
-            border-bottom: 1px solid rgb(229, 234, 244);
+            border-bottom: 1px solid {t["border"]};
         }}
         QComboBox QAbstractItemView::item:hover {{
-            background: rgb(247, 249, 255);
+            background: {t["surface_hover"]};
         }}
         QComboBox QAbstractItemView::item:selected {{
-            background: rgb(241, 245, 255);
+            background: {selected_background};
             color: {PPOCR_COLOR_TEXT};
         }}
     """
@@ -481,12 +518,14 @@ def get_model_combo_style() -> str:
 
 def get_result_header_style() -> str:
     t = get_theme()
+    panel_background = _panel_background()
+    selected_background = _selected_background()
     return f"""
         QWidget#PPOCRResultPanel {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
         }}
         QFrame#PPOCRParsingModelHeader {{
-            background: rgb(228, 236, 255);
+            background: {_header_background()};
             border: none;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
@@ -532,12 +571,12 @@ def get_result_header_style() -> str:
             background: {t["background"]};
             color: {t["text"]};
             font-size: 10pt;
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             border-radius: 0px;
             margin: 0px;
             padding: 0px;
             outline: none;
-            selection-background-color: rgb(241, 245, 255);
+            selection-background-color: {selected_background};
             selection-color: {PPOCR_COLOR_TEXT};
         }}
         QComboBox#PPOCRParsingModelCombo QAbstractItemView::item {{
@@ -545,13 +584,13 @@ def get_result_header_style() -> str:
             min-height: 24px;
             padding: 2px 8px;
             border-radius: 0px;
-            border-bottom: 1px solid rgb(229, 234, 244);
+            border-bottom: 1px solid {t["border"]};
         }}
         QComboBox#PPOCRParsingModelCombo QAbstractItemView::item:hover {{
-            background: rgb(247, 249, 255);
+            background: {t["surface_hover"]};
         }}
         QComboBox#PPOCRParsingModelCombo QAbstractItemView::item:selected {{
-            background: rgb(241, 245, 255);
+            background: {selected_background};
             color: {PPOCR_COLOR_TEXT};
         }}
         QFrame#PPOCRResultInfoFrame {{
@@ -572,7 +611,7 @@ def get_result_header_style() -> str:
             color: {PPOCR_COLOR_TEXT};
         }}
         QPushButton#PPOCRResultModeButton:checked {{
-            background: rgb(241, 245, 255);
+            background: {selected_background};
             color: {PPOCR_COLOR_TEXT};
         }}
         QFrame#PPOCRResultActionsFrame {{
@@ -580,7 +619,7 @@ def get_result_header_style() -> str:
             border: none;
         }}
         QFrame#PPOCRResultActionsDivider {{
-            background: rgb(229, 234, 244);
+            background: {t["border"]};
             min-width: 1px;
             max-width: 1px;
             border: none;
@@ -593,11 +632,11 @@ def get_result_header_style() -> str:
             color: {t["text"]};
         }}
         QPushButton#PPOCRResultActionButton:hover {{
-            background: rgb(241, 245, 255);
+            background: {selected_background};
             color: {PPOCR_COLOR_TEXT};
         }}
         QFrame#PPOCRResultDivider {{
-            background: rgb(229, 234, 244);
+            background: {t["border"]};
             min-height: 1px;
             max-height: 1px;
             border: none;
@@ -616,20 +655,20 @@ def get_result_header_style() -> str:
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar:vertical,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar:vertical {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             width: 12px;
             margin: 12px 0px 12px 0px;
             border: none;
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar::handle:vertical,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar::handle:vertical {{
-            background: rgb(206, 213, 230);
+            background: {t["scrollbar"]};
             min-height: 34px;
             border-radius: 5px;
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar::add-line:vertical,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar::add-line:vertical {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: bottom;
@@ -638,7 +677,7 @@ def get_result_header_style() -> str:
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar::sub-line:vertical,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar::sub-line:vertical {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: top;
@@ -653,20 +692,20 @@ def get_result_header_style() -> str:
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar:horizontal,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar:horizontal {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             height: 12px;
             margin: 0px 12px 0px 12px;
             border: none;
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar::handle:horizontal,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar::handle:horizontal {{
-            background: rgb(206, 213, 230);
+            background: {t["scrollbar"]};
             min-width: 34px;
             border-radius: 5px;
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar::add-line:horizontal,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar::add-line:horizontal {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: right;
@@ -675,7 +714,7 @@ def get_result_header_style() -> str:
         }}
         QScrollArea#PPOCRResultCardsScrollArea QScrollBar::sub-line:horizontal,
         QPlainTextEdit#PPOCRResultJsonViewer QScrollBar::sub-line:horizontal {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             subcontrol-origin: margin;
             subcontrol-position: left;
@@ -690,7 +729,7 @@ def get_result_header_style() -> str:
         }}
         QScrollArea#PPOCRResultCardsScrollArea::corner,
         QPlainTextEdit#PPOCRResultJsonViewer::corner {{
-            background: rgb(247, 249, 255);
+            background: {panel_background};
             border: none;
             width: 12px;
             height: 12px;
@@ -706,7 +745,7 @@ def get_result_header_style() -> str:
         QLabel#PPOCRPageDividerText {{
             background: transparent;
             border: none;
-            color: rgb(134, 142, 164);
+            color: {t["text_secondary"]};
             font-size: 12px;
             font-weight: 500;
             padding: 0px 4px;
@@ -718,7 +757,7 @@ def get_result_header_style() -> str:
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
                 stop:0 rgba(220, 228, 244, 0),
-                stop:1 rgba(210, 220, 238, 255)
+                stop:1 {t["border"]}
             );
         }}
         QFrame#PPOCRPageDividerLineRight {{
@@ -727,7 +766,7 @@ def get_result_header_style() -> str:
             border: none;
             background: qlineargradient(
                 x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(210, 220, 238, 255),
+                stop:0 {t["border"]},
                 stop:1 rgba(220, 228, 244, 0)
             );
         }}
@@ -745,7 +784,7 @@ def get_page_control_style() -> str:
     return f"""
         QWidget#PageControl {{
             background: {t["background"]};
-            border: 1px solid rgb(229, 234, 244);
+            border: 1px solid {t["border"]};
             border-radius: 16px;
         }}
     """

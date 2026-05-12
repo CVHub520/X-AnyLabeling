@@ -49,7 +49,7 @@ from PyQt6.QtWidgets import (
 )
 
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
-from anylabeling.views.labeling.utils.theme import get_theme
+from anylabeling.views.labeling.utils.theme import get_mode, get_theme
 
 from .config import (
     PPOCR_COLOR_EDITED,
@@ -122,7 +122,8 @@ def _pixmap_to_data_uri(pixmap: QPixmap) -> str:
 
 
 @lru_cache(maxsize=384)
-def _inline_formula_img_tag(formula_source: str) -> str:
+def _inline_formula_img_tag(formula_source: str, text_color: str) -> str:
+    del text_color
     try:
         formula_pixmap = render_latex_preview_pixmap(formula_source)
     except Exception:
@@ -156,7 +157,10 @@ def _text_with_inline_formulas_to_html(content: str) -> str:
                 html_escape(text[last_end:start]).replace("\n", "<br/>")
             )
 
-        formula_img_tag = _inline_formula_img_tag(formula_source)
+        formula_img_tag = _inline_formula_img_tag(
+            formula_source,
+            get_theme()["text"],
+        )
         if not formula_img_tag:
             chunks.append(html_escape(formula_source).replace("\n", "<br/>"))
             last_end = end
@@ -495,6 +499,7 @@ def _table_tokens_to_html(content: str) -> str:
 
     covered_cells: set[tuple[int, int]] = set()
     row_html_chunks: list[str] = []
+    theme = get_theme()
     for row_index in range(row_count):
         cell_chunks: list[str] = []
         for col_index in range(col_count):
@@ -527,10 +532,11 @@ def _table_tokens_to_html(content: str) -> str:
                 attrs.append(f' colspan="{col_span}"')
             cell_chunks.append(
                 f"<td{''.join(attrs)} style=\""
-                "border: 1px solid rgb(229, 234, 244);"
+                f"border: 1px solid {theme['border']};"
                 "padding: 6px 10px;"
                 "vertical-align: middle;"
                 "text-align: left;"
+                f"color: {theme['text']};"
                 "font-size: 13px;"
                 "line-height: 1.45;"
                 f'">{text_html}</td>'
@@ -544,6 +550,7 @@ def _table_tokens_to_html(content: str) -> str:
         "width: 100%;"
         "table-layout: fixed;"
         "background: transparent;"
+        f"color: {theme['text']};"
         '">' + "".join(row_html_chunks) + "</table>"
     )
 
@@ -569,9 +576,11 @@ class PPOCRRecentListItemWidget(QWidget):
         self._favorite = favorite
         self.setFixedHeight(56)
         self.setAttribute(Qt.WidgetAttribute.WA_Hover, True)
+        theme = get_theme()
         self.setStyleSheet(
             "QWidget { background: transparent; border: none; }"
-            "QLabel { background: transparent; border: none; }"
+            f"QLabel {{ color: {theme['text']};"
+            " background: transparent; border: none; }"
         )
 
         layout = QHBoxLayout(self)
@@ -601,7 +610,8 @@ class PPOCRRecentListItemWidget(QWidget):
 
         self.name_label = QLabel(record.filename)
         self.name_label.setStyleSheet(
-            "QLabel { font-size: 13px; font-weight: 500; }"
+            f"QLabel {{ color: {theme['text']};"
+            " font-size: 13px; font-weight: 500; }"
         )
         self.name_label.setTextFormat(Qt.TextFormat.PlainText)
 
@@ -622,7 +632,8 @@ class PPOCRRecentListItemWidget(QWidget):
 
         self.time_label = QLabel(record.timestamp)
         self.time_label.setStyleSheet(
-            "QLabel { color: rgb(134, 134, 139); font-size: 11px; }"
+            f"QLabel {{ color: {theme['text_secondary']};"
+            " font-size: 11px; }"
         )
 
         status_layout.addWidget(self.status_dot)
@@ -749,18 +760,27 @@ class PPOCRRecentListItemWidget(QWidget):
         return handler
 
     def paintEvent(self, event):
+        theme = get_theme()
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         rect = self.rect().adjusted(1, 1, -1, -1)
         if self._selected:
-            fill = QColor(241, 245, 255)
-            border = QColor(220, 228, 255)
+            if get_mode() == "dark":
+                fill = QColor(theme["surface_pressed"])
+                border = QColor(theme["primary"])
+            else:
+                fill = QColor(241, 245, 255)
+                border = QColor(220, 228, 255)
             painter.setPen(border)
             painter.setBrush(fill)
             painter.drawRoundedRect(rect, 10, 10)
         elif self._hovered:
-            fill = QColor(249, 251, 255)
-            border = QColor(229, 234, 244)
+            if get_mode() == "dark":
+                fill = QColor(theme["surface_hover"])
+                border = QColor(theme["border"])
+            else:
+                fill = QColor(249, 251, 255)
+                border = QColor(229, 234, 244)
             painter.setPen(border)
             painter.setBrush(fill)
             painter.drawRoundedRect(rect, 10, 10)
@@ -806,12 +826,14 @@ class PPOCRRecentsListWidget(QListWidget):
         if records:
             tail_label = QLabel(self.tr("No More Data"))
             tail_label.setStyleSheet(
-                "QLabel { color: rgb(134, 134, 139); padding: 12px 0px; }"
+                f"QLabel {{ color: {get_theme()['text_secondary']};"
+                " padding: 12px 0px; }"
             )
         else:
             tail_label = QLabel(self.tr("No Data"))
             tail_label.setStyleSheet(
-                "QLabel { color: rgb(134, 134, 139); padding: 12px 0px; }"
+                f"QLabel {{ color: {get_theme()['text_secondary']};"
+                " padding: 12px 0px; }"
             )
         tail_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         tail_item.setSizeHint(QSize(0, 48))
@@ -855,21 +877,22 @@ class PPOCRPreviewCanvas(QWidget):
         self._copy_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self._copy_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self._copy_button.setFixedHeight(34)
-        self._copy_button.setStyleSheet("""
-            QPushButton {
-                background: rgb(255, 255, 255);
-                border: 1px solid rgb(229, 234, 244);
+        theme = get_theme()
+        self._copy_button.setStyleSheet(f"""
+            QPushButton {{
+                background: {theme['surface']};
+                border: 1px solid {theme['border']};
                 border-radius: 17px;
                 padding: 0px 14px;
-                color: rgb(20, 14, 53);
+                color: {theme['text']};
                 font-size: 13px;
                 font-weight: 500;
-            }
-            QPushButton:hover {
-                background: rgb(255, 255, 255);
-                border: 1px solid rgb(229, 234, 244);
+            }}
+            QPushButton:hover {{
+                background: {theme['surface_hover']};
+                border: 1px solid {theme['border_light']};
                 color: rgb(70, 88, 255);
-            }
+            }}
             """)
         self._copy_button.setGraphicsEffect(
             create_floating_shadow(self._copy_button)
@@ -933,10 +956,11 @@ class PPOCRPreviewCanvas(QWidget):
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.fillRect(self.rect(), QColor(255, 255, 255))
         if self._pixmap.isNull():
+            painter.fillRect(self.rect(), QColor(get_theme()["background"]))
             painter.end()
             return
+        painter.fillRect(self.rect(), QColor(255, 255, 255))
         width = int(self._pixmap.width() * self._transform.scale)
         height = int(self._pixmap.height() * self._transform.scale)
         x, y = self._canvas_origin()
@@ -1497,13 +1521,16 @@ class PPOCRBlockCard(QFrame):
             else:
                 self.content_label.setMarkdown(block.content)
         self.content_label.document().setDocumentMargin(0)
+        theme = get_theme()
         self.content_label.setStyleSheet(
             "QTextEdit {"
             "background: transparent;"
+            f"color: {theme['text']};"
             "border: none;"
             "padding: 0px;"
             "font-size: 13px;"
             "selection-background-color: rgb(70, 88, 255);"
+            "selection-color: #ffffff;"
             "}"
         )
         self.content_label.document().documentLayout().documentSizeChanged.connect(

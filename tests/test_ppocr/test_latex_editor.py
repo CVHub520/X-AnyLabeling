@@ -9,6 +9,7 @@ try:
     from PyQt6.QtCore import Qt
     from PyQt6 import QtWidgets
 
+    from anylabeling.views.labeling.utils.theme import init_theme
     from anylabeling.views.labeling.ppocr.editors import (
         PPOCRLatexBlockEditor,
         PPOCRRichTextBlockEditor,
@@ -19,7 +20,11 @@ try:
         render_latex_preview_pixmap,
     )
     from anylabeling.views.labeling.ppocr.render import PPOCRBlockData
-    from anylabeling.views.labeling.ppocr.widgets import PPOCRBlockCard
+    from anylabeling.views.labeling.ppocr.widgets import (
+        PPOCRBlockCard,
+        _inline_formula_img_tag,
+        _text_with_inline_formulas_to_html,
+    )
 
     PYQT_AVAILABLE = True
 except Exception:
@@ -52,7 +57,9 @@ class TestPPOCRLatexEditor(unittest.TestCase):
             "formula",
             "Formula",
         ):
-            editor = self._track(create_ppocr_block_editor(label, r"\frac{a}{b}"))
+            editor = self._track(
+                create_ppocr_block_editor(label, r"\frac{a}{b}")
+            )
             self.assertIsInstance(editor, PPOCRLatexBlockEditor)
 
         inline_editor = self._track(
@@ -88,7 +95,12 @@ class TestPPOCRLatexEditor(unittest.TestCase):
         for y in range(min(8, image.height())):
             for x in range(image.width()):
                 color = image.pixelColor(x, y)
-                if (color.red(), color.green(), color.blue(), color.alpha()) != (
+                if (
+                    color.red(),
+                    color.green(),
+                    color.blue(),
+                    color.alpha(),
+                ) != (
                     255,
                     255,
                     255,
@@ -99,9 +111,7 @@ class TestPPOCRLatexEditor(unittest.TestCase):
         self.assertGreater(top_rows_with_content, 0)
 
         multiline_pixmap = render_latex_preview_pixmap(
-            "\n\n".join(
-                [r"x=\frac{-b\pm\sqrt{b^{2}-4ac}}{2aa}"] * 3
-            )
+            "\n\n".join([r"x=\frac{-b\pm\sqrt{b^{2}-4ac}}{2aa}"] * 3)
         )
         self.assertFalse(multiline_pixmap.isNull())
         self.assertGreater(multiline_pixmap.height(), single_pixmap.height())
@@ -156,6 +166,48 @@ class TestPPOCRLatexEditor(unittest.TestCase):
         )
         self.assertFalse(long_equal_temp_pixmap.isNull())
 
+    def test_latex_preview_pixmap_has_transparent_dark_background(self):
+        init_theme("dark")
+        try:
+            pixmap = render_latex_preview_pixmap(
+                r"x=\frac{-b\pm\sqrt{b^{2}-4ac}}{2aa}"
+            )
+            self.assertFalse(pixmap.isNull())
+            image = pixmap.toImage()
+            self.assertEqual(image.pixelColor(0, 0).alpha(), 0)
+
+            has_visible_formula_pixel = False
+            for y in range(image.height()):
+                for x in range(image.width()):
+                    color = image.pixelColor(x, y)
+                    if color.alpha() > 128 and color.red() >= 240:
+                        has_visible_formula_pixel = True
+                        break
+                if has_visible_formula_pixel:
+                    break
+            self.assertTrue(has_visible_formula_pixel)
+        finally:
+            init_theme("light")
+
+    def test_inline_formula_cache_tracks_theme_text_color(self):
+        _inline_formula_img_tag.cache_clear()
+        try:
+            init_theme("light")
+            light_html = _text_with_inline_formulas_to_html(
+                r"before $\frac{a}{b}$ after"
+            )
+            init_theme("dark")
+            dark_html = _text_with_inline_formulas_to_html(
+                r"before $\frac{a}{b}$ after"
+            )
+        finally:
+            init_theme("light")
+            _inline_formula_img_tag.cache_clear()
+
+        self.assertIn("data:image/png;base64,", light_html)
+        self.assertIn("data:image/png;base64,", dark_html)
+        self.assertNotEqual(light_html, dark_html)
+
     def test_configure_latex_preview_rcparams_uses_custom_font_for_cjk(self):
         rc_params = {}
         with patch(
@@ -171,9 +223,7 @@ class TestPPOCRLatexEditor(unittest.TestCase):
 
     def test_render_latex_preview_pixmap_reports_multiline_error_line(self):
         with self.assertRaisesRegex(ValueError, r"Line 3:"):
-            render_latex_preview_pixmap(
-                r"\frac{a}{b}" "\n\n" r"\badcommand"
-            )
+            render_latex_preview_pixmap(r"\frac{a}{b}" "\n\n" r"\badcommand")
 
     def test_latex_editor_disables_save_when_preview_is_invalid(self):
         editor = self._track(PPOCRLatexBlockEditor(r"\frac{a}{b}"))
@@ -190,9 +240,7 @@ class TestPPOCRLatexEditor(unittest.TestCase):
         self.assertFalse(editor.save_button.isEnabled())
         self.assertIn("badcommand", editor.preview_content.text())
 
-        editor.source_editor.setPlainText(
-            "\n\n".join([r"\frac{a}{b}"] * 2)
-        )
+        editor.source_editor.setPlainText("\n\n".join([r"\frac{a}{b}"] * 2))
         editor._update_preview()
         self.app.processEvents()
         self.assertTrue(editor.save_button.isEnabled())
@@ -224,7 +272,9 @@ class TestPPOCRLatexEditor(unittest.TestCase):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff,
         )
 
-    def test_formula_block_card_renders_formula_pixmap_instead_of_raw_text(self):
+    def test_formula_block_card_renders_formula_pixmap_instead_of_raw_text(
+        self,
+    ):
         block = PPOCRBlockData(
             page_no=1,
             block_uid="block_1",

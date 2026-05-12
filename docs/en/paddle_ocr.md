@@ -58,7 +58,7 @@ After the service starts, reopen the PaddleOCR annotation panel. The `Parsing Mo
 
 You can open PaddleOCR in either of the following ways: click the `PaddleOCR` icon in the left toolbar, or use the `Ctrl+4` shortcut.
 
-After the panel opens, click `+ New Parsing` at the top of the left panel to import a file. The imported file is copied to the local PaddleOCR workspace and added to the parsing queue automatically.
+After the panel opens, click `+ New Parsing` at the top of the left panel to select files. Confirm `Start Parsing` to import them; confirmed files are copied to the local PaddleOCR workspace and added to the parsing queue.
 
 The X-AnyLabeling PaddleOCR panel currently supports the following file types:
 
@@ -104,7 +104,7 @@ The PaddleOCR panel consists of three main areas:
 
 | Location | Button/Component | Function |
 | :--- | :--- | :--- |
-| Top left | `+ New Parsing` | Import an image or PDF and start parsing automatically |
+| Top left | `+ New Parsing` | Select images or PDFs, then confirm to import and start parsing |
 | Left navigation | `Recent` | Show recently imported and parsed files |
 | Left navigation | `Favorites` | Show favorited files only |
 | Left navigation | Search button | Expand the filename search box |

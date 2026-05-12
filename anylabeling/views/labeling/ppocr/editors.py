@@ -63,7 +63,7 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from anylabeling.views.labeling.utils.theme import get_theme
+from anylabeling.views.labeling.utils.theme import get_mode, get_theme
 
 from .config import PPOCR_BLOCK_CARD_MAX_HEIGHT_PX, PPOCR_COLOR_TEXT
 from .render import (
@@ -90,8 +90,6 @@ PPOCR_EDITOR_HEADING_LEVELS = {
 PPOCR_RICH_EDITOR_ICON_SIZE = 20
 PPOCR_RICH_EDITOR_ICON_DPR = 2
 PPOCR_RICH_EDITOR_BODY_PT = 10
-PPOCR_RICH_EDITOR_TEXT_COLOR = QColor(0, 0, 0, 217)
-PPOCR_RICH_EDITOR_ICON_COLOR = "#6b6f76"
 PPOCR_RICH_EDITOR_SERIF = "Georgia"
 PPOCR_RICH_EDITOR_BODY_LINE_HEIGHT = 100
 PPOCR_RICH_EDITOR_BODY_MARGIN_BOTTOM = 6
@@ -158,199 +156,239 @@ PPOCR_RICH_EDITOR_HEADING_LEVELS = {
     },
 }
 
-PPOCR_RICH_EDITOR_CONTAINER_STYLE = """
-QFrame#PPOCRRichTextBlockEditor {
-    background-color: #f5f6f7;
+
+def _is_dark_mode() -> bool:
+    return get_mode() == "dark"
+
+
+def _editor_panel_background() -> str:
+    theme = get_theme()
+    return theme["surface"] if _is_dark_mode() else "#f5f6f7"
+
+
+def _editor_body_background() -> str:
+    return get_theme()["background"]
+
+
+def _editor_border_color() -> str:
+    return get_theme()["border"]
+
+
+def _editor_selected_background() -> str:
+    return (
+        get_theme()["surface_pressed"]
+        if _is_dark_mode()
+        else "rgb(241, 245, 255)"
+    )
+
+
+def _rich_editor_text_color() -> QColor:
+    if _is_dark_mode():
+        return QColor(get_theme()["text"])
+    return QColor(0, 0, 0, 217)
+
+
+def _rich_editor_icon_color() -> str:
+    return get_theme()["text_secondary"] if _is_dark_mode() else "#6b6f76"
+
+
+def _rich_editor_container_style() -> str:
+    theme = get_theme()
+    panel_background = _editor_panel_background()
+    body_background = _editor_body_background()
+    border_color = _editor_border_color()
+    return f"""
+QFrame#PPOCRRichTextBlockEditor {{
+    background-color: {panel_background};
     border-radius: 10px;
-    border: 1px solid #e5e6eb;
-}
-QFrame#PPOCRRichTextBlockEditorToolbar {
-    background-color: #f5f6f7;
+    border: 1px solid {border_color};
+}}
+QFrame#PPOCRRichTextBlockEditorToolbar {{
+    background-color: {panel_background};
     border: none;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    border-bottom: 1px solid #e8e9ec;
-}
-QFrame#PPOCRRichTextBlockEditorBody {
-    background-color: #ffffff;
+    border-bottom: 1px solid {border_color};
+}}
+QFrame#PPOCRRichTextBlockEditorBody {{
+    background-color: {body_background};
     border: none;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
-}
-QLabel#PPOCRRichTextBlockEditorImage {
+}}
+QLabel#PPOCRRichTextBlockEditorImage {{
     background: transparent;
     border: none;
     padding: 0px;
-}
+}}
+QLabel {{
+    color: {theme["text"]};
+}}
 """
 
-PPOCR_RICH_EDITOR_FORMAT_BUTTON_STYLE = """
-QToolButton {
+
+def _rich_editor_format_button_style() -> str:
+    selected_background = _editor_selected_background()
+    return f"""
+QToolButton {{
     background: transparent;
     border: none;
     border-radius: 8px;
     padding: 4px;
     min-width: 32px;
     min-height: 32px;
-}
-QToolButton:hover {
-    background-color: rgb(241, 245, 255);
-}
-QToolButton:checked {
-    background-color: rgb(241, 245, 255);
-}
+}}
+QToolButton:hover {{
+    background-color: {selected_background};
+}}
+QToolButton:checked {{
+    background-color: {selected_background};
+}}
 """
 
-PPOCR_RICH_EDITOR_HEADING_BUTTON_STYLE = """
-QToolButton {
-    background: transparent;
+
+def _rich_editor_heading_button_style(active: bool = False) -> str:
+    theme = get_theme()
+    background = _editor_selected_background() if active else "transparent"
+    color = PPOCR_COLOR_TEXT if active else theme["text_secondary"]
+    return f"""
+QToolButton {{
+    background-color: {background};
     border: none;
     border-radius: 4px;
     padding: 4px;
     min-width: 36px;
     min-height: 36px;
-    color: rgba(0, 0, 0, 0.45);
-}
-QToolButton:hover {
-    background-color: #f5f5f5;
-    color: rgba(0, 0, 0, 0.85);
-}
+    color: {color};
+}}
+QToolButton:hover {{
+    background-color: {_editor_selected_background()};
+    color: {PPOCR_COLOR_TEXT};
+}}
 """
 
-PPOCR_RICH_EDITOR_HEADING_BUTTON_ACTIVE_STYLE = """
-QToolButton {
-    background-color: #f0f3ff;
-    border: none;
-    border-radius: 4px;
-    padding: 4px;
-    min-width: 36px;
-    min-height: 36px;
-    color: #2932e1;
-}
-"""
 
-PPOCR_RICH_EDITOR_STYLE = """
-QTextEdit {
-    background-color: #ffffff;
+def _rich_editor_style() -> str:
+    theme = get_theme()
+    return f"""
+QTextEdit {{
+    background-color: {theme["background"]};
+    color: {theme["text"]};
     border: none;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
     padding: 16px;
     font-size: 13px;
-    selection-background-color: #c4c9f5;
+    selection-background-color: rgb(70, 88, 255);
     selection-color: #ffffff;
-}
-QScrollBar:vertical {
+}}
+QScrollBar:vertical {{
     width: 6px;
     background: transparent;
     margin: 4px 2px;
-}
-QScrollBar::handle:vertical {
-    background: #d0d1d6;
+}}
+QScrollBar::handle:vertical {{
+    background: {theme["scrollbar"]};
     border-radius: 3px;
     min-height: 30px;
-}
-QScrollBar::handle:vertical:hover {
-    background: #a0a1a6;
-}
+}}
+QScrollBar::handle:vertical:hover {{
+    background: {theme["scrollbar_hover"]};
+}}
 QScrollBar::add-line:vertical,
-QScrollBar::sub-line:vertical {
+QScrollBar::sub-line:vertical {{
     height: 0px;
-}
+}}
 """
 
-PPOCR_LATEX_EDITOR_CONTAINER_STYLE = """
-QFrame#PPOCRLatexBlockEditor {
-    background-color: #f5f6f7;
+
+def _latex_editor_container_style() -> str:
+    theme = get_theme()
+    panel_background = _editor_panel_background()
+    body_background = _editor_body_background()
+    border_color = _editor_border_color()
+    return f"""
+QFrame#PPOCRLatexBlockEditor {{
+    background-color: {panel_background};
     border-radius: 10px;
-    border: 1px solid #e5e6eb;
-}
-QFrame#PPOCRLatexBlockEditorToolbar {
-    background-color: #f5f6f7;
+    border: 1px solid {border_color};
+}}
+QFrame#PPOCRLatexBlockEditorToolbar {{
+    background-color: {panel_background};
     border: none;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
-    border-bottom: 1px solid #e8e9ec;
-}
-QFrame#PPOCRLatexBlockEditorBody {
-    background-color: #ffffff;
+    border-bottom: 1px solid {border_color};
+}}
+QFrame#PPOCRLatexBlockEditorBody {{
+    background-color: {body_background};
     border: none;
     border-bottom-left-radius: 10px;
     border-bottom-right-radius: 10px;
-}
-QFrame#PPOCRLatexPreviewDivider {
+}}
+QFrame#PPOCRLatexPreviewDivider {{
     background: transparent;
     border: none;
-    border-top: 1px solid #e8e9ec;
-}
-QLabel#PPOCRLatexPreviewTitle {
-    background: #d9e1ff;
-    color: #ffffff;
+    border-top: 1px solid {border_color};
+}}
+QLabel#PPOCRLatexPreviewTitle {{
+    background: {_editor_selected_background()};
+    color: {PPOCR_COLOR_TEXT};
     font-size: 12px;
     font-weight: 700;
     padding: 3px 10px;
     border-radius: 0px;
-}
-QLabel#PPOCRLatexPreviewContent {
+}}
+QLabel#PPOCRLatexPreviewContent {{
     background: transparent;
-    color: rgba(0, 0, 0, 0.85);
+    color: {theme["text"]};
     border: none;
-}
+}}
 """
 
-PPOCR_LATEX_SOURCE_STYLE = """
-QPlainTextEdit {
-    background-color: #ffffff;
-    color: rgba(0, 0, 0, 0.85);
+
+def _latex_source_style() -> str:
+    theme = get_theme()
+    return f"""
+QPlainTextEdit {{
+    background-color: {theme["background"]};
+    color: {theme["text"]};
     border: none;
     border-radius: 0px;
     padding: 8px 10px 14px 10px;
     font-family: 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
     font-size: 13px;
-    selection-background-color: #c4c9f5;
-}
-QScrollBar:vertical {
+    selection-background-color: rgb(70, 88, 255);
+    selection-color: #ffffff;
+}}
+QScrollBar:vertical {{
     width: 6px;
     background: transparent;
     margin: 4px 2px;
-}
-QScrollBar::handle:vertical {
-    background: #d0d1d6;
+}}
+QScrollBar::handle:vertical {{
+    background: {theme["scrollbar"]};
     border-radius: 3px;
     min-height: 30px;
-}
+}}
 QScrollBar::add-line:vertical,
-QScrollBar::sub-line:vertical {
+QScrollBar::sub-line:vertical {{
     height: 0px;
-}
+}}
 """
 
-PPOCR_LATEX_PREVIEW_SCROLL_STYLE = """
+
+def _latex_preview_scroll_style() -> str:
+    return """
 QScrollArea {
     background: transparent;
     border: none;
 }
-QScrollBar:vertical, QScrollBar:horizontal {
+QScrollArea QWidget {
     background: transparent;
 }
-QScrollBar:vertical {
-    width: 6px;
-    margin: 4px 2px;
-}
-QScrollBar:horizontal {
-    height: 6px;
-    margin: 2px 4px;
-}
-QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
-    background: #d0d1d6;
-    border-radius: 3px;
-}
-QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical,
-QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
-    width: 0px;
-    height: 0px;
-}
 """
+
 
 PPOCR_LATEX_PREVIEW_FONT_PT = 12
 PPOCR_LATEX_PREVIEW_DPI = 110
@@ -384,6 +422,7 @@ rcParams["mathtext.default"] = "it"
 rcParams["font.family"] = "serif"
 
 expression = sys.argv[1]
+text_color = sys.argv[2] if len(sys.argv) > 2 else "black"
 def _cjk_chars(value):
     return "".join(
         sorted(set(char for char in value if "\u3400" <= char <= "\u9fff"))
@@ -438,7 +477,7 @@ try:
         prop=prop,
         dpi={PPOCR_LATEX_PREVIEW_DPI},
         format="png",
-        color="black",
+        color=text_color,
     )
 except Exception as exc:
     sys.stderr.write(str(exc))
@@ -493,7 +532,6 @@ PPOCR_TABLE_CELL_HORIZONTAL_PADDING_PX = 10
 PPOCR_TABLE_MIN_ROW_HEIGHT_PX = 28
 PPOCR_TABLE_MIN_COLUMN_WIDTH_PX = 36
 PPOCR_TABLE_MAX_COLUMN_WIDTH_PX = 560
-PPOCR_TABLE_SELECTION_COLOR = "rgb(228, 236, 255)"
 PPOCR_TABLE_VIEWPORT_BOTTOM_MARGIN_PX = 20
 
 
@@ -507,7 +545,7 @@ def _ensure_latex_preview_pixmap_cache_limit() -> None:
 
 
 def _latex_preview_pixmap_cache_key(normalized_source: str) -> str:
-    _, _, _, cjk_font = _latex_preview_cache_token_for_source(
+    _, _, _, cjk_font, text_color = _latex_preview_cache_token_for_source(
         normalized_source
     )
     digest = hashlib.sha1(
@@ -521,6 +559,7 @@ def _latex_preview_pixmap_cache_key(normalized_source: str) -> str:
         f"{PPOCR_LATEX_PREVIEW_DPI}:"
         f"{PPOCR_LATEX_PREVIEW_TRIM_PADDING_PX}:"
         f"{cjk_font}:"
+        f"{text_color}:"
         f"{digest}"
     )
 
@@ -771,7 +810,7 @@ def _resolve_latex_preview_cjk_font(cjk_chars: str) -> str:
 
 def _latex_preview_cache_token_for_source(
     normalized_source: str,
-) -> tuple[str, int, int, str]:
+) -> tuple[str, int, int, str, str]:
     cjk_chars = _latex_preview_cjk_chars(normalized_source)
     cjk_font = _resolve_latex_preview_cjk_font(cjk_chars)
     return (
@@ -779,6 +818,7 @@ def _latex_preview_cache_token_for_source(
         PPOCR_LATEX_PREVIEW_FONT_PT,
         PPOCR_LATEX_PREVIEW_DPI,
         cjk_font,
+        get_theme()["text"],
     )
 
 
@@ -931,6 +971,7 @@ def _latex_renderer_candidates() -> list[str]:
 
 def _render_latex_preview_png_bytes_with_matplotlib(
     normalized_source: str,
+    text_color: str,
 ) -> bytes:
     from matplotlib import rcParams
     from matplotlib.font_manager import FontProperties
@@ -946,13 +987,14 @@ def _render_latex_preview_png_bytes_with_matplotlib(
         prop=prop,
         dpi=PPOCR_LATEX_PREVIEW_DPI,
         format="png",
-        color="black",
+        color=text_color,
     )
     return buffer.getvalue()
 
 
 def _render_latex_preview_png_bytes_with_subprocess(
     normalized_source: str,
+    text_color: str,
 ) -> bytes:
     global _LATEX_RENDERER_PYTHON
 
@@ -973,6 +1015,7 @@ def _render_latex_preview_png_bytes_with_subprocess(
                     "-c",
                     PPOCR_LATEX_RENDER_SCRIPT,
                     normalized_source,
+                    text_color,
                 ],
                 capture_output=True,
                 timeout=8,
@@ -1003,13 +1046,14 @@ def _render_latex_preview_png_bytes_with_subprocess(
 @lru_cache(maxsize=384)
 def _render_latex_preview_png_bytes_cached(
     normalized_source: str,
-    cache_token: tuple[str, int, int, str],
+    cache_token: tuple[str, int, int, str, str],
 ) -> bytes:
-    del cache_token
+    text_color = cache_token[-1]
     local_error = None
     try:
         return _render_latex_preview_png_bytes_with_matplotlib(
-            normalized_source
+            normalized_source,
+            text_color,
         )
     except ModuleNotFoundError:
         pass
@@ -1018,7 +1062,8 @@ def _render_latex_preview_png_bytes_cached(
 
     try:
         return _render_latex_preview_png_bytes_with_subprocess(
-            normalized_source
+            normalized_source,
+            text_color,
         )
     except Exception:
         if local_error is not None:
@@ -1038,17 +1083,31 @@ def _render_latex_preview_png_bytes(source: str) -> bytes:
     )
 
 
-def _trim_latex_preview_png_bytes(png_bytes: bytes) -> bytes:
+def _trim_latex_preview_png_bytes(
+    png_bytes: bytes,
+    text_color: str,
+) -> bytes:
     try:
         from PIL import Image, ImageChops
     except Exception:
         return png_bytes
 
+    foreground = QColor(text_color)
+    foreground_rgb = (
+        (foreground.red(), foreground.green(), foreground.blue())
+        if foreground.isValid()
+        else None
+    )
     image_buffer = BytesIO(png_bytes)
     with Image.open(image_buffer) as image:
         image = image.convert("RGBA")
-        background = Image.new("RGBA", image.size, (255, 255, 255, 255))
-        bbox = ImageChops.difference(image, background).getbbox()
+        background_rgba = image.getpixel((0, 0))
+        background_rgb = background_rgba[:3]
+        background = Image.new("RGB", image.size, background_rgb)
+        bbox = ImageChops.difference(
+            image.convert("RGB"),
+            background,
+        ).getbbox()
         if bbox is None:
             return png_bytes
         padding = PPOCR_LATEX_PREVIEW_TRIM_PADDING_PX
@@ -1057,6 +1116,39 @@ def _trim_latex_preview_png_bytes(png_bytes: bytes) -> bytes:
         right = min(image.width, bbox[2] + padding)
         bottom = min(image.height, bbox[3] + padding)
         cropped = image.crop((left, top, right, bottom))
+        pixels = cropped.load()
+        for y in range(cropped.height):
+            for x in range(cropped.width):
+                red, green, blue, alpha = pixels[x, y]
+                if alpha == 0:
+                    continue
+                if (red, green, blue) == background_rgb:
+                    pixels[x, y] = (red, green, blue, 0)
+                    continue
+                if foreground_rgb is None:
+                    continue
+                alpha_values = []
+                for (
+                    pixel_channel,
+                    background_channel,
+                    foreground_channel,
+                ) in zip(
+                    (red, green, blue),
+                    background_rgb,
+                    foreground_rgb,
+                ):
+                    denominator = background_channel - foreground_channel
+                    if denominator == 0:
+                        continue
+                    alpha_values.append(
+                        (background_channel - pixel_channel) / denominator
+                    )
+                if alpha_values:
+                    blended_alpha = max(0.0, min(1.0, max(alpha_values)))
+                    pixels[x, y] = (
+                        *foreground_rgb,
+                        int(round(blended_alpha * alpha)),
+                    )
         output_buffer = BytesIO()
         cropped.save(output_buffer, format="PNG")
         return output_buffer.getvalue()
@@ -1065,14 +1157,15 @@ def _trim_latex_preview_png_bytes(png_bytes: bytes) -> bytes:
 @lru_cache(maxsize=384)
 def _render_trimmed_latex_preview_png_bytes(
     normalized_source: str,
-    cache_token: tuple[str, int, int, str, int],
+    cache_token: tuple[str, int, int, str, str, int],
 ) -> bytes:
-    del cache_token
+    render_cache_token = cache_token[:5]
     return _trim_latex_preview_png_bytes(
         _render_latex_preview_png_bytes_cached(
             normalized_source,
-            _latex_preview_cache_token_for_source(normalized_source),
-        )
+            render_cache_token,
+        ),
+        cache_token[4],
     )
 
 
@@ -1228,7 +1321,7 @@ def _apply_heading_char_format(
         heading_info = PPOCR_RICH_EDITOR_HEADING_LEVELS[heading_level]
         char_format.setFontPointSize(heading_info["point_size"])
         char_format.setFontWeight(heading_info["weight"])
-    char_format.setForeground(PPOCR_RICH_EDITOR_TEXT_COLOR)
+    char_format.setForeground(_rich_editor_text_color())
     cursor.mergeCharFormat(char_format)
 
 
@@ -1279,7 +1372,7 @@ def _apply_heading_fragment_formats(
             if fragment_char_format.fontWeight() > previous_weight
             else target_weight
         )
-        char_format.setForeground(PPOCR_RICH_EDITOR_TEXT_COLOR)
+        char_format.setForeground(_rich_editor_text_color())
         fragment_cursor.mergeCharFormat(char_format)
 
 
@@ -1731,18 +1824,20 @@ class PPOCRTextBlockEditor(QFrame):
 
     def _frame_style(self) -> str:
         theme = get_theme()
+        panel_background = _editor_panel_background()
+        border_color = _editor_border_color()
         return (
             "QFrame#PPOCRTextBlockEditor {"
             f"background: {theme['background']};"
-            "border: 1px solid rgb(220, 228, 241);"
+            f"border: 1px solid {border_color};"
             "border-radius: 12px;"
             "}"
             "QFrame#PPOCRTextBlockEditorToolbar {"
-            "background: rgb(246, 248, 252);"
+            f"background: {panel_background};"
             "border: none;"
             "border-top-left-radius: 12px;"
             "border-top-right-radius: 12px;"
-            "border-bottom: 1px solid rgb(229, 234, 244);"
+            f"border-bottom: 1px solid {border_color};"
             "}"
             "QFrame#PPOCRTextBlockEditorBody {"
             f"background: {theme['background']};"
@@ -1773,7 +1868,7 @@ class PPOCRTextBlockEditor(QFrame):
             "margin: 2px 0px;"
             "}"
             "QScrollBar::handle:vertical {"
-            "background: rgb(204, 212, 229);"
+            f"background: {theme['scrollbar']};"
             "border-radius: 3px;"
             "min-height: 24px;"
             "}"
@@ -1784,6 +1879,7 @@ class PPOCRTextBlockEditor(QFrame):
 
     def _format_button_style(self) -> str:
         theme = get_theme()
+        selected_background = _editor_selected_background()
         return (
             "QToolButton {"
             "background: transparent;"
@@ -1795,18 +1891,19 @@ class PPOCRTextBlockEditor(QFrame):
             "font-size: 15px;"
             "}"
             "QToolButton:hover {"
-            "background: rgb(241, 245, 255);"
+            f"background: {selected_background};"
             f"color: {PPOCR_COLOR_TEXT};"
             "}"
             "QToolButton:checked {"
-            "background: rgb(241, 245, 255);"
+            f"background: {selected_background};"
             f"color: {PPOCR_COLOR_TEXT};"
             "}"
         )
 
     def _heading_button_style(self, active: bool) -> str:
         theme = get_theme()
-        background = "rgb(241, 245, 255)" if active else "transparent"
+        selected_background = _editor_selected_background()
+        background = selected_background if active else "transparent"
         color = PPOCR_COLOR_TEXT if active else theme["text_secondary"]
         return (
             "QToolButton {"
@@ -1820,7 +1917,7 @@ class PPOCRTextBlockEditor(QFrame):
             "font-weight: 600;"
             "}"
             "QToolButton:hover {"
-            "background: rgb(241, 245, 255);"
+            f"background: {selected_background};"
             f"color: {PPOCR_COLOR_TEXT};"
             "}"
             "QToolButton::menu-indicator {"
@@ -1834,7 +1931,7 @@ class PPOCRTextBlockEditor(QFrame):
             "QMenu {"
             f"background: {theme['background']};"
             f"color: {theme['text']};"
-            "border: 1px solid rgb(220, 228, 241);"
+            f"border: 1px solid {theme['border']};"
             "padding: 6px;"
             "}"
             "QMenu::item {"
@@ -1842,7 +1939,7 @@ class PPOCRTextBlockEditor(QFrame):
             "border-radius: 6px;"
             "}"
             "QMenu::item:selected {"
-            "background: rgb(241, 245, 255);"
+            f"background: {_editor_selected_background()};"
             f"color: {PPOCR_COLOR_TEXT};"
             "}"
             "QMenu::indicator {"
@@ -1865,7 +1962,7 @@ def _begin_rich_editor_painter(pixmap: QPixmap) -> QPainter:
     painter.setRenderHints(
         QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing
     )
-    painter.setPen(QColor(PPOCR_RICH_EDITOR_ICON_COLOR))
+    painter.setPen(QColor(_rich_editor_icon_color()))
     return painter
 
 
@@ -1941,7 +2038,7 @@ def _make_rich_editor_strike_icon() -> QIcon:
         Qt.AlignmentFlag.AlignCenter,
         "S",
     )
-    painter.setPen(QPen(QColor(PPOCR_RICH_EDITOR_ICON_COLOR), 1.3))
+    painter.setPen(QPen(QColor(_rich_editor_icon_color()), 1.3))
     middle_y = size / 2
     painter.drawLine(QPointF(3, middle_y), QPointF(size - 3, middle_y))
     painter.end()
@@ -2148,7 +2245,7 @@ class _PPOCRStyledRichTextEdit(QTextEdit):
         font.setPointSize(PPOCR_RICH_EDITOR_BODY_PT)
         font.setWeight(QFont.Weight.Normal)
         char_format.setFont(font)
-        char_format.setForeground(PPOCR_RICH_EDITOR_TEXT_COLOR)
+        char_format.setForeground(_rich_editor_text_color())
         target_cursor.setCharFormat(char_format)
         self.setCurrentCharFormat(char_format)
         self.setTextCursor(target_cursor)
@@ -2251,7 +2348,7 @@ class _PPOCRStyledRichTextEdit(QTextEdit):
         painter = QPainter(self.viewport())
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         painter.setBrush(Qt.BrushStyle.NoBrush)
-        painter.setPen(QPen(QColor("#2932e1"), frame_width))
+        painter.setPen(QPen(QColor(PPOCR_COLOR_TEXT), frame_width))
         painter.drawRoundedRect(frame_rect, frame_radius, frame_radius)
         painter.end()
 
@@ -2283,7 +2380,7 @@ class _PPOCRRichHeadingMenuItem(QWidget):
         layout.addStretch()
 
     def set_selected(self, selected: bool) -> None:
-        color = "#2932e1" if selected else "rgba(0, 0, 0, 0.85)"
+        color = PPOCR_COLOR_TEXT if selected else get_theme()["text"]
         self._label.setStyleSheet(
             f"color: {color}; background: transparent; border: none;"
         )
@@ -2303,7 +2400,7 @@ class _PPOCRRichHeadingMenuItem(QWidget):
             painter = QPainter(self)
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
             painter.setPen(Qt.PenStyle.NoPen)
-            painter.setBrush(QColor("#f5f5f5"))
+            painter.setBrush(QColor(get_theme()["surface_hover"]))
             painter.drawRoundedRect(self.rect(), 4, 4)
             painter.end()
         super().paintEvent(event)
@@ -2342,8 +2439,9 @@ class _PPOCRRichHeadingDropdown(QWidget):
     def paintEvent(self, event) -> None:
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
-        painter.setPen(QPen(QColor("#e8e8e8"), 1))
-        painter.setBrush(QColor("#ffffff"))
+        theme = get_theme()
+        painter.setPen(QPen(QColor(theme["border"]), 1))
+        painter.setBrush(QColor(theme["background"]))
         rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
         painter.drawRoundedRect(rect, 6, 6)
         painter.end()
@@ -2385,7 +2483,7 @@ class PPOCRRichTextBlockEditor(QFrame):
 
     def _build_ui(self) -> None:
         self.setObjectName("PPOCRRichTextBlockEditor")
-        self.setStyleSheet(PPOCR_RICH_EDITOR_CONTAINER_STYLE)
+        self.setStyleSheet(_rich_editor_container_style())
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -2408,7 +2506,7 @@ class PPOCRRichTextBlockEditor(QFrame):
         self.heading_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.heading_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.heading_button.setStyleSheet(
-            PPOCR_RICH_EDITOR_HEADING_BUTTON_STYLE
+            _rich_editor_heading_button_style(False)
         )
 
         self.heading_menu = _PPOCRRichHeadingDropdown()
@@ -2464,13 +2562,13 @@ class PPOCRRichTextBlockEditor(QFrame):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
         self.editor.document().setDocumentMargin(0)
-        self.editor.setStyleSheet(PPOCR_RICH_EDITOR_STYLE)
+        self.editor.setStyleSheet(_rich_editor_style())
         default_font = QFont()
         default_font.setPointSize(PPOCR_RICH_EDITOR_BODY_PT)
         default_font.setWeight(QFont.Weight.Normal)
         self.editor.setFont(default_font)
         self.editor.document().setDefaultFont(default_font)
-        self.editor.setTextColor(PPOCR_RICH_EDITOR_TEXT_COLOR)
+        self.editor.setTextColor(_rich_editor_text_color())
 
         body_layout.addWidget(self.image_label)
         body_layout.addWidget(self.editor)
@@ -2490,7 +2588,7 @@ class PPOCRRichTextBlockEditor(QFrame):
         button.setCheckable(True)
         button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
-        button.setStyleSheet(PPOCR_RICH_EDITOR_FORMAT_BUTTON_STYLE)
+        button.setStyleSheet(_rich_editor_format_button_style())
         return button
 
     def _connect_signals(self) -> None:
@@ -2556,7 +2654,7 @@ class PPOCRRichTextBlockEditor(QFrame):
             return
         self.heading_menu.set_current_level(self._current_heading_level)
         self.heading_button.setStyleSheet(
-            PPOCR_RICH_EDITOR_HEADING_BUTTON_ACTIVE_STYLE
+            _rich_editor_heading_button_style(True)
         )
         self.heading_menu.show_below(self.heading_button)
         QTimer.singleShot(50, self._poll_heading_menu_close)
@@ -2803,7 +2901,7 @@ class PPOCRRichTextBlockEditor(QFrame):
             ]
             current_char_format.setFontPointSize(heading_info["point_size"])
             current_char_format.setFontWeight(heading_info["weight"])
-        current_char_format.setForeground(PPOCR_RICH_EDITOR_TEXT_COLOR)
+        current_char_format.setForeground(_rich_editor_text_color())
         self.editor.setCurrentCharFormat(current_char_format)
         self.editor.setFocus()
         self._update_toolbar_state()
@@ -2846,9 +2944,9 @@ class PPOCRRichTextBlockEditor(QFrame):
 
     def _update_heading_button_style(self) -> None:
         style = (
-            PPOCR_RICH_EDITOR_HEADING_BUTTON_ACTIVE_STYLE
+            _rich_editor_heading_button_style(True)
             if self._current_heading_level > 0
-            else PPOCR_RICH_EDITOR_HEADING_BUTTON_STYLE
+            else _rich_editor_heading_button_style(False)
         )
         self.heading_button.setStyleSheet(style)
 
@@ -2921,7 +3019,7 @@ class PPOCRLatexBlockEditor(QFrame):
 
     def _build_ui(self) -> None:
         self.setObjectName("PPOCRLatexBlockEditor")
-        self.setStyleSheet(PPOCR_LATEX_EDITOR_CONTAINER_STYLE)
+        self.setStyleSheet(_latex_editor_container_style())
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -2939,7 +3037,8 @@ class PPOCRLatexBlockEditor(QFrame):
         title_font.setWeight(QFont.Weight.DemiBold)
         title_label.setFont(title_font)
         title_label.setStyleSheet(
-            "QLabel { color: rgba(0, 0, 0, 0.88); background: transparent; }"
+            f"QLabel {{ color: {get_theme()['text']};"
+            " background: transparent; }"
         )
         toolbar_layout.addWidget(title_label)
         toolbar_layout.addStretch()
@@ -2965,7 +3064,7 @@ class PPOCRLatexBlockEditor(QFrame):
         self.source_editor = _PPOCRResizableLatexSourceEdit(body)
         self.editor = self.source_editor
         self.source_editor.setFrameShape(QFrame.Shape.NoFrame)
-        self.source_editor.setStyleSheet(PPOCR_LATEX_SOURCE_STYLE)
+        self.source_editor.setStyleSheet(_latex_source_style())
         self.source_editor.setPlaceholderText(self.tr("Enter LaTeX source"))
         self.source_editor.setVerticalScrollBarPolicy(
             Qt.ScrollBarPolicy.ScrollBarAsNeeded
@@ -3000,7 +3099,7 @@ class PPOCRLatexBlockEditor(QFrame):
         self.preview_scroll = QScrollArea(preview_content_container)
         self.preview_scroll.setWidgetResizable(False)
         self.preview_scroll.setFrameShape(QFrame.Shape.NoFrame)
-        self.preview_scroll.setStyleSheet(PPOCR_LATEX_PREVIEW_SCROLL_STYLE)
+        self.preview_scroll.setStyleSheet(_latex_preview_scroll_style())
         self.preview_scroll.setSizePolicy(
             QSizePolicy.Policy.Expanding,
             QSizePolicy.Policy.Fixed,
@@ -3051,8 +3150,9 @@ class PPOCRLatexBlockEditor(QFrame):
     def _set_preview_message(
         self,
         text: str,
-        color: str = "rgba(0, 0, 0, 0.45)",
+        color: str = "",
     ) -> None:
+        color = color or get_theme()["text_secondary"]
         self._preview_pixmap = QPixmap()
         self._preview_message = text or ""
         self.preview_content.clear()
@@ -3086,7 +3186,7 @@ class PPOCRLatexBlockEditor(QFrame):
         self.preview_content.setStyleSheet(
             "QLabel#PPOCRLatexPreviewContent {"
             "background: transparent;"
-            "color: rgba(0, 0, 0, 0.85);"
+            f"color: {get_theme()['text']};"
             "border: none;"
             "}"
         )
@@ -3229,9 +3329,11 @@ class _PPOCRTableItemDelegate(QStyledItemDelegate):
         editor.setAlignment(
             Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
         )
+        theme = get_theme()
         editor.setStyleSheet(
             "QLineEdit {"
-            f"background: {PPOCR_TABLE_SELECTION_COLOR};"
+            f"background: {_editor_selected_background()};"
+            f"color: {theme['text']};"
             "border: none;"
             f"padding: 0px {PPOCR_TABLE_CELL_HORIZONTAL_PADDING_PX}px;"
             "margin: 0px;"
@@ -3375,7 +3477,7 @@ class PPOCRTableBlockEditor(QFrame):
         button.setCheckable(True)
         button.setCursor(Qt.CursorShape.PointingHandCursor)
         button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
-        button.setStyleSheet(PPOCR_RICH_EDITOR_FORMAT_BUTTON_STYLE)
+        button.setStyleSheet(_rich_editor_format_button_style())
         return button
 
     @staticmethod
@@ -4223,7 +4325,7 @@ class PPOCRTableBlockEditor(QFrame):
             "QMenu {"
             f"background: {theme['background']};"
             f"color: {theme['text']};"
-            "border: 1px solid rgb(220, 228, 241);"
+            f"border: 1px solid {theme['border']};"
             "padding: 6px;"
             "}"
             "QMenu::item {"
@@ -4231,13 +4333,13 @@ class PPOCRTableBlockEditor(QFrame):
             "border-radius: 6px;"
             "}"
             "QMenu::item:selected {"
-            "background: rgb(241, 245, 255);"
+            f"background: {_editor_selected_background()};"
             f"color: {PPOCR_COLOR_TEXT};"
             "}"
             "QMenu::separator {"
             "height: 1px;"
             "margin: 4px 8px;"
-            "background: rgb(229, 234, 244);"
+            f"background: {theme['border']};"
             "}"
         )
 
@@ -4592,18 +4694,20 @@ class PPOCRTableBlockEditor(QFrame):
 
     def _frame_style(self) -> str:
         theme = get_theme()
+        panel_background = _editor_panel_background()
+        border_color = _editor_border_color()
         return (
             "QFrame#PPOCRTableBlockEditor {"
             f"background: {theme['background']};"
-            "border: 1px solid rgb(222, 228, 240);"
+            f"border: 1px solid {border_color};"
             "border-radius: 10px;"
             "}"
             "QFrame#PPOCRTableBlockEditorToolbar {"
-            "background: rgb(245, 246, 249);"
+            f"background: {panel_background};"
             "border: none;"
             "border-top-left-radius: 10px;"
             "border-top-right-radius: 10px;"
-            "border-bottom: 1px solid rgb(229, 234, 244);"
+            f"border-bottom: 1px solid {border_color};"
             "}"
             "QFrame#PPOCRTableBlockEditorBody {"
             f"background: {theme['background']};"
@@ -4615,14 +4719,15 @@ class PPOCRTableBlockEditor(QFrame):
 
     def _table_style(self) -> str:
         theme = get_theme()
+        selection_background = _editor_selected_background()
         return (
             "QTableWidget {"
             f"background: {theme['background']};"
             f"color: {theme['text']};"
-            "border: 1px solid rgb(229, 234, 244);"
-            "gridline-color: rgb(224, 230, 242);"
-            f"selection-background-color: {PPOCR_TABLE_SELECTION_COLOR};"
-            "selection-color: rgb(30, 33, 45);"
+            f"border: 1px solid {theme['border']};"
+            f"gridline-color: {theme['border']};"
+            f"selection-background-color: {selection_background};"
+            f"selection-color: {theme['text']};"
             "font-size: 13px;"
             "}"
             "QTableWidget::item {"
@@ -4634,19 +4739,19 @@ class PPOCRTableBlockEditor(QFrame):
             "outline: none;"
             "}"
             'QTableWidget[ppocrMultiSelect="true"]::item:selected {'
-            f"background: {PPOCR_TABLE_SELECTION_COLOR};"
+            f"background: {selection_background};"
             "}"
             'QTableWidget[ppocrMultiSelect="false"]::item:selected {'
-            f"background: {PPOCR_TABLE_SELECTION_COLOR};"
+            f"background: {selection_background};"
             "}"
             "QTableWidget::item:selected:active {"
-            f"background: {PPOCR_TABLE_SELECTION_COLOR};"
+            f"background: {selection_background};"
             "}"
             "QTableWidget::item:selected:!active {"
-            f"background: {PPOCR_TABLE_SELECTION_COLOR};"
+            f"background: {selection_background};"
             "}"
             "QTableWidget QLineEdit {"
-            f"background: {PPOCR_TABLE_SELECTION_COLOR};"
+            f"background: {selection_background};"
             "border: none;"
             "border-radius: 0px;"
             f"color: {theme['text']};"

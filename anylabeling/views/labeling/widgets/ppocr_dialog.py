@@ -111,6 +111,42 @@ PPOCR_WORKSPACE_MIN_RATIO = 0.2
 PPOCR_WORKSPACE_GRIP_WIDTH = 2
 PPOCR_WORKSPACE_GRIP_LENGTH = 34
 PPOCR_WORKSPACE_GRIP_HOVER_LENGTH = 58
+PPOCR_RESULT_ACTION_ICON_SIZE = 14
+PPOCR_RESULT_ACTION_ICON_RENDER_SCALE = 2
+
+
+def _tinted_icon_pixmap(icon_name: str, color: str, size: int) -> QPixmap:
+    real_size = size * PPOCR_RESULT_ACTION_ICON_RENDER_SCALE
+    source_pixmap = QIcon(new_icon_path(icon_name, "svg")).pixmap(
+        QSize(real_size, real_size)
+    )
+    if source_pixmap.isNull():
+        return QPixmap()
+    tinted_pixmap = QPixmap(source_pixmap.size())
+    tinted_pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(tinted_pixmap)
+    painter.drawPixmap(0, 0, source_pixmap)
+    painter.setCompositionMode(
+        QPainter.CompositionMode.CompositionMode_SourceIn
+    )
+    painter.fillRect(tinted_pixmap.rect(), QColor(color))
+    painter.end()
+    return tinted_pixmap
+
+
+def _result_action_icon(icon_name: str) -> QIcon:
+    icon_color = get_theme()["text_secondary"]
+    pixmap = _tinted_icon_pixmap(
+        icon_name,
+        icon_color,
+        PPOCR_RESULT_ACTION_ICON_SIZE,
+    )
+    if pixmap.isNull():
+        return QIcon(new_icon(icon_name, "svg"))
+    icon = QIcon()
+    icon.addPixmap(pixmap, QIcon.Mode.Normal)
+    icon.addPixmap(pixmap, QIcon.Mode.Disabled)
+    return icon
 
 
 class PPOCRWorkspaceSplitterHandle(QSplitterHandle):
@@ -175,7 +211,9 @@ class PPOCRWorkspaceSplitterHandle(QSplitterHandle):
         )
 
     def _apply_grip_style(self, hovered: bool) -> None:
-        grip_color = "rgb(70, 88, 255)" if hovered else "rgb(204, 212, 229)"
+        grip_color = (
+            "rgb(70, 88, 255)" if hovered else get_theme()["scrollbar"]
+        )
         self._grip.setStyleSheet(
             "QFrame#PPOCRWorkspaceSplitterGrip {"
             f" background: {grip_color};"
@@ -344,11 +382,12 @@ class PPOCRDialog(QDialog):
         splitter.setObjectName("PPOCRWorkspaceSplitter")
         splitter.setHandleWidth(PPOCR_WORKSPACE_HANDLE_WIDTH)
         splitter.setChildrenCollapsible(False)
-        splitter.setStyleSheet("""
-            QSplitter#PPOCRWorkspaceSplitter::handle {
-                background: rgb(247, 249, 255);
+        theme = get_theme()
+        splitter.setStyleSheet(f"""
+            QSplitter#PPOCRWorkspaceSplitter::handle {{
+                background: {theme['background_secondary']};
                 border: none;
-            }
+            }}
             """)
 
         middle_widget = self.build_preview_panel()
@@ -644,8 +683,10 @@ class PPOCRDialog(QDialog):
 
         self.api_settings_button = QPushButton()
         self.api_settings_button.setObjectName("PPOCRResultActionButton")
-        self.api_settings_button.setIcon(QIcon(new_icon("settings", "svg")))
-        self.api_settings_button.setIconSize(QSize(14, 14))
+        self.api_settings_button.setIcon(_result_action_icon("settings"))
+        self.api_settings_button.setIconSize(
+            QSize(PPOCR_RESULT_ACTION_ICON_SIZE, PPOCR_RESULT_ACTION_ICON_SIZE)
+        )
         self.api_settings_button.setFixedSize(26, 26)
         self.api_settings_button.setToolTip(self.tr("Settings"))
         self.api_settings_button.clicked.connect(self.open_api_settings_dialog)
@@ -653,8 +694,10 @@ class PPOCRDialog(QDialog):
 
         self.reshape_button = QPushButton()
         self.reshape_button.setObjectName("PPOCRResultActionButton")
-        self.reshape_button.setIcon(QIcon(new_icon("refresh", "svg")))
-        self.reshape_button.setIconSize(QSize(14, 14))
+        self.reshape_button.setIcon(_result_action_icon("refresh"))
+        self.reshape_button.setIconSize(
+            QSize(PPOCR_RESULT_ACTION_ICON_SIZE, PPOCR_RESULT_ACTION_ICON_SIZE)
+        )
         self.reshape_button.setFixedSize(26, 26)
         self.reshape_button.setToolTip(self.tr("Reparse"))
         self.reshape_button.clicked.connect(self.on_retry_requested)
@@ -662,8 +705,10 @@ class PPOCRDialog(QDialog):
 
         self.copy_result_button = QPushButton()
         self.copy_result_button.setObjectName("PPOCRResultActionButton")
-        self.copy_result_button.setIcon(QIcon(new_icon("copy", "svg")))
-        self.copy_result_button.setIconSize(QSize(14, 14))
+        self.copy_result_button.setIcon(_result_action_icon("copy"))
+        self.copy_result_button.setIconSize(
+            QSize(PPOCR_RESULT_ACTION_ICON_SIZE, PPOCR_RESULT_ACTION_ICON_SIZE)
+        )
         self.copy_result_button.setFixedSize(26, 26)
         self.copy_result_button.setToolTip(self.tr("Copy"))
         self.copy_result_button.clicked.connect(self.on_copy_result_requested)
@@ -671,8 +716,10 @@ class PPOCRDialog(QDialog):
 
         self.download_result_button = QPushButton()
         self.download_result_button.setObjectName("PPOCRResultActionButton")
-        self.download_result_button.setIcon(QIcon(new_icon("download", "svg")))
-        self.download_result_button.setIconSize(QSize(14, 14))
+        self.download_result_button.setIcon(_result_action_icon("download"))
+        self.download_result_button.setIconSize(
+            QSize(PPOCR_RESULT_ACTION_ICON_SIZE, PPOCR_RESULT_ACTION_ICON_SIZE)
+        )
         self.download_result_button.setFixedSize(26, 26)
         self.download_result_button.setToolTip(self.tr("Download"))
         self.download_result_button.clicked.connect(
@@ -1013,8 +1060,37 @@ class PPOCRDialog(QDialog):
             ),
             options=QFileDialog.Option.DontUseNativeDialog,
         )
-        if file_paths:
-            self.import_source_paths(file_paths)
+        if not file_paths:
+            return
+        if not self.confirm_new_parsing(file_paths):
+            return
+        self.import_source_paths(file_paths)
+
+    def confirm_new_parsing(self, file_paths: list[str]) -> bool:
+        message_box = QMessageBox(self)
+        message_box.setIcon(QMessageBox.Icon.Question)
+        message_box.setWindowTitle(self.tr("Confirm Parsing"))
+        message_box.setText(self.tr("Start parsing selected files?"))
+        preview_names = [Path(file_path).name for file_path in file_paths[:5]]
+        if len(file_paths) > len(preview_names):
+            preview_names.append(
+                self.tr("...and {0} more").format(
+                    len(file_paths) - len(preview_names)
+                )
+            )
+        message_box.setInformativeText("\n".join(preview_names))
+        cancel_button = message_box.addButton(
+            self.tr("Cancel"),
+            QMessageBox.ButtonRole.RejectRole,
+        )
+        start_button = message_box.addButton(
+            self.tr("Start Parsing"),
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        message_box.setDefaultButton(cancel_button)
+        message_box.setEscapeButton(cancel_button)
+        message_box.exec()
+        return message_box.clickedButton() == start_button
 
     def import_source_paths(self, file_paths: list[str]) -> None:
         imported_records, errors = self.data_manager.import_files(file_paths)
