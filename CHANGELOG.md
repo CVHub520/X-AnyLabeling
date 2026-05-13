@@ -1,5 +1,24 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.7` (May 14, 2026)
+
+### 🐛 Bug Fixes
+
+- Guard stale selections during shape deletion to prevent canvas crashes. (#1369)
+- Prevent annotation visualization popup crashes when no image is loaded.
+- Keep the left toolbar frame full height without stretching toolbar icons.
+
+### 🛠️ Improvements
+
+- Align label dialog controls, shortcut hints, and input states across light and dark themes.
+- Soften digit shortcut combo hover styling for better visual consistency.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.0-beta.6` (May 13, 2026)
 
 ### 🚀 New Features
