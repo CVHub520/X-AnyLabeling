@@ -1284,14 +1284,61 @@ class LabelDialog(QtWidgets.QDialog):
         self._fit_to_content = fit_to_content
 
         super(LabelDialog, self).__init__(parent)
+        self.setObjectName("LabelDialog")
+        t = get_theme()
+        self.setStyleSheet(f"""
+            QDialog#LabelDialog QLineEdit,
+            QDialog#LabelDialog QTextEdit {{
+                background-color: {t["background_secondary"]};
+                color: {t["text"]};
+                border: 1px solid {t["border"]};
+                border-radius: 0px;
+                margin: 0px;
+                selection-background-color: {t["selection"]};
+            }}
+            QDialog#LabelDialog QLineEdit {{
+                padding: 2px 4px;
+            }}
+            QDialog#LabelDialog QTextEdit {{
+                padding: 4px;
+            }}
+            QDialog#LabelDialog QLineEdit:hover,
+            QDialog#LabelDialog QTextEdit:hover {{
+                border-color: {t["border_light"]};
+            }}
+            QDialog#LabelDialog QLineEdit:focus,
+            QDialog#LabelDialog QTextEdit:focus {{
+                border: 1px solid {t["highlight"]};
+            }}
+            QDialog#LabelDialog QPushButton {{
+                background-color: {t["surface"]};
+                color: {t["text"]};
+                border: 1px solid {t["border"]};
+                border-radius: 0px;
+                margin: 0px;
+                min-width: 72px;
+                min-height: 22px;
+                max-height: 22px;
+                padding: 0 8px;
+            }}
+            QDialog#LabelDialog QPushButton:hover {{
+                background-color: {t["surface_hover"]};
+            }}
+            QDialog#LabelDialog QPushButton:pressed {{
+                background-color: {t["surface_pressed"]};
+            }}
+        """)
+        control_height = 24
         self.edit = LabelQLineEdit()
         self.edit.setPlaceholderText(text)
+        self.edit.setFixedHeight(control_height)
         self.edit.setValidator(utils.label_validator())
         self.edit.editingFinished.connect(self.postprocess)
         if flags:
             self.edit.textChanged.connect(self.update_flags)
         self.edit_group_id = QtWidgets.QLineEdit()
         self.edit_group_id.setPlaceholderText(self.tr("Group ID"))
+        self.edit_group_id.setFixedHeight(control_height)
         self.edit_group_id.setValidator(
             QtGui.QRegularExpressionValidator(
                 QtCore.QRegularExpression(r"\d*"), None
@@ -1308,6 +1355,7 @@ class LabelDialog(QtWidgets.QDialog):
         self.linking_input.setPlaceholderText(
             self.tr("Enter linking, e.g., [0,1]")
         )
+        self.linking_input.setFixedHeight(control_height)
         linking_font = (
             self.linking_input.font()
         )  # Adjust placeholder font size
@@ -1320,18 +1368,21 @@ class LabelDialog(QtWidgets.QDialog):
             row_height * 4 + 2 * self.linking_list.frameWidth()
         )
         self.add_linking_button = QtWidgets.QPushButton(self.tr("Add"))
+        self.add_linking_button.setFixedHeight(control_height)
         self.add_linking_button.clicked.connect(self.add_linking_pair)
 
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(10, 10, 10, 10)
         if show_text_field:
             layout_edit = QtWidgets.QHBoxLayout()
+            layout_edit.setSpacing(6)
             layout_edit.addWidget(self.edit, 4)
             layout_edit.addWidget(self.edit_group_id, 2)
             layout.addLayout(layout_edit)
 
         # Add linking layout
         layout_linking = QtWidgets.QHBoxLayout()
+        layout_linking.setSpacing(6)
         layout_linking.addWidget(self.linking_input, 4)
         layout_linking.addWidget(self.add_linking_button, 2)
         layout.addLayout(layout_linking)
@@ -1346,6 +1397,8 @@ class LabelDialog(QtWidgets.QDialog):
         )
         bb.button(bb.StandardButton.Ok).setIcon(utils.new_icon("done"))
         bb.button(bb.StandardButton.Cancel).setIcon(utils.new_icon("undo"))
+        bb.button(bb.StandardButton.Ok).setFixedHeight(control_height)
+        bb.button(bb.StandardButton.Cancel).setFixedHeight(control_height)
         bb.accepted.connect(self.validate)
         bb.rejected.connect(self.reject)
 
