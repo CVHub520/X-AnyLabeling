@@ -824,7 +824,7 @@ def _create_progress_dialog(self, label_text, maximum):
     return progress_dialog
 
 
-def _show_popup(self, message, icon, popup_height=None):
+def _show_popup(self, message, icon, popup_height=36):
     popup = Popup(
         message,
         self,
