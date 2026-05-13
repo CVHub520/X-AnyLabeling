@@ -43,7 +43,18 @@ def natural_sort_key(s):
 class ColoredComboBox(QtWidgets.QComboBox):
     def __init__(self, parent=None):
         super(ColoredComboBox, self).__init__(parent)
-        self.setStyleSheet(get_settings_combo_style())
+        t = get_theme()
+        self.setStyleSheet(get_settings_combo_style() + f"""
+            QComboBox {{
+                background-color: {t["background_secondary"]};
+                border: 1px solid {t["border"]};
+                border-radius: 6px;
+            }}
+            QComboBox:hover {{
+                background-color: {t["background_secondary"]};
+                border-color: {t["border_light"]};
+            }}
+            """)
 
     def addModeItem(self, text, userData=None):
         self.addItem(text, userData)
