@@ -51,6 +51,7 @@ from .utils.style import (
     get_panel_style,
     get_plain_text_edit_style,
     get_settings_button_style,
+    get_toolbar_scroll_area_style,
 )
 from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
@@ -2159,7 +2160,8 @@ class LabelingWidget(LabelDialog):
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
 
-        layout.addWidget(self.tools)
+        self.tools_scroll_area = self.toolbar_scroll_area(self.tools)
+        layout.addWidget(self.tools_scroll_area)
         central_layout = QVBoxLayout()
         central_layout.setContentsMargins(0, 0, 0, 0)
         self.label_instruction = QLabel(self.get_labeling_instruction())
@@ -2690,10 +2692,35 @@ class LabelingWidget(LabelDialog):
         toolbar.setOrientation(Qt.Orientation.Vertical)
         toolbar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly)
         toolbar.setIconSize(QtCore.QSize(24, 24))
-        toolbar.setMaximumWidth(40)
+        toolbar.setFixedWidth(40)
+        toolbar.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Fixed,
+            QtWidgets.QSizePolicy.Policy.MinimumExpanding,
+        )
         if actions:
             utils.add_actions(toolbar, actions)
+            toolbar.setMinimumHeight(toolbar.sizeHint().height())
         return toolbar
+
+    def toolbar_scroll_area(self, toolbar):
+        scroll_area = QScrollArea()
+        scroll_area.setObjectName(f"{toolbar.objectName()}ScrollArea")
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        scroll_area.setStyleSheet(get_toolbar_scroll_area_style())
+        scroll_area.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Fixed,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
+        scroll_area.setFixedWidth(toolbar.maximumWidth() + 6)
+        scroll_area.setWidget(toolbar)
+        return scroll_area
 
     def statusBar(self):
         return self.parent.parent.statusBar()
@@ -2706,6 +2733,7 @@ class LabelingWidget(LabelDialog):
         menu = self.actions.menu
         self.tools.clear()
         utils.add_actions(self.tools, tool)
+        self.tools.setMinimumHeight(self.tools.sizeHint().height())
 
         self.canvas.menus[0].clear()
         utils.add_actions(self.canvas.menus[0], menu)

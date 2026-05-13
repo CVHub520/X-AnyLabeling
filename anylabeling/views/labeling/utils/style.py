@@ -225,6 +225,46 @@ def get_settings_button_style():
     """
 
 
+def get_toolbar_scroll_area_style():
+    t = get_theme()
+    return f"""
+        QScrollArea {{
+            border: none;
+            background-color: transparent;
+        }}
+        QScrollBar:vertical {{
+            background-color: transparent;
+            width: 6px;
+            margin: 2px 0;
+        }}
+        QScrollBar::handle:vertical {{
+            background-color: {t["scrollbar"]};
+            border-radius: 3px;
+            min-height: 20px;
+        }}
+        QScrollBar::handle:vertical:hover {{
+            background-color: {t["scrollbar_hover"]};
+        }}
+        QScrollBar::add-line:vertical,
+        QScrollBar::sub-line:vertical {{
+            height: 0;
+            width: 0;
+            border: none;
+            background-color: transparent;
+        }}
+        QScrollBar::up-arrow:vertical,
+        QScrollBar::down-arrow:vertical {{
+            width: 0;
+            height: 0;
+            image: none;
+        }}
+        QScrollBar::add-page:vertical,
+        QScrollBar::sub-page:vertical {{
+            background-color: transparent;
+        }}
+    """
+
+
 def get_settings_combo_style() -> str:
     down_arrow = new_icon_path("caret-down", "svg")
     if get_mode() == "dark":
