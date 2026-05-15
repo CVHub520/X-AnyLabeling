@@ -79,6 +79,7 @@ def get_progress_dialog_style(color=None, height=None):
             height: 36px;
             padding: 0 16px;
             margin-top: 16px;
+            margin-bottom: 10px;
         }}
         QPushButton:hover {{
             background-color: {t["surface_hover"]};
