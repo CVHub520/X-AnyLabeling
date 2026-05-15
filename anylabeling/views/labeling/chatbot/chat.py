@@ -2,11 +2,14 @@ from PyQt6.QtCore import (
     QEasingCurve,
     QEvent,
     QPropertyAnimation,
+    QSize,
     QTimer,
     Qt,
 )
 from PyQt6.QtGui import (
+    QColor,
     QIcon,
+    QPainter,
     QPixmap,
     QTextCursor,
     QTextOption,
@@ -42,6 +45,37 @@ from anylabeling.views.labeling.chatbot.render import *
 from anylabeling.views.labeling.chatbot.style import *
 from anylabeling.views.labeling.chatbot.utils import *
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
+from anylabeling.views.labeling.utils.theme import get_theme
+
+MESSAGE_ACTION_ICON_RENDER_SCALE = 2
+MESSAGE_ACTION_ROW_TOP_MARGIN = 4
+MESSAGE_ACTION_ROW_BOTTOM_MARGIN = 2
+
+
+def _new_message_action_icon(icon_name):
+    real_size = ICON_SIZE_SMALL[0] * MESSAGE_ACTION_ICON_RENDER_SCALE
+    source_pixmap = QIcon(new_icon_path(icon_name, "svg")).pixmap(
+        QSize(real_size, real_size)
+    )
+    if source_pixmap.isNull():
+        return QIcon(new_icon(icon_name, "svg"))
+
+    tinted_pixmap = QPixmap(source_pixmap.size())
+    tinted_pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(tinted_pixmap)
+    painter.drawPixmap(0, 0, source_pixmap)
+    painter.setCompositionMode(
+        QPainter.CompositionMode.CompositionMode_SourceIn
+    )
+    painter.fillRect(
+        tinted_pixmap.rect(), QColor(get_theme()["text_secondary"])
+    )
+    painter.end()
+
+    icon = QIcon()
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Normal)
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Disabled)
+    return icon
 
 
 class ChatMessage(QFrame):
@@ -123,8 +157,9 @@ class ChatMessage(QFrame):
 
         # Create copy button
         self.copy_btn = QPushButton()
-        self.copy_btn.setIcon(QIcon(new_icon("copy", "svg")))
-        self.copy_btn.setFixedSize(*ICON_SIZE_SMALL)
+        self.copy_btn.setIcon(_new_message_action_icon("copy"))
+        self.copy_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
+        self.copy_btn.setFixedSize(*MESSAGE_ACTION_BUTTON_SIZE)
         self.copy_btn.setStyleSheet(ChatMessageStyle.get_button_style())
         self.copy_btn.clicked.connect(
             lambda: self.copy_content_to_clipboard(self.copy_btn)
@@ -133,8 +168,9 @@ class ChatMessage(QFrame):
 
         # Create delete button
         self.delete_btn = QPushButton()
-        self.delete_btn.setIcon(QIcon(new_icon("trash", "svg")))
-        self.delete_btn.setFixedSize(*ICON_SIZE_SMALL)
+        self.delete_btn.setIcon(_new_message_action_icon("trash"))
+        self.delete_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
+        self.delete_btn.setFixedSize(*MESSAGE_ACTION_BUTTON_SIZE)
         self.delete_btn.setStyleSheet(ChatMessageStyle.get_button_style())
         self.delete_btn.clicked.connect(self.confirm_delete_message)
         self.delete_btn.setVisible(False)
@@ -144,16 +180,18 @@ class ChatMessage(QFrame):
         if is_user:
             # Create edit button
             self.edit_btn = QPushButton()
-            self.edit_btn.setIcon(QIcon(new_icon("edit", "svg")))
-            self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
+            self.edit_btn.setIcon(_new_message_action_icon("edit"))
+            self.edit_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
+            self.edit_btn.setFixedSize(*MESSAGE_ACTION_BUTTON_SIZE)
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
             self.edit_btn.clicked.connect(self.enter_edit_mode)
             self.edit_btn.setVisible(False)
         else:
             # Create regenerate button
             self.regenerate_btn = QPushButton()
-            self.regenerate_btn.setIcon(QIcon(new_icon("refresh", "svg")))
-            self.regenerate_btn.setFixedSize(*ICON_SIZE_SMALL)
+            self.regenerate_btn.setIcon(_new_message_action_icon("refresh"))
+            self.regenerate_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
+            self.regenerate_btn.setFixedSize(*MESSAGE_ACTION_BUTTON_SIZE)
             self.regenerate_btn.setStyleSheet(
                 ChatMessageStyle.get_button_style()
             )
@@ -162,8 +200,9 @@ class ChatMessage(QFrame):
 
             # Create edit button
             self.edit_btn = QPushButton()
-            self.edit_btn.setIcon(QIcon(new_icon("edit", "svg")))
-            self.edit_btn.setFixedSize(*ICON_SIZE_SMALL)
+            self.edit_btn.setIcon(_new_message_action_icon("edit"))
+            self.edit_btn.setIconSize(QSize(*ICON_SIZE_SMALL))
+            self.edit_btn.setFixedSize(*MESSAGE_ACTION_BUTTON_SIZE)
             self.edit_btn.setStyleSheet(ChatMessageStyle.get_button_style())
             self.edit_btn.clicked.connect(self.enter_edit_mode)
             self.edit_btn.setVisible(False)
@@ -191,12 +230,21 @@ class ChatMessage(QFrame):
 
         # Create a layout for the action buttons at the bottom right
         action_buttons_layout = QHBoxLayout()
-        action_buttons_layout.setContentsMargins(0, 4, 0, 0)
+        action_buttons_layout.setContentsMargins(
+            0,
+            MESSAGE_ACTION_ROW_TOP_MARGIN,
+            0,
+            MESSAGE_ACTION_ROW_BOTTOM_MARGIN,
+        )
         action_buttons_layout.setSpacing(12)
 
         # Set a container for the action buttons
         buttons_container = QWidget()
-        buttons_container.setMinimumHeight(20)
+        buttons_container.setFixedHeight(
+            MESSAGE_ACTION_BUTTON_SIZE[1]
+            + MESSAGE_ACTION_ROW_TOP_MARGIN
+            + MESSAGE_ACTION_ROW_BOTTOM_MARGIN
+        )
         buttons_container.setStyleSheet("background-color: transparent;")
         buttons_container.setLayout(action_buttons_layout)
         bubble_layout.addWidget(buttons_container)
@@ -472,14 +520,14 @@ class ChatMessage(QFrame):
 
         # Change the button icon to a checkmark
         if button:
-            button.setIcon(QIcon(new_icon("check", "svg")))
+            button.setIcon(_new_message_action_icon("check"))
 
             # Start a timer to reset the button after a delay
             QTimer.singleShot(1000, lambda: self.reset_copy_button(button))
 
     def reset_copy_button(self, button):
         """Reset the copy button to its original state"""
-        button.setIcon(QIcon(new_icon("copy", "svg")))
+        button.setIcon(_new_message_action_icon("copy"))
         button.setStyleSheet(ChatMessageStyle.get_button_style())
 
     def adjust_height_after_animation(self):

@@ -489,13 +489,39 @@ class ChatbotDialogStyle:
         """
 
     def get_settings_tabs_style():
-        return """
-        QTabBar::tab {
+        t = get_theme()
+        return f"""
+        QTabBar {{
+            background: {t["background"]};
+            border: none;
+            outline: none;
+        }}
+        QTabBar::tab {{
+            background: {t["surface"]};
+            color: {t["text_secondary"]};
             text-align: center;
-            padding-left: 0px;
-            padding-right: 0px;
-            border-left: none;
-        }
+            padding: 8px 0px;
+            border: none;
+            border-bottom: 2px solid transparent;
+            min-width: 100px;
+            font-weight: 500;
+            outline: none;
+        }}
+        QTabBar::tab:selected {{
+            background: {t["background"]};
+            border: none;
+            border-bottom: 3px solid {t["primary"]};
+            color: {t["primary"]};
+        }}
+        QTabBar::tab:hover:!selected {{
+            background: {t["surface_hover"]};
+        }}
+        QTabBar::tear {{
+            width: 0px;
+            height: 0px;
+            border: none;
+            image: none;
+        }}
         """
 
     def get_spinbox_style(
@@ -677,6 +703,19 @@ class ChatMessageStyle:
             QPushButton {{
                 border: none;
                 background: transparent;
+                border-radius: 4px;
+                padding: 0px;
+                margin: 0px;
+                min-width: {MESSAGE_ACTION_BUTTON_SIZE[0]}px;
+                max-width: {MESSAGE_ACTION_BUTTON_SIZE[0]}px;
+                min-height: {MESSAGE_ACTION_BUTTON_SIZE[1]}px;
+                max-height: {MESSAGE_ACTION_BUTTON_SIZE[1]}px;
+            }}
+            QPushButton:hover {{
+                background-color: {theme["surface_hover"]};
+            }}
+            QPushButton:pressed {{
+                background-color: {theme["surface_pressed"]};
             }}
         """
 

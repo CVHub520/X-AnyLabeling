@@ -18,6 +18,7 @@ class StreamingHandler(QObject):
     def reset(self):
         """Reset the current message buffer"""
         self.current_message = ""
+        self.stop_requested = False
 
     def append_text(self, text):
         """Append text to current message and emit update"""

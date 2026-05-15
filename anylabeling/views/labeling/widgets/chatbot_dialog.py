@@ -56,6 +56,8 @@ from anylabeling.views.labeling.widgets.model_dropdown_widget import (
 
 HELP_ICON_SIZE = 14
 HELP_ICON_RENDER_SCALE = 2
+VISIBILITY_ICON_SIZE = 16
+VISIBILITY_ICON_RENDER_SCALE = 2
 
 
 def _new_help_icon():
@@ -76,6 +78,30 @@ def _new_help_icon():
     painter.fillRect(
         tinted_pixmap.rect(), QColor(get_theme()["text_secondary"])
     )
+    painter.end()
+
+    icon = QIcon()
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Normal)
+    icon.addPixmap(tinted_pixmap, QIcon.Mode.Disabled)
+    return icon
+
+
+def _new_visibility_icon(icon_name):
+    real_size = VISIBILITY_ICON_SIZE * VISIBILITY_ICON_RENDER_SCALE
+    source_pixmap = QIcon(new_icon_path(icon_name, "svg")).pixmap(
+        QSize(real_size, real_size)
+    )
+    if source_pixmap.isNull():
+        return QIcon(new_icon(icon_name, "svg"))
+
+    tinted_pixmap = QPixmap(source_pixmap.size())
+    tinted_pixmap.fill(Qt.GlobalColor.transparent)
+    painter = QPainter(tinted_pixmap)
+    painter.drawPixmap(0, 0, source_pixmap)
+    painter.setCompositionMode(
+        QPainter.CompositionMode.CompositionMode_SourceIn
+    )
+    painter.fillRect(tinted_pixmap.rect(), QColor(get_theme()["text"]))
     painter.end()
 
     icon = QIcon()
@@ -272,9 +298,7 @@ class ChatbotDialog(QDialog):
         # Create the message input
         self.message_input = QTextEdit()
         self.message_input.setPlaceholderText(
-            self.tr(
-                "Type something and Ctrl+↩︎ to send. Use @image to add an image."
-            )
+            self.tr("Type a message and press Enter to send.")
         )
         self.message_input.setStyleSheet(
             ChatbotDialogStyle.get_message_input_style()
@@ -603,7 +627,10 @@ class ChatbotDialog(QDialog):
 
         self.toggle_visibility_btn = QPushButton()
         self.toggle_visibility_btn.setFixedSize(*ICON_SIZE_NORMAL)
-        self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye-off", "svg")))
+        self.toggle_visibility_btn.setIcon(_new_visibility_icon("eye-off"))
+        self.toggle_visibility_btn.setIconSize(
+            QSize(VISIBILITY_ICON_SIZE, VISIBILITY_ICON_SIZE)
+        )
         self.toggle_visibility_btn.setCheckable(True)
         self.toggle_visibility_btn.setStyleSheet(
             ChatbotDialogStyle.get_button_style()
@@ -1352,6 +1379,7 @@ class ChatbotDialog(QDialog):
         # Reset streaming state
         self.streaming = False
         self.set_components_enabled(True)
+        self.restore_send_button()
 
         # Auto focus on message input after generation
         self.message_input.setFocus()
@@ -1369,12 +1397,10 @@ class ChatbotDialog(QDialog):
         """Toggle visibility of API key"""
         if self.api_key.echoMode() == QLineEdit.EchoMode.Password:
             self.api_key.setEchoMode(QLineEdit.EchoMode.Normal)
-            self.toggle_visibility_btn.setIcon(QIcon(new_icon("eye", "svg")))
+            self.toggle_visibility_btn.setIcon(_new_visibility_icon("eye"))
         else:
             self.api_key.setEchoMode(QLineEdit.EchoMode.Password)
-            self.toggle_visibility_btn.setIcon(
-                QIcon(new_icon("eye-off", "svg"))
-            )
+            self.toggle_visibility_btn.setIcon(_new_visibility_icon("eye-off"))
 
     def navigate_image(self, direction="next", index=None):
         """Navigate to previous or next image and load its chat history
@@ -2081,18 +2107,11 @@ class ChatbotDialog(QDialog):
                     return True
 
         if obj == self.message_input and event.type() == QEvent.Type.KeyPress:
-            if (
-                event.key() == Qt.Key.Key_Return
-                and event.modifiers() & Qt.KeyboardModifier.ControlModifier
-            ):
+            if event.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+                if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                    return False
                 self.start_generation()
                 return True
-            elif (
-                event.key() == Qt.Key.Key_Return
-                and not event.modifiers() & Qt.KeyboardModifier.ControlModifier
-            ):
-                # Enter without Ctrl adds a new line
-                return False
         # Prevent Enter key from triggering buttons when in settings fields
         elif (
             hasattr(self, "api_address")
@@ -2239,6 +2258,7 @@ class ChatbotDialog(QDialog):
             logger.debug(f"Error in streaming generation: {e}")
             self.stream_handler.report_error(str(e))
             self.stream_handler.finished.emit(False)
+            self.stream_handler.stop_loading()
 
     def set_components_enabled(self, enabled):
         """Enable or disable UI components during streaming"""

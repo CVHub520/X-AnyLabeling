@@ -59,6 +59,20 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
     ):
         return total_data["models_data"]
 
+    if provider not in total_data["models_data"]:
+        total_data["models_data"][provider] = {}
+
+    if not total_data["models_data"][provider]:
+        try:
+            total_data = _refresh_models_data(
+                provider, base_url, api_key, config_path
+            )
+        except Exception as e:
+            logger.debug(f"Error updating models: {e}")
+        if provider not in total_data["models_data"]:
+            total_data["models_data"][provider] = {}
+        return total_data["models_data"]
+
     thread = threading.Thread(
         target=fetch_models_async,
         args=(provider, base_url, api_key, config_path),
@@ -66,46 +80,49 @@ def get_models_data(provider: str, base_url: str, api_key: str) -> dict:
     thread.daemon = True
     thread.start()
 
-    if provider not in total_data["models_data"]:
-        total_data["models_data"][provider] = {}
-
     return total_data["models_data"]
 
 
 def fetch_models_async(provider_display_name, base_url, api_key, config_path):
     """Fetch models data asynchronously"""
     try:
-        total_data = load_json(config_path)
-        supported_vision_models = total_data["supported_vision_models"]
-        models_id_list = get_models_id_list(base_url, api_key, timeout=5)
-
-        if provider_display_name not in total_data["models_data"]:
-            total_data["models_data"][provider_display_name] = {}
-        models_data = total_data["models_data"][provider_display_name]
-
-        models_to_remove = [
-            model_id
-            for model_id in models_data
-            if model_id not in models_id_list
-        ]
-        for model_id in models_to_remove:
-            del models_data[model_id]
-
-        for model_id in models_id_list:
-            if model_id not in models_data:
-                is_vision = any(
-                    vision_model in model_id.lower()
-                    for vision_model in supported_vision_models
-                )
-                models_data[model_id] = dict(
-                    vision=is_vision, selected=False, favorite=False
-                )
-        total_data["models_data"][provider_display_name] = models_data
-
-        save_json(total_data, config_path)
-
+        _refresh_models_data(
+            provider_display_name, base_url, api_key, config_path
+        )
     except Exception as e:
         logger.debug(f"Error updating models: {e}")
+
+
+def _refresh_models_data(
+    provider_display_name, base_url, api_key, config_path
+):
+    total_data = load_json(config_path)
+    supported_vision_models = total_data["supported_vision_models"]
+    models_id_list = get_models_id_list(base_url, api_key, timeout=5)
+
+    if provider_display_name not in total_data["models_data"]:
+        total_data["models_data"][provider_display_name] = {}
+    models_data = total_data["models_data"][provider_display_name]
+
+    models_to_remove = [
+        model_id for model_id in models_data if model_id not in models_id_list
+    ]
+    for model_id in models_to_remove:
+        del models_data[model_id]
+
+    for model_id in models_id_list:
+        if model_id not in models_data:
+            is_vision = any(
+                vision_model in model_id.lower()
+                for vision_model in supported_vision_models
+            )
+            models_data[model_id] = dict(
+                vision=is_vision, selected=False, favorite=False
+            )
+    total_data["models_data"][provider_display_name] = models_data
+
+    save_json(total_data, config_path)
+    return total_data
 
 
 def get_models_id_list(base_url: str, api_key: str, timeout: int = 5) -> list:

@@ -81,6 +81,7 @@ dependencies = [
     "jsonlines",
     "markdown",
     "openai",
+    "socksio>=1.0.0",
     "psutil",
     "pyclipper",
     "six",
