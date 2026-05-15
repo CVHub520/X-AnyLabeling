@@ -1,8 +1,9 @@
 import json
 import os
-import subprocess
 import threading
 import time
+import urllib.error
+import urllib.request
 
 from openai import OpenAI
 
@@ -128,15 +129,28 @@ def _refresh_models_data(
 def get_models_id_list(base_url: str, api_key: str, timeout: int = 5) -> list:
     """Get models id list from the API"""
     if "anthropic" in base_url:
-        url = f'curl https://api.anthropic.com/v1/models --header "x-api-key:{api_key}" --header "anthropic-version: 2023-06-01"'
-        response = subprocess.run(
-            url, shell=True, capture_output=True, text=True
+        endpoint = base_url.rstrip("/") + "/models"
+        request = urllib.request.Request(
+            endpoint,
+            headers={
+                "x-api-key": (api_key or "").strip(),
+                "anthropic-version": "2023-06-01",
+            },
         )
         try:
-            response_data = json.loads(response.stdout)
-            return [model["id"] for model in response_data.get("data", [])]
+            with urllib.request.urlopen(request, timeout=timeout) as resp:
+                payload = json.loads(resp.read().decode("utf-8"))
+            return [model["id"] for model in payload.get("data", [])]
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", errors="replace")
+            logger.error(
+                f"Anthropic models fetch failed: HTTP {e.code} {body}"
+            )
+            return []
         except Exception as e:
-            logger.debug(f"Response: {response.stdout}")
+            logger.error(
+                f"Anthropic models fetch failed: {type(e).__name__}: {e}"
+            )
             return []
     else:
         client = OpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
