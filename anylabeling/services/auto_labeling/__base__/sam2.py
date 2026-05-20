@@ -76,17 +76,49 @@ class SegmentAnything2ONNX:
         return np.array(output_masks)
 
 
+def _create_session(path: str, device: str) -> ort.InferenceSession:
+    """Create an ONNX Runtime inference session with proper GPU memory management.
+
+    This factory function configures the CUDA execution provider with memory
+    limits and a conservative arena allocation strategy to prevent unbounded
+    GPU VRAM growth during repeated inference calls.
+
+    Args:
+        path (str): Path to the ONNX model file.
+        device (str): Device to run inference on ('gpu' or 'cpu').
+
+    Returns:
+        ort.InferenceSession: Configured inference session.
+    """
+    sess_options = ort.SessionOptions()
+    sess_options.log_severity_level = 3
+    sess_options.enable_mem_pattern = True
+    sess_options.enable_mem_reuse = True
+
+    if device.lower() == "gpu":
+        cuda_provider_options = {
+            "device_id": 0,
+            "gpu_mem_limit": 4 * 1024 * 1024 * 1024,
+            "arena_extend_strategy": "kSameAsRequested",
+            "cudnn_conv_algo_search": "DEFAULT",
+        }
+        providers = [
+            ("CUDAExecutionProvider", cuda_provider_options),
+            "CPUExecutionProvider",
+        ]
+    else:
+        providers = ["CPUExecutionProvider"]
+
+    session = ort.InferenceSession(
+        path, providers=providers, sess_options=sess_options
+    )
+    return session
+
+
 class SAM2ImageEncoder:
     def __init__(self, path: str, device: str) -> None:
         # Initialize model
-        providers = ["CPUExecutionProvider"]
-        if device.lower() == "gpu":
-            providers = ["CUDAExecutionProvider"]
-        sess_options = ort.SessionOptions()
-        sess_options.log_severity_level = 3
-        self.session = ort.InferenceSession(
-            path, providers=providers, sess_options=sess_options
-        )
+        self.session = _create_session(path, device)
 
         # Get model info
         self.get_input_details()
@@ -158,14 +190,7 @@ class SAM2ImageDecoder:
         mask_threshold: float = 0.0,
     ) -> None:
         # Initialize model
-        providers = ["CPUExecutionProvider"]
-        if device.lower() == "gpu":
-            providers = ["CUDAExecutionProvider"]
-        sess_options = ort.SessionOptions()
-        sess_options.log_severity_level = 3
-        self.session = ort.InferenceSession(
-            path, providers=providers, sess_options=sess_options
-        )
+        self.session = _create_session(path, device)
 
         self.orig_im_size = (
             orig_im_size if orig_im_size is not None else encoder_input_size

@@ -97,8 +97,11 @@ class SegmentAnything2(Model):
         self.marks = []
 
         # Cache for image embedding
-        self.cache_size = 10
-        self.preloaded_size = self.cache_size - 3
+        # NOTE: Cache size reduced to limit GPU VRAM accumulation.
+        # The CUDA arena allocator retains memory from each encoder call,
+        # so fewer cached embeddings = less peak VRAM usage.
+        self.cache_size = 3
+        self.preloaded_size = 1
         self.image_embedding_cache = LRUCache(self.cache_size)
 
         # Pre-inference worker
@@ -449,22 +452,12 @@ class SegmentAnything2(Model):
 
     def on_next_files_changed(self, next_files):
         """
-        Handle next files changed. This function can preload next files
-        and run inference to save time for user.
+        Handle next files changed.
+
+        NOTE: Background preloading is disabled to prevent GPU VRAM leak.
+        The ONNX Runtime CUDA arena allocator grows with each encoder call
+        from the background thread and never releases memory, eventually
+        exhausting all available VRAM. Encoding is now performed on-demand
+        when each image is accessed, with results cached for re-use.
         """
-        if (
-            self.pre_inference_thread is None
-            or not self.pre_inference_thread.isRunning()
-        ):
-            self.pre_inference_thread = QThread()
-            self.pre_inference_worker = GenericWorker(
-                self.preload_worker, next_files
-            )
-            self.pre_inference_worker.finished.connect(
-                self.pre_inference_thread.quit
-            )
-            self.pre_inference_worker.moveToThread(self.pre_inference_thread)
-            self.pre_inference_thread.started.connect(
-                self.pre_inference_worker.run
-            )
-            self.pre_inference_thread.start()
+        pass
