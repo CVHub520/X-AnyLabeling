@@ -111,6 +111,13 @@ def _measure_text_width(font_metrics, text):
     return font_metrics.width(text)
 
 
+def _format_label_list_text(label, group_id):
+    text = html.escape(label)
+    if group_id is None:
+        return text
+    return f"{text} ({group_id})"
+
+
 def _create_file_status_icon(color):
     pixmap = QtGui.QPixmap(12, 12)
     pixmap.fill(Qt.GlobalColor.transparent)
@@ -6625,7 +6632,7 @@ class LabelingWidget(LabelDialog):
             self._update_shape_color(shape)
             color = shape.fill_color.getRgb()[:3]
             item = self.label_list.find_item_by_shape(shape)
-            item.setText("{}".format(html.escape(shape.label)))
+            item.setText(_format_label_list_text(shape.label, shape.group_id))
             item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
             self.unique_label_list.update_item_color(
                 shape.label, color, LABEL_OPACITY

@@ -41,3 +41,16 @@ class TestLabelWidgetMetrics(unittest.TestCase):
 
         metrics = LegacyFontMetrics()
         self.assertEqual(_measure_text_width(metrics, "vehicle"), 49)
+
+    def test_format_label_list_text_includes_group_id(self):
+        from anylabeling.views.labeling.label_widget import (
+            _format_label_list_text,
+        )
+
+        self.assertEqual(
+            _format_label_list_text("towel_clamp", 1), "towel_clamp (1)"
+        )
+        self.assertEqual(
+            _format_label_list_text("a<b", None),
+            "a&lt;b",
+        )
