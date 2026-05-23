@@ -419,6 +419,12 @@ class LabelingWidget(LabelDialog):
         self.scroll_bars[Qt.Orientation.Horizontal].valueChanged.connect(
             lambda: self.update_navigator_viewport()
         )
+        self.scroll_bars[Qt.Orientation.Vertical].rangeChanged.connect(
+            lambda *_: self.update_labeling_instruction()
+        )
+        self.scroll_bars[Qt.Orientation.Horizontal].rangeChanged.connect(
+            lambda *_: self.update_labeling_instruction()
+        )
         self.canvas.scroll_request.connect(self.scroll_request)
         self.canvas.new_shape.connect(self.new_shape)
         self.canvas.show_shape.connect(self.show_shape)
@@ -2639,6 +2645,33 @@ class LabelingWidget(LabelDialog):
             f" {text_settings}({self._format_instruction_shortcut(shortcuts.get('open_settings'))})"
         )
 
+    def _should_show_space_pan_tip(self):
+        if not self.canvas.drawing() or self.canvas.current is None:
+            return False
+        return any(
+            scroll_bar.maximum() > 0
+            for scroll_bar in self.scroll_bars.values()
+        )
+
+    def _space_pan_tip_message(self):
+        return self.tr(
+            "Tip: Hold Space and drag with the left mouse button to pan the canvas temporarily."
+        )
+
+    def update_space_pan_tip(self):
+        message = self._space_pan_tip_message()
+        status_bar = self.statusBar()
+        if self._should_show_space_pan_tip():
+            status_bar.showMessage(message)
+        elif status_bar.currentMessage() == message:
+            status_bar.clearMessage()
+
+    def update_labeling_instruction(self):
+        if not hasattr(self, "label_instruction"):
+            return
+        self.label_instruction.setText(self.get_labeling_instruction())
+        self.update_space_pan_tip()
+
     def _format_instruction_shortcut(self, value):
         text = self._settings_runtime_applier.shortcut_value_to_text(
             value
@@ -2667,12 +2700,12 @@ class LabelingWidget(LabelDialog):
     @pyqtSlot()
     def on_auto_segmentation_requested(self):
         self.canvas.set_auto_labeling(True)
-        self.label_instruction.setText(self.get_labeling_instruction())
+        self.update_labeling_instruction()
 
     @pyqtSlot()
     def on_auto_segmentation_disabled(self):
         self.canvas.set_auto_labeling(False)
-        self.label_instruction.setText(self.get_labeling_instruction())
+        self.update_labeling_instruction()
 
     @pyqtSlot(list)
     def on_exif_detected(self, exif_files):
@@ -3364,6 +3397,7 @@ class LabelingWidget(LabelDialog):
         self.actions.undo.setEnabled(not drawing)
         self.actions.delete.setEnabled(not drawing)
         self.actions.union_selection.setEnabled(not drawing)
+        self.update_labeling_instruction()
 
     def create_digit_mode(self, digit_num):
         if self.drawing_digit_shortcuts is None:
@@ -3449,7 +3483,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_line_strip_mode.setEnabled(True)
             create_actions[create_mode].setEnabled(False)
         self.actions.edit_mode.setEnabled(not edit)
-        self.label_instruction.setText(self.get_labeling_instruction())
+        self.update_labeling_instruction()
 
     def toggle_brush_polygon_mode(self):
         """Toggle brush drawing mode for polygons."""
@@ -3472,7 +3506,7 @@ class LabelingWidget(LabelDialog):
 
         self.toggle_draw_mode(True)
         self.set_text_editing(True)
-        self.label_instruction.setText(self.get_labeling_instruction())
+        self.update_labeling_instruction()
 
     def update_file_menu(self):
         current = self.filename

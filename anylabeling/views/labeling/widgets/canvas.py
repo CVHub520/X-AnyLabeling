@@ -133,6 +133,10 @@ class Canvas(
         self.prev_point = QtCore.QPointF()
         self.prev_pan_point = QtCore.QPointF()
         self.prev_move_point = QtCore.QPointF()
+        self._space_pressed = False
+        self._space_panning = False
+        self._space_pan_prev_point = None
+        self._space_pan_suppress_until_release = False
         self.offsets = QtCore.QPointF(), QtCore.QPointF()
         self.scale = 1.0
         self.pixmap = QtGui.QPixmap()
@@ -433,6 +437,7 @@ class Canvas(
 
     def leaveEvent(self, _):
         """Mouse leave event"""
+        self._clear_space_pan_state()
         self.store_moving_shape()
         self.un_highlight()
         self.restore_cursor()
@@ -440,6 +445,7 @@ class Canvas(
 
     def focusOutEvent(self, _):
         """Window out of focus event"""
+        self._clear_space_pan_state()
         self.restore_cursor()
 
     def is_visible(self, shape):
@@ -528,6 +534,137 @@ class Canvas(
         ) ** 0.5
         return distance >= AUTO_DECODE_MOVE_THRESHOLD
 
+    def _has_valid_pixmap(self):
+        return (
+            self.pixmap
+            and not self.pixmap.isNull()
+            and self.pixmap.width()
+            and self.pixmap.height()
+        )
+
+    def _clear_space_pan_state(self):
+        self._space_pressed = False
+        self._space_panning = False
+        self._space_pan_prev_point = None
+        self._space_pan_suppress_until_release = False
+
+    def _restore_space_pan_cursor(self):
+        if self._space_pressed:
+            self.override_cursor(CURSOR_GRAB)
+        elif self.drawing():
+            self.override_cursor(CURSOR_DRAW)
+        else:
+            self.override_cursor(CURSOR_DEFAULT)
+
+    def _start_space_pan(self, point):
+        if not self._has_valid_pixmap():
+            return False
+        self._space_panning = True
+        self._space_pan_suppress_until_release = True
+        self._space_pan_prev_point = point
+        self._clear_space_pan_hover_state()
+        self.override_cursor(CURSOR_MOVE)
+        return True
+
+    def _left_button_pressed(self, ev):
+        return bool(QtCore.Qt.MouseButton.LeftButton & ev.buttons())
+
+    def _clear_space_pan_hover_state(self):
+        had_hover = any(
+            item is not None
+            for item in (
+                self.h_shape,
+                self.h_vertex,
+                self.h_edge,
+                self.h_cuboid_face,
+            )
+        )
+        self.un_highlight()
+        self.h_shape_is_selected = False
+        self.vertex_selected.emit(False)
+        if had_hover:
+            self.shape_hover_changed.emit()
+
+    def _sync_drawing_line(self, pos, modifiers):
+        if not self.drawing() or not self.current:
+            return
+        if self.out_off_pixmap(pos) and self.create_mode not in [
+            "rectangle",
+            "rotation",
+            "quadrilateral",
+            "cuboid",
+        ]:
+            pos = self.intersection_point(self.current[-1], pos)
+        elif (
+            self.snapping
+            and len(self.current) > 1
+            and self.create_mode == "polygon"
+            and self.close_enough(pos, self.current[0])
+        ):
+            pos = self.current[0]
+        elif (
+            self.create_mode == "rotation"
+            and len(self.current) > 0
+            and self.close_enough(pos, self.current[0])
+        ):
+            pos = self.current[0]
+        elif (
+            self.create_mode == "quadrilateral"
+            and len(self.current) >= 3
+            and self.close_enough(pos, self.current[0])
+        ):
+            pos = self.current[0]
+        if (
+            self.create_mode in ["line", "linestrip"]
+            and modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier
+        ):
+            pos = self._snap_line_pos(self.current[-1], pos)
+        if self.create_mode in ["polygon", "linestrip", "quadrilateral"]:
+            self.line[0] = self.current[-1]
+            self.line[1] = pos
+        elif self.create_mode == "rectangle":
+            self.line.points = [self.current[0], pos]
+            self.line.close()
+        elif self.create_mode == "rotation":
+            self.line[1] = pos
+        elif self.create_mode == "circle":
+            self.line.points = [self.current[0], pos]
+            self.line.shape_type = "circle"
+        elif self.create_mode == "line":
+            self.line.points = [self.current[0], pos]
+            self.line.close()
+        elif self.create_mode == "cuboid":
+            self.line.points = [self.current[0], pos]
+            self.line.close()
+
+    def _update_space_pan(self, point):
+        if not self._space_panning:
+            return False
+        if not self._has_valid_pixmap():
+            self._space_panning = False
+            self._space_pan_prev_point = None
+            self._space_pan_suppress_until_release = False
+            return False
+        if self._space_pan_prev_point is None:
+            self._space_pan_prev_point = point
+            return True
+
+        delta = point - self._space_pan_prev_point
+        self._space_pan_prev_point = point
+        self.override_cursor(CURSOR_MOVE)
+        self.scroll_request.emit(
+            delta.x() / (self.pixmap.width() * self.scale),
+            Qt.Orientation.Horizontal,
+            1,
+        )
+        self.scroll_request.emit(
+            delta.y() / (self.pixmap.height() * self.scale),
+            Qt.Orientation.Vertical,
+            1,
+        )
+        self.repaint()
+        return True
+
     # QT Overload
     def mouseMoveEvent(self, ev):  # noqa: C901
         """Update line with last point and current coordinates"""
@@ -536,6 +673,24 @@ class Canvas(
         try:
             pos = self.transform_pos(ev.position())
         except AttributeError:
+            return
+
+        if self._space_panning:
+            if self._left_button_pressed(ev):
+                self._update_space_pan(ev.position())
+                ev.accept()
+                return
+            self._space_panning = False
+            self._space_pan_prev_point = None
+            self._space_pan_suppress_until_release = False
+        if self._space_pan_suppress_until_release:
+            if self._left_button_pressed(ev):
+                ev.accept()
+                return
+            self._space_pan_suppress_until_release = False
+        if self._space_pressed:
+            self.override_cursor(CURSOR_GRAB)
+            ev.accept()
             return
 
         prev_hover_shape = self.h_shape
@@ -1075,8 +1230,17 @@ class Canvas(
         pos = self.transform_pos(ev.position())
 
         if ev.button() == QtCore.Qt.MouseButton.LeftButton:
+            if (
+                self._space_pan_suppress_until_release
+                and not self._space_pressed
+            ):
+                self._space_pan_suppress_until_release = False
+            if self._space_pressed and self._start_space_pan(ev.position()):
+                ev.accept()
+                return
             if self.drawing():
                 if self.current:
+                    self._sync_drawing_line(pos, ev.modifiers())
                     # Add point to existing shape.
                     if self.create_mode == "polygon":
                         self.current.add_point(self.line[1])
@@ -1288,6 +1452,16 @@ class Canvas(
         if self.is_loading:
             return
 
+        if ev.button() == QtCore.Qt.MouseButton.LeftButton and (
+            self._space_panning or self._space_pan_suppress_until_release
+        ):
+            self._space_panning = False
+            self._space_pan_prev_point = None
+            self._space_pan_suppress_until_release = False
+            self._restore_space_pan_cursor()
+            ev.accept()
+            return
+
         if ev.button() == QtCore.Qt.MouseButton.RightButton:
             menu = self.menus[len(self.selected_shapes_copy) > 0]
             self.restore_cursor()
@@ -1349,6 +1523,13 @@ class Canvas(
     def mouseDoubleClickEvent(self, ev):
         """Mouse double click event"""
         if self.is_loading:
+            return
+        if (
+            self._space_pressed
+            or self._space_panning
+            or self._space_pan_suppress_until_release
+        ):
+            ev.accept()
             return
 
         # Handle auto decode mode double click to finish
@@ -3430,6 +3611,15 @@ class Canvas(
         """Key press event"""
         modifiers = ev.modifiers()
         key = ev.key()
+        if key == QtCore.Qt.Key.Key_Space and not ev.isAutoRepeat():
+            self._space_pressed = True
+            self._clear_space_pan_hover_state()
+            if self._space_panning:
+                self.override_cursor(CURSOR_MOVE)
+            else:
+                self.override_cursor(CURSOR_GRAB)
+            ev.accept()
+            return
         if self.drawing():
             if key == QtCore.Qt.Key.Key_Escape and self.current:
                 self.current = None
@@ -3473,6 +3663,14 @@ class Canvas(
     def keyReleaseEvent(self, ev):
         """Key release event"""
         modifiers = ev.modifiers()
+        key = ev.key()
+        if key == QtCore.Qt.Key.Key_Space and not ev.isAutoRepeat():
+            self._space_pressed = False
+            self._space_panning = False
+            self._space_pan_prev_point = None
+            self._restore_space_pan_cursor()
+            ev.accept()
+            return
         if self.drawing():
             if modifiers == QtCore.Qt.KeyboardModifier.NoModifier:
                 self.snapping = True
@@ -3597,6 +3795,7 @@ class Canvas(
 
     def reset_state(self):
         """Clear shapes and pixmap"""
+        self._clear_space_pan_state()
         self.restore_cursor()
         self.pixmap = None
         self.shapes_backups = []

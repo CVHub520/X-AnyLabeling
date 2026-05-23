@@ -221,6 +221,8 @@ Press `Ctrl+J` to quickly switch between Drawing and Editing modes. Additional o
 
 Additionally, you can quickly copy the coordinates of any selected shape to your clipboard using the **Copy Coordinates** option from the right-click context menu. For rectangles, this outputs the format `[x1, y1, x2, y2]` (top-left and bottom-right corners), while other shape types output `[x1, y1, x2, y2, x3, y3, ...]` (all vertex coordinates). In Editing Mode, double-clicking a shape on the canvas opens the label editor; you can disable this in `Settings > Canvas > Interaction > Double Click Edit Label`, or via the `double_click_edit_label` canvas setting (default: true).
 
+When drawing a shape on a zoomed canvas with scrollbars, hold `Space` and drag with the left mouse button to temporarily pan the canvas without leaving Drawing Mode.
+
 > [!TIP]
 > X-AnyLabeling provides two convenient shape navigation features:
 > - **Loop Through Objects** (Ctrl+Shift+N): Sequentially zoom in on each shape in the canvas for detailed inspection of annotation quality.
