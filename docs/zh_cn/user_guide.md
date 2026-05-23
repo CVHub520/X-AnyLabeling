@@ -1125,5 +1125,6 @@ theme: auto  # 可选: auto, light, dark
 - 聊天机器人：[链接](../zh_cn/chatbot.md)
 - 视觉问答: [链接](../zh_cn/vqa.md)
 - 图像分类器：[链接](../zh_cn/image_classifier.md)
+- 视频分类器：[链接](../zh_cn/video_classifier.md)
 - Ultralytics 训练平台：[链接](../../examples/training/ultralytics/README.md)
 - 文档解析与智能文字识别：[链接](../zh_cn/paddle_ocr.md)

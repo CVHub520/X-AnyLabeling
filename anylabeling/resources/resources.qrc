@@ -5,6 +5,7 @@
         <file>images/arrow-left.svg</file>
         <file>images/arrow-right.svg</file>
         <file>images/auto-run.png</file>
+        <file>images/backward.svg</file>
         <file>images/brain.png</file>
         <file>images/bria-ai.png</file>
         <file>images/brush_polygon.png</file>
@@ -14,6 +15,7 @@
         <file>images/caret-right.svg</file>
         <file>images/caret-up.svg</file>
         <file>images/cartesian.png</file>
+        <file>images/cavy.png</file>
         <file>images/chatbot.png</file>
         <file>images/check.svg</file>
         <file>images/checkmark.svg</file>
@@ -63,6 +65,7 @@
         <file>images/error.svg</file>
         <file>images/eth.png</file>
         <file>images/expert.png</file>
+        <file>images/export.svg</file>
         <file>images/eye-off.svg</file>
         <file>images/eye.png</file>
         <file>images/eye.svg</file>
@@ -70,9 +73,11 @@
         <file>images/fit-width.png</file>
         <file>images/fit-window.png</file>
         <file>images/fit.png</file>
+        <file>images/fit.svg</file>
         <file>images/folder.svg</file>
         <file>images/format_default.png</file>
         <file>images/format_obb.png</file>
+        <file>images/forward.svg</file>
         <file>images/github.png</file>
         <file>images/google.png</file>
         <file>images/help-circle.svg</file>
@@ -92,6 +97,7 @@
         <file>images/json.svg</file>
         <file>images/ko.png</file>
         <file>images/labels.png</file>
+        <file>images/left.svg</file>
         <file>images/lightning.svg</file>
         <file>images/line-strip.png</file>
         <file>images/line.png</file>
@@ -112,6 +118,7 @@
         <file>images/objects.png</file>
         <file>images/ollama.png</file>
         <file>images/open.png</file>
+        <file>images/open.svg</file>
         <file>images/openai.png</file>
         <file>images/opendatalab.png</file>
         <file>images/opengvlab.png</file>
@@ -122,7 +129,9 @@
         <file>images/overview.png</file>
         <file>images/paddlepaddle.png</file>
         <file>images/paste.png</file>
+        <file>images/pause.svg</file>
         <file>images/pdf.svg</file>
+        <file>images/play.svg</file>
         <file>images/plus.png</file>
         <file>images/point.png</file>
         <file>images/polygon.png</file>
@@ -133,17 +142,21 @@
         <file>images/qwen.png</file>
         <file>images/ragdoll.png</file>
         <file>images/rectangle.png</file>
+        <file>images/redo.svg</file>
         <file>images/refresh.svg</file>
         <file>images/resetall.png</file>
+        <file>images/right.svg</file>
         <file>images/roboflow.png</file>
         <file>images/rotation.png</file>
         <file>images/run.svg</file>
         <file>images/save-as.png</file>
         <file>images/save.png</file>
         <file>images/scissors.png</file>
+        <file>images/scissors.svg</file>
         <file>images/search.svg</file>
         <file>images/send.svg</file>
         <file>images/settings.svg</file>
+        <file>images/shortcuts.svg</file>
         <file>images/sidebar.svg</file>
         <file>images/star-black.svg</file>
         <file>images/star.svg</file>
@@ -155,6 +168,7 @@
         <file>images/ultralytics.png</file>
         <file>images/undo-cross.png</file>
         <file>images/undo.png</file>
+        <file>images/undo.svg</file>
         <file>images/union.png</file>
         <file>images/update.png</file>
         <file>images/upload_brain.png</file>

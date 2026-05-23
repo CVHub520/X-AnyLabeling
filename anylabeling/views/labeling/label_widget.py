@@ -78,6 +78,7 @@ from .widgets import (
     CrosshairSettingsDialog,
     FileDialogPreview,
     PPOCRDialog,
+    VideoClassifierDialog,
     ShapeModifyDialog,
     GroupIDFilterComboBox,
     LabelDialog,
@@ -1012,12 +1013,21 @@ class LabelingWidget(LabelDialog):
             icon="husky",
             tip=self.tr("Open VQA dialog"),
         )
-        open_classifier = action(
+        open_image_classifier = action(
             self.tr("Classifier"),
-            self.open_classifier,
-            shortcuts["open_classifier"],
+            self.open_image_classifier,
+            shortcuts.get(
+                "open_image_classifier", shortcuts.get("open_classifier")
+            ),
             icon="ragdoll",
             tip=self.tr("Open classifier dialog"),
+        )
+        open_video_classifier = action(
+            self.tr("Video Classifier"),
+            self.open_video_classifier,
+            shortcuts.get("open_video_classifier"),
+            icon="cavy",
+            tip=self.tr("Open video classifier dialog"),
         )
         open_paddleocr = action(
             self.tr("PaddleOCR"),
@@ -1791,7 +1801,9 @@ class LabelingWidget(LabelDialog):
             open_prev_unchecked_image=open_prev_unchecked_image,
             open_chatbot=open_chatbot,
             open_vqa=open_vqa,
-            open_classifier=open_classifier,
+            open_image_classifier=open_image_classifier,
+            open_classifier=open_image_classifier,
+            open_video_classifier=open_video_classifier,
             open_paddleocr=open_paddleocr,
             toggle_auto_labeling_widget=toggle_auto_labeling_widget,
             digit_shortcut_manager=digit_shortcut_manager,
@@ -2150,7 +2162,8 @@ class LabelingWidget(LabelDialog):
             None,
             open_chatbot,
             open_vqa,
-            open_classifier,
+            open_image_classifier,
+            open_video_classifier,
             open_paddleocr,
             None,
             fit_width,
@@ -3196,7 +3209,27 @@ class LabelingWidget(LabelDialog):
         else:
             self.ppocr_window.show()
 
-    def open_classifier(self):
+    def open_video_classifier(self):
+        if (
+            not hasattr(self, "video_classifier_window")
+            or self.video_classifier_window is None
+        ):
+            self.video_classifier_window = VideoClassifierDialog(self)
+            self.video_classifier_window.setAttribute(
+                Qt.WidgetAttribute.WA_DeleteOnClose, True
+            )
+            self.video_classifier_window.destroyed.connect(
+                lambda _obj=None: setattr(
+                    self, "video_classifier_window", None
+                )
+            )
+        if self.video_classifier_window.isVisible():
+            self.video_classifier_window.raise_()
+            self.video_classifier_window.activateWindow()
+        else:
+            self.video_classifier_window.showMaximized()
+
+    def open_image_classifier(self):
         if not self.image_list:
             self.error_message(
                 self.tr("No images loaded"),
@@ -3219,6 +3252,9 @@ class LabelingWidget(LabelDialog):
 
         dialog = ClassifierDialog(self)
         dialog.exec()
+
+    def open_classifier(self):
+        return self.open_image_classifier()
 
     # Help
     def documentation(self):
@@ -5638,6 +5674,15 @@ class LabelingWidget(LabelDialog):
     def closeEvent(self, event):
         if not self.may_continue():
             event.ignore()
+        if event.isAccepted() and hasattr(self, "video_classifier_window"):
+            if self.video_classifier_window is not None:
+                self.video_classifier_window.close()
+                if (
+                    self.video_classifier_window is not None
+                    and self.video_classifier_window.isVisible()
+                ):
+                    event.ignore()
+                    return
         self.settings.setValue(
             "filename", self.filename if self.filename else ""
         )

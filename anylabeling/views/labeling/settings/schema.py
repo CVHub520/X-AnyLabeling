@@ -254,8 +254,8 @@ def set_nested_value(data: dict[str, Any], key_path: str, value: Any) -> None:
 
 def _shortcut_label(short_key: str) -> str:
     label_overrides = {
-        "open_classifier": QT_TRANSLATE_NOOP(
-            SETTINGS_TRANSLATION_CONTEXT, "Open Classifier Dialog"
+        "open_image_classifier": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Open Image Classifier Dialog"
         ),
         "open_chatbot": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Open Chatbot Dialog"
@@ -981,7 +981,8 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "open_settings",
             "open_chatbot",
             "open_vqa",
-            "open_classifier",
+            "open_image_classifier",
+            "open_video_classifier",
             "open_paddleocr",
             "show_overview",
             "show_navigator",

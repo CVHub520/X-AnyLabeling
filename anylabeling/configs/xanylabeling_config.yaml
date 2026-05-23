@@ -134,8 +134,9 @@ shortcuts:
   open_dir: Ctrl+U
   open_chatbot: Ctrl+1
   open_vqa: Ctrl+2
-  open_classifier: Ctrl+3
+  open_image_classifier: Ctrl+3
   open_paddleocr: Ctrl+4
+  open_video_classifier: Ctrl+5
   quit: Ctrl+Q
   save: Ctrl+S
   save_as: Ctrl+Shift+S

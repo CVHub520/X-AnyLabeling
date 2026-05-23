@@ -77,6 +77,13 @@
 </details>
 
 <details>
+<summary><strong>Video Classifier</strong></summary>
+
+<video src="https://github.com/user-attachments/assets/33a57390-683d-4a24-b0cf-3668af5f7a13" width="100%" controls>
+</video>
+</details>
+
+<details>
 <summary><strong>OCR</strong></summary>
 
 <video src="https://github.com/user-attachments/assets/493183fd-6cbe-45fb-9808-ec2b0af7a0f9" width="100%" controls>
@@ -85,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-05-23`: Added the [Video Classifier](./docs/en/video_classifier.md) annotation panel with timeline segment classification, segment descriptions, AI-assisted video segmentation and description generation.
 - `2026-04-26`: Added client-side (local ONNX) support for [SAM 3](./examples/grounding/sam3/README.md) text-grounded segmentation.
 - `2026-04-25`: Added support for the [GeCo2](./examples/counting/geco2/README.md) object counting model.
 - `2026-04-19`: Added annotation check status workflow for reviewing labeled images.
@@ -117,7 +125,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 - Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr`, `vqa`, `grounding`, `document parsing` and so on.
 - Supports diverse annotation styles: `polygons`, `rectangles`, `cuboids`, `rotated boxes`, `quadrilaterals`, `circles`, `lines`, `line strips`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
 
-### Model library
+## Model library
 
 | **Task Category** | **Supported Models** |
 | :--- | :--- |
@@ -151,8 +159,9 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 4. [Customize a model](./docs/en/custom_model.md)
 5. [Chatbot](./docs/en/chatbot.md)
 6. [VQA](./docs/en/vqa.md)
-7. [Multi-class Image Classifier](./docs/en/image_classifier.md)
-8. [Document Parsing and Intelligent Text Recognition](./docs/en/paddle_ocr.md)
+7. [Image Classifier](./docs/en/image_classifier.md)
+8. [Video Classifier](./docs/en/video_classifier.md)
+9. [Document Parsing and Intelligent Text Recognition](./docs/en/paddle_ocr.md)
 
 ## Examples
 

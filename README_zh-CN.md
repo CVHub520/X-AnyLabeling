@@ -76,6 +76,13 @@
 </details>
 
 <details>
+<summary><strong>视频分类器</strong></summary>
+
+<video src="https://github.com/user-attachments/assets/33a57390-683d-4a24-b0cf-3668af5f7a13" width="100%" controls>
+</video>
+</details>
+
+<details>
 <summary><strong>OCR识别</strong></summary>
 
 <video src="https://github.com/user-attachments/assets/493183fd-6cbe-45fb-9808-ec2b0af7a0f9" width="100%" controls>
@@ -84,6 +91,7 @@
 
 ## 🥳 新功能
 
+- `2026-05-23`: 新增支持 [视频分类器](./docs/zh_cn/video_classifier.md) 标注面板，支持时间轴片段分类、片段描述、AI 自动切分视频与描述生成。
 - `2026-04-26`: 新增客户端（本地 ONNX）支持 [SAM 3](./examples/grounding/sam3/README.md) 文本驱动分割。
 - `2026-04-25`: 新增支持 [GeCo2](./examples/counting/geco2/README.md) 目标计数模型。
 - `2026-04-19`: 新增标注检查状态流程，便于快速复核已标注图片。
@@ -116,7 +124,7 @@
 - 支持多种图像标注样式，包括 `多边形`、`矩形`、`长方体`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
 - 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`、`视觉问答`、`文档解析`等。
 
-### 模型库
+## 模型库
 
 | **任务类别** | **支持模型** |
 | :--- | :--- |
@@ -151,8 +159,9 @@
 5. [常见问题答疑](./docs/zh_cn/faq.md)
 6. [聊天机器人](./docs/zh_cn/chatbot.md)
 7. [视觉问答](./docs/zh_cn/vqa.md)
-8. [多类别图像分类器](./docs/zh_cn/image_classifier.md)
-9. [文档解析与智能文字识别](./docs/zh_cn/paddle_ocr.md)
+8. [图像分类器](./docs/zh_cn/image_classifier.md)
+9. [视频分类器](./docs/zh_cn/video_classifier.md)
+10. [文档解析与智能文字识别](./docs/zh_cn/paddle_ocr.md)
 
 ## 示例
 

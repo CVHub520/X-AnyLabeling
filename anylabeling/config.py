@@ -114,6 +114,12 @@ def normalize_user_config(config):
         normalized.pop(key, None)
     shortcuts = normalized.get("shortcuts")
     if isinstance(shortcuts, dict):
+        open_classifier = shortcuts.pop("open_classifier", None)
+        if (
+            open_classifier is not None
+            and "open_image_classifier" not in shortcuts
+        ):
+            shortcuts["open_image_classifier"] = open_classifier
         for key, value in list(shortcuts.items()):
             if key == "zoom_in":
                 shortcuts[key] = _normalize_multi_shortcut_value(value)
