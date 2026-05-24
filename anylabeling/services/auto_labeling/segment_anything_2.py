@@ -97,9 +97,8 @@ class SegmentAnything2(Model):
         self.marks = []
 
         # Cache for image embedding
-        # NOTE: Cache size reduced to limit GPU VRAM accumulation.
-        # The CUDA arena allocator retains memory from each encoder call,
-        # so fewer cached embeddings = less peak VRAM usage.
+        # Use a smaller cache for SAM2 to keep memory pressure bounded while
+        # CUDA arena options cap GPU allocations.
         self.cache_size = 3
         self.preloaded_size = 1
         self.image_embedding_cache = LRUCache(self.cache_size)
@@ -454,10 +453,8 @@ class SegmentAnything2(Model):
         """
         Handle next files changed.
 
-        NOTE: Background preloading is disabled to prevent GPU VRAM leak.
-        The ONNX Runtime CUDA arena allocator grows with each encoder call
-        from the background thread and never releases memory, eventually
-        exhausting all available VRAM. Encoding is now performed on-demand
-        when each image is accessed, with results cached for re-use.
+        Background preloading is disabled for SAM2 because background encoder
+        runs can compete with foreground inference under the configured CUDA
+        arena limit. Encoding runs on-demand and is cached for re-use.
         """
-        pass
+        return

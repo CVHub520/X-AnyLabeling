@@ -77,11 +77,10 @@ class SegmentAnything2ONNX:
 
 
 def _create_session(path: str, device: str) -> ort.InferenceSession:
-    """Create an ONNX Runtime inference session with proper GPU memory management.
+    """Create an ONNX Runtime inference session for SAM2.
 
-    This factory function configures the CUDA execution provider with memory
-    limits and a conservative arena allocation strategy to prevent unbounded
-    GPU VRAM growth during repeated inference calls.
+    The CUDA provider options keep arena growth conservative and reduce
+    steady-state VRAM usage during repeated interactive inference.
 
     Args:
         path (str): Path to the ONNX model file.
