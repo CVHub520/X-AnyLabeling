@@ -97,8 +97,10 @@ class SegmentAnything2(Model):
         self.marks = []
 
         # Cache for image embedding
-        self.cache_size = 10
-        self.preloaded_size = self.cache_size - 3
+        # Use a smaller cache for SAM2 to keep memory pressure bounded while
+        # CUDA arena options cap GPU allocations.
+        self.cache_size = 3
+        self.preloaded_size = 1
         self.image_embedding_cache = LRUCache(self.cache_size)
 
         # Pre-inference worker
@@ -449,22 +451,10 @@ class SegmentAnything2(Model):
 
     def on_next_files_changed(self, next_files):
         """
-        Handle next files changed. This function can preload next files
-        and run inference to save time for user.
+        Handle next files changed.
+
+        Background preloading is disabled for SAM2 because background encoder
+        runs can compete with foreground inference under the configured CUDA
+        arena limit. Encoding runs on-demand and is cached for re-use.
         """
-        if (
-            self.pre_inference_thread is None
-            or not self.pre_inference_thread.isRunning()
-        ):
-            self.pre_inference_thread = QThread()
-            self.pre_inference_worker = GenericWorker(
-                self.preload_worker, next_files
-            )
-            self.pre_inference_worker.finished.connect(
-                self.pre_inference_thread.quit
-            )
-            self.pre_inference_worker.moveToThread(self.pre_inference_thread)
-            self.pre_inference_thread.started.connect(
-                self.pre_inference_worker.run
-            )
-            self.pre_inference_thread.start()
+        return
