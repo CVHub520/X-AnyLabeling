@@ -1315,7 +1315,7 @@ class SettingsDialog(QtWidgets.QDialog):
     ]:
         editor = ShortcutLineEditor(
             allow_none=field.allow_none,
-            allow_multiple=field.key == "shortcuts.zoom_in",
+            allow_multiple=field.control == "multi_shortcut",
             parent=self.content_body,
         )
         editor.setFixedWidth(244)

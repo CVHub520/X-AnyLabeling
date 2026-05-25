@@ -1068,14 +1068,11 @@ def _shortcut_fields() -> list[SettingField]:
             if short_key not in shortcuts:
                 continue
             consumed.add(short_key)
-            control = (
-                "multi_shortcut" if short_key == "zoom_in" else "shortcut"
-            )
             fields.append(
                 SettingField(
                     key=full_key,
                     label=_shortcut_label(short_key),
-                    control=control,
+                    control="multi_shortcut",
                     primary="Shortcuts",
                     secondary=secondary,
                     group="Binding",

@@ -74,9 +74,11 @@ def new_action(
         action.setIcon(new_icon(icon))
     if shortcut is not None:
         if isinstance(shortcut, (list, tuple)):
-            action.setShortcuts(shortcut)
+            action.setShortcuts(
+                [QtGui.QKeySequence(str(v)) for v in shortcut if v]
+            )
         else:
-            action.setShortcut(shortcut)
+            action.setShortcut(QtGui.QKeySequence(str(shortcut)))
     if tip is not None:
         action.setToolTip(tip)
         action.setStatusTip(tip)

@@ -1137,9 +1137,9 @@ class LabelingWidget(LabelDialog):
         keep_prev_scale = action(
             self.tr("Keep Previous Scale"),
             lambda x: self._config.update({"keep_prev_scale": x}),
-            tip=self.tr("Keep previous zoom scale"),
+            tip=self.tr("Keep previous zoom scale and pan position"),
             checkable=True,
-            checked=self._config["keep_prev_scale"],
+            checked=self._config.get("keep_prev_scale", False),
             enabled=True,
         )
         keep_prev_brightness = action(
@@ -2469,6 +2469,7 @@ class LabelingWidget(LabelDialog):
             Qt.Orientation.Horizontal: {},
             Qt.Orientation.Vertical: {},
         }  # key=filename, value=scroll_value
+        self._pending_keep_prev_scroll = None
 
         if filename is not None and osp.isdir(filename):
             self.import_image_folder(filename, load=False)
@@ -5273,6 +5274,88 @@ class LabelingWidget(LabelDialog):
         self.scroll_values[orientation][self.filename] = value
         self.update_navigator_viewport()
 
+    def _current_scroll_position(self):
+        return {
+            Qt.Orientation.Horizontal: self.scroll_bars[
+                Qt.Orientation.Horizontal
+            ].value(),
+            Qt.Orientation.Vertical: self.scroll_bars[
+                Qt.Orientation.Vertical
+            ].value(),
+        }
+
+    def _should_wait_for_scroll_range(self, previous_scroll):
+        for orientation, value in previous_scroll.items():
+            scroll_bar = self.scroll_bars.get(orientation)
+            if scroll_bar is None:
+                continue
+            if int(value) > 0 and scroll_bar.maximum() == 0:
+                return True
+        return False
+
+    def _restore_previous_scroll_position(
+        self, previous_scroll, target_filename, attempt=0
+    ):
+        if (
+            not previous_scroll
+            or self.filename != target_filename
+            or not hasattr(self, "scroll_bars")
+        ):
+            logger.debug(
+                "[KeepPreviousScale] Skipped stale pan restore: "
+                f"current={osp.basename(str(self.filename))}, "
+                f"target={osp.basename(str(target_filename))}"
+            )
+            return
+
+        max_attempts = 20
+        retry_delay_ms = 25
+        if (
+            self._should_wait_for_scroll_range(previous_scroll)
+            and attempt < max_attempts
+        ):
+            if attempt == 0 or (attempt + 1) % 5 == 0:
+                logger.debug(
+                    "[KeepPreviousScale] Waiting for scrollbar range before "
+                    "pan restore: "
+                    f"file={osp.basename(str(self.filename))}, "
+                    f"attempt={attempt + 1}/{max_attempts}"
+                )
+            QtCore.QTimer.singleShot(
+                retry_delay_ms,
+                functools.partial(
+                    self._restore_previous_scroll_position,
+                    previous_scroll,
+                    target_filename,
+                    attempt + 1,
+                ),
+            )
+            return
+
+        for orientation, value in previous_scroll.items():
+            scroll_bar = self.scroll_bars.get(orientation)
+            if scroll_bar is None:
+                continue
+
+            requested_value = int(value)
+            restored_value = max(
+                scroll_bar.minimum(),
+                min(requested_value, scroll_bar.maximum()),
+            )
+            self.set_scroll(orientation, restored_value)
+            logger.debug(
+                "[KeepPreviousScale] Restored pan: "
+                f"file={osp.basename(str(self.filename))}, "
+                f"orientation={orientation.name}, "
+                f"requested={requested_value}, "
+                f"applied={restored_value}, "
+                f"range=({scroll_bar.minimum()}, {scroll_bar.maximum()})"
+            )
+
+        self.update_navigator_viewport()
+        if self.filename == target_filename:
+            self._pending_keep_prev_scroll = None
+
     def set_zoom(self, value):
         self.actions.fit_width.setChecked(False)
         self.actions.fit_window.setChecked(False)
@@ -5476,6 +5559,36 @@ class LabelingWidget(LabelDialog):
             self.file_list_widget.update()
             return False
 
+        previous_scroll = None
+        if (
+            getattr(self, "filename", None)
+            and hasattr(self, "scroll_bars")
+            and self._config.get("keep_prev_scale", False)
+        ):
+            # Keep Previous Scale preserves the full view state: zoom plus pan.
+            previous_scroll = self._current_scroll_position()
+            pending_scroll = getattr(self, "_pending_keep_prev_scroll", None)
+            if (
+                pending_scroll
+                and all(value == 0 for value in previous_scroll.values())
+                and any(int(value) > 0 for value in pending_scroll.values())
+                and self._should_wait_for_scroll_range(pending_scroll)
+            ):
+                previous_scroll = pending_scroll
+                logger.debug(
+                    "[KeepPreviousScale] Reusing pending pan before image "
+                    "switch because current scrollbar range is not ready: "
+                    f"file={osp.basename(str(self.filename))}, "
+                    f"h={previous_scroll[Qt.Orientation.Horizontal]}, "
+                    f"v={previous_scroll[Qt.Orientation.Vertical]}"
+                )
+            logger.debug(
+                "[KeepPreviousScale] Captured pan before image switch: "
+                f"file={osp.basename(str(self.filename))}, "
+                f"h={previous_scroll[Qt.Orientation.Horizontal]}, "
+                f"v={previous_scroll[Qt.Orientation.Vertical]}"
+            )
+
         self.reset_state()
         self.canvas.setEnabled(False)
 
@@ -5611,7 +5724,7 @@ class LabelingWidget(LabelDialog):
         if self.filename in self.zoom_values:
             self.zoom_mode = self.zoom_values[self.filename][0]
             self.set_zoom(self.zoom_values[self.filename][1])
-        elif is_initial_load or not self._config["keep_prev_scale"]:
+        elif is_initial_load or not self._config.get("keep_prev_scale", False):
             self.adjust_scale(initial=True)
         # set scroll values
         for orientation in self.scroll_values:
@@ -5648,6 +5761,23 @@ class LabelingWidget(LabelDialog):
             self.brightness_contrast_dialog.on_new_value()
 
         self.paint_canvas()
+        if previous_scroll is not None:
+            target_filename = self.filename
+            self._pending_keep_prev_scroll = previous_scroll
+            logger.debug(
+                "[KeepPreviousScale] Scheduling pan restore after canvas "
+                f"paint: target={osp.basename(str(target_filename))}, "
+                f"h={previous_scroll[Qt.Orientation.Horizontal]}, "
+                f"v={previous_scroll[Qt.Orientation.Vertical]}"
+            )
+            QtCore.QTimer.singleShot(
+                0,
+                functools.partial(
+                    self._restore_previous_scroll_position,
+                    previous_scroll,
+                    target_filename,
+                ),
+            )
         self.add_recent_file(self.filename)
         self.toggle_actions(True)
         self.canvas.setFocus()

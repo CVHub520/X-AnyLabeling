@@ -277,6 +277,7 @@ def main():
     filename = config_from_args.pop("filename")
     output = config_from_args.pop("output")
     config_file_or_yaml = config_from_args.pop("config")
+    config_is_explicit = config_file_or_yaml is not None
     if config_file_or_yaml is None:
         config_file_or_yaml = os.path.join(
             get_work_directory(), ".xanylabelingrc"
@@ -295,6 +296,7 @@ def main():
         logger.info(f"🖥️ Using Qt platform: {qt_platform}")
 
     anylabeling_config.current_config_file = config_file_or_yaml
+    anylabeling_config.current_config_is_explicit = config_is_explicit
     config = get_config(config_file_or_yaml, config_from_args, show_msg=True)
 
     if not config["labels"] and config["validate_label"]:

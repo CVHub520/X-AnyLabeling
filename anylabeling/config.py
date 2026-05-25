@@ -9,6 +9,7 @@ from anylabeling import configs as anylabeling_configs
 from anylabeling.views.labeling.logger import logger
 
 current_config_file = None
+current_config_is_explicit = False
 _work_directory = None
 _LEGACY_KEY_MAP = {
     "epsilon": "canvas.epsilon",
@@ -121,7 +122,7 @@ def normalize_user_config(config):
         ):
             shortcuts["open_image_classifier"] = open_classifier
         for key, value in list(shortcuts.items()):
-            if key == "zoom_in":
+            if isinstance(value, (list, tuple)):
                 shortcuts[key] = _normalize_multi_shortcut_value(value)
             else:
                 shortcuts[key] = _normalize_shortcut_value(value)
@@ -129,6 +130,13 @@ def normalize_user_config(config):
 
 
 def save_config(config):
+    if current_config_is_explicit:
+        logger.info(
+            "Skipping config auto-save because an explicit config is in use: "
+            f"{current_config_file}"
+        )
+        return
+
     user_config_file = osp.join(get_work_directory(), ".xanylabelingrc")
     try:
         os.makedirs(osp.dirname(user_config_file), exist_ok=True)
@@ -142,14 +150,21 @@ def get_default_config():
     work_dir = get_work_directory()
     old_cfg_file = osp.join(work_dir, ".anylabelingrc")
     new_cfg_file = osp.join(work_dir, ".xanylabelingrc")
-    if osp.exists(old_cfg_file) and not osp.exists(new_cfg_file):
+    if (
+        not current_config_is_explicit
+        and osp.exists(old_cfg_file)
+        and not osp.exists(new_cfg_file)
+    ):
         shutil.copyfile(old_cfg_file, new_cfg_file)
 
     config_file = "xanylabeling_config.yaml"
     with pkg_resources.open_text(anylabeling_configs, config_file) as f:
         config = yaml.safe_load(f)
 
-    if not osp.exists(osp.join(work_dir, ".xanylabelingrc")):
+    if (
+        not current_config_is_explicit
+        and not osp.exists(osp.join(work_dir, ".xanylabelingrc"))
+    ):
         save_config(config)
 
     return config
