@@ -2231,6 +2231,9 @@ class LabelingWidget(LabelDialog):
                 else None
             )
         )
+        self.canvas.shape_hover_changed.connect(
+            self._update_copy_action_enabled
+        )
         self.auto_labeling_widget.clear_auto_labeling_action_requested.connect(
             self.clear_auto_labeling_marks
         )
@@ -4458,7 +4461,7 @@ class LabelingWidget(LabelDialog):
         )
         self.actions.delete.setEnabled(n_selected)
         self.actions.duplicate.setEnabled(n_selected)
-        self.actions.copy.setEnabled(n_selected)
+        self._update_copy_action_enabled()
         self.actions.edit.setEnabled(n_selected >= 1 and same_type)
         self.actions.copy_coordinates.setEnabled(n_selected == 1)
         self.actions.union_selection.setEnabled(
@@ -4815,6 +4818,18 @@ class LabelingWidget(LabelDialog):
             self.load_shapes(self._copied_shapes, replace=False)
         self.set_dirty()
 
+    def _copyable_shapes(self):
+        if self.canvas.selected_shapes:
+            return list(self.canvas.selected_shapes)
+        h_shape = getattr(self.canvas, "h_shape", None)
+        if h_shape is not None:
+            return [h_shape]
+        return []
+
+    def _update_copy_action_enabled(self):
+        if hasattr(self, "actions") and hasattr(self.actions, "copy"):
+            self.actions.copy.setEnabled(bool(self._copyable_shapes()))
+
     def toggle_system_clipboard(self, system_clipboard):
         self._config["system_clipboard"] = system_clipboard
         self.actions.paste.setEnabled(
@@ -4822,14 +4837,17 @@ class LabelingWidget(LabelDialog):
         )
 
     def copy_selected_shape(self):
+        shapes = self._copyable_shapes()
+        if not shapes:
+            return
         if self._config["system_clipboard"]:
             clipboard = QtWidgets.QApplication.clipboard()
             clipboard.setText(
-                json.dumps([s.to_dict() for s in self.canvas.selected_shapes])
+                json.dumps([s.to_dict() for s in shapes])
             )
         else:
             self._copied_shapes = [
-                s.copy() for s in self.canvas.selected_shapes
+                s.copy() for s in shapes
             ]
             self.actions.paste.setEnabled(len(self._copied_shapes) > 0)
 
