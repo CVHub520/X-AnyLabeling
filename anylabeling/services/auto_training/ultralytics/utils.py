@@ -104,7 +104,10 @@ def get_label_infos(
 
 
 def get_task_valid_images(
-    image_list: List[str], task_type: str, output_dir: str = None
+    image_list: List[str],
+    task_type: str,
+    output_dir: str = None,
+    selected_labels: List[str] = None,
 ) -> int:
     """Count number of images that have valid shapes for a given task type.
 
@@ -120,6 +123,9 @@ def get_task_valid_images(
         return 0
 
     valid_shapes = TASK_SHAPE_MAPPINGS[task_type]
+    selected_label_set = (
+        set(selected_labels) if selected_labels is not None else None
+    )
     valid_image_count = 0
 
     for image_file in image_list:
@@ -140,7 +146,12 @@ def get_task_valid_images(
             if "flags" in valid_shapes:
                 flags = data.get("flags", {})
                 has_valid_flag = any(
-                    flag_value for flag_value in flags.values()
+                    flag_value
+                    and (
+                        selected_label_set is None
+                        or flag_name in selected_label_set
+                    )
+                    for flag_name, flag_value in flags.items()
                 )
                 if has_valid_flag:
                     valid_image_count += 1
@@ -148,8 +159,12 @@ def get_task_valid_images(
                 shapes = data.get("shapes", [])
                 has_valid_shape = any(
                     shape.get("shape_type") in valid_shapes
+                    and (
+                        selected_label_set is None
+                        or shape.get("label") in selected_label_set
+                    )
                     for shape in shapes
-                    if "shape_type" in shape
+                    if "shape_type" in shape and "label" in shape
                 )
                 if has_valid_shape:
                     valid_image_count += 1

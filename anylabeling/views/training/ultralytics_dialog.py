@@ -27,6 +27,7 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QApplication,
     QSizePolicy,
+    QTableWidgetItem,
 )
 
 from anylabeling.config import get_config
@@ -85,6 +86,9 @@ class UltralyticsDialog(QDialog):
         self._train_tab_initialized = False
         self.task_type_buttons = {}
         self.names = []
+        self.train_class_checkboxes = {}
+        self._train_class_labels = []
+        self._train_class_selection_initialized = False
 
         # Training related attributes
         self.log_redirector = TrainingLogRedirector()
@@ -297,6 +301,9 @@ class UltralyticsDialog(QDialog):
         if not self.image_list:
             self.summary_table.clear()
             self._summary_view_mode = None
+            self._train_class_labels = []
+            self.train_class_checkboxes = {}
+            self.train_class_controls.setVisible(False)
             return
 
         summary_view_mode = (
@@ -310,8 +317,153 @@ class UltralyticsDialog(QDialog):
         else:
             table_data = self._get_detection_table_data()
 
-        self.summary_table.load_data(table_data)
+        display_table_data = (
+            table_data
+            if self.selected_task_type == "Pose"
+            else self._with_train_column(table_data)
+        )
+        self.summary_table.load_data(display_table_data)
+        self.refresh_train_class_selection(table_data)
         self._summary_view_mode = summary_view_mode
+
+    def _with_train_column(self, table_data):
+        if not table_data:
+            return table_data
+        return [["Train"] + table_data[0]] + [
+            [""] + row for row in table_data[1:]
+        ]
+
+    def _get_summary_class_rows(self, table_data=None):
+        table_data = table_data or getattr(self.summary_table, "original_data", [])
+        if not table_data:
+            return []
+
+        # summary_table.original_data includes the UI-only Train column.
+        if table_data[0] and table_data[0][0] == "Train":
+            table_data = [row[1:] for row in table_data]
+
+        headers = table_data[0]
+        if "Total" not in headers:
+            return []
+
+        total_index = headers.index("Total")
+        class_rows = []
+        for row in table_data[1:]:
+            if not row or row[0] == "Total":
+                continue
+            try:
+                total = int(row[total_index])
+            except (TypeError, ValueError):
+                total = 0
+            class_rows.append((row[0], total))
+        return class_rows
+
+    def _default_train_class_labels(self, class_rows):
+        min_samples = self.min_samples_per_class_spin.value()
+        labels = [
+            label
+            for label, total in class_rows
+            if min_samples <= 0 or total >= min_samples
+        ]
+        return labels or [label for label, _ in class_rows]
+
+    def refresh_train_class_selection(self, table_data=None, reset=False):
+        class_rows = self._get_summary_class_rows(table_data)
+        labels = [label for label, _ in class_rows]
+        self._train_class_labels = labels
+        previous_checkboxes = self.train_class_checkboxes
+        self.train_class_checkboxes = {}
+
+        if not labels:
+            self.train_class_controls.setVisible(False)
+            return
+
+        self.train_class_controls.setVisible(self.selected_task_type != "Pose")
+        if self.selected_task_type == "Pose":
+            return
+
+        if reset or not self._train_class_selection_initialized:
+            selected_labels = set(self._default_train_class_labels(class_rows))
+            self._train_class_selection_initialized = True
+        else:
+            selected_labels = {
+                label
+                for label, item in previous_checkboxes.items()
+                if item.checkState() == Qt.CheckState.Checked
+            }
+            if not selected_labels:
+                selected_labels = set(self._default_train_class_labels(class_rows))
+
+        self.summary_table.blockSignals(True)
+        for row_index, (label, total) in enumerate(class_rows):
+            item = QTableWidgetItem("")
+            item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            item.setFlags(
+                Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsUserCheckable
+            )
+            item.setCheckState(
+                Qt.CheckState.Checked
+                if label in selected_labels
+                else Qt.CheckState.Unchecked
+            )
+            item.setToolTip(
+                self.tr("Include this class in the exported training dataset")
+            )
+
+            if total < self.min_samples_per_class_spin.value():
+                item.setToolTip(
+                    self.tr(
+                        "This class has fewer samples than the current threshold"
+                    )
+                )
+
+            self.summary_table.setItem(row_index, 0, item)
+            self.train_class_checkboxes[label] = item
+        self.summary_table.blockSignals(False)
+        self.update_train_class_status()
+
+    def on_train_class_item_changed(self, item):
+        if item.column() == 0:
+            self.update_train_class_status()
+
+    def update_train_class_status(self):
+        selected_count = len(self.get_selected_train_labels() or [])
+        total_count = len(self._train_class_labels)
+        self.train_class_status_label.setText(
+            self.tr("%d/%d classes selected") % (selected_count, total_count)
+        )
+
+    def get_selected_train_labels(self):
+        if self.selected_task_type == "Pose" or not self._train_class_labels:
+            return None
+        return [
+            label
+            for label in self._train_class_labels
+            if self.train_class_checkboxes.get(label)
+            and self.train_class_checkboxes[label].checkState()
+            == Qt.CheckState.Checked
+        ]
+
+    def select_all_train_classes(self):
+        for item in self.train_class_checkboxes.values():
+            item.setCheckState(Qt.CheckState.Checked)
+        self.update_train_class_status()
+
+    def deselect_all_train_classes(self):
+        for item in self.train_class_checkboxes.values():
+            item.setCheckState(Qt.CheckState.Unchecked)
+        self.update_train_class_status()
+
+    def apply_min_sample_filter(self):
+        class_rows = self._get_summary_class_rows()
+        selected_labels = set(self._default_train_class_labels(class_rows))
+        for label, item in self.train_class_checkboxes.items():
+            item.setCheckState(
+                Qt.CheckState.Checked
+                if label in selected_labels
+                else Qt.CheckState.Unchecked
+            )
+        self.update_train_class_status()
 
     def _get_classification_table_data(self):
         if self._classification_cache is None:
@@ -379,13 +531,55 @@ class UltralyticsDialog(QDialog):
         summary_layout = QVBoxLayout(summary_widget)
         summary_layout.addWidget(QLabel(self.tr("Dataset Summary:")))
 
+        self.train_class_controls = QWidget()
+        train_class_layout = QHBoxLayout(self.train_class_controls)
+        train_class_layout.setContentsMargins(0, 0, 0, 0)
+        train_class_layout.addWidget(QLabel(self.tr("Train classes:")))
+
+        self.select_all_train_classes_button = SecondaryButton(
+            self.tr("Select All")
+        )
+        self.select_all_train_classes_button.clicked.connect(
+            self.select_all_train_classes
+        )
+        train_class_layout.addWidget(self.select_all_train_classes_button)
+
+        self.deselect_all_train_classes_button = SecondaryButton(
+            self.tr("Deselect All")
+        )
+        self.deselect_all_train_classes_button.clicked.connect(
+            self.deselect_all_train_classes
+        )
+        train_class_layout.addWidget(self.deselect_all_train_classes_button)
+
+        train_class_layout.addWidget(QLabel(self.tr("Min samples/class:")))
+        self.min_samples_per_class_spin = CustomSpinBox()
+        self.min_samples_per_class_spin.setRange(0, 1000000)
+        self.min_samples_per_class_spin.setValue(MIN_LABELED_IMAGES_THRESHOLD)
+        self.min_samples_per_class_spin.valueChanged.connect(
+            self.apply_min_sample_filter
+        )
+        train_class_layout.addWidget(self.min_samples_per_class_spin)
+
+        self.train_class_status_label = QLabel()
+        train_class_layout.addWidget(self.train_class_status_label)
+        train_class_layout.addStretch()
+        self.train_class_controls.setVisible(False)
+        summary_layout.addWidget(self.train_class_controls)
+
         self.summary_table = CustomTable()
+        self.summary_table.itemChanged.connect(
+            self.on_train_class_item_changed
+        )
         summary_layout.addWidget(self.summary_table)
         parent_layout.addWidget(summary_widget, 1)
 
     def proceed_to_config(self):
         is_valid, error_message = validate_task_requirements(
-            self.selected_task_type, self.image_list, self.output_dir
+            self.selected_task_type,
+            self.image_list,
+            self.output_dir,
+            self.get_selected_train_labels(),
         )
         if not is_valid:
             QMessageBox.warning(
@@ -394,11 +588,14 @@ class UltralyticsDialog(QDialog):
             return
 
         self.ensure_config_tab_initialized()
+        self.update_pretrained_model_options()
         project = os.path.join(
             get_default_project_dir(), self.selected_task_type.lower()
         )
         self.config_widgets["project"].setText(project)
         self.config_widgets["project"].setReadOnly(self.project_readonly)
+        if not self.config_widgets["data"].text().strip():
+            self.use_current_label_data(show_message=False)
 
         self.go_to_specific_tab(1)
 
@@ -442,6 +639,81 @@ class UltralyticsDialog(QDialog):
         )
         if file_path:
             self.config_widgets["model"].setText(file_path)
+            if hasattr(self, "pretrained_model_combo"):
+                self.pretrained_model_combo.setCurrentIndex(0)
+
+    def update_pretrained_model_options(self):
+        if not hasattr(self, "pretrained_model_combo"):
+            return
+
+        current_text = self.config_widgets["model"].text().strip()
+        task_type = self.selected_task_type or "Detect"
+        pretrained_models = ULTRALYTICS_PRETRAINED_MODELS.get(task_type, [])
+
+        self.pretrained_model_combo.blockSignals(True)
+        self.pretrained_model_combo.clear()
+        self.pretrained_model_combo.addItem(self.tr("Pretrained..."), "")
+        for model_name in pretrained_models:
+            self.pretrained_model_combo.addItem(model_name, model_name)
+        self.pretrained_model_combo.blockSignals(False)
+
+        if not current_text and pretrained_models:
+            self.pretrained_model_combo.setCurrentIndex(1)
+            self.config_widgets["model"].setText(pretrained_models[0])
+
+    def on_pretrained_model_selected(self, index):
+        if index <= 0:
+            return
+        model_name = self.pretrained_model_combo.itemData(index)
+        if model_name:
+            self.config_widgets["model"].setText(model_name)
+
+    def get_current_auto_labeling_model_path(self):
+        parent = self.parent()
+        auto_labeling_widget = getattr(parent, "auto_labeling_widget", None)
+        model_manager = getattr(auto_labeling_widget, "model_manager", None)
+        loaded_config = getattr(model_manager, "loaded_model_config", None)
+        if not loaded_config:
+            return None, self.tr("No auto-labeling model is loaded")
+
+        model = loaded_config.get("model")
+        model_config = getattr(model, "config", loaded_config)
+        model_path = model_config.get("model_path")
+        if not model_path:
+            return None, self.tr("The current model does not expose model_path")
+
+        clean_path = str(model_path).split("?", 1)[0].lower()
+        if not clean_path.endswith(".pt"):
+            display_name = loaded_config.get(
+                "display_name", loaded_config.get("name", model_path)
+            )
+            return (
+                None,
+                self.tr(
+                    "%s uses %s. Ultralytics training needs a .pt pretrained model."
+                )
+                % (display_name, os.path.splitext(clean_path)[1] or model_path),
+            )
+
+        if model and hasattr(model, "get_model_abs_path"):
+            try:
+                model_path = model.get_model_abs_path(model_config, "model_path")
+            except Exception:
+                pass
+
+        return str(model_path), ""
+
+    def use_current_auto_labeling_model(self):
+        model_path, error_message = self.get_current_auto_labeling_model_path()
+        if not model_path:
+            QMessageBox.warning(
+                self, self.tr("Unsupported Model"), error_message
+            )
+            return
+
+        self.config_widgets["model"].setText(model_path)
+        if hasattr(self, "pretrained_model_combo"):
+            self.pretrained_model_combo.setCurrentIndex(0)
 
     def browse_data_file(self):
         if self.selected_task_type == "Classify":
@@ -469,6 +741,48 @@ class UltralyticsDialog(QDialog):
                     )
                     self.config_widgets["data"].clear()
                     self.names = []
+
+    def get_current_training_class_names(self):
+        selected_labels = self.get_selected_train_labels()
+        if selected_labels is not None:
+            return selected_labels
+        return [label for label, _total in self._get_summary_class_rows()]
+
+    def create_current_data_file(self):
+        class_names = self.get_current_training_class_names()
+        if not class_names:
+            return None, self.tr("No labels found in the current dataset")
+
+        data_path = get_data_path()
+        os.makedirs(os.path.dirname(data_path), exist_ok=True)
+        data = {
+            "names": {i: name for i, name in enumerate(class_names)},
+            "nc": len(class_names),
+        }
+        if not save_yaml_config(data, data_path):
+            return None, self.tr("Failed to create data.yaml")
+
+        return data_path, ""
+
+    def use_current_label_data(self, show_message=True):
+        data_path, error_message = self.create_current_data_file()
+        if not data_path:
+            if show_message:
+                QMessageBox.warning(
+                    self, self.tr("Data Error"), error_message
+                )
+            return False
+
+        self.config_widgets["data"].setText(data_path)
+        self.names = self.get_current_training_class_names()
+        if show_message:
+            QMessageBox.information(
+                self,
+                self.tr("Data Ready"),
+                self.tr("Created data.yaml from current labels:\n%s")
+                % data_path,
+            )
+        return True
 
     def browse_pose_config_file(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -552,17 +866,31 @@ class UltralyticsDialog(QDialog):
 
         model_layout = QHBoxLayout()
         self.config_widgets["model"] = CustomLineEdit()
+        self.pretrained_model_combo = CustomComboBox()
+        self.pretrained_model_combo.currentIndexChanged.connect(
+            self.on_pretrained_model_selected
+        )
+        use_current_model_btn = SecondaryButton(self.tr("Use Current"))
+        use_current_model_btn.clicked.connect(
+            self.use_current_auto_labeling_model
+        )
         model_browse_btn = SecondaryButton("Browse")
         model_browse_btn.clicked.connect(self.browse_model_file)
         model_layout.addWidget(self.config_widgets["model"])
+        model_layout.addWidget(self.pretrained_model_combo)
+        model_layout.addWidget(use_current_model_btn)
         model_layout.addWidget(model_browse_btn)
         layout.addRow("Model:", model_layout)
+        self.update_pretrained_model_options()
 
         data_layout = QHBoxLayout()
         self.config_widgets["data"] = CustomLineEdit()
+        use_current_data_btn = SecondaryButton(self.tr("Use Current"))
+        use_current_data_btn.clicked.connect(self.use_current_label_data)
         data_browse_btn = SecondaryButton("Browse")
         data_browse_btn.clicked.connect(self.browse_data_file)
         data_layout.addWidget(self.config_widgets["data"])
+        data_layout.addWidget(use_current_data_btn)
         data_layout.addWidget(data_browse_btn)
         layout.addRow("Data:", data_layout)
 
@@ -1057,6 +1385,7 @@ class UltralyticsDialog(QDialog):
             "regularization",
             "loss_weights",
             "checkpoint",
+            "data_filter",
         ]
         for section in sections_to_process:
             if section in config:
@@ -1087,6 +1416,10 @@ class UltralyticsDialog(QDialog):
                         "only_checked_files",
                     ):
                         set_widget_value(key, value)
+                    elif key == "min_samples_per_class" and hasattr(
+                        self, "min_samples_per_class_spin"
+                    ):
+                        self.min_samples_per_class_spin.setValue(int(value))
                     else:
                         set_widget_value(key, value)
 
@@ -1212,6 +1545,14 @@ class UltralyticsDialog(QDialog):
                 "skip_empty_files": get_widget_value("skip_empty_files"),
                 "only_checked_files": get_widget_value("only_checked_files"),
             },
+            "data_filter": {
+                "selected_labels": self.get_selected_train_labels(),
+                "min_samples_per_class": (
+                    self.min_samples_per_class_spin.value()
+                    if hasattr(self, "min_samples_per_class_spin")
+                    else MIN_LABELED_IMAGES_THRESHOLD
+                ),
+            },
         }
 
         return config
@@ -1237,6 +1578,12 @@ class UltralyticsDialog(QDialog):
                 ),
             )
             return
+
+        if (
+            "data" in self.config_widgets
+            and not self.config_widgets["data"].text().strip()
+        ):
+            self.use_current_label_data(show_message=False)
 
         config = self.get_current_config()
         is_valid, error_message = validate_basic_config(config)
@@ -1777,9 +2124,17 @@ class UltralyticsDialog(QDialog):
                     config["basic"].get("pose_config"),
                     config["checkpoint"].get("skip_empty_files", False),
                     config["checkpoint"].get("only_checked_files", False),
+                    config.get("data_filter", {}).get("selected_labels"),
                 )
                 logger.info(f"Successfully created YOLO dataset at {temp_dir}")
                 self.append_training_log(f"Created dataset: {temp_dir}")
+                selected_labels = config.get("data_filter", {}).get(
+                    "selected_labels"
+                )
+                if selected_labels is not None:
+                    self.append_training_log(
+                        "Training classes: " + ", ".join(selected_labels)
+                    )
 
                 if self.selected_task_type == "Classify":
                     data_path = temp_dir
@@ -1829,6 +2184,8 @@ class UltralyticsDialog(QDialog):
                 if key in DEFAULT_TRAINING_CONFIG
                 and value != DEFAULT_TRAINING_CONFIG[key]
             }
+            if config.get("data_filter", {}).get("selected_labels") is not None:
+                advanced_params.pop("classes", None)
             train_args.update(advanced_params)
             self.total_epochs = train_args.get("epochs", 100)
 

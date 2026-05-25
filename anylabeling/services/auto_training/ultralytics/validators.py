@@ -5,7 +5,20 @@ import yaml
 from typing import Dict, List, Tuple, Union
 
 from .utils import get_task_valid_images
-from .config import MIN_LABELED_IMAGES_THRESHOLD
+from .config import (
+    MIN_LABELED_IMAGES_THRESHOLD,
+    ULTRALYTICS_PRETRAINED_MODELS,
+)
+
+
+def is_ultralytics_pretrained_model(model_path: str) -> bool:
+    model_name = os.path.basename(str(model_path).strip().strip('"'))
+    pretrained_models = {
+        model
+        for models in ULTRALYTICS_PRETRAINED_MODELS.values()
+        for model in models
+    }
+    return model_name in pretrained_models
 
 
 def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
@@ -33,8 +46,14 @@ def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
         return "directory_exists", save_dir
 
     model_path = basic.get("model", "").strip()
-    if not model_path or not os.path.exists(model_path):
-        return False, "Valid model file is required"
+    if (
+        not model_path
+        or (
+            not os.path.exists(model_path)
+            and not is_ultralytics_pretrained_model(model_path)
+        )
+    ):
+        return False, "Valid model file or Ultralytics pretrained model is required"
 
     data_path = basic.get("data", "").strip()
     if not data_path or not os.path.exists(data_path):
@@ -114,7 +133,10 @@ def install_packages_with_timeout(packages, timeout=30):
 
 
 def validate_task_requirements(
-    task_type: str, image_list: List[str], output_dir: str = None
+    task_type: str,
+    image_list: List[str],
+    output_dir: str = None,
+    selected_labels: List[str] = None,
 ) -> Tuple[bool, str]:
     if not task_type:
         return False, "Please select a task type"
@@ -122,7 +144,12 @@ def validate_task_requirements(
     if not image_list:
         return False, "Please load images first"
 
-    valid_images = get_task_valid_images(image_list, task_type, output_dir)
+    if selected_labels is not None and not selected_labels:
+        return False, "Please select at least one class to train"
+
+    valid_images = get_task_valid_images(
+        image_list, task_type, output_dir, selected_labels
+    )
 
     if valid_images < MIN_LABELED_IMAGES_THRESHOLD:
         return (

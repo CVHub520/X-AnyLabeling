@@ -23,6 +23,7 @@ def create_yolo_dataset(
     pose_cfg_file: str = None,
     skip_empty_files: bool = False,
     only_checked_files: bool = False,
+    selected_labels: List[str] = None,
 ) -> str:
     """Create YOLO dataset from image list and annotations.
 
@@ -35,11 +36,19 @@ def create_yolo_dataset(
         pose_cfg_file: Optional pose config file for pose detection
         skip_empty_files: Whether to skip empty label files
         only_checked_files: Whether to use only checked files
+        selected_labels: Optional class labels to include in the dataset
 
     Returns:
         Path to created dataset directory
     """
     from anylabeling.views.labeling.label_converter import LabelConverter
+
+    selected_label_set = (
+        set(selected_labels) if selected_labels is not None else None
+    )
+
+    def _is_selected_label(label):
+        return selected_label_set is None or label in selected_label_set
 
     def _process_images_batch(
         image_label_pairs, images_dir, labels_dir, converter, mode, skip_empty
@@ -77,7 +86,7 @@ def create_yolo_dataset(
                 flags = data.get("flags", {})
 
                 for flag_name, flag_value in flags.items():
-                    if flag_value:
+                    if flag_value and _is_selected_label(flag_name):
                         class_dir = os.path.join(base_dir, flag_name)
                         os.makedirs(class_dir, exist_ok=True)
                         dst_image_path = os.path.join(class_dir, filename)
@@ -108,6 +117,16 @@ def create_yolo_dataset(
         converter.classes = [
             data["names"][i] for i in sorted(data["names"].keys())
         ]
+        if selected_label_set is not None:
+            converter.classes = [
+                label
+                for label in converter.classes
+                if label in selected_label_set
+            ]
+            data["names"] = {
+                i: label for i, label in enumerate(converter.classes)
+            }
+            data["nc"] = len(converter.classes)
         data_file_name = os.path.splitext(os.path.basename(data_file))[0]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     temp_dir = os.path.join(
@@ -163,7 +182,8 @@ def create_yolo_dataset(
             if task_type == "Classify":
                 flags = label_info.get("flags", {})
                 has_valid_flag = any(
-                    flag_value for flag_value in flags.values()
+                    flag_value and _is_selected_label(flag_name)
+                    for flag_name, flag_value in flags.items()
                 )
                 if has_valid_flag:
                     valid_images.append((image_file, label_file))
@@ -173,8 +193,9 @@ def create_yolo_dataset(
                 shapes = label_info.get("shapes", [])
                 has_valid_shape = any(
                     shape.get("shape_type") in valid_shapes
+                    and _is_selected_label(shape.get("label"))
                     for shape in shapes
-                    if "shape_type" in shape
+                    if "shape_type" in shape and "label" in shape
                 )
                 if has_valid_shape:
                     valid_images.append((image_file, label_file))
@@ -238,6 +259,8 @@ def create_yolo_dataset(
             f.write(f"Background images: {len(background_images)}\n")
             f.write(f"Skip empty files: {skip_empty_files}\n")
             f.write(f"Only checked files: {only_checked_files}\n")
+        if selected_labels is not None:
+            f.write(f"Selected labels: {', '.join(selected_labels)}\n")
         f.write(f"Valid labeled images: {len(valid_images)}\n")
         f.write(f"Dataset ratio: {dataset_ratio}\n")
 
