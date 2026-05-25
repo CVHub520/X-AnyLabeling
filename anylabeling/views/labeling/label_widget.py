@@ -2501,6 +2501,9 @@ class LabelingWidget(LabelDialog):
         self._settings_controller = SettingsController(
             config=self._config,
             apply_callback=self._settings_runtime_applier.apply_change,
+            save_callback=lambda config: save_config(
+                config, save_explicit=True
+            ),
             parent=self,
             defer_runtime_apply=True,
         )
@@ -2616,7 +2619,7 @@ class LabelingWidget(LabelDialog):
 
         if dialog.exec() == QtWidgets.QDialog.DialogCode.Accepted:
             self._config["theme"] = mode
-            save_config(self._config)
+            save_config(self._config, save_explicit=True)
             popup = Popup(
                 text=self.tr(
                     "Please restart the application to apply changes."
@@ -3189,7 +3192,7 @@ class LabelingWidget(LabelDialog):
         result = digit_shortcut_dialog.exec()
         if result == QtWidgets.QDialog.DialogCode.Accepted:
             self._config["digit_shortcuts"] = self.drawing_digit_shortcuts
-            save_config(self._config)
+            save_config(self._config, save_explicit=True)
 
     def label_manager(self):
         modify_label_dialog = LabelModifyDialog(
@@ -6508,6 +6511,90 @@ class LabelingWidget(LabelDialog):
             self.actions.run_all_images.setEnabled(True)
         self.update_thumbnail_display()
 
+    @staticmethod
+    def _shape_bbox(shape):
+        """Return an axis-aligned bbox for IoU checks."""
+        points = getattr(shape, "points", None)
+        if not points:
+            return None
+        xs = [point.x() for point in points]
+        ys = [point.y() for point in points]
+        if not xs or not ys:
+            return None
+        xmin, xmax = min(xs), max(xs)
+        ymin, ymax = min(ys), max(ys)
+        if xmax <= xmin or ymax <= ymin:
+            return None
+        return xmin, ymin, xmax, ymax
+
+    @staticmethod
+    def _bbox_iou(first_bbox, second_bbox):
+        left = max(first_bbox[0], second_bbox[0])
+        top = max(first_bbox[1], second_bbox[1])
+        right = min(first_bbox[2], second_bbox[2])
+        bottom = min(first_bbox[3], second_bbox[3])
+        intersection_width = max(0.0, right - left)
+        intersection_height = max(0.0, bottom - top)
+        intersection = intersection_width * intersection_height
+        if intersection <= 0:
+            return 0.0
+
+        first_area = (first_bbox[2] - first_bbox[0]) * (
+            first_bbox[3] - first_bbox[1]
+        )
+        second_area = (second_bbox[2] - second_bbox[0]) * (
+            second_bbox[3] - second_bbox[1]
+        )
+        union = first_area + second_area - intersection
+        if union <= 0:
+            return 0.0
+        return intersection / union
+
+    def _filter_auto_labeling_overlaps(self, shapes):
+        """Skip predictions that overlap existing annotations in Replace Off."""
+        iou_threshold = float(
+            self._config.get("auto_labeling_existing_iou_threshold", 0.5)
+        )
+        existing_bboxes = []
+        ignored_labels = {
+            AutoLabelingMode.OBJECT,
+            AutoLabelingMode.ADD,
+            AutoLabelingMode.REMOVE,
+        }
+        for shape in self.canvas.shapes:
+            if shape.label in ignored_labels:
+                continue
+            bbox = self._shape_bbox(shape)
+            if bbox is not None:
+                existing_bboxes.append(bbox)
+
+        if not existing_bboxes:
+            return shapes
+
+        filtered_shapes = []
+        skipped_count = 0
+        for shape in shapes:
+            bbox = self._shape_bbox(shape)
+            if bbox is None:
+                filtered_shapes.append(shape)
+                continue
+            max_iou = max(
+                self._bbox_iou(bbox, existing_bbox)
+                for existing_bbox in existing_bboxes
+            )
+            if max_iou >= iou_threshold:
+                skipped_count += 1
+                continue
+            filtered_shapes.append(shape)
+
+        if skipped_count:
+            logger.debug(
+                f"Skipped {skipped_count} auto-label predictions "
+                "overlapping existing annotations with "
+                f"IoU >= {iou_threshold:.2f}."
+            )
+        return filtered_shapes
+
     @pyqtSlot()
     def new_shapes_from_auto_labeling(self, auto_labeling_result):
         """Apply auto labeling results to the current image."""
@@ -6536,7 +6623,10 @@ class LabelingWidget(LabelDialog):
                 if shape.label == AutoLabelingMode.OBJECT:
                     item = self.label_list.find_item_by_shape(shape)
                     self.label_list.remove_item(item)
-            self.load_shapes(auto_labeling_result.shapes, replace=False)
+            filtered_shapes = self._filter_auto_labeling_overlaps(
+                auto_labeling_result.shapes
+            )
+            self.load_shapes(filtered_shapes, replace=False)
 
         # Set image description
         if auto_labeling_result.description:

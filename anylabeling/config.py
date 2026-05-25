@@ -129,21 +129,43 @@ def normalize_user_config(config):
     return normalized
 
 
-def save_config(config):
-    if current_config_is_explicit:
+def _default_user_config_file():
+    return osp.join(get_work_directory(), ".xanylabelingrc")
+
+
+def _explicit_config_file():
+    if not current_config_file or not isinstance(current_config_file, str):
+        return None
+    if "\n" in current_config_file:
+        return None
+    return osp.abspath(osp.expanduser(current_config_file))
+
+
+def save_config(config, save_explicit=False):
+    if current_config_is_explicit and not save_explicit:
         logger.info(
             "Skipping config auto-save because an explicit config is in use: "
             f"{current_config_file}"
         )
-        return
+        return False
 
-    user_config_file = osp.join(get_work_directory(), ".xanylabelingrc")
+    if current_config_is_explicit:
+        user_config_file = _explicit_config_file()
+        if not user_config_file:
+            raise RuntimeError(
+                "Cannot save explicit config because it was loaded from YAML "
+                "text instead of a file path."
+            )
+    else:
+        user_config_file = _default_user_config_file()
     try:
         os.makedirs(osp.dirname(user_config_file), exist_ok=True)
         with open(user_config_file, "w", encoding="utf-8") as f:
             yaml.safe_dump(config, f, allow_unicode=True)
+        return True
     except Exception:  # noqa
         logger.warning(f"Failed to save config: {user_config_file}")
+        return False
 
 
 def get_default_config():
