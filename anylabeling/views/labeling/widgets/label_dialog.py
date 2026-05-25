@@ -756,6 +756,40 @@ class LabelColorButton(QtWidgets.QWidget):
             self.parent.change_color(self)
 
 
+class LabelScanWorker(QtCore.QObject):
+    finished = QtCore.pyqtSignal(object)
+
+    def __init__(self, image_file_list, output_dir=None):
+        super().__init__()
+        self.image_file_list = image_file_list
+        self.output_dir = output_dir
+
+    def run(self):
+        classes = set()
+        thread = QtCore.QThread.currentThread()
+        for image_file in self.image_file_list:
+            if thread.isInterruptionRequested():
+                break
+            label_dir, filename = os.path.split(image_file)
+            if self.output_dir:
+                label_dir = self.output_dir
+            label_file = os.path.join(
+                label_dir, os.path.splitext(filename)[0] + ".json"
+            )
+            if not os.path.exists(label_file):
+                continue
+            try:
+                with open(label_file, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+            except Exception:
+                continue
+            for shape in data.get("shapes", []):
+                label = shape.get("label")
+                if label:
+                    classes.add(label)
+        self.finished.emit(classes)
+
+
 class LabelModifyDialog(QtWidgets.QDialog):
     """A dialog for modifying labels across multiple files.
 
@@ -779,8 +813,12 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.image_file_list = self.get_image_file_list()
         self.start_index = 1
         self.end_index = len(self.image_file_list)
+        self._label_scan_thread = None
+        self._label_scan_worker = None
+        self._user_modified_table = False
         self.init_label_info()
         self.init_ui()
+        self.start_label_scan()
 
     def init_ui(self):
         """Initialize the user interface."""
@@ -883,6 +921,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
         self.move(qr.topLeft())
 
     def populate_table(self):
+        self.table_widget.setRowCount(0)
         sorted_labels = sorted(
             self.parent.label_info.items(),
             key=lambda x: natural_sort_key(x[0]),
@@ -958,10 +997,59 @@ class LabelModifyDialog(QtWidgets.QDialog):
             self.table_widget.setCellWidget(i, 3, visible_container)
             self.table_widget.setCellWidget(i, 4, color_button)
 
+    def start_label_scan(self):
+        if not self.image_file_list:
+            return
+        self._label_scan_thread = QtCore.QThread(self)
+        self._label_scan_worker = LabelScanWorker(
+            self.image_file_list, self.parent.output_dir
+        )
+        self._label_scan_worker.moveToThread(self._label_scan_thread)
+        self._label_scan_thread.started.connect(self._label_scan_worker.run)
+        self._label_scan_worker.finished.connect(self.on_label_scan_finished)
+        self._label_scan_worker.finished.connect(self._label_scan_thread.quit)
+        self._label_scan_worker.finished.connect(
+            self._label_scan_worker.deleteLater
+        )
+        self._label_scan_thread.finished.connect(
+            self._label_scan_thread.deleteLater
+        )
+        self._label_scan_thread.finished.connect(self._clear_label_scan_refs)
+        self._label_scan_thread.start()
+
+    def _clear_label_scan_refs(self):
+        self._label_scan_thread = None
+        self._label_scan_worker = None
+
+    def on_label_scan_finished(self, classes):
+        if self.merge_label_classes(classes) and not self._user_modified_table:
+            self.populate_table()
+
+    def stop_label_scan(self):
+        if (
+            self._label_scan_thread is not None
+            and self._label_scan_thread.isRunning()
+        ):
+            self._label_scan_thread.requestInterruption()
+            self._label_scan_thread.wait(2000)
+
+    def closeEvent(self, event):
+        self.stop_label_scan()
+        super().closeEvent(event)
+
+    def accept(self):
+        self.stop_label_scan()
+        super().accept()
+
+    def reject(self):
+        self.stop_label_scan()
+        super().reject()
+
     def _get_value_edit(self, row):
         return self.table_widget.cellWidget(row, 2)
 
     def change_color(self, button):
+        self._user_modified_table = True
         row = self.table_widget.indexAt(button.pos()).row()
         current_color = self.parent.label_info[
             self.table_widget.item(row, 0).text()
@@ -977,6 +1065,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             button.set_color(color)
 
     def on_delete_checkbox_changed(self, row, state):
+        self._user_modified_table = True
         t = get_theme()
         _base = (
             f"QLineEdit {{"
@@ -998,11 +1087,12 @@ class LabelModifyDialog(QtWidgets.QDialog):
             value_edit.setStyleSheet(_base)
 
     def on_value_edit_changed(self, row, text):
+        self._user_modified_table = True
         delete_checkbox = self.table_widget.cellWidget(row, 1)
         delete_checkbox.setEnabled(not bool(text))
 
     def on_visible_checkbox_changed(self, row, state):
-        pass
+        self._user_modified_table = True
 
     def on_item_double_clicked(self, item: QTableWidgetItem) -> None:
         """Copy label text to clipboard on double-click.
@@ -1158,23 +1248,7 @@ class LabelModifyDialog(QtWidgets.QDialog):
             return False
 
     def init_label_info(self):
-        classes = set()
-
-        for image_file in self.image_file_list:
-            label_dir, filename = os.path.split(image_file)
-            if self.parent.output_dir:
-                label_dir = self.parent.output_dir
-            label_file = os.path.join(
-                label_dir, os.path.splitext(filename)[0] + ".json"
-            )
-            if not os.path.exists(label_file):
-                continue
-            with open(label_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            shapes = data.get("shapes", [])
-            for shape in shapes:
-                label = shape["label"]
-                classes.add(label)
+        classes = set(self.parent.label_info.keys())
 
         for i in range(self.parent.unique_label_list.count()):
             item = self.parent.unique_label_list.item(i)
@@ -1183,6 +1257,10 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 if label_text:
                     classes.add(label_text)
 
+        self.merge_label_classes(classes)
+
+    def merge_label_classes(self, classes):
+        changed = False
         for c in sorted(classes):
             # Update unique label list
             if not self.parent.unique_label_list.find_items_by_label(c):
@@ -1194,27 +1272,33 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 self.parent.unique_label_list.set_item_label(
                     unique_label_item, c, rgb, self.opacity
                 )
+                changed = True
             else:
                 rgb = self.parent._get_rgb_by_label(c)
             # Update label info
             # Preserve existing color if label already exists in label_info
             if c in self.parent.label_info:
-                color = self.parent.label_info[c].get("color", list(rgb))
-                opacity = self.parent.label_info[c].get(
-                    "opacity", self.opacity
-                )
-                visible = self.parent.label_info[c].get("visible", True)
+                info = self.parent.label_info[c]
+                color = info.get("color", list(rgb))
+                opacity = info.get("opacity", self.opacity)
+                visible = info.get("visible", True)
+                delete = info.get("delete", False)
+                value = info.get("value")
             else:
                 color = list(rgb)
                 opacity = self.opacity
                 visible = True
+                delete = False
+                value = None
+                changed = True
             self.parent.label_info[c] = dict(
-                delete=False,
-                value=None,
+                delete=delete,
+                value=value,
                 color=color,
                 opacity=opacity,
                 visible=visible,
             )
+        return changed
 
     def update_range(self):
         from_value = (

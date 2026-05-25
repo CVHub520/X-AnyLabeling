@@ -1838,6 +1838,7 @@ class LabelingWidget(LabelDialog):
             # XXX: need to add some actions here to activate the shortcut
             editMenu=(
                 edit,
+                label_manager,
                 duplicate,
                 delete,
                 copy,
