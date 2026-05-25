@@ -2,7 +2,7 @@ import os
 import yaml
 import collections
 
-from anylabeling.config import get_config
+from anylabeling.config import get_config, save_config
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint, QTimer
@@ -135,9 +135,7 @@ class AutoLabelingWidget(QWidget):
         self.model_manager.model_loaded.connect(self.update_visible_widgets)
         self.model_manager.model_loaded.connect(self.on_new_model_loaded)
         self.model_manager.new_auto_labeling_result.connect(
-            lambda auto_labeling_result: self.parent.new_shapes_from_auto_labeling(
-                auto_labeling_result
-            )
+            self._on_new_auto_labeling_result
         )
         self.model_manager.auto_segmentation_model_selected.connect(
             self.auto_segmentation_requested
@@ -211,6 +209,12 @@ class AutoLabelingWidget(QWidget):
         self.initial_iou_value = 0
         self.initial_preserve_annotations_state = False
         self.skip_detection = False
+        self._class_name_overrides_by_model = {}
+        saved_overrides = get_config().get(
+            "auto_labeling_class_name_overrides", {}
+        )
+        if isinstance(saved_overrides, dict):
+            self._class_name_overrides_by_model = saved_overrides
 
         # ===================================
         #  Auto labeling buttons
@@ -859,6 +863,71 @@ class AutoLabelingWidget(QWidget):
             self.auto_labeling_mode = AutoLabelingMode(edit_mode, shape_type)
         self.auto_labeling_mode_changed.emit(self.auto_labeling_mode)
 
+    def _current_model_key(self):
+        """Return a stable key for model-specific UI preferences."""
+        model_config = self.model_manager.loaded_model_config
+        if not model_config:
+            return None
+        return str(
+            model_config.get("config_file")
+            or model_config.get("name")
+            or model_config.get("display_name")
+            or ""
+        )
+
+    def _get_current_class_name_overrides(self):
+        model_key = self._current_model_key()
+        if not model_key:
+            return {}
+        overrides = self._class_name_overrides_by_model.get(model_key, {})
+        return overrides if isinstance(overrides, dict) else {}
+
+    def _set_current_class_name_overrides(self, overrides):
+        model_key = self._current_model_key()
+        if not model_key:
+            return
+        cleaned_overrides = {
+            str(class_name): str(output_label).strip()
+            for class_name, output_label in overrides.items()
+            if str(class_name) and str(output_label).strip()
+        }
+        if cleaned_overrides:
+            self._class_name_overrides_by_model[model_key] = cleaned_overrides
+        else:
+            self._class_name_overrides_by_model.pop(model_key, None)
+
+        config = get_config()
+        config["auto_labeling_class_name_overrides"] = (
+            self._class_name_overrides_by_model
+        )
+        save_config(config)
+
+    def _on_new_auto_labeling_result(self, auto_labeling_result):
+        self.apply_class_name_overrides(auto_labeling_result)
+        self.parent.new_shapes_from_auto_labeling(auto_labeling_result)
+
+    def apply_class_name_overrides(self, auto_labeling_result):
+        overrides = self._get_current_class_name_overrides()
+        if not overrides or not hasattr(auto_labeling_result, "shapes"):
+            return
+
+        renamed_count = 0
+        for shape in auto_labeling_result.shapes:
+            label = getattr(shape, "label", None)
+            if label is None:
+                continue
+            output_label = overrides.get(str(label))
+            if not output_label:
+                continue
+            shape.label = output_label
+            renamed_count += 1
+
+        if renamed_count:
+            logger.debug(
+                "Applied auto-label class name overrides to "
+                f"{renamed_count} shapes."
+            )
+
     def run_prediction(self):
         """Run prediction"""
         if self.parent.filename is not None:
@@ -1262,10 +1331,18 @@ class AutoLabelingWidget(QWidget):
                 ]
             else:
                 filter_names = raw_filter
-        dialog = ClassesFilterDialog(class_names, filter_names, parent=self)
+        dialog = ClassesFilterDialog(
+            class_names,
+            filter_names,
+            class_name_overrides=self._get_current_class_name_overrides(),
+            parent=self,
+        )
         if dialog.exec() == QDialog.DialogCode.Accepted:
             self.model_manager.set_auto_labeling_filter_classes(
                 dialog.get_selected_classes()
+            )
+            self._set_current_class_name_overrides(
+                dialog.get_class_name_overrides()
             )
 
     def on_set_api_token(self):

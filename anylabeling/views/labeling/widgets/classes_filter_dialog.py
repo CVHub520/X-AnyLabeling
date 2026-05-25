@@ -2,11 +2,14 @@ from typing import List, Optional
 
 from PyQt6.QtCore import QSize, Qt
 from PyQt6.QtWidgets import (
+    QCheckBox,
     QDialog,
     QHBoxLayout,
     QListWidget,
     QListWidgetItem,
+    QLineEdit,
     QPushButton,
+    QWidget,
     QVBoxLayout,
 )
 
@@ -44,7 +47,11 @@ def _list_widget_style() -> str:
         QListWidget::item:hover {{
             background-color: {t["surface_hover"]};
         }}
-        QListWidget::indicator {{
+        QCheckBox {{
+            color: {t["text"]};
+            spacing: 8px;
+        }}
+        QCheckBox::indicator {{
             width: 14px;
             height: 14px;
             border-radius: 3px;
@@ -52,10 +59,13 @@ def _list_widget_style() -> str:
             background-color: {t["background"]};
             margin-right: 4px;
         }}
-        QListWidget::indicator:checked {{
+        QCheckBox::indicator:checked {{
             background-color: {t["primary"]};
             border-color: {t["primary"]};
             image: url(:/images/images/checkmark-white.svg);
+        }}
+        QLineEdit {{
+            min-width: 160px;
         }}
     """
 
@@ -67,6 +77,7 @@ class ClassesFilterDialog(QDialog):
         self,
         classes: List[str],
         filter_classes: Optional[List[str]] = None,
+        class_name_overrides: Optional[dict] = None,
         parent=None,
     ) -> None:
         """
@@ -74,12 +85,16 @@ class ClassesFilterDialog(QDialog):
             classes (List[str]): All class names from the loaded model.
             filter_classes (Optional[List[str]]): Currently active class
                 name filter, or None to indicate all classes are active.
+            class_name_overrides (Optional[dict]): Mapping from model class
+                names to output labels.
             parent: Parent widget.
         """
         super().__init__(parent)
         self._classes = classes
+        self._class_name_overrides = class_name_overrides or {}
+        self._row_widgets = {}
         self.setWindowTitle(self.tr("Filter Classes"))
-        self.setMinimumWidth(520)
+        self.setMinimumWidth(640)
         self.setMinimumHeight(400)
         self.setStyleSheet(get_dialog_style() + _list_widget_style())
         self._build_ui(filter_classes)
@@ -98,17 +113,32 @@ class ClassesFilterDialog(QDialog):
         self._list.setUniformItemSizes(True)
         self._list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
         for cls_name in self._classes:
-            item = QListWidgetItem(cls_name)
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item = QListWidgetItem()
+            item.setData(Qt.ItemDataRole.UserRole, cls_name)
             checked = filter_classes is None or (
                 cls_name in filter_classes if filter_classes else True
             )
-            item.setCheckState(
-                Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked
+            checkbox = QCheckBox(cls_name)
+            checkbox.setChecked(checked)
+            checkbox.stateChanged.connect(
+                lambda _state: self._refresh_toggle_text()
             )
-            item.setSizeHint(QSize(0, 28))
+
+            rename_input = QLineEdit()
+            rename_input.setPlaceholderText(self.tr("Output label"))
+            rename_input.setText(self._class_name_overrides.get(cls_name, ""))
+
+            row = QWidget()
+            row_layout = QHBoxLayout(row)
+            row_layout.setContentsMargins(8, 2, 8, 2)
+            row_layout.setSpacing(8)
+            row_layout.addWidget(checkbox, 1)
+            row_layout.addWidget(rename_input, 0)
+
+            item.setSizeHint(QSize(0, 36))
             self._list.addItem(item)
-        self._list.itemChanged.connect(self._on_item_changed)
+            self._list.setItemWidget(item, row)
+            self._row_widgets[cls_name] = (checkbox, rename_input)
         layout.addWidget(self._list)
 
         btn_row = QHBoxLayout()
@@ -139,18 +169,27 @@ class ClassesFilterDialog(QDialog):
         text = text.strip().lower()
         for i in range(self._list.count()):
             item = self._list.item(i)
-            item.setHidden(bool(text) and text not in item.text().lower())
+            cls_name = item.data(Qt.ItemDataRole.UserRole)
+            checkbox, rename_input = self._row_widgets[cls_name]
+            output_label = rename_input.text().strip().lower()
+            haystack = f"{cls_name} {output_label}".lower()
+            item.setHidden(bool(text) and text not in haystack)
+        self._refresh_toggle_text()
 
     def _visible_all_checked(self) -> bool:
         return all(
-            self._list.item(i).checkState() == Qt.CheckState.Checked
+            self._row_widgets[
+                self._list.item(i).data(Qt.ItemDataRole.UserRole)
+            ][0].isChecked()
             for i in range(self._list.count())
             if not self._list.item(i).isHidden()
         )
 
     def _all_checked(self) -> bool:
         return all(
-            self._list.item(i).checkState() == Qt.CheckState.Checked
+            self._row_widgets[
+                self._list.item(i).data(Qt.ItemDataRole.UserRole)
+            ][0].isChecked()
             for i in range(self._list.count())
         )
 
@@ -160,20 +199,15 @@ class ClassesFilterDialog(QDialog):
         else:
             self._toggle_btn.setText(self.tr("Select All"))
 
-    def _on_item_changed(self, _item: QListWidgetItem) -> None:
-        self._refresh_toggle_text()
-
     def _toggle_all(self) -> None:
-        target = (
-            Qt.CheckState.Unchecked
-            if self._visible_all_checked()
-            else Qt.CheckState.Checked
-        )
-        self._list.itemChanged.disconnect(self._on_item_changed)
+        target = not self._visible_all_checked()
         for i in range(self._list.count()):
             if not self._list.item(i).isHidden():
-                self._list.item(i).setCheckState(target)
-        self._list.itemChanged.connect(self._on_item_changed)
+                cls_name = self._list.item(i).data(Qt.ItemDataRole.UserRole)
+                checkbox = self._row_widgets[cls_name][0]
+                checkbox.blockSignals(True)
+                checkbox.setChecked(target)
+                checkbox.blockSignals(False)
         self._refresh_toggle_text()
 
     def get_selected_classes(self) -> List[str]:
@@ -182,7 +216,18 @@ class ClassesFilterDialog(QDialog):
             List[str]: Names of the checked classes.
         """
         return [
-            self._list.item(i).text()
+            self._list.item(i).data(Qt.ItemDataRole.UserRole)
             for i in range(self._list.count())
-            if self._list.item(i).checkState() == Qt.CheckState.Checked
+            if self._row_widgets[
+                self._list.item(i).data(Qt.ItemDataRole.UserRole)
+            ][0].isChecked()
         ]
+
+    def get_class_name_overrides(self) -> dict:
+        """Return model class names that should be renamed in predictions."""
+        overrides = {}
+        for cls_name, (_checkbox, rename_input) in self._row_widgets.items():
+            output_label = rename_input.text().strip()
+            if output_label and output_label != cls_name:
+                overrides[cls_name] = output_label
+        return overrides

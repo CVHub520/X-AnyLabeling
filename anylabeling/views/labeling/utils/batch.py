@@ -216,6 +216,10 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
             new_description = ""
             replace = True
         else:
+            if hasattr(self, "auto_labeling_widget"):
+                self.auto_labeling_widget.apply_class_name_overrides(
+                    auto_labeling_result
+                )
             new_shapes = [
                 shape.to_dict() for shape in auto_labeling_result.shapes
             ]
