@@ -17,6 +17,9 @@ try:
         AutoLabelingWidget,
         update_model_selection_scroll_area_height,
     )
+    from anylabeling.views.labeling.widgets.searchable_model_dropdown import (
+        SearchableModelDropdownPopup,
+    )
 
     PYQT_AVAILABLE = True
 except Exception:
@@ -204,3 +207,36 @@ class TestAutoLabelingLayout(unittest.TestCase):
 
         self.assertEqual(button_top, scroll_top)
         self.assertLessEqual(button_bottom, status_top)
+
+    def test_model_dropdown_search_matches_display_names(self):
+        dropdown = SearchableModelDropdownPopup(
+            {
+                "Meta": {
+                    "sam2_hiera_base_video-r20240901": {
+                        "display_name": "Segment Anything 2 Video (Base)"
+                    },
+                    "sam2_hiera_base-r20240801": {
+                        "display_name": "Segment Anything 2.1 (Base)"
+                    },
+                    "sam_hq_vit_b-r20231111": {
+                        "display_name": "SAM-HQ (ViT-Base)"
+                    },
+                }
+            }
+        )
+        self._widgets.append(dropdown)
+        dropdown.show()
+        self.app.processEvents()
+
+        dropdown.filter_models("seg")
+        self.app.processEvents()
+
+        visible_names = [
+            item.display_name
+            for item in dropdown.model_items.values()
+            if item.isVisible()
+        ]
+
+        self.assertIn("Segment Anything 2 Video (Base)", visible_names)
+        self.assertIn("Segment Anything 2.1 (Base)", visible_names)
+        self.assertNotIn("SAM-HQ (ViT-Base)", visible_names)

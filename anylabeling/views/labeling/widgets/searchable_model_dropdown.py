@@ -452,10 +452,17 @@ class SearchableModelDropdownPopup(QWidget):
 
         # Check if any models match the search
         for name, item in self.model_items.items():
-            similarity = SequenceMatcher(
-                None, search_text, name.lower()
-            ).ratio()
-            if search_text in name.lower() or similarity >= match_threshold:
+            model_name = name.lower()
+            display_name = item.display_name.lower()
+            similarity = max(
+                SequenceMatcher(None, search_text, model_name).ratio(),
+                SequenceMatcher(None, search_text, display_name).ratio(),
+            )
+            if (
+                search_text in model_name
+                or search_text in display_name
+                or similarity >= match_threshold
+            ):
                 item.setVisible(True)
                 found_any = True
             else:
