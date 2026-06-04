@@ -84,6 +84,10 @@ class TestPPOCRLatexEditor(unittest.TestCase):
             _sanitize_latex_preview_source(r"\xleftarrow{back}"),
             r"\overset{back}{\leftarrow}",
         )
+        self.assertEqual(
+            _sanitize_latex_preview_source(r"\sum\displaylimits_{k=1}^{n}a_k"),
+            r"\sum_{k=1}^{n}a_k",
+        )
 
     def test_render_latex_preview_pixmap_supports_single_and_multiline(self):
         single_pixmap = render_latex_preview_pixmap(

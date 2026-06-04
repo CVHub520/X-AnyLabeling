@@ -141,7 +141,7 @@
 | 🏷️ **图像标记** | RAM, RAM++ |
 | 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5 |
 | 🧾 **综合版面分析** | PP-DocLayoutV3 |
-| 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.5 |
+| 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.6 |
 | 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |
 | 👁️ **视觉语言模型** | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ **车道线检测** | CLRNet |

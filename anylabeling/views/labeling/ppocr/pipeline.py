@@ -1071,7 +1071,7 @@ class PPOCRPipeline:
             response,
             "PPOCR API job result download failed",
         )
-        return response.text
+        return response.content.decode("utf-8-sig")
 
     def _normalize_document_result(
         self,

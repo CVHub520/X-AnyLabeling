@@ -19,7 +19,7 @@ The X-AnyLabeling client supports the official PaddleOCR API by default, so you 
 
 The following official API model options are currently supported in the parsing-model drop-down list:
 
-- `PaddleOCR-VL-1.5 (API)`
+- `PaddleOCR-VL-1.6 (API)`
 - `PaddleOCR-VL (API)`
 
 <video src="https://github.com/user-attachments/assets/f570dbda-20a4-4e8c-8d97-4c42083be98a" width="100%" controls>
@@ -199,7 +199,7 @@ Each imported file has a corresponding JSON file. The core structure is as follo
         "width": 1240,
         "height": 1754,
         "model_settings": {
-          "pipeline_model": "PaddleOCR-VL-1.5",
+          "pipeline_model": "PaddleOCR-VL-1.6",
           "api_mode": "async_jobs"
         },
         "parsing_res_list": [
@@ -249,7 +249,7 @@ Each imported file has a corresponding JSON file. The core structure is as follo
     "error_message": "",
     "edited_blocks": [],
     "block_image_paths": {},
-    "pipeline_model": "PaddleOCR-VL-1.5",
+    "pipeline_model": "PaddleOCR-VL-1.6",
     "api_mode": "async_jobs",
     "api_job_id": "39373553546153984"
   }

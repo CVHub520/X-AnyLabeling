@@ -142,7 +142,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 🏷️ Tagging | RAM, RAM++ |
 | 📄 OCR | PP-OCRv4, PP-OCRv5 |
 | 🧾 Layout Analysis | PP-DocLayoutV3 |
-| 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.5 |
+| 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.6 |
 | 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |

@@ -2,13 +2,17 @@ import json
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 try:
+    import requests
+
     from anylabeling.views.labeling.ppocr.config import (
         PPOCR_API_DEFAULT_MODEL,
         PPOCR_API_JOB_URL,
+        PPOCR_API_SUPPORTED_MODELS,
         build_ppocr_api_model_id,
         is_ppocr_api_model_id,
         ppocr_api_model_label,
@@ -115,12 +119,22 @@ class TestPPOCRPipelineTaskMapping(unittest.TestCase):
         self.assertTrue(is_ppocr_api_model_id("__ppocr_api__"))
         self.assertEqual(resolve_ppocr_api_model(model_id), "PaddleOCR-VL")
         self.assertEqual(
+            resolve_ppocr_api_model(
+                build_ppocr_api_model_id("PaddleOCR-VL-1.6")
+            ),
+            "PaddleOCR-VL-1.6",
+        )
+        self.assertEqual(
             resolve_ppocr_api_model("__ppocr_api__"),
             PPOCR_API_DEFAULT_MODEL,
         )
         self.assertEqual(
             ppocr_api_model_label("PaddleOCR-VL"), "PaddleOCR-VL (API)"
         )
+
+    def test_supported_api_models_hide_deprecated_vl_1_5(self):
+        self.assertIn("PaddleOCR-VL-1.6", PPOCR_API_SUPPORTED_MODELS)
+        self.assertNotIn("PaddleOCR-VL-1.5", PPOCR_API_SUPPORTED_MODELS)
 
     def test_parse_ppocr_jsonl_result_merges_layout_results(self):
         text = "\n".join(
@@ -134,6 +148,29 @@ class TestPPOCRPipelineTaskMapping(unittest.TestCase):
         self.assertEqual(len(pages), 2)
         self.assertEqual(pages[0]["prunedResult"]["width"], 10)
         self.assertEqual(pages[1]["prunedResult"]["width"], 20)
+
+    def test_download_ppocr_job_result_decodes_utf8_jsonl(self):
+        response = requests.Response()
+        response.status_code = 200
+        response._content = "题目，答案".encode("utf-8")
+        response.encoding = "ISO-8859-1"
+
+        pipeline = PPOCRPipeline.__new__(PPOCRPipeline)
+        pipeline.timeout = 1
+
+        with (
+            patch.object(
+                pipeline,
+                "_request_with_cancel",
+                return_value=response,
+            ),
+            patch.object(pipeline, "_raise_for_ppocr_response"),
+        ):
+            result_text = pipeline._download_ppocr_job_result(
+                "https://example.test/result.jsonl"
+            )
+
+        self.assertEqual(result_text, "题目，答案")
 
     def test_extract_job_metadata_supports_nested_payloads(self):
         payload = {
