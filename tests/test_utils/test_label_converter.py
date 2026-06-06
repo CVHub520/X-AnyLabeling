@@ -1,3 +1,4 @@
+import json
 import os
 import tempfile
 import unittest
@@ -51,3 +52,59 @@ class TestLabelConverterPoseConfig(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             LabelConverter(pose_cfg_file=cfg_path)
+
+
+class TestLabelConverterObbBounds(unittest.TestCase):
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp()
+        self.classes_file = os.path.join(self.temp_dir, "classes.txt")
+        with open(self.classes_file, "w", encoding="utf-8") as f:
+            f.write("plane\n")
+        self.converter = LabelConverter(classes_file=self.classes_file)
+
+    def tearDown(self):
+        import shutil
+
+        if os.path.exists(self.temp_dir):
+            shutil.rmtree(self.temp_dir)
+
+    def _write_label_file(self, points):
+        label_file = os.path.join(self.temp_dir, "label.json")
+        data = {
+            "imagePath": "image.jpg",
+            "imageWidth": 100,
+            "imageHeight": 50,
+            "shapes": [
+                {
+                    "label": "plane",
+                    "shape_type": "rotation",
+                    "points": points,
+                }
+            ],
+        }
+        with open(label_file, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        return label_file
+
+    def test_dota_skips_rotation_shape_with_any_out_of_bounds_point(self):
+        label_file = self._write_label_file(
+            [[-1, 10], [20, 10], [20, 20], [10, 20]]
+        )
+        output_file = os.path.join(self.temp_dir, "label.txt")
+
+        self.converter.custom_to_dota(label_file, output_file)
+
+        with open(output_file, "r", encoding="utf-8") as f:
+            self.assertEqual(f.read(), "")
+
+    def test_yolo_obb_skips_rotation_shape_with_any_out_of_bounds_point(self):
+        label_file = self._write_label_file(
+            [[-1, 10], [20, 10], [20, 20], [10, 20]]
+        )
+        output_file = os.path.join(self.temp_dir, "label.txt")
+
+        self.converter.custom_to_yolo(label_file, output_file, "obb")
+
+        with open(output_file, "r", encoding="utf-8") as f:
+            self.assertEqual(f.read(), "")
