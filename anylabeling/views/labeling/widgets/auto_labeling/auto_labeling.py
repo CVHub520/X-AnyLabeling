@@ -1415,6 +1415,15 @@ class AutoLabelingWidget(QWidget):
         self.remote_server_select_combobox.clear()
 
     @staticmethod
+    def _set_combobox_tooltip(combo):
+        text = combo.currentText()
+        combo.setToolTip(text)
+        for index in range(combo.count()):
+            combo.setItemData(
+                index, combo.itemText(index), Qt.ItemDataRole.ToolTipRole
+            )
+
+    @staticmethod
     def _is_capabilities_remote_model(model_info):
         if not isinstance(model_info, dict):
             return False
@@ -1450,6 +1459,7 @@ class AutoLabelingWidget(QWidget):
     @pyqtSlot()
     def on_remote_server_model_changed(self):
         """Handle remote server model change"""
+        self._set_combobox_tooltip(self.remote_server_select_combobox)
         model_id = self.remote_server_select_combobox.currentData()
         if model_id:
             self.model_manager.set_remote_server_model(model_id)
@@ -1489,11 +1499,13 @@ class AutoLabelingWidget(QWidget):
             self.remote_server_select_combobox.addItem(
                 display_name, userData=model_id
             )
+        self._set_combobox_tooltip(self.remote_server_select_combobox)
 
         self.remote_server_select_combobox.blockSignals(False)
 
         if available_models:
             self.remote_server_select_combobox.setCurrentIndex(0)
+            self._set_combobox_tooltip(self.remote_server_select_combobox)
             first_model_id = list(available_models.keys())[0]
             self.model_manager.set_remote_server_model(first_model_id)
             self.update_remote_server_widgets(first_model_id)
@@ -1515,6 +1527,7 @@ class AutoLabelingWidget(QWidget):
     def on_task_changed(self):
         """Handle task change"""
 
+        self._set_combobox_tooltip(self.remote_task_select_combobox)
         current_index = self.remote_task_select_combobox.currentIndex()
         task_id = self.remote_task_select_combobox.currentData()
         logger.debug(
@@ -1556,9 +1569,11 @@ class AutoLabelingWidget(QWidget):
             self.remote_task_select_combobox.addItem(
                 task_name, userData=task_id
             )
+        self._set_combobox_tooltip(self.remote_task_select_combobox)
 
         self.remote_task_select_combobox.blockSignals(False)
         self.remote_task_select_combobox.setCurrentIndex(0)
+        self._set_combobox_tooltip(self.remote_task_select_combobox)
         first_task_id = available_tasks[0].get("id")
         self.model_manager.set_task(first_task_id)
         self.update_task_widgets(available_tasks[0])

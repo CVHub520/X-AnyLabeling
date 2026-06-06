@@ -1116,6 +1116,7 @@ theme: auto  # 可选: auto, light, dark
 
 - YOLOE: [链接](../../examples/grounding/yoloe/README.md)
 - SAM 3: [链接](../../examples/grounding/sam3/README.md)
+- LocateAnything: [链接](../../examples/grounding/locateanything/README.md)
 
 ## 9. 模型
 

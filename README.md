@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-06-06`: Added [LocateAnything](./examples/grounding/locateanything/README.md) support for open-vocabulary grounding, pointing, and scene text detection.
 - `2026-05-23`: Added the [Video Classifier](./docs/en/video_classifier.md) annotation panel with timeline segment classification, segment descriptions, AI-assisted video segmentation and description generation.
 - `2026-04-26`: Added client-side (local ONNX) support for [SAM 3](./examples/grounding/sam3/README.md) text-grounded segmentation.
 - `2026-04-25`: Added support for the [GeCo2](./examples/counting/geco2/README.md) object counting model.
@@ -147,7 +148,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 👁️ Vision Language Models | Qwen3-VL, Gemini, ChatGPT, GLM |
 | 🛣️ Lane Detection | CLRNet |
 | 🔢 Object Counting | CountGD, GeCO, GeCo2 |
-| 📍 Grounding | Grounding DINO, YOLO-World, YOLOE |
+| 📍 Grounding | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything |
 | 📚 Other | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
 
 ## Docs
@@ -203,6 +204,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 - [Grounding](./examples/grounding/)
   - [YOLOE](./examples/grounding/yoloe/README.md)
   - [SAM 3](./examples/grounding/sam3/README.md)
+  - [LocateAnything](./examples/grounding/locateanything/README.md)
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 
