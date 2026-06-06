@@ -1282,8 +1282,10 @@ class LabelConverter:
                 elif mode == "obb" and shape_type == "rotation":
                     label = shape["label"]
                     points = shape["points"]
-                    if not any(
-                        0 <= p[0] < image_width and 0 <= p[1] < image_height
+                    if any(
+                    # if not any(
+                        # 0 <= p[0] < image_width and 0 <= p[1] < image_height
+                        p[0] < 0 or p[0] > image_width or p[1] < 0 or p[1] > image_height
                         for p in points
                     ):
                         logger.warning(
