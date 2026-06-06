@@ -1282,8 +1282,11 @@ class LabelConverter:
                 elif mode == "obb" and shape_type == "rotation":
                     label = shape["label"]
                     points = shape["points"]
-                    if not any(
-                        0 <= p[0] < image_width and 0 <= p[1] < image_height
+                    if any(
+                        p[0] < 0
+                        or p[0] > image_width
+                        or p[1] < 0
+                        or p[1] > image_height
                         for p in points
                     ):
                         logger.warning(
@@ -1737,7 +1740,10 @@ class LabelConverter:
                 shape_type = shape["shape_type"]
                 if shape_type != "rotation" or len(points) != 4:
                     continue
-                if not any(0 <= p[0] < w and 0 <= p[1] < h for p in points):
+                if any(
+                    p[0] < 0 or p[0] > w or p[1] < 0 or p[1] > h
+                    for p in points
+                ):
                     logger.warning(
                         f"{data['imagePath']}: Skip out of bounds coordinates of {points}!"
                     )
