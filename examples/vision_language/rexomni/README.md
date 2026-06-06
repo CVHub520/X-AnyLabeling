@@ -28,6 +28,9 @@ You can tweak the settings in [rexomni.yaml](https://github.com/CVHub520/X-AnyLa
 > [!NOTE]
 > You need to install compatible versions of `vllm` and `flash-attn` packages separately if you want to use these acceleration options.
 
+> [!TIP]
+> When using the `vllm` backend, choose the GPU before starting X-AnyLabeling-Server, for example `CUDA_VISIBLE_DEVICES=3 x-anylabeling-server`. The `device_map` setting only applies to the `transformers` backend.
+
 
 ## Getting Started
 
