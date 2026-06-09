@@ -1823,13 +1823,11 @@ class UltralyticsDialog(QDialog):
                 "checkpoint",
             ]:
                 advanced_params.update(config.get(section, {}))
-            advanced_params = {
-                key: value
-                for key, value in advanced_params.items()
-                if key in DEFAULT_TRAINING_CONFIG
-                and value != DEFAULT_TRAINING_CONFIG[key]
-            }
-            train_args.update(advanced_params)
+            # Exclude X-AnyLabeling specific parameters not recognized by ultralytics
+            xany_params_to_exclude = {"skip_empty_files", "only_checked_files"}
+            for key, value in advanced_params.items():
+                if key not in xany_params_to_exclude:
+                    train_args[key] = value
             self.total_epochs = train_args.get("epochs", 100)
 
             # Log the training command
