@@ -280,10 +280,16 @@ class ModelManager(QObject):
         # Save config
         config = get_config()
         config["custom_models"] = custom_models
-        save_config(config)
+        save_config(config, save_explicit=True)
 
         # Reload model configs
         self.load_model_configs()
+        if not any(
+            config.get("config_file") == model_config["config_file"]
+            for config in self.model_configs
+        ):
+            self.model_configs = [model_config] + self.model_configs
+            self.model_configs_changed.emit(self.model_configs)
 
         # Load model
         self.load_model(model_config["config_file"])
@@ -323,6 +329,7 @@ class ModelManager(QObject):
             self.new_model_status.emit(
                 self.tr("Error in loading model: Invalid model name.")
             )
+            self.model_loaded.emit({})
             return
 
         self._cancel_event.clear()
