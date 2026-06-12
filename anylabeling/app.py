@@ -1,4 +1,5 @@
 import os
+import json
 
 # Temporary fix for: bus error
 # Source: https://stackoverflow.com/questions/73072612/
@@ -17,6 +18,18 @@ import multiprocessing
 
 import sys
 from pathlib import Path
+
+
+if len(sys.argv) > 1 and sys.argv[1] == "probe-device":
+    try:
+        import onnxruntime as ort
+
+        providers = list(ort.get_available_providers())
+    except Exception:
+        providers = []
+    print(json.dumps({"providers": providers}))
+    sys.exit(0)
+
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
