@@ -101,26 +101,17 @@ class LabelListWidgetItem(QtGui.QStandardItem):
         return f'{self.__class__.__name__}("{self.text()!r}")'
 
 
-class StandardItemModel(QtGui.QStandardItemModel):
-    itemDropped = QtCore.pyqtSignal()
-
-    # QT Overload
-    def removeRows(self, *args, **kwargs):
-        ret = super().removeRows(*args, **kwargs)
-        self.itemDropped.emit()
-        return ret
-
-
 class LabelListWidget(QtWidgets.QListView):
     item_double_clicked = QtCore.pyqtSignal(LabelListWidgetItem)
     item_selection_changed = QtCore.pyqtSignal(list, list)
+    item_dropped = QtCore.pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self._selected_items = []
 
         self.setWindowFlags(Qt.WindowType.Window)
-        self.setModel(StandardItemModel())
+        self.setModel(QtGui.QStandardItemModel())
         self.model().setItemPrototype(LabelListWidgetItem())
         self.setItemDelegate(HTMLDelegate())
         self.setSelectionMode(
@@ -130,6 +121,7 @@ class LabelListWidget(QtWidgets.QListView):
             QtWidgets.QAbstractItemView.DragDropMode.InternalMove
         )
         self.setDefaultDropAction(Qt.DropAction.MoveAction)
+        self.setDragDropOverwriteMode(False)
 
         self.doubleClicked.connect(self.item_double_clicked_event)
         self.selectionModel().selectionChanged.connect(
@@ -145,10 +137,6 @@ class LabelListWidget(QtWidgets.QListView):
     def __iter__(self):
         for i in range(len(self)):
             yield self[i]
-
-    @property
-    def item_dropped(self):
-        return self.model().itemDropped
 
     @property
     def item_changed(self):
@@ -179,6 +167,11 @@ class LabelListWidget(QtWidgets.QListView):
     def remove_item(self, item):
         index = self.model().indexFromItem(item)
         self.model().removeRows(index.row(), 1)
+
+    def dropEvent(self, event):
+        super().dropEvent(event)
+        if event.source() is self and event.isAccepted():
+            self.item_dropped.emit()
 
     def select_item(self, item):
         index = self.model().indexFromItem(item)
