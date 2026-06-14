@@ -9,7 +9,13 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
         self.parent = parent
         super(HTMLDelegate, self).__init__()
-        self.doc = QtGui.QTextDocument(self)
+
+    def _document_for_index(self, index, font):
+        doc = QtGui.QTextDocument(self)
+        doc.setDefaultFont(font)
+        if index is not None and index.isValid():
+            doc.setHtml(index.data(Qt.ItemDataRole.DisplayRole) or "")
+        return doc
 
     def paint(self, painter, option, index):
         painter.save()
@@ -17,7 +23,7 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         options = QtWidgets.QStyleOptionViewItem(option)
 
         self.initStyleOption(options, index)
-        self.doc.setHtml(options.text)
+        doc = self._document_for_index(index, options.font)
         options.text = ""
 
         style = (
@@ -54,23 +60,23 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         if index.column() != 0:
             text_rect.adjust(5, 0, 0, 0)
 
-        margin_constant = 4
-        margin = (option.rect.height() - options.fontMetrics.height()) // 2
-        margin = margin - margin_constant
+        margin = max(0, int((option.rect.height() - doc.size().height()) / 2))
         text_rect.setTop(text_rect.top() + margin)
 
         painter.translate(text_rect.topLeft())
         painter.setClipRect(text_rect.translated(-text_rect.topLeft()))
-        self.doc.documentLayout().draw(painter, ctx)
+        doc.documentLayout().draw(painter, ctx)
 
         painter.restore()
 
     # QT Overload
-    def sizeHint(self, _, _2):
-        margin_constant = 4
+    def sizeHint(self, option, index):
+        font = option.font if option is not None else QtGui.QFont()
+        doc = self._document_for_index(index, font)
+        font_metrics = QtGui.QFontMetrics(font)
         return QtCore.QSize(
-            int(self.doc.idealWidth()),
-            int(self.doc.size().height() - margin_constant),
+            int(doc.idealWidth()),
+            max(int(doc.size().height()), font_metrics.height() + 4),
         )
 
 
@@ -118,6 +124,8 @@ class LabelListWidget(QtWidgets.QListView):
     def __init__(self):
         super().__init__()
         self._selected_items = []
+        self._ignore_mouse_move_selection = False
+        self._preserved_selected_items = []
 
         self.setWindowFlags(Qt.WindowType.Window)
         self.setModel(StandardItemModel())
@@ -127,9 +135,8 @@ class LabelListWidget(QtWidgets.QListView):
             QtWidgets.QAbstractItemView.SelectionMode.ExtendedSelection
         )
         self.setDragDropMode(
-            QtWidgets.QAbstractItemView.DragDropMode.InternalMove
+            QtWidgets.QAbstractItemView.DragDropMode.NoDragDrop
         )
-        self.setDefaultDropAction(Qt.DropAction.MoveAction)
 
         self.doubleClicked.connect(self.item_double_clicked_event)
         self.selectionModel().selectionChanged.connect(
@@ -164,6 +171,48 @@ class LabelListWidget(QtWidgets.QListView):
     def item_double_clicked_event(self, index):
         self.item_double_clicked.emit(self.model().itemFromIndex(index))
 
+    def mouseDoubleClickEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            index = self.indexAt(event.pos())
+            if index.isValid():
+                self.item_double_clicked_event(index)
+                event.accept()
+                return
+        super().mouseDoubleClickEvent(event)
+
+    def mousePressEvent(self, event):
+        self._preserved_selected_items = []
+        if event.button() == Qt.MouseButton.LeftButton:
+            index = self.indexAt(event.pos())
+            self._ignore_mouse_move_selection = (
+                index.isValid() and self.selectionModel().isSelected(index)
+            )
+            if (
+                self._ignore_mouse_move_selection
+                and len(self.selectedIndexes()) > 1
+                and event.modifiers() == Qt.KeyboardModifier.NoModifier
+            ):
+                self._preserved_selected_items = self.selected_items()
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if (
+            self._ignore_mouse_move_selection
+            and event.buttons() & Qt.MouseButton.LeftButton
+        ):
+            event.accept()
+            return
+        super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._ignore_mouse_move_selection = False
+        super().mouseReleaseEvent(event)
+        if self._preserved_selected_items:
+            self.clearSelection()
+            for item in self._preserved_selected_items:
+                self.select_item(item)
+            self._preserved_selected_items = []
+
     def selected_items(self):
         return [self.model().itemFromIndex(i) for i in self.selectedIndexes()]
 
@@ -174,7 +223,6 @@ class LabelListWidget(QtWidgets.QListView):
         if not isinstance(item, LabelListWidgetItem):
             raise TypeError("item must be LabelListWidgetItem")
         self.model().setItem(self.model().rowCount(), 0, item)
-        item.setSizeHint(self.itemDelegate().sizeHint(None, None))
 
     def remove_item(self, item):
         index = self.model().indexFromItem(item)
