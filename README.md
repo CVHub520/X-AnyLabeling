@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-06-15`: Added an eraser tool for quickly removing vertices from polygon and linestrip annotations.
 - `2026-06-06`: Added [LocateAnything](./examples/grounding/locateanything/README.md) support for open-vocabulary grounding, pointing, and scene text detection.
 - `2026-05-23`: Added the [Video Classifier](./docs/en/video_classifier.md) annotation panel with timeline segment classification, segment descriptions, AI-assisted video segmentation and description generation.
 - `2026-04-26`: Added client-side (local ONNX) support for [SAM 3](./examples/grounding/sam3/README.md) text-grounded segmentation.

@@ -437,6 +437,7 @@ class LabelingWidget(LabelDialog):
         self.canvas.show_shape.connect(self.show_shape)
         self.canvas.shape_moved.connect(self.set_dirty)
         self.canvas.shape_rotated.connect(self.set_dirty)
+        self.canvas.shapes_deleted.connect(self.on_canvas_shapes_deleted)
         self.canvas.selection_changed.connect(self.shape_selection_changed)
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
         self.canvas.edit_label_requested.connect(self.edit_label)
@@ -4587,6 +4588,13 @@ class LabelingWidget(LabelDialog):
             item = self.label_list.find_item_by_shape(shape)
             self.label_list.remove_item(item)
         self._refresh_shape_filters()
+
+    def on_canvas_shapes_deleted(self, shapes):
+        self.remove_labels(shapes)
+        self.set_dirty()
+        if self.no_shape():
+            for action in self.actions.on_shapes_present:
+                action.setEnabled(False)
 
     def load_shapes(self, shapes, replace=True, update_last_label=True):
         self._no_selection_slot = True

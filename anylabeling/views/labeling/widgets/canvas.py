@@ -60,6 +60,7 @@ class Canvas(
     selection_changed = QtCore.pyqtSignal(list)
     shape_moved = QtCore.pyqtSignal()
     shape_rotated = QtCore.pyqtSignal()
+    shapes_deleted = QtCore.pyqtSignal(list)
     drawing_polygon = QtCore.pyqtSignal(bool)
     vertex_selected = QtCore.pyqtSignal(bool)
     auto_labeling_marks_updated = QtCore.pyqtSignal(list)
@@ -137,6 +138,8 @@ class Canvas(
         self._space_panning = False
         self._space_pan_prev_point = None
         self._space_pan_suppress_until_release = False
+        self._vertex_erasing = False
+        self._vertex_eraser_cursor_cache = None
         self.offsets = QtCore.QPointF(), QtCore.QPointF()
         self.scale = 1.0
         self.pixmap = QtGui.QPixmap()
@@ -514,6 +517,72 @@ class Canvas(
     def selected_cuboid_face(self):
         return self.h_cuboid_face is not None
 
+    def can_erase_selected_vertices(self):
+        if not self.editing() or len(self.selected_shapes) != 1:
+            return False
+        return self.selected_shapes[0].shape_type in ["polygon", "linestrip"]
+
+    def _vertex_eraser_cursor(self):
+        if self._vertex_eraser_cursor_cache is None:
+            pixmap = QtGui.QPixmap(":/images/images/eraser.svg")
+            if pixmap.isNull():
+                return CURSOR_POINT
+            self._vertex_eraser_cursor_cache = QtGui.QCursor(
+                pixmap.scaled(
+                    24,
+                    24,
+                    QtCore.Qt.AspectRatioMode.KeepAspectRatio,
+                    QtCore.Qt.TransformationMode.SmoothTransformation,
+                ),
+                3,
+                20,
+            )
+        return self._vertex_eraser_cursor_cache
+
+    def _set_vertex_eraser_tooltip(self):
+        if not self.can_erase_selected_vertices():
+            return
+        tooltip = self.tr("Click & drag to erase points of shape '%s'") % (
+            self.selected_shapes[0].label
+        )
+        self.setToolTip(tooltip)
+        self.setStatusTip(tooltip)
+
+    @staticmethod
+    def _minimum_points_for_shape(shape):
+        if shape.shape_type == "polygon":
+            return 3
+        if shape.shape_type == "linestrip":
+            return 2
+        return 0
+
+    def erase_selected_vertex_at(self, pos):
+        if not self.can_erase_selected_vertices():
+            return False
+        shape = self.selected_shapes[0]
+        index = shape.nearest_vertex(pos, self.epsilon / self.scale)
+        if index is None:
+            return False
+
+        shape.remove_point(index)
+        shape.highlight_clear()
+        self.h_shape = shape
+        self.h_vertex = None
+        self.prev_h_vertex = None
+        if len(shape.points) < self._minimum_points_for_shape(shape):
+            if shape in self.shapes:
+                self.shapes.remove(shape)
+            self.selected_shapes = []
+            self.h_shape = None
+            self.h_edge = None
+            self.moving_shape = False
+            self.store_shapes()
+            self.shapes_deleted.emit([shape])
+        else:
+            self.moving_shape = True
+        self.update()
+        return True
+
     @staticmethod
     def _snap_line_pos(anchor, pos):
         """Snap line endpoint to horizontal or vertical direction."""
@@ -690,6 +759,20 @@ class Canvas(
             self._space_pan_suppress_until_release = False
         if self._space_pressed:
             self.override_cursor(CURSOR_GRAB)
+            ev.accept()
+            return
+
+        if (
+            self.editing()
+            and ev.modifiers() == QtCore.Qt.KeyboardModifier.AltModifier
+            and self.can_erase_selected_vertices()
+        ):
+            self.override_cursor(self._vertex_eraser_cursor())
+            self._set_vertex_eraser_tooltip()
+            if QtCore.Qt.MouseButton.LeftButton & ev.buttons():
+                self._vertex_erasing = True
+                self.erase_selected_vertex_at(pos)
+                self.repaint()
             ev.accept()
             return
 
@@ -1390,6 +1473,19 @@ class Canvas(
                     self.drawing_polygon.emit(True)
                     self.update()
             elif self.editing():
+                if (
+                    ev.modifiers() == QtCore.Qt.KeyboardModifier.AltModifier
+                    and self.can_erase_selected_vertices()
+                ):
+                    self._vertex_erasing = True
+                    self.override_cursor(self._vertex_eraser_cursor())
+                    self._set_vertex_eraser_tooltip()
+                    self.erase_selected_vertex_at(pos)
+                    self.prev_point = pos
+                    self.prev_pan_point = ev.position()
+                    self.repaint()
+                    ev.accept()
+                    return
                 if self.selected_edge():
                     self.add_point_to_edge()
                 elif (
@@ -1473,6 +1569,11 @@ class Canvas(
                 self.selected_shapes_copy = []
                 self.repaint()
         elif ev.button() == QtCore.Qt.MouseButton.LeftButton:
+            if self._vertex_erasing:
+                self._vertex_erasing = False
+                self.store_moving_shape()
+                ev.accept()
+                return
             if self.editing():
                 if (
                     self.h_shape is not None
@@ -3642,6 +3743,14 @@ class Canvas(
             elif modifiers == QtCore.Qt.KeyboardModifier.AltModifier:
                 self.snapping = False
         elif self.editing():
+            if (
+                key == QtCore.Qt.Key.Key_Alt
+                and self.can_erase_selected_vertices()
+            ):
+                self.override_cursor(self._vertex_eraser_cursor())
+                self._set_vertex_eraser_tooltip()
+                ev.accept()
+                return
             if key == QtCore.Qt.Key.Key_Up:
                 self.move_by_keyboard(QtCore.QPointF(0.0, -MOVE_SPEED))
             elif key == QtCore.Qt.Key.Key_Down:
@@ -3669,6 +3778,15 @@ class Canvas(
             self._space_panning = False
             self._space_pan_prev_point = None
             self._restore_space_pan_cursor()
+            ev.accept()
+            return
+        if (
+            key == QtCore.Qt.Key.Key_Alt
+            and self.editing()
+            and not ev.isAutoRepeat()
+        ):
+            self._vertex_erasing = False
+            self.override_cursor(CURSOR_DEFAULT)
             ev.accept()
             return
         if self.drawing():
@@ -3782,7 +3900,10 @@ class Canvas(
     def override_cursor(self, cursor):
         """Override cursor"""
         current_cursor = self.current_cursor()
-        if current_cursor != cursor:
+        cursor_shape = (
+            cursor.shape() if isinstance(cursor, QtGui.QCursor) else cursor
+        )
+        if current_cursor != cursor_shape:
             self._cursor = cursor
             if current_cursor is None:
                 QtWidgets.QApplication.setOverrideCursor(cursor)

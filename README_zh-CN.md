@@ -91,6 +91,7 @@
 
 ## 🥳 新功能
 
+- `2026-06-15`: 新增橡皮擦功能，支持快速移除多边形和折线标注的顶点。
 - `2026-06-06`: 新增 [LocateAnything](./examples/grounding/locateanything/README.md) 支持，覆盖开放词汇视觉定位、指点定位和场景文本检测。
 - `2026-05-23`: 新增支持 [视频分类器](./docs/zh_cn/video_classifier.md) 标注面板，支持时间轴片段分类、片段描述、AI 自动切分视频与描述生成。
 - `2026-04-26`: 新增客户端（本地 ONNX）支持 [SAM 3](./examples/grounding/sam3/README.md) 文本驱动分割。
