@@ -1,5 +1,39 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.8` (Jun 15, 2026)
+
+### 🚀 New Features
+
+- Add an AI-assisted video annotation workflow to the video classifier. (#1224,#1330)
+- Add vertex eraser support for polygon and line strip annotations. (#892)
+- Support temporary Space-drag panning while drawing shapes. (#1368)
+- Add PaddleOCR-VL-1.6 API model support.
+- Improve Chatbot vision capability detection for supported models.
+
+### 🐛 Bug Fixes
+
+- Stabilize object selection and label rendering in the label list. (#1385)
+- Preserve group IDs after auto-labeling results are applied. (#1376)
+- Prevent SAM2 interactive segmentation from leaking GPU VRAM during CUDA inference.
+- Match auto-labeling model dropdown searches against display names. (#1379)
+- Skip partially out-of-bounds OBB exports in label conversion. (#1383)
+- Pass all Ultralytics training parameters while excluding internal-only X-AnyLabeling options.
+- Align ONNX dependency checks with the package requirements to avoid false missing-package errors.
+- Surface Anthropic model fetch errors in Chatbot and honor request timeouts.
+- Restore Chatbot model refresh behavior and improve dark mode controls.
+
+### 🛠️ Improvements
+
+- Add LocateAnything grounding documentation and references. (#1382)
+- Clarify Rex-Omni GPU selection behavior for the vLLM backend.
+- Add bottom spacing to the progress dialog cancel button.
+
+### 🌟 Contributors
+
+A total of 4 developers contributed to this release.
+
+Thank @GIGIGIGIbaby, @Snag9311, @Shuwei Ji,  @CVHub520
+
 ## `v4.0.0-beta.7` (May 14, 2026)
 
 ### 🐛 Bug Fixes
