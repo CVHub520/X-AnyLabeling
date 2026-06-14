@@ -47,7 +47,7 @@ def validate_onnx_export_environment():
     required_packages = ["onnx", "onnxslim", "onnxruntime"]
     missing_packages = []
     package_mapping = {
-        "onnx": "onnx>=1.12.0,<1.18.0",
+        "onnx": "onnx>=1.15.0",
         "onnxslim": "onnxslim>=0.1.59",
         "onnxruntime": "onnxruntime",
     }
@@ -63,8 +63,8 @@ def validate_onnx_export_environment():
             onnx_version = onnx.__version__
             from packaging import version
 
-            if version.parse(onnx_version) >= version.parse("1.18.0"):
-                missing_packages.append("onnx>=1.12.0,<1.18.0")
+            if version.parse(onnx_version) < version.parse("1.15.0"):
+                missing_packages.append("onnx>=1.15.0")
     except:
         pass
 
