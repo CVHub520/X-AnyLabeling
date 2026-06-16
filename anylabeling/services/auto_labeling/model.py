@@ -7,8 +7,6 @@ import multiprocessing
 from urllib.parse import urlparse
 from urllib.error import URLError
 
-import ssl
-
 import socket
 
 socket.setdefaulttimeout(240)  # Prevent timeout when downloading models
@@ -166,9 +164,8 @@ class Model(QObject):
                 self._check_cancelled()
 
                 req = urllib.request.Request(url)
-                ssl_context = ssl._create_unverified_context()
                 response = urllib.request.urlopen(
-                    req, timeout=self.DOWNLOAD_TIMEOUT, context=ssl_context
+                    req, timeout=self.DOWNLOAD_TIMEOUT
                 )
                 total_size = int(response.headers.get("Content-Length", 0))
                 downloaded = 0
