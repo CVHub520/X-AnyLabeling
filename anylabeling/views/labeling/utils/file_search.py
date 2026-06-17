@@ -46,6 +46,8 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
         - "score::(0,0.6]" -> attribute search for files with score in (0, 0.6]
         - "description::1" -> attribute search for files with non-empty description
         - "description::true" -> attribute search for files with non-empty description
+        - "checked::1" -> attribute search for checked files
+        - "checked::0" -> attribute search for unchecked files
     """
     if not search_text:
         return SearchPattern(mode="normal", pattern=None)
@@ -133,6 +135,14 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
             elif attr_name == "description":
                 attribute_filter = {
                     "type": "description",
+                    "value": attr_value.lower() in ("true", "1", "yes"),
+                }
+                return SearchPattern(
+                    mode="attribute", attribute_filter=attribute_filter
+                )
+            elif attr_name == "checked":
+                attribute_filter = {
+                    "type": "checked",
                     "value": attr_value.lower() in ("true", "1", "yes"),
                 }
                 return SearchPattern(
@@ -233,19 +243,25 @@ def matches_label_attribute(
     ):
         return True
 
+    filter_type = search_pattern.attribute_filter["type"]
+    filter_value = search_pattern.attribute_filter["value"]
+
     if not osp.exists(label_file):
+        if filter_type == "checked":
+            return filter_value is False
         return False
 
     try:
         with open(label_file, "r", encoding="utf-8") as f:
             data = json.load(f)
         shapes = data.get("shapes", [])
-        filter_type = search_pattern.attribute_filter["type"]
-        filter_value = search_pattern.attribute_filter["value"]
 
         if filter_type == "shape":
             has_shapes = len(shapes) > 0
             return has_shapes == filter_value
+
+        if filter_type == "checked":
+            return (data.get("checked", False) is True) == filter_value
 
         if filter_type == "gid":
             target_gid = filter_value

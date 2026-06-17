@@ -290,6 +290,8 @@ Filter images by object attributes using the format `attribute::value`:
 - `score::[0,0.6)`: Find images containing objects with scores in the range [0, 0.6) (left-closed, right-open)
 - `score::(0,0.6)`: Find images containing objects with scores in the range (0, 0.6) (open interval)
 - `description::1` or `description::true`: Find images containing objects with non-empty descriptions
+- `checked::1` or `checked::true`: Find checked images
+- `checked::0` or `checked::false`: Find unchecked images; images without generated label files are also treated as unchecked
 
 ## 3. View Options
 

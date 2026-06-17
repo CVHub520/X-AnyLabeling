@@ -24,6 +24,11 @@ class TestFileSearch(unittest.TestCase):
         with open(path, "w", encoding="utf-8") as f:
             json.dump({"shapes": shapes}, f)
 
+    @staticmethod
+    def _write_label_data(path, data):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+
     def test_text_search(self):
         image_files = ["a_test.jpg", "b.jpg", "c_test.png"]
         pattern = parse_search_pattern("test")
@@ -107,3 +112,31 @@ class TestFileSearch(unittest.TestCase):
                     pattern = parse_search_pattern(query)
                     result = filter_image_files(image_files, pattern)
                     self.assertEqual(result, expected)
+
+    def test_checked_status_search_modes(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            image_files = [
+                str(Path(temp_dir) / "checked.jpg"),
+                str(Path(temp_dir) / "unchecked.jpg"),
+                str(Path(temp_dir) / "missing.jpg"),
+            ]
+            self._write_label_data(
+                Path(temp_dir) / "checked.json",
+                {"checked": True, "shapes": []},
+            )
+            self._write_label_data(
+                Path(temp_dir) / "unchecked.json",
+                {"checked": False, "shapes": []},
+            )
+
+            checked_pattern = parse_search_pattern("checked::1")
+            unchecked_pattern = parse_search_pattern("checked::0")
+
+            self.assertEqual(
+                filter_image_files(image_files, checked_pattern),
+                [image_files[0]],
+            )
+            self.assertEqual(
+                filter_image_files(image_files, unchecked_pattern),
+                [image_files[1], image_files[2]],
+            )

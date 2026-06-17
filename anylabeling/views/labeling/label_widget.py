@@ -310,6 +310,7 @@ class LabelingWidget(LabelDialog):
                 "- Attributes: difficult::1, gid::0, shape::1, label::xxx, type::xxx\n"
                 "- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)\n"
                 "- Description: description::1, description::true, description::yes\n"
+                "- Checked status: checked::1, checked::0\n"
                 "Press Enter to search."
             )
         )
