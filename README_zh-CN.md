@@ -91,6 +91,7 @@
 
 ## 🥳 新功能
 
+- `2026-06-18`: 新增 [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md)，支持人脸检测与五点人脸关键点标注。
 - `2026-06-15`: 新增橡皮擦功能，支持快速移除多边形和折线标注的顶点。
 - `2026-06-06`: 新增 [LocateAnything](./examples/grounding/locateanything/README.md) 支持，覆盖开放词汇视觉定位、指点定位和场景文本检测。
 - `2026-05-23`: 新增支持 [视频分类器](./docs/zh_cn/video_classifier.md) 标注面板，支持时间轴片段分类、片段描述、AI 自动切分视频与描述生成。
@@ -134,6 +135,7 @@
 | 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12/26, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
+| 😀 **人脸估计** | SCRFD, YOLOv6Lite-Face |
 | 👣 **目标跟踪** | Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb |
 | 📏 **深度估计** | Depth Anything |
@@ -181,6 +183,7 @@
   - [Tagging](./examples/description/tagging/README.md)
   - [Captioning](./examples/description/captioning/README.md)
 - [Estimation](./examples/estimation/)
+  - [Face Estimation](./examples/estimation/face_estimation/README.md)
   - [Pose Estimation](./examples/estimation/pose_estimation/README.md)
   - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
 - [OCR](./examples/optical_character_recognition/)

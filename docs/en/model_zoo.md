@@ -22,6 +22,7 @@
 | yolov6lite_l_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_l_face.yaml](../../anylabeling/configs/auto_labeling/yolov6lite_l_face.yaml) | 4.16MB | [baidu](https://pan.baidu.com/s/1Ot14duf7GUPMcHHIUY4TSg?pwd=xy1m) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_l_face.onnx) |
 | yolov6lite_m_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_m_face.yaml](../../anylabeling/configs/auto_labeling/yolov6lite_m_face.yaml) | 3.00MB | [baidu](https://pan.baidu.com/s/1uL01_pqldSXdFnlDM0OFZg?pwd=n9xl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_m_face.onnx) |
 | yolov6lite_s_face.onnx | [Facial Landmark Detection](https://github.com/meituan/YOLOv6/tree/yolov6-face) | [yolov6lite_s_face.yaml](../../anylabeling/configs/auto_labeling/yolov6lite_s_face.yaml) | 2.10MB | [baidu](https://pan.baidu.com/s/1nN_b4_WutwhnJYEhyqjDYg?pwd=ig4d) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov6lite_s_face.onnx) |
+| scrfd_10g_bnkps.onnx | [SCRFD](https://github.com/deepinsight/insightface/tree/master/detection/scrfd)-Face Detection & Landmarks | [scrfd_10g_bnkps.yaml](../../anylabeling/configs/auto_labeling/scrfd_10g_bnkps.yaml) | 16.16MB | [baidu](https://pan.baidu.com/s/1B_1bxnZ_WmE00axjObhjlQ?pwd=k85b) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/scrfd_10g_bnkps.onnx) |
 
 - Pose Estimation
 

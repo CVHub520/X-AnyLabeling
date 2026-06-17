@@ -59,14 +59,15 @@
   - [8.2 目标检测](#82-目标检测)
   - [8.3 图像分割](#83-图像分割)
   - [8.4 姿态估计](#84-姿态估计)
-  - [8.5 多目标跟踪](#85-多目标跟踪)
-  - [8.6 深度估计](#86-深度估计)
-  - [8.7 光学字符识别](#87-光学字符识别)
-  - [8.8 交互式视频目标分割](#88-交互式视频目标分割)
-  - [8.9 抠图](#89-抠图)
-  - [8.10 视觉-语言](#810-视觉-语言)
-  - [8.11 目标计数](#811-目标计数)
-  - [8.12 视觉定位](#812-视觉定位)
+  - [8.5 人脸估计](#85-人脸估计)
+  - [8.6 多目标跟踪](#86-多目标跟踪)
+  - [8.7 深度估计](#87-深度估计)
+  - [8.8 光学字符识别](#88-光学字符识别)
+  - [8.9 交互式视频目标分割](#89-交互式视频目标分割)
+  - [8.10 抠图](#810-抠图)
+  - [8.11 视觉-语言](#811-视觉-语言)
+  - [8.12 目标计数](#812-目标计数)
+  - [8.13 视觉定位](#813-视觉定位)
 - [9. 模型](#9-模型)
 - [10. 高级功能](#10-高级功能)
 
@@ -1082,39 +1083,43 @@ theme: auto  # 可选: auto, light, dark
 
 - 关键点检测：[链接](../../examples/estimation/pose_estimation/README.md)
 
-### 8.5 多目标跟踪
+### 8.5 人脸估计
+
+- 人脸检测与关键点：[链接](../../examples/estimation/face_estimation/README.md)
+
+### 8.6 多目标跟踪
 
 - 多目标跟踪：[链接](../../examples/multiple_object_tracking/README.md)
 
-### 8.6 深度估计
+### 8.7 深度估计
 
 - 深度估计：[链接](../../examples/estimation/depth_estimation/README.md)
 
-### 8.7 光学字符识别
+### 8.8 光学字符识别
 
 - 文本检测与识别：[链接](../../examples/optical_character_recognition/text_recognition/README.md)
 - 关键信息提取：[链接](../../examples/optical_character_recognition/kie/README.md)
 
-### 8.8 交互式视频目标分割
+### 8.9 交互式视频目标分割
 
 - SAM2-Video: [链接](../../examples/interactive_video_object_segmentation/sam2/README.md)
 - SAM3-Video: [链接](../../examples/interactive_video_object_segmentation/sam3/README.md)
 
-### 8.9 抠图
+### 8.10 抠图
 
 - 图像抠图：[链接](../../examples/matting/image_matting/README.md)
 
-### 8.10 视觉-语言
+### 8.11 视觉-语言
 
 - Rex-Omni: [链接](../../examples/vision_language/rexomni/README.md)
 - Florence 2：[链接](../../examples/vision_language/florence2/README.md)
 
-### 8.11 目标计数
+### 8.12 目标计数
 
 - GeCo：[链接](../../examples/counting/geco/README.md)
 - GeCo2：[链接](../../examples/counting/geco2/README.md)
 
-### 8.12 视觉定位
+### 8.13 视觉定位
 
 - YOLOE: [链接](../../examples/grounding/yoloe/README.md)
 - SAM 3: [链接](../../examples/grounding/sam3/README.md)

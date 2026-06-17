@@ -58,14 +58,15 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [8.2 Object Detection](#82-object-detection)
       * [8.3 Image Segmentation](#83-image-segmentation)
       * [8.4 Pose Estimation](#84-pose-estimation)
-      * [8.5 Multi-Object Tracking](#85-multi-object-tracking)
-      * [8.6 Depth Estimation](#86-depth-estimation)
-      * [8.7 Optical Character Recognition (OCR)](#87-optical-character-recognition-ocr)
-      * [8.8 Interactive Video Object Segmentation (IVOS)](#88-interactive-video-object-segmentation-ivos)
-      * [8.9 Matting](#89-matting)
-      * [8.10 Vision-Language Tasks](#810-vision-language-tasks)
-      * [8.11 Zero-Shot Counting](#811-zero-shot-counting)
-      * [8.12 Grounding](#812-grounding)
+      * [8.5 Face Estimation](#85-face-estimation)
+      * [8.6 Multi-Object Tracking](#86-multi-object-tracking)
+      * [8.7 Depth Estimation](#87-depth-estimation)
+      * [8.8 Optical Character Recognition (OCR)](#88-optical-character-recognition-ocr)
+      * [8.9 Interactive Video Object Segmentation (IVOS)](#89-interactive-video-object-segmentation-ivos)
+      * [8.10 Matting](#810-matting)
+      * [8.11 Vision-Language Tasks](#811-vision-language-tasks)
+      * [8.12 Zero-Shot Counting](#812-zero-shot-counting)
+      * [8.13 Grounding](#813-grounding)
    * [9. Custom Models](#9-custom-models)
    * [10. Advanced Features](#10-advanced-features)
 
@@ -1004,32 +1005,35 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
 ### 8.4 Pose Estimation
   - Keypoint Detection: [Link](../../examples/estimation/pose_estimation/README.md)
 
-### 8.5 Multi-Object Tracking
+### 8.5 Face Estimation
+  - Face Detection & Landmarks: [Link](../../examples/estimation/face_estimation/README.md)
+
+### 8.6 Multi-Object Tracking
   - MOT/MOTS: [Link](../../examples/multiple_object_tracking/README.md)
 
-### 8.6 Depth Estimation
+### 8.7 Depth Estimation
   - Depth Annotation: [Link](../../examples/estimation/depth_estimation/README.md)
 
-### 8.7 Optical Character Recognition (OCR)
+### 8.8 Optical Character Recognition (OCR)
   - Text Detection & Recognition: [Link](../../examples/optical_character_recognition/text_recognition/README.md)
   - Key Information Extraction (KIE): [Link](../../examples/optical_character_recognition/kie/README.md)
 
-### 8.8 Interactive Video Object Segmentation (IVOS)
+### 8.9 Interactive Video Object Segmentation (IVOS)
   - SAM2-Video: [Link](../../examples/interactive_video_object_segmentation/sam2/README.md)
   - SAM3-Video: [Link](../../examples/interactive_video_object_segmentation/sam3/README.md)
 
-### 8.9 Matting
+### 8.10 Matting
   - Image Matting (Alpha Masks): [Link](../../examples/matting/image_matting/README.md)
 
-### 8.10 Vision-Language Tasks
+### 8.11 Vision-Language Tasks
   - Rex-Omni: [Link](../../examples/vision_language/rexomni/README.md)
   - Florence 2: [Link](../../examples/vision_language/florence2/README.md)
 
-### 8.11 Zero-Shot Counting
+### 8.12 Zero-Shot Counting
   - GeCo Counting by Detection/Segmentation: [Link](../../examples/counting/geco/README.md)
   - GeCo2 Counting by Detection/Segmentation: [Link](../../examples/counting/geco2/README.md)
 
-### 8.12 Grounding
+### 8.13 Grounding
   - YOLOE: [Link](../../examples/grounding/yoloe/README.md)
   - SAM 3: [Link](../../examples/grounding/sam3/README.md)
   - LocateAnything: [Link](../../examples/grounding/locateanything/README.md)

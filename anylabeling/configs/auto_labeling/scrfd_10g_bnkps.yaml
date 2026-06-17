@@ -1,0 +1,16 @@
+type: scrfd
+name: scrfd_10g_bnkps
+provider: InsightFace
+display_name: SCRFD_10G_KPS
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/scrfd_10g_bnkps.onnx
+input_width: 640
+input_height: 640
+iou_threshold: 0.4
+conf_threshold: 0.5
+classes:
+  face:
+    - left_eye
+    - right_eye
+    - nose
+    - left_mouth_corner
+    - right_mouth_corner

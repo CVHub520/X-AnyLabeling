@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-06-18`: Added [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md) for face detection and five-point facial landmark labeling.
 - `2026-06-15`: Added an eraser tool for quickly removing vertices from polygon and linestrip annotations.
 - `2026-06-06`: Added [LocateAnything](./examples/grounding/locateanything/README.md) support for open-vocabulary grounding, pointing, and scene text detection.
 - `2026-05-23`: Added the [Video Classifier](./docs/en/video_classifier.md) annotation panel with timeline segment classification, segment descriptions, AI-assisted video segmentation and description generation.
@@ -135,6 +136,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 🎯 Object Detection | YOLOv5/6/7/8/9/10, YOLO11/12/26, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
 | 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
+| 😀 Face Estimation | SCRFD, YOLOv6Lite-Face |
 | 👣 Tracking | Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb |
 | 📏 Depth Estimation | Depth Anything |
@@ -181,6 +183,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
   - [Tagging](./examples/description/tagging/README.md)
   - [Captioning](./examples/description/captioning/README.md)
 - [Estimation](./examples/estimation/)
+  - [Face Estimation](./examples/estimation/face_estimation/README.md)
   - [Pose Estimation](./examples/estimation/pose_estimation/README.md)
   - [Depth Estimation](./examples/estimation/depth_estimation/README.md)
 - [OCR](./examples/optical_character_recognition/)
