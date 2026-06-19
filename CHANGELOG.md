@@ -1,5 +1,24 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.9` (Jun 19, 2026)
+
+### 🚀 New Features
+
+- Add PP-OCRv6 local OCR model support.
+- Add SCRFD face estimation support. (#1393)
+- Add checked-status filtering for image search. (#1394)
+
+### 🐛 Bug Fixes
+
+- Enforce TLS verification for auto-labeling model downloads.
+- Avoid NumPy 2D cross product crashes when detecting line edges. (#1395)
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.0-beta.8` (Jun 15, 2026)
 
 ### 🚀 New Features
