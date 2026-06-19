@@ -91,6 +91,7 @@
 
 ## 🥳 新功能
 
+- `2026-06-19`: 新增 PP-OCRv6 模型，支持多语言文本检测与识别。
 - `2026-06-18`: 新增 [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md)，支持人脸检测与五点人脸关键点标注。
 - `2026-06-15`: 新增橡皮擦功能，支持快速移除多边形和折线标注的顶点。
 - `2026-06-06`: 新增 [LocateAnything](./examples/grounding/locateanything/README.md) 支持，覆盖开放词汇视觉定位、指点定位和场景文本检测。
@@ -143,7 +144,7 @@
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |
 | 💡 **候选框提取** | UPN |
 | 🏷️ **图像标记** | RAM, RAM++ |
-| 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5 |
+| 📄 **光学字符识别** | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 **综合版面分析** | PP-DocLayoutV3 |
 | 📑 **文档解析** | PaddleOCR-VL, PaddleOCR-VL-1.6 |
 | 🗣️ **视觉基础模型** | Rex-Omni, Florence2 |

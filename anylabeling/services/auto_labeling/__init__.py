@@ -84,6 +84,7 @@ _CUSTOM_MODELS = [
     "u_rtdetr",
     "yoloe",
     "ppocr_v5",
+    "ppocr_v6",
     "deimv2",
 ]
 
@@ -154,6 +155,7 @@ _AUTO_LABELING_CROPPING_MODE_MODELS = [
 _SKIP_DET_MODELS = [
     "ppocr_v4",
     "ppocr_v5",
+    "ppocr_v6",
 ]
 
 

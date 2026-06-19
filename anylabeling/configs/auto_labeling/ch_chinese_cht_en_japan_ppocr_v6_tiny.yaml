@@ -1,0 +1,14 @@
+type: ppocr_v6
+name: ch_chinese_cht_en_japan_ppocr_v6_tiny-r20260619
+provider: PaddlePaddle
+display_name: PP-OCRv6 Tiny
+det_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/ppocrv6_tiny_det_infer.onnx
+rec_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/ppocrv6_tiny_rec_infer.onnx
+cls_model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/ch_ppocr_mobile_v2.0_cls_infer.onnx
+rec_char_dict_path: ppocrv6_tiny_dict.txt
+det_db_thresh: 0.2
+det_db_box_thresh: 0.4
+det_db_unclip_ratio: 1.4
+det_db_max_candidates: 3000
+drop_score: 0.5
+use_angle_cls: True

@@ -48,7 +48,9 @@ class TextDetector(object):
             postprocess_params["name"] = "DBPostProcess"
             postprocess_params["thresh"] = args.det_db_thresh
             postprocess_params["box_thresh"] = args.det_db_box_thresh
-            postprocess_params["max_candidates"] = 1000
+            postprocess_params["max_candidates"] = getattr(
+                args, "det_db_max_candidates", 1000
+            )
             postprocess_params["unclip_ratio"] = args.det_db_unclip_ratio
             postprocess_params["use_dilation"] = args.use_dilation
             postprocess_params["score_mode"] = args.det_db_score_mode
@@ -57,7 +59,9 @@ class TextDetector(object):
             postprocess_params["name"] = "DBPostProcess"
             postprocess_params["thresh"] = args.det_db_thresh
             postprocess_params["box_thresh"] = args.det_db_box_thresh
-            postprocess_params["max_candidates"] = 1000
+            postprocess_params["max_candidates"] = getattr(
+                args, "det_db_max_candidates", 1000
+            )
             postprocess_params["unclip_ratio"] = args.det_db_unclip_ratio
             postprocess_params["use_dilation"] = args.use_dilation
             postprocess_params["score_mode"] = args.det_db_score_mode

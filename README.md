@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-06-19`: Added PP-OCRv6 models for multilingual text detection and recognition.
 - `2026-06-18`: Added [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md) for face detection and five-point facial landmark labeling.
 - `2026-06-15`: Added an eraser tool for quickly removing vertices from polygon and linestrip annotations.
 - `2026-06-06`: Added [LocateAnything](./examples/grounding/locateanything/README.md) support for open-vocabulary grounding, pointing, and scene text detection.
@@ -144,7 +145,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | ✂️ Image Matting | RMBG 1.4/2.0 |
 | 💡 Proposal | UPN |
 | 🏷️ Tagging | RAM, RAM++ |
-| 📄 OCR | PP-OCRv4, PP-OCRv5 |
+| 📄 OCR | PP-OCRv4, PP-OCRv5, PP-OCRv6 |
 | 🧾 Layout Analysis | PP-DocLayoutV3 |
 | 📑 Document Parsing | PaddleOCR-VL, PaddleOCR-VL-1.6 |
 | 🗣️ Vision Foundation Models | Rex-Omni, Florence2 |
