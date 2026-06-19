@@ -142,7 +142,13 @@ def distance_to_line(point, line):
         return np.linalg.norm(p3 - p2)
     if np.linalg.norm(p2 - p1) == 0:
         return 0
-    return np.linalg.norm(np.cross(p2 - p1, p1 - p3)) / np.linalg.norm(p2 - p1)
+    line_vector = p2 - p1
+    point_vector = p1 - p3
+    cross_product = (
+        line_vector[0] * point_vector[1]
+        - line_vector[1] * point_vector[0]
+    )
+    return abs(cross_product) / np.linalg.norm(line_vector)
 
 
 def fmt_shortcut(text):
