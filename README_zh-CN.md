@@ -91,6 +91,7 @@
 
 ## 🥳 新功能
 
+- `2026-06-20`: 新增 [TrackTrack](./examples/multiple_object_tracking/README.md) 多目标跟踪算法。
 - `2026-06-19`: 新增 PP-OCRv6 模型，支持多语言文本检测与识别。
 - `2026-06-18`: 新增 [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md)，支持人脸检测与五点人脸关键点标注。
 - `2026-06-15`: 新增橡皮擦功能，支持快速移除多边形和折线标注的顶点。
@@ -137,7 +138,7 @@
 | 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 **人脸估计** | SCRFD, YOLOv6Lite-Face |
-| 👣 **目标跟踪** | Bot-SORT, ByteTrack, SAM2/3-Video |
+| 👣 **目标跟踪** | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb |
 | 📏 **深度估计** | Depth Anything |
 | 🧩 **分割一切** | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |

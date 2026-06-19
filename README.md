@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-06-20`: Added [TrackTrack](./examples/multiple_object_tracking/README.md) multi-object tracking algorithm.
 - `2026-06-19`: Added PP-OCRv6 models for multilingual text detection and recognition.
 - `2026-06-18`: Added [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md) for face detection and five-point facial landmark labeling.
 - `2026-06-15`: Added an eraser tool for quickly removing vertices from polygon and linestrip annotations.
@@ -138,7 +139,7 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 | 🖌️ Instance Segmentation | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 Face Estimation | SCRFD, YOLOv6Lite-Face |
-| 👣 Tracking | Bot-SORT, ByteTrack, SAM2/3-Video |
+| 👣 Tracking | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
 | 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb |
 | 📏 Depth Estimation | Depth Anything |
 | 🧩 Segment Anything | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |

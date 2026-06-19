@@ -205,6 +205,13 @@ def cancel_operation(self):
     self.cancel_processing = True
 
 
+def _reset_auto_labeling_tracker(self):
+    model_manager = self.auto_labeling_widget.model_manager
+    if model_manager.loaded_model_config is None:
+        return
+    model_manager.set_auto_labeling_reset_tracker()
+
+
 def save_auto_labeling_result(self, image_file, auto_labeling_result):
     try:
         label_file = osp.splitext(image_file)[0] + ".json"
@@ -339,6 +346,8 @@ class BatchProcessingThread(QThread):
         except Exception as e:
             self.app.image_index = self.image_index
             self.error_occurred.emit(str(e))
+        finally:
+            _reset_auto_labeling_tracker(self.app)
 
 
 def process_next_image(self, progress_dialog, batch=True):
@@ -485,6 +494,8 @@ def process_next_image(self, progress_dialog, batch=True):
             icon=new_icon_path("error", "svg"),
         )
         popup.show_popup(self, position="center")
+    finally:
+        _reset_auto_labeling_tracker(self)
 
 
 def show_progress_dialog_and_process(self):

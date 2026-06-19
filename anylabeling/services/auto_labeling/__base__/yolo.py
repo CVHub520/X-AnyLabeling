@@ -14,7 +14,7 @@ from anylabeling.views.labeling.utils.opencv import qt_img_to_rgb_cv_img
 from ..model import Model
 from ..engines import OnnxBaseModel
 from ..types import AutoLabelingResult
-from ..trackers import BOTSORT, BYTETracker
+from ..trackers import BOTSORT, BYTETracker, TRACKTRACK
 from ..utils import (
     letterbox,
     scale_boxes,
@@ -143,10 +143,13 @@ class YOLO(Model):
                 self.tracker = BYTETracker(tracker_args, frame_rate=30)
             elif tracker_args.tracker_type == "botsort":
                 self.tracker = BOTSORT(tracker_args, frame_rate=30)
+            elif tracker_args.tracker_type == "tracktrack":
+                self.tracker = TRACKTRACK(tracker_args, frame_rate=30)
             else:
                 self.tracker = None
                 logger.error(
-                    "Only 'bytetrack' and 'botsort' are supported for now, "
+                    "Only 'bytetrack', 'botsort' and 'tracktrack' are "
+                    "supported for now, "
                     f"but got '{tracker_args.tracker_type}'!"
                 )
         else:
@@ -169,6 +172,7 @@ class YOLO(Model):
             "yolov5_det_track",
             "yolov8_det_track",
             "yolo11_det_track",
+            "yolo26_det_track",
             "u_rtdetr",
         ]:
             self.task = "det"
@@ -179,6 +183,7 @@ class YOLO(Model):
             "yolo11_seg",
             "yolo11_seg_track",
             "yolo26_seg",
+            "yolo26_seg_track",
         ]:
             self.task = "seg"
         elif self.model_type in [
@@ -187,6 +192,7 @@ class YOLO(Model):
             "yolo11_obb",
             "yolo11_obb_track",
             "yolo26_obb",
+            "yolo26_obb_track",
         ]:
             self.task = "obb"
         elif self.model_type in [
@@ -196,6 +202,7 @@ class YOLO(Model):
             "yolo11_pose",
             "yolo11_pose_track",
             "yolo26_pose",
+            "yolo26_pose_track",
         ]:
             self.task = "pose"
             self.keypoint_name = {}
@@ -372,6 +379,10 @@ class YOLO(Model):
             "yolo26_obb",
             "yolo26_seg",
             "yolo26_pose",
+            "yolo26_det_track",
+            "yolo26_obb_track",
+            "yolo26_seg_track",
+            "yolo26_pose_track",
         ]:
             # End-to-end models: determine nm for seg task, nkpt/ndim for pose task
             nm = 0
@@ -403,6 +414,10 @@ class YOLO(Model):
             "yolo26_obb",
             "yolo26_seg",
             "yolo26_pose",
+            "yolo26_det_track",
+            "yolo26_obb_track",
+            "yolo26_seg_track",
+            "yolo26_pose_track",
         ]
         if self.task == "seg" and not is_end2end:
             proto = preds[1][-1] if len(preds[1]) == 3 else preds[1]
