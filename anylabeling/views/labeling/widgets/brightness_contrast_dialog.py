@@ -2,7 +2,8 @@
 
 import PIL.Image
 import PIL.ImageEnhance
-from PyQt6 import QtWidgets
+import numpy as np
+from PyQt6 import QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 
 from ..utils.image import pil_to_qimage
@@ -11,6 +12,9 @@ from ..utils.style import (
     get_ok_btn_style,
     get_cancel_btn_style,
 )
+
+
+GRAYSCALE_16BIT_MODES = {"I;16", "I;16L", "I;16B"}
 
 
 class BrightnessContrastDialog(QtWidgets.QDialog):
@@ -101,6 +105,9 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         main_layout.addLayout(grid)
         self.setLayout(main_layout)
         self.callback = callback
+        self._grayscale16_data = None
+        self._grayscale16_mean = None
+        self._grayscale16_qimage_data = None
 
         # Center the dialog on the screen
         self.move_to_center()
@@ -116,6 +123,14 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         """Update image instance"""
         assert isinstance(image, PIL.Image.Image)
         self.img = image
+        self._grayscale16_data = None
+        self._grayscale16_mean = None
+        self._grayscale16_qimage_data = None
+        if image.mode in GRAYSCALE_16BIT_MODES:
+            data = np.asarray(image).astype(np.uint16, copy=False)
+            if data.ndim == 2:
+                self._grayscale16_data = np.ascontiguousarray(data)
+                self._grayscale16_mean = float(self._grayscale16_data.mean())
 
     def update_brightness_label(self, value):
         """Update brightness label"""
@@ -132,6 +147,11 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         brightness = self.slider_brightness.value() / 50.0
         contrast = self.slider_contrast.value() / 50.0
 
+        if self._grayscale16_data is not None:
+            qimage = self._enhance_grayscale16(brightness, contrast)
+            self.callback(qimage)
+            return
+
         img = self.img
         if brightness != 1:
             img = PIL.ImageEnhance.Brightness(img).enhance(brightness)
@@ -140,6 +160,26 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
 
         qimage = pil_to_qimage(img)
         self.callback(qimage)
+
+    def _enhance_grayscale16(self, brightness, contrast):
+        """Enhance 16-bit grayscale image and return a QImage."""
+        if brightness == 1 and contrast == 1:
+            self._grayscale16_qimage_data = self._grayscale16_data
+        else:
+            data = self._grayscale16_data.astype(np.float32)
+            data *= brightness * contrast
+            data += self._grayscale16_mean * brightness * (1 - contrast)
+            np.clip(data, 0, np.iinfo(np.uint16).max, out=data)
+            self._grayscale16_qimage_data = data.astype(np.uint16)
+
+        height, width = self._grayscale16_qimage_data.shape
+        return QtGui.QImage(
+            self._grayscale16_qimage_data,
+            width,
+            height,
+            self._grayscale16_qimage_data.strides[0],
+            QtGui.QImage.Format.Format_Grayscale16,
+        )
 
     def reset_values(self):
         """Reset sliders to default values"""
