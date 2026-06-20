@@ -13,7 +13,6 @@ from ..utils.style import (
     get_cancel_btn_style,
 )
 
-
 GRAYSCALE_16BIT_MODES = {"I;16", "I;16L", "I;16B"}
 
 

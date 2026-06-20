@@ -1,5 +1,22 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.10` (Jun 20, 2026)
+
+### 🚀 New Features
+
+- Add YOLO26 TrackTrack model support for detection, segmentation, pose, and oriented bounding box tracking.
+
+### 🐛 Bug Fixes
+
+- Support brightness and contrast adjustment for 16-bit grayscale images. (#1396)
+- Update the bug report template checks command. (#1397)
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.0-beta.9` (Jun 19, 2026)
 
 ### 🚀 New Features
