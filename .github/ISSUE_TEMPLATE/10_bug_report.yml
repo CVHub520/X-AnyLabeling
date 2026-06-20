@@ -51,9 +51,9 @@ body:
   - type: textarea
     attributes:
       label: Information
-      description: Many issues are often related to dependency versions and hardware. Please provide the output of `python anylabeling/checks.py` command to help us diagnose the problem.
+      description: Many issues are often related to dependency versions and hardware. Please provide the output of `xanylabeling checks` command to help us diagnose the problem.
       placeholder: |
-        Paste output of `python anylabeling/checks.py` command, i.e.:
+        Paste output of `xanylabeling checks` command, i.e.:
         ```
         Application Information:
         {'App name': 'X-AnyLabeling', 'App version': '2.4.0', 'Device': 'CPU'}
