@@ -54,8 +54,12 @@ def compile_resources(output: str, qrc: str) -> None:
 supported_languages = ["en_US", "zh_CN", "ja_JP", "ko_KR"]
 
 for language in supported_languages:
-    command = f"lrelease anylabeling/resources/translations/{language}.ts"
-    os.system(command)
+    subprocess.run(
+        [
+            "lrelease",
+            f"anylabeling/resources/translations/{language}.ts",
+        ]
+    )
 
 compile_resources(
     output="anylabeling/resources/resources.py",
