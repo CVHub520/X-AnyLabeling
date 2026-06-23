@@ -442,6 +442,11 @@ class LabelingWidget(LabelDialog):
         self.canvas.selection_changed.connect(self.shape_selection_changed)
         self.canvas.drawing_polygon.connect(self.toggle_drawing_sensitive)
         self.canvas.edit_label_requested.connect(self.edit_label)
+        # Keep the brush-edit toggle in sync when the canvas exits brush
+        # mode on its own (e.g. via a right-click).
+        self.canvas.brush_mode_changed.connect(
+            lambda enabled: self.actions.edit_brush_mode.setChecked(enabled)
+        )
         # [Feature] support for automatically switching to editing mode
         # when the cursor moves over an object
         self.canvas.h_shape_is_hovered = self._config.get(
@@ -841,6 +846,19 @@ class LabelingWidget(LabelDialog):
             "edit",
             self.tr("Move and edit the selected polygons"),
             enabled=False,
+        )
+        edit_brush_mode = action(
+            self.tr("Edit Brush"),
+            lambda checked: self.toggle_brush_mode(checked),
+            shortcuts.get("edit_brush_mode", "Shift+B"),
+            "brush",
+            self.tr(
+                "Select a single shape first, then paint to add or hold "
+                "Ctrl to erase; scroll to resize the brush"
+            ),
+            enabled=False,
+            checkable=True,
+            checked=False,
         )
         group_selected_shapes = action(
             self.tr("Group Selected Shapes"),
@@ -1733,6 +1751,7 @@ class LabelingWidget(LabelDialog):
             create_mode=create_mode,
             create_brush_polygon_mode=create_brush_polygon_mode,
             edit_mode=edit_mode,
+            edit_brush_mode=edit_brush_mode,
             create_rectangle_mode=create_rectangle_mode,
             create_cuboid_mode=create_cuboid_mode,
             create_rotation_mode=create_rotation_mode,
@@ -1872,6 +1891,7 @@ class LabelingWidget(LabelDialog):
                 create_line_strip_mode,
                 None,
                 edit_mode,
+                edit_brush_mode,
                 edit,
                 None,
                 copy_coordinates,
@@ -2166,6 +2186,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_point_mode,
             self.actions.create_line_strip_mode,
             None,
+            edit_brush_mode,
             edit_mode,
             delete,
             undo,
@@ -2814,6 +2835,7 @@ class LabelingWidget(LabelDialog):
             self.actions.create_line_strip_mode,
             None,
             self.actions.edit_mode,
+            self.actions.edit_brush_mode,
         )
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
 
@@ -3035,6 +3057,12 @@ class LabelingWidget(LabelDialog):
 
     # Callbacks
     def undo_shape_edit(self):
+        # In brush-edit mode, undo reverts the last brush stroke instead of
+        # the global shape history.
+        if getattr(self.canvas, "is_brush_mode", False):
+            self.canvas.brush_undo()
+            self.actions.undo.setEnabled(self.canvas.brush_can_undo())
+            return
         self.canvas.restore_shape()
         self.label_list.clear()
         self.load_shapes(self.canvas.shapes, update_last_label=False)
@@ -3515,6 +3543,37 @@ class LabelingWidget(LabelDialog):
 
         self.toggle_draw_mode(True)
         self.set_text_editing(True)
+        self.update_labeling_instruction()
+
+    def toggle_brush_mode(self, checked: bool) -> None:
+        """Enable or disable brush editing on the selected shape.
+
+        Brush editing operates on exactly one selected shape. When enabling
+        with an invalid selection the toggle is reverted; otherwise any
+        in-progress drawing is cancelled, the canvas switches to edit mode,
+        and brush mode is activated. Disabling restores plain edit mode.
+
+        Args:
+            checked: ``True`` when the toolbar toggle is switched on.
+        """
+        if checked:
+            if len(self.canvas.selected_shapes) != 1:
+                self.actions.edit_brush_mode.setChecked(False)
+                return
+            # Cancel any half-drawn shape before painting.
+            if self.canvas.current is not None:
+                self.canvas.current = None
+                self.canvas.set_hiding(False)
+                self.canvas.drawing_polygon.emit(False)
+                self.canvas.update()
+            self.toggle_draw_mode(True)
+            self.set_text_editing(True)
+            self.canvas.set_brush_mode(True)
+            self.update_labeling_instruction()
+            return
+
+        if getattr(self.canvas, "is_brush_mode", False):
+            self.canvas.set_brush_mode(False)
         self.update_labeling_instruction()
 
     def update_file_menu(self):
@@ -4458,6 +4517,22 @@ class LabelingWidget(LabelDialog):
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected >= 1 and same_type)
         self.actions.copy_coordinates.setEnabled(n_selected == 1)
+        # Brush editing needs exactly one area-bearing shape selected.
+        brush_editable_types = {
+            "polygon",
+            "rectangle",
+            "rotation",
+            "quadrilateral",
+            "circle",
+        }
+        can_brush_edit = (
+            n_selected == 1
+            and selected_shapes[0].shape_type in brush_editable_types
+        )
+        self.actions.edit_brush_mode.setEnabled(can_brush_edit)
+        if not can_brush_edit and self.actions.edit_brush_mode.isChecked():
+            self.toggle_brush_mode(False)
+            self.actions.edit_brush_mode.setChecked(False)
         self.actions.union_selection.setEnabled(
             not all(value > 0 for value in allow_merge_shape_type.values())
             and (
