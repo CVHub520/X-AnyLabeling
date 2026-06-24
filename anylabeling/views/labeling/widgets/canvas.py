@@ -2156,6 +2156,12 @@ class Canvas(
             shape[lindex] = p2
             shape[rindex] = p4
             shape.close()
+
+            shape.oop = any(
+                p.x() < 0 or p.x() > self.pixmap.width() or p.y() < 0 or p.y() > self.pixmap.height()
+                for p in shape.points
+            )
+
         elif shape.shape_type == "rectangle":
             shift_pos = pos - point
             shape.move_vertex_by(index, shift_pos)
@@ -2205,6 +2211,12 @@ class Canvas(
         if dp:
             for shape in shapes:
                 shape.move_by(dp)
+
+                shape.oop = any(
+                        p.x() < 0 or p.x() > self.pixmap.width() or p.y() < 0 or p.y() > self.pixmap.height()
+                        for p in shape.points
+                )
+
             self.prev_point = pos
             return True
         return False

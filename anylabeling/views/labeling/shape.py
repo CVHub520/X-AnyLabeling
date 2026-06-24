@@ -92,6 +92,7 @@ class Shape:
         self.fill = False
         self.hovered = False
         self.selected = False
+        self.oop = False
         self.shape_type = shape_type
         self.flags = flags
         self.other_data = {}
@@ -422,6 +423,8 @@ class Shape:
             pen.setWidth(max(1, int(round(self.line_width / self.scale))))
             if self.difficult and self.shape_type != "point":
                 pen.setStyle(QtCore.Qt.PenStyle.DashLine)
+            if self.oop and self.shape_type == "rotation":
+                pen.setColor(QtGui.QColor("#FF0000"))
             painter.setPen(pen)
 
             line_path = QtGui.QPainterPath()
