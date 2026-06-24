@@ -424,6 +424,7 @@ class Shape:
             if self.difficult and self.shape_type != "point":
                 pen.setStyle(QtCore.Qt.PenStyle.DashLine)
             if self.oop and self.shape_type == "rotation":
+                pen.setStyle(QtCore.Qt.PenStyle.DashDotLine)
                 pen.setColor(QtGui.QColor("#FF0000"))
             painter.setPen(pen)
 

@@ -5591,6 +5591,12 @@ class LabelingWidget(LabelDialog):
                         **default_flags,
                         **shape.flags,
                     }
+
+                shape.oop = any(
+                    p.x() < 0 or p.x() > self.canvas.pixmap.width() or p.y() < 0 or p.y() > self.canvas.pixmap.height()
+                    for p in shape.points
+                )
+
             self.load_shapes(self.label_file.shapes, update_last_label=False)
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
