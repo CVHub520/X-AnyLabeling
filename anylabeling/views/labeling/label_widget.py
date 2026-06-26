@@ -176,6 +176,7 @@ class LabelingWidget(LabelDialog):
         self._config = config
         self.label_flags = self._config["label_flags"]
         self.label_loop_count = -1
+        self.label_loop_shapes = None 
         self.select_loop_count = -1
         self.digit_to_label = None
         self.drawing_digit_shortcuts = self._config.get("digit_shortcuts", {})
@@ -2820,7 +2821,7 @@ class LabelingWidget(LabelDialog):
     def set_dirty(self):
         # Even if we autosave the file, we keep the ability to undo
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
-
+        self._reset_label_loop()
         if self._config["auto_save"]:
             label_file = osp.splitext(self.image_path)[0] + ".json"
             if self.output_dir:
@@ -3308,69 +3309,69 @@ class LabelingWidget(LabelDialog):
     def about(self):
         about_dialog = AboutDialog(self)
         _ = about_dialog.exec()
+    
+    def _reset_label_loop(self):
+        self.label_loop_count = -1
+        self.label_loop_shapes = None
 
     def loop_thru_labels(self):
+        if self.label_loop_count == -1 or self.label_loop_shapes is None:
+            self.label_loop_shapes = list(self.canvas.shapes)
+
         self.label_loop_count += 1
-        if len(self.label_list) == 0 or self.label_loop_count >= len(
-            self.label_list
+
+        if len(self.label_loop_shapes) == 0 or self.label_loop_count >= len(
+            self.label_loop_shapes
         ):
-            # If we go through all the things go back to 100%
-            self.label_loop_count = -1
+            self._reset_label_loop()
             self.set_zoom(int(100 * self.scale_fit_window()))
             return
 
         width = self.central_widget().width() - 2.0
         height = self.central_widget().height() - 2.0
-
         im_width = self.canvas.pixmap.width()
         im_height = self.canvas.pixmap.height()
-
         zoom_scale = 4
 
-        item = self.label_list[self.label_loop_count]
+        shape = self.label_loop_shapes[self.label_loop_count]
         xs = []
         ys = []
-        # loop through all points on this label
-        for point in item.shape().points:
+        for point in shape.points:
             xs.append(point.x())
             ys.append(point.y())
 
-        # Set minimum label width to 30px this should handle point
-        # lables and very tiny labels gracefully
+        # Set minimum label width to 30px to handle point
+        # labels and very tiny labels gracefully
         label_width = max(int(max(xs) - min(xs)), 30)
         x = (max(xs) + min(xs)) / 2
         y = (max(ys) + min(ys)) / 2
 
         zoom = int(100 * width / (zoom_scale * label_width))
-        # Don't go past the max zoom which is 1000
         zoom = min(1000, zoom)
 
         self.set_zoom(zoom)
 
         x_range = self.scroll_bars[Qt.Orientation.Horizontal].maximum()
         x_step = self.scroll_bars[Qt.Orientation.Horizontal].pageStep()
-
         y_range = self.scroll_bars[Qt.Orientation.Vertical].maximum()
-        # QT docs says Document length = maximum() - minimum() + pageStep().
-        # so there's a weird pageStep thing we gotta add
         y_step = self.scroll_bars[Qt.Orientation.Vertical].pageStep()
+
         screen_width = width / (zoom / 100)
-        # add half a screen to this
         x_scroll = int((x - screen_width / 2) / im_width * (x_range + x_step))
         x_scroll = min(max(0, x_scroll), x_range)
 
         screen_height = height / (zoom / 100)
-
         y_scroll = int(
-            (y - screen_height / 2) / (im_height) * (y_range + y_step)
+            (y - screen_height / 2) / im_height * (y_range + y_step)
         )
         y_scroll = min(max(0, y_scroll), y_range)
 
         self.set_scroll(Qt.Orientation.Horizontal, x_scroll)
         self.set_scroll(Qt.Orientation.Vertical, y_scroll)
-        for shape in self.canvas.selected_shapes:
-            shape.selected = False
-        self.canvas.prev_h_shape = self.canvas.h_shape = item.shape()
+
+        for s in self.canvas.selected_shapes:
+            s.selected = False
+        self.canvas.prev_h_shape = self.canvas.h_shape = shape
         self.canvas.update()
 
     def loop_select_labels(self):
@@ -6235,6 +6236,7 @@ class LabelingWidget(LabelDialog):
                     action.setEnabled(False)
 
     def delete_selected_shape(self):
+        self._reset_label_loop()
         self.remove_labels(self.canvas.delete_selected())
         self.set_dirty()
         if self.no_shape():
