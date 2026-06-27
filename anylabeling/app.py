@@ -37,6 +37,27 @@ from anylabeling.config import (
 from anylabeling import config as anylabeling_config
 
 
+def is_wsl_environment():
+    if os.environ.get("WSL_DISTRO_NAME") or os.environ.get("WSL_INTEROP"):
+        return True
+
+    try:
+        with open("/proc/version", "r", encoding="utf-8") as f:
+            return "microsoft" in f.read().lower()
+    except OSError:
+        return False
+
+
+def get_default_qt_platform():
+    if os.environ.get("QT_QPA_PLATFORM"):
+        return None
+
+    if is_wsl_environment() and os.environ.get("WAYLAND_DISPLAY"):
+        return "xcb"
+
+    return None
+
+
 def main():
     multiprocessing.freeze_support()
 
@@ -293,6 +314,14 @@ def main():
     if qt_platform:
         os.environ["QT_QPA_PLATFORM"] = qt_platform
         logger.info(f"🖥️ Using Qt platform: {qt_platform}")
+    else:
+        default_qt_platform = get_default_qt_platform()
+        if default_qt_platform:
+            os.environ["QT_QPA_PLATFORM"] = default_qt_platform
+            logger.info(
+                "🖥️ Detected WSL/Wayland; using Qt platform: "
+                f"{default_qt_platform}"
+            )
 
     anylabeling_config.current_config_file = config_file_or_yaml
     config = get_config(config_file_or_yaml, config_from_args, show_msg=True)
