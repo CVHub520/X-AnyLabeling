@@ -121,6 +121,9 @@ canvas:
     small_increment: 0.1  # degrees, corresponds to X/C keys
   brush:
     point_distance: 25.0  # minimum screen pixel distance between auto-added points in brush drawing mode
+    simplify_epsilon: 2.0
+    max_undo_steps: 30
+    max_undo_memory_mb: 128
   cuboid:
     default_depth_vector: [24.0, -24.0]
     min_depth: 5.0
@@ -168,6 +171,7 @@ shortcuts:
   create_point: null
   create_linestrip: null
   edit_polygon: Ctrl+J
+  edit_brush_mode: Shift+B
   delete_polygon: Delete
   duplicate_polygon: Ctrl+D
   copy_polygon: Ctrl+C

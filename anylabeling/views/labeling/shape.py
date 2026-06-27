@@ -100,6 +100,12 @@ class Shape:
         self.cache_description = None
         self.visible = True
 
+        # Brush-edit state (managed by Canvas brush mode; ``mask`` is a
+        # uint8 (H, W) array while editing and ``None`` otherwise).
+        self.mask = None
+        self._brush_using_mask = False
+        self._brush_mask_version = 0
+
         # Rotation setting
         self.direction = direction
         self.center = None
