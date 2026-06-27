@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
     QApplication,
     QSizePolicy,
 )
-from PyQt6.QtCore import Qt, QTimer, QRectF, QSize
+from PyQt6.QtCore import Qt, QTimer, QRectF, QSize, QPoint
 from PyQt6.QtGui import QPainter, QPainterPath, QColor, QIcon
 
 
@@ -152,7 +152,11 @@ class Popup(QWidget):
         self.timer = QTimer(self)
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.close)
+        self._msec = msec
         self.timer.start(msec)
+
+    def set_text(self, text):
+        self.label.setText(text)
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -165,13 +169,19 @@ class Popup(QWidget):
         painter.fillPath(path, QColor(self._bg_color))
 
     def show_popup(
-        self, parent_widget, copy_msg="", popup_height=36, position="default"
+        self,
+        parent_widget,
+        copy_msg="",
+        popup_height=36,
+        position="default",
+        top_offset=100,
     ):
         if copy_msg:
             copy_text_to_system_clipboard(copy_msg)
 
         # Calculate position based on preference
-        parent_geo = parent_widget.geometry()
+        parent_origin = parent_widget.mapToGlobal(QPoint(0, 0))
+        parent_rect = parent_widget.rect()
 
         # Auto-adjust width based on content
         self.adjustSize()
@@ -179,14 +189,15 @@ class Popup(QWidget):
 
         # Set position based on specified option
         if position == "center":
-            x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
-            y = parent_geo.y() + (parent_geo.height() - popup_height) // 2
+            x = parent_origin.x() + (parent_rect.width() - popup_width) // 2
+            y = parent_origin.y() + (parent_rect.height() - popup_height) // 2
         elif position == "bottom":
-            x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
-            y = parent_geo.y() + parent_geo.height() - popup_height - 20
+            x = parent_origin.x() + (parent_rect.width() - popup_width) // 2
+            y = parent_origin.y() + parent_rect.height() - popup_height - 20
         else:  # "default" - top position
-            x = parent_geo.x() + (parent_geo.width() - popup_width) // 2
-            y = parent_geo.y() + 100
+            x = parent_origin.x() + (parent_rect.width() - popup_width) // 2
+            y = parent_origin.y() + top_offset
 
         self.setGeometry(x, y, popup_width, popup_height)
         self.show()
+        self.timer.start(self._msec)

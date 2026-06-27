@@ -118,6 +118,15 @@ def _format_label_list_text(label, group_id):
     return f"{text} ({group_id})"
 
 
+def _find_next_label_loop_shape(shapes, start_index, canvas_shapes):
+    canvas_shape_ids = {id(shape) for shape in canvas_shapes}
+    for index in range(start_index, len(shapes)):
+        shape = shapes[index]
+        if id(shape) in canvas_shape_ids:
+            return index, shape
+    return len(shapes), None
+
+
 def _create_file_status_icon(color):
     pixmap = QtGui.QPixmap(12, 12)
     pixmap.fill(Qt.GlobalColor.transparent)
@@ -176,6 +185,8 @@ class LabelingWidget(LabelDialog):
         self._config = config
         self.label_flags = self._config["label_flags"]
         self.label_loop_count = -1
+        self.label_loop_shapes = None
+        self.label_loop_popup = None
         self.select_loop_count = -1
         self.digit_to_label = None
         self.drawing_digit_shortcuts = self._config.get("digit_shortcuts", {})
@@ -2918,6 +2929,8 @@ class LabelingWidget(LabelDialog):
         self.statusBar().showMessage(message, delay)
 
     def reset_state(self):
+        self._reset_label_loop()
+        self.select_loop_count = -1
         self.label_list.clear()
         self.filename = None
         self.image_path = None
@@ -3309,14 +3322,57 @@ class LabelingWidget(LabelDialog):
         about_dialog = AboutDialog(self)
         _ = about_dialog.exec()
 
+    def _reset_label_loop(self):
+        self.label_loop_count = -1
+        self.label_loop_shapes = None
+        if self.label_loop_popup is not None:
+            self.label_loop_popup.close()
+
+    def _show_label_loop_popup(self, text):
+        if self.label_loop_popup is None:
+            self.label_loop_popup = Popup(
+                text,
+                parent=self,
+                msec=1800,
+                icon=new_icon_path("copy-green", "svg"),
+            )
+            self.label_loop_popup.label.setTextFormat(Qt.TextFormat.PlainText)
+            self.label_loop_popup.setAttribute(
+                Qt.WidgetAttribute.WA_ShowWithoutActivating
+            )
+            self.label_loop_popup.setWindowFlag(
+                Qt.WindowType.WindowDoesNotAcceptFocus, True
+            )
+            self.label_loop_popup.setWindowFlag(
+                Qt.WindowType.WindowTransparentForInput, True
+            )
+        else:
+            self.label_loop_popup.set_text(text)
+        self.label_loop_popup.show_popup(
+            self.central_widget().viewport(), top_offset=24
+        )
+
     def loop_thru_labels(self):
-        self.label_loop_count += 1
-        if len(self.label_list) == 0 or self.label_loop_count >= len(
-            self.label_list
-        ):
-            # If we go through all the things go back to 100%
-            self.label_loop_count = -1
-            self.set_zoom(int(100 * self.scale_fit_window()))
+        is_new_loop = self.label_loop_shapes is None
+        if is_new_loop:
+            self.label_loop_shapes = list(self.canvas.shapes)
+
+        self.label_loop_count, shape = _find_next_label_loop_shape(
+            self.label_loop_shapes,
+            self.label_loop_count + 1,
+            self.canvas.shapes,
+        )
+        if shape is None:
+            message = (
+                self.tr("No objects to review")
+                if is_new_loop
+                else self.tr("Review complete")
+            )
+            self._reset_label_loop()
+            if not is_new_loop:
+                self.canvas.deselect_shape()
+                self.set_zoom(int(100 * self.scale_fit_window()))
+            self._show_label_loop_popup(message)
             return
 
         width = self.central_widget().width() - 2.0
@@ -3327,11 +3383,10 @@ class LabelingWidget(LabelDialog):
 
         zoom_scale = 4
 
-        item = self.label_list[self.label_loop_count]
         xs = []
         ys = []
         # loop through all points on this label
-        for point in item.shape().points:
+        for point in shape.points:
             xs.append(point.x())
             ys.append(point.y())
 
@@ -3368,10 +3423,29 @@ class LabelingWidget(LabelDialog):
 
         self.set_scroll(Qt.Orientation.Horizontal, x_scroll)
         self.set_scroll(Qt.Orientation.Vertical, y_scroll)
-        for shape in self.canvas.selected_shapes:
-            shape.selected = False
-        self.canvas.prev_h_shape = self.canvas.h_shape = item.shape()
-        self.canvas.update()
+        self.canvas.prev_h_shape = self.canvas.h_shape = shape
+        self.canvas.select_shapes([shape])
+
+        progress = self.tr("Reviewing {current} / {total}").format(
+            current=self.label_loop_count + 1,
+            total=len(self.label_loop_shapes),
+        )
+        font_metrics = self.fontMetrics()
+        label_width = min(
+            240,
+            max(
+                0,
+                self.central_widget().viewport().width()
+                - _measure_text_width(font_metrics, progress)
+                - 56,
+            ),
+        )
+        label = font_metrics.elidedText(
+            str(shape.label or ""), Qt.TextElideMode.ElideRight, label_width
+        )
+        if label:
+            progress = f"{progress} - {label}"
+        self._show_label_loop_popup(progress)
 
     def loop_select_labels(self):
         self.select_loop_count += 1
@@ -5543,10 +5617,6 @@ class LabelingWidget(LabelDialog):
                 self.shape_text_edit.setPlainText("")
         self.shape_text_label.setText(self.tr("Image Description"))
         self.shape_text_edit.setDisabled(False)
-
-        # Reset the label loop count
-        self.label_loop_count = -1
-        self.select_loop_count = -1
 
         # TODO(jack): icc profile issue warning
         # - qt.gui.icc: fromIccProfile: failed minimal tag size sanity
