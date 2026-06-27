@@ -1207,7 +1207,12 @@ class LabelConverter:
     #                Export Methods                 #
     #################################################
     def custom_to_yolo(  # noqa: C901
-        self, input_file, output_file, mode, skip_empty_files=False
+        self,
+        input_file,
+        output_file,
+        mode,
+        skip_empty_files=False,
+        obb_boundary_policy="skip",
     ):
         is_empty_file = True
         if osp.exists(input_file):
@@ -1282,17 +1287,17 @@ class LabelConverter:
                 elif mode == "obb" and shape_type == "rotation":
                     label = shape["label"]
                     points = shape["points"]
-                    if any(
-                        p[0] < 0
-                        or p[0] > image_width
-                        or p[1] < 0
-                        or p[1] > image_height
-                        for p in points
-                    ):
-                        logger.warning(
-                            f"{data['imagePath']}: Skip out of bounds coordinates of {points}!"
-                        )
+                    if len(points) != 4:
                         continue
+                    if obb_boundary_policy == "skip":
+                        if any(
+                            point[0] < 0
+                            or point[0] > image_width
+                            or point[1] < 0
+                            or point[1] > image_height
+                            for point in points
+                        ):
+                            continue
                     points = list(chain.from_iterable(points))
                     normalized_coords = [
                         (

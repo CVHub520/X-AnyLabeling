@@ -210,6 +210,59 @@ def export_yolo_annotation(self, mode):
     save_images = save_images_checkbox.isChecked()
     skip_empty_files = skip_empty_files_checkbox.isChecked()
     save_path = path_edit.text()
+    image_list = self.image_list if self.image_list else [self.filename]
+
+    def get_label_file(image_file):
+        label_file_name = osp.splitext(osp.basename(image_file))[0] + ".json"
+        label_dir = self.output_dir or osp.dirname(image_file)
+        return osp.join(label_dir, label_file_name)
+
+    obb_boundary_policy = "keep"
+    if mode == "obb":
+        out_of_bounds_count = 0
+        for image_file in image_list:
+            label_file = get_label_file(image_file)
+            if not osp.exists(label_file):
+                continue
+            data = converter.read_json(label_file)
+            image_width = data["imageWidth"]
+            image_height = data["imageHeight"]
+            for shape in data["shapes"]:
+                points = shape["points"]
+                if shape["shape_type"] != "rotation" or len(points) != 4:
+                    continue
+                if any(
+                    point[0] < 0
+                    or point[0] > image_width
+                    or point[1] < 0
+                    or point[1] > image_height
+                    for point in points
+                ):
+                    out_of_bounds_count += 1
+
+        if out_of_bounds_count:
+            msg_box = QtWidgets.QMessageBox(self)
+            msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
+            msg_box.setWindowTitle(self.tr("Out-of-bounds OBBs"))
+            msg_box.setText(
+                self.tr(
+                    "Detected %d oriented bounding boxes with points outside "
+                    "the image boundaries. Keep them?"
+                )
+                % out_of_bounds_count
+            )
+            msg_box.setStandardButtons(
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No
+                | QtWidgets.QMessageBox.StandardButton.Cancel
+            )
+            msg_box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Yes)
+            msg_box.setStyleSheet(get_msg_box_style())
+            response = QtWidgets.QMessageBox.StandardButton(msg_box.exec())
+            if response == QtWidgets.QMessageBox.StandardButton.Cancel:
+                return
+            if response == QtWidgets.QMessageBox.StandardButton.No:
+                obb_boundary_policy = "skip"
 
     if osp.exists(save_path):
         msg_box = QtWidgets.QMessageBox(self)
@@ -245,8 +298,6 @@ def export_yolo_annotation(self, mode):
     else:
         os.makedirs(save_path)
 
-    image_list = self.image_list if self.image_list else [self.filename]
-
     progress_dialog = QProgressDialog(
         self.tr("Exporting..."), self.tr("Cancel"), 0, len(image_list), self
     )
@@ -261,17 +312,17 @@ def export_yolo_annotation(self, mode):
     try:
         for i, image_file in enumerate(image_list):
             image_file_name = osp.basename(image_file)
-            label_file_name = osp.splitext(image_file_name)[0] + ".json"
             dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
 
-            if self.output_dir:
-                src_file = osp.join(self.output_dir, label_file_name)
-            else:
-                src_file = osp.join(osp.dirname(image_file), label_file_name)
+            src_file = get_label_file(image_file)
             dst_file = osp.join(save_path, dst_file_name)
 
             is_empty_file = converter.custom_to_yolo(
-                src_file, dst_file, mode, skip_empty_files
+                src_file,
+                dst_file,
+                mode,
+                skip_empty_files=skip_empty_files,
+                obb_boundary_policy=obb_boundary_policy,
             )
 
             if save_images and not (skip_empty_files and is_empty_file):
