@@ -15,7 +15,9 @@ except Exception:
     PYQT_AVAILABLE = False
 
 
-@unittest.skipUnless(PYQT_AVAILABLE, "PyQt6 is required for settings controller tests")
+@unittest.skipUnless(
+    PYQT_AVAILABLE, "PyQt6 is required for settings controller tests"
+)
 class TestSettingsController(unittest.TestCase):
 
     def setUp(self):
@@ -49,7 +51,9 @@ class TestSettingsController(unittest.TestCase):
             self.controller.update_field(
                 "canvas.epsilon", 0.05, schedule_save=False
             )
-        self.assertEqual(self.controller.get_value("canvas.epsilon"), old_value)
+        self.assertEqual(
+            self.controller.get_value("canvas.epsilon"), old_value
+        )
 
         changed = self.controller.update_field(
             "canvas.epsilon", 12.5, schedule_save=False
@@ -133,6 +137,22 @@ class TestSettingsController(unittest.TestCase):
             self.controller.update_field(
                 "canvas.brush.point_distance",
                 250.0,
+                schedule_save=False,
+            )
+        self.controller.update_field(
+            "canvas.brush.simplify_epsilon",
+            0.0,
+            schedule_save=False,
+        )
+        self.controller.update_field(
+            "canvas.brush.simplify_epsilon",
+            50.0,
+            schedule_save=False,
+        )
+        with self.assertRaises(SettingsValidationError):
+            self.controller.update_field(
+                "canvas.brush.simplify_epsilon",
+                50.1,
                 schedule_save=False,
             )
 
@@ -312,8 +332,12 @@ class TestSettingsController(unittest.TestCase):
         default_model_hub = load_template_config()["model_hub"]
         default_epsilon = load_template_config()["canvas"]["epsilon"]
 
-        self.controller.update_field("model_hub", "modelscope", schedule_save=False)
-        self.controller.update_field("canvas.epsilon", 9.9, schedule_save=False)
+        self.controller.update_field(
+            "model_hub", "modelscope", schedule_save=False
+        )
+        self.controller.update_field(
+            "canvas.epsilon", 9.9, schedule_save=False
+        )
 
         self.controller.reset_page("Canvas", "Interaction")
         self.assertEqual(
@@ -321,7 +345,9 @@ class TestSettingsController(unittest.TestCase):
         )
 
         self.controller.reset_all()
-        self.assertEqual(self.controller.get_value("model_hub"), default_model_hub)
+        self.assertEqual(
+            self.controller.get_value("model_hub"), default_model_hub
+        )
 
     def test_debounce_save_and_flush(self):
         self.controller.update_field("model_hub", "modelscope")
@@ -358,7 +384,9 @@ class TestSettingsController(unittest.TestCase):
 
         controller.discard_changes()
         self.assertFalse(controller.has_unsaved_changes())
-        self.assertEqual(controller.get_value("canvas.epsilon"), runtime_before)
+        self.assertEqual(
+            controller.get_value("canvas.epsilon"), runtime_before
+        )
         self.assertEqual(config["canvas"]["epsilon"], runtime_before)
 
         controller.update_field("canvas.epsilon", 13.5, schedule_save=False)

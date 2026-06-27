@@ -6,6 +6,19 @@ import subprocess
 from PyQt6 import QtCore
 
 
+def find_lrelease() -> str:
+    """Return an available Qt Linguist release compiler."""
+    candidates = ("lrelease", "lrelease-qt6", "pyside6-lrelease")
+    for candidate in candidates:
+        executable = shutil.which(candidate)
+        if executable:
+            return executable
+    raise RuntimeError(
+        "No Qt translation compiler found. Install lrelease or ensure "
+        "pyside6-lrelease is available in the active environment."
+    )
+
+
 def compile_resources(output: str, qrc: str) -> None:
     """Compile a .qrc file to a PyQt6-compatible resources.py."""
 
@@ -55,6 +68,7 @@ def compile_resources(output: str, qrc: str) -> None:
 
 supported_languages = ["en_US", "zh_CN", "ja_JP", "ko_KR"]
 translations_path = "anylabeling/resources/translations"
+lrelease = find_lrelease()
 
 for language in supported_languages:
     # Scan all .py files in the project directory and its subdirectories
@@ -75,8 +89,8 @@ for language in supported_languages:
     os.system(command)
 
     # Compile the .ts file into a .qm file
-    command = f"lrelease {translations_path}/{language}.ts"
-    os.system(command)
+    translation_file = f"{translations_path}/{language}.ts"
+    subprocess.run([lrelease, translation_file], check=True)
 
 compile_resources(
     output="anylabeling/resources/resources.py",

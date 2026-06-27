@@ -74,6 +74,7 @@ class Canvas(
     edit_label_requested = QtCore.pyqtSignal()
     # Emitted when brush-edit mode is toggled on/off (keeps the UI in sync).
     brush_mode_changed = QtCore.pyqtSignal(bool)
+    brush_history_changed = QtCore.pyqtSignal(bool)
 
     CREATE, EDIT = 0, 1
 
@@ -248,8 +249,9 @@ class Canvas(
         self.brush_radius = 12  # in image pixels
         self.eraser_mode = False  # True while Ctrl is held
         self._brush_target_shape = None
+        self._brush_original_shape = None
         self._prev_brush_pos = None
-        # shape -> (mask_version, overlay_qimage, outline_path)
+        # shape -> (mask_version, outline_path)
         self._brush_overlay_cache = {}
         self._brush_modified = False
         # Mask -> polygon simplification tolerance, in image pixels.
@@ -261,7 +263,14 @@ class Canvas(
         self._brush_redo_stack = []
         self._brush_baseline_mask = None
         self._brush_stroke_dirty = False
-        self._brush_max_undo_steps = 30
+        self._brush_max_undo_steps = max(
+            1, int(self.brush_config.get("max_undo_steps", 30))
+        )
+        self._brush_max_undo_bytes = (
+            max(1, int(self.brush_config.get("max_undo_memory_mb", 128)))
+            * 1024
+            * 1024
+        )
 
         # Compare view support
         self.compare_pixmap = None
@@ -583,8 +592,8 @@ class Canvas(
 
         Args:
             cnt: An OpenCV contour of shape ``(N, 1, 2)``.
-            epsilon_px: Base approximation tolerance in pixels; the actual
-                tolerance also scales with the contour perimeter.
+            epsilon_px: Approximation tolerance in image pixels. A value of
+                zero preserves the extracted contour.
 
         Returns:
             A list of simplified ``(x, y)`` integer vertices, or an empty
@@ -592,8 +601,10 @@ class Canvas(
         """
         if cnt is None or len(cnt) < 3:
             return []
-        peri = float(cv2.arcLength(cnt, True))
-        eps = max(float(epsilon_px), 0.001 * peri)
+        eps = max(0.0, float(epsilon_px))
+        if eps == 0:
+            pts = cnt.reshape(-1, 2)
+            return [(int(x), int(y)) for x, y in pts]
         approx = cv2.approxPolyDP(cnt, eps, True)
         if approx is None or len(approx) < 3:
             return []
@@ -615,14 +626,15 @@ class Canvas(
             return
         if getattr(shape, "mask", None) is None:
             h, w = int(self.pixmap.height()), int(self.pixmap.width())
-            pts = [
-                (int(p.x()), int(p.y())) for p in getattr(shape, "points", [])
+            points = [
+                (int(round(point.x())), int(round(point.y())))
+                for point in shape.points
             ]
-            shape.mask = self._polygon_to_mask(pts, (h, w))
+            shape.mask = self._polygon_to_mask(points, (h, w))
             shape._brush_mask_version = 0
         shape._brush_using_mask = True
 
-    def _update_shape_points_from_mask(self, shape: Shape) -> None:
+    def _update_shape_points_from_mask(self, shape: Shape) -> bool:
         """Rewrite ``shape.points`` from its mask's largest component.
 
         The largest external contour is simplified and stored as the new
@@ -631,12 +643,16 @@ class Canvas(
         Args:
             shape: The brush-edited shape whose mask is converted back
                 into polygon vertices.
+
+        Returns:
+            ``True`` when a valid polygon was produced.
         """
         if shape is None or getattr(shape, "mask", None) is None:
-            return
+            return False
         polylines = self._mask_to_polylines(shape.mask)
         if not polylines:
-            return
+            shape.points = []
+            return False
         best = None
         best_area = -1.0
         for poly in polylines:
@@ -647,19 +663,21 @@ class Canvas(
                 best_area = area
                 best = poly
         if best is None or len(best) < 3:
-            return
+            shape.points = []
+            return False
         cnt = np.array(best, dtype=np.int32).reshape((-1, 1, 2))
         outer = self._simplify_contour(cnt, self.brush_simplify_epsilon_px)
         if len(outer) < 3:
             outer = best
+        shape.mask.fill(0)
+        cv2.fillPoly(shape.mask, [cnt], 255)
+        self._bump_brush_version(shape)
         shape.shape_type = "polygon"
         shape.points = [QtCore.QPointF(float(x), float(y)) for x, y in outer]
         # Donut holes are not representable as a single polygon.
         shape.other_data.pop("holes", None)
-        try:
-            shape.close()
-        except Exception:
-            pass
+        shape.close()
+        return True
 
     def _invalidate_brush_cache(self, shape: Shape) -> None:
         """Drop the cached overlay image for ``shape``.
@@ -683,49 +701,31 @@ class Canvas(
         )
         self._invalidate_brush_cache(shape)
 
-    def _get_brush_render_data(self, shape: Shape) -> tuple:
-        """Build (and cache) the overlay image and outline for a mask.
+    def _get_brush_render_data(
+        self, shape: Shape
+    ) -> QtGui.QPainterPath | None:
+        """Build and cache the outline path for a mask.
 
         Args:
             shape: A shape currently rendered from its brush mask.
 
         Returns:
-            A ``(QImage, QPainterPath)`` tuple, or ``(None, None)`` when
-            the shape has no mask. Results are cached by mask version so
-            repeated repaints during a stroke stay cheap.
+            A ``QPainterPath``, or ``None`` when the shape has no mask.
+            Results are cached by mask version so repeated repaints between
+            mask updates stay cheap.
         """
         if shape is None or getattr(shape, "mask", None) is None:
-            return None, None
+            return None
         version = int(getattr(shape, "_brush_mask_version", 0))
         cached = self._brush_overlay_cache.get(shape)
         if cached and cached[0] == version:
-            return cached[1], cached[2]
+            return cached[1]
 
         mask = shape.mask
         if mask.dtype != np.uint8:
             mask = (mask > 0).astype(np.uint8) * 255
         if mask.ndim != 2:
             mask = mask.squeeze()
-        h, w = mask.shape[:2]
-
-        color = (
-            shape.select_line_color
-            if getattr(shape, "selected", False)
-            else shape.line_color
-        )
-        overlay = np.zeros((h, w, 4), dtype=np.uint8)
-        overlay[..., 0] = int(color.red())
-        overlay[..., 1] = int(color.green())
-        overlay[..., 2] = int(color.blue())
-        overlay[..., 3] = (mask > 0).astype(np.uint8) * int(self.mask_opacity)
-        overlay = np.ascontiguousarray(overlay)
-        qimg = QtGui.QImage(
-            overlay.data,
-            w,
-            h,
-            int(overlay.strides[0]),
-            QtGui.QImage.Format.Format_RGBA8888,
-        ).copy()
 
         outline_path = QtGui.QPainterPath()
         for poly in self._mask_to_polylines(mask):
@@ -736,8 +736,73 @@ class Canvas(
                 outline_path.lineTo(float(x), float(y))
             outline_path.closeSubpath()
 
-        self._brush_overlay_cache[shape] = (version, qimg, outline_path)
-        return qimg, outline_path
+        self._brush_overlay_cache[shape] = (version, outline_path)
+        return outline_path
+
+    def _restore_brush_original_geometry(self, shape: Shape) -> None:
+        """Restore geometry captured when brush editing started."""
+        original = self._brush_original_shape
+        if shape is None or original is None:
+            return
+        shape.shape_type = original.shape_type
+        shape.points = [QtCore.QPointF(point) for point in original.points]
+        shape.direction = original.direction
+        shape.center = original.center
+        shape.other_data = copy.deepcopy(original.other_data)
+
+    def _leave_brush_mode(self, cancel: bool) -> None:
+        """Leave brush mode by committing or discarding mask changes."""
+        target = self._brush_target_shape
+        self.is_brush_mode = False
+        self.override_cursor(CURSOR_DEFAULT)
+        self._prev_brush_pos = None
+        self._brush_target_shape = None
+        self.eraser_mode = False
+
+        if target is not None and getattr(target, "mask", None) is not None:
+            if self._brush_baseline_mask is not None and np.array_equal(
+                target.mask, self._brush_baseline_mask
+            ):
+                self._brush_modified = False
+            has_geometry = True
+            if cancel or not self._brush_modified:
+                self._restore_brush_original_geometry(target)
+            else:
+                has_geometry = self._update_shape_points_from_mask(target)
+            target._brush_using_mask = False
+            target.mask = None
+            self._invalidate_brush_cache(target)
+            if self._brush_modified and not cancel:
+                if not has_geometry and target in self.shapes:
+                    self.shapes.remove(target)
+                    self.selected_shapes = [
+                        shape
+                        for shape in self.selected_shapes
+                        if shape is not target
+                    ]
+                    target.selected = False
+                self.store_shapes()
+                if has_geometry:
+                    self.shape_moved.emit()
+                else:
+                    self.shapes_deleted.emit([target])
+
+        self._brush_modified = False
+        self._brush_undo_stack = []
+        self._brush_redo_stack = []
+        self._brush_baseline_mask = None
+        self._brush_original_shape = None
+        self._brush_stroke_dirty = False
+        self.brush_mode_changed.emit(False)
+        self.brush_history_changed.emit(self.is_shape_restorable)
+        self.update()
+
+    def cancel_brush_mode(self) -> None:
+        """Discard brush changes and restore the original polygon."""
+        if self.is_brush_mode:
+            self._leave_brush_mode(cancel=True)
+        else:
+            self.brush_mode_changed.emit(False)
 
     def set_brush_mode(self, enabled: bool) -> None:
         """Enter or leave brush-edit mode for the selected shape.
@@ -752,6 +817,12 @@ class Canvas(
             enabled: ``True`` to enter brush mode, ``False`` to leave it.
         """
         if enabled:
+            if (
+                len(self.selected_shapes) != 1
+                or self.selected_shapes[0].shape_type != "polygon"
+            ):
+                self.brush_mode_changed.emit(False)
+                return
             self.set_editing(True)
             self.is_brush_mode = True
             self._brush_modified = False
@@ -759,6 +830,11 @@ class Canvas(
             self._brush_target_shape = (
                 self.selected_shapes[0]
                 if len(self.selected_shapes) == 1
+                else None
+            )
+            self._brush_original_shape = (
+                self._brush_target_shape.copy()
+                if self._brush_target_shape is not None
                 else None
             )
             self._prev_brush_pos = None
@@ -779,35 +855,11 @@ class Canvas(
                 self._brush_undo_stack = []
                 self._brush_redo_stack = []
             self.brush_mode_changed.emit(True)
+            self.brush_history_changed.emit(False)
             self.update()
             return
 
-        target = self._brush_target_shape
-        self.is_brush_mode = False
-        self.override_cursor(CURSOR_DEFAULT)
-        self._prev_brush_pos = None
-        self._brush_target_shape = None
-        self.eraser_mode = False
-        self.brush_mode_changed.emit(False)
-
-        if target is not None and getattr(target, "mask", None) is not None:
-            if self._brush_baseline_mask is not None and np.array_equal(
-                target.mask, self._brush_baseline_mask
-            ):
-                self._brush_modified = False
-            self._update_shape_points_from_mask(target)
-            target._brush_using_mask = False
-            target.mask = None
-            self._invalidate_brush_cache(target)
-            if self._brush_modified:
-                self.store_shapes()
-                self.shape_moved.emit()
-
-        self._brush_undo_stack = []
-        self._brush_redo_stack = []
-        self._brush_baseline_mask = None
-        self._brush_stroke_dirty = False
-        self.update()
+        self._leave_brush_mode(cancel=False)
 
     def _push_brush_undo_state(self) -> None:
         """Snapshot the current mask onto the brush undo stack.
@@ -829,8 +881,15 @@ class Canvas(
             return
         self._brush_undo_stack.append(mask.copy())
         self._brush_redo_stack.clear()
-        if len(self._brush_undo_stack) > self._brush_max_undo_steps + 1:
+        while len(self._brush_undo_stack) > self._brush_max_undo_steps + 1:
             del self._brush_undo_stack[1]
+        while (
+            len(self._brush_undo_stack) > 2
+            and sum(state.nbytes for state in self._brush_undo_stack)
+            > self._brush_max_undo_bytes
+        ):
+            del self._brush_undo_stack[1]
+        self.brush_history_changed.emit(self.brush_can_undo())
 
     def brush_can_undo(self) -> bool:
         """Return whether a brush stroke is available to undo."""
@@ -866,6 +925,7 @@ class Canvas(
         current = self._brush_undo_stack.pop()
         self._brush_redo_stack.append(current)
         self._restore_brush_mask(self._brush_undo_stack[-1])
+        self.brush_history_changed.emit(self.brush_can_undo())
 
     def brush_redo(self) -> None:
         """Re-apply the next stroke on the brush redo stack."""
@@ -877,12 +937,14 @@ class Canvas(
         nxt = self._brush_redo_stack.pop()
         self._brush_undo_stack.append(nxt.copy())
         self._restore_brush_mask(nxt)
+        self.brush_history_changed.emit(self.brush_can_undo())
 
     def _brush_mouse_press(self, ev, pos: QtCore.QPointF) -> bool:
         """Handle a mouse press while brush mode is active.
 
         A left press stamps the brush at ``pos`` (erasing while Ctrl is
-        held); a right press leaves brush mode.
+        held); a right press is consumed so its release can leave brush
+        mode without opening the context menu.
 
         Args:
             ev: The Qt mouse event.
@@ -892,7 +954,6 @@ class Canvas(
             ``True`` if the event was consumed by brush mode.
         """
         if ev.button() == QtCore.Qt.MouseButton.RightButton:
-            self.set_brush_mode(False)
             return True
         if (
             ev.button() == QtCore.Qt.MouseButton.LeftButton
@@ -1010,6 +1071,10 @@ class Canvas(
         """
         modifiers = ev.modifiers()
         key = ev.key()
+        if key == QtCore.Qt.Key.Key_Escape:
+            self.cancel_brush_mode()
+            ev.accept()
+            return True
         ctrl = bool(modifiers & QtCore.Qt.KeyboardModifier.ControlModifier)
         shift = bool(modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier)
         if ctrl and key == QtCore.Qt.Key.Key_Z:
@@ -1025,6 +1090,16 @@ class Canvas(
             return True
         return False
 
+    def _brush_drawing_can_close(self, pos: QtCore.QPointF) -> bool:
+        """Return whether a freehand polygon stroke reaches its start."""
+        if self.current is None or len(self.current) < 3:
+            return False
+        start = self.current[0]
+        threshold = self.epsilon / self.scale
+        return self.close_enough(pos, start) or (
+            utils.distance_to_line(start, [self.current[-1], pos]) < threshold
+        )
+
     def _paint_brush_overlays(self, p: QtGui.QPainter) -> None:
         """Paint live mask overlays for shapes being brush-edited.
 
@@ -1036,9 +1111,7 @@ class Canvas(
                 continue
             if getattr(shape, "mask", None) is None or not shape.visible:
                 continue
-            qimg, outline_path = self._get_brush_render_data(shape)
-            if qimg is not None:
-                p.drawImage(0, 0, qimg)
+            outline_path = self._get_brush_render_data(shape)
             if outline_path is not None:
                 outline_color = (
                     shape.select_line_color
@@ -1052,7 +1125,9 @@ class Canvas(
                 if getattr(shape, "difficult", False):
                     pen.setStyle(Qt.PenStyle.DashLine)
                 p.setPen(pen)
-                p.setBrush(Qt.BrushStyle.NoBrush)
+                fill_color = QtGui.QColor(outline_color)
+                fill_color.setAlpha(int(self.mask_opacity))
+                p.setBrush(fill_color)
                 p.drawPath(outline_path)
 
     def _paint_brush_cursor(self, p: QtGui.QPainter) -> None:
@@ -1492,11 +1567,7 @@ class Canvas(
                 self.line.points = [self.current[0], pos]
                 self.line.close()
             if self._brush_drawing and self.create_mode == "polygon":
-                if (
-                    self.snapping
-                    and len(self.current) > 2
-                    and self.close_enough(pos, self.current[0])
-                ):
+                if self.snapping and self._brush_drawing_can_close(pos):
                     self.current.highlight_clear()
                     self.finalise()
                     return
@@ -4143,6 +4214,9 @@ class Canvas(
 
         if self.is_brush_mode:
             # Resize the brush instead of zooming/scrolling.
+            if delta.y() == 0:
+                ev.accept()
+                return
             step = 1 if delta.y() > 0 else -1
             self.brush_radius = int(max(1, min(200, self.brush_radius + step)))
             self.update()
@@ -4512,6 +4586,7 @@ class Canvas(
 
     def load_pixmap(self, pixmap, clear_shapes=True):
         """Load pixmap"""
+        self.cancel_brush_mode()
         self.pixmap = pixmap
         if clear_shapes:
             self.shapes = []
@@ -4519,6 +4594,7 @@ class Canvas(
 
     def load_shapes(self, shapes, replace=True):
         """Load shapes"""
+        self.cancel_brush_mode()
         if replace:
             self.shapes = list(shapes)
         else:

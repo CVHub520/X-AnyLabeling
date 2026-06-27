@@ -224,7 +224,7 @@ class SettingsRuntimeApplier:
         if key.startswith("canvas.crosshair."):
             self.apply_canvas_crosshair()
             return
-        if key == "canvas.brush.point_distance":
+        if key.startswith("canvas.brush."):
             self.apply_canvas_brush()
             return
         if key.startswith("canvas.attributes."):
@@ -338,6 +338,9 @@ class SettingsRuntimeApplier:
         brush = self._widget._config["canvas"]["brush"]
         self._widget.canvas.brush_point_distance = float(
             brush["point_distance"]
+        )
+        self._widget.canvas.brush_simplify_epsilon_px = float(
+            brush["simplify_epsilon"]
         )
 
     def apply_canvas_attributes(self) -> None:

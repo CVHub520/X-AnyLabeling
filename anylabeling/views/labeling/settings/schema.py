@@ -105,6 +105,14 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate("SettingsDialog", "Large Increment")
     QCoreApplication.translate("SettingsDialog", "Small Increment")
     QCoreApplication.translate("SettingsDialog", "Brush Point Distance")
+    QCoreApplication.translate(
+        "SettingsDialog", "Brush Simplification Tolerance"
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set polygon simplification tolerance in image pixels. "
+        "Use 0 to preserve the extracted contour.",
+    )
     QCoreApplication.translate("SettingsDialog", "Default Depth Vector")
     QCoreApplication.translate("SettingsDialog", "Min Depth")
     QCoreApplication.translate("SettingsDialog", "Mask Opacity")
@@ -115,6 +123,106 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate(
         "SettingsDialog",
         "Qt default is 256 MB. Use 0 to disable the limit.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Allow checked state changes directly from the file list.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Use the operating system clipboard for copy and paste actions.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Shift the generated color index when automatic coloring is enabled.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the default outline color for shapes."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the default fill color for shapes."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the default fill color for shape vertices."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the outline color for selected shapes."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the fill color for selected shapes."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the highlight color for hovered vertices."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Control the displayed size of shape vertices."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Control the default stroke width for shapes."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Open label editing when a shape is double-clicked in edit mode.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set how many undo history snapshots are kept in memory.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Use the mouse wheel to adjust rectangle geometry while editing.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set the step size for wheel-based rectangle adjustments.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set the scale ratio applied by each wheel adjustment.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Show crosshair guides on the canvas."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the stroke width of the crosshair guides."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the display color of the crosshair guides."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the opacity of the crosshair guides."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the background color of attribute overlays."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the border color of attribute overlays."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the text color of attribute overlays."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the larger step used for rotation adjustments."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the smaller step used for rotation adjustments."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the spacing between sampled brush points."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set the default depth direction for newly created cuboids.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the minimum depth allowed for cuboid shapes."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Set the opacity used when rendering masks."
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set the minimum log level shown in the application.",
     )
 
 
@@ -878,6 +986,25 @@ def _non_shortcut_fields() -> list[SettingField]:
             ),
         ),
         SettingField(
+            "canvas.brush.simplify_epsilon",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Brush Simplification Tolerance",
+            ),
+            "float",
+            "Canvas",
+            "Interaction",
+            "Brush",
+            minimum=0.0,
+            maximum=50.0,
+            decimals=2,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set polygon simplification tolerance in image pixels. "
+                "Use 0 to preserve the extracted contour.",
+            ),
+        ),
+        SettingField(
             "canvas.cuboid.default_depth_vector",
             QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT, "Default Depth Vector"
@@ -1023,6 +1150,7 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "create_rotation",
             "delete_polygon",
             "duplicate_polygon",
+            "edit_brush_mode",
             "edit_label",
             "edit_polygon",
             "group_selected_shapes",
