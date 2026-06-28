@@ -494,6 +494,82 @@ class Canvas(
         """Check if a shape is visible"""
         return self.visible.get(shape, True)
 
+    def _shape_hit_candidates(self, point):
+        """Return shapes under a point in interaction priority order."""
+        candidates = []
+        epsilon = self.epsilon / self.scale
+        for stack_index, shape in enumerate(self.shapes):
+            if not self.is_visible(shape):
+                continue
+
+            rect = shape.bounding_rect()
+            area = max(0.0, rect.width()) * max(0.0, rect.height())
+            vertex_distance = None
+            if not shape.locked:
+                if shape.shape_type == "cuboid" and len(shape.points) == 8:
+                    vertex_index = self.nearest_cuboid_control(
+                        shape, point, epsilon
+                    )
+                    vertex = (
+                        self.cuboid_control_point(shape, vertex_index)
+                        if vertex_index is not None
+                        else None
+                    )
+                else:
+                    vertex_index = shape.nearest_vertex(point, epsilon)
+                    vertex = (
+                        shape.points[vertex_index]
+                        if vertex_index is not None
+                        else None
+                    )
+                if vertex is not None:
+                    vertex_distance = utils.distance(vertex - point)
+
+            if vertex_distance is not None:
+                priority = (0, vertex_distance, area, -stack_index)
+                candidates.append((priority, shape))
+                continue
+
+            if (
+                not shape.locked
+                and len(shape.points) > 1
+                and shape.can_add_point()
+                and shape.shape_type != "quadrilateral"
+            ):
+                edge_index = shape.nearest_edge(point, epsilon)
+                if edge_index is not None:
+                    line = [
+                        shape.points[edge_index - 1],
+                        shape.points[edge_index],
+                    ]
+                    edge_distance = utils.distance_to_line(point, line)
+                    priority = (1, edge_distance, area, -stack_index)
+                    candidates.append((priority, shape))
+                    continue
+
+            if shape.shape_type in ["point", "line", "linestrip"]:
+                vertex_index = shape.nearest_vertex(point, epsilon * 3)
+                if vertex_index is None:
+                    continue
+                distance = utils.distance(shape.points[vertex_index] - point)
+                priority = (1, distance, area, -stack_index)
+                candidates.append((priority, shape))
+                continue
+
+            if shape.shape_type == "cuboid" and len(shape.points) == 8:
+                front_path = self.cuboid_face_path(shape, CUBOID_FACE_FRONT)
+                hit = (
+                    front_path is not None and front_path.contains(point)
+                ) or self.cuboid_face_hit_test(shape, point) is not None
+            else:
+                hit = len(shape.points) > 1 and shape.contains_point(point)
+            if hit:
+                priority = (2, area, 0.0, -stack_index)
+                candidates.append((priority, shape))
+
+        candidates.sort(key=lambda item: item[0])
+        return [shape for _, shape in candidates]
+
     def drawing(self):
         """Check if user is drawing (mode==CREATE)"""
         return self.mode == self.CREATE
@@ -1751,7 +1827,7 @@ class Canvas(
         # - Highlight vertex
         # Update shape/vertex fill and tooltip value accordingly.
         # self.setToolTip(self.tr("Image"))
-        for shape in reversed([s for s in self.shapes if self.is_visible(s)]):
+        for shape in self._shape_hit_candidates(pos):
             if (
                 not shape.locked
                 and shape.shape_type == "cuboid"
@@ -2378,27 +2454,13 @@ class Canvas(
 
         if self.editing() and self.double_click_edit_label:
             pos = self.transform_pos(ev.position())
-            for shape in reversed(self.shapes):
-                if not self.is_visible(shape):
-                    continue
-                hit = False
-                if shape.shape_type in ["point", "line", "linestrip"]:
-                    if (
-                        shape.nearest_vertex(
-                            pos, self.epsilon * 3 / self.scale
-                        )
-                        is not None
-                    ):
-                        hit = True
-                elif len(shape.points) > 1 and shape.contains_point(pos):
-                    hit = True
-                if hit:
-                    self._undo_pending_edge_point()
-                    if shape not in self.selected_shapes:
-                        self.selection_changed.emit([shape])
-                    self.h_shape_is_selected = False
-                    self.edit_label_requested.emit()
-                    return
+            for shape in self._shape_hit_candidates(pos):
+                self._undo_pending_edge_point()
+                if shape not in self.selected_shapes:
+                    self.selection_changed.emit([shape])
+                self.h_shape_is_selected = False
+                self.edit_label_requested.emit()
+                return
 
         # For polygon/quadrilateral the mousePress handler adds a spurious
         # duplicate point before this handler fires, so we pop it first.
@@ -2452,6 +2514,15 @@ class Canvas(
                     self.h_shape_is_selected = True
                 self.calculate_offsets(point)
                 return
+            self.set_hiding()
+            if shape not in self.selected_shapes:
+                if multiple_selection_mode:
+                    self.selection_changed.emit(self.selected_shapes + [shape])
+                else:
+                    self.selection_changed.emit([shape])
+            self.h_shape_is_selected = False
+            self.calculate_offsets(point)
+            return
         elif (
             self.selected_cuboid_face()
             and self.h_shape is not None
@@ -2471,50 +2542,21 @@ class Canvas(
             return
 
         else:
-            for shape in reversed(self.shapes):
-                shape_selectable = False
-                if shape.shape_type in ["point", "line", "linestrip"]:
-                    if (
-                        self.is_visible(shape)
-                        and shape.nearest_vertex(
-                            point, self.epsilon * 3 / self.scale
+            for shape in self._shape_hit_candidates(point):
+                self._selected_group_id = None
+                self.set_hiding()
+                if shape not in self.selected_shapes:
+                    if multiple_selection_mode:
+                        self.selection_changed.emit(
+                            self.selected_shapes + [shape]
                         )
-                        is not None
-                    ):
-                        shape_selectable = True
-                elif (
-                    shape.shape_type == "cuboid"
-                    and self.is_visible(shape)
-                    and len(shape.points) == 8
-                ):
-                    front_path = self.cuboid_face_path(
-                        shape, CUBOID_FACE_FRONT
-                    )
-                    shape_selectable = (
-                        front_path is not None and front_path.contains(point)
-                    )
-                elif (
-                    self.is_visible(shape)
-                    and len(shape.points) > 1
-                    and shape.contains_point(point)
-                ):
-                    shape_selectable = True
-
-                if shape_selectable:
-                    self._selected_group_id = None
-                    self.set_hiding()
-                    if shape not in self.selected_shapes:
-                        if multiple_selection_mode:
-                            self.selection_changed.emit(
-                                self.selected_shapes + [shape]
-                            )
-                        else:
-                            self.selection_changed.emit([shape])
-                        self.h_shape_is_selected = False
                     else:
-                        self.h_shape_is_selected = True
-                    self.calculate_offsets(point)
-                    return
+                        self.selection_changed.emit([shape])
+                    self.h_shape_is_selected = False
+                else:
+                    self.h_shape_is_selected = True
+                self.calculate_offsets(point)
+                return
             self._select_group_at_point_or_deselect(point)
 
     def _select_group_at_point_or_deselect(self, point):
