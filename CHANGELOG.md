@@ -1,5 +1,33 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.11` (Jun 28, 2026)
+
+### 🚀 New Features
+
+- Add brush editing for polygon refinement with paint and erase controls, configurable behavior, and stroke-level undo and redo. (#1401)
+- Add per-shape locking to protect annotation geometry and deletion while preserving selection and metadata editing.
+- Add interactive group selection and movement with safe group copy, paste, and deletion.
+- Improve selection for overlapping and nested shapes by prioritizing nearby vertices and editable edges.
+- Prompt users to keep or skip out-of-bounds OBB annotations during YOLO OBB export. (#1402)
+
+### 🐛 Bug Fixes
+
+- Stabilize label review navigation when annotations change and show review progress. (#1403)
+- Default to the XCB platform plugin in WSL Wayland environments.
+- Replace shell command execution in translation compilation with checked subprocess invocation. (#1398)
+- Detect available Qt translation compilers and surface compilation failures.
+- Refine the brush editing workflow and undo history.
+
+### 🛠️ Improvements
+
+- Align the Black configuration with the supported Python version and consolidate exclusions.
+
+### 🌟 Contributors
+
+A total of 4 developers contributed to this release.
+
+Thank @tuanaiseo, @lovejoohero0228, @quitmeyer, @CVHub520
+
 ## `v4.0.0-beta.10` (Jun 20, 2026)
 
 ### 🚀 New Features
