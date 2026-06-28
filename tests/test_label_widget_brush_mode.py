@@ -33,6 +33,7 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
                 is_brush_mode=False,
                 _brush_target_shape=None,
                 selected_shapes=[],
+                _active_group_shapes=Mock(return_value=[]),
             ),
             label_list=Mock(),
             actions=SimpleNamespace(**{name: Mock() for name in action_names}),

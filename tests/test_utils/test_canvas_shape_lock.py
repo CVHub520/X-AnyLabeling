@@ -113,6 +113,29 @@ class TestCanvasShapeLock(unittest.TestCase):
         self.assertTrue(moved)
         self.assertEqual(shape.points[0], QtCore.QPointF(20.0, 20.0))
 
+    def test_duplicate_locked_shape_creates_unlocked_offset_copy(self):
+        shape = self.make_shape(locked=True)
+        original_points = [QtCore.QPointF(point) for point in shape.points]
+        self.canvas.shapes = [shape]
+        self.canvas.selected_shapes = [shape]
+
+        duplicated = self.canvas.duplicate_selected_shapes()
+
+        self.assertEqual(len(self.canvas.shapes), 2)
+        self.assertTrue(shape.locked)
+        self.assertFalse(duplicated[0].locked)
+        self.assertNotEqual(duplicated[0].points, original_points)
+
+    def test_pasted_locked_shape_is_unlocked_and_keeps_coordinates(self):
+        shape = self.make_shape(locked=True)
+        original_points = [QtCore.QPointF(point) for point in shape.points]
+
+        pasted = self.canvas.prepare_pasted_shapes([shape])
+
+        self.assertTrue(shape.locked)
+        self.assertFalse(pasted[0].locked)
+        self.assertEqual(pasted[0].points, original_points)
+
     def test_bulk_conversion_skips_locked_shapes(self):
         points = [[10, 10], [30, 10], [30, 30], [10, 30]]
         data = {

@@ -230,6 +230,7 @@ class LabelingWidget(LabelDialog):
 
         self._no_selection_slot = False
         self._copied_shapes = None
+        self._copied_group_id = None
         self._batch_edit_warning_shown = False
 
         self.brightness_contrast_dialog = BrightnessContrastDialog(
@@ -1728,18 +1729,6 @@ class LabelingWidget(LabelDialog):
             self.tr("Auto Labeling"),
         )
 
-        # Label list context menu.
-        label_menu = QtWidgets.QMenu()
-        utils.add_actions(
-            label_menu,
-            (
-                edit,
-                toggle_shape_lock,
-                delete,
-                copy_coordinates,
-                union_selection,
-            ),
-        )
         self.label_list.setContextMenuPolicy(
             Qt.ContextMenuPolicy.NoContextMenu
         )
@@ -2005,13 +1994,8 @@ class LabelingWidget(LabelDialog):
             train=self.menu(self.tr("Train")),
             help=self.menu(self.tr("Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
-            label_list=label_menu,
         )
         self.menus.recent_files.aboutToShow.connect(self.update_file_menu)
-        (
-            self.label_filter_menu,
-            self.gid_filter_menu,
-        ) = self._append_filter_submenus(self.menus.label_list, prepend=True)
         self.canvas_label_filter_menu_0 = None
         self.canvas_gid_filter_menu_0 = None
         self.canvas_label_filter_menu_1 = None
@@ -3938,7 +3922,6 @@ class LabelingWidget(LabelDialog):
         self.update_gid_box(block_signal=True)
 
         menus = [
-            (self.label_filter_menu, self.gid_filter_menu),
             (self.canvas_label_filter_menu_0, self.canvas_gid_filter_menu_0),
             (self.canvas_label_filter_menu_1, self.canvas_gid_filter_menu_1),
         ]
@@ -4685,7 +4668,10 @@ class LabelingWidget(LabelDialog):
         )
         has_locked = any(shape.locked for shape in selected_shapes)
         has_unlocked = any(not shape.locked for shape in selected_shapes)
-        self.actions.delete.setEnabled(has_unlocked)
+        group_shapes = self.canvas._active_group_shapes()
+        self.actions.delete.setEnabled(
+            has_unlocked and not (group_shapes and has_locked)
+        )
         self.actions.duplicate.setEnabled(n_selected)
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected >= 1 and same_type)
@@ -5057,9 +5043,12 @@ class LabelingWidget(LabelDialog):
                     self.tr("Error decoding shapes: %s") % str(e),
                 )
                 return
-            self.load_shapes(shapes, replace=False)
         else:
-            self.load_shapes(self._copied_shapes, replace=False)
+            shapes = self._copied_shapes
+        shapes = self.canvas.prepare_pasted_shapes(
+            shapes, self._copied_group_id
+        )
+        self.load_shapes(shapes, replace=False)
         self.set_dirty()
 
     def toggle_system_clipboard(self, system_clipboard):
@@ -5069,6 +5058,10 @@ class LabelingWidget(LabelDialog):
         )
 
     def copy_selected_shape(self):
+        group_shapes = self.canvas._active_group_shapes()
+        self._copied_group_id = (
+            self.canvas._selected_group_id if group_shapes else None
+        )
         if self._config["system_clipboard"]:
             clipboard = QtWidgets.QApplication.clipboard()
             clipboard.setText(
@@ -6480,6 +6473,22 @@ class LabelingWidget(LabelDialog):
                     action.setEnabled(False)
 
     def delete_selected_shape(self):
+        group_shapes = self.canvas._active_group_shapes()
+        if group_shapes:
+            answer = QtWidgets.QMessageBox.warning(
+                self,
+                self.tr("Delete Group"),
+                self.tr(
+                    "Deleting this group will remove %d shapes. "
+                    "This action cannot be undone. Do you want to continue?"
+                )
+                % len(group_shapes),
+                QtWidgets.QMessageBox.StandardButton.Yes
+                | QtWidgets.QMessageBox.StandardButton.No,
+                QtWidgets.QMessageBox.StandardButton.No,
+            )
+            if answer != QtWidgets.QMessageBox.StandardButton.Yes:
+                return
         self.remove_labels(self.canvas.delete_selected())
         self.shape_selection_changed(self.canvas.selected_shapes)
         self.set_dirty()

@@ -166,6 +166,8 @@ class Canvas(
         self.snapping = True
         self.h_shape_is_selected = False
         self.h_shape_is_hovered = None
+        self._selected_group_id = None
+        self._hovered_group_id = None
         self.allowed_oop_shape_types = ["rotation", "quadrilateral", "cuboid"]
         default_cuboid_depth_vector = self.cuboid_config.get(
             "default_depth_vector", [24.0, -24.0]
@@ -464,6 +466,8 @@ class Canvas(
         shapes_backup = self.shapes_backups.pop()
         self.shapes = shapes_backup
         self.selected_shapes = []
+        self._selected_group_id = None
+        self._hovered_group_id = None
         for shape in self.shapes:
             shape.selected = False
         self.update()
@@ -477,6 +481,7 @@ class Canvas(
         self._clear_space_pan_state()
         self.store_moving_shape()
         self.un_highlight()
+        self._hovered_group_id = None
         self.restore_cursor()
         self.shape_hover_changed.emit()
 
@@ -1644,6 +1649,11 @@ class Canvas(
                 self.show_shape.emit(shape_height, shape_width, pos)
             elif self.selected_shapes and self.prev_point:
                 self.h_cuboid_face = None
+                group_shapes = self._active_group_shapes()
+                if group_shapes and any(
+                    shape.locked for shape in group_shapes
+                ):
+                    return
                 self.override_cursor(CURSOR_MOVE)
                 self.bounded_move_shapes(self.selected_shapes, pos)
                 self.repaint()
@@ -1733,6 +1743,8 @@ class Canvas(
             return
 
         self.show_shape.emit(-1, -1, pos)
+
+        self._hovered_group_id = None
 
         # Just hovering over the canvas, 2 possibilities:
         # - Highlight shapes
@@ -1937,6 +1949,11 @@ class Canvas(
                     self.show_shape.emit(shape_height, shape_width, pos)
                 break
         else:  # Nothing found, clear highlights, reset state.
+            group_id = self._group_at_point(pos)
+            if group_id is not None:
+                self.un_highlight()
+                self._hover_group(group_id)
+                return
             self.un_highlight()
             self.override_cursor(CURSOR_DEFAULT)
             self.setToolTip("")
@@ -2396,12 +2413,14 @@ class Canvas(
 
     def select_shapes(self, shapes):
         """Select some shapes"""
+        self._selected_group_id = None
         self.set_hiding()
         self.selection_changed.emit(shapes)
         self.update()
 
-    def select_shape_point(self, point, multiple_selection_mode):
+    def select_shape_point(self, point, multiple_selection_mode):  # noqa: C901
         """Select the first shape created which contains this point."""
+        self._selected_group_id = None
         if self.selected_vertex():  # A vertex is marked for selection.
             index, shape = self.h_vertex, self.h_shape
             if shape.shape_type == "cuboid":
@@ -2482,6 +2501,7 @@ class Canvas(
                     shape_selectable = True
 
                 if shape_selectable:
+                    self._selected_group_id = None
                     self.set_hiding()
                     if shape not in self.selected_shapes:
                         if multiple_selection_mode:
@@ -2495,7 +2515,135 @@ class Canvas(
                         self.h_shape_is_selected = True
                     self.calculate_offsets(point)
                     return
-        self.deselect_shape()
+            self._select_group_at_point_or_deselect(point)
+
+    def _select_group_at_point_or_deselect(self, point):
+        group_id = self._group_at_point(point)
+        if group_id is None:
+            self.deselect_shape()
+            return
+        self._select_group(group_id, point)
+
+    def _grouped_shapes(self):
+        grouped_shapes = {}
+        if not self.show_groups:
+            return grouped_shapes
+        for shape in self.shapes:
+            if shape.group_id is None:
+                continue
+            grouped_shapes.setdefault(shape.group_id, []).append(shape)
+        return grouped_shapes
+
+    def _group_rect(self, shapes):
+        min_x = float("inf")
+        min_y = float("inf")
+        max_x = float("-inf")
+        max_y = float("-inf")
+        for shape in shapes:
+            rect = shape.bounding_rect()
+            if shape.shape_type == "point":
+                point = shape.points[0]
+                min_x = min(min_x, point.x())
+                min_y = min(min_y, point.y())
+                max_x = max(max_x, point.x())
+                max_y = max(max_y, point.y())
+            else:
+                min_x = min(min_x, rect.left())
+                min_y = min(min_y, rect.top())
+                max_x = max(max_x, rect.right())
+                max_y = max(max_y, rect.bottom())
+        return QtCore.QRectF(min_x, min_y, max_x - min_x, max_y - min_y)
+
+    def _group_label(self, group_id, shape_count):
+        return f"G{group_id} · S{shape_count}"
+
+    def _group_label_font(self):
+        return QtGui.QFont(
+            "Arial", int(max(6.0, int(round(8.0 / self.scale))))
+        )
+
+    def _group_label_rect(self, group_id, shape_count, group_rect):
+        font = self._group_label_font()
+        metrics = QtGui.QFontMetricsF(font)
+        padding_x = 5.0 / self.scale
+        padding_y = 2.0 / self.scale
+        text = self._group_label(group_id, shape_count)
+        width = metrics.horizontalAdvance(text) + 2 * padding_x
+        height = metrics.height() + 2 * padding_y
+        top = group_rect.top() - height
+        return QtCore.QRectF(group_rect.left(), top, width, height)
+
+    def _group_at_point(self, point):
+        candidates = []
+        tolerance = max(0.5, 6.0 / self.scale)
+        for group_id, group_shapes in self._grouped_shapes().items():
+            visible_shapes = [shape for shape in group_shapes if shape.visible]
+            if not visible_shapes:
+                continue
+            rect = self._group_rect(visible_shapes)
+            shape_count = len(group_shapes)
+            label_rect = self._group_label_rect(
+                group_id, shape_count, rect
+            ).adjusted(-tolerance, -tolerance, tolerance, tolerance)
+            outer = rect.adjusted(-tolerance, -tolerance, tolerance, tolerance)
+            inner = rect.adjusted(tolerance, tolerance, -tolerance, -tolerance)
+            on_boundary = outer.contains(point) and not inner.contains(point)
+            if label_rect.contains(point) or on_boundary:
+                candidates.append((rect.width() * rect.height(), group_id))
+            elif rect.contains(point):
+                candidates.append((rect.width() * rect.height(), group_id))
+        if not candidates:
+            return None
+        return min(candidates, key=lambda item: item[0])[1]
+
+    def _group_shapes(self, group_id):
+        return [shape for shape in self.shapes if shape.group_id == group_id]
+
+    def _active_group_shapes(self):
+        if not self.show_groups or self._selected_group_id is None:
+            return []
+        shapes = self._group_shapes(self._selected_group_id)
+        if len(shapes) != len(self.selected_shapes):
+            return []
+        if any(shape not in self.selected_shapes for shape in shapes):
+            return []
+        return shapes
+
+    def _select_group(self, group_id, point):
+        shapes = self._group_shapes(group_id)
+        if not shapes:
+            return
+        self._selected_group_id = group_id
+        self._hovered_group_id = group_id
+        self.h_shape = None
+        self.h_vertex = None
+        self.h_edge = None
+        self.h_cuboid_face = None
+        self.h_shape_is_selected = False
+        self.set_hiding()
+        self.selection_changed.emit(shapes)
+        self.calculate_offsets(point)
+        self.prev_point = point
+        self.override_cursor(
+            CURSOR_DEFAULT
+            if any(shape.locked for shape in shapes)
+            else CURSOR_GRAB
+        )
+        self.update()
+
+    def _hover_group(self, group_id):
+        shapes = self._group_shapes(group_id)
+        self._hovered_group_id = group_id
+        locked = any(shape.locked for shape in shapes)
+        tooltip = self.tr("Group %s · %d shapes") % (group_id, len(shapes))
+        if locked:
+            tooltip = self.tr("Locked %s") % tooltip
+        else:
+            tooltip = self.tr("Click & drag to move %s") % tooltip
+        self.setToolTip(tooltip)
+        self.setStatusTip(tooltip)
+        self.override_cursor(CURSOR_DEFAULT if locked else CURSOR_GRAB)
+        self.update()
 
     def calculate_offsets(self, point):
         """Calculate offsets of a point to pixmap borders"""
@@ -3080,6 +3228,7 @@ class Canvas(
 
     def deselect_shape(self):
         """Deselect all shapes"""
+        self._selected_group_id = None
         if self.selected_shapes:
             self.set_hiding(False)
             self.selection_changed.emit([])
@@ -3120,6 +3269,8 @@ class Canvas(
             self.selected_shapes_copy = [
                 s.copy() for s in self.selected_shapes
             ]
+            for shape in self.selected_shapes_copy:
+                shape.locked = False
             self.bounded_shift_shapes(self.selected_shapes_copy)
             self.end_move(copy=True)
         return self.selected_shapes
@@ -3137,6 +3288,102 @@ class Canvas(
         self.prev_point = point
         if not self.bounded_move_shapes(shapes, point - offset):
             self.bounded_move_shapes(shapes, point + offset)
+
+    def prepare_pasted_shapes(self, shapes, copied_group_id=None):
+        pasted_shapes = [shape.copy() for shape in shapes]
+        if not pasted_shapes:
+            return pasted_shapes
+        for shape in pasted_shapes:
+            shape.locked = False
+        if copied_group_id is not None and all(
+            shape.group_id == copied_group_id for shape in pasted_shapes
+        ):
+            group_id = self.gen_new_group_id()
+            for shape in pasted_shapes:
+                shape.group_id = group_id
+        return pasted_shapes
+
+    def _paint_groups(self, painter):
+        if not self.show_groups:
+            return
+
+        painter.save()
+        theme = get_theme()
+        active_shapes = self._active_group_shapes()
+        for group_id, group_shapes in self._grouped_shapes().items():
+            visible_shapes = [shape for shape in group_shapes if shape.visible]
+            if not visible_shapes:
+                continue
+            group_rect = self._group_rect(visible_shapes)
+            group_color = QtGui.QColor(
+                *LABEL_COLORMAP[int(group_id) % len(LABEL_COLORMAP)]
+            )
+            selected = bool(
+                active_shapes and group_id == self._selected_group_id
+            )
+            hovered = group_id == self._hovered_group_id
+
+            for shape in visible_shapes:
+                rect = shape.bounding_rect()
+                center = rect.center()
+                radius = max(1.0, 3.0 / self.scale)
+                triangle = [
+                    QtCore.QPointF(center.x(), center.y() - radius),
+                    QtCore.QPointF(center.x() - radius, center.y() + radius),
+                    QtCore.QPointF(center.x() + radius, center.y() + radius),
+                ]
+                painter.setPen(
+                    QtGui.QPen(
+                        group_color,
+                        max(1.0, 4.0 / self.scale),
+                        Qt.PenStyle.SolidLine,
+                    )
+                )
+                painter.drawPolygon(triangle)
+
+            if selected or hovered:
+                color = QtGui.QColor(
+                    theme["selection" if selected else "primary_hover"]
+                )
+                glow = QtGui.QColor(color)
+                glow.setAlpha(80 if selected else 50)
+                painter.setPen(
+                    QtGui.QPen(
+                        glow,
+                        (6.0 if selected else 4.0) / self.scale,
+                        Qt.PenStyle.SolidLine,
+                    )
+                )
+                painter.setBrush(Qt.BrushStyle.NoBrush)
+                painter.drawRect(group_rect)
+                width = (2.5 if selected else 2.0) / self.scale
+                style = Qt.PenStyle.SolidLine
+            else:
+                color = QtGui.QColor("#EEEEEE")
+                width = 1.0 / self.scale
+                style = Qt.PenStyle.DashLine
+
+            painter.setPen(QtGui.QPen(color, width, style))
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            painter.drawRect(group_rect)
+
+            label_rect = self._group_label_rect(
+                group_id, len(group_shapes), group_rect
+            )
+            label_color = color if selected or hovered else group_color
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(label_color)
+            painter.drawRoundedRect(
+                label_rect, 3.0 / self.scale, 3.0 / self.scale
+            )
+            painter.setFont(self._group_label_font())
+            painter.setPen(QtGui.QColor(theme["selection_text"]))
+            painter.drawText(
+                label_rect,
+                Qt.AlignmentFlag.AlignCenter,
+                self._group_label(group_id, len(group_shapes)),
+            )
+        painter.restore()
 
     # QT Overload
     def paintEvent(self, event):  # noqa: C901
@@ -3210,75 +3457,6 @@ class Canvas(
             p.end()
             self.update()
             return
-
-        # Draw groups
-        if self.show_groups:
-            pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.PenStyle.SolidLine)
-            p.setPen(pen)
-            grouped_shapes = {}
-            for shape in self.shapes:
-                if not shape.visible:
-                    continue
-                if shape.group_id is None:
-                    continue
-                if shape.group_id not in grouped_shapes:
-                    grouped_shapes[shape.group_id] = []
-                grouped_shapes[shape.group_id].append(shape)
-
-            for group_id in grouped_shapes:
-                shapes = grouped_shapes[group_id]
-                min_x = float("inf")
-                min_y = float("inf")
-                max_x = 0
-                max_y = 0
-                for shape in shapes:
-                    rect = shape.bounding_rect()
-                    if shape.shape_type == "point":
-                        points = shape.points[0]
-                        min_x = min(min_x, points.x())
-                        min_y = min(min_y, points.y())
-                        max_x = max(max_x, points.x())
-                        max_y = max(max_y, points.y())
-                    else:
-                        min_x = min(min_x, rect.x())
-                        min_y = min(min_y, rect.y())
-                        max_x = max(max_x, rect.x() + rect.width())
-                        max_y = max(max_y, rect.y() + rect.height())
-                    group_color = LABEL_COLORMAP[
-                        int(group_id) % len(LABEL_COLORMAP)
-                    ]
-                    pen.setStyle(Qt.PenStyle.SolidLine)
-                    pen.setWidth(max(1, int(round(4.0 / Shape.scale))))
-                    pen.setColor(QtGui.QColor(*group_color))
-                    p.setPen(pen)
-
-                    # Calculate the center point of the bounding rectangle
-                    cx = rect.x() + rect.width() / 2
-                    cy = rect.y() + rect.height() / 2
-                    triangle_radius = max(1, int(round(3.0 / Shape.scale)))
-
-                    # Define the points of the triangle
-                    triangle_points = [
-                        QtCore.QPointF(cx, cy - triangle_radius),
-                        QtCore.QPointF(
-                            cx - triangle_radius, cy + triangle_radius
-                        ),
-                        QtCore.QPointF(
-                            cx + triangle_radius, cy + triangle_radius
-                        ),
-                    ]
-
-                    # Draw the triangle
-                    p.drawPolygon(triangle_points)
-
-                pen.setStyle(Qt.PenStyle.DashLine)
-                pen.setWidth(max(1, int(round(1.0 / Shape.scale))))
-                pen.setColor(QtGui.QColor("#EEEEEE"))
-                p.setPen(pen)
-                wrap_rect = QtCore.QRectF(
-                    min_x, min_y, max_x - min_x, max_y - min_y
-                )
-                p.drawRect(wrap_rect)
 
         # Draw KIE linking
         if self.show_linking:
@@ -3516,6 +3694,8 @@ class Canvas(
                     )
                     p.drawPath(cp)
                     p.fillPath(cp, QtGui.QColor(255, 153, 0, 255))
+
+        self._paint_groups(p)
 
         # Draw live brush-edit overlays on top of the regular shapes.
         self._paint_brush_overlays(p)
@@ -4448,6 +4628,9 @@ class Canvas(
     def move_by_keyboard(self, offset):
         """Move selected shapes by an offset (using keyboard)"""
         if self.selected_shapes:
+            group_shapes = self._active_group_shapes()
+            if group_shapes and any(shape.locked for shape in group_shapes):
+                return
             self.bounded_move_shapes(
                 self.selected_shapes, self.prev_point + offset
             )
@@ -4467,7 +4650,7 @@ class Canvas(
                 self.rotating_shape = True
 
     # QT Overload
-    def keyPressEvent(self, ev):
+    def keyPressEvent(self, ev):  # noqa: C901
         """Key press event"""
         modifiers = ev.modifiers()
         key = ev.key()
@@ -4505,6 +4688,9 @@ class Canvas(
             elif modifiers == QtCore.Qt.KeyboardModifier.AltModifier:
                 self.snapping = False
         elif self.editing():
+            if key == QtCore.Qt.Key.Key_Escape:
+                self.deselect_shape()
+                return
             if (
                 key == QtCore.Qt.Key.Key_Alt
                 and self.can_erase_selected_vertices()
@@ -4513,14 +4699,21 @@ class Canvas(
                 self._set_vertex_eraser_tooltip()
                 ev.accept()
                 return
+            move_speed = MOVE_SPEED
+            if self._active_group_shapes():
+                move_speed = (
+                    10.0
+                    if modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier
+                    else 1.0
+                )
             if key == QtCore.Qt.Key.Key_Up:
-                self.move_by_keyboard(QtCore.QPointF(0.0, -MOVE_SPEED))
+                self.move_by_keyboard(QtCore.QPointF(0.0, -move_speed))
             elif key == QtCore.Qt.Key.Key_Down:
-                self.move_by_keyboard(QtCore.QPointF(0.0, MOVE_SPEED))
+                self.move_by_keyboard(QtCore.QPointF(0.0, move_speed))
             elif key == QtCore.Qt.Key.Key_Left:
-                self.move_by_keyboard(QtCore.QPointF(-MOVE_SPEED, 0.0))
+                self.move_by_keyboard(QtCore.QPointF(-move_speed, 0.0))
             elif key == QtCore.Qt.Key.Key_Right:
-                self.move_by_keyboard(QtCore.QPointF(MOVE_SPEED, 0.0))
+                self.move_by_keyboard(QtCore.QPointF(move_speed, 0.0))
             elif key == QtCore.Qt.Key.Key_Z:
                 self.rotate_by_keyboard(self.large_rotation_increment)
             elif key == QtCore.Qt.Key.Key_X:
@@ -4647,6 +4840,8 @@ class Canvas(
         self.h_vertex = None
         self.h_edge = None
         self.h_cuboid_face = None
+        self._selected_group_id = None
+        self._hovered_group_id = None
         self.update()
 
     def set_shape_visible(self, shape, value):
@@ -4686,6 +4881,8 @@ class Canvas(
         self.shapes_backups = []
         self.is_move_editing = False
         self.compare_pixmap = None
+        self._selected_group_id = None
+        self._hovered_group_id = None
         self.update()
 
     def set_cross_line(self, show, width, color, opacity):
