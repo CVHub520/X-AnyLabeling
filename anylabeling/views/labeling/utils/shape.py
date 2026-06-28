@@ -100,6 +100,8 @@ def _apply_shape_conversion(data, mode, params):
     normalized_mode = _normalize_mode(mode)
     for j in range(len(data["shapes"])):
         shape = data["shapes"][j]
+        if shape.get("locked", False):
+            continue
         shape_type = shape.get("shape_type")
         points = shape.get("points", [])
 

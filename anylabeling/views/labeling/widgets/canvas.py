@@ -820,6 +820,7 @@ class Canvas(
             if (
                 len(self.selected_shapes) != 1
                 or self.selected_shapes[0].shape_type != "polygon"
+                or self.selected_shapes[0].locked
             ):
                 self.brush_mode_changed.emit(False)
                 return
@@ -1210,7 +1211,11 @@ class Canvas(
     def can_erase_selected_vertices(self):
         if not self.editing() or len(self.selected_shapes) != 1:
             return False
-        return self.selected_shapes[0].shape_type in ["polygon", "linestrip"]
+        shape = self.selected_shapes[0]
+        return not shape.locked and shape.shape_type in [
+            "polygon",
+            "linestrip",
+        ]
 
     def _vertex_eraser_cursor(self):
         if self._vertex_eraser_cursor_cache is None:
@@ -1735,7 +1740,11 @@ class Canvas(
         # Update shape/vertex fill and tooltip value accordingly.
         # self.setToolTip(self.tr("Image"))
         for shape in reversed([s for s in self.shapes if self.is_visible(s)]):
-            if shape.shape_type == "cuboid" and len(shape.points) == 8:
+            if (
+                not shape.locked
+                and shape.shape_type == "cuboid"
+                and len(shape.points) == 8
+            ):
                 index = self.nearest_cuboid_control(
                     shape, pos, self.epsilon / self.scale
                 )
@@ -1815,8 +1824,16 @@ class Canvas(
                     break
             # Look for a nearby vertex to highlight. If that fails,
             # check if we happen to be inside a shape.
-            index = shape.nearest_vertex(pos, self.epsilon / self.scale)
-            index_edge = shape.nearest_edge(pos, self.epsilon / self.scale)
+            index = (
+                None
+                if shape.locked
+                else shape.nearest_vertex(pos, self.epsilon / self.scale)
+            )
+            index_edge = (
+                None
+                if shape.locked
+                else shape.nearest_edge(pos, self.epsilon / self.scale)
+            )
             if index is not None:
                 if self.selected_vertex():
                     self.h_shape.highlight_clear()
@@ -1879,7 +1896,9 @@ class Canvas(
                 self.h_edge = None
                 self.prev_h_cuboid_face = self.h_cuboid_face
                 self.h_cuboid_face = None
-                if shape.group_id and shape.shape_type == "rectangle":
+                if shape.locked:
+                    self.setToolTip(self.tr("Locked shape '%s'") % shape.label)
+                elif shape.group_id and shape.shape_type == "rectangle":
                     tooltip_text = "Click & drag to move shape '{label} {group_id}'".format(
                         label=shape.label, group_id=shape.group_id
                     )
@@ -1890,7 +1909,9 @@ class Canvas(
                         % shape.label
                     )
                 self.setStatusTip(self.toolTip())
-                self.override_cursor(CURSOR_GRAB)
+                self.override_cursor(
+                    CURSOR_DEFAULT if shape.locked else CURSOR_GRAB
+                )
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
                 if self.h_shape_is_hovered:
                     group_mode = (
@@ -1930,7 +1951,7 @@ class Canvas(
         shape = self.prev_h_shape
         index = self.prev_h_edge
         point = self.prev_move_point
-        if shape is None or index is None or point is None:
+        if shape is None or shape.locked or index is None or point is None:
             return
         shape.insert_point(index, point)
         shape.highlight_vertex(index, shape.MOVE_VERTEX)
@@ -1955,7 +1976,7 @@ class Canvas(
         """Remove a point from current shape"""
         shape = self.prev_h_shape
         index = self.prev_h_vertex
-        if shape is None or index is None:
+        if shape is None or shape.locked or index is None:
             return
         shape.remove_point(index)
         shape.highlight_clear()
@@ -2844,7 +2865,11 @@ class Canvas(
         self.set_cuboid_raw_points(shape, points)
 
     def move_cuboid_control(self, shape, index, pos):
-        if shape.shape_type != "cuboid" or len(shape.points) != 8:
+        if (
+            shape.locked
+            or shape.shape_type != "cuboid"
+            or len(shape.points) != 8
+        ):
             return
         if index in [0, 1, 2, 3]:
             self.adjust_cuboid_front_vertex(shape, index, pos)
@@ -2859,7 +2884,11 @@ class Canvas(
             self.adjust_cuboid_back_edge_center(shape, index, pos)
 
     def move_cuboid_face_by(self, shape, face_name, offset):
-        if shape.shape_type != "cuboid" or len(shape.points) != 8:
+        if (
+            shape.locked
+            or shape.shape_type != "cuboid"
+            or len(shape.points) != 8
+        ):
             return
         min_size = self.cuboid_constraint_margin()
         if face_name == CUBOID_FACE_LEFT:
@@ -2923,6 +2952,8 @@ class Canvas(
     def bounded_move_vertex(self, pos):
         """Move a vertex. Adjust position to be bounded by pixmap border"""
         index, shape = self.h_vertex, self.h_shape
+        if shape.locked:
+            return
         if shape.shape_type == "cuboid":
             self.move_cuboid_control(shape, index, pos)
             return
@@ -2973,6 +3004,9 @@ class Canvas(
 
     def bounded_move_shapes(self, shapes, pos):
         """Move shapes. Adjust position to be bounded by pixmap border"""
+        shapes = [shape for shape in shapes if not shape.locked]
+        if not shapes:
+            return False
         shape_types = []
         for shape in shapes:
             if shape.shape_type in self.allowed_oop_shape_types:
@@ -3017,6 +3051,8 @@ class Canvas(
 
     def bounded_rotate_shapes(self, i, shape, theta):
         """Rotate shapes. Adjust position to be bounded by pixmap border"""
+        if shape.locked:
+            return False
         if len(shape.points) == 2:
             p0 = shape.points[0]
             p1 = shape.points[1]
@@ -3056,17 +3092,21 @@ class Canvas(
         deleted_shapes = []
         if self.selected_shapes:
             for shape in self.selected_shapes:
-                if shape in self.shapes:
+                if not shape.locked and shape in self.shapes:
                     self.shapes.remove(shape)
                     deleted_shapes.append(shape)
             if deleted_shapes:
                 self.store_shapes()
-            self.selected_shapes = []
+            self.selected_shapes = [
+                shape for shape in self.selected_shapes if shape.locked
+            ]
             self.update()
         return deleted_shapes
 
     def delete_shape(self, shape):
         """Remove a specific shape"""
+        if shape.locked:
+            return
         if shape in self.selected_shapes:
             self.selected_shapes.remove(shape)
         if shape in self.shapes:
@@ -4229,6 +4269,7 @@ class Canvas(
             and not self.auto_highlight_shape
             and len(self.selected_shapes) == 1
             and self.selected_shapes[0].shape_type == "rectangle"
+            and not self.selected_shapes[0].locked
             and not (mods & QtCore.Qt.KeyboardModifier.ControlModifier)
         ):
             try:

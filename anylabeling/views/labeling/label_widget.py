@@ -118,6 +118,10 @@ def _format_label_list_text(label, group_id):
     return f"{text} ({group_id})"
 
 
+def _set_label_list_item_lock(item, locked):
+    item.set_locked(locked)
+
+
 def _find_next_label_loop_shape(shapes, start_index, canvas_shapes):
     canvas_shape_ids = {id(shape) for shape in canvas_shapes}
     for index in range(start_index, len(shapes)):
@@ -270,6 +274,9 @@ class LabelingWidget(LabelDialog):
             self.label_selection_changed
         )
         self.label_list.item_double_clicked.connect(self.edit_label)
+        self.label_list.items_lock_requested.connect(
+            self.toggle_label_items_lock
+        )
         self.label_list.item_changed.connect(self.label_item_changed)
         self.label_list.item_dropped.connect(self.label_order_changed)
         self.shape_dock = QtWidgets.QDockWidget(self.tr("Objects"), self)
@@ -1038,6 +1045,13 @@ class LabelingWidget(LabelDialog):
             tip=self.tr("Union multiple selected rectangle shapes"),
             enabled=False,
         )
+        toggle_shape_lock = action(
+            self.tr("Lock Shape"),
+            self.toggle_selected_shapes_lock,
+            tip=self.tr("Prevent changes to the selected shapes' coordinates"),
+            checkable=True,
+            enabled=False,
+        )
         shape_converter = action(
             self.tr("Shape Converter"),
             lambda: utils.open_shape_converter(self),
@@ -1717,13 +1731,17 @@ class LabelingWidget(LabelDialog):
         # Label list context menu.
         label_menu = QtWidgets.QMenu()
         utils.add_actions(
-            label_menu, (edit, delete, copy_coordinates, union_selection)
+            label_menu,
+            (
+                edit,
+                toggle_shape_lock,
+                delete,
+                copy_coordinates,
+                union_selection,
+            ),
         )
-        self.label_list.viewport().setContextMenuPolicy(
-            Qt.ContextMenuPolicy.CustomContextMenu
-        )
-        self.label_list.viewport().customContextMenuRequested.connect(
-            self.pop_label_list_menu
+        self.label_list.setContextMenuPolicy(
+            Qt.ContextMenuPolicy.NoContextMenu
         )
 
         # Store actions for further handling.
@@ -1754,6 +1772,7 @@ class LabelingWidget(LabelDialog):
             copy=copy,
             copy_coordinates=copy_coordinates,
             paste=paste,
+            toggle_shape_lock=toggle_shape_lock,
             overview=overview,
             save_visualization_image=save_visualization_image,
             save_visualization_video=save_visualization_video,
@@ -1905,6 +1924,7 @@ class LabelingWidget(LabelDialog):
                 edit_mode,
                 edit_brush_mode,
                 edit,
+                toggle_shape_lock,
                 None,
                 copy_coordinates,
                 union_selection,
@@ -2176,6 +2196,9 @@ class LabelingWidget(LabelDialog):
             after_filter_actions=(self.actions.toggle_annotation_checked,),
         )
         self.canvas.menus[0].aboutToShow.connect(self.refresh_filter_menus)
+        self.canvas.menus[0].aboutToShow.connect(
+            self.refresh_shape_lock_action
+        )
 
         self.tools = self.toolbar("Tools")
         # Menu buttons on Left
@@ -3136,6 +3159,8 @@ class LabelingWidget(LabelDialog):
         clipboard.setText(coordinates_str)
 
     def union_selection(self):
+        if any(shape.locked for shape in self.canvas.selected_shapes):
+            return
         rectangle_shapes, polygon_shapes = [], []
         for shape in self.canvas.selected_shapes:
             points = shape.points
@@ -3645,6 +3670,7 @@ class LabelingWidget(LabelDialog):
             if (
                 len(selected_shapes) != 1
                 or selected_shapes[0].shape_type != "polygon"
+                or selected_shapes[0].locked
             ):
                 self.actions.edit_brush_mode.setChecked(False)
                 return
@@ -3701,10 +3727,48 @@ class LabelingWidget(LabelDialog):
             action.triggered.connect(functools.partial(self.load_recent, f))
             menu.addAction(action)
 
-    def pop_label_list_menu(self, point):
-        self.refresh_filter_menus()
-        global_pos = self.label_list.viewport().mapToGlobal(point)
-        self.menus.label_list.exec(global_pos)
+    def refresh_shape_lock_action(self):
+        items = self.label_list.selected_items()
+        shapes = [item.shape() for item in items if item.shape() is not None]
+        action = self.actions.toggle_shape_lock
+        action.setEnabled(bool(shapes))
+        with QtCore.QSignalBlocker(action):
+            action.setChecked(bool(shapes) and all(s.locked for s in shapes))
+
+    def toggle_label_items_lock(self, items):
+        shapes = [item.shape() for item in items if item.shape() is not None]
+        if not shapes:
+            return
+        for shape in shapes:
+            shape.locked = not shape.locked
+        self._update_shapes_lock(shapes)
+
+    def toggle_selected_shapes_lock(self, locked):
+        items = self.label_list.selected_items()
+        shapes = [item.shape() for item in items if item.shape() is not None]
+        if not shapes:
+            shapes = list(self.canvas.selected_shapes)
+        if not shapes:
+            return
+        self._set_shapes_locked(shapes, locked)
+
+    def _set_shapes_locked(self, shapes, locked):
+        for shape in shapes:
+            shape.locked = locked
+        self._update_shapes_lock(shapes)
+
+    def _update_shapes_lock(self, shapes):
+        for shape in shapes:
+            item = self.label_list.find_item_by_shape(shape)
+            if item is not None:
+                _set_label_list_item_lock(item, shape.locked)
+        self.canvas.store_shapes()
+        self.canvas.update()
+        if self.canvas.editing():
+            self.shape_selection_changed(self.canvas.selected_shapes)
+        else:
+            self.refresh_shape_lock_action()
+        self.set_dirty()
 
     def pop_file_list_menu(self, point):
         item = self.file_list_widget.itemAt(point)
@@ -3988,10 +4052,14 @@ class LabelingWidget(LabelDialog):
             if item is not None:
                 if shape.group_id is None:
                     color = shape.fill_color.getRgb()[:3]
-                    item.setText("{}".format(html.escape(shape.label)))
+                    item.setText(
+                        _format_label_list_text(shape.label, shape.group_id)
+                    )
                     item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
                 else:
-                    item.setText(f"{shape.label} ({shape.group_id})")
+                    item.setText(
+                        _format_label_list_text(shape.label, shape.group_id)
+                    )
 
         self.label_dialog.add_label_history(text)
 
@@ -4085,10 +4153,10 @@ class LabelingWidget(LabelDialog):
         self._update_shape_color(shape)
         if shape.group_id is None:
             color = shape.fill_color.getRgb()[:3]
-            item.setText("{}".format(html.escape(shape.label)))
+            item.setText(_format_label_list_text(shape.label, shape.group_id))
             item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         else:
-            item.setText(f"{shape.label} ({shape.group_id})")
+            item.setText(_format_label_list_text(shape.label, shape.group_id))
         self.set_dirty()
         self._refresh_shape_filters()
 
@@ -4615,22 +4683,28 @@ class LabelingWidget(LabelDialog):
         same_type = (
             len(set(shape.shape_type for shape in selected_shapes)) <= 1
         )
-        self.actions.delete.setEnabled(n_selected)
+        has_locked = any(shape.locked for shape in selected_shapes)
+        has_unlocked = any(not shape.locked for shape in selected_shapes)
+        self.actions.delete.setEnabled(has_unlocked)
         self.actions.duplicate.setEnabled(n_selected)
         self.actions.copy.setEnabled(n_selected)
         self.actions.edit.setEnabled(n_selected >= 1 and same_type)
         self.actions.copy_coordinates.setEnabled(n_selected == 1)
         can_brush_edit = (
-            n_selected == 1 and selected_shapes[0].shape_type == "polygon"
+            n_selected == 1
+            and selected_shapes[0].shape_type == "polygon"
+            and not selected_shapes[0].locked
         )
         self.actions.edit_brush_mode.setEnabled(can_brush_edit)
         self.actions.union_selection.setEnabled(
-            not all(value > 0 for value in allow_merge_shape_type.values())
+            not has_locked
+            and not all(value > 0 for value in allow_merge_shape_type.values())
             and (
                 allow_merge_shape_type["rectangle"] > 1
                 or allow_merge_shape_type["polygon"] > 1
             )
         )
+        self.refresh_shape_lock_action()
         self.set_text_editing(True)
 
         selected_count = len(self.canvas.selected_shapes)
@@ -4687,7 +4761,10 @@ class LabelingWidget(LabelDialog):
 
         self._update_shape_color(shape)
         color = shape.fill_color.getRgb()[:3]
-        label_list_item.setText("{}".format(html.escape(text)))
+        label_list_item.setText(
+            _format_label_list_text(shape.label, shape.group_id)
+        )
+        _set_label_list_item_lock(label_list_item, shape.locked)
         label_list_item.setBackground(QtGui.QColor(*color, LABEL_OPACITY))
         if refresh_filters:
             self._refresh_shape_filters()
@@ -6404,6 +6481,7 @@ class LabelingWidget(LabelDialog):
 
     def delete_selected_shape(self):
         self.remove_labels(self.canvas.delete_selected())
+        self.shape_selection_changed(self.canvas.selected_shapes)
         self.set_dirty()
         if self.no_shape():
             for action in self.actions.on_shapes_present:
@@ -6574,9 +6652,13 @@ class LabelingWidget(LabelDialog):
 
         # Clear existing shapes
         if auto_labeling_result.replace:
-            self.load_shapes([], replace=True)
+            locked_shapes = [
+                shape for shape in self.canvas.shapes if shape.locked
+            ]
             self.label_list.clear()
-            self.load_shapes(auto_labeling_result.shapes, replace=True)
+            self.load_shapes(
+                locked_shapes + auto_labeling_result.shapes, replace=True
+            )
         else:  # Just update existing shapes
             # Remove shapes with label AutoLabelingMode.OBJECT
             for shape in self.canvas.shapes:
@@ -6799,7 +6881,9 @@ class LabelingWidget(LabelDialog):
                         )
                     )
                 else:
-                    item.setText(f"{shape.label} ({shape.group_id})")
+                    item.setText(
+                        _format_label_list_text(shape.label, shape.group_id)
+                    )
 
         # Clean up auto labeling objects
         self.clear_auto_labeling_marks()

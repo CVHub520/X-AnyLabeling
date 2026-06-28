@@ -1144,7 +1144,9 @@ class LabelModifyDialog(QtWidgets.QDialog):
                 src_shapes, dst_shapes = data["shapes"], []
                 for shape in src_shapes:
                     label = shape["label"]
-                    if self.parent.label_info[label]["delete"]:
+                    if self.parent.label_info[label][
+                        "delete"
+                    ] and not shape.get("locked", False):
                         continue
                     if self.parent.label_info[label]["value"]:
                         shape["label"] = self.parent.label_info[label]["value"]

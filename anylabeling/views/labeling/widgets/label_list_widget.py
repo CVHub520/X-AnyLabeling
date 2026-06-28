@@ -3,11 +3,15 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPalette
 from PyQt6.QtWidgets import QStyle
 
+LOCKED_ROLE = Qt.ItemDataRole.UserRole.value + 1
+
 
 # https://stackoverflow.com/a/2039745/4158863
 class HTMLDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
         self.parent = parent
+        self._lock_icon = QtGui.QIcon(":/images/images/lock.svg")
+        self._lock_pixmaps = {}
         super(HTMLDelegate, self).__init__()
 
     def _document_for_index(self, index, font):
@@ -52,6 +56,7 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
                     QPalette.ColorGroup.Active, QPalette.ColorRole.Text
                 ),
             )
+        text_color = ctx.palette.color(QPalette.ColorRole.Text)
 
         text_rect = style.subElementRect(
             QStyle.SubElement.SE_ItemViewItemText, options
@@ -59,6 +64,21 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
 
         if index.column() != 0:
             text_rect.adjust(5, 0, 0, 0)
+
+        if index.data(LOCKED_ROLE):
+            icon_size = max(
+                10, min(13, QtGui.QFontMetrics(options.font).height() - 2)
+            )
+            icon_rect = QtCore.QRect(
+                text_rect.left(),
+                option.rect.center().y() - icon_size // 2,
+                icon_size,
+                icon_size,
+            )
+            painter.drawPixmap(
+                icon_rect, self._colored_lock_pixmap(text_color, icon_size)
+            )
+            text_rect.setLeft(text_rect.left() + icon_size)
 
         margin = max(0, int((option.rect.height() - doc.size().height()) / 2))
         text_rect.setTop(text_rect.top() + margin)
@@ -69,13 +89,34 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
 
         painter.restore()
 
+    def _colored_lock_pixmap(self, color, size):
+        color = QtGui.QColor(color)
+        color.setAlpha(190)
+        key = color.rgba(), size
+        if key not in self._lock_pixmaps:
+            source = self._lock_icon.pixmap(size, size)
+            pixmap = QtGui.QPixmap(source.size())
+            pixmap.fill(Qt.GlobalColor.transparent)
+            painter = QtGui.QPainter(pixmap)
+            painter.drawPixmap(0, 0, source)
+            painter.setCompositionMode(
+                QtGui.QPainter.CompositionMode.CompositionMode_SourceIn
+            )
+            painter.fillRect(pixmap.rect(), color)
+            painter.end()
+            self._lock_pixmaps[key] = pixmap
+        return self._lock_pixmaps[key]
+
     # QT Overload
     def sizeHint(self, option, index):
         font = option.font if option is not None else QtGui.QFont()
         doc = self._document_for_index(index, font)
         font_metrics = QtGui.QFontMetrics(font)
+        width = int(doc.idealWidth())
+        if index.data(LOCKED_ROLE):
+            width += max(10, min(13, font_metrics.height() - 2))
         return QtCore.QSize(
-            int(doc.idealWidth()),
+            width,
             max(int(doc.size().height()), font_metrics.height() + 4),
         )
 
@@ -100,6 +141,12 @@ class LabelListWidgetItem(QtGui.QStandardItem):
     def shape(self):
         return self.data(Qt.ItemDataRole.UserRole)
 
+    def set_locked(self, locked):
+        self.setData(bool(locked), LOCKED_ROLE)
+
+    def is_locked(self):
+        return bool(self.data(LOCKED_ROLE))
+
     def __hash__(self):
         return id(self)
 
@@ -120,6 +167,7 @@ class StandardItemModel(QtGui.QStandardItemModel):
 class LabelListWidget(QtWidgets.QListView):
     item_double_clicked = QtCore.pyqtSignal(LabelListWidgetItem)
     item_selection_changed = QtCore.pyqtSignal(list, list)
+    items_lock_requested = QtCore.pyqtSignal(list)
 
     def __init__(self):
         super().__init__()
@@ -172,16 +220,29 @@ class LabelListWidget(QtWidgets.QListView):
         self.item_double_clicked.emit(self.model().itemFromIndex(index))
 
     def mouseDoubleClickEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton:
-            index = self.indexAt(event.pos())
-            if index.isValid():
-                self.item_double_clicked_event(index)
-                event.accept()
-                return
+        if event.button() != Qt.MouseButton.LeftButton:
+            event.accept()
+            return
+        index = self.indexAt(event.pos())
+        if index.isValid():
+            self.item_double_clicked_event(index)
+            event.accept()
+            return
         super().mouseDoubleClickEvent(event)
 
     def mousePressEvent(self, event):
         self._preserved_selected_items = []
+        if event.button() == Qt.MouseButton.RightButton:
+            index = self.indexAt(event.pos())
+            if not index.isValid():
+                event.accept()
+                return
+            if not self.selectionModel().isSelected(index):
+                self.clearSelection()
+                self.select_item(self.model().itemFromIndex(index))
+            self.items_lock_requested.emit(self.selected_items())
+            event.accept()
+            return
         if event.button() == Qt.MouseButton.LeftButton:
             index = self.indexAt(event.pos())
             self._ignore_mouse_move_selection = (

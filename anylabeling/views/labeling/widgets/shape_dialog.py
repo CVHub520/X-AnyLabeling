@@ -460,6 +460,8 @@ class ShapeModifyDialog(QDialog):
                     shapes_to_remove = []
                     for shape_data in all_shapes:
                         shape = Shape().load_from_dict(shape_data, close=False)
+                        if shape.locked:
+                            continue
                         for selected_shape in selected_shapes:
                             if self.shapes_are_identical(
                                 shape, selected_shape

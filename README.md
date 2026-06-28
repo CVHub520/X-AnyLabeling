@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-06-28`: Added per-shape locking to prevent geometry changes and deletion while preserving selection and metadata editing.
 - `2026-06-20`: Added [TrackTrack](./examples/multiple_object_tracking/README.md) multi-object tracking algorithm.
 - `2026-06-19`: Added PP-OCRv6 models for multilingual text detection and recognition.
 - `2026-06-18`: Added [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md) for face detection and five-point facial landmark labeling.

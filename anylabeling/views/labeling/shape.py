@@ -44,6 +44,7 @@ class Shape:
         "description",
         "attributes",
         "kie_linking",
+        "locked",
     ]
 
     # The following class variables influence the drawing of all shape objects.
@@ -99,6 +100,7 @@ class Shape:
         self.cache_label = None
         self.cache_description = None
         self.visible = True
+        self.locked = False
 
         # Brush-edit state (managed by Canvas brush mode; ``mask`` is a
         # uint8 (H, W) array while editing and ``None`` otherwise).
@@ -146,6 +148,8 @@ class Shape:
         }
         if self.shape_type == "rotation":
             dictData["direction"] = self.direction
+        if self.locked:
+            dictData["locked"] = True
         dictData = {
             **self.other_data,
             **dictData,
@@ -163,6 +167,7 @@ class Shape:
         self.flags = data.get("flags", {})
         self.attributes = data.get("attributes", {})
         self.kie_linking = data.get("kie_linking", [])
+        self.locked = data.get("locked", False)
         if self.shape_type == "rotation":
             self.direction = data.get("direction", 0)
         self.other_data = {k: v for k, v in data.items() if k not in self.KEYS}

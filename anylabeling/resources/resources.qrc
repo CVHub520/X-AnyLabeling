@@ -103,6 +103,7 @@
         <file>images/lightning.svg</file>
         <file>images/line-strip.png</file>
         <file>images/line.png</file>
+        <file>images/lock.svg</file>
         <file>images/label.png</file>
         <file>images/logo.png</file>
         <file>images/loop.png</file>
@@ -172,6 +173,7 @@
         <file>images/undo.png</file>
         <file>images/undo.svg</file>
         <file>images/union.png</file>
+        <file>images/unlock.svg</file>
         <file>images/update.png</file>
         <file>images/upload_brain.png</file>
         <file>images/us.png</file>

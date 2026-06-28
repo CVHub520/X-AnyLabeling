@@ -91,6 +91,7 @@
 
 ## 🥳 新功能
 
+- `2026-06-28`: 新增对象锁定功能，可在保持选中和编辑标签信息的同时防止对象坐标被修改或删除。
 - `2026-06-20`: 新增 [TrackTrack](./examples/multiple_object_tracking/README.md) 多目标跟踪算法。
 - `2026-06-19`: 新增 PP-OCRv6 模型，支持多语言文本检测与识别。
 - `2026-06-18`: 新增 [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md)，支持人脸检测与五点人脸关键点标注。

@@ -38,6 +38,7 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
             actions=SimpleNamespace(**{name: Mock() for name in action_names}),
             _no_selection_slot=False,
             attributes=None,
+            refresh_shape_lock_action=Mock(),
             set_text_editing=Mock(),
             hide_attributes_panel=Mock(),
         )
@@ -89,9 +90,45 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
 
     def test_brush_action_is_enabled_for_one_polygon(self):
         widget = self.make_selection_widget()
-        polygon = SimpleNamespace(shape_type="polygon", selected=False)
+        polygon = SimpleNamespace(
+            shape_type="polygon", selected=False, locked=False
+        )
         widget.label_list.find_item_by_shape.return_value = None
 
         LabelingWidget.shape_selection_changed(widget, [polygon])
 
         widget.actions.edit_brush_mode.setEnabled.assert_called_once_with(True)
+
+    def test_locked_polygon_disables_destructive_actions(self):
+        widget = self.make_selection_widget()
+        polygon = SimpleNamespace(
+            shape_type="polygon", selected=False, locked=True
+        )
+        widget.label_list.find_item_by_shape.return_value = None
+
+        LabelingWidget.shape_selection_changed(widget, [polygon])
+
+        widget.actions.delete.setEnabled.assert_called_once_with(False)
+        widget.actions.edit_brush_mode.setEnabled.assert_called_once_with(
+            False
+        )
+        widget.actions.union_selection.setEnabled.assert_called_once_with(
+            False
+        )
+
+    def test_item_lock_request_inverts_each_selected_shape(self):
+        unlocked_shape = SimpleNamespace(locked=False)
+        locked_shape = SimpleNamespace(locked=True)
+        items = [
+            SimpleNamespace(shape=lambda: unlocked_shape),
+            SimpleNamespace(shape=lambda: locked_shape),
+        ]
+        widget = SimpleNamespace(_update_shapes_lock=Mock())
+
+        LabelingWidget.toggle_label_items_lock(widget, items)
+
+        self.assertTrue(unlocked_shape.locked)
+        self.assertFalse(locked_shape.locked)
+        widget._update_shapes_lock.assert_called_once_with(
+            [unlocked_shape, locked_shape]
+        )
