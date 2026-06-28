@@ -4,6 +4,19 @@ import shutil
 import subprocess
 
 
+def find_lrelease() -> str:
+    """Return an available Qt Linguist release compiler."""
+    candidates = ("lrelease", "lrelease-qt6", "pyside6-lrelease")
+    for candidate in candidates:
+        executable = shutil.which(candidate)
+        if executable:
+            return executable
+    raise RuntimeError(
+        "No Qt translation compiler found. Install lrelease or ensure "
+        "pyside6-lrelease is available in the active environment."
+    )
+
+
 def compile_resources(output: str, qrc: str) -> None:
     """Compile a .qrc file to a PyQt6-compatible resources.py."""
 
@@ -52,13 +65,15 @@ def compile_resources(output: str, qrc: str) -> None:
 
 
 supported_languages = ["en_US", "zh_CN", "ja_JP", "ko_KR"]
+lrelease = find_lrelease()
 
 for language in supported_languages:
     subprocess.run(
         [
-            "lrelease",
+            lrelease,
             f"anylabeling/resources/translations/{language}.ts",
-        ]
+        ],
+        check=True,
     )
 
 compile_resources(
