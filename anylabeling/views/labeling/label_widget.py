@@ -70,6 +70,7 @@ from .widgets import (
     AutoLabelingWidget,
     BrightnessContrastDialog,
     Canvas,
+    CanvasAdjustmentWidget,
     ChatbotDialog,
     ClassifierDialog,
     CompareViewManager,
@@ -436,6 +437,20 @@ class LabelingWidget(LabelDialog):
         scroll_area = QScrollArea()
         scroll_area.setWidget(self.canvas)
         scroll_area.setWidgetResizable(True)
+        self._canvas_scroll_area = scroll_area
+
+        # Adjustment panel docked at the bottom-left of the canvas viewport.
+        self.canvas_adjustment = CanvasAdjustmentWidget(scroll_area.viewport())
+        self.canvas_adjustment.opacity_changed.connect(
+            self._on_shape_opacity_changed
+        )
+        self.canvas_adjustment.brightness_contrast_changed.connect(
+            self._on_inline_brightness_contrast
+        )
+        # Hidden until an image is loaded (shown at the end of load_file).
+        self.canvas_adjustment.hide()
+        scroll_area.viewport().installEventFilter(self)
+
         self.scroll_bars = {
             Qt.Orientation.Vertical: scroll_area.verticalScrollBar(),
             Qt.Orientation.Horizontal: scroll_area.horizontalScrollBar(),
@@ -2970,6 +2985,8 @@ class LabelingWidget(LabelDialog):
         self.label_file = None
         self.other_data = {}
         self.canvas.reset_state()
+        if hasattr(self, "canvas_adjustment"):
+            self.canvas_adjustment.hide()
         self.compare_view_manager.reset()
         self.label_filter_combobox.text_box.clear()
         self.gid_filter_combobox.gid_box.clear()
@@ -5615,6 +5632,52 @@ class LabelingWidget(LabelDialog):
             QtGui.QPixmap.fromImage(qimage), clear_shapes=False
         )
 
+    def _on_shape_opacity_changed(self, value):
+        """Update label/shape opacity from the slider value (0-100)."""
+        self.canvas.shape_opacity = value / 100.0
+        self.canvas.update()
+
+    def _on_inline_brightness_contrast(self, brightness, contrast):
+        """Apply brightness/contrast from the inline adjustment sliders.
+
+        Reuses ``brightness_contrast_dialog`` so 16-bit grayscale handling is
+        shared with the menu-driven dialog. ``dialog.img`` is refreshed on
+        every image load (see ``load_file``).
+        """
+        if self.image_data is None or self.filename is None:
+            return
+        dialog = self.brightness_contrast_dialog
+        dialog.slider_brightness.blockSignals(True)
+        dialog.slider_contrast.blockSignals(True)
+        dialog.slider_brightness.setValue(brightness)
+        dialog.slider_contrast.setValue(contrast)
+        dialog.slider_brightness.blockSignals(False)
+        dialog.slider_contrast.blockSignals(False)
+        dialog.on_new_value()
+        self.brightness_contrast_values[self.filename] = (brightness, contrast)
+
+    def _position_canvas_adjustment(self):
+        """Keep the adjustment panel anchored to the viewport's bottom-left."""
+        if not hasattr(self, "canvas_adjustment"):
+            return
+        viewport = self._canvas_scroll_area.viewport()
+        self.canvas_adjustment.adjustSize()
+        margin = 10
+        height = self.canvas_adjustment.height()
+        self.canvas_adjustment.move(
+            margin, max(0, viewport.height() - height - margin)
+        )
+        self.canvas_adjustment.raise_()
+
+    def eventFilter(self, obj, event):
+        if (
+            hasattr(self, "_canvas_scroll_area")
+            and obj is self._canvas_scroll_area.viewport()
+            and event.type() == QtCore.QEvent.Type.Resize
+        ):
+            self._position_canvas_adjustment()
+        return super().eventFilter(obj, event)
+
     def brightness_contrast(self, _):
         self.brightness_contrast_dialog.update_image(
             utils.img_data_to_pil(self.image_data)
@@ -5635,6 +5698,8 @@ class LabelingWidget(LabelDialog):
         brightness = self.brightness_contrast_dialog.slider_brightness.value()
         contrast = self.brightness_contrast_dialog.slider_contrast.value()
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
+        # Keep the inline adjustment sliders in sync with the dialog.
+        self.canvas_adjustment.set_brightness_contrast(brightness, contrast)
 
     def hide_selected_polygons(self):
         shapes_to_hide = []
@@ -5876,19 +5941,25 @@ class LabelingWidget(LabelDialog):
                 self.recent_files[0], (None, None)
             )
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
-        if brightness is not None or contrast is not None:
-            self.brightness_contrast_dialog.update_image(
-                utils.img_data_to_pil(self.image_data)
+        # Always refresh the dialog's source image so the inline adjustment
+        # sliders can reuse its brightness/contrast pipeline (which includes
+        # 16-bit grayscale handling).
+        self.brightness_contrast_dialog.update_image(
+            utils.img_data_to_pil(self.image_data)
+        )
+        if brightness is not None:
+            self.brightness_contrast_dialog.slider_brightness.setValue(
+                brightness
             )
-            if brightness is not None:
-                self.brightness_contrast_dialog.slider_brightness.setValue(
-                    brightness
-                )
-            if contrast is not None:
-                self.brightness_contrast_dialog.slider_contrast.setValue(
-                    contrast
-                )
+        if contrast is not None:
+            self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
+        if brightness is not None or contrast is not None:
             self.brightness_contrast_dialog.on_new_value()
+        # Sync the inline adjustment sliders (50 is the neutral value).
+        self.canvas_adjustment.set_brightness_contrast(
+            brightness if brightness is not None else 50,
+            contrast if contrast is not None else 50,
+        )
 
         self.paint_canvas()
         self.add_recent_file(self.filename)
@@ -5896,6 +5967,10 @@ class LabelingWidget(LabelDialog):
         self.canvas.setFocus()
         self._sync_annotation_checked_state()
         self.update_thumbnail_display()
+
+        # Reveal the adjustment panel now that an image is loaded.
+        self.canvas_adjustment.show()
+        self._position_canvas_adjustment()
 
         if self.compare_view_manager.is_active():
             self.compare_view_manager.load_compare_for_file(self.filename)
@@ -5921,6 +5996,7 @@ class LabelingWidget(LabelDialog):
         ):
             self.adjust_scale()
         self.update_thumbnail_pixmap()
+        self._position_canvas_adjustment()
 
     def paint_canvas(self):
         if self.image.isNull():
