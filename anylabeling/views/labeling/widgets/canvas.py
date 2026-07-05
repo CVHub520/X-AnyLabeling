@@ -229,9 +229,8 @@ class Canvas(
         self.mask_opacity = self.mask_config.get("opacity", 80)
 
         # Global opacity multiplier for labels/shapes (1.0 = fully opaque).
-        # Controlled by the canvas adjustment panel's opacity slider, whose
-        # neutral default is 50% (CanvasAdjustmentWidget.OPACITY_DEFAULT).
-        self.shape_opacity = 0.5
+        # Controlled by the canvas adjustment panel's opacity slider.
+        self.shape_opacity = 1.0
 
         self.is_loading = False
         self.loading_text = self.tr("Loading...")
@@ -3505,6 +3504,11 @@ class Canvas(
             self.update()
             return
 
+        # Apply the global label/shape opacity to every annotation drawn
+        # below (masks, shapes, degrees, groups, brush overlays). Image text
+        # labels are restored to full opacity before being painted.
+        p.setOpacity(self.shape_opacity)
+
         # Draw KIE linking
         if self.show_linking:
             pen = QtGui.QPen(QtGui.QColor("#AAAAAA"), 2, Qt.PenStyle.SolidLine)
@@ -3565,11 +3569,6 @@ class Canvas(
                     ),
                 ]
                 p.drawPolygon(arrow_points)
-
-        # Apply the global label/shape opacity to every annotation drawn
-        # below (masks, shapes, degrees, groups, brush overlays). Image text
-        # labels are restored to full opacity before being painted.
-        p.setOpacity(self.shape_opacity)
 
         # Draw shape masks
         if self.show_masks:

@@ -104,6 +104,7 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         main_layout.addLayout(grid)
         self.setLayout(main_layout)
         self.callback = callback
+        self.img = None
         self._grayscale16_data = None
         self._grayscale16_mean = None
         self._grayscale16_qimage_data = None
@@ -121,15 +122,28 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
     def update_image(self, image):
         """Update image instance"""
         assert isinstance(image, PIL.Image.Image)
+        self.clear_image()
         self.img = image
+
+    def clear_image(self):
+        """Release resources associated with the current image."""
+        if self.img is not None:
+            self.img.close()
+        self.img = None
         self._grayscale16_data = None
         self._grayscale16_mean = None
         self._grayscale16_qimage_data = None
-        if image.mode in GRAYSCALE_16BIT_MODES:
-            data = np.asarray(image).astype(np.uint16, copy=False)
-            if data.ndim == 2:
-                self._grayscale16_data = np.ascontiguousarray(data)
-                self._grayscale16_mean = float(self._grayscale16_data.mean())
+
+    def set_values(self, brightness, contrast):
+        """Update slider values and labels without processing the image."""
+        for slider, value, label in (
+            (self.slider_brightness, brightness, self.brightness_label),
+            (self.slider_contrast, contrast, self.contrast_label),
+        ):
+            slider.blockSignals(True)
+            slider.setValue(value)
+            slider.blockSignals(False)
+            label.setText(f"{value / 50:.2f}")
 
     def update_brightness_label(self, value):
         """Update brightness label"""
@@ -146,6 +160,11 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
         brightness = self.slider_brightness.value() / 50.0
         contrast = self.slider_contrast.value() / 50.0
 
+        if (
+            self.img.mode in GRAYSCALE_16BIT_MODES
+            and self._grayscale16_data is None
+        ):
+            self._initialize_grayscale16()
         if self._grayscale16_data is not None:
             qimage = self._enhance_grayscale16(brightness, contrast)
             self.callback(qimage)
@@ -159,6 +178,13 @@ class BrightnessContrastDialog(QtWidgets.QDialog):
 
         qimage = pil_to_qimage(img)
         self.callback(qimage)
+
+    def _initialize_grayscale16(self):
+        """Initialize data used for 16-bit grayscale enhancement."""
+        data = np.asarray(self.img).astype(np.uint16, copy=False)
+        if data.ndim == 2:
+            self._grayscale16_data = np.ascontiguousarray(data)
+            self._grayscale16_mean = float(self._grayscale16_data.mean())
 
     def _enhance_grayscale16(self, brightness, contrast):
         """Enhance 16-bit grayscale image and return a QImage."""

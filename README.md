@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-07-05`: Added a collapsible canvas display panel for quickly adjusting annotation opacity and image brightness/contrast.
 - `2026-06-28`: Added intent-aware selection for overlapping shapes, prioritizing nearby vertices and editable edges while making nested objects easier to select.
 - `2026-06-28`: Added interactive group selection and movement with safe group copy, paste, and deletion.
 - `2026-06-28`: Added per-shape locking to prevent geometry changes and deletion while preserving selection and metadata editing.

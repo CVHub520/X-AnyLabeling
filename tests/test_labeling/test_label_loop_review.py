@@ -75,7 +75,7 @@ class TestLabelLoopReview(unittest.TestCase):
         self.app.processEvents()
         icon_path = os.path.join(
             os.path.dirname(__file__),
-            "..",
+            "../..",
             "anylabeling",
             "resources",
             "images",

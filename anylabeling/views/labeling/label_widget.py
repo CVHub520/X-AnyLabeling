@@ -447,6 +447,9 @@ class LabelingWidget(LabelDialog):
         self.canvas_adjustment.brightness_contrast_changed.connect(
             self._on_inline_brightness_contrast
         )
+        self.canvas_adjustment.geometry_changed.connect(
+            self._position_canvas_adjustment
+        )
         # Hidden until an image is loaded (shown at the end of load_file).
         self.canvas_adjustment.hide()
         scroll_area.viewport().installEventFilter(self)
@@ -2985,6 +2988,7 @@ class LabelingWidget(LabelDialog):
         self.label_file = None
         self.other_data = {}
         self.canvas.reset_state()
+        self.brightness_contrast_dialog.clear_image()
         if hasattr(self, "canvas_adjustment"):
             self.canvas_adjustment.hide()
         self.compare_view_manager.reset()
@@ -5647,12 +5651,7 @@ class LabelingWidget(LabelDialog):
         if self.image_data is None or self.filename is None:
             return
         dialog = self.brightness_contrast_dialog
-        dialog.slider_brightness.blockSignals(True)
-        dialog.slider_contrast.blockSignals(True)
-        dialog.slider_brightness.setValue(brightness)
-        dialog.slider_contrast.setValue(contrast)
-        dialog.slider_brightness.blockSignals(False)
-        dialog.slider_contrast.blockSignals(False)
+        dialog.set_values(brightness, contrast)
         dialog.on_new_value()
         self.brightness_contrast_values[self.filename] = (brightness, contrast)
 
@@ -5686,12 +5685,10 @@ class LabelingWidget(LabelDialog):
         brightness, contrast = self.brightness_contrast_values.get(
             self.filename, (None, None)
         )
-        if brightness is not None:
-            self.brightness_contrast_dialog.slider_brightness.setValue(
-                brightness
-            )
-        if contrast is not None:
-            self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
+        self.brightness_contrast_dialog.set_values(
+            brightness if brightness is not None else 50,
+            contrast if contrast is not None else 50,
+        )
 
         self.brightness_contrast_dialog.exec()
 
@@ -5947,12 +5944,10 @@ class LabelingWidget(LabelDialog):
         self.brightness_contrast_dialog.update_image(
             utils.img_data_to_pil(self.image_data)
         )
-        if brightness is not None:
-            self.brightness_contrast_dialog.slider_brightness.setValue(
-                brightness
-            )
-        if contrast is not None:
-            self.brightness_contrast_dialog.slider_contrast.setValue(contrast)
+        self.brightness_contrast_dialog.set_values(
+            brightness if brightness is not None else 50,
+            contrast if contrast is not None else 50,
+        )
         if brightness is not None or contrast is not None:
             self.brightness_contrast_dialog.on_new_value()
         # Sync the inline adjustment sliders (50 is the neutral value).

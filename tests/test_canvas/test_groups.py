@@ -59,6 +59,35 @@ class TestCanvasGroups(unittest.TestCase):
     def test_group_label_uses_compact_group_and_shape_count(self):
         self.assertEqual(self.canvas._group_label(3, 5), "G3 · S5")
 
+    def test_shape_opacity_applies_to_kie_linking(self):
+        first = self.make_shape(20, 20, 40, 40, group_id=3)
+        second = self.make_shape(120, 20, 140, 40, group_id=4)
+        first.kie_linking = [[3, 4]]
+        self.canvas.shapes = [first, second]
+        self.canvas.show_masks = False
+        self.canvas.show_texts = False
+        self.canvas.show_labels = False
+        self.canvas.show_scores = False
+        self.canvas.show_attributes = False
+        self.canvas.cross_line_show = False
+        self.canvas.show()
+        self.app.processEvents()
+
+        opaque_image = self.canvas.grab().toImage()
+        self.assertNotEqual(
+            opaque_image.pixelColor(80, 30),
+            QtGui.QColor(QtCore.Qt.GlobalColor.black),
+        )
+
+        self.canvas.shape_opacity = 0.0
+        self.canvas.update()
+        self.app.processEvents()
+        image = self.canvas.grab().toImage()
+
+        self.assertEqual(
+            image.pixelColor(80, 30), QtGui.QColor(QtCore.Qt.GlobalColor.black)
+        )
+
     def test_group_label_matches_shape_label_font_and_touches_frame(self):
         shape = self.make_shape(20, 30, 40, 50)
         group_rect = self.canvas._group_rect([shape])

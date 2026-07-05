@@ -5,7 +5,7 @@ import types
 from pathlib import Path
 
 
-MODULE_PATH = Path(__file__).resolve().parents[1] / "anylabeling/config.py"
+MODULE_PATH = Path(__file__).resolve().parents[2] / "anylabeling/config.py"
 INSERTED_MODULES = []
 
 

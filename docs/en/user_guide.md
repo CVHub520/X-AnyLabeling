@@ -320,10 +320,12 @@ To maintain the current zoom level when switching between images, enable `View` 
   <img src="../../assets/resources/brightness_contrast.png" alt="Brightness-Contrast">
 </p>
 
-X-AnyLabeling allows you to adjust the brightness and contrast of the current image for better visibility:
+X-AnyLabeling allows you to adjust the appearance of the current image and the visibility of annotations:
 
 - Select `View` > `Brightness Contrast` to open the adjustment controls.
 - To apply the current adjustments to all subsequent images in the session, enable `View` > `Keep Current Brightness` and `View` > `Keep Current Contrast`.
+
+Use the collapsible **Canvas Display** panel at the bottom-left of the canvas to quickly adjust annotation opacity and image brightness or contrast. **Opacity** affects annotation shapes and masks while keeping label text fully visible; **Brightness** and **Contrast** adjust the underlying image. Click the caret button to collapse or expand the panel.
 
 The status bar at the bottom displays the current filename, annotation progress (e.g., "Image 5/100"), and cursor coordinates.
 

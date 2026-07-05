@@ -45,7 +45,7 @@ class TestAutoLabelingLayout(unittest.TestCase):
         form = QtWidgets.QWidget()
         self._widgets.append(form)
         ui_path = (
-            Path(__file__).resolve().parents[1]
+            Path(__file__).resolve().parents[2]
             / "anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui"
         )
 
@@ -114,7 +114,7 @@ class TestAutoLabelingLayout(unittest.TestCase):
         form = QtWidgets.QWidget()
         self._widgets.append(form)
         ui_path = (
-            Path(__file__).resolve().parents[1]
+            Path(__file__).resolve().parents[2]
             / "anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui"
         )
         uic.loadUi(str(ui_path), form)

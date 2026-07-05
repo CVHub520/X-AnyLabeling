@@ -41,12 +41,12 @@ class TestBrightnessContrastDialog(unittest.TestCase):
                 dialog = BrightnessContrastDialog(images.append)
                 self._widgets.append(dialog)
                 image = Image.fromarray(
-                    np.array(
-                        [[0, 1024], [32768, 65535]], dtype=np.uint16
-                    )
+                    np.array([[0, 1024], [32768, 65535]], dtype=np.uint16)
                 )
 
                 dialog.update_image(image)
+                self.assertIsNone(dialog._grayscale16_data)
+                self.assertIsNone(dialog._grayscale16_mean)
                 slider = getattr(dialog, slider_name)
                 slider.blockSignals(True)
                 slider.setValue(60)
@@ -59,6 +59,34 @@ class TestBrightnessContrastDialog(unittest.TestCase):
                     images[0].format(),
                     QtGui.QImage.Format.Format_Grayscale16,
                 )
+                self.assertIsNotNone(dialog._grayscale16_data)
+                self.assertIsNotNone(dialog._grayscale16_mean)
+
+    def test_set_values_synchronizes_sliders_and_labels(self):
+        dialog = BrightnessContrastDialog(lambda _: None)
+        self._widgets.append(dialog)
+
+        dialog.set_values(60, 70)
+
+        self.assertEqual(dialog.slider_brightness.value(), 60)
+        self.assertEqual(dialog.slider_contrast.value(), 70)
+        self.assertEqual(dialog.brightness_label.text(), "1.20")
+        self.assertEqual(dialog.contrast_label.text(), "1.40")
+
+    def test_clear_image_releases_image_resources(self):
+        dialog = BrightnessContrastDialog(lambda _: None)
+        self._widgets.append(dialog)
+        image = Image.fromarray(
+            np.array([[0, 1024], [32768, 65535]], dtype=np.uint16)
+        )
+        dialog.update_image(image)
+
+        dialog.clear_image()
+
+        self.assertIsNone(dialog.img)
+        self.assertIsNone(dialog._grayscale16_data)
+        self.assertIsNone(dialog._grayscale16_mean)
+        self.assertIsNone(dialog._grayscale16_qimage_data)
 
 
 if __name__ == "__main__":
