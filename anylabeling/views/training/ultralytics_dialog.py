@@ -32,6 +32,7 @@ from PyQt6.QtWidgets import (
 from anylabeling.config import get_config
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon
+from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.training.widgets.ultralytics_widgets import *
 from anylabeling.services.auto_training.ultralytics._io import *
 from anylabeling.services.auto_training.ultralytics.config import *
@@ -80,6 +81,7 @@ class UltralyticsDialog(QDialog):
         self.config_widgets = {}
         self._classification_cache = None
         self._detection_cache = None
+        self._valid_image_count_cache = {}
         self._summary_view_mode = None
         self._config_tab_initialized = False
         self._train_tab_initialized = False
@@ -132,6 +134,7 @@ class UltralyticsDialog(QDialog):
         self.init_ui()
         self.setStyleSheet(get_ultralytics_dialog_style())
         self.refresh_dataset_summary()
+        self.update_labeled_images_hint()
 
     def init_ui(self):
         self.data_tab = QWidget()
@@ -270,6 +273,7 @@ class UltralyticsDialog(QDialog):
                 self.hide_pose_config()
 
         self.refresh_dataset_summary()
+        self.update_labeled_images_hint()
 
     def create_task_handler(self, task_type):
         def handler():
@@ -290,8 +294,42 @@ class UltralyticsDialog(QDialog):
             self.task_type_buttons[task_type] = button
 
         task_type_layout.addStretch()
+        self.labeled_images_hint = QLabel()
+        self.labeled_images_hint.setVisible(False)
+        self.labeled_images_hint.setStyleSheet(
+            f"color: {get_theme()['text_secondary']}; font-size: 10px;"
+        )
+        task_type_layout.addWidget(self.labeled_images_hint)
         config_layout.addLayout(task_type_layout)
         parent_layout.addWidget(config_widget)
+
+    def update_labeled_images_hint(self):
+        if not self.selected_task_type:
+            self.labeled_images_hint.setVisible(False)
+            return
+
+        if self.selected_task_type not in self._valid_image_count_cache:
+            self._valid_image_count_cache[self.selected_task_type] = (
+                get_task_valid_images(
+                    self.image_list,
+                    self.selected_task_type,
+                    self.output_dir,
+                )
+            )
+
+        valid_images = self._valid_image_count_cache[self.selected_task_type]
+        theme = get_theme()
+        color = (
+            theme["success"]
+            if valid_images >= MIN_LABELED_IMAGES_THRESHOLD
+            else theme["error"]
+        )
+        self.labeled_images_hint.setText(
+            f'{self.tr("Valid Images:")} {valid_images} | '
+            f'{self.tr("Required:")} <span style="color: {color};">'
+            f"{MIN_LABELED_IMAGES_THRESHOLD}</span>"
+        )
+        self.labeled_images_hint.setVisible(True)
 
     def refresh_dataset_summary(self):
         if not self.image_list:
@@ -362,6 +400,7 @@ class UltralyticsDialog(QDialog):
     def clear_cache(self):
         self._classification_cache = None
         self._detection_cache = None
+        self._valid_image_count_cache.clear()
         self._summary_view_mode = None
 
     def closeEvent(self, event):
@@ -373,6 +412,7 @@ class UltralyticsDialog(QDialog):
         self.image_list = self.parent().image_list
         self.clear_cache()
         self.refresh_dataset_summary()
+        self.update_labeled_images_hint()
 
     def init_dataset_summary(self, parent_layout):
         summary_widget = QWidget()
