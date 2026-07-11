@@ -1,0 +1,175 @@
+name: New Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  validate:
+    name: Validate release metadata
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate release notes
+        run: |
+          python scripts/generate_release_notes.py \
+            --tag "${RELEASE_TAG}" \
+            --repository "${GITHUB_REPOSITORY}" \
+            --output release-notes.md
+
+      - name: Show release notes
+        run: cat release-notes.md
+
+  test:
+    name: Test before release
+    needs: validate
+    runs-on: ubuntu-22.04
+    env:
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv pip install --system -e ".[cpu,dev]"
+
+      - name: Run tests
+        run: pytest --ignore=tests/test_widgets/test_toolbar_layout.py
+
+  build:
+    name: Build ${{ matrix.name }}
+    needs: [validate, test]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Linux CPU
+            os: ubuntu-22.04
+            target: linux-cpu
+            artifact: linux-cpu
+            files: dist/X-AnyLabeling-v*-Linux-CPU
+          - name: Windows CPU
+            os: windows-2022
+            target: win-cpu
+            artifact: windows-cpu
+            files: dist/X-AnyLabeling-v*-CPU.exe
+          - name: macOS Apple Silicon
+            os: macos-14
+            target: macos
+            artifact: macos-arm64
+            files: |
+              dist/*-arm64-unsigned.zip
+              dist/*-arm64-unsigned.zip.sha256
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv pip install --system -e ".[cpu,dev]"
+
+      - name: Build executable
+        shell: bash
+        run: bash scripts/build_executable.sh "${{ matrix.target }}"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+          retention-days: 7
+          compression-level: 0
+
+  release:
+    name: Publish GitHub release
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate release notes
+        run: |
+          python scripts/generate_release_notes.py \
+            --tag "${RELEASE_TAG}" \
+            --repository "${GITHUB_REPOSITORY}" \
+            --output release-notes.md
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: X-AnyLabeling ${{ env.RELEASE_TAG }}
+          body_path: release-notes.md
+          files: release-assets/*
+          prerelease: false
+          make_latest: true
+          fail_on_unmatched_files: true
