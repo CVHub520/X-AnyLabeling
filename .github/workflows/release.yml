@@ -187,9 +187,62 @@ jobs:
           retention-days: 7
           compression-level: 0
 
+  build-python-package:
+    name: Build Python package
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: python -m pip install build twine
+
+      - name: Build package distributions
+        run: python -m build
+
+      - name: Validate package distributions
+        run: python -m twine check dist/*
+
+      - name: Upload package distributions
+        uses: actions/upload-artifact@v7
+        with:
+          name: python-package
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-pypi:
+    name: Publish Python package to PyPI
+    needs: build-python-package
+    runs-on: ubuntu-22.04
+    environment:
+      name: pypi
+      url: https://pypi.org/p/x-anylabeling-cvhub
+    permissions:
+      id-token: write
+    steps:
+      - name: Download package distributions
+        uses: actions/download-artifact@v8
+        with:
+          name: python-package
+          path: dist
+
+      - name: Publish package distributions
+        uses: pypa/gh-action-pypi-publish@6733eb7d741f0b11ec6a39b58540dab7590f9b7d # v1.14.0
+        with:
+          skip-existing: true
+
   release:
     name: Publish GitHub release
-    needs: build
+    needs: [build, publish-pypi]
     runs-on: ubuntu-22.04
     permissions:
       contents: write
