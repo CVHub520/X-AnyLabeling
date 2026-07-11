@@ -28,6 +28,9 @@ AUTO_DECODE_MOVE_THRESHOLD = 5.0
 MOVE_SPEED = 5.0
 LARGE_ROTATION_INCREMENT = math.radians(1.0)
 SMALL_ROTATION_INCREMENT = math.radians(0.1)
+ROTATION_HANDLE_DISTANCE = 32.0
+ROTATION_HANDLE_HIT_RADIUS = 10.0
+ROTATION_HANDLE_SNAP_DEGREES = 15.0
 CUBOID_FRONT_EDGE_CENTER_INDICES = {
     Shape.CUBOID_FRONT_LEFT_EDGE_CENTER,
     Shape.CUBOID_FRONT_RIGHT_EDGE_CENTER,
@@ -160,9 +163,13 @@ class Canvas(
         self.prev_h_edge = None
         self.h_cuboid_face = None
         self.prev_h_cuboid_face = None
+        self.h_rotation_shape = None
+        self.prev_h_rotation_shape = None
         self.moving_shape = False
         self._pending_edge_point = None
         self.rotating_shape = False
+        self._rotation_drag_shape = None
+        self._rotation_drag_prev_angle = None
         self.snapping = True
         self.h_shape_is_selected = False
         self.h_shape_is_hovered = None
@@ -1239,6 +1246,29 @@ class Canvas(
         p.setBrush(fill_color)
         p.drawEllipse(QtCore.QPointF(self.prev_move_point), r, r)
 
+    def _paint_rotation_handles(self, p):
+        for shape in self._rotation_handle_shapes():
+            self._paint_rotation_handle(p, shape)
+
+    def _paint_rotation_handle(self, p, shape):
+        geometry = self._rotation_handle_geometry(shape)
+        if geometry is None:
+            return
+        _, handle, _ = geometry
+        scale = max(self.scale, 1e-6)
+        vertex_radius = Shape.point_size / (2.0 * scale)
+        vertex_pen_width = max(1.0 / scale, float(shape.line_width) / scale)
+        radius = vertex_radius + vertex_pen_width / 2.0
+        hovered = shape in (self.h_rotation_shape, self._rotation_drag_shape)
+        ring_width = (vertex_pen_width / 2.0) * (2.2 if hovered else 1.0)
+        inner_radius = max(0.5 / scale, radius - ring_width)
+
+        p.setPen(Qt.PenStyle.NoPen)
+        p.setBrush(QtGui.QColor(0, 0, 0, 255))
+        p.drawEllipse(handle, radius, radius)
+        p.setBrush(QtGui.QColor(255, 255, 255, 255))
+        p.drawEllipse(handle, inner_radius, inner_radius)
+
     def set_auto_labeling(self, value=True):
         """Set auto labeling mode"""
         self.is_auto_labeling = value
@@ -1280,7 +1310,9 @@ class Canvas(
         self.prev_h_vertex = self.h_vertex
         self.prev_h_edge = self.h_edge
         self.prev_h_cuboid_face = self.h_cuboid_face
+        self.prev_h_rotation_shape = self.h_rotation_shape
         self.h_shape = self.h_vertex = self.h_edge = self.h_cuboid_face = None
+        self.h_rotation_shape = None
 
     def selected_vertex(self):
         """Check if selected a vertex"""
@@ -1426,6 +1458,7 @@ class Canvas(
                 self.h_vertex,
                 self.h_edge,
                 self.h_cuboid_face,
+                self.h_rotation_shape,
             )
         )
         self.un_highlight()
@@ -1433,6 +1466,175 @@ class Canvas(
         self.vertex_selected.emit(False)
         if had_hover:
             self.shape_hover_changed.emit()
+
+    @staticmethod
+    def _rotation_shape_center(shape):
+        return QtCore.QPointF(
+            (shape.points[0].x() + shape.points[2].x()) / 2.0,
+            (shape.points[0].y() + shape.points[2].y()) / 2.0,
+        )
+
+    def _rotation_handle_geometry(self, shape):
+        if (
+            shape is None
+            or shape.shape_type != "rotation"
+            or len(shape.points) != 4
+        ):
+            return None
+        p0, p1 = shape.points[0], shape.points[1]
+        dx = p1.x() - p0.x()
+        dy = p1.y() - p0.y()
+        edge_length = math.hypot(dx, dy)
+        if edge_length < 1e-6:
+            return None
+        edge_mid = QtCore.QPointF(
+            (p0.x() + p1.x()) / 2.0,
+            (p0.y() + p1.y()) / 2.0,
+        )
+        normal_x = dy / edge_length
+        normal_y = -dx / edge_length
+        distance = ROTATION_HANDLE_DISTANCE / max(self.scale, 1e-6)
+        handle = QtCore.QPointF(
+            edge_mid.x() + normal_x * distance,
+            edge_mid.y() + normal_y * distance,
+        )
+        return edge_mid, handle, self._rotation_shape_center(shape)
+
+    def _rotation_handle_shapes(self):
+        candidates = []
+        for shape in self.selected_shapes:
+            if shape not in candidates:
+                candidates.append(shape)
+        for shape in (self.h_shape, self.h_rotation_shape):
+            if shape is not None and shape not in candidates:
+                candidates.append(shape)
+        return sorted(
+            [
+                shape
+                for shape in candidates
+                if shape in self.shapes
+                and not shape.locked
+                and shape.visible
+                and self.is_visible(shape)
+                and shape.shape_type == "rotation"
+                and len(shape.points) == 4
+            ],
+            key=lambda shape: self.shapes.index(shape),
+            reverse=True,
+        )
+
+    def _rotation_handle_shape_at(self, pos):
+        hit_radius = ROTATION_HANDLE_HIT_RADIUS / max(self.scale, 1e-6)
+        for shape in self._rotation_handle_shapes():
+            geometry = self._rotation_handle_geometry(shape)
+            if geometry is None:
+                continue
+            edge_mid, handle, _ = geometry
+            if utils.distance(handle - pos) <= hit_radius:
+                return shape
+            if utils.distance_to_line(pos, [edge_mid, handle]) <= hit_radius:
+                return shape
+        return None
+
+    def _set_rotation_handle_hover(self, shape):
+        if self.h_shape is not None:
+            self.h_shape.highlight_clear()
+        self.prev_h_vertex = self.h_vertex
+        self.h_vertex = None
+        self.prev_h_shape = self.h_shape = shape
+        self.prev_h_edge = self.h_edge
+        self.h_edge = None
+        self.prev_h_cuboid_face = self.h_cuboid_face
+        self.h_cuboid_face = None
+        self.prev_h_rotation_shape = self.h_rotation_shape
+        self.h_rotation_shape = shape
+        self.override_cursor(CURSOR_POINT)
+        self.setToolTip(
+            self.tr("Click & drag to rotate shape '%s'") % shape.label
+        )
+        self.setStatusTip(self.toolTip())
+        self.update()
+
+    def _rotation_mouse_angle(self, shape, pos):
+        if shape is None or len(shape.points) != 4:
+            return None
+        center = self._rotation_shape_center(shape)
+        return math.atan2(pos.y() - center.y(), pos.x() - center.x())
+
+    @staticmethod
+    def _snap_rotation_angle(angle):
+        step = math.radians(ROTATION_HANDLE_SNAP_DEGREES)
+        return round(angle / step) * step
+
+    def _start_rotation_handle_drag(
+        self, shape, pos, multiple_selection_mode, modifiers
+    ):
+        self.set_hiding()
+        if shape not in self.selected_shapes:
+            if multiple_selection_mode:
+                self.selection_changed.emit(self.selected_shapes + [shape])
+            else:
+                self.selection_changed.emit([shape])
+            self.h_shape_is_selected = False
+        else:
+            self.h_shape_is_selected = True
+        self.h_shape = shape
+        self.h_rotation_shape = shape
+        self.h_vertex = None
+        self.h_edge = None
+        self.h_cuboid_face = None
+        angle = self._rotation_mouse_angle(shape, pos)
+        if angle is None:
+            return
+        if modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
+            angle = self._snap_rotation_angle(angle)
+        self._rotation_drag_shape = shape
+        self._rotation_drag_prev_angle = angle
+        self.prev_point = pos
+        self.calculate_offsets(pos)
+        self.override_cursor(CURSOR_MOVE)
+
+    def _update_rotation_handle_drag(self, pos, modifiers):
+        shape = self._rotation_drag_shape
+        if shape is None or shape.locked:
+            return
+        angle = self._rotation_mouse_angle(shape, pos)
+        if angle is None or self._rotation_drag_prev_angle is None:
+            return
+        if modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier:
+            angle = self._snap_rotation_angle(angle)
+        theta = self._rotation_drag_prev_angle - angle
+        if abs(theta) < 1e-9:
+            return
+        if self.bounded_rotate_shapes(0, shape, theta):
+            self._rotation_drag_prev_angle = angle
+            self.rotating_shape = True
+            self.h_shape = shape
+            self.h_rotation_shape = shape
+            self.repaint()
+
+    def _store_rotated_shape(self, shape):
+        if shape is None or shape not in self.shapes:
+            return
+        index = self.shapes.index(shape)
+        if (
+            self.shapes_backups
+            and index < len(self.shapes_backups[-1])
+            and self.shapes_backups[-1][index].points
+            != self.shapes[index].points
+        ):
+            self.store_shapes()
+            self.shape_rotated.emit()
+
+    def _finish_rotation_handle_drag(self):
+        shape = self._rotation_drag_shape
+        self._rotation_drag_shape = None
+        self._rotation_drag_prev_angle = None
+        if self.rotating_shape:
+            self._store_rotated_shape(shape)
+            self.rotating_shape = False
+        self.override_cursor(CURSOR_POINT)
+        self.update()
 
     def _sync_drawing_line(self, pos, modifiers):
         if not self.drawing() or not self.current:
@@ -1682,6 +1884,14 @@ class Canvas(
                 self.repaint()
             return
 
+        if self._rotation_drag_shape is not None:
+            if QtCore.Qt.MouseButton.LeftButton & ev.buttons():
+                self.is_move_editing = False
+                self._update_rotation_handle_drag(pos, ev.modifiers())
+            else:
+                self._finish_rotation_handle_drag()
+            return
+
         # Polygon/Vertex moving.
         if QtCore.Qt.MouseButton.LeftButton & ev.buttons():
             if self.selected_vertex():
@@ -1825,6 +2035,17 @@ class Canvas(
         self.show_shape.emit(-1, -1, pos)
 
         self._hovered_group_id = None
+
+        rotation_handle_shape = self._rotation_handle_shape_at(pos)
+        if rotation_handle_shape is not None:
+            self._set_rotation_handle_hover(rotation_handle_shape)
+            self.vertex_selected.emit(False)
+            if prev_hover_shape != self.h_shape:
+                self.shape_hover_changed.emit()
+            return
+        if self.h_rotation_shape is not None:
+            self.prev_h_rotation_shape = self.h_rotation_shape
+            self.h_rotation_shape = None
 
         # Just hovering over the canvas, 2 possibilities:
         # - Highlight shapes
@@ -2297,6 +2518,23 @@ class Canvas(
                     self.repaint()
                     ev.accept()
                     return
+                rotation_handle_shape = self._rotation_handle_shape_at(pos)
+                if rotation_handle_shape is not None:
+                    group_mode = (
+                        ev.modifiers()
+                        == QtCore.Qt.KeyboardModifier.ControlModifier
+                    )
+                    self._start_rotation_handle_drag(
+                        rotation_handle_shape,
+                        pos,
+                        group_mode,
+                        ev.modifiers(),
+                    )
+                    self.prev_point = pos
+                    self.prev_pan_point = ev.position()
+                    self.repaint()
+                    ev.accept()
+                    return
                 if self.selected_edge():
                     self.add_point_to_edge()
                 elif (
@@ -2383,6 +2621,10 @@ class Canvas(
                 self.selected_shapes_copy = []
                 self.repaint()
         elif ev.button() == QtCore.Qt.MouseButton.LeftButton:
+            if self._rotation_drag_shape is not None:
+                self._finish_rotation_handle_drag()
+                ev.accept()
+                return
             if self._vertex_erasing:
                 self._vertex_erasing = False
                 self.store_moving_shape()
@@ -3745,6 +3987,8 @@ class Canvas(
                     )
                     p.drawPath(cp)
                     p.fillPath(cp, QtGui.QColor(255, 153, 0, 255))
+
+        self._paint_rotation_handles(p)
 
         self._paint_groups(p)
 

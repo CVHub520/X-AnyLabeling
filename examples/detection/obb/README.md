@@ -12,7 +12,7 @@ The calibration process for the rotated object detection task is as follows:
 
 - Import the image file.
 - Click the `rotations` button on the left menu bar or press the shortcut key `O` to quickly draw a rotated box.
-- Select the corresponding rotated box object and adjust the rotation angle using the following shortcut keys:
+- Select the corresponding rotated box object and drag the rotation handle above it to adjust the angle directly, or use the following shortcut keys:
 
 | Shortcut Key | Description                |
 | ------------ | -------------------------- |
