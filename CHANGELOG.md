@@ -1,5 +1,25 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.12` (Jul 11, 2026)
+
+### 🚀 New Features
+
+- Add bottom-left canvas controls for label opacity and image brightness and contrast.
+- Add a collapsible display adjustment panel with synchronized controls. (#1405,#1406)
+- Add a drag rotation handle for rotated boxes. (#1407)
+- Show the valid image count for the selected training task.
+
+### 🛠️ Improvements
+
+- Automate cross-platform executable builds and GitHub releases.
+- Remove legacy tools and reorganize tests and documentation.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @lovejoohero0228, @CVHub520
+
 ## `v4.0.0-beta.11` (Jun 28, 2026)
 
 ### 🚀 New Features
