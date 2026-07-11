@@ -97,16 +97,31 @@ jobs:
           - name: Linux CPU
             os: ubuntu-22.04
             target: linux-cpu
+            extra: cpu
             artifact: linux-cpu
             files: dist/X-AnyLabeling-v*-Linux-CPU
+          - name: Linux CUDA 12
+            os: ubuntu-22.04
+            target: linux-gpu
+            extra: gpu
+            artifact: linux-cuda12
+            files: dist/X-AnyLabeling-v*-Linux-CUDA12
           - name: Windows CPU
             os: windows-2022
             target: win-cpu
+            extra: cpu
             artifact: windows-cpu
             files: dist/X-AnyLabeling-v*-CPU.exe
+          - name: Windows CUDA 12
+            os: windows-2022
+            target: win-gpu
+            extra: gpu
+            artifact: windows-cuda12
+            files: dist/X-AnyLabeling-v*-Windows-CUDA12.exe
           - name: macOS Apple Silicon
             os: macos-15
             target: macos
+            extra: cpu
             artifact: macos-arm64
             files: |
               dist/*-arm64-unsigned.zip
@@ -142,11 +157,26 @@ jobs:
             libxcb-xinerama0
 
       - name: Install dependencies
-        run: uv pip install --system -e ".[cpu,dev]"
+        run: uv pip install --system -e ".[${{ matrix.extra }},dev]"
 
       - name: Build executable
         shell: bash
         run: bash scripts/build_executable.sh "${{ matrix.target }}"
+
+      - name: Name CUDA 12 artifact
+        if: matrix.extra == 'gpu'
+        shell: bash
+        run: |
+          version="${RELEASE_TAG#v}"
+          if [ "${{ matrix.target }}" = "linux-gpu" ]; then
+            mv \
+              "dist/X-AnyLabeling-v${version}-Linux-GPU" \
+              "dist/X-AnyLabeling-v${version}-Linux-CUDA12"
+          else
+            mv \
+              "dist/X-AnyLabeling-v${version}-GPU.exe" \
+              "dist/X-AnyLabeling-v${version}-Windows-CUDA12.exe"
+          fi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v7

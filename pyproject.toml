@@ -117,7 +117,7 @@ cpu = [
 gpu = [
     "numpy>=2.0.0",
     "onnx>=1.15.0",
-    "onnxruntime-gpu>=1.18.1; platform_system != 'Darwin'",
+    "onnxruntime-gpu>=1.18.1,<1.27.0; platform_system != 'Darwin'",
 ]
 # CUDA 11.x: ONNX < 1.16.1 + ONNXRuntime GPU < 1.19
 gpu-cu11 = [
