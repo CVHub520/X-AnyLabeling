@@ -1,7 +1,6 @@
 # flake8: noqa F405
 
 import os
-from tkinter import N
 
 os.environ["FLAGS_allocator_strategy"] = "auto_growth"
 

@@ -38,7 +38,7 @@ The Image Classifier features a dual-panel design with the image preview area on
 |--------|-------------|
 | Export | Export classified images into category-specific folders (MultiClass mode only) |
 | MultiClass | Multi-class classification mode, only one label per image |
-| MultiLabel | Multi-label classification mode, multiple labels per image (v3.2.7+) |
+| MultiLabel | Multi-label classification mode, multiple labels per image |
 | AutoRun | Use AI models to automatically classify all images in batch |
 
 > [!NOTE]

@@ -68,9 +68,9 @@ class TestSettingsDialogLayout(unittest.TestCase):
         self.assertEqual(bottom_margins.top(), 8)
         self.assertEqual(bottom_margins.bottom(), 8)
 
-        self.assertEqual(dialog.shortcuts_bottom_panel.minimumHeight(), 48)
-        self.assertEqual(dialog.shortcuts_bottom_panel.maximumHeight(), 48)
-        self.assertEqual(dialog.shortcuts_bottom_panel.height(), 48)
+        self.assertEqual(dialog.shortcuts_bottom_panel.minimumHeight(), 56)
+        self.assertEqual(dialog.shortcuts_bottom_panel.maximumHeight(), 56)
+        self.assertEqual(dialog.shortcuts_bottom_panel.height(), 56)
 
     def test_canvas_uses_same_viewport_gap(self):
         dialog = self._create_dialog()

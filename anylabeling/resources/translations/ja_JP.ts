@@ -444,84 +444,89 @@ Review the prompt before generating.</source>
   <context>
     <name>Canvas</name>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="236" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="243" />
       <source>Loading...</source>
       <translation>読み込み中...</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1257" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1287" />
       <source>Auto Labeling</source>
       <translation>自動ラベリング</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1259" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1289" />
       <source>Drawing</source>
       <translation>描画</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1261" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1291" />
       <source>Editing</source>
       <translation>編集中</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1263" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1293" />
       <source>Unknown</source>
       <translation>不明</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1325" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1357" />
       <source>Click &amp; drag to erase points of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の頂点を消去</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1857" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1553" />
+      <source>Click &amp; drag to rotate shape '%s'</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/canvas.py" line="2078" />
       <source>Click &amp; drag to adjust cuboid depth of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の直方体の奥行きを調整</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1864" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2085" />
       <source>Click &amp; drag to adjust rear edge of cuboid shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の直方体の後端を調整</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1941" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1871" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2162" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2092" />
       <source>Click &amp; drag to move point of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の頂点を移動</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2000" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1889" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2221" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2110" />
       <source>Click &amp; drag to move shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' を移動</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1909" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2130" />
       <source>Click &amp; drag to adjust cuboid %s face of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の直方体の %s 面を調整</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1962" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2183" />
       <source>Click to create point of shape '%s'</source>
       <translation>クリックして図形 '%s' の頂点を作成</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="1992" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2213" />
       <source>Locked shape '%s'</source>
       <translation>図形「%s」はロックされています</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2684" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2926" />
       <source>Group %s · %d shapes</source>
       <translation>グループ %s · %d 個のオブジェクト</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2686" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2928" />
       <source>Locked %s</source>
       <translation>%s はロックされています</translation>
     </message>
     <message>
-      <location filename="../../views/labeling/widgets/canvas.py" line="2688" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2930" />
       <source>Click &amp; drag to move %s</source>
       <translation>クリックしてドラッグし、%s を移動</translation>
     </message>
@@ -6292,156 +6297,166 @@ Changes will not be saved until you click Save.</source>
   <context>
     <name>UltralyticsDialog</name>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="142" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="145" />
       <source>Data</source>
       <translation>データ</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="143" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="146" />
       <source>Config</source>
       <translation>設定</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="144" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="147" />
       <source>Train</source>
       <translation>訓練</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1234" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="194" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1274" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="197" />
       <source>Training in Progress</source>
       <translation>訓練進行中</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="195" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="198" />
       <source>Cannot close window while training is in progress. Please stop training first.</source>
       <translation>訓練が進行中のためウィンドウを閉じられません。まず訓練を停止してください。</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="285" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="289" />
       <source>Task Type:</source>
       <translation>タスクタイプ：</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="380" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="328" />
+      <source>Valid Images:</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../../views/training/ultralytics_dialog.py" line="329" />
+      <source>Required:</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <location filename="../../views/training/ultralytics_dialog.py" line="420" />
       <source>Dataset Summary:</source>
       <translation>データセット概要：</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1303" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="392" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1343" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="432" />
       <source>Validation Error</source>
       <translation>検証エラー</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="408" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="448" />
       <source>Load Images</source>
       <translation>画像を読み込む</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1363" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="413" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1403" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="453" />
       <source>Next</source>
       <translation>次へ</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="439" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="479" />
       <source>Select Model File</source>
       <translation>モデルファイルを選択</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="449" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="489" />
       <source>Select Classification Dataset Directory</source>
       <translation>分類データセットディレクトリを選択</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="456" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="496" />
       <source>Select Data File</source>
       <translation>データファイルを選択</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="468" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="508" />
       <source>Invalid Data File</source>
       <translation>無効なデータファイル</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="476" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="516" />
       <source>Select Pose Config File</source>
       <translation>ポーズ設定ファイルを選択</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="530" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="570" />
       <source>Basic Settings</source>
       <translation>基本設定</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="627" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="667" />
       <source>Train Settings</source>
       <translation>訓練設定</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="631" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="671" />
       <source>Basic</source>
       <translation>基本</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="667" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="707" />
       <source>Class indices (e.g., 0,1,2) or leave empty for all</source>
       <translation>クラスインデックス（例：0,1,2）またはすべての場合は空白</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="690" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="730" />
       <source>Advanced Settings</source>
       <translation>詳細設定</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1350" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1100" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1390" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1140" />
       <source>Import Config</source>
       <translation>設定をインポート</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1224" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1110" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1264" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1150" />
       <source>Success</source>
       <translation>成功</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1111" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1151" />
       <source>Config imported successfully</source>
       <translation>設定が正常にインポートされました</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1960" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1321" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1311" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1227" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1115" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="2000" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1361" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1351" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1267" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1155" />
       <source>Error</source>
       <translation>エラー</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1115" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1155" />
       <source>Failed to import config</source>
       <translation>設定のインポートに失敗しました</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1222" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1262" />
       <source>Configuration saved successfully to %s</source>
       <translation>設定が %s に正常に保存されました</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1235" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1275" />
       <source>Training is currently in progress. Please stop the training first if you need to reconfigure.</source>
       <translation>訓練が進行中です。再設定する場合は最初に訓練を停止してください。</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1252" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1292" />
       <source>Existing Model Detected</source>
       <translation>既存のモデルが検出されました</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1253" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1293" />
       <source>A trained model already exists at this location.
 
 Do you want to:
@@ -6454,202 +6469,202 @@ No - Continue to retrain (will overwrite)</source>
 いいえ - 再トレーニングを続行（元のモデルを上書きします）</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1281" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1321" />
       <source>Directory Exists</source>
       <translation>ディレクトリが既に存在します</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1282" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1322" />
       <source>Project directory already exists! Do you want to overwrite it?
 If not, please manually modify the `Name` field value.</source>
       <translation>プロジェクトディレクトリが既に存在します！上書きしますか？
 上書きしたくない場合は、「Name」フィールドの値を手動で変更してください。</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1312" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1352" />
       <source>Please select a task type first</source>
       <translation>最初にタスクタイプを選択してください</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1322" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1362" />
       <source>Please select a valid pose configuration file for pose detection tasks</source>
       <translation>ポーズ検出タスクに有効なポーズ設定ファイルを選択してください</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1331" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1371" />
       <source>Reset Training</source>
       <translation>訓練をリセット</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1332" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1372" />
       <source>Training traces detected. Do you want to reset the training tab?</source>
       <translation>訓練の記録が検出されました。訓練タブをリセットしますか？</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1354" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1394" />
       <source>Save Config</source>
       <translation>設定を保存</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1884" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1359" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1924" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1399" />
       <source>Previous</source>
       <translation>前へ</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1999" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1651" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1501" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1496" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1490" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="2039" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1691" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1541" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1536" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1530" />
       <source>No image</source>
       <translation>画像なし</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1519" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1559" />
       <source>Training is about to start...</source>
       <translation>訓練が開始されます...</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1532" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1572" />
       <source>Training completed successfully!</source>
       <translation>訓練が正常に完了しました！</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1554" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1594" />
       <source>Training stopped by user</source>
       <translation>訓練がユーザーによって停止されました</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1570" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1610" />
       <source>Training Status</source>
       <translation>訓練状態</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1573" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1613" />
       <source>Ready to train</source>
       <translation>訓練の準備ができています</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1578" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1618" />
       <source>Progress:</source>
       <translation>進行状況：</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1592" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1632" />
       <source>Clear Logs</source>
       <translation>ログをクリア</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1593" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1633" />
       <source>Are you sure you want to clear all training logs?</source>
       <translation>すべての訓練ログをクリアしてもよろしいですか？</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1608" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1648" />
       <source>Training Logs</source>
       <translation>訓練ログ</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1620" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1660" />
       <source>Clear</source>
       <translation>クリア</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1624" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1664" />
       <source>Copy</source>
       <translation>コピー</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1632" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1672" />
       <source>Training Images</source>
       <translation>訓練画像</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1741" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1735" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1781" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1775" />
       <source>Info</source>
       <translation>情報</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1742" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1782" />
       <source>No training directory available</source>
       <translation>利用可能な訓練ディレクトリがありません</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1748" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1788" />
       <source>Confirm Stop</source>
       <translation>停止を確認</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1749" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1789" />
       <source>Are you sure you want to stop the training?</source>
       <translation>訓練を停止してもよろしいですか？</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1757" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1797" />
       <source>Stopping training...</source>
       <translation>訓練を停止中...</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1759" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1799" />
       <source>Cancel to stop training</source>
       <translation>キャンセルして訓練を停止</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1856" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1896" />
       <source>Preparing training...</source>
       <translation>訓練を準備中...</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1869" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1863" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1909" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1903" />
       <source>Training Error</source>
       <translation>訓練エラー</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1874" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1914" />
       <source>Open Directory</source>
       <translation>ディレクトリを開く</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1879" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1919" />
       <source>Stop Training</source>
       <translation>訓練を停止</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1891" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1931" />
       <source>Start Training</source>
       <translation>訓練を開始</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1897" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1937" />
       <source>Export</source>
       <translation>エクスポート</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1928" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1968" />
       <source>Export started...</source>
       <translation>エクスポートを開始しました...</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1940" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1980" />
       <source>Export Successful</source>
       <translation>エクスポート成功</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1983" />
-      <location filename="../../views/training/ultralytics_dialog.py" line="1949" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="2023" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="1989" />
       <source>Export Error</source>
       <translation>エクスポートエラー</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1961" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="2001" />
       <source>No training project available for export</source>
       <translation>エクスポートに利用可能な訓練プロジェクトがありません</translation>
     </message>
     <message>
-      <location filename="../../views/training/ultralytics_dialog.py" line="1971" />
+      <location filename="../../views/training/ultralytics_dialog.py" line="2011" />
       <source>Model Not Found</source>
       <translation>モデルが見つかりません</translation>
     </message>

@@ -261,7 +261,7 @@ X-AnyLabeling 默认开启自动保存功能，用户在初次启动界面时，
 
 ### 2.5 搜索图片
 
-X-AnyLabeling v3.3.5+ 引入了强大的文件搜索功能，支持多种搜索模式，帮助用户快速定位目标图片。在右侧文件列表上方的搜索框中输入搜索条件，按回车键执行搜索。
+文件搜索功能支持多种搜索模式，帮助用户快速定位目标图片。在右侧文件列表上方的搜索框中输入搜索条件，按回车键执行搜索。
 
 也可以在文件列表中的图片上点击鼠标右键，打开快捷菜单执行复制操作：
 
@@ -350,7 +350,7 @@ X-AnyLabeling 支持调整当前图片的显示效果和标注对象的可见性
 
 ### 3.5 导航器
 
-X-AnyLabeling v3.2.3+ 版本新增了导航器功能，当你处理高分辨率图像时，可以通过导航器快速定位到图像的任意区域。
+处理高分辨率图像时，可以通过导航器快速定位到图像的任意区域。
 
 要打开导航器，只需在菜单栏点击 `视图` -> `导航器` 或直接按快捷键 `F9` 即可。导航器会在独立窗口中显示当前图像的缩略图，并用红色框标出你当前的可视区域。
 
@@ -387,7 +387,7 @@ X-AnyLabeling 提供了对比视图功能，允许你通过分屏界面并排比
 
 ### 4.1 YOLO标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出 YOLO 目标检测、实例分割、旋转框检测和关键点检测四大主流任务的标签文件（*.txt）。
+X-AnyLabeling 支持一键导入/导出 YOLO 目标检测、实例分割、旋转框检测和关键点检测四大主流任务的标签文件（*.txt）。
 
 在导入/导出 YOLO 标注文件之前，需要准备一份标签配置文件，具体如下：
 
@@ -420,7 +420,7 @@ X-AnyLabeling 提供了对比视图功能，允许你通过分屏界面并排比
 
 ### 4.2 VOC标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出检测和分割任务相关的 Pascal-VOC 标签文件（*.xml）。
+X-AnyLabeling 支持一键导入/导出检测和分割任务相关的 Pascal-VOC 标签文件（*.xml）。
 
 **导入任务**：
 
@@ -439,7 +439,7 @@ X-AnyLabeling 提供了对比视图功能，允许你通过分屏界面并排比
 
 ### 4.3 COCO标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出目标检测、实例分割、关键点检测任务相关的 COCO 标签文件（*.json）。
+X-AnyLabeling 支持一键导入/导出目标检测、实例分割、关键点检测任务相关的 COCO 标签文件（*.json）。
 
 在导入/导出 COCO 标注文件之前，需要准备一份标签配置文件，具体如下：
 
@@ -467,7 +467,7 @@ X-AnyLabeling 提供了对比视图功能，允许你通过分屏界面并排比
 
 ### 4.4 DOTA标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出 DOTA 标签文件（*.txt），其标签格式定义为：
+X-AnyLabeling 支持一键导入/导出 DOTA 标签文件（*.txt），其标签格式定义为：
 
 > x1 y1 x2 y2 x3 y3 x4 y4 class_name difficult
 
@@ -489,7 +489,7 @@ X-AnyLabeling 提供了对比视图功能，允许你通过分屏界面并排比
 
 ### 4.5 MASK标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出语义分割任务相关的掩码标签文件（*.png）。
+X-AnyLabeling 支持一键导入/导出语义分割任务相关的掩码标签文件（*.png）。
 
 在导入/导出掩码标注文件之前，需要准备好配置文件，具体如下：
 
@@ -513,7 +513,7 @@ X-AnyLabeling 提供了对比视图功能，允许你通过分屏界面并排比
 
 ### 4.6 MOT标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出多目标跟踪任务相关的标签文件。
+X-AnyLabeling 支持一键导入/导出多目标跟踪任务相关的标签文件。
 
 在导入/导出标注文件之前，需要准备好标签配置文件，具体可参考 [classes.txt](../../assets/classes.txt)，其中每一行代表一个类别，编号由上往下依次递增。
 
@@ -569,16 +569,10 @@ imext = .jpg          # 图片文件扩展名
 
 ---
 
-此外，针对 [MOTS](https://motchallenge.net/data/MOTS/) 数据集格式，X-AnyLabeling v2.4.0+ 版本提供对应的导出设置，具体可参考以下步骤实施：
-
-1. 点击上方菜单栏的 `导出`-`导出 MOTS 标签` 按钮。
-2. 上传准备好的配置文件。
-3. 选择保存路径，点击确定即可。
-
-需要注意的是，默认导出的 mots 标签并非最终官方数据集格式，这里我们提供了对应的转换代码，仅供参考：
+此外，针对 [MOTS](https://motchallenge.net/data/MOTS/) 数据集格式，X-AnyLabeling 支持通过 CLI 导出。请提供包含 XLABEL JSON 文件的目录、输出目录以及 `classes.txt` 文件：
 
 ```bash
-python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /path/to/your/custom_gt.txt
+xanylabeling convert --task xlabel2mots --labels /path/to/xlabel/labels --output /path/to/output --classes classes.txt
 ```
 
 > [!NOTE]
@@ -586,7 +580,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 
 ### 4.7 PPOCR标签
 
-当前 X-AnyLabeling 最新版本（v2.4.0+）支持一键导入/导出以下两种 PPOCR 任务的标签：
+X-AnyLabeling 支持一键导入/导出以下两种 PPOCR 任务的标签：
 
 - 文本检测与识别：定位出输入图像中的文字区域，并识别出图像中的具体文字内容。
 - 关键信息提取：用于从图像中提取所需要的关键信息，包含语义实体识别和关系抽取两个字任务。
@@ -619,7 +613,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 
 ### 4.8 ODVG标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出 Grounding 任务相关的标签文件。
+X-AnyLabeling 支持一键导入/导出 Grounding 任务相关的标签文件。
 
 在导入/导出 ODVG 标注文件之前，需要准备好一份标签配置文件，具体可参考 [classes.txt](../../assets/classes.txt)，其中每一行代表一个类别，编号从上至下依次递增。
 
@@ -640,7 +634,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 
 ### 4.9 VLM-R1-OVD标签
 
-当前 X-AnyLabeling 最新版本支持一键导入/导出 VLM-R1-OVD 标签文件。
+X-AnyLabeling 支持一键导入/导出 VLM-R1-OVD 标签文件。
 
 **导入任务**：
 
@@ -660,7 +654,7 @@ python3 tools/label_converter.py --task mots --mode custom_to_gt --src_path /pat
 
 ### 4.10 MMGD标签
 
-当前 X-AnyLabeling v3.1.2+ 版本支持一键导入基于 [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) 预测所获取的标签文件。
+X-AnyLabeling 支持一键导入基于 [MM-Grounding-DINO](https://github.com/open-mmlab/mmdetection/blob/main/configs/mm_grounding_dino/README.md) 预测所获取的标签文件。
 
 **导入流程**：
 
@@ -949,7 +943,7 @@ label_colors:
 
 完成上述步骤后，您已成功修改了自定义标签的颜色。下次在标注过程中使用这些标签时，它们将显示您所设置的颜色。
 
-> 当前 X-AnyLabeling v2.4.0+ 版本支持在 GUI 界面直接设置 `label_colors`。您可以点击菜单栏的 `工具` -> `标签管理` 进行设置，此更改仅对当前窗口生效。
+> X-AnyLabeling 支持在 GUI 界面直接设置 `label_colors`。您可以点击菜单栏的 `工具` -> `标签管理` 进行设置，此更改仅对当前窗口生效。
 
 ### 7.3 加载预定义标签
 
@@ -989,7 +983,7 @@ cat
 
 ### 7.4 自动切换编辑模式
 
-在 X-AnyLabeling v2.4.0 及以上版本，新增**自动切换至编辑模式**功能，用户可通过 `Settings > General > Behavior > Auto Switch To Edit Mode` 调整，也可通过配置文件中的 `auto_switch_to_edit_mode` 字段进行设置：
+用户可通过 `Settings > General > Behavior > Auto Switch To Edit Mode` 调整**自动切换至编辑模式**功能，也可通过配置文件中的 `auto_switch_to_edit_mode` 字段进行设置：
 
 
 | 选项    | 功能                        |
@@ -1000,7 +994,7 @@ cat
 
 ### 7.5 悬浮自动高亮模式
 
-在 X-AnyLabeling v2.4.0 及以上版本，新增**悬浮自动高亮模式**功能，用户可通过 `Settings > General > Behavior > Auto Highlight Shape` 调整，也可通过配置文件中的 `auto_highlight_shape` 字段进行设置：
+用户可通过 `Settings > General > Behavior > Auto Highlight Shape` 调整**悬浮自动高亮模式**功能，也可通过配置文件中的 `auto_highlight_shape` 字段进行设置：
 
 
 | 选项    | 功能                           |

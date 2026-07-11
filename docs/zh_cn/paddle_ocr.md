@@ -43,7 +43,7 @@ ${workspace}/xanylabeling_data/paddleocr/api_settings.json
 
 如果您希望在本地或私有环境中运行 PaddleOCR，也可以通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 自行部署推理服务。具体流程可参考此[示例](../../examples/optical_character_recognition/multi_task/README.md)，安装相关依赖并启动服务。
 
-请确保 X-AnyLabeling-Server 已更新至最新版本，并检查 `ppocr_layoutstructv3_vl_1_5` 模型配置是否存在。如果您希望自行实现并集成 PaddleOCR 推理管道，请在模型配置中声明以下能力标识，客户端会据此判断该模型是否可用于 PaddleOCR 面板：
+请检查 X-AnyLabeling-Server 中是否存在 `ppocr_layoutstructv3_vl_1_5` 模型配置。如果您希望自行实现并集成 PaddleOCR 推理管道，请在模型配置中声明以下能力标识，客户端会据此判断该模型是否可用于 PaddleOCR 面板：
 
 ```yaml
 ...
