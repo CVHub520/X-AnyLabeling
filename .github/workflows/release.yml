@@ -159,6 +159,38 @@ jobs:
       - name: Install dependencies
         run: uv pip install --system -e ".[${{ matrix.extra }},dev]"
 
+      - name: Verify Windows CUDA 12 dependencies
+        if: matrix.target == 'win-gpu'
+        shell: bash
+        run: |
+          python - <<'PY'
+          from importlib.metadata import version
+          from pathlib import Path
+
+          import onnxruntime
+
+          ort_version = version("onnxruntime-gpu")
+          provider = (
+              Path(onnxruntime.__file__).parent
+              / "capi"
+              / "onnxruntime_providers_cuda.dll"
+          )
+          dependencies = provider.read_bytes()
+          if tuple(map(int, ort_version.split(".")[:2])) >= (1, 27):
+              raise RuntimeError(
+                  f"ONNX Runtime GPU {ort_version} requires CUDA 13"
+              )
+          if b"cublas64_12.dll" not in dependencies:
+              raise RuntimeError(
+                  f"{provider.name} does not depend on CUDA 12 cuBLAS"
+              )
+          if b"cublas64_13.dll" in dependencies:
+              raise RuntimeError(
+                  f"{provider.name} unexpectedly depends on CUDA 13 cuBLAS"
+              )
+          print(f"Verified ONNX Runtime GPU {ort_version} for CUDA 12")
+          PY
+
       - name: Build executable
         shell: bash
         run: bash scripts/build_executable.sh "${{ matrix.target }}"
