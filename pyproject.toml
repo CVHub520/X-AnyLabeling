@@ -16,6 +16,7 @@
 #   - CPU:       pip install -e ".[cpu,dev]"
 #   - CUDA 12.x: pip install -e ".[gpu,dev]"
 #   - CUDA 11.x: pip install -e ".[gpu-cu11,dev]"
+#   - CUDA 13.x: pip install -e ".[gpu-cu13,dev]"
 # Note: Ensure onnxruntime and onnxruntime-gpu are not installed simultaneously.
 # This approach allows for real-time code modifications without the need for re-installation.
 
@@ -125,6 +126,12 @@ gpu-cu11 = [
     "onnx>=1.15.0,<1.16.1",
     "onnxruntime-gpu>=1.15.0,<1.19.0; platform_system != 'Darwin'",
 ]
+# CUDA 13.x: ONNXRuntime GPU >= 1.27
+gpu-cu13 = [
+    "numpy>=2.0.0",
+    "onnx>=1.15.0",
+    "onnxruntime-gpu>=1.27.0,<1.28.0; platform_system != 'Darwin'",
+]
 
 [project.urls]
 "Source" = "https://github.com/CVHub520/X-AnyLabeling"
@@ -148,6 +155,18 @@ conflicts = [
     [
         { extra = "gpu" },
         { extra = "gpu-cu11" },
+    ],
+    [
+        { extra = "cpu" },
+        { extra = "gpu-cu13" },
+    ],
+    [
+        { extra = "gpu" },
+        { extra = "gpu-cu13" },
+    ],
+    [
+        { extra = "gpu-cu11" },
+        { extra = "gpu-cu13" },
     ],
 ]
 

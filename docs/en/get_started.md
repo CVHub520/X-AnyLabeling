@@ -40,6 +40,10 @@ conda activate x-anylabeling-cu11
 # CUDA 12.x Environment [Windows/Linux]
 conda create --name x-anylabeling-cu12 python=3.12 -y
 conda activate x-anylabeling-cu12
+
+# CUDA 13.x Environment [Windows/Linux]
+conda create --name x-anylabeling-cu13 python=3.12 -y
+conda activate x-anylabeling-cu13
 ```
 
 #### 1.1.2 Venv
@@ -61,6 +65,11 @@ source venv-cu12/bin/activate  # Linux
 python3.12 -m venv venv-cu11
 source venv-cu11/bin/activate  # Linux
 # venv-cu11\Scripts\activate    # Windows
+
+# CUDA 13.x [Windows/Linux]
+python3.12 -m venv venv-cu13
+source venv-cu13/bin/activate  # Linux
+# venv-cu13\Scripts\activate    # Windows
 ```
 
 #### 1.1.3 uv
@@ -92,6 +101,11 @@ source .venv-cu12/bin/activate     # Linux
 uv venv --python 3.12 .venv-cu11
 source .venv-cu11/bin/activate     # Linux
 # .venv-cu11\Scripts\activate      # Windows
+
+# CUDA 13.x Environment [Windows/Linux]
+uv venv --python 3.12 .venv-cu13
+source .venv-cu13/bin/activate     # Linux
+# .venv-cu13\Scripts\activate      # Windows
 ```
 
 ### 1.2 Installation
@@ -111,6 +125,9 @@ uv pip install --pre "x-anylabeling-cvhub[gpu]"
 
 # CUDA 11.x [Windows/Linux]
 uv pip install --pre "x-anylabeling-cvhub[gpu-cu11]"
+
+# CUDA 13.x [Windows/Linux]
+uv pip install --pre "x-anylabeling-cvhub[gpu-cu13]"
 ```
 
 #### 1.2.2 Git Clone (Recommended)
@@ -137,6 +154,9 @@ uv pip install -e ".[gpu]"
 
 # CUDA 11.x [Windows/Linux]
 uv pip install -e ".[gpu-cu11]"
+
+# CUDA 13.x [Windows/Linux]
+uv pip install -e ".[gpu-cu13]"
 ```
 
 If you need to perform secondary development or package compilation, you can install the `dev` dependencies simultaneously, for example:
@@ -208,10 +228,14 @@ xanylabeling convert <task>  # Show detailed help and examples for a specific ta
 > - Ⅱ. [Get started with ONNX Runtime in Python](https://onnxruntime.ai/docs/get-started/with-python.html)
 > - Ⅲ. [ONNX Runtime Compatibility](https://onnxruntime.ai/docs/reference/compatibility.html)
 
+| CUDA environment | Package extra | ONNX Runtime GPU | cuDNN |
+|------------------|---------------|------------------|-------|
+| CUDA 11.x | `gpu-cu11` | `>= 1.15.0, < 1.19.0` | 8.x |
+| CUDA 12.x | `gpu` | `>= 1.18.1, < 1.27.0` | 9.x |
+| CUDA 13.x | `gpu-cu13` | `>= 1.27.0, < 1.28.0` | 9.x |
+
 > [!WARNING]
-> For `CUDA 11.x` environments, please ensure that the versions meet the following requirements:
-> - `onnx >= 1.15.0, < 1.16.1`
-> - `onnxruntime-gpu >= 1.15.0, < 1.19.0`
+> Install only one of the `cpu`, `gpu-cu11`, `gpu`, or `gpu-cu13` extras in an environment. CUDA 11.x additionally requires `onnx >= 1.15.0, < 1.16.1`.
 
 **Optional Step**: Refresh Translation and Resource Files
 
@@ -255,7 +279,7 @@ Compared to running from source code, the GUI installer package provides a more 
 
 - **Difficult Troubleshooting**: If crashes or errors occur, it may be difficult to quickly identify the specific cause, increasing the difficulty of troubleshooting.
 - **Feature Lag**: The GUI version may lag behind the source code version in functionality, potentially leading to missing features and compatibility issues.
-- **GPU Acceleration Limitations**: Given the diversity of hardware and operating system environments, current GPU inference acceleration services require users to compile from source code as needed.
+- **GPU Runtime Requirements**: Select the package matching CUDA 11, 12, or 13 and install the corresponding CUDA and cuDNN runtime libraries. The application falls back to CPU when the required GPU libraries cannot be loaded.
 
 Therefore, it is recommended to choose between running from source code and using the GUI installer package based on your specific needs and usage scenarios to optimize the user experience.
 
@@ -271,17 +295,13 @@ For detailed instructions on how to use X-AnyLabeling, please refer to the corre
 <details>
 <summary>Expand/Collapse</summary>
 
-To facilitate users running `X-AnyLabeling` on different platforms, this tool provides packaging and compilation instructions along with relevant notes. Before executing the following packaging commands, please modify the `__preferred_device__` parameter in the [app_info.py](../../anylabeling/app_info.py) file according to your environment and requirements to select the appropriate GPU or CPU version for building.
+To facilitate users running `X-AnyLabeling` on different platforms, this tool provides packaging and compilation instructions along with relevant notes. Install the dependency extra for the target runtime before executing the corresponding packaging command.
 
 ### 3.1 Notes
 
-- **Modify Device Configuration**: Before compiling, ensure that the `__preferred_device__` parameter in the `anylabeling/app_info.py` file has been modified according to the required GPU/CPU version.
-
 - **Verify GPU Environment**: If compiling the GPU version, please activate the corresponding GPU runtime environment first and execute `pip list | grep onnxruntime-gpu` to ensure it is properly installed.
 
-- **Windows-GPU Compilation**: Manually modify the `datas` list parameter in the `packaging/pyinstaller/specs/x-anylabeling-win-gpu.spec` file to add the relevant `*.dll` files of the local `onnxruntime-gpu` dynamic library to the list.
-
-- **Linux-GPU Compilation**: Manually modify the `datas` list parameter in the `packaging/pyinstaller/specs/x-anylabeling-linux-gpu.spec` file to add the relevant `*.so` files of the local `onnxruntime-gpu` dynamic library to the list. Additionally, ensure that you download a matching `onnxruntime-gpu` package according to your CUDA version. For detailed compatibility information, please refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html).
+- **GPU Compilation**: The GPU specifications automatically collect the ONNX Runtime provider libraries. Install `gpu-cu11`, `gpu`, or `gpu-cu13` before building to select CUDA 11, 12, or 13. For detailed compatibility information, refer to the [official documentation](https://onnxruntime.ai/docs/execution-providers/CUDA-ExecutionProvider.html).
 
 ### 3.2 Build Commands
 

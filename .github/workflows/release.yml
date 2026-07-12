@@ -104,8 +104,23 @@ jobs:
             os: ubuntu-22.04
             target: linux-gpu
             extra: gpu
+            cuda: "12"
             artifact: linux-cuda12
             files: dist/X-AnyLabeling-v*-Linux-CUDA12
+          - name: Linux CUDA 11
+            os: ubuntu-22.04
+            target: linux-gpu
+            extra: gpu-cu11
+            cuda: "11"
+            artifact: linux-cuda11
+            files: dist/X-AnyLabeling-v*-Linux-CUDA11
+          - name: Linux CUDA 13
+            os: ubuntu-22.04
+            target: linux-gpu
+            extra: gpu-cu13
+            cuda: "13"
+            artifact: linux-cuda13
+            files: dist/X-AnyLabeling-v*-Linux-CUDA13
           - name: Windows CPU
             os: windows-2022
             target: win-cpu
@@ -116,8 +131,23 @@ jobs:
             os: windows-2022
             target: win-gpu
             extra: gpu
+            cuda: "12"
             artifact: windows-cuda12
             files: dist/X-AnyLabeling-v*-Windows-CUDA12.exe
+          - name: Windows CUDA 11
+            os: windows-2022
+            target: win-gpu
+            extra: gpu-cu11
+            cuda: "11"
+            artifact: windows-cuda11
+            files: dist/X-AnyLabeling-v*-Windows-CUDA11.exe
+          - name: Windows CUDA 13
+            os: windows-2022
+            target: win-gpu
+            extra: gpu-cu13
+            cuda: "13"
+            artifact: windows-cuda13
+            files: dist/X-AnyLabeling-v*-Windows-CUDA13.exe
           - name: macOS Apple Silicon
             os: macos-15
             target: macos
@@ -159,55 +189,64 @@ jobs:
       - name: Install dependencies
         run: uv pip install --system -e ".[${{ matrix.extra }},dev]"
 
-      - name: Verify Windows CUDA 12 dependencies
-        if: matrix.target == 'win-gpu'
+      - name: Verify CUDA dependencies
+        if: matrix.cuda != ''
         shell: bash
+        env:
+          CUDA_MAJOR: ${{ matrix.cuda }}
         run: |
           python - <<'PY'
+          import os
+          import sys
           from importlib.metadata import version
           from pathlib import Path
 
           import onnxruntime
 
           ort_version = version("onnxruntime-gpu")
+          cuda_major = os.environ["CUDA_MAJOR"]
+          provider_name = (
+              "onnxruntime_providers_cuda.dll"
+              if sys.platform == "win32"
+              else "libonnxruntime_providers_cuda.so"
+          )
           provider = (
               Path(onnxruntime.__file__).parent
               / "capi"
-              / "onnxruntime_providers_cuda.dll"
+              / provider_name
           )
           dependencies = provider.read_bytes()
-          if tuple(map(int, ort_version.split(".")[:2])) >= (1, 27):
+          library = (
+              f"cublas64_{cuda_major}.dll".encode()
+              if sys.platform == "win32"
+              else f"libcublas.so.{cuda_major}".encode()
+          )
+          if library not in dependencies:
               raise RuntimeError(
-                  f"ONNX Runtime GPU {ort_version} requires CUDA 13"
+                  f"{provider.name} does not depend on CUDA {cuda_major} cuBLAS"
               )
-          if b"cublas64_12.dll" not in dependencies:
-              raise RuntimeError(
-                  f"{provider.name} does not depend on CUDA 12 cuBLAS"
-              )
-          if b"cublas64_13.dll" in dependencies:
-              raise RuntimeError(
-                  f"{provider.name} unexpectedly depends on CUDA 13 cuBLAS"
-              )
-          print(f"Verified ONNX Runtime GPU {ort_version} for CUDA 12")
+          print(
+              f"Verified ONNX Runtime GPU {ort_version} for CUDA {cuda_major}"
+          )
           PY
 
       - name: Build executable
         shell: bash
         run: bash scripts/build_executable.sh "${{ matrix.target }}"
 
-      - name: Name CUDA 12 artifact
-        if: matrix.extra == 'gpu'
+      - name: Name CUDA artifact
+        if: matrix.cuda != ''
         shell: bash
         run: |
           version="${RELEASE_TAG#v}"
           if [ "${{ matrix.target }}" = "linux-gpu" ]; then
             mv \
               "dist/X-AnyLabeling-v${version}-Linux-GPU" \
-              "dist/X-AnyLabeling-v${version}-Linux-CUDA12"
+              "dist/X-AnyLabeling-v${version}-Linux-CUDA${{ matrix.cuda }}"
           else
             mv \
               "dist/X-AnyLabeling-v${version}-GPU.exe" \
-              "dist/X-AnyLabeling-v${version}-Windows-CUDA12.exe"
+              "dist/X-AnyLabeling-v${version}-Windows-CUDA${{ matrix.cuda }}.exe"
           fi
 
       - name: Upload build artifact
