@@ -1,5 +1,25 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0-beta.13` (Jul 12, 2026)
+
+### 🐛 Bug Fixes
+
+- Keep CUDA 12 executable builds on a compatible ONNX Runtime GPU release.
+- Validate that Windows CUDA 12 artifacts do not link against CUDA 13 libraries.
+- Restore Linux release tests and builds with the required runtime dependencies.
+
+### 🛠️ Improvements
+
+- Add Linux and Windows CUDA 12 executables to automated releases.
+- Publish Python packages through PyPI Trusted Publishing.
+- Update and pin release workflow actions for reproducible builds.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.0-beta.12` (Jul 11, 2026)
 
 ### 🚀 New Features
