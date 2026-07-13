@@ -4278,6 +4278,7 @@ class LabelingWidget(LabelDialog):
         current_attibute = self.attributes[update_category]
         if not update_shape.attributes:
             update_shape.attributes = {}
+        attributes_changed = False
 
         self.grid_layout = QGridLayout()
         row_counter = 0
@@ -4428,11 +4429,16 @@ class LabelingWidget(LabelDialog):
                                         current_value is None
                                         and btn_original == options[0]
                                     ):
+                                        blocker = QtCore.QSignalBlocker(
+                                            radio_button
+                                        )
                                         radio_button.setChecked(True)
+                                        del blocker
                                         if current_value is None:
                                             update_shape.attributes[
                                                 property
                                             ] = btn_original
+                                            attributes_changed = True
 
                                 row_layout.addStretch()
                                 row_widget = QWidget()
@@ -4463,11 +4469,16 @@ class LabelingWidget(LabelDialog):
                                     current_value is None
                                     and btn_original == options[0]
                                 ):
+                                    blocker = QtCore.QSignalBlocker(
+                                        radio_button
+                                    )
                                     radio_button.setChecked(True)
+                                    del blocker
                                     if current_value is None:
                                         update_shape.attributes[property] = (
                                             btn_original
                                         )
+                                        attributes_changed = True
 
                             row_layout.addStretch()
                             row_widget = QWidget()
@@ -4491,11 +4502,14 @@ class LabelingWidget(LabelDialog):
                             current_value is None
                             and btn_original == options[0]
                         ):
+                            blocker = QtCore.QSignalBlocker(radio_button)
                             radio_button.setChecked(True)
+                            del blocker
                             if current_value is None:
                                 update_shape.attributes[property] = (
                                     btn_original
                                 )
+                                attributes_changed = True
                     row_layout.addStretch()
                     row_widget = QWidget()
                     row_widget.setLayout(row_layout)
@@ -4549,6 +4563,7 @@ class LabelingWidget(LabelDialog):
                         property_combo.setCurrentIndex(index)
                 else:
                     update_shape.attributes[property] = options[0]
+                    attributes_changed = True
                 property_combo.currentIndexChanged.connect(
                     lambda _, prop=property, combo=property_combo, shape_idx=shape_index: self.attribute_selection_changed(
                         shape_idx, prop, combo
@@ -4565,7 +4580,8 @@ class LabelingWidget(LabelDialog):
         self.scroll_area.setWidgetResizable(True)
         if shape_index < len(self.canvas.shapes):
             self.canvas.shapes[shape_index] = update_shape
-            self.save_attributes(self.canvas.shapes)
+            if attributes_changed:
+                self.save_attributes(self.canvas.shapes)
         self.show_attributes_panel()
 
     def show_attributes_panel(self):
@@ -4583,29 +4599,10 @@ class LabelingWidget(LabelDialog):
             filename = osp.join(self.output_dir, label_file_without_path)
         label_file = LabelFile()
 
-        def format_shape(s):
-            data = s.other_data.copy()
-            info = {
-                "label": s.label,
-                "points": [(p.x(), p.y()) for p in s.points],
-                "group_id": s.group_id,
-                "description": s.description,
-                "difficult": s.difficult,
-                "shape_type": s.shape_type,
-                "flags": s.flags,
-                "attributes": s.attributes,
-                "kie_linking": s.kie_linking,
-            }
-            if s.shape_type == "rotation":
-                info["direction"] = s.direction
-            data.update(info)
-
-            return data
-
         # Get current shapes
         # Excluding auto labeling special shapes
         shapes = [
-            format_shape(shape)
+            shape.to_dict()
             for shape in _shapes
             if shape.label
             not in [
