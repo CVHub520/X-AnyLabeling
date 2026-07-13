@@ -1675,6 +1675,144 @@ def upload_label_classes_file(self):
         popup.show_popup(self, position="center")
 
 
+def validate_shape_attributes_config(attributes_data):
+    """
+    Validates and separates a shape attributes configuration.
+
+    Args:
+        attributes_data (dict): Parsed shape attributes configuration.
+
+    Returns:
+        tuple: Attribute definitions and widget type mappings.
+
+    Raises:
+        ValueError: If the configuration structure is invalid.
+    """
+
+    def invalid(label, property_name, widget_type, value, expected):
+        raise ValueError(
+            "Invalid shape attribute configuration: "
+            f"label={label!r}, property={property_name!r}, "
+            f"widget_type={widget_type!r}, "
+            f"actual_type={type(value).__name__!r}, "
+            f"expected={expected!r}"
+        )
+
+    if not isinstance(attributes_data, dict):
+        invalid(
+            "<root>",
+            "<root>",
+            "<none>",
+            attributes_data,
+            "a dictionary",
+        )
+
+    attributes = {
+        label: properties
+        for label, properties in attributes_data.items()
+        if not label.startswith("__")
+    }
+    for label, properties in attributes.items():
+        if not isinstance(properties, dict):
+            invalid(
+                label,
+                "<all>",
+                "<unknown>",
+                properties,
+                "a dictionary of attribute definitions",
+            )
+
+    widget_types = attributes_data.get("__widget_types__", {})
+    if not isinstance(widget_types, dict):
+        invalid(
+            "__widget_types__",
+            "<all>",
+            "<mapping>",
+            widget_types,
+            "a dictionary of label widget mappings",
+        )
+
+    supported_widget_types = {
+        "combobox",
+        "radiobutton",
+        "group_id",
+        "lineedit",
+    }
+    for label, property_types in widget_types.items():
+        if label not in attributes:
+            invalid(
+                label,
+                "<all>",
+                "<mapping>",
+                None,
+                "an existing attribute label",
+            )
+        if not isinstance(property_types, dict):
+            invalid(
+                label,
+                "<all>",
+                "<mapping>",
+                property_types,
+                "a dictionary of property widget types",
+            )
+        for property_name, widget_type in property_types.items():
+            if property_name not in attributes[label]:
+                invalid(
+                    label,
+                    property_name,
+                    widget_type,
+                    None,
+                    "an existing attribute property",
+                )
+            if (
+                not isinstance(widget_type, str)
+                or widget_type not in supported_widget_types
+            ):
+                invalid(
+                    label,
+                    property_name,
+                    widget_type,
+                    widget_type,
+                    "one of combobox, radiobutton, group_id, or lineedit",
+                )
+
+    for label, properties in attributes.items():
+        property_types = widget_types.get(label, {})
+        for property_name, value in properties.items():
+            widget_type = property_types.get(property_name, "combobox")
+            if widget_type in {"combobox", "radiobutton"}:
+                if (
+                    not isinstance(value, list)
+                    or not value
+                    or not all(isinstance(option, str) for option in value)
+                ):
+                    invalid(
+                        label,
+                        property_name,
+                        widget_type,
+                        value,
+                        "a non-empty list of strings",
+                    )
+            elif widget_type == "lineedit" and not isinstance(value, str):
+                invalid(
+                    label,
+                    property_name,
+                    widget_type,
+                    value,
+                    "a string",
+                )
+            elif widget_type == "group_id" and value != []:
+                invalid(
+                    label,
+                    property_name,
+                    widget_type,
+                    value,
+                    "an empty list",
+                )
+
+    return attributes, widget_types
+
+
 def upload_shape_attrs_file(self, LABEL_OPACITY):
     filter = "Shape Attributes Files (*.json);;All Files (*)"
     file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -1689,26 +1827,37 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             attributes_data = json.load(f)
-            self.attribute_widget_types = attributes_data.get(
-                "__widget_types__", {}
-            )
-            self.attributes = {
-                k: v
-                for k, v in attributes_data.items()
-                if not k.startswith("__")
-            }
-            for label in list(self.attributes.keys()):
-                if not self.unique_label_list.find_items_by_label(label):
-                    item = self.unique_label_list.create_item_from_label(label)
-                    self.unique_label_list.addItem(item)
-                    rgb = self._get_rgb_by_label(label)
-                    self.unique_label_list.set_item_label(
-                        item, label, rgb, LABEL_OPACITY
-                    )
+
+        attributes, widget_types = validate_shape_attributes_config(
+            attributes_data
+        )
+        self.attributes = attributes
+        self.attribute_widget_types = widget_types
+        for label in self.attributes:
+            if not self.unique_label_list.find_items_by_label(label):
+                item = self.unique_label_list.create_item_from_label(label)
+                self.unique_label_list.addItem(item)
+                rgb = self._get_rgb_by_label(label)
+                self.unique_label_list.set_item_label(
+                    item, label, rgb, LABEL_OPACITY
+                )
 
         # update the shape attributes dialog
         self.shape_attributes.show()
-        self.scroll_area.show()
+        selected_shapes = self.canvas.selected_shapes
+        is_drawing_mode = (
+            hasattr(self.canvas, "current") and self.canvas.current is not None
+        )
+        if (
+            len(selected_shapes) == 1
+            and selected_shapes[0] in self.canvas.shapes
+            and not is_drawing_mode
+        ):
+            self.update_attributes(
+                self.canvas.shapes.index(selected_shapes[0])
+            )
+        else:
+            self.hide_attributes_panel()
         self.canvas.h_shape_is_hovered = False
         self._settings_runtime_applier.set_auto_switch_to_edit_mode(False)
 
