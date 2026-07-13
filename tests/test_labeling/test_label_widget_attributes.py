@@ -118,3 +118,106 @@ class TestLabelWidgetAttributes(unittest.TestCase):
         LabelingWidget.update_attributes(widget, 0)
 
         widget.save_attributes.assert_not_called()
+
+    def test_edit_label_preserves_attributes_for_same_label(self):
+        shape = SimpleNamespace(
+            label="car",
+            flags={},
+            group_id=None,
+            description="old",
+            difficult=False,
+            kie_linking=[],
+            attributes={"color": "blue"},
+            fill_color=SimpleNamespace(
+                getRgb=Mock(return_value=(255, 0, 0, 255))
+            ),
+        )
+        item = SimpleNamespace(
+            shape=Mock(return_value=shape),
+            setText=Mock(),
+            setBackground=Mock(),
+        )
+        widget = SimpleNamespace(
+            canvas=SimpleNamespace(
+                editing=Mock(return_value=True),
+                selected_shapes=[shape],
+                shapes=[shape],
+            ),
+            current_item=Mock(return_value=item),
+            label_dialog=SimpleNamespace(
+                pop_up=Mock(
+                    return_value=("car", {}, None, "new", False, [])
+                ),
+                add_label_history=Mock(),
+            ),
+            _config={"move_mode": "auto"},
+            validate_label=Mock(return_value=True),
+            attributes={"car": {"color": ["red", "blue"]}},
+            reset_attribute=Mock(),
+            unique_label_list=SimpleNamespace(
+                find_items_by_label=Mock(return_value=[object()])
+            ),
+            _update_shape_color=Mock(),
+            set_dirty=Mock(),
+            _refresh_shape_filters=Mock(),
+            update_attributes=Mock(),
+        )
+
+        LabelingWidget.edit_label(widget)
+
+        self.assertEqual(shape.attributes, {"color": "blue"})
+        widget.reset_attribute.assert_not_called()
+
+    def test_batch_edit_resets_only_shapes_with_changed_labels(self):
+        unchanged_shape = SimpleNamespace(
+            label="car",
+            flags={},
+            group_id=None,
+            description="",
+            difficult=False,
+            kie_linking=[],
+            attributes={"color": "blue"},
+        )
+        changed_shape = SimpleNamespace(
+            label="person",
+            flags={},
+            group_id=None,
+            description="",
+            difficult=False,
+            kie_linking=[],
+            attributes={"age": "adult"},
+        )
+
+        def reset_attribute(text, shape):
+            shape.attributes = {"color": "red"}
+            return text
+
+        widget = SimpleNamespace(
+            _batch_edit_warning_shown=True,
+            label_dialog=SimpleNamespace(
+                pop_up=Mock(
+                    return_value=("car", {}, None, "new", False, [])
+                ),
+                add_label_history=Mock(),
+            ),
+            validate_label=Mock(return_value=True),
+            attributes={"car": {"color": ["red", "blue"]}},
+            reset_attribute=Mock(side_effect=reset_attribute),
+            _update_shape_color=Mock(),
+            label_list=SimpleNamespace(
+                find_item_by_shape=Mock(return_value=None)
+            ),
+            unique_label_list=SimpleNamespace(
+                find_items_by_label=Mock(return_value=[object()])
+            ),
+            set_dirty=Mock(),
+            _refresh_shape_filters=Mock(),
+        )
+
+        LabelingWidget.batch_edit_labels(
+            widget, [unchanged_shape, changed_shape]
+        )
+
+        self.assertEqual(unchanged_shape.attributes, {"color": "blue"})
+        self.assertEqual(changed_shape.attributes, {"color": "red"})
+        widget.reset_attribute.assert_called_once_with("car", changed_shape)

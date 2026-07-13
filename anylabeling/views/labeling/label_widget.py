@@ -4044,7 +4044,7 @@ class LabelingWidget(LabelDialog):
             return
 
         for shape in shapes:
-            if self.attributes and text:
+            if self.attributes and text and text != shape.label:
                 text = self.reset_attribute(text, shape)
 
             shape.label = text
@@ -4131,7 +4131,7 @@ class LabelingWidget(LabelDialog):
                 ),
             )
             return
-        if self.attributes and text:
+        if self.attributes and text and text != shape.label:
             text = self.reset_attribute(text, shape)
         shape.label = text
         shape.flags = flags
