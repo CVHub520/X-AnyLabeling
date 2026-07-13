@@ -262,3 +262,77 @@ class TestLabelWidgetAttributes(unittest.TestCase):
         self.assertFalse(buttons[0].isChecked())
         self.assertTrue(buttons[-1].isChecked())
         widget.save_attributes.assert_not_called()
+
+    def test_attribute_widget_changes_refresh_canvas_once(self):
+        cases = [
+            (
+                "combobox",
+                "color",
+                "blue",
+                lambda widget: LabelingWidget.attribute_selection_changed(
+                    widget,
+                    0,
+                    "color",
+                    SimpleNamespace(currentText=Mock(return_value="blue")),
+                ),
+            ),
+            (
+                "group_id",
+                "occluded_by",
+                "7",
+                lambda widget: LabelingWidget.attribute_selection_changed(
+                    widget,
+                    0,
+                    "occluded_by",
+                    SimpleNamespace(currentText=Mock(return_value="7")),
+                ),
+            ),
+            (
+                "lineedit",
+                "vehicle_id",
+                "vehicle-001",
+                lambda widget: LabelingWidget.attribute_line_changed(
+                    widget,
+                    0,
+                    "vehicle_id",
+                    SimpleNamespace(
+                        text=Mock(return_value="vehicle-001")
+                    ),
+                ),
+            ),
+            (
+                "radiobutton",
+                "visibility",
+                "high",
+                lambda widget: LabelingWidget.attribute_radio_changed(
+                    widget, 0, "visibility", "high", True
+                ),
+            ),
+        ]
+
+        for widget_type, property_name, expected, change in cases:
+            with self.subTest(widget_type=widget_type):
+                shape = SimpleNamespace(attributes={})
+                canvas = SimpleNamespace(shapes=[shape], update=Mock())
+                widget = SimpleNamespace(
+                    canvas=canvas, save_attributes=Mock()
+                )
+
+                change(widget)
+
+                self.assertEqual(shape.attributes[property_name], expected)
+                widget.save_attributes.assert_called_once_with([shape])
+                canvas.update.assert_called_once_with()
+
+    def test_unchecked_radio_button_does_not_refresh_canvas(self):
+        shape = SimpleNamespace(attributes={"visibility": "low"})
+        canvas = SimpleNamespace(shapes=[shape], update=Mock())
+        widget = SimpleNamespace(canvas=canvas, save_attributes=Mock())
+
+        LabelingWidget.attribute_radio_changed(
+            widget, 0, "visibility", "high", False
+        )
+
+        self.assertEqual(shape.attributes["visibility"], "low")
+        widget.save_attributes.assert_not_called()
+        canvas.update.assert_not_called()

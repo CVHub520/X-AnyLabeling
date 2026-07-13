@@ -4213,6 +4213,7 @@ class LabelingWidget(LabelDialog):
                 self.canvas.shapes[i].attributes = {}
             self.canvas.shapes[i].attributes[property] = selected_option
             self.save_attributes(self.canvas.shapes)
+            self.canvas.update()
 
     def attribute_radio_changed(self, i, property, option, checked):
         if checked and i < len(self.canvas.shapes):
@@ -4229,6 +4230,7 @@ class LabelingWidget(LabelDialog):
                 self.canvas.shapes[i].attributes = {}
             self.canvas.shapes[i].attributes[property] = line_text
             self.save_attributes(self.canvas.shapes)
+            self.canvas.update()
 
     def update_selected_options(self, selected_options):
         if not isinstance(selected_options, dict):
