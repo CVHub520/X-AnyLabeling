@@ -4208,6 +4208,8 @@ class LabelingWidget(LabelDialog):
 
     def attribute_selection_changed(self, i, property, combo):
         selected_option = combo.currentText()
+        tooltip = combo.currentData(Qt.ItemDataRole.ToolTipRole)
+        combo.setToolTip(tooltip or "")
         if i < len(self.canvas.shapes):
             if not self.canvas.shapes[i].attributes:
                 self.canvas.shapes[i].attributes = {}

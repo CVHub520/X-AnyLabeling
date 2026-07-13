@@ -273,7 +273,11 @@ class TestLabelWidgetAttributes(unittest.TestCase):
                     widget,
                     0,
                     "color",
-                    SimpleNamespace(currentText=Mock(return_value="blue")),
+                    SimpleNamespace(
+                        currentText=Mock(return_value="blue"),
+                        currentData=Mock(return_value=None),
+                        setToolTip=Mock(),
+                    ),
                 ),
             ),
             (
@@ -284,7 +288,11 @@ class TestLabelWidgetAttributes(unittest.TestCase):
                     widget,
                     0,
                     "occluded_by",
-                    SimpleNamespace(currentText=Mock(return_value="7")),
+                    SimpleNamespace(
+                        currentText=Mock(return_value="7"),
+                        currentData=Mock(return_value=None),
+                        setToolTip=Mock(),
+                    ),
                 ),
             ),
             (
@@ -402,3 +410,35 @@ class TestLabelWidgetAttributes(unittest.TestCase):
                 self.assertEqual(configured_options, original_options)
                 widget.save_attributes.assert_not_called()
                 canvas.update.assert_not_called()
+
+    def test_selecting_known_value_clears_compatibility_warning(self):
+        shape = SimpleNamespace(
+            label="car",
+            group_id=None,
+            attributes={"color": "green"},
+        )
+        canvas = SimpleNamespace(shapes=[shape], update=Mock())
+        widget = SimpleNamespace(
+            tr=lambda text: text,
+            canvas=canvas,
+            attributes={"car": {"color": ["red", "blue"]}},
+            attribute_widget_types={},
+            scroll_area=QtWidgets.QScrollArea(),
+            attribute_selection_changed=Mock(),
+            save_attributes=Mock(),
+            show_attributes_panel=Mock(),
+            hide_attributes_panel=Mock(),
+        )
+        LabelingWidget.update_attributes(widget, 0)
+        combo = widget.grid_layout_container.findChild(QtWidgets.QComboBox)
+        self.assertTrue(combo.toolTip())
+
+        combo.setCurrentIndex(0)
+        LabelingWidget.attribute_selection_changed(
+            widget, 0, "color", combo
+        )
+
+        self.assertEqual(shape.attributes["color"], "red")
+        self.assertEqual(combo.toolTip(), "")
+        widget.save_attributes.assert_called_once_with([shape])
+        canvas.update.assert_called_once_with()
