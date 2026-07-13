@@ -3080,7 +3080,11 @@ class LabelingWidget(LabelDialog):
             text = most_similar_label
 
         new_attributes = {
-            attrs_key: attrs_val[0]
+            attrs_key: (
+                attrs_val[0]
+                if isinstance(attrs_val, list) and attrs_val
+                else attrs_val
+            )
             for attrs_key, attrs_val in self.attributes[text].items()
         }
         shape.attributes = new_attributes
