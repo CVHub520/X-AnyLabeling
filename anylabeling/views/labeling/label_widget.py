@@ -4285,11 +4285,32 @@ class LabelingWidget(LabelDialog):
         self.grid_layout = QGridLayout()
         row_counter = 0
 
+        def unknown_value_tooltip(value):
+            return self.tr(
+                "Value '{}' is not defined in the current attribute "
+                "configuration."
+            ).format(value)
+
+        def set_current_combo_value(combo, value):
+            value = str(value)
+            index = combo.findText(value)
+            if index < 0:
+                combo.addItem(value)
+                index = combo.count() - 1
+                tooltip = unknown_value_tooltip(value)
+                combo.setItemData(index, tooltip, Qt.ItemDataRole.ToolTipRole)
+                combo.setToolTip(tooltip)
+            combo.setCurrentIndex(index)
+
         for property, options in current_attibute.items():
             widget_type = self.attribute_widget_types.get(
                 update_category, {}
             ).get(property, "combobox")
-            current_value = update_shape.attributes.get(property, None)
+            has_current_value = property in update_shape.attributes
+            current_value = update_shape.attributes.get(property)
+            current_value_text = (
+                str(current_value) if has_current_value else None
+            )
             if hasattr(self, "grid_layout_container"):
                 font_metrics = QFontMetrics(self.grid_layout_container.font())
             else:
@@ -4313,6 +4334,14 @@ class LabelingWidget(LabelDialog):
             row_counter += 1
 
             if widget_type == "radiobutton":
+                radio_options = list(options)
+                unknown_radio_value = None
+                if (
+                    has_current_value
+                    and current_value_text not in radio_options
+                ):
+                    unknown_radio_value = current_value_text
+                    radio_options.append(unknown_radio_value)
                 radio_container = QWidget()
                 radio_group = QButtonGroup(radio_container)
                 main_layout = QVBoxLayout()
@@ -4338,7 +4367,11 @@ class LabelingWidget(LabelDialog):
                     display_text, original_text, prop, shape_idx
                 ):
                     radio_button = QRadioButton(display_text)
-                    if display_text != original_text:
+                    if original_text == unknown_radio_value:
+                        radio_button.setToolTip(
+                            unknown_value_tooltip(original_text)
+                        )
+                    elif display_text != original_text:
                         radio_button.setToolTip(original_text)
                     radio_group.addButton(radio_button)
 
@@ -4352,7 +4385,7 @@ class LabelingWidget(LabelDialog):
                     return radio_button
 
                 buttons_data = []
-                for option in options:
+                for option in radio_options:
                     display_text, original_text = get_truncated_text(
                         option, available_width
                     )
@@ -4427,8 +4460,8 @@ class LabelingWidget(LabelDialog):
                                         )
                                     )
                                     row_layout.addWidget(radio_button)
-                                    if current_value == btn_original or (
-                                        current_value is None
+                                    if current_value_text == btn_original or (
+                                        not has_current_value
                                         and btn_original == options[0]
                                     ):
                                         blocker = QtCore.QSignalBlocker(
@@ -4436,7 +4469,7 @@ class LabelingWidget(LabelDialog):
                                         )
                                         radio_button.setChecked(True)
                                         del blocker
-                                        if current_value is None:
+                                        if not has_current_value:
                                             update_shape.attributes[
                                                 property
                                             ] = btn_original
@@ -4467,8 +4500,8 @@ class LabelingWidget(LabelDialog):
                                     )
                                 )
                                 row_layout.addWidget(radio_button)
-                                if current_value == btn_original or (
-                                    current_value is None
+                                if current_value_text == btn_original or (
+                                    not has_current_value
                                     and btn_original == options[0]
                                 ):
                                     blocker = QtCore.QSignalBlocker(
@@ -4476,7 +4509,7 @@ class LabelingWidget(LabelDialog):
                                     )
                                     radio_button.setChecked(True)
                                     del blocker
-                                    if current_value is None:
+                                    if not has_current_value:
                                         update_shape.attributes[property] = (
                                             btn_original
                                         )
@@ -4500,14 +4533,14 @@ class LabelingWidget(LabelDialog):
                             btn_display, btn_original, property, shape_index
                         )
                         row_layout.addWidget(radio_button)
-                        if current_value == btn_original or (
-                            current_value is None
+                        if current_value_text == btn_original or (
+                            not has_current_value
                             and btn_original == options[0]
                         ):
                             blocker = QtCore.QSignalBlocker(radio_button)
                             radio_button.setChecked(True)
                             del blocker
-                            if current_value is None:
+                            if not has_current_value:
                                 update_shape.attributes[property] = (
                                     btn_original
                                 )
@@ -4532,10 +4565,8 @@ class LabelingWidget(LabelDialog):
                     }
                 )
                 property_combo.addItems(options)
-                if current_value:
-                    index = property_combo.findText(current_value)
-                    if index >= 0:
-                        property_combo.setCurrentIndex(index)
+                if has_current_value:
+                    set_current_combo_value(property_combo, current_value)
                 property_combo.currentIndexChanged.connect(
                     lambda _, prop=property, combo=property_combo, shape_idx=shape_index: self.attribute_selection_changed(
                         shape_idx, prop, combo
@@ -4547,8 +4578,8 @@ class LabelingWidget(LabelDialog):
                 row_counter += 1
             elif widget_type == "lineedit":
                 property_line = QLineEdit()
-                if current_value:
-                    property_line.setText(current_value)
+                if has_current_value:
+                    property_line.setText(current_value_text)
                 property_line.textChanged.connect(
                     lambda _, prop=property, line=property_line, shape_idx=shape_index: self.attribute_line_changed(
                         shape_idx, prop, line
@@ -4559,10 +4590,8 @@ class LabelingWidget(LabelDialog):
             else:
                 property_combo = QComboBox()
                 property_combo.addItems(options)
-                if current_value:
-                    index = property_combo.findText(current_value)
-                    if index >= 0:
-                        property_combo.setCurrentIndex(index)
+                if has_current_value:
+                    set_current_combo_value(property_combo, current_value)
                 else:
                     update_shape.attributes[property] = options[0]
                     attributes_changed = True

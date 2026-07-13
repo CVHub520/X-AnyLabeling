@@ -336,3 +336,69 @@ class TestLabelWidgetAttributes(unittest.TestCase):
         self.assertEqual(shape.attributes["visibility"], "low")
         widget.save_attributes.assert_not_called()
         canvas.update.assert_not_called()
+
+    def test_unknown_values_are_shown_without_mutating_shape_or_config(self):
+        cases = [
+            ("combobox", ["red", "blue"], "green"),
+            ("combobox", ["red", "blue"], ""),
+            ("group_id", [], "99"),
+            ("radiobutton", ["red", "blue"], "green"),
+        ]
+
+        for widget_type, configured_options, stored_value in cases:
+            with self.subTest(
+                widget_type=widget_type, stored_value=stored_value
+            ):
+                original_options = list(configured_options)
+                shape = SimpleNamespace(
+                    label="car",
+                    group_id=None,
+                    attributes={"value": stored_value},
+                )
+                canvas = SimpleNamespace(shapes=[shape], update=Mock())
+                scroll_area = QtWidgets.QScrollArea()
+                scroll_area.resize(500, 200)
+                widget = SimpleNamespace(
+                    tr=lambda text: text,
+                    canvas=canvas,
+                    attributes={"car": {"value": configured_options}},
+                    attribute_widget_types={
+                        "car": {"value": widget_type}
+                    },
+                    scroll_area=scroll_area,
+                    attribute_selection_changed=Mock(),
+                    attribute_radio_changed=Mock(),
+                    attribute_line_changed=Mock(),
+                    save_attributes=Mock(),
+                    show_attributes_panel=Mock(),
+                    hide_attributes_panel=Mock(),
+                )
+
+                LabelingWidget.update_attributes(widget, 0)
+
+                if widget_type == "radiobutton":
+                    checked_buttons = [
+                        button
+                        for button in widget.grid_layout_container.findChildren(
+                            QtWidgets.QRadioButton
+                        )
+                        if button.isChecked()
+                    ]
+                    self.assertEqual(len(checked_buttons), 1)
+                    self.assertEqual(
+                        checked_buttons[0].text(), stored_value
+                    )
+                    self.assertTrue(checked_buttons[0].toolTip())
+                else:
+                    combo = widget.grid_layout_container.findChild(
+                        QtWidgets.QComboBox
+                    )
+                    self.assertEqual(combo.currentText(), stored_value)
+                    self.assertTrue(combo.toolTip())
+                    if widget_type == "combobox":
+                        self.assertEqual(combo.count(), 3)
+
+                self.assertEqual(shape.attributes["value"], stored_value)
+                self.assertEqual(configured_options, original_options)
+                widget.save_attributes.assert_not_called()
+                canvas.update.assert_not_called()
