@@ -4311,8 +4311,8 @@ class LabelingWidget(LabelDialog):
             row_counter += 1
 
             if widget_type == "radiobutton":
-                radio_group = QButtonGroup()
                 radio_container = QWidget()
+                radio_group = QButtonGroup(radio_container)
                 main_layout = QVBoxLayout()
                 main_layout.setContentsMargins(0, 0, 0, 0)
                 main_layout.setSpacing(2)

@@ -1,3 +1,4 @@
+import gc
 import os
 from types import SimpleNamespace
 import unittest
@@ -221,3 +222,43 @@ class TestLabelWidgetAttributes(unittest.TestCase):
         self.assertEqual(unchanged_shape.attributes, {"color": "blue"})
         self.assertEqual(changed_shape.attributes, {"color": "red"})
         widget.reset_attribute.assert_called_once_with("car", changed_shape)
+
+    def test_radio_buttons_remain_exclusive_across_rows(self):
+        options = [f"long-option-{index}" for index in range(6)]
+        shape = SimpleNamespace(
+            label="car", attributes={"visibility": options[0]}
+        )
+        scroll_area = QtWidgets.QScrollArea()
+        scroll_area.resize(130, 200)
+        widget = SimpleNamespace(
+            canvas=SimpleNamespace(shapes=[shape]),
+            attributes={"car": {"visibility": options}},
+            attribute_widget_types={
+                "car": {"visibility": "radiobutton"}
+            },
+            scroll_area=scroll_area,
+            attribute_radio_changed=Mock(),
+            save_attributes=Mock(),
+            show_attributes_panel=Mock(),
+            hide_attributes_panel=Mock(),
+        )
+
+        LabelingWidget.update_attributes(widget, 0)
+        gc.collect()
+
+        buttons = widget.grid_layout_container.findChildren(
+            QtWidgets.QRadioButton
+        )
+        self.assertEqual(len(buttons), len(options))
+        self.assertIsNot(buttons[0].parentWidget(), buttons[-1].parentWidget())
+        self.assertIsNotNone(buttons[0].group())
+        self.assertTrue(
+            all(button.group() == buttons[0].group() for button in buttons)
+        )
+
+        buttons[0].setChecked(True)
+        buttons[-1].setChecked(True)
+
+        self.assertFalse(buttons[0].isChecked())
+        self.assertTrue(buttons[-1].isChecked())
+        widget.save_attributes.assert_not_called()
