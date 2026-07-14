@@ -1,5 +1,6 @@
 import os
 import copy
+import re
 import time
 import yaml
 import importlib.resources as pkg_resources
@@ -36,6 +37,7 @@ class ModelManager(QObject):
     """Model manager"""
 
     MAX_NUM_CUSTOM_MODELS = 5
+    CUSTOM_MODEL_NAME_PATTERN = re.compile(r"[A-Za-z0-9._-]+")
     model_configs_changed = pyqtSignal(list)
     new_model_status = pyqtSignal(str)
     model_loaded = pyqtSignal(dict)
@@ -111,6 +113,13 @@ class ModelManager(QObject):
                     )
             is_custom = model.get("is_custom_model", False)
             model_config["is_custom_model"] = is_custom
+            if is_custom and not self.is_valid_custom_model_name(
+                model_config.get("name")
+            ):
+                logger.error(
+                    "Skipping custom model with an invalid 'name' field."
+                )
+                continue
             if is_custom and not model_config["name"].startswith("_custom_"):
                 model_config["name"] = f"_custom_{model_config['name']}"
 
@@ -129,6 +138,14 @@ class ModelManager(QObject):
 
         self.model_configs = model_configs
         self.model_configs_changed.emit(model_configs)
+
+    @classmethod
+    def is_valid_custom_model_name(cls, name):
+        return (
+            isinstance(name, str)
+            and name not in (".", "..")
+            and cls.CUSTOM_MODEL_NAME_PATTERN.fullmatch(name) is not None
+        )
 
     def update_model_config(self, config_file, key, value):
         """Update a specific key in a model's configuration."""
@@ -253,6 +270,18 @@ class ModelManager(QObject):
                 self.tr(
                     "Error in loading custom model: Invalid config file format."
                 )
+            )
+            self.model_loaded.emit({})
+            return False
+
+        if not self.is_valid_custom_model_name(model_config["name"]):
+            logger.error(
+                "An error occurred while loading the custom model: "
+                "The 'name' field must be a single path segment containing "
+                "only letters, numbers, dots, underscores, and hyphens."
+            )
+            self.new_model_status.emit(
+                self.tr("Error in loading custom model: Invalid model name.")
             )
             self.model_loaded.emit({})
             return False
