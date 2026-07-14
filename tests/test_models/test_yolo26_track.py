@@ -8,6 +8,8 @@ from anylabeling.services.auto_labeling import model as model_module
 
 
 class DummyOnnxBaseModel:
+    kpt_shape = "[17, 3]"
+
     def __init__(self, *args, **kwargs):
         pass
 
@@ -15,7 +17,7 @@ class DummyOnnxBaseModel:
         return [1, 3, 640, 640]
 
     def get_metadata_info(self, field):
-        return "[17, 3]" if field == "kpt_shape" else None
+        return self.kpt_shape if field == "kpt_shape" else None
 
 
 @pytest.fixture
@@ -75,6 +77,38 @@ def test_yolo26_track_types_use_tracktrack(
 
     assert model.task == expected_task
     assert type(model.tracker).__name__ == "TRACKTRACK"
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        "__import__('builtins').sum([20, 22])",
+        "[17]",
+        "[0, 3]",
+        "[17, 4]",
+        "[17, 3.0]",
+        "[True, 3]",
+    ],
+)
+def test_pose_rejects_invalid_kpt_shape_metadata(
+    yolo_without_model, monkeypatch, metadata
+):
+    monkeypatch.setattr(DummyOnnxBaseModel, "kpt_shape", metadata)
+
+    with pytest.raises(ValueError) as error:
+        yolo_without_model(
+            {
+                "type": "yolo26_pose",
+                "name": "yolo26_pose",
+                "display_name": "YOLO26 Pose",
+                "model_path": "model.onnx",
+                "classes": {"person": ["nose"]},
+            },
+            on_message=lambda *args, **kwargs: None,
+        )
+
+    assert "kpt_shape" in str(error.value)
+    assert "model.onnx" in str(error.value)
 
 
 @pytest.mark.parametrize(

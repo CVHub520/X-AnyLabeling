@@ -1,3 +1,4 @@
+import ast
 import os
 import cv2
 import numpy as np
@@ -214,8 +215,28 @@ class YOLO(Model):
                 self.keypoint_name[class_name] = keypoints
             self.classes = list(self.classes.keys())
             kpt_shape_str = self.net.get_metadata_info("kpt_shape")
-            if kpt_shape_str and isinstance(kpt_shape_str, str):
-                self.kpt_shape = eval(kpt_shape_str)
+            if kpt_shape_str is not None:
+                try:
+                    kpt_shape = ast.literal_eval(kpt_shape_str)
+                except (SyntaxError, ValueError, TypeError) as e:
+                    raise ValueError(
+                        f"Invalid 'kpt_shape' metadata in model "
+                        f"'{model_abs_path}': {kpt_shape_str!r}"
+                    ) from e
+                if (
+                    not isinstance(kpt_shape, (list, tuple))
+                    or len(kpt_shape) != 2
+                    or any(
+                        type(value) is not int or value <= 0
+                        for value in kpt_shape
+                    )
+                    or kpt_shape[1] not in (2, 3)
+                ):
+                    raise ValueError(
+                        f"Invalid 'kpt_shape' metadata in model "
+                        f"'{model_abs_path}': {kpt_shape_str!r}"
+                    )
+                self.kpt_shape = kpt_shape
             else:
                 self.kpt_shape = None
             if self.kpt_shape is None:
