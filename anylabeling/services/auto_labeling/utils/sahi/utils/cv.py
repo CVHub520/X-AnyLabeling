@@ -166,9 +166,6 @@ def read_image_as_pil(
     Args:
         image : Can be image path or url (str), numpy image (np.ndarray) or PIL.Image
     """
-    # https://stackoverflow.com/questions/56174099/how-to-load-images-larger-than-max-image-pixels-with-pil
-    Image.MAX_IMAGE_PIXELS = None
-
     if isinstance(image, Image.Image):
         image_pil = image
     elif isinstance(image, str):

@@ -2,7 +2,6 @@ import base64
 import json
 import os.path as osp
 
-import PIL.Image
 from PIL import ImageFile
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -12,8 +11,6 @@ from .label_converter import LabelConverter
 from .logger import logger
 from .schema import XLABEL_BASIC_FIELDS, create_xlabel_template
 from .shape import Shape
-
-PIL.Image.MAX_IMAGE_PIXELS = None
 
 
 class LabelFileError(Exception):
