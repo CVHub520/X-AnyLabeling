@@ -1,6 +1,8 @@
 import base64
 import json
+import os
 import os.path as osp
+import tempfile
 
 from PIL import ImageFile
 
@@ -181,9 +183,25 @@ class LabelFile:
                 continue
             assert key not in data
             data[key] = value
+        temporary_file = None
         try:
-            with utils.io_open(filename, "w") as f:
+            directory = osp.dirname(osp.abspath(filename))
+            fd, temporary_file = tempfile.mkstemp(
+                prefix=".xal_",
+                suffix=".tmp",
+                dir=directory,
+            )
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporary_file, filename)
             self.filename = filename
         except Exception as e:  # noqa
             raise LabelFileError(e) from e
+        finally:
+            if temporary_file and osp.exists(temporary_file):
+                try:
+                    os.remove(temporary_file)
+                except OSError:
+                    pass
