@@ -166,7 +166,15 @@ class Shape:
         self.shape_type = data.get("shape_type", "polygon")
         self.flags = data.get("flags", {})
         self.attributes = data.get("attributes", {})
-        self.kie_linking = data.get("kie_linking", [])
+        kie_linking = data.get("kie_linking", [])
+        if not isinstance(kie_linking, list) or any(
+            not isinstance(linking_pair, list)
+            or len(linking_pair) != 2
+            or any(type(value) is not int for value in linking_pair)
+            for linking_pair in kie_linking
+        ):
+            raise ValueError("kie_linking must be a list of integer pairs")
+        self.kie_linking = kie_linking
         self.locked = data.get("locked", False)
         if self.shape_type == "rotation":
             self.direction = data.get("direction", 0)
