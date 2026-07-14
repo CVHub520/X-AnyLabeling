@@ -27,6 +27,10 @@ from PyQt6.QtWidgets import (
 
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.widgets import Popup
+from anylabeling.views.labeling.utils.general import (
+    resolve_export_directory,
+    resolve_path_within_directory,
+)
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import (
     get_cancel_btn_style,
@@ -66,6 +70,7 @@ def crop_and_save(
     """
     image_path = Path(image_file)
     orig_filename = image_path.stem
+    dst_path = resolve_export_directory(save_path, label)
 
     # Calculate crop coordinates
     x, y, w, h = cv2.boundingRect(points)
@@ -101,13 +106,13 @@ def crop_and_save(
         return
 
     # Create output directory
-    dst_path = Path(save_path) / label
     dst_path.mkdir(parents=True, exist_ok=True)
 
     # Update counter and create output filename
     label_to_count[label] = label_to_count.get(label, 0) + 1
-    dst_file = (
-        dst_path / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg"
+    dst_file = resolve_path_within_directory(
+        dst_path / f"{orig_filename}_{label_to_count[label]}-{shape_type}.jpg",
+        save_path,
     )
 
     # Save image safely handling non-ASCII paths
@@ -174,6 +179,7 @@ def process_single_image(args):
             ):
                 continue
 
+            dst_path = resolve_export_directory(save_path, label)
             current_index = label_start_indices[label]
             label_start_indices[label] += 1
 
@@ -196,11 +202,11 @@ def process_single_image(args):
                 logger.warning(f"Empty cropped image for {dst_file}")
                 continue
 
-            dst_path = Path(save_path) / label
             dst_path.mkdir(parents=True, exist_ok=True)
 
-            dst_file = (
-                dst_path / f"{orig_filename}_{current_index}-{shape_type}.jpg"
+            dst_file = resolve_path_within_directory(
+                dst_path / f"{orig_filename}_{current_index}-{shape_type}.jpg",
+                save_path,
             )
 
             try:

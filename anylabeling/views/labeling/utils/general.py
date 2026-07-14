@@ -8,6 +8,7 @@ import subprocess
 import webbrowser
 from difflib import SequenceMatcher
 from importlib_metadata import version as get_package_version
+from pathlib import Path
 from typing import Iterator, Tuple
 
 try:
@@ -59,6 +60,27 @@ def hex_to_rgb(hex_color):
 
 def indent_text(text, indent=4):
     return textwrap.indent(text, " " * indent)
+
+
+def resolve_path_within_directory(path, directory):
+    directory = Path(directory).resolve()
+    path = Path(path).resolve()
+    if path == directory or directory not in path.parents:
+        raise ValueError(f"Path must be within the output directory: {path}")
+    return path
+
+
+def resolve_export_directory(output_dir, name):
+    if (
+        not isinstance(name, str)
+        or not name
+        or name in (".", "..")
+        or os.path.isabs(name)
+        or "/" in name
+        or "\\" in name
+    ):
+        raise ValueError(f"Invalid export directory name: {name!r}")
+    return resolve_path_within_directory(Path(output_dir) / name, output_dir)
 
 
 def is_chinese(s="人工智能"):

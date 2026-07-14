@@ -3,6 +3,11 @@ import json
 import shutil
 from typing import List, Dict
 
+from anylabeling.views.labeling.utils.general import (
+    resolve_export_directory,
+    resolve_path_within_directory,
+)
+
 
 def get_label_file_path(image_path: str, output_dir: str = None) -> str:
     if output_dir:
@@ -44,11 +49,13 @@ def get_first_true_flag(flags: Dict[str, bool]) -> str:
 
 
 def export_image_to_category(image_path: str, category: str, output_dir: str):
-    category_dir = os.path.join(output_dir, category)
+    category_dir = resolve_export_directory(output_dir, category)
     os.makedirs(category_dir, exist_ok=True)
 
     image_name = os.path.basename(image_path)
-    dest_path = os.path.join(category_dir, image_name)
+    dest_path = resolve_path_within_directory(
+        category_dir / image_name, output_dir
+    )
 
     if not os.path.exists(dest_path):
         shutil.copy2(image_path, dest_path)

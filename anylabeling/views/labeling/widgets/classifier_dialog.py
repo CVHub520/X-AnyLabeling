@@ -615,9 +615,18 @@ class ClassifierDialog(QDialog):
             if flags:
                 first_true = get_first_true_flag(flags)
                 if first_true:
-                    export_image_to_category(
-                        image_path, first_true, output_path
-                    )
+                    try:
+                        export_image_to_category(
+                            image_path, first_true, output_path
+                        )
+                    except ValueError as e:
+                        logger.error(f"Error exporting image: {e}")
+                        QMessageBox.warning(
+                            self,
+                            self.tr("Warning"),
+                            self.tr("Invalid category name: %s") % first_true,
+                        )
+                        return
                     exported_count += 1
 
         template = self.tr("Exported %d images to %s")
