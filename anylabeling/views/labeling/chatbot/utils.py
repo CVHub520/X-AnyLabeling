@@ -1,6 +1,10 @@
 import json
 import os
+import tempfile
+import threading
 import time
+
+MODELS_CONFIG_LOCK = threading.Lock()
 
 
 class EventTracker:
@@ -44,11 +48,24 @@ def load_json(file_path: str) -> dict:
 
 def save_json(data: dict, file_path: str):
     """Save the json file"""
-    if not os.path.exists(file_path):
-        os.makedirs(os.path.dirname(file_path), exist_ok=True)
-
-    with open(file_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=4)
+    directory = os.path.dirname(os.path.abspath(file_path))
+    os.makedirs(directory, exist_ok=True)
+    temporary_file = None
+    try:
+        fd, temporary_file = tempfile.mkstemp(
+            prefix=".xal_", suffix=".tmp", dir=directory
+        )
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=4)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporary_file, file_path)
+    finally:
+        if temporary_file and os.path.exists(temporary_file):
+            try:
+                os.remove(temporary_file)
+            except OSError:
+                pass
 
 
 def set_icon_path(icon_name: str, format: str = "svg") -> str:

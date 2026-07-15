@@ -10,6 +10,7 @@ from openai import OpenAI
 from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.utils import (
     EventTracker,
+    MODELS_CONFIG_LOCK,
     load_json,
     save_json,
 )
@@ -153,39 +154,45 @@ def fetch_models_async(provider_display_name, base_url, api_key, config_path):
 def _refresh_models_data(
     provider_display_name, base_url, api_key, config_path
 ):
-    total_data = load_json(config_path)
-    supported_vision_models = _get_supported_vision_models(total_data)
     raw_models = get_models_raw_data(base_url, api_key, timeout=5)
     models_by_id = {
         model["id"]: model for model in raw_models if model.get("id")
     }
     models_id_list = list(models_by_id)
 
-    if provider_display_name not in total_data["models_data"]:
-        total_data["models_data"][provider_display_name] = {}
-    models_data = total_data["models_data"][provider_display_name]
+    with MODELS_CONFIG_LOCK:
+        total_data = load_json(config_path)
+        supported_vision_models = _get_supported_vision_models(total_data)
 
-    models_to_remove = [
-        model_id for model_id in models_data if model_id not in models_id_list
-    ]
-    for model_id in models_to_remove:
-        del models_data[model_id]
+        if provider_display_name not in total_data["models_data"]:
+            total_data["models_data"][provider_display_name] = {}
+        models_data = total_data["models_data"][provider_display_name]
 
-    for model_id in models_id_list:
-        is_vision = model_supports_vision(
-            model_id, models_by_id.get(model_id, {}), supported_vision_models
-        )
-        if model_id not in models_data:
-            models_data[model_id] = dict(
-                vision=is_vision, selected=False, favorite=False
+        models_to_remove = [
+            model_id
+            for model_id in models_data
+            if model_id not in models_id_list
+        ]
+        for model_id in models_to_remove:
+            del models_data[model_id]
+
+        for model_id in models_id_list:
+            is_vision = model_supports_vision(
+                model_id,
+                models_by_id.get(model_id, {}),
+                supported_vision_models,
             )
-        else:
-            models_data[model_id]["vision"] = is_vision
-            models_data[model_id].setdefault("selected", False)
-            models_data[model_id].setdefault("favorite", False)
-    total_data["models_data"][provider_display_name] = models_data
+            if model_id not in models_data:
+                models_data[model_id] = dict(
+                    vision=is_vision, selected=False, favorite=False
+                )
+            else:
+                models_data[model_id]["vision"] = is_vision
+                models_data[model_id].setdefault("selected", False)
+                models_data[model_id].setdefault("favorite", False)
+        total_data["models_data"][provider_display_name] = models_data
 
-    save_json(total_data, config_path)
+        save_json(total_data, config_path)
     return total_data
 
 

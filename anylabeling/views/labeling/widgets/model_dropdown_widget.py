@@ -15,7 +15,11 @@ from PyQt6.QtCore import Qt, QSize, pyqtSignal
 from PyQt6.QtGui import QIcon
 
 from anylabeling.views.labeling.chatbot.config import *
-from anylabeling.views.labeling.chatbot.utils import load_json, save_json
+from anylabeling.views.labeling.chatbot.utils import (
+    MODELS_CONFIG_LOCK,
+    load_json,
+    save_json,
+)
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.theme import get_theme
@@ -316,18 +320,40 @@ class ModelDropdown(QWidget):
             self.current_provider = current_provider
         self.setup_model_list()
 
-    def save_models_data(self, provider: str = None, model_id: str = None):
+    def save_models_data(
+        self,
+        provider: str = None,
+        model_id: str = None,
+        favorite: bool = None,
+    ):
         """Save models data to the config file"""
         try:
             model_config_path = get_models_config_path()
-            model_config = load_json(model_config_path)
-            model_config["models_data"] = self.models_data
+            with MODELS_CONFIG_LOCK:
+                model_config = load_json(model_config_path)
+                stored_models = model_config["models_data"]
 
-            if provider and model_id:
-                model_config["settings"]["provider"] = provider
-                model_config["settings"]["model_id"] = model_id
+                if favorite is not None:
+                    stored_model = stored_models.get(provider, {}).get(
+                        model_id
+                    )
+                    if stored_model is not None:
+                        stored_model["favorite"] = favorite
+                elif provider and model_id:
+                    for models in stored_models.values():
+                        for model_data in models.values():
+                            model_data["selected"] = False
+                    stored_model = stored_models.get(provider, {}).get(
+                        model_id
+                    )
+                    if stored_model is not None:
+                        stored_model["selected"] = True
+                    model_config["settings"]["provider"] = provider
+                    model_config["settings"]["model_id"] = model_id
+                else:
+                    model_config["models_data"] = self.models_data
 
-            save_json(model_config, model_config_path)
+                save_json(model_config, model_config_path)
 
         except Exception as e:
             logger.error(f"Failed to save models data: {e}")
@@ -469,15 +495,17 @@ class ModelDropdown(QWidget):
         self.close()
 
     def toggle_favorite(self, model_name, is_favorite):
+        current_provider = None
         for provider, models in self.models_data.items():
             if model_name in models:
                 self.models_data[provider][model_name][
                     "favorite"
                 ] = is_favorite
+                current_provider = provider
                 break
 
         # Rebuild the entire list to reflect changes
-        self.save_models_data()
+        self.save_models_data(current_provider, model_name, is_favorite)
         self.setup_model_list()
 
     def filter_models(self, search_text, match_threshold=0.4):
