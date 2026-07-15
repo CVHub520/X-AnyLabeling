@@ -5,6 +5,8 @@ import os
 import re
 import subprocess
 import tempfile
+import threading
+import time
 from copy import deepcopy
 
 import requests
@@ -65,6 +67,7 @@ from anylabeling.views.labeling.video_classifier.export_dialog import (
 )
 from anylabeling.views.labeling.video_classifier.exporter import (
     ExporterController,
+    SegmentExporterController,
 )
 from anylabeling.views.labeling.video_classifier.label_panel import (
     LabelNameDialog,
@@ -96,7 +99,6 @@ from anylabeling.views.labeling.video_classifier.utils import (
     color_for_label,
     detect_ffmpeg,
     extract_video_thumbnails,
-    ms_to_seconds,
     ms_to_timecode,
     probe_video,
 )
@@ -142,6 +144,9 @@ Example output:
 }"""
 REQUEST_TIMEOUT = 120
 AI_CANCELLED = "__cancelled__"
+AI_VIDEO_MAX_BYTES = 100 * 1024 * 1024
+AI_VIDEO_MAX_DURATION_MS = 10 * 60 * 1000
+AI_VIDEO_CHUNK_BYTES = 3 * 1024 * 1024
 
 
 def _vertical_scrollbar_style():
@@ -195,19 +200,114 @@ def _vertical_scrollbar_style():
     """
 
 
+class _StreamingVideoBody:
+    def __init__(self, source_path, prefix, suffix, mime, is_cancelled):
+        self.source_path = source_path
+        self.prefix = prefix
+        self.suffix = suffix
+        self.header = f"data:{mime};base64,".encode("ascii")
+        self.is_cancelled = is_cancelled
+        self.source_size = os.path.getsize(source_path)
+
+    def __len__(self):
+        encoded_size = 4 * ((self.source_size + 2) // 3)
+        return (
+            len(self.prefix)
+            + len(self.header)
+            + encoded_size
+            + len(self.suffix)
+        )
+
+    def __iter__(self):
+        yield self.prefix
+        yield self.header
+        remaining = self.source_size
+        with open(self.source_path, "rb") as stream:
+            while remaining:
+                if self.is_cancelled():
+                    raise RuntimeError(AI_CANCELLED)
+                read_size = min(AI_VIDEO_CHUNK_BYTES, remaining)
+                chunk = stream.read(read_size)
+                if len(chunk) != read_size:
+                    raise RuntimeError("Video changed while it was being read")
+                remaining -= len(chunk)
+                yield base64.b64encode(chunk)
+            if stream.read(1):
+                raise RuntimeError("Video changed while it was being read")
+        if self.is_cancelled():
+            raise RuntimeError(AI_CANCELLED)
+        yield self.suffix
+
+
+class VideoLoadWorker(QThread):
+    resultReady = pyqtSignal(str, object, object, bool)
+    progressChanged = pyqtSignal(str)
+
+    def __init__(self, video_path, parent=None):
+        super().__init__(parent)
+        self.video_path = video_path
+
+    def cancel(self):
+        self.requestInterruption()
+
+    def run(self):
+        # Probe metadata via ffprobe / opencv to capture fps / size early.
+        self.progressChanged.emit("Probing video metadata...")
+        info = probe_video(
+            self.video_path,
+            is_cancelled=self.isInterruptionRequested,
+        )
+        if self.isInterruptionRequested():
+            self.resultReady.emit(self.video_path, {}, [], True)
+            return
+        self.progressChanged.emit("Generating video thumbnails...")
+        thumbnails = extract_video_thumbnails(
+            self.video_path,
+            is_cancelled=self.isInterruptionRequested,
+        )
+        self.resultReady.emit(
+            self.video_path,
+            info or {},
+            thumbnails,
+            self.isInterruptionRequested(),
+        )
+
+
 class VideoDescriptionWorker(QThread):
     resultReady = pyqtSignal(str, bool, str)
     progressChanged = pyqtSignal(str)
 
-    def __init__(self, video_path, segment, prompt, parent=None):
+    def __init__(
+        self, video_path, segment, prompt, parent=None, duration_ms=0
+    ):
         super().__init__(parent)
         self.video_path = video_path
         self.segment = deepcopy(segment) if segment else None
         self.prompt = prompt
+        self.duration_ms = int(duration_ms or 0)
         self._cancelled = False
+        self._network_lock = threading.Lock()
+        self._session = None
+        self._response = None
+        self._process_lock = threading.Lock()
+        self._process = None
 
     def cancel(self):
         self._cancelled = True
+        with self._process_lock:
+            process = self._process
+        if process is not None and process.poll() is None:
+            try:
+                process.terminate()
+            except OSError:
+                pass
+        with self._network_lock:
+            response = self._response
+            session = self._session
+        if response is not None:
+            response.close()
+        if session is not None:
+            session.close()
 
     def run(self):
         temp_path = ""
@@ -242,7 +342,7 @@ class VideoDescriptionWorker(QThread):
                 )
                 return
 
-            video_url, temp_path = self._video_url()
+            source_path, mime, temp_path = self._video_source()
             if self._cancelled:
                 self.resultReady.emit("", False, AI_CANCELLED)
                 return
@@ -252,7 +352,8 @@ class VideoDescriptionWorker(QThread):
                 api_key,
                 model_id,
                 settings,
-                video_url,
+                source_path,
+                mime,
             )
             if self._cancelled:
                 self.resultReady.emit("", False, AI_CANCELLED)
@@ -276,20 +377,44 @@ class VideoDescriptionWorker(QThread):
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
 
-    def _video_url(self):
+    def _video_source(self):
         source_path = self.video_path
         temp_path = ""
+        duration_ms = self.duration_ms
+        if self.segment:
+            duration_ms = max(0, self.segment.end_ms - self.segment.start_ms)
+        if duration_ms > AI_VIDEO_MAX_DURATION_MS:
+            raise RuntimeError(
+                "Video duration exceeds the 10-minute AI processing limit. "
+                "Select a shorter segment."
+            )
         if self.segment:
             self.progressChanged.emit("Preparing selected segment...")
             temp_path = self._extract_segment()
-            if temp_path:
-                source_path = temp_path
+            if not temp_path:
+                if self._cancelled:
+                    raise RuntimeError(AI_CANCELLED)
+                raise RuntimeError("Failed to prepare selected segment")
+            source_path = temp_path
 
-        self.progressChanged.emit("Encoding video...")
+        try:
+            source_size = os.path.getsize(source_path)
+            if source_size > AI_VIDEO_MAX_BYTES:
+                raise RuntimeError(
+                    "Video size exceeds the 100 MB AI processing limit. "
+                    "Select a shorter segment."
+                )
+        except Exception:
+            if temp_path:
+                try:
+                    os.remove(temp_path)
+                except OSError:
+                    pass
+            raise
+
+        self.progressChanged.emit("Uploading video...")
         mime = mimetypes.guess_type(source_path)[0] or "video/mp4"
-        with open(source_path, "rb") as f:
-            data = base64.b64encode(f.read()).decode("utf-8")
-        return f"data:{mime};base64,{data}", temp_path
+        return source_path, mime, temp_path
 
     def _extract_segment(self):
         ffmpeg = detect_ffmpeg()
@@ -304,6 +429,8 @@ class VideoDescriptionWorker(QThread):
         cmd = [
             ffmpeg,
             "-y",
+            "-loglevel",
+            "error",
             "-ss",
             f"{self.segment.start_ms / 1000.0:.3f}",
             "-t",
@@ -321,15 +448,7 @@ class VideoDescriptionWorker(QThread):
             "28",
             out_path,
         ]
-        try:
-            subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                timeout=60,
-                check=True,
-            )
-        except Exception:
+        if not self._run_process(cmd, timeout=60):
             try:
                 os.remove(out_path)
             except OSError:
@@ -337,8 +456,61 @@ class VideoDescriptionWorker(QThread):
             return ""
         return out_path
 
+    def _run_process(self, cmd, timeout):
+        kwargs = {}
+        if os.name == "nt":
+            kwargs["creationflags"] = getattr(
+                subprocess, "CREATE_NO_WINDOW", 0
+            )
+        try:
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                **kwargs,
+            )
+        except OSError:
+            return False
+
+        with self._process_lock:
+            self._process = process
+        deadline = time.monotonic() + timeout
+        try:
+            while True:
+                if self._cancelled:
+                    self._stop_process(process)
+                    return False
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    self._stop_process(process)
+                    return False
+                try:
+                    process.communicate(timeout=min(0.25, remaining))
+                    return process.returncode == 0
+                except subprocess.TimeoutExpired:
+                    continue
+        finally:
+            with self._process_lock:
+                if self._process is process:
+                    self._process = None
+
+    @staticmethod
+    def _stop_process(process):
+        if process.poll() is not None:
+            return
+        try:
+            process.terminate()
+        except OSError:
+            return
+        try:
+            process.communicate(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.communicate()
+
     def _call_openai_api(
-        self, api_address, api_key, model_id, settings, video_url
+        self, api_address, api_key, model_id, settings, source_path, mime
     ):
         if not api_address.endswith("/"):
             api_address += "/"
@@ -355,7 +527,7 @@ class VideoDescriptionWorker(QThread):
                 "content": [
                     {
                         "type": "video_url",
-                        "video_url": {"url": video_url},
+                        "video_url": {"url": "__XANYLABELING_VIDEO_DATA__"},
                         "fps": 2,
                     },
                     {"type": "text", "text": self.prompt},
@@ -375,24 +547,67 @@ class VideoDescriptionWorker(QThread):
         if max_tokens:
             data["max_tokens"] = max_tokens
 
-        self.progressChanged.emit("Waiting for AI response...")
-        response = requests.post(
-            api_address,
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            },
-            json=data,
-            timeout=(10, REQUEST_TIMEOUT),
+        body = self._request_body(data, source_path, mime)
+        session = requests.Session()
+        with self._network_lock:
+            self._session = session
+        response = None
+        try:
+            if self._cancelled:
+                raise RuntimeError(AI_CANCELLED)
+            response = session.post(
+                api_address,
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                    "Content-Length": str(len(body)),
+                },
+                data=body,
+                timeout=(10, REQUEST_TIMEOUT),
+                stream=True,
+            )
+            with self._network_lock:
+                self._response = response
+            if self._cancelled:
+                raise RuntimeError(AI_CANCELLED)
+            self.progressChanged.emit("Waiting for AI response...")
+            if not response.ok:
+                try:
+                    error_message = (
+                        response.json().get("error", {}).get("message")
+                    )
+                except Exception:
+                    error_message = response.text
+                raise RuntimeError(error_message or response.reason)
+            result = response.json()
+            return result["choices"][0]["message"]["content"].strip()
+        finally:
+            if response is not None:
+                response.close()
+            session.close()
+            with self._network_lock:
+                if self._response is response:
+                    self._response = None
+                if self._session is session:
+                    self._session = None
+
+    def _request_body(self, data, source_path, mime):
+        marker = b"__XANYLABELING_VIDEO_DATA__"
+        payload = json.dumps(
+            data,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        if payload.count(marker) != 1:
+            raise RuntimeError("Failed to prepare the video request")
+        prefix, suffix = payload.split(marker, 1)
+        return _StreamingVideoBody(
+            source_path,
+            prefix,
+            suffix,
+            mime,
+            lambda: self._cancelled,
         )
-        if not response.ok:
-            try:
-                error_message = response.json().get("error", {}).get("message")
-            except Exception:
-                error_message = response.text
-            raise RuntimeError(error_message or response.reason)
-        result = response.json()
-        return result["choices"][0]["message"]["content"].strip()
 
 
 class SegmentEditDialog(QDialog):
@@ -587,6 +802,10 @@ class VideoClassifierDialog(QDialog):
         self._pending_in_ms = None
         self._pending_out_ms = None
         self._exporter = None
+        self._segment_exporter = None
+        self._video_load_worker = None
+        self._video_load_workers = []
+        self._video_load_progress = None
         self._selected_segment_id = ""
         self._undo_stack = []
         self._redo_stack = []
@@ -1305,11 +1524,68 @@ class VideoClassifierDialog(QDialog):
         if not self._save_dirty_sidecar():
             return
 
+        self._cancel_video_load()
+        progress = QProgressDialog(
+            self.tr("Loading video..."),
+            self.tr("Cancel"),
+            0,
+            0,
+            self,
+        )
+        progress.setWindowTitle(self.tr("Open video"))
+        progress.setWindowModality(Qt.WindowModality.NonModal)
+        progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+        progress.setStyleSheet(get_progress_dialog_style())
+
+        worker = VideoLoadWorker(path, self)
+        self._video_load_worker = worker
+        self._video_load_workers.append(worker)
+        self._video_load_progress = progress
+        worker.progressChanged.connect(self._on_video_load_progress)
+        worker.resultReady.connect(self._on_video_load_finished)
+        worker.finished.connect(
+            lambda current=worker: self._on_video_load_worker_stopped(current)
+        )
+        progress.canceled.connect(self._cancel_video_load)
+        worker.start()
+        progress.show()
+
+    def _on_video_load_progress(self, text):
+        if self.sender() is not self._video_load_worker:
+            return
+        if self._video_load_progress is not None:
+            self._video_load_progress.setLabelText(self.tr(text))
+
+    def _on_video_load_finished(self, path, info, thumbnails, cancelled):
+        worker = self.sender()
+        if worker is not self._video_load_worker:
+            return
+        self._video_load_worker = None
+        if self._video_load_progress is not None:
+            self._video_load_progress.close()
+            self._video_load_progress = None
+        if cancelled or self._released:
+            return
+        self._apply_loaded_video(path, info, thumbnails)
+
+    def _on_video_load_worker_stopped(self, worker):
+        if worker in self._video_load_workers:
+            self._video_load_workers.remove(worker)
+        worker.deleteLater()
+
+    def _cancel_video_load(self):
+        if self._video_load_worker is not None:
+            self._video_load_worker.cancel()
+        if self._video_load_progress is not None:
+            self._video_load_progress.close()
+            self._video_load_progress = None
+
+    def _apply_loaded_video(self, path, info, thumbnails):
         self._video_path = path
         self.title_label.setText(os.path.basename(path))
         self.title_label.setToolTip(path)
-        # Probe metadata via ffprobe / opencv to capture fps / size early.
-        info = probe_video(path) or {}
         existing = load_sidecar(path)
         if existing:
             sidecar = existing
@@ -1361,7 +1637,7 @@ class VideoClassifierDialog(QDialog):
             self.timeline.set_duration(sidecar.duration_ms)
         self.timeline.set_playhead(0)
         self.timeline.set_view_start(0)
-        self.timeline.set_thumbnails(extract_video_thumbnails(path))
+        self.timeline.set_thumbnails(thumbnails)
 
         self.label_panel.set_labels(sidecar.labels, sidecar.label_colors)
         self._sync_timeline_active_label()
@@ -1386,6 +1662,7 @@ class VideoClassifierDialog(QDialog):
     def _on_close_video(self):
         if not self._save_dirty_sidecar():
             return
+        self._cancel_video_load()
         self.player.stop()
         try:
             self.player.load("")
@@ -1974,7 +2251,11 @@ class VideoClassifierDialog(QDialog):
             else int(self._sidecar.duration_ms or 0)
         )
         self._segmentation_worker = VideoDescriptionWorker(
-            self._video_path, target_seg, prompt, self
+            self._video_path,
+            target_seg,
+            prompt,
+            self,
+            self._sidecar.duration_ms,
         )
         self._segmentation_worker.resultReady.connect(
             self._on_ai_segmentation_finished
@@ -2020,7 +2301,11 @@ class VideoClassifierDialog(QDialog):
         self.btn_ai_description.setEnabled(False)
         self.btn_ai_segment.setEnabled(False)
         self._description_worker = VideoDescriptionWorker(
-            self._video_path, seg, prompt, self
+            self._video_path,
+            seg,
+            prompt,
+            self,
+            self._sidecar.duration_ms,
         )
         self._description_worker.resultReady.connect(
             self._on_ai_description_finished
@@ -2504,6 +2789,8 @@ class VideoClassifierDialog(QDialog):
         return None
 
     def _export_selected_segment(self):
+        if self._segment_exporter is not None:
+            return
         seg = self._find_segment(self._selected_segment_id)
         if not self._video_path or not seg:
             return
@@ -2523,19 +2810,7 @@ class VideoClassifierDialog(QDialog):
         save_path = self._selected_segment_export_path(seg)
         if not save_path:
             return
-        ok, error = self._export_segment_mp4(ffmpeg, seg, save_path)
-        if ok:
-            QMessageBox.information(
-                self,
-                self.tr("Export complete"),
-                self.tr("Exported segment to {path}").format(path=save_path),
-            )
-            return
-        QMessageBox.warning(
-            self,
-            self.tr("Export failed"),
-            error or self.tr("Failed to export the selected segment."),
-        )
+        self._start_segment_export(ffmpeg, seg, save_path)
 
     def _selected_segment_export_path(self, seg):
         stem = os.path.splitext(os.path.basename(self._video_path))[0]
@@ -2555,16 +2830,14 @@ class VideoClassifierDialog(QDialog):
             path += ".mp4"
         return path
 
-    def _export_segment_mp4(self, ffmpeg, seg, save_path):
-        os.makedirs(os.path.dirname(os.path.abspath(save_path)), exist_ok=True)
+    def _start_segment_export(self, ffmpeg, seg, save_path):
         progress = QProgressDialog(
             self.tr("Exporting selected segment..."),
-            "",
+            self.tr("Cancel"),
             0,
             0,
             self,
         )
-        progress.setCancelButton(None)
         progress.setWindowTitle(self.tr("Export segment"))
         progress.setStyleSheet(
             get_progress_dialog_style(color=get_theme()["text"], height=20)
@@ -2572,65 +2845,50 @@ class VideoClassifierDialog(QDialog):
         progress.setMinimumDuration(0)
         progress.setAutoClose(False)
         progress.setAutoReset(False)
-        progress.show()
-        QApplication.processEvents()
-        try:
-            ok, error = self._run_segment_ffmpeg(
-                ffmpeg, seg, save_path, re_encode=False
-            )
-            if not ok:
-                ok, error = self._run_segment_ffmpeg(
-                    ffmpeg, seg, save_path, re_encode=True
-                )
-            return ok, error
-        finally:
-            progress.close()
-
-    def _run_segment_ffmpeg(self, ffmpeg, seg, save_path, re_encode):
-        start = ms_to_seconds(seg.start_ms)
-        duration = ms_to_seconds(seg.end_ms) - start
-        if duration <= 0:
-            return False, self.tr("Selected segment duration is invalid.")
-        cmd = [
+        controller = SegmentExporterController(
             ffmpeg,
-            "-y",
-            "-ss",
-            f"{start:.3f}",
-            "-i",
             self._video_path,
-            "-t",
-            f"{duration:.3f}",
-            "-map",
-            "0:v:0",
-        ]
-        if re_encode:
-            cmd += [
-                "-c:v",
-                "libx264",
-                "-preset",
-                "veryfast",
-                "-crf",
-                "23",
-            ]
-        else:
-            cmd += ["-c", "copy", "-avoid_negative_ts", "make_zero"]
-        cmd += ["-an", save_path]
-        kwargs = {}
-        if os.name == "nt":
-            kwargs["creationflags"] = getattr(
-                subprocess, "CREATE_NO_WINDOW", 0
-            )
-        result = subprocess.run(
-            cmd,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            **kwargs,
+            seg.start_ms,
+            seg.end_ms,
+            save_path,
+            self,
         )
-        if result.returncode == 0:
-            return True, ""
-        error = (result.stderr or b"").decode("utf-8", errors="replace")
-        return False, error.strip()[-400:]
+        self._segment_exporter = controller
+
+        def on_progress(message):
+            progress.setLabelText(self.tr(message))
+
+        def on_finished(ok, message):
+            progress.close()
+            if self._segment_exporter is controller:
+                self._segment_exporter = None
+            self._refresh_actions()
+            if self._released:
+                return
+            if ok:
+                QMessageBox.information(
+                    self,
+                    self.tr("Export complete"),
+                    self.tr("Exported segment to {path}").format(
+                        path=save_path
+                    ),
+                )
+            elif message == "Cancelled":
+                self._refresh_status_bar(extra=self.tr("Export cancelled."))
+            else:
+                QMessageBox.warning(
+                    self,
+                    self.tr("Export failed"),
+                    message
+                    or self.tr("Failed to export the selected segment."),
+                )
+
+        controller.progressChanged.connect(on_progress)
+        controller.finished.connect(on_finished)
+        progress.canceled.connect(controller.cancel)
+        self._refresh_actions()
+        controller.start()
+        progress.show()
 
     # Export
     def _on_export_clicked(self):
@@ -2782,6 +3040,7 @@ class VideoClassifierDialog(QDialog):
         self.btn_export_selected.setEnabled(
             edit_enabled
             and bool(self._find_segment(self._selected_segment_id))
+            and self._segment_exporter is None
         )
         if detect_ffmpeg():
             self.btn_export.setToolTip(self.tr("Export dataset"))
@@ -2824,11 +3083,7 @@ class VideoClassifierDialog(QDialog):
         if self._released:
             return
         self._released = True
-        if self._exporter is not None:
-            try:
-                self._exporter.cancel()
-            except Exception:
-                pass
+        self._release_media_workers()
         if self._description_worker is not None:
             try:
                 self._description_worker.cancel()
@@ -2868,6 +3123,23 @@ class VideoClassifierDialog(QDialog):
             self.player.release()
         except Exception:
             pass
+
+    def _release_media_workers(self):
+        for exporter in (self._exporter, self._segment_exporter):
+            if exporter is not None:
+                try:
+                    exporter.cancel()
+                except Exception:
+                    pass
+        self._cancel_video_load()
+        for worker in list(self._video_load_workers):
+            try:
+                worker.cancel()
+                worker.wait(1000)
+            except Exception:
+                pass
+        self._video_load_workers = []
+        self._video_load_worker = None
 
     def closeEvent(self, event):
         if not self._save_dirty_sidecar():

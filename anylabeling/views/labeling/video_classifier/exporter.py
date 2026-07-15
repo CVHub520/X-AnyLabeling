@@ -14,6 +14,7 @@ from .sidecar import load_sidecar
 from .utils import detect_ffmpeg, ms_to_seconds, safe_stem
 
 _SAFE_NAME_RE = re.compile(r"[^A-Za-z0-9._\-]+")
+SEGMENT_EXPORT_TIMEOUT = 1800
 
 
 def safe_token(name, fallback="x"):
@@ -370,6 +371,213 @@ class ExporterWorker(QObject):
                     rel = os.path.relpath(full, os.path.dirname(root))
                     zf.write(full, rel)
         return zip_path
+
+
+class SegmentExporterWorker(QObject):
+    progressChanged = pyqtSignal(str)
+    finished = pyqtSignal(bool, str)
+
+    def __init__(
+        self,
+        ffmpeg,
+        video_path,
+        start_ms,
+        end_ms,
+        output_path,
+        parent=None,
+    ):
+        super().__init__(parent)
+        self.ffmpeg = ffmpeg
+        self.video_path = video_path
+        self.start_ms = int(start_ms)
+        self.end_ms = int(end_ms)
+        self.output_path = output_path
+        self._cancel = threading.Event()
+        self._process = None
+        self._process_lock = threading.Lock()
+
+    def cancel(self):
+        self._cancel.set()
+        with self._process_lock:
+            process = self._process
+        if process is not None and process.poll() is None:
+            try:
+                process.terminate()
+            except OSError:
+                pass
+
+    def is_cancelled(self):
+        return self._cancel.is_set()
+
+    def run(self):
+        start = ms_to_seconds(self.start_ms)
+        duration = ms_to_seconds(self.end_ms) - start
+        if duration <= 0:
+            self.finished.emit(False, "Selected segment duration is invalid.")
+            return
+
+        os.makedirs(
+            os.path.dirname(os.path.abspath(self.output_path)), exist_ok=True
+        )
+        deadline = time.monotonic() + SEGMENT_EXPORT_TIMEOUT
+        self.progressChanged.emit("Copying video stream...")
+        ok, error = self._run_ffmpeg(
+            self._command(start, duration, re_encode=False),
+            "Stream copy",
+            deadline,
+        )
+        if not ok and not self.is_cancelled():
+            self.progressChanged.emit(
+                "Stream copy failed; re-encoding video..."
+            )
+            ok, error = self._run_ffmpeg(
+                self._command(start, duration, re_encode=True),
+                "Re-encode",
+                deadline,
+            )
+        if self.is_cancelled():
+            self.finished.emit(False, "Cancelled")
+            return
+        self.finished.emit(ok, error)
+
+    def _command(self, start, duration, re_encode):
+        cmd = [
+            self.ffmpeg,
+            "-y",
+            "-loglevel",
+            "error",
+            "-ss",
+            f"{start:.3f}",
+            "-i",
+            self.video_path,
+            "-t",
+            f"{duration:.3f}",
+            "-map",
+            "0:v:0",
+        ]
+        if re_encode:
+            cmd += [
+                "-c:v",
+                "libx264",
+                "-preset",
+                "veryfast",
+                "-crf",
+                "23",
+            ]
+        else:
+            cmd += ["-c", "copy", "-avoid_negative_ts", "make_zero"]
+        cmd += ["-an", self.output_path]
+        return cmd
+
+    def _run_ffmpeg(self, cmd, stage, deadline):
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return False, f"{stage} timed out."
+        kwargs = {}
+        if os.name == "nt":
+            kwargs["creationflags"] = getattr(
+                subprocess, "CREATE_NO_WINDOW", 0
+            )
+        try:
+            process = subprocess.Popen(
+                cmd,
+                stdin=subprocess.DEVNULL,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.PIPE,
+                **kwargs,
+            )
+        except OSError as exc:
+            return False, f"{stage} failed to start: {exc}"
+
+        with self._process_lock:
+            self._process = process
+        try:
+            while True:
+                if self.is_cancelled():
+                    self._stop_process(process)
+                    return False, "Cancelled"
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    self._stop_process(process)
+                    return False, (
+                        f"{stage} timed out after "
+                        f"{SEGMENT_EXPORT_TIMEOUT} seconds."
+                    )
+                try:
+                    _, stderr = process.communicate(
+                        timeout=min(0.25, remaining)
+                    )
+                    break
+                except subprocess.TimeoutExpired:
+                    continue
+        finally:
+            with self._process_lock:
+                if self._process is process:
+                    self._process = None
+
+        if self.is_cancelled():
+            return False, "Cancelled"
+        if process.returncode == 0:
+            return True, ""
+        error = (stderr or b"").decode("utf-8", errors="replace")
+        detail = error.strip()[-400:]
+        return (
+            False,
+            f"{stage} failed (exit code {process.returncode}): {detail}",
+        )
+
+    @staticmethod
+    def _stop_process(process):
+        if process.poll() is not None:
+            return
+        try:
+            process.terminate()
+        except OSError:
+            return
+        try:
+            process.communicate(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.communicate()
+
+
+class SegmentExporterController(QObject):
+    progressChanged = pyqtSignal(str)
+    finished = pyqtSignal(bool, str)
+
+    def __init__(
+        self,
+        ffmpeg,
+        video_path,
+        start_ms,
+        end_ms,
+        output_path,
+        parent=None,
+    ):
+        super().__init__(parent)
+        self._thread = QThread()
+        self._worker = SegmentExporterWorker(
+            ffmpeg,
+            video_path,
+            start_ms,
+            end_ms,
+            output_path,
+        )
+        self._worker.moveToThread(self._thread)
+        self._thread.started.connect(self._worker.run)
+        self._worker.progressChanged.connect(self.progressChanged.emit)
+        self._worker.finished.connect(self._on_finished)
+
+    def start(self):
+        self._thread.start()
+
+    def cancel(self):
+        self._worker.cancel()
+
+    def _on_finished(self, ok, message):
+        self.finished.emit(ok, message)
+        self._thread.quit()
+        self._thread.wait(2000)
 
 
 class ExporterController(QObject):

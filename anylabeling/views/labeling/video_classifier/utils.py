@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 
 from PyQt6.QtGui import QColor, QImage
 
@@ -70,45 +71,47 @@ def detect_ffprobe():
     return None
 
 
-def probe_video(video_path):
+def probe_video(video_path, is_cancelled=None, timeout=15):
     """Return dict {fps, duration_ms, width, height} or None.
 
     Tries ffprobe first, ffmpeg stderr metadata second, then OpenCV.
     """
-    info = _probe_with_ffprobe(video_path)
+    deadline = time.monotonic() + max(0.0, float(timeout))
+    info = _probe_with_ffprobe(video_path, deadline, is_cancelled)
     if info:
         return info
-    info = _probe_with_ffmpeg(video_path)
+    if is_cancelled and is_cancelled():
+        return None
+    info = _probe_with_ffmpeg(video_path, deadline, is_cancelled)
     if info:
         return info
-    return _probe_with_opencv(video_path)
+    if is_cancelled and is_cancelled():
+        return None
+    return _probe_with_opencv(video_path, is_cancelled)
 
 
-def _probe_with_ffprobe(video_path):
+def _probe_with_ffprobe(video_path, deadline=None, is_cancelled=None):
     ffprobe = detect_ffprobe()
     if not ffprobe or not os.path.exists(video_path):
         return None
-    try:
-        cmd = [
-            ffprobe,
-            "-v",
-            "error",
-            "-select_streams",
-            "v:0",
-            "-show_entries",
-            "stream=width,height,r_frame_rate,avg_frame_rate,duration",
-            "-show_entries",
-            "format=duration",
-            "-of",
-            "default=noprint_wrappers=1",
-            video_path,
-        ]
-        out = subprocess.check_output(
-            cmd, stderr=subprocess.STDOUT, timeout=15
-        )
-        text = out.decode("utf-8", errors="replace")
-    except Exception:
+    cmd = [
+        ffprobe,
+        "-v",
+        "error",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=width,height,r_frame_rate,avg_frame_rate,duration",
+        "-show_entries",
+        "format=duration",
+        "-of",
+        "default=noprint_wrappers=1",
+        video_path,
+    ]
+    out = _run_probe_command(cmd, deadline, is_cancelled)
+    if out is None:
         return None
+    text = out.decode("utf-8", errors="replace")
 
     info = {"width": 0, "height": 0, "fps": 0.0, "duration_ms": 0}
     durations = []
@@ -174,20 +177,18 @@ def _parse_frame_rate(value):
         return 0.0
 
 
-def _probe_with_ffmpeg(video_path):
+def _probe_with_ffmpeg(video_path, deadline=None, is_cancelled=None):
     ffmpeg = detect_ffmpeg()
     if not ffmpeg or not os.path.exists(video_path):
         return None
-    try:
-        result = subprocess.run(
-            [ffmpeg, "-hide_banner", "-i", video_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            timeout=15,
-        )
-        text = result.stdout.decode("utf-8", errors="replace")
-    except Exception:
+    out = _run_probe_command(
+        [ffmpeg, "-hide_banner", "-i", video_path],
+        deadline,
+        is_cancelled,
+    )
+    if out is None:
         return None
+    text = out.decode("utf-8", errors="replace")
 
     info = {"width": 0, "height": 0, "fps": 0.0, "duration_ms": 0}
     match = _DURATION_RE.search(text)
@@ -221,12 +222,62 @@ def _probe_with_ffmpeg(video_path):
     return None
 
 
-def _probe_with_opencv(video_path):
+def _run_probe_command(cmd, deadline, is_cancelled):
+    if deadline is None:
+        deadline = time.monotonic() + 15
+    if time.monotonic() >= deadline:
+        return None
+    kwargs = {}
+    if os.name == "nt":
+        kwargs["creationflags"] = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    try:
+        process = subprocess.Popen(
+            cmd,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            **kwargs,
+        )
+    except OSError:
+        return None
+
+    while True:
+        if is_cancelled and is_cancelled():
+            _stop_process(process)
+            return None
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            _stop_process(process)
+            return None
+        try:
+            stdout, _ = process.communicate(timeout=min(0.1, remaining))
+            return stdout
+        except subprocess.TimeoutExpired:
+            continue
+
+
+def _stop_process(process):
+    if process.poll() is not None:
+        return
+    try:
+        process.terminate()
+    except OSError:
+        return
+    try:
+        process.communicate(timeout=2)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.communicate()
+
+
+def _probe_with_opencv(video_path, is_cancelled=None):
     try:
         import cv2
     except ImportError:
         return None
     if not os.path.exists(video_path):
+        return None
+    if is_cancelled and is_cancelled():
         return None
 
     cap = cv2.VideoCapture(video_path)
@@ -234,6 +285,8 @@ def _probe_with_opencv(video_path):
         cap.release()
         return None
     try:
+        if is_cancelled and is_cancelled():
+            return None
         fps = float(cap.get(cv2.CAP_PROP_FPS) or 0.0)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
@@ -267,12 +320,16 @@ def is_video_path(path, exts):
     return path.lower().endswith(tuple(e.lower() for e in exts))
 
 
-def extract_video_thumbnails(video_path, count=16, width=160):
+def extract_video_thumbnails(
+    video_path, count=16, width=160, is_cancelled=None
+):
     try:
         import cv2
     except ImportError:
         return []
     if not os.path.exists(video_path):
+        return []
+    if is_cancelled and is_cancelled():
         return []
 
     cap = cv2.VideoCapture(video_path)
@@ -286,6 +343,8 @@ def extract_video_thumbnails(video_path, count=16, width=160):
         indices = _sample_frame_indices(frame_count, count)
         images = []
         for index in indices:
+            if is_cancelled and is_cancelled():
+                return images
             cap.set(cv2.CAP_PROP_POS_FRAMES, index)
             ok, frame = cap.read()
             if not ok or frame is None:
