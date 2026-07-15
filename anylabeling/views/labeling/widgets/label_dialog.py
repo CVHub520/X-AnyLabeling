@@ -1484,6 +1484,7 @@ class LabelDialog(QtWidgets.QDialog):
                         self.tr("Duplicate Entry"),
                         self.tr("This linking pair already exists."),
                     )
+                    return
                 item = QtWidgets.QListWidgetItem(str(linking_pairs))
                 item.setData(Qt.ItemDataRole.UserRole, linking_pairs)
                 self.linking_list.addItem(item)
@@ -1522,11 +1523,15 @@ class LabelDialog(QtWidgets.QDialog):
         if kie_linking is None:
             kie_linking = []
         self.linking_list.clear()
+        unique_pairs = []
         for linking_pair in kie_linking:
+            if linking_pair in unique_pairs:
+                continue
+            unique_pairs.append(linking_pair)
             item = QtWidgets.QListWidgetItem(str(linking_pair))
             item.setData(Qt.ItemDataRole.UserRole, linking_pair)
             self.linking_list.addItem(item)
-        self.linking_list.setHidden(False if kie_linking else True)
+        self.linking_list.setHidden(False if unique_pairs else True)
 
     def get_last_label(self):
         return self._last_label

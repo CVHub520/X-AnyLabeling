@@ -94,6 +94,21 @@ class TestKieLinking(unittest.TestCase):
         warning.assert_called_once()
         self.assertEqual(self.dialog.linking_list.count(), 0)
 
+    def test_dialog_rejects_duplicate_linking_pair(self):
+        self.dialog.reset_linking([[1, 2]])
+        self.dialog.linking_input.setText("[1, 2]")
+
+        with patch.object(QtWidgets.QMessageBox, "warning") as warning:
+            self.dialog.add_linking_pair()
+
+        warning.assert_called_once()
+        self.assertEqual(self.dialog.get_kie_linking(), [[1, 2]])
+
+    def test_dialog_deduplicates_loaded_linking_pairs(self):
+        self.dialog.reset_linking([[1, 2], [3, 4], [1, 2]])
+
+        self.assertEqual(self.dialog.get_kie_linking(), [[1, 2], [3, 4]])
+
 
 if __name__ == "__main__":
     unittest.main()
