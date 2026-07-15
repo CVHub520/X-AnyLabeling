@@ -2,6 +2,7 @@ import json
 import os
 import tempfile
 import unittest
+from unittest import mock
 
 import yaml
 
@@ -108,3 +109,62 @@ class TestLabelConverterObbBounds(unittest.TestCase):
 
         with open(output_file, "r", encoding="utf-8") as f:
             self.assertEqual(f.read(), "")
+
+
+class TestLabelConverterVocValidation(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.converter = LabelConverter()
+        self.input_file = os.path.join(self.temp_dir.name, "input.xml")
+        self.output_file = os.path.join(self.temp_dir.name, "output.json")
+
+    def _convert(self, objects, mode="rectangle"):
+        xml = (
+            "<annotation><filename>image.jpg</filename>"
+            "<size><width>100</width><height>50</height></size>"
+            f"{objects}</annotation>"
+        )
+        with open(self.input_file, "w", encoding="utf-8") as f:
+            f.write(xml)
+        self.converter.voc_to_custom(
+            self.input_file, self.output_file, "image.jpg", mode
+        )
+        with open(self.output_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_missing_geometry_is_skipped(self):
+        objects = (
+            "<object><name>missing</name></object>"
+            "<object><name>valid</name><bndbox>"
+            "<xmin>1</xmin><ymin>2</ymin><xmax>3</xmax><ymax>4</ymax>"
+            "</bndbox></object>"
+        )
+
+        with mock.patch(
+            "anylabeling.views.labeling.label_converter.logger.warning"
+        ) as warning:
+            data = self._convert(objects)
+
+        self.assertEqual(
+            [shape["label"] for shape in data["shapes"]], ["valid"]
+        )
+        warning.assert_called_once()
+        self.assertIn("VOC object 1", warning.call_args.args[0])
+        self.assertIn(self.input_file, warning.call_args.args[0])
+
+    def test_incomplete_geometry_is_skipped(self):
+        objects = (
+            "<object><name>incomplete</name><bndbox>"
+            "<xmin>1</xmin><ymin>2</ymin><xmax>3</xmax>"
+            "</bndbox></object>"
+        )
+
+        with mock.patch(
+            "anylabeling.views.labeling.label_converter.logger.warning"
+        ) as warning:
+            data = self._convert(objects)
+
+        self.assertEqual(data["shapes"], [])
+        warning.assert_called_once()
+        self.assertIn("bndbox/ymax", warning.call_args.args[0])

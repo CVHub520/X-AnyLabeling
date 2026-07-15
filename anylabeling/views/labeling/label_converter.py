@@ -685,7 +685,13 @@ class LabelConverter:
         self.custom_data["imageHeight"] = image_height
         self.custom_data["imageWidth"] = image_width
 
-        for obj in root.findall("object"):
+        def get_coordinate(obj, path):
+            element = obj.find(path)
+            if element is None or element.text is None:
+                raise ValueError(f"missing <{path}>")
+            return float(element.text)
+
+        for object_index, obj in enumerate(root.findall("object"), 1):
             name_elem = obj.find("name")
             if name_elem is None:
                 continue
@@ -694,36 +700,47 @@ class LabelConverter:
             if obj.find("difficult") is not None:
                 difficult = str(obj.find("difficult").text)
             points = []
-            if obj.find("polygon") is not None and mode == "polygon":
-                num_points = len(obj.find("polygon")) // 2
-                for i in range(1, num_points + 1):
-                    x_tag = f"polygon/x{i}"
-                    y_tag = f"polygon/y{i}"
-                    x = float(obj.find(x_tag).text)
-                    y = float(obj.find(y_tag).text)
-                    points.append([x, y])
-                shape_type = "polygon"
-            elif obj.find("bndbox") is not None and mode in [
-                "rectangle",
-                "polygon",
-            ]:
-                xmin = float(obj.find("bndbox/xmin").text)
-                ymin = float(obj.find("bndbox/ymin").text)
-                xmax = float(obj.find("bndbox/xmax").text)
-                ymax = float(obj.find("bndbox/ymax").text)
-                points = [
-                    [xmin, ymin],
-                    [xmax, ymin],
-                    [xmax, ymax],
-                    [xmin, ymax],
-                ]
-                shape_type = "rectangle"
+            try:
+                if obj.find("polygon") is not None and mode == "polygon":
+                    num_points = len(obj.find("polygon")) // 2
+                    for i in range(1, num_points + 1):
+                        x_tag = f"polygon/x{i}"
+                        y_tag = f"polygon/y{i}"
+                        x = get_coordinate(obj, x_tag)
+                        y = get_coordinate(obj, y_tag)
+                        points.append([x, y])
+                    shape_type = "polygon"
+                elif obj.find("bndbox") is not None and mode in [
+                    "rectangle",
+                    "polygon",
+                ]:
+                    xmin = get_coordinate(obj, "bndbox/xmin")
+                    ymin = get_coordinate(obj, "bndbox/ymin")
+                    xmax = get_coordinate(obj, "bndbox/xmax")
+                    ymax = get_coordinate(obj, "bndbox/ymax")
+                    points = [
+                        [xmin, ymin],
+                        [xmax, ymin],
+                        [xmax, ymax],
+                        [xmin, ymax],
+                    ]
+                    shape_type = "rectangle"
+                else:
+                    raise ValueError(f"missing geometry for mode {mode!r}")
+                if not points:
+                    raise ValueError("geometry has no points")
+                difficult_value = bool(int(difficult))
+            except (AttributeError, TypeError, ValueError) as e:
+                logger.warning(
+                    f"Skipping VOC object {object_index} in {input_file}: {e}"
+                )
+                continue
             shape = {
                 "label": label,
                 "description": "",
                 "points": points,
                 "group_id": None,
-                "difficult": bool(int(difficult)),
+                "difficult": difficult_value,
                 "shape_type": shape_type,
                 "flags": {},
             }
