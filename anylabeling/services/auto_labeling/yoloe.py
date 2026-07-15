@@ -26,6 +26,26 @@ except ImportError:
     YOLOE_AVAILABLE = False
 
 
+class _MobileCLIPTextEncoder:
+    def __init__(self, checkpoint, device):
+        import mobileclip
+
+        self.model = mobileclip.create_model_and_transforms(
+            "mobileclip_b", pretrained=checkpoint, device=device
+        )[0]
+        self.tokenizer = mobileclip.get_tokenizer("mobileclip_b")
+        self.device = device
+
+    def tokenize(self, texts):
+        return self.tokenizer(texts).to(self.device)
+
+    def encode_text(self, texts, dtype=None):
+        if dtype is None:
+            dtype = torch.float32
+        text_features = self.model.encode_text(texts).to(dtype)
+        return text_features / text_features.norm(p=2, dim=-1, keepdim=True)
+
+
 class YOLOE(Model):
     """YOLOE: Real-Time Seeing Anything Model"""
 
@@ -90,6 +110,7 @@ class YOLOE(Model):
         self._text_model = None
         self._visual_model = None
         self._prompt_free_model = None
+        self._text_encoder = None
 
         # Cache text prompt state to avoid unnecessary model rebuilds
         self._current_text_prompt = None
@@ -120,15 +141,6 @@ class YOLOE(Model):
         else:
             self.texts = self.load_tag_list()
 
-        # Create symlink for embedding model if needed
-        if not os.path.exists(
-            os.path.basename(self.config["embedding_model_path"])
-        ):
-            os.symlink(
-                self.config["embedding_model_path"],
-                os.path.basename(self.config["embedding_model_path"]),
-            )
-
     @staticmethod
     def build_model(model_path):
         """Build and initialize YOLOE model"""
@@ -137,6 +149,21 @@ class YOLOE(Model):
         model.eval()
         model.to("cuda" if torch.cuda.is_available() else "cpu")
         return model
+
+    def _get_text_pe(self, model, texts):
+        device = next(model.model.parameters()).device
+        if self._text_encoder is None:
+            self._text_encoder = _MobileCLIPTextEncoder(
+                self.config["embedding_model_path"], device
+            )
+        model.model.clip_model = self._text_encoder
+        return model.model.get_text_pe(texts, cache_clip_model=True)
+
+    def _get_vocab(self, model, texts):
+        model.model.set_classes(texts, self._get_text_pe(model, texts))
+        model.model.fuse()
+        head = model.model.model[-1]
+        return torch.nn.ModuleList(cls_head[-1] for cls_head in head.cv3)
 
     def set_auto_labeling_marks(self, marks):
         """Set visual prompting marks"""
@@ -213,7 +240,7 @@ class YOLOE(Model):
         if self._text_model is None or self._current_text_prompt != texts:
             self._text_model = self.build_model(self.config["model_path"])
             self._text_model.set_classes(
-                texts, self._text_model.get_text_pe(texts)
+                texts, self._get_text_pe(self._text_model, texts)
             )
             self._current_text_prompt = texts
         return self._text_model
@@ -234,8 +261,8 @@ class YOLOE(Model):
                 self.config["model_pf_path"]
             )
             # Initialize prompt-free model with vocabulary
-            vocab = self.build_model(self.config["model_path"]).get_vocab(
-                self.texts
+            vocab = self._get_vocab(
+                self.build_model(self.config["model_path"]), self.texts
             )
             self._prompt_free_model.set_vocab(vocab, names=self.texts)
             self._prompt_free_model.model.model[-1].is_fused = True
@@ -346,3 +373,5 @@ class YOLOE(Model):
             del self._visual_model
         if self._prompt_free_model:
             del self._prompt_free_model
+        if self._text_encoder:
+            del self._text_encoder
