@@ -78,8 +78,11 @@ from anylabeling.views.labeling.video_classifier.segment_list import (
     SegmentListPanel,
 )
 from anylabeling.views.labeling.video_classifier.sidecar import (
+    IncompatibleSidecarError,
+    SidecarLoadError,
     Segment,
     SidecarData,
+    backup_sidecar,
     load_sidecar,
     save_sidecar,
 )
@@ -1583,10 +1586,14 @@ class VideoClassifierDialog(QDialog):
             self._video_load_progress = None
 
     def _apply_loaded_video(self, path, info, thumbnails):
-        self._video_path = path
-        self.title_label.setText(os.path.basename(path))
-        self.title_label.setToolTip(path)
-        existing = load_sidecar(path)
+        backup_path = ""
+        try:
+            existing = load_sidecar(path)
+        except SidecarLoadError as exc:
+            backup_path = self._backup_and_rebuild_sidecar(path, exc)
+            if backup_path is None:
+                return
+            existing = None
         if existing:
             sidecar = existing
             # refresh probe info if missing
@@ -1606,6 +1613,10 @@ class VideoClassifierDialog(QDialog):
                 width=info.get("width", 0),
                 height=info.get("height", 0),
             )
+
+        self._video_path = path
+        self.title_label.setText(os.path.basename(path))
+        self.title_label.setToolTip(path)
 
         # ensure colors are populated for labels
         for idx, label in enumerate(sidecar.labels):
@@ -1647,7 +1658,54 @@ class VideoClassifierDialog(QDialog):
         self._refresh_actions()
         self._refresh_video_meta()
         self._update_time_labels()
-        self._refresh_status_bar()
+        status = (
+            self.tr("Sidecar backup: {p}").format(p=backup_path)
+            if backup_path
+            else None
+        )
+        self._refresh_status_bar(extra=status)
+
+    def _backup_and_rebuild_sidecar(self, video_path, error):
+        message = QMessageBox(self)
+        if isinstance(error, IncompatibleSidecarError):
+            title = self.tr("Incompatible sidecar")
+        else:
+            title = self.tr("Invalid sidecar")
+        message.setIcon(QMessageBox.Icon.Warning)
+        message.setWindowTitle(title)
+        message.setText(
+            self.tr(
+                "The sidecar file cannot be loaded and will not be "
+                "overwritten:\n{path}"
+            ).format(path=error.path)
+        )
+        message.setInformativeText(
+            self.tr(
+                "Details: {error}\n\nBack up the original file and create "
+                "a new sidecar?"
+            ).format(error=error.reason)
+        )
+        rebuild_button = message.addButton(
+            self.tr("Back up and rebuild"),
+            QMessageBox.ButtonRole.DestructiveRole,
+        )
+        cancel_button = message.addButton(QMessageBox.StandardButton.Cancel)
+        message.setDefaultButton(cancel_button)
+        message.setEscapeButton(cancel_button)
+        message.exec()
+        if message.clickedButton() is not rebuild_button:
+            return None
+        try:
+            return backup_sidecar(video_path)
+        except OSError as exc:
+            QMessageBox.critical(
+                self,
+                self.tr("Sidecar backup failed"),
+                self.tr("Failed to back up {path}:\n{error}").format(
+                    path=error.path, error=exc
+                ),
+            )
+            return None
 
     def _on_open_clicked(self):
         path, _ = QFileDialog.getOpenFileName(

@@ -9,6 +9,21 @@ from .config import SCHEMA_VERSION, SIDECAR_TYPE
 from .utils import ms_to_frame, safe_stem
 
 
+class SidecarLoadError(ValueError):
+    def __init__(self, path, reason):
+        self.path = path
+        self.reason = reason
+        super().__init__(f"{path}: {reason}")
+
+
+class InvalidSidecarError(SidecarLoadError):
+    pass
+
+
+class IncompatibleSidecarError(SidecarLoadError):
+    pass
+
+
 @dataclass
 class Segment:
     id: str
@@ -138,6 +153,60 @@ def sidecar_path_for(video_path):
     )
 
 
+def backup_sidecar(video_path) -> str:
+    sp = sidecar_path_for(video_path)
+    if not sp or not os.path.exists(sp):
+        raise FileNotFoundError(sp)
+    backup_path = sp + ".bak"
+    index = 1
+    while os.path.lexists(backup_path):
+        backup_path = f"{sp}.bak.{index}"
+        index += 1
+    os.replace(sp, backup_path)
+    return backup_path
+
+
+def _validate_sidecar_payload(data):
+    for name, expected_type, type_name in (
+        ("labels", list, "array"),
+        ("label_colors", dict, "object"),
+        ("segments", list, "array"),
+    ):
+        value = data.get(name)
+        if value is not None and not isinstance(value, expected_type):
+            raise ValueError(f"'{name}' must be a JSON {type_name}")
+
+    labels = data.get("labels") or []
+    if any(not isinstance(label, str) for label in labels):
+        raise ValueError("'labels' entries must be strings")
+
+    label_colors = data.get("label_colors") or {}
+    if any(
+        not isinstance(label, str) or not isinstance(color, str)
+        for label, color in label_colors.items()
+    ):
+        raise ValueError("'label_colors' entries must map strings to strings")
+
+    for index, entry in enumerate(data.get("segments") or []):
+        if not isinstance(entry, dict):
+            raise ValueError(f"'segments[{index}]' must be a JSON object")
+        for name in (
+            "start_ms",
+            "end_ms",
+            "start_frame",
+            "end_frame",
+        ):
+            value = entry.get(name)
+            if value is None:
+                continue
+            try:
+                int(value)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(
+                    f"'segments[{index}].{name}' must be an integer"
+                ) from exc
+
+
 def load_sidecar(video_path) -> Optional[SidecarData]:
     sp = sidecar_path_for(video_path)
     if not sp or not os.path.exists(sp):
@@ -145,17 +214,35 @@ def load_sidecar(video_path) -> Optional[SidecarData]:
     try:
         with open(sp, "r", encoding="utf-8") as f:
             data = json.load(f)
-    except Exception:
-        return None
+    except json.JSONDecodeError as exc:
+        raise InvalidSidecarError(
+            sp,
+            f"Invalid JSON at line {exc.lineno}, column {exc.colno}: "
+            f"{exc.msg}",
+        ) from exc
+    except (OSError, UnicodeError) as exc:
+        raise InvalidSidecarError(
+            sp, f"Failed to read sidecar: {exc}"
+        ) from exc
     if not isinstance(data, dict):
-        return None
+        raise InvalidSidecarError(sp, "Sidecar payload must be a JSON object")
     if data.get("type") and data.get("type") != SIDECAR_TYPE:
         # An unrelated sidecar (e.g. image annotation) — ignore.
         return None
+    version = data.get("version")
+    if version and version != SCHEMA_VERSION:
+        raise IncompatibleSidecarError(
+            sp,
+            f"Unsupported sidecar version {version!r}; "
+            f"expected {SCHEMA_VERSION!r}",
+        )
     try:
+        _validate_sidecar_payload(data)
         sd = SidecarData.from_json(data)
-    except Exception:
-        return None
+    except (TypeError, ValueError) as exc:
+        raise InvalidSidecarError(
+            sp, f"Invalid sidecar schema: {exc}"
+        ) from exc
     return sd
 
 

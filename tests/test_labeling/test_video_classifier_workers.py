@@ -8,6 +8,9 @@ from types import SimpleNamespace
 from unittest import mock
 
 from anylabeling.views.labeling.video_classifier import exporter, utils
+from anylabeling.views.labeling.video_classifier.sidecar import (
+    InvalidSidecarError,
+)
 from anylabeling.views.labeling.widgets import video_classifier_dialog
 
 
@@ -124,6 +127,22 @@ class TestStreamingVideoBody(unittest.TestCase):
 
 
 class TestVideoMediaWorkers(unittest.TestCase):
+    def test_invalid_sidecar_does_not_replace_loaded_video_state(self):
+        dialog = mock.Mock()
+        dialog._backup_and_rebuild_sidecar.return_value = None
+        error = InvalidSidecarError("video.json", "Invalid JSON")
+        with mock.patch.object(
+            video_classifier_dialog, "load_sidecar", side_effect=error
+        ):
+            video_classifier_dialog.VideoClassifierDialog._apply_loaded_video(
+                dialog, "video.mp4", {}, []
+            )
+
+        dialog._backup_and_rebuild_sidecar.assert_called_once_with(
+            "video.mp4", error
+        )
+        dialog.title_label.setText.assert_not_called()
+
     def test_probe_process_is_terminated_on_cancel(self):
         process = mock.Mock()
         process.poll.return_value = None
