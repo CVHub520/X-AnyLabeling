@@ -94,6 +94,7 @@ class VQADialog(QDialog):
         self.custom_components = []
         self.current_image_index = 0
         self.switching_image = False
+        self._ai_workers = set()
 
         self.init_ui()
         self.setup_shortcuts()
@@ -1054,6 +1055,8 @@ class VQADialog(QDialog):
                         result, success, error, widget
                     )
                 )
+                self._ai_workers.add(self.ai_worker)
+                self.ai_worker.completed.connect(self._on_ai_worker_completed)
 
                 self.loading_msg.cancel_button.clicked.connect(
                     self.cancel_ai_processing
@@ -1065,10 +1068,12 @@ class VQADialog(QDialog):
     def cancel_ai_processing(self):
         """Cancel the AI processing"""
         if hasattr(self, "ai_worker") and self.ai_worker.isRunning():
-            self.ai_worker.terminate()
-            self.ai_worker.wait(1000)
+            self.ai_worker.cancel()
         if hasattr(self, "loading_msg"):
             self.loading_msg.close()
+
+    def _on_ai_worker_completed(self):
+        self._ai_workers.discard(self.sender())
 
     def handle_ai_result(self, result, success, error_message, widget):
         """

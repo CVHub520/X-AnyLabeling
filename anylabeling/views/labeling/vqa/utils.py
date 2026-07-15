@@ -18,6 +18,7 @@ class AIWorkerThread(QThread):
     """Worker thread for AI API calls"""
 
     finished = pyqtSignal(str, bool, str)  # result, success, error_message
+    completed = pyqtSignal()
 
     def __init__(
         self,
@@ -36,14 +37,18 @@ class AIWorkerThread(QThread):
         self.components = components or []
         self.parent = parent
         self._is_cancelled = False
+        super().finished.connect(self.completed.emit)
 
     def run(self):
         try:
-            if self._is_cancelled:
+            if self._cancel_requested():
                 return
 
             models_config = self.load_models_config()
             providers_config = self.load_providers_config()
+
+            if self._cancel_requested():
+                return
 
             if not models_config or not providers_config:
                 self.finished.emit("", False, "Configuration files not found")
@@ -76,11 +81,14 @@ class AIWorkerThread(QThread):
                 )
                 return
 
-            if self._is_cancelled:
+            if self._cancel_requested():
                 return
 
             # Process special character references
             processed_prompt = self.process_special_references(self.prompt)
+
+            if self._cancel_requested():
+                return
 
             result = self.call_openai_api(
                 api_address,
@@ -93,11 +101,11 @@ class AIWorkerThread(QThread):
             )
             logger.debug(f"Completion: {result}")
 
-            if not self._is_cancelled:
+            if not self._cancel_requested():
                 self.finished.emit(result, True, "")
 
         except Exception as e:
-            if not self._is_cancelled:
+            if not self._cancel_requested():
                 self.finished.emit("", False, f"API call failed: {str(e)}")
 
     def process_special_references(self, prompt):
@@ -161,6 +169,10 @@ class AIWorkerThread(QThread):
     def cancel(self):
         """Cancel the operation"""
         self._is_cancelled = True
+        self.requestInterruption()
+
+    def _cancel_requested(self):
+        return self._is_cancelled or self.isInterruptionRequested()
 
     def load_models_config(self):
         """Load models configuration"""
@@ -238,6 +250,9 @@ class AIWorkerThread(QThread):
             api_address += "/"
         if not api_address.endswith("chat/completions"):
             api_address += "chat/completions"
+
+        if self._cancel_requested():
+            return ""
 
         response = requests.post(
             api_address, headers=headers, json=data, timeout=REQUEST_TIMEOUT

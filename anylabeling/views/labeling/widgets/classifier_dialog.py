@@ -89,6 +89,7 @@ class ClassifierDialog(QDialog):
         self.output_dir = DEFAULT_OUTPUT_DIR
         self.switching_image = False
         self.top_window = None
+        self._ai_workers = set()
 
         if parent:
             self.top_window = parent
@@ -665,6 +666,8 @@ class ClassifierDialog(QDialog):
                     self.parent(),
                 )
                 self.ai_worker.finished.connect(self.handle_ai_result)
+                self._ai_workers.add(self.ai_worker)
+                self.ai_worker.completed.connect(self._on_ai_worker_completed)
                 self.loading_msg.cancel_button.clicked.connect(
                     self.cancel_ai_processing
                 )
@@ -711,10 +714,12 @@ class ClassifierDialog(QDialog):
 
     def cancel_ai_processing(self):
         if hasattr(self, "ai_worker") and self.ai_worker.isRunning():
-            self.ai_worker.terminate()
-            self.ai_worker.wait(1000)
+            self.ai_worker.cancel()
         if hasattr(self, "loading_msg"):
             self.loading_msg.close()
+
+    def _on_ai_worker_completed(self):
+        self._ai_workers.discard(self.sender())
 
     def auto_run_batch(self):
         if not self.labels:
@@ -800,6 +805,8 @@ class ClassifierDialog(QDialog):
             self.parent(),
         )
         self.ai_worker.finished.connect(self.handle_batch_result)
+        self._ai_workers.add(self.ai_worker)
+        self.ai_worker.completed.connect(self._on_ai_worker_completed)
         self.ai_worker.start()
 
     def handle_batch_result(self, result, success, error_message):
