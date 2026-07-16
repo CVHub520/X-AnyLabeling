@@ -1,5 +1,6 @@
 language: en_US
 theme: auto  # auto, light, dark
+font_family: null  # null uses the system default font
 model_hub: github  # github, modelscope
 device: null  # CPU, GPU
 auto_save: true

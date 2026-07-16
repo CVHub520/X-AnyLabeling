@@ -24,14 +24,14 @@ except Exception:
 class TestSettingsSchema(unittest.TestCase):
 
     def test_field_count(self):
-        self.assertEqual(len(SETTING_FIELDS), 125)
+        self.assertEqual(len(SETTING_FIELDS), 126)
 
     def test_shortcut_and_non_shortcut_count(self):
         shortcut_fields = [
             field for field in SETTING_FIELDS if field.primary == "Shortcuts"
         ]
         self.assertEqual(len(shortcut_fields), 77)
-        self.assertEqual(len(SETTING_FIELDS) - len(shortcut_fields), 48)
+        self.assertEqual(len(SETTING_FIELDS) - len(shortcut_fields), 49)
 
     def test_defaults_cover_all_keys(self):
         defaults = defaults_map()
@@ -42,6 +42,7 @@ class TestSettingsSchema(unittest.TestCase):
             "display_label_popup",
             "auto_switch_to_edit_mode",
             "system_clipboard",
+            "font_family",
             "shape.line_color",
             "canvas.mask.opacity",
             "canvas.crosshair.show",
@@ -71,7 +72,7 @@ class TestSettingsSchema(unittest.TestCase):
             SETTINGS_PRIMARY_ORDER,
             ("Shortcuts", "General", "Shape", "Canvas"),
         )
-        self.assertEqual(len(SETTINGS_GENERAL_KEYS), 8)
+        self.assertEqual(len(SETTINGS_GENERAL_KEYS), 9)
         self.assertEqual(len(SETTINGS_SHAPE_KEYS), 9)
         self.assertEqual(len(SETTINGS_SHORTCUT_KEYS_CORE), 24)
         for key in SETTINGS_GENERAL_KEYS:

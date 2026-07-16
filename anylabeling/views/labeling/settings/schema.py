@@ -67,6 +67,10 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate("SettingsDialog", "Toggle Annotation Checked")
     QCoreApplication.translate("SettingsDialog", "File List Checkbox Editable")
     QCoreApplication.translate("SettingsDialog", "Use System Clipboard")
+    QCoreApplication.translate("SettingsDialog", "Application Font")
+    QCoreApplication.translate(
+        "SettingsDialog", "Choose from fonts available on this system."
+    )
     QCoreApplication.translate("SettingsDialog", "Shape Color Strategy")
     QCoreApplication.translate("SettingsDialog", "Default Shape Color")
     QCoreApplication.translate("SettingsDialog", "Auto Color Shift")
@@ -232,6 +236,7 @@ SETTINGS_GENERAL_KEYS = (
     "exif_scan_enabled",
     "file_list_checkbox_editable",
     "system_clipboard",
+    "font_family",
     "model_hub",
     "logger_level",
     "qt_image_allocation_limit",
@@ -1046,6 +1051,21 @@ def _non_shortcut_fields() -> list[SettingField]:
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
                 "Set the opacity used when rendering masks.",
+            ),
+        ),
+        SettingField(
+            "font_family",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Application Font"
+            ),
+            "str",
+            "General",
+            "Appearance",
+            "Interface",
+            allow_none=True,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Choose from fonts available on this system.",
             ),
         ),
         SettingField(

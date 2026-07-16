@@ -5376,6 +5376,21 @@ Results have been saved to:
       <translation>なし</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/settings/schema.py" line="69" />
+      <source>Application Font</source>
+      <translation>アプリケーションフォント</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/schema.py" line="71" />
+      <source>Choose from fonts available on this system.</source>
+      <translation>このシステムで利用可能なフォントから選択します。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/dialog.py" line="1208" />
+      <source>System Default</source>
+      <translation>システム既定</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/settings/dialog.py" line="1360" />
       <source>Usually used to enable batch labeling mode.</source>
       <translation>通常、一括ラベリングモードを有効にするために使用します。</translation>

@@ -5354,6 +5354,21 @@ Results have been saved to:
       <translation>None</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/settings/schema.py" line="69" />
+      <source>Application Font</source>
+      <translation>Application Font</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/schema.py" line="71" />
+      <source>Choose from fonts available on this system.</source>
+      <translation>Choose from fonts available on this system.</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/dialog.py" line="1208" />
+      <source>System Default</source>
+      <translation>System Default</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/settings/dialog.py" line="1360" />
       <source>Usually used to enable batch labeling mode.</source>
       <translation type="unfinished" />

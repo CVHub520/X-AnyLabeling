@@ -6,7 +6,7 @@ from unittest import mock
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 try:
-    from PyQt6 import QtWidgets
+    from PyQt6 import QtGui, QtWidgets
 
     from anylabeling.views.labeling.settings.controller import SettingsController
     from anylabeling.views.labeling.settings.dialog import SettingsDialog
@@ -144,6 +144,31 @@ class TestSettingsDialogLayout(unittest.TestCase):
         spinboxes = dialog.content_body.findChildren(QtWidgets.QSpinBox)
         self.assertEqual(len(spinboxes), 1)
         self.assertEqual(spinboxes[0].value(), 256)
+
+    def test_general_font_selector_lists_available_font_families(self):
+        dialog = self._create_dialog()
+        dialog._render_primary("General")
+        self.app.processEvents()
+
+        font_combo = next(
+            combo
+            for combo in dialog.content_body.findChildren(QtWidgets.QComboBox)
+            if combo.findData(None) >= 0
+        )
+        available_families = QtGui.QFontDatabase.families()
+        listed_families = [
+            font_combo.itemData(index)
+            for index in range(1, font_combo.count())
+        ]
+        self.assertIsNone(font_combo.itemData(0))
+        self.assertEqual(listed_families, available_families)
+
+        if available_families:
+            font_combo.setCurrentIndex(1)
+            self.assertEqual(
+                dialog._controller.get_value("font_family"),
+                available_families[0],
+            )
 
     def test_shortcuts_reset_viewport_margins(self):
         dialog = self._create_dialog()

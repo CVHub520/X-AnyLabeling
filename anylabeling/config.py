@@ -156,6 +156,14 @@ def get_default_config():
 
 
 def validate_config_item(key, value):
+    if (
+        key == "font_family"
+        and value is not None
+        and (not isinstance(value, str) or not value.strip())
+    ):
+        raise ValueError(
+            f"Unexpected value for config key 'font_family': {value}"
+        )
     if key == "validate_label" and value not in [None, "exact"]:
         raise ValueError(
             f"Unexpected value for config key 'validate_label': {value}"

@@ -11,6 +11,7 @@ from anylabeling.views.common.device_manager import device_manager
 from .. import utils
 from ..logger import logger
 from ..shape import Shape
+from ..utils.qt import apply_application_font
 from ..widgets import LabelDialog
 
 LABEL_OPACITY = 128
@@ -210,6 +211,9 @@ class SettingsRuntimeApplier:
         )
 
     def apply_change(self, key: str, value: Any) -> None:
+        if key == "font_family":
+            apply_application_font(value)
+            return
         if key in {
             "canvas.epsilon",
             "canvas.double_click",

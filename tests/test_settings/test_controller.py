@@ -88,6 +88,28 @@ class TestSettingsController(unittest.TestCase):
                 "qt_image_allocation_limit", -1, schedule_save=False
             )
 
+    def test_font_family_accepts_system_default_and_family_name(self):
+        self.assertIsNone(self.controller.get_value("font_family"))
+
+        changed = self.controller.update_field(
+            "font_family", "  DejaVu Sans  ", schedule_save=False
+        )
+        self.assertTrue(changed)
+        self.assertEqual(
+            self.controller.get_value("font_family"), "DejaVu Sans"
+        )
+
+        changed = self.controller.update_field(
+            "font_family", None, schedule_save=False
+        )
+        self.assertTrue(changed)
+        self.assertIsNone(self.controller.get_value("font_family"))
+
+        with self.assertRaises(SettingsValidationError):
+            self.controller.update_field(
+                "font_family", 10, schedule_save=False
+            )
+
     def test_canvas_field_validation(self):
         self.controller.update_field(
             "canvas.crosshair.width",

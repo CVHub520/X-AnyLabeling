@@ -5378,6 +5378,21 @@ Results have been saved to:
       <translation>없음</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/settings/schema.py" line="69" />
+      <source>Application Font</source>
+      <translation>애플리케이션 글꼴</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/schema.py" line="71" />
+      <source>Choose from fonts available on this system.</source>
+      <translation>이 시스템에서 사용할 수 있는 글꼴 중에서 선택합니다.</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/dialog.py" line="1208" />
+      <source>System Default</source>
+      <translation>시스템 기본값</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/settings/dialog.py" line="1360" />
       <source>Usually used to enable batch labeling mode.</source>
       <translation>일반적으로 일괄 라벨링 모드를 활성화하는 데 사용됩니다.</translation>

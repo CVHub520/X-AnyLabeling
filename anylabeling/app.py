@@ -263,6 +263,7 @@ def main():
         get_app_stylesheet,
         get_dark_palette,
     )
+    from anylabeling.views.labeling.utils.qt import apply_application_font
     from anylabeling.views.labeling.utils.update_checker import (
         check_for_updates_async,
     )
@@ -362,6 +363,7 @@ def main():
             )
 
     app = QtWidgets.QApplication(sys.argv)
+    apply_application_font(config.get("font_family"))
     init_theme(config.get("theme", "light"))
     _dark_palette = get_dark_palette()
     if _dark_palette is not None:

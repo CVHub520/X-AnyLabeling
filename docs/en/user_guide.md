@@ -53,6 +53,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [7.6 Shape Appearance](#76-shape-appearance)
       * [7.7 Model Download Source](#77-model-download-source)
       * [7.8 Theme Settings](#78-theme-settings)
+      * [7.9 Font Settings](#79-font-settings)
    * [8. Supported Tasks](#8-supported-tasks)
       * [8.1 Image Classification](#81-image-classification)
       * [8.2 Object Detection](#82-object-detection)
@@ -989,6 +990,18 @@ You can also set the theme directly in `~/.xanylabelingrc`:
 ```yaml
 theme: auto  # Options: auto, light, dark
 ```
+
+### 7.9 Font Settings
+
+Open `Settings > General > Application Font` to choose the application font from a drop-down list. Qt automatically scans the fonts available on the current system, with support for Windows, macOS, and Linux. Select a font and click **Save** to apply it globally without restarting. Choose **System Default** to restore the operating system's default font and size.
+
+The selection is stored in the `font_family` field of the user configuration file and can also be edited manually:
+
+```yaml
+font_family: null  # null uses the system default; a font name such as "Sarasa UI SC" is also accepted
+```
+
+When editing the value manually, the named font must be installed on the current system. If it is unavailable, Qt automatically falls back to the system default font.
 
 ## 8. Supported Tasks
 

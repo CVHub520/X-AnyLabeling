@@ -11,6 +11,20 @@ from anylabeling.views.labeling.logger import logger
 from .image import get_supported_image_extensions
 
 
+def apply_application_font(font_family):
+    app = QtWidgets.QApplication.instance()
+    if app is None:
+        return
+    default_font = getattr(app, "_xanylabeling_default_font", None)
+    if default_font is None:
+        default_font = QtGui.QFont(app.font())
+        app._xanylabeling_default_font = default_font
+    app_font = QtGui.QFont(default_font)
+    if font_family:
+        app_font.setFamily(font_family)
+    app.setFont(app_font)
+
+
 def scan_all_images(folder_path):
     try:
         extensions = get_supported_image_extensions()

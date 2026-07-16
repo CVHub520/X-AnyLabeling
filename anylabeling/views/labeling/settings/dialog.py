@@ -1200,6 +1200,35 @@ class SettingsDialog(QtWidgets.QDialog):
     ) -> tuple[
         QtWidgets.QWidget, Callable[[Any], None], Callable[[bool], None]
     ]:
+        if field.key == "font_family":
+            editor = QtWidgets.QComboBox(self.content_body)
+            editor.setFixedWidth(244)
+            editor.setStyleSheet(self._combo_style())
+            self._register_wheel_block(editor)
+            editor.addItem(self.tr("System Default"), None)
+            for family in QtGui.QFontDatabase.families():
+                editor.addItem(family, family)
+                editor.setItemData(
+                    editor.count() - 1,
+                    QtGui.QFont(family),
+                    QtCore.Qt.ItemDataRole.FontRole,
+                )
+            self._prepare_combo_popup(editor)
+            editor.currentIndexChanged.connect(
+                lambda _index, f=field, w=editor: self._on_editor_value_changed(
+                    f,
+                    w.currentData(),
+                )
+            )
+            return (
+                editor,
+                lambda value, w=editor: self._set_combo_value(w, value),
+                lambda enabled, w=editor: self._set_error_style(
+                    w,
+                    enabled,
+                    self._combo_style(),
+                ),
+            )
         if field.key == "canvas.crosshair.color":
             editor = HexColorPickerEditor(parent=self.content_body)
             editor.setFixedWidth(self._single_editor_width)
