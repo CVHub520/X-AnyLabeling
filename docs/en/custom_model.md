@@ -1,6 +1,6 @@
 # Model Loading
 
-X-AnyLabeling currently includes many built-in general-purpose models. For a detailed list, please refer to the [Model Zoo](../../docs/en/model_zoo.md).
+X-AnyLabeling includes a variety of built-in models. See the [Model Zoo](./model_zoo.md) for the complete list.
 
 > [!TIP]
 > If you need to deploy a model inference service via a remote server with multi-user collaboration support, please refer to [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server).
@@ -9,9 +9,9 @@ X-AnyLabeling currently includes many built-in general-purpose models. For a det
 
 Before enabling the AI-assisted labeling feature, you need to load a model. This can be done via the `AI` icon button in the left sidebar or by using the shortcut `Ctrl+A`.
 
-Typically, when you select a model from the dropdown list, the application checks if the corresponding model files exist in the user's directory at `~/xanylabeling_data/models/${model_name}`. If they exist, the model is loaded directly. Otherwise, the application automatically downloads the files from the network to the specified directory.
+When you select a model, the application checks `~/xanylabeling_data/models/${model_name}` for its files. Existing files are loaded directly; otherwise, they are downloaded automatically. When `--work-dir` is set, the data directory is created under that working directory instead.
 
-Note: All built-in models are hosted by default on GitHub Releases. Therefore, you need a stable internet connection with access to GitHub; otherwise, the download might fail.
+Built-in models are downloaded from the URLs in their configuration files. Some models can also use ModelScope as the download source, so ensure the selected source is accessible from your network.
 
 For users who fail to load models due to network issues, options include downloading the model offline and loading it manually, or modifying the model download source.
 
@@ -23,11 +23,11 @@ For users who fail to load models due to network issues, options include downloa
 
 ### Modify Model Download Source
 
-For details, please refer to section `7.7 Model Download Source Configuration` in [user_guide.md](./user_guide.md).
+For details, see [Model Download Source](./user_guide.md#77-model-download-source).
 
 ## Loading Adapted User Custom Models
 
-> **Adapted Models** refer to models that have already been integrated into X-AnyLabeling, requiring no custom inference code from the user. A list of adapted models can be found in the [Model Zoo](../../docs/en/model_zoo.md).
+> **Adapted models** already have an inference implementation in X-AnyLabeling. You only need the model and configuration files. See the [Model Zoo](./model_zoo.md) for supported adapters.
 
 In this tutorial, we will use the [YOLOv5s](https://github.com/ultralytics/yolov5) model as an example to detail how to load a custom adapted model.
 
@@ -39,7 +39,7 @@ Suppose you have trained a model locally. First, you can convert the `PyTorch` t
 python export.py --weights yolov5s.pt --include onnx
 ```
 
-Note: The current version does not support **dynamic inputs**, so do not set the `--dynamic` parameter.
+The export parameters must match the selected adapter's input and output contract. Unless the implementation explicitly supports dynamic shapes, use a fixed input size.
 
 Additionally, it is highly recommended to import the exported `*.onnx` file using the [Netron](https://netron.app/) online tool to check the input and output node information, ensuring dimensions and other details are as expected.
 
@@ -49,7 +49,7 @@ Additionally, it is highly recommended to import the exported `*.onnx` file usin
 
 **b. Model Configuration**
 
-Once the `onnx` file is ready, you can browse the [Model Zoo](../../docs/en/model_zoo.md) file to find and copy the configuration file for the corresponding model.
+After preparing the ONNX file, find and copy the corresponding configuration from the [Model Zoo](./model_zoo.md).
 
 Taking [yolov5s.yaml](../../anylabeling/configs/auto_labeling/yolov5s.yaml) as an example, let's look at its content:
 
@@ -168,7 +168,7 @@ model_path: /path/to/yolo26s.engine
 engine: trt
 ```
 
-Then follow the [Offline Model Download](#offline-model-download) workflow and import the yaml file through **Load Custom Model** in the interface to use TensorRT inference.
+Then follow the [Offline Model Download](#offline-model-download) workflow and import the YAML file through **Load Custom Model** to use TensorRT inference.
 
 **c. Model Loading**
 
@@ -188,7 +188,7 @@ Here, we use a multi-class semantic segmentation model, `U-Net`, as an example. 
 
 Export the `ONNX` model, ensuring the output node dimension is `[1, C, H, W]`, where `C` is the total number of classes (including the background class).
 
-> **Friendly Reminder**: Exporting to `ONNX` is optional. You can choose other model formats like `PyTorch`, `OpenVINO`, or `TensorRT` based on your needs. For an example using `Segment-Anything-2` for video object tracking, refer to the [Installation Guide](../../examples/interactive_video_object_segmentation/README.md), the configuration file definition [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml), and the corresponding implementation [segment_anything_2_video.py](../../anylabeling/services/auto_labeling/segment_anything_2_video.py).
+> ONNX is not the only supported format; an adapter may use PyTorch, OpenVINO, or TensorRT instead. For a SAM 2 video-tracking example, see the [installation guide](../../examples/interactive_video_object_segmentation/sam2/README.md), [configuration](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml), and [implementation](../../anylabeling/services/auto_labeling/segment_anything_2_video.py).
 
 **b. Define Configuration File**
 
@@ -419,14 +419,14 @@ class ModelManager(QObject):
     ...
 ```
 
-⚠️Note:
-
--   The model type field must match the `type` field defined in the configuration file (Step **b. Define Configuration File**).
--   If the model is based on `SAM` (Segment Anything Model) interaction patterns, replace `self.auto_segmentation_model_unselected.emit()` with `self.auto_segmentation_model_selected.emit()` to trigger the corresponding functionality. (Or better, use a configuration flag as shown in the example code).
+> [!NOTE]
+> The model type must match the `type` field defined in **b. Define Configuration File**. For a model that uses SAM-style interaction, emit `self.auto_segmentation_model_selected` instead of `self.auto_segmentation_model_unselected`, or use a configuration flag as shown in the example.
 
 # Model Export
 
 > This section provides specific examples of converting custom models to the ONNX format for quick integration into X-AnyLabeling.
+
+For more model export examples, see the [`tools/onnx_exporter`](../../tools/onnx_exporter/) directory.
 
 ## Classification
 

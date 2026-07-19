@@ -1,10 +1,10 @@
 # 常见问题解答 (FAQ)
 
 
-### 安装与运行相关问题
+## 安装与运行相关问题
 
 <details>
-<summary>Q: 启动时报错：仅完成部分的ReadProcessMemory或 WriteProcessMemory请求。</summary>
+<summary>Q：启动时报错“仅完成部分的 ReadProcessMemory 或 WriteProcessMemory 请求”</summary>
 
 可尝试重新打开一次。
 </details>
@@ -71,8 +71,9 @@ python -m anylabeling
 <details>
 <summary>Q: 启动时报错：`Could not locate cublasLt64_12.dll. Please make sure it is in your library path!` </summary>
 
-方案1：OnnxRunTime 库与 CUDA 版本不兼容，可参考[#844](https://github.com/CVHub520/X-AnyLabeling/issues/844)；
-方案2：针对于没有全局安装 CUDA、CUDNN 的方法，可参考[#1014](https://github.com/CVHub520/X-AnyLabeling/issues/1014)。
+方案 1：ONNX Runtime 与 CUDA 版本不兼容，可参考 [#844](https://github.com/CVHub520/X-AnyLabeling/issues/844)。
+
+方案 2：如果没有全局安装 CUDA 和 cuDNN，可参考 [#1014](https://github.com/CVHub520/X-AnyLabeling/issues/1014)。
 </details>
 
 <details>
@@ -88,7 +89,7 @@ python -m anylabeling
 </details>
 
 <details>
-<summary>Q: GPU版本运行时闪退？</summary>
+<summary>Q：GPU 版本运行时闪退</summary>
 
 可参考[#500](https://github.com/CVHub520/X-AnyLabeling/issues/500)。
 </details>
@@ -106,31 +107,31 @@ python -m anylabeling
 </details>
 
 
-### 界面交互相关问题
+## 界面交互相关问题
 
 <details>
 <summary>Q: 如何快速绘制小目标物体？</summary>
 
-可参考[#1000](https://github.com/CVHub520/X-AnyLabeling/issues/1000)。 
+可参考 [#1000](https://github.com/CVHub520/X-AnyLabeling/issues/1000)。
 </details>
 
 <details>
 <summary>Q: 如何标注镂空目标用于图像分割任务？</summary>
 
-可参考[#991](https://github.com/CVHub520/X-AnyLabeling/issues/991)。 
+可参考 [#991](https://github.com/CVHub520/X-AnyLabeling/issues/991)。
 </details>
 
 <details>
 <summary>Q: 如何快速进行多目标关键点标签与分组标注？</summary>
 
-可参考[#982](https://github.com/CVHub520/X-AnyLabeling/issues/982)。 
+可参考 [#982](https://github.com/CVHub520/X-AnyLabeling/issues/982)。
 </details>
 
 <details>
 <summary>Q: 绘制矩形等目标框时，如何开启连续绘制模式？</summary>
 
 可以打开电脑用户目录下的 .xanylabelingrc 配置文件，修改 auto_highlight_shape 和 auto_switch_to_edit_mode 为 False。
-可参考[#887](https://github.com/CVHub520/X-AnyLabeling/issues/887)。 
+可参考 [#887](https://github.com/CVHub520/X-AnyLabeling/issues/887)。
 </details>
 
 <details>
@@ -148,24 +149,13 @@ python -m anylabeling
 <details>
 <summary>Q: 复制粘贴标注对象时出现重叠？(Duplicate Polygons vs Copy & Paste Objects)</summary>
 
-这个问题通常是因为混淆了两种复制功能的使用场景。X-AnyLabeling 其实提供了两套复制机制，它们的设计目的完全不同。
+X-AnyLabeling 提供两种用途不同的复制方式：
 
-先说第一种，也就是快速复制功能，快捷键是 `Ctrl+D`。这个功能主要是为了在同一张图片里快速复制标注框。它的特别之处在于，复制出来的标注框会自动往旁边偏移几个像素（默认为2），这样就不会和原来的框完全重叠在一起。这个设计很实用，特别是当你需要标注一堆相似的目标物体时，按一下 `Ctrl+D` 就能快速复制，而且新旧标注框会自动错开，不会重叠。
+- `Ctrl+D` 用于在当前图片中快速复制对象。新对象默认会偏移 2 个像素，避免与原对象完全重叠。
+- `Ctrl+C` 和 `Ctrl+V` 主要用于跨图片复制对象。粘贴时会保留原坐标，因此在同一张图片中粘贴时会与原对象重叠。
 
-第二种是传统的剪贴板复制粘贴，也就是 `Ctrl+C` 加 `Ctrl+V` 的组合。这个功能的设计初衷是用来跨图片复制标注的。比如你标注了第一张图片里某个位置的物体，想把这个标注直接复制到第二张、...、第n张图片的相同位置上。所以这个功能在粘贴时会严格按照原来的坐标位置来放置标注框，不会做任何偏移。这也是为什么如果你在同一张图片上用 `Ctrl+C` 和 `Ctrl+V`，会发现新旧标注框完全重叠在一起，看起来像是"多个标注框对应同一个对象"——其实这就是它的设计行为，并不是 bug。
+系统剪贴板默认关闭，此时复制内容仅保存在应用内部，切换图片后仍可粘贴。若需将标注以 JSON 格式写入系统剪贴板，可启用 `Edit > Use System Clipboard`；启用后，每次复制都会覆盖系统剪贴板中的原有内容。
 
-另外还有个系统剪贴板的设置需要注意。默认情况下，这个功能是关闭的，也就是配置文件里的 system_clipboard 是 false。这时候你用 `Ctrl+C` 复制的标注数据会存在软件内部的一个变量里，不会影响系统剪贴板的其他内容。这样设计的好处是，即使你切换到其他图片，之前复制的标注内容还在，随时可以粘贴。有些用户可能会觉得"快捷键有概率无法正常触发复制，导致粘贴时依旧沿用上一次的复制结果"，其实这正是这个机制的体现。
-
-如果你想启用系统剪贴板，可以在菜单里找到 Edit -> Use System Clipboard。启用后，复制的标注数据会以 JSON 格式存到系统剪贴板里，你甚至可以在记事本里看到和编辑这些数据。但要注意，这样一来每次复制都会覆盖系统剪贴板的内容。
-
-所以总结一下使用建议：如果你只是在当前图片里复制标注框，建议用 `Ctrl+D`，它会自动帮你错开位置，避免重叠。如果你需要把标注复制到其他图片上，或者就是想让标注框精确地粘贴在原位置，那就用 `Ctrl+C` 和 `Ctrl+V`。
-
-</details>
-
-<details>
-<summary>Q: 应用启动时，首次点击无效？</summary>
-
-此问题暂时无解。 
 </details>
 
 <details>
@@ -208,7 +198,7 @@ xanylabeling --qt-image-allocation-limit 1024
 </details>
 
 
-### 模型相关问题
+## 模型相关问题
 
 <details>
 <summary>Q: 如何使用带 NMS 的 YOLO26 模型（自动标注时出现多个重叠框如何解决）？</summary>
@@ -336,27 +326,27 @@ pip install httpx[socks]
 <summary>Q: Error in predict_shapes or Error in model prediction: list index out of range. Please check the model.</summary>
 
 可参考以下解决方案：
-    - 检查标签名称是否为纯数字，若是，请务必将其加上单引号；
-    - 检查配置文件中 `type` 字段是否正确定义，可参考[#837](https://github.com/CVHub520/X-AnyLabeling/issues/837)、[#878](https://github.com/CVHub520/X-AnyLabeling/issues/878)；
+- 检查标签名称是否为纯数字；如果是，请使用单引号包裹。
+- 检查配置文件中的 `type` 字段是否正确定义，参见 [#837](https://github.com/CVHub520/X-AnyLabeling/issues/837) 和 [#878](https://github.com/CVHub520/X-AnyLabeling/issues/878)。
 </details>
 
 <details>
 <summary>Q: Error with Error in loading model: exceptions must derive from BaseException</summary>
 
 1. 请确保配置文件中，模型路径格式正确且存在。可参考[#868](https://github.com/CVHub520/X-AnyLabeling/issues/868)、[#441](https://github.com/CVHub520/X-AnyLabeling/issues/441)。
-2. 检查是否是当前 onnx 模型 ir_version 版本与对应的 onnx 版本之间不匹配。可参考[#1120](https://github.com/CVHub520/X-AnyLabeling/issues/1120#issuecomment-3303864917)
+2. 检查 ONNX 模型的 `ir_version` 是否与当前 ONNX 版本兼容。参见 [#1120](https://github.com/CVHub520/X-AnyLabeling/issues/1120#issuecomment-3303864917)。
 </details>
 
 <details>
 <summary>Q: Error in model prediction: ‘int’ object is not subscriptable. Please check the model.</summary>
 
-如果是非官方内置的自定义模型，请检查模型预处理、推理和后处理部分，可参考[#828](https://github.com/CVHub520/X-AnyLabeling/issues/828).
+如果是非官方内置的自定义模型，请检查模型的预处理、推理和后处理逻辑，参见 [#828](https://github.com/CVHub520/X-AnyLabeling/issues/828)。
 </details>
 
 <details>
 <summary>Q: 安装 SAM2 出现的报错问题：`from sam2 import _C`</summary>
 
-可参考[#719](https://github.com/CVHub520/X-AnyLabeling/issues/719)、[#842](https://github.com/CVHub520/X-AnyLabeling/issues/842)、[#843](https://github.com/CVHub520/X-AnyLabeling/issues/843)、[#864](https://github.com/CVHub520/X-AnyLabeling/issues/865)、[#865](https://github.com/CVHub520/X-AnyLabeling/issues/865)。
+可参考 [#719](https://github.com/CVHub520/X-AnyLabeling/issues/719)、[#842](https://github.com/CVHub520/X-AnyLabeling/issues/842)、[#843](https://github.com/CVHub520/X-AnyLabeling/issues/843)、[#864](https://github.com/CVHub520/X-AnyLabeling/issues/864) 和 [#865](https://github.com/CVHub520/X-AnyLabeling/issues/865)。
 </details>
 
 <details>
@@ -364,9 +354,9 @@ pip install httpx[socks]
 
 当前程序的处理逻辑是：当检测到本地已有缓存模型时，会先进行完整性校验；若校验失败或文件为空，则删除本地缓存并重新下载；若下载在达到最大尝试次数后仍失败，则停止本次加载并直接报错。该行为不会在单次加载流程中无限循环。
 
-因此，如果是网络问题导致下载失败，可先检查当前网络环境，必要时配置代理，或尝试切换模型下载源（`GitHub` / `ModelScope`），相关说明可参考[用户手册](./user_guide.md#模型下载源-model-hub)；如果是模型加载异常，例如当前环境中的 `CUDA`、`cuDNN`、`ONNX`、`ONNX Runtime` 等版本不匹配，请参考[快速入门指南](./get_started.md)中的安装与兼容性说明重新检查环境。最后，如果本地环境仍难以排查或长期不稳定，可考虑基于 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 使用 Pytorch 原生框架进行远程推理部署。
+如果网络问题导致下载失败，请先检查网络环境，必要时配置代理或切换模型下载源（GitHub 或 ModelScope），相关设置参见《用户手册》的[模型下载源配置](./user_guide.md#77-模型下载源配置)。如果模型加载异常，请按照[快速入门指南](./get_started.md)检查 CUDA、cuDNN、ONNX 和 ONNX Runtime 的版本兼容性。本地环境仍难以排查时，可使用 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 部署 PyTorch 远程推理服务。
 
-其它失败原因可参考：模型路径存在中文字符([#600](https://github.com/CVHub520/X-AnyLabeling/issues/600)).
+其他失败原因还包括模型路径中存在中文字符，参见 [#600](https://github.com/CVHub520/X-AnyLabeling/issues/600)。
 
 </details>
 
@@ -469,12 +459,12 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 </details>
 
 
-### 文件相关问题
+## 文件相关问题
 
 <details>
 <summary>Q: YOLO-Pose 导出的关键点ID均显示为0？</summary>
 
-详情可参考此[#1270](https://github.com/CVHub520/X-AnyLabeling/issues/1153)。
+详情参见 [#1270](https://github.com/CVHub520/X-AnyLabeling/issues/1270)。
 </details>
 
 <details>
@@ -518,7 +508,7 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 <details>
 <summary>Q: 上传标签文件时发生错误，出现 `cannot identify image file xxx`</summary>
 
-请检查图片文件和标签文件有没有分目录存放。可参考此[#911](https://github.com/CVHub520/X-AnyLabeling/issues/869)。
+请检查图片文件和标签文件是否分目录存放。参见 [#911](https://github.com/CVHub520/X-AnyLabeling/issues/911)。
 </details>
 
 <details>
@@ -531,8 +521,8 @@ onnx 和 onnxruntime 库版本不兼容，具体可参考[#886](https://github.c
 <summary>Q: 导入的标签文件为空</summary>
 
 请检查是否存在以下情况：
-    - 标注类型与导出类型不一致，例如标注的的是 `rectangle` 矩形框，导出时选择 `Polygon` 选项；
-    - 导入的图像文件夹存在多级嵌套的子文件夹，可参考[#839](https://github.com/CVHub520/X-AnyLabeling/issues/839)；
+- 标注类型与导出类型不一致，例如标注对象为 `rectangle`，导出时却选择了 `Polygon`。
+- 导入的图像目录中存在多级嵌套的子目录，参见 [#839](https://github.com/CVHub520/X-AnyLabeling/issues/839)。
 </details>
 
 <details>

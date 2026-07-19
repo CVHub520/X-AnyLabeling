@@ -4,9 +4,9 @@
 
 [PaddleOCR](https://aistudio.baidu.com/paddleocr) 是百度飞桨生态中的 OCR 与文档智能工具，覆盖通用文字识别、文档版面分析、表格解析、公式识别等能力，适用于扫描件、拍照文档、多页 PDF、技术文档等常见资料处理场景。
 
-现在，我们将这一能力集成到 `X-AnyLabeling` 中，提供了面向文档理解与智能文字识别工作流的 **PaddleOCR** 面板，支持对图片和 PDF 文件进行版面解析、文字识别、公式识别和表格识别，并在识别完成后对结果进行校对、编辑、复制和导出。
+X-AnyLabeling 集成了面向文档理解与文字识别工作流的 PaddleOCR 面板，支持对图片和 PDF 文件进行版面、文字、公式和表格识别，并可在识别后校对、编辑、复制和导出结果。
 
-同时，提供了两种服务接入方式：既可以直接调用 PaddleOCR 官方 API，也可以接入兼容 X-AnyLabeling 远程推理服务的 PaddleOCR 模型。解析结果会保存为本地 JSON 文件，并在界面中同步展示源文件区域框、结构化内容和可编辑的结果块。
+面板支持 PaddleOCR 官方 API 和 X-AnyLabeling 远程推理服务两种接入方式。解析结果保存在本地 JSON 文件中，界面会同步显示源文件区域框、结构化内容和可编辑的结果块。
 
 <video src="https://github.com/user-attachments/assets/0c018b6e-f8e9-4045-bc22-0d388ab4853d" width="100%" controls>
 </video>
@@ -41,7 +41,7 @@ ${workspace}/xanylabeling_data/paddleocr/api_settings.json
 
 ### 本地部署（可选）
 
-如果您希望在本地或私有环境中运行 PaddleOCR，也可以通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 自行部署推理服务。具体流程可参考此[示例](../../examples/optical_character_recognition/multi_task/README.md)，安装相关依赖并启动服务。
+如需在本地或私有环境中运行 PaddleOCR，可通过 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 部署推理服务。安装依赖和启动服务的方法参见[多任务 OCR 示例](../../examples/optical_character_recognition/multi_task/README.md)。
 
 请检查 X-AnyLabeling-Server 中是否存在 `ppocr_layoutstructv3_vl_1_5` 模型配置。如果您希望自行实现并集成 PaddleOCR 推理管道，请在模型配置中声明以下能力标识，客户端会据此判断该模型是否可用于 PaddleOCR 面板：
 
@@ -52,8 +52,7 @@ capabilities:
 ...
 ```
 
-服务启动后，重新打开 PaddleOCR 标注面板，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择非官方 `(API)` 条目的模型时，解析任务会自动发送至已部署的推理服务。
-
+服务启动后，重新打开 PaddleOCR 标注面板，右侧顶部的 `解析模型` 下拉框会显示当前可用模型。选择不带 `(API)` 后缀的模型时，解析任务会自动发送至已部署的推理服务。
 
 ## 使用手册
 
@@ -61,14 +60,14 @@ capabilities:
 
 打开后，点击左侧面板顶部的 `+ New Parsing` 选择文件。确认 `开始解析` 后才会导入文件；确认导入的文件会同步复制到本地 PaddleOCR 工作目录，并加入解析队列。
 
-当前，X-AnyLabeling PaddleOCR 面板支持导入以下文件：
+PaddleOCR 面板支持导入以下文件：
 
 | 类型 | 后缀 |
 | :--- | :--- |
 | PDF 文档 | `.pdf` |
 | 图片 | `.bmp`, `.cif`, `.gif`, `.jpeg`, `.jpg`, `.png`, `.tif`, `.tiff`, `.webp` |
 
-这里，PDF 文件会先在本地渲染为逐页 PNG 预览图。官方 API 解析会通过 Async Jobs 一次性提交原始 PDF，远程服务解析则继续使用本地预览页。因此多页 PDF 的页数、预览图和识别结果都会在本地工作目录中保留。
+PDF 文件会先在本地渲染为逐页 PNG 预览图。官方 API 通过异步任务一次性提交原始 PDF，远程服务则解析本地预览页。多页 PDF 的页数、预览图和识别结果都会保留在本地工作目录中。
 
 > [!TIP]
 > - 在源文件预览区按住 `Ctrl` 并滚动鼠标滚轮，可以快速缩放预览页面。
@@ -82,8 +81,6 @@ capabilities:
 > - PaddleOCR 官方 API 需要可用的 `API_KEY`；如果接口返回 401，请检查密钥是否有效。
 > - 远程服务只有在 `/v1/models` 返回具备 `ppocr_pipeline` 能力的模型时，才会出现在模型下拉框中。
 > - 导入文件会复制到 PaddleOCR 工作目录中；删除原始外部文件不会影响已经导入的副本。
-
-
 ## 界面布局
 
 ### 整体布局

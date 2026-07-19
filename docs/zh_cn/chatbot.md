@@ -1,6 +1,6 @@
 # 概述
 
-`X-AnyLabeling` **聊天机器人** 是一个集成的 AI 助手，使用户可以直接在标注工作流程中与大型语言模型 (LLM) 交互。此功能允许您使用自然语言进行聊天对话，批量运行图文问答数据，并支持一键导入或导出基于单轮、多轮对话的 [Sharegpt](https://github.com/hiyouga/LLaMA-Factory/blob/main/data/README_zh.md#%E5%A4%9A%E6%A8%A1%E6%80%81%E5%9B%BE%E5%83%8F%E6%95%B0%E6%8D%AE%E9%9B%86-1) 格式的多模态图像数据直接用于 [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) 等大模型微调框架进行训练。
+X-AnyLabeling 的聊天机器人是集成在标注流程中的 AI 助手，可与大语言模型（LLM）进行自然语言交互、批量处理图文问答数据，并导入或导出单轮及多轮对话数据。导出的多模态数据采用 [ShareGPT](https://github.com/hiyouga/LLaMA-Factory/blob/main/data/README_zh.md#%E5%A4%9A%E6%A8%A1%E6%80%81%E5%9B%BE%E5%83%8F%E6%95%B0%E6%8D%AE%E9%9B%86-1) 格式，可用于 [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) 等大模型微调框架。
 
 <video src="https://github.com/user-attachments/assets/c97b943a-71e6-470c-bb73-b4c8d299687f" width="100%" controls>
 </video>
@@ -26,37 +26,33 @@
 <video src="https://github.com/user-attachments/assets/41c30839-4b49-4de2-8252-fe856956daa7" width="100%" controls>
 </video>
 
-## 左侧面板 - 模型提供商
+## 左侧面板：模型提供商
 
 | 提供商 | API 密钥 | API 文档 | 模型文档 |
 | :--- | :--- | :--- | :--- |
-| Anthropic | [Link](https://console.anthropic.com/settings/keys) | [Link](https://docs.anthropic.com/en/docs) | [Link](https://docs.anthropic.com/en/docs/about-claude/models/all-models) |
-| DeepSeek   | [Link](https://platform.deepseek.com/api_keys)         | [Link](https://platform.deepseek.com/docs)                  | [Link](https://platform.deepseek.com/models)                                |
-| Google AI  | [Link](https://aistudio.google.com/app/apikey)         | [Link](https://ai.google.dev/gemini-api/docs)               | [Link](https://ai.google.dev/gemini-api/docs/models)                        |
-| Ollama     | -                                                             | [Link](https://github.com/ollama/ollama/blob/main/docs/api.md) | [Link](https://ollama.com/search)                                           |
-| OpenAI     | [Link](https://platform.openai.com/api-keys)           | [Link](https://platform.openai.com/docs)                    | [Link](https://platform.openai.com/docs/models)                             |
-| OpenRouter | [Link](https://openrouter.ai/settings/keys)            | [Link](https://openrouter.ai/docs/quick-start)              | [Link](https://openrouter.ai/models)                                        |
-| Qwen       | [Link](https://bailian.console.aliyun.com/?apiKey=1#/api-key) | [Link](https://help.aliyun.com/document_detail/2590237.html) | [Link](https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm) |
+| Anthropic | [链接](https://console.anthropic.com/settings/keys) | [链接](https://docs.anthropic.com/en/docs) | [链接](https://docs.anthropic.com/en/docs/about-claude/models/all-models) |
+| DeepSeek   | [链接](https://platform.deepseek.com/api_keys)         | [链接](https://platform.deepseek.com/docs)                  | [链接](https://platform.deepseek.com/models)                                |
+| Google AI  | [链接](https://aistudio.google.com/app/apikey)         | [链接](https://ai.google.dev/gemini-api/docs)               | [链接](https://ai.google.dev/gemini-api/docs/models)                        |
+| Ollama     | -                                                             | [链接](https://github.com/ollama/ollama/blob/main/docs/api.md) | [链接](https://ollama.com/search)                                           |
+| OpenAI     | [链接](https://platform.openai.com/api-keys)           | [链接](https://platform.openai.com/docs)                    | [链接](https://platform.openai.com/docs/models)                             |
+| OpenRouter | [链接](https://openrouter.ai/settings/keys)            | [链接](https://openrouter.ai/docs/quick-start)              | [链接](https://openrouter.ai/models)                                        |
+| Qwen       | [链接](https://bailian.console.aliyun.com/?apiKey=1#/api-key) | [链接](https://help.aliyun.com/document_detail/2590237.html) | [链接](https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm) |
 
 > [!NOTE]
-> Custom 提供商支持配置兼容 OpenAI API 格式的自定义端点。切换提供商后，模型列表将自动更新显示当前提供商的可用模型。
+> Custom 提供商支持配置与 OpenAI API 兼容的自定义端点。切换提供商后，模型列表会自动更新为当前提供商的可用模型。
 
-## 中间面板 - 聊天界面
+## 中间面板：聊天界面
 
 - 聊天窗口：查看您与 AI 的对话历史，支持复制、编辑、删除、重新运行功能
 - 消息输入：输入您的问题或指令，支持一键清除当前对话历史记录
 - 特殊命令：导入图像后，使用 `@image` 提示包含当前图像
 
-## 右侧面板 - 图像预览和相关设置
+## 右侧面板：图像预览与设置
 
-- **图像预览**: 显示当前图像
-- **功能组件**:
-  - **图像导航**: 切换上一张/下一张图像。
-  - **图像导入**: 导入单个图像文件或整个目录。
-  - **数据导出**: 导出标注结果文件。
-  - **批量处理**: 对多个图像运行处理任务。
-- **后端设置**: 支持配置 API 端点和密钥，模型选择
-- **生成参数**: 支持输入系统提示、温度参数、最大输出长度
+- **图像预览**：显示当前图像。
+- **功能组件**：切换图像、导入单个图像或目录、导出标注结果以及批量处理图像。
+- **后端设置**：配置 API 端点、密钥和模型。
+- **生成参数**：设置系统提示词、温度和最大输出长度。
 
 # 关键特性
 
@@ -65,7 +61,7 @@
 <video src="https://github.com/user-attachments/assets/1119fa89-b885-4d4f-ad76-499a74aa81eb" width="100%" controls>
 </video>
 
-针对当前图像提出问题，以帮助您高效升成单轮或多轮图文对话：
+针对当前图像提问，生成单轮或多轮图文对话：
 
 > @image 请描述这张图像。
 
@@ -86,28 +82,19 @@
 <video src="https://github.com/user-attachments/assets/8dc44d1c-0317-4b00-9967-105274dee59f" width="100%" controls>
 </video>
 
-支持一键导出基于 Sharegpt 格式的多模态图像数据。
+支持导入和导出 ShareGPT 格式的多模态图像数据。
 
-# 其它
+# 其他
 
 ## 配置文件
 
 聊天机器人将其配置存储在用户目录下的如下位置：
 
 ```
-~/.xanylabeling_data/chatbot/
+~/xanylabeling_data/chatbot/
 ```
 
-这包括：
+其中包括：
+
 - `models.json`：包含用户偏好设置和模型配置
 - `providers.json`：API 提供商设置
-
-## 键盘快捷键
-
-- `Ctrl`/`⌘`+`Enter`: 发送消息
-- `Enter`: 在消息输入中添加新行
-
-## 注意事项
-
-- 聊天机器人功能处于测试阶段，可能会在未来版本中更新
-- 通过 Ollama 的本地模型可以在没有互联网连接的情况下使用，且理论上支持所有满足 OpenAI 兼容 API 的模型

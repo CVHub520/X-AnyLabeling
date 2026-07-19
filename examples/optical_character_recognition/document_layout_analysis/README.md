@@ -12,9 +12,9 @@ DocLayout-YOLO is a real-time and robust layout detection model for diverse docu
 
 ### Usage
 
-1. Import your image (`Ctrl+I`) or video (`Ctrl+O`) file into the X-AnyLabeling.
+1. Import images (`Ctrl+I`) or a video (`Ctrl+O`) into X-AnyLabeling.
 2. Select and load the [DocLayout-YOLO](https://github.com/opendatalab/DocLayout-YOLO) model.
-3. Initiate the process by clicking `Run (i)`. Once you've verified that everything is set up correctly, use the keyboard shortcut `Ctrl+M` to process all images in one go.
+3. Click `Run (i)` to process the current image. After checking the result, press `Ctrl+B` to process all images.
 
 ## PP-DocLayoutV3
 

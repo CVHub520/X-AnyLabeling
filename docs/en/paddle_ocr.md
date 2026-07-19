@@ -41,7 +41,7 @@ By default, `${workspace}` is the user's home directory, `~`. If X-AnyLabeling i
 
 ### Local Deployment (Optional)
 
-If you want to run PaddleOCR locally or in a private environment, you can deploy an inference service with [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server). For the setup process, see this [example](../../examples/optical_character_recognition/multi_task/README.md), install the required dependencies, and start the service.
+To run PaddleOCR locally or in a private environment, deploy an inference service with [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server). See the [multi-task OCR example](../../examples/optical_character_recognition/multi_task/README.md) for dependency installation and startup instructions.
 
 Make sure X-AnyLabeling-Server has been updated to the latest version, and check that the `ppocr_layoutstructv3_vl_1_5` model configuration is available. If you want to implement and integrate your own PaddleOCR inference pipeline, declare the following capability flag in the model configuration. The client uses this flag to determine whether the model can be used in the PaddleOCR panel:
 
@@ -52,7 +52,7 @@ capabilities:
 ...
 ```
 
-After the service starts, reopen the PaddleOCR annotation panel. The `Parsing Model` drop-down list at the top right displays the currently available models. When you select a model other than the official `(API)` entries, parsing requests are sent to the deployed inference service automatically.
+After the service starts, reopen the PaddleOCR annotation panel. The `Parsing Model` drop-down list at the top right displays the available models. Selecting a model without the `(API)` suffix sends parsing requests to the deployed inference service.
 
 ## User Guide
 

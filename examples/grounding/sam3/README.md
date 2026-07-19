@@ -100,7 +100,7 @@ Launch X-AnyLabeling, press `Ctrl+A` or click the `AI` button in the left menu b
 
 #### Batch Processing
 
-Press `Ctrl+M` to apply the current text prompt across all images in the folder.
+Press `Ctrl+B` to apply the current text prompt across all images in the folder.
 
 > [!TIP]
 > Toggle **Replace (On/Off)** to control whether results overwrite existing annotations or are appended alongside them.

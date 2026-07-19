@@ -31,7 +31,7 @@ cd segment-anything-2
 pip install -e .
 ```
 
-Finally, install the necessary dependencies for X-AnyLabeling (v2.4.2+):
+Finally, clone X-AnyLabeling:
 
 ```bash
 cd ..
@@ -39,7 +39,7 @@ git clone https://github.com/CVHub520/X-AnyLabeling
 cd X-AnyLabeling
 ```
 
-Now, you can back to the installation guide ([简体中文](../../docs/zh_cn/get_started.md) | [English](../../docs/en/get_started.md)) to install the remaining dependencies.
+Return to the installation guide ([简体中文](../../../docs/zh_cn/get_started.md) | [English](../../../docs/en/get_started.md)) to install the remaining dependencies.
 
 
 ## Getting Started
@@ -71,7 +71,7 @@ C:\Users\${User}\xanylabeling_data\models\sam2_hiera_large_video-r20240901
 ~/xanylabeling_data/models/sam2_hiera_large_video-r20240901
 ```
 
-Additionally, if you want to use other sizes of SAM2 models or modify the model loading path, refer to this documentation for custom settings: [简体中文](../../docs/zh_cn/custom_model.md) | [English](../../docs/en/custom_model.md).
+To use another SAM 2 model size or change the model path, see the custom model guide: [简体中文](../../../docs/zh_cn/custom_model.md) | [English](../../../docs/en/custom_model.md).
 
 </details>
 
@@ -115,7 +115,7 @@ Alternatively, if you only want to set up object detection tracking, you simply 
 
 ![run_video](https://github.com/user-attachments/assets/e4763f32-bfdb-4b0a-be23-4885e3cc9f96)
 
-Once you've finished setting the prompts, you can start the video tracking by either clicking the video start button on the left-hand menu or using the shortcut `Ctrl+M` to get the tracklet throughout the entire video.
+Once you have finished setting the prompts, start video tracking by clicking `Auto Run` on the left toolbar or pressing `Ctrl+B`.
 
 **Step 2:** Add New Prompts to Further Refine the tracklet
 

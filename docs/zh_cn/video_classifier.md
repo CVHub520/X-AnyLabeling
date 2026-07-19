@@ -50,7 +50,7 @@ X-AnyLabeling 的视频分类器是面向动作识别和视频片段分类数据
 
 ## AI 配置
 
-视频分类器中的 AI 自动切分和片段描述生成功能共用 [Chatbot](../zh_cn/chatbot.md) 中配置的模型。首次使用前，请先打开 Chatbot（Windows/Linux：`Ctrl` + `1`，macOS：`⌘` + `1`），在右侧设置 API Key、服务商、接口地址和当前模型。
+视频分类器中的 AI 自动切分和片段描述生成功能共用[聊天机器人](./chatbot.md)中配置的模型。首次使用前，请先打开聊天机器人（Windows/Linux：`Ctrl` + `1`，macOS：`⌘` + `1`），在右侧设置 API Key、服务商、接口地址和当前模型。
 
 以阿里云百炼的 `qwen3.6-flash` 为例，可以在 Chatbot 中选择 Qwen 提供商，填写百炼 API Key，并将当前模型设置为 `qwen3.6-flash`。如果通过 Custom 提供商接入兼容 OpenAI API 的端点，请确保接口地址与服务商要求一致，例如百炼兼容模式通常使用：
 

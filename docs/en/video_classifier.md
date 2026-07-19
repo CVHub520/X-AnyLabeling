@@ -50,7 +50,7 @@ You can also press `I` and `O` to mark an in/out range, then press `Enter` to cr
 
 ## AI Configuration
 
-AI auto segmentation and segment description generation in the Video Classifier use the model configured in [Chatbot](../en/chatbot.md). Before using these features, open Chatbot first (Windows/Linux: `Ctrl` + `1`, macOS: `⌘` + `1`) and configure the API key, provider, endpoint, and current model in the right panel.
+AI auto segmentation and segment description generation in the Video Classifier use the model configured in [Chatbot](./chatbot.md). Before using these features, open Chatbot first (Windows/Linux: `Ctrl` + `1`, macOS: `⌘` + `1`) and configure the API key, provider, endpoint, and current model in the right panel.
 
 For example, when using Alibaba Cloud Model Studio with `qwen3.6-flash`, select the Qwen provider in Chatbot, enter your Model Studio API key, and set the current model to `qwen3.6-flash`. If you connect through the Custom provider with an OpenAI-compatible endpoint, make sure the endpoint matches the provider requirements. For Model Studio compatible mode, the endpoint is usually:
 

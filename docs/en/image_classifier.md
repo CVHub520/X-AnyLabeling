@@ -1,6 +1,6 @@
 # Overview
 
-The Image Classifier in X-AnyLabeling is a specialized feature module designed for image classification annotation. It provides a dedicated dialog interface that enables users to efficiently classify and annotate image datasets. This module supports both multi-class classification (single-label) and multi-label classification (multi-label) modes, offers comprehensive label management capabilities including adding, deleting, and editing labels, integrates AI-powered classification for both individual and batch processing, provides dataset statistics such as label usage frequency, supports keyboard shortcuts for rapid image navigation and annotation, and allows exporting classified images into category-specific folders.
+The X-AnyLabeling Image Classifier is a dedicated annotation window for multi-class (single-label) and multi-label classification. It supports label management, AI-assisted classification for individual images or batches, dataset statistics, keyboard navigation, and category-based image export.
 
 <video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
 </video>
@@ -23,12 +23,11 @@ The Image Classifier features a dual-panel design with the image preview area on
 
 ## Left Panel - Image Preview Area
 
-- **Filename and Progress Indicator**: Displays the current image filename and its position within the dataset (e.g., "husky.png (1/3) ✅" or "ragdoll.png (3/3) ❌").
+- **Filename and Progress Indicator**: Displays the current image filename and its position in the dataset (for example, `husky.png (1/3)`).
 - **Image Preview Area**: Centers the image with adaptive scaling. When labels are selected, the label text appears in real-time at the top-right corner of the preview area for quick verification.
 
 > [!TIP]
-> ✅ indicates the current image has been annotated
-> ❌ indicates the current image has not been annotated
+> ✅ indicates an annotated image; ❌ indicates an unannotated image.
 
 ## Right Panel - Annotation Control Area
 
@@ -67,11 +66,11 @@ The right center panel contains the title and the following 5 annotation compone
 
 ### AI Assistant
 
-To use the AI-powered assistance feature, please first complete the configuration as described in the [Chatbot](../en/chatbot.md) section.
+Before using AI assistance, configure a model as described in the [Chatbot guide](./chatbot.md).
 
 <img src="../../assets/resources/vqa/chatbot.png" width="100%" />
 
-Once configured, you can access the AI intelligent dialog by clicking the magic wand (🪄) icon on the right side of the annotation components area.
+Once configured, click the magic-wand icon on the right side of the annotation area to open the AI dialog.
 
 <img src="../../assets/resources/image_classifier/assistance.png" width="100%" />
 
@@ -171,7 +170,7 @@ The Image Classifier's annotation information is stored in the `flags` field of 
 
 ```json
 {
-  "version": "3.2.3",
+  "version": 4.0.0,
   "flags": {
     "husky": true,
     "psyduck": false,

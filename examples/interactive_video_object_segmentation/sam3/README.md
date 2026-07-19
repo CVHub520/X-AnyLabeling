@@ -18,7 +18,7 @@ Now for the model files. For users in China, the easiest way is to grab everythi
 
 You can tweak the settings in [segment_anything_3_video.yaml](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/configs/auto_labeling/segment_anything_3_video.yaml) to fit your needs. By default, detection boxes are shown, which works fine for most cases. If you want to see the actual masks instead, flip `show_masks` to `true`. Just keep in mind that rendering masks can slow things down a bit, so boxes are usually the safer bet.
 
-## Usage 
+## Usage
 
 Launch the X-AnyLabeling client, press `Ctrl+A` or click the `AI` button in the left menu bar to open the auto-labeling panel. In the model dropdown list, select `Remote-Server`, then choose `Segment Anything 3 Video`.
 
@@ -29,7 +29,7 @@ Launch the X-AnyLabeling client, press `Ctrl+A` or click the `AI` button in the 
 
 1. Enter object names in the text field (e.g., `person`, `car`, `bicycle`)
 2. Click **Send** to initiate detection
-3. After verification, click the `Auto Run` button in the left menu bar or press `Ctrl+M` to start forward propagation
+3. After verification, click `Auto Run` on the left toolbar or press `Ctrl+B` to start forward propagation.
 
 > [!NOTE]
 > Each session supports one category only. Propagation starts from the current frame and runs to the end of the video, with a brief warm-up period of approximately 15 frames before processing begins.
@@ -42,14 +42,14 @@ Launch the X-AnyLabeling client, press `Ctrl+A` or click the `AI` button in the 
 <video src="https://github.com/user-attachments/assets/74ad72ea-0207-4ec5-95e7-9e6de8cb6aac" width="100%" controls>
 </video>
 
-With visual prompting, you can use points to mark what you want to track. 
+With visual prompting, use points to mark what you want to track.
 
-1. Click on Point(q) to add positive sample points (things you want to include) or Point(e) for negative sample points (things you want to exclude). You can add multiple points to refine the selection. 
-2. When you're happy with your points, hit Finish(f) to complete the drawing. This will pre-fill the target label name and track_id for you. If you mess up and want to start over, just press Clear(b) to remove everything.
-3. Once you've confirmed the selection, you can start the forward propagation by clicking the `Auto Run` button in the left menu bar or pressing `Ctrl+M`. 
+1. Click `Point (Q)` to add positive points or `Point (E)` to add negative points. Add multiple points if needed.
+2. Click `Finish (F)` to complete the prompt and prefill the target label and `track_id`. Click `Clear (B)` to start over.
+3. After confirming the selection, click `Auto Run` on the left toolbar or press `Ctrl+B` to start forward propagation.
 
 > [!TIP]
-> The letters in parentheses are keyboard shortcuts, by the way - you can use `q` and `e` to quickly switch between positive and negative point modes, `f` to finish, and `b` to clear.
+> The letters in parentheses are keyboard shortcuts: `Q` and `E` switch point modes, `F` finishes, and `B` clears the prompts.
 
 > [!NOTE]
 > A few things to keep in mind: you can start tracking from any frame in the video, but each session only supports tracking a single target. Also, visual prompting uses a non-overwrite mode by default, so it won't replace existing annotations.

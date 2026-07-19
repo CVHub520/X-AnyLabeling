@@ -13,7 +13,7 @@
 
 **Step 0: Preparation**
 
-Prepare a attributes file like [attributes.json](./attributes.json). An example is shown below:
+Prepare an attributes file such as [attributes.json](./attributes.json):
 
 ```json
 {
@@ -55,14 +55,14 @@ Prepare a attributes file like [attributes.json](./attributes.json). An example 
 ```
 
 > [!NOTE]
-> **Widget Types Configuration (X-AnyLabeling v3.2.4+)**
-> 
+> **Widget type configuration**
+>
 > You can specify the widget type for each attribute using the `__widget_types__` section:
 > - `"radiobutton"`: Single-click selection, ideal for yes/no or few options
 > - `"group_id"`: Dropdown selection containing the `group_id`s of all objects, if any
 > - `"lineedit"`: Free-form text input
 > - `"combobox"`: Dropdown selection, suitable for many options (default)
-> 
+>
 > If `__widget_types__` is not specified, all attributes default to combobox.
 
 Example of group_id and lineedit attributes:
@@ -93,13 +93,13 @@ python anylabeling/app.py
 Click on `Upload -> Upload Attributes File` in the top menu bar and select the prepared configuration file to upload.
 
 > [!TIP]
-> Starting from X-AnyLabeling v3.2.4+, you can use **Loop Select Shapes** (Ctrl+Shift+C) to sequentially select each shape on the canvas for efficient attribute annotation. This enables you to quickly cycle through all shapes and assign attributes without having to manually click each one.
+> Use **Loop Select Shapes** (`Ctrl+Shift+C`) to select shapes sequentially while assigning attributes.
 
 > [!NOTE]
-> **Attributes Label Color Customization (X-AnyLabeling v3.3.0+)**
-> 
+> **Attribute label color customization**
+>
 > You can customize the colors of attribute labels displayed on the canvas by configuring the `.xanylabelingrc` file in your user directory. Add or modify the following settings under the `canvas` section:
-> 
+>
 > ```yaml
 > canvas:
 >   attributes:
@@ -107,15 +107,13 @@ Click on `Upload -> Upload Attributes File` in the top menu bar and select the p
 >     border_color: [66, 66, 66, 255]      # Border color (RGBA)
 >     text_color: [33, 150, 243, 255]      # Text color (RGBA)
 > ```
-> 
+>
 > Color values use RGBA format: `[R, G, B, A]`, where each value ranges from 0-255.
 
 For detailed output examples, refer to [this file](./sources/multi-task/elon-musk-tesla.json).
-
-
 ## Multiclass & Multilabel Classification
 
-Similar to [Image-Level Classification](../image-level/README.md), you can also conduct multiclass and multilabel classification for Shape-Level Annotation.
+As with [image-level classification](../image-level/README.md), shape-level annotations support multiclass and multilabel flags.
 
 <img src=".data/annotated_person_flags.png" width="100%" />
 <img src=".data/annotated_helmet_flags.png" width="100%" />
@@ -168,5 +166,3 @@ python anylabeling/app.py --labels labels.txt --labelflags label_flags.yaml --va
 ```
 
 For detailed output examples, refer to [this file](./sources/multi-label/worker.json).
-
-

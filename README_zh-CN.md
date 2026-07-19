@@ -262,8 +262,4 @@ X-AnyLabeling 由个人独立开发和维护。如果本项目对您有所帮助
 }
 ```
 
----
-
-![Star History Chart](https://api.star-history.com/svg?repos=CVHub520/X-AnyLabeling&type=Date)
-
 <div align="center"><a href="#top">🔝 返回顶部</a></div>

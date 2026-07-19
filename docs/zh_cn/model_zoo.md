@@ -1,9 +1,9 @@
-## 🛠️ `X-AnyLabeling` 模型库
+# X-AnyLabeling 模型库
 
-> ModelScope 官方下载链接：[点击跳转](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43)
+> ModelScope 模型集合：[X-AnyLabeling](https://www.modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43)
 
 
-### 图像分类
+## 图像分类
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -15,7 +15,7 @@
 | yolo11s-cls.onnx | [YOLO11-Cls](https://github.com/ultralytics/ultralytics)-ImageNet | [yolo11s_cls.yaml](../../anylabeling/configs/auto_labeling/yolo11s_cls.yaml) | 25.67MB | [百度网盘](https://pan.baidu.com/s/1zz6Q3mMJp7btd0vTz2krUQ?pwd=9h63) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-cls.onnx) |
 
 
-### 关键点检测
+## 关键点检测
 
 - 脸部关键点检测
 
@@ -40,14 +40,14 @@
 | rtmdet_m_640-8xb32_coco-person.onnx | [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet)（人体 2d 关键点）| [rtmdet_m_640-8xb32_coco-person.onnx](../../anylabeling/configs/auto_labeling/rtmdet_m_coco_person_rtmo_m.yaml) | 104.25MB | [百度网盘](https://pan.baidu.com/s/1BOoBNihoejvqoB7viBzbQQ?pwd=5ki4) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/rtmdet_m_640-8xb32_coco-person.onnx) |
 
 
-### 车道线检测
+## 车道线检测
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
 | clrnet_tusimple_r18.onnx | [CLRNet](https://github.com/Turoad/CLRNet)-Tusimple (CVPR2022)  | [clrnet_tusimple_r18.yaml](../../anylabeling/configs/auto_labeling/clrnet_tusimple_r18.yaml)  | 59.04MB  | [百度网盘](https://pan.baidu.com/s/1Ptzji5x2dRBmJtijTmO4tA?pwd=zzuf) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/clrnet_tusimple_r18.onnx) |
 
 
-### 多目标追踪
+## 多目标追踪
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -57,7 +57,7 @@
 | yolov8m-seg.onnx | YOLOv8m-Seg-Bytetrack | [yolov8m_seg_bytetrack.yaml](../../anylabeling/configs/auto_labeling/yolov8m_seg_bytetrack.yaml) | 104.23MB | [百度网盘](https://pan.baidu.com/s/1PmKsiatP2YfHtnDCJEnhRw?pwd=bo85) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8m-seg.onnx) |
 | yolov8x-pose-p6.onnx | YOLOv8x-Pose-P6-BoT-SORT | [yolov8x_pose_p6_botsort.yaml](../../anylabeling/configs/auto_labeling/yolov8x_pose_p6_botsort.yaml) | 378.92MB | [百度网盘](https://pan.baidu.com/s/1VRszCtMnHo2zeshuk93Aew?pwd=xvko) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x-pose-p6.onnx) |
 | yolo11s.onnx | YOLO11s-Det-BoT-SORT | [yolo11s_det_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_det_botsort.yaml) | 36.27MB | [百度网盘](https://pan.baidu.com/s/1a3H-cMRzP-YFSLsKMRXTKA?pwd=uyrw) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s.onnx) |
-| yolo11s_obb_car_bus.onnx | YOLO11s-Obb-BoT-SORT | [yolo11s_obb_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_obb_botsort.yaml) | 37.36MB | [百度网盘](https://pan.baidu.com/s/1caHKHZvVnyuAqrXaTvklLA?pwd=x2v7) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s_obb_car_bus.onnx) |
+| yolov11s_obb_car_bus.onnx | YOLO11s-OBB-BoT-SORT | [yolo11s_obb_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_obb_botsort.yaml) | 37.36MB | [百度网盘](https://pan.baidu.com/s/1caHKHZvVnyuAqrXaTvklLA?pwd=x2v7) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolov11s_obb_car_bus.onnx) |
 | yolo11s-seg.onnx | YOLO11s-Seg-BoT-SORT | [yolo11s_seg_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_seg_botsort.yaml) | 38.77MB | [百度网盘](https://pan.baidu.com/s/11O7b0qUMQb1SQPoSYOsf9A?pwd=tthu) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-seg.onnx) |
 | yolo11s-pose.onnx | YOLO11s-Pose-BoT-SORT | [yolo11s_pose_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_pose_botsort.yaml) | 38.09MB | [百度网盘](https://pan.baidu.com/s/1LzdbGYO215UiG7na2NgkJA?pwd=5jcu) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-pose.onnx) |
 | yolo26s.onnx | YOLO26s-Det-TrackTrack | [yolo26s_det_tracktrack.yaml](../../anylabeling/configs/auto_labeling/yolo26s_det_tracktrack.yaml) | 36.47MB | [百度网盘](https://pan.baidu.com/s/1EYN6xIFVrUdkHm2mgcLgKA?pwd=z51j) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s.onnx) |
@@ -66,7 +66,7 @@
 | yolo26s-pose.onnx | YOLO26s-Pose-TrackTrack | [yolo26s_pose_tracktrack.yaml](../../anylabeling/configs/auto_labeling/yolo26s_pose_tracktrack.yaml) | 39.86MB | [百度网盘](https://pan.baidu.com/s/1LifSl5V5lMk7GOqwtPHO1w?pwd=8kta) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-pose.onnx) |
 
 
-### 目标检测
+## 目标检测
 
 - 水平目标检测
 
@@ -168,7 +168,7 @@
 | yolo26s-obb.onnx | [YOLO26s-Obb](https://docs.ultralytics.com/tasks/obb/)-DOTA-v1.0| [yolo26s_obb.yaml](../../anylabeling/configs/auto_labeling/yolo26s_obb.yaml) | 37.56MB | [百度网盘](https://pan.baidu.com/s/1eKmD0iYPCF0K2KPH32PJvQ?pwd=8grq) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-obb.onnx) |
 
 
-### 光学字符识别
+## 光学字符识别
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -190,7 +190,7 @@
 | japan_PP-OCRv3_rec_infer.onnx | [超轻量日文识别模型](https://paddleocr.bj.bcebos.com/PP-OCRv3/multilingual/japan_PP-OCRv3_rec_infer.tar) | [japan_ppocr.yaml](../../anylabeling/configs/auto_labeling/japan_ppocr.yaml) | 9.62MB | [百度网盘](https://pan.baidu.com/s/1sMPb-b1w8m_WohB7JHcOxw?pwd=d058) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/japan_PP-OCRv3_rec_infer.onnx) |
 
 
-### 分割一切模型
+## 分割一切模型
 
 - 通用场景
 
@@ -244,11 +244,11 @@
 | --- | --- | --- | --- | --- |
 | sam-med2d_b.encoder.onnx | [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D) ViT-base encoder  | [sam_med2d_vit_b.yaml](../../anylabeling/configs/auto_labeling/sam_med2d_vit_b.yaml)  | 1019.49MB  | [百度网盘](https://pan.baidu.com/s/1DRKsmAsTrpjIjowL0inq0w?pwd=gur6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam-med2d_b.encoder.onnx) |
 | sam-med2d_b.decoder.onnx | [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D) ViT-base decoder  | [sam_med2d_vit_b.yaml](../../anylabeling/configs/auto_labeling/sam_med2d_vit_b.yaml)  | 15.60MB  | [百度网盘](https://pan.baidu.com/s/1X0ZGp4vxRAVk_v6iSO3BJQ?pwd=7cdd) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam-med2d_b.decoder.onnx) |
-| medsam_vit_b.encoder.onnx | [MedSAM](https://arxiv.org/abs/2304.12306) ViT-base encoder  | [medsam_vit_b.yaml](../../anylabeling/configs/auto_labeling/medsam_vit_b.yaml)  | 342.58MB  | [百度网盘](https://pan.baidu.com/s/1JCLmvrzDJG1CdB-kROsFlw?pwd=usb3) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/medsam_vit_b.encoder.onnx) |
-| medsam_vit_b.decoder.onnx | [MedSAM](https://arxiv.org/abs/2304.12306) ViT-base decoder  | [medsam_vit_b.yaml](../../anylabeling/configs/auto_labeling/medsam_vit_b.yaml)  | 15.74MB  | [百度网盘](https://pan.baidu.com/s/1dUdbd6nOoYdLPjrdlDCTVQ?pwd=dnqe) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/medsam_vit_b.decoder.onnx) |
+
+本地 ONNX 和服务端两种使用方式请参考 [Segment Anything 3 指南](../../examples/grounding/sam3/README.md)。
 
 
-### 图像分割
+## 图像分割
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -263,10 +263,10 @@
 | hyper-yolon-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolon-seg.yaml | 16.77MB | [百度网盘](https://pan.baidu.com/s/1o-LIV0z6OFQXGbSbJ_HsVw?pwd=dxex) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolon-seg.onnx) |
 | hyper-yolos-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | [hyper-yolos-seg.yaml](../../anylabeling/configs/auto_labeling/hyper_yolos_seg.yaml) | 59.34MB | [百度网盘](https://pan.baidu.com/s/1NsGVI5FQIYuoAVNrZF2VNg?pwd=bptv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolos-seg.onnx) |
 | hyper-yolom-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolom-seg.yaml | 132.85MB | [百度网盘](https://pan.baidu.com/s/1ObhO04dF6JEpvrtzLse6hg?pwd=q5hn) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolom-seg.onnx) |
-| yolo26s-seg.onnx | [YOLO26s-Seg](https://docs.ultralytics.com/tasks/seg/)-COCO| [yolo26s_seg.yaml](../../anylabeling/configs/auto_labeling/yolo26s_seg.yaml) | 39.91MB | [百度网盘](https://pan.baidu.com/s/1Bjzf4aX3Pq2jW67k_DxGNA?pwd=599s) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-seg.onnx) |
+| yolo26s-seg.onnx | [YOLO26s-Seg](https://docs.ultralytics.com/tasks/segment/)-COCO| [yolo26s_seg.yaml](../../anylabeling/configs/auto_labeling/yolo26s_seg.yaml) | 39.91MB | [百度网盘](https://pan.baidu.com/s/1Bjzf4aX3Pq2jW67k_DxGNA?pwd=599s) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-seg.onnx) |
 
 
-###  图像抠图
+## 图像抠图
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -275,7 +275,7 @@
 | bria-rmbg-1.4.onnx | [RMBG v1.4 (BRIA AI)](https://huggingface.co/briaai/RMBG-1.4) | [rmbg_v14.yaml](../../anylabeling/configs/auto_labeling/rmbg_v14.yaml) | 167.99MB | [百度网盘](https://pan.baidu.com/s/1tVuHF7NsZ7CXeqdQbsOhJg?pwd=9yny) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.3/bria-rmbg-1.4.onnx) |
 
 
-### 多任务
+## 多任务
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -287,13 +287,8 @@
 | mobile_sam.encoder.onnx | [MobileSAM](https://arxiv.org/abs/2306.14289) encoder（YOLOv5-SAM） | [yolov5s_mobile_sam_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov5s_mobile_sam_vit_h.yaml)  | 26.85MB  | [百度网盘](https://pan.baidu.com/s/1knn_NkrRAgfJms6d9FsErg?pwd=xbi6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/mobile_sam.encoder.onnx) |
 | sam_vit_h_4b8939.decoder.quant.onnx | [MobileSAM](https://arxiv.org/abs/2306.14289) decoder（YOLOv5-SAM）  | [yolov5s_mobile_sam_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov5s_mobile_sam_vit_h.yaml)  | 8.34MB  | [百度网盘](https://pan.baidu.com/s/1L5RGeTWK7d5vkLmgir8x5w?pwd=f287) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_vit_h_4b8939.decoder.quant.onnx) |
 | yolov5s.onnx | [YOLOv5](https://github.com/ultralytics/yolov5)-COCO（YOLOv5-SAM） | [yolov5s_mobile_sam_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov5s_mobile_sam_vit_h.yaml)  | 27.98MB  | [百度网盘](https://pan.baidu.com/s/18I8ugM29NKjNlVEsnYYuWA?pwd=z8dl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx) |
-| efficientvit_sam_l0_vit_h.encoder.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 117.25MB  | [百度网盘](https://pan.baidu.com/s/16u8oXZzgTlZPF4szdbHNNg?pwd=dr1t) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l0_vit_h.encoder.onnx) |
-| efficientvit_sam_l0_vit_h.decoder.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 15.63MB  | [百度网盘](https://pan.baidu.com/s/1w4MFjrXdpI9A3YdESdSeWA?pwd=xjma) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l0_vit_h.decoder.onnx) |
-| yolov8n.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 12.21MB  | [百度网盘](https://pan.baidu.com/s/1j8Jx4tsL97KlSeNe9aGdVg?pwd=u000) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n.onnx) |
 | yolov5m.onnx | YOLOv5-RAM | [yolov5m_ram.yaml](../../anylabeling/configs/auto_labeling/yolov5m_ram.yaml)  | 81.19MB  | [百度网盘](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
 | ram_swin_large_14m.onnx | YOLOv5-RAM | [yolov5m_ram.yaml](../../anylabeling/configs/auto_labeling/yolov5m_ram.yaml) | 865.66MB | [百度网盘](https://pan.baidu.com/s/1c045hicvPP3pQNaNSOrpQQ?pwd=wnss) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/ram_swin_large_14m.onnx) |
-| yolov5_plate_detect.onnx | YOLOv5（[车牌识别]([Chinese_license_plate_detection_recognition](https://github.com/we0091234/Chinese_license_plate_detection_recognition))）| [yolov5_car_plate.yaml](../../anylabeling/configs/auto_labeling/yolov5_car_plate.yaml) | 3.65MB | [百度网盘](https://pan.baidu.com/s/1hwHvbML480pi2UlAUIsz4g?pwd=ympi) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov5_plate_detect.onnx) |
-| yolov5_plate_rec_color.onnx | YOLOv5（[车牌识别]([Chinese_license_plate_detection_recognition](https://github.com/we0091234/Chinese_license_plate_detection_recognition))）| [yolov5_car_plate.yaml](../../anylabeling/configs/auto_labeling/yolov5_car_plate.yaml) | 702KB | [百度网盘](https://pan.baidu.com/s/15Z32TCEMDvYJRUpw87wwJQ?pwd=8lat) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov5_plate_rec_color.onnx) |
 | edge_sam_encoder.onnx | EdgeSAM-CN-CLIP ViT-B-16| [edge_sam_with_chinese_clip.yaml](../../anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml) | 21.02MB | [百度网盘](https://pan.baidu.com/s/1jKK1OQYS9PsRrZM75GposA?pwd=2okt) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/edge_sam_encoder.onnx) |
 | edge_sam_decoder.onnx | EdgeSAM-CN-CLIP ViT-B-16| [edge_sam_with_chinese_clip.yaml](../../anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml) | 17.78MB | [百度网盘](https://pan.baidu.com/s/1THr_TLO0zmoZZ_gw5mQuow?pwd=ewyv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/edge_sam_decoder.onnx) |
 | vit-b-16.img.fp16.onnx | EdgeSAM-CN-CLIP ViT-B-16| [edge_sam_with_chinese_clip.yaml](../../anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml) | 3.51MB | [百度网盘](https://pan.baidu.com/s/15vXbkGjeivaH95kbIsJ3Ew?pwd=ioth ) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.1/vit-b-16.img.fp16.onnx) |
@@ -308,7 +303,7 @@
 | groundingdino_swint_ogc_quant.onnx | GroundingSAM2 | [groundingdino_swint_sam2_large.yaml](../../anylabeling/configs/auto_labeling/groundingdino_swint_sam2_large.yaml) | 171.28MB | [百度网盘](https://pan.baidu.com/s/12EZzjR5h7cysDjbIGfNFKQ?pwd=5prg) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swint_ogc_quant.onnx) |
 
 
-### 开集 Grounded 模型
+## 开放词汇定位模型
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -329,7 +324,7 @@
 | ram_plus_swin_large_14m.onnx | [Recognize Anything Pluse](https://github.com/xinyu1205/recognize-anything) | [ram_plus_swin_large_14m.yaml](../../anylabeling/configs/auto_labeling/ram_plus_swin_large_14m.yaml) | 1.74GB | [百度网盘](https://pan.baidu.com/s/1qcysPmAsZUOb9SgmlO6XeA?pwd=fzt9) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/ram_plus_swin_large_14m.onnx) |
 
 
-### 深度估计
+## 深度估计
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -341,7 +336,7 @@
 | depth_anything_v2_vitl.onnx | [DepthAnythingV2](https://github.com/DepthAnything/Depth-Anything-V2) | [depth_anything_v2_vit_l.yaml](../../anylabeling/configs/auto_labeling/depth_anything_v2_vit_l.yaml) | 1.25GB | [百度网盘](https://pan.baidu.com/s/134WYgOdhzWeyap_xk0rBhw?pwd=cnqt) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/depth_anything_v2_vitl.onnx) |
 
 
-### 交互式视频目标分割
+## 交互式视频目标分割
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
@@ -350,18 +345,22 @@
 | sam2_hiera_base_plus.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml) | 308.51MB | [百度网盘](https://pan.baidu.com/s/1nP-ysdw1t7JgUQtIv-adNA?pwd=44u4) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt) |
 | sam2_hiera_large.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_large_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_large_video.yaml) | 856.35MB | [百度网盘](https://pan.baidu.com/s/1hFYQc1IKnEw2l-vW6Eoi2w?pwd=gyby) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt) |
 
+服务端 SAM 3 视频跟踪的使用方法请参考 [Segment Anything 3 Video 指南](../../examples/interactive_video_object_segmentation/sam3/README.md)。
 
-### 基于检测与分割的零样本计数
+
+## 基于检测与分割的零样本计数
 
 |名称|描述|配置|大小|链接|
 | --- | --- | --- | --- | --- |
-| GeCo_encoder_data.bin | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 2.38GB | [百度网盘](https://pan.baidu.com/s/1ZuTizr4N4eZk0Z4BKtueSg?pwd=x3r3) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder_data.bin) |
+| GeCo_encoder_data.bin | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 2.38GB | [百度网盘](https://pan.baidu.com/s/1ZuTizr4N4eZk0Z4BKtueSg?pwd=x3r3) |
 | GeCo_encoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.78MB | [百度网盘](https://pan.baidu.com/s/1X_D_tHZGbZKPgjDcQf5Q6A?pwd=n3vs) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder.onnx) |
 | GeCo_decoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.83MB | [百度网盘](https://pan.baidu.com/s/1kfCFyt7ffpuREAGUjM5RKQ?pwd=feh9) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_decoder.onnx) |
-| GeCo_encoder_quant.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 646.48MB | [百度网盘](https://pan.baidu.com/s/1R7mInx4N9t7eXgAUFY15eg?pwd=yyd6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder_quant.onnx) |
+| GeCo_encoder_quant.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 646.48MB | [百度网盘](https://pan.baidu.com/s/1R7mInx4N9t7eXgAUFY15eg?pwd=yyd6) |
 
 
-### 其它
+## 扩展模型与服务
+
+本章节收录需要额外运行环境、独立推理服务或云端 API 的模型；具体安装和使用方式请参考对应文档。
 
 - [Florence 2](../../examples/vision_language/florence2/README.md)
 - [GLM-4.6-V](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/glm_4_6v.py)
@@ -369,5 +368,3 @@
 - [PP-DocLayoutV3](../../examples/optical_character_recognition/document_layout_analysis/README.md)
 - [Qwen3-VL](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/qwen3vl.py)
 - [Rex-Omni](../../examples/vision_language/rexomni/README.md)
-- [Segment-Anything-3](../../examples/grounding/sam3/README.md)
-- [Segment-Anything-3-Video](../../examples/interactive_video_object_segmentation/sam3/README.md)

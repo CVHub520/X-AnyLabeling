@@ -1,4 +1,4 @@
-# Ultralytics Training with X-AnyLabeling 🚀
+# Ultralytics Training with X-AnyLabeling
 
 This guide walks you through training Ultralytics models directly within the X-AnyLabeling GUI. You can prepare your dataset, configure training parameters, launch a training job, and monitor its progress—all from one convenient interface.
 
@@ -104,12 +104,12 @@ Here, you'll set up the core training parameters and hyperparameters.
 -   **Dataset Ratio**: A slider to set the train/validation split for your dataset.
 -   **Only Checked Files**: In **Advanced Settings** > **Checkpoint and Validation**, enable this option to train only with files that have been marked as checked in X-AnyLabeling.
 
-> ![NOTE]
+> [!NOTE]
 > For `Pose` estimation tasks, an additional field will appear to specify a keypoint configuration YAML file. See the [example file](https://github.com/CVHub520/X-AnyLabeling/blob/main/assets/yolov8_pose.yaml) for the required format.
 
-After v2.3.4+, X-AnyLabeling has support for `Classify` tasks and supports two data preparation modes.
+X-AnyLabeling supports two data-preparation modes for classification tasks.
 
-- **Flags-based Classification**: Use X-AnyLabeling's built-in image classification flags. For quick annotation tutorials, refer to official [guide](../../../docs/en/image_classifier.md) and example ([EN](../../../docs/zh_cn/image_classifier.md) | [ZH](../../classification/image-level/README.md))
+- **Flags-based Classification**: Use X-AnyLabeling's image-level flags. See the [image classifier guide](../../../docs/en/image_classifier.md) and the [image-level classification example](../../classification/image-level/README.md).
 
 - **Pre-organized Dataset**: If you already have a local structured classification dataset, set the **Data** field to dataset directory on `Configuration Tab`. The expected structure is:
 

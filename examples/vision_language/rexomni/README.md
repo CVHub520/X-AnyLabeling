@@ -3,8 +3,8 @@
 <img src=".data/teaser.png" width="100%" />
 
 <p align="center">
-  Video Demo: 
-  <a href="https://youtu.be/wUTFtcFhfoY">Youtube</a> & 
+  Video Demo:
+  <a href="https://youtu.be/wUTFtcFhfoY">YouTube</a> &
   <a href="https://www.bilibili.com/video/BV15sz7BqETx">Bilibili</a>
 </p>
 
@@ -23,7 +23,7 @@ You'll need to get X-AnyLabeling-Server up and running first. Check out the [ins
 
 Once that's done, head over to `configs/models.yaml` and enable `rexomni`. There's an [example config](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/configs/models.yaml) you can reference if you're not sure how to set it up.
 
-You can tweak the settings in [rexomni.yaml](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/configs/auto_labeling/rexomni.yaml) to fit your needs. By default, the `backend` is set to `"transformers"`. For faster inference, we recommend configuring `backend: "vllm"` and `attn_implementation: "flash_attention_2"` to accelerate model inference. 
+You can tweak the settings in [rexomni.yaml](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/configs/auto_labeling/rexomni.yaml) to fit your needs. By default, the `backend` is set to `"transformers"`. For faster inference, configure `backend: "vllm"` and `attn_implementation: "flash_attention_2"`.
 
 > [!NOTE]
 > You need to install compatible versions of `vllm` and `flash-attn` packages separately if you want to use these acceleration options.

@@ -128,7 +128,7 @@ furniture
 
 Process multiple images efficiently using consistent detection parameters.
 
-**Activation:** Press `Ctrl+M` (Windows/Linux) or `Cmd+M` (macOS)
+**Activation:** Press `Ctrl+B` (Windows/Linux) or `Cmd+B` (macOS).
 
 **Supported Modes:**
 - **Text Prompting:** Enter text prompts before starting batch processing to apply them across all images

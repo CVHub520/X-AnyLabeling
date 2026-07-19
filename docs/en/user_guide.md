@@ -163,7 +163,8 @@ Label files are saved in `*.json` format in the same directory as the images by 
 }
 ```
 
-⚠️ **To save labels to a different location:** Select `File` > `Change Output Directory` and choose your preferred path. The relative `imagePath` in the JSON will be adjusted accordingly.
+> [!NOTE]
+> To save labels elsewhere, select `File` > `Change Output Directory`. The relative `imagePath` in the JSON is adjusted for the selected output directory.
 
 ### 1.5 Embedding Image Data
 
@@ -195,15 +196,17 @@ For detailed field definitions, see [`shape.py`](../../anylabeling/views/labelin
 
 X-AnyLabeling supports creating the following types of shapes:
 
-- **Rectangle** (`R`): Click and drag to define opposite corners, or click once for the first corner and again for the second.
-- **Rotated Rectangle** (`O`): Click once to set the first corner, move the cursor, and click again to create an axis-aligned box first. To rotate it, select the shape in Editing Mode and press `Z`, `X`, `C`, or `V`.
-- **Polygon** (`P`): Click along the object's boundary to place vertices. Click the starting point or double-click the last point to close the polygon. Requires at least 3 points. A brush mode (`Ctrl+N`) is also available: once activated, click to place the first point, then move the mouse to automatically trace polygon vertices along the cursor path. Move near the starting point to auto-close. The point distance can be adjusted via `Settings > Canvas > brush.point_distance`.
-- **Quadrilateral** (`T`): Click to place the first corner, then click the remaining three corners in order to complete the quadrilateral.
-- **Point**: Click to place a point.
-- **Line**: Click to set the start point, move the cursor, and click again to set the end point. Hold `Shift` while drawing to snap the segment horizontally or vertically.
-- **Line Strip**: Click to place the first point, then click to add subsequent points for connected line segments. Hold `Shift` while drawing each segment to snap it horizontally or vertically. Double-click to finish.
-- **Circle**: Click to set the center, move the cursor to define the radius, and click again.
-- **Cuboid** (`Ctrl+R`): Draw the front face as a rectangle (same gesture as rectangle creation). The rear face is auto-generated using `canvas.cuboid.default_depth_vector` (adjustable in `Settings > Canvas > Cuboid`); if depth is too small, it is normalized to satisfy `canvas.cuboid.min_depth`.
+| Shape Type | Shortcut | Drawing Method |
+| --- | --- | --- |
+| `rectangle` | `R` | Click to set the first corner, move the cursor, and click again to set the opposite corner. |
+| `rotation` | `O` | Draw an initially horizontal or vertical box as you would a rectangle. In editing mode, select the shape and press `Z`, `X`, `C`, or `V` to adjust its angle. |
+| `polygon` | `P` | Click along the boundary to add vertices, then click the starting vertex or double-click the last vertex to finish. At least three vertices are required. Press `Ctrl+N` for brush mode, which adds vertices as the pointer moves; adjust spacing with `Settings > Canvas > brush.point_distance`. |
+| `quadrilateral` | `T` | Click four corners in sequence; the fourth click completes the shape. |
+| `point` | `Shift+P` | Click to place one keypoint. |
+| `line` | `Shift+L` | Click to set the start point, move the cursor, and click again to set the end point. Hold `Shift` while drawing to snap horizontally or vertically. |
+| `linestrip` | `Shift+S` | Click to add connected vertices and double-click to finish. Hold `Shift` while drawing a segment to snap it horizontally or vertically. |
+| `circle` | `Shift+C` | Click to set the center, move the cursor to define the radius, and click again to finish. |
+| `cuboid` | `Ctrl+R` | Draw the front face as a rectangle. The rear face is generated from `canvas.cuboid.default_depth_vector`, configurable under `Settings > Canvas > Cuboid`; depths below the limit are constrained by `canvas.cuboid.min_depth`. |
 
 You can create shapes using the tools in the left toolbar, the right-click context menu, or keyboard shortcuts.
 
@@ -212,7 +215,7 @@ You can create shapes using the tools in the left toolbar, the right-click conte
 X-AnyLabeling provides two shape interaction modes:
 
 - **Drawing Mode** allows rapid creation of new shapes.
-- **Editing Mode** enables editing operations such as switching modes (`Ctrl+E`), undo (`Ctrl+Z`), copy (`Ctrl+C`), paste (`Ctrl+V`), delete (`Delete`), move, resize, and rotate.
+- **Editing Mode** enables operations such as undo (`Ctrl+Z`), copy (`Ctrl+C`), paste (`Ctrl+V`), delete (`Delete`), move, resize, and rotate.
 
 Press `Ctrl+J` to quickly switch between Drawing and Editing modes. Additional object-specific operations:
 
@@ -251,9 +254,10 @@ When you create a shape or select an existing one in Edit Mode, the label panel 
 ### 2.4 Adding Image Captions
 
 X-AnyLabeling allows you to add a description or caption to the entire image:
-1. Enter Edit Mode (`Ctrl+E`).
-2. Click on an empty area of the canvas (not on a shape).
-3. Enter your text in the `Description` field in the right panel. This is saved in the `flags` field of the main JSON structure.
+
+1. Enter Edit Mode (`Ctrl+J`).
+2. Click an empty area of the canvas.
+3. Enter text in the `Description` field in the right panel. The value is saved in the top-level `description` field of the label JSON.
 
 ### 2.5 Searching Images
 
@@ -341,7 +345,7 @@ You can control the visibility of various shape attributes:
 When you hover over a shape, its dimensions (width and height) are displayed in the status bar.
 
 > [!TIP]
-> In the **Shapes** list on the right panel, you can right-click to open **Filter by Label** and **Filter by Group ID** submenus for quick filtering.  
+> In the **Shapes** list on the right panel, right-click and select **Filter by Label** or **Filter by Group ID** to filter objects.
 > The global show/hide control for all shapes is available in the left toolbar as an **eye/hidden** toggle button (click once to hide all, click again to show all).
 
 ### 3.4 Crosshair Customization
@@ -648,7 +652,7 @@ You can also use **Tools** > **Save Visualization Image** or **Save Visualizatio
 
 **Operations:**
 - **Delete Labels**: Remove specific label classes entirely from the list of available labels.
-- **Rename Labels**: Change the name of existing label classes. This updates the label list but does *not* automatically update existing annotations using the old name.
+- **Rename Labels**: Replace an existing label name throughout the selected annotation range.
 - **Control Label Visibility**: Use the `Visible` column checkboxes to show or hide specific labels on the canvas.
 - **Change Label Colors**: Modify the display color for specific label classes *for the current session only*. (For persistent changes, see [7.2 Custom Label Colors](#72-custom-label-colors)).
 
@@ -678,15 +682,12 @@ Rules:
 - `polygon`/`rotation` -> `rectangle` uses an axis-aligned bounding box (AABB).
 - `circle` -> `rectangle`/`rotation`/`quadrilateral` generates a four-point shape from circle center and radius.
 
-> **Note:** Some conversions are lossy (e.g., rotation angle, exact boundaries, curve details) and are **irreversible**. Back up annotations before large batch conversions.
+> [!WARNING]
+> Some conversions lose rotation angles, exact boundaries, or curve details and cannot be reversed. Back up annotations before batch conversion.
 
 ### 5.5 Digit Shortcut Manager
 
-The Digit Shortcut Manager is a practical feature provided by X-AnyLabeling that allows users to configure numeric keys (0-9) for quick shape creation, significantly improving labeling efficiency. 
-
-By pre-setting the drawing mode and label name corresponding to each numeric key, users can quickly create desired annotation shapes with a single keystroke during the labeling process.
-
-To open the Digit Shortcut Manager, select **Tools** in the top menu bar of the main interface, then click on the **Digit Shortcut Manager** option, or simply use the shortcut key **Alt+D**.
+The Digit Shortcut Manager assigns a drawing mode and default label to each numeric key (0–9). Open it from **Tools > Digit Shortcut Manager** or press `Alt+D`.
 
 In the Digit Shortcut Manager dialog, users can see a table containing all numeric keys (0-9), with each row including the following information:
 
@@ -710,9 +711,7 @@ digit_shortcuts:
   # More configurations...
 ```
 
-Digit shortcut settings configured through the GUI interface will be automatically synchronized and saved to the `.xanylabelingrc` configuration file in the current user directory, and will be automatically loaded the next time the software is started. Similarly, if you directly modify the configuration file, the software will automatically recognize and apply these changes after restart.
-
-By properly configuring numeric shortcuts, you can significantly improve labeling efficiency and reduce repetitive operations, particularly suitable for scenarios that require frequent switching between different annotation types.
+Settings made in the interface are saved to `.xanylabelingrc` and loaded at the next startup. Manual configuration changes also take effect after restarting the application.
 
 ### 5.6 Group ID Manager
 
@@ -741,8 +740,8 @@ Four operation modes are available (mutually exclusive):
 
 Set the start and end frame numbers: From defaults to the current frame, To defaults to empty and must be manually filled. Frame numbers correspond to the file list index (starting from 1). Clicking Go triggers a confirmation dialog before execution. Remove and add operations support progress display and mid-process cancellation.
 
-> ![NOTE]
-> Note that delete annotation operations are irreversible, while deleted images can be manually recovered from the backup directory.
+> [!WARNING]
+> Deleting annotations cannot be undone. Deleted images can be recovered manually from the backup directory.
 
 ## 6. Help and Language
 
@@ -787,6 +786,10 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `r`                   | Create Rectangle Shape                           | Shortcut might vary                        |
 | `Ctrl+r`              | Create Cuboid Shape                              | From rectangle                             |
 | `t`                   | Create Quadrilateral Shape                       | Shortcut might vary                        |
+| `Shift+p`             | Create Point Shape                               |                                            |
+| `Shift+l`             | Create Line Shape                                |                                            |
+| `Shift+s`             | Create Line Strip Shape                          |                                            |
+| `Shift+c`             | Create Circle Shape                              |                                            |
 | `i`                   | Run AI Model Inference                           | If model loaded                            |
 | `q`                   | Add Positive Point (SAM)                         | SAM Interactive Segmentation Mode          |
 | `e`                   | Add Negative Point (SAM)                         | SAM Interactive Segmentation Mode          |
@@ -806,22 +809,24 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+1`              | Open Chatbot                                     |                                            |
 | `Ctrl+2`              | Open Visual Question Answering Dialog            |                                            |
 | `Ctrl+3`              | Open Image Classifier Dialog                     |                                            |
+| `Ctrl+4`              | Open PaddleOCR Dialog                            |                                            |
+| `Ctrl+5`              | Open Video Classifier Dialog                     |                                            |
 | `Ctrl+q`              | Quit Application                                 |                                            |
 | `Ctrl+i`              | Open Single Image File                           |                                            |
 | `Ctrl+o`              | Open Single Video File                           |                                            |
 | `Ctrl+u`              | Open Image Directory                             |                                            |
-| `Ctrl+e`              | Toggle Edit Mode                                 | Switch between drawing & editing shapes    |
-| `Ctrl+j`              | Edit Polygon Points                              | Fine-tune polygon vertices                 |
+| `Ctrl+e`              | Edit Selected Label                              | Opens the label editor                     |
+| `Ctrl+j`              | Toggle Edit Mode                                 | Switches between drawing and editing       |
 | `Ctrl+c`              | Copy Selection                                   | Copies selected shape(s)                   |
 | `Ctrl+v`              | Paste Selection                                  | Pastes copied shape(s)                     |
 | `Ctrl+d`              | Duplicate Selection                              | Creates copy of selected shape(s)          |
 | `Ctrl+g`              | Show Statistics (Overview Window)                | Opens Data Statistics Tool                 |
 | `Ctrl+h`              | Toggle All Shapes Visibility                     | Show/Hide all annotations on canvas        |
-| `Ctrl+p`              | Toggle Preserve Previous Mode                    | (Needs clarification - likely relates to keeping label/settings) |
+| `Ctrl+p`              | Toggle Keep Previous Annotation                  | Reuses the previous frame's annotations    |
 | `Ctrl+y`              | Toggle 'Use Last Label'                          | Auto-fills next shape with previous label  |
-| `Ctrl+Shift+y`        | Toggle 'Use Last Group ID'                       | Auto-fills next gid with previous label    |
-| `Ctrl+b`              | Toggle Batch Mode                                | (Needs clarification - likely multi-image annotation) |
-| `Ctrl+a`              | Toggle Auto-Annotation                           | (Needs clarification - likely AI-assist)   |
+| `Ctrl+Shift+g`        | Toggle 'Use Last Group ID'                       | Reuses the previous group ID               |
+| `Ctrl+b`              | Run Batch Auto-Labeling                          | Runs the selected model on multiple images |
+| `Ctrl+a`              | Open Auto-Labeling Panel                         | Select and configure an AI model           |
 | `Ctrl+s`              | Save Current Annotations                         | Manual save (if auto-save is off)          |
 | `Ctrl+m`              | Toggle Mask Display                              | Show/Hide semi-transparent masks for shapes|
 | `Ctrl+l`              | Toggle Label Text Visibility                     | Show/Hide label names on shapes            |
@@ -915,14 +920,14 @@ Then upload it through the menu: `Upload` → `Upload Label Classes File`.
 To streamline the annotation workflow, you can configure the application to automatically switch to **Edit Mode** immediately after a shape is created. This is useful if you frequently need to adjust a shape right after drawing it. You can change this in `Settings > General > Behavior > Auto Switch To Edit Mode`, or through the `auto_switch_to_edit_mode` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to enable automatic switching to Edit Mode.
-- Set to `false` (the default) to remain in Drawing Mode, which allows for the continuous creation of multiple shapes.
+- Set to `false` to remain in Drawing Mode, which allows continuous creation of multiple shapes. The default is `true`.
 
 ### 7.5 Hover Auto-Highlight
 
 For quicker selection of shapes, you can enable **Hover Auto-Highlight**. When this feature is active, simply moving your mouse cursor over a shape will highlight it, making it clear which shape will be selected if you click. You can change this in `Settings > General > Behavior > Auto Highlight Shape`, or through the `auto_highlight_shape` setting in the `.xanylabelingrc` file.
 
 - Set to `true` to highlight shapes on hover.
-- Set to `false` (the default) to only highlight shapes upon clicking them.
+- Set to `false` to highlight shapes only after clicking. The default is `true`.
 
 *Note: When working on multi-label classification tasks with a custom attributes file loaded, this setting is automatically disabled to prevent accidentally changing the active shape while interacting with the attributes panel.*
 
@@ -951,27 +956,15 @@ shape:
 
 `X-AnyLabeling` downloads pre-trained models used for AI-assisted features (like SAM or detection models). You can configure the download source (Model Hub). The source is determined in the following order of priority:
 
-1.  **Environment Variable (Highest Priority)**:
-    *   Set the `XANYLABELING_MODEL_HUB` environment variable before launching the application.
-    *   Example (Linux/macOS): `export XANYLABELING_MODEL_HUB=modelscope`
-    *   Example (Windows): `set XANYLABELING_MODEL_HUB=modelscope`
-    *   Setting this to `modelscope` forces downloads from ModelScope (often faster for users in China). Any other value (or if unset) falls back to the next priority level.
+1. **Environment Variable (Highest Priority)**: Set `XANYLABELING_MODEL_HUB=modelscope` before launch to force ModelScope. If the variable contains another non-empty value, the original URL in the model configuration is used.
 
-2.  **Configuration File (Medium Priority)**:
-    *   Open `Settings` (`Ctrl+0`) and change `General > Behavior > Model Hub`, or edit the `model_hub:` setting in `.xanylabelingrc`.
-    *   Set it to `modelscope` to use ModelScope, or `github` (default) to use models hosted on GitHub Releases.
-    *   This setting is used only if the `XANYLABELING_MODEL_HUB` environment variable is not set to `modelscope`.
-    ```yaml
-    # In .xanylabelingrc
-    language: en_US # Or zh_CN / ja_JP / ko_KR
-    model_hub: github  # Options: github, modelscope
-    # ... other settings ...
-    ```
+2. **Configuration File (Medium Priority)**: When the environment variable is unset or empty, change `General > Behavior > Model Hub` in `Settings` (`Ctrl+0`), or edit `model_hub` in `.xanylabelingrc`:
 
-3.  **Language Setting (Lowest Priority)**:
-    *   If neither the environment variable nor the config file is explicitly set to `modelscope`, the default behavior depends on the language setting in `.xanylabelingrc`:
-        *   If `language: zh_CN` (Chinese), it defaults to `modelscope`.
-        *   Otherwise (e.g., `language: en_US`, `language: ja_JP`, or `language: ko_KR`), it defaults to `github`.
+   ```yaml
+   model_hub: github  # Options: github, modelscope
+   ```
+
+3. **Language Setting (Lowest Priority)**: This fallback is used only when the environment variable is unset and `model_hub` is missing or empty. A Chinese interface (`language: zh_CN`) then uses ModelScope; other languages use the original model URL.
 
 ### 7.8 Theme Settings
 
@@ -1032,7 +1025,7 @@ X-AnyLabeling supports various annotation tasks. Follow the links below for spec
 
 ### 8.8 Optical Character Recognition (OCR)
   - Text Detection & Recognition: [Link](../../examples/optical_character_recognition/text_recognition/README.md)
-  - Key Information Extraction (KIE): [Link](../../examples/optical_character_recognition/kie/README.md)
+  - Key Information Extraction (KIE): [Link](../../examples/optical_character_recognition/key_information_extraction/README.md)
 
 ### 8.9 Interactive Video Object Segmentation (IVOS)
   - SAM2-Video: [Link](../../examples/interactive_video_object_segmentation/sam2/README.md)
@@ -1061,9 +1054,9 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 ## 10. Advanced Features
 
 - Remote Server Guide: [Link](https://github.com/CVHub520/X-AnyLabeling-Server)
-- Chatbot Guide: [Link](../en/chatbot.md)
-- VQA Guide: [Link](../en/vqa.md)
-- Image Classifier: [Link](../en/image_classifier.md)
-- Video Classifier: [Link](../en/video_classifier.md)
+- Chatbot Guide: [Link](./chatbot.md)
+- VQA Guide: [Link](./vqa.md)
+- Image Classifier: [Link](./image_classifier.md)
+- Video Classifier: [Link](./video_classifier.md)
 - Ultralytics Training Platforms: [Link](../../examples/training/ultralytics/README.md)
-- Document Parsing and Intelligent Text Recognition: [Link](../en/paddle_ocr.md)
+- Document Parsing and Intelligent Text Recognition: [Link](./paddle_ocr.md)

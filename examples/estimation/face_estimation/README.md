@@ -23,7 +23,7 @@ landmarks linked as one object.
 1. Import your image files.
 2. Select and load one of the face estimation models from the auto-labeling
    model list.
-3. Click `Run (i)` to infer the current image, or use `Ctrl+M` to process all
+3. Click `Run (i)` to infer the current image, or use `Ctrl+B` to process all
    images in the current task.
 4. Review the generated face rectangles and landmark points. Each detected face
    uses the same `group_id` for its rectangle and five points.

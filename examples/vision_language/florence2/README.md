@@ -32,7 +32,7 @@ Then, install the `transformers` package via:
 pip install transformers
 ```
 
-Finally, you can back to the installation guide ([简体中文](../../docs/zh_cn/get_started.md) | [English](../../docs/en/get_started.md)) to install the necessary dependencies for X-AnyLabeling (v2.5.0+):
+Return to the installation guide ([简体中文](../../../docs/zh_cn/get_started.md) | [English](../../../docs/en/get_started.md)) to install the remaining X-AnyLabeling dependencies:
 
 
 ## Getting Started
@@ -44,7 +44,7 @@ You can download the model from [HuggingFace](https://huggingface.co/microsoft/F
 
 ```python3
 import torch
-from transformers import AutoProcessor, AutoModelForCausalLM 
+from transformers import AutoProcessor, AutoModelForCausalLM
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32

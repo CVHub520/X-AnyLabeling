@@ -7,20 +7,20 @@
 
 ## Usage
 
-![](.data/annotated_ocr_recognition.gif) 
+![](.data/annotated_ocr_recognition.gif)
 
 Currently, X-AnyLabeling supports both manual and automatic annotation of the PP-OCR dataset.
 
 1. Manual Annotation Modes
 
-The following modes are avaliable:
+The following modes are available:
 - **rectangle**: For drawing rectangle shape around text regions.
 - **rotation**: For annotating text regions with a rotation shape.
 - **quadrilateral**: For four-point (quad) annotation of text regions.
 
 2. Automatic Annotation Mode
 
-For automatic annotation, the tool is integrated with models from [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR). Users can select the appropriate model based on their needs or deploy custom models for assisted inference. 
+For automatic annotation, the tool is integrated with models from [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR). Users can select the appropriate model based on their needs or deploy custom models for assisted inference.
 
 Here's how to proceed with automatic annotation:
 - Load the image or video file.
@@ -28,17 +28,17 @@ Here's how to proceed with automatic annotation:
 - Click to run the annotation process.
 
 > [!TIP]
-> Starting from v3.2.3+, we support partial re-recognition functionality. When detection results are inaccurate, you can manually draw text boxes and use only the recognition part of the OCR pipeline. Simply draw your text regions first (rectangle, rotation or quadrilateral shapes are supported), select the shapes you want to re-recognize, then ensure the "Skip Det (On)" button is activated before running inference, otherwise, it will override your existing shapes.
+> Partial re-recognition uses existing rectangles, rotations, or quadrilaterals as text regions. Select the shapes, enable `Skip Det (On)`, and run inference. If detection is not skipped, the new detection results may replace the existing shapes.
 
 > [!NOTE]
-> In batch processing mode, when "Skip Det (On)" is enabled, the system will automatically load existing annotations from JSON files and use them as detection boxes for recognition. This allows you to efficiently rerun text recognition on all images without manually selecting shapes for each image.
+> In batch mode, `Skip Det (On)` loads existing JSON annotations as text regions, so recognition can be rerun without selecting shapes in every image.
 
-When annotating PPOCR data, the `label` field values can be ignored; instead, you should focus on the `description` field. 
-- To hide the text labels, you can use the shortcut `Ctrl+L`. 
+When annotating PPOCR data, the `label` field values can be ignored; instead, you should focus on the `description` field.
+- To hide the text labels, you can use the shortcut `Ctrl+L`.
 - To modify the `description` field, you can use `Ctrl+E` to open the label manager and make corrections in the section of the pop-up dialog.
 
 > [!TIP]
-> Starting from X-AnyLabeling v3.2.4+, you can use **Loop Select Shapes** (Ctrl+Shift+C) to sequentially select each text region on the canvas for efficient text recognition annotation. This allows you to quickly cycle through all detected text boxes and edit their recognition results without manually clicking each one. You can also directly click the `Select/Unselect` button in the middle right layout of the screen to select/deselect all shapes.
+> Press `Ctrl+Shift+C` to select text regions sequentially. You can also use `Select/Unselect` in the right panel to select or clear all shapes.
 
 ## Export
 

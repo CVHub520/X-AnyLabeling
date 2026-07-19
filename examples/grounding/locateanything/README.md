@@ -13,7 +13,7 @@ LocateAnything supports several remote tasks:
 | Pointing | A phrase such as `the traffic light` | Point shapes |
 | Text Detection | No text prompt | Text boxes with recognized text stored in shape descriptions |
 
-## 🎬 Visual Demo
+## Visual Demo
 
 <table>
 <tr>

@@ -12,14 +12,14 @@ X-AnyLabeling is enhanced with a versatile tracking system capable of handling m
 - **Object Detection**
 - **Oriented Bounding Boxes Object Detection**
 - **Instance Segmentation**
-- **Pose Estimation** 
+- **Pose Estimation**
 
 It incorporates advanced tracking algorithms such as [TrackTrack](https://docs.ultralytics.com/modes/track#tracktrack), [ByteTrack](https://docs.ultralytics.com/modes/track#bytetrack) and [Bot-Sort](https://docs.ultralytics.com/modes/track#bot-sort) to ensure robust and accurate tracking across these diverse tasks.
 
 Here's how to perform multi-object tracking using the tool:
 1. Load the video file, e.g., [Bangkok.mp4](https://github.com/user-attachments/assets/b94db3da-c7fa-469c-a153-a7c98bb56e14). (Note: The file path must not contain Chinese characters!)
 2. Load a built-in tracking model from the table below, or load a custom tracking model.
-3. Click to run, and after verifying that everything is correct, you can use the shortcut `Ctrl+M` to run all frames at once.
+3. Click `Run (i)` to process the current frame. After checking the result, press `Ctrl+B` to process all frames.
 
 Built-in tracking model configurations:
 
@@ -41,10 +41,10 @@ In this process, the `group_id` field represents the `track_id` of the current t
 > If you have not started a new task, run `Reset Tracker` before tracking a new video or image sequence.
 
 > [!WARNING]
-> If object confidence score will be low, i.e lower than track_high_thresh, then there will be no tracks successfully returned and updated.
+> If an object's confidence is lower than `track_high_thresh`, the tracker may not return or update a track for it.
 
 > [!TIP]
-> You can open the Group ID Manager with Alt+G to modify the group_id. :)
+> Press `Alt+G` to open the Group ID Manager and edit `group_id` values.
 
 ## Export
 

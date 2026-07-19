@@ -2,15 +2,15 @@
 
 ## Introduction
 
-**Image Classification** is the task of assigning a specific label or class to an entire image, which can be divided into different categories, i.e., Multiclass Classification and  Multilabel Classification.
+Image classification assigns labels to an entire image. X-AnyLabeling supports multiclass and multilabel classification.
 
 <img src=".data/classification.png" width="100%" />
 
-> **Multiclass Classification** focuses on categorizing data into more than two classes.
+> **Multiclass classification** assigns exactly one class to each image.
 
 <img src=".data/annotated_multiclass_example.png" width="100%" />
 
-> **Multilabel Classification** allows for each instance to be associated with multiple labels simultaneously, enabling the assignment of multiple binary labels to a single image.
+> **Multilabel classification** allows each image to have multiple labels.
 
 <img src=".data/annotated_multilabel_example.png" width="100%" />
 
@@ -50,7 +50,7 @@ python anylabeling/app.py --flags Apple,Meta,Google
 ```
 
 > [!CAUTION]
-> Remember separate custom labels with a comma ','.
+> Separate labels with commas.
 
 **Option 2: Using a Configuration File**
 
@@ -59,7 +59,6 @@ python anylabeling/app.py --flags flags.txt
 ```
 
 > [!NOTE]
-> Here, each line represents a category.
-
+> Each line in the file represents one category.
 
 For detailed output examples, refer to [this folder](./sources/).

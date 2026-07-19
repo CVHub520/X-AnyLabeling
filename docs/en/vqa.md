@@ -1,6 +1,6 @@
 # Overview
 
-`X-AnyLabeling` Visual Question Answering (VQA) Tool is a professional system designed for multimodal image question-answering dataset annotation. The tool not only supports the creation of image-based question-answer pairs but also integrates intelligent assistance, offering a wide variety of input components and extensive configurability. With its flexibility to adapt to different annotation tasks, it provides high-quality training data for supervised fine-tuning, reinforcement learning post-training, and similar tasks.
+The X-AnyLabeling Visual Question Answering (VQA) tool annotates multimodal image-question answering datasets. It supports image-based question-and-answer pairs, configurable input components, and AI assistance for preparing structured data for supervised fine-tuning, reinforcement-learning post-training, and similar tasks.
 
 <video src="https://github.com/user-attachments/assets/53adcff4-b962-41b7-a408-3afecd8d8c82" width="100%" controls>
 </video>
@@ -55,7 +55,7 @@ The VQA tool adopts a dual-panel layout: the left panel displays image previews,
   <img src="../../assets/resources/vqa/del_compone.png" width="43%" />
 </div>
 
-For text input components, the system integrates powerful AI assistance to improve annotation efficiency. To enable this feature, follow the configuration instructions in the [Chatbot](../zh_cn/chatbot.md) section.
+Text input components support AI-assisted annotation. Before using this feature, follow the configuration instructions in the [Chatbot guide](./chatbot.md).
 
 <img src="../../assets/resources/vqa/chatbot.png" width="100%" />
 
@@ -100,7 +100,7 @@ X-AnyLabeling uses an autosave mechanism to ensure that no annotation work is lo
 
 ```json
 {
-  "version": "3.2.1",
+  "version": "${version}",
   "flags": {},
   "shapes": [],
   ...

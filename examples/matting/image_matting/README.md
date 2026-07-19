@@ -17,9 +17,9 @@
 
 ## Usage
 
-1. Import your image (`Ctrl+I`) or video (`Ctrl+O`) file into the X-AnyLabeling.
+1. Import images (`Ctrl+I`) or a video (`Ctrl+O`) into X-AnyLabeling.
 2. Select and load the desired model version (`RMBG v1.4`, `RMBG v2.0`, or `RMBG v2.0 Quantized`).
-3. Initiate the process by clicking `Run (i)`. Once you've verified that everything is set up correctly, use the keyboard shortcut `Ctrl+M` to process all images in one go.
+3. Click `Run (i)` to process the current image. After checking the result, press `Ctrl+B` to process all images.
 
 The output, once completed, will be automatically stored in a `x-anylabeling-matting` subdirectory within the same folder as your original image.
 

@@ -138,7 +138,7 @@ The **Seal Recognition** task recognizes text from seal stamps and chop marks.
 3. The recognized text will be displayed in the description field
 
 > [!TIP]
-> All tasks support batch processing. You can run inference on the entire dataset with a single click using `Ctrl+M` or the batch processing feature in X-AnyLabeling.
+> All tasks support batch processing. Press `Ctrl+B`, or click `Auto Run`, to run inference on the entire dataset.
 
 ## Related Models
 

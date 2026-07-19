@@ -1,19 +1,19 @@
-## 🛠️ `X-AnyLabeling` Model Zoo
+# X-AnyLabeling Model Zoo
 
 
-### Classification
+## Classification
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
 | pulc_person_attribute.onnx | [PersonAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_person_attribute_en.md)-PULC | [pulc_person_attribute.yaml](../../anylabeling/configs/auto_labeling/pulc_person_attribute.yaml) | 6.59MB | [baidu](https://pan.baidu.com/s/1AyPXvnV6BSe4We0nrA5KYA?pwd=qw96) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/pulc_person_attribute.onnx) |
 | pulc_vehicle_attribute.onnx | [VehicleAttribute](https://github.com/PaddlePaddle/PaddleClas/blob/release%2F2.5/docs/en/PULC/PULC_vehicle_attribute_en.md)-PULC | [pulc_vehicle_attribute.yaml](../../anylabeling/configs/auto_labeling/pulc_vehicle_attribute.yaml) | 6.55MB | [baidu](https://pan.baidu.com/s/1RZqDK7-CKw-vcbscZKgBDw?pwd=3qp0) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.0.0/pulc_vehicle_attribute.onnx) |
-| internimage_l_22kto1k_384.onnx | [InternImage](https://github.com/OpenGVLab/InternImage)-Large | [internimage_l_22kto1k_384.yaml](../../anylabeling/configs/auto_labeling/internimage_l_22kto1k_384.yaml) | 853.16MB | [baidu](hhttps://pan.baidu.com/s/1_eg_SyMxqVKcTIzOL27XeA?pwd=9ima) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.1.0/internimage_l_22kto1k_384.onnx) |
+| internimage_l_22kto1k_384.onnx | [InternImage](https://github.com/OpenGVLab/InternImage)-Large | [internimage_l_22kto1k_384.yaml](../../anylabeling/configs/auto_labeling/internimage_l_22kto1k_384.yaml) | 853.16MB | [Baidu](https://pan.baidu.com/s/1_eg_SyMxqVKcTIzOL27XeA?pwd=9ima) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.1.0/internimage_l_22kto1k_384.onnx) |
 | yolov5s-cls.onnx | [YOLOv5-Cls](https://github.com/ultralytics/yolov5)-ImageNet | [yolov5s_cls.yaml](../../anylabeling/configs/auto_labeling/yolov5s_cls.yaml) | 20.81MB | [baidu](https://pan.baidu.com/s/1ftQ-CpbfsBOU1iaRgGsl0A?pwd=k2sm) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/yolov5s-cls.onnx) |
 | yolov8s-cls.onnx | [YOLOv8-Cls](https://github.com/ultralytics/ultralytics)-ImageNet | [yolov8s_cls.yaml](../../anylabeling/configs/auto_labeling/yolov8s_cls.yaml) | 24.28MB | [baidu](https://pan.baidu.com/s/1-V_h-LJWbmuooMy9yRKq4g?pwd=klrg) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/yolov8s-cls.onnx) |
 | yolo11s-cls.onnx | [YOLO11-Cls](https://github.com/ultralytics/ultralytics)-ImageNet | [yolo11s_cls.yaml](../../anylabeling/configs/auto_labeling/yolo11s_cls.yaml) | 25.67MB | [baidu](https://pan.baidu.com/s/1zz6Q3mMJp7btd0vTz2krUQ?pwd=9h63) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-cls.onnx) |
 
 
-### Keypoint Detection
+## Keypoint Detection
 
 - Facial Landmark Detection
 
@@ -38,14 +38,14 @@
 | rtmdet_m_640-8xb32_coco-person.onnx | [RTMDet](https://github.com/open-mmlab/mmyolo/tree/main/configs/rtmdet)（2D human whole-body pose estimation）| [rtmdet_m_640-8xb32_coco-person.onnx](../../anylabeling/configs/auto_labeling/rtmdet_m_coco_person_rtmo_m.yaml) | 104.25MB | [baidu](https://pan.baidu.com/s/1BOoBNihoejvqoB7viBzbQQ?pwd=5ki4) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/rtmdet_m_640-8xb32_coco-person.onnx) |
 
 
-### Lane Detection
+## Lane Detection
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
 | clrnet_tusimple_r18.onnx | [CLRNet](https://github.com/Turoad/CLRNet)-Tusimple (CVPR2022)  | [clrnet_tusimple_r18.yaml](../../anylabeling/configs/auto_labeling/clrnet_tusimple_r18.yaml)  | 59.04MB  | [baidu](https://pan.baidu.com/s/1Ptzji5x2dRBmJtijTmO4tA?pwd=zzuf) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/clrnet_tusimple_r18.onnx) |
 
 
-### Multi-Object-Tracking
+## Multi-Object Tracking
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -55,7 +55,7 @@
 | yolov8m-seg.onnx | YOLOv8m-Seg-Bytetrack | [yolov8m_seg_bytetrack.yaml](../../anylabeling/configs/auto_labeling/yolov8m_seg_bytetrack.yaml) | 104.23MB | [baidu](https://pan.baidu.com/s/1PmKsiatP2YfHtnDCJEnhRw?pwd=bo85) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8m-seg.onnx) |
 | yolov8x-pose-p6.onnx | YOLOv8x-Pose-P6-BoT-SORT | [yolov8x_pose_p6_botsort.yaml](../../anylabeling/configs/auto_labeling/yolov8x_pose_p6_botsort.yaml) | 378.92MB | [baidu](https://pan.baidu.com/s/1VRszCtMnHo2zeshuk93Aew?pwd=xvko) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/yolov8x-pose-p6.onnx) |
 | yolo11s.onnx | YOLO11s-Det-BoT-SORT | [yolo11s_det_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_det_botsort.yaml) | 36.27MB | [baidu](https://pan.baidu.com/s/1a3H-cMRzP-YFSLsKMRXTKA?pwd=uyrw) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s.onnx) |
-| yolo11s_obb_car_bus.onnx | YOLO11s-Obb-BoT-SORT | [yolo11s_obb_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_obb_botsort.yaml) | 37.36MB | [baidu](https://pan.baidu.com/s/1caHKHZvVnyuAqrXaTvklLA?pwd=x2v7) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s_obb_car_bus.onnx) |
+| yolov11s_obb_car_bus.onnx | YOLO11s-OBB-BoT-SORT | [yolo11s_obb_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_obb_botsort.yaml) | 37.36MB | [Baidu](https://pan.baidu.com/s/1caHKHZvVnyuAqrXaTvklLA?pwd=x2v7) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolov11s_obb_car_bus.onnx) |
 | yolo11s-seg.onnx | YOLO11s-Seg-BoT-SORT | [yolo11s_seg_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_seg_botsort.yaml) | 38.77MB | [baidu](https://pan.baidu.com/s/11O7b0qUMQb1SQPoSYOsf9A?pwd=tthu) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-seg.onnx) |
 | yolo11s-pose.onnx | YOLO11s-Pose-BoT-SORT | [yolo11s_pose_botsort.yaml](../../anylabeling/configs/auto_labeling/yolo11s_pose_botsort.yaml) | 38.09MB | [baidu](https://pan.baidu.com/s/1LzdbGYO215UiG7na2NgkJA?pwd=5jcu) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.4/yolo11s-pose.onnx) |
 | yolo26s.onnx | YOLO26s-Det-TrackTrack | [yolo26s_det_tracktrack.yaml](../../anylabeling/configs/auto_labeling/yolo26s_det_tracktrack.yaml) | 36.47MB | [baidu](https://pan.baidu.com/s/1EYN6xIFVrUdkHm2mgcLgKA?pwd=z51j) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s.onnx) |
@@ -64,7 +64,7 @@
 | yolo26s-pose.onnx | YOLO26s-Pose-TrackTrack | [yolo26s_pose_tracktrack.yaml](../../anylabeling/configs/auto_labeling/yolo26s_pose_tracktrack.yaml) | 39.86MB | [baidu](https://pan.baidu.com/s/1LifSl5V5lMk7GOqwtPHO1w?pwd=8kta) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-pose.onnx) |
 
 
-### Object Detection
+## Object Detection
 
 - Horizontal Bounding Box
 
@@ -80,8 +80,8 @@
 | dfine_m_obj2coco.onnx | [D-FINE-M](https://github.com/Peterande/D-FINE)-COCO | [dfine_m_obj2coco.yaml](../../anylabeling/configs/auto_labeling/dfine_m_obj2coco.yaml) | 74.22MB  | [baidu](https://pan.baidu.com/s/1pFXlSBIrBtXf5A8oWzjMNw?pwd=v18h) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/dfine_m_obj2coco.onnx) |
 | dfine_l_obj2coco.onnx | [D-FINE-L](https://github.com/Peterande/D-FINE)-COCO | [dfine_l_obj2coco.yaml](../../anylabeling/configs/auto_labeling/dfine_l_obj2coco.yaml) | 118.35MB  | [baidu](https://pan.baidu.com/s/1_fGvqxloAsPe8EeyZq5Q-g?pwd=3mnr) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/dfine_l_obj2coco.onnx) |
 | dfine_x_obj2coco.onnx | [D-FINE-X](https://github.com/Peterande/D-FINE)-COCO | [dfine_x_obj2coco.yaml](../../anylabeling/configs/auto_labeling/dfine_x_obj2coco.yaml) | 236.60MB  | [baidu](https://pan.baidu.com/s/1n8g3LVpCahKBbTIAYYP95Q?pwd=ywvv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/dfine_x_obj2coco.onnx) |
-| rtdetr-l.onnx | [Ultralytics RT-DETR-L](https://docs.ultralytics.com/models/rtdetr/) | [rtdetr_l.yaml](../../anylabeling/configs/auto_labeling/rtdetr_l.yaml) | 122.88MB | [baidu](https://pan.baidu.com/s/1-e3Vle_bUtdjgfk3igd-XQ?pwd=u7fr) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rtdetr-l.onnx) |
-| rtdetr-x.onnx | [Ultralytics RT-DETR-X](https://docs.ultralytics.com/models/rtdetr/) | [rtdetr_x.yaml](../../anylabeling/configs/auto_labeling/rtdetr_x.yaml) | 250.83MB | [baidu](https://pan.baidu.com/s/1KLV1UozJ46BqZyXGJIhq9A?pwd=q3u8) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rtdetr-x.onnx) |
+| rtdetr_l.onnx | [Ultralytics RT-DETR-L](https://docs.ultralytics.com/models/rtdetr/) | [rtdetr_l.yaml](../../anylabeling/configs/auto_labeling/rtdetr_l.yaml) | 122.88MB | [Baidu](https://pan.baidu.com/s/1-e3Vle_bUtdjgfk3igd-XQ?pwd=u7fr) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rtdetr_l.onnx) |
+| rtdetr_x.onnx | [Ultralytics RT-DETR-X](https://docs.ultralytics.com/models/rtdetr/) | [rtdetr_x.yaml](../../anylabeling/configs/auto_labeling/rtdetr_x.yaml) | 250.83MB | [Baidu](https://pan.baidu.com/s/1KLV1UozJ46BqZyXGJIhq9A?pwd=q3u8) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rtdetr_x.onnx) |
 | rf-detr-nano.onnx | [RF-DETR Nano](https://github.com/roboflow/rf-detr) | [rfdetr_nano.yaml](../../anylabeling/configs/auto_labeling/rfdetr_nano.yaml) | 109.98MB | [百度网盘](https://pan.baidu.com/s/1fTL3CUrY1BykRrc0ata0tQ?pwd=dmet) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rf-detr-nano.onnx) |
 | rf-detr-small.onnx | [RF-DETR Small](https://github.com/roboflow/rf-detr) | [rfdetr_small.yaml](../../anylabeling/configs/auto_labeling/rfdetr_small.yaml) | 117.06MB | [百度网盘](https://pan.baidu.com/s/1e8tIzUxdFXv9r4aMfOWivQ?pwd=bue6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rf-detr-small.onnx) |
 | rf-detr-medium.onnx | [RF-DETR Nano](https://github.com/roboflow/rf-detr) | [rfdetr_medium.yaml](../../anylabeling/configs/auto_labeling/rfdetr_medium.yaml) | 123.88MB | [百度网盘](https://pan.baidu.com/s/1n0pJAK3OMkwTGYSlsoGvug?pwd=r5ny) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rf-detr-medium.onnx) |
@@ -166,7 +166,7 @@
 | yolo26s-obb.onnx | [YOLO26s-Obb](https://docs.ultralytics.com/tasks/obb/)-DOTA-v1.0| [yolo26s_obb.yaml](../../anylabeling/configs/auto_labeling/yolo26s_obb.yaml) | 37.56MB | [baidu](https://pan.baidu.com/s/1eKmD0iYPCF0K2KPH32PJvQ?pwd=8grq) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-obb.onnx) |
 
 
-### OCR
+## Optical Character Recognition
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -188,7 +188,7 @@
 | ch_ppocr_mobile_v2.0_cls_infer.onnx | [Classifier model](https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_cls_infer.tar), classifying the detected text line angles | [japan_ppocr.yaml](../../anylabeling/configs/auto_labeling/japan_ppocr.yaml) | 569KB | [baidu](https://pan.baidu.com/s/1Lhka9fHHxYwvrN55ue8UtQ?pwd=t0se) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.2/ch_ppocr_mobile_v2.0_cls_infer.onnx) |
 
 
-### Segment-Anything-Model
+## Segment Anything Models
 
 - General Scenario
 
@@ -242,11 +242,11 @@
 | --- | --- | --- | --- | --- |
 | sam-med2d_b.encoder.onnx | [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D) ViT-base encoder  | [sam_med2d_vit_b.yaml](../../anylabeling/configs/auto_labeling/sam_med2d_vit_b.yaml)  | 1019.49MB  | [baidu](https://pan.baidu.com/s/1DRKsmAsTrpjIjowL0inq0w?pwd=gur6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam-med2d_b.encoder.onnx) |
 | sam-med2d_b.decoder.onnx | [SAM-Med2D](https://github.com/OpenGVLab/SAM-Med2D) ViT-base decoder  | [sam_med2d_vit_b.yaml](../../anylabeling/configs/auto_labeling/sam_med2d_vit_b.yaml)  | 15.60MB  | [baidu](https://pan.baidu.com/s/1X0ZGp4vxRAVk_v6iSO3BJQ?pwd=7cdd) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam-med2d_b.decoder.onnx) |
-| medsam_vit_b.encoder.onnx | [MedSAM](https://arxiv.org/abs/2304.12306) ViT-base encoder  | [medsam_vit_b.yaml](../../anylabeling/configs/auto_labeling/medsam_vit_b.yaml)  | 342.58MB  | [baidu](https://pan.baidu.com/s/1JCLmvrzDJG1CdB-kROsFlw?pwd=usb3) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/medsam_vit_b.encoder.onnx) |
-| medsam_vit_b.decoder.onnx | [MedSAM](https://arxiv.org/abs/2304.12306) ViT-base decoder  | [medsam_vit_b.yaml](../../anylabeling/configs/auto_labeling/medsam_vit_b.yaml)  | 15.74MB  | [baidu](https://pan.baidu.com/s/1dUdbd6nOoYdLPjrdlDCTVQ?pwd=dnqe) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/medsam_vit_b.decoder.onnx) |
+
+See the [Segment Anything 3 guide](../../examples/grounding/sam3/README.md) for both local ONNX and server-side usage.
 
 
-### Segmentation
+## Segmentation
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -261,11 +261,11 @@
 | hyper-yolon-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolon-seg.yaml | 16.77MB | [baidu](https://pan.baidu.com/s/1o-LIV0z6OFQXGbSbJ_HsVw?pwd=dxex) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolon-seg.onnx) |
 | hyper-yolos-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | [hyper-yolos-seg.yaml](../../anylabeling/configs/auto_labeling/hyper_yolos_seg.yaml) | 59.34MB | [baidu](https://pan.baidu.com/s/1NsGVI5FQIYuoAVNrZF2VNg?pwd=bptv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolos-seg.onnx) |
 | hyper-yolom-seg.onnx | [Hpyer-YOLO](https://github.com/iMoonLab/Hyper-YOLO)-COCO | hyper-yolom-seg.yaml | 132.85MB | [baidu](https://pan.baidu.com/s/1ObhO04dF6JEpvrtzLse6hg?pwd=q5hn) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.5.1/hyper-yolom-seg.onnx) |
-| yolo26s-seg.onnx | [YOLO26s-Seg](https://docs.ultralytics.com/tasks/seg/)-COCO| [yolo26s_seg.yaml](../../anylabeling/configs/auto_labeling/yolo26s_seg.yaml) | 39.91MB | [baidu](https://pan.baidu.com/s/1Bjzf4aX3Pq2jW67k_DxGNA?pwd=599s) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-seg.onnx) |
+| yolo26s-seg.onnx | [YOLO26s-Seg](https://docs.ultralytics.com/tasks/segment/)-COCO| [yolo26s_seg.yaml](../../anylabeling/configs/auto_labeling/yolo26s_seg.yaml) | 39.91MB | [Baidu](https://pan.baidu.com/s/1Bjzf4aX3Pq2jW67k_DxGNA?pwd=599s) \| [GitHub](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/yolo26s-seg.onnx) |
 
 
 
-### Image Matting
+## Image Matting
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -274,7 +274,7 @@
 | bria-rmbg-1.4.onnx | [RMBG v1.4 (BRIA AI)](https://huggingface.co/briaai/RMBG-1.4) | [rmbg_v14.yaml](../../anylabeling/configs/auto_labeling/rmbg_v14.yaml) | 167.99MB | [baidu](https://pan.baidu.com/s/1tVuHF7NsZ7CXeqdQbsOhJg?pwd=9yny) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.3/bria-rmbg-1.4.onnx) |
 
 
-### Union Task
+## Combined Models
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -286,13 +286,8 @@
 | mobile_sam.encoder.onnx | [MobileSAM](https://arxiv.org/abs/2306.14289) encoder(YOLOv5-SAM) | [yolov5s_mobile_sam_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov5s_mobile_sam_vit_h.yaml)  | 26.85MB  | [baidu](https://pan.baidu.com/s/1knn_NkrRAgfJms6d9FsErg?pwd=xbi6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/mobile_sam.encoder.onnx) |
 | sam_vit_h_4b8939.decoder.quant.onnx | [MobileSAM](https://arxiv.org/abs/2306.14289) decoder(YOLOv5-SAM)  | [yolov5s_mobile_sam_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov5s_mobile_sam_vit_h.yaml)  | 8.34MB  | [baidu](https://pan.baidu.com/s/1L5RGeTWK7d5vkLmgir8x5w?pwd=f287) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.0/sam_vit_h_4b8939.decoder.quant.onnx) |
 | yolov5s.onnx | [YOLOv5](https://github.com/ultralytics/yolov5)-COCO(YOLOv5-SAM) | [yolov5s_mobile_sam_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov5s_mobile_sam_vit_h.yaml)  | 27.98MB  | [baidu](https://pan.baidu.com/s/18I8ugM29NKjNlVEsnYYuWA?pwd=z8dl) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5s.onnx) |
-| efficientvit_sam_l0_vit_h.encoder.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 117.25MB  | [baidu](https://pan.baidu.com/s/16u8oXZzgTlZPF4szdbHNNg?pwd=dr1t) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l0_vit_h.encoder.onnx) |
-| efficientvit_sam_l0_vit_h.decoder.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 15.63MB  | [baidu](https://pan.baidu.com/s/1w4MFjrXdpI9A3YdESdSeWA?pwd=xjma) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.2.4/efficientvit_sam_l0_vit_h.decoder.onnx) |
-| yolov8n.onnx | YOLOv8-EfficientViT-SAM  | [yolov8n_efficientvit_sam_l0_vit_h.yaml](../../anylabeling/configs/auto_labeling/yolov8n_efficientvit_sam_l0_vit_h.yaml)  | 12.21MB  | [baidu](https://pan.baidu.com/s/1j8Jx4tsL97KlSeNe9aGdVg?pwd=u000) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov8n.onnx) |
 | yolov5m.onnx | YOLOv5-RAM | [yolov5m_ram.yaml](../../anylabeling/configs/auto_labeling/yolov5m_ram.yaml)  | 81.19MB  | [baidu](https://pan.baidu.com/s/1oB9Vp-s7viOaLxAhjzAnFQ?pwd=vc4v) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v0.1.0/yolov5m.onnx) |
 | ram_swin_large_14m.onnx | YOLOv5-RAM | [yolov5m_ram.yaml](../../anylabeling/configs/auto_labeling/yolov5m_ram.yaml) | 865.66MB | [baidu](https://pan.baidu.com/s/1c045hicvPP3pQNaNSOrpQQ?pwd=wnss) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/ram_swin_large_14m.onnx) |
-| yolov5_plate_detect.onnx | [Chinese_license_plate_detection_recognition](https://github.com/we0091234/Chinese_license_plate_detection_recognition) | [yolov5_car_plate.yaml](../../anylabeling/configs/auto_labeling/yolov5_car_plate.yaml) | 3.65MB | [baidu](https://pan.baidu.com/s/1hwHvbML480pi2UlAUIsz4g?pwd=ympi) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov5_plate_detect.onnx) |
-| yolov5_plate_rec_color.onnx | [Chinese_license_plate_detection_recognition](https://github.com/we0091234/Chinese_license_plate_detection_recognition) | [yolov5_car_plate.yaml](../../anylabeling/configs/auto_labeling/yolov5_car_plate.yaml) | 702KB | [baidu](https://pan.baidu.com/s/15Z32TCEMDvYJRUpw87wwJQ?pwd=8lat) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.0/yolov5_plate_rec_color.onnx) |
 | edge_sam_encoder.onnx | EdgeSAM-CN-CLIP ViT-B-16| [edge_sam_with_chinese_clip.yaml](../../anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml) | 21.02MB | [baidu](https://pan.baidu.com/s/1jKK1OQYS9PsRrZM75GposA?pwd=2okt) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/edge_sam_encoder.onnx) |
 | edge_sam_decoder.onnx | EdgeSAM-CN-CLIP ViT-B-16| [edge_sam_with_chinese_clip.yaml](../../anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml) | 17.78MB | [baidu](https://pan.baidu.com/s/1THr_TLO0zmoZZ_gw5mQuow?pwd=ewyv) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.2.0/edge_sam_decoder.onnx) |
 | vit-b-16.img.fp16.onnx | EdgeSAM-CN-CLIP ViT-B-16| [edge_sam_with_chinese_clip.yaml](../../anylabeling/configs/auto_labeling/edge_sam_with_chinese_clip.yaml) | 3.51MB | [baidu](https://pan.baidu.com/s/15vXbkGjeivaH95kbIsJ3Ew?pwd=ioth ) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.3.1/vit-b-16.img.fp16.onnx) |
@@ -307,7 +302,7 @@
 | groundingdino_swint_ogc_quant.onnx | GroundingSAM2 | [groundingdino_swint_sam2_large.yaml](../../anylabeling/configs/auto_labeling/groundingdino_swint_sam2_large.yaml) | 171.28MB | [baidu](https://pan.baidu.com/s/12EZzjR5h7cysDjbIGfNFKQ?pwd=5prg) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v1.0.0/groundingdino_swint_ogc_quant.onnx) |
 
 
-### Open-Set Grounded Model
+## Open-Vocabulary Grounding
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -328,7 +323,7 @@
 | ram_plus_swin_large_14m.onnx | [Recognize Anything Pluse](https://github.com/xinyu1205/recognize-anything) | [ram_plus_swin_large_14m.yaml](../../anylabeling/configs/auto_labeling/ram_plus_swin_large_14m.yaml) | 1.74GB | [baidu](https://pan.baidu.com/s/1qcysPmAsZUOb9SgmlO6XeA?pwd=fzt9) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/ram_plus_swin_large_14m.onnx) |
 
 
-### Depth Estimation
+## Depth Estimation
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -340,7 +335,7 @@
 | depth_anything_v2_vitl.onnx | [DepthAnythingV2](https://github.com/DepthAnything/Depth-Anything-V2) | [depth_anything_v2_vit_l.yaml](../../anylabeling/configs/auto_labeling/depth_anything_v2_vit_l.yaml) | 1.25GB | [baidu](https://pan.baidu.com/s/134WYgOdhzWeyap_xk0rBhw?pwd=cnqt) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v2.4.0/depth_anything_v2_vitl.onnx) |
 
 
-### Interactive Video Object Segmentation
+## Interactive Video Object Segmentation
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
@@ -349,18 +344,22 @@
 | sam2_hiera_base_plus.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_base_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_base_video.yaml) | 308.51MB | [baidu](https://pan.baidu.com/s/1nP-ysdw1t7JgUQtIv-adNA?pwd=44u4) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_base_plus.pt) |
 | sam2_hiera_large.pt | [SAM 2](https://github.com/CVHub520/segment-anything-2) | [sam2_hiera_large_video.yaml](../../anylabeling/configs/auto_labeling/sam2_hiera_large_video.yaml) | 856.35MB | [baidu](https://pan.baidu.com/s/1hFYQc1IKnEw2l-vW6Eoi2w?pwd=gyby) \| [github](https://dl.fbaipublicfiles.com/segment_anything_2/072824/sam2_hiera_large.pt) |
 
+For server-side SAM 3 video tracking, see the [Segment Anything 3 Video guide](../../examples/interactive_video_object_segmentation/sam3/README.md).
 
-### Zero-shot Counting by Detection and Segmentation
+
+## Zero-Shot Counting by Detection and Segmentation
 
 |Name|Description|Configuration|Size|Link|
 | --- | --- | --- | --- | --- |
-| GeCo_encoder_data.bin | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 2.38GB | [baidu](https://pan.baidu.com/s/1ZuTizr4N4eZk0Z4BKtueSg?pwd=x3r3) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder_data.bin) |
+| GeCo_encoder_data.bin | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 2.38GB | [Baidu](https://pan.baidu.com/s/1ZuTizr4N4eZk0Z4BKtueSg?pwd=x3r3) |
 | GeCo_encoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.78MB | [baidu](https://pan.baidu.com/s/1X_D_tHZGbZKPgjDcQf5Q6A?pwd=n3vs) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder.onnx) |
 | GeCo_decoder.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 16.83MB | [baidu](https://pan.baidu.com/s/1kfCFyt7ffpuREAGUjM5RKQ?pwd=feh9) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_decoder.onnx) |
-| GeCo_encoder_quant.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 646.48MB | [baidu](https://pan.baidu.com/s/1R7mInx4N9t7eXgAUFY15eg?pwd=yyd6) \| [github](https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/GeCo_encoder_quant.onnx) |
+| GeCo_encoder_quant.onnx | [GeCo](https://github.com/jerpelhan/GeCo.git) | [geco_sam_hq_vit_h.yaml](../../anylabeling/configs/auto_labeling/geco_sam_hq_vit_h.yaml) | 646.48MB | [Baidu](https://pan.baidu.com/s/1R7mInx4N9t7eXgAUFY15eg?pwd=yyd6) |
 
 
-### Others
+## Extended Models and Services
+
+This section lists models that require additional runtimes, standalone inference services, or cloud APIs. See the linked documentation for setup and usage.
 
 - [Florence 2](../../examples/vision_language/florence2/README.md)
 - [GLM-4.6-V](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/glm_4_6v.py)
@@ -368,5 +367,3 @@
 - [PP-DocLayoutV3](../../examples/optical_character_recognition/document_layout_analysis/README.md)
 - [Qwen3-VL](https://github.com/CVHub520/X-AnyLabeling-Server/blob/main/app/models/qwen3vl.py)
 - [Rex-Omni](../../examples/vision_language/rexomni/README.md)
-- [Segment-Anything-3](../../examples/grounding/sam3/README.md)
-- [Segment-Anything-3-Video](../../examples/interactive_video_object_segmentation/sam3/README.md)

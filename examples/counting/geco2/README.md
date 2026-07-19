@@ -27,9 +27,6 @@ Launch the X-AnyLabeling client, press `Ctrl+A` or click the `AI` button in the 
 <video src="https://github.com/user-attachments/assets/da8b0c7b-f35a-487a-bcbc-cdb20583ff34" width="100%" controls>
 </video>
 
-> [!NOTE]
-> Replace the placeholder GIF above with your final GECO2 demo.
-
 1. Load an image into X-AnyLabeling.
 2. Choose the rectangle prompt tool in the auto-labeling panel.
 3. Draw one or more exemplar boxes around the target objects you want to count.

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-![](.data/annotated_ocr_kie_task.png) 
+![](.data/annotated_ocr_kie_task.png)
 
 **Key Information Extraction (KIE)** involves extracting essential information from images, such as retrieving a name and ID number from an ID card. The type of information extracted is often specific to the task at hand but can vary across different tasks.
 
@@ -27,7 +27,7 @@ After drawing the text boxes, fill in the following fields in the label editing 
 
 ### Relation Extraction
 
-![](.data/annotated_ppocr_kie_toturial.gif) 
+![](.data/annotated_ppocr_kie_toturial.gif)
 
 For the RE task, in addition to the SER fields, you need to fill in two more fields:
 - `group_id`: A unique identifier for each text box within an image.

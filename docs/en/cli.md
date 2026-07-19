@@ -118,7 +118,7 @@ xanylabeling checks
 Application
 ────────────────────────────────────────────────────────────
   App Name:          X-AnyLabeling
-  App Version:       3.3.0
+  App Version:       4.0.0
   Preferred Device:  CPU
 ────────────────────────────────────────────────────────────
 System
@@ -153,7 +153,7 @@ xanylabeling version
 - Output
 
 ```bash
-3.3.0
+4.0.0
 ```
 
 ### 2.4 Display Configuration File Path
@@ -304,7 +304,7 @@ Converting YOLO detect to XLABEL: 100%|█████████████�
 | `--mapping`           | Path to the mapping table file                                       | No       |
 | `--skip-empty-files`  | Skip creating empty output files (supported by xlabel2yolo and xlabel2voc only) | No |
 
-> For more details, refer to the [User Guide - Label Import/Export](./user_guide.md#4-label-importexport) section.
+> For more details, refer to [Annotation Formats (Import/Export)](./user_guide.md#4-annotation-formats-importexport) in the user guide.
 
 ## 4. FAQ
 

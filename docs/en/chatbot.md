@@ -1,8 +1,6 @@
 # Overview
 
-The `X-AnyLabeling` **Chatbot** is an integrated AI assistant that allows users to interact directly with Large Language Models (LLMs) within their labeling workflow. 
-
-This feature enables you to engage in chat conversations using natural language, batch process image-text question-answering data, and supports one-click import/export of multimodal image data in the [ShareGPT](https://github.com/hiyouga/LLaMA-Factory/blob/main/data/README.md#multi-modal-image-dataset) format (based on single-turn or multi-turn conversations) for direct use in fine-tuning frameworks like [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
+The X-AnyLabeling Chatbot is an AI assistant integrated into the annotation workflow. It supports natural-language conversations, batch image-question answering, and importing or exporting single-turn and multi-turn multimodal data in [ShareGPT](https://github.com/hiyouga/LLaMA-Factory/blob/main/data/README.md#multi-modal-image-dataset) format for frameworks such as [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory).
 
 <video src="https://github.com/user-attachments/assets/c97b943a-71e6-470c-bb73-b4c8d299687f" width="100%" controls>
 </video>
@@ -94,22 +92,13 @@ Supports one-click export of multimodal image data in the ShareGPT format.
 
 ## Configuration Files
 
-The Chatbot stores its configuration in the following location within the user's home directory:
+The Chatbot stores its configuration in the following directory:
 
 ```
-~/.xanylabeling_data/chatbot/
+~/xanylabeling_data/chatbot/
 ```
 
-This includes:
+This directory contains:
+
 - `models.json`: Contains user preferences and model configurations.
 - `providers.json`: API provider settings.
-
-## Keyboard Shortcuts
-
-- `Ctrl`/`⌘`+`Enter`: Send message
-- `Enter`: Add a new line in the message input
-
-## Notes
-
-- The Chatbot feature is currently in beta and may be updated in future versions.
-- Local models via Ollama can be used without an internet connection and theoretically support any model that adheres to the OpenAI-compatible API standard.

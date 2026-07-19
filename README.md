@@ -264,8 +264,4 @@ If you use this software in your research, please cite it as below:
 }
 ```
 
----
-
-![Star History Chart](https://api.star-history.com/svg?repos=CVHub520/X-AnyLabeling&type=Date)
-
 <div align="center"><a href="#top">🔝 Back to Top</a></div>
