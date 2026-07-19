@@ -167,10 +167,10 @@ shortcuts:
   create_cuboid: Ctrl+R
   create_rotation: O
   create_quadrilateral: T
-  create_circle: null
-  create_line: null
-  create_point: null
-  create_linestrip: null
+  create_circle: Shift+C
+  create_line: Shift+L
+  create_point: Shift+P
+  create_linestrip: Shift+S
   edit_polygon: Ctrl+J
   edit_brush_mode: Shift+B
   delete_polygon: Delete
