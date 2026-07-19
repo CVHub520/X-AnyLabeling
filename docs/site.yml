@@ -1,0 +1,24 @@
+schema_version: 1
+product_id: x-anylabeling
+default_locale: en
+
+docs:
+  locales:
+    en: docs/en
+    zh-Hans: docs/zh_cn
+
+examples:
+  root: examples
+  include: "**/README.md"
+
+workflows:
+  - id: image-classifier
+    document: image_classifier.md
+  - id: paddle-ocr
+    document: paddle_ocr.md
+  - id: video-classifier
+    document: video_classifier.md
+  - id: vqa
+    document: vqa.md
+  - id: chatbot
+    document: chatbot.md
