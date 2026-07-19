@@ -9,7 +9,7 @@ from threading import Lock, Event
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 import anylabeling.configs as auto_labeling_configs
-from anylabeling.utils import GenericWorker
+from anylabeling.services.auto_labeling.worker import GenericWorker
 from anylabeling.views.labeling.logger import logger
 from anylabeling.config import get_config, save_config
 from anylabeling.services.auto_labeling.types import (
