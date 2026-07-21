@@ -1,0 +1,71 @@
+name: Sync Website Content
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "docs/**"
+      - "examples/**"
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-website-content-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  notify:
+    name: Dispatch content update
+    if: ${{ vars.WEBSITE_SYNC_ENABLED == 'true' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out source revision
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.release.tag_name || github.sha }}
+
+      - name: Resolve source revision
+        id: source
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          if [[ "${EVENT_NAME}" == "release" ]]; then
+            echo "ref=refs/tags/${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${GITHUB_REF}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create website token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.WEBSITE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.WEBSITE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ vars.WEBSITE_REPOSITORY_NAME }}
+          permission-contents: write
+
+      - name: Dispatch website update
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          SOURCE_REF: ${{ steps.source.outputs.ref }}
+          SOURCE_SHA: ${{ steps.source.outputs.sha }}
+          WEBSITE_REPOSITORY_NAME: ${{ vars.WEBSITE_REPOSITORY_NAME }}
+        run: |
+          gh api \
+            --method POST \
+            "repos/${GITHUB_REPOSITORY_OWNER}/${WEBSITE_REPOSITORY_NAME}/dispatches" \
+            --raw-field "event_type=product-content-updated" \
+            --raw-field "client_payload[product_id]=x-anylabeling" \
+            --raw-field "client_payload[repository]=${GITHUB_REPOSITORY}" \
+            --raw-field "client_payload[ref]=${SOURCE_REF}" \
+            --raw-field "client_payload[sha]=${SOURCE_SHA}" \
+            --raw-field "client_payload[reason]=${GITHUB_EVENT_NAME}"
