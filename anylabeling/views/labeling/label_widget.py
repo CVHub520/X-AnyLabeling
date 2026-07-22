@@ -5214,8 +5214,7 @@ class LabelingWidget(LabelDialog):
             if self.digit_to_label is not None:
                 text = self.digit_to_label
                 self.digit_to_label = None
-                if last_gid is not None:
-                    group_id = last_gid
+                group_id = self._get_next_gid(text, self.canvas.create_mode)
             elif self._config["auto_use_last_label"] and last_label:
                 text = last_label
                 if last_gid is not None:
@@ -6881,6 +6880,33 @@ class LabelingWidget(LabelDialog):
             ):
                 return shape.group_id
         return None
+
+    def _get_next_gid(self, label: str, shape_type: str) -> int:
+        """Find the next available group_id for a given label+type combination.
+
+        Scans all existing shapes in the label list and returns the maximum
+        group_id for shapes matching *label* and *shape_type*, plus one.
+
+        Args:
+            label (str): The label to match (e.g. "person_box").
+            shape_type (str): The shape type to match (e.g. "rectangle",
+                "point").
+
+        Returns:
+            int: The next sequential group_id (max existing + 1), or 1 if
+            no matching shapes exist yet.
+        """
+        max_gid = 0
+        for item in self.label_list:
+            shape = item.data(Qt.ItemDataRole.UserRole)
+            if (
+                shape.group_id is not None
+                and isinstance(shape.group_id, int)
+                and shape.label == label
+                and shape.shape_type == shape_type
+            ):
+                max_gid = max(max_gid, shape.group_id)
+        return max_gid + 1
 
     def set_cache_auto_label(self):
         self.auto_labeling_widget.on_cache_auto_label_changed(
