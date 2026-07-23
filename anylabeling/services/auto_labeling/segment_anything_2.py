@@ -268,6 +268,23 @@ class SegmentAnything2(Model):
             shape.label = "AUTOLABEL_OBJECT"
             shape.selected = False
             shapes.append(shape)
+        elif self.output_mode == "contour":
+            for approx in approx_contours:
+                points = approx.reshape(-1, 2).tolist()
+                if len(points) < 2:
+                    continue
+                shape = Shape(flags={})
+                for point in points:
+                    shape.add_point(
+                        QtCore.QPointF(int(point[0]), int(point[1]))
+                    )
+                shape.shape_type = "linestrip"
+                shape.closed = False
+                shape.fill_color = "#000000"
+                shape.line_color = "#000000"
+                shape.label = "AUTOLABEL_OBJECT"
+                shape.selected = False
+                shapes.append(shape)
 
         return shapes
 
