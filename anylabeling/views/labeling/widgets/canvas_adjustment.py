@@ -143,6 +143,7 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         self.opacity_slider.valueChanged.connect(self._on_opacity_changed)
         self.brightness_slider.valueChanged.connect(self._on_bc_changed)
         self.contrast_slider.valueChanged.connect(self._on_bc_changed)
+        self._toggle_collapsed()
 
     def _build_stylesheet(self):
         """Translucent white card with theme-blue sliders."""
