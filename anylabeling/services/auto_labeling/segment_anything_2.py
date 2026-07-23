@@ -22,6 +22,8 @@ from .model import Model
 from .types import AutoLabelingResult
 from .__base__.clip import ChineseClipONNX
 from .__base__.sam2 import SegmentAnything2ONNX
+from .__base__ import amg
+from .__base__.mask_shapes import masks_to_shapes
 
 
 class SegmentAnything2(Model):
@@ -47,11 +49,15 @@ class SegmentAnything2(Model):
             "button_cropping",
             "mask_fineness_slider",
             "mask_fineness_value_label",
+            "button_segment_everything",
+            "input_points_per_side",
+            "input_min_area",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
             "rotation": QCoreApplication.translate("Model", "Rotation"),
+            "contour": QCoreApplication.translate("Model", "Contour"),
         }
         default_output_mode = "polygon"
 
@@ -265,12 +271,66 @@ class SegmentAnything2(Model):
 
         return shapes
 
+    def _predict_auto_grid(self, image, filename=None) -> AutoLabelingResult:
+        """Prompt-free 'segment everything' via AutomaticMaskGenerator."""
+        params = self.marks[0]
+        points_per_side = int(params.get("points_per_side", 32))
+        min_area = int(params.get("min_area", 100))
+
+        cv_image = qt_img_to_rgb_cv_img(image, filename)
+        original_height, original_width = cv_image.shape[:2]
+
+        try:
+            cached = self.image_embedding_cache.get(filename)
+            if cached is not None:
+                image_embedding = cached
+            else:
+                if self.stop_inference:
+                    return AutoLabelingResult([], replace=False)
+                image_embedding = self.model.encode(cv_image)
+                self.image_embedding_cache.put(filename, image_embedding)
+
+            def decode_batch(points_xy):
+                return self.model.predict_masks_batch(image_embedding, points_xy)
+
+            low_res_masks = amg.generate(
+                decode_batch,
+                (original_height, original_width),
+                points_per_side=points_per_side,
+            )
+
+            shapes = []
+            for low in low_res_masks:
+                full = cv2.resize(
+                    low.astype(np.uint8),
+                    (original_width, original_height),
+                    interpolation=cv2.INTER_NEAREST,
+                )
+                shapes.extend(
+                    masks_to_shapes(
+                        full,
+                        self.output_mode,
+                        epsilon=self.epsilon,
+                        min_area=min_area,
+                    )
+                )
+        except Exception as e:  # noqa
+            logger.warning("Could not run segment-everything inference")
+            logger.warning(e)
+            traceback.print_exc()
+            return AutoLabelingResult([], replace=False)
+
+        return AutoLabelingResult(shapes, replace=False)
+
     def predict_shapes(self, image, filename=None) -> AutoLabelingResult:
         """
         Predict shapes from image
         """
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
+
+        if self.marks[0].get("type") == "auto_grid":
+            return self._predict_auto_grid(image, filename)
 
         shapes = []
         cv_image = qt_img_to_rgb_cv_img(image, filename)
