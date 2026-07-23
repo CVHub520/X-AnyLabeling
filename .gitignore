@@ -182,3 +182,5 @@ pnnx*
 
 # calibration image
 calibration_*.npy
+.superpowers/
+
