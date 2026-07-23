@@ -412,6 +412,28 @@ class AutoLabelingWidget(QWidget):
         """)
         self.on_mask_fineness_changed(self.mask_fineness_slider.value())
 
+        # --- Configuration for: button_segment_everything ---
+        self.button_segment_everything.setText(self.tr("Segment Everything"))
+        self.button_segment_everything.setStyleSheet(get_normal_button_style())
+        self.button_segment_everything.clicked.connect(
+            self.on_segment_everything_clicked
+        )
+        self.button_segment_everything.setToolTip(
+            self.tr("Automatically segment the whole image (no prompts)")
+        )
+
+        # --- Configuration for: input_points_per_side ---
+        self.input_points_per_side.setRange(4, 64)
+        self.input_points_per_side.setValue(32)
+        self.input_points_per_side.setToolTip(
+            self.tr("Grid density (points per side)")
+        )
+
+        # --- Configuration for: input_min_area ---
+        self.input_min_area.setRange(0, 1000000)
+        self.input_min_area.setValue(100)
+        self.input_min_area.setToolTip(self.tr("Minimum region area in pixels"))
+
         # ===================================
         #  End of Auto labeling buttons
         # ===================================
@@ -882,6 +904,19 @@ class AutoLabelingWidget(QWidget):
                 self.parent.image, self.parent.filename
             )
 
+    def on_segment_everything_clicked(self):
+        """Trigger prompt-free full-image segmentation."""
+        self.model_manager.set_auto_labeling_marks(
+            [
+                {
+                    "type": "auto_grid",
+                    "points_per_side": self.input_points_per_side.value(),
+                    "min_area": self.input_min_area.value(),
+                }
+            ]
+        )
+        self.run_prediction()
+
     def run_vl_prediction(self):
         """Run visual-language prediction"""
         if self.parent.filename is not None and self.edit_text:
@@ -1159,6 +1194,9 @@ class AutoLabelingWidget(QWidget):
             "button_skip_detection",
             "mask_fineness_slider",
             "mask_fineness_value_label",
+            "button_segment_everything",
+            "input_points_per_side",
+            "input_min_area",
         ]
         for widget in widgets:
             getattr(self, widget).hide()
