@@ -6,6 +6,12 @@ import onnxruntime as ort
 from numpy import ndarray
 
 
+def iter_point_batches(points, points_per_batch):
+    """Yield consecutive slices of `points` of length <= points_per_batch."""
+    for start in range(0, len(points), points_per_batch):
+        yield points[start : start + points_per_batch]
+
+
 class SegmentAnything2ONNX:
     """Segmentation model using Segment Anything 2 (SAM2)"""
 
@@ -57,6 +63,44 @@ class SegmentAnything2ONNX:
         )
 
         return masks
+
+    def predict_masks_batch(self, embedding, points_xy, points_per_batch=64):
+        """Decode a grid of single foreground points.
+
+        points_xy: (K, 2) pixel coords. Returns (logits[K, h, w], ious[K]) where
+        each entry is the highest-scoring low-resolution mask for that point.
+        """
+        image_embedding = embedding["image_embedding"]
+        high_res_feats_0 = embedding["high_res_feats_0"]
+        high_res_feats_1 = embedding["high_res_feats_1"]
+        original_size = embedding["original_size"]
+        self.decoder.set_image_size(original_size)
+
+        all_logits = []
+        all_scores = []
+        for batch in iter_point_batches(points_xy, points_per_batch):
+            coords = [np.asarray(p, dtype=np.float32).reshape(1, 2) for p in batch]
+            labels = [np.array([1], dtype=np.float32) for _ in batch]
+            masks, scores = self.decoder.predict_batch(
+                image_embedding,
+                high_res_feats_0,
+                high_res_feats_1,
+                coords,
+                labels,
+            )
+            scores = np.asarray(scores)
+            masks = np.asarray(masks)
+            if scores.ndim == 1:  # single-mask decoders: (B,) -> (B, 1)
+                scores = scores[:, None]
+                masks = masks[:, None]
+            best = np.argmax(scores, axis=1)
+            rows = np.arange(masks.shape[0])
+            all_logits.append(masks[rows, best])
+            all_scores.append(scores[rows, best])
+        return (
+            np.concatenate(all_logits, axis=0),
+            np.concatenate(all_scores, axis=0),
+        )
 
     def transform_masks(self, masks, original_size, transform_matrix):
         """Transform the masks back to the original image size."""
@@ -237,6 +281,29 @@ class SAM2ImageDecoder:
         outputs = self.forward_decoder(inputs)
 
         return self.process_output(outputs)
+
+    def predict_batch(
+        self,
+        image_embed,
+        high_res_feats_0,
+        high_res_feats_1,
+        point_coords,
+        point_labels,
+    ):
+        """Run the decoder on a batch of prompts and return raw masks + scores.
+
+        Returns (masks[B, num_masks, h, w], scores[B, num_masks]) without
+        selecting the best mask or resizing to the original image size.
+        """
+        inputs = self.prepare_inputs(
+            image_embed,
+            high_res_feats_0,
+            high_res_feats_1,
+            point_coords,
+            point_labels,
+        )
+        outputs = self.forward_decoder(inputs)
+        return outputs[0], outputs[1]
 
     def prepare_inputs(
         self,
