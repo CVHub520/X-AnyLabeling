@@ -425,6 +425,7 @@ class AutoLabelingWidget(QWidget):
         # --- Configuration for: input_points_per_side ---
         self.input_points_per_side.setRange(4, 64)
         self.input_points_per_side.setValue(32)
+        self.input_points_per_side.setPrefix(self.tr("Density: "))
         self.input_points_per_side.setToolTip(
             self.tr("Grid density (points per side)")
         )
@@ -432,6 +433,7 @@ class AutoLabelingWidget(QWidget):
         # --- Configuration for: input_min_area ---
         self.input_min_area.setRange(0, 1000000)
         self.input_min_area.setValue(100)
+        self.input_min_area.setPrefix(self.tr("Min area: "))
         self.input_min_area.setToolTip(self.tr("Minimum region area in pixels"))
 
         # ===================================

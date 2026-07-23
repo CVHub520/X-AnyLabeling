@@ -42,3 +42,17 @@ def test_generate_filters_low_iou_only_background():
         return np.full((K, 32, 32), -10.0, dtype=np.float32), np.full((K,), 0.5, np.float32)
     masks = amg.generate(decode, (320, 320), points_per_side=16)
     assert masks == []
+
+
+def test_generate_should_stop_returns_empty():
+    decode = _stub_decode_factory()
+    masks = amg.generate(decode, (320, 320), points_per_side=32,
+                         should_stop=lambda: True)
+    assert masks == []
+
+
+def test_generate_chunking_matches_single_pass():
+    decode = _stub_decode_factory()
+    small_chunks = amg.generate(decode, (320, 320), points_per_side=32,
+                               points_per_chunk=4)
+    assert len(small_chunks) == 2  # chunk size must not change the result

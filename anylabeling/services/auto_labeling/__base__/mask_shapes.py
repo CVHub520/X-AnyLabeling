@@ -31,7 +31,8 @@ def masks_to_shapes(
             contour, epsilon * cv2.arcLength(contour, True), True
         )
         points = approx.reshape(-1, 2)
-        if len(points) < 3:
+        min_points = 2 if output_mode == "contour" else 3
+        if len(points) < min_points:
             continue
 
         shape = Shape(flags={})

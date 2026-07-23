@@ -57,25 +57,42 @@ def generate(
     stability_score_offset=1.0,
     box_nms_thresh=0.7,
     mask_threshold=0.0,
+    points_per_chunk=256,
+    should_stop=None,
 ):
     """Generate deduped low-resolution boolean masks for a whole image.
 
     decode_batch(points_xy[K,2]) -> (logits[K,h,w] float, ious[K] float).
+    The grid is processed in chunks of `points_per_chunk` points so peak memory
+    stays bounded regardless of `points_per_side`; each chunk is reduced to kept
+    boolean masks before the next chunk is decoded. If `should_stop` is provided
+    and returns True, generation aborts and returns an empty list.
     """
     height, width = image_hw
     grid = build_point_grid(points_per_side, height, width)
-    logits, ious = decode_batch(grid)
-    logits = np.asarray(logits, dtype=np.float32)
-    ious = np.asarray(ious, dtype=np.float32)
 
-    stability = _stability_score(logits, mask_threshold, stability_score_offset)
-    keep_mask = (ious >= pred_iou_thresh) & (stability >= stability_score_thresh)
-    if not np.any(keep_mask):
+    kept_masks = []
+    kept_scores = []
+    for start in range(0, len(grid), points_per_chunk):
+        if should_stop is not None and should_stop():
+            return []
+        chunk = grid[start:start + points_per_chunk]
+        logits, ious = decode_batch(chunk)
+        logits = np.asarray(logits, dtype=np.float32)
+        ious = np.asarray(ious, dtype=np.float32)
+
+        stability = _stability_score(
+            logits, mask_threshold, stability_score_offset
+        )
+        keep = (ious >= pred_iou_thresh) & (
+            stability >= stability_score_thresh
+        )
+        for i in np.nonzero(keep)[0]:
+            kept_masks.append(logits[i] > mask_threshold)
+            kept_scores.append(float(ious[i]))
+
+    if not kept_masks:
         return []
 
-    logits = logits[keep_mask]
-    ious = ious[keep_mask]
-    bin_masks = [logits[i] > mask_threshold for i in range(len(logits))]
-
-    kept = _nms(bin_masks, ious, box_nms_thresh)
-    return [bin_masks[i] for i in kept]
+    kept_idx = _nms(kept_masks, np.asarray(kept_scores), box_nms_thresh)
+    return [kept_masks[i] for i in kept_idx]

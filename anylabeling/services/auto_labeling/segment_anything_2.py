@@ -314,6 +314,7 @@ class SegmentAnything2(Model):
                 decode_batch,
                 (original_height, original_width),
                 points_per_side=points_per_side,
+                should_stop=lambda: self.stop_inference,
             )
 
             shapes = []
