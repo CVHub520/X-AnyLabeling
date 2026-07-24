@@ -40,14 +40,15 @@ class TestCanvasAdjustmentWidget(unittest.TestCase):
         self.assertIn("image", self.widget.brightness_slider.toolTip())
         self.assertIn("image", self.widget.contrast_slider.toolTip())
 
-    def test_toggle_collapses_content_and_keeps_title_visible(self):
+    def test_toggle_collapses_to_button_and_restores_content(self):
         geometry_spy = QtTest.QSignalSpy(self.widget.geometry_changed)
 
         self.widget.toggle_button.click()
         self.app.processEvents()
 
         self.assertTrue(self.widget.content_widget.isHidden())
-        self.assertTrue(self.widget.title_label.isVisible())
+        self.assertTrue(self.widget.title_label.isHidden())
+        self.assertTrue(self.widget.toggle_button.isVisible())
         self.assertEqual(len(geometry_spy), 1)
         self.assertIn("Expand", self.widget.toggle_button.toolTip())
 
@@ -55,6 +56,7 @@ class TestCanvasAdjustmentWidget(unittest.TestCase):
         self.app.processEvents()
 
         self.assertTrue(self.widget.content_widget.isVisible())
+        self.assertTrue(self.widget.title_label.isVisible())
         self.assertIn("Collapse", self.widget.toggle_button.toolTip())
 
     def test_brightness_contrast_updates_are_throttled(self):

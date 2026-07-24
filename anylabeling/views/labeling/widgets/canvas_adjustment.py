@@ -255,6 +255,7 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
 
     def _toggle_collapsed(self):
         self._collapsed = not self._collapsed
+        self.title_label.setVisible(not self._collapsed)
         self.content_widget.setVisible(not self._collapsed)
         icon = "caret-down" if self._collapsed else "caret-up"
         self.toggle_button.setIcon(new_icon(icon, "svg"))
