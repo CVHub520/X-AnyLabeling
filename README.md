@@ -92,6 +92,7 @@
 
 ## 🥳 What's New
 
+- `2026-07-25`: Added prompt-free [Automatic Mask Generation](./examples/segmentation/README.md) feature for SAM2.
 - `2026-07-17`: Added cross-platform application font settings with automatic system font discovery.
 - `2026-07-11`: Added a drag rotation handle for interactively adjusting rotated box annotations.
 - `2026-07-05`: Added a collapsible canvas display panel for quickly adjusting annotation opacity and image brightness/contrast.

@@ -403,13 +403,18 @@ _THUMBNAIL_RENDER_MODELS = {
 # --- batch_processing_invalid_models ---
 _BATCH_PROCESSING_INVALID_MODELS = [
     "segment_anything",
-    "segment_anything_2",
     "sam_med2d",
     "sam_hq",
     "efficientvit_sam",
     "edge_sam",
     "open_vision",
     "geco",
+]
+
+
+# --- batch_processing_auto_grid_models ---
+_BATCH_PROCESSING_AUTO_GRID_MODELS = [
+    "segment_anything_2",
 ]
 
 

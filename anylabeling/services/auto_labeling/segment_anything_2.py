@@ -21,7 +21,10 @@ from .lru_cache import LRUCache
 from .model import Model
 from .types import AutoLabelingResult
 from .__base__.clip import ChineseClipONNX
-from .__base__.sam2 import SegmentAnything2ONNX
+from .__base__.sam2 import (
+    AutomaticMaskGeneration,
+    SegmentAnything2ONNX,
+)
 
 
 class SegmentAnything2(Model):
@@ -47,11 +50,13 @@ class SegmentAnything2(Model):
             "button_cropping",
             "mask_fineness_slider",
             "mask_fineness_value_label",
+            "button_segment_everything",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
             "rotation": QCoreApplication.translate("Model", "Rotation"),
+            "contour": QCoreApplication.translate("Model", "Contour"),
         }
         default_output_mode = "polygon"
 
@@ -133,6 +138,19 @@ class SegmentAnything2(Model):
 
         self.epsilon = self.config.get("epsilon", 0.001)
         self.padding_ratio = self.config.get("padding_ratio", 0.2)
+        self.amg = AutomaticMaskGeneration(
+            points_per_side=int(self.config.get("amg_points_per_side", 32)),
+            pred_iou_thresh=float(self.config.get("amg_pred_iou_thresh", 0.8)),
+            stability_score_thresh=float(
+                self.config.get("amg_stability_score_thresh", 0.95)
+            ),
+            stability_score_offset=float(
+                self.config.get("amg_stability_score_offset", 1.0)
+            ),
+            box_nms_thresh=float(self.config.get("amg_box_nms_thresh", 0.7)),
+            points_per_batch=int(self.config.get("amg_points_per_batch", 64)),
+            min_mask_region_area=int(self.config.get("amg_min_area", 100)),
+        )
         self.cropping_mode = False
 
     def set_auto_labeling_marks(self, marks):
@@ -262,8 +280,62 @@ class SegmentAnything2(Model):
             shape.label = "AUTOLABEL_OBJECT"
             shape.selected = False
             shapes.append(shape)
+        elif self.output_mode == "contour":
+            for approx in approx_contours:
+                points = approx.reshape(-1, 2).tolist()
+                if len(points) < 2:
+                    continue
+                shape = Shape(flags={})
+                for point in points:
+                    shape.add_point(
+                        QtCore.QPointF(int(point[0]), int(point[1]))
+                    )
+                shape.shape_type = "linestrip"
+                shape.closed = False
+                shape.fill_color = "#000000"
+                shape.line_color = "#000000"
+                shape.label = "AUTOLABEL_OBJECT"
+                shape.selected = False
+                shapes.append(shape)
 
         return shapes
+
+    def _predict_auto_grid(self, image, filename=None) -> AutoLabelingResult:
+        """Prompt-free 'segment everything' via AutomaticMaskGenerator."""
+        cv_image = qt_img_to_rgb_cv_img(image, filename)
+        original_height, original_width = cv_image.shape[:2]
+
+        try:
+            cached = self.image_embedding_cache.get(filename)
+            if cached is not None:
+                image_embedding = cached
+            else:
+                if self.stop_inference:
+                    return AutoLabelingResult([], replace=False)
+                image_embedding = self.model.encode(cv_image)
+                self.image_embedding_cache.put(filename, image_embedding)
+
+            def decode_batch(points_xy):
+                return self.model.predict_masks_batch(
+                    image_embedding,
+                    points_xy,
+                    points_per_batch=self.amg.points_per_batch,
+                )
+
+            shapes = self.amg.generate_shapes(
+                decode_batch,
+                (original_height, original_width),
+                self.output_mode,
+                epsilon=self.epsilon,
+                should_stop=lambda: self.stop_inference,
+            )
+        except Exception as e:  # noqa
+            logger.warning("Could not run segment-everything inference")
+            logger.warning(e)
+            traceback.print_exc()
+            return AutoLabelingResult([], replace=False)
+
+        return AutoLabelingResult(shapes, replace=False)
 
     def predict_shapes(self, image, filename=None) -> AutoLabelingResult:
         """
@@ -271,6 +343,9 @@ class SegmentAnything2(Model):
         """
         if image is None or not self.marks:
             return AutoLabelingResult([], replace=False)
+
+        if self.marks[0].get("type") == "auto_grid":
+            return self._predict_auto_grid(image, filename)
 
         shapes = []
         cv_image = qt_img_to_rgb_cv_img(image, filename)

@@ -415,6 +415,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_segment_everything">
+       <property name="text">
+        <string>AMG</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="button_skip_detection">
        <property name="text">
         <string>Skip Det (Off)</string>
