@@ -26,7 +26,7 @@ Press `Ctrl+J` to enter edit mode. Drag vertices or shapes as needed:
 
 ### Auto-Labeling Guidelines
 
-<img src=".data/annotated_sam_task.gif" width="100%" />
+<img src="https://github.com/user-attachments/assets/9b812439-53de-481b-8855-54a1e919704a" width="100%" />
 
 To use a Segment Anything model:
 
@@ -43,16 +43,18 @@ Use prompts to control the target region:
 - `+Rect`: Draw a rectangle around the object;
 - `Clear (b)`: Erase all auto-segment marks;
 - `AMD`: Enable automatic mask decoding for real-time segmentation.
+- `AMG`: Generate masks across the current image without prompts (SAM2 only).
 
 For example, to segment a plant while excluding its pot, place positive points on the plant and negative points on the pot. Press `F` when the mask is ready, enter a label, and save the object.
 
 > [!TIP]
 > You can adjust the mask fineness by dragging the slider to control the precision of segmentation boundaries. The default value is 0.001 - lower values produce more detailed and precise masks with finer boundaries, while higher values create coarser masks with simplified contours.
 
-**Auto Mask Decode (AMD)** continuously adds prompt points as the pointer moves and updates the mask in real time. Enable `AMD`, place the first point, and move the pointer along the target. Double-click the canvas, or press `F`, to finish. Click `Clear`, or press `B`, to exit without saving.
+**Automatic Mask Generation (AMG)** can take a long time, so it requires confirmation before processing. Results are added directly as `object1`, `object2`, and so on; grid density and minimum region area can be adjusted with `amg_points_per_side` and `amg_min_area` in the SAM2 model configuration.
 
-<video src="https://github.com/user-attachments/assets/0384b172-ad26-4ff5-8648-6020ada3a86a" width="100%" controls>
-</video>
+<img src="https://github.com/user-attachments/assets/3ec3e37e-c575-4792-8325-7a48df3ad55f" width="100%" />
+
+**Auto Mask Decode (AMD)** continuously adds prompt points as the pointer moves and updates the mask in real time. Enable `AMD`, place the first point, and move the pointer along the target. Double-click the canvas, or press `F`, to finish. Click `Clear`, or press `B`, to exit without saving.
 
 The AMD feature includes several configurable parameters that can be adjusted in [canvas.py](../../anylabeling/views/labeling/widgets/canvas.py) for optimal performance:
 
@@ -69,9 +71,6 @@ For small objects in high-resolution images, enable `TinyObj`. The model crops a
 
 > [!TIP]
 > You can adjust the `padding_ratio` parameter in the model configuration file (e.g., `sam2_hiera_base.yaml`) to control the padding size around the rectangle prompt. The default value is 0.2 (20%) - increase it for more context or decrease it for tighter cropping.
-
-<video src="https://github.com/user-attachments/assets/1d4b1071-29ed-4e4f-843d-1c77772c05c4" width="100%" controls>
-</video>
 
 
 ## Export

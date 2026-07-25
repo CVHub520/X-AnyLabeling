@@ -18,6 +18,7 @@ from PyQt6.QtWidgets import (
 from anylabeling.app_info import __version__
 from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.services.auto_labeling import (
+    _BATCH_PROCESSING_AUTO_GRID_MODELS,
     _BATCH_PROCESSING_INVALID_MODELS,
     _BATCH_PROCESSING_TEXT_PROMPT_MODELS,
     _BATCH_PROCESSING_VIDEO_MODELS,
@@ -181,17 +182,24 @@ def load_existing_shapes(image_file):
 
 
 def finish_processing(self, progress_dialog):
-    target_index = self.current_index
-    target_file = self.image_list[self.current_index]
-    self.import_image_folder(osp.dirname(target_file), load=False)
-    self.file_list_widget.setCurrentRow(target_index)
+    if not getattr(self, "_batch_processing_active", False):
+        progress_dialog.close()
+        return
 
-    del self.text_prompt
-    del self.run_tracker
-    del self.image_index
-    del self.current_index
-
-    progress_dialog.close()
+    try:
+        target_file = self.image_list[self.current_index]
+        self.import_image_folder(osp.dirname(target_file), load=False)
+        target_index = self.fn_to_index[str(target_file)]
+        signals_blocked = self.file_list_widget.blockSignals(True)
+        try:
+            self.file_list_widget.setCurrentRow(target_index)
+        finally:
+            self.file_list_widget.blockSignals(signals_blocked)
+        self.load_file(target_file)
+        QApplication.processEvents()
+    finally:
+        _reset_batch_processing_state(self)
+        progress_dialog.close()
 
     popup = Popup(
         self.tr("Processing completed successfully!"),
@@ -203,6 +211,23 @@ def finish_processing(self, progress_dialog):
 
 def cancel_operation(self):
     self.cancel_processing = True
+
+
+def _start_batch_processing(self):
+    self._batch_processing_active = True
+    show_progress_dialog_and_process(self)
+
+
+def _reset_batch_processing_state(self):
+    self._batch_processing_active = False
+    for attribute in (
+        "text_prompt",
+        "run_tracker",
+        "image_index",
+        "current_index",
+    ):
+        if hasattr(self, attribute):
+            delattr(self, attribute)
 
 
 def _reset_auto_labeling_tracker(self):
@@ -305,10 +330,6 @@ class BatchProcessingThread(QThread):
                 and not self.app.cancel_processing
             ):
                 image_file = self.image_list[self.image_index]
-                current = self.image_index + 1
-                self.progress_updated.emit(
-                    current, f"Progress: {current}/{total_images}"
-                )
 
                 if self.text_prompt:
                     result = self.app.auto_labeling_widget.model_manager.predict_shapes(
@@ -340,6 +361,10 @@ class BatchProcessingThread(QThread):
 
                 save_auto_labeling_result(self.app, image_file, result)
                 self.image_index += 1
+                self.progress_updated.emit(
+                    self.image_index,
+                    f"Progress: {self.image_index}/{total_images}",
+                )
 
             self.app.image_index = self.image_index
             self.processing_finished.emit()
@@ -394,6 +419,7 @@ def process_next_image(self, progress_dialog, batch=True):
             progress_dialog.setLabelText(label)
 
         def _on_error(msg):
+            _reset_batch_processing_state(self)
             progress_dialog.close()
             logger.error(f"Error occurred while processing images: {msg}")
             popup = Popup(
@@ -416,12 +442,6 @@ def process_next_image(self, progress_dialog, batch=True):
             not self.cancel_processing
         ):
             image_file = self.image_list[self.image_index]
-            current_progress = self.image_index + 1
-            progress_dialog.setValue(current_progress)
-            progress_dialog.setLabelText(
-                f"Progress: {current_progress}/{total_images}"
-            )
-            QApplication.processEvents()
 
             batch_processing_mode = "default"
             if model_type == "remote_server":
@@ -481,10 +501,16 @@ def process_next_image(self, progress_dialog, batch=True):
                 )
 
             self.image_index += 1
+            progress_dialog.setValue(self.image_index)
+            progress_dialog.setLabelText(
+                f"Progress: {self.image_index}/{total_images}"
+            )
+            QApplication.processEvents()
 
         finish_processing(self, progress_dialog)
 
     except Exception as e:
+        _reset_batch_processing_state(self)
         progress_dialog.close()
 
         logger.error(f"Error occurred while processing images: {e}")
@@ -512,12 +538,10 @@ def show_progress_dialog_and_process(self):
     progress_dialog.setWindowTitle(self.tr("Batch Processing"))
     progress_dialog.setMinimumWidth(400)
     progress_dialog.setMinimumHeight(150)
+    progress_dialog.setAutoClose(False)
+    progress_dialog.setAutoReset(False)
 
-    initial_progress = (
-        self.image_index + 1
-        if self.image_index < len(self.image_list)
-        else len(self.image_list)
-    )
+    initial_progress = min(self.image_index, len(self.image_list))
     progress_dialog.setValue(initial_progress)
     progress_dialog.setLabelText(
         f"Progress: {initial_progress}/{len(self.image_list)}"
@@ -602,6 +626,10 @@ def show_progress_dialog_and_process(self):
 
 
 def run_all_images(self):
+    if getattr(self, "_batch_processing_active", False):
+        logger.warning("Batch processing is already running.")
+        return
+
     if len(self.image_list) < 1:
         return
 
@@ -668,30 +696,35 @@ def run_all_images(self):
             return
         if batch_processing_mode == "video":
             self.run_tracker = True
-            show_progress_dialog_and_process(self)
+            _start_batch_processing(self)
         elif batch_processing_mode == "text_prompt":
             text_input_dialog = TextInputDialog(parent=self)
             self.text_prompt = text_input_dialog.get_input_text()
             if self.text_prompt:
-                show_progress_dialog_and_process(self)
+                _start_batch_processing(self)
         else:
-            show_progress_dialog_and_process(self)
+            _start_batch_processing(self)
+    elif model_type in _BATCH_PROCESSING_AUTO_GRID_MODELS:
+        self.auto_labeling_widget.model_manager.set_auto_labeling_marks(
+            [{"type": "auto_grid"}]
+        )
+        _start_batch_processing(self)
     elif model_type in _BATCH_PROCESSING_TEXT_PROMPT_MODELS:
         text_input_dialog = TextInputDialog(parent=self)
         self.text_prompt = text_input_dialog.get_input_text()
         if self.text_prompt or model_type == "yoloe":
-            show_progress_dialog_and_process(self)
+            _start_batch_processing(self)
     elif (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]
         == "florence2"
     ):
         self.text_prompt = self.auto_labeling_widget.edit_text.text()
-        show_progress_dialog_and_process(self)
+        _start_batch_processing(self)
     elif (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]
         in _BATCH_PROCESSING_VIDEO_MODELS
     ):
         self.run_tracker = True
-        show_progress_dialog_and_process(self)
+        _start_batch_processing(self)
     else:
-        show_progress_dialog_and_process(self)
+        _start_batch_processing(self)

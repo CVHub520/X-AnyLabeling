@@ -21,9 +21,10 @@ from .lru_cache import LRUCache
 from .model import Model
 from .types import AutoLabelingResult
 from .__base__.clip import ChineseClipONNX
-from .__base__.sam2 import SegmentAnything2ONNX
-from .__base__ import amg
-from .__base__.mask_shapes import masks_to_shapes
+from .__base__.sam2 import (
+    AutomaticMaskGeneration,
+    SegmentAnything2ONNX,
+)
 
 
 class SegmentAnything2(Model):
@@ -50,8 +51,6 @@ class SegmentAnything2(Model):
             "mask_fineness_slider",
             "mask_fineness_value_label",
             "button_segment_everything",
-            "input_points_per_side",
-            "input_min_area",
         ]
         output_modes = {
             "polygon": QCoreApplication.translate("Model", "Polygon"),
@@ -139,6 +138,19 @@ class SegmentAnything2(Model):
 
         self.epsilon = self.config.get("epsilon", 0.001)
         self.padding_ratio = self.config.get("padding_ratio", 0.2)
+        self.amg = AutomaticMaskGeneration(
+            points_per_side=int(self.config.get("amg_points_per_side", 32)),
+            pred_iou_thresh=float(self.config.get("amg_pred_iou_thresh", 0.8)),
+            stability_score_thresh=float(
+                self.config.get("amg_stability_score_thresh", 0.95)
+            ),
+            stability_score_offset=float(
+                self.config.get("amg_stability_score_offset", 1.0)
+            ),
+            box_nms_thresh=float(self.config.get("amg_box_nms_thresh", 0.7)),
+            points_per_batch=int(self.config.get("amg_points_per_batch", 64)),
+            min_mask_region_area=int(self.config.get("amg_min_area", 100)),
+        )
         self.cropping_mode = False
 
     def set_auto_labeling_marks(self, marks):
@@ -290,10 +302,6 @@ class SegmentAnything2(Model):
 
     def _predict_auto_grid(self, image, filename=None) -> AutoLabelingResult:
         """Prompt-free 'segment everything' via AutomaticMaskGenerator."""
-        params = self.marks[0]
-        points_per_side = int(params.get("points_per_side", 32))
-        min_area = int(params.get("min_area", 100))
-
         cv_image = qt_img_to_rgb_cv_img(image, filename)
         original_height, original_width = cv_image.shape[:2]
 
@@ -308,30 +316,19 @@ class SegmentAnything2(Model):
                 self.image_embedding_cache.put(filename, image_embedding)
 
             def decode_batch(points_xy):
-                return self.model.predict_masks_batch(image_embedding, points_xy)
+                return self.model.predict_masks_batch(
+                    image_embedding,
+                    points_xy,
+                    points_per_batch=self.amg.points_per_batch,
+                )
 
-            low_res_masks = amg.generate(
+            shapes = self.amg.generate_shapes(
                 decode_batch,
                 (original_height, original_width),
-                points_per_side=points_per_side,
+                self.output_mode,
+                epsilon=self.epsilon,
                 should_stop=lambda: self.stop_inference,
             )
-
-            shapes = []
-            for low in low_res_masks:
-                full = cv2.resize(
-                    low.astype(np.uint8),
-                    (original_width, original_height),
-                    interpolation=cv2.INTER_NEAREST,
-                )
-                shapes.extend(
-                    masks_to_shapes(
-                        full,
-                        self.output_mode,
-                        epsilon=self.epsilon,
-                        min_area=min_area,
-                    )
-                )
         except Exception as e:  # noqa
             logger.warning("Could not run segment-everything inference")
             logger.warning(e)

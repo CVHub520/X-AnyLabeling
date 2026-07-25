@@ -417,15 +417,9 @@
      <item>
       <widget class="QPushButton" name="button_segment_everything">
        <property name="text">
-        <string>Segment Everything</string>
+        <string>AMG</string>
        </property>
       </widget>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="input_points_per_side"/>
-     </item>
-     <item>
-      <widget class="QSpinBox" name="input_min_area"/>
      </item>
      <item>
       <widget class="QPushButton" name="button_skip_detection">

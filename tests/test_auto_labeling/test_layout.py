@@ -1,6 +1,7 @@
 import os
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -168,8 +169,62 @@ class TestAutoLabelingLayout(unittest.TestCase):
             form.button_close.width(), form.button_close.sizeHint().width() + 2
         )
 
+    def test_amg_uses_compact_button_without_inline_settings(self):
+        form = QtWidgets.QWidget()
+        self._widgets.append(form)
+        ui_path = (
+            Path(__file__).resolve().parents[2]
+            / "anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui"
+        )
+
+        uic.loadUi(str(ui_path), form)
+
+        self.assertEqual(form.button_segment_everything.text(), "AMG")
+        self.assertIsNone(
+            form.findChild(QtWidgets.QSpinBox, "input_points_per_side")
+        )
+        self.assertIsNone(form.findChild(QtWidgets.QSpinBox, "input_min_area"))
+
+    def test_amg_requires_confirmation_once_per_session(self):
+        widget = Mock()
+        widget.tr.side_effect = lambda text: text
+        widget._amg_warning_confirmed = False
+
+        warning_path = (
+            "anylabeling.views.labeling.widgets.auto_labeling."
+            "auto_labeling.QMessageBox.warning"
+        )
+        with patch(
+            warning_path,
+            side_effect=[
+                QtWidgets.QMessageBox.StandardButton.No,
+                QtWidgets.QMessageBox.StandardButton.Yes,
+            ],
+        ) as warning:
+            AutoLabelingWidget.on_segment_everything_clicked(widget)
+
+            widget.model_manager.set_auto_labeling_marks.assert_not_called()
+            widget.run_prediction.assert_not_called()
+            self.assertFalse(widget._amg_warning_confirmed)
+
+            AutoLabelingWidget.on_segment_everything_clicked(widget)
+            self.assertTrue(widget._amg_warning_confirmed)
+
+            AutoLabelingWidget.on_segment_everything_clicked(widget)
+
+        self.assertEqual(warning.call_count, 2)
+        self.assertEqual(
+            widget.model_manager.set_auto_labeling_marks.call_count, 2
+        )
+        widget.model_manager.set_auto_labeling_marks.assert_called_with(
+            [{"type": "auto_grid"}]
+        )
+        self.assertEqual(widget.run_prediction.call_count, 2)
+
     def test_initial_show_reflows_model_selection_row(self):
-        config.current_config_file = "anylabeling/configs/xanylabeling_config.yaml"
+        config.current_config_file = (
+            "anylabeling/configs/xanylabeling_config.yaml"
+        )
         parent = type(
             "Parent",
             (),
@@ -207,6 +262,11 @@ class TestAutoLabelingLayout(unittest.TestCase):
 
         self.assertEqual(button_top, scroll_top)
         self.assertLessEqual(button_bottom, status_top)
+        self.assertTrue(widget.button_segment_everything.isEnabled())
+        widget.model_manager.prediction_started.emit()
+        self.assertFalse(widget.button_segment_everything.isEnabled())
+        widget.model_manager.prediction_finished.emit()
+        self.assertTrue(widget.button_segment_everything.isEnabled())
 
     def test_model_dropdown_search_matches_display_names(self):
         dropdown = SearchableModelDropdownPopup(

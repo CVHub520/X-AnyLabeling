@@ -233,6 +233,7 @@ class LabelingWidget(LabelDialog):
         self._copied_shapes = None
         self._copied_group_id = None
         self._batch_edit_warning_shown = False
+        self._batch_processing_active = False
 
         self.brightness_contrast_dialog = BrightnessContrastDialog(
             self.on_new_brightness_contrast, parent=self

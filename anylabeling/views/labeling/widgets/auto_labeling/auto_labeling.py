@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QLabel,
+    QMessageBox,
     QProgressBar,
     QPushButton,
     QWidget,
@@ -192,6 +193,7 @@ class AutoLabelingWidget(QWidget):
             self.button_finish_object.setEnabled(enable)
             self.button_auto_decode.setEnabled(enable)
             self.button_cropping.setEnabled(enable)
+            self.button_segment_everything.setEnabled(enable)
             self.button_skip_detection.setEnabled(enable)
             self.upn_select_combobox.setEnabled(enable)
             self.gd_select_combobox.setEnabled(enable)
@@ -211,6 +213,7 @@ class AutoLabelingWidget(QWidget):
         self.initial_iou_value = 0
         self.initial_preserve_annotations_state = False
         self.skip_detection = False
+        self._amg_warning_confirmed = False
 
         # ===================================
         #  Auto labeling buttons
@@ -413,7 +416,7 @@ class AutoLabelingWidget(QWidget):
         self.on_mask_fineness_changed(self.mask_fineness_slider.value())
 
         # --- Configuration for: button_segment_everything ---
-        self.button_segment_everything.setText(self.tr("Segment Everything"))
+        self.button_segment_everything.setText(self.tr("AMG"))
         self.button_segment_everything.setStyleSheet(get_normal_button_style())
         self.button_segment_everything.clicked.connect(
             self.on_segment_everything_clicked
@@ -421,20 +424,6 @@ class AutoLabelingWidget(QWidget):
         self.button_segment_everything.setToolTip(
             self.tr("Automatically segment the whole image (no prompts)")
         )
-
-        # --- Configuration for: input_points_per_side ---
-        self.input_points_per_side.setRange(4, 64)
-        self.input_points_per_side.setValue(32)
-        self.input_points_per_side.setPrefix(self.tr("Density: "))
-        self.input_points_per_side.setToolTip(
-            self.tr("Grid density (points per side)")
-        )
-
-        # --- Configuration for: input_min_area ---
-        self.input_min_area.setRange(0, 1000000)
-        self.input_min_area.setValue(100)
-        self.input_min_area.setPrefix(self.tr("Min area: "))
-        self.input_min_area.setToolTip(self.tr("Minimum region area in pixels"))
 
         # ===================================
         #  End of Auto labeling buttons
@@ -908,15 +897,22 @@ class AutoLabelingWidget(QWidget):
 
     def on_segment_everything_clicked(self):
         """Trigger prompt-free full-image segmentation."""
-        self.model_manager.set_auto_labeling_marks(
-            [
-                {
-                    "type": "auto_grid",
-                    "points_per_side": self.input_points_per_side.value(),
-                    "min_area": self.input_min_area.value(),
-                }
-            ]
-        )
+        if not self._amg_warning_confirmed:
+            reply = QMessageBox.warning(
+                self,
+                self.tr("AMG"),
+                self.tr(
+                    "AMG may take a long time to process the current image. "
+                    "Do you want to continue?"
+                ),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return
+            self._amg_warning_confirmed = True
+
+        self.model_manager.set_auto_labeling_marks([{"type": "auto_grid"}])
         self.run_prediction()
 
     def run_vl_prediction(self):
@@ -1197,8 +1193,6 @@ class AutoLabelingWidget(QWidget):
             "mask_fineness_slider",
             "mask_fineness_value_label",
             "button_segment_everything",
-            "input_points_per_side",
-            "input_min_area",
         ]
         for widget in widgets:
             getattr(self, widget).hide()
