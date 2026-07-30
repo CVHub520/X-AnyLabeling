@@ -2846,9 +2846,9 @@ class Canvas(
         return f"G{group_id} · S{shape_count}"
 
     def _group_label_font(self):
-        return QtGui.QFont(
-            "Arial", int(max(6.0, int(round(8.0 / self.scale))))
-        )
+        font = QtGui.QFont("Arial")
+        font.setPointSizeF(8.0 / self.scale)
+        return font
 
     def _group_label_rect(self, group_id, shape_count, group_rect):
         font = self._group_label_font()
@@ -4112,16 +4112,14 @@ class Canvas(
 
         # Draw labels
         if self.show_labels:
-            p.setFont(
-                QtGui.QFont(
-                    "Arial", int(max(6.0, int(round(8.0 / Shape.scale))))
-                )
-            )
+            label_transform = p.transform()
+            p.save()
+            p.resetTransform()
+            p.setFont(QtGui.QFont("Arial", 8))
             labels = []
             for shape in self.shapes:
                 if not shape.visible:
                     continue
-                d_react = shape.point_size / shape.scale
                 if shape.label in [
                     "AUTOLABEL_OBJECT",
                     "AUTOLABEL_ADD",
@@ -4161,21 +4159,24 @@ class Canvas(
                         bbox = shape.bounding_rect()
                     except IndexError:
                         continue
+                    point = label_transform.map(bbox.topLeft())
                     rect = QtCore.QRect(
-                        int(bbox.x()),
-                        int(bbox.y()),
+                        int(point.x()),
+                        int(point.y()),
                         rect_width,
                         rect_height,
                     )
                     text_pos = QtCore.QPoint(
-                        int(bbox.x() + padding_x),
-                        int(bbox.y() + rect_height - padding_y - fm.descent()),
+                        int(point.x() + padding_x),
+                        int(
+                            point.y() + rect_height - padding_y - fm.descent()
+                        ),
                     )
                 elif shape.shape_type == "circle":
                     points = shape.points
                     if not points:
                         continue
-                    point = points[0]
+                    point = label_transform.map(points[0])
                     rect = QtCore.QRect(
                         int(point.x() - rect_width / 2),
                         int(point.y() - rect_height / 2),
@@ -4199,15 +4200,15 @@ class Canvas(
                     points = shape.points
                     if not points:
                         continue
-                    point = points[0]
+                    point = label_transform.map(points[0])
                     rect = QtCore.QRect(
-                        int(point.x() + d_react),
+                        int(point.x() + shape.point_size),
                         int(point.y() - 15),
                         rect_width,
                         rect_height,
                     )
                     text_pos = QtCore.QPoint(
-                        int(point.x() + d_react + padding_x),
+                        int(point.x() + shape.point_size + padding_x),
                         int(
                             point.y()
                             - 15
@@ -4233,6 +4234,7 @@ class Canvas(
                 if not shape.visible:
                     continue
                 p.drawText(text_pos, label_text)
+            p.restore()
 
         # Draw mouse coordinates
         if self.cross_line_show:

@@ -88,25 +88,45 @@ class TestCanvasGroups(unittest.TestCase):
             image.pixelColor(80, 30), QtGui.QColor(QtCore.Qt.GlobalColor.black)
         )
 
-    def test_group_label_matches_shape_label_font_and_touches_frame(self):
+    def test_group_label_keeps_fixed_screen_font_and_touches_frame(self):
         shape = self.make_shape(20, 30, 40, 50)
+        self.canvas.scale = 3.0
         group_rect = self.canvas._group_rect([shape])
         label_rect = self.canvas._group_label_rect(3, 1, group_rect)
-        shape_label_font = QtGui.QFont(
-            "Arial",
-            int(
-                max(
-                    6.0,
-                    int(round(8.0 / self.canvas.scale)),
-                )
-            ),
-        )
 
-        self.assertEqual(
-            self.canvas._group_label_font().pointSize(),
-            shape_label_font.pointSize(),
+        self.assertAlmostEqual(
+            self.canvas._group_label_font().pointSizeF() * self.canvas.scale,
+            8.0,
         )
         self.assertEqual(label_rect.bottom(), group_rect.top())
+
+    def test_shape_label_keeps_fixed_screen_size_while_zooming(self):
+        shape = self.make_shape(20, 30, 30, 40, group_id=None)
+        shape.label = "dense_object_label"
+        shape.line_color = QtGui.QColor("#FF00FF")
+        self.canvas.shapes = [shape]
+        self.canvas.show_groups = False
+        self.canvas.show_texts = False
+        self.canvas.show_masks = False
+        self.canvas.show_attributes = False
+        self.canvas.cross_line_show = False
+        self.canvas.show()
+
+        widths = []
+        for scale in (1.0, 3.0):
+            self.canvas.scale = scale
+            self.canvas.update()
+            self.app.processEvents()
+            image = self.canvas.grab().toImage()
+            y = int(shape.bounding_rect().top() * scale)
+            pixels = [
+                x
+                for x in range(image.width())
+                if image.pixelColor(x, y) == shape.line_color
+            ]
+            widths.append(pixels[-1] - pixels[0] + 1)
+
+        self.assertEqual(widths[0], widths[1])
 
     def test_group_border_selects_all_members(self):
         first = self.make_shape(20, 20, 40, 40)
