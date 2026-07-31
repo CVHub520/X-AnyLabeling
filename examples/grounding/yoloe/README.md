@@ -135,3 +135,29 @@ Process multiple images efficiently using consistent detection parameters.
 - **Prompt-Free:** Leave text field empty to use configured class vocabulary for all images
 
 > **Note:** Visual prompting is not available in batch mode due to its interactive nature.
+
+## Open-Vocabulary Video Tracking
+
+Load the built-in `YOLOE-11-S-TrackTrack` configuration to assign a stable
+`group_id` to each detected instance across consecutive video frames. The
+`group_id` is the object's `track_id` and is preserved by MOT and MOTS export.
+
+The tracking configuration supports text prompting and prompt-free detection:
+
+1. Load a video or an ordered directory of video frames.
+2. Select `YOLOE-11-S-TrackTrack` from the model list.
+3. Enter one or more object names, or leave the text field empty to use the
+   configured vocabulary.
+4. Run the current frame and verify the detections.
+5. Press `Ctrl+M` on Windows/Linux or `Cmd+M` on macOS to process the remaining
+   frames.
+6. Use the Group ID Manager (`Alt+G`) to review or correct object identities.
+
+Run `Reset Tracker` before starting a different video. Changing the text prompt
+automatically resets the tracker because numeric class IDs belong to the active
+prompt vocabulary.
+
+Tracking can recover brief missed detections within `track_buffer`. Long
+occlusions, visually similar instances, abrupt camera cuts, and fast small
+objects can still cause identity switches. Review these cases before exporting
+training data.

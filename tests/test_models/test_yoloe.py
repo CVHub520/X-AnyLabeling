@@ -3,6 +3,8 @@ import unittest
 from types import SimpleNamespace
 from unittest import mock
 
+import numpy as np
+
 from anylabeling.services.auto_labeling import yoloe
 
 
@@ -75,6 +77,44 @@ class TestYoloeEmbeddingModel(unittest.TestCase):
         inner_model.set_classes.assert_called_once_with(["cat"], "embeddings")
         inner_model.fuse.assert_called_once_with()
         self.assertEqual(vocab, ["first", "second"])
+
+
+class TestYoloeTracking(unittest.TestCase):
+    def test_update_tracker_uses_detection_indices(self):
+        tracker = mock.Mock()
+        tracker.update.return_value = np.array(
+            [[10, 20, 30, 40, 7, 0.9, 1, 0]], dtype=np.float32
+        )
+        instance = SimpleNamespace(tracker=tracker)
+        bboxes = np.array([[10, 20, 30, 40]], dtype=np.float32)
+        scores = np.array([0.9], dtype=np.float32)
+        class_ids = np.array([1], dtype=np.float32)
+        image = mock.Mock()
+
+        with mock.patch.object(
+            yoloe, "xyxy2xywh", return_value="xywh"
+        ) as convert:
+            with mock.patch.object(yoloe.np, "asarray", return_value="frame"):
+                result = yoloe.YOLOE._update_tracker(
+                    instance, bboxes, scores, class_ids, image
+                )
+
+        convert.assert_called_once_with(bboxes)
+        tracker.update.assert_called_once()
+        args = tracker.update.call_args.args
+        np.testing.assert_array_equal(args[0], scores)
+        self.assertEqual(args[1], "xywh")
+        np.testing.assert_array_equal(args[2], class_ids)
+        self.assertEqual(args[3], "frame")
+        np.testing.assert_array_equal(result, tracker.update.return_value)
+
+    def test_reset_tracker_clears_temporal_identity(self):
+        tracker = mock.Mock()
+        instance = SimpleNamespace(tracker=tracker)
+
+        yoloe.YOLOE.set_auto_labeling_reset_tracker(instance)
+
+        tracker.reset.assert_called_once_with()
 
 
 if __name__ == "__main__":
