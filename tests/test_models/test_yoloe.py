@@ -5,6 +5,9 @@ from unittest import mock
 
 import numpy as np
 
+from anylabeling.services.auto_labeling import (
+    _AUTO_LABELING_RESET_TRACKER_MODELS,
+)
 from anylabeling.services.auto_labeling import yoloe
 
 
@@ -80,6 +83,100 @@ class TestYoloeEmbeddingModel(unittest.TestCase):
 
 
 class TestYoloeTracking(unittest.TestCase):
+    def test_yoloe_is_registered_for_tracker_reset(self):
+        self.assertIn("yoloe", _AUTO_LABELING_RESET_TRACKER_MODELS)
+
+    def test_tracker_resets_when_prompt_context_changes(self):
+        tracker = mock.Mock()
+        instance = SimpleNamespace(
+            tracker=tracker,
+            _active_tracker_context=None,
+        )
+        instance.set_auto_labeling_reset_tracker = lambda: (
+            yoloe.YOLOE.set_auto_labeling_reset_tracker(instance)
+        )
+
+        yoloe.YOLOE._activate_tracker_context(instance, "text", ["person"])
+        yoloe.YOLOE._activate_tracker_context(instance, "text", ["person"])
+        tracker.reset.assert_not_called()
+
+        yoloe.YOLOE._activate_tracker_context(instance, "text", ["vehicle"])
+        yoloe.YOLOE._activate_tracker_context(instance, "prompt_free")
+        yoloe.YOLOE._activate_tracker_context(instance, "visual")
+
+        self.assertEqual(tracker.reset.call_count, 3)
+
+    def test_postprocess_preserves_mask_detection_index_and_group_id(self):
+        class FakeDetections:
+            """Two detections whose tracker order is deliberately reversed."""
+
+            xyxy = np.asarray(
+                [[0, 0, 10, 10], [20, 20, 30, 30]], dtype=np.float32
+            )
+            class_id = np.asarray([0, 1], dtype=np.int64)
+            confidence = np.asarray([0.6, 0.9], dtype=np.float32)
+            mask = np.asarray(
+                [
+                    [[1, 0], [0, 0]],
+                    [[0, 0], [0, 1]],
+                ],
+                dtype=np.uint8,
+            )
+
+            def __getitem__(self, key):
+                """Return class names for the supervision data field."""
+                if key != "class_name":
+                    raise KeyError(key)
+                return np.asarray(["person", "vehicle"])
+
+        tracks = np.asarray(
+            [
+                [20, 20, 30, 30, 42, 0.9, 1, 1],
+                [0, 0, 10, 10, 17, 0.6, 0, 0],
+            ],
+            dtype=np.float32,
+        )
+        instance = SimpleNamespace(
+            tracker=mock.Mock(),
+            output_mode="polygon",
+            with_mask=True,
+            _update_tracker=mock.Mock(return_value=tracks),
+        )
+        supervision = SimpleNamespace(
+            Detections=SimpleNamespace(
+                from_ultralytics=mock.Mock(return_value=FakeDetections())
+            )
+        )
+        converted_masks = []
+
+        def fake_mask_to_polygons(mask):
+            converted_masks.append(mask.copy())
+            return [np.asarray([[0, 0], [1, 0], [1, 1]])]
+
+        with (
+            mock.patch.object(yoloe, "sv", supervision, create=True),
+            mock.patch.object(
+                yoloe,
+                "mask_to_polygons",
+                side_effect=fake_mask_to_polygons,
+                create=True,
+            ),
+        ):
+            shapes = yoloe.YOLOE.postprocess(
+                instance, [object()], image=object()
+            )
+
+        self.assertEqual(
+            [shape.label for shape in shapes], ["vehicle", "person"]
+        )
+        self.assertEqual([shape.group_id for shape in shapes], [42, 17])
+        np.testing.assert_array_equal(
+            converted_masks[0], FakeDetections.mask[1]
+        )
+        np.testing.assert_array_equal(
+            converted_masks[1], FakeDetections.mask[0]
+        )
+
     def test_update_tracker_uses_detection_indices(self):
         tracker = mock.Mock()
         tracker.update.return_value = np.array(

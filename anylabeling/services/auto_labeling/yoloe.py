@@ -121,6 +121,7 @@ class YOLOE(Model):
         # Cache text prompt state to avoid unnecessary model rebuilds
         self._current_text_prompt = None
         self._prompt_free_initialized = False
+        self._active_tracker_context = None
 
         # Model configuration
         input_width = self.config.get("input_width", 640)
@@ -253,6 +254,23 @@ class YOLOE(Model):
         """Reset all YOLOE track identities and temporal state."""
         if self.tracker is not None:
             self.tracker.reset()
+
+    def _activate_tracker_context(
+        self, mode: str, class_names: Optional[list[str]] = None
+    ) -> None:
+        """Reset identities before the detector vocabulary changes.
+
+        Args:
+            mode (str): Active ``text``, ``visual``, or ``prompt_free`` mode.
+            class_names (Optional[list[str]]): Ordered text-prompt vocabulary.
+        """
+        context = (mode, tuple(class_names or ()))
+        if (
+            self._active_tracker_context is not None
+            and self._active_tracker_context != context
+        ):
+            self.set_auto_labeling_reset_tracker()
+        self._active_tracker_context = context
 
     def postprocess(
         self, results: Any, image: Optional[Image.Image] = None
@@ -429,6 +447,7 @@ class YOLOE(Model):
 
         # Visual prompting mode
         if self.marks:
+            self._activate_tracker_context("visual")
             bboxes = []
             logger.debug(f"marks: {self.marks}")
             for mark in self.marks:
@@ -452,15 +471,8 @@ class YOLOE(Model):
         # Text prompting mode
         elif text_prompt:
             texts = self._parse_text_prompt(text_prompt)
-
-            # Reset text model if prompt changed
-            if self.text_prompt is None:
-                self.text_prompt = texts
-            else:
-                if self.text_prompt != texts:
-                    self._text_model = None
-                    self.text_prompt = texts
-                    self.set_auto_labeling_reset_tracker()
+            self._activate_tracker_context("text", texts)
+            self.text_prompt = texts
             logger.debug(f"Input texts: {texts}")
 
             model = self._get_text_model(texts)
@@ -475,6 +487,7 @@ class YOLOE(Model):
 
         # Prompt-free mode
         else:
+            self._activate_tracker_context("prompt_free")
             model = self._get_prompt_free_model()
             results = model.predict(
                 source=image,
