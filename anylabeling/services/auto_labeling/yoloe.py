@@ -76,7 +76,6 @@ class YOLOE(Model):
             "toggle_preserve_existing_annotations",
             "button_add_rect",
             "button_clear",
-            "button_reset_tracker",
         ]
         output_modes = {
             "rectangle": QCoreApplication.translate("Model", "Rectangle"),
@@ -148,6 +147,18 @@ class YOLOE(Model):
             self.texts = list(classes.values())
         else:
             self.texts = self.load_tag_list()
+
+    def get_required_widgets(self) -> list[str]:
+        """Return YOLOE widgets enabled by the active configuration.
+
+        Returns:
+            list[str]: Base YOLOE widgets, with the tracker reset control
+                appended only when a tracker was initialized.
+        """
+        widgets = list(self.Meta.widgets)
+        if self.tracker is not None:
+            widgets.append("button_reset_tracker")
+        return widgets
 
     @staticmethod
     def build_model(model_path):
@@ -243,11 +254,14 @@ class YOLOE(Model):
         """
         if self.tracker is None:
             return np.empty((0, 8), dtype=np.float32)
+
+        rgb_frame = np.asarray(image.convert("RGB"))
+        bgr_frame = np.ascontiguousarray(rgb_frame[:, :, ::-1])
         return self.tracker.update(
             scores.flatten(),
             xyxy2xywh(bboxes),
             class_ids.flatten(),
-            np.asarray(image),
+            bgr_frame,
         )
 
     def set_auto_labeling_reset_tracker(self) -> None:
@@ -304,21 +318,20 @@ class YOLOE(Model):
 
         if self.tracker is not None and image is not None:
             tracks = self._update_tracker(bboxes, scores, class_ids, image)
-            if len(tracks) == 0:
-                return []
-
-            detection_indices = tracks[:, 7].astype(int)
-            valid = (detection_indices >= 0) & (
-                detection_indices < len(bboxes)
-            )
-            tracks = tracks[valid]
-            detection_indices = detection_indices[valid]
-            bboxes = tracks[:, :4]
-            track_ids = tracks[:, 4].astype(int)
-            scores = tracks[:, 5]
-            labels = labels[detection_indices]
-            if masks is not None:
-                masks = masks[detection_indices]
+            if len(tracks) > 0:
+                detection_indices = tracks[:, 7].astype(int)
+                valid = (detection_indices >= 0) & (
+                    detection_indices < len(bboxes)
+                )
+                tracks = tracks[valid]
+                detection_indices = detection_indices[valid]
+                if len(tracks) > 0:
+                    bboxes = tracks[:, :4]
+                    track_ids = tracks[:, 4].astype(int)
+                    scores = tracks[:, 5]
+                    labels = labels[detection_indices]
+                    if masks is not None:
+                        masks = masks[detection_indices]
         shapes = []
 
         # Generate rectangle shapes
