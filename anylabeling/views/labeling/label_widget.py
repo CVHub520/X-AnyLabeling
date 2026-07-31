@@ -1108,7 +1108,6 @@ class LabelingWidget(LabelDialog):
             icon="cavy",
             tip=self.tr("Open video classifier dialog"),
         )
-        open_video_classifier.setEnabled(VideoClassifierDialog is not None)
         open_paddleocr = action(
             self.tr("PaddleOCR"),
             self.open_paddleocr,

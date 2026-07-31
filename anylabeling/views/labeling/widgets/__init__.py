@@ -30,12 +30,10 @@ from .toolbar import ToolBar
 from .unique_label_qlist_widget import UniqueLabelQListWidget
 
 try:
-    from .video_classifier_dialog import VideoClassifierDialog
+    import PyQt6.QtMultimedia
 except ImportError:
-    # QtMultimedia is optional in PyQt6 packaging and is absent from some
-    # builds (e.g. the conda `pyqt` packages for linux-aarch64). Only the
-    # Video Classifier needs it, so degrade gracefully rather than taking
-    # the whole application down at import time.
     VideoClassifierDialog = None
+else:
+    from .video_classifier_dialog import VideoClassifierDialog
 from .vqa_dialog import VQADialog
 from .zoom_widget import ZoomWidget
