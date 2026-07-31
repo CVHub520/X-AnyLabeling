@@ -1108,6 +1108,7 @@ class LabelingWidget(LabelDialog):
             icon="cavy",
             tip=self.tr("Open video classifier dialog"),
         )
+        open_video_classifier.setEnabled(VideoClassifierDialog is not None)
         open_paddleocr = action(
             self.tr("PaddleOCR"),
             self.open_paddleocr,
@@ -3331,6 +3332,16 @@ class LabelingWidget(LabelDialog):
             self.ppocr_window.show()
 
     def open_video_classifier(self):
+        if VideoClassifierDialog is None:
+            popup = Popup(
+                text=self.tr(
+                    "Video Classifier requires QtMultimedia, which this "
+                    "Qt build does not provide."
+                ),
+                parent=self,
+            )
+            popup.show_popup(self, position="center")
+            return
         if (
             not hasattr(self, "video_classifier_window")
             or self.video_classifier_window is None
