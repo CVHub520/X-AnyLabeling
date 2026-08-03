@@ -2476,7 +2476,7 @@ class Canvas(
                         self.update()
                 elif (
                     self.out_off_pixmap(pos)
-                    and self.create_mode == "linestrip"
+                    and self.create_mode in ["polygon", "linestrip"]
                 ):
                     w = self.pixmap.width()
                     h = self.pixmap.height()
