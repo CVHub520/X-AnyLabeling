@@ -1,7 +1,7 @@
 <div align="center">
   <p>
     <a href="https://github.com/CVHub520/X-AnyLabeling/" target="_blank">
-      <img alt="X-AnyLabeling" height="200px" src="https://github.com/user-attachments/assets/0714a182-92bd-4b47-b48d-1c5d7c225176"></a>
+      <img alt="X-AnyLabeling" height="200px" src="anylabeling/resources/images/logo.png"></a>
   </p>
 
 [简体中文](README_zh-CN.md) | [English](README.md)
@@ -9,132 +9,38 @@
 </div>
 
 <p align="center">
-    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-LGPL%20v3-blue.svg"></a>
-    <a href=""><img src="https://img.shields.io/github/v/release/CVHub520/X-AnyLabeling?color=ffa"></a>
-    <a href=""><img src="https://img.shields.io/badge/python-3.11+-aff.svg"></a>
-    <a href=""><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
-    <a href=""><img src="https://img.shields.io/github/downloads/CVHub520/X-AnyLabeling/total?label=downloads"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
+    <a href="https://github.com/CVHub520/X-AnyLabeling/releases/latest"><img src="https://img.shields.io/github/v/release/CVHub520/X-AnyLabeling?color=ffa"></a>
+    <a href="https://pypi.org/project/x-anylabeling-cvhub/"><img src="https://img.shields.io/pypi/v/x-anylabeling-cvhub?logo=pypi&logoColor=white"></a>
+    <a href="./pyproject.toml"><img src="https://img.shields.io/badge/python-3.11+-aff.svg"></a>
+    <a href="https://github.com/CVHub520/X-AnyLabeling/releases/latest"><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
+    <a href="https://github.com/CVHub520/X-AnyLabeling/releases"><img src="https://img.shields.io/github/downloads/CVHub520/X-AnyLabeling/total?label=downloads"></a>
     <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
-![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
-
-<video src="https://github.com/user-attachments/assets/25957cae-4dbd-494c-9923-e959d985674e" width="100%" controls>
-</video>
-
-<details>
-<summary><strong>自动训练</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/c0ab2056-2743-4a2c-ba93-13f478d3481e" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>自动标注</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>检测一切</strong></summary>
-
-<img src="https://github.com/user-attachments/assets/7f43bcec-96fd-48d1-bd36-9e5a440a66f6" width="100%" />
-</details>
-
-<details>
-<summary><strong>分割一切</strong></summary>
-
-<img src="https://github.com/user-attachments/assets/208dc9ed-b8c9-4127-9e5b-e76f53892f03" width="100%" />
-</details>
-
-<details>
-<summary><strong>可提示概念定位</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>视觉问答</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/53adcff4-b962-41b7-a408-3afecd8d8c82" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>聊天机器人</strong></summary>
-
-<img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
-</details>
-
-<details>
-<summary><strong>图像分类器</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>视频分类器</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/33a57390-683d-4a24-b0cf-3668af5f7a13" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>OCR识别</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/493183fd-6cbe-45fb-9808-ec2b0af7a0f9" width="100%" controls>
-</video>
-</details>
+<img src="https://github.com/user-attachments/assets/1480908f-b0d5-4e94-ac36-9cdc09f01fa8" alt="X-AnyLabeling 界面" width="100%" />
 
 ## 🥳 新功能
 
-- `2026-07-25`: 新增 SAM2 的免提示 [自动掩码生成](./examples/segmentation/README.md) 功能。
-- `2026-07-17`: 新增跨平台应用字体设置，支持自动扫描当前系统的可用字体。
-- `2026-07-11`: 新增旋转框拖拽旋转控制点，支持交互式调整旋转框标注角度。
-- `2026-07-05`: 新增可折叠的画布显示面板，支持快速调整标注透明度以及图片亮度和对比度。
-- `2026-06-28`: 新增重叠对象智能命中与选择，优先响应邻近顶点和可编辑边，使嵌套对象也能被轻松选中。
-- `2026-06-28`: 新增群组交互选择与整体移动，并完善群组复制、粘贴和删除保护。
-- `2026-06-28`: 新增对象锁定功能，可在保持选中和编辑标签信息的同时防止对象坐标被修改或删除。
-- `2026-06-20`: 新增 [TrackTrack](./examples/multiple_object_tracking/README.md) 多目标跟踪算法。
-- `2026-06-19`: 新增 PP-OCRv6 模型，支持多语言文本检测与识别。
-- `2026-06-18`: 新增 [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md)，支持人脸检测与五点人脸关键点标注。
-- `2026-06-15`: 新增橡皮擦功能，支持快速移除多边形和折线标注的顶点。
-- `2026-06-06`: 新增 [LocateAnything](./examples/grounding/locateanything/README.md) 支持，覆盖开放词汇视觉定位、指点定位和场景文本检测。
-- `2026-05-23`: 新增支持 [视频分类器](./docs/zh_cn/video_classifier.md) 标注面板，支持时间轴片段分类、片段描述、AI 自动切分视频与描述生成。
-- `2026-04-26`: 新增客户端（本地 ONNX）支持 [SAM 3](./examples/grounding/sam3/README.md) 文本驱动分割。
-- `2026-04-25`: 新增支持 [GeCo2](./examples/counting/geco2/README.md) 目标计数模型。
-- `2026-04-19`: 新增标注检查状态流程，便于快速复核已标注图片。
-- `2026-04-19`: 新增支持 YOLO 模型 TensorRT 后端推理。
-- `2026-04-18`: 新增支持将标注可视化结果导出为图片或视频。
-- `2026-04-18`: 新增支持 [PaddleOCR](./docs/zh_cn/paddle_ocr.md) 文档解析与智能文字识别标注面板。
-- `2026-04-01`: 新增支持日语和韩语界面语言（`ja_JP`、`ko_KR`）。
-- `2026-03-22`: 新增支持在 GUI 中通过内置设置面板直接调整常用选项。
-- `2026-03-10`: 新增支持从矩形生成 3D Cuboid 对象标注。
-- `2026-03-01`: 完成 PyQt5 到 PyQt6 的升级重构（Beta 版本），并同步修复与优化若干功能细节。
+- `2026-08-05`：发布 X-AnyLabeling v4.0.0。
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
 
 ## 简介
 
-**X-AnyLabeling** 是一款基于AI推理引擎和丰富功能特性于一体的强大辅助标注工具，其专注于实际应用，致力于为多模态数据工程师提供工业级的一站式解决方案，可自动快速进行各种复杂任务的标定。
+**X-AnyLabeling** 是一款轻量、高效、统一的跨平台桌面应用，面向文本、图像、视频及多模态数据提供 AI 辅助标注能力。它集成了丰富的内置工具、自动化标注工作流、先进的深度学习模型，以及灵活的多格式数据导入与导出能力。对于远程推理场景，[X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) 提供轻量且可扩展的后端，用于连接自定义模型和计算资源。
 
-此外，我们强烈推荐您尝试 [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server)，这是一个简单、轻量级且可扩展的框架，为 X-AnyLabeling 提供远程推理能力。
+## 核心特性
 
-## 新特性
+<img src="https://github.com/user-attachments/assets/2925bc88-e22b-4e81-873c-45fd85164f6b" width="100%" />
 
-<img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
-
-- 支持远程推理服务。
-- 支持 `ONNX Runtime`、`TensorRT`、`OpenCV DNN` 等灵活后端加速推理。
-- 支持一键预测所有图像。
-- 支持`图像`和`视频`处理。
-- 支持`英文`、`中文`、`日文`、`韩文` 四种界面语言。
-- 支持自定义模型和二次开发。
-- 支持一键导入和导出多种标签格式，如 `COCO`、`VOC`、`YOLO`、`DOTA`、`MOT`、`MASK`、`PPOCR`、`MMGF`、`VLM-R1`、`ShareGPT` 等；
-- 支持多种图像标注样式，包括 `多边形`、`矩形`、`长方体`、`旋转框`、`圆形`、`线条`、`点`，以及 `文本检测`、`识别` 和 `KIE` 标注；
-- 支持各类视觉任务，如`图像分类`、`目标检测`、`实例分割`、`姿态估计`、`旋转检测`、`多目标跟踪`、`光学字符识别`、`图像文本描述`、`车道线检测`、`分割一切`、`视觉问答`、`文档解析`等。
+* 统一支持文本、图像、视频及多模态数据的标注与处理。
+* 覆盖图像分类、目标检测、实例分割、姿态估计、旋转目标检测、多目标跟踪、光学字符识别、车道线标注、图像描述、视觉问答和文档解析等任务。
+* 提供多边形、矩形、长方体、旋转框、四边形、圆形、线段、折线、点和掩码等标注工具，并支持文本检测、文本识别和 KIE 等任务专用工具。
+* 集成多种先进的深度学习模型，支持 AI 辅助标注、自动标注和数据集批量预测。
+* 支持本地与远程推理，可接入 `ONNX Runtime`、`TensorRT`、`OpenCV DNN`、`vLLM`、`SGLang` 等推理引擎与服务框架。
+* 支持导入和导出 `COCO`、`VOC`、`YOLO`、`DOTA`、`MOT`、`MASK`、`PPOCR`、`MMGD`、`VLM-R1` 和 `ShareGPT` 等多种数据格式。
+* 支持 Windows、Linux 和 macOS，并提供英文、简体中文、日文和韩文界面。
+* 支持接入自定义模型，并提供灵活的扩展与二次开发能力。
 
 ## 模型库
 
@@ -160,7 +66,7 @@
 | 🛣️ **车道线检测** | CLRNet |
 | 🔢 **目标计数** | CountGD, GeCO, GeCo2 |
 | 📍 **视觉定位** | Grounding DINO, YOLO-World, YOLOE, SAM 3, LocateAnything |
-| 📚 **其他** | 👉 [model_zoo](./docs/en/model_zoo.md) 👈 |
+| 📚 **其他** | 👉 [model_zoo](./docs/zh_cn/model_zoo.md) 👈 |
 
 ## 文档
 
@@ -233,19 +139,21 @@
 
 ## 许可
 
-本项目遵循 [GPL-3.0 license](./LICENSE) 协议，完全开源免费，初衷是希望让更多开发者、研究者和企业能够便捷地使用 AI 应用平台，推动整个行业的发展。我们鼓励大家自由使用（包括商业用途），也可以基于本项目添加功能并进行商业化，但必须保留品牌标识并标注源项目地址。
-
-此外，为了了解 X-AnyLabeling 的生态和使用情况，如果您将本项目用于学术、科研、教学或是企业用户，请在此[填写登记表](https://forms.gle/MZCKhU7UJ4TRSWxR7)。此登记仅用于统计使用情况，不会产生任何费用，我们会对信息严格保密。
-
-X-AnyLabeling 由个人独立开发和维护。如果本项目对您有所帮助，欢迎通过下方捐赠链接支持项目持续发展，您的支持是对我最大的鼓励！如对项目有任何疑问或希望合作，欢迎随时微信联系：ww10874。
+本项目采用 [GNU General Public License v3.0](./LICENSE) 许可。您可以使用、修改和重新分发本软件，包括用于商业用途，但须遵守该许可证的相关条款。
 
 ## 赞助
 
-| **微信支付** | **支付宝** |
-| :---: | :---: |
-| <img src="https://github.com/user-attachments/assets/0178cf76-3627-426e-8432-ec031c9278ae" width="400px" height="400px" style="object-fit: contain;" /> | <img src="https://github.com/user-attachments/assets/87544ff8-3560-4696-b035-1fd26ecd162b" width="400px" height="400px" style="object-fit: contain;" /> |
+X-AnyLabeling 是一个持续维护的开源项目。你的赞助将用于功能开发、模型集成、文档完善和社区支持。
 
-感谢您的支持！
+<a href="https://xanylabeling.com/sponsor">
+  <img src="https://github.com/user-attachments/assets/893151ad-d6b2-4846-882a-ef5376471c99" alt="赞助 X-AnyLabeling 项目" width="100%" />
+</a>
+
+点击上方图片前往赞助页面。
+
+## 致谢
+
+衷心感谢 [AnyLabeling](https://github.com/vietanhdev/anylabeling)、[LabelMe](https://github.com/wkentaro/labelme)、[LabelImg](https://github.com/tzutalin/labelImg)、[roLabelImg](https://github.com/cgvict/roLabelImg)、[PPOCRLabel](https://github.com/PFCCLab/PPOCRLabel) 和 [CVAT](https://github.com/opencv/cvat) 的开发者与贡献者，他们的工作为本项目提供了重要基础。
 
 ## 引用
 
@@ -258,7 +166,7 @@ X-AnyLabeling 由个人独立开发和维护。如果本项目对您有所帮助
   publisher = {Github},
   organization = {CVHub},
   journal = {Github repository},
-  title = {Advanced Auto Labeling Solution with Added Features},
+  title = {X-AnyLabeling: A Unified Desktop Platform for AI-Assisted Data Annotation},
   howpublished = {\url{https://github.com/CVHub520/X-AnyLabeling}}
 }
 ```

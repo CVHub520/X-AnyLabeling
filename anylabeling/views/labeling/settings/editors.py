@@ -4,7 +4,6 @@ from typing import Any
 
 from PyQt6 import QtCore, QtGui, QtWidgets
 
-from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.utils.style import (
     get_double_spinbox_style,
     get_normal_button_style,
@@ -159,9 +158,6 @@ class HexColorPickerEditor(QtWidgets.QWidget):
         self._edit.setTextMargins(8, 0, 26, 0)
 
         self._button = QtWidgets.QToolButton(self._edit)
-        self._base_button_icon = new_icon("color", "svg")
-        self._button.setIcon(self._base_button_icon)
-        self._button.setIconSize(QtCore.QSize(14, 14))
         self._button.setFixedSize(16, 16)
         self._button.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         self._button.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -208,34 +204,6 @@ class HexColorPickerEditor(QtWidgets.QWidget):
             "border: 1px solid #8E8E93;"
             "}"
         )
-
-    def _button_icon_color(self) -> QtGui.QColor:
-        color = QtGui.QColor(self._value)
-        if not color.isValid():
-            return QtGui.QColor("#1F1F1F")
-        luminance = (
-            0.299 * float(color.red())
-            + 0.587 * float(color.green())
-            + 0.114 * float(color.blue())
-        ) / 255.0
-        if luminance < 0.6:
-            return QtGui.QColor("#FFFFFF")
-        return QtGui.QColor("#1F1F1F")
-
-    def _button_icon(self) -> QtGui.QIcon:
-        source = self._base_button_icon.pixmap(self._button.iconSize())
-        if source.isNull():
-            return self._base_button_icon
-        tinted = QtGui.QPixmap(source.size())
-        tinted.fill(QtCore.Qt.GlobalColor.transparent)
-        painter = QtGui.QPainter(tinted)
-        painter.drawPixmap(0, 0, source)
-        painter.setCompositionMode(
-            QtGui.QPainter.CompositionMode.CompositionMode_SourceIn
-        )
-        painter.fillRect(tinted.rect(), self._button_icon_color())
-        painter.end()
-        return QtGui.QIcon(tinted)
 
     def _clamp_channel(self, value: Any, fallback: int) -> int:
         try:
@@ -292,7 +260,6 @@ class HexColorPickerEditor(QtWidgets.QWidget):
         self._edit.setStyleSheet(self._input_style())
         self._edit.setText(self._display_text())
         self._button.setStyleSheet(self._button_style())
-        self._button.setIcon(self._button_icon())
 
     def _on_pick_color(self) -> None:
         current = QtGui.QColor(self._value)

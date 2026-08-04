@@ -363,7 +363,7 @@ pip install httpx[socks]
 <details>
 <summary>Q: AI模型推理时如何识别特定的类别？</summary>
 
-当前仅支持部分模型设置此选项。具体地，以 yolo 系列模型为例，用户可通过在配置文件中添加 `filter_classes`，具体可参考此[文档](https://github.com/CVHub520/X-AnyLabeling/blob/main/docs/zh_cn/custom_model.md#%E5%8A%A0%E8%BD%BD%E5%B7%B2%E9%80%82%E9%85%8D%E7%9A%84%E7%94%A8%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%9E%8B)。
+当前仅支持部分模型设置此选项。具体地，以 yolo 系列模型为例，用户可通过在配置文件中添加 `filter_classes`，具体可参考此[文档](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/custom_model#%E5%8A%A0%E8%BD%BD%E5%B7%B2%E9%80%82%E9%85%8D%E7%9A%84%E7%94%A8%E6%88%B7%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E5%9E%8B)。
 </details>
 
 <details>

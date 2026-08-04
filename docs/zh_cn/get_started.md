@@ -110,24 +110,24 @@ source .venv-cu13/bin/activate     # Linux
 
 ### 1.2 安装
 
-#### 1.2.1 Pip 安装（Beta 预发布版本）
+#### 1.2.1 Pip 安装
 
-您可以通过以下命令轻松安装 X-AnyLabeling 的最新 Beta 预发布版本（推荐使用 `uv pip`）：
+您可以通过以下命令安装 X-AnyLabeling 的最新稳定版本（推荐使用 `uv pip`）：
 
 ```bash
 pip install -U uv
 
 # CPU [Windows/Linux/macOS]
-uv pip install --pre "x-anylabeling-cvhub[cpu]"
+uv pip install "x-anylabeling-cvhub[cpu]"
 
 # CUDA 12.x 是 GPU 版本的默认选项 [Windows/Linux]
-uv pip install --pre "x-anylabeling-cvhub[gpu]"
+uv pip install "x-anylabeling-cvhub[gpu]"
 
 # CUDA 11.x [Windows/Linux]
-uv pip install --pre "x-anylabeling-cvhub[gpu-cu11]"
+uv pip install "x-anylabeling-cvhub[gpu-cu11]"
 
 # CUDA 13.x [Windows/Linux]
-uv pip install --pre "x-anylabeling-cvhub[gpu-cu13]"
+uv pip install "x-anylabeling-cvhub[gpu-cu13]"
 ```
 
 #### 1.2.2 Git 克隆（推荐）

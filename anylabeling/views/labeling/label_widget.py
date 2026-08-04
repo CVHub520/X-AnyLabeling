@@ -903,7 +903,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Group Selected Shapes"),
             self.group_selected_shapes,
             shortcuts["group_selected_shapes"],
-            None,
+            "group-shapes",
             self.tr("Group shapes by assigning a same group_id"),
             enabled=True,
         )
@@ -911,7 +911,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Ungroup Selected Shapes"),
             self.ungroup_selected_shapes,
             shortcuts["ungroup_selected_shapes"],
-            None,
+            "ungroup-shapes",
             self.tr("Ungroup shapes"),
             enabled=True,
         )
@@ -977,7 +977,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Hide Selected Polygons"),
             self.hide_selected_polygons,
             shortcuts["hide_selected_polygons"],
-            None,
+            "hide-selected",
             self.tr("Hide selected polygons"),
             enabled=True,
         )
@@ -985,7 +985,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Show Hidden Polygons"),
             self.show_hidden_polygons,
             shortcuts["show_hidden_polygons"],
-            None,
+            "show-hidden",
             self.tr("Show hidden polygons"),
             enabled=True,
         )
@@ -1099,7 +1099,7 @@ class LabelingWidget(LabelDialog):
                 "open_image_classifier", shortcuts.get("open_classifier")
             ),
             icon="ragdoll",
-            tip=self.tr("Open classifier dialog"),
+            tip=self.tr("Open image classifier dialog"),
         )
         open_video_classifier = action(
             self.tr("Video Classifier"),
@@ -1120,6 +1120,12 @@ class LabelingWidget(LabelDialog):
             self.documentation,
             icon="docs",
             tip=self.tr("Show documentation"),
+        )
+        sponsor = action(
+            self.tr("Sponsor"),
+            self.sponsor,
+            icon="brush_polygon",
+            tip=self.tr("Open sponsor page"),
         )
         about = action(
             self.tr("About"),
@@ -1392,6 +1398,7 @@ class LabelingWidget(LabelDialog):
             _act.setCheckable(True)
             _act.setChecked(current_appearance == _mode)
             _act.setData(_mode)
+            _act.setIcon(utils.new_icon(f"theme-{_mode}"))
             _act.triggered.connect(
                 functools.partial(self._on_theme_changed, _mode)
             )
@@ -2014,6 +2021,7 @@ class LabelingWidget(LabelDialog):
             help=self.menu(self.tr("Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
         )
+        self.menus.recent_files.setIcon(utils.new_icon("recent"))
         self.menus.recent_files.aboutToShow.connect(self.update_file_menu)
         self.canvas_label_filter_menu_0 = None
         self.canvas_gid_filter_menu_0 = None
@@ -2065,6 +2073,7 @@ class LabelingWidget(LabelDialog):
             self.menus.help,
             (
                 documentation,
+                sponsor,
                 None,
                 about,
             ),
@@ -3389,10 +3398,15 @@ class LabelingWidget(LabelDialog):
 
     # Help
     def documentation(self):
+        locale = "/zh-Hans" if self._config["language"] == "zh_CN" else ""
         url = (
-            "https://github.com/CVHub520/X-AnyLabeling/tree/main/docs"  # NOQA
+            f"https://xanylabeling.com{locale}/docs/"
+            "x-anylabeling/get_started"
         )
         utils.general.open_url(url)
+
+    def sponsor(self):
+        utils.general.open_url("https://xanylabeling.com/sponsor")
 
     def about(self):
         about_dialog = AboutDialog(self)

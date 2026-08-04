@@ -1,4 +1,4 @@
-# X-AnyLabeling 🌟, AGPL-3.0 license
+# X-AnyLabeling 🌟, GPL-3.0-only license
 
 name: 🎰 Model Request
 description: Request support for a new model to be added to X-AnyLabeling
@@ -13,10 +13,10 @@ body:
     attributes:
       label: Search before asking
       description: >
-        Please search the X-AnyLabeling [model_zoo](https://github.com/CVHub520/X-AnyLabeling/blob/main/docs/en/model_zoo.md) to see if a model request already exists.
+        Please search the X-AnyLabeling [model_zoo](https://xanylabeling.com/docs/x-anylabeling/model_zoo) to see if a model request already exists.
       options:
         - label: >
-            I have searched the X-AnyLabeling [model_zoo](https://github.com/CVHub520/X-AnyLabeling/blob/main/docs/en/model_zoo.md) and found no similar model requests.
+            I have searched the X-AnyLabeling [model_zoo](https://xanylabeling.com/docs/x-anylabeling/model_zoo) and found no similar model requests.
           required: true
 
   - type: textarea

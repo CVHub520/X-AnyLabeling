@@ -1,3 +1,2 @@
 recursive-include anylabeling/configs *
-recursive-include anylabeling/views/labeling/icons *
 global-include *.ui

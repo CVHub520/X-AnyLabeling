@@ -62,6 +62,7 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.setObjectName("canvas_adjustment")
         self._collapsed = False
+        self.setProperty("collapsed", False)
         # A bare QWidget ignores stylesheet background/border unless it is
         # told to paint a styled background; without this the translucent
         # card behind the sliders never shows.
@@ -152,6 +153,9 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
             background: rgba(255, 255, 255, 220);
             border: none;
             border-radius: 6px;
+        }}
+        #canvas_adjustment[collapsed="true"] {{
+            background: transparent;
         }}
         #canvas_adjustment QSlider::groove:horizontal {{
             height: 4px;
@@ -255,8 +259,11 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
 
     def _toggle_collapsed(self):
         self._collapsed = not self._collapsed
+        self.setProperty("collapsed", self._collapsed)
         self.title_label.setVisible(not self._collapsed)
         self.content_widget.setVisible(not self._collapsed)
+        margins = (4, 4, 4, 4) if self._collapsed else (10, 8, 10, 8)
+        self.layout().setContentsMargins(*margins)
         icon = "caret-down" if self._collapsed else "caret-up"
         self.toggle_button.setIcon(new_icon(icon, "svg"))
         tooltip = (
@@ -265,6 +272,9 @@ class CanvasAdjustmentWidget(QtWidgets.QWidget):
             else self.tr("Collapse adjustments")
         )
         self.toggle_button.setToolTip(tooltip)
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.layout().activate()
         self.adjustSize()
         self.geometry_changed.emit()
 

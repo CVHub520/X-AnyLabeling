@@ -110,24 +110,24 @@ source .venv-cu13/bin/activate     # Linux
 
 ### 1.2 Installation
 
-#### 1.2.1 Pip Installation (Beta Pre-release)
+#### 1.2.1 Pip Installation
 
-You can easily install the latest beta pre-release version of X-AnyLabeling with the following commands (using `uv pip` is recommended):
+You can install the latest stable version of X-AnyLabeling with the following commands (using `uv pip` is recommended):
 
 ```bash
 pip install -U uv
 
 # CPU [Windows/Linux/macOS]
-uv pip install --pre "x-anylabeling-cvhub[cpu]"
+uv pip install "x-anylabeling-cvhub[cpu]"
 
 # CUDA 12.x is the default GPU option [Windows/Linux]
-uv pip install --pre "x-anylabeling-cvhub[gpu]"
+uv pip install "x-anylabeling-cvhub[gpu]"
 
 # CUDA 11.x [Windows/Linux]
-uv pip install --pre "x-anylabeling-cvhub[gpu-cu11]"
+uv pip install "x-anylabeling-cvhub[gpu-cu11]"
 
 # CUDA 13.x [Windows/Linux]
-uv pip install --pre "x-anylabeling-cvhub[gpu-cu13]"
+uv pip install "x-anylabeling-cvhub[gpu-cu13]"
 ```
 
 #### 1.2.2 Git Clone (Recommended)

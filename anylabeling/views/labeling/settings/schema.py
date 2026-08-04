@@ -342,9 +342,11 @@ class SettingField:
 
 @lru_cache(maxsize=1)
 def load_template_config() -> dict[str, Any]:
-    with pkg_resources.open_text(
-        anylabeling_configs, "xanylabeling_config.yaml"
-    ) as f:
+    with (
+        pkg_resources.files(anylabeling_configs)
+        .joinpath("xanylabeling_config.yaml")
+        .open(encoding="utf-8") as f
+    ):
         return yaml.safe_load(f)
 
 

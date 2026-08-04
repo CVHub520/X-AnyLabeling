@@ -48,7 +48,7 @@ class AboutDialog(QDialog):
     _bg_update_ready = pyqtSignal(dict)
 
     email_address = "cv_hub@163.com"
-    website_url = "https://github.com/CVHub520/X-AnyLabeling"
+    website_url = "https://xanylabeling.com"
     discord_url = (
         "https://discord.com/channels/1350265627142651994/1350265628832829514"
     )
@@ -225,7 +225,7 @@ class AboutDialog(QDialog):
 
         # Copyright
         copyright_label = QLabel(
-            "Copyright © 2023 CVHub. All rights reserved."
+            "Copyright © 2023–2026 CVHub. All rights reserved."
         )
         copyright_label.setStyleSheet(
             f"color: {t['text_secondary']}; font-size: 12px;"

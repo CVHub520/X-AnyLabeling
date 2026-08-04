@@ -4,7 +4,7 @@
 
 Multi-Object Tracking (MOT) technology is used to simultaneously identify and track multiple targets within video sequences, involving the association of targets across different frames.
 
-<img src=".data/tracking_any_task.gif" width="100%" />
+<img src="https://github.com/user-attachments/assets/90863cfb-4de2-454e-99a2-e5277cfdb3aa" width="100%" />
 
 ## Usage
 

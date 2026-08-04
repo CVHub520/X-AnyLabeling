@@ -1,5 +1,36 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.0` (Aug 05, 2026)
+
+X-AnyLabeling 4.0.0 is a major release built around a PyQt6 interface, expanded annotation workflows, broader AI model support, and a more reliable cross-platform release pipeline. The beta release notes below retain the full development history.
+
+### 🚀 New Features
+
+- Add a prompt-free Segment Everything workflow powered by the SAM2 Automatic Mask Generator, with grid density, minimum region size, cancellation, and polygon or contour output controls.
+- Add configurable application fonts and default shortcuts for circle, line, point, and line strip drawing tools.
+
+### 🐛 Bug Fixes
+
+- Align SAM2 automatic mask generation with the official implementation and bound memory usage through chunked grid processing.
+- Harden annotation parsing, model downloads, and export paths against unsafe input and path traversal.
+- Save annotation files atomically and restore Pillow decompression bomb protection.
+- Preserve shape metadata, attributes, defaults, and canvas updates across label editing and upload workflows.
+- Stabilize concurrent Chatbot model refreshes, VQA cancellation, video uploads, and video classifier sidecar validation.
+- Skip invalid VOC geometries and load YOLOE embedding models independently of the working directory.
+
+### 🛠️ Improvements
+
+- Read image dimensions without decoding full pixel data.
+- Refresh the application branding and menu icon system for a more consistent interface.
+- Update package metadata, documentation, and in-app links for the official website.
+- Add automated website content synchronization from the main repository.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @Crackvignoule, @CVHub520
+
 ## `v4.0.0-beta.13` (Jul 12, 2026)
 
 ### 🐛 Bug Fixes

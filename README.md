@@ -1,7 +1,7 @@
 <div align="center">
   <p>
     <a href="https://github.com/CVHub520/X-AnyLabeling/" target="_blank">
-      <img alt="X-AnyLabeling" height="200px" src="https://github.com/user-attachments/assets/0714a182-92bd-4b47-b48d-1c5d7c225176"></a>
+      <img alt="X-AnyLabeling" height="200px" src="anylabeling/resources/images/logo.png"></a>
   </p>
 
 [English](README.md) | [简体中文](README_zh-CN.md)
@@ -9,133 +9,38 @@
 </div>
 
 <p align="center">
-    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-LGPL%20v3-blue.svg"></a>
-    <a href=""><img src="https://img.shields.io/github/v/release/CVHub520/X-AnyLabeling?color=ffa"></a>
-    <a href=""><img src="https://img.shields.io/pypi/v/x-anylabeling-cvhub?logo=pypi&logoColor=white"></a>
-    <a href=""><img src="https://img.shields.io/badge/python-3.11+-aff.svg"></a>
-    <a href=""><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
-    <a href=""><img src="https://img.shields.io/github/downloads/CVHub520/X-AnyLabeling/total?label=downloads"></a>
+    <a href="./LICENSE"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg"></a>
+    <a href="https://github.com/CVHub520/X-AnyLabeling/releases/latest"><img src="https://img.shields.io/github/v/release/CVHub520/X-AnyLabeling?color=ffa"></a>
+    <a href="https://pypi.org/project/x-anylabeling-cvhub/"><img src="https://img.shields.io/pypi/v/x-anylabeling-cvhub?logo=pypi&logoColor=white"></a>
+    <a href="./pyproject.toml"><img src="https://img.shields.io/badge/python-3.11+-aff.svg"></a>
+    <a href="https://github.com/CVHub520/X-AnyLabeling/releases/latest"><img src="https://img.shields.io/badge/os-linux%2C%20win%2C%20mac-pink.svg"></a>
+    <a href="https://github.com/CVHub520/X-AnyLabeling/releases"><img src="https://img.shields.io/github/downloads/CVHub520/X-AnyLabeling/total?label=downloads"></a>
     <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
-![](https://user-images.githubusercontent.com/18329471/234640541-a6a65fbc-d7a5-4ec3-9b65-55305b01a7aa.png)
-
-<video src="https://github.com/user-attachments/assets/25957cae-4dbd-494c-9923-e959d985674e" width="100%" controls>
-</video>
-
-<details>
-<summary><strong>Auto-Training</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/c0ab2056-2743-4a2c-ba93-13f478d3481e" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>Auto-Labeling</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/f517fa94-c49c-4f05-864e-96b34f592079" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>Detect Anything</strong></summary>
-
-<img src="https://github.com/user-attachments/assets/7f43bcec-96fd-48d1-bd36-9e5a440a66f6" width="100%" />
-</details>
-
-<details>
-<summary><strong>Segment Anything</strong></summary>
-
-<img src="https://github.com/user-attachments/assets/208dc9ed-b8c9-4127-9e5b-e76f53892f03" width="100%" />
-</details>
-
-<details>
-<summary><strong>Promptable Concept Grounding</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/52cbdb5d-cc60-4be5-826f-903ea4330ca8" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>VQA</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/53adcff4-b962-41b7-a408-3afecd8d8c82" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>Chatbot</strong></summary>
-
-<img src="https://github.com/user-attachments/assets/56c9a20b-c836-47aa-8b54-bad5bb99b735" width="100%" />
-</details>
-
-<details>
-<summary><strong>Image Classifier</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/0652adfb-48a4-4219-9b18-16ff5ce31be0" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>Video Classifier</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/33a57390-683d-4a24-b0cf-3668af5f7a13" width="100%" controls>
-</video>
-</details>
-
-<details>
-<summary><strong>OCR</strong></summary>
-
-<video src="https://github.com/user-attachments/assets/493183fd-6cbe-45fb-9808-ec2b0af7a0f9" width="100%" controls>
-</video>
-</details>
+<img src="https://github.com/user-attachments/assets/1480908f-b0d5-4e94-ac36-9cdc09f01fa8" alt="X-AnyLabeling interface" width="100%" />
 
 ## 🥳 What's New
 
-- `2026-07-25`: Added prompt-free [Automatic Mask Generation](./examples/segmentation/README.md) feature for SAM2.
-- `2026-07-17`: Added cross-platform application font settings with automatic system font discovery.
-- `2026-07-11`: Added a drag rotation handle for interactively adjusting rotated box annotations.
-- `2026-07-05`: Added a collapsible canvas display panel for quickly adjusting annotation opacity and image brightness/contrast.
-- `2026-06-28`: Added intent-aware selection for overlapping shapes, prioritizing nearby vertices and editable edges while making nested objects easier to select.
-- `2026-06-28`: Added interactive group selection and movement with safe group copy, paste, and deletion.
-- `2026-06-28`: Added per-shape locking to prevent geometry changes and deletion while preserving selection and metadata editing.
-- `2026-06-20`: Added [TrackTrack](./examples/multiple_object_tracking/README.md) multi-object tracking algorithm.
-- `2026-06-19`: Added PP-OCRv6 models for multilingual text detection and recognition.
-- `2026-06-18`: Added [SCRFD 10G KPS](./examples/estimation/face_estimation/README.md) for face detection and five-point facial landmark labeling.
-- `2026-06-15`: Added an eraser tool for quickly removing vertices from polygon and linestrip annotations.
-- `2026-06-06`: Added [LocateAnything](./examples/grounding/locateanything/README.md) support for open-vocabulary grounding, pointing, and scene text detection.
-- `2026-05-23`: Added the [Video Classifier](./docs/en/video_classifier.md) annotation panel with timeline segment classification, segment descriptions, AI-assisted video segmentation and description generation.
-- `2026-04-26`: Added client-side (local ONNX) support for [SAM 3](./examples/grounding/sam3/README.md) text-grounded segmentation.
-- `2026-04-25`: Added support for the [GeCo2](./examples/counting/geco2/README.md) object counting model.
-- `2026-04-19`: Added annotation check status workflow for reviewing labeled images.
-- `2026-04-19`: Added support for TensorRT backend inference for YOLO models.
-- `2026-04-18`: Added support exporting annotation visualizations as images or videos.
-- `2026-04-18`: Added support for [PaddleOCR](./docs/en/paddle_ocr.md) document parsing and intelligent text recognition annotation panel.
-- `2026-04-01`: Added support for Japanese and Korean UI languages (`ja_JP`, `ko_KR`).
-- `2026-03-22`: Added support for built-in Settings in the GUI for directly adjusting common options.
-- `2026-03-10`: Added support for 3D Cuboid shape annotation from rectangle.
-- `2026-03-01`: Completed the PyQt5-to-PyQt6 upgrade refactor (Beta release), along with additional feature fixes and optimizations.
+- `2026-08-05`: Release X-AnyLabeling v4.0.0.
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
-## X-AnyLabeling
+## Introduction
 
-**X-AnyLabeling** is a powerful annotation tool that integrates an AI engine for fast and automatic labeling. It's designed for multi-modal data engineers, offering industrial-grade solutions for complex tasks.
+**X-AnyLabeling** is a lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data. It combines versatile built-in tools, automated labeling workflows, state-of-the-art deep learning models, and flexible multi-format import and export. For remote inference, [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server) provides a lightweight, extensible backend for connecting custom models and compute resources.
 
-Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/CVHub520/X-AnyLabeling-Server), a simple, lightweight, and extensible framework that enables remote inference capabilities for X-AnyLabeling.
+## Key Features
 
-## Features
+<img src="https://github.com/user-attachments/assets/2925bc88-e22b-4e81-873c-45fd85164f6b" width="100%" />
 
-<img src="https://github.com/user-attachments/assets/c65db18f-167b-49e8-bea3-fcf4b43a8ffd" width="100%" />
-
-- Supports remote inference service.
-- Processes both `images` and `videos`.
-- Supports flexible backends including `ONNX Runtime`, `TensorRT`, and `OpenCV DNN`.
-- Supports UI localization in `English`, `Chinese`, `Japanese`, and `Korean`.
-- Allows custom models and secondary development.
-- Supports one-click inference for all images in the current task.
-- Supports import/export for formats like `COCO`, `VOC`, `YOLO`, `DOTA`, `MOT`, `MASK`, `PPOCR`, `MMGD`, `VLM-R1`, `ShareGPT`.
-- Handles tasks like `classification`, `detection`, `segmentation`, `caption`, `rotation`, `tracking`, `estimation`, `ocr`, `vqa`, `grounding`, `document parsing` and so on.
-- Supports diverse annotation styles: `polygons`, `rectangles`, `cuboids`, `rotated boxes`, `quadrilaterals`, `circles`, `lines`, `line strips`, `points`, and annotations for `text detection`, `recognition`, and `KIE`.
+* Unified support for annotating and processing text, image, video, and multimodal data.
+* Covers tasks such as image classification, object detection, instance segmentation, pose estimation, oriented object detection, multi-object tracking, optical character recognition, lane annotation, image captioning, visual question answering, and document parsing.
+* Provides polygons, rectangles, cuboids, rotated boxes, quadrilaterals, circles, lines, polylines, points, masks, and task-specific tools for text detection, text recognition, and KIE.
+* Integrates a wide range of state-of-the-art deep learning models for AI-assisted annotation, automated labeling, and batch dataset prediction.
+* Supports both local and remote inference through engines and serving frameworks such as `ONNX Runtime`, `TensorRT`, `OpenCV DNN`, `vLLM`, and `SGLang`.
+* Supports importing and exporting formats such as `COCO`, `VOC`, `YOLO`, `DOTA`, `MOT`, `MASK`, `PPOCR`, `MMGD`, `VLM-R1`, and `ShareGPT`.
+* Runs on Windows, Linux, and macOS, with interfaces available in English, Simplified Chinese, Japanese, and Korean.
+* Supports custom model integration, flexible extension, and secondary development.
 
 ## Model library
 
@@ -221,7 +126,6 @@ Also, we highly recommend trying out [X-AnyLabeling-Server](https://github.com/C
 - [Training](./examples/training/)
   - [Ultralytics](./examples/training/ultralytics/README.md)
 
-
 ## Contribute
 
 We believe in open collaboration! **X‑AnyLabeling** continues to grow with the support of the community. Whether you're fixing bugs, improving documentation, or adding new features, your contributions make a real impact.
@@ -234,16 +138,17 @@ A huge thank you 🙏 to everyone helping to make X‑AnyLabeling better.
 
 ## License
 
-This project is licensed under the [GPL-3.0 license](./LICENSE) and is completely open source and free. The original intention is to enable more developers, researchers, and enterprises to conveniently use this AI application platform, promoting the development of the entire industry. We encourage everyone to use it freely (including commercial use), and you can also add features based on this project and commercialize it, but you must retain the brand identity and indicate the source project address.
+This project is licensed under the [GNU General Public License v3.0](./LICENSE). You may use, modify, and redistribute the software, including for commercial purposes, provided that you comply with the terms of the license.
 
-Additionally, to understand the ecosystem and usage of X-AnyLabeling, if you use this project for academic, research, teaching, or enterprise purposes, please fill out the [registration form](https://forms.gle/MZCKhU7UJ4TRSWxR7). This registration is only for statistical purposes and will not incur any fees. We will strictly keep all information confidential.
+## Sponsor
 
-X-AnyLabeling is independently developed and maintained by an individual. If this project has been helpful to you, we welcome your support through the donation links below to help sustain the project's continued development. Your support is the greatest encouragement! If you have any questions about the project or would like to collaborate, please feel free to contact via WeChat: ww10874 or email provided above.
+X-AnyLabeling is an actively maintained open-source project. Your sponsorship helps support feature development, model integration, documentation, and community support.
 
-## Sponsors
+<a href="https://xanylabeling.com/sponsor">
+  <img src="https://github.com/user-attachments/assets/893151ad-d6b2-4846-882a-ef5376471c99" alt="Sponsor the X-AnyLabeling project" width="100%" />
+</a>
 
-- [buy-me-a-coffee](https://ko-fi.com/cvhub520)
-- [Wechat/Alipay](https://github.com/CVHub520/X-AnyLabeling/blob/main/README_zh-CN.md#%E8%B5%9E%E5%8A%A9)
+Click the image above to visit the sponsorship page.
 
 ## Acknowledgement
 
@@ -260,7 +165,7 @@ If you use this software in your research, please cite it as below:
   publisher = {Github},
   organization = {CVHub},
   journal = {Github repository},
-  title = {Advanced Auto Labeling Solution with Added Features},
+  title = {X-AnyLabeling: A Unified Desktop Platform for AI-Assisted Data Annotation},
   howpublished = {\url{https://github.com/CVHub520/X-AnyLabeling}}
 }
 ```

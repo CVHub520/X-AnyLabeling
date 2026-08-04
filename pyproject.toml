@@ -20,22 +20,23 @@
 # Note: Ensure onnxruntime and onnxruntime-gpu are not installed simultaneously.
 # This approach allows for real-time code modifications without the need for re-installation.
 
-# Docs: https://github.com/CVHub520/X-AnyLabeling/tree/main/docs
+# Docs: https://xanylabeling.com/docs/x-anylabeling/get_started
 # Examples: https://github.com/CVHub520/X-AnyLabeling/tree/main/examples/
 # GitHub: https://github.com/CVHub520/X-AnyLabeling
 
 [build-system]
-requires = ["setuptools>=70.0.0", "wheel"]
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 # Project settings -----------------------------------------------------------------------------------------------------
 [project]
 name = "x-anylabeling-cvhub"
 dynamic = ["version"]
-description = "Advanced Auto Labeling Solution with Added Features"
+description = "A lightweight, unified, cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { "text" = "GPLv3" }
+license = "GPL-3.0-only"
+license-files = ["LICENSE"]
 keywords = ["machine-learning", "deep-learning", "computer-vision", "multi-modal", "auto-labeling", "image-annotation", "AI", "LLM", "VLM", "YOLO", "SAM", "CLIP", "Grounding-DINO", "X-AnyLabeling"]
 authors = [
     { name = "Wei Wang", email = "cv_hub@163.com" },
@@ -44,11 +45,10 @@ maintainers = [
     { name = "CVHub", email = "cvhub.cn@gmail.com" },
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -134,9 +134,12 @@ gpu-cu13 = [
 ]
 
 [project.urls]
+"Homepage" = "https://xanylabeling.com"
+"Documentation" = "https://xanylabeling.com/docs/x-anylabeling/get_started"
+"Download" = "https://xanylabeling.com/download"
+"Funding" = "https://xanylabeling.com/sponsor"
 "Source" = "https://github.com/CVHub520/X-AnyLabeling"
-"Documentation" = "https://github.com/CVHub520/X-AnyLabeling/tree/main/docs"
-"Bug Reports" = "https://github.com/CVHub520/X-AnyLabeling/issues"
+"Issues" = "https://github.com/CVHub520/X-AnyLabeling/issues"
 "Changelog" = "https://github.com/CVHub520/X-AnyLabeling/releases"
 
 [project.scripts]

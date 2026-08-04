@@ -159,4 +159,4 @@ The interface is split into four parts:
 
 ## Next Steps
 
-After your model is trained and exported, you can load it as a [custom model](https://github.com/CVHub520/X-AnyLabeling/blob/main/docs/en/custom_model.md) in X-AnyLabeling to perform inference and continue improving your dataset.
+After your model is trained and exported, you can load it as a [custom model](https://xanylabeling.com/docs/x-anylabeling/custom_model) in X-AnyLabeling to perform inference and continue improving your dataset.

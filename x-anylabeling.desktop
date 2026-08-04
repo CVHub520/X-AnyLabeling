@@ -1,8 +1,9 @@
 [Desktop Entry]
 Name=X-AnyLabeling
-Comment=Advanced Auto Labeling Solution with Added Features
-Exec=X-AnyLabeling
-Icon=anylabeling/resources/images/logo.png
+Comment=AI-assisted annotation for text, images, video, and multimodal data
+Exec=xanylabeling
+Icon=x-anylabeling
 Terminal=false
 Type=Application
-Categories=Graphics;RasterGraphics;MachineLearning
+Categories=Graphics;RasterGraphics;
+StartupNotify=true

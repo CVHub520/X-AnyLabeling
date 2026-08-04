@@ -70,9 +70,11 @@ class ModelManager(QObject):
     def load_model_configs(self):
         """Load model configs"""
         # Load list of default models
-        with pkg_resources.open_text(
-            auto_labeling_configs, "models.yaml"
-        ) as f:
+        with (
+            pkg_resources.files(auto_labeling_configs)
+            .joinpath("models.yaml")
+            .open(encoding="utf-8") as f
+        ):
             model_list = yaml.safe_load(f)
 
         # Load list of custom models

@@ -1,4 +1,4 @@
-# X-AnyLabeling 🌟, AGPL-3.0 license
+# X-AnyLabeling 🌟, GPL-3.0-only license
 
 name: ❓ Question
 description: Ask an X-AnyLabeling question
@@ -13,10 +13,10 @@ body:
     attributes:
       label: Search before asking
       description: >
-        Please search the X-AnyLabeling [Docs](https://github.com/CVHub520/X-AnyLabeling/tree/main/docs) and [issues](https://github.com/CVHub520/X-AnyLabeling/issues) to see if a similar question already exists.
+        Please search the X-AnyLabeling [Docs](https://xanylabeling.com/docs/x-anylabeling/get_started) and [issues](https://github.com/CVHub520/X-AnyLabeling/issues) to see if a similar question already exists.
       options:
         - label: >
-            I have searched the X-AnyLabeling [Docs](https://github.com/CVHub520/X-AnyLabeling/tree/main/docs) and [issues](https://github.com/CVHub520/X-AnyLabeling/issues) and found no similar questions.
+            I have searched the X-AnyLabeling [Docs](https://xanylabeling.com/docs/x-anylabeling/get_started) and [issues](https://github.com/CVHub520/X-AnyLabeling/issues) and found no similar questions.
           required: true
 
   - type: textarea

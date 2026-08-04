@@ -146,7 +146,11 @@ def get_default_config():
         shutil.copyfile(old_cfg_file, new_cfg_file)
 
     config_file = "xanylabeling_config.yaml"
-    with pkg_resources.open_text(anylabeling_configs, config_file) as f:
+    with (
+        pkg_resources.files(anylabeling_configs)
+        .joinpath(config_file)
+        .open(encoding="utf-8") as f
+    ):
         config = yaml.safe_load(f)
 
     if not osp.exists(osp.join(work_dir, ".xanylabelingrc")):
