@@ -199,19 +199,21 @@ jobs:
           import os
           import sys
           from importlib.metadata import version
+          from importlib.util import find_spec
           from pathlib import Path
-
-          import onnxruntime
 
           ort_version = version("onnxruntime-gpu")
           cuda_major = os.environ["CUDA_MAJOR"]
+          ort_spec = find_spec("onnxruntime")
+          if ort_spec is None or not ort_spec.submodule_search_locations:
+              raise RuntimeError("Unable to locate ONNX Runtime GPU")
           provider_name = (
               "onnxruntime_providers_cuda.dll"
               if sys.platform == "win32"
               else "libonnxruntime_providers_cuda.so"
           )
           provider = (
-              Path(onnxruntime.__file__).parent
+              Path(next(iter(ort_spec.submodule_search_locations)))
               / "capi"
               / provider_name
           )
