@@ -1815,6 +1815,8 @@ class Canvas(
                         )
                     if shape_hit:
                         self.prev_h_shape = self.h_shape = shape
+                        if hasattr(self.parent, "actions"):
+                            self.parent.actions.delete.setEnabled(True)
                         self.setToolTip(
                             self.tr("Press Delete to delete shape '%s'")
                             % shape.label
