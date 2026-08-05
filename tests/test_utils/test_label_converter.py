@@ -5,6 +5,9 @@ import unittest
 from unittest import mock
 
 import yaml
+import cv2
+import numpy as np
+from PIL import Image
 
 from anylabeling.views.labeling.label_converter import LabelConverter
 
@@ -109,6 +112,53 @@ class TestLabelConverterObbBounds(unittest.TestCase):
 
         with open(output_file, "r", encoding="utf-8") as f:
             self.assertEqual(f.read(), "")
+
+
+class TestLabelConverterMaskExport(unittest.TestCase):
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        self.converter = LabelConverter()
+        self.mapping_table = {"type": "grayscale", "colors": {"cat": 1}}
+
+    def _write_label_file(self, shapes):
+        label_file = os.path.join(self.temp_dir.name, "label.json")
+        data = {
+            "imagePath": "image.jpg",
+            "imageWidth": 4,
+            "imageHeight": 3,
+            "shapes": shapes,
+        }
+        with open(label_file, "w", encoding="utf-8") as f:
+            json.dump(data, f)
+        return label_file
+
+    def test_custom_to_mask_writes_blank_mask_for_empty_labels(self):
+        label_file = self._write_label_file([])
+        output_file = os.path.join(self.temp_dir.name, "mask.png")
+
+        self.converter.custom_to_mask(
+            label_file, output_file, self.mapping_table
+        )
+
+        mask = cv2.imread(output_file, cv2.IMREAD_UNCHANGED)
+        self.assertIsNotNone(mask)
+        self.assertEqual(mask.shape, (3, 4))
+        self.assertTrue(np.all(mask == 0))
+
+    def test_custom_image_to_empty_mask_uses_source_image_size(self):
+        image_file = os.path.join(self.temp_dir.name, "image.png")
+        output_file = os.path.join(self.temp_dir.name, "mask.png")
+        Image.new("RGB", (5, 2), color=(255, 255, 255)).save(image_file)
+
+        self.converter.custom_image_to_empty_mask(
+            image_file, output_file, self.mapping_table
+        )
+
+        mask = cv2.imread(output_file, cv2.IMREAD_UNCHANGED)
+        self.assertIsNotNone(mask)
+        self.assertEqual(mask.shape, (2, 5))
+        self.assertTrue(np.all(mask == 0))
 
 
 class TestLabelConverterVocValidation(unittest.TestCase):

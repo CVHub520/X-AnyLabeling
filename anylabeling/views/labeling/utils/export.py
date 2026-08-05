@@ -971,6 +971,21 @@ def export_mask_annotation(self):
     path_layout.addLayout(path_input_layout)
     layout.addLayout(path_layout)
 
+    options_label = QtWidgets.QLabel(self.tr("Export Options"))
+    layout.addWidget(options_label)
+
+    include_null_images_checkbox = QtWidgets.QCheckBox(
+        self.tr("Include images without labels?")
+    )
+    include_null_images_checkbox.setChecked(False)
+    layout.addWidget(include_null_images_checkbox)
+
+    only_checked_images_checkbox = QtWidgets.QCheckBox(
+        self.tr("Only export checked images?")
+    )
+    only_checked_images_checkbox.setChecked(False)
+    layout.addWidget(only_checked_images_checkbox)
+
     button_layout = QHBoxLayout()
     button_layout.setContentsMargins(0, 16, 0, 0)
     button_layout.setSpacing(8)
@@ -995,6 +1010,8 @@ def export_mask_annotation(self):
         return
 
     save_path = path_edit.text()
+    include_null_images = include_null_images_checkbox.isChecked()
+    only_checked_images = only_checked_images_checkbox.isChecked()
     if osp.exists(save_path):
         msg_box = QtWidgets.QMessageBox(self)
         msg_box.setIcon(QtWidgets.QMessageBox.Icon.Warning)
@@ -1052,12 +1069,26 @@ def export_mask_annotation(self):
                 src_file = osp.join(osp.dirname(image_file), label_file_name)
             dst_file = osp.join(save_path, dst_file_name)
 
-            if not osp.exists(src_file):
+            label_file_exists = osp.exists(src_file)
+            if only_checked_images:
+                if not label_file_exists:
+                    progress_dialog.setValue(i + 1)
+                    continue
+                if not converter.read_json(src_file).get("checked", False):
+                    progress_dialog.setValue(i + 1)
+                    continue
+
+            if not label_file_exists:
+                if include_null_images:
+                    converter.custom_image_to_empty_mask(
+                        image_file, dst_file, mapping_table
+                    )
+                progress_dialog.setValue(i + 1)
                 continue
 
             converter.custom_to_mask(src_file, dst_file, mapping_table)
 
-            progress_dialog.setValue(i)
+            progress_dialog.setValue(i + 1)
             if progress_dialog.wasCanceled():
                 break
 

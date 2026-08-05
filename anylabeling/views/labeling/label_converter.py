@@ -1784,6 +1784,55 @@ class LabelConverter:
                     f"{x0} {y0} {x1} {y1} {x2} {y2} {x3} {y3} {label} {int(difficult)}\n"
                 )
 
+    def write_empty_mask(
+        self,
+        output_file: str,
+        mapping_table: Dict[str, Any],
+        image_width: int,
+        image_height: int,
+    ) -> None:
+        """
+        Writes a blank mask image using the configured mask output format.
+
+        Args:
+            output_file (str): Destination path for the generated PNG mask.
+            mapping_table (Dict[str, Any]): Mask color map configuration.
+            image_width (int): Width of the source image in pixels.
+            image_height (int): Height of the source image in pixels.
+        """
+        image_shape = (image_height, image_width)
+        output_format = mapping_table["type"]
+        if output_format == "grayscale":
+            empty_mask = np.zeros(image_shape, dtype=np.uint8)
+            cv2.imencode(".png", empty_mask)[1].tofile(output_file)
+        elif output_format == "rgb":
+            empty_mask = np.zeros(
+                (image_height, image_width, 3), dtype=np.uint8
+            )
+            cv2.imencode(".png", empty_mask)[1].tofile(output_file)
+        else:
+            raise ValueError("Invalid output format specified")
+
+    def custom_image_to_empty_mask(
+        self,
+        image_file: str,
+        output_file: str,
+        mapping_table: Dict[str, Any],
+    ) -> None:
+        """
+        Creates a blank mask from an image file when no label JSON exists.
+
+        Args:
+            image_file (str): Source image path used to determine mask size.
+            output_file (str): Destination path for the generated PNG mask.
+            mapping_table (Dict[str, Any]): Mask color map configuration.
+        """
+        with Image.open(image_file) as image:
+            image_width, image_height = image.size
+        self.write_empty_mask(
+            output_file, mapping_table, image_width, image_height
+        )
+
     def custom_to_mask(self, input_file, output_file, mapping_table):
         data = self.read_json(input_file)
         image_width = data["imageWidth"]
@@ -1813,7 +1862,7 @@ class LabelConverter:
         if output_format not in ["grayscale", "rgb"]:
             raise ValueError("Invalid output format specified")
         mapping_color = mapping_table["colors"]
-        if output_format == "grayscale" and polygons:
+        if output_format == "grayscale":
             # Initialize binary_mask
             binary_mask = np.zeros(image_shape, dtype=np.uint8)
             # Sort polygons by area to handle overlapping (larger areas first)
@@ -1836,7 +1885,7 @@ class LabelConverter:
 
             cv2.imencode(".png", binary_mask)[1].tofile(output_file)
 
-        elif output_format == "rgb" and polygons:
+        elif output_format == "rgb":
             # Initialize rgb_mask
             color_mask = np.zeros(
                 (image_height, image_width, 3), dtype=np.uint8
