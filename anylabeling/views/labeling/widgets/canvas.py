@@ -4598,7 +4598,10 @@ class Canvas(
     def finalise(self):
         """Finish drawing for a shape"""
         assert self.current
-        self._brush_drawing = False
+        keep_brush_drawing = (
+            self._brush_drawing and self.create_mode == "polygon"
+        )
+        self._brush_drawing = keep_brush_drawing
         if (
             self.is_auto_labeling
             and self.auto_labeling_mode != AutoLabelingMode.NONE

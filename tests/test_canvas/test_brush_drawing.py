@@ -79,3 +79,4 @@ class TestCanvasBrushDrawing(unittest.TestCase):
         self.assertIsNone(self.canvas.current)
         self.assertEqual(len(self.canvas.shapes), 1)
         self.assertTrue(self.canvas.shapes[0].is_closed())
+        self.assertTrue(self.canvas._brush_drawing)

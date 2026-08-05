@@ -6707,12 +6707,14 @@ class LabelingWidget(LabelDialog):
             if shape.locked:
                 continue
             self.canvas.prev_h_shape = self.canvas.h_shape = shape
+            self.actions.delete.setEnabled(True)
             self.canvas.setToolTip(
                 self.tr("Press Delete to delete shape '%s'") % shape.label
             )
             self.canvas.setStatusTip(self.canvas.toolTip())
             break
         else:
+            self.actions.delete.setEnabled(False)
             self.canvas.setToolTip("")
             self.canvas.setStatusTip("")
         self.canvas.shape_hover_changed.emit()
