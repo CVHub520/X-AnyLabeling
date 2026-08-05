@@ -4,9 +4,9 @@ import tempfile
 import unittest
 from unittest import mock
 
-import yaml
 import cv2
 import numpy as np
+import yaml
 from PIL import Image
 
 from anylabeling.views.labeling.label_converter import LabelConverter
@@ -158,6 +158,21 @@ class TestLabelConverterMaskExport(unittest.TestCase):
         mask = cv2.imread(output_file, cv2.IMREAD_UNCHANGED)
         self.assertIsNotNone(mask)
         self.assertEqual(mask.shape, (2, 5))
+        self.assertTrue(np.all(mask == 0))
+
+    def test_custom_image_to_empty_mask_supports_rgb_output(self):
+        image_file = os.path.join(self.temp_dir.name, "image.png")
+        output_file = os.path.join(self.temp_dir.name, "mask.png")
+        mapping_table = {"type": "rgb", "colors": {"cat": [1, 2, 3]}}
+        Image.new("RGB", (5, 2), color=(255, 255, 255)).save(image_file)
+
+        self.converter.custom_image_to_empty_mask(
+            image_file, output_file, mapping_table
+        )
+
+        mask = cv2.imread(output_file, cv2.IMREAD_UNCHANGED)
+        self.assertIsNotNone(mask)
+        self.assertEqual(mask.shape, (2, 5, 3))
         self.assertTrue(np.all(mask == 0))
 
 

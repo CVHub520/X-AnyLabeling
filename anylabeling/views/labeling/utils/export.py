@@ -911,6 +911,43 @@ def export_dota_annotation(self):
         popup.show_popup(self, position="center")
 
 
+def _export_mask_files(
+    converter,
+    image_list,
+    output_dir,
+    save_path,
+    mapping_table,
+    include_null_images,
+    only_checked_images,
+    progress_dialog,
+):
+    for i, image_file in enumerate(image_list):
+        image_file_name = osp.basename(image_file)
+        label_file_name = osp.splitext(image_file_name)[0] + ".json"
+        dst_file_name = osp.splitext(image_file_name)[0] + ".png"
+
+        if output_dir:
+            src_file = osp.join(output_dir, label_file_name)
+        else:
+            src_file = osp.join(osp.dirname(image_file), label_file_name)
+        dst_file = osp.join(save_path, dst_file_name)
+
+        if osp.exists(src_file):
+            if (
+                not only_checked_images
+                or converter.read_json(src_file).get("checked", False) is True
+            ):
+                converter.custom_to_mask(src_file, dst_file, mapping_table)
+        elif include_null_images and not only_checked_images:
+            converter.custom_image_to_empty_mask(
+                image_file, dst_file, mapping_table
+            )
+
+        progress_dialog.setValue(i + 1)
+        if progress_dialog.wasCanceled():
+            break
+
+
 def export_mask_annotation(self):
     if not _check_filename_exist(self):
         return
@@ -1058,39 +1095,16 @@ def export_mask_annotation(self):
     )
 
     try:
-        for i, image_file in enumerate(image_list):
-            image_file_name = osp.basename(image_file)
-            label_file_name = osp.splitext(image_file_name)[0] + ".json"
-            dst_file_name = osp.splitext(image_file_name)[0] + ".png"
-
-            if self.output_dir:
-                src_file = osp.join(self.output_dir, label_file_name)
-            else:
-                src_file = osp.join(osp.dirname(image_file), label_file_name)
-            dst_file = osp.join(save_path, dst_file_name)
-
-            label_file_exists = osp.exists(src_file)
-            if only_checked_images:
-                if not label_file_exists:
-                    progress_dialog.setValue(i + 1)
-                    continue
-                if not converter.read_json(src_file).get("checked", False):
-                    progress_dialog.setValue(i + 1)
-                    continue
-
-            if not label_file_exists:
-                if include_null_images:
-                    converter.custom_image_to_empty_mask(
-                        image_file, dst_file, mapping_table
-                    )
-                progress_dialog.setValue(i + 1)
-                continue
-
-            converter.custom_to_mask(src_file, dst_file, mapping_table)
-
-            progress_dialog.setValue(i + 1)
-            if progress_dialog.wasCanceled():
-                break
+        _export_mask_files(
+            converter,
+            image_list,
+            self.output_dir,
+            save_path,
+            mapping_table,
+            include_null_images,
+            only_checked_images,
+            progress_dialog,
+        )
 
         progress_dialog.close()
         template = self.tr(
