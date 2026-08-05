@@ -105,6 +105,7 @@ class AutoLabelingWidget(QWidget):
         "output_label",
         "output_select_combobox",
         "toggle_preserve_existing_annotations",
+        "button_classes_filter",
         "button_run",
         "edit_text",
         "mask_fineness_slider",

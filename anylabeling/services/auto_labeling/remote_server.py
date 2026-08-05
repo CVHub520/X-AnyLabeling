@@ -49,6 +49,8 @@ class RemoteServer(Model):
         self.current_model_id = None
         self.timeout = self.config.get("timeout", 30)
         self.models_info = {}
+        self.classes = []
+        self.filter_classes = None
 
         self.marks = []
         self.conf_threshold = 0.0
@@ -75,6 +77,9 @@ class RemoteServer(Model):
 
     def set_model_id(self, model_id):
         self.current_model_id = model_id
+        model_info = self.models_info.get(model_id, {})
+        self.classes = model_info.get("classes", [])
+        self.filter_classes = model_info.get("filter_classes")
 
     def set_task(self, task_id):
         """Set task ID for the current model"""
@@ -132,6 +137,13 @@ class RemoteServer(Model):
 
     def set_auto_labeling_iou(self, iou_thresh):
         self.iou_threshold = iou_thresh
+
+    def set_auto_labeling_filter_classes(self, class_names):
+        """Set the active remote class filter by name."""
+        if not class_names or len(class_names) == len(self.classes):
+            self.filter_classes = []
+        else:
+            self.filter_classes = list(class_names)
 
     def set_mask_fineness(self, epsilon):
         self.epsilon_factor = epsilon
@@ -203,6 +215,8 @@ class RemoteServer(Model):
             self.reset_tracker_flag = False
         if self.current_task:
             params["current_task"] = self.current_task
+        if self.filter_classes is not None:
+            params["filter_classes"] = self.filter_classes
 
         payload = {
             "model": self.current_model_id,
