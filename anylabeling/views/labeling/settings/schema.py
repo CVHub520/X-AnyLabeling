@@ -76,6 +76,8 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate("SettingsDialog", "Auto Color Shift")
     QCoreApplication.translate("SettingsDialog", "Line Color")
     QCoreApplication.translate("SettingsDialog", "Fill Color")
+    QCoreApplication.translate("SettingsDialog", "Hover Line Color")
+    QCoreApplication.translate("SettingsDialog", "Hover Fill Color")
     QCoreApplication.translate("SettingsDialog", "Vertex Fill Color")
     QCoreApplication.translate("SettingsDialog", "Select Line Color")
     QCoreApplication.translate("SettingsDialog", "Select Fill Color")
@@ -246,6 +248,8 @@ SETTINGS_SHAPE_KEYS = (
     "shift_auto_shape_color",
     "shape.line_color",
     "shape.fill_color",
+    "shape.hover_line_color",
+    "shape.hover_fill_color",
     "shape.vertex_fill_color",
     "shape.select_line_color",
     "shape.select_fill_color",
@@ -654,6 +658,36 @@ def _non_shortcut_fields() -> list[SettingField]:
             description=QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT,
                 "Set the default fill color for shapes.",
+            ),
+        ),
+        SettingField(
+            "shape.hover_line_color",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Hover Line Color"
+            ),
+            "color",
+            "Shape",
+            "Hover Style",
+            "Color",
+            channels=4,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set the outline color for a shape under the mouse.",
+            ),
+        ),
+        SettingField(
+            "shape.hover_fill_color",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Hover Fill Color"
+            ),
+            "color",
+            "Shape",
+            "Hover Style",
+            "Color",
+            channels=4,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set the fill color for a shape under the mouse.",
             ),
         ),
         SettingField(

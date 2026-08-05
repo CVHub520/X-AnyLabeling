@@ -14,6 +14,7 @@ class ToolBar(QtWidgets.QFrame):
         self._tool_button_style = QtCore.Qt.ToolButtonStyle.ToolButtonIconOnly
         self._icon_size = QtCore.QSize(24, 24)
         self._owned_widgets = []
+        self._action_widgets = {}
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setSpacing(0)
@@ -21,7 +22,7 @@ class ToolBar(QtWidgets.QFrame):
         self._content_widget = QtWidgets.QWidget(self)
         self._content_layout = QtWidgets.QVBoxLayout(self._content_widget)
         self._content_layout.setSpacing(0)
-        self._content_layout.setContentsMargins(0, 0, 0, 0)
+        self._content_layout.setContentsMargins(0, 2, 0, 0)
         layout.addWidget(
             self._content_widget, 0, QtCore.Qt.AlignmentFlag.AlignTop
         )
@@ -104,6 +105,12 @@ class ToolBar(QtWidgets.QFrame):
         for button in self.findChildren(QtWidgets.QToolButton):
             button.setIconSize(size)
 
+    def iconSize(self):
+        return self._icon_size
+
+    def widgetForAction(self, action):
+        return self._action_widgets.get(action)
+
     def clear(self):
         for action in self.actions():
             self.removeAction(action)
@@ -118,6 +125,7 @@ class ToolBar(QtWidgets.QFrame):
             else:
                 widget.setParent(None)
         self._owned_widgets = []
+        self._action_widgets = {}
 
     def addAction(self, action):
         if isinstance(action, QtWidgets.QWidgetAction):
@@ -137,6 +145,7 @@ class ToolBar(QtWidgets.QFrame):
         btn.setIconSize(self._icon_size)
         btn.setFixedSize(28, 28)
         self._owned_widgets.append(btn)
+        self._action_widgets[action] = btn
         self._content_layout.addWidget(
             btn, 0, QtCore.Qt.AlignmentFlag.AlignCenter
         )

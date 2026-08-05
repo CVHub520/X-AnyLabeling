@@ -1,4 +1,4 @@
-__appname__ = "X-AnyLabeling"
+__appname__ = "复迪脉手术视频标注软件"
 __appdescription__ = "A lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data."
 __version__ = "4.0.0"
 __url__ = "https://xanylabeling.com"

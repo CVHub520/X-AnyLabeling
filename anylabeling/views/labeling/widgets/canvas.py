@@ -1786,6 +1786,47 @@ class Canvas(
                 self.line.shape_type = "rectangle"
 
             if not self.current:
+                previous_h_shape = self.h_shape
+                self.un_highlight()
+                for shape in self._shape_hit_candidates(pos):
+                    if shape.locked:
+                        continue
+                    if shape.shape_type in ["point", "line", "linestrip"]:
+                        shape_hit = (
+                            shape.nearest_vertex(
+                                pos, self.epsilon * 3 / self.scale
+                            )
+                            is not None
+                        )
+                    elif (
+                        shape.shape_type == "cuboid"
+                        and len(shape.points) == 8
+                    ):
+                        front_path = self.cuboid_face_path(
+                            shape, CUBOID_FACE_FRONT
+                        )
+                        shape_hit = (
+                            front_path is not None and front_path.contains(pos)
+                        )
+                    else:
+                        shape_hit = (
+                            len(shape.points) > 1
+                            and shape.contains_point(pos)
+                        )
+                    if shape_hit:
+                        self.prev_h_shape = self.h_shape = shape
+                        self.setToolTip(
+                            self.tr("Press Delete to delete shape '%s'")
+                            % shape.label
+                        )
+                        self.setStatusTip(self.toolTip())
+                        self.update()
+                        break
+                else:
+                    self.setToolTip("")
+                    self.setStatusTip("")
+                if previous_h_shape != self.h_shape:
+                    self.shape_hover_changed.emit()
                 self.override_cursor(CURSOR_DRAW)
                 return
 
@@ -3921,10 +3962,12 @@ class Canvas(
                 shape.selected or not self._hide_backround
             ) and self.is_visible(shape):
                 shape.hovered = shape == self.h_shape
-                shape.fill = (
+                should_fill_shape = (
                     self._fill_drawing
                     and (shape.selected or shape == self.h_shape)
-                    and not (self.selected_vertex() and self.moving_shape)
+                ) or shape == self.h_shape
+                shape.fill = should_fill_shape and not (
+                    self.selected_vertex() and self.moving_shape
                 )
                 # Brush-edited shapes are drawn from their mask instead.
                 if not getattr(shape, "_brush_using_mask", False):

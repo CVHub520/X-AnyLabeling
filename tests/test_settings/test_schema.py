@@ -24,14 +24,14 @@ except Exception:
 class TestSettingsSchema(unittest.TestCase):
 
     def test_field_count(self):
-        self.assertEqual(len(SETTING_FIELDS), 126)
+        self.assertEqual(len(SETTING_FIELDS), 128)
 
     def test_shortcut_and_non_shortcut_count(self):
         shortcut_fields = [
             field for field in SETTING_FIELDS if field.primary == "Shortcuts"
         ]
         self.assertEqual(len(shortcut_fields), 77)
-        self.assertEqual(len(SETTING_FIELDS) - len(shortcut_fields), 49)
+        self.assertEqual(len(SETTING_FIELDS) - len(shortcut_fields), 51)
 
     def test_defaults_cover_all_keys(self):
         defaults = defaults_map()
@@ -44,6 +44,8 @@ class TestSettingsSchema(unittest.TestCase):
             "system_clipboard",
             "font_family",
             "shape.line_color",
+            "shape.hover_line_color",
+            "shape.hover_fill_color",
             "canvas.mask.opacity",
             "canvas.crosshair.show",
             "canvas.crosshair.width",
@@ -73,7 +75,7 @@ class TestSettingsSchema(unittest.TestCase):
             ("Shortcuts", "General", "Shape", "Canvas"),
         )
         self.assertEqual(len(SETTINGS_GENERAL_KEYS), 9)
-        self.assertEqual(len(SETTINGS_SHAPE_KEYS), 9)
+        self.assertEqual(len(SETTINGS_SHAPE_KEYS), 11)
         self.assertEqual(len(SETTINGS_SHORTCUT_KEYS_CORE), 24)
         for key in SETTINGS_GENERAL_KEYS:
             self.assertIn(key, SETTINGS_KEYS)
@@ -96,6 +98,8 @@ class TestSettingsSchema(unittest.TestCase):
         )
         shape_keys = {field.key for field in shape_fields}
         self.assertIn("shape.line_color", shape_keys)
+        self.assertIn("shape.hover_line_color", shape_keys)
+        self.assertIn("shape.hover_fill_color", shape_keys)
         self.assertIn("shape.point_size", shape_keys)
         self.assertIn("shape.line_width", shape_keys)
         self.assertEqual(

@@ -157,7 +157,9 @@ a = Analysis(
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'bert', '*'), 'anylabeling/services/auto_labeling/configs/bert'),
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'clip', '*'), 'anylabeling/services/auto_labeling/configs/clip'),
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ppocr', '*'), 'anylabeling/services/auto_labeling/configs/ppocr'),
-        (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ram', '*'), 'anylabeling/services/auto_labeling/configs/ram')
+        (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ram', '*'), 'anylabeling/services/auto_labeling/configs/ram'),
+        (_p('anylabeling', 'resources', 'images', 'icon.png'), 'anylabeling/resources/images'),
+        (_p('anylabeling', 'resources', 'images', 'logo.png'), 'anylabeling/resources/images')
     ] + matplotlib_datas,
     hiddenimports=[
         'matplotlib',
@@ -179,18 +181,18 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name=f'X-AnyLabeling-v{__version__}-CPU',
+    name='复迪脉手术视频标注软件',
     debug=False,
     strip=False,
     upx=False,
     runtime_tmpdir=None,
     console=False,
-    icon=_p('anylabeling', 'resources', 'images', 'icon.icns'),
+    icon=_p('anylabeling', 'resources', 'images', 'icon.ico'),
 )
 app = BUNDLE(
     exe,
-    name='X-AnyLabeling.app',
-    icon=_p('anylabeling', 'resources', 'images', 'icon.icns'),
+    name='复迪脉手术视频标注软件',
+    icon=_p('anylabeling', 'resources', 'images', 'icon.ico'),
     bundle_identifier=None,
     info_plist={'NSHighResolutionCapable': 'True'},
 )

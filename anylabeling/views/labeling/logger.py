@@ -1,6 +1,9 @@
 import logging
+import os
 import sys
 from functools import wraps
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 from typing import Callable, Dict
 
 import termcolor
@@ -69,6 +72,27 @@ class AppLogger:
         )
         stream_handler.setFormatter(handler_format)
         self.logger.addHandler(stream_handler)
+
+        try:
+            log_root = os.environ.get("LOCALAPPDATA")
+            if log_root:
+                log_dir = Path(log_root) / "X-AnyLabeling" / "logs"
+                log_dir.mkdir(parents=True, exist_ok=True)
+                file_handler = RotatingFileHandler(
+                    log_dir / "x-anylabeling.log",
+                    maxBytes=50 * 1024 * 1024,
+                    backupCount=0,
+                    encoding="utf-8",
+                )
+                file_handler.setFormatter(
+                    logging.Formatter(
+                        "%(asctime)s | %(levelname)-7s | "
+                        "%(module)s:%(funcName)s:%(lineno)s - %(message)s"
+                    )
+                )
+                self.logger.addHandler(file_handler)
+        except Exception:
+            pass
 
     def __getattr__(self, name: str) -> Callable:
         return getattr(self.logger, name)

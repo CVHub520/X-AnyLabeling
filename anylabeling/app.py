@@ -374,7 +374,12 @@ def main():
 
     app.setApplicationName(__appname__)
     app.setApplicationVersion(__version__)
-    app.setWindowIcon(new_icon("icon"))
+    icon_path = (
+        Path(__file__).resolve().parent / "resources" / "images" / "icon.png"
+    )
+    app.setWindowIcon(
+        QtGui.QIcon(str(icon_path)) if icon_path.exists() else new_icon("icon")
+    )
     if loaded_language:
         app.installTranslator(translator)
     else:

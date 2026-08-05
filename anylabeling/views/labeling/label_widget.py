@@ -206,6 +206,12 @@ class LabelingWidget(LabelDialog):
         # set default shape colors
         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
         Shape.fill_color = QtGui.QColor(*self._config["shape"]["fill_color"])
+        Shape.hover_line_color = QtGui.QColor(
+            *self._config["shape"]["hover_line_color"]
+        )
+        Shape.hover_fill_color = QtGui.QColor(
+            *self._config["shape"]["hover_fill_color"]
+        )
         Shape.select_line_color = QtGui.QColor(
             *self._config["shape"]["select_line_color"]
         )
@@ -890,7 +896,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Edit Brush"),
             lambda checked: self.toggle_brush_mode(checked),
             shortcuts.get("edit_brush_mode", "Shift+B"),
-            "brush",
+            "brush_polygon",
             self.tr(
                 "Select one polygon, then paint to add, hold Ctrl to erase, "
                 "and scroll to resize the brush"
@@ -2576,6 +2582,7 @@ class LabelingWidget(LabelDialog):
         self._settings_runtime_applier.build_shortcut_action_map()
 
         self.set_text_editing(False)
+        self.restore_last_create_mode()
 
         QtCore.QTimer.singleShot(100, self.restore_navigator_state)
 
@@ -2885,6 +2892,28 @@ class LabelingWidget(LabelDialog):
             self.actions.edit_brush_mode,
         )
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
+
+    def restore_last_create_mode(self):
+        last_create_mode = self._config.get("last_create_mode")
+        if last_create_mode == "brush_polygon":
+            try:
+                self._set_brush_polygon_mode(save_last_create_mode=False)
+            except Exception:
+                logger.warning("Failed to restore brush polygon mode")
+            return
+        if last_create_mode in Shape.get_supported_shape():
+            try:
+                self.toggle_draw_mode(
+                    False,
+                    create_mode=last_create_mode,
+                    disable_auto_labeling=False,
+                    save_last_create_mode=False,
+                )
+            except Exception:
+                logger.warning(
+                    "Failed to restore last create mode: %s",
+                    last_create_mode,
+                )
 
     def set_dirty(self):
         # Even if we autosave the file, we keep the ability to undo
@@ -3595,6 +3624,7 @@ class LabelingWidget(LabelDialog):
         create_mode="rectangle",
         disable_auto_labeling=True,
         preserve_brush_mode=False,
+        save_last_create_mode=True,
     ):
         if not preserve_brush_mode:
             if getattr(self.canvas, "is_brush_mode", False):
@@ -3616,6 +3646,14 @@ class LabelingWidget(LabelDialog):
         self.canvas.set_editing(edit)
         self.canvas.create_mode = create_mode
         self.canvas._brush_drawing = False
+        if (
+            save_last_create_mode
+            and not edit
+            and create_mode in Shape.get_supported_shape()
+            and self._config.get("last_create_mode") != create_mode
+        ):
+            self._config["last_create_mode"] = create_mode
+            save_config(self._config)
         if edit:
             self.actions.create_mode.setEnabled(True)
             self.actions.create_brush_polygon_mode.setEnabled(True)
@@ -3640,6 +3678,7 @@ class LabelingWidget(LabelDialog):
         else:
             self.hide_attributes_panel()
             self.actions.union_selection.setEnabled(False)
+            self.actions.delete.setEnabled(True)
             create_actions = {
                 "polygon": self.actions.create_mode,
                 "rectangle": self.actions.create_rectangle_mode,
@@ -3669,6 +3708,9 @@ class LabelingWidget(LabelDialog):
 
     def toggle_brush_polygon_mode(self):
         """Toggle brush drawing mode for polygons."""
+        self._set_brush_polygon_mode()
+
+    def _set_brush_polygon_mode(self, save_last_create_mode=True):
         if (
             self.canvas.drawing()
             and self.canvas.create_mode == "polygon"
@@ -3680,6 +3722,12 @@ class LabelingWidget(LabelDialog):
         self.canvas._brush_drawing = True
         self.actions.create_mode.setEnabled(True)
         self.actions.create_brush_polygon_mode.setEnabled(False)
+        if (
+            save_last_create_mode
+            and self._config.get("last_create_mode") != "brush_polygon"
+        ):
+            self._config["last_create_mode"] = "brush_polygon"
+            save_config(self._config)
 
     def set_edit_mode(self):
         # Disable auto labeling
@@ -6603,6 +6651,25 @@ class LabelingWidget(LabelDialog):
                     action.setEnabled(False)
 
     def delete_selected_shape(self):
+        if (
+            self.canvas.drawing()
+            and self.canvas.current is None
+            and getattr(self.canvas, "h_shape", None) is not None
+            and not self.canvas.h_shape.locked
+            and not getattr(self.canvas, "is_brush_mode", False)
+        ):
+            shape = self.canvas.h_shape
+            self.canvas.delete_shape(shape)
+            self.remove_labels([shape])
+            self.canvas.h_shape = None
+            self.canvas.prev_h_shape = None
+            self.shape_selection_changed(self.canvas.selected_shapes)
+            self.set_dirty()
+            if self.no_shape():
+                for action in self.actions.on_shapes_present:
+                    action.setEnabled(False)
+            self._refresh_hover_delete_shape()
+            return
         group_shapes = self.canvas._active_group_shapes()
         if group_shapes:
             answer = QtWidgets.QMessageBox.warning(
@@ -6625,6 +6692,31 @@ class LabelingWidget(LabelDialog):
         if self.no_shape():
             for action in self.actions.on_shapes_present:
                 action.setEnabled(False)
+
+    def _refresh_hover_delete_shape(self):
+        if (
+            not self.canvas.drawing()
+            or self.canvas.current is not None
+            or getattr(self.canvas, "is_brush_mode", False)
+        ):
+            return
+        pos = self.canvas.prev_move_point
+        self.canvas.h_shape = None
+        self.canvas.prev_h_shape = None
+        for shape in self.canvas._shape_hit_candidates(pos):
+            if shape.locked:
+                continue
+            self.canvas.prev_h_shape = self.canvas.h_shape = shape
+            self.canvas.setToolTip(
+                self.tr("Press Delete to delete shape '%s'") % shape.label
+            )
+            self.canvas.setStatusTip(self.canvas.toolTip())
+            break
+        else:
+            self.canvas.setToolTip("")
+            self.canvas.setStatusTip("")
+        self.canvas.shape_hover_changed.emit()
+        self.canvas.update()
 
     def copy_shape(self):
         self.canvas.end_move(copy=True)

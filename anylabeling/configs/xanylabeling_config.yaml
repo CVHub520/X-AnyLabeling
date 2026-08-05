@@ -25,6 +25,7 @@ show_shapes: true
 show_linking: true
 show_attributes: true
 logger_level: info
+last_create_mode: polygon
 qt_image_allocation_limit: null  # null keeps Qt default (256 MB); 0 disables the limit
 system_clipboard: false
 switch_to_checked: false
@@ -50,6 +51,8 @@ shape:
   # drawing
   line_color: [0, 255, 0, 128]
   fill_color: [220, 220, 220, 150]
+  hover_line_color: [0, 255, 0, 96]
+  hover_fill_color: [220, 220, 220, 80]
   vertex_fill_color: [0, 255, 0, 255]
   # selecting / hovering
   select_line_color: [255, 255, 255, 255]

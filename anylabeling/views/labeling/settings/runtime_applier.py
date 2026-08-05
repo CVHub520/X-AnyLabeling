@@ -384,6 +384,12 @@ class SettingsRuntimeApplier:
         shape_config = self._widget._config["shape"]
         Shape.line_color = QtGui.QColor(*shape_config["line_color"])
         Shape.fill_color = QtGui.QColor(*shape_config["fill_color"])
+        Shape.hover_line_color = QtGui.QColor(
+            *shape_config["hover_line_color"]
+        )
+        Shape.hover_fill_color = QtGui.QColor(
+            *shape_config["hover_fill_color"]
+        )
         Shape.vertex_fill_color = QtGui.QColor(
             *shape_config["vertex_fill_color"]
         )
@@ -414,6 +420,8 @@ class SettingsRuntimeApplier:
         color_key_map = {
             "shape.line_color": "line_color",
             "shape.fill_color": "fill_color",
+            "shape.hover_line_color": "hover_line_color",
+            "shape.hover_fill_color": "hover_fill_color",
             "shape.vertex_fill_color": "vertex_fill_color",
             "shape.select_line_color": "select_line_color",
             "shape.select_fill_color": "select_fill_color",

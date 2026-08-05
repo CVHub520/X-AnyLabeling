@@ -160,6 +160,21 @@ def get_default_config():
 
 
 def validate_config_item(key, value):
+    if key == "last_create_mode" and value not in [
+        "polygon",
+        "rectangle",
+        "rotation",
+        "quadrilateral",
+        "point",
+        "line",
+        "circle",
+        "linestrip",
+        "cuboid",
+        "brush_polygon",
+    ]:
+        raise ValueError(
+            f"Unexpected value for config key 'last_create_mode': {value}"
+        )
     if (
         key == "font_family"
         and value is not None

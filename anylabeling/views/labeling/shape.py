@@ -12,6 +12,8 @@ from ..labeling.logger import logger
 
 DEFAULT_LINE_COLOR = QtGui.QColor(0, 255, 0, 128)  # bf hovering
 DEFAULT_FILL_COLOR = QtGui.QColor(100, 100, 100, 100)  # hovering
+DEFAULT_HOVER_LINE_COLOR = QtGui.QColor(0, 255, 0, 96)
+DEFAULT_HOVER_FILL_COLOR = QtGui.QColor(220, 220, 220, 80)
 DEFAULT_SELECT_LINE_COLOR = QtGui.QColor(255, 255, 255)  # selected
 DEFAULT_SELECT_FILL_COLOR = QtGui.QColor(0, 255, 0, 155)  # selected
 DEFAULT_VERTEX_FILL_COLOR = QtGui.QColor(0, 255, 0, 255)  # hovering
@@ -50,6 +52,8 @@ class Shape:
     # The following class variables influence the drawing of all shape objects.
     line_color = DEFAULT_LINE_COLOR
     fill_color = DEFAULT_FILL_COLOR
+    hover_line_color = DEFAULT_HOVER_LINE_COLOR
+    hover_fill_color = DEFAULT_HOVER_FILL_COLOR
     select_line_color = DEFAULT_SELECT_LINE_COLOR
     select_fill_color = DEFAULT_SELECT_FILL_COLOR
     vertex_fill_color = DEFAULT_VERTEX_FILL_COLOR
@@ -433,9 +437,12 @@ class Shape:
     def paint(self, painter: QtGui.QPainter):  # noqa: max-complexity: 18
         """Paint shape using QPainter"""
         if self.points:
-            color = (
-                self.select_line_color if self.selected else self.line_color
-            )
+            if self.selected:
+                color = self.select_line_color
+            elif self.hovered:
+                color = self.hover_line_color
+            else:
+                color = self.line_color
             pen = QtGui.QPen(color)
             # Try using integer sizes for smoother drawing(?)
             pen.setWidth(max(1, int(round(self.line_width / self.scale))))
@@ -606,11 +613,12 @@ class Shape:
                     QtCore.QPointF(p0.x(), p0.y()), d / 2.0, d / 2.0
                 )
             if self.fill:
-                color = (
-                    self.select_fill_color
-                    if self.selected
-                    else self.fill_color
-                )
+                if self.selected:
+                    color = self.select_fill_color
+                elif self.hovered:
+                    color = self.hover_fill_color
+                else:
+                    color = self.fill_color
                 painter.fillPath(line_path, color)
 
             if (
