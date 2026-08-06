@@ -165,6 +165,7 @@ class Canvas(
         self.prev_h_cuboid_face = None
         self.h_rotation_shape = None
         self.prev_h_rotation_shape = None
+        self.context_menu_shape = None
         self.moving_shape = False
         self._pending_edge_point = None
         self.rotating_shape = False
@@ -2269,7 +2270,7 @@ class Canvas(
                     CURSOR_DEFAULT if shape.locked else CURSOR_GRAB
                 )
                 # [Feature] Automatically highlight shape when the mouse is moved inside it
-                if self.h_shape_is_hovered:
+                if self.h_shape_is_hovered and self.drawing():
                     group_mode = (
                         ev.modifiers()
                         == QtCore.Qt.KeyboardModifier.ControlModifier
@@ -2654,15 +2655,26 @@ class Canvas(
             return
 
         if ev.button() == QtCore.Qt.MouseButton.RightButton:
+            if (
+                self.drawing()
+                and self.current is None
+                and hasattr(self.parent, "_refresh_hover_delete_shape")
+            ):
+                self.prev_move_point = self.transform_pos(ev.position())
+                self.parent._refresh_hover_delete_shape()
             menu = self.menus[len(self.selected_shapes_copy) > 0]
             self.restore_cursor()
-            if (
-                not menu.exec(self.mapToGlobal(ev.position().toPoint()))
-                and self.selected_shapes_copy
-            ):
-                # Cancel the move by deleting the shadow copy.
-                self.selected_shapes_copy = []
-                self.repaint()
+            self.context_menu_shape = self.h_shape
+            try:
+                if (
+                    not menu.exec(self.mapToGlobal(ev.position().toPoint()))
+                    and self.selected_shapes_copy
+                ):
+                    # Cancel the move by deleting the shadow copy.
+                    self.selected_shapes_copy = []
+                    self.repaint()
+            finally:
+                self.context_menu_shape = None
         elif ev.button() == QtCore.Qt.MouseButton.LeftButton:
             if self._rotation_drag_shape is not None:
                 self._finish_rotation_handle_drag()
@@ -5176,6 +5188,9 @@ class Canvas(
 
     def load_shapes(self, shapes, replace=True):
         """Load shapes"""
+        keep_brush_drawing = (
+            self._brush_drawing and self.create_mode == "polygon"
+        )
         self.cancel_brush_mode()
         if replace:
             self.shapes = list(shapes)
@@ -5183,7 +5198,7 @@ class Canvas(
             self.shapes.extend(shapes)
         self.store_shapes()
         self.current = None
-        self._brush_drawing = False
+        self._brush_drawing = keep_brush_drawing
         self.h_shape = None
         self.h_vertex = None
         self.h_edge = None

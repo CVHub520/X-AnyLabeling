@@ -896,7 +896,7 @@ class LabelingWidget(LabelDialog):
             self.tr("Edit Brush"),
             lambda checked: self.toggle_brush_mode(checked),
             shortcuts.get("edit_brush_mode", "Shift+B"),
-            "brush_polygon",
+            "edit_brush",
             self.tr(
                 "Select one polygon, then paint to add, hold Ctrl to erase, "
                 "and scroll to resize the brush"
@@ -2919,7 +2919,7 @@ class LabelingWidget(LabelDialog):
         # Even if we autosave the file, we keep the ability to undo
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
-        if self._config["auto_save"]:
+        if self._config["auto_save"] and self.image_path:
             label_file = osp.splitext(self.image_path)[0] + ".json"
             if self.output_dir:
                 label_file_without_path = osp.basename(label_file)
@@ -2982,6 +2982,7 @@ class LabelingWidget(LabelDialog):
         self.actions.digit_shortcut_7.setEnabled(True)
         self.actions.digit_shortcut_8.setEnabled(True)
         self.actions.digit_shortcut_9.setEnabled(True)
+        self._sync_brush_polygon_action_state()
 
         self.update_progress_title()
 
@@ -3282,6 +3283,10 @@ class LabelingWidget(LabelDialog):
         if self.no_shape():
             for action in self.actions.on_shapes_present:
                 action.setEnabled(False)
+        if was_brush_polygon_drawing:
+            self._restore_brush_polygon_drawing_state()
+        else:
+            self._sync_brush_polygon_action_state()
 
     # Trainer
     def start_training(self, mode):
@@ -3728,6 +3733,23 @@ class LabelingWidget(LabelDialog):
         ):
             self._config["last_create_mode"] = "brush_polygon"
             save_config(self._config)
+
+    def _sync_brush_polygon_action_state(self):
+        if (
+            self.canvas.drawing()
+            and self.canvas.create_mode == "polygon"
+            and self.canvas._brush_drawing
+        ):
+            self.actions.create_mode.setEnabled(True)
+            self.actions.create_brush_polygon_mode.setEnabled(False)
+
+    def _restore_brush_polygon_drawing_state(self):
+        self.canvas.set_editing(False)
+        self.canvas.create_mode = "polygon"
+        self.canvas._brush_drawing = True
+        self.actions.create_mode.setEnabled(True)
+        self.actions.create_brush_polygon_mode.setEnabled(False)
+        self.update_labeling_instruction()
 
     def set_edit_mode(self):
         # Disable auto labeling
@@ -6651,14 +6673,23 @@ class LabelingWidget(LabelDialog):
                     action.setEnabled(False)
 
     def delete_selected_shape(self):
+        hover_shape = getattr(self.canvas, "h_shape", None) or getattr(
+            self.canvas, "context_menu_shape", None
+        )
+        was_brush_polygon_drawing = (
+            self.canvas.drawing()
+            and self.canvas.current is None
+            and self.canvas.create_mode == "polygon"
+            and getattr(self.canvas, "_brush_drawing", False)
+        )
         if (
             self.canvas.drawing()
             and self.canvas.current is None
-            and getattr(self.canvas, "h_shape", None) is not None
-            and not self.canvas.h_shape.locked
+            and hover_shape is not None
+            and not hover_shape.locked
             and not getattr(self.canvas, "is_brush_mode", False)
         ):
-            shape = self.canvas.h_shape
+            shape = hover_shape
             self.canvas.delete_shape(shape)
             self.remove_labels([shape])
             self.canvas.h_shape = None
@@ -6669,6 +6700,10 @@ class LabelingWidget(LabelDialog):
                 for action in self.actions.on_shapes_present:
                     action.setEnabled(False)
             self._refresh_hover_delete_shape()
+            if was_brush_polygon_drawing:
+                self._restore_brush_polygon_drawing_state()
+            else:
+                self._sync_brush_polygon_action_state()
             return
         group_shapes = self.canvas._active_group_shapes()
         if group_shapes:
@@ -6692,6 +6727,10 @@ class LabelingWidget(LabelDialog):
         if self.no_shape():
             for action in self.actions.on_shapes_present:
                 action.setEnabled(False)
+        if was_brush_polygon_drawing:
+            self._restore_brush_polygon_drawing_state()
+        else:
+            self._sync_brush_polygon_action_state()
 
     def _refresh_hover_delete_shape(self):
         if (

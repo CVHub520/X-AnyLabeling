@@ -81,6 +81,28 @@ class TestCanvasShapeSelection(unittest.TestCase):
         self.assertIs(self.canvas.h_shape, inner)
         self.assertEqual(self.canvas.h_vertex, 0)
 
+    def test_edit_mode_hover_does_not_change_selected_shape(self):
+        selected = self.make_rectangle("selected", 10, 10, 50, 50)
+        hovered = self.make_rectangle("hovered", 80, 80, 130, 130)
+        self.canvas.shapes = [selected, hovered]
+        self.canvas.selected_shapes = [selected]
+        selected.selected = True
+        self.canvas.h_shape_is_hovered = True
+        self.canvas.set_editing(True)
+
+        event = QtGui.QMouseEvent(
+            QtCore.QEvent.Type.MouseMove,
+            QtCore.QPointF(100, 100),
+            QtCore.QPointF(100, 100),
+            QtCore.Qt.MouseButton.NoButton,
+            QtCore.Qt.MouseButton.NoButton,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        )
+        self.canvas.mouseMoveEvent(event)
+
+        self.assertIs(self.canvas.h_shape, hovered)
+        self.assertEqual(self.canvas.selected_shapes, [selected])
+
     def test_clicking_unselected_vertex_selects_its_shape(self):
         inner = self.make_rectangle("inner", 40, 40, 80, 80)
         outer = self.make_rectangle("outer", 10, 10, 150, 150)

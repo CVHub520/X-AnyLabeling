@@ -5757,6 +5757,16 @@ Changes will not be saved until you click Save.</source>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="79" />
+      <source>Hover Line Color</source>
+      <translation>悬停线条颜色</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/schema.py" line="80" />
+      <source>Hover Fill Color</source>
+      <translation>悬停填充颜色</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/schema.py" line="79" />
       <source>Vertex Fill Color</source>
       <translation>顶点填充颜色</translation>
     </message>
@@ -5954,6 +5964,16 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="146" />
       <source>Set the default fill color for shapes.</source>
       <translation>设置形状的默认填充颜色。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/schema.py" line="149" />
+      <source>Set the outline color for a shape under the mouse.</source>
+      <translation>设置鼠标悬停形状的轮廓颜色。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/settings/schema.py" line="152" />
+      <source>Set the fill color for a shape under the mouse.</source>
+      <translation>设置鼠标悬停形状的填充颜色。</translation>
     </message>
     <message>
       <location filename="../../views/labeling/settings/schema.py" line="149" />

@@ -1381,7 +1381,7 @@ class SettingsDialog(QtWidgets.QDialog):
     def _display_field_title(
         self, field: SettingField, strip_prefix: str | None
     ) -> str:
-        return field.label
+        return self.tr(field.label)
 
     def _shortcut_usage_hint(self, key: str) -> str | None:
         # Concise usage hints for AI shortcut bindings.
