@@ -325,13 +325,10 @@ class YOLOE(Model):
                 )
                 tracks = tracks[valid]
                 detection_indices = detection_indices[valid]
-                if len(tracks) > 0:
-                    bboxes = tracks[:, :4]
-                    track_ids = tracks[:, 4].astype(int)
-                    scores = tracks[:, 5]
-                    labels = labels[detection_indices]
-                    if masks is not None:
-                        masks = masks[detection_indices]
+                for index, track in zip(detection_indices, tracks):
+                    bboxes[index] = track[:4]
+                    track_ids[index] = int(track[4])
+                    scores[index] = track[5]
         shapes = []
 
         # Generate rectangle shapes

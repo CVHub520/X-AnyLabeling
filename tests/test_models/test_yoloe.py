@@ -165,7 +165,7 @@ class TestYoloeTracking(unittest.TestCase):
     def test_postprocess_preserves_mask_detection_index_and_group_id(
         self,
     ) -> None:
-        """Verify reordered tracks retain the corresponding mask and ID."""
+        """Verify write-back preserves masks and IDs in detection order."""
         tracks = np.asarray(
             [
                 [20, 20, 30, 30, 42, 0.9, 1, 1],
@@ -212,14 +212,78 @@ class TestYoloeTracking(unittest.TestCase):
             )
 
         self.assertEqual(
-            [shape.label for shape in shapes], ["vehicle", "person"]
+            [shape.label for shape in shapes], ["person", "vehicle"]
         )
-        self.assertEqual([shape.group_id for shape in shapes], [42, 17])
+        self.assertEqual([shape.group_id for shape in shapes], [17, 42])
         np.testing.assert_array_equal(
-            converted_masks[0], _FakeDetections.mask[1]
+            converted_masks[0], _FakeDetections.mask[0]
         )
         np.testing.assert_array_equal(
-            converted_masks[1], _FakeDetections.mask[0]
+            converted_masks[1], _FakeDetections.mask[1]
+        )
+
+    def test_partial_tracker_output_keeps_unconfirmed_new_targets(
+        self,
+    ) -> None:
+        """One confirmed track plus one new target must both stay visible."""
+        tracks = np.asarray(
+            [[0, 0, 10, 10, 17, 0.6, 0, 0]],
+            dtype=np.float32,
+        )
+        instance = SimpleNamespace(
+            tracker=mock.Mock(),
+            output_mode="rectangle",
+            with_mask=True,
+            _update_tracker=mock.Mock(return_value=tracks),
+        )
+        supervision = SimpleNamespace(
+            Detections=SimpleNamespace(
+                from_ultralytics=mock.Mock(return_value=_FakeDetections())
+            )
+        )
+        converted_masks: list[np.ndarray] = []
+
+        def fake_mask_to_polygons(mask: np.ndarray) -> list[np.ndarray]:
+            """Record a mask and return a minimal valid polygon.
+
+            Args:
+                mask (np.ndarray): Instance mask selected by detection index.
+
+            Returns:
+                list[np.ndarray]: One triangular polygon.
+            """
+            converted_masks.append(mask.copy())
+            return [np.asarray([[0, 0], [1, 0], [1, 1]])]
+
+        with (
+            mock.patch.object(yoloe, "sv", supervision, create=True),
+            mock.patch.object(
+                yoloe,
+                "mask_to_polygons",
+                side_effect=fake_mask_to_polygons,
+                create=True,
+            ),
+        ):
+            shapes = yoloe.YOLOE.postprocess(
+                instance, [object()], image=object()
+            )
+
+        rectangles = shapes[:2]
+        polygons = shapes[2:]
+        self.assertEqual(
+            [shape.label for shape in rectangles], ["person", "vehicle"]
+        )
+        self.assertEqual(
+            [shape.group_id for shape in shapes], [17, None, 17, None]
+        )
+        self.assertEqual(
+            [shape.label for shape in polygons], ["person", "vehicle"]
+        )
+        np.testing.assert_array_equal(
+            converted_masks[0], _FakeDetections.mask[0]
+        )
+        np.testing.assert_array_equal(
+            converted_masks[1], _FakeDetections.mask[1]
         )
 
     def test_empty_tracker_output_preserves_raw_detections(self) -> None:
