@@ -33,9 +33,6 @@ class ToolBar(QtWidgets.QFrame):
 
         self._is_dark = get_mode() == "dark"
         t = get_theme()
-        selected_background = (
-            t["surface_pressed"] if self._is_dark else "#E2E8F0"
-        )
         separator_qss = ""
         if self._is_dark:
             separator_qss = f"""
@@ -64,11 +61,6 @@ class ToolBar(QtWidgets.QFrame):
                 border: 1px solid {t["border_light"]};
                 border-radius: 6px;
                 background: {t["surface_hover"]};
-            }}
-            ToolBar QToolButton:checked {{
-                border: 1px solid {t["border_light"]};
-                border-radius: 6px;
-                background: {selected_background};
             }}
             ToolBar QToolButton:pressed {{
                 background: {t["surface_pressed"]};

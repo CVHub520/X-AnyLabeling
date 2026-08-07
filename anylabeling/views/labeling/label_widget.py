@@ -411,6 +411,7 @@ class LabelingWidget(LabelDialog):
             rotation=self._config["canvas"].get("rotation", {}),
             mask=self._config["canvas"].get("mask", {}),
             brush=self._config["canvas"].get("brush", {}),
+            magic_wand=self._config["canvas"].get("magic_wand", {}),
             cuboid=self._config["canvas"].get("cuboid", {}),
             double_click_edit_label=self._config["canvas"].get(
                 "double_click_edit_label", True
@@ -742,6 +743,17 @@ class LabelingWidget(LabelDialog):
             shortcuts["create_brush_polygon"],
             "brush_polygon",
             self.tr("Toggle brush mode for drawing polygons"),
+            enabled=False,
+        )
+        create_magic_wand_mode = action(
+            self.tr("Magic Wand"),
+            self.toggle_magic_wand_mode,
+            shortcuts.get("create_magic_wand"),
+            "magic_wand",
+            self.tr(
+                "Select a contiguous color region; drag to adjust tolerance; "
+                "right-click to finish; press Esc to cancel"
+            ),
             enabled=False,
         )
         create_rectangle_mode = action(
@@ -1796,6 +1808,7 @@ class LabelingWidget(LabelDialog):
             remove_point=remove_point,
             create_mode=create_mode,
             create_brush_polygon_mode=create_brush_polygon_mode,
+            create_magic_wand_mode=create_magic_wand_mode,
             edit_mode=edit_mode,
             edit_brush_mode=edit_brush_mode,
             create_rectangle_mode=create_rectangle_mode,
@@ -1927,6 +1940,7 @@ class LabelingWidget(LabelDialog):
             menu=(
                 create_mode,
                 create_brush_polygon_mode,
+                create_magic_wand_mode,
                 create_rectangle_mode,
                 create_cuboid_mode,
                 create_rotation_mode,
@@ -1956,6 +1970,7 @@ class LabelingWidget(LabelDialog):
                 close,
                 create_mode,
                 create_brush_polygon_mode,
+                create_magic_wand_mode,
                 create_rectangle_mode,
                 create_cuboid_mode,
                 create_rotation_mode,
@@ -2224,6 +2239,7 @@ class LabelingWidget(LabelDialog):
             None,
             create_mode,
             self.actions.create_brush_polygon_mode,
+            self.actions.create_magic_wand_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_cuboid_mode,
             self.actions.create_rotation_mode,
@@ -2872,6 +2888,7 @@ class LabelingWidget(LabelDialog):
         actions = (
             self.actions.create_mode,
             self.actions.create_brush_polygon_mode,
+            self.actions.create_magic_wand_mode,
             self.actions.create_rectangle_mode,
             self.actions.create_cuboid_mode,
             self.actions.create_rotation_mode,
@@ -2935,6 +2952,7 @@ class LabelingWidget(LabelDialog):
         self.actions.union_selection.setEnabled(False)
         self.actions.create_mode.setEnabled(True)
         self.actions.create_brush_polygon_mode.setEnabled(True)
+        self.actions.create_magic_wand_mode.setEnabled(True)
         self.actions.create_rectangle_mode.setEnabled(True)
         self.actions.create_cuboid_mode.setEnabled(True)
         self.actions.create_rotation_mode.setEnabled(True)
@@ -3601,6 +3619,7 @@ class LabelingWidget(LabelDialog):
                 self.canvas.cancel_brush_mode()
             elif self.actions.edit_brush_mode.isChecked():
                 self.actions.edit_brush_mode.setChecked(False)
+        self.canvas.set_magic_wand_mode(False)
         # Disable auto labeling if needed
         if (
             disable_auto_labeling
@@ -3619,6 +3638,7 @@ class LabelingWidget(LabelDialog):
         if edit:
             self.actions.create_mode.setEnabled(True)
             self.actions.create_brush_polygon_mode.setEnabled(True)
+            self.actions.create_magic_wand_mode.setEnabled(True)
             self.actions.create_rectangle_mode.setEnabled(True)
             self.actions.create_cuboid_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
@@ -3655,6 +3675,7 @@ class LabelingWidget(LabelDialog):
                 raise ValueError(f"Unsupported create_mode: {create_mode}")
             self.actions.create_mode.setEnabled(True)
             self.actions.create_brush_polygon_mode.setEnabled(True)
+            self.actions.create_magic_wand_mode.setEnabled(True)
             self.actions.create_rectangle_mode.setEnabled(True)
             self.actions.create_cuboid_mode.setEnabled(True)
             self.actions.create_rotation_mode.setEnabled(True)
@@ -3680,6 +3701,16 @@ class LabelingWidget(LabelDialog):
         self.canvas._brush_drawing = True
         self.actions.create_mode.setEnabled(True)
         self.actions.create_brush_polygon_mode.setEnabled(False)
+
+    def toggle_magic_wand_mode(self):
+        """Toggle thresholded flood selection for polygon creation."""
+        if self.canvas.drawing() and self.canvas.is_magic_wand_mode:
+            self.toggle_draw_mode(True)
+            return
+        self.toggle_draw_mode(False, create_mode="polygon")
+        self.canvas.set_magic_wand_mode(True)
+        self.actions.create_mode.setEnabled(True)
+        self.actions.create_magic_wand_mode.setEnabled(False)
 
     def set_edit_mode(self):
         # Disable auto labeling
@@ -5305,8 +5336,13 @@ class LabelingWidget(LabelDialog):
                         self.update_attributes(i)
                         break
         else:
-            self.canvas.undo_last_line()
-            self.canvas.shapes_backups.pop()
+            if self.canvas.is_magic_wand_mode:
+                self.canvas.shapes.pop()
+                self.canvas.shapes_backups.pop()
+                self.canvas.update()
+            else:
+                self.canvas.undo_last_line()
+                self.canvas.shapes_backups.pop()
 
     def show_shape(self, shape_height, shape_width, pos):
         """Display annotation width and height while hovering inside.

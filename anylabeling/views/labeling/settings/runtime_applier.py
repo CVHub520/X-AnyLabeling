@@ -83,6 +83,7 @@ class SettingsRuntimeApplier:
             "shortcuts.show_navigator": self._widget.actions.show_navigator,
             "shortcuts.create_polygon": self._widget.actions.create_mode,
             "shortcuts.create_brush_polygon": self._widget.actions.create_brush_polygon_mode,
+            "shortcuts.create_magic_wand": self._widget.actions.create_magic_wand_mode,
             "shortcuts.create_rectangle": self._widget.actions.create_rectangle_mode,
             "shortcuts.create_cuboid": self._widget.actions.create_cuboid_mode,
             "shortcuts.create_rotation": self._widget.actions.create_rotation_mode,
@@ -231,6 +232,9 @@ class SettingsRuntimeApplier:
         if key.startswith("canvas.brush."):
             self.apply_canvas_brush()
             return
+        if key.startswith("canvas.magic_wand."):
+            self.apply_canvas_magic_wand()
+            return
         if key.startswith("canvas.attributes."):
             self.apply_canvas_attributes()
             return
@@ -346,6 +350,33 @@ class SettingsRuntimeApplier:
         self._widget.canvas.brush_simplify_epsilon_px = float(
             brush["simplify_epsilon"]
         )
+
+    def apply_canvas_magic_wand(self) -> None:
+        magic_wand = self._widget._config["canvas"]["magic_wand"]
+        canvas = self._widget.canvas
+        canvas.magic_wand_default_threshold = max(
+            0, min(255, int(magic_wand["default_threshold"]))
+        )
+        canvas.magic_wand_drag_sensitivity = max(
+            0.1, float(magic_wand["drag_sensitivity"])
+        )
+        luminance_weight = max(
+            0.0, min(1.0, float(magic_wand["luminance_weight"]))
+        )
+        if canvas.magic_wand_luminance_weight != luminance_weight:
+            canvas.magic_wand_luminance_weight = luminance_weight
+            canvas._magic_wand_distance = None
+        canvas.magic_wand_simplify_epsilon_px = max(
+            0.0, float(magic_wand["simplify_epsilon"])
+        )
+        canvas.magic_wand_opacity = max(
+            0.0, min(1.0, float(magic_wand["opacity"]))
+        )
+        if canvas._magic_wand_active:
+            canvas._update_magic_wand_preview(canvas._magic_wand_threshold)
+        else:
+            canvas._magic_wand_threshold = canvas.magic_wand_default_threshold
+            canvas.update()
 
     def apply_canvas_attributes(self) -> None:
         attrs = self._widget._config["canvas"]["attributes"]

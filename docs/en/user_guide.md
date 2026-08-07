@@ -194,13 +194,13 @@ In X-AnyLabeling, each distinct annotated object is called a `shape`. Key proper
 
 For detailed field definitions, see [`shape.py`](../../anylabeling/views/labeling/shape.py).
 
-X-AnyLabeling supports creating the following types of shapes:
+You can create the following shape types using the tools in the left toolbar, the canvas right-click context menu, or keyboard shortcuts:
 
 | Shape Type | Shortcut | Drawing Method |
 | --- | --- | --- |
 | `rectangle` | `R` | Click to set the first corner, move the cursor, and click again to set the opposite corner. |
 | `rotation` | `O` | Draw an initially horizontal or vertical box as you would a rectangle. In editing mode, select the shape and press `Z`, `X`, `C`, or `V` to adjust its angle. |
-| `polygon` | `P` | Click along the boundary to add vertices, then click the starting vertex or double-click the last vertex to finish. At least three vertices are required. Press `Ctrl+N` for brush mode, which adds vertices as the pointer moves; adjust spacing with `Settings > Canvas > brush.point_distance`. |
+| `polygon` | `P` | Click along the boundary to add vertices, then click the starting vertex or double-click the last vertex to finish. At least three vertices are required. |
 | `quadrilateral` | `T` | Click four corners in sequence; the fourth click completes the shape. |
 | `point` | `Shift+P` | Click to place one keypoint. |
 | `line` | `Shift+L` | Click to set the start point, move the cursor, and click again to set the end point. Hold `Shift` while drawing to snap horizontally or vertically. |
@@ -208,7 +208,10 @@ X-AnyLabeling supports creating the following types of shapes:
 | `circle` | `Shift+C` | Click to set the center, move the cursor to define the radius, and click again to finish. |
 | `cuboid` | `Ctrl+R` | Draw the front face as a rectangle. The rear face is generated from `canvas.cuboid.default_depth_vector`, configurable under `Settings > Canvas > Cuboid`; depths below the limit are constrained by `canvas.cuboid.min_depth`. |
 
-You can create shapes using the tools in the left toolbar, the right-click context menu, or keyboard shortcuts.
+In addition, X-AnyLabeling supports two assisted ways to create polygon objects:
+
+- **Brush Polygon** (`Ctrl+N`): Click to set the starting point, then move the cursor along the object boundary to add vertices automatically. Returning near the starting point closes the contour and creates a `polygon`.
+- **Magic Wand** (`Shift+W`): Press and hold the left mouse button on the target to preview a color-similar region connected to the starting pixel, then drag in any direction to increase the color tolerance. Releasing the left button keeps the preview without creating an annotation; right-click to confirm it as a `polygon`, or press `Esc` to cancel.
 
 ### 2.2 Editing Shapes
 

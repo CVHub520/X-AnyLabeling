@@ -125,6 +125,12 @@ canvas:
     simplify_epsilon: 2.0
     max_undo_steps: 30
     max_undo_memory_mb: 128
+  magic_wand:
+    default_threshold: 15
+    drag_sensitivity: 3.0  # screen pixels per tolerance step
+    luminance_weight: 0.5
+    simplify_epsilon: 0.5
+    opacity: 0.6
   cuboid:
     default_depth_vector: [24.0, -24.0]
     min_depth: 5.0
@@ -163,6 +169,7 @@ shortcuts:
 
   create_polygon: P
   create_brush_polygon: Ctrl+N
+  create_magic_wand: Shift+W
   create_rectangle: R
   create_cuboid: Ctrl+R
   create_rotation: O

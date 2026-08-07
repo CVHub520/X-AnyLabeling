@@ -114,6 +114,7 @@ class Canvas(
         self.rotation_config = kwargs.pop("rotation", {})
         self.mask_config = kwargs.pop("mask", {})
         self.brush_config = kwargs.pop("brush", {})
+        self.magic_wand_config = kwargs.pop("magic_wand", {})
         self.cuboid_config = kwargs.pop("cuboid", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
@@ -284,6 +285,42 @@ class Canvas(
             * 1024
             * 1024
         )
+
+        self.is_magic_wand_mode = False
+        self.magic_wand_default_threshold = max(
+            0,
+            min(
+                255,
+                int(self.magic_wand_config.get("default_threshold", 15)),
+            ),
+        )
+        self.magic_wand_drag_sensitivity = max(
+            0.1,
+            float(self.magic_wand_config.get("drag_sensitivity", 3.0)),
+        )
+        self.magic_wand_luminance_weight = max(
+            0.0,
+            min(
+                1.0,
+                float(self.magic_wand_config.get("luminance_weight", 0.5)),
+            ),
+        )
+        self.magic_wand_simplify_epsilon_px = max(
+            0.0,
+            float(self.magic_wand_config.get("simplify_epsilon", 0.5)),
+        )
+        self.magic_wand_opacity = max(
+            0.0,
+            min(1.0, float(self.magic_wand_config.get("opacity", 0.6))),
+        )
+        self._magic_wand_active = False
+        self._magic_wand_source = None
+        self._magic_wand_distance = None
+        self._magic_wand_seed = None
+        self._magic_wand_anchor = None
+        self._magic_wand_threshold = self.magic_wand_default_threshold
+        self._magic_wand_mask = None
+        self._magic_wand_path = None
 
         # Compare view support
         self.compare_pixmap = None
@@ -589,6 +626,183 @@ class Canvas(
         """Check if user is editing (mode==EDIT)"""
         return self.mode == self.EDIT
 
+    @staticmethod
+    def _compute_magic_wand_distance(
+        image: np.ndarray, seed: tuple, luminance_weight: float
+    ) -> np.ndarray:
+        """Return weighted perceptual color distances from a seed pixel."""
+        height, width = image.shape[:2]
+        x, y = seed
+        if not (0 <= x < width and 0 <= y < height):
+            return np.full((height, width), np.inf, dtype=np.float32)
+        lab = cv2.cvtColor(image, cv2.COLOR_RGB2LAB).astype(np.float32)
+        seed_color = lab[y, x].copy()
+        lab -= seed_color
+        weight = max(0.0, min(1.0, float(luminance_weight)))
+        lab[..., 0] *= (100.0 / 255.0) * weight
+        np.square(lab, out=lab)
+        return np.sqrt(np.sum(lab, axis=2, dtype=np.float32))
+
+    @staticmethod
+    def _connected_magic_wand_mask(
+        distance: np.ndarray, seed: tuple, threshold: int
+    ) -> np.ndarray:
+        """Return the seed-connected component within a color distance."""
+        height, width = distance.shape
+        x, y = seed
+        if not (0 <= x < width and 0 <= y < height):
+            return np.zeros((height, width), dtype=np.uint8)
+        tolerance = max(0, min(255, int(threshold)))
+        candidates = (distance <= tolerance).astype(np.uint8)
+        flood_mask = np.zeros((height + 2, width + 2), dtype=np.uint8)
+        flags = (
+            4
+            | cv2.FLOODFILL_FIXED_RANGE
+            | cv2.FLOODFILL_MASK_ONLY
+            | (255 << 8)
+        )
+        cv2.floodFill(
+            candidates,
+            flood_mask,
+            (x, y),
+            0,
+            0,
+            0,
+            flags,
+        )
+        return flood_mask[1:-1, 1:-1]
+
+    @classmethod
+    def _compute_magic_wand_mask(
+        cls,
+        image: np.ndarray,
+        seed: tuple,
+        threshold: int,
+        luminance_weight: float = 0.5,
+    ) -> np.ndarray:
+        """Return a perceptually similar connected region around a seed."""
+        distance = cls._compute_magic_wand_distance(
+            image, seed, luminance_weight
+        )
+        return cls._connected_magic_wand_mask(distance, seed, threshold)
+
+    @staticmethod
+    def _polylines_to_painter_path(polylines: list) -> QtGui.QPainterPath:
+        """Convert mask contour polylines to a closed painter path."""
+        path = QtGui.QPainterPath()
+        for poly in polylines:
+            if len(poly) < 3:
+                continue
+            path.moveTo(float(poly[0][0]), float(poly[0][1]))
+            for x, y in poly[1:]:
+                path.lineTo(float(x), float(y))
+            path.closeSubpath()
+        return path
+
+    def _magic_wand_image(self) -> np.ndarray:
+        """Return a cached contiguous RGB view of the current pixmap."""
+        if self._magic_wand_source is None:
+            image = self.pixmap.toImage().convertToFormat(
+                QtGui.QImage.Format.Format_RGB888
+            )
+            height, width = image.height(), image.width()
+            ptr = image.bits()
+            ptr.setsize(image.sizeInBytes())
+            rows = np.frombuffer(ptr, dtype=np.uint8).reshape(
+                height, image.bytesPerLine()
+            )
+            rgb = rows[:, : width * 3].reshape(height, width, 3)
+            self._magic_wand_source = np.array(
+                rgb, dtype=np.uint8, copy=True, order="C"
+            )
+        return self._magic_wand_source
+
+    def _update_magic_wand_preview(self, threshold: int) -> None:
+        """Recompute and display the selected region at a new threshold."""
+        if self._magic_wand_seed is None:
+            return
+        self._magic_wand_threshold = max(0, min(255, int(threshold)))
+        if self._magic_wand_distance is None:
+            self._magic_wand_distance = self._compute_magic_wand_distance(
+                self._magic_wand_image(),
+                self._magic_wand_seed,
+                self.magic_wand_luminance_weight,
+            )
+        self._magic_wand_mask = self._connected_magic_wand_mask(
+            self._magic_wand_distance,
+            self._magic_wand_seed,
+            self._magic_wand_threshold,
+        )
+        self._magic_wand_path = self._polylines_to_painter_path(
+            self._mask_to_polylines(self._magic_wand_mask)
+        )
+        self.update()
+
+    def _start_magic_wand(
+        self, pos: QtCore.QPointF, anchor: QtCore.QPointF
+    ) -> bool:
+        """Start a thresholded flood selection at an image position."""
+        if self.out_off_pixmap(pos):
+            return False
+        self._clear_magic_wand_preview()
+        self._magic_wand_active = True
+        self._magic_wand_seed = (
+            int(round(pos.x())),
+            int(round(pos.y())),
+        )
+        self._magic_wand_anchor = QtCore.QPointF(anchor)
+        self._update_magic_wand_preview(self.magic_wand_default_threshold)
+        return True
+
+    def _drag_magic_wand(self, anchor: QtCore.QPointF) -> None:
+        """Update tolerance from the distance to the press position."""
+        if not self._magic_wand_active or self._magic_wand_anchor is None:
+            return
+        delta = anchor - self._magic_wand_anchor
+        distance = math.hypot(delta.x(), delta.y())
+        threshold = self.magic_wand_default_threshold + int(
+            distance / self.magic_wand_drag_sensitivity
+        )
+        threshold = max(0, min(255, threshold))
+        if threshold != self._magic_wand_threshold:
+            self._update_magic_wand_preview(threshold)
+
+    def _clear_magic_wand_preview(self) -> None:
+        """Clear an in-progress magic wand selection."""
+        self._magic_wand_active = False
+        self._magic_wand_seed = None
+        self._magic_wand_anchor = None
+        self._magic_wand_distance = None
+        self._magic_wand_mask = None
+        self._magic_wand_path = None
+        self._magic_wand_threshold = self.magic_wand_default_threshold
+        self.update()
+
+    def _finish_magic_wand(self) -> bool:
+        """Convert the current magic wand mask to a polygon shape."""
+        mask = self._magic_wand_mask
+        self._clear_magic_wand_preview()
+        if mask is None:
+            return False
+        shape = Shape(shape_type="polygon")
+        shape.mask = mask
+        if not self._update_shape_points_from_mask(
+            shape, self.magic_wand_simplify_epsilon_px
+        ):
+            return False
+        shape.mask = None
+        shape._brush_using_mask = False
+        self.current = shape
+        self.finalise()
+        return True
+
+    def set_magic_wand_mode(self, enabled: bool) -> None:
+        """Enable or disable thresholded flood selection mode."""
+        self._clear_magic_wand_preview()
+        self.is_magic_wand_mode = bool(enabled)
+        if not enabled:
+            self._magic_wand_source = None
+
     # ------------------------------------------------------------------ #
     # Brush edit mode
     #
@@ -726,7 +940,9 @@ class Canvas(
             shape._brush_mask_version = 0
         shape._brush_using_mask = True
 
-    def _update_shape_points_from_mask(self, shape: Shape) -> bool:
+    def _update_shape_points_from_mask(
+        self, shape: Shape, simplify_epsilon_px: float | None = None
+    ) -> bool:
         """Rewrite ``shape.points`` from its mask's largest component.
 
         The largest external contour is simplified and stored as the new
@@ -735,6 +951,7 @@ class Canvas(
         Args:
             shape: The brush-edited shape whose mask is converted back
                 into polygon vertices.
+            simplify_epsilon_px: Optional contour simplification tolerance.
 
         Returns:
             ``True`` when a valid polygon was produced.
@@ -758,7 +975,12 @@ class Canvas(
             shape.points = []
             return False
         cnt = np.array(best, dtype=np.int32).reshape((-1, 1, 2))
-        outer = self._simplify_contour(cnt, self.brush_simplify_epsilon_px)
+        epsilon = (
+            self.brush_simplify_epsilon_px
+            if simplify_epsilon_px is None
+            else max(0.0, float(simplify_epsilon_px))
+        )
+        outer = self._simplify_contour(cnt, epsilon)
         if len(outer) < 3:
             outer = best
         shape.mask.fill(0)
@@ -819,14 +1041,9 @@ class Canvas(
         if mask.ndim != 2:
             mask = mask.squeeze()
 
-        outline_path = QtGui.QPainterPath()
-        for poly in self._mask_to_polylines(mask):
-            if len(poly) < 3:
-                continue
-            outline_path.moveTo(float(poly[0][0]), float(poly[0][1]))
-            for x, y in poly[1:]:
-                outline_path.lineTo(float(x), float(y))
-            outline_path.closeSubpath()
+        outline_path = self._polylines_to_painter_path(
+            self._mask_to_polylines(mask)
+        )
 
         self._brush_overlay_cache[shape] = (version, outline_path)
         return outline_path
@@ -1246,6 +1463,20 @@ class Canvas(
         p.setBrush(fill_color)
         p.drawEllipse(QtCore.QPointF(self.prev_move_point), r, r)
 
+    def _paint_magic_wand_overlay(self, p: QtGui.QPainter) -> None:
+        """Draw the live magic wand selection above the image."""
+        if self._magic_wand_path is None or self._magic_wand_path.isEmpty():
+            return
+        p.save()
+        color = QtGui.QColor(
+            0, 180, 255, int(round(self.magic_wand_opacity * 255))
+        )
+        outline = QtGui.QColor(255, 255, 255, 230)
+        p.setPen(QtGui.QPen(outline, 2.0 / max(self.scale, 1e-6)))
+        p.setBrush(color)
+        p.drawPath(self._magic_wand_path)
+        p.restore()
+
     def _paint_rotation_handles(self, p):
         for shape in self._rotation_handle_shapes():
             self._paint_rotation_handle(p, shape)
@@ -1286,6 +1517,8 @@ class Canvas(
         ):
             return self.tr("Auto Labeling")
         if self.mode == self.CREATE:
+            if self.is_magic_wand_mode:
+                return self.tr("Magic Wand")
             return self.tr("Drawing")
         elif self.mode == self.EDIT:
             return self.tr("Editing")
@@ -1746,6 +1979,14 @@ class Canvas(
 
         if self.is_brush_mode and self.editing():
             self._brush_mouse_move(ev, pos)
+            return
+
+        if self.is_magic_wand_mode and self.drawing():
+            self.prev_move_point = pos
+            self.override_cursor(CURSOR_DRAW)
+            if self._magic_wand_active and self._left_button_pressed(ev):
+                self._drag_magic_wand(ev.position())
+            self.repaint()
             return
 
         if (
@@ -2353,6 +2594,10 @@ class Canvas(
             if self._space_pressed and self._start_space_pan(ev.position()):
                 ev.accept()
                 return
+            if self.is_magic_wand_mode and self.drawing():
+                if self._start_magic_wand(pos, ev.position()):
+                    ev.accept()
+                return
             if self.drawing():
                 if self.current:
                     self._sync_drawing_line(pos, ev.modifiers())
@@ -2474,10 +2719,10 @@ class Canvas(
                         self.set_hiding()
                         self.drawing_polygon.emit(True)
                         self.update()
-                elif (
-                    self.out_off_pixmap(pos)
-                    and self.create_mode in ["polygon", "linestrip"]
-                ):
+                elif self.out_off_pixmap(pos) and self.create_mode in [
+                    "polygon",
+                    "linestrip",
+                ]:
                     w = self.pixmap.width()
                     h = self.pixmap.height()
                     if w > 0 and h > 0:
@@ -2609,6 +2854,17 @@ class Canvas(
 
         if self.is_brush_mode and self._brush_mouse_release(ev):
             return
+
+        if self._magic_wand_active:
+            if ev.button() == QtCore.Qt.MouseButton.LeftButton:
+                ev.accept()
+                return
+            if ev.button() == QtCore.Qt.MouseButton.RightButton:
+                if self._finish_magic_wand() and not self.is_auto_labeling:
+                    self.prev_pan_point = ev.position()
+                    self.mode_changed.emit()
+                ev.accept()
+                return
 
         if ev.button() == QtCore.Qt.MouseButton.RightButton:
             menu = self.menus[len(self.selected_shapes_copy) > 0]
@@ -3994,6 +4250,7 @@ class Canvas(
 
         # Draw live brush-edit overlays on top of the regular shapes.
         self._paint_brush_overlays(p)
+        self._paint_magic_wand_overlay(p)
 
         if self.current:
             self.current.paint(p)
@@ -4966,6 +5223,10 @@ class Canvas(
         if self.is_brush_mode and self.editing():
             if self._brush_key_press(ev):
                 return
+        if key == QtCore.Qt.Key.Key_Escape and self._magic_wand_active:
+            self._clear_magic_wand_preview()
+            ev.accept()
+            return
         if self.drawing():
             if key == QtCore.Qt.Key.Key_Escape and self.current:
                 self.current = None
@@ -5121,6 +5382,8 @@ class Canvas(
     def load_pixmap(self, pixmap, clear_shapes=True):
         """Load pixmap"""
         self.cancel_brush_mode()
+        self._clear_magic_wand_preview()
+        self._magic_wand_source = None
         self.pixmap = pixmap
         if clear_shapes:
             self.shapes = []
@@ -5129,6 +5392,7 @@ class Canvas(
     def load_shapes(self, shapes, replace=True):
         """Load shapes"""
         self.cancel_brush_mode()
+        self._clear_magic_wand_preview()
         if replace:
             self.shapes = list(shapes)
         else:

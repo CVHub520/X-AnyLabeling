@@ -6,6 +6,7 @@ from unittest.mock import Mock
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 try:
+    from anylabeling.services.auto_labeling.types import AutoLabelingMode
     from anylabeling.views.labeling.label_widget import LabelingWidget
 
     PYQT_AVAILABLE = True
@@ -133,3 +134,77 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
         widget._update_shapes_lock.assert_called_once_with(
             [unlocked_shape, locked_shape]
         )
+
+    def test_magic_wand_mode_uses_polygon_creation(self):
+        canvas = SimpleNamespace(
+            drawing=Mock(return_value=False),
+            is_magic_wand_mode=False,
+            set_magic_wand_mode=Mock(),
+        )
+        widget = SimpleNamespace(
+            canvas=canvas,
+            toggle_draw_mode=Mock(),
+            actions=SimpleNamespace(
+                create_mode=Mock(),
+                create_brush_polygon_mode=Mock(),
+                create_magic_wand_mode=Mock(),
+            ),
+        )
+
+        LabelingWidget.toggle_magic_wand_mode(widget)
+
+        widget.toggle_draw_mode.assert_called_once_with(
+            False, create_mode="polygon"
+        )
+        canvas.set_magic_wand_mode.assert_called_once_with(True)
+        widget.actions.create_mode.setEnabled.assert_called_once_with(True)
+        widget.actions.create_magic_wand_mode.setEnabled.assert_called_once_with(
+            False
+        )
+
+    def test_draw_mode_disables_active_action(self):
+        action_names = [
+            "create_mode",
+            "create_brush_polygon_mode",
+            "create_magic_wand_mode",
+            "create_rectangle_mode",
+            "create_cuboid_mode",
+            "create_rotation_mode",
+            "create_quadrilateral_mode",
+            "create_circle_mode",
+            "create_line_mode",
+            "create_point_mode",
+            "create_line_strip_mode",
+            "edit_mode",
+            "edit_brush_mode",
+            "union_selection",
+        ]
+        actions = SimpleNamespace(**{name: Mock() for name in action_names})
+        actions.edit_brush_mode.isChecked.return_value = False
+        canvas = SimpleNamespace(
+            is_brush_mode=False,
+            set_magic_wand_mode=Mock(),
+            set_editing=Mock(),
+            create_mode="polygon",
+            _brush_drawing=False,
+        )
+        widget = SimpleNamespace(
+            canvas=canvas,
+            actions=actions,
+            auto_labeling_widget=SimpleNamespace(
+                auto_labeling_mode=AutoLabelingMode.NONE
+            ),
+            set_text_editing=Mock(),
+            hide_attributes_panel=Mock(),
+            update_labeling_instruction=Mock(),
+        )
+
+        LabelingWidget.toggle_draw_mode(
+            widget, edit=False, create_mode="rectangle"
+        )
+
+        self.assertEqual(
+            actions.create_rectangle_mode.setEnabled.call_count, 2
+        )
+        actions.create_rectangle_mode.setEnabled.assert_called_with(False)
+        actions.edit_mode.setEnabled.assert_called_once_with(True)

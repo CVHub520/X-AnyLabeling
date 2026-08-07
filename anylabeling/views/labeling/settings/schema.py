@@ -214,6 +214,37 @@ def _settings_translation_markers() -> None:
     QCoreApplication.translate(
         "SettingsDialog", "Set the spacing between sampled brush points."
     )
+    QCoreApplication.translate("SettingsDialog", "Magic Wand")
+    QCoreApplication.translate(
+        "SettingsDialog", "Magic Wand Default Threshold"
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set the initial color tolerance for magic wand selections.",
+    )
+    QCoreApplication.translate("SettingsDialog", "Magic Wand Drag Sensitivity")
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set the screen-pixel distance required for each tolerance step.",
+    )
+    QCoreApplication.translate("SettingsDialog", "Magic Wand Luminance Weight")
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set how strongly lightness differences affect color matching.",
+    )
+    QCoreApplication.translate(
+        "SettingsDialog", "Magic Wand Simplification Tolerance"
+    )
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set magic wand polygon simplification tolerance in image pixels. "
+        "Use 0 to preserve the extracted contour.",
+    )
+    QCoreApplication.translate("SettingsDialog", "Magic Wand Preview Opacity")
+    QCoreApplication.translate(
+        "SettingsDialog",
+        "Set the opacity of the live magic wand preview.",
+    )
     QCoreApplication.translate(
         "SettingsDialog",
         "Set the default depth direction for newly created cuboids.",
@@ -1012,6 +1043,98 @@ def _non_shortcut_fields() -> list[SettingField]:
             ),
         ),
         SettingField(
+            "canvas.magic_wand.default_threshold",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Magic Wand Default Threshold",
+            ),
+            "int",
+            "Canvas",
+            "Interaction",
+            "Magic Wand",
+            minimum=0,
+            maximum=255,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set the initial color tolerance for magic wand selections.",
+            ),
+        ),
+        SettingField(
+            "canvas.magic_wand.drag_sensitivity",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Magic Wand Drag Sensitivity",
+            ),
+            "float",
+            "Canvas",
+            "Interaction",
+            "Magic Wand",
+            minimum=0.1,
+            maximum=100.0,
+            decimals=1,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set the screen-pixel distance required for each tolerance "
+                "step.",
+            ),
+        ),
+        SettingField(
+            "canvas.magic_wand.luminance_weight",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Magic Wand Luminance Weight",
+            ),
+            "float",
+            "Canvas",
+            "Interaction",
+            "Magic Wand",
+            minimum=0.0,
+            maximum=1.0,
+            decimals=2,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set how strongly lightness differences affect color "
+                "matching.",
+            ),
+        ),
+        SettingField(
+            "canvas.magic_wand.simplify_epsilon",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Magic Wand Simplification Tolerance",
+            ),
+            "float",
+            "Canvas",
+            "Interaction",
+            "Magic Wand",
+            minimum=0.0,
+            maximum=50.0,
+            decimals=2,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set magic wand polygon simplification tolerance in image "
+                "pixels. Use 0 to preserve the extracted contour.",
+            ),
+        ),
+        SettingField(
+            "canvas.magic_wand.opacity",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Magic Wand Preview Opacity",
+            ),
+            "float",
+            "Canvas",
+            "Interaction",
+            "Magic Wand",
+            minimum=0.0,
+            maximum=1.0,
+            decimals=2,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set the opacity of the live magic wand preview.",
+            ),
+        ),
+        SettingField(
             "canvas.cuboid.default_depth_vector",
             QT_TRANSLATE_NOOP(
                 SETTINGS_TRANSLATION_CONTEXT, "Default Depth Vector"
@@ -1161,6 +1284,7 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "add_point_to_edge",
             "copy_polygon",
             "create_brush_polygon",
+            "create_magic_wand",
             "create_circle",
             "create_cuboid",
             "create_line",
