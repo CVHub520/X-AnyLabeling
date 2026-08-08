@@ -43,19 +43,9 @@ jobs:
             echo "ref=${GITHUB_REF}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Create website token
-        id: app-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.WEBSITE_APP_CLIENT_ID }}
-          private-key: ${{ secrets.WEBSITE_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: ${{ vars.WEBSITE_REPOSITORY_NAME }}
-          permission-contents: write
-
       - name: Dispatch website update
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ secrets.WEBSITE_DISPATCH_TOKEN }}
           SOURCE_REF: ${{ steps.source.outputs.ref }}
           SOURCE_SHA: ${{ steps.source.outputs.sha }}
           WEBSITE_REPOSITORY_NAME: ${{ vars.WEBSITE_REPOSITORY_NAME }}
