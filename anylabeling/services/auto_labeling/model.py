@@ -21,6 +21,29 @@ from anylabeling.views.labeling.label_file import LabelFile, LabelFileError
 from anylabeling.views.labeling import utils
 
 
+class _ModelConfigLoader(yaml.SafeLoader):
+    def resolve(self, kind, value, implicit):
+        if self.yaml_path_resolvers:
+            exact_paths = self.resolver_exact_paths[-1]
+            if kind in exact_paths:
+                return exact_paths[kind]
+            if None in exact_paths:
+                return exact_paths[None]
+        return super().resolve(kind, value, implicit)
+
+
+for _key in ("classes", "filter_classes"):
+    _ModelConfigLoader.add_path_resolver(
+        "tag:yaml.org,2002:str", [_key, None], str
+    )
+    _ModelConfigLoader.add_path_resolver("tag:yaml.org,2002:str", [_key], str)
+
+
+def load_model_config(stream):
+    """Load YAML while preserving class and filter names as strings."""
+    return yaml.load(stream, Loader=_ModelConfigLoader)
+
+
 def _check_model_worker(model_path):
     """Worker function to validate model in subprocess."""
     try:
@@ -97,7 +120,7 @@ class Model(QObject):
                     ).format(model_config=model_config)
                 )
             with open(model_config, "r") as f:
-                self.config = yaml.safe_load(f)
+                self.config = load_model_config(f)
         elif isinstance(model_config, dict):
             self.config = model_config
         else:

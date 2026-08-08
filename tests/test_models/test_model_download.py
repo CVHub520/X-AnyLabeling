@@ -107,6 +107,52 @@ def test_load_custom_model_rejects_invalid_name(
     assert not saved_configs
 
 
+def test_load_custom_model_preserves_boolean_like_class_names(
+    tmp_path, monkeypatch
+):
+    config_file = tmp_path / "model.yaml"
+    config_file.write_text(
+        """type: yolov8
+name: boolean-like-classes
+display_name: Boolean-like classes
+show_boxes: yes
+classes:
+  - yes
+  - no
+  - on
+  - off
+  - true
+  - false
+filter_classes:
+  - yes
+  - off
+""",
+        encoding="utf-8",
+    )
+    saved_configs = []
+    monkeypatch.setattr(ModelManager, "load_model_configs", lambda self: None)
+    monkeypatch.setattr(ModelManager, "load_model", lambda self, _: None)
+    monkeypatch.setattr(
+        manager_module, "get_config", lambda: {"custom_models": []}
+    )
+    monkeypatch.setattr(manager_module, "save_config", saved_configs.append)
+
+    manager = ModelManager()
+
+    assert manager.load_custom_model(str(config_file))
+    model_config = saved_configs[-1]["custom_models"][0]
+    assert model_config["show_boxes"] is True
+    assert model_config["classes"] == [
+        "yes",
+        "no",
+        "on",
+        "off",
+        "true",
+        "false",
+    ]
+    assert model_config["filter_classes"] == ["yes", "off"]
+
+
 def test_get_model_abs_path_rejects_path_traversal(
     tmp_path, monkeypatch
 ):

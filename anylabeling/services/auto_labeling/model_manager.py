@@ -2,7 +2,6 @@ import os
 import copy
 import re
 import time
-import yaml
 import importlib.resources as pkg_resources
 from threading import Lock, Event
 
@@ -10,6 +9,7 @@ from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 import anylabeling.configs as auto_labeling_configs
 from anylabeling.services.auto_labeling.worker import GenericWorker
+from anylabeling.services.auto_labeling.model import load_model_config
 from anylabeling.views.labeling.logger import logger
 from anylabeling.config import get_config, save_config
 from anylabeling.services.auto_labeling.types import (
@@ -75,7 +75,7 @@ class ModelManager(QObject):
             .joinpath("models.yaml")
             .open(encoding="utf-8") as f
         ):
-            model_list = yaml.safe_load(f)
+            model_list = load_model_config(f)
 
         # Load list of custom models
         custom_models = get_config().get("custom_models", [])
@@ -105,11 +105,11 @@ class ModelManager(QObject):
                     auto_labeling_configs
                 ).joinpath("auto_labeling", config_file_name)
                 config_content = resource_path.read_text(encoding="utf-8")
-                model_config = yaml.safe_load(config_content)
+                model_config = load_model_config(config_content)
                 model_config["config_file"] = str(config_file)
             else:  # Config file is in local file system
                 with open(config_file, "r", encoding="utf-8") as f:
-                    model_config = yaml.safe_load(f)
+                    model_config = load_model_config(f)
                     model_config["config_file"] = os.path.normpath(
                         os.path.abspath(config_file)
                     )
@@ -230,7 +230,7 @@ class ModelManager(QObject):
         model_config = {}
         try:
             with open(config_file, "r", encoding="utf-8") as f:
-                model_config = yaml.safe_load(f)
+                model_config = load_model_config(f)
                 model_config["config_file"] = os.path.abspath(config_file)
         except Exception as e:
             logger.error(
