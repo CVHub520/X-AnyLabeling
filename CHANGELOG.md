@@ -1,5 +1,25 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.1` (Aug 08, 2026)
+
+X-AnyLabeling 4.0.1 improves polygon creation and resolves several auto-labeling and mask export issues.
+
+### 🚀 New Features
+
+- Add a configurable Magic Wand tool for creating polygons from contiguous color regions. (#1421)
+
+### 🐛 Bug Fixes
+
+- Prevent mask export failures when source images are unavailable, honor checked selections, and handle cancellation cleanly. (#1422)
+- Forward class filters to remote models.
+- Preserve model class and filter names as strings to prevent YAML boolean-like labels from crashing the class filter dialog. (#1425)
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @cyphercodes, @CVHub520
+
 ## `v4.0.0` (Aug 05, 2026)
 
 X-AnyLabeling 4.0.0 is a major release built around a PyQt6 interface, expanded annotation workflows, broader AI model support, and a more reliable cross-platform release pipeline. The beta release notes below retain the full development history.

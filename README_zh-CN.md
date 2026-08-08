@@ -22,6 +22,7 @@
 
 ## 🥳 新功能
 
+- `2026-08-08`：发布 X-AnyLabeling v4.0.1。
 - `2026-08-08`：新增[魔术棒工具](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#21-%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1)，可基于连续颜色区域快速创建多边形标注。
 - `2026-08-05`：发布 X-AnyLabeling v4.0.0。
 - 更多详情，请参考[更新日志](./CHANGELOG.md)

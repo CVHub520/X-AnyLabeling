@@ -22,6 +22,7 @@
 
 ## 🥳 What's New
 
+- `2026-08-08`: Release X-AnyLabeling v4.0.1.
 - `2026-08-08`: Add the [Magic Wand tool](https://xanylabeling.com/docs/x-anylabeling/user_guide#21-creating-shapes) for quickly creating polygons from contiguous color regions.
 - `2026-08-05`: Release X-AnyLabeling v4.0.0.
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
