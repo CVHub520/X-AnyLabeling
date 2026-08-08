@@ -22,7 +22,7 @@
 
 ## 🥳 What's New
 
-- `2026-08-08`: Release X-AnyLabeling v4.0.1.
+- `2026-08-08`: Add support for the [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) rotated object detection model.
 - `2026-08-08`: Add the [Magic Wand tool](https://xanylabeling.com/docs/x-anylabeling/user_guide#21-creating-shapes) for quickly creating polygons from contiguous color regions.
 - `2026-08-05`: Release X-AnyLabeling v4.0.0.
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
@@ -54,7 +54,7 @@
 | 🏃 Pose Estimation | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 Face Estimation | SCRFD, YOLOv6Lite-Face |
 | 👣 Tracking | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
-| 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb |
+| 🔄 Rotated Object Detection | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb, RT-DETRv2-OBB |
 | 📏 Depth Estimation | Depth Anything |
 | 🧩 Segment Anything | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ Image Matting | RMBG 1.4/2.0 |

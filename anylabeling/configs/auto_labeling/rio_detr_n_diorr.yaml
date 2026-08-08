@@ -1,0 +1,27 @@
+type: rio_detr
+name: rio_detr_n_diorr-r20260808
+provider: USTC
+display_name: RT-DETRv2-OBB-N (DIOR-R)
+model_path: https://github.com/CVHub520/X-AnyLabeling/releases/download/v3.0.0/rtdetrv2_obb_hgnetv2_n_diorr.onnx
+conf_threshold: 0.40
+classes:
+  - airplane
+  - airport
+  - baseballfield
+  - basketballcourt
+  - bridge
+  - chimney
+  - expressway-service-area
+  - expressway-toll-station
+  - dam
+  - golffield
+  - groundtrackfield
+  - harbor
+  - overpass
+  - ship
+  - stadium
+  - storagetank
+  - tenniscourt
+  - trainstation
+  - vehicle
+  - windmill

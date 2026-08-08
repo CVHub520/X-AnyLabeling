@@ -22,7 +22,7 @@
 
 ## 🥳 新功能
 
-- `2026-08-08`：发布 X-AnyLabeling v4.0.1。
+- `2026-08-08`：新增支持 [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) 旋转目标检测模型。
 - `2026-08-08`：新增[魔术棒工具](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#21-%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1)，可基于连续颜色区域快速创建多边形标注。
 - `2026-08-05`：发布 X-AnyLabeling v4.0.0。
 - 更多详情，请参考[更新日志](./CHANGELOG.md)
@@ -54,7 +54,7 @@
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 **人脸估计** | SCRFD, YOLOv6Lite-Face |
 | 👣 **目标跟踪** | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |
-| 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb |
+| 🔄 **旋转目标检测** | YOLOv5-Obb, YOLOv8-Obb, YOLO11-Obb, YOLO26-Obb, RT-DETRv2-OBB |
 | 📏 **深度估计** | Depth Anything |
 | 🧩 **分割一切** | SAM 1/2/3, SAM-HQ, SAM-Med2D, EdgeSAM, EfficientViT-SAM, MobileSAM |
 | ✂️ **图像抠图** | RMBG 1.4/2.0 |

@@ -12,7 +12,7 @@ To annotate rotated objects:
 
 - Import the image file.
 - Click the `Rotation` button on the left toolbar, or press `O`, to draw a rotated box.
-- Select the corresponding rotated box object and drag the rotation handle above it to adjust the angle directly, or use the following shortcut keys:
+- Click a rotated box to select it, then click and hold the circular handle above the box and drag it to adjust the rotation angle. You can also use the following shortcut keys:
 
 | Shortcut Key | Description                |
 | ------------ | -------------------------- |
