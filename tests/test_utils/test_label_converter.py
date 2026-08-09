@@ -9,7 +9,11 @@ import numpy as np
 import yaml
 from PIL import Image
 
-from anylabeling.views.labeling.label_converter import LabelConverter
+from anylabeling.views.labeling.label_converter import (
+    LabelConverter,
+    PoseClassError,
+    PoseGroupError,
+)
 
 
 class TestLabelConverterPoseConfig(unittest.TestCase):
@@ -56,6 +60,119 @@ class TestLabelConverterPoseConfig(unittest.TestCase):
 
         with self.assertRaises(ValueError):
             LabelConverter(pose_cfg_file=cfg_path)
+
+
+class TestLabelConverterPoseExport(unittest.TestCase):
+
+    def setUp(self):
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp_dir.cleanup)
+        cfg_path = os.path.join(self.temp_dir.name, "pose.yaml")
+        with open(cfg_path, "w", encoding="utf-8") as f:
+            yaml.safe_dump(
+                {"classes": {"person": ["nose", "left_eye"]}},
+                f,
+                sort_keys=False,
+            )
+        self.converter = LabelConverter(pose_cfg_file=cfg_path)
+
+    def _export(self, shapes):
+        label_file = os.path.join(self.temp_dir.name, "label.json")
+        output_file = os.path.join(self.temp_dir.name, "label.txt")
+        with open(label_file, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "imagePath": "image.jpg",
+                    "imageWidth": 100,
+                    "imageHeight": 50,
+                    "shapes": shapes,
+                },
+                f,
+            )
+        self.converter.custom_to_yolo(label_file, output_file, "pose")
+        return label_file, output_file
+
+    def test_missing_rectangle_reports_group_and_label_file(self):
+        shapes = [
+            {
+                "label": "nose",
+                "shape_type": "point",
+                "points": [[10, 20]],
+                "group_id": 7,
+            }
+        ]
+
+        with self.assertRaisesRegex(
+            PoseGroupError,
+            r"Missing rectangle/box_label.*group_id=7.*label\.json",
+        ):
+            self._export(shapes)
+
+    def test_unknown_box_label_reports_expected_classes(self):
+        shapes = [
+            {
+                "label": "animal",
+                "shape_type": "rectangle",
+                "points": [[0, 0], [50, 0], [50, 40], [0, 40]],
+                "group_id": 9,
+            }
+        ]
+
+        with self.assertRaisesRegex(
+            PoseClassError,
+            r"Unknown box_label 'animal'.*group_id=9.*\['person'\]",
+        ):
+            self._export(shapes)
+
+    def test_missing_group_id_raises_pose_group_error(self):
+        shapes = [
+            {
+                "label": "nose",
+                "shape_type": "point",
+                "points": [[10, 20]],
+                "group_id": None,
+            }
+        ]
+
+        with self.assertRaisesRegex(PoseGroupError, "group_id is None"):
+            self._export(shapes)
+
+    def test_invalid_group_id_raises_pose_group_error(self):
+        shapes = [
+            {
+                "label": "nose",
+                "shape_type": "point",
+                "points": [[10, 20]],
+                "group_id": "invalid",
+            }
+        ]
+
+        with self.assertRaisesRegex(PoseGroupError, "Invalid group_id"):
+            self._export(shapes)
+
+    def test_valid_pose_export_is_unchanged(self):
+        shapes = [
+            {
+                "label": "person",
+                "shape_type": "rectangle",
+                "points": [[0, 0], [50, 0], [50, 40], [0, 40]],
+                "group_id": 1,
+            },
+            {
+                "label": "nose",
+                "shape_type": "point",
+                "points": [[25, 20]],
+                "group_id": 1,
+            },
+        ]
+
+        _, output_file = self._export(shapes)
+
+        with open(output_file, "r", encoding="utf-8") as f:
+            self.assertEqual(
+                f.read(),
+                "0 0.25 0.4 0.5 0.8 0.25 0.4 2 0 0 0\n",
+            )
 
 
 class TestLabelConverterObbBounds(unittest.TestCase):

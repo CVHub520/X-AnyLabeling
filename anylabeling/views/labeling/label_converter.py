@@ -26,6 +26,14 @@ from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
 
 
+class PoseGroupError(ValueError):
+    pass
+
+
+class PoseClassError(ValueError):
+    pass
+
+
 class LabelConverter:
     def __init__(self, classes_file=None, pose_cfg_file=None):
         self.classes = []
@@ -1339,14 +1347,21 @@ class LabelConverter:
                         logger.error(
                             f"group_id is None for {shape} in {input_file}."
                         )
-                        raise ValueError(
+                        raise PoseGroupError(
                             f"group_id is None for {shape} in {input_file}."
                         )
                     label = shape["label"]
                     points = self.clamp_points(
                         shape["points"], image_width, image_height
                     )
-                    group_id = int(shape["group_id"])
+                    try:
+                        group_id = int(shape["group_id"])
+                    except (TypeError, ValueError) as e:
+                        raise PoseGroupError(
+                            f"Invalid group_id {shape['group_id']!r} for pose "
+                            f"annotation in {input_file}. Group IDs must be "
+                            f"integers."
+                        ) from e
                     if group_id not in pose_data:
                         pose_data[group_id] = {
                             "rectangle": [],
@@ -1374,7 +1389,7 @@ class LabelConverter:
                 )
                 for group_id, data in pose_data.items():
                     if "box_label" not in data or not data.get("rectangle"):
-                        raise ValueError(
+                        raise PoseGroupError(
                             f"Missing rectangle/box_label for pose "
                             f"group_id={group_id} in {input_file}. "
                             f"Each pose instance needs a rectangle with "
@@ -1382,7 +1397,7 @@ class LabelConverter:
                         )
                     box_label = data["box_label"]
                     if box_label not in classes:
-                        raise ValueError(
+                        raise PoseClassError(
                             f"Unknown box_label '{box_label}' for pose "
                             f"group_id={group_id} in {input_file}. "
                             f"Expected one of: {classes}"
