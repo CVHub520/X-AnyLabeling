@@ -1372,8 +1372,21 @@ class LabelConverter:
                 max_keypoints = max(
                     [len(kpts) for kpts in self.pose_classes.values()]
                 )
-                for data in pose_data.values():
+                for group_id, data in pose_data.items():
+                    if "box_label" not in data or not data.get("rectangle"):
+                        raise ValueError(
+                            f"Missing rectangle/box_label for pose "
+                            f"group_id={group_id} in {input_file}. "
+                            f"Each pose instance needs a rectangle with "
+                            f"the class label."
+                        )
                     box_label = data["box_label"]
+                    if box_label not in classes:
+                        raise ValueError(
+                            f"Unknown box_label '{box_label}' for pose "
+                            f"group_id={group_id} in {input_file}. "
+                            f"Expected one of: {classes}"
+                        )
                     box_index = classes.index(box_label)
                     kpt_names = self.pose_classes[box_label]
                     rectangle = data["rectangle"]
