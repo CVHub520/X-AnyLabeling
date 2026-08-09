@@ -309,8 +309,10 @@ def export_yolo_annotation(self, mode):
         get_progress_dialog_style(color="#1d1d1f", height=20)
     )
 
+    current_image_file = None
     try:
         for i, image_file in enumerate(image_list):
+            current_image_file = image_file
             image_file_name = osp.basename(image_file)
             dst_file_name = osp.splitext(image_file_name)[0] + ".txt"
 
@@ -351,15 +353,32 @@ def export_yolo_annotation(self, mode):
         popup.show_popup(self, popup_height=65, position="center")
 
     except Exception as e:
-        message = f"Error occurred while exporting annotations: {str(e)}"
         progress_dialog.close()
-        logger.error(message)
-        popup = Popup(
-            message,
-            self,
-            icon=new_icon_path("error", "svg"),
+        image_name = (
+            osp.basename(current_image_file) if current_image_file else ""
         )
-        popup.show_popup(self, position="center")
+        if current_image_file:
+            logger.error(
+                "Error occurred while exporting annotations for image:\n"
+                f"{current_image_file}\n{e}"
+            )
+        else:
+            logger.error(f"Error occurred while exporting annotations: {e}")
+
+        msg_box = QtWidgets.QMessageBox(self)
+        msg_box.setIcon(QtWidgets.QMessageBox.Icon.Critical)
+        msg_box.setWindowTitle(self.tr("Export Failed"))
+        if image_name:
+            msg_box.setText(self.tr("Failed on image: %s") % image_name)
+        else:
+            msg_box.setText(self.tr("Export failed."))
+        msg_box.setInformativeText(str(e))
+        if current_image_file:
+            msg_box.setDetailedText(
+                self.tr("Image path:\n%s") % current_image_file
+            )
+        msg_box.setStyleSheet(get_msg_box_style())
+        msg_box.exec()
 
 
 def export_voc_annotation(self, mode):
