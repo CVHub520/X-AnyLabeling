@@ -1,5 +1,25 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.2` (Aug 12, 2026)
+
+X-AnyLabeling 4.0.2 expands auto-labeling with new detection and segmentation models and improves YOLO export diagnostics.
+
+### 🚀 New Features
+
+- Add RT-DETRv2-OBB models for oriented object detection.
+- Add D-FINE-seg models for instance segmentation. (#1427)
+- Show failing image details when YOLO export errors occur.
+
+### 🐛 Bug Fixes
+
+- Provide actionable validation errors for incomplete YOLO pose annotations. (#1426)
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @xixyibaozuis, @CVHub520
+
 ## `v4.0.1` (Aug 08, 2026)
 
 X-AnyLabeling 4.0.1 improves polygon creation and resolves several auto-labeling and mask export issues.

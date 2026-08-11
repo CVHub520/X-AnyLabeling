@@ -22,6 +22,7 @@
 
 ## 🥳 新功能
 
+- `2026-08-12`：发布 X-AnyLabeling v4.0.2。
 - `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
 - `2026-08-08`：新增支持 [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) 旋转目标检测模型。
 - `2026-08-08`：新增[魔术棒工具](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#21-%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1)，可基于连续颜色区域快速创建多边形标注。
