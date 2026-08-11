@@ -596,6 +596,18 @@ python3 Hyper-YOLO/ultralytics/export.py
 
 Please refer to this [tutorial](../../tools/onnx_exporter/export_dfine_onnx.py).
 
+### [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg)
+
+`D-FINE-seg` introduces a lightweight instance segmentation head on top of the D-FINE detection architecture. It fuses multi-scale features with query mask embeddings to generate high-quality instance masks while supporting real-time multi-backend deployment. The model provides N, S, M, L, and X variants for different accuracy and performance requirements.
+
+| Attribute        | Value                                                                                                  |
+|------------------|--------------------------------------------------------------------------------------------------------|
+| Paper Title      | D-FINE-seg: Object Detection and Instance Segmentation Framework with Multi-Backend Deployment        |
+| Authors          | Argo Saakyan & Dmitry Solntsev                                                                         |
+| Publication Date | Arxiv'26                                                                                               |
+
+Please refer to the [official export guide](https://github.com/ArgoHA/D-FINE-seg#export).
+
 ### [DEIMv2](https://github.com/Intellindust-AI-Lab/DEIMv2)
 
 `DEIMv2` is an evolution of the DEIM framework while leveraging the rich features from DINOv3. Our method is designed with various model sizes, from an ultra-light version up to S, M, L, and X, to be adaptable for a wide range of scenarios. Across these variants, DEIMv2 achieves state-of-the-art performance, with the S-sized model notably surpassing 50 AP on the challenging COCO benchmark.

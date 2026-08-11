@@ -77,6 +77,7 @@ _CUSTOM_MODELS = [
     "rfdetr",
     "rfdetr_seg",
     "dfine",
+    "dfine_seg",
     "yolo12",
     "yolo26",
     "yolo26_seg",
@@ -137,6 +138,7 @@ _AUTO_LABELING_MASK_FINENESS_MODELS = [
     "grounding_sam2",
     "edge_sam",
     "rfdetr_seg",
+    "dfine_seg",
 ]
 
 
@@ -247,6 +249,7 @@ _AUTO_LABELING_CONF_MODELS = [
     "rfdetr_seg",
     "deimv2",
     "dfine",
+    "dfine_seg",
     "yolo12",
     "yolo26",
     "yolo26_sahi",
@@ -305,6 +308,7 @@ _AUTO_LABELING_IOU_MODELS = [
     "yolo26_obb_track",
     "yolo26_pose_track",
     "yoloe",
+    "dfine_seg",
 ]
 
 
@@ -357,6 +361,7 @@ _AUTO_LABELING_PRESERVE_EXISTING_ANNOTATIONS_STATE_MODELS = [
     "segment_anything_3",
     "deimv2",
     "dfine",
+    "dfine_seg",
     "yolo12",
     "yolo26",
     "yolo26_sahi",

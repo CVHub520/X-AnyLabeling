@@ -22,6 +22,7 @@
 
 ## 🥳 新功能
 
+- `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
 - `2026-08-08`：新增支持 [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) 旋转目标检测模型。
 - `2026-08-08`：新增[魔术棒工具](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#21-%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1)，可基于连续颜色区域快速创建多边形标注。
 - `2026-08-05`：发布 X-AnyLabeling v4.0.0。
@@ -50,7 +51,7 @@
 | :--- | :--- |
 | 🖼️ **图像分类** | YOLOv5-Cls, YOLOv8-Cls, YOLO11-Cls, InternImage, PULC |
 | 🎯 **目标检测** | YOLOv5/6/7/8/9/10, YOLO11/12/26, YOLOX, YOLO-NAS, D-FINE, DAMO-YOLO, Gold_YOLO, RT-DETR, RF-DETR, DEIMv2 |
-| 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg |
+| 🖌️ **实例分割** | YOLOv5-Seg, YOLOv8-Seg, YOLO11-Seg, YOLO26-Seg, Hyper-YOLO-Seg, RF-DETR-Seg, D-FINE-seg |
 | 🏃 **姿态估计** | YOLOv8-Pose, YOLO11-Pose, YOLO26-Pose, DWPose, RTMO |
 | 😀 **人脸估计** | SCRFD, YOLOv6Lite-Face |
 | 👣 **目标跟踪** | TrackTrack, Bot-SORT, ByteTrack, SAM2/3-Video |

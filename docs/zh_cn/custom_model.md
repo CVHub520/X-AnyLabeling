@@ -578,6 +578,18 @@ python3 ultralytics/utils/export_onnx.py
 
 请参考[导出脚本](../../tools/onnx_exporter/export_dfine_onnx.py)。
 
+### [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg)
+
+`D-FINE-seg` 在 D-FINE 检测架构上引入轻量级实例分割头，通过融合多尺度特征与查询掩码嵌入生成高质量实例掩码，并支持多后端实时部署。该模型提供 N、S、M、L 和 X 五种不同规模，以适应不同的精度与性能需求。
+
+| 属性           | 值                                                                 |
+|----------------|--------------------------------------------------------------------|
+| 论文标题       | D-FINE-seg: Object Detection and Instance Segmentation Framework with Multi-Backend Deployment |
+| 作者           | Argo Saakyan & Dmitry Solntsev                                     |
+| 发表时间       | Arxiv'26                                                           |
+
+请参考[官方导出说明](https://github.com/ArgoHA/D-FINE-seg#export)。
+
 ### [DEIMv2](https://github.com/Intellindust-AI-Lab/DEIMv2)
 
 `DEIMv2` 是 DEIM 框架的进化版本，同时利用了 DINOv3 的丰富特征。该方法设计了从超轻量级版本到 S、M、L 和 X 等不同规模的模型，以适应各种应用场景。在这些变体中，DEIMv2 都达到了最先进的性能，其中 S 级模型在具有挑战性的 COCO 基准测试中显著超过了 50 AP。
