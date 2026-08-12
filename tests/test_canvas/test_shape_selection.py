@@ -1,10 +1,11 @@
 import os
 import unittest
+from unittest import mock
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 try:
-    from PyQt6 import QtCore, QtGui, QtWidgets
+    from PyQt6 import QtCore, QtGui, QtTest, QtWidgets
 
     from anylabeling.views.labeling.shape import Shape
     from anylabeling.views.labeling.widgets.canvas import Canvas
@@ -39,6 +40,18 @@ class TestCanvasShapeSelection(unittest.TestCase):
         self.canvas.selected_shapes = shapes
         for shape in shapes:
             shape.selected = True
+
+    def _move_mouse(self, x, y):
+        point = QtCore.QPointF(x, y)
+        event = QtGui.QMouseEvent(
+            QtCore.QEvent.Type.MouseMove,
+            point,
+            point,
+            QtCore.Qt.MouseButton.NoButton,
+            QtCore.Qt.MouseButton.NoButton,
+            QtCore.Qt.KeyboardModifier.NoModifier,
+        )
+        self.canvas.mouseMoveEvent(event)
 
     @staticmethod
     def make_rectangle(label, left, top, right, bottom):
@@ -93,6 +106,42 @@ class TestCanvasShapeSelection(unittest.TestCase):
         )
 
         self.assertEqual(self.canvas.selected_shapes, [inner])
+
+    def test_auto_highlight_click_allows_move_until_mouse_leaves(self):
+        shape = self.make_rectangle("shape", 40, 40, 80, 80)
+        self.canvas.shapes = [shape]
+        self.canvas.h_shape_is_hovered = True
+
+        self._move_mouse(60, 60)
+        QtTest.QTest.mouseClick(
+            self.canvas,
+            QtCore.Qt.MouseButton.LeftButton,
+            pos=QtCore.QPoint(60, 60),
+        )
+
+        self.assertEqual(self.canvas.selected_shapes, [shape])
+        before = shape.points[0].x()
+        with mock.patch.object(self.canvas, "update") as update:
+            QtTest.QTest.keyClick(self.canvas, QtCore.Qt.Key.Key_Right)
+
+        self.assertEqual(shape.points[0].x(), before + 1.0)
+        update.assert_called_once_with()
+        self.assertFalse(self.canvas.moving_shape)
+
+        self._move_mouse(180, 180)
+
+        self.assertEqual(self.canvas.selected_shapes, [])
+
+    def test_finishing_shape_move_requests_repaint(self):
+        shape = self.make_rectangle("shape", 40, 40, 80, 80)
+        self.canvas.shapes = [shape]
+        self.canvas.selected_shapes = [shape]
+        self.canvas.moving_shape = True
+
+        with mock.patch.object(self.canvas, "update") as update:
+            self.canvas.store_moving_shape()
+
+        update.assert_called_once_with()
 
     def test_vertex_proximity_outweighs_smaller_overlapping_area(self):
         outer = self.make_rectangle("outer", 10, 10, 150, 150)
