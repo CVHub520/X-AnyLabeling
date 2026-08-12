@@ -25,7 +25,7 @@ CURSOR_GRAB = QtCore.Qt.CursorShape.OpenHandCursor
 AUTO_DECODE_DELAY_MS = 100
 MAX_AUTO_DECODE_MARKS = 42
 AUTO_DECODE_MOVE_THRESHOLD = 5.0
-MOVE_SPEED = 5.0
+MOVE_SPEED = 1.0
 LARGE_ROTATION_INCREMENT = math.radians(1.0)
 SMALL_ROTATION_INCREMENT = math.radians(0.1)
 ROTATION_HANDLE_DISTANCE = 32.0
@@ -411,6 +411,7 @@ class Canvas(
                         break
 
             self.moving_shape = False
+            self.update()
 
     def clip_rectangle_to_pixmap(self, shape):
         """Clip rectangle shape to pixmap boundaries"""
@@ -2500,6 +2501,8 @@ class Canvas(
             self.override_cursor(CURSOR_DEFAULT)
             self.setToolTip("")
             self.setStatusTip("")
+            if self.h_shape_is_hovered and self.selected_shapes:
+                self.deselect_shape()
         self.vertex_selected.emit(self.h_vertex is not None)
 
         if prev_hover_shape != self.h_shape:
@@ -2891,6 +2894,7 @@ class Canvas(
                     self.h_shape is not None
                     and self.h_shape_is_selected
                     and not self.moving_shape
+                    and not self.h_shape_is_hovered
                 ):
                     self.selection_changed.emit(
                         [x for x in self.selected_shapes if x != self.h_shape]
@@ -4152,9 +4156,10 @@ class Canvas(
                     fill_color.blue(),
                     self.mask_opacity,
                 )
-                p.setPen(Qt.PenStyle.NoPen)
-                p.setBrush(fill_color_alpha)
-                p.drawPath(mask_path)
+                if not (self.moving_shape and shape.selected):
+                    p.setPen(Qt.PenStyle.NoPen)
+                    p.setBrush(fill_color_alpha)
+                    p.drawPath(mask_path)
 
                 outline_color = (
                     shape.select_line_color
@@ -4180,7 +4185,7 @@ class Canvas(
                 shape.fill = (
                     self._fill_drawing
                     and (shape.selected or shape == self.h_shape)
-                    and not (self.selected_vertex() and self.moving_shape)
+                    and not (self.moving_shape and shape.selected)
                 )
                 # Brush-edited shapes are drawn from their mask instead.
                 if not getattr(shape, "_brush_using_mask", False):
@@ -5331,6 +5336,7 @@ class Canvas(
 
                 if self.moving_shape:
                     self.moving_shape = False
+                    self.update()
                 if self.rotating_shape:
                     self.rotating_shape = False
 
