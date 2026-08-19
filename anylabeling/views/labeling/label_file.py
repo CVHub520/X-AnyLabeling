@@ -11,7 +11,11 @@ ImageFile.LOAD_TRUNCATED_IMAGES = True
 from . import utils
 from .label_converter import LabelConverter
 from .logger import logger
-from .schema import XLABEL_BASIC_FIELDS, create_xlabel_template
+from .schema import (
+    IMAGE_TAGS_FIELD,
+    XLABEL_BASIC_FIELDS,
+    create_xlabel_template,
+)
 from .shape import Shape
 
 
@@ -113,6 +117,11 @@ class LabelFile:
         for key, value in data.items():
             if key not in XLABEL_BASIC_FIELDS:
                 other_data[key] = value
+
+        if IMAGE_TAGS_FIELD in data:
+            other_data[IMAGE_TAGS_FIELD] = utils.normalize_image_tags(
+                data[IMAGE_TAGS_FIELD], filename
+            )
 
         # Add new fields if not available
         other_data["description"] = other_data.get("description", "")

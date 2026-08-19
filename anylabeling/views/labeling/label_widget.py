@@ -6,6 +6,7 @@ import os
 import os.path as osp
 import re
 import shutil
+import zlib
 from typing import Optional
 
 import cv2
@@ -56,6 +57,7 @@ from .utils.style import (
 from ...config import get_config, save_config
 from .label_file import LabelFile, LabelFileError
 from .logger import logger
+from .schema import IMAGE_TAGS_FIELD
 from .settings import SettingsController, SettingsDialog
 from .settings.runtime_applier import SettingsRuntimeApplier
 from .shape import Shape
@@ -82,6 +84,7 @@ from .widgets import (
     VideoClassifierDialog,
     ShapeModifyDialog,
     GroupIDFilterComboBox,
+    ImageTagsWidget,
     LabelDialog,
     LabelFilterComboBox,
     LabelListWidget,
@@ -501,6 +504,17 @@ class LabelingWidget(LabelDialog):
         self.canvas.set_cross_line(**self.crosshair_settings)
 
         self._central_widget = scroll_area
+
+        self._image_tags_visibility = "auto"
+        self.image_tags_widget = ImageTagsWidget(
+            self._get_rgb_by_image_tag, self
+        )
+        self.image_tags_widget.tags_changed.connect(
+            self._on_image_tags_changed
+        )
+        self.image_tags_widget.status_message.connect(self.status)
+        self.image_tags_widget.set_interactions_enabled(False)
+        self.image_tags_widget.hide()
 
         features = QtWidgets.QDockWidget.DockWidgetFeature(0)
         for dock in [
@@ -1758,6 +1772,16 @@ class LabelingWidget(LabelDialog):
             enabled=True,
         )
 
+        show_image_tags = action(
+            self.tr("Image Tags"),
+            self.toggle_image_tags_visibility,
+            shortcuts["toggle_image_tags"],
+            tip=self.tr("Show or hide image tags"),
+            checkable=True,
+            checked=False,
+            enabled=True,
+        )
+
         # AI Actions
         toggle_auto_labeling_widget = action(
             self.tr("Auto Labeling"),
@@ -1887,6 +1911,7 @@ class LabelingWidget(LabelDialog):
             show_attributes=show_attributes,
             show_linking=show_linking,
             show_navigator=show_navigator,
+            show_image_tags=show_image_tags,
             zoom_actions=zoom_actions,
             open_next_image=open_next_image,
             open_prev_image=open_prev_image,
@@ -2167,6 +2192,7 @@ class LabelingWidget(LabelDialog):
             self.menus.view,
             (
                 show_navigator,
+                show_image_tags,
                 fill_drawing,
                 loop_thru_labels,
                 loop_select_labels,
@@ -2350,6 +2376,7 @@ class LabelingWidget(LabelDialog):
         central_layout.addWidget(self.auto_labeling_widget)
         central_layout.addWidget(scroll_area)
         central_layout.addWidget(self.compare_view_slider)
+        central_layout.addWidget(self.image_tags_widget)
         layout.addLayout(central_layout)
 
         # Save central area for resize
@@ -2928,6 +2955,38 @@ class LabelingWidget(LabelDialog):
             self.update_navigator_shapes()
         self.update_progress_title()
 
+    def _on_image_tags_changed(self, tags):
+        if not self.image_path:
+            return
+        self.other_data[IMAGE_TAGS_FIELD] = list(tags)
+        self.set_dirty()
+
+    def toggle_image_tags_visibility(self, checked):
+        self._image_tags_visibility = (
+            "explicit_visible" if checked else "explicit_hidden"
+        )
+        self.image_tags_widget.setVisible(checked)
+
+    def _auto_show_image_tags(self):
+        if self._image_tags_visibility != "auto":
+            return
+        with QtCore.QSignalBlocker(self.actions.show_image_tags):
+            self.actions.show_image_tags.setChecked(True)
+        self.image_tags_widget.show()
+
+    def _get_rgb_by_image_tag(self, label):
+        for shape in self.canvas.shapes:
+            if shape.label == label:
+                return shape.line_color.getRgb()[:3]
+        label_colors = self._config.get("label_colors") or {}
+        if label in label_colors:
+            return tuple(label_colors[label])
+        label_id = zlib.crc32(label.encode("utf-8"))
+        hue = label_id % 360
+        saturation = 110 + ((label_id >> 9) % 66)
+        value = 225 + ((label_id >> 16) % 26)
+        return QtGui.QColor.fromHsv(hue, saturation, value).getRgb()[:3]
+
     def _window_title(self):
         title = __appname__
         if self.filename is not None:
@@ -3015,6 +3074,9 @@ class LabelingWidget(LabelDialog):
         self.image_data = None
         self.label_file = None
         self.other_data = {}
+        if hasattr(self, "image_tags_widget"):
+            self.image_tags_widget.set_interactions_enabled(False)
+            self.image_tags_widget.set_tags([])
         self.canvas.reset_state()
         self.brightness_contrast_dialog.clear_image()
         if hasattr(self, "canvas_adjustment"):
@@ -5959,6 +6021,13 @@ class LabelingWidget(LabelDialog):
             return False
         self.image = image
         self.filename = filename
+        has_image_tags = IMAGE_TAGS_FIELD in self.other_data
+        self.image_tags_widget.set_tags(
+            self.other_data.get(IMAGE_TAGS_FIELD, [])
+        )
+        self.image_tags_widget.set_interactions_enabled(True)
+        if has_image_tags:
+            self._auto_show_image_tags()
 
         if (
             hasattr(self, "navigator_dialog")
@@ -5992,6 +6061,7 @@ class LabelingWidget(LabelDialog):
                         **shape.flags,
                     }
             self.load_shapes(self.label_file.shapes, update_last_label=False)
+            self.image_tags_widget.refresh_colors()
             if self.label_file.flags is not None:
                 flags.update(self.label_file.flags)
         self.load_flags(flags)
@@ -6070,6 +6140,9 @@ class LabelingWidget(LabelDialog):
     # QT Overload
     def keyPressEvent(self, event):
         if event.key() == Qt.Key.Key_Escape:
+            if self.image_tags_widget.cancel_active_mode():
+                event.accept()
+                return
             if getattr(self.canvas, "is_brush_mode", False):
                 self.canvas.cancel_brush_mode()
             elif self.actions.edit_brush_mode.isChecked():
@@ -6582,6 +6655,7 @@ class LabelingWidget(LabelDialog):
         return osp.exists(label_file)
 
     def may_continue(self):
+        self.image_tags_widget.finish_for_image_change()
         if not self.dirty:
             return True
         mb = QtWidgets.QMessageBox
@@ -6825,6 +6899,14 @@ class LabelingWidget(LabelDialog):
                 )
                 return
 
+        result_tags = getattr(auto_labeling_result, "tags", None)
+        tags_only_result = (
+            result_tags is not None
+            and not auto_labeling_result.shapes
+            and auto_labeling_result.replace is False
+            and not auto_labeling_result.description
+        )
+
         # Clear existing shapes
         if auto_labeling_result.replace:
             locked_shapes = [
@@ -6851,7 +6933,22 @@ class LabelingWidget(LabelDialog):
             self.other_data["description"] = description
             self.shape_text_edit.setDisabled(False)
 
-        self.set_dirty()
+        tags_changed = False
+        if result_tags is not None:
+            tags = utils.normalize_image_tags(
+                result_tags, "auto labeling result"
+            )
+            tags_changed = (
+                IMAGE_TAGS_FIELD not in self.other_data
+                or self.other_data[IMAGE_TAGS_FIELD] != tags
+            )
+            if tags_changed:
+                self.other_data[IMAGE_TAGS_FIELD] = tags
+            self.image_tags_widget.set_tags(tags)
+            self._auto_show_image_tags()
+
+        if tags_changed or not tags_only_result:
+            self.set_dirty()
 
     def clear_auto_labeling_marks(self):
         """Clear auto labeling marks from the current image."""

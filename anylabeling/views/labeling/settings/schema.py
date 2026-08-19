@@ -65,6 +65,7 @@ def _settings_translation_markers() -> None:
         "Scan EXIF metadata when loading directories; this adds overhead.",
     )
     QCoreApplication.translate("SettingsDialog", "Toggle Annotation Checked")
+    QCoreApplication.translate("SettingsDialog", "Toggle Image Tags")
     QCoreApplication.translate("SettingsDialog", "File List Checkbox Editable")
     QCoreApplication.translate("SettingsDialog", "Use System Clipboard")
     QCoreApplication.translate("SettingsDialog", "Application Font")
@@ -448,6 +449,9 @@ def _shortcut_label(short_key: str) -> str:
         ),
         "toggle_annotation_checked": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Toggle Annotation Checked"
+        ),
+        "toggle_image_tags": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Toggle Image Tags"
         ),
         "auto_labeling_add_point": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Add Point"
@@ -1319,6 +1323,7 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "show_linking",
             "show_masks",
             "show_texts",
+            "toggle_image_tags",
             "toggle_auto_use_last_gid",
             "toggle_auto_use_last_label",
             "toggle_compare_view",

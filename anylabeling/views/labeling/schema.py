@@ -13,6 +13,8 @@ XLABEL_BASIC_FIELDS = [
     "imageWidth",
 ]
 
+IMAGE_TAGS_FIELD = "tags"
+
 
 def create_xlabel_template(
     version: str = __version__,

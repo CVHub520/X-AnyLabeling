@@ -276,6 +276,10 @@ class TestSettingsController(unittest.TestCase):
             )
 
     def test_shortcut_conflict_and_whitelist(self):
+        self.assertEqual(
+            self.controller.get_value("shortcuts.toggle_image_tags"),
+            "Ctrl+Shift+T",
+        )
         with self.assertRaises(SettingsValidationError) as ctx:
             self.controller.update_field(
                 "shortcuts.open",
@@ -303,6 +307,13 @@ class TestSettingsController(unittest.TestCase):
             self.controller.get_value("shortcuts.undo_last_point"),
             "Ctrl+Z",
         )
+
+        with self.assertRaises(SettingsValidationError):
+            self.controller.update_field(
+                "shortcuts.toggle_image_tags",
+                "Ctrl+T",
+                schedule_save=False,
+            )
 
     def test_shortcut_clear_behavior(self):
         changed = self.controller.update_field(

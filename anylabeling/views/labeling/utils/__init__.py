@@ -35,6 +35,7 @@ from .image import (
     get_supported_image_extensions,
     process_image_exif,
 )
+from .image_tags import normalize_image_tag, normalize_image_tags
 from ._io import io_open
 from .qt import (
     Struct,

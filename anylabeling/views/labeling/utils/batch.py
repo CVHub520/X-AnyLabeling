@@ -25,8 +25,10 @@ from anylabeling.services.auto_labeling import (
     _SKIP_DET_MODELS,
 )
 from anylabeling.views.labeling.logger import logger
+from anylabeling.views.labeling.schema import IMAGE_TAGS_FIELD
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils._io import io_open
+from anylabeling.views.labeling.utils.image_tags import normalize_image_tags
 from anylabeling.views.labeling.utils.qt import new_icon_path
 from anylabeling.views.labeling.utils.style import get_msg_box_style
 from anylabeling.views.labeling.widgets.popup import Popup
@@ -246,12 +248,14 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
         if auto_labeling_result is None:
             new_shapes = []
             new_description = ""
+            new_tags = None
             replace = True
         else:
             new_shapes = [
                 shape.to_dict() for shape in auto_labeling_result.shapes
             ]
             new_description = auto_labeling_result.description
+            new_tags = getattr(auto_labeling_result, "tags", None)
             replace = auto_labeling_result.replace
 
         if osp.exists(label_file):
@@ -267,6 +271,10 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
                     data["description"] += new_description
                 else:
                     data["description"] = new_description
+            if new_tags is not None:
+                data[IMAGE_TAGS_FIELD] = normalize_image_tags(
+                    new_tags, f"auto labeling result for {image_file}"
+                )
         else:
             if self._config["store_data"]:
                 with open(image_file, "rb") as f:
@@ -288,6 +296,10 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
                 "imageWidth": image_width,
                 "description": new_description,
             }
+            if new_tags is not None:
+                data[IMAGE_TAGS_FIELD] = normalize_image_tags(
+                    new_tags, f"auto labeling result for {image_file}"
+                )
 
         with io_open(label_file, "w") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)

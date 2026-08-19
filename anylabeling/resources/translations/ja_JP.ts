@@ -558,107 +558,107 @@ Review the prompt before generating.</source>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="1518" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1518" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1519" />
       <source>Auto Labeling</source>
       <translation>自動ラベリング</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="1521" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1521" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1522" />
       <source>Magic Wand</source>
       <translation>マジックワンド</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="1522" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1522" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1523" />
       <source>Drawing</source>
       <translation>描画</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="1524" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1524" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1525" />
       <source>Editing</source>
       <translation>編集中</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="1526" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1526" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1527" />
       <source>Unknown</source>
       <translation>不明</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="1590" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1590" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1591" />
       <source>Click &amp; drag to erase points of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の頂点を消去</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="1786" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="1786" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="1787" />
       <source>Click &amp; drag to rotate shape '%s'</source>
       <translation>クリックしてドラッグし、図形「%s」を回転</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2319" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2319" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2320" />
       <source>Click &amp; drag to adjust cuboid depth of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の直方体の奥行きを調整</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2326" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2326" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2327" />
       <source>Click &amp; drag to adjust rear edge of cuboid shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の直方体の後端を調整</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2403" />
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2333" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2403" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2333" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2404" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2334" />
       <source>Click &amp; drag to move point of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の頂点を移動</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2462" />
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2351" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2462" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2351" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2463" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2352" />
       <source>Click &amp; drag to move shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' を移動</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2371" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2371" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2372" />
       <source>Click &amp; drag to adjust cuboid %s face of shape '%s'</source>
       <translation>クリックしてドラッグし、図形 '%s' の直方体の %s 面を調整</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2424" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2424" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2425" />
       <source>Click to create point of shape '%s'</source>
       <translation>クリックして図形 '%s' の頂点を作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="2454" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="2454" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="2455" />
       <source>Locked shape '%s'</source>
       <translation>図形「%s」はロックされています</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="3182" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="3182" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="3186" />
       <source>Group %s · %d shapes</source>
       <translation>グループ %s · %d 個のオブジェクト</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="3184" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="3184" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="3188" />
       <source>Locked %s</source>
       <translation>%s はロックされています</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/canvas.py" line="3186" />
-      <location filename="../../views/labeling/widgets/canvas.py" line="3186" />
+      <location filename="../../views/labeling/widgets/canvas.py" line="3190" />
       <source>Click &amp; drag to move %s</source>
       <translation>クリックしてドラッグし、%s を移動</translation>
     </message>
@@ -2257,6 +2257,101 @@ Original images backed up to:
     </message>
   </context>
   <context>
+    <name>ImageTagChip</name>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="153" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="152" />
+      <source>Delete tag</source>
+      <translation>タグを削除</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="241" />
+      <source>Double-click a tag to edit its text.</source>
+      <translation>タグをダブルクリックしてテキストを編集します。</translation>
+    </message>
+  </context>
+  <context>
+    <name>ImageTagsWidget</name>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="436" />
+      <source>Add image tag</source>
+      <translation>画像タグを追加</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="444" />
+      <source>Batch Delete Tags</source>
+      <translation>画像タグを一括削除</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="748" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="465" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="455" />
+      <source>Select All</source>
+      <translation>すべて選択</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="458" />
+      <source>Delete</source>
+      <translation>削除</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="461" />
+      <source>Cancel</source>
+      <translation>キャンセル</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="748" />
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="465" />
+      <source>Deselect All</source>
+      <translation>すべて選択解除</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="528" />
+      <source>Image tag editor</source>
+      <translation>画像タグエディター</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="572" />
+      <source>Press Enter to add, or Esc to cancel.</source>
+      <translation>Enter キーで追加、Esc キーでキャンセルします。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="574" />
+      <source>Press Enter to save, or Esc to cancel.</source>
+      <translation>Enter キーで保存、Esc キーでキャンセルします。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="673" />
+      <source>Tags cannot be empty or contain line breaks.</source>
+      <translation>タグを空にしたり、改行を含めたりすることはできません。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="678" />
+      <source>This tag already exists.</source>
+      <translation>このタグは既に存在します。</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="707" />
+      <source>Delete Image Tag</source>
+      <translation>画像タグを削除</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="709" />
+      <source>Delete tag "%s"?</source>
+      <translation>タグ「%s」を削除しますか？</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="770" />
+      <source>Delete Image Tags</source>
+      <translation>画像タグを削除</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="771" />
+      <source>Delete %d selected tags?</source>
+      <translation>選択した %d 件のタグを削除しますか？</translation>
+    </message>
+  </context>
+  <context>
     <name>LabelDialog</name>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/widgets/label_dialog.py" line="1280" />
@@ -2620,47 +2715,47 @@ Continue?</source>
     <name>LabelingWidget</name>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="258" />
-      <location filename="../../views/labeling/label_widget.py" line="258" />
+      <location filename="../../views/labeling/label_widget.py" line="261" />
       <source>Flags</source>
       <translation>フラグ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="285" />
-      <location filename="../../views/labeling/label_widget.py" line="285" />
+      <location filename="../../views/labeling/label_widget.py" line="288" />
       <source>Objects</source>
       <translation>オブジェクト</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="291" />
-      <location filename="../../views/labeling/label_widget.py" line="291" />
+      <location filename="../../views/labeling/label_widget.py" line="294" />
       <source>Select label to start annotating for it. Press 'Esc' to deselect.</source>
       <translation>ラベルを選択してアノテーションを開始してください。'Esc' キーで選択を解除できます</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2439" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="297" />
-      <location filename="../../views/labeling/label_widget.py" line="2439" />
-      <location filename="../../views/labeling/label_widget.py" line="297" />
+      <location filename="../../views/labeling/label_widget.py" line="2466" />
+      <location filename="../../views/labeling/label_widget.py" line="300" />
       <source>Labels</source>
       <translation>ラベル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="7109" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="317" />
-      <location filename="../../views/labeling/label_widget.py" line="7109" />
-      <location filename="../../views/labeling/label_widget.py" line="317" />
+      <location filename="../../views/labeling/label_widget.py" line="7206" />
+      <location filename="../../views/labeling/label_widget.py" line="320" />
       <source>Description</source>
       <translation>説明</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="324" />
-      <location filename="../../views/labeling/label_widget.py" line="324" />
+      <location filename="../../views/labeling/label_widget.py" line="327" />
       <source>Search files...</source>
       <translation>ファイルを検索...</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="326" />
-      <location filename="../../views/labeling/label_widget.py" line="326" />
+      <location filename="../../views/labeling/label_widget.py" line="329" />
       <source>Supported search modes:
 - Text: plain text search
 - Index: #N (e.g., #1, #10)
@@ -2683,1682 +2778,1692 @@ Enter キーを押して検索します。</translation>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2721" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="345" />
-      <location filename="../../views/labeling/label_widget.py" line="2721" />
-      <location filename="../../views/labeling/label_widget.py" line="345" />
+      <location filename="../../views/labeling/label_widget.py" line="2748" />
+      <location filename="../../views/labeling/label_widget.py" line="348" />
       <source>Settings</source>
       <translation>設定</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="537" />
-      <location filename="../../views/labeling/label_widget.py" line="537" />
+      <location filename="../../views/labeling/label_widget.py" line="551" />
       <source>Open File</source>
       <translation>ファイルを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="541" />
-      <location filename="../../views/labeling/label_widget.py" line="541" />
+      <location filename="../../views/labeling/label_widget.py" line="555" />
       <source>Open image or label file</source>
       <translation>画像またはラベルファイルを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="544" />
-      <location filename="../../views/labeling/label_widget.py" line="544" />
+      <location filename="../../views/labeling/label_widget.py" line="558" />
       <source>Open Video</source>
       <translation>ビデオを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="548" />
-      <location filename="../../views/labeling/label_widget.py" line="548" />
+      <location filename="../../views/labeling/label_widget.py" line="562" />
       <source>Open video file</source>
       <translation>ビデオファイルを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="555" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="551" />
-      <location filename="../../views/labeling/label_widget.py" line="555" />
-      <location filename="../../views/labeling/label_widget.py" line="551" />
+      <location filename="../../views/labeling/label_widget.py" line="569" />
+      <location filename="../../views/labeling/label_widget.py" line="565" />
       <source>Open Dir</source>
       <translation>フォルダを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="558" />
-      <location filename="../../views/labeling/label_widget.py" line="558" />
+      <location filename="../../views/labeling/label_widget.py" line="572" />
       <source>Next Image</source>
       <translation>次の画像</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="562" />
-      <location filename="../../views/labeling/label_widget.py" line="562" />
+      <location filename="../../views/labeling/label_widget.py" line="576" />
       <source>Open next image</source>
       <translation>次の画像を開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="566" />
-      <location filename="../../views/labeling/label_widget.py" line="566" />
+      <location filename="../../views/labeling/label_widget.py" line="580" />
       <source>Prev Image</source>
       <translation>前の画像</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="570" />
-      <location filename="../../views/labeling/label_widget.py" line="570" />
+      <location filename="../../views/labeling/label_widget.py" line="584" />
       <source>Open prev image</source>
       <translation>前の画像を開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="574" />
-      <location filename="../../views/labeling/label_widget.py" line="574" />
+      <location filename="../../views/labeling/label_widget.py" line="588" />
       <source>Next Unchecked Image</source>
       <translation>次の未確認画像</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="578" />
-      <location filename="../../views/labeling/label_widget.py" line="578" />
+      <location filename="../../views/labeling/label_widget.py" line="592" />
       <source>Open next unchecked image</source>
       <translation>次の未確認画像を開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="582" />
-      <location filename="../../views/labeling/label_widget.py" line="582" />
+      <location filename="../../views/labeling/label_widget.py" line="596" />
       <source>Prev Unchecked Image</source>
       <translation>前の未確認画像</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="586" />
-      <location filename="../../views/labeling/label_widget.py" line="586" />
+      <location filename="../../views/labeling/label_widget.py" line="600" />
       <source>Open previous unchecked image</source>
       <translation>前の未確認画像を開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="590" />
-      <location filename="../../views/labeling/label_widget.py" line="590" />
+      <location filename="../../views/labeling/label_widget.py" line="604" />
       <source>Save</source>
       <translation>保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="594" />
-      <location filename="../../views/labeling/label_widget.py" line="594" />
+      <location filename="../../views/labeling/label_widget.py" line="608" />
       <source>Save labels to file</source>
       <translation>ラベルをファイルに保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="598" />
-      <location filename="../../views/labeling/label_widget.py" line="598" />
+      <location filename="../../views/labeling/label_widget.py" line="612" />
       <source>Save As</source>
       <translation>名前を付けて保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="602" />
-      <location filename="../../views/labeling/label_widget.py" line="602" />
+      <location filename="../../views/labeling/label_widget.py" line="616" />
       <source>Save labels to a different file</source>
       <translation>別のファイルにラベルを保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="606" />
-      <location filename="../../views/labeling/label_widget.py" line="606" />
+      <location filename="../../views/labeling/label_widget.py" line="620" />
       <source>Auto Run</source>
       <translation>自動実行</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="610" />
-      <location filename="../../views/labeling/label_widget.py" line="610" />
+      <location filename="../../views/labeling/label_widget.py" line="624" />
       <source>Auto run all images at once</source>
       <translation>すべての画像を一度に自動実行</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="614" />
-      <location filename="../../views/labeling/label_widget.py" line="614" />
+      <location filename="../../views/labeling/label_widget.py" line="628" />
       <source>Delete File</source>
       <translation>ファイルを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="618" />
-      <location filename="../../views/labeling/label_widget.py" line="618" />
+      <location filename="../../views/labeling/label_widget.py" line="632" />
       <source>Delete current label file</source>
       <translation>現在のラベルファイルを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="622" />
-      <location filename="../../views/labeling/label_widget.py" line="622" />
+      <location filename="../../views/labeling/label_widget.py" line="636" />
       <source>Delete Image File</source>
       <translation>画像ファイルを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="626" />
-      <location filename="../../views/labeling/label_widget.py" line="626" />
+      <location filename="../../views/labeling/label_widget.py" line="640" />
       <source>Delete current image file</source>
       <translation>現在の画像ファイルを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3925" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="630" />
-      <location filename="../../views/labeling/label_widget.py" line="3925" />
-      <location filename="../../views/labeling/label_widget.py" line="630" />
+      <location filename="../../views/labeling/label_widget.py" line="3987" />
+      <location filename="../../views/labeling/label_widget.py" line="644" />
       <source>Mark as Checked</source>
       <translation>チェック済みにする</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3926" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="634" />
-      <location filename="../../views/labeling/label_widget.py" line="3926" />
-      <location filename="../../views/labeling/label_widget.py" line="634" />
+      <location filename="../../views/labeling/label_widget.py" line="3988" />
+      <location filename="../../views/labeling/label_widget.py" line="648" />
       <source>Mark current annotation as checked</source>
       <translation>現在のアノテーションをチェック済みにする</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="640" />
-      <location filename="../../views/labeling/label_widget.py" line="640" />
+      <location filename="../../views/labeling/label_widget.py" line="654" />
       <source>Compare View</source>
       <translation>比較ビュー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="644" />
-      <location filename="../../views/labeling/label_widget.py" line="644" />
+      <location filename="../../views/labeling/label_widget.py" line="658" />
       <source>Toggle split-screen compare view</source>
       <translation>分割画面比較ビューを切り替え</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="649" />
-      <location filename="../../views/labeling/label_widget.py" line="649" />
+      <location filename="../../views/labeling/label_widget.py" line="663" />
       <source>Change Output Dir</source>
       <translation>出力ディレクトリを変更</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="653" />
-      <location filename="../../views/labeling/label_widget.py" line="653" />
+      <location filename="../../views/labeling/label_widget.py" line="667" />
       <source>Change where annotations are loaded/saved</source>
       <translation>アノテーションの読み込み/保存先を変更</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="657" />
-      <location filename="../../views/labeling/label_widget.py" line="657" />
+      <location filename="../../views/labeling/label_widget.py" line="671" />
       <source>Save Automatically</source>
       <translation>自動保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="660" />
-      <location filename="../../views/labeling/label_widget.py" line="660" />
+      <location filename="../../views/labeling/label_widget.py" line="674" />
       <source>Save automatically</source>
       <translation>自動保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="667" />
-      <location filename="../../views/labeling/label_widget.py" line="667" />
+      <location filename="../../views/labeling/label_widget.py" line="681" />
       <source>Save With Image Data</source>
       <translation>画像データを含めて保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="670" />
-      <location filename="../../views/labeling/label_widget.py" line="670" />
+      <location filename="../../views/labeling/label_widget.py" line="684" />
       <source>Save image data in label file</source>
       <translation>ラベルファイルに画像データを保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="676" />
-      <location filename="../../views/labeling/label_widget.py" line="676" />
+      <location filename="../../views/labeling/label_widget.py" line="690" />
       <source>Close</source>
       <translation>閉じる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="680" />
-      <location filename="../../views/labeling/label_widget.py" line="680" />
+      <location filename="../../views/labeling/label_widget.py" line="694" />
       <source>Close current file</source>
       <translation>現在のファイルを閉じる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="684" />
-      <location filename="../../views/labeling/label_widget.py" line="684" />
+      <location filename="../../views/labeling/label_widget.py" line="698" />
       <source>Keep Previous Annotation</source>
       <translation>前のアノテーションを保持</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="688" />
-      <location filename="../../views/labeling/label_widget.py" line="688" />
+      <location filename="../../views/labeling/label_widget.py" line="702" />
       <source>Toggle "Keep Previous Annotation" mode</source>
       <translation>「前のアノテーションを保持」モードを切り替え</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="694" />
-      <location filename="../../views/labeling/label_widget.py" line="694" />
+      <location filename="../../views/labeling/label_widget.py" line="708" />
       <source>Auto Use Last Label</source>
       <translation>最後のラベルを自動使用</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="698" />
-      <location filename="../../views/labeling/label_widget.py" line="698" />
+      <location filename="../../views/labeling/label_widget.py" line="712" />
       <source>Toggle "Auto Use Last Label" mode</source>
       <translation>「最後のラベルを自動使用」モードを切り替え</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="704" />
-      <location filename="../../views/labeling/label_widget.py" line="704" />
+      <location filename="../../views/labeling/label_widget.py" line="718" />
       <source>Auto Use Last Group ID</source>
       <translation>最後のグループIDを自動使用</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="708" />
-      <location filename="../../views/labeling/label_widget.py" line="708" />
+      <location filename="../../views/labeling/label_widget.py" line="722" />
       <source>Toggle "Auto Use Last Group ID" mode</source>
       <translation>「最後のグループIDを自動使用」モードを切り替え</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="714" />
-      <location filename="../../views/labeling/label_widget.py" line="714" />
+      <location filename="../../views/labeling/label_widget.py" line="728" />
       <source>Use System Clipboard</source>
       <translation>システムクリップボードを使用</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="716" />
-      <location filename="../../views/labeling/label_widget.py" line="716" />
+      <location filename="../../views/labeling/label_widget.py" line="730" />
       <source>Use system clipboard for copy and paste</source>
       <translation>コピー&amp;ペーストにシステムクリップボードを使用</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="723" />
-      <location filename="../../views/labeling/label_widget.py" line="723" />
+      <location filename="../../views/labeling/label_widget.py" line="737" />
       <source>Visibility Shapes</source>
       <translation>図形の表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="727" />
-      <location filename="../../views/labeling/label_widget.py" line="727" />
+      <location filename="../../views/labeling/label_widget.py" line="741" />
       <source>Toggle "Visibility Shapes" mode</source>
       <translation>「図形の表示」モードを切り替え</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="733" />
-      <location filename="../../views/labeling/label_widget.py" line="733" />
+      <location filename="../../views/labeling/label_widget.py" line="747" />
       <source>Create Polygons</source>
       <translation>ポリゴンを作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="737" />
-      <location filename="../../views/labeling/label_widget.py" line="737" />
+      <location filename="../../views/labeling/label_widget.py" line="751" />
       <source>Start drawing polygons</source>
       <translation>ポリゴンの描画を開始</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="741" />
-      <location filename="../../views/labeling/label_widget.py" line="741" />
+      <location filename="../../views/labeling/label_widget.py" line="755" />
       <source>Create Brush Polygons</source>
       <translation>ブラシポリゴンを作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="745" />
-      <location filename="../../views/labeling/label_widget.py" line="745" />
+      <location filename="../../views/labeling/label_widget.py" line="759" />
       <source>Toggle brush mode for drawing polygons</source>
       <translation>ポリゴン描画のブラシモードを切り替え</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="749" />
-      <location filename="../../views/labeling/label_widget.py" line="749" />
+      <location filename="../../views/labeling/label_widget.py" line="763" />
       <source>Magic Wand</source>
       <translation>マジックワンド</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="753" />
-      <location filename="../../views/labeling/label_widget.py" line="753" />
+      <location filename="../../views/labeling/label_widget.py" line="767" />
       <source>Select a contiguous color region; drag to adjust tolerance; right-click to finish; press Esc to cancel</source>
       <translation>連続した色領域を選択します。ドラッグで許容範囲を調整し、右クリックで確定、Esc キーでキャンセルします</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="760" />
-      <location filename="../../views/labeling/label_widget.py" line="760" />
+      <location filename="../../views/labeling/label_widget.py" line="774" />
       <source>Create Rectangle</source>
       <translation>矩形を作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="764" />
-      <location filename="../../views/labeling/label_widget.py" line="764" />
+      <location filename="../../views/labeling/label_widget.py" line="778" />
       <source>Start drawing rectangles</source>
       <translation>矩形の描画を開始</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="768" />
-      <location filename="../../views/labeling/label_widget.py" line="768" />
+      <location filename="../../views/labeling/label_widget.py" line="782" />
       <source>Create Rotation</source>
       <translation>回転ボックスを作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="772" />
-      <location filename="../../views/labeling/label_widget.py" line="772" />
+      <location filename="../../views/labeling/label_widget.py" line="786" />
       <source>Start drawing rotations</source>
       <translation>回転ボックスの描画を開始</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="776" />
-      <location filename="../../views/labeling/label_widget.py" line="776" />
+      <location filename="../../views/labeling/label_widget.py" line="790" />
       <source>Create Quadrilateral</source>
       <translation>四辺形を作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="780" />
-      <location filename="../../views/labeling/label_widget.py" line="780" />
+      <location filename="../../views/labeling/label_widget.py" line="794" />
       <source>Start drawing quadrilaterals (4 points, auto-closed)</source>
       <translation>四辺形の描画を開始（4点、自動閉合）</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="784" />
-      <location filename="../../views/labeling/label_widget.py" line="784" />
+      <location filename="../../views/labeling/label_widget.py" line="798" />
       <source>Create Circle</source>
       <translation>円を作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="788" />
-      <location filename="../../views/labeling/label_widget.py" line="788" />
+      <location filename="../../views/labeling/label_widget.py" line="802" />
       <source>Start drawing circles</source>
       <translation>円の描画を開始</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="792" />
-      <location filename="../../views/labeling/label_widget.py" line="792" />
+      <location filename="../../views/labeling/label_widget.py" line="806" />
       <source>Create Line</source>
       <translation>ラインを作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="796" />
-      <location filename="../../views/labeling/label_widget.py" line="796" />
+      <location filename="../../views/labeling/label_widget.py" line="810" />
       <source>Start drawing lines</source>
       <translation>ラインの描画を開始</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="800" />
-      <location filename="../../views/labeling/label_widget.py" line="800" />
+      <location filename="../../views/labeling/label_widget.py" line="814" />
       <source>Create Point</source>
       <translation>ポイントを作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="804" />
-      <location filename="../../views/labeling/label_widget.py" line="804" />
+      <location filename="../../views/labeling/label_widget.py" line="818" />
       <source>Start drawing points</source>
       <translation>ポイントの描画を開始</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="808" />
-      <location filename="../../views/labeling/label_widget.py" line="808" />
+      <location filename="../../views/labeling/label_widget.py" line="822" />
       <source>Create LineStrip</source>
       <translation>折れ線を作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="812" />
-      <location filename="../../views/labeling/label_widget.py" line="812" />
+      <location filename="../../views/labeling/label_widget.py" line="826" />
       <source>Start drawing linestrip. Ctrl+LeftClick ends creation.</source>
       <translation>ラインシーケンスの描画を開始します。Ctrl+左クリックで作成を終了します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="816" />
-      <location filename="../../views/labeling/label_widget.py" line="816" />
+      <location filename="../../views/labeling/label_widget.py" line="830" />
       <source>Create Cuboid</source>
       <translation>直方体を作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="820" />
-      <location filename="../../views/labeling/label_widget.py" line="820" />
+      <location filename="../../views/labeling/label_widget.py" line="834" />
       <source>Start drawing cuboids from rectangle</source>
       <translation>矩形から直方体の描画を開始</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="824" />
-      <location filename="../../views/labeling/label_widget.py" line="824" />
+      <location filename="../../views/labeling/label_widget.py" line="838" />
       <source>Digit Shortcut 0</source>
       <translation>数字ショートカット 0</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="831" />
-      <location filename="../../views/labeling/label_widget.py" line="831" />
+      <location filename="../../views/labeling/label_widget.py" line="845" />
       <source>Digit Shortcut 1</source>
       <translation>数字ショートカット 1</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="838" />
-      <location filename="../../views/labeling/label_widget.py" line="838" />
+      <location filename="../../views/labeling/label_widget.py" line="852" />
       <source>Digit Shortcut 2</source>
       <translation>数字ショートカット 2</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="845" />
-      <location filename="../../views/labeling/label_widget.py" line="845" />
+      <location filename="../../views/labeling/label_widget.py" line="859" />
       <source>Digit Shortcut 3</source>
       <translation>数字ショートカット 3</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="852" />
-      <location filename="../../views/labeling/label_widget.py" line="852" />
+      <location filename="../../views/labeling/label_widget.py" line="866" />
       <source>Digit Shortcut 4</source>
       <translation>数字ショートカット 4</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="859" />
-      <location filename="../../views/labeling/label_widget.py" line="859" />
+      <location filename="../../views/labeling/label_widget.py" line="873" />
       <source>Digit Shortcut 5</source>
       <translation>数字ショートカット 5</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="866" />
-      <location filename="../../views/labeling/label_widget.py" line="866" />
+      <location filename="../../views/labeling/label_widget.py" line="880" />
       <source>Digit Shortcut 6</source>
       <translation>数字ショートカット 6</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="873" />
-      <location filename="../../views/labeling/label_widget.py" line="873" />
+      <location filename="../../views/labeling/label_widget.py" line="887" />
       <source>Digit Shortcut 7</source>
       <translation>数字ショートカット 7</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="880" />
-      <location filename="../../views/labeling/label_widget.py" line="880" />
+      <location filename="../../views/labeling/label_widget.py" line="894" />
       <source>Digit Shortcut 8</source>
       <translation>数字ショートカット 8</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="887" />
-      <location filename="../../views/labeling/label_widget.py" line="887" />
+      <location filename="../../views/labeling/label_widget.py" line="901" />
       <source>Digit Shortcut 9</source>
       <translation>数字ショートカット 9</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="894" />
-      <location filename="../../views/labeling/label_widget.py" line="894" />
+      <location filename="../../views/labeling/label_widget.py" line="908" />
       <source>Edit Object</source>
       <translation>オブジェクトを編集</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="898" />
-      <location filename="../../views/labeling/label_widget.py" line="898" />
+      <location filename="../../views/labeling/label_widget.py" line="912" />
       <source>Move and edit the selected polygons</source>
       <translation>選択したポリゴンを移動・編集</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="902" />
-      <location filename="../../views/labeling/label_widget.py" line="902" />
+      <location filename="../../views/labeling/label_widget.py" line="916" />
       <source>Edit Brush</source>
       <translation>ブラシ編集</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="906" />
-      <location filename="../../views/labeling/label_widget.py" line="906" />
+      <location filename="../../views/labeling/label_widget.py" line="920" />
       <source>Select one polygon, then paint to add, hold Ctrl to erase, and scroll to resize the brush</source>
       <translation>ポリゴンを1つ選択してから、ドラッグして領域を追加します。Ctrl キーを押しながらドラッグすると消去し、マウスホイールでブラシサイズを変更できます</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="915" />
-      <location filename="../../views/labeling/label_widget.py" line="915" />
+      <location filename="../../views/labeling/label_widget.py" line="929" />
       <source>Group Selected Shapes</source>
       <translation>選択した図形をグループ化</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="919" />
-      <location filename="../../views/labeling/label_widget.py" line="919" />
+      <location filename="../../views/labeling/label_widget.py" line="933" />
       <source>Group shapes by assigning a same group_id</source>
       <translation>同じgroup_idを割り当てて図形をグループ化</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="923" />
-      <location filename="../../views/labeling/label_widget.py" line="923" />
+      <location filename="../../views/labeling/label_widget.py" line="937" />
       <source>Ungroup Selected Shapes</source>
       <translation>選択した図形のグループを解除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="927" />
-      <location filename="../../views/labeling/label_widget.py" line="927" />
+      <location filename="../../views/labeling/label_widget.py" line="941" />
       <source>Ungroup shapes</source>
       <translation>図形のグループを解除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="932" />
-      <location filename="../../views/labeling/label_widget.py" line="932" />
+      <location filename="../../views/labeling/label_widget.py" line="946" />
       <source>Delete</source>
       <translation>削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="936" />
-      <location filename="../../views/labeling/label_widget.py" line="936" />
+      <location filename="../../views/labeling/label_widget.py" line="950" />
       <source>Delete the selected polygons</source>
       <translation>選択したポリゴンを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="940" />
-      <location filename="../../views/labeling/label_widget.py" line="940" />
+      <location filename="../../views/labeling/label_widget.py" line="954" />
       <source>Duplicate Polygons</source>
       <translation>ポリゴンを複製</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="944" />
-      <location filename="../../views/labeling/label_widget.py" line="944" />
+      <location filename="../../views/labeling/label_widget.py" line="958" />
       <source>Create a duplicate of the selected polygons</source>
       <translation>選択したポリゴンの複製を作成</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="948" />
-      <location filename="../../views/labeling/label_widget.py" line="948" />
+      <location filename="../../views/labeling/label_widget.py" line="962" />
       <source>Copy Object</source>
       <translation>オブジェクトをコピー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="952" />
-      <location filename="../../views/labeling/label_widget.py" line="952" />
+      <location filename="../../views/labeling/label_widget.py" line="966" />
       <source>Copy selected polygons to clipboard</source>
       <translation>選択したポリゴンをクリップボードにコピー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="956" />
-      <location filename="../../views/labeling/label_widget.py" line="956" />
+      <location filename="../../views/labeling/label_widget.py" line="970" />
       <source>Paste Object</source>
       <translation>オブジェクトを貼り付け</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="960" />
-      <location filename="../../views/labeling/label_widget.py" line="960" />
+      <location filename="../../views/labeling/label_widget.py" line="974" />
       <source>Paste copied polygons</source>
       <translation>コピーしたポリゴンを貼り付け</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="964" />
-      <location filename="../../views/labeling/label_widget.py" line="964" />
+      <location filename="../../views/labeling/label_widget.py" line="978" />
       <source>Undo last point</source>
       <translation>最後のポイントを元に戻す</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="968" />
-      <location filename="../../views/labeling/label_widget.py" line="968" />
+      <location filename="../../views/labeling/label_widget.py" line="982" />
       <source>Undo last drawn point</source>
       <translation>最後に描いたポイントを元に戻す</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="972" />
-      <location filename="../../views/labeling/label_widget.py" line="972" />
+      <location filename="../../views/labeling/label_widget.py" line="986" />
       <source>Remove Selected Point</source>
       <translation>選択したポイントを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="976" />
-      <location filename="../../views/labeling/label_widget.py" line="976" />
+      <location filename="../../views/labeling/label_widget.py" line="990" />
       <source>Remove selected point from polygon</source>
       <translation>ポリゴンから選択したポイントを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="981" />
-      <location filename="../../views/labeling/label_widget.py" line="981" />
+      <location filename="../../views/labeling/label_widget.py" line="995" />
       <source>Undo</source>
       <translation>元に戻す</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="985" />
-      <location filename="../../views/labeling/label_widget.py" line="985" />
+      <location filename="../../views/labeling/label_widget.py" line="999" />
       <source>Undo last add and edit of shape</source>
       <translation>図形の最後の追加と編集を元に戻す</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="989" />
-      <location filename="../../views/labeling/label_widget.py" line="989" />
+      <location filename="../../views/labeling/label_widget.py" line="1003" />
       <source>Hide Selected Polygons</source>
       <translation>選択したポリゴンを非表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="993" />
-      <location filename="../../views/labeling/label_widget.py" line="993" />
+      <location filename="../../views/labeling/label_widget.py" line="1007" />
       <source>Hide selected polygons</source>
       <translation>選択したポリゴンを非表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="997" />
-      <location filename="../../views/labeling/label_widget.py" line="997" />
+      <location filename="../../views/labeling/label_widget.py" line="1011" />
       <source>Show Hidden Polygons</source>
       <translation>非表示のポリゴンを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1001" />
-      <location filename="../../views/labeling/label_widget.py" line="1001" />
+      <location filename="../../views/labeling/label_widget.py" line="1015" />
       <source>Show hidden polygons</source>
       <translation>非表示のポリゴンを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1006" />
-      <location filename="../../views/labeling/label_widget.py" line="1006" />
+      <location filename="../../views/labeling/label_widget.py" line="1020" />
       <source>Overview</source>
       <translation>統計概要</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1010" />
-      <location filename="../../views/labeling/label_widget.py" line="1010" />
+      <location filename="../../views/labeling/label_widget.py" line="1024" />
       <source>Show annotations statistics</source>
       <translation>アノテーション統計を表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1013" />
-      <location filename="../../views/labeling/label_widget.py" line="1013" />
+      <location filename="../../views/labeling/label_widget.py" line="1027" />
       <source>Save Cropped Image</source>
       <translation>切り取り画像を保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1016" />
-      <location filename="../../views/labeling/label_widget.py" line="1016" />
+      <location filename="../../views/labeling/label_widget.py" line="1030" />
       <source>Save cropped image. (Support rectangle/rotation/polygon shape_type)</source>
       <translation>切り取り画像を保存（矩形/回転/ポリゴンの図形タイプに対応）</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1021" />
-      <location filename="../../views/labeling/label_widget.py" line="1021" />
+      <location filename="../../views/labeling/label_widget.py" line="1035" />
       <source>Save Visualization Image</source>
       <translation>可視化画像を保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1024" />
-      <location filename="../../views/labeling/label_widget.py" line="1024" />
+      <location filename="../../views/labeling/label_widget.py" line="1038" />
       <source>Save visualization image</source>
       <translation>可視化画像を保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1027" />
-      <location filename="../../views/labeling/label_widget.py" line="1027" />
+      <location filename="../../views/labeling/label_widget.py" line="1041" />
       <source>Save Visualization Video</source>
       <translation>可視化動画を保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1030" />
-      <location filename="../../views/labeling/label_widget.py" line="1030" />
+      <location filename="../../views/labeling/label_widget.py" line="1044" />
       <source>Save visualization video</source>
       <translation>可視化動画を保存</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1033" />
-      <location filename="../../views/labeling/label_widget.py" line="1033" />
+      <location filename="../../views/labeling/label_widget.py" line="1047" />
       <source>Digit Shortcut Manager</source>
       <translation>数字ショートカットマネージャー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1037" />
-      <location filename="../../views/labeling/label_widget.py" line="1037" />
+      <location filename="../../views/labeling/label_widget.py" line="1051" />
       <source>Manage Digit Shortcuts: Assign Drawing Modes and Labels to Number Keys</source>
       <translation>数字ショートカット管理：数字キーに描画モードとラベルを割り当て</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1042" />
-      <location filename="../../views/labeling/label_widget.py" line="1042" />
+      <location filename="../../views/labeling/label_widget.py" line="1056" />
       <source>Label Manager</source>
       <translation>ラベルマネージャー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1046" />
-      <location filename="../../views/labeling/label_widget.py" line="1046" />
+      <location filename="../../views/labeling/label_widget.py" line="1060" />
       <source>Manage Labels: Rename, Delete, Hide/Show, Adjust Color</source>
       <translation>ラベル管理：名前の変更、削除、表示/非表示、色の調整</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1051" />
-      <location filename="../../views/labeling/label_widget.py" line="1051" />
+      <location filename="../../views/labeling/label_widget.py" line="1065" />
       <source>Group ID Manager</source>
       <translation>グループIDマネージャー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1055" />
-      <location filename="../../views/labeling/label_widget.py" line="1055" />
+      <location filename="../../views/labeling/label_widget.py" line="1069" />
       <source>Manage Group ID</source>
       <translation>グループIDを管理</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1058" />
-      <location filename="../../views/labeling/label_widget.py" line="1058" />
+      <location filename="../../views/labeling/label_widget.py" line="1072" />
       <source>Shape Manager</source>
       <translation>図形マネージャー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1062" />
-      <location filename="../../views/labeling/label_widget.py" line="1062" />
+      <location filename="../../views/labeling/label_widget.py" line="1076" />
       <source>Manage Shapes: Add, Delete, Remove</source>
       <translation>図形管理：追加、削除、除去</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1066" />
-      <location filename="../../views/labeling/label_widget.py" line="1066" />
+      <location filename="../../views/labeling/label_widget.py" line="1080" />
       <source>Copy Coordinates</source>
       <translation>座標をコピー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1069" />
-      <location filename="../../views/labeling/label_widget.py" line="1069" />
+      <location filename="../../views/labeling/label_widget.py" line="1083" />
       <source>Copy shape coordinates to clipboard</source>
       <translation>図形の座標をクリップボードにコピー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1073" />
-      <location filename="../../views/labeling/label_widget.py" line="1073" />
+      <location filename="../../views/labeling/label_widget.py" line="1087" />
       <source>Union Selection</source>
       <translation>選択を結合</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1077" />
-      <location filename="../../views/labeling/label_widget.py" line="1077" />
+      <location filename="../../views/labeling/label_widget.py" line="1091" />
       <source>Union multiple selected rectangle shapes</source>
       <translation>選択した複数の矩形図形を結合</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1081" />
-      <location filename="../../views/labeling/label_widget.py" line="1081" />
+      <location filename="../../views/labeling/label_widget.py" line="1095" />
       <source>Lock Shape</source>
       <translation>図形をロック</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1083" />
-      <location filename="../../views/labeling/label_widget.py" line="1083" />
+      <location filename="../../views/labeling/label_widget.py" line="1097" />
       <source>Prevent changes to the selected shapes' coordinates</source>
       <translation>選択した図形の座標変更を防止</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1088" />
-      <location filename="../../views/labeling/label_widget.py" line="1088" />
+      <location filename="../../views/labeling/label_widget.py" line="1102" />
       <source>Shape Converter</source>
       <translation>図形コンバーター</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1091" />
-      <location filename="../../views/labeling/label_widget.py" line="1091" />
+      <location filename="../../views/labeling/label_widget.py" line="1105" />
       <source>Open shape converter</source>
       <translation>図形コンバーターを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1094" />
-      <location filename="../../views/labeling/label_widget.py" line="1094" />
+      <location filename="../../views/labeling/label_widget.py" line="1108" />
       <source>ChatBot</source>
       <translation>チャットボット</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1098" />
-      <location filename="../../views/labeling/label_widget.py" line="1098" />
+      <location filename="../../views/labeling/label_widget.py" line="1112" />
       <source>Open chatbot dialog</source>
       <translation>チャットボットダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1101" />
-      <location filename="../../views/labeling/label_widget.py" line="1101" />
+      <location filename="../../views/labeling/label_widget.py" line="1115" />
       <source>VQA</source>
       <translation>VQA</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1105" />
-      <location filename="../../views/labeling/label_widget.py" line="1105" />
+      <location filename="../../views/labeling/label_widget.py" line="1119" />
       <source>Open VQA dialog</source>
       <translation>VQAダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1108" />
-      <location filename="../../views/labeling/label_widget.py" line="1108" />
+      <location filename="../../views/labeling/label_widget.py" line="1122" />
       <source>Classifier</source>
       <translation>分類器</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1114" />
-      <location filename="../../views/labeling/label_widget.py" line="1114" />
+      <location filename="../../views/labeling/label_widget.py" line="1128" />
       <source>Open image classifier dialog</source>
       <translation>画像分類器ダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1117" />
-      <location filename="../../views/labeling/label_widget.py" line="1117" />
+      <location filename="../../views/labeling/label_widget.py" line="1131" />
       <source>Video Classifier</source>
       <translation>動画分類器</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1121" />
-      <location filename="../../views/labeling/label_widget.py" line="1121" />
+      <location filename="../../views/labeling/label_widget.py" line="1135" />
       <source>Open video classifier dialog</source>
       <translation>動画分類器ダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1124" />
-      <location filename="../../views/labeling/label_widget.py" line="1124" />
+      <location filename="../../views/labeling/label_widget.py" line="1138" />
       <source>PaddleOCR</source>
       <translation>PaddleOCR</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1128" />
-      <location filename="../../views/labeling/label_widget.py" line="1128" />
+      <location filename="../../views/labeling/label_widget.py" line="1142" />
       <source>Open PaddleOCR dialog</source>
       <translation>PaddleOCRダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1131" />
-      <location filename="../../views/labeling/label_widget.py" line="1131" />
+      <location filename="../../views/labeling/label_widget.py" line="1145" />
       <source>Documentation</source>
       <translation>ドキュメント</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1134" />
-      <location filename="../../views/labeling/label_widget.py" line="1134" />
+      <location filename="../../views/labeling/label_widget.py" line="1148" />
       <source>Show documentation</source>
       <translation>ドキュメントを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1137" />
-      <location filename="../../views/labeling/label_widget.py" line="1137" />
+      <location filename="../../views/labeling/label_widget.py" line="1151" />
       <source>Sponsor</source>
       <translation>スポンサー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1140" />
-      <location filename="../../views/labeling/label_widget.py" line="1140" />
+      <location filename="../../views/labeling/label_widget.py" line="1154" />
       <source>Open sponsor page</source>
       <translation>スポンサーのページを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1143" />
-      <location filename="../../views/labeling/label_widget.py" line="1143" />
+      <location filename="../../views/labeling/label_widget.py" line="1157" />
       <source>About</source>
       <translation>バージョン情報</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1146" />
-      <location filename="../../views/labeling/label_widget.py" line="1146" />
+      <location filename="../../views/labeling/label_widget.py" line="1160" />
       <source>Open about dialog</source>
       <translation>バージョン情報ダイアログを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1150" />
-      <location filename="../../views/labeling/label_widget.py" line="1150" />
+      <location filename="../../views/labeling/label_widget.py" line="1164" />
       <source>Loop Through Labels</source>
       <translation>ラベルをループ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1154" />
-      <location filename="../../views/labeling/label_widget.py" line="1154" />
+      <location filename="../../views/labeling/label_widget.py" line="1168" />
       <source>Loop through labels</source>
       <translation>ラベルをループする</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1158" />
-      <location filename="../../views/labeling/label_widget.py" line="1158" />
+      <location filename="../../views/labeling/label_widget.py" line="1172" />
       <source>Loop Select Labels</source>
       <translation>ラベルをループ選択</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1162" />
-      <location filename="../../views/labeling/label_widget.py" line="1162" />
+      <location filename="../../views/labeling/label_widget.py" line="1176" />
       <source>Loop select labels</source>
       <translation>ラベルをループ選択する</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1166" />
-      <location filename="../../views/labeling/label_widget.py" line="1166" />
+      <location filename="../../views/labeling/label_widget.py" line="1180" />
       <source>Toggle Shapes Visibility</source>
       <translation>図形の表示/非表示を切り替え</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3059" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1169" />
-      <location filename="../../views/labeling/label_widget.py" line="3059" />
-      <location filename="../../views/labeling/label_widget.py" line="1169" />
+      <location filename="../../views/labeling/label_widget.py" line="3121" />
+      <location filename="../../views/labeling/label_widget.py" line="1183" />
       <source>Hide all shapes</source>
       <translation>すべての図形を非表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1184" />
-      <location filename="../../views/labeling/label_widget.py" line="1184" />
+      <location filename="../../views/labeling/label_widget.py" line="1198" />
       <source>Zoom in or out of the image. Also accessible with {} and {} from the canvas.</source>
       <translation>画像を拡大・縮小します。キャンバスから {} と {} を使用してもアクセスできます</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1192" />
-      <location filename="../../views/labeling/label_widget.py" line="1192" />
+      <location filename="../../views/labeling/label_widget.py" line="1206" />
       <source>Ctrl+Wheel</source>
       <translation>Ctrl + スクロール</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1198" />
-      <location filename="../../views/labeling/label_widget.py" line="1198" />
+      <location filename="../../views/labeling/label_widget.py" line="1212" />
       <source>Zoom In</source>
       <translation>ズームイン</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1202" />
-      <location filename="../../views/labeling/label_widget.py" line="1202" />
+      <location filename="../../views/labeling/label_widget.py" line="1216" />
       <source>Increase zoom level</source>
       <translation>ズームレベルを上げる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1206" />
-      <location filename="../../views/labeling/label_widget.py" line="1206" />
+      <location filename="../../views/labeling/label_widget.py" line="1220" />
       <source>Zoom Out</source>
       <translation>ズームアウト</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1210" />
-      <location filename="../../views/labeling/label_widget.py" line="1210" />
+      <location filename="../../views/labeling/label_widget.py" line="1224" />
       <source>Decrease zoom level</source>
       <translation>ズームレベルを下げる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1214" />
-      <location filename="../../views/labeling/label_widget.py" line="1214" />
+      <location filename="../../views/labeling/label_widget.py" line="1228" />
       <source>Original Size</source>
       <translation>元のサイズ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1218" />
-      <location filename="../../views/labeling/label_widget.py" line="1218" />
+      <location filename="../../views/labeling/label_widget.py" line="1232" />
       <source>Zoom to original size</source>
       <translation>元のサイズにズーム</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1222" />
-      <location filename="../../views/labeling/label_widget.py" line="1222" />
+      <location filename="../../views/labeling/label_widget.py" line="1236" />
       <source>Keep Previous Scale</source>
       <translation>前のスケールを保持</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1224" />
-      <location filename="../../views/labeling/label_widget.py" line="1224" />
+      <location filename="../../views/labeling/label_widget.py" line="1238" />
       <source>Keep previous zoom scale</source>
       <translation>前のズームスケールを保持</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1230" />
-      <location filename="../../views/labeling/label_widget.py" line="1230" />
+      <location filename="../../views/labeling/label_widget.py" line="1244" />
       <source>Keep Previous Brightness</source>
       <translation>前の明るさを保持</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1232" />
-      <location filename="../../views/labeling/label_widget.py" line="1232" />
+      <location filename="../../views/labeling/label_widget.py" line="1246" />
       <source>Keep previous brightness</source>
       <translation>前の明るさを保持</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1238" />
-      <location filename="../../views/labeling/label_widget.py" line="1238" />
+      <location filename="../../views/labeling/label_widget.py" line="1252" />
       <source>Keep Previous Contrast</source>
       <translation>前のコントラストを保持</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1240" />
-      <location filename="../../views/labeling/label_widget.py" line="1240" />
+      <location filename="../../views/labeling/label_widget.py" line="1254" />
       <source>Keep previous contrast</source>
       <translation>前のコントラストを保持</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1246" />
-      <location filename="../../views/labeling/label_widget.py" line="1246" />
+      <location filename="../../views/labeling/label_widget.py" line="1260" />
       <source>Fit Window</source>
       <translation>ウィンドウに合わせる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1250" />
-      <location filename="../../views/labeling/label_widget.py" line="1250" />
+      <location filename="../../views/labeling/label_widget.py" line="1264" />
       <source>Zoom follows window size</source>
       <translation>ズームをウィンドウサイズに合わせる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1255" />
-      <location filename="../../views/labeling/label_widget.py" line="1255" />
+      <location filename="../../views/labeling/label_widget.py" line="1269" />
       <source>Fit Width</source>
       <translation>幅に合わせる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1259" />
-      <location filename="../../views/labeling/label_widget.py" line="1259" />
+      <location filename="../../views/labeling/label_widget.py" line="1273" />
       <source>Zoom follows window width</source>
       <translation>ズームをウィンドウ幅に合わせる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1264" />
-      <location filename="../../views/labeling/label_widget.py" line="1264" />
+      <location filename="../../views/labeling/label_widget.py" line="1278" />
       <source>Set Brightness Contrast</source>
       <translation>明るさ/コントラストを設定</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1272" />
-      <location filename="../../views/labeling/label_widget.py" line="1272" />
+      <location filename="../../views/labeling/label_widget.py" line="1286" />
       <source>Set Cross Line</source>
       <translation>クロスラインを設定</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1274" />
-      <location filename="../../views/labeling/label_widget.py" line="1274" />
+      <location filename="../../views/labeling/label_widget.py" line="1288" />
       <source>Adjust cross line for mouse position</source>
       <translation>マウス位置のクロスラインを調整</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1278" />
-      <location filename="../../views/labeling/label_widget.py" line="1278" />
+      <location filename="../../views/labeling/label_widget.py" line="1292" />
       <source>Show Groups</source>
       <translation>グループを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1280" />
-      <location filename="../../views/labeling/label_widget.py" line="1280" />
+      <location filename="../../views/labeling/label_widget.py" line="1294" />
       <source>Show shape groups</source>
       <translation>図形グループを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1288" />
-      <location filename="../../views/labeling/label_widget.py" line="1288" />
+      <location filename="../../views/labeling/label_widget.py" line="1302" />
       <source>Show Masks</source>
       <translation>マスクを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1291" />
-      <location filename="../../views/labeling/label_widget.py" line="1291" />
+      <location filename="../../views/labeling/label_widget.py" line="1305" />
       <source>Show semi-transparent masks for shapes</source>
       <translation>図形の半透明マスクを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1299" />
-      <location filename="../../views/labeling/label_widget.py" line="1299" />
+      <location filename="../../views/labeling/label_widget.py" line="1313" />
       <source>Show Texts</source>
       <translation>テキストを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1302" />
-      <location filename="../../views/labeling/label_widget.py" line="1302" />
+      <location filename="../../views/labeling/label_widget.py" line="1316" />
       <source>Show text above shapes</source>
       <translation>図形の上にテキストを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1310" />
-      <location filename="../../views/labeling/label_widget.py" line="1310" />
+      <location filename="../../views/labeling/label_widget.py" line="1324" />
       <source>Show Labels</source>
       <translation>ラベルを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1313" />
-      <location filename="../../views/labeling/label_widget.py" line="1313" />
+      <location filename="../../views/labeling/label_widget.py" line="1327" />
       <source>Show label inside shapes</source>
       <translation>図形内にラベルを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1321" />
-      <location filename="../../views/labeling/label_widget.py" line="1321" />
+      <location filename="../../views/labeling/label_widget.py" line="1335" />
       <source>Show Scores</source>
       <translation>スコアを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1323" />
-      <location filename="../../views/labeling/label_widget.py" line="1323" />
+      <location filename="../../views/labeling/label_widget.py" line="1337" />
       <source>Show score inside shapes</source>
       <translation>図形内にスコアを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1331" />
-      <location filename="../../views/labeling/label_widget.py" line="1331" />
+      <location filename="../../views/labeling/label_widget.py" line="1345" />
       <source>Show Attributes</source>
       <translation>属性を表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1334" />
-      <location filename="../../views/labeling/label_widget.py" line="1334" />
+      <location filename="../../views/labeling/label_widget.py" line="1348" />
       <source>Show attribute inside shapes</source>
       <translation>図形内に属性を表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1342" />
-      <location filename="../../views/labeling/label_widget.py" line="1342" />
+      <location filename="../../views/labeling/label_widget.py" line="1356" />
       <source>Show Degress</source>
       <translation>回転角度を表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1344" />
-      <location filename="../../views/labeling/label_widget.py" line="1344" />
+      <location filename="../../views/labeling/label_widget.py" line="1358" />
       <source>Show degrees above rotated shapes</source>
       <translation>回転した図形の上に角度を表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1352" />
-      <location filename="../../views/labeling/label_widget.py" line="1352" />
+      <location filename="../../views/labeling/label_widget.py" line="1366" />
       <source>Show KIE Linking</source>
       <translation>KIEリンクを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1355" />
-      <location filename="../../views/labeling/label_widget.py" line="1355" />
+      <location filename="../../views/labeling/label_widget.py" line="1369" />
       <source>Show KIE linking between key and value</source>
       <translation>キーと値のKIEリンクを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1405" />
-      <location filename="../../views/labeling/label_widget.py" line="1405" />
+      <location filename="../../views/labeling/label_widget.py" line="1419" />
       <source>System</source>
       <translation>システム</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1406" />
-      <location filename="../../views/labeling/label_widget.py" line="1406" />
+      <location filename="../../views/labeling/label_widget.py" line="1420" />
       <source>Light</source>
       <translation>ライト</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1407" />
-      <location filename="../../views/labeling/label_widget.py" line="1407" />
+      <location filename="../../views/labeling/label_widget.py" line="1421" />
       <source>Dark</source>
       <translation>ダーク</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1423" />
-      <location filename="../../views/labeling/label_widget.py" line="1423" />
+      <location filename="../../views/labeling/label_widget.py" line="1437" />
       <source>Image Flags</source>
       <translation>画像フラグ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1427" />
-      <location filename="../../views/labeling/label_widget.py" line="1427" />
+      <location filename="../../views/labeling/label_widget.py" line="1441" />
       <source>Upload Custom Image Flags File</source>
       <translation>カスタム画像フラグファイルをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1430" />
-      <location filename="../../views/labeling/label_widget.py" line="1430" />
+      <location filename="../../views/labeling/label_widget.py" line="1444" />
       <source>Label Flags</source>
       <translation>ラベルフラグ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1434" />
-      <location filename="../../views/labeling/label_widget.py" line="1434" />
+      <location filename="../../views/labeling/label_widget.py" line="1448" />
       <source>Upload Custom Label Flags File</source>
       <translation>カスタムラベルフラグファイルをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2381" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1437" />
-      <location filename="../../views/labeling/label_widget.py" line="2381" />
-      <location filename="../../views/labeling/label_widget.py" line="1437" />
+      <location filename="../../views/labeling/label_widget.py" line="2408" />
+      <location filename="../../views/labeling/label_widget.py" line="1451" />
       <source>Attributes</source>
       <translation>属性</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1441" />
-      <location filename="../../views/labeling/label_widget.py" line="1441" />
+      <location filename="../../views/labeling/label_widget.py" line="1455" />
       <source>Upload Custom Attributes File</source>
       <translation>カスタム属性ファイルをインポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1444" />
-      <location filename="../../views/labeling/label_widget.py" line="1444" />
+      <location filename="../../views/labeling/label_widget.py" line="1458" />
       <source>Label Classes</source>
       <translation>ラベルクラス</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1448" />
-      <location filename="../../views/labeling/label_widget.py" line="1448" />
+      <location filename="../../views/labeling/label_widget.py" line="1462" />
       <source>Upload Custom Label Classes File</source>
       <translation>カスタムラベルクラスファイルをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1582" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1451" />
-      <location filename="../../views/labeling/label_widget.py" line="1582" />
-      <location filename="../../views/labeling/label_widget.py" line="1451" />
+      <location filename="../../views/labeling/label_widget.py" line="1596" />
+      <location filename="../../views/labeling/label_widget.py" line="1465" />
       <source>YOLO HBB</source>
       <translation>YOLO HBB</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1455" />
-      <location filename="../../views/labeling/label_widget.py" line="1455" />
+      <location filename="../../views/labeling/label_widget.py" line="1469" />
       <source>Upload Custom YOLO Horizontal Bounding Boxes Annotations</source>
       <translation>カスタムYOLO水平バウンディングボックスアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1591" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1460" />
-      <location filename="../../views/labeling/label_widget.py" line="1591" />
-      <location filename="../../views/labeling/label_widget.py" line="1460" />
+      <location filename="../../views/labeling/label_widget.py" line="1605" />
+      <location filename="../../views/labeling/label_widget.py" line="1474" />
       <source>YOLO OBB</source>
       <translation>YOLO OBB</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1464" />
-      <location filename="../../views/labeling/label_widget.py" line="1464" />
+      <location filename="../../views/labeling/label_widget.py" line="1478" />
       <source>Upload Custom YOLO Oriented Bounding Boxes Annotations</source>
       <translation>カスタムYOLO回転バウンディングボックスアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1600" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1469" />
-      <location filename="../../views/labeling/label_widget.py" line="1600" />
-      <location filename="../../views/labeling/label_widget.py" line="1469" />
+      <location filename="../../views/labeling/label_widget.py" line="1614" />
+      <location filename="../../views/labeling/label_widget.py" line="1483" />
       <source>YOLO Seg</source>
       <translation>YOLO Seg</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1473" />
-      <location filename="../../views/labeling/label_widget.py" line="1473" />
+      <location filename="../../views/labeling/label_widget.py" line="1487" />
       <source>Upload Custom YOLO Segmentation Annotations</source>
       <translation>カスタムYOLOセグメンテーションアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1607" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1476" />
-      <location filename="../../views/labeling/label_widget.py" line="1607" />
-      <location filename="../../views/labeling/label_widget.py" line="1476" />
+      <location filename="../../views/labeling/label_widget.py" line="1621" />
+      <location filename="../../views/labeling/label_widget.py" line="1490" />
       <source>YOLO Pose</source>
       <translation>YOLO Pose</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1480" />
-      <location filename="../../views/labeling/label_widget.py" line="1480" />
+      <location filename="../../views/labeling/label_widget.py" line="1494" />
       <source>Upload Custom YOLO Pose Annotations</source>
       <translation>カスタムYOLOポーズアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1614" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1483" />
-      <location filename="../../views/labeling/label_widget.py" line="1614" />
-      <location filename="../../views/labeling/label_widget.py" line="1483" />
+      <location filename="../../views/labeling/label_widget.py" line="1628" />
+      <location filename="../../views/labeling/label_widget.py" line="1497" />
       <source>VOC Detection</source>
       <translation>VOC 検出</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1487" />
-      <location filename="../../views/labeling/label_widget.py" line="1487" />
+      <location filename="../../views/labeling/label_widget.py" line="1501" />
       <source>Upload Custom Pascal VOC Detection Annotations</source>
       <translation>カスタムPascal VOC検出アノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1621" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1490" />
-      <location filename="../../views/labeling/label_widget.py" line="1621" />
-      <location filename="../../views/labeling/label_widget.py" line="1490" />
+      <location filename="../../views/labeling/label_widget.py" line="1635" />
+      <location filename="../../views/labeling/label_widget.py" line="1504" />
       <source>VOC Segmentation</source>
       <translation>VOC 分割</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1494" />
-      <location filename="../../views/labeling/label_widget.py" line="1494" />
+      <location filename="../../views/labeling/label_widget.py" line="1508" />
       <source>Upload Custom Pascal VOC Segmentation Annotations</source>
       <translation>カスタムPascal VOCセグメンテーションアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1628" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1497" />
-      <location filename="../../views/labeling/label_widget.py" line="1628" />
-      <location filename="../../views/labeling/label_widget.py" line="1497" />
+      <location filename="../../views/labeling/label_widget.py" line="1642" />
+      <location filename="../../views/labeling/label_widget.py" line="1511" />
       <source>COCO Detection</source>
       <translation>COCO 検出</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1501" />
-      <location filename="../../views/labeling/label_widget.py" line="1501" />
+      <location filename="../../views/labeling/label_widget.py" line="1515" />
       <source>Upload Custom COCO Detection Annotations</source>
       <translation>カスタムCOCO検出アノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1635" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1504" />
-      <location filename="../../views/labeling/label_widget.py" line="1635" />
-      <location filename="../../views/labeling/label_widget.py" line="1504" />
+      <location filename="../../views/labeling/label_widget.py" line="1649" />
+      <location filename="../../views/labeling/label_widget.py" line="1518" />
       <source>COCO Segmentation</source>
       <translation>COCO 分割</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1508" />
-      <location filename="../../views/labeling/label_widget.py" line="1508" />
+      <location filename="../../views/labeling/label_widget.py" line="1522" />
       <source>Upload Custom COCO Instance Segmentation Annotations</source>
       <translation>カスタムCOCOインスタンスセグメンテーションアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1644" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1513" />
-      <location filename="../../views/labeling/label_widget.py" line="1644" />
-      <location filename="../../views/labeling/label_widget.py" line="1513" />
+      <location filename="../../views/labeling/label_widget.py" line="1658" />
+      <location filename="../../views/labeling/label_widget.py" line="1527" />
       <source>COCO Keypoints</source>
       <translation>COCO キーポイント</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1517" />
-      <location filename="../../views/labeling/label_widget.py" line="1517" />
+      <location filename="../../views/labeling/label_widget.py" line="1531" />
       <source>Upload Custom COCO Keypoint Annotations</source>
       <translation>カスタムCOCOキーポイントアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1651" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1520" />
-      <location filename="../../views/labeling/label_widget.py" line="1651" />
-      <location filename="../../views/labeling/label_widget.py" line="1520" />
+      <location filename="../../views/labeling/label_widget.py" line="1665" />
+      <location filename="../../views/labeling/label_widget.py" line="1534" />
       <source>DOTA</source>
       <translation>DOTA</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1524" />
-      <location filename="../../views/labeling/label_widget.py" line="1524" />
+      <location filename="../../views/labeling/label_widget.py" line="1538" />
       <source>Upload Custom DOTA Annotations</source>
       <translation>カスタムDOTAアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1658" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1527" />
-      <location filename="../../views/labeling/label_widget.py" line="1658" />
-      <location filename="../../views/labeling/label_widget.py" line="1527" />
+      <location filename="../../views/labeling/label_widget.py" line="1672" />
+      <location filename="../../views/labeling/label_widget.py" line="1541" />
       <source>MASK</source>
       <translation>MASK</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1531" />
-      <location filename="../../views/labeling/label_widget.py" line="1531" />
+      <location filename="../../views/labeling/label_widget.py" line="1545" />
       <source>Upload Custom MASK Annotations</source>
       <translation>カスタムMASKアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1665" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1534" />
-      <location filename="../../views/labeling/label_widget.py" line="1665" />
-      <location filename="../../views/labeling/label_widget.py" line="1534" />
+      <location filename="../../views/labeling/label_widget.py" line="1679" />
+      <location filename="../../views/labeling/label_widget.py" line="1548" />
       <source>MOT</source>
       <translation>MOT</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1538" />
-      <location filename="../../views/labeling/label_widget.py" line="1538" />
+      <location filename="../../views/labeling/label_widget.py" line="1552" />
       <source>Upload Custom Multi-Object-Tracking Annotations</source>
       <translation>カスタムMOTアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1681" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1541" />
-      <location filename="../../views/labeling/label_widget.py" line="1681" />
-      <location filename="../../views/labeling/label_widget.py" line="1541" />
+      <location filename="../../views/labeling/label_widget.py" line="1695" />
+      <location filename="../../views/labeling/label_widget.py" line="1555" />
       <source>ODVG</source>
       <translation>ODVG</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1545" />
-      <location filename="../../views/labeling/label_widget.py" line="1545" />
+      <location filename="../../views/labeling/label_widget.py" line="1559" />
       <source>Upload Custom Object Detection Visual Grounding Annotations</source>
       <translation>カスタム物体検出ビジュアルグラウンディングアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1550" />
-      <location filename="../../views/labeling/label_widget.py" line="1550" />
+      <location filename="../../views/labeling/label_widget.py" line="1564" />
       <source>MM-Grounding-DINO</source>
       <translation>MM-Grounding-DINO</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1554" />
-      <location filename="../../views/labeling/label_widget.py" line="1554" />
+      <location filename="../../views/labeling/label_widget.py" line="1568" />
       <source>Upload Custom MM-Grounding-DINO Annotations</source>
       <translation>カスタムMM-Grounding-DINOアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1690" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1557" />
-      <location filename="../../views/labeling/label_widget.py" line="1690" />
-      <location filename="../../views/labeling/label_widget.py" line="1557" />
+      <location filename="../../views/labeling/label_widget.py" line="1704" />
+      <location filename="../../views/labeling/label_widget.py" line="1571" />
       <source>PPOCR Rec</source>
       <translation>PPOCR Rec</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1561" />
-      <location filename="../../views/labeling/label_widget.py" line="1561" />
+      <location filename="../../views/labeling/label_widget.py" line="1575" />
       <source>Upload Custom PPOCR Recognition Annotations</source>
       <translation>カスタムPPOCR認識アノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1697" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1564" />
-      <location filename="../../views/labeling/label_widget.py" line="1697" />
-      <location filename="../../views/labeling/label_widget.py" line="1564" />
+      <location filename="../../views/labeling/label_widget.py" line="1711" />
+      <location filename="../../views/labeling/label_widget.py" line="1578" />
       <source>PPOCR KIE</source>
       <translation>PPOCR KIE</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1568" />
-      <location filename="../../views/labeling/label_widget.py" line="1568" />
+      <location filename="../../views/labeling/label_widget.py" line="1582" />
       <source>Upload Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition &amp; Relation Extraction) Annotations</source>
       <translation>カスタムPPOCRキー情報抽出アノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1706" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1573" />
-      <location filename="../../views/labeling/label_widget.py" line="1706" />
-      <location filename="../../views/labeling/label_widget.py" line="1573" />
+      <location filename="../../views/labeling/label_widget.py" line="1720" />
+      <location filename="../../views/labeling/label_widget.py" line="1587" />
       <source>VLM-R1 OVD</source>
       <translation>VLM-R1 OVD</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1577" />
-      <location filename="../../views/labeling/label_widget.py" line="1577" />
+      <location filename="../../views/labeling/label_widget.py" line="1591" />
       <source>Upload Custom VLM-R1 OVD Annotations</source>
       <translation>カスタムVLM-R1 OVDアノテーションをアップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1586" />
-      <location filename="../../views/labeling/label_widget.py" line="1586" />
+      <location filename="../../views/labeling/label_widget.py" line="1600" />
       <source>Export Custom YOLO Horizontal Bounding Boxes Annotations</source>
       <translation>カスタムYOLO水平バウンディングボックスアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1595" />
-      <location filename="../../views/labeling/label_widget.py" line="1595" />
+      <location filename="../../views/labeling/label_widget.py" line="1609" />
       <source>Export Custom YOLO Oriented Bounding Boxes Annotations</source>
       <translation>カスタムYOLO回転バウンディングボックスアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1604" />
-      <location filename="../../views/labeling/label_widget.py" line="1604" />
+      <location filename="../../views/labeling/label_widget.py" line="1618" />
       <source>Export Custom YOLO Segmentation Annotations</source>
       <translation>カスタムYOLOセグメンテーションアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1611" />
-      <location filename="../../views/labeling/label_widget.py" line="1611" />
+      <location filename="../../views/labeling/label_widget.py" line="1625" />
       <source>Export Custom YOLO Pose Annotations</source>
       <translation>カスタムYOLOポーズアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1618" />
-      <location filename="../../views/labeling/label_widget.py" line="1618" />
+      <location filename="../../views/labeling/label_widget.py" line="1632" />
       <source>Export Custom PASCAL VOC Detection Annotations</source>
       <translation>カスタムPASCAL VOC検出アノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1625" />
-      <location filename="../../views/labeling/label_widget.py" line="1625" />
+      <location filename="../../views/labeling/label_widget.py" line="1639" />
       <source>Export Custom PASCAL VOC Segmentation Annotations</source>
       <translation>カスタムPASCAL VOCセグメンテーションアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1632" />
-      <location filename="../../views/labeling/label_widget.py" line="1632" />
+      <location filename="../../views/labeling/label_widget.py" line="1646" />
       <source>Export Custom COCO Rectangle Annotations</source>
       <translation>カスタムCOCO矩形アノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1639" />
-      <location filename="../../views/labeling/label_widget.py" line="1639" />
+      <location filename="../../views/labeling/label_widget.py" line="1653" />
       <source>Export Custom COCO Instance Segmentation Annotations</source>
       <translation>カスタムCOCOインスタンスセグメンテーションアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1648" />
-      <location filename="../../views/labeling/label_widget.py" line="1648" />
+      <location filename="../../views/labeling/label_widget.py" line="1662" />
       <source>Export Custom COCO Keypoint Annotations</source>
       <translation>カスタムCOCOキーポイントアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1655" />
-      <location filename="../../views/labeling/label_widget.py" line="1655" />
+      <location filename="../../views/labeling/label_widget.py" line="1669" />
       <source>Export Custom DOTA Annotations</source>
       <translation>カスタムDOTAアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1662" />
-      <location filename="../../views/labeling/label_widget.py" line="1662" />
+      <location filename="../../views/labeling/label_widget.py" line="1676" />
       <source>Export Custom MASK Annotations - RGB/Gray</source>
       <translation>カスタムMASKアノテーションをエクスポート（RGB/グレースケール）</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1669" />
-      <location filename="../../views/labeling/label_widget.py" line="1669" />
+      <location filename="../../views/labeling/label_widget.py" line="1683" />
       <source>Export Custom Multi-Object-Tracking Annotations</source>
       <translation>カスタムMOTアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1672" />
-      <location filename="../../views/labeling/label_widget.py" line="1672" />
+      <location filename="../../views/labeling/label_widget.py" line="1686" />
       <source>MOTS</source>
       <translation>MOTS</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1676" />
-      <location filename="../../views/labeling/label_widget.py" line="1676" />
+      <location filename="../../views/labeling/label_widget.py" line="1690" />
       <source>Export Custom Multi-Object-Tracking-Segmentation Annotations</source>
       <translation>カスタムMOTSアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1685" />
-      <location filename="../../views/labeling/label_widget.py" line="1685" />
+      <location filename="../../views/labeling/label_widget.py" line="1699" />
       <source>Export Custom Object Detection Visual Grounding Annotations</source>
       <translation>カスタム物体検出ビジュアルグラウンディングアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1694" />
-      <location filename="../../views/labeling/label_widget.py" line="1694" />
+      <location filename="../../views/labeling/label_widget.py" line="1708" />
       <source>Export Custom PPOCR Recognition Annotations</source>
       <translation>カスタムPPOCR認識アノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1701" />
-      <location filename="../../views/labeling/label_widget.py" line="1701" />
+      <location filename="../../views/labeling/label_widget.py" line="1715" />
       <source>Export Custom PPOCR Key Information Extraction (KIE - Semantic Entity Recognition &amp; Relation Extraction) Annotations</source>
       <translation>カスタムPPOCRキー情報抽出アノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1710" />
-      <location filename="../../views/labeling/label_widget.py" line="1710" />
+      <location filename="../../views/labeling/label_widget.py" line="1724" />
       <source>Export Custom VLM-R1 OVD Annotations</source>
       <translation>カスタムVLM-R1 OVDアノテーションをエクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1732" />
-      <location filename="../../views/labeling/label_widget.py" line="1732" />
+      <location filename="../../views/labeling/label_widget.py" line="1746" />
       <source>Edit Label</source>
       <translation>ラベルを編集</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1736" />
-      <location filename="../../views/labeling/label_widget.py" line="1736" />
+      <location filename="../../views/labeling/label_widget.py" line="1750" />
       <source>Modify the label of the selected polygon</source>
       <translation>選択したポリゴンのラベルを変更</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1741" />
-      <location filename="../../views/labeling/label_widget.py" line="1741" />
+      <location filename="../../views/labeling/label_widget.py" line="1755" />
       <source>Fill Drawing Polygon</source>
       <translation>描画中のポリゴンを塗りつぶす</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1745" />
-      <location filename="../../views/labeling/label_widget.py" line="1745" />
+      <location filename="../../views/labeling/label_widget.py" line="1759" />
       <source>Fill polygon while drawing</source>
       <translation>描画中にポリゴンを塗りつぶす</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1752" />
-      <location filename="../../views/labeling/label_widget.py" line="1752" />
+      <location filename="../../views/labeling/label_widget.py" line="1766" />
       <source>Navigator</source>
       <translation>ナビゲーター</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1756" />
-      <location filename="../../views/labeling/label_widget.py" line="1756" />
+      <location filename="../../views/labeling/label_widget.py" line="1770" />
       <source>Show/hide the navigator window</source>
       <translation>ナビゲーターウィンドウを表示/非表示</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/label_widget.py" line="1776" />
+      <source>Image Tags</source>
+      <translation>画像タグ</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/label_widget.py" line="1779" />
+      <source>Show or hide image tags</source>
+      <translation>画像タグを表示または非表示</translation>
+    </message>
+    <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1767" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="1763" />
-      <location filename="../../views/labeling/label_widget.py" line="1767" />
-      <location filename="../../views/labeling/label_widget.py" line="1763" />
+      <location filename="../../views/labeling/label_widget.py" line="1791" />
+      <location filename="../../views/labeling/label_widget.py" line="1787" />
       <source>Auto Labeling</source>
       <translation>自動ラベリング</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2027" />
-      <location filename="../../views/labeling/label_widget.py" line="2027" />
+      <location filename="../../views/labeling/label_widget.py" line="2052" />
       <source>File</source>
       <translation>ファイル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2028" />
-      <location filename="../../views/labeling/label_widget.py" line="2028" />
+      <location filename="../../views/labeling/label_widget.py" line="2053" />
       <source>Edit</source>
       <translation>編集</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2029" />
-      <location filename="../../views/labeling/label_widget.py" line="2029" />
+      <location filename="../../views/labeling/label_widget.py" line="2054" />
       <source>View</source>
       <translation>表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2667" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2030" />
-      <location filename="../../views/labeling/label_widget.py" line="2667" />
-      <location filename="../../views/labeling/label_widget.py" line="2030" />
+      <location filename="../../views/labeling/label_widget.py" line="2694" />
+      <location filename="../../views/labeling/label_widget.py" line="2055" />
       <source>Theme</source>
       <translation>テーマ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2031" />
-      <location filename="../../views/labeling/label_widget.py" line="2031" />
+      <location filename="../../views/labeling/label_widget.py" line="2056" />
       <source>Language</source>
       <translation>言語</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2032" />
-      <location filename="../../views/labeling/label_widget.py" line="2032" />
+      <location filename="../../views/labeling/label_widget.py" line="2057" />
       <source>Upload</source>
       <translation>アップロード</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2033" />
-      <location filename="../../views/labeling/label_widget.py" line="2033" />
+      <location filename="../../views/labeling/label_widget.py" line="2058" />
       <source>Export</source>
       <translation>エクスポート</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2034" />
-      <location filename="../../views/labeling/label_widget.py" line="2034" />
+      <location filename="../../views/labeling/label_widget.py" line="2059" />
       <source>Tool</source>
       <translation>ツール</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2035" />
-      <location filename="../../views/labeling/label_widget.py" line="2035" />
+      <location filename="../../views/labeling/label_widget.py" line="2060" />
       <source>Train</source>
       <translation>訓練</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2036" />
-      <location filename="../../views/labeling/label_widget.py" line="2036" />
+      <location filename="../../views/labeling/label_widget.py" line="2061" />
       <source>Help</source>
       <translation>ヘルプ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2037" />
-      <location filename="../../views/labeling/label_widget.py" line="2037" />
+      <location filename="../../views/labeling/label_widget.py" line="2062" />
       <source>Open Recent</source>
       <translation>最近開いたファイル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2329" />
-      <location filename="../../views/labeling/label_widget.py" line="2329" />
+      <location filename="../../views/labeling/label_widget.py" line="2355" />
       <source>Please wait...</source>
       <translation>しばらくお待ちください...</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2469" />
-      <location filename="../../views/labeling/label_widget.py" line="2469" />
+      <location filename="../../views/labeling/label_widget.py" line="2496" />
       <source>Shapes</source>
       <translation>図形</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2706" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2655" />
-      <location filename="../../views/labeling/label_widget.py" line="2706" />
-      <location filename="../../views/labeling/label_widget.py" line="2655" />
+      <location filename="../../views/labeling/label_widget.py" line="2733" />
+      <location filename="../../views/labeling/label_widget.py" line="2682" />
       <source>Please restart the application to apply changes.</source>
       <translation>変更を適用するにはアプリケーションを再起動してください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2680" />
-      <location filename="../../views/labeling/label_widget.py" line="2680" />
+      <location filename="../../views/labeling/label_widget.py" line="2707" />
       <source>The new theme will take effect after restarting the application. Apply this setting now?</source>
       <translation>新しいテーマはアプリケーションの再起動後に有効になります。今すぐこの設定を適用しますか？</translation>
     </message>
@@ -4367,80 +4472,80 @@ Enter キーを押して検索します。</translation>
       <location filename="../../views/labeling/utils/export.py" line="395" />
       <location filename="../../views/labeling/utils/export.py" line="378" />
       <location filename="../../views/labeling/utils/export.py" line="262" />
-      <location filename="../../views/labeling/label_widget.py" line="2689" />
+      <location filename="../../views/labeling/label_widget.py" line="2716" />
       <source>Cancel</source>
       <translation>キャンセル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2693" />
       <location filename="../../views/labeling/utils/export.py" line="268" />
-      <location filename="../../views/labeling/label_widget.py" line="2693" />
+      <location filename="../../views/labeling/label_widget.py" line="2720" />
       <source>OK</source>
       <translation>OK</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2719" />
-      <location filename="../../views/labeling/label_widget.py" line="2719" />
+      <location filename="../../views/labeling/label_widget.py" line="2746" />
       <source>Mode:</source>
       <translation>モード：</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2720" />
-      <location filename="../../views/labeling/label_widget.py" line="2720" />
+      <location filename="../../views/labeling/label_widget.py" line="2747" />
       <source>Shortcuts:</source>
       <translation>ショートカット：</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2722" />
-      <location filename="../../views/labeling/label_widget.py" line="2722" />
+      <location filename="../../views/labeling/label_widget.py" line="2749" />
       <source>Previous</source>
       <translation>前へ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2723" />
-      <location filename="../../views/labeling/label_widget.py" line="2723" />
+      <location filename="../../views/labeling/label_widget.py" line="2750" />
       <source>Next</source>
       <translation>次へ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2724" />
-      <location filename="../../views/labeling/label_widget.py" line="2724" />
+      <location filename="../../views/labeling/label_widget.py" line="2751" />
       <source>Rectangle</source>
       <translation>矩形</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2725" />
-      <location filename="../../views/labeling/label_widget.py" line="2725" />
+      <location filename="../../views/labeling/label_widget.py" line="2752" />
       <source>Polygon</source>
       <translation>ポリゴン</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2726" />
-      <location filename="../../views/labeling/label_widget.py" line="2726" />
+      <location filename="../../views/labeling/label_widget.py" line="2753" />
       <source>Rotation</source>
       <translation>回転</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2727" />
-      <location filename="../../views/labeling/label_widget.py" line="2727" />
+      <location filename="../../views/labeling/label_widget.py" line="2754" />
       <source>Quadrilateral</source>
       <translation>四辺形</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="2750" />
-      <location filename="../../views/labeling/label_widget.py" line="2750" />
+      <location filename="../../views/labeling/label_widget.py" line="2777" />
       <source>Tip: Hold Space and drag with the left mouse button to pan the canvas temporarily.</source>
       <translation>ヒント：Space を押しながらマウスの左ボタンでドラッグすると、一時的にキャンバスを移動できます。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3050" />
-      <location filename="../../views/labeling/label_widget.py" line="3050" />
+      <location filename="../../views/labeling/label_widget.py" line="3112" />
       <source>Toggle shapes visibility is unavailable while a label or group filter is active</source>
       <translation>ラベルまたはグループフィルターが有効な間は、図形の表示切り替えができません</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3062" />
-      <location filename="../../views/labeling/label_widget.py" line="3062" />
+      <location filename="../../views/labeling/label_widget.py" line="3124" />
       <source>Show all shapes</source>
       <translation>すべての図形を表示</translation>
     </message>
@@ -4450,17 +4555,17 @@ Enter キーを押して検索します。</translation>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4184" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4095" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3102" />
-      <location filename="../../views/labeling/label_widget.py" line="7011" />
-      <location filename="../../views/labeling/label_widget.py" line="5298" />
-      <location filename="../../views/labeling/label_widget.py" line="4184" />
-      <location filename="../../views/labeling/label_widget.py" line="4095" />
-      <location filename="../../views/labeling/label_widget.py" line="3102" />
+      <location filename="../../views/labeling/label_widget.py" line="7108" />
+      <location filename="../../views/labeling/label_widget.py" line="5360" />
+      <location filename="../../views/labeling/label_widget.py" line="4246" />
+      <location filename="../../views/labeling/label_widget.py" line="4157" />
+      <location filename="../../views/labeling/label_widget.py" line="3164" />
       <source>Invalid label</source>
       <translation>無効なラベル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3103" />
-      <location filename="../../views/labeling/label_widget.py" line="3103" />
+      <location filename="../../views/labeling/label_widget.py" line="3165" />
       <source>Invalid label '{}' with validation type: {}!
 Reset the label as {}.</source>
       <translation>無効なラベル "{}"、有効なラベル "{}"！ラベルを "{}" にリセットします。</translation>
@@ -4468,128 +4573,128 @@ Reset the label as {}.</source>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3393" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3330" />
-      <location filename="../../views/labeling/label_widget.py" line="3393" />
-      <location filename="../../views/labeling/label_widget.py" line="3330" />
+      <location filename="../../views/labeling/label_widget.py" line="3455" />
+      <location filename="../../views/labeling/label_widget.py" line="3392" />
       <source>No images loaded</source>
       <translation>画像が読み込まれていません</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3331" />
-      <location filename="../../views/labeling/label_widget.py" line="3331" />
+      <location filename="../../views/labeling/label_widget.py" line="3393" />
       <source>Please load an image folder before opening the VQA dialog.</source>
       <translation>VQAダイアログを開く前に画像フォルダを読み込んでください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3363" />
-      <location filename="../../views/labeling/label_widget.py" line="3363" />
+      <location filename="../../views/labeling/label_widget.py" line="3425" />
       <source>Video Classifier requires QtMultimedia, which this Qt build does not provide.</source>
       <translation>動画分類には QtMultimedia が必要ですが、この Qt ビルドには含まれていません。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3394" />
-      <location filename="../../views/labeling/label_widget.py" line="3394" />
+      <location filename="../../views/labeling/label_widget.py" line="3456" />
       <source>Please load an image folder before opening the Classification dialog.</source>
       <translation>分類ダイアログを開く前に画像フォルダを読み込んでください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3475" />
-      <location filename="../../views/labeling/label_widget.py" line="3475" />
+      <location filename="../../views/labeling/label_widget.py" line="3537" />
       <source>No objects to review</source>
       <translation>レビューする図形がありません</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3477" />
-      <location filename="../../views/labeling/label_widget.py" line="3477" />
+      <location filename="../../views/labeling/label_widget.py" line="3539" />
       <source>Review complete</source>
       <translation>レビュー完了</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3537" />
-      <location filename="../../views/labeling/label_widget.py" line="3537" />
+      <location filename="../../views/labeling/label_widget.py" line="3599" />
       <source>Reviewing {current} / {total}</source>
       <translation>レビュー中 {current} / {total}</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3576" />
-      <location filename="../../views/labeling/label_widget.py" line="3576" />
+      <location filename="../../views/labeling/label_widget.py" line="3638" />
       <source>Copied</source>
       <translation>コピーしました</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3577" />
-      <location filename="../../views/labeling/label_widget.py" line="3577" />
+      <location filename="../../views/labeling/label_widget.py" line="3639" />
       <source>The information has been copied to the clipboard.</source>
       <translation>情報がクリップボードにコピーされました。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3778" />
-      <location filename="../../views/labeling/label_widget.py" line="3778" />
+      <location filename="../../views/labeling/label_widget.py" line="3840" />
       <source>Open Last Dir: %s</source>
       <translation>前回のフォルダを開く: %s</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3845" />
-      <location filename="../../views/labeling/label_widget.py" line="3845" />
+      <location filename="../../views/labeling/label_widget.py" line="3907" />
       <source>Copy File Name</source>
       <translation>ファイル名をコピー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3848" />
-      <location filename="../../views/labeling/label_widget.py" line="3848" />
+      <location filename="../../views/labeling/label_widget.py" line="3910" />
       <source>Copy File Path</source>
       <translation>ファイルパスをコピー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3858" />
-      <location filename="../../views/labeling/label_widget.py" line="3858" />
+      <location filename="../../views/labeling/label_widget.py" line="3920" />
       <source>Copy Successful</source>
       <translation>コピーしました</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3922" />
-      <location filename="../../views/labeling/label_widget.py" line="3922" />
+      <location filename="../../views/labeling/label_widget.py" line="3984" />
       <source>Mark as Unchecked</source>
       <translation>未チェックにする</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3923" />
-      <location filename="../../views/labeling/label_widget.py" line="3923" />
+      <location filename="../../views/labeling/label_widget.py" line="3985" />
       <source>Mark current annotation as unchecked</source>
       <translation>現在のアノテーションを未チェックにする</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3951" />
-      <location filename="../../views/labeling/label_widget.py" line="3951" />
+      <location filename="../../views/labeling/label_widget.py" line="4013" />
       <source>Filter by Label</source>
       <translation>ラベルでフィルター</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3952" />
-      <location filename="../../views/labeling/label_widget.py" line="3952" />
+      <location filename="../../views/labeling/label_widget.py" line="4014" />
       <source>Filter by Group ID</source>
       <translation>グループIDでフィルター</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3977" />
-      <location filename="../../views/labeling/label_widget.py" line="3977" />
+      <location filename="../../views/labeling/label_widget.py" line="4039" />
       <source>All Labels</source>
       <translation>すべてのラベル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="3992" />
-      <location filename="../../views/labeling/label_widget.py" line="3992" />
+      <location filename="../../views/labeling/label_widget.py" line="4054" />
       <source>All Group IDs</source>
       <translation>すべてのグループID</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4061" />
-      <location filename="../../views/labeling/label_widget.py" line="4061" />
+      <location filename="../../views/labeling/label_widget.py" line="4123" />
       <source>Batch Edit</source>
       <translation>一括編集</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4062" />
-      <location filename="../../views/labeling/label_widget.py" line="4062" />
+      <location filename="../../views/labeling/label_widget.py" line="4124" />
       <source>You are about to edit multiple shapes in batch mode. This operation cannot be undone.
 
 This warning will only be shown once. Do you want to continue?</source>
@@ -4602,60 +4707,60 @@ This warning will only be shown once. Do you want to continue?</source>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5299" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4185" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4096" />
-      <location filename="../../views/labeling/label_widget.py" line="7012" />
-      <location filename="../../views/labeling/label_widget.py" line="5299" />
-      <location filename="../../views/labeling/label_widget.py" line="4185" />
-      <location filename="../../views/labeling/label_widget.py" line="4096" />
+      <location filename="../../views/labeling/label_widget.py" line="7109" />
+      <location filename="../../views/labeling/label_widget.py" line="5361" />
+      <location filename="../../views/labeling/label_widget.py" line="4247" />
+      <location filename="../../views/labeling/label_widget.py" line="4158" />
       <source>Invalid label '{}' with validation type '{}'</source>
       <translation>無効なラベル '{}'、検証タイプ '{}'</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4347" />
-      <location filename="../../views/labeling/label_widget.py" line="4347" />
+      <location filename="../../views/labeling/label_widget.py" line="4409" />
       <source>Value '{}' is not defined in the current attribute configuration.</source>
       <translation>値「{}」は現在の属性設定に定義されていません。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5125" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4743" />
-      <location filename="../../views/labeling/label_widget.py" line="5125" />
-      <location filename="../../views/labeling/label_widget.py" line="4743" />
+      <location filename="../../views/labeling/label_widget.py" line="5187" />
+      <location filename="../../views/labeling/label_widget.py" line="4805" />
       <source>Error saving label data</source>
       <translation>ラベルデータの保存エラー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5125" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="4743" />
-      <location filename="../../views/labeling/label_widget.py" line="5125" />
-      <location filename="../../views/labeling/label_widget.py" line="4743" />
+      <location filename="../../views/labeling/label_widget.py" line="5187" />
+      <location filename="../../views/labeling/label_widget.py" line="4805" />
       <source>&lt;b&gt;%s&lt;/b&gt;</source>
       <translation>&lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5153" />
-      <location filename="../../views/labeling/label_widget.py" line="5153" />
+      <location filename="../../views/labeling/label_widget.py" line="5215" />
       <source>Error pasting shapes</source>
       <translation>図形の貼り付けエラー</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5154" />
-      <location filename="../../views/labeling/label_widget.py" line="5154" />
+      <location filename="../../views/labeling/label_widget.py" line="5216" />
       <source>Error decoding shapes: %s</source>
       <translation>図形のデコードに失敗しました：%s</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5369" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5359" />
-      <location filename="../../views/labeling/label_widget.py" line="5369" />
-      <location filename="../../views/labeling/label_widget.py" line="5359" />
+      <location filename="../../views/labeling/label_widget.py" line="5431" />
+      <location filename="../../views/labeling/label_widget.py" line="5421" />
       <source>X: %d, Y: %d | H: %d, W: %d</source>
       <translation>X: %d, Y: %d | H: %d, W: %d</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5383" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5375" />
-      <location filename="../../views/labeling/label_widget.py" line="5383" />
-      <location filename="../../views/labeling/label_widget.py" line="5375" />
+      <location filename="../../views/labeling/label_widget.py" line="5445" />
+      <location filename="../../views/labeling/label_widget.py" line="5437" />
       <source>X: %d, Y: %d</source>
       <translation>X: %d, Y: %d</translation>
     </message>
@@ -4663,29 +4768,29 @@ This warning will only be shown once. Do you want to continue?</source>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5952" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5911" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5891" />
-      <location filename="../../views/labeling/label_widget.py" line="5952" />
-      <location filename="../../views/labeling/label_widget.py" line="5911" />
-      <location filename="../../views/labeling/label_widget.py" line="5891" />
+      <location filename="../../views/labeling/label_widget.py" line="6014" />
+      <location filename="../../views/labeling/label_widget.py" line="5973" />
+      <location filename="../../views/labeling/label_widget.py" line="5953" />
       <source>Error opening file</source>
       <translation>ファイルを開く際にエラーが発生しました</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5892" />
-      <location filename="../../views/labeling/label_widget.py" line="5892" />
+      <location filename="../../views/labeling/label_widget.py" line="5954" />
       <source>No such file: &lt;b&gt;%s&lt;/b&gt;</source>
       <translation>このファイルが存在しません：&lt;b&gt;%s&lt;/b&gt;</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5912" />
-      <location filename="../../views/labeling/label_widget.py" line="5912" />
+      <location filename="../../views/labeling/label_widget.py" line="5974" />
       <source>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Make sure &lt;i&gt;%s&lt;/i&gt; is a valid label file.</source>
       <translation>&lt;p&gt;&lt;b&gt;%s&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;%s&lt;/i&gt; が有効なラベルファイルであることを確認してください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5958" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5918" />
-      <location filename="../../views/labeling/label_widget.py" line="5958" />
-      <location filename="../../views/labeling/label_widget.py" line="5918" />
+      <location filename="../../views/labeling/label_widget.py" line="6020" />
+      <location filename="../../views/labeling/label_widget.py" line="5980" />
       <source>Error reading %s</source>
       <translation>%s の読み取りエラー</translation>
     </message>
@@ -4693,89 +4798,89 @@ This warning will only be shown once. Do you want to continue?</source>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="7101" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6848" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5939" />
-      <location filename="../../views/labeling/label_widget.py" line="7101" />
-      <location filename="../../views/labeling/label_widget.py" line="6848" />
-      <location filename="../../views/labeling/label_widget.py" line="5939" />
+      <location filename="../../views/labeling/label_widget.py" line="7198" />
+      <location filename="../../views/labeling/label_widget.py" line="6930" />
+      <location filename="../../views/labeling/label_widget.py" line="6001" />
       <source>Image Description</source>
       <translation>画像の説明</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="5953" />
-      <location filename="../../views/labeling/label_widget.py" line="5953" />
+      <location filename="../../views/labeling/label_widget.py" line="6015" />
       <source>&lt;p&gt;Make sure &lt;i&gt;{0}&lt;/i&gt; is a valid image file.&lt;br/&gt;Supported image formats: {1}&lt;/p&gt;</source>
       <translation>&lt;p&gt;&lt;i&gt;{0}&lt;/i&gt; が有効な画像ファイルであることを確認してください。&lt;br/&gt;サポートされている画像形式：{1}&lt;/p&gt;</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6274" />
-      <location filename="../../views/labeling/label_widget.py" line="6274" />
+      <location filename="../../views/labeling/label_widget.py" line="6347" />
       <source>Image &amp; Label files (%s)</source>
       <translation>画像とラベルファイル（%s）</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6281" />
-      <location filename="../../views/labeling/label_widget.py" line="6281" />
+      <location filename="../../views/labeling/label_widget.py" line="6354" />
       <source>%s - Choose Image or Label file</source>
       <translation>%s - 画像またはラベルファイルを選択</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6301" />
-      <location filename="../../views/labeling/label_widget.py" line="6301" />
+      <location filename="../../views/labeling/label_widget.py" line="6374" />
       <source>%s - Save/Load Annotations in Directory</source>
       <translation>%s - ディレクトリ内でアノテーションを保存/読み込み</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6314" />
-      <location filename="../../views/labeling/label_widget.py" line="6314" />
+      <location filename="../../views/labeling/label_widget.py" line="6387" />
       <source>%s . Annotations will be saved/loaded in %s</source>
       <translation>%s . アノテーションは %s に保存/読み込みされます</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6345" />
-      <location filename="../../views/labeling/label_widget.py" line="6345" />
+      <location filename="../../views/labeling/label_widget.py" line="6418" />
       <source>%s - Choose File</source>
       <translation>%s - ファイルを選択</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6376" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6346" />
-      <location filename="../../views/labeling/label_widget.py" line="6376" />
-      <location filename="../../views/labeling/label_widget.py" line="6346" />
+      <location filename="../../views/labeling/label_widget.py" line="6449" />
+      <location filename="../../views/labeling/label_widget.py" line="6419" />
       <source>Label files (*%s)</source>
       <translation>ラベルファイル（*%s）</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6374" />
-      <location filename="../../views/labeling/label_widget.py" line="6374" />
+      <location filename="../../views/labeling/label_widget.py" line="6447" />
       <source>Choose File</source>
       <translation>ファイルを選択</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6403" />
-      <location filename="../../views/labeling/label_widget.py" line="6403" />
+      <location filename="../../views/labeling/label_widget.py" line="6476" />
       <source>Please open an image first</source>
       <translation>最初に画像を開いてください</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6408" />
-      <location filename="../../views/labeling/label_widget.py" line="6408" />
+      <location filename="../../views/labeling/label_widget.py" line="6481" />
       <source>Select Compare Image Directory</source>
       <translation>比較画像ディレクトリを選択</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6417" />
-      <location filename="../../views/labeling/label_widget.py" line="6417" />
+      <location filename="../../views/labeling/label_widget.py" line="6490" />
       <source>Invalid compare directory</source>
       <translation>無効な比較ディレクトリ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6428" />
-      <location filename="../../views/labeling/label_widget.py" line="6428" />
+      <location filename="../../views/labeling/label_widget.py" line="6501" />
       <source>Close Compare View</source>
       <translation>比較ビューを閉じる</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6429" />
-      <location filename="../../views/labeling/label_widget.py" line="6429" />
+      <location filename="../../views/labeling/label_widget.py" line="6502" />
       <source>Are you sure you want to close the compare view?</source>
       <translation>比較ビューを閉じてもよろしいですか？</translation>
     </message>
@@ -4784,64 +4889,64 @@ This warning will only be shown once. Do you want to continue?</source>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6507" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6477" />
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6463" />
-      <location filename="../../views/labeling/label_widget.py" line="6521" />
-      <location filename="../../views/labeling/label_widget.py" line="6507" />
-      <location filename="../../views/labeling/label_widget.py" line="6477" />
-      <location filename="../../views/labeling/label_widget.py" line="6463" />
+      <location filename="../../views/labeling/label_widget.py" line="6594" />
+      <location filename="../../views/labeling/label_widget.py" line="6580" />
+      <location filename="../../views/labeling/label_widget.py" line="6550" />
+      <location filename="../../views/labeling/label_widget.py" line="6536" />
       <source>Attention</source>
       <translation>注意</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6464" />
-      <location filename="../../views/labeling/label_widget.py" line="6464" />
+      <location filename="../../views/labeling/label_widget.py" line="6537" />
       <source>Please disable 'Keep Previous Annotation' before deleting the label file.</source>
       <translation>ラベルファイルを削除する前に「前のアノテーションを保持」を無効にしてください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6471" />
-      <location filename="../../views/labeling/label_widget.py" line="6471" />
+      <location filename="../../views/labeling/label_widget.py" line="6544" />
       <source>You are about to permanently delete this label file, proceed anyway?</source>
       <translation>このラベルファイルを永久に削除しようとしています。続行しますか？</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6508" />
-      <location filename="../../views/labeling/label_widget.py" line="6508" />
+      <location filename="../../views/labeling/label_widget.py" line="6581" />
       <source>Please disable 'Keep Previous Annotation' before deleting the image file.</source>
       <translation>画像ファイルを削除する前に「前のアノテーションを保持」を無効にしてください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6515" />
-      <location filename="../../views/labeling/label_widget.py" line="6515" />
+      <location filename="../../views/labeling/label_widget.py" line="6588" />
       <source>You are about to permanently delete this image file, proceed anyway?</source>
       <translation>この画像ファイルを永久に削除しようとしています。続行しますか？</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6593" />
-      <location filename="../../views/labeling/label_widget.py" line="6593" />
+      <location filename="../../views/labeling/label_widget.py" line="6667" />
       <source>Save annotations?</source>
       <translation>アノテーションを保存しますか？</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6646" />
-      <location filename="../../views/labeling/label_widget.py" line="6646" />
+      <location filename="../../views/labeling/label_widget.py" line="6720" />
       <source>Delete Group</source>
       <translation>グループを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6647" />
-      <location filename="../../views/labeling/label_widget.py" line="6647" />
+      <location filename="../../views/labeling/label_widget.py" line="6721" />
       <source>Deleting this group will remove %d shapes. This action cannot be undone. Do you want to continue?</source>
       <translation>このグループを削除すると、%d 個のオブジェクトが削除されます。この操作は元に戻せません。続行しますか？</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="6697" />
-      <location filename="../../views/labeling/label_widget.py" line="6697" />
+      <location filename="../../views/labeling/label_widget.py" line="6771" />
       <source>%s - Open Directory</source>
       <translation>%s - ディレクトリを開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/label_widget.py" line="7095" />
-      <location filename="../../views/labeling/label_widget.py" line="7095" />
+      <location filename="../../views/labeling/label_widget.py" line="7192" />
       <source>Object Description</source>
       <translation>オブジェクトの説明</translation>
     </message>
@@ -5050,7 +5155,7 @@ Results have been saved to:
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/remote_server.py" line="29" />
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/segment_anything_2_video.py" line="68" />
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/upn.py" line="47" />
-      <location filename="../../services/auto_labeling/__base__/ram.py" line="27" />
+      <location filename="../../services/auto_labeling/__base__/ram.py" line="38" />
       <location filename="../../services/auto_labeling/__base__/yolo.py" line="55" />
       <location filename="../../services/auto_labeling/florence2.py" line="58" />
       <location filename="../../services/auto_labeling/rtmdet_pose.py" line="28" />
@@ -5073,6 +5178,7 @@ Results have been saved to:
       <location filename="../../services/auto_labeling/edge_sam.py" line="52" />
       <location filename="../../services/auto_labeling/pulc_attribute.py" line="31" />
       <location filename="../../services/auto_labeling/yolo26_sahi.py" line="42" />
+      <location filename="../../services/auto_labeling/dfine_seg.py" line="44" />
       <location filename="../../services/auto_labeling/deimv2.py" line="36" />
       <location filename="../../services/auto_labeling/rfdetr_seg.py" line="27" />
       <location filename="../../services/auto_labeling/grounding_sam.py" line="244" />
@@ -5132,6 +5238,7 @@ Results have been saved to:
       <location filename="../../services/auto_labeling/yolov5_sam.py" line="50" />
       <location filename="../../services/auto_labeling/efficientvit_sam.py" line="225" />
       <location filename="../../services/auto_labeling/edge_sam.py" line="51" />
+      <location filename="../../services/auto_labeling/dfine_seg.py" line="43" />
       <location filename="../../services/auto_labeling/rfdetr_seg.py" line="26" />
       <location filename="../../services/auto_labeling/grounding_sam.py" line="243" />
       <location filename="../../services/auto_labeling/rfdetr.py" line="38" />
@@ -5511,26 +5618,26 @@ Results have been saved to:
     <message>
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/model_manager.py" line="2464" />
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/model_manager.py" line="2405" />
-      <location filename="../../services/auto_labeling/model_manager.py" line="2484" />
-      <location filename="../../services/auto_labeling/model_manager.py" line="2425" />
+      <location filename="../../services/auto_labeling/model_manager.py" line="2504" />
+      <location filename="../../services/auto_labeling/model_manager.py" line="2445" />
       <source>Model is not loaded. Choose a mode to continue.</source>
       <translation>モデルがまだ読み込まれていません。続行するにはモードを選択してください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/model_manager.py" line="2436" />
-      <location filename="../../services/auto_labeling/model_manager.py" line="2456" />
+      <location filename="../../services/auto_labeling/model_manager.py" line="2476" />
       <source>Finished inferencing AI model. Check the result.</source>
       <translation>AIモデルの推論が完了しました。結果を確認してください。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/model_manager.py" line="2468" />
-      <location filename="../../services/auto_labeling/model_manager.py" line="2488" />
+      <location filename="../../services/auto_labeling/model_manager.py" line="2508" />
       <source>Inferencing AI model. Please wait...</source>
       <translation>AIモデルを推論中です。しばらくお待ちください...</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/services/auto_labeling/model_manager.py" line="2485" />
-      <location filename="../../services/auto_labeling/model_manager.py" line="2505" />
+      <location filename="../../services/auto_labeling/model_manager.py" line="2525" />
       <source>Another model is being executed. Please wait for it to finish.</source>
       <translation>別のモデルが実行中です。終了するまでお待ちください。</translation>
     </message>
@@ -7150,512 +7257,517 @@ Changes will not be saved until you click Save.</source>
       <translation>アノテーションのチェック状態を切り替え</translation>
     </message>
     <message>
-      <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="68" />
       <location filename="../../views/labeling/settings/schema.py" line="68" />
+      <source>Toggle Image Tags</source>
+      <translation>画像タグの表示切替</translation>
+    </message>
+    <message>
+      <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="68" />
+      <location filename="../../views/labeling/settings/schema.py" line="69" />
       <source>File List Checkbox Editable</source>
       <translation>ファイルリストのチェックボックスを編集可能に</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="69" />
-      <location filename="../../views/labeling/settings/schema.py" line="69" />
+      <location filename="../../views/labeling/settings/schema.py" line="70" />
       <source>Use System Clipboard</source>
       <translation>システムクリップボードを使用</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="70" />
-      <location filename="../../views/labeling/settings/schema.py" line="70" />
+      <location filename="../../views/labeling/settings/schema.py" line="71" />
       <source>Application Font</source>
       <translation>アプリケーションフォント</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="71" />
-      <location filename="../../views/labeling/settings/schema.py" line="71" />
+      <location filename="../../views/labeling/settings/schema.py" line="72" />
       <source>Choose from fonts available on this system.</source>
       <translation>このシステムで利用可能なフォントから選択します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="74" />
-      <location filename="../../views/labeling/settings/schema.py" line="74" />
+      <location filename="../../views/labeling/settings/schema.py" line="75" />
       <source>Shape Color Strategy</source>
       <translation>図形の色戦略</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="75" />
-      <location filename="../../views/labeling/settings/schema.py" line="75" />
+      <location filename="../../views/labeling/settings/schema.py" line="76" />
       <source>Default Shape Color</source>
       <translation>デフォルトの図形の色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="76" />
-      <location filename="../../views/labeling/settings/schema.py" line="76" />
+      <location filename="../../views/labeling/settings/schema.py" line="77" />
       <source>Auto Color Shift</source>
       <translation>自動カラーシフト</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="77" />
-      <location filename="../../views/labeling/settings/schema.py" line="77" />
+      <location filename="../../views/labeling/settings/schema.py" line="78" />
       <source>Line Color</source>
       <translation>線の色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="78" />
-      <location filename="../../views/labeling/settings/schema.py" line="78" />
+      <location filename="../../views/labeling/settings/schema.py" line="79" />
       <source>Fill Color</source>
       <translation>塗りつぶしの色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="79" />
-      <location filename="../../views/labeling/settings/schema.py" line="79" />
+      <location filename="../../views/labeling/settings/schema.py" line="80" />
       <source>Vertex Fill Color</source>
       <translation>頂点の塗りつぶし色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="80" />
-      <location filename="../../views/labeling/settings/schema.py" line="80" />
+      <location filename="../../views/labeling/settings/schema.py" line="81" />
       <source>Select Line Color</source>
       <translation>選択時の線の色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="81" />
-      <location filename="../../views/labeling/settings/schema.py" line="81" />
+      <location filename="../../views/labeling/settings/schema.py" line="82" />
       <source>Select Fill Color</source>
       <translation>選択時の塗りつぶし色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="82" />
-      <location filename="../../views/labeling/settings/schema.py" line="82" />
+      <location filename="../../views/labeling/settings/schema.py" line="83" />
       <source>Hover Vertex Fill Color</source>
       <translation>ホバー時の頂点の塗りつぶし色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="83" />
-      <location filename="../../views/labeling/settings/schema.py" line="83" />
+      <location filename="../../views/labeling/settings/schema.py" line="84" />
       <source>Point Size</source>
       <translation>ポイントサイズ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="84" />
-      <location filename="../../views/labeling/settings/schema.py" line="84" />
+      <location filename="../../views/labeling/settings/schema.py" line="85" />
       <source>Line Width</source>
       <translation>線幅</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="85" />
-      <location filename="../../views/labeling/settings/schema.py" line="85" />
+      <location filename="../../views/labeling/settings/schema.py" line="86" />
       <source>Selection Epsilon</source>
       <translation>選択イプシロン</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="86" />
-      <location filename="../../views/labeling/settings/schema.py" line="86" />
+      <location filename="../../views/labeling/settings/schema.py" line="87" />
       <source>Distance threshold in pixels for selecting nearby vertices or edges.</source>
       <translation>近くの頂点やエッジを選択するためのピクセル距離しきい値。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="90" />
-      <location filename="../../views/labeling/settings/schema.py" line="90" />
+      <location filename="../../views/labeling/settings/schema.py" line="91" />
       <source>Double Click</source>
       <translation>ダブルクリック</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="91" />
-      <location filename="../../views/labeling/settings/schema.py" line="91" />
+      <location filename="../../views/labeling/settings/schema.py" line="92" />
       <source>Set to 'close' to finish the current shape with a double click.</source>
       <translation>「close」に設定すると、ダブルクリックで現在の図形を完成させます。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="95" />
-      <location filename="../../views/labeling/settings/schema.py" line="95" />
+      <location filename="../../views/labeling/settings/schema.py" line="96" />
       <source>Double Click Edit Label</source>
       <translation>ダブルクリックでラベルを編集</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="96" />
-      <location filename="../../views/labeling/settings/schema.py" line="96" />
+      <location filename="../../views/labeling/settings/schema.py" line="97" />
       <source>Undo Backups</source>
       <translation>元に戻すバックアップ数</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="97" />
-      <location filename="../../views/labeling/settings/schema.py" line="97" />
+      <location filename="../../views/labeling/settings/schema.py" line="98" />
       <source>Enable Wheel Rectangle Editing</source>
       <translation>ホイールによる矩形編集を有効にする</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="100" />
-      <location filename="../../views/labeling/settings/schema.py" line="100" />
+      <location filename="../../views/labeling/settings/schema.py" line="101" />
       <source>Adjust Step</source>
       <translation>調整ステップ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="101" />
-      <location filename="../../views/labeling/settings/schema.py" line="101" />
+      <location filename="../../views/labeling/settings/schema.py" line="102" />
       <source>Scale Step</source>
       <translation>スケールステップ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="102" />
-      <location filename="../../views/labeling/settings/schema.py" line="102" />
+      <location filename="../../views/labeling/settings/schema.py" line="103" />
       <source>Show Crosshair</source>
       <translation>クロスヘアを表示</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="103" />
-      <location filename="../../views/labeling/settings/schema.py" line="103" />
+      <location filename="../../views/labeling/settings/schema.py" line="104" />
       <source>Crosshair Width</source>
       <translation>クロスヘアの幅</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="104" />
-      <location filename="../../views/labeling/settings/schema.py" line="104" />
+      <location filename="../../views/labeling/settings/schema.py" line="105" />
       <source>Crosshair Color</source>
       <translation>クロスヘアの色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="105" />
-      <location filename="../../views/labeling/settings/schema.py" line="105" />
+      <location filename="../../views/labeling/settings/schema.py" line="106" />
       <source>Crosshair Opacity</source>
       <translation>クロスヘアの不透明度</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="106" />
-      <location filename="../../views/labeling/settings/schema.py" line="106" />
+      <location filename="../../views/labeling/settings/schema.py" line="107" />
       <source>Background Color</source>
       <translation>背景色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="107" />
-      <location filename="../../views/labeling/settings/schema.py" line="107" />
+      <location filename="../../views/labeling/settings/schema.py" line="108" />
       <source>Border Color</source>
       <translation>ボーダー色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="108" />
-      <location filename="../../views/labeling/settings/schema.py" line="108" />
+      <location filename="../../views/labeling/settings/schema.py" line="109" />
       <source>Text Color</source>
       <translation>テキスト色</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="109" />
-      <location filename="../../views/labeling/settings/schema.py" line="109" />
+      <location filename="../../views/labeling/settings/schema.py" line="110" />
       <source>Large Increment</source>
       <translation>大きな増分</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="110" />
-      <location filename="../../views/labeling/settings/schema.py" line="110" />
+      <location filename="../../views/labeling/settings/schema.py" line="111" />
       <source>Small Increment</source>
       <translation>小さな増分</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="111" />
-      <location filename="../../views/labeling/settings/schema.py" line="111" />
+      <location filename="../../views/labeling/settings/schema.py" line="112" />
       <source>Brush Point Distance</source>
       <translation>ブラシポイント距離</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="112" />
-      <location filename="../../views/labeling/settings/schema.py" line="112" />
+      <location filename="../../views/labeling/settings/schema.py" line="113" />
       <source>Brush Simplification Tolerance</source>
       <translation>ブラシ簡略化許容値</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="115" />
-      <location filename="../../views/labeling/settings/schema.py" line="115" />
+      <location filename="../../views/labeling/settings/schema.py" line="116" />
       <source>Set polygon simplification tolerance in image pixels. Use 0 to preserve the extracted contour.</source>
       <translation>ポリゴンの簡略化許容値を画像ピクセル単位で設定します。0 に設定すると抽出された輪郭を保持します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="120" />
-      <location filename="../../views/labeling/settings/schema.py" line="120" />
+      <location filename="../../views/labeling/settings/schema.py" line="121" />
       <source>Default Depth Vector</source>
       <translation>デフォルト深度ベクトル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="121" />
-      <location filename="../../views/labeling/settings/schema.py" line="121" />
+      <location filename="../../views/labeling/settings/schema.py" line="122" />
       <source>Min Depth</source>
       <translation>最小深度</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="122" />
-      <location filename="../../views/labeling/settings/schema.py" line="122" />
+      <location filename="../../views/labeling/settings/schema.py" line="123" />
       <source>Mask Opacity</source>
       <translation>マスクの不透明度</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="123" />
-      <location filename="../../views/labeling/settings/schema.py" line="123" />
+      <location filename="../../views/labeling/settings/schema.py" line="124" />
       <source>Model Hub</source>
       <translation>モデルハブ</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="124" />
-      <location filename="../../views/labeling/settings/schema.py" line="124" />
+      <location filename="../../views/labeling/settings/schema.py" line="125" />
       <source>Model download source.</source>
       <translation>モデルのダウンロード元。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="125" />
-      <location filename="../../views/labeling/settings/schema.py" line="125" />
+      <location filename="../../views/labeling/settings/schema.py" line="126" />
       <source>Logger Level</source>
       <translation>ログレベル</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="126" />
-      <location filename="../../views/labeling/settings/schema.py" line="126" />
+      <location filename="../../views/labeling/settings/schema.py" line="127" />
       <source>Qt Image Allocation Limit</source>
       <translation>Qt 画像割り当て上限</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="127" />
-      <location filename="../../views/labeling/settings/schema.py" line="127" />
+      <location filename="../../views/labeling/settings/schema.py" line="128" />
       <source>Qt default is 256 MB. Use 0 to disable the limit.</source>
       <translation>Qt のデフォルト値は 256 MB です。0 を指定するとこの制限を無効にできます。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="131" />
-      <location filename="../../views/labeling/settings/schema.py" line="131" />
+      <location filename="../../views/labeling/settings/schema.py" line="132" />
       <source>Allow checked state changes directly from the file list.</source>
       <translation>ファイルリストから直接チェック状態を変更できるようにします。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="135" />
-      <location filename="../../views/labeling/settings/schema.py" line="135" />
+      <location filename="../../views/labeling/settings/schema.py" line="136" />
       <source>Use the operating system clipboard for copy and paste actions.</source>
       <translation>コピーと貼り付け操作にオペレーティングシステムのクリップボードを使用します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="139" />
-      <location filename="../../views/labeling/settings/schema.py" line="139" />
+      <location filename="../../views/labeling/settings/schema.py" line="140" />
       <source>Shift the generated color index when automatic coloring is enabled.</source>
       <translation>自動配色が有効な場合に、生成されるカラーインデックスをシフトします。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="143" />
-      <location filename="../../views/labeling/settings/schema.py" line="143" />
+      <location filename="../../views/labeling/settings/schema.py" line="144" />
       <source>Set the default outline color for shapes.</source>
       <translation>シェイプのデフォルトの輪郭色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="146" />
-      <location filename="../../views/labeling/settings/schema.py" line="146" />
+      <location filename="../../views/labeling/settings/schema.py" line="147" />
       <source>Set the default fill color for shapes.</source>
       <translation>シェイプのデフォルトの塗りつぶし色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="149" />
-      <location filename="../../views/labeling/settings/schema.py" line="149" />
+      <location filename="../../views/labeling/settings/schema.py" line="150" />
       <source>Set the default fill color for shape vertices.</source>
       <translation>シェイプ頂点のデフォルトの塗りつぶし色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="152" />
-      <location filename="../../views/labeling/settings/schema.py" line="152" />
+      <location filename="../../views/labeling/settings/schema.py" line="153" />
       <source>Set the outline color for selected shapes.</source>
       <translation>選択したシェイプの輪郭色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="155" />
-      <location filename="../../views/labeling/settings/schema.py" line="155" />
+      <location filename="../../views/labeling/settings/schema.py" line="156" />
       <source>Set the fill color for selected shapes.</source>
       <translation>選択したシェイプの塗りつぶし色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="158" />
-      <location filename="../../views/labeling/settings/schema.py" line="158" />
+      <location filename="../../views/labeling/settings/schema.py" line="159" />
       <source>Set the highlight color for hovered vertices.</source>
       <translation>ホバーした頂点のハイライト色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="161" />
-      <location filename="../../views/labeling/settings/schema.py" line="161" />
+      <location filename="../../views/labeling/settings/schema.py" line="162" />
       <source>Control the displayed size of shape vertices.</source>
       <translation>シェイプ頂点の表示サイズを設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="164" />
-      <location filename="../../views/labeling/settings/schema.py" line="164" />
+      <location filename="../../views/labeling/settings/schema.py" line="165" />
       <source>Control the default stroke width for shapes.</source>
       <translation>シェイプのデフォルトの線幅を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="167" />
-      <location filename="../../views/labeling/settings/schema.py" line="167" />
+      <location filename="../../views/labeling/settings/schema.py" line="168" />
       <source>Open label editing when a shape is double-clicked in edit mode.</source>
       <translation>編集モードでシェイプをダブルクリックしたときにラベル編集を開きます。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="171" />
-      <location filename="../../views/labeling/settings/schema.py" line="171" />
+      <location filename="../../views/labeling/settings/schema.py" line="172" />
       <source>Set how many undo history snapshots are kept in memory.</source>
       <translation>メモリに保持する元に戻す履歴のスナップショット数を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="175" />
-      <location filename="../../views/labeling/settings/schema.py" line="175" />
+      <location filename="../../views/labeling/settings/schema.py" line="176" />
       <source>Use the mouse wheel to adjust rectangle geometry while editing.</source>
       <translation>編集中にマウスホイールで矩形の形状を調整します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="179" />
-      <location filename="../../views/labeling/settings/schema.py" line="179" />
+      <location filename="../../views/labeling/settings/schema.py" line="180" />
       <source>Set the step size for wheel-based rectangle adjustments.</source>
       <translation>マウスホイールによる矩形調整のステップ幅を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="183" />
-      <location filename="../../views/labeling/settings/schema.py" line="183" />
+      <location filename="../../views/labeling/settings/schema.py" line="184" />
       <source>Set the scale ratio applied by each wheel adjustment.</source>
       <translation>マウスホイールの各操作で適用する拡大縮小率を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="187" />
-      <location filename="../../views/labeling/settings/schema.py" line="187" />
+      <location filename="../../views/labeling/settings/schema.py" line="188" />
       <source>Show crosshair guides on the canvas.</source>
       <translation>キャンバスに十字ガイドを表示します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="190" />
-      <location filename="../../views/labeling/settings/schema.py" line="190" />
+      <location filename="../../views/labeling/settings/schema.py" line="191" />
       <source>Set the stroke width of the crosshair guides.</source>
       <translation>十字ガイドの線幅を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="193" />
-      <location filename="../../views/labeling/settings/schema.py" line="193" />
+      <location filename="../../views/labeling/settings/schema.py" line="194" />
       <source>Set the display color of the crosshair guides.</source>
       <translation>十字ガイドの表示色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="196" />
-      <location filename="../../views/labeling/settings/schema.py" line="196" />
+      <location filename="../../views/labeling/settings/schema.py" line="197" />
       <source>Set the opacity of the crosshair guides.</source>
       <translation>十字ガイドの不透明度を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="199" />
-      <location filename="../../views/labeling/settings/schema.py" line="199" />
+      <location filename="../../views/labeling/settings/schema.py" line="200" />
       <source>Set the background color of attribute overlays.</source>
       <translation>属性オーバーレイの背景色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="202" />
-      <location filename="../../views/labeling/settings/schema.py" line="202" />
+      <location filename="../../views/labeling/settings/schema.py" line="203" />
       <source>Set the border color of attribute overlays.</source>
       <translation>属性オーバーレイの境界線色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="205" />
-      <location filename="../../views/labeling/settings/schema.py" line="205" />
+      <location filename="../../views/labeling/settings/schema.py" line="206" />
       <source>Set the text color of attribute overlays.</source>
       <translation>属性オーバーレイの文字色を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="208" />
-      <location filename="../../views/labeling/settings/schema.py" line="208" />
+      <location filename="../../views/labeling/settings/schema.py" line="209" />
       <source>Set the larger step used for rotation adjustments.</source>
       <translation>回転調整で使用する大きいステップを設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="211" />
-      <location filename="../../views/labeling/settings/schema.py" line="211" />
+      <location filename="../../views/labeling/settings/schema.py" line="212" />
       <source>Set the smaller step used for rotation adjustments.</source>
       <translation>回転調整で使用する小さいステップを設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="214" />
-      <location filename="../../views/labeling/settings/schema.py" line="214" />
+      <location filename="../../views/labeling/settings/schema.py" line="215" />
       <source>Set the spacing between sampled brush points.</source>
       <translation>サンプリングされるブラシ点の間隔を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="217" />
-      <location filename="../../views/labeling/settings/schema.py" line="217" />
+      <location filename="../../views/labeling/settings/schema.py" line="218" />
       <source>Magic Wand</source>
       <translation>マジックワンド</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="218" />
-      <location filename="../../views/labeling/settings/schema.py" line="218" />
+      <location filename="../../views/labeling/settings/schema.py" line="219" />
       <source>Magic Wand Default Threshold</source>
       <translation>マジックワンドのデフォルトしきい値</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="221" />
-      <location filename="../../views/labeling/settings/schema.py" line="221" />
+      <location filename="../../views/labeling/settings/schema.py" line="222" />
       <source>Set the initial color tolerance for magic wand selections.</source>
       <translation>マジックワンド選択の初期色許容値を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="225" />
-      <location filename="../../views/labeling/settings/schema.py" line="225" />
+      <location filename="../../views/labeling/settings/schema.py" line="226" />
       <source>Magic Wand Drag Sensitivity</source>
       <translation>マジックワンドのドラッグ感度</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="226" />
-      <location filename="../../views/labeling/settings/schema.py" line="226" />
+      <location filename="../../views/labeling/settings/schema.py" line="227" />
       <source>Set the screen-pixel distance required for each tolerance step.</source>
       <translation>許容値を 1 段階変更するために必要な画面上のピクセル距離を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="230" />
-      <location filename="../../views/labeling/settings/schema.py" line="230" />
+      <location filename="../../views/labeling/settings/schema.py" line="231" />
       <source>Magic Wand Luminance Weight</source>
       <translation>マジックワンドの輝度ウェイト</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="231" />
-      <location filename="../../views/labeling/settings/schema.py" line="231" />
+      <location filename="../../views/labeling/settings/schema.py" line="232" />
       <source>Set how strongly lightness differences affect color matching.</source>
       <translation>明度差が色の一致判定に与える影響度を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="235" />
-      <location filename="../../views/labeling/settings/schema.py" line="235" />
+      <location filename="../../views/labeling/settings/schema.py" line="236" />
       <source>Magic Wand Simplification Tolerance</source>
       <translation>マジックワンドの簡略化許容値</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="238" />
-      <location filename="../../views/labeling/settings/schema.py" line="238" />
+      <location filename="../../views/labeling/settings/schema.py" line="239" />
       <source>Set magic wand polygon simplification tolerance in image pixels. Use 0 to preserve the extracted contour.</source>
       <translation>マジックワンドで生成するポリゴンの簡略化許容値を画像ピクセル単位で設定します。0 にすると抽出された輪郭を保持します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="243" />
-      <location filename="../../views/labeling/settings/schema.py" line="243" />
+      <location filename="../../views/labeling/settings/schema.py" line="244" />
       <source>Magic Wand Preview Opacity</source>
       <translation>マジックワンドのプレビュー不透明度</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="244" />
-      <location filename="../../views/labeling/settings/schema.py" line="244" />
+      <location filename="../../views/labeling/settings/schema.py" line="245" />
       <source>Set the opacity of the live magic wand preview.</source>
       <translation>マジックワンドのライブプレビューの不透明度を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="248" />
-      <location filename="../../views/labeling/settings/schema.py" line="248" />
+      <location filename="../../views/labeling/settings/schema.py" line="249" />
       <source>Set the default depth direction for newly created cuboids.</source>
       <translation>新しく作成する直方体のデフォルトの奥行き方向を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="252" />
-      <location filename="../../views/labeling/settings/schema.py" line="252" />
+      <location filename="../../views/labeling/settings/schema.py" line="253" />
       <source>Set the minimum depth allowed for cuboid shapes.</source>
       <translation>直方体シェイプに許可する最小の奥行きを設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="255" />
-      <location filename="../../views/labeling/settings/schema.py" line="255" />
+      <location filename="../../views/labeling/settings/schema.py" line="256" />
       <source>Set the opacity used when rendering masks.</source>
       <translation>マスク描画時の不透明度を設定します。</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/schema.py" line="258" />
-      <location filename="../../views/labeling/settings/schema.py" line="258" />
+      <location filename="../../views/labeling/settings/schema.py" line="259" />
       <source>Set the minimum log level shown in the application.</source>
       <translation>アプリケーションに表示する最小ログレベルを設定します。</translation>
     </message>
@@ -7664,61 +7776,61 @@ Changes will not be saved until you click Save.</source>
     <name>SettingsRuntimeApplier</name>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="131" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="131" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="132" />
       <source>Quit</source>
       <translation>終了</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="137" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="137" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="138" />
       <source>Open Settings</source>
       <translation>設定を開く</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="144" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="144" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="145" />
       <source>Add Point To Edge</source>
       <translation>エッジにポイントを追加</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="151" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="151" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="152" />
       <source>Auto Labeling Add Point</source>
       <translation>自動ラベリングでポイントを追加</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="158" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="158" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="159" />
       <source>Auto Labeling Remove Point</source>
       <translation>自動ラベリングでポイントを削除</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="167" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="167" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="168" />
       <source>Auto Labeling Run</source>
       <translation>自動ラベリングを実行</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="174" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="174" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="175" />
       <source>Auto Labeling Clear</source>
       <translation>自動ラベリングをクリア</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="181" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="181" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="182" />
       <source>Auto Labeling Finish Object</source>
       <translation>自動ラベリングでオブジェクトを完了</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="204" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="204" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="205" />
       <source>Zoom in or out of the image. Also accessible with {} and {} from the canvas.</source>
       <translation>画像を拡大・縮小します。キャンバスから {} と {} を使用してもアクセスできます</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/settings/runtime_applier.py" line="210" />
-      <location filename="../../views/labeling/settings/runtime_applier.py" line="210" />
+      <location filename="../../views/labeling/settings/runtime_applier.py" line="211" />
       <source>Ctrl+Wheel</source>
       <translation>Ctrl + スクロール</translation>
     </message>
@@ -7975,19 +8087,19 @@ Changes will not be saved until you click Save.</source>
     <name>TextInputDialog</name>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/utils/batch.py" line="43" />
-      <location filename="../../views/labeling/utils/batch.py" line="43" />
+      <location filename="../../views/labeling/utils/batch.py" line="45" />
       <source>Enter Text Prompt</source>
       <translation>テキストプロンプトを入力</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/utils/batch.py" line="53" />
-      <location filename="../../views/labeling/utils/batch.py" line="53" />
+      <location filename="../../views/labeling/utils/batch.py" line="55" />
       <source>Please enter your text prompt:</source>
       <translation>テキストプロンプトを入力してください：</translation>
     </message>
     <message>
       <location filename="../../../build/lib/anylabeling/views/labeling/utils/batch.py" line="60" />
-      <location filename="../../views/labeling/utils/batch.py" line="60" />
+      <location filename="../../views/labeling/utils/batch.py" line="62" />
       <source>Enter prompt here...</source>
       <translation>テキストプロンプトを入力してください：</translation>
     </message>

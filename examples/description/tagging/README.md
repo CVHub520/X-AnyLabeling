@@ -15,10 +15,16 @@ Here:
 
 ## Image-level Tagging
 
-<img src=".data/annotated-image-level-tagging-data.png" width="100%" />
+RAM and RAM++ write their ordered predictions to the top-level `tags` array.
+
+The Image Tags panel opens automatically after a tagging result and supports adding, editing, deleting, and drag-and-drop reordering.
+
+```json
+"tags": ["person", "car", "street"]
+```
 
 ## Shape-level Tagging
 
 <img src=".data/annotated-shape-level-tagging-data.png" width="100%" />
 
-For detailed output examples, refer to [this folder](./sources/).
+For detailed output examples, including the structured image-level `tags` field, refer to [this folder](./sources/).

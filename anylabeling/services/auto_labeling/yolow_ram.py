@@ -78,7 +78,7 @@ class YOLOW_RAM(YOLO, RecognizeAnything):
             )
             outs = self.ram_net.get_ort_inference(blob, extract=False)
             tags = RecognizeAnything.postprocess(self, outs)
-            description = RecognizeAnything.get_results(self, tags)
+            description = " | ".join(RecognizeAnything.get_results(self, tags))
             shape = Shape(
                 label=label,
                 description=description,

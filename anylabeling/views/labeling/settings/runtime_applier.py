@@ -81,6 +81,7 @@ class SettingsRuntimeApplier:
             "shortcuts.fit_window": self._widget.actions.fit_window,
             "shortcuts.fit_width": self._widget.actions.fit_width,
             "shortcuts.show_navigator": self._widget.actions.show_navigator,
+            "shortcuts.toggle_image_tags": self._widget.actions.show_image_tags,
             "shortcuts.create_polygon": self._widget.actions.create_mode,
             "shortcuts.create_brush_polygon": self._widget.actions.create_brush_polygon_mode,
             "shortcuts.create_magic_wand": self._widget.actions.create_magic_wand_mode,
@@ -439,6 +440,7 @@ class SettingsRuntimeApplier:
             for shape in self._widget.canvas.shapes:
                 self._widget._update_shape_color(shape)
             self._refresh_label_item_colors()
+            self._widget.image_tags_widget.refresh_colors()
             self._widget.canvas.update()
             return
 

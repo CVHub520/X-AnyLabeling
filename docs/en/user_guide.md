@@ -22,6 +22,7 @@ This guide provides comprehensive instructions for using X-AnyLabeling, covering
       * [3.4 Crosshair Customization](#34-crosshair-customization)
       * [3.5 Navigator](#35-navigator)
       * [3.6 Compare View](#36-compare-view)
+      * [3.7 Image Tags](#37-image-tags)
    * [4. Annotation Formats (Import/Export)](#4-annotation-formats-importexport)
       * [4.1 YOLO Format](#41-yolo-format)
       * [4.2 VOC Format](#42-voc-format)
@@ -117,6 +118,7 @@ Label files are saved in `*.json` format in the same directory as the images by 
 {
   "version": "${version}", // X-AnyLabeling version
   "flags": {},             // Image-level flags (if any)
+  "tags": ["a", "b", "c"], // Ordered image-level open-vocabulary tags
   "shapes": [              // List of annotated shapes
     {
       "label": "${label}",        // Category label
@@ -392,6 +394,15 @@ X-AnyLabeling provides a Compare View feature that allows you to compare two ima
 5. Click the close button (×) on the slider to exit Compare View.
 
 > **Note:** The comparison image must have the same dimensions as the original image. If the sizes do not match, a warning will be displayed in the status bar.
+
+### 3.7 Image Tags
+
+Use `View` > `Image Tags` or press `Ctrl+Shift+T` to show or hide the image tag panel below the canvas.
+
+The image tag panel supports the following operations:
+
+- Click `+` to add a tag. Double-click a tag to edit its text, drag a tag to reorder it, or use the close button to delete it individually.
+- Click `−` to enter batch mode. Select one or more tags, then click `Delete` to remove them at once.
 
 ## 4. Annotation Formats (Import/Export)
 
@@ -834,6 +845,7 @@ You can also update shortcuts in the GUI: open Settings with `Ctrl+0`, then edit
 | `Ctrl+m`              | Toggle Mask Display                              | Show/Hide semi-transparent masks for shapes|
 | `Ctrl+l`              | Toggle Label Text Visibility                     | Show/Hide label names on shapes            |
 | `Ctrl+t`              | Toggle Description Text Visibility               | Show/Hide shape descriptions on shapes     |
+| `Ctrl+Shift+t`        | Show/Hide Image Tags Panel                       | Configurable in Settings                   |
 | `Ctrl+k`              | Toggle Linking Display                           | Show/Hide shape linking visualization      |
 | `Ctrl+Shift+l`        | Toggle Attributes Display                        | Show/Hide shape attributes on canvas       |
 | `Ctrl+Shift+s`        | Set Output Directory                             | Change where `.json` files are saved       |

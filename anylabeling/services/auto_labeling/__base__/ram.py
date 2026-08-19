@@ -12,6 +12,17 @@ from ..types import AutoLabelingResult
 from ..engines.build_onnx_engine import OnnxBaseModel
 
 
+def normalize_tag_mode(tag_mode):
+    if tag_mode in ("", None):
+        return "en"
+    if tag_mode in ("en", "zh"):
+        return tag_mode
+    logger.warning(
+        f"Invalid RAM tag_mode {tag_mode!r}; falling back to English"
+    )
+    return "en"
+
+
 class RecognizeAnything(Model):
     """Image tagging model using Recognize Anything Model (RAM)"""
 
@@ -42,7 +53,7 @@ class RecognizeAnything(Model):
             )
         self.net = OnnxBaseModel(model_abs_path, __preferred_device__)
         self.input_shape = self.net.get_input_shape()[-2:]
-        self.tag_mode = self.config.get("tag_mode", "")  # ['en', 'cn']
+        self.tag_mode = normalize_tag_mode(self.config.get("tag_mode", ""))
 
         # load tag list
         self.tag_list, self.tag_list_chinese = self.load_tag_list()
@@ -96,9 +107,9 @@ class RecognizeAnything(Model):
         for b in range(bs[0]):
             index = np.argwhere(tags[b] == 1)
             token = self.tag_list[index].squeeze(axis=1)
-            tag_output.append(" | ".join(token))
+            tag_output.append(token.tolist())
             token_chinese = self.tag_list_chinese[index].squeeze(axis=1)
-            tag_output_chinese.append(" | ".join(token_chinese))
+            tag_output_chinese.append(token_chinese.tolist())
 
         return tag_output, tag_output_chinese
 
@@ -120,10 +131,8 @@ class RecognizeAnything(Model):
         blob = self.preprocess(image, self.input_shape)
         outs = self.inference(blob)
         tags = self.postprocess(outs)
-        description = self.get_results(tags)
-        result = AutoLabelingResult(
-            shapes=[], replace=False, description=description
-        )
+        tags = self.get_results(tags)
+        result = AutoLabelingResult(shapes=[], replace=False, tags=tags)
         return result
 
     @staticmethod
@@ -147,12 +156,9 @@ class RecognizeAnything(Model):
 
     def get_results(self, tags):
         en_tags, zh_tag = tags
-        image_description = en_tags[0] + "\n" + zh_tag[0]
-        if self.tag_mode == "en":
-            return en_tags[0]
-        elif self.tag_mode == "zh":
+        if self.tag_mode == "zh":
             return zh_tag[0]
-        return image_description
+        return en_tags[0]
 
     def unload(self):
         del self.net
