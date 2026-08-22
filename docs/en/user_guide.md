@@ -502,6 +502,16 @@ Supports importing and exporting semantic segmentation masks as single-channel o
 - Color masks: See [`mask_color_map.json`](../../assets/mask_color_map.json).
 - Grayscale masks: See [`mask_grayscale_map.json`](../../assets/mask_grayscale_map.json).
 
+The optional `label_priority` object controls how overlapping polygons are rasterized. Higher integer values take precedence. Labels omitted from `label_priority` use priority `0`; polygons with the same priority follow annotation layer order, so shapes later in the XLABEL `shapes` array appear on top. Without `label_priority`, annotation layer order alone determines the visible class. Source annotations remain unchanged.
+
+```json
+{
+  "type": "grayscale",
+  "colors": {"Road": 1, "Car": 2, "Person": 3},
+  "label_priority": {"Road": 0, "Car": 10, "Person": 20}
+}
+```
+
 **Importing:**
 1. Select `Import Annotations` > `Import MASK Annotations`.
 2. Provide the `*.json` mapping file.

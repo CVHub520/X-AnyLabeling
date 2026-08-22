@@ -1868,7 +1868,7 @@ class LabelConverter:
         image_shape = (image_height, image_width)
 
         polygons = []
-        for shape in data["shapes"]:
+        for layer_index, shape in enumerate(data["shapes"]):
             shape_type = shape["shape_type"]
             if shape_type != "polygon":
                 continue
@@ -1883,6 +1883,7 @@ class LabelConverter:
                 {
                     "label": shape["label"],
                     "polygon": polygon,
+                    "layer_index": layer_index,
                 }
             )
 
@@ -1890,26 +1891,37 @@ class LabelConverter:
         if output_format not in ["grayscale", "rgb"]:
             raise ValueError("Invalid output format specified")
         mapping_color = mapping_table["colors"]
+        label_priority = mapping_table.get("label_priority", {})
+        if not isinstance(label_priority, dict):
+            raise ValueError("label_priority must be an object")
+        unknown_labels = set(label_priority) - set(mapping_color)
+        if unknown_labels:
+            labels = ", ".join(sorted(unknown_labels))
+            raise ValueError(f"Unknown labels in label_priority: {labels}")
+        if any(
+            isinstance(priority, bool) or not isinstance(priority, int)
+            for priority in label_priority.values()
+        ):
+            raise ValueError("label_priority values must be integers")
+        polygons.sort(
+            key=lambda item: (
+                label_priority.get(item["label"], 0),
+                item["layer_index"],
+            )
+        )
+
         if output_format == "grayscale":
             # Initialize binary_mask
             binary_mask = np.zeros(image_shape, dtype=np.uint8)
-            # Sort polygons by area to handle overlapping (larger areas first)
-            polygons.sort(
-                key=lambda x: cv2.contourArea(np.array(x["polygon"])),
-                reverse=True,
-            )
 
             for item in polygons:
                 label, polygon = item["label"], item["polygon"]
                 if label in mapping_color:
-                    mask = np.zeros(image_shape, dtype=np.uint8)
                     cv2.fillPoly(
-                        mask,
+                        binary_mask,
                         [np.array(polygon, dtype=np.int32)],
                         mapping_color[label],
                     )
-                    # Only update unassigned pixels (where binary_mask is still 0)
-                    binary_mask = np.where(binary_mask == 0, mask, binary_mask)
 
             cv2.imencode(".png", binary_mask)[1].tofile(output_file)
 
@@ -1918,23 +1930,16 @@ class LabelConverter:
             color_mask = np.zeros(
                 (image_height, image_width, 3), dtype=np.uint8
             )
-            polygons.sort(
-                key=lambda x: cv2.contourArea(np.array(x["polygon"])),
-                reverse=True,
-            )
 
             for item in polygons:
                 label, polygon = item["label"], item["polygon"]
                 if label in mapping_color:
                     color = mapping_color[label]
-                    # Create mask for current polygon
-                    curr_mask = np.zeros(image_shape[:2], dtype=np.uint8)
                     cv2.fillPoly(
-                        curr_mask, [np.array(polygon, dtype=np.int32)], 1
+                        color_mask,
+                        [np.array(polygon, dtype=np.int32)],
+                        color,
                     )
-                    # Only update pixels that haven't been assigned yet
-                    unassigned = np.all(color_mask == 0, axis=2)
-                    color_mask[curr_mask.astype(bool) & unassigned] = color
 
             cv2.imencode(".png", cv2.cvtColor(color_mask, cv2.COLOR_BGR2RGB))[
                 1

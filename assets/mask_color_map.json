@@ -20,5 +20,18 @@
         "Train": [0, 80, 100],
         "Motorcycle": [0, 0, 230],
         "Bicycle": [119, 11, 32]
+    },
+    "label_priority": {
+        "Pole": 10,
+        "Traffic Light": 10,
+        "Traffic Sign": 10,
+        "Person": 20,
+        "Rider": 20,
+        "Car": 20,
+        "Truck": 20,
+        "Bus": 20,
+        "Train": 20,
+        "Motorcycle": 20,
+        "Bicycle": 20
     }
 }

@@ -512,6 +512,16 @@ X-AnyLabeling 支持导入和导出语义分割掩码（`*.png`）。
 1. 对于彩色图颜色映射表文件，可参考 [mask_color_map.json](../../assets/mask_color_map.json)。
 2. 对于灰度图颜色映射表文件，可参考 [mask_grayscale_map.json](../../assets/mask_grayscale_map.json)。
 
+可选的 `label_priority` 对象用于处理多边形重叠。整数越大，类别优先级越高；未配置的类别默认优先级为 `0`。优先级相同时按照 XLABEL `shapes` 数组中的标注层级处理，列表中靠后的形状显示在上层。未配置 `label_priority` 时，仅使用标注层级顺序。该过程只影响导出的语义掩码，不会修改原始标注。
+
+```json
+{
+  "type": "grayscale",
+  "colors": {"Road": 1, "Car": 2, "Person": 3},
+  "label_priority": {"Road": 0, "Car": 10, "Person": 20}
+}
+```
+
 **导入任务**：
 
 1. 点击上方菜单栏的 `上传` 按钮。

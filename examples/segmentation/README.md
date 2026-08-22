@@ -91,6 +91,8 @@ Select `Export` > `Export Mask Annotations`, choose [mask_grayscale_map.json](./
 
 **Multi-class semantic segmentation** assigns each pixel to one of several predefined classes. Export it with `Export Mask Annotations` and update [mask_color_map.json](./multiclass_semantic_segmentation/mask_color_map.json) so its category names match your labels.
 
+For overlapping polygons, set `label_priority` in the mapping file. Higher values appear on top; equal values use annotation layer order, with later shapes taking precedence. If `label_priority` is omitted, annotation layer order is used for all classes.
+
 For both methods, refer to the provided [binary mask](./binary_semantic_segmentation/masks/cat_dog.png) and [multi-class mask](./multiclass_semantic_segmentation/masks/cat_dog.png) for output examples.
 
 
