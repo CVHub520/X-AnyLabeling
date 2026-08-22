@@ -2278,6 +2278,16 @@ Original images backed up to:
       <translation>添加图片标签</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="456" />
+      <source>Copy All Tags</source>
+      <translation>复制所有标签</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="577" />
+      <source>Copy Successful</source>
+      <translation>复制成功</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/image_tags_widget.py" line="444" />
       <source>Batch Delete Tags</source>
       <translation>批量删除标签</translation>

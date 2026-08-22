@@ -2278,6 +2278,16 @@ Original images backed up to:
       <translation>画像タグを追加</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="456" />
+      <source>Copy All Tags</source>
+      <translation>すべてのタグをコピー</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="577" />
+      <source>Copy Successful</source>
+      <translation>コピーしました</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/image_tags_widget.py" line="444" />
       <source>Batch Delete Tags</source>
       <translation>画像タグを一括削除</translation>

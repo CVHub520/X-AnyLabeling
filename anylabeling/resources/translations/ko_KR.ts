@@ -2279,6 +2279,16 @@ Original images backed up to:
       <translation>이미지 태그 추가</translation>
     </message>
     <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="456" />
+      <source>Copy All Tags</source>
+      <translation>모든 태그 복사</translation>
+    </message>
+    <message>
+      <location filename="../../views/labeling/widgets/image_tags_widget.py" line="577" />
+      <source>Copy Successful</source>
+      <translation>복사되었습니다</translation>
+    </message>
+    <message>
       <location filename="../../views/labeling/widgets/image_tags_widget.py" line="444" />
       <source>Batch Delete Tags</source>
       <translation>이미지 태그 일괄 삭제</translation>

@@ -403,6 +403,7 @@ The image tag panel supports the following operations:
 
 - Click `+` to add a tag. Double-click a tag to edit its text, drag a tag to reorder it, or use the close button to delete it individually.
 - Click `−` to enter batch mode. Select one or more tags, then click `Delete` to remove them at once.
+- Click `C` to copy all tags to the clipboard as a comma-separated list, such as `tag1,tag2,tag3`.
 
 ## 4. Annotation Formats (Import/Export)
 

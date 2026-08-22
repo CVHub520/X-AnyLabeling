@@ -2,6 +2,8 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import Qt
 
 from ..utils.image_tags import normalize_image_tag
+from ..utils.qt import new_icon_path
+from .popup import Popup
 
 IMAGE_TAG_MIME_TYPE = "application/x-xanylabeling-image-tag"
 IMAGE_TAG_HEIGHT = 28
@@ -327,6 +329,7 @@ class ImageTagsWidget(QtWidgets.QFrame):
         self._input = None
         self._drop_index = None
         self._interactions_enabled = False
+        self._copy_all_button = None
         self._select_all_button = None
         self._delete_selected_button = None
         self._cancel_button = None
@@ -395,6 +398,7 @@ class ImageTagsWidget(QtWidgets.QFrame):
     def _render(self):
         self._flow.clear()
         self._chips = []
+        self._copy_all_button = None
         self._select_all_button = None
         self._delete_selected_button = None
         self._cancel_button = None
@@ -446,6 +450,18 @@ class ImageTagsWidget(QtWidgets.QFrame):
                 )
                 batch_button.clicked.connect(self.start_batch_mode)
                 self._flow.addWidget(batch_button)
+                self._copy_all_button = self._create_round_action_button(
+                    "C",
+                    "copyAllImageTagsButton",
+                    self.tr("Copy All Tags"),
+                )
+                self._copy_all_button.setStyleSheet(
+                    self._copy_all_button.styleSheet()
+                    + "QPushButton#copyAllImageTagsButton {"
+                    "font-size: 14px; font-weight: bold; }"
+                )
+                self._copy_all_button.clicked.connect(self.copy_all_tags)
+                self._flow.addWidget(self._copy_all_button)
 
         if self._mode == "batch":
             self._update_batch_controls()
@@ -517,14 +533,17 @@ class ImageTagsWidget(QtWidgets.QFrame):
 
         selector = (
             "QPushButton#addImageTagButton, "
+            "QPushButton#copyAllImageTagsButton, "
             "QPushButton#batchDeleteImageTagsButton"
         )
         hover_selector = (
             "QPushButton#addImageTagButton:hover, "
+            "QPushButton#copyAllImageTagsButton:hover, "
             "QPushButton#batchDeleteImageTagsButton:hover"
         )
         pressed_selector = (
             "QPushButton#addImageTagButton:pressed, "
+            "QPushButton#copyAllImageTagsButton:pressed, "
             "QPushButton#batchDeleteImageTagsButton:pressed"
         )
 
@@ -545,6 +564,25 @@ class ImageTagsWidget(QtWidgets.QFrame):
         )
 
         return button
+
+    def copy_all_tags(self):
+        if (
+            not self._interactions_enabled
+            or self._mode != "normal"
+            or not self._tags
+        ):
+            return
+        parent = self.window()
+        popup = Popup(
+            self.tr("Copy Successful"),
+            parent=parent,
+            icon=new_icon_path("copy-green", "svg"),
+        )
+        popup.show_popup(
+            parent,
+            copy_msg=",".join(self._tags),
+            position="default",
+        )
 
     def _create_input(self, text=""):
         editor = _TagLineEdit(self._content)

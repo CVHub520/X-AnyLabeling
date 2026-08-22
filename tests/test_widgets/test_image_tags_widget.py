@@ -314,6 +314,7 @@ class ImageTagsWidgetTest(unittest.TestCase):
         self.widget.set_tags(["person"])
         add_button = self.widget._flow.itemAt(1).widget()
         batch_button = self.widget._flow.itemAt(2).widget()
+        copy_button = self.widget._flow.itemAt(3).widget()
 
         self.assertEqual(
             self.widget._content.contextMenuPolicy(),
@@ -321,18 +322,41 @@ class ImageTagsWidgetTest(unittest.TestCase):
         )
         self.assertEqual(add_button.text(), "+")
         self.assertEqual(batch_button.text(), "−")
+        self.assertEqual(copy_button.text(), "C")
+        self.assertIn("font-size: 14px", copy_button.styleSheet())
         self.assertEqual(add_button.styleSheet(), batch_button.styleSheet())
 
         batch_button.click()
         self.assertEqual(self.widget.mode, "batch")
 
-    def test_action_buttons_use_theme_aware_palette_roles(self):
+    @mock.patch("anylabeling.views.labeling.widgets.image_tags_widget.Popup")
+    def test_copy_all_button_uses_popup_component(self, popup):
+        self.widget.set_tags(["person", "street", "traffic light"])
+        button = self.widget._copy_all_button
+
+        self.assertIs(
+            self.widget._flow.itemAt(self.widget._flow.count() - 1).widget(),
+            button,
+        )
+        self.assertEqual(button.toolTip(), "Copy All Tags")
+        button.click()
+
+        popup.assert_called_once()
+        self.assertEqual(popup.call_args.args[0], "Copy Successful")
+        popup.return_value.show_popup.assert_called_once_with(
+            self.widget.window(),
+            copy_msg="person,street,traffic light",
+            position="default",
+        )
+        self.assertEqual(self.changes, [])
+
+    def test_action_buttons_preserve_subtle_background_style(self):
         self.widget.set_tags(["person"])
         add_button = self.widget._flow.itemAt(1).widget()
         self.assertIn(
-            "background-color: palette(button)", add_button.styleSheet()
+            "background-color: rgba(128, 128, 128, 35)",
+            add_button.styleSheet(),
         )
-        self.assertNotIn("palette(midlight)", add_button.styleSheet())
 
         self.widget.start_batch_mode()
         for button in (
@@ -341,9 +365,9 @@ class ImageTagsWidgetTest(unittest.TestCase):
             self.widget._cancel_button,
         ):
             self.assertIn(
-                "background-color: palette(button)", button.styleSheet()
+                "background-color: rgba(128, 128, 128, 35)",
+                button.styleSheet(),
             )
-            self.assertNotIn("palette(midlight)", button.styleSheet())
         self.assertIn(
             "color: palette(placeholder-text)",
             self.widget._delete_selected_button.styleSheet(),
@@ -375,7 +399,7 @@ class ImageTagsWidgetTest(unittest.TestCase):
                 chip.delete_button.geometry().right(), chip.width() - 1
             )
 
-            for index in (1, 2):
+            for index in (1, 2, 3):
                 button = self.widget._flow.itemAt(index).widget()
                 self.assertEqual(
                     button.size(),
