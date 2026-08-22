@@ -689,6 +689,24 @@ class ChatbotDialog(QDialog):
         self.model_button.setMinimumHeight(40)
         self.model_button.setText(get_default_model_id(self.default_provider))
         api_settings_layout.addWidget(self.model_button)
+
+        self.custom_model_input = QLineEdit()
+        custom_model_name = self.providers["custom"].get("model_name", "")
+        if not custom_model_name and self.default_provider == "custom":
+            custom_model_name = _model_settings["model_id"] or ""
+        self.custom_model_input.setText(custom_model_name)
+        self.custom_model_input.setPlaceholderText(self.tr("Model Name"))
+        self.custom_model_input.setStyleSheet(
+            ChatbotDialogStyle.get_settings_edit_style()
+        )
+        self.custom_model_input.setMinimumHeight(40)
+        self.custom_model_input.setVisible(self.default_provider == "custom")
+        self.custom_model_input.installEventFilter(self)
+        self.custom_model_input.textChanged.connect(
+            self.on_custom_model_changed
+        )
+        api_settings_layout.addWidget(self.custom_model_input)
+        self.model_button.setVisible(self.default_provider != "custom")
         api_settings_layout.addStretch()
 
         # Second tab - Model Parameters
@@ -878,12 +896,18 @@ class ChatbotDialog(QDialog):
         self.current_assistant_message = None
 
         # Fetch available models
-        models_data = get_models_data(
-            self.default_provider,
-            self.providers[self.default_provider]["api_address"],
-            self.providers[self.default_provider]["api_key"],
-        )
+        models_data = {}
+        if self.default_provider != "custom":
+            models_data = get_models_data(
+                self.default_provider,
+                self.providers[self.default_provider]["api_address"],
+                self.providers[self.default_provider]["api_key"],
+            )
         self.selected_model = _model_settings["model_id"]
+        if self.default_provider == "custom":
+            self.selected_model = (
+                self.custom_model_input.text().strip() or None
+            )
         self.model_dropdown = ModelDropdown(models_data, self.default_provider)
         self.model_dropdown.hide()
         self.model_dropdown.modelSelected.connect(self.on_model_selected)
@@ -938,6 +962,8 @@ class ChatbotDialog(QDialog):
     def switch_provider(self, provider):
         """Switch between different model providers"""
         if provider in self.providers:
+            self.default_provider = provider
+
             # set api address and key
             api_address = self.providers[provider]["api_address"]
             api_key = self.providers[provider]["api_key"]
@@ -947,8 +973,33 @@ class ChatbotDialog(QDialog):
             )
             self.api_key.setText(api_key)
 
-            models_data = get_models_data(provider, api_address, api_key)
+            models_data = {}
+            if provider != "custom":
+                models_data = get_models_data(provider, api_address, api_key)
             self.model_dropdown.update_models_data(models_data, provider)
+
+            is_custom = provider == "custom"
+            self.custom_model_input.setVisible(is_custom)
+            self.model_button.setVisible(not is_custom)
+            if is_custom:
+                self.selected_model = (
+                    self.custom_model_input.text().strip() or None
+                )
+            else:
+                provider_models = models_data.get(provider, {})
+                self.selected_model = next(
+                    (
+                        model_name
+                        for model_name, model_data in provider_models.items()
+                        if model_data.get("selected", False)
+                    ),
+                    None,
+                )
+                button_text = "Select Model"
+                if self.selected_model:
+                    button_text = f"{self.selected_model} ({provider})"
+                self.model_button.setText(button_text)
+            save_model_selection(provider, self.selected_model)
 
             # update help button urls
             button_url_mapping = [
@@ -972,6 +1023,15 @@ class ChatbotDialog(QDialog):
                         )
                     else:
                         button.setVisible(False)
+
+    def on_custom_model_changed(self, model_name):
+        """Handle the custom model name changed event."""
+        if self.default_provider != "custom":
+            return
+        self.selected_model = model_name.strip() or None
+        self.providers["custom"]["model_name"] = model_name.strip()
+        save_json(self.providers, get_providers_config_path())
+        save_model_selection("custom", self.selected_model)
 
     def on_api_address_changed(self):
         """Handle the API address changed event"""
@@ -2120,7 +2180,13 @@ class ChatbotDialog(QDialog):
             and hasattr(self, "api_key")
         ):
             if (
-                obj in [self.api_address, self.model_button, self.api_key]
+                obj
+                in [
+                    self.api_address,
+                    self.model_button,
+                    self.api_key,
+                    self.custom_model_input,
+                ]
                 and event.type() == QEvent.Type.KeyPress
             ):
                 if (

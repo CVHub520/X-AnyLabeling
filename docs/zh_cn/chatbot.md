@@ -39,7 +39,7 @@ X-AnyLabeling 的聊天机器人是集成在标注流程中的 AI 助手，可�
 | Qwen       | [链接](https://bailian.console.aliyun.com/?apiKey=1#/api-key) | [链接](https://help.aliyun.com/document_detail/2590237.html) | [链接](https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm) |
 
 > [!NOTE]
-> Custom 提供商支持配置与 OpenAI API 兼容的自定义端点。切换提供商后，模型列表会自动更新为当前提供商的可用模型。
+> Custom 提供商支持配置与 OpenAI API 兼容的自定义端点。使用 Custom 时需要手动输入模型名称；其他提供商会列出可选模型。
 
 ## 中间面板：聊天界面
 

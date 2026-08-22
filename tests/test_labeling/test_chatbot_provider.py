@@ -6,6 +6,7 @@ from unittest import mock
 
 from anylabeling.views.labeling.chatbot import provider
 from anylabeling.views.labeling.chatbot import utils as chatbot_utils
+from anylabeling.views.labeling.widgets import chatbot_dialog
 from anylabeling.views.labeling.widgets import model_dropdown_widget
 
 
@@ -130,6 +131,123 @@ class TestChatbotProviderRefresh(unittest.TestCase):
                     "favorite"
                 ]
             )
+
+    def test_save_model_selection_updates_provider_and_clears_old_model(self):
+        with tempfile.TemporaryDirectory() as directory:
+            config_path = os.path.join(directory, "models.json")
+            self._write_config(
+                config_path,
+                {
+                    "ollama": {
+                        "llava": {
+                            "vision": True,
+                            "selected": True,
+                            "favorite": False,
+                        }
+                    }
+                },
+            )
+
+            with mock.patch.object(
+                provider, "get_models_config_path", return_value=config_path
+            ):
+                provider.save_model_selection("custom", "gpt-4o")
+
+            total_data = chatbot_utils.load_json(config_path)
+            self.assertEqual(total_data["settings"]["provider"], "custom")
+            self.assertEqual(total_data["settings"]["model_id"], "gpt-4o")
+            self.assertFalse(
+                total_data["models_data"]["ollama"]["llava"]["selected"]
+            )
+
+
+class TestChatbotProviderSwitch(unittest.TestCase):
+    @staticmethod
+    def _field(text=""):
+        field = mock.Mock()
+        field.text.return_value = text
+        return field
+
+    def _dialog(self, custom_model=""):
+        dialog = mock.Mock()
+        dialog.providers = {
+            "custom": {
+                "api_address": "https://example.com/v1",
+                "api_key": "secret",
+                "api_key_url": None,
+                "api_docs_url": None,
+                "model_docs_url": None,
+            }
+        }
+        dialog.default_provider = "ollama"
+        dialog.selected_model = "llava"
+        dialog.api_address = self._field()
+        dialog.api_key = self._field()
+        dialog.custom_model_input = self._field(custom_model)
+        dialog.model_button = self._field("llava (ollama)")
+        dialog.model_dropdown = mock.Mock()
+        dialog.findChild.return_value = None
+        return dialog
+
+    def test_switch_to_custom_uses_manual_model_name(self):
+        dialog = self._dialog("gpt-4o")
+
+        with (
+            mock.patch.object(chatbot_dialog, "get_models_data") as get_models,
+            mock.patch.object(
+                chatbot_dialog, "save_model_selection"
+            ) as save_selection,
+        ):
+            chatbot_dialog.ChatbotDialog.switch_provider(dialog, "custom")
+
+        self.assertEqual(dialog.default_provider, "custom")
+        self.assertEqual(dialog.selected_model, "gpt-4o")
+        dialog.custom_model_input.setVisible.assert_called_once_with(True)
+        dialog.model_button.setVisible.assert_called_once_with(False)
+        get_models.assert_not_called()
+        save_selection.assert_called_once_with("custom", "gpt-4o")
+
+    def test_switch_to_custom_clears_stale_model(self):
+        dialog = self._dialog()
+
+        with (
+            mock.patch.object(chatbot_dialog, "get_models_data") as get_models,
+            mock.patch.object(
+                chatbot_dialog, "save_model_selection"
+            ) as save_selection,
+        ):
+            chatbot_dialog.ChatbotDialog.switch_provider(dialog, "custom")
+
+        self.assertIsNone(dialog.selected_model)
+        get_models.assert_not_called()
+        save_selection.assert_called_once_with("custom", None)
+
+    def test_custom_model_name_is_persisted(self):
+        dialog = mock.Mock()
+        dialog.default_provider = "custom"
+        dialog.providers = {"custom": {}}
+
+        with (
+            mock.patch.object(chatbot_dialog, "save_json") as save_json,
+            mock.patch.object(
+                chatbot_dialog,
+                "get_providers_config_path",
+                return_value="providers.json",
+            ),
+            mock.patch.object(
+                chatbot_dialog, "save_model_selection"
+            ) as save_selection,
+        ):
+            chatbot_dialog.ChatbotDialog.on_custom_model_changed(
+                dialog, "  claude-3-opus  "
+            )
+
+        self.assertEqual(dialog.selected_model, "claude-3-opus")
+        self.assertEqual(
+            dialog.providers["custom"]["model_name"], "claude-3-opus"
+        )
+        save_json.assert_called_once_with(dialog.providers, "providers.json")
+        save_selection.assert_called_once_with("custom", "claude-3-opus")
 
 
 class TestChatbotJsonSave(unittest.TestCase):

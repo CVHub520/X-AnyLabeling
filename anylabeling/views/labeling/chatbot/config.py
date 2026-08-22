@@ -58,6 +58,7 @@ DEFAULT_PROVIDERS_DATA = {
     "custom": {
         "api_address": "",
         "api_key": "",
+        "model_name": "",
         "api_key_url": None,
         "api_docs_url": None,
         "model_docs_url": None,

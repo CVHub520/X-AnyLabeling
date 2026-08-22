@@ -374,6 +374,21 @@ def get_default_model_id(provider: str) -> str:
     return default_model_id
 
 
+def save_model_selection(provider: str, model_id: str | None):
+    """Save the active provider and model."""
+    models_config_path = get_models_config_path()
+    with MODELS_CONFIG_LOCK:
+        model_config = load_json(models_config_path)
+        for provider_name, models in model_config["models_data"].items():
+            for name, model_data in models.items():
+                model_data["selected"] = (
+                    provider_name == provider and name == model_id
+                )
+        model_config["settings"]["provider"] = provider
+        model_config["settings"]["model_id"] = model_id
+        save_json(model_config, models_config_path)
+
+
 def get_providers_data() -> dict:
     """Get the providers configs"""
     default_providers_data = DEFAULT_PROVIDERS_DATA

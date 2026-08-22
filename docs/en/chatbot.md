@@ -39,7 +39,7 @@ The Chatbot features a three-panel interface designed for streamlined interactio
 | Qwen       | [Link](https://bailian.console.aliyun.com/?apiKey=1#/api-key) | [Link](https://help.aliyun.com/document_detail/2590237.html)   | [Link](https://help.aliyun.com/zh/model-studio/developer-reference/what-is-qwen-llm) |
 
 > [!NOTE]
-> The Custom provider supports configuring any custom endpoint that is compatible with the OpenAI API format. After selecting a provider, the model list will only display relevant models and favorites for the current provider.
+> The Custom provider supports configuring any custom endpoint that is compatible with the OpenAI API format. Enter the model name manually when using Custom; other providers list the available models for selection.
 
 ## Middle Panel - Chat Interface
 
