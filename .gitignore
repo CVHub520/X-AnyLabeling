@@ -50,6 +50,8 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+tests/output/
+codex_visual_prompt_reference/
 nosetests.xml
 coverage.xml
 *.cover

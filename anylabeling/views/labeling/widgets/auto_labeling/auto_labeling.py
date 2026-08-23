@@ -2,7 +2,7 @@ import os
 import yaml
 import collections
 
-from anylabeling.config import get_config
+from anylabeling.config import get_config, get_work_directory
 
 from PyQt6 import uic
 from PyQt6.QtCore import Qt, pyqtSignal, pyqtSlot, QPoint, QTimer
@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QDialog,
     QFileDialog,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QMessageBox,
     QProgressBar,
@@ -136,6 +137,9 @@ class AutoLabelingWidget(QWidget):
         )
         self.model_manager.model_loaded.connect(self.update_visible_widgets)
         self.model_manager.model_loaded.connect(self.on_new_model_loaded)
+        self.model_manager.visual_prompt_status_changed.connect(
+            self.on_visual_prompt_status_changed
+        )
         self.model_manager.new_auto_labeling_result.connect(
             lambda auto_labeling_result: self.parent.new_shapes_from_auto_labeling(
                 auto_labeling_result
@@ -187,6 +191,14 @@ class AutoLabelingWidget(QWidget):
             self.button_add_point.setEnabled(enable)
             self.button_remove_point.setEnabled(enable)
             self.button_add_rect.setEnabled(enable)
+            self.button_generate_visual_prompt.setEnabled(enable)
+            self.button_save_visual_prompt.setEnabled(
+                enable and self._visual_prompt_ready
+            )
+            self.button_load_visual_prompt.setEnabled(enable)
+            self.button_clear_visual_prompt.setEnabled(
+                enable and self._visual_prompt_ready
+            )
             self.add_pos_rect.setEnabled(enable)
             self.add_neg_rect.setEnabled(enable)
             self.button_run_rect.setEnabled(enable)
@@ -215,6 +227,8 @@ class AutoLabelingWidget(QWidget):
         self.initial_preserve_annotations_state = False
         self.skip_detection = False
         self._amg_warning_confirmed = False
+        self._visual_prompt_ready = False
+        self._visual_prompt_state = "NO_VISUAL_PROMPT"
 
         # ===================================
         #  Auto labeling buttons
@@ -315,6 +329,42 @@ class AutoLabelingWidget(QWidget):
         # --- Configuration for: button_add_rect ---
         self.button_add_rect.setText(self.tr("+Rect"))
         self.button_add_rect.clicked.connect(self.on_button_add_rect_clicked)
+
+        # --- Configuration for: cross-image visual prompt controls ---
+        self.button_generate_visual_prompt.setText(
+            self.tr("Generate Visual Prompt")
+        )
+        self.button_generate_visual_prompt.setStyleSheet(
+            get_highlight_button_style()
+        )
+        self.button_generate_visual_prompt.clicked.connect(
+            self.on_generate_visual_prompt_clicked
+        )
+        self.visual_prompt_status_label.setText(
+            self.tr("Visual Prompt: Not generated")
+        )
+        self.visual_prompt_status_label.setStyleSheet(
+            f"color: {get_theme()['text_secondary']}; background: transparent;"
+        )
+        self.button_clear_visual_prompt.setText(self.tr("Clear Visual Prompt"))
+        self.button_clear_visual_prompt.setStyleSheet(
+            get_normal_button_style()
+        )
+        self.button_clear_visual_prompt.setEnabled(False)
+        self.button_clear_visual_prompt.clicked.connect(
+            self.on_clear_visual_prompt_clicked
+        )
+        self.button_save_visual_prompt.setText(self.tr("Save Prompt"))
+        self.button_save_visual_prompt.setStyleSheet(get_normal_button_style())
+        self.button_save_visual_prompt.setEnabled(False)
+        self.button_save_visual_prompt.clicked.connect(
+            self.on_save_visual_prompt_clicked
+        )
+        self.button_load_visual_prompt.setText(self.tr("Load Prompt"))
+        self.button_load_visual_prompt.setStyleSheet(get_normal_button_style())
+        self.button_load_visual_prompt.clicked.connect(
+            self.on_load_visual_prompt_clicked
+        )
 
         # --- Configuration for: add_pos_rect ---
         self.add_pos_rect.setText(self.tr("+Rect"))
@@ -1094,6 +1144,10 @@ class AutoLabelingWidget(QWidget):
         elif model_config.get("type") == "remote_server":
             self.update_remote_server_mode_ui()
 
+        self.on_visual_prompt_status_changed(
+            self.model_manager.get_visual_prompt_status()
+        )
+
     def update_upn_mode_ui(self):
         """Update UPN mode combobox to reflect current backend state"""
         current_mode = self.model_manager.loaded_model_config[
@@ -1165,6 +1219,11 @@ class AutoLabelingWidget(QWidget):
             "button_add_point",
             "button_remove_point",
             "button_add_rect",
+            "button_generate_visual_prompt",
+            "visual_prompt_status_label",
+            "button_save_visual_prompt",
+            "button_load_visual_prompt",
+            "button_clear_visual_prompt",
             "add_pos_rect",
             "add_neg_rect",
             "button_run_rect",
@@ -1221,6 +1280,100 @@ class AutoLabelingWidget(QWidget):
         current_model_name = self.model_manager.loaded_model_config["type"]
         if current_model_name not in _SKIP_PREDICTION_ON_NEW_MARKS_MODELS:
             self.run_prediction()
+
+    def on_generate_visual_prompt_clicked(self):
+        """Generate a cached YOLOE VPE from current rectangle marks."""
+        if self.parent.filename is None:
+            self.model_manager.new_model_status.emit(
+                self.tr(
+                    "Open a reference image before generating a visual prompt."
+                )
+            )
+            return
+        self.model_manager.build_visual_prompt_threading(
+            self.parent.image, self.parent.filename
+        )
+
+    def on_clear_visual_prompt_clicked(self):
+        """Clear the cached YOLOE VPE while preserving other modes."""
+        self.model_manager.clear_visual_prompt()
+
+    def on_save_visual_prompt_clicked(self):
+        """Save the current VPE below the X-AnyLabeling work directory."""
+        default_name = (
+            self.model_manager.get_visual_prompt_status().get("profile_name")
+            or "visual_prompt"
+        )
+        name, accepted = QInputDialog.getText(
+            self,
+            self.tr("Save Visual Prompt"),
+            self.tr("Prompt name:"),
+            text=default_name,
+        )
+        if not accepted or not name.strip():
+            return
+        profile_directory = os.path.join(
+            get_work_directory(), "visual_prompts", name.strip()
+        )
+        if os.path.isdir(profile_directory):
+            answer = QMessageBox.question(
+                self,
+                self.tr("Replace Visual Prompt"),
+                self.tr(
+                    "A profile with this name already exists. Replace it?"
+                ),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+        self.model_manager.save_visual_prompt_profile(
+            name.strip(), profile_directory
+        )
+
+    def on_load_visual_prompt_clicked(self):
+        """Choose profile metadata and restore it in a worker thread."""
+        profile_root = os.path.join(get_work_directory(), "visual_prompts")
+        metadata_path, _ = QFileDialog.getOpenFileName(
+            self,
+            self.tr("Load Visual Prompt"),
+            profile_root,
+            self.tr("Visual Prompt Profile (metadata.json)"),
+        )
+        if metadata_path:
+            self.model_manager.load_visual_prompt_profile_threading(
+                metadata_path
+            )
+
+    def on_visual_prompt_status_changed(self, status):
+        """Render YOLOE cross-image prompt state in the compact panel row."""
+        previous_state = self._visual_prompt_state
+        self._visual_prompt_ready = bool(status.get("ready"))
+        state = status.get("state", "NO_VISUAL_PROMPT")
+        self._visual_prompt_state = state
+        if state == "REFERENCE_MARKS_READY":
+            text = self.tr(
+                "Visual Prompt: Reference boxes ready ({count})"
+            ).format(count=status.get("mark_count", 0))
+        elif self._visual_prompt_ready:
+            classes = ", ".join(status.get("classes") or ["object"])
+            profile_name = status.get("profile_name")
+            if profile_name:
+                classes = f"{profile_name}: {classes}"
+            instances = status.get("instance_count", 0)
+            text = self.tr(
+                "Visual Prompt: Ready — {classes} ({instances} instances)"
+            ).format(classes=classes, instances=instances)
+        else:
+            text = self.tr("Visual Prompt: Not generated")
+        self.visual_prompt_status_label.setText(text)
+        self.button_save_visual_prompt.setEnabled(self._visual_prompt_ready)
+        self.button_clear_visual_prompt.setEnabled(self._visual_prompt_ready)
+        if (
+            state == "VISUAL_PROMPT_READY"
+            and previous_state == "REFERENCE_MARKS_READY"
+        ):
+            self.clear_auto_labeling_action_requested.emit()
 
     def on_open(self):
         pass
