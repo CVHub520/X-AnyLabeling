@@ -360,6 +360,41 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="button_generate_visual_prompt">
+       <property name="text">
+        <string>Generate VPE</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="visual_prompt_status_label">
+       <property name="text">
+        <string>VPE: None</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="button_clear_visual_prompt">
+       <property name="text">
+        <string>Clear VPE</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="button_save_visual_prompt">
+       <property name="text">
+        <string>Save Prompt</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="button_load_visual_prompt">
+       <property name="text">
+        <string>Load Prompt</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="add_pos_rect">
        <property name="text">
         <string>+Rect</string>

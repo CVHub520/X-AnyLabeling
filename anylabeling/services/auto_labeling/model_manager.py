@@ -50,6 +50,7 @@ class ModelManager(QObject):
     output_modes_changed = pyqtSignal(dict, str)
     download_progress = pyqtSignal(int, int)
     download_finished = pyqtSignal()
+    visual_prompt_status_changed = pyqtSignal(dict)
 
     def __init__(self):
         super().__init__()
@@ -2350,6 +2351,284 @@ class ModelManager(QObject):
         ):
             return
         self.loaded_model_config["model"].set_auto_labeling_marks(marks)
+        if self.loaded_model_config["type"] == "yoloe":
+            self.visual_prompt_status_changed.emit(
+                self.get_visual_prompt_status()
+            )
+
+    def get_visual_prompt_status(self):
+        """Return UI-safe state for the loaded YOLOE visual prompt."""
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
+        if model_config is None or model_config.get("type") != "yoloe":
+            return {
+                "state": "NO_VISUAL_PROMPT",
+                "ready": False,
+                "classes": [],
+            }
+
+        model = model_config["model"]
+        reference = model.visual_prompt_reference or {}
+        vpe = model.visual_prompt_vpe
+        return {
+            "state": model.get_visual_prompt_state(),
+            "ready": model.has_visual_prompt(),
+            "classes": list(model.visual_prompt_classes),
+            "reference_image": reference.get("image_path"),
+            "instance_count": reference.get("instance_count", 0),
+            "vpe_shape": list(vpe.shape) if vpe is not None else None,
+            "profile_name": getattr(model, "visual_prompt_profile_name", None),
+            "mark_count": len(model.marks),
+        }
+
+    def build_visual_prompt(self, reference_image, filename=None):
+        """Build a YOLOE VPE in the model execution worker."""
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
+        if model_config is None or model_config.get("type") != "yoloe":
+            self.new_model_status.emit(
+                self.tr(
+                    "Load a YOLOE model before generating a visual prompt."
+                )
+            )
+            self.prediction_finished.emit()
+            return
+
+        try:
+            source = filename if filename else reference_image
+            vpe = model_config["model"].build_visual_prompt(source)
+            status = self.get_visual_prompt_status()
+            self.visual_prompt_status_changed.emit(status)
+            template = (
+                "Visual prompt generated successfully. "
+                "Instances: {instances}; class: {classes}; VPE shape: {shape}."
+            )
+            self.new_model_status.emit(
+                self.tr(template).format(
+                    instances=status["instance_count"],
+                    classes=", ".join(status["classes"]),
+                    shape=tuple(vpe.shape),
+                )
+            )
+        except Exception as e:  # noqa
+            logger.error(f"Error in build_visual_prompt: {e}")
+            template = "Error generating visual prompt: {error_message}"
+            self.new_model_status.emit(
+                self.tr(template).format(error_message=str(e))
+            )
+            self.visual_prompt_status_changed.emit(
+                self.get_visual_prompt_status()
+            )
+        self.prediction_finished.emit()
+
+    @pyqtSlot()
+    def build_visual_prompt_threading(self, reference_image, filename=None):
+        """Generate a YOLOE visual prompt without blocking the GUI thread."""
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
+        if model_config is None or model_config.get("type") != "yoloe":
+            self.new_model_status.emit(
+                self.tr(
+                    "Load a YOLOE model before generating a visual prompt."
+                )
+            )
+            return
+
+        self.new_model_status.emit(
+            self.tr("Generating visual prompt. Please wait...")
+        )
+        self.prediction_started.emit()
+
+        with self.model_execution_thread_lock:
+            try:
+                execution_running = (
+                    self.model_execution_thread is not None
+                    and self.model_execution_thread.isRunning()
+                )
+            except RuntimeError:
+                self.model_execution_thread = None
+                self.model_execution_worker = None
+                execution_running = False
+
+            if execution_running:
+                self.new_model_status.emit(
+                    self.tr(
+                        "Another model is being executed."
+                        " Please wait for it to finish."
+                    )
+                )
+                self.prediction_finished.emit()
+                return
+
+            self.model_execution_thread = QThread()
+            self.model_execution_worker = GenericWorker(
+                self.build_visual_prompt, reference_image, filename
+            )
+            self.model_execution_worker.finished.connect(
+                self.model_execution_thread.quit
+            )
+            self.model_execution_thread.finished.connect(
+                self.on_model_execution_finished
+            )
+            self.model_execution_thread.finished.connect(
+                self.model_execution_thread.deleteLater
+            )
+            self.model_execution_worker.moveToThread(
+                self.model_execution_thread
+            )
+            self.model_execution_thread.started.connect(
+                self.model_execution_worker.run
+            )
+            self.model_execution_thread.start()
+
+    def clear_visual_prompt(self):
+        """Clear the loaded YOLOE VPE when no inference is running."""
+        with self.model_execution_thread_lock:
+            try:
+                execution_running = (
+                    self.model_execution_thread is not None
+                    and self.model_execution_thread.isRunning()
+                )
+            except RuntimeError:
+                execution_running = False
+            if execution_running:
+                self.new_model_status.emit(
+                    self.tr(
+                        "Another model is being executed."
+                        " Please wait for it to finish."
+                    )
+                )
+                return False
+
+            with self.loaded_model_config_lock:
+                model_config = self.loaded_model_config
+            if model_config is None or model_config.get("type") != "yoloe":
+                return False
+            model_config["model"].clear_visual_prompt()
+
+        status = self.get_visual_prompt_status()
+        self.visual_prompt_status_changed.emit(status)
+        self.new_model_status.emit(self.tr("Visual prompt cleared."))
+        return True
+
+    def save_visual_prompt_profile(self, name, directory):
+        """Save the loaded YOLOE visual prompt profile."""
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
+        if model_config is None or model_config.get("type") != "yoloe":
+            self.new_model_status.emit(
+                self.tr("Load a YOLOE model before saving a visual prompt.")
+            )
+            return None
+        try:
+            metadata_path = model_config["model"].save_visual_prompt_profile(
+                name, directory
+            )
+            self.visual_prompt_status_changed.emit(
+                self.get_visual_prompt_status()
+            )
+            self.new_model_status.emit(
+                self.tr("Visual prompt profile saved: {path}").format(
+                    path=metadata_path
+                )
+            )
+            return metadata_path
+        except Exception as e:  # noqa
+            logger.error(f"Error in save_visual_prompt_profile: {e}")
+            self.new_model_status.emit(
+                self.tr("Error saving visual prompt profile: {error}").format(
+                    error=str(e)
+                )
+            )
+            return None
+
+    def load_visual_prompt_profile(self, path):
+        """Load a profile in the model execution worker."""
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
+        if model_config is None or model_config.get("type") != "yoloe":
+            self.new_model_status.emit(
+                self.tr("Load a YOLOE model before loading a visual prompt.")
+            )
+            self.prediction_finished.emit()
+            return
+        try:
+            profile = model_config["model"].load_visual_prompt_profile(path)
+            status = self.get_visual_prompt_status()
+            self.visual_prompt_status_changed.emit(status)
+            self.new_model_status.emit(
+                self.tr(
+                    "Visual prompt profile loaded: {name}; "
+                    "VPE shape: {shape}."
+                ).format(name=profile.name, shape=tuple(profile.vpe.shape))
+            )
+        except Exception as e:  # noqa
+            logger.error(f"Error in load_visual_prompt_profile: {e}")
+            self.new_model_status.emit(
+                self.tr("Error loading visual prompt profile: {error}").format(
+                    error=str(e)
+                )
+            )
+            self.visual_prompt_status_changed.emit(
+                self.get_visual_prompt_status()
+            )
+        self.prediction_finished.emit()
+
+    @pyqtSlot()
+    def load_visual_prompt_profile_threading(self, path):
+        """Restore a profile without blocking the GUI thread."""
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
+        if model_config is None or model_config.get("type") != "yoloe":
+            self.new_model_status.emit(
+                self.tr("Load a YOLOE model before loading a visual prompt.")
+            )
+            return
+
+        self.new_model_status.emit(
+            self.tr("Loading visual prompt profile. Please wait...")
+        )
+        self.prediction_started.emit()
+        with self.model_execution_thread_lock:
+            try:
+                execution_running = (
+                    self.model_execution_thread is not None
+                    and self.model_execution_thread.isRunning()
+                )
+            except RuntimeError:
+                self.model_execution_thread = None
+                self.model_execution_worker = None
+                execution_running = False
+            if execution_running:
+                self.new_model_status.emit(
+                    self.tr(
+                        "Another model is being executed."
+                        " Please wait for it to finish."
+                    )
+                )
+                self.prediction_finished.emit()
+                return
+
+            self.model_execution_thread = QThread()
+            self.model_execution_worker = GenericWorker(
+                self.load_visual_prompt_profile, path
+            )
+            self.model_execution_worker.finished.connect(
+                self.model_execution_thread.quit
+            )
+            self.model_execution_thread.finished.connect(
+                self.on_model_execution_finished
+            )
+            self.model_execution_thread.finished.connect(
+                self.model_execution_thread.deleteLater
+            )
+            self.model_execution_worker.moveToThread(
+                self.model_execution_thread
+            )
+            self.model_execution_thread.started.connect(
+                self.model_execution_worker.run
+            )
+            self.model_execution_thread.start()
 
     def set_auto_labeling_api_token(self, token):
         """Set the API token for the model"""
@@ -2433,6 +2712,7 @@ class ModelManager(QObject):
         run_tracker=False,
         batch=False,
         existing_shapes=None,
+        visual_prompt=False,
     ):
         """Predict shapes.
         NOTE: This function is blocking. The model can take a long time to
@@ -2448,7 +2728,18 @@ class ModelManager(QObject):
             return
 
         try:
-            if text_prompt is not None:
+            if visual_prompt:
+                if (
+                    model_config.get("type") != "yoloe"
+                    or not model_config["model"].has_visual_prompt()
+                ):
+                    raise RuntimeError(
+                        "No current YOLOE visual prompt is ready."
+                    )
+                auto_labeling_result = model_config["model"].predict_shapes(
+                    image, filename, use_visual_prompt=True
+                )
+            elif text_prompt is not None:
                 auto_labeling_result = model_config["model"].predict_shapes(
                     image, filename, text_prompt=text_prompt
                 )
@@ -2482,6 +2773,9 @@ class ModelManager(QObject):
             translated_template = self.tr(template)
             error_text = translated_template.format(error_message=str(e))
             self.new_model_status.emit(error_text)
+            if batch:
+                self.prediction_finished.emit()
+                raise
 
         self.prediction_finished.emit()
 

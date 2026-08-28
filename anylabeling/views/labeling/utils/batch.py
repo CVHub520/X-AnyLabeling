@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QDialog,
     QLabel,
     QLineEdit,
+    QComboBox,
     QDialogButtonBox,
     QApplication,
 )
@@ -24,6 +25,7 @@ from anylabeling.services.auto_labeling import (
     _BATCH_PROCESSING_VIDEO_MODELS,
     _SKIP_DET_MODELS,
 )
+from anylabeling.services.auto_labeling.types import AutoLabelingResult
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.schema import IMAGE_TAGS_FIELD
 from anylabeling.views.labeling.shape import Shape
@@ -140,6 +142,63 @@ class TextInputDialog(QDialog):
         return ""
 
 
+class YoloeBatchPromptDialog(QDialog):
+    """Select the explicit prompt source for a YOLOE batch run."""
+
+    VISUAL_PROMPT = "visual_prompt"
+    TEXT_PROMPT = "text_prompt"
+    PROMPT_FREE = "prompt_free"
+
+    def __init__(self, visual_prompt_ready, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle(self.tr("YOLOE Batch Prompt"))
+        self.setFixedSize(440, 210)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(24, 24, 24, 24)
+        layout.setSpacing(12)
+        layout.addWidget(QLabel(self.tr("Select the prompt for this batch:")))
+
+        self.mode_combo = QComboBox()
+        if visual_prompt_ready:
+            self.mode_combo.addItem(
+                self.tr("Current Visual Prompt"), self.VISUAL_PROMPT
+            )
+        self.mode_combo.addItem(self.tr("Text Prompt"), self.TEXT_PROMPT)
+        self.mode_combo.addItem(self.tr("Prompt-Free"), self.PROMPT_FREE)
+        layout.addWidget(self.mode_combo)
+
+        self.text_input = QLineEdit()
+        self.text_input.setPlaceholderText(
+            self.tr("Enter text prompt, e.g. person.car")
+        )
+        layout.addWidget(self.text_input)
+
+        button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok
+            | QDialogButtonBox.StandardButton.Cancel
+        )
+        button_box.accepted.connect(self.accept)
+        button_box.rejected.connect(self.reject)
+        layout.addWidget(button_box)
+        self.mode_combo.currentIndexChanged.connect(self._update_text_input)
+        self._update_text_input()
+
+    def _update_text_input(self):
+        self.text_input.setEnabled(
+            self.mode_combo.currentData() == self.TEXT_PROMPT
+        )
+
+    def get_selection(self):
+        if self.exec() != QDialog.DialogCode.Accepted:
+            return None
+        mode = self.mode_combo.currentData()
+        text = self.text_input.text().strip()
+        if mode == self.TEXT_PROMPT and not text:
+            return None
+        return mode, text
+
+
 def get_image_size(image_path):
     with Image.open(image_path) as img:
         return img.size
@@ -183,7 +242,9 @@ def load_existing_shapes(image_file):
         return None
 
 
-def finish_processing(self, progress_dialog):
+def finish_processing(
+    self, progress_dialog, failed_image_count=0, cancelled=False
+):
     if not getattr(self, "_batch_processing_active", False):
         progress_dialog.close()
         return
@@ -203,11 +264,19 @@ def finish_processing(self, progress_dialog):
         _reset_batch_processing_state(self)
         progress_dialog.close()
 
-    popup = Popup(
-        self.tr("Processing completed successfully!"),
-        self,
-        icon=new_icon_path("copy-green", "svg"),
-    )
+    if cancelled:
+        message = self.tr("Batch processing cancelled.")
+        icon = new_icon_path("error", "svg")
+    elif failed_image_count:
+        message = self.tr(
+            "Batch processing completed with {count} failed image(s). "
+            "Check the logs for details."
+        ).format(count=failed_image_count)
+        icon = new_icon_path("error", "svg")
+    else:
+        message = self.tr("Processing completed successfully!")
+        icon = new_icon_path("copy-green", "svg")
+    popup = Popup(message, self, icon=icon)
     popup.show_popup(self, position="center")
 
 
@@ -225,6 +294,7 @@ def _reset_batch_processing_state(self):
     for attribute in (
         "text_prompt",
         "run_tracker",
+        "batch_visual_prompt",
         "image_index",
         "current_index",
     ):
@@ -303,17 +373,20 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
 
         with io_open(label_file, "w") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
 
     except Exception as e:
         logger.error(
             f"Failed to save auto labeling result for image file '{image_file}': {str(e)}"
         )
+        return False
 
 
 class BatchProcessingThread(QThread):
     progress_updated = pyqtSignal(int, str)
-    processing_finished = pyqtSignal()
+    processing_finished = pyqtSignal(int, bool)
     error_occurred = pyqtSignal(str)
+    image_failed = pyqtSignal(str, str)
 
     def __init__(
         self,
@@ -324,6 +397,7 @@ class BatchProcessingThread(QThread):
         text_prompt,
         run_tracker,
         skip_detection,
+        visual_prompt=False,
     ):
         super().__init__()
         self.app = app
@@ -333,9 +407,11 @@ class BatchProcessingThread(QThread):
         self.text_prompt = text_prompt
         self.run_tracker = run_tracker
         self.skip_detection = skip_detection
+        self.visual_prompt = visual_prompt
 
     def run(self):
         total_images = len(self.image_list)
+        failed_images = []
         try:
             while (
                 self.image_index < total_images
@@ -343,35 +419,57 @@ class BatchProcessingThread(QThread):
             ):
                 image_file = self.image_list[self.image_index]
 
-                if self.text_prompt:
-                    result = self.app.auto_labeling_widget.model_manager.predict_shapes(
-                        self.app.image,
-                        image_file,
-                        text_prompt=self.text_prompt,
-                        batch=True,
-                    )
-                elif self.run_tracker:
-                    result = self.app.auto_labeling_widget.model_manager.predict_shapes(
-                        self.app.image,
-                        image_file,
-                        run_tracker=self.run_tracker,
-                        batch=True,
-                    )
-                else:
-                    existing_shapes = None
-                    if (
-                        self.model_type in _SKIP_DET_MODELS
-                        and self.skip_detection
-                    ):
-                        existing_shapes = load_existing_shapes(image_file)
-                    result = self.app.auto_labeling_widget.model_manager.predict_shapes(
-                        self.app.image,
-                        image_file,
-                        batch=True,
-                        existing_shapes=existing_shapes,
-                    )
+                try:
+                    if self.visual_prompt:
+                        result = self.app.auto_labeling_widget.model_manager.predict_shapes(
+                            self.app.image,
+                            image_file,
+                            batch=True,
+                            visual_prompt=True,
+                        )
+                    elif self.text_prompt:
+                        result = self.app.auto_labeling_widget.model_manager.predict_shapes(
+                            self.app.image,
+                            image_file,
+                            text_prompt=self.text_prompt,
+                            batch=True,
+                        )
+                    elif self.run_tracker:
+                        result = self.app.auto_labeling_widget.model_manager.predict_shapes(
+                            self.app.image,
+                            image_file,
+                            run_tracker=self.run_tracker,
+                            batch=True,
+                        )
+                    else:
+                        existing_shapes = None
+                        if (
+                            self.model_type in _SKIP_DET_MODELS
+                            and self.skip_detection
+                        ):
+                            existing_shapes = load_existing_shapes(image_file)
+                        result = self.app.auto_labeling_widget.model_manager.predict_shapes(
+                            self.app.image,
+                            image_file,
+                            batch=True,
+                            existing_shapes=existing_shapes,
+                        )
 
-                save_auto_labeling_result(self.app, image_file, result)
+                    if not isinstance(result, AutoLabelingResult):
+                        raise RuntimeError(
+                            "Model did not return a valid auto-labeling result."
+                        )
+                    if not save_auto_labeling_result(
+                        self.app, image_file, result
+                    ):
+                        raise RuntimeError("Could not save annotation result.")
+                except Exception as e:  # noqa
+                    error_message = str(e)
+                    failed_images.append((image_file, error_message))
+                    logger.error(
+                        f"Batch image failed: '{image_file}': {error_message}"
+                    )
+                    self.image_failed.emit(image_file, error_message)
                 self.image_index += 1
                 self.progress_updated.emit(
                     self.image_index,
@@ -379,7 +477,9 @@ class BatchProcessingThread(QThread):
                 )
 
             self.app.image_index = self.image_index
-            self.processing_finished.emit()
+            self.processing_finished.emit(
+                len(failed_images), bool(self.app.cancel_processing)
+            )
         except Exception as e:
             self.app.image_index = self.image_index
             self.error_occurred.emit(str(e))
@@ -424,6 +524,7 @@ def process_next_image(self, progress_dialog, batch=True):
             self.text_prompt,
             self.run_tracker,
             skip_detection,
+            visual_prompt=getattr(self, "batch_visual_prompt", False),
         )
 
         def _on_progress(value, label):
@@ -443,7 +544,14 @@ def process_next_image(self, progress_dialog, batch=True):
 
         self._batch_thread.progress_updated.connect(_on_progress)
         self._batch_thread.processing_finished.connect(
-            lambda: finish_processing(self, progress_dialog)
+            lambda failed_count, cancelled: finish_processing(
+                self, progress_dialog, failed_count, cancelled
+            )
+        )
+        self._batch_thread.image_failed.connect(
+            lambda image_file, message: logger.warning(
+                f"Continuing batch after failure for '{image_file}': {message}"
+            )
         )
         self._batch_thread.error_occurred.connect(_on_error)
         self._batch_thread.start()
@@ -637,7 +745,39 @@ def show_progress_dialog_and_process(self):
     QTimer.singleShot(200, lambda: process_next_image(self, progress_dialog))
 
 
-def run_all_images(self):
+def _configure_yoloe_batch(self):
+    """Configure the explicit YOLOE prompt source for one batch run."""
+    model = self.auto_labeling_widget.model_manager.loaded_model_config[
+        "model"
+    ]
+    dialog = YoloeBatchPromptDialog(
+        visual_prompt_ready=model.has_visual_prompt(), parent=self
+    )
+    selection = dialog.get_selection()
+    if selection is None:
+        _reset_batch_processing_state(self)
+        return False
+
+    prompt_mode, self.text_prompt = selection
+    self.batch_visual_prompt = (
+        prompt_mode == YoloeBatchPromptDialog.VISUAL_PROMPT
+    )
+    if self.batch_visual_prompt and not model.has_visual_prompt():
+        self.auto_labeling_widget.model_manager.new_model_status.emit(
+            self.tr("No current visual prompt is ready for batch processing.")
+        )
+        _reset_batch_processing_state(self)
+        return False
+    if self.batch_visual_prompt:
+        # "Run all images" must cover the complete opened folder even when
+        # the reference image is not the first item.
+        self.image_index = 0
+    if prompt_mode == YoloeBatchPromptDialog.PROMPT_FREE:
+        self.text_prompt = ""
+    return True
+
+
+def run_all_images(self):  # noqa: C901
     if getattr(self, "_batch_processing_active", False):
         logger.warning("Batch processing is already running.")
         return
@@ -685,6 +825,7 @@ def run_all_images(self):
     self.image_index = self.current_index
     self.text_prompt = ""
     self.run_tracker = False
+    self.batch_visual_prompt = False
 
     model_type = self.auto_labeling_widget.model_manager.loaded_model_config[
         "type"
@@ -721,10 +862,13 @@ def run_all_images(self):
             [{"type": "auto_grid"}]
         )
         _start_batch_processing(self)
+    elif model_type == "yoloe":
+        if _configure_yoloe_batch(self):
+            _start_batch_processing(self)
     elif model_type in _BATCH_PROCESSING_TEXT_PROMPT_MODELS:
         text_input_dialog = TextInputDialog(parent=self)
         self.text_prompt = text_input_dialog.get_input_text()
-        if self.text_prompt or model_type == "yoloe":
+        if self.text_prompt:
             _start_batch_processing(self)
     elif (
         self.auto_labeling_widget.model_manager.loaded_model_config["type"]

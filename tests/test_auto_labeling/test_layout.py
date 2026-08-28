@@ -89,7 +89,7 @@ class TestAutoLabelingLayout(unittest.TestCase):
         slider = form.findChild(QtWidgets.QSlider, "mask_fineness_slider")
         self.assertGreaterEqual(slider.minimumWidth(), 120)
 
-        form.resize(5000, 100)
+        form.resize(container.sizeHint().width() + 500, 100)
         form.show()
         self.app.processEvents()
         update_model_selection_scroll_area_height(scroll_area)
@@ -184,6 +184,70 @@ class TestAutoLabelingLayout(unittest.TestCase):
             form.findChild(QtWidgets.QSpinBox, "input_points_per_side")
         )
         self.assertIsNone(form.findChild(QtWidgets.QSpinBox, "input_min_area"))
+
+    def test_visual_prompt_controls_are_part_of_existing_panel(self):
+        form = QtWidgets.QWidget()
+        self._widgets.append(form)
+        ui_path = (
+            Path(__file__).resolve().parents[2]
+            / "anylabeling/views/labeling/widgets/auto_labeling/auto_labeling.ui"
+        )
+        uic.loadUi(str(ui_path), form)
+
+        self.assertIsInstance(
+            form.button_generate_visual_prompt, QtWidgets.QPushButton
+        )
+        self.assertIsInstance(
+            form.visual_prompt_status_label, QtWidgets.QLabel
+        )
+        self.assertIsInstance(
+            form.button_clear_visual_prompt, QtWidgets.QPushButton
+        )
+        self.assertIsInstance(
+            form.button_save_visual_prompt, QtWidgets.QPushButton
+        )
+        self.assertIsInstance(
+            form.button_load_visual_prompt, QtWidgets.QPushButton
+        )
+
+    def test_visual_prompt_replacement_clears_temporary_marks(self):
+        config.current_config_file = (
+            "anylabeling/configs/xanylabeling_config.yaml"
+        )
+        parent = type(
+            "Parent",
+            (),
+            {
+                "_config": get_config(),
+                "filename": "reference.jpg",
+                "image": object(),
+                "new_shapes_from_auto_labeling": lambda _self, _result: None,
+            },
+        )()
+        widget = AutoLabelingWidget(parent)
+        self._widgets.append(widget)
+        clears = []
+        widget.clear_auto_labeling_action_requested.connect(
+            lambda: clears.append(True)
+        )
+
+        widget.on_visual_prompt_status_changed(
+            {
+                "state": "REFERENCE_MARKS_READY",
+                "ready": True,
+                "mark_count": 2,
+            }
+        )
+        widget.on_visual_prompt_status_changed(
+            {
+                "state": "VISUAL_PROMPT_READY",
+                "ready": True,
+                "classes": ["object"],
+                "instance_count": 2,
+            }
+        )
+
+        self.assertEqual(clears, [True])
 
     def test_amg_requires_confirmation_once_per_session(self):
         widget = Mock()
