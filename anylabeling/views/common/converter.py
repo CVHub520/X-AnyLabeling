@@ -1514,7 +1514,3 @@ def run_conversion(
 
         traceback.print_exc()
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    run_conversion()
