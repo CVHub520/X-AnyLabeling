@@ -63,6 +63,7 @@ class ModelManager(QObject):
         self.model_execution_thread = None
         self.model_execution_thread_lock = Lock()
         self.model_execution_worker = None
+        self._active_threads = []
         self._cancel_event = Event()
 
         self.load_model_configs()
@@ -358,6 +359,8 @@ class ModelManager(QObject):
 
         self._cancel_event.clear()
         self.model_download_thread = QThread()
+        model_download_thread = self.model_download_thread
+        self._track_thread(model_download_thread)
         template = "Loading model: {model_name}. Please wait..."
         translated_template = self.tr(template)
         message = translated_template.format(
@@ -370,19 +373,24 @@ class ModelManager(QObject):
             self.on_model_download_finished
         )
         self.model_download_worker.finished.connect(
-            self.model_download_thread.quit
+            self.model_download_worker.deleteLater
         )
-        self.model_download_thread.finished.connect(
-            self.on_model_download_thread_finished
+        self.model_download_worker.finished.connect(
+            model_download_thread.quit
         )
-        self.model_download_thread.finished.connect(
-            self.model_download_thread.deleteLater
+        model_download_thread.finished.connect(
+            lambda: self.on_model_download_thread_finished(
+                model_download_thread
+            )
         )
-        self.model_download_worker.moveToThread(self.model_download_thread)
-        self.model_download_thread.started.connect(
+        model_download_thread.finished.connect(
+            model_download_thread.deleteLater
+        )
+        self.model_download_worker.moveToThread(model_download_thread)
+        model_download_thread.started.connect(
             self.model_download_worker.run
         )
-        self.model_download_thread.start()
+        model_download_thread.start()
 
     def is_model_download_running(self):
         """Return whether the model download thread is still running."""
@@ -397,10 +405,11 @@ class ModelManager(QObject):
             return False
 
     @pyqtSlot()
-    def on_model_download_thread_finished(self):
+    def on_model_download_thread_finished(self, thread=None):
         """Clear finished model download thread references."""
-        self.model_download_thread = None
-        self.model_download_worker = None
+        if thread is None or self.model_download_thread is thread:
+            self.model_download_thread = None
+            self.model_download_worker = None
 
     def _load_model(self, model_id):  # noqa: C901
         """Load and return model info"""
@@ -2464,10 +2473,6 @@ class ModelManager(QObject):
                 self.tr("Model is not loaded. Choose a mode to continue.")
             )
             return
-        self.new_model_status.emit(
-            self.tr("Inferencing AI model. Please wait...")
-        )
-        self.prediction_started.emit()
 
         with self.model_execution_thread_lock:
             try:
@@ -2487,10 +2492,15 @@ class ModelManager(QObject):
                         " Please wait for it to finish."
                     )
                 )
-                self.prediction_finished.emit()
                 return
 
+            self.new_model_status.emit(
+                self.tr("Inferencing AI model. Please wait...")
+            )
+            self.prediction_started.emit()
             self.model_execution_thread = QThread()
+            model_execution_thread = self.model_execution_thread
+            self._track_thread(model_execution_thread)
             if text_prompt is not None:
                 self.model_execution_worker = GenericWorker(
                     self.predict_shapes,
@@ -2517,28 +2527,48 @@ class ModelManager(QObject):
                     self.predict_shapes, image, filename
                 )
             self.model_execution_worker.finished.connect(
-                self.model_execution_thread.quit
+                self.model_execution_worker.deleteLater
             )
-            self.model_execution_thread.finished.connect(
-                self.on_model_execution_finished
+            self.model_execution_worker.finished.connect(
+                model_execution_thread.quit
             )
-            self.model_execution_thread.finished.connect(
-                self.model_execution_thread.deleteLater
+            model_execution_thread.finished.connect(
+                lambda: self.on_model_execution_finished(
+                    model_execution_thread
+                )
+            )
+            model_execution_thread.finished.connect(
+                model_execution_thread.deleteLater
             )
             self.model_execution_worker.moveToThread(
-                self.model_execution_thread
+                model_execution_thread
             )
-            self.model_execution_thread.started.connect(
+            model_execution_thread.started.connect(
                 self.model_execution_worker.run
             )
-            self.model_execution_thread.start()
+            model_execution_thread.start()
 
     @pyqtSlot()
-    def on_model_execution_finished(self):
+    def on_model_execution_finished(self, thread=None):
         """Clear finished model execution thread references."""
         with self.model_execution_thread_lock:
-            self.model_execution_thread = None
-            self.model_execution_worker = None
+            if thread is None or self.model_execution_thread is thread:
+                self.model_execution_thread = None
+                self.model_execution_worker = None
+
+    def _track_thread(self, thread):
+        self._active_threads.append(thread)
+        thread.destroyed.connect(
+            lambda _=None, tracked_thread=thread: self._release_thread(
+                tracked_thread
+            )
+        )
+
+    def _release_thread(self, thread):
+        try:
+            self._active_threads.remove(thread)
+        except ValueError:
+            pass
 
     def on_next_files_changed(self, next_files):
         """Run prediction on next files in advance to save inference time later"""

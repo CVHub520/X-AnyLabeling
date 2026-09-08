@@ -12,5 +12,7 @@ class GenericWorker(QObject):
 
     @pyqtSlot()
     def run(self):
-        self.func(*self.args, **self.kwargs)
-        self.finished.emit()
+        try:
+            self.func(*self.args, **self.kwargs)
+        finally:
+            self.finished.emit()
