@@ -1,6 +1,6 @@
 __appname__ = "复迪脉手术视频标注软件"
 __appdescription__ = "A lightweight, efficient, and unified cross-platform desktop application for AI-assisted annotation of text, image, video, and multimodal data."
-__version__ = "4.0.0"
+__version__ = "2.0.1"
 __url__ = "https://xanylabeling.com"
 
 CLI_HELP_MSG = """
