@@ -47,7 +47,7 @@ build_with_spec() {
 package_macos_release_zip() {
     local apps app_path latest_app app_name exe_name exe_path arch_info arch zip_name zip_path sha_path
 
-    apps=("${DIST_DIR}"/X-AnyLabeling-v*-macOS.app)
+    apps=("${DIST_DIR}"/*.app)
     if [ ! -e "${apps[0]}" ]; then
         fail "No macOS .app bundle found in ${DIST_DIR}."
     fi
