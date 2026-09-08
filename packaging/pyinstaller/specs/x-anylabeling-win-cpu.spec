@@ -181,7 +181,7 @@ exe = EXE(
     a.binaries,
     a.zipfiles,
     a.datas,
-    name='复迪脉手术视频标注软件',
+    name='复迪脉手术视频标注软件v2',
     debug=False,
     strip=False,
     upx=False,
@@ -191,7 +191,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='复迪脉手术视频标注软件',
+    name='复迪脉手术视频标注软件v2',
     icon=_p('anylabeling', 'resources', 'images', 'icon.ico'),
     bundle_identifier=None,
     info_plist={'NSHighResolutionCapable': 'True'},
