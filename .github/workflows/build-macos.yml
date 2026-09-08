@@ -1,0 +1,60 @@
+name: Build macOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, or commit to build
+        required: false
+        type: string
+      arch:
+        description: macOS architecture
+        required: true
+        default: arm64
+        type: choice
+        options:
+          - arm64
+          - intel
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-macos-${{ inputs.ref || github.ref_name }}-${{ inputs.arch }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ${{ inputs.arch == 'intel' && 'macos-15-intel' || 'macos-15' }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.ref || github.ref_name }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[cpu,dev]"
+
+      - name: Check environment
+        run: xanylabeling checks
+
+      - name: Build macOS app
+        run: bash scripts/build_executable.sh macos
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: X-AnyLabeling-macOS-${{ inputs.arch }}
+          path: |
+            dist/*-unsigned.zip
+            dist/*-unsigned.zip.sha256
+          if-no-files-found: error
