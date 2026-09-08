@@ -3210,6 +3210,12 @@ class LabelingWidget(LabelDialog):
     def union_selection(self):
         if any(shape.locked for shape in self.canvas.selected_shapes):
             return
+        was_brush_polygon_drawing = (
+            self.canvas.drawing()
+            and self.canvas.current is None
+            and self.canvas.create_mode == "polygon"
+            and getattr(self.canvas, "_brush_drawing", False)
+        )
         rectangle_shapes, polygon_shapes = [], []
         for shape in self.canvas.selected_shapes:
             points = shape.points
