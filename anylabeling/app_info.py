@@ -11,7 +11,7 @@ CLI_HELP_MSG = """
         checks            Display system and package information
         version           Show version information
         config            Show config file path
-        convert           Run conversion tasks
+        convert            Run conversion tasks
 
     Launch Options:
         xanylabeling                                    Launch the GUI application
