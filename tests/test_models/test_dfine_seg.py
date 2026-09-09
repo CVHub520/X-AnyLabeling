@@ -1,6 +1,7 @@
 import numpy as np
 
 from anylabeling.services.auto_labeling.dfine_seg import DFINESeg
+from anylabeling.services.auto_labeling.rfdetr import RFDETR
 
 
 def make_model():
@@ -62,3 +63,22 @@ def test_instance_segmentation_postprocess_resizes_and_crops_masks():
     assert not masks[0, 4, 20]
     assert masks[0, 5, 10]
     assert not masks[0, 15, 20]
+
+
+def test_rfdetr_postprocess_clamps_num_select_to_available_candidates():
+    model = RFDETR.__new__(RFDETR)
+    model.conf_thres = 0.0
+    model.num_select = 300
+    model.filter_classes = None
+
+    outputs = [
+        np.array([[[10, 20, 30, 40], [50, 60, 70, 80], [90, 100, 110, 120]]], dtype=np.float32),
+        np.array([[[0.1, 0.9], [0.8, 0.2], [0.6, 0.4]]], dtype=np.float32),
+    ]
+
+    boxes, scores, labels, masks = model.postprocess(outputs, (100, 100))
+
+    assert boxes.shape[0] == 6
+    assert scores.shape[0] == 6
+    assert labels.shape[0] == 6
+    assert masks is None
