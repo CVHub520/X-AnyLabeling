@@ -90,6 +90,7 @@ dependencies = [
     "termcolor",
     "tokenizers",
     "requests",
+    "certifi",
     "darkdetect>=0.8.0",
     "matplotlib",
 ]

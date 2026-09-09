@@ -4,9 +4,11 @@ import yaml
 import urllib.request
 import time
 import multiprocessing
+import ssl
 from urllib.parse import urlparse
 from urllib.error import URLError
 
+import certifi
 import socket
 
 socket.setdefaulttimeout(240)  # Prevent timeout when downloading models
@@ -188,8 +190,13 @@ class Model(QObject):
                 self._check_cancelled()
 
                 req = urllib.request.Request(url)
+                ssl_context = ssl.create_default_context(
+                    cafile=certifi.where()
+                )
                 response = urllib.request.urlopen(
-                    req, timeout=self.DOWNLOAD_TIMEOUT
+                    req,
+                    timeout=self.DOWNLOAD_TIMEOUT,
+                    context=ssl_context,
                 )
                 total_size = int(response.headers.get("Content-Length", 0))
                 downloaded = 0

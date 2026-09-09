@@ -3,6 +3,7 @@
 
 import os
 import re
+import certifi
 
 def _resolve_root_dir():
     env_root = os.environ.get('X_ANYLABELING_ROOT')
@@ -54,7 +55,8 @@ a = Analysis(
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ppocr', '*'), 'anylabeling/services/auto_labeling/configs/ppocr'),
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'ram', '*'), 'anylabeling/services/auto_labeling/configs/ram'),
         (_p('anylabeling', 'resources', 'images', 'icon.png'), 'anylabeling/resources/images'),
-        (_p('anylabeling', 'resources', 'images', 'logo.png'), 'anylabeling/resources/images')
+        (_p('anylabeling', 'resources', 'images', 'logo.png'), 'anylabeling/resources/images'),
+        (certifi.where(), 'certifi')
     ],
     hiddenimports=[],
     hookspath=[],
