@@ -5026,6 +5026,20 @@ class Canvas(
         if self.is_brush_mode and self.editing():
             if self._brush_key_press(ev):
                 return
+        if (
+            self.drawing()
+            and self.current is None
+            and self.h_shape is not None
+            and key in (
+                QtCore.Qt.Key.Key_Backspace,
+                QtCore.Qt.Key.Key_Delete,
+            )
+            and not getattr(self, "is_brush_mode", False)
+            and hasattr(self.parent, "delete_selected_shape")
+        ):
+            self.parent.delete_selected_shape()
+            ev.accept()
+            return
         if self.drawing():
             if key == QtCore.Qt.Key.Key_Escape and self.current:
                 self.current = None
