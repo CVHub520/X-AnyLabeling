@@ -183,7 +183,9 @@ def postprocess(outs, conf_thres, num_select, image_shape):
     prob = sigmoid(out_logits)
     prob_reshaped = prob.reshape(out_logits.shape[0], -1)
 
-    topk_indexes = np.argpartition(-prob_reshaped, num_select, axis=1)[
+    num_select = max(1, min(int(num_select), prob_reshaped.shape[1]))
+    kth = max(0, num_select - 1)
+    topk_indexes = np.argpartition(-prob_reshaped, kth, axis=1)[
         :, :num_select
     ]
     topk_values = np.take_along_axis(prob_reshaped, topk_indexes, axis=1)
