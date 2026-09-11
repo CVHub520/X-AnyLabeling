@@ -2313,6 +2313,7 @@ Continue?</source>
 - Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - Description: description::1, description::true, description::yes
 - Checked status: checked::1, checked::0
+- Export mark: export::1, export::0
 Press Enter to search.</source>
       <translation>対応している検索モード：
 - テキスト：プレーンテキスト検索
@@ -2322,7 +2323,8 @@ Press Enter to search.</source>
 - スコア範囲：score::[0,0.5]、score::(0,0.6]、score::[0,0.6)、score::(0,0.6)
 - 説明：description::1、description::true、description::yes
 - チェック状態：checked::1、checked::0
-Enter キーを押して検索します。</translation>
+Enter キーを押して検索します。
+Export mark: export::1, export::0</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="2734" />
@@ -4258,6 +4260,50 @@ Results have been saved to:
       <translation>ラベルのエクスポートが完了しました！
 結果の保存先：
 %s</translation>
+    </message>
+    <message>
+      <source>Mark for Export</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Unmark for Export</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Save current annotations and toggle the export mark</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Export Marked Images...</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Copy all marked images and annotations in the open folder</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Marked for export</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Export Marked Images</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Open an image folder first.</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Choose Export Directory</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Scanning and exporting marked images...</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Exported %s image/annotation pairs. Source files were not changed.</source>
+      <translation type="unfinished" />
     </message>
   </context>
   <context>
@@ -6445,6 +6491,14 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="265" />
       <source>Set the minimum log level shown in the application.</source>
       <translation>アプリケーションに表示する最小ログレベルを設定します。</translation>
+    </message>
+    <message>
+      <source>Toggle Export Mark</source>
+      <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Export Marked Images</source>
+      <translation type="unfinished" />
     </message>
   </context>
   <context>

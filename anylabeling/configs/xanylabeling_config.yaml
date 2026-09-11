@@ -156,6 +156,8 @@ shortcuts:
   open_next_unchecked: Ctrl+Shift+D
   open_prev_unchecked: Ctrl+Shift+A
   toggle_annotation_checked: Ctrl+Alt+K
+  toggle_export_mark: Ctrl+Alt+E
+  export_marked_images: Ctrl+Alt+Shift+E
 
   zoom_in: [Ctrl++]
   zoom_out: Ctrl+-

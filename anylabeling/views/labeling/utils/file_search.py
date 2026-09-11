@@ -48,6 +48,8 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
         - "description::true" -> attribute search for files with non-empty description
         - "checked::1" -> attribute search for checked files
         - "checked::0" -> attribute search for unchecked files
+        - "export::1" -> attribute search for export-marked files
+        - "export::0" -> attribute search for unmarked files
     """
     if not search_text:
         return SearchPattern(mode="normal", pattern=None)
@@ -140,9 +142,9 @@ def parse_search_pattern(search_text: str) -> SearchPattern:
                 return SearchPattern(
                     mode="attribute", attribute_filter=attribute_filter
                 )
-            elif attr_name == "checked":
+            elif attr_name in ("checked", "export"):
                 attribute_filter = {
-                    "type": "checked",
+                    "type": attr_name,
                     "value": attr_value.lower() in ("true", "1", "yes"),
                 }
                 return SearchPattern(
@@ -247,7 +249,7 @@ def matches_label_attribute(
     filter_value = search_pattern.attribute_filter["value"]
 
     if not osp.exists(label_file):
-        if filter_type == "checked":
+        if filter_type in ("checked", "export"):
             return filter_value is False
         return False
 
@@ -260,8 +262,9 @@ def matches_label_attribute(
             has_shapes = len(shapes) > 0
             return has_shapes == filter_value
 
-        if filter_type == "checked":
-            return (data.get("checked", False) is True) == filter_value
+        if filter_type in ("checked", "export"):
+            field = "export_marked" if filter_type == "export" else "checked"
+            return (data.get(field, False) is True) == filter_value
 
         if filter_type == "gid":
             target_gid = filter_value
@@ -341,7 +344,7 @@ def matches_label_attribute(
             return False
 
         return False
-    except (json.JSONDecodeError, IOError, KeyError):
+    except (json.JSONDecodeError, IOError, KeyError, AttributeError):
         return False
 
 

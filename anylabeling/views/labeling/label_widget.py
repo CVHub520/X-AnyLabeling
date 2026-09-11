@@ -66,6 +66,12 @@ from .utils.file_search import (
     matches_filename,
     matches_label_attribute,
 )
+from .utils.special_image_export import (
+    EXPORT_MARK_FIELD,
+    ExportCancelled,
+    export_marked_pairs,
+    read_export_mark,
+)
 from .utils.qt import new_icon_path
 from .widgets import (
     AboutDialog,
@@ -103,6 +109,7 @@ from .widgets import (
 LABEL_COLORMAP = utils.label_colormap()
 LABEL_OPACITY = 128
 CHECKED_FIELD = "checked"
+FILE_EXPORT_MARK_ROLE = Qt.ItemDataRole.UserRole + 1
 FILE_CHECKED_COLOR = "#22A06B"
 FILE_UNCHECKED_COLOR = "#8C98A4"
 CHECKED_FIELD_PATTERN = re.compile(r'"checked"\s*:\s*(true|false)')
@@ -258,6 +265,7 @@ class LabelingWidget(LabelDialog):
         self.label_list = LabelListWidget()
         self.label_list.setFrameShape(QtWidgets.QFrame.Shape.NoFrame)
         self.last_open_dir = None
+        self._export_source_dir = None
 
         self.flag_dock = self.flag_widget = None
         self.flag_dock = QtWidgets.QDockWidget(self.tr("Flags"), self)
@@ -337,6 +345,7 @@ class LabelingWidget(LabelDialog):
                 "- Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)\n"
                 "- Description: description::1, description::true, description::yes\n"
                 "- Checked status: checked::1, checked::0\n"
+                "- Export mark: export::1, export::0\n"
                 "Press Enter to search."
             )
         )
@@ -653,6 +662,25 @@ class LabelingWidget(LabelDialog):
             self.tr("Mark current annotation as checked"),
             checkable=True,
             enabled=False,
+        )
+
+        toggle_export_mark = action(
+            self.tr("Mark for Export"),
+            self.set_export_marked,
+            shortcuts.get("toggle_export_mark"),
+            None,
+            self.tr("Save current annotations and toggle the export mark"),
+            checkable=True,
+            enabled=False,
+        )
+        export_marked_images = action(
+            self.tr("Export Marked Images..."),
+            self.export_marked_images,
+            shortcuts.get("export_marked_images"),
+            None,
+            self.tr(
+                "Copy all marked images and annotations in the open folder"
+            ),
         )
 
         toggle_compare_view = action(
@@ -1801,6 +1829,8 @@ class LabelingWidget(LabelDialog):
             delete_file=delete_file,
             delete_image_file=delete_image_file,
             toggle_annotation_checked=toggle_annotation_checked,
+            toggle_export_mark=toggle_export_mark,
+            export_marked_images=export_marked_images,
             keep_prev_mode=keep_prev_mode,
             auto_use_last_label_mode=auto_use_last_label_mode,
             auto_use_last_gid_mode=auto_use_last_gid_mode,
@@ -2005,6 +2035,7 @@ class LabelingWidget(LabelDialog):
                 digit_shortcut_9,
                 edit_mode,
                 toggle_annotation_checked,
+                toggle_export_mark,
                 shape_manager,
                 loop_thru_labels,
                 loop_select_labels,
@@ -2031,6 +2062,7 @@ class LabelingWidget(LabelDialog):
         ):
             self.addAction(digit_action)
         self.addAction(self.actions.toggle_annotation_checked)
+        self.addAction(self.actions.toggle_export_mark)
 
         self.canvas.vertex_selected.connect(
             self.actions.remove_point.setEnabled
@@ -2076,6 +2108,9 @@ class LabelingWidget(LabelDialog):
                 close,
                 delete_file,
                 delete_image_file,
+                None,
+                toggle_export_mark,
+                export_marked_images,
                 None,
             ),
         )
@@ -2231,7 +2266,10 @@ class LabelingWidget(LabelDialog):
         ) = self._append_filter_submenus(
             self.canvas.menus[0],
             prepend=True,
-            after_filter_actions=(self.actions.toggle_annotation_checked,),
+            after_filter_actions=(
+                self.actions.toggle_annotation_checked,
+                self.actions.toggle_export_mark,
+            ),
         )
         self.canvas.menus[0].aboutToShow.connect(self.refresh_filter_menus)
         self.canvas.menus[0].aboutToShow.connect(
@@ -2895,7 +2933,10 @@ class LabelingWidget(LabelDialog):
         ) = self._append_filter_submenus(
             self.canvas.menus[0],
             prepend=True,
-            after_filter_actions=(self.actions.toggle_annotation_checked,),
+            after_filter_actions=(
+                self.actions.toggle_annotation_checked,
+                self.actions.toggle_export_mark,
+            ),
         )
         self.menus.edit.clear()
         actions = (
@@ -3909,6 +3950,8 @@ class LabelingWidget(LabelDialog):
         copy_path_action = menu.addAction(
             utils.new_icon("copy", "svg"), self.tr("Copy File Path")
         )
+        menu.addSeparator()
+        menu.addAction(self.actions.export_marked_images)
         action = menu.exec(self.file_list_widget.mapToGlobal(point))
         if action == copy_name_action:
             self.copy_file_path(osp.basename(item.text()))
@@ -3963,6 +4006,7 @@ class LabelingWidget(LabelDialog):
         else:
             item.setCheckState(Qt.CheckState.Unchecked)
         self._set_file_item_checked(item, self._label_file_checked(label_file))
+        self._set_file_item_export_mark(item, read_export_mark(label_file))
         return item
 
     def _current_file_item(self):
@@ -3997,6 +4041,7 @@ class LabelingWidget(LabelDialog):
     def _sync_annotation_checked_state(self):
         self._update_annotation_checked_action()
         self._update_current_file_checked_item()
+        self._sync_export_mark_state()
         self.update_progress_title()
 
     def set_annotation_checked(self, checked):
@@ -4007,6 +4052,125 @@ class LabelingWidget(LabelDialog):
         label_file = self.get_label_file()
         if self.save_labels(label_file):
             self.set_clean()
+
+    def _set_file_item_export_mark(
+        self, item: QtWidgets.QListWidgetItem, marked: bool
+    ) -> None:
+        """Render the export mark without replacing checked status or paths.
+
+        Args:
+            item: Image list item to update.
+            marked: Whether the image is selected for export.
+        """
+        item.setData(FILE_EXPORT_MARK_ROLE, marked)
+        font = item.font()
+        font.setBold(marked)
+        item.setFont(font)
+        item.setForeground(
+            QtGui.QBrush(QtGui.QColor("#F59E0B")) if marked else QtGui.QBrush()
+        )
+        item.setToolTip(
+            item.text()
+            + ("\n" + self.tr("Marked for export") if marked else "")
+        )
+
+    def _sync_export_mark_state(self) -> None:
+        """Synchronize the current image's action and list indicator."""
+        marked = self.other_data.get(EXPORT_MARK_FIELD) is True
+        action = self.actions.toggle_export_mark
+        action.setChecked(marked)
+        action.setText(
+            self.tr("Unmark for Export")
+            if marked
+            else self.tr("Mark for Export")
+        )
+        item = self._current_file_item()
+        if item is not None:
+            self._set_file_item_export_mark(item, marked)
+
+    def set_export_marked(self, marked: bool) -> None:
+        """Persist the current mark and annotations, rolling back on failure.
+
+        Args:
+            marked: Whether to include this image in a special export.
+        """
+        if self.filename is None or self.image.isNull():
+            return
+        previous = self.other_data.get(EXPORT_MARK_FIELD)
+        self.other_data[EXPORT_MARK_FIELD] = bool(marked)
+        if self.save_labels(self.get_label_file()):
+            self.set_clean()
+        elif previous is None:
+            self.other_data.pop(EXPORT_MARK_FIELD, None)
+        else:
+            self.other_data[EXPORT_MARK_FIELD] = previous
+        self._sync_export_mark_state()
+
+    def export_marked_images(self) -> None:
+        """Export all persisted marked pairs in the open folder, ignoring search."""
+        if not self._export_source_dir:
+            self.error_message(
+                self.tr("Export Marked Images"),
+                self.tr("Open an image folder first."),
+            )
+            return
+        if not self.may_continue():
+            return
+        destination = QtWidgets.QFileDialog.getExistingDirectory(
+            self, self.tr("Choose Export Directory")
+        )
+        if not destination:
+            return
+        progress = QtWidgets.QProgressDialog(
+            self.tr("Scanning and exporting marked images..."),
+            self.tr("Cancel"),
+            0,
+            0,
+            self,
+        )
+        progress.setWindowModality(Qt.WindowModality.ApplicationModal)
+        progress.setMinimumDuration(0)
+        progress.setAutoClose(False)
+        progress.setAutoReset(False)
+
+        def update_progress(value: int, total: int) -> None:
+            """Update progress and check for cancellation.
+
+            Args:
+                value: Completed scan/copy steps.
+                total: Total scan/copy steps.
+            """
+            progress.setMaximum(total)
+            progress.setValue(value)
+            QtWidgets.QApplication.processEvents()
+            if progress.wasCanceled():
+                raise ExportCancelled()
+
+        try:
+            count = export_marked_pairs(
+                utils.scan_all_images(self._export_source_dir),
+                self._export_source_dir,
+                destination,
+                self.output_dir,
+                update_progress,
+            )
+        except ExportCancelled:
+            return
+        except (OSError, ValueError) as error:
+            self.error_message(
+                self.tr("Export Failed"), html.escape(str(error))
+            )
+            return
+        finally:
+            progress.close()
+        QtWidgets.QMessageBox.information(
+            self,
+            self.tr("Export Marked Images"),
+            self.tr(
+                "Exported %s image/annotation pairs. Source files were not changed."
+            )
+            % count,
+        )
 
     def _append_filter_submenus(
         self, parent_menu, prepend=False, after_filter_actions=None
@@ -4631,9 +4795,9 @@ class LabelingWidget(LabelDialog):
                                     radio_button.setChecked(True)
                                     del blocker
                                     if not has_current_value:
-                                        update_shape.attributes[property] = (
-                                            btn_original
-                                        )
+                                        update_shape.attributes[
+                                            property
+                                        ] = btn_original
                                         attributes_changed = True
 
                             row_layout.addStretch()
@@ -4662,9 +4826,9 @@ class LabelingWidget(LabelDialog):
                             radio_button.setChecked(True)
                             del blocker
                             if not has_current_value:
-                                update_shape.attributes[property] = (
-                                    btn_original
-                                )
+                                update_shape.attributes[
+                                    property
+                                ] = btn_original
                                 attributes_changed = True
                     row_layout.addStretch()
                     row_widget = QWidget()
@@ -5923,6 +6087,11 @@ class LabelingWidget(LabelDialog):
             )
             return False
 
+        # Track the directory of the loaded file so that export_marked_images
+        # can locate the source folder even when a single file (or a dropped
+        # batch that does not call import_image_folder) is opened.
+        self._export_source_dir = osp.dirname(filename)
+
         # assumes same name, but json extension
         label_file = osp.splitext(filename)[0] + ".json"
         image_dir = None
@@ -6331,6 +6500,7 @@ class LabelingWidget(LabelDialog):
         if file_dialog.exec():
             filename = file_dialog.selectedFiles()[0]
             if filename:
+                self._export_source_dir = None
                 self.file_list_widget.clear()
                 self.fn_to_index.clear()
                 self.load_file(filename)
@@ -6433,6 +6603,7 @@ class LabelingWidget(LabelDialog):
     def close_file(self, _value=False):
         if not self.may_continue():
             return
+        self._export_source_dir = None
         self.reset_state()
         self.set_clean()
         self.toggle_actions(False)
@@ -6535,6 +6706,7 @@ class LabelingWidget(LabelDialog):
             item = self.file_list_widget.currentItem()
             item.setCheckState(Qt.CheckState.Unchecked)
             self._set_file_item_checked(item, False)
+            self._set_file_item_export_mark(item, False)
 
             filename = self.filename
             self.reset_state()
@@ -6758,6 +6930,7 @@ class LabelingWidget(LabelDialog):
         return lst
 
     def import_dropped_image_files(self, image_files):
+        self._export_source_dir = None
         extensions = utils.get_supported_image_extensions()
 
         self.filename = None
@@ -6795,9 +6968,12 @@ class LabelingWidget(LabelDialog):
         if self.compare_view_manager.is_active():
             self.close_compare_view(confirm=False)
 
+        previous_filename = self.filename if not load else None
+        self._export_source_dir = dirpath
         self.last_open_dir = dirpath
         self.filename = None
         self.file_list_widget.clear()
+        self.fn_to_index.clear()
         image_files = []
 
         search_pattern = parse_search_pattern(pattern) if pattern else None
@@ -6840,7 +7016,21 @@ class LabelingWidget(LabelDialog):
         self.actions.open_next_unchecked_image.setEnabled(True)
         self.actions.open_prev_unchecked_image.setEnabled(True)
         self.toggle_actions(True)
-        self.open_next_image(load=load)
+        if previous_filename in self.fn_to_index:
+            self.filename = previous_filename
+            signals_blocked = self.file_list_widget.blockSignals(True)
+            try:
+                self.file_list_widget.setCurrentRow(
+                    self.fn_to_index[previous_filename]
+                )
+            finally:
+                self.file_list_widget.blockSignals(signals_blocked)
+            self.load_file(previous_filename)
+        elif image_files:
+            self.open_next_image(load=load or hasattr(self, "settings"))
+        else:
+            self.reset_state()
+            self.toggle_actions(False)
 
         if image_files and self._config.get("exif_scan_enabled", True):
             self.async_exif_scanner.start_scan(image_files)

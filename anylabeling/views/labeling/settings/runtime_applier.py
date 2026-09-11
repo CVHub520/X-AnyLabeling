@@ -74,6 +74,8 @@ class SettingsRuntimeApplier:
             "shortcuts.open_prev": self._widget.actions.open_prev_image,
             "shortcuts.open_next_unchecked": self._widget.actions.open_next_unchecked_image,
             "shortcuts.open_prev_unchecked": self._widget.actions.open_prev_unchecked_image,
+            "shortcuts.toggle_export_mark": self._widget.actions.toggle_export_mark,
+            "shortcuts.export_marked_images": self._widget.actions.export_marked_images,
             "shortcuts.toggle_annotation_checked": self._widget.actions.toggle_annotation_checked,
             "shortcuts.zoom_in": self._widget.actions.zoom_in,
             "shortcuts.zoom_out": self._widget.actions.zoom_out,
@@ -132,58 +134,54 @@ class SettingsRuntimeApplier:
             self._widget.tr("Quit"),
             self._quit_application,
         )
-        shortcut_map["shortcuts.open_settings"] = (
-            self._ensure_hidden_shortcut_action(
-                "open_settings",
-                self._widget.tr("Open Settings"),
-                self._widget.open_settings_dialog,
-            )
+        shortcut_map[
+            "shortcuts.open_settings"
+        ] = self._ensure_hidden_shortcut_action(
+            "open_settings",
+            self._widget.tr("Open Settings"),
+            self._widget.open_settings_dialog,
         )
-        shortcut_map["shortcuts.add_point_to_edge"] = (
-            self._ensure_hidden_shortcut_action(
-                "add_point_to_edge",
-                self._widget.tr("Add Point To Edge"),
-                self._widget.add_point_to_edge,
-            )
+        shortcut_map[
+            "shortcuts.add_point_to_edge"
+        ] = self._ensure_hidden_shortcut_action(
+            "add_point_to_edge",
+            self._widget.tr("Add Point To Edge"),
+            self._widget.add_point_to_edge,
         )
-        shortcut_map["shortcuts.auto_labeling_add_point"] = (
-            self._ensure_hidden_shortcut_action(
-                "auto_labeling_add_point",
-                self._widget.tr("Auto Labeling Add Point"),
-                lambda: self._trigger_auto_labeling_button("button_add_point"),
-            )
+        shortcut_map[
+            "shortcuts.auto_labeling_add_point"
+        ] = self._ensure_hidden_shortcut_action(
+            "auto_labeling_add_point",
+            self._widget.tr("Auto Labeling Add Point"),
+            lambda: self._trigger_auto_labeling_button("button_add_point"),
         )
-        shortcut_map["shortcuts.auto_labeling_remove_point"] = (
-            self._ensure_hidden_shortcut_action(
-                "auto_labeling_remove_point",
-                self._widget.tr("Auto Labeling Remove Point"),
-                lambda: self._trigger_auto_labeling_button(
-                    "button_remove_point"
-                ),
-            )
+        shortcut_map[
+            "shortcuts.auto_labeling_remove_point"
+        ] = self._ensure_hidden_shortcut_action(
+            "auto_labeling_remove_point",
+            self._widget.tr("Auto Labeling Remove Point"),
+            lambda: self._trigger_auto_labeling_button("button_remove_point"),
         )
-        shortcut_map["shortcuts.auto_labeling_run"] = (
-            self._ensure_hidden_shortcut_action(
-                "auto_labeling_run",
-                self._widget.tr("Auto Labeling Run"),
-                lambda: self._trigger_auto_labeling_button("button_run"),
-            )
+        shortcut_map[
+            "shortcuts.auto_labeling_run"
+        ] = self._ensure_hidden_shortcut_action(
+            "auto_labeling_run",
+            self._widget.tr("Auto Labeling Run"),
+            lambda: self._trigger_auto_labeling_button("button_run"),
         )
-        shortcut_map["shortcuts.auto_labeling_clear"] = (
-            self._ensure_hidden_shortcut_action(
-                "auto_labeling_clear",
-                self._widget.tr("Auto Labeling Clear"),
-                lambda: self._trigger_auto_labeling_button("button_clear"),
-            )
+        shortcut_map[
+            "shortcuts.auto_labeling_clear"
+        ] = self._ensure_hidden_shortcut_action(
+            "auto_labeling_clear",
+            self._widget.tr("Auto Labeling Clear"),
+            lambda: self._trigger_auto_labeling_button("button_clear"),
         )
-        shortcut_map["shortcuts.auto_labeling_finish_object"] = (
-            self._ensure_hidden_shortcut_action(
-                "auto_labeling_finish_object",
-                self._widget.tr("Auto Labeling Finish Object"),
-                lambda: self._trigger_auto_labeling_button(
-                    "button_finish_object"
-                ),
-            )
+        shortcut_map[
+            "shortcuts.auto_labeling_finish_object"
+        ] = self._ensure_hidden_shortcut_action(
+            "auto_labeling_finish_object",
+            self._widget.tr("Auto Labeling Finish Object"),
+            lambda: self._trigger_auto_labeling_button("button_finish_object"),
         )
         self._shortcut_action_map = shortcut_map
         for key, action in shortcut_map.items():

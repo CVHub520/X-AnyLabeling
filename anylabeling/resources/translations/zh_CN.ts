@@ -2313,6 +2313,7 @@ Continue?</source>
 - Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - Description: description::1, description::true, description::yes
 - Checked status: checked::1, checked::0
+- Export mark: export::1, export::0
 Press Enter to search.</source>
       <translation>支持的搜索模式：
 - 文本：纯文本搜索
@@ -2322,7 +2323,8 @@ Press Enter to search.</source>
 - 分数范围：score::[0,0.5]、score::(0,0.6]、score::[0,0.6)、score::(0,0.6)
 - 描述：description::1、description::true、description::yes
 - 勾选状态：checked::1、checked::0
-按 Enter 键搜索。</translation>
+按 Enter 键搜索。
+导出标记：export::1、export::0</translation>
     </message>
     <message>
       <location filename="../../views/labeling/label_widget.py" line="2734" />
@@ -4258,6 +4260,50 @@ Results have been saved to:
       <translation>导出标签成功！
 结果已保存到：
 %s</translation>
+    </message>
+    <message>
+      <source>Mark for Export</source>
+      <translation>标记用于导出</translation>
+    </message>
+    <message>
+      <source>Unmark for Export</source>
+      <translation>取消导出标记</translation>
+    </message>
+    <message>
+      <source>Save current annotations and toggle the export mark</source>
+      <translation>保存当前标注并切换导出标记</translation>
+    </message>
+    <message>
+      <source>Export Marked Images...</source>
+      <translation>导出已标记图片...</translation>
+    </message>
+    <message>
+      <source>Copy all marked images and annotations in the open folder</source>
+      <translation>复制当前文件夹中的全部已标记图片及标注</translation>
+    </message>
+    <message>
+      <source>Marked for export</source>
+      <translation>已标记用于导出</translation>
+    </message>
+    <message>
+      <source>Export Marked Images</source>
+      <translation>导出已标记图片</translation>
+    </message>
+    <message>
+      <source>Open an image folder first.</source>
+      <translation>请先打开图片文件夹。</translation>
+    </message>
+    <message>
+      <source>Choose Export Directory</source>
+      <translation>选择导出目录</translation>
+    </message>
+    <message>
+      <source>Scanning and exporting marked images...</source>
+      <translation>正在扫描并导出已标记图片...</translation>
+    </message>
+    <message>
+      <source>Exported %s image/annotation pairs. Source files were not changed.</source>
+      <translation>已导出 %s 组图片及标注，源文件未作修改。</translation>
     </message>
   </context>
   <context>
@@ -6445,6 +6491,14 @@ Changes will not be saved until you click Save.</source>
       <location filename="../../views/labeling/settings/schema.py" line="265" />
       <source>Set the minimum log level shown in the application.</source>
       <translation>设置应用程序显示的最低日志级别。</translation>
+    </message>
+    <message>
+      <source>Toggle Export Mark</source>
+      <translation>切换导出标记</translation>
+    </message>
+    <message>
+      <source>Export Marked Images</source>
+      <translation>导出已标记图片</translation>
     </message>
   </context>
   <context>

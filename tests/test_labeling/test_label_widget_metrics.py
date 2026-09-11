@@ -195,12 +195,13 @@ class TestLabelWidgetMetrics(unittest.TestCase):
         widget = SimpleNamespace(
             _update_annotation_checked_action=lambda: calls.append("action"),
             _update_current_file_checked_item=lambda: calls.append("item"),
+            _sync_export_mark_state=lambda: calls.append("export"),
             update_progress_title=lambda: calls.append("title"),
         )
 
         LabelingWidget._sync_annotation_checked_state(widget)
 
-        self.assertEqual(calls, ["action", "item", "title"])
+        self.assertEqual(calls, ["action", "item", "export", "title"])
 
     def test_right_double_click_does_not_emit_item_double_clicked(self):
         from anylabeling.views.labeling.widgets import (

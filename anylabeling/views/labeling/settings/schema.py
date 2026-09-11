@@ -454,6 +454,12 @@ def _shortcut_label(short_key: str) -> str:
         "open_prev_unchecked": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Switch Prev Unchecked Image"
         ),
+        "toggle_export_mark": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Toggle Export Mark"
+        ),
+        "export_marked_images": QT_TRANSLATE_NOOP(
+            SETTINGS_TRANSLATION_CONTEXT, "Export Marked Images"
+        ),
         "toggle_annotation_checked": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Toggle Annotation Checked"
         ),
@@ -1307,6 +1313,8 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "open_prev",
             "open_prev_unchecked",
             "toggle_annotation_checked",
+            "toggle_export_mark",
+            "export_marked_images",
         ),
         "Shape": (
             "add_point_to_edge",

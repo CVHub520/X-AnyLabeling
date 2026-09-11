@@ -2305,6 +2305,7 @@ Continue?</translation>
 - Score range: score::[0,0.5], score::(0,0.6], score::[0,0.6), score::(0,0.6)
 - Description: description::1, description::true, description::yes
 - Checked status: checked::1, checked::0
+- Export mark: export::1, export::0
 Press Enter to search.</source>
       <translation type="unfinished" />
     </message>
@@ -4243,6 +4244,50 @@ Results have been saved to:
       <translation>Exporting annotations successfully!
 Results have been saved to:
 %s</translation>
+    </message>
+    <message>
+      <source>Mark for Export</source>
+      <translation>Mark for Export</translation>
+    </message>
+    <message>
+      <source>Unmark for Export</source>
+      <translation>Unmark for Export</translation>
+    </message>
+    <message>
+      <source>Save current annotations and toggle the export mark</source>
+      <translation>Save current annotations and toggle the export mark</translation>
+    </message>
+    <message>
+      <source>Export Marked Images...</source>
+      <translation>Export Marked Images...</translation>
+    </message>
+    <message>
+      <source>Copy all marked images and annotations in the open folder</source>
+      <translation>Copy all marked images and annotations in the open folder</translation>
+    </message>
+    <message>
+      <source>Marked for export</source>
+      <translation>Marked for export</translation>
+    </message>
+    <message>
+      <source>Export Marked Images</source>
+      <translation>Export Marked Images</translation>
+    </message>
+    <message>
+      <source>Open an image folder first.</source>
+      <translation>Open an image folder first.</translation>
+    </message>
+    <message>
+      <source>Choose Export Directory</source>
+      <translation>Choose Export Directory</translation>
+    </message>
+    <message>
+      <source>Scanning and exporting marked images...</source>
+      <translation>Scanning and exporting marked images...</translation>
+    </message>
+    <message>
+      <source>Exported %s image/annotation pairs. Source files were not changed.</source>
+      <translation>Exported %s image/annotation pairs. Source files were not changed.</translation>
     </message>
   </context>
   <context>
@@ -6423,6 +6468,14 @@ Changes will not be saved until you click Save.</translation>
       <location filename="../../views/labeling/settings/schema.py" line="265" />
       <source>Set the minimum log level shown in the application.</source>
       <translation type="unfinished" />
+    </message>
+    <message>
+      <source>Toggle Export Mark</source>
+      <translation>Toggle Export Mark</translation>
+    </message>
+    <message>
+      <source>Export Marked Images</source>
+      <translation>Export Marked Images</translation>
     </message>
   </context>
   <context>
