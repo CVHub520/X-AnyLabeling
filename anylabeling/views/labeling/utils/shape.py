@@ -474,7 +474,16 @@ def shapes_to_label(img_shape, shapes, label_name_to_value):
         ins_id = instances.index(instance) + 1
         cls_id = label_name_to_value[cls_name]
 
-        mask = shape_to_mask(img_shape[:2], points, shape_type)
+        if shape.get("pixel_edge_coordinates") == "image_corner":
+            from .cell_raster import fill_cell_polygon
+
+            mask = fill_cell_polygon(
+                np.zeros(img_shape[:2], dtype=np.uint8),
+                np.asarray(points) - 0.5,
+                1,
+            ).astype(bool)
+        else:
+            mask = shape_to_mask(img_shape[:2], points, shape_type)
         cls[mask] = cls_id
         ins[mask] = ins_id
 

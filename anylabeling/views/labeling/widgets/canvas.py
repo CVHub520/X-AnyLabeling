@@ -50,6 +50,10 @@ CUBOID_FACE_BACK = "back"
 
 LABEL_COLORMAP = label_colormap()
 
+PIXEL_GRID_MIN_SCALE = 5.0
+PIXELATED_DISPLAY_MIN_SCALE = 5.0
+PIXEL_SNAP_STEP = 0.5
+
 
 class Canvas(
     QtWidgets.QWidget
@@ -78,6 +82,8 @@ class Canvas(
     # Emitted when brush-edit mode is toggled on/off (keeps the UI in sync).
     brush_mode_changed = QtCore.pyqtSignal(bool)
     brush_history_changed = QtCore.pyqtSignal(bool)
+    precision_warning_requested = QtCore.pyqtSignal(str)
+    shape_edge_refine_requested = QtCore.pyqtSignal(object)
 
     CREATE, EDIT = 0, 1
 
@@ -117,6 +123,8 @@ class Canvas(
         self.brush_config = kwargs.pop("brush", {})
         self.magic_wand_config = kwargs.pop("magic_wand", {})
         self.cuboid_config = kwargs.pop("cuboid", {})
+        self.pixel_precision_config = kwargs.pop("pixel_precision", {})
+        self.edge_refinement_config = kwargs.pop("edge_refinement", {})
         self.parent = kwargs.pop("parent")
         super().__init__(*args, **kwargs)
         self.setAutoFillBackground(True)
@@ -133,6 +141,7 @@ class Canvas(
         self.auto_labeling_mode: AutoLabelingMode = None
         self.shapes = []
         self.shapes_backups = []
+        self.edge_preview_shapes = []
         self.current = None
         self.selected_shapes = []  # save the selected shapes here
         self.selected_shapes_copy = []
@@ -154,6 +163,18 @@ class Canvas(
         self.offsets = QtCore.QPointF(), QtCore.QPointF()
         self.scale = 1.0
         self.pixmap = QtGui.QPixmap()
+        self._pixel_info_image = QtGui.QImage()
+        self._pixel_cursor_pos = None
+        self.pixel_precision_enabled = True
+        self.disable_smoothing_scale = PIXELATED_DISPLAY_MIN_SCALE
+        self.show_pixel_grid = True
+        self.pixel_grid_min_scale = PIXEL_GRID_MIN_SCALE
+        self.pixel_snap_enabled = True
+        self.pixel_snap_step = PIXEL_SNAP_STEP
+        self.configure_pixel_precision(self.pixel_precision_config)
+        self.edge_refine_on_double_click = bool(
+            self.edge_refinement_config.get("double_click_enabled", False)
+        )
         self.visible = {}
         self._hide_backround = False
         self.hide_backround = False
@@ -268,6 +289,8 @@ class Canvas(
         self._prev_brush_pos = None
         # shape -> (mask_version, outline_path)
         self._brush_overlay_cache = {}
+        # shape -> (mask id, RGBA color, zero-copy indexed QImage)
+        self._brush_mask_image_cache = {}
         self._brush_modified = False
         # Mask -> polygon simplification tolerance, in image pixels.
         self.brush_simplify_epsilon_px = float(
@@ -369,6 +392,157 @@ class Canvas(
         self._fill_drawing = value
         self.update()
 
+    def configure_pixel_precision(self, config):
+        """Apply pixel-precision display and vertex-snap settings."""
+        config = config or {}
+        self.pixel_precision_config = dict(config)
+        self.pixel_precision_enabled = bool(config.get("enabled", True))
+        self.disable_smoothing_scale = max(
+            0.01,
+            float(
+                config.get(
+                    "disable_smoothing_scale",
+                    PIXELATED_DISPLAY_MIN_SCALE,
+                )
+            ),
+        )
+        self.show_pixel_grid = bool(config.get("show_pixel_grid", True))
+        self.pixel_grid_min_scale = max(
+            0.01,
+            float(config.get("pixel_grid_min_scale", PIXEL_GRID_MIN_SCALE)),
+        )
+        self.pixel_snap_enabled = bool(config.get("snap_enabled", True))
+        self.pixel_snap_step = max(
+            1e-6, float(config.get("snap_step", PIXEL_SNAP_STEP))
+        )
+        self.update()
+
+    def configure_edge_refinement(self, config):
+        """Apply Canvas-side switches for pixel-edge refinement."""
+        self.edge_refinement_config = dict(config or {})
+        self.edge_refine_on_double_click = bool(
+            self.edge_refinement_config.get("double_click_enabled", False)
+        )
+
+    def set_edge_preview_shapes(self, shapes):
+        """Display transient edge candidates without serializing them."""
+        self.edge_preview_shapes = list(shapes or [])
+        for shape in self.edge_preview_shapes:
+            path = QtGui.QPainterPath()
+            if shape.points:
+                path.moveTo(shape.points[0])
+                for point in shape.points[1:]:
+                    path.lineTo(point)
+                path.closeSubpath()
+            shape._cell_preview_path = path
+        self.update()
+
+    def clear_edge_preview_shapes(self):
+        """Remove all transient pixel-edge candidates."""
+        if self.edge_preview_shapes:
+            self.edge_preview_shapes = []
+            self.update()
+
+    def _paint_edge_preview_shapes(self, painter):
+        """Paint cached candidates as a cyan outline with sampled vertices."""
+        if not self.edge_preview_shapes:
+            return
+        painter.save()
+        painter.setOpacity(1.0)
+        pen = QtGui.QPen(QtGui.QColor(0, 229, 255, 230))
+        pen.setWidthF(2.0)
+        pen.setCosmetic(True)
+        pen.setStyle(Qt.PenStyle.DashLine)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        point_brush = QtGui.QBrush(QtGui.QColor(255, 193, 7, 235))
+        radius = max(1.5 / max(self.scale, 1e-6), 0.35)
+        for shape in self.edge_preview_shapes:
+            if len(shape.points) < 2:
+                continue
+            path = shape._cell_preview_path
+            painter.drawPath(path)
+            painter.setBrush(point_brush)
+            for point in shape.points[:: max(1, len(shape.points) // 1000)]:
+                painter.drawEllipse(point, radius, radius)
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.restore()
+
+    def uses_smooth_pixmap_transform(self):
+        """Return whether the image should be interpolated at this scale."""
+        return not self.pixel_precision_enabled or (
+            self.scale < self.disable_smoothing_scale
+        )
+
+    def snap_to_pixel_grid(self, pos):
+        """Return a QPointF snapped to the configured image-grid step."""
+        point = QtCore.QPointF(pos)
+        if not self.pixel_precision_enabled or not self.pixel_snap_enabled:
+            return point
+        step = self.pixel_snap_step
+        x = round(point.x() / step) * step
+        y = round(point.y() / step) * step
+        if abs(x) < 1e-12:
+            x = 0.0
+        if abs(y) < 1e-12:
+            y = 0.0
+        return QtCore.QPointF(float(x), float(y))
+
+    def refine_to_subpixel_edge(self, pos, image=None, **_kwargs):
+        """Extension point for a future continuous-coordinate edge snap."""
+        del image
+        return QtCore.QPointF(pos)
+
+    def _shape_uses_pixel_snap(self, shape_type):
+        return (
+            self.pixel_precision_enabled
+            and self.pixel_snap_enabled
+            and not getattr(self, "_brush_drawing", False)
+            and shape_type in {"polygon", "linestrip"}
+        )
+
+    def _clamp_to_pixel_boundary_extent(self, pos):
+        """Clamp to image cell boundaries, including the outer W/H edges."""
+        if self.pixmap is None or self.pixmap.isNull():
+            return QtCore.QPointF(pos)
+        return QtCore.QPointF(
+            min(max(float(pos.x()), 0.0), float(self.pixmap.width())),
+            min(max(float(pos.y()), 0.0), float(self.pixmap.height())),
+        )
+
+    def _snap_position_for_shape(self, pos, shape_type):
+        if not self._shape_uses_pixel_snap(shape_type):
+            return QtCore.QPointF(pos)
+        return self._clamp_to_pixel_boundary_extent(
+            self.snap_to_pixel_grid(pos)
+        )
+
+    def _drawing_position_outside(self, pos):
+        if (
+            self.pixel_precision_enabled
+            and self.create_mode in {"polygon", "linestrip"}
+            and self.pixmap is not None
+            and not self.pixmap.isNull()
+        ):
+            return not (
+                0.0 <= pos.x() <= float(self.pixmap.width())
+                and 0.0 <= pos.y() <= float(self.pixmap.height())
+            )
+        return self.out_off_pixmap(pos)
+
+    def _shape_position_outside(self, pos, shape_type):
+        if (
+            self.pixel_precision_enabled
+            and shape_type in {"polygon", "linestrip"}
+            and self.pixmap is not None
+            and not self.pixmap.isNull()
+        ):
+            return not (
+                0.0 <= pos.x() <= float(self.pixmap.width())
+                and 0.0 <= pos.y() <= float(self.pixmap.height())
+            )
+        return self.out_off_pixmap(pos)
+
     @property
     def create_mode(self):
         """Create mode for canvas - Modes: polygon, rectangle, rotation, circle,..."""
@@ -390,6 +564,37 @@ class Canvas(
             self.shapes_backups = self.shapes_backups[-self.num_backups - 1 :]
         self.shapes_backups.append(shapes_backup)
 
+    @staticmethod
+    def _normalize_cell_boundary_shape(shape):
+        """Remove edit-created duplicate/straight-through vertices safely."""
+        if shape.other_data.get("pixel_edge_geometry") != "cell_boundary":
+            return False
+        points = [QtCore.QPointF(point) for point in shape.points]
+        if len(points) < 4:
+            return False
+
+        normalized = []
+        for point in points:
+            if not normalized or point != normalized[-1]:
+                normalized.append(point)
+        if len(normalized) > 1 and normalized[0] == normalized[-1]:
+            normalized.pop()
+
+        changed = len(normalized) != len(points)
+        if changed and len(normalized) >= 4:
+            shape.points = normalized
+            shape.close()
+        return changed
+
+    def _clear_cell_boundary_edit_transients(self):
+        """Leave pixel-edge editing in a fully idle state after a drag."""
+        self.is_move_editing = False
+        self._pending_edge_point = None
+        self.current = None
+        self.line.points = []
+        self.h_vertex = self.prev_h_vertex = None
+        self.h_edge = self.prev_h_edge = None
+
     def store_moving_shape(self):
         """Store a moving shape"""
         if self.moving_shape:
@@ -398,6 +603,15 @@ class Canvas(
                 if self.h_shape and self.h_shape not in self.selected_shapes
                 else self.selected_shapes.copy()
             )
+            edited_cell_boundary = False
+            for shape in moving_shapes:
+                if (
+                    shape in self.shapes
+                    and shape.other_data.get("pixel_edge_geometry")
+                    == "cell_boundary"
+                ):
+                    edited_cell_boundary = True
+                    self._normalize_cell_boundary_shape(shape)
             for shape in moving_shapes:
                 if shape in self.shapes:
                     index = self.shapes.index(shape)
@@ -412,6 +626,8 @@ class Canvas(
                         break
 
             self.moving_shape = False
+            if edited_cell_boundary:
+                self._clear_cell_boundary_edit_transients()
             self.update()
 
     def clip_rectangle_to_pixmap(self, shape):
@@ -529,6 +745,7 @@ class Canvas(
     def leaveEvent(self, _):
         """Mouse leave event"""
         self._clear_space_pan_state()
+        self._pixel_cursor_pos = None
         self.store_moving_shape()
         self.un_highlight()
         self._hovered_group_id = None
@@ -940,6 +1157,7 @@ class Canvas(
             ]
             shape.mask = self._polygon_to_mask(points, (h, w))
             shape._brush_mask_version = 0
+            self._invalidate_brush_mask_image_cache(shape)
         shape._brush_using_mask = True
 
     def _update_shape_points_from_mask(
@@ -1006,6 +1224,11 @@ class Canvas(
             return
         self._brush_overlay_cache.pop(shape, None)
 
+    def _invalidate_brush_mask_image_cache(self, shape: Shape) -> None:
+        """Drop a zero-copy brush-mask image after the mask object changes."""
+        if shape is not None:
+            self._brush_mask_image_cache.pop(shape, None)
+
     def _bump_brush_version(self, shape: Shape) -> None:
         """Advance a shape's mask version and invalidate its cache.
 
@@ -1050,6 +1273,41 @@ class Canvas(
         self._brush_overlay_cache[shape] = (version, outline_path)
         return outline_path
 
+    def _get_brush_mask_image(
+        self, shape: Shape, color: QtGui.QColor
+    ) -> QtGui.QImage | None:
+        """Return a cached zero-copy QImage over an editable uint8 mask.
+
+        During a stroke this avoids running ``findContours`` for every mouse
+        event. Qt clips the image draw to the dirty viewport, while the numpy
+        mask remains the authoritative editable buffer.
+        """
+        mask = getattr(shape, "mask", None)
+        if mask is None or mask.ndim != 2 or mask.dtype != np.uint8:
+            return None
+        rgba = (color.red(), color.green(), color.blue(), self.mask_opacity)
+        cached = self._brush_mask_image_cache.get(shape)
+        if cached and cached[0] == id(mask) and cached[1] == rgba:
+            return cached[2]
+        height, width = mask.shape
+        image = QtGui.QImage(
+            mask.data,
+            width,
+            height,
+            int(mask.strides[0]),
+            QtGui.QImage.Format.Format_Indexed8,
+        )
+        transparent = QtGui.QColor(0, 0, 0, 0).rgba()
+        table = [transparent] * 256
+        red, green, blue, alpha = rgba
+        for value in range(1, 256):
+            table[value] = QtGui.QColor(
+                red, green, blue, int(alpha * value / 255)
+            ).rgba()
+        image.setColorTable(table)
+        self._brush_mask_image_cache[shape] = (id(mask), rgba, image)
+        return image
+
     def _restore_brush_original_geometry(self, shape: Shape) -> None:
         """Restore geometry captured when brush editing started."""
         original = self._brush_original_shape
@@ -1083,6 +1341,7 @@ class Canvas(
             target._brush_using_mask = False
             target.mask = None
             self._invalidate_brush_cache(target)
+            self._invalidate_brush_mask_image_cache(target)
             if self._brush_modified and not cancel:
                 if not has_geometry and target in self.shapes:
                     self.shapes.remove(target)
@@ -1135,6 +1394,14 @@ class Canvas(
             ):
                 self.brush_mode_changed.emit(False)
                 return
+            if self.pixel_precision_enabled:
+                self.precision_warning_requested.emit(
+                    self.tr(
+                        "Pixel Precision warning: Brush editing rasterizes "
+                        "the polygon and may replace floating-point vertices "
+                        "with integer contour points."
+                    )
+                )
             self.set_editing(True)
             self.is_brush_mode = True
             self._brush_modified = False
@@ -1219,6 +1486,7 @@ class Canvas(
         """
         shape = self._brush_target_shape
         shape.mask = mask.copy()
+        self._invalidate_brush_mask_image_cache(shape)
         self._bump_brush_version(shape)
         self._update_shape_points_from_mask(shape)
         if self._brush_baseline_mask is not None:
@@ -1423,13 +1691,16 @@ class Canvas(
                 continue
             if getattr(shape, "mask", None) is None or not shape.visible:
                 continue
+            outline_color = (
+                shape.select_line_color if shape.selected else shape.line_color
+            )
+            if self._brush_stroke_dirty and shape is self._brush_target_shape:
+                mask_image = self._get_brush_mask_image(shape, outline_color)
+                if mask_image is not None:
+                    p.drawImage(0, 0, mask_image)
+                continue
             outline_path = self._get_brush_render_data(shape)
             if outline_path is not None:
-                outline_color = (
-                    shape.select_line_color
-                    if shape.selected
-                    else shape.line_color
-                )
                 pen = QtGui.QPen(outline_color)
                 pen.setWidthF(float(shape.line_width))
                 pen.setCosmetic(True)
@@ -1873,7 +2144,8 @@ class Canvas(
     def _sync_drawing_line(self, pos, modifiers):
         if not self.drawing() or not self.current:
             return
-        if self.out_off_pixmap(pos) and self.create_mode not in [
+        pos = self._snap_position_for_shape(pos, self.create_mode)
+        if self._drawing_position_outside(pos) and self.create_mode not in [
             "rectangle",
             "rotation",
             "quadrilateral",
@@ -1904,6 +2176,7 @@ class Canvas(
             and modifiers & QtCore.Qt.KeyboardModifier.ShiftModifier
         ):
             pos = self._snap_line_pos(self.current[-1], pos)
+            pos = self._snap_position_for_shape(pos, self.create_mode)
         if self.create_mode in ["polygon", "linestrip", "quadrilateral"]:
             self.line[0] = self.current[-1]
             self.line[1] = pos
@@ -1959,6 +2232,7 @@ class Canvas(
             pos = self.transform_pos(ev.position())
         except AttributeError:
             return
+        self._pixel_cursor_pos = QtCore.QPointF(pos)
 
         if self._space_panning:
             if self._left_button_pressed(ev):
@@ -1987,7 +2261,7 @@ class Canvas(
             self.override_cursor(CURSOR_DRAW)
             if self._magic_wand_active and self._left_button_pressed(ev):
                 self._drag_magic_wand(ev.position())
-            self.repaint()
+            self.update()
             return
 
         if (
@@ -2006,7 +2280,9 @@ class Canvas(
 
         prev_hover_shape = self.h_shape
         self.prev_move_point = pos
-        self.repaint()
+        # Queue/coalesce mouse-move paints. ``repaint`` is synchronous and
+        # caused two full canvas renders per event while drawing polygons.
+        self.update()
 
         # Handle auto decode mode
         if (
@@ -2021,6 +2297,7 @@ class Canvas(
 
         # Polygon drawing.
         if self.drawing():
+            pos = self._snap_position_for_shape(pos, self.create_mode)
             line_color = utils.hex_to_rgb(self.cross_line_color)
             self.line.line_color = QtGui.QColor(*line_color)
             self.line.shape_type = self.create_mode
@@ -2037,7 +2314,9 @@ class Canvas(
                 self.show_shape.emit(shape_height, shape_width, pos)
 
             color = QtGui.QColor(0, 0, 255)
-            if self.out_off_pixmap(pos) and self.create_mode not in [
+            if self._drawing_position_outside(
+                pos
+            ) and self.create_mode not in [
                 "rectangle",
                 "rotation",
                 "quadrilateral",
@@ -2079,6 +2358,7 @@ class Canvas(
                 and ev.modifiers() & QtCore.Qt.KeyboardModifier.ShiftModifier
             ):
                 pos = self._snap_line_pos(self.current[-1], pos)
+                pos = self._snap_position_for_shape(pos, self.create_mode)
             if self.create_mode in ["polygon", "linestrip", "quadrilateral"]:
                 self.line[0] = self.current[-1]
                 self.line[1] = pos
@@ -2109,7 +2389,7 @@ class Canvas(
                 if point_dist * self.scale >= self.brush_point_distance:
                     self.current.add_point(pos)
                     self.line[0] = self.current[-1]
-            self.repaint()
+            self.update()
             self.current.highlight_clear()
             return
 
@@ -2584,6 +2864,7 @@ class Canvas(
             return
         self._pending_edge_point = None
         pos = self.transform_pos(ev.position())
+        self._pixel_cursor_pos = QtCore.QPointF(pos)
 
         if self.is_brush_mode and self._brush_mouse_press(ev, pos):
             return
@@ -2602,6 +2883,7 @@ class Canvas(
                     ev.accept()
                 return
             if self.drawing():
+                pos = self._snap_position_for_shape(pos, self.create_mode)
                 if self.current:
                     self._sync_drawing_line(pos, ev.modifiers())
                     # Add point to existing shape.
@@ -2699,7 +2981,7 @@ class Canvas(
                     ):
                         self.prev_pan_point = ev.position()
                         self.mode_changed.emit()
-                elif not self.out_off_pixmap(pos):
+                elif not self._drawing_position_outside(pos):
                     # Handle auto decode mode first click
                     if self.auto_decode_mode and self.is_auto_labeling:
                         if (
@@ -2722,17 +3004,22 @@ class Canvas(
                         self.set_hiding()
                         self.drawing_polygon.emit(True)
                         self.update()
-                elif self.out_off_pixmap(pos) and self.create_mode in [
+                elif self._drawing_position_outside(
+                    pos
+                ) and self.create_mode in [
                     "polygon",
                     "linestrip",
                 ]:
                     w = self.pixmap.width()
                     h = self.pixmap.height()
                     if w > 0 and h > 0:
-                        pos = QtCore.QPointF(
-                            min(max(pos.x(), 0), w - 1),
-                            min(max(pos.y(), 0), h - 1),
-                        )
+                        if self.pixel_precision_enabled:
+                            pos = self._clamp_to_pixel_boundary_extent(pos)
+                        else:
+                            pos = QtCore.QPointF(
+                                min(max(pos.x(), 0), w - 1),
+                                min(max(pos.y(), 0), h - 1),
+                            )
                         self.current = Shape(shape_type=self.create_mode)
                         self.current.add_point(pos)
                         self.line.points = [pos, pos]
@@ -2807,7 +3094,17 @@ class Canvas(
                     and ev.modifiers()
                     != QtCore.Qt.KeyboardModifier.ShiftModifier
                 ):
-                    self.is_move_editing = not self.is_move_editing
+                    # Pixel-edge previews can contain dense or temporarily
+                    # overlapping vertices. Require a real mouse drag for
+                    # those shapes; sticky click-to-move can otherwise pull a
+                    # long line from the old annotation on the next click.
+                    if (
+                        self.h_shape.other_data.get("pixel_edge_geometry")
+                        == "cell_boundary"
+                    ):
+                        self.is_move_editing = False
+                    else:
+                        self.is_move_editing = not self.is_move_editing
                     if self.is_move_editing:
                         self.override_cursor(CURSOR_MOVE)
                     else:
@@ -2957,6 +3254,19 @@ class Canvas(
         ):
             self.auto_decode_finish_requested.emit()
             return
+
+        if self.editing() and self.edge_refine_on_double_click:
+            pos = self.transform_pos(ev.position())
+            for shape in self._shape_hit_candidates(pos):
+                if shape.shape_type != "polygon" or shape.locked:
+                    continue
+                self._undo_pending_edge_point()
+                if shape not in self.selected_shapes:
+                    self.selection_changed.emit([shape])
+                self.h_shape_is_selected = False
+                self.shape_edge_refine_requested.emit(shape)
+                ev.accept()
+                return
 
         if self.editing() and self.double_click_edit_label:
             pos = self.transform_pos(ev.position())
@@ -3650,12 +3960,39 @@ class Canvas(
         index, shape = self.h_vertex, self.h_shape
         if shape.locked:
             return
+        if shape.other_data.get("pixel_edge_geometry") == "cell_boundary":
+            pos = self._clamp_to_pixel_boundary_extent(
+                QtCore.QPointF(round(pos.x()), round(pos.y()))
+            )
+            old = QtCore.QPointF(shape[index])
+            for direction in (-1, 1):
+                neighbor = (index + direction) % len(shape.points)
+                vertical = abs(shape[neighbor].x() - old.x()) < 1e-7
+                for _ in range(len(shape.points) - 1):
+                    p = QtCore.QPointF(shape[neighbor])
+                    if vertical and abs(p.x() - old.x()) > 1e-7:
+                        break
+                    if not vertical and abs(p.y() - old.y()) > 1e-7:
+                        break
+                    if vertical:
+                        p.setX(pos.x())
+                    else:
+                        p.setY(pos.y())
+                    shape[neighbor] = p
+                    neighbor = (neighbor + direction) % len(shape.points)
+                    if neighbor == index:
+                        break
+            shape[index] = pos
+            shape.close()
+            return
         if shape.shape_type == "cuboid":
             self.move_cuboid_control(shape, index, pos)
             return
+        if self._shape_uses_pixel_snap(shape.shape_type):
+            pos = self._snap_position_for_shape(pos, shape.shape_type)
         point = shape[index]
         if (
-            self.out_off_pixmap(pos)
+            self._shape_position_outside(pos, shape.shape_type)
             and shape.shape_type not in self.allowed_oop_shape_types
         ):
             pos = self.intersection_point(point, pos)
@@ -3933,6 +4270,155 @@ class Canvas(
             )
         painter.restore()
 
+    def _visible_pixel_grid_bounds(self, viewport_rect=None):
+        """Return inclusive image-grid bounds for the visible widget area."""
+        if self.pixmap is None or self.pixmap.isNull():
+            return None
+        if viewport_rect is None:
+            viewport_rect = self.rect()
+        top_left = self.transform_pos(QtCore.QPointF(viewport_rect.topLeft()))
+        bottom_right = self.transform_pos(
+            QtCore.QPointF(viewport_rect.bottomRight())
+        )
+        left = max(0, math.floor(min(top_left.x(), bottom_right.x())))
+        right = min(
+            self.pixmap.width(),
+            math.ceil(max(top_left.x(), bottom_right.x())),
+        )
+        top = max(0, math.floor(min(top_left.y(), bottom_right.y())))
+        bottom = min(
+            self.pixmap.height(),
+            math.ceil(max(top_left.y(), bottom_right.y())),
+        )
+        if left > right or top > bottom:
+            return None
+        return left, right, top, bottom
+
+    def _paint_pixel_grid(self, painter, viewport_rect):
+        """Draw only visible image-cell boundaries as a canvas overlay."""
+        if (
+            not self.pixel_precision_enabled
+            or not self.show_pixel_grid
+            or self.scale < self.pixel_grid_min_scale
+        ):
+            return
+        bounds = self._visible_pixel_grid_bounds(viewport_rect)
+        if bounds is None:
+            return
+        left, right, top, bottom = bounds
+        lines = [
+            QtCore.QLineF(float(x), float(top), float(x), float(bottom))
+            for x in range(left, right + 1)
+        ]
+        lines.extend(
+            QtCore.QLineF(float(left), float(y), float(right), float(y))
+            for y in range(top, bottom + 1)
+        )
+        painter.save()
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing, False)
+        pen = QtGui.QPen(QtGui.QColor(160, 160, 160, 170))
+        pen.setWidthF(1.0)
+        pen.setCosmetic(True)
+        painter.setPen(pen)
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.drawLines(lines)
+        painter.restore()
+
+    def _pixel_hud_lines(self):
+        """Build high-zoom cursor diagnostics without quantizing coordinates."""
+        if self._pixel_cursor_pos is None:
+            return [
+                "PIXEL MODE",
+                "",
+                f"Zoom = {self.scale * 100:.0f}%",
+                (
+                    f"Snap = {self.pixel_snap_step:g} px"
+                    if self.pixel_snap_enabled
+                    else "Snap = OFF"
+                ),
+            ]
+        cursor = QtCore.QPointF(self._pixel_cursor_pos)
+        snap_point = self.snap_to_pixel_grid(cursor)
+        lines = [
+            "PIXEL MODE",
+            "",
+            "Cursor:",
+            f"X = {cursor.x():.3f}",
+            f"Y = {cursor.y():.3f}",
+            "",
+            "Snap point:",
+            f"X = {snap_point.x():.3f}",
+            f"Y = {snap_point.y():.3f}",
+        ]
+        if self.pixmap is not None and not self.pixmap.isNull():
+            col = math.floor(cursor.x())
+            row = math.floor(cursor.y())
+            if (
+                0 <= col < self.pixmap.width()
+                and 0 <= row < self.pixmap.height()
+            ):
+                lines.extend(["", "Pixel:", f"col = {col}", f"row = {row}"])
+                if not self._pixel_info_image.isNull():
+                    color = self._pixel_info_image.pixelColor(col, row)
+                    red, green, blue = color.red(), color.green(), color.blue()
+                    gray = round(0.299 * red + 0.587 * green + 0.114 * blue)
+                    lines.extend(
+                        [f"RGB = ({red}, {green}, {blue})", f"Gray = {gray}"]
+                    )
+        lines.extend(
+            [
+                "",
+                f"Zoom = {self.scale * 100:.0f}%",
+                (
+                    f"Snap = {self.pixel_snap_step:g} px"
+                    if self.pixel_snap_enabled
+                    else "Snap = OFF"
+                ),
+            ]
+        )
+        return lines
+
+    def _paint_pixel_hud(self, painter, viewport_rect):
+        if (
+            not self.pixel_precision_enabled
+            or self.scale < self.disable_smoothing_scale
+            or self._pixel_cursor_pos is None
+        ):
+            return
+        lines = self._pixel_hud_lines()
+        painter.save()
+        painter.resetTransform()
+        painter.setOpacity(1.0)
+        font = QtGui.QFontDatabase.systemFont(
+            QtGui.QFontDatabase.SystemFont.FixedFont
+        )
+        font.setPixelSize(12)
+        painter.setFont(font)
+        metrics = QtGui.QFontMetrics(font)
+        padding = 9
+        line_height = metrics.height()
+        width = max(metrics.horizontalAdvance(line) for line in lines)
+        box = QtCore.QRectF(
+            float(viewport_rect.left() + 12),
+            float(viewport_rect.top() + 12),
+            float(width + padding * 2),
+            float(line_height * len(lines) + padding * 2),
+        )
+        painter.setPen(QtGui.QPen(QtGui.QColor(255, 255, 255, 90), 1))
+        painter.setBrush(QtGui.QColor(20, 20, 20, 210))
+        painter.drawRoundedRect(box, 5.0, 5.0)
+        painter.setPen(QtGui.QColor(245, 245, 245))
+        baseline = box.top() + padding + metrics.ascent()
+        for index, line in enumerate(lines):
+            painter.drawText(
+                QtCore.QPointF(
+                    box.left() + padding,
+                    baseline + index * line_height,
+                ),
+                line,
+            )
+        painter.restore()
+
     # QT Overload
     def paintEvent(self, event):  # noqa: C901
         """Paint event for canvas"""
@@ -3947,7 +4433,10 @@ class Canvas(
         p = self._painter
         p.begin(self)
         p.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-        p.setRenderHint(QtGui.QPainter.RenderHint.SmoothPixmapTransform)
+        p.setRenderHint(
+            QtGui.QPainter.RenderHint.SmoothPixmapTransform,
+            self.uses_smooth_pixmap_transform(),
+        )
 
         p.scale(self.scale, self.scale)
         p.translate(self.offset_to_center())
@@ -3971,6 +4460,8 @@ class Canvas(
                     split_x,
                     self.pixmap.height(),
                 )
+
+        self._paint_pixel_grid(p, event.rect())
 
         Shape.scale = self.scale
 
@@ -4255,6 +4746,7 @@ class Canvas(
         # Draw live brush-edit overlays on top of the regular shapes.
         self._paint_brush_overlays(p)
         self._paint_magic_wand_overlay(p)
+        self._paint_edge_preview_shapes(p)
 
         if self.current:
             self.current.paint(p)
@@ -4729,6 +5221,8 @@ class Canvas(
 
         # Brush-size preview circle follows the cursor in brush mode.
         self._paint_brush_cursor(p)
+
+        self._paint_pixel_hud(p, event.rect())
 
         p.end()
 
@@ -5252,7 +5746,16 @@ class Canvas(
                 self.snapping = False
         elif self.editing():
             if key == QtCore.Qt.Key.Key_Escape:
+                # Also cancel any click-to-move/temporary connector state.
+                # Dense pixel-edge polygons can contain vertices at the same
+                # location during manual correction; leaving ``line`` or a
+                # pending inserted point alive made a later click draw a long
+                # connector from the old annotation.
+                self._undo_pending_edge_point()
+                self._clear_cell_boundary_edit_transients()
                 self.deselect_shape()
+                self.update()
+                ev.accept()
                 return
             if (
                 key == QtCore.Qt.Key.Key_Alt
@@ -5387,7 +5890,14 @@ class Canvas(
         self.cancel_brush_mode()
         self._clear_magic_wand_preview()
         self._magic_wand_source = None
+        self._brush_overlay_cache.clear()
+        self._brush_mask_image_cache.clear()
+        self.edge_preview_shapes = []
         self.pixmap = pixmap
+        self._pixel_info_image = (
+            pixmap.toImage() if pixmap is not None else QtGui.QImage()
+        )
+        self._pixel_cursor_pos = None
         if clear_shapes:
             self.shapes = []
         self.update()
@@ -5396,6 +5906,9 @@ class Canvas(
         """Load shapes"""
         self.cancel_brush_mode()
         self._clear_magic_wand_preview()
+        self._brush_overlay_cache.clear()
+        self._brush_mask_image_cache.clear()
+        self.edge_preview_shapes = []
         if replace:
             self.shapes = list(shapes)
         else:
@@ -5445,6 +5958,11 @@ class Canvas(
         self._clear_space_pan_state()
         self.restore_cursor()
         self.pixmap = None
+        self._pixel_info_image = QtGui.QImage()
+        self._pixel_cursor_pos = None
+        self._brush_overlay_cache.clear()
+        self._brush_mask_image_cache.clear()
+        self.edge_preview_shapes = []
         self.shapes_backups = []
         self.is_move_editing = False
         self.compare_pixmap = None

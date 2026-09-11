@@ -468,8 +468,9 @@ class NavigatorDialog(QtWidgets.QDialog):
     zoom_changed = pyqtSignal([int], [int, QPoint])
     viewport_update_requested = pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, maximum_zoom=6400):
         super().__init__(parent)
+        self.maximum_zoom = max(100, int(maximum_zoom))
 
         self.setWindowTitle(self.tr("Navigator"))
         self.setWindowFlags(
@@ -566,7 +567,7 @@ class NavigatorDialog(QtWidgets.QDialog):
         """)
 
         self.zoom_slider = ClickableSlider(Qt.Orientation.Horizontal)
-        self.zoom_slider.setRange(1, 1000)
+        self.zoom_slider.setRange(1, self.maximum_zoom)
         self.zoom_slider.setValue(100)
         self.zoom_slider.setStyleSheet(ChatbotDialogStyle.get_slider_style())
         self.zoom_slider.valueChanged.connect(self.on_slider_changed)
@@ -617,6 +618,7 @@ class NavigatorDialog(QtWidgets.QDialog):
 
     def set_zoom_value(self, zoom_percentage: int) -> None:
         """Set zoom value and update UI elements"""
+        zoom_percentage = max(1, min(self.maximum_zoom, zoom_percentage))
         self.current_zoom = zoom_percentage
 
         self.zoom_slider.blockSignals(True)
@@ -638,7 +640,7 @@ class NavigatorDialog(QtWidgets.QDialog):
         """Handle zoom input text change event"""
         try:
             value = int(self.zoom_input.text())
-            value = max(1, min(1000, value))
+            value = max(1, min(self.maximum_zoom, value))
 
             self.current_zoom = value
             self.zoom_slider.setValue(value)
@@ -649,7 +651,7 @@ class NavigatorDialog(QtWidgets.QDialog):
 
     def zoom_in(self):
         """Increase zoom level by 1"""
-        new_zoom = min(1000, self.current_zoom + 1)
+        new_zoom = min(self.maximum_zoom, self.current_zoom + 1)
         self.set_zoom_value(new_zoom)
         self.zoom_changed[int].emit(new_zoom)
 
@@ -671,7 +673,7 @@ class NavigatorDialog(QtWidgets.QDialog):
             zoom_increment = 0
 
         new_zoom = self.current_zoom + zoom_increment
-        new_zoom = max(1, min(1000, new_zoom))
+        new_zoom = max(1, min(self.maximum_zoom, new_zoom))
 
         self.set_zoom_value(new_zoom)
         self.zoom_changed[int, QPoint].emit(
@@ -679,3 +681,9 @@ class NavigatorDialog(QtWidgets.QDialog):
         )
 
         event.accept()
+
+    def set_maximum_zoom(self, maximum_zoom: int) -> None:
+        """Update all navigator zoom controls to the same upper bound."""
+        self.maximum_zoom = max(100, int(maximum_zoom))
+        self.zoom_slider.setMaximum(self.maximum_zoom)
+        self.set_zoom_value(min(self.current_zoom, self.maximum_zoom))

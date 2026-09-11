@@ -3,7 +3,7 @@ import copy
 import re
 import time
 import importlib.resources as pkg_resources
-from threading import Lock, Event
+from threading import Lock, RLock, Event
 
 from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
@@ -56,7 +56,9 @@ class ModelManager(QObject):
         self.model_configs = []
 
         self.loaded_model_config = None
-        self.loaded_model_config_lock = Lock()
+        # Native ONNX/CUDA sessions must not be unloaded while another thread
+        # is using them. RLock also permits model callbacks on the same thread.
+        self.loaded_model_config_lock = RLock()
 
         self.model_download_worker = None
         self.model_download_thread = None
@@ -328,6 +330,13 @@ class ModelManager(QObject):
                 "Another model is being loaded. Please wait for it to finish."
             )
             return
+        if self.is_model_execution_running():
+            self.new_model_status.emit(
+                self.tr(
+                    "A model is currently inferencing. Wait for it to finish before switching models."
+                )
+            )
+            return
         if not config_file:
             if self.model_download_worker is not None:
                 try:
@@ -366,6 +375,9 @@ class ModelManager(QObject):
         self.new_model_status.emit(message)
 
         self.model_download_worker = GenericWorker(self._load_model, model_id)
+        self.model_download_worker.failed.connect(
+            self.on_model_load_worker_failed
+        )
         self.model_download_worker.finished.connect(
             self.on_model_download_finished
         )
@@ -395,6 +407,28 @@ class ModelManager(QObject):
             self.model_download_thread = None
             self.model_download_worker = None
             return False
+
+    def is_model_execution_running(self):
+        """Safely query the inference thread without dereferencing deleted Qt objects."""
+        with self.model_execution_thread_lock:
+            try:
+                return bool(
+                    self.model_execution_thread is not None
+                    and self.model_execution_thread.isRunning()
+                )
+            except RuntimeError:
+                self.model_execution_thread = None
+                self.model_execution_worker = None
+                return False
+
+    @pyqtSlot(object)
+    def on_model_load_worker_failed(self, error):
+        self.new_model_status.emit(
+            self.tr("Error in loading model: {error_message}").format(
+                error_message=str(error)
+            )
+        )
+        self.model_loaded.emit({})
 
     @pyqtSlot()
     def on_model_download_thread_finished(self):
@@ -2421,9 +2455,28 @@ class ModelManager(QObject):
 
     def unload_model(self):
         """Unload model"""
-        if self.loaded_model_config is not None:
-            self.loaded_model_config["model"].unload()
+        if self.is_model_execution_running():
+            self.new_model_status.emit(
+                self.tr(
+                    "A model is currently inferencing. Wait for it to finish before unloading it."
+                )
+            )
+            return False
+        with self.loaded_model_config_lock:
+            model_config = self.loaded_model_config
             self.loaded_model_config = None
+        if model_config is not None:
+            try:
+                model_config["model"].unload()
+            except Exception as error:  # unloading must not terminate the GUI
+                logger.exception("Error while unloading model: %s", error)
+                self.new_model_status.emit(
+                    self.tr(
+                        "Error while unloading model: {error_message}"
+                    ).format(error_message=str(error))
+                )
+                return False
+        return True
 
     def predict_shapes(
         self,
@@ -2438,32 +2491,37 @@ class ModelManager(QObject):
         NOTE: This function is blocking. The model can take a long time to
         predict. So it is recommended to use predict_shapes_threading instead.
         """
-        with self.loaded_model_config_lock:
-            model_config = self.loaded_model_config
-        if model_config is None:
-            self.new_model_status.emit(
-                self.tr("Model is not loaded. Choose a mode to continue.")
-            )
-            self.prediction_finished.emit()
-            return
-
         try:
-            if text_prompt is not None:
-                auto_labeling_result = model_config["model"].predict_shapes(
-                    image, filename, text_prompt=text_prompt
-                )
-            elif run_tracker is True:
-                auto_labeling_result = model_config["model"].predict_shapes(
-                    image, filename, run_tracker=run_tracker
-                )
-            elif existing_shapes is not None:
-                auto_labeling_result = model_config["model"].predict_shapes(
-                    image, filename, existing_shapes=existing_shapes
-                )
-            else:
-                auto_labeling_result = model_config["model"].predict_shapes(
-                    image, filename
-                )
+            # Keep the lifecycle lock for the complete native call. Switching
+            # or unloading waits until inference releases the ONNX/CUDA session.
+            with self.loaded_model_config_lock:
+                model_config = self.loaded_model_config
+                if model_config is None:
+                    self.new_model_status.emit(
+                        self.tr(
+                            "Model is not loaded. Choose a mode to continue."
+                        )
+                    )
+                    self.prediction_finished.emit()
+                    return
+                if text_prompt is not None:
+                    auto_labeling_result = model_config[
+                        "model"
+                    ].predict_shapes(image, filename, text_prompt=text_prompt)
+                elif run_tracker is True:
+                    auto_labeling_result = model_config[
+                        "model"
+                    ].predict_shapes(image, filename, run_tracker=run_tracker)
+                elif existing_shapes is not None:
+                    auto_labeling_result = model_config[
+                        "model"
+                    ].predict_shapes(
+                        image, filename, existing_shapes=existing_shapes
+                    )
+                else:
+                    auto_labeling_result = model_config[
+                        "model"
+                    ].predict_shapes(image, filename)
 
             if isinstance(auto_labeling_result, AutoLabelingResult):
                 auto_labeling_result.image_path = filename
@@ -2556,6 +2614,9 @@ class ModelManager(QObject):
                 self.model_execution_worker = GenericWorker(
                     self.predict_shapes, image, filename
                 )
+            self.model_execution_worker.failed.connect(
+                self.on_model_execution_worker_failed
+            )
             self.model_execution_worker.finished.connect(
                 self.model_execution_thread.quit
             )
@@ -2579,6 +2640,14 @@ class ModelManager(QObject):
         with self.model_execution_thread_lock:
             self.model_execution_thread = None
             self.model_execution_worker = None
+
+    @pyqtSlot(object)
+    def on_model_execution_worker_failed(self, error):
+        self.new_model_status.emit(
+            self.tr("Error in model prediction: {error_message}").format(
+                error_message=str(error)
+            )
+        )
 
     def on_next_files_changed(self, next_files):
         """Run prediction on next files in advance to save inference time later"""

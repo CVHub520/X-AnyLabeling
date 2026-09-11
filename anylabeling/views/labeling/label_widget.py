@@ -1,3 +1,4 @@
+import copy
 import functools
 import html
 import json
@@ -66,6 +67,14 @@ from .utils.file_search import (
     matches_filename,
     matches_label_attribute,
 )
+from .utils.edge_refinement import (
+    fit_rectangle_to_edges,
+    refine_model_polygons_to_edges,
+    refine_polygons_to_edges,
+    refine_polygon_to_edge,
+    segment_box_to_edge_polygon,
+    validate_polygon_edge_fit,
+)
 from .utils.qt import new_icon_path
 from .widgets import (
     AboutDialog,
@@ -93,6 +102,8 @@ from .widgets import (
     GroupIDModifyDialog,
     OverviewDialog,
     Popup,
+    EdgeComputationTask,
+    PixelEdgeWidget,
     SearchBar,
     ToolBar,
     UniqueLabelQListWidget,
@@ -208,6 +219,20 @@ class LabelingWidget(LabelDialog):
         self._settings_dialog = None
         self._settings_runtime_applier = SettingsRuntimeApplier(self)
         self._auto_switch_signal_connected = False
+        self._edge_box_mode = False
+        self._edge_pending_box = None
+        self._edge_pending_candidate = None
+        self._edge_existing_request = None
+        self._edge_existing_preview = None
+        self._edge_batch_request = None
+        self._edge_batch_preview = None
+        self._edge_box_operation = "segment"
+        self._edge_four_corner_mode = False
+        self._edge_pending_candidates = []
+        self._model_edge_result_requests = {}
+        self._model_edge_request_id = 0
+        self._edge_candidates = []
+        self._edge_candidate_index = 0
 
         # set default shape colors
         Shape.line_color = QtGui.QColor(*self._config["shape"]["line_color"])
@@ -231,6 +256,18 @@ class LabelingWidget(LabelDialog):
         Shape.line_width = self._config["shape"]["line_width"]
 
         super(LabelDialog, self).__init__()
+
+        self._edge_preview_timer = QtCore.QTimer(self)
+        self._edge_preview_timer.setSingleShot(True)
+        self._edge_preview_timer.setInterval(80)
+        self._edge_preview_timer.timeout.connect(
+            self._refresh_edge_box_preview
+        )
+        self._edge_thread_pool = QtCore.QThreadPool(self)
+        self._edge_thread_pool.setMaxThreadCount(2)
+        self._edge_request_id = 0
+        self._edge_tasks = set()
+        self._edge_request_offsets = {}
 
         # Whether we need to save or not.
         self.dirty = False
@@ -381,9 +418,15 @@ class LabelingWidget(LabelDialog):
         self.file_dock.setWidget(file_list_widget)
         self.file_dock.setStyleSheet(get_dock_style())
 
-        self.zoom_widget = ZoomWidget()
+        pixel_precision_config = self._config["canvas"].get(
+            "pixel_precision", {}
+        )
+        max_zoom_percent = pixel_precision_config.get("max_zoom_percent", 6400)
+        self.zoom_widget = ZoomWidget(maximum=max_zoom_percent)
 
-        self.navigator_dialog = NavigatorDialog(self)
+        self.navigator_dialog = NavigatorDialog(
+            self, maximum_zoom=max_zoom_percent
+        )
         self.navigator_dialog.navigator.navigation_requested.connect(
             self.on_navigator_request
         )
@@ -420,6 +463,8 @@ class LabelingWidget(LabelDialog):
             brush=self._config["canvas"].get("brush", {}),
             magic_wand=self._config["canvas"].get("magic_wand", {}),
             cuboid=self._config["canvas"].get("cuboid", {}),
+            pixel_precision=pixel_precision_config,
+            edge_refinement=self._config["canvas"].get("edge_refinement", {}),
             double_click_edit_label=self._config["canvas"].get(
                 "double_click_edit_label", True
             ),
@@ -491,6 +536,10 @@ class LabelingWidget(LabelDialog):
         # Keep the brush-edit toggle in sync when the canvas exits brush
         # mode on its own (e.g. via a right-click).
         self.canvas.brush_mode_changed.connect(self.on_brush_mode_changed)
+        self.canvas.precision_warning_requested.connect(self.status)
+        self.canvas.shape_edge_refine_requested.connect(
+            self.refine_existing_shape_to_edge
+        )
         self.canvas.brush_history_changed.connect(
             lambda can_undo: self.actions.undo.setEnabled(can_undo)
         )
@@ -1288,6 +1337,34 @@ class LabelingWidget(LabelDialog):
             enabled=True,
             auto_trigger=True,
         )
+        show_pixel_grid = action(
+            self.tr("Show Pixel Grid"),
+            self.toggle_pixel_grid,
+            shortcut=shortcuts["toggle_pixel_grid"],
+            tip=self.tr("Show image-pixel boundaries at high zoom"),
+            checkable=True,
+            checked=pixel_precision_config.get("show_pixel_grid", True),
+            enabled=True,
+        )
+        pixel_snap = action(
+            self.tr("Pixel Snap"),
+            self.toggle_pixel_snap,
+            shortcut=shortcuts["toggle_pixel_snap"],
+            tip=self.tr(
+                "Snap polygon and linestrip vertices to the pixel grid"
+            ),
+            checkable=True,
+            checked=pixel_precision_config.get("snap_enabled", True),
+            enabled=True,
+        )
+        toggle_pixel_edge_panel = action(
+            "像素边缘",
+            self.toggle_pixel_edge_widget,
+            tip=self.tr("Show or hide the pixel-edge control panel"),
+            checkable=True,
+            checked=False,
+            enabled=True,
+        )
         show_masks = action(
             self.tr("Show Masks"),
             lambda x: self.set_canvas_params("show_masks", x),
@@ -1891,6 +1968,9 @@ class LabelingWidget(LabelDialog):
             fit_window=fit_window,
             fit_width=fit_width,
             show_groups=show_groups,
+            show_pixel_grid=show_pixel_grid,
+            pixel_snap=pixel_snap,
+            toggle_pixel_edge_panel=toggle_pixel_edge_panel,
             show_masks=show_masks,
             show_texts=show_texts,
             show_labels=show_labels,
@@ -2048,6 +2128,9 @@ class LabelingWidget(LabelDialog):
             help=self.menu(self.tr("Help")),
             recent_files=QtWidgets.QMenu(self.tr("Open Recent")),
         )
+        self.parent.parent.menuBar().insertAction(
+            self.menus.train.menuAction(), toggle_pixel_edge_panel
+        )
         self.menus.recent_files.setIcon(utils.new_icon("recent"))
         self.menus.recent_files.aboutToShow.connect(self.update_file_menu)
         self.canvas_label_filter_menu_0 = None
@@ -2195,6 +2278,9 @@ class LabelingWidget(LabelDialog):
                 fit_window,
                 fit_width,
                 None,
+                show_pixel_grid,
+                pixel_snap,
+                None,
                 show_masks,
                 show_texts,
                 show_labels,
@@ -2288,6 +2374,38 @@ class LabelingWidget(LabelDialog):
         central_layout.setContentsMargins(0, 0, 0, 0)
         self.label_instruction = QLabel(self.get_labeling_instruction())
         self.label_instruction.setContentsMargins(0, 0, 0, 0)
+        self.pixel_edge_widget = PixelEdgeWidget(
+            self._config["canvas"].get("edge_refinement", {}), self
+        )
+        self.pixel_edge_widget.box_requested.connect(
+            self.start_pixel_edge_box_segment
+        )
+        self.pixel_edge_widget.rectangle_requested.connect(
+            self.start_pixel_edge_rectangle_fit
+        )
+        self.pixel_edge_widget.confirm_requested.connect(
+            self.confirm_pixel_edge_preview
+        )
+        self.pixel_edge_widget.candidate_changed.connect(
+            self.cycle_pixel_edge_candidate
+        )
+        self.pixel_edge_widget.cancel_requested.connect(
+            self.cancel_pixel_edge_preview
+        )
+        self.pixel_edge_widget.settings_changed.connect(
+            self.update_pixel_edge_settings
+        )
+        self.pixel_edge_widget.double_click_changed.connect(
+            self.toggle_double_click_edge_refine
+        )
+        self.pixel_edge_widget.model_refine_changed.connect(
+            self.toggle_auto_label_edge_refine
+        )
+        self.pixel_edge_widget.close_requested.connect(
+            self._on_pixel_edge_panel_closed
+        )
+        self.pixel_edge_widget.set_image_available(False)
+        self.pixel_edge_widget.hide()
         self.auto_labeling_widget = AutoLabelingWidget(self)
         self.auto_labeling_widget.auto_segmentation_requested.connect(
             self.on_auto_segmentation_requested
@@ -2357,6 +2475,7 @@ class LabelingWidget(LabelDialog):
         self.auto_labeling_widget.hide()  # Hide by default
         central_layout.addWidget(self.label_instruction)
         central_layout.addSpacing(5)
+        central_layout.addWidget(self.pixel_edge_widget)
         central_layout.addWidget(self.auto_labeling_widget)
         central_layout.addWidget(scroll_area)
         central_layout.addWidget(self.compare_view_slider)
@@ -2916,6 +3035,20 @@ class LabelingWidget(LabelDialog):
         utils.add_actions(self.menus.edit, actions + self.actions.editMenu)
 
     def set_dirty(self):
+        # Existing-annotation edge fitting is a real, editable Canvas preview.
+        # Do not autosave or mark it committed while the user is still deciding.
+        edge_preview = getattr(
+            self, "_edge_existing_preview", None
+        ) or getattr(self, "_edge_batch_preview", None)
+        if edge_preview is not None:
+            edge_preview["manually_edited"] = True
+            self.canvas.update()
+            self.pixel_edge_widget.set_result_status(
+                self.tr(
+                    "Preview edited — keep every vertex on the edge, then press Ctrl+Enter"
+                )
+            )
+            return
         # Even if we autosave the file, we keep the ability to undo
         self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
 
@@ -3558,8 +3691,7 @@ class LabelingWidget(LabelDialog):
         y = (max(ys) + min(ys)) / 2
 
         zoom = int(100 * width / (zoom_scale * label_width))
-        # Don't go past the max zoom which is 1000
-        zoom = min(1000, zoom)
+        zoom = min(self.zoom_widget.maximum(), zoom)
 
         self.set_zoom(zoom)
 
@@ -3667,6 +3799,13 @@ class LabelingWidget(LabelDialog):
         disable_auto_labeling=True,
         preserve_brush_mode=False,
     ):
+        if (
+            getattr(self, "_edge_existing_preview", None) is not None
+            or getattr(self, "_edge_batch_preview", None) is not None
+        ):
+            self.cancel_pixel_edge_preview(switch_mode=False)
+        self._edge_box_mode = False
+        self._edge_four_corner_mode = False
         if not preserve_brush_mode:
             if getattr(self.canvas, "is_brush_mode", False):
                 self.canvas.cancel_brush_mode()
@@ -3762,6 +3901,13 @@ class LabelingWidget(LabelDialog):
             return
         self.toggle_draw_mode(False, create_mode="polygon")
         self.canvas.set_magic_wand_mode(True)
+        if getattr(self.canvas, "pixel_precision_enabled", False):
+            self.status(
+                self.tr(
+                    "Pixel Precision note: Magic Wand creates an integer "
+                    "raster contour; it does not preserve subpixel vertices."
+                )
+            )
         self.actions.create_mode.setEnabled(True)
         self.actions.create_magic_wand_mode.setEnabled(False)
 
@@ -4800,6 +4946,19 @@ class LabelingWidget(LabelDialog):
 
     # React to canvas signals.
     def shape_selection_changed(self, selected_shapes):
+        pending = getattr(self, "_edge_existing_preview", None)
+        if (
+            pending is not None
+            and pending.get("preview_shape") not in selected_shapes
+        ):
+            self.cancel_pixel_edge_preview(switch_mode=False)
+        batch = getattr(self, "_edge_batch_preview", None)
+        if batch is not None:
+            previews = {
+                item["preview_shape"] for item in batch.get("items", [])
+            }
+            if not previews.intersection(selected_shapes):
+                self.cancel_pixel_edge_preview(switch_mode=False)
         if self.canvas.is_brush_mode:
             target = self.canvas._brush_target_shape
             if selected_shapes != [target]:
@@ -5122,6 +5281,16 @@ class LabelingWidget(LabelDialog):
         del blocker
 
     def save_labels(self, filename):
+        if (
+            self._edge_existing_preview is not None
+            or self._edge_batch_preview is not None
+        ):
+            self.status(
+                self.tr(
+                    "Confirm or cancel the editable edge preview before saving"
+                )
+            )
+            return False
         label_file = LabelFile()
         # Get current shapes
         # Excluding auto labeling special shapes
@@ -5295,6 +5464,13 @@ class LabelingWidget(LabelDialog):
 
         position MUST be in global coordinates.
         """
+        if (
+            self._edge_four_corner_mode
+            and self._begin_pixel_edge_four_corner_preview()
+        ):
+            return
+        if self._edge_box_mode and self._begin_pixel_edge_box_preview():
+            return
         items = self.unique_label_list.selectedItems()
         text = None
         if items:
@@ -5748,6 +5924,1092 @@ class LabelingWidget(LabelDialog):
         setattr(self.canvas, key, value)
         self.canvas.update()
 
+    def toggle_pixel_grid(self, checked):
+        """Toggle the high-zoom pixel-grid overlay without changing filtering."""
+        checked = bool(checked)
+        self._config["canvas"]["pixel_precision"]["show_pixel_grid"] = checked
+        self.canvas.show_pixel_grid = checked
+        self.canvas.update()
+        self.status(self.tr("Pixel Grid ON" if checked else "Pixel Grid OFF"))
+
+    def toggle_pixel_snap(self, checked):
+        """Toggle pixel-boundary snapping for polygon-like vertices."""
+        checked = bool(checked)
+        self._config["canvas"]["pixel_precision"]["snap_enabled"] = checked
+        self.canvas.pixel_snap_enabled = checked
+        self.canvas.update()
+        self.status(self.tr("Pixel Snap ON" if checked else "Pixel Snap OFF"))
+
+    def _edge_refinement_settings(self):
+        return self._config["canvas"].get("edge_refinement", {})
+
+    @staticmethod
+    def _shape_points_array(shape):
+        return np.asarray(
+            [[point.x(), point.y()] for point in shape.points],
+            dtype=np.float64,
+        )
+
+    @staticmethod
+    def _set_shape_edge_points(shape, points, source):
+        shape.points = [
+            QtCore.QPointF(float(x), float(y)) for x, y in np.asarray(points)
+        ]
+        shape.shape_type = "polygon"
+        shape.close()
+        shape.other_data["pixel_edge_refined"] = True
+        shape.other_data["pixel_edge_source"] = source
+        shape.other_data["pixel_edge_geometry"] = "cell_boundary"
+        shape.other_data["pixel_edge_coordinates"] = "image_corner"
+
+    @staticmethod
+    def _edge_preview_shape(points):
+        shape = Shape(label="", shape_type="polygon")
+        shape.points = [
+            QtCore.QPointF(float(x), float(y)) for x, y in np.asarray(points)
+        ]
+        shape.close()
+        return shape
+
+    def _pixel_edge_save_suffix(self):
+        return (
+            "；JSON 已自动保存"
+            if getattr(self, "_config", {}).get("auto_save", False)
+            else "；已标记待保存，保存后写入 JSON"
+        )
+
+    def toggle_pixel_edge_widget(self, checked=None):
+        """Show or hide the standalone pixel-edge control strip."""
+        visible = (
+            not self.pixel_edge_widget.isVisible()
+            if checked is None
+            else bool(checked)
+        )
+        self.pixel_edge_widget.setVisible(visible)
+        if not visible:
+            self.cancel_pixel_edge_preview()
+        with QtCore.QSignalBlocker(self.actions.toggle_pixel_edge_panel):
+            self.actions.toggle_pixel_edge_panel.setChecked(visible)
+        self.pixel_edge_widget.set_image_available(
+            bool(self.image and not self.image.isNull())
+        )
+
+    def _on_pixel_edge_panel_closed(self):
+        with QtCore.QSignalBlocker(self.actions.toggle_pixel_edge_panel):
+            self.actions.toggle_pixel_edge_panel.setChecked(False)
+
+    def update_pixel_edge_settings(self, settings):
+        """Persist panel controls and debounce any live preview refresh."""
+        config = self._edge_refinement_settings()
+        config.update(settings)
+        self.canvas.configure_edge_refinement(config)
+        if not config.get("live_preview", True):
+            return
+        if self._edge_batch_preview is not None:
+            shapes = [
+                item["shape"] for item in self._edge_batch_preview["items"]
+            ]
+            self.cancel_pixel_edge_preview(switch_mode=False)
+            self._refresh_existing_batch_preview(shapes)
+        elif self._edge_pending_box is not None:
+            self._edge_request_id += 1
+            self.pixel_edge_widget.set_pending(False)
+            self._edge_preview_timer.start()
+        elif self._edge_existing_preview is not None:
+            shape = self._edge_existing_preview["shape"]
+            self.refine_existing_shape_to_edge(shape)
+
+    def _start_pixel_edge_box_operation(self, operation):
+        """Enter rectangle-guide mode for segmentation or four-side fitting."""
+        if not self.image or self.image.isNull():
+            self.status(self.tr("Open an image before using Pixel Edge Box"))
+            return
+        self.cancel_pixel_edge_preview(switch_mode=False)
+        self.toggle_pixel_edge_widget(True)
+        self.toggle_draw_mode(False, create_mode="rectangle")
+        self._edge_box_mode = True
+        self._edge_box_operation = operation
+        self.actions.create_rectangle_mode.setEnabled(True)
+        message = (
+            "请从长方形一个角拉到对角，四条边将分别贴合"
+            if operation == "rectangle"
+            else "请框选需要提取的区域；开启双击贴合时会批量调整框内已有多边形"
+        )
+        self.pixel_edge_widget.set_result_status(message)
+        self.status(
+            self.tr("Pixel Edge Box: draw loosely around the desired boundary")
+        )
+
+    def start_pixel_edge_box_segment(self):
+        self._start_pixel_edge_box_operation("segment")
+
+    def start_pixel_edge_rectangle_fit(self):
+        if not self.image or self.image.isNull():
+            self.status(self.tr("Open an image before using Pixel Edge Box"))
+            return
+        self.cancel_pixel_edge_preview(switch_mode=False)
+        self.toggle_pixel_edge_widget(True)
+        self.toggle_draw_mode(False, create_mode="quadrilateral")
+        self._edge_box_operation = "four_corner"
+        self._edge_four_corner_mode = True
+        self.actions.create_quadrilateral_mode.setEnabled(True)
+        self.pixel_edge_widget.set_result_status(
+            "请依次点击长方形四个角，用四条直线给出宽松引导"
+        )
+
+    def _begin_pixel_edge_four_corner_preview(self):
+        if not self._edge_four_corner_mode or not self.canvas.shapes:
+            return False
+        guide = self.canvas.shapes[-1]
+        if guide.shape_type != "quadrilateral" or len(guide) != 4:
+            return False
+        guide_points = self._shape_points_array(guide)
+        self.canvas.shapes.pop()
+        if self.canvas.shapes_backups:
+            self.canvas.shapes_backups.pop()
+        self._edge_four_corner_mode = False
+        self.toggle_draw_mode(True)
+        self._edge_pending_box = guide_points
+        return self._refresh_edge_box_preview()
+
+    def toggle_double_click_edge_refine(self, checked):
+        checked = bool(checked)
+        config = self._edge_refinement_settings()
+        config["double_click_enabled"] = checked
+        self.canvas.configure_edge_refinement(config)
+        if not checked and (
+            self._edge_existing_request is not None
+            or self._edge_existing_preview is not None
+            or self._edge_batch_request is not None
+            or self._edge_batch_preview is not None
+        ):
+            self.cancel_pixel_edge_preview(switch_mode=False)
+        self.status(
+            self.tr(
+                "Double-click edge refine ON"
+                if checked
+                else "Double-click edge refine OFF"
+            )
+        )
+
+    def toggle_auto_label_edge_refine(self, checked):
+        checked = bool(checked)
+        self._edge_refinement_settings()["auto_label_enabled"] = checked
+        signal = (
+            self.auto_labeling_widget.model_manager.new_auto_labeling_result
+        )
+        for receiver in (
+            self.handle_auto_labeling_result,
+            self.new_shapes_from_auto_labeling,
+        ):
+            try:
+                signal.disconnect(receiver)
+            except (TypeError, RuntimeError):
+                pass
+        signal.connect(
+            self.handle_auto_labeling_result
+            if checked
+            else self.new_shapes_from_auto_labeling
+        )
+        self.status(
+            self.tr(
+                "Auto-label edge post-process ON"
+                if checked
+                else "Auto-label edge post-process OFF"
+            )
+        )
+
+    def _begin_pixel_edge_box_preview(self):
+        """Turn the just-drawn rectangle into a non-serialized ROI preview."""
+        if not self._edge_box_mode or not self.canvas.shapes:
+            return False
+        shape = self.canvas.shapes[-1]
+        if shape.shape_type != "rectangle":
+            return False
+        self._edge_pending_box = self._shape_points_array(shape)
+        self.canvas.shapes.pop()
+        if self.canvas.shapes_backups:
+            self.canvas.shapes_backups.pop()
+        self._edge_box_mode = False
+        self.toggle_draw_mode(True)
+        if (
+            self._edge_box_operation == "segment"
+            and self._edge_refinement_settings().get(
+                "double_click_enabled", False
+            )
+        ):
+            targets = self._existing_edge_shapes_in_box(self._edge_pending_box)
+            if targets:
+                return self._refresh_existing_batch_preview(targets)
+        self._refresh_edge_box_preview()
+        return True
+
+    def _existing_edge_shapes_in_box(self, box):
+        """Select unlocked polygons whose center lies in the requested ROI."""
+        box = np.asarray(box, dtype=np.float64)
+        lo, hi = box.min(axis=0), box.max(axis=0)
+        targets = []
+        for shape in self.canvas.shapes:
+            if shape.locked or shape.shape_type != "polygon" or len(shape) < 3:
+                continue
+            points = self._shape_points_array(shape)
+            center = points.mean(axis=0)
+            if np.all(center >= lo) and np.all(center <= hi):
+                targets.append(shape)
+        return targets
+
+    def _refresh_edge_box_preview(self):
+        """Recalculate the cached edge candidate for the current ROI."""
+        if self._edge_pending_box is None or not self.image:
+            return False
+        self._edge_request_id += 1
+        request_id = self._edge_request_id
+        box = np.asarray(self._edge_pending_box, dtype=np.float64)
+        if self._edge_box_operation == "four_corner":
+            self._edge_request_offsets[request_id] = np.asarray([0.0, 0.0])
+            task = EdgeComputationTask(
+                request_id,
+                refine_polygon_to_edge,
+                self.image.copy(),
+                box - 0.5,
+                dict(self._edge_refinement_settings()),
+            )
+            task.signals.finished.connect(self._on_edge_box_preview_ready)
+            self._edge_tasks.add(task)
+            self.pixel_edge_widget.set_pending(False)
+            self.pixel_edge_widget.set_result_status(
+                "四角引导已完成，正在追踪附近像素闭环…"
+            )
+            self._edge_thread_pool.start(task)
+            return True
+        margin = (
+            int(
+                np.ceil(
+                    float(
+                        self._edge_refinement_settings().get(
+                            "search_radius", 3
+                        )
+                    )
+                    * 2
+                )
+            )
+            + 3
+        )
+        x0 = max(0, int(np.floor(box[:, 0].min())) - margin)
+        y0 = max(0, int(np.floor(box[:, 1].min())) - margin)
+        x1 = min(
+            self.image.width(), int(np.ceil(box[:, 0].max())) + margin + 1
+        )
+        y1 = min(
+            self.image.height(), int(np.ceil(box[:, 1].max())) + margin + 1
+        )
+        roi_image = self.image.copy(x0, y0, x1 - x0, y1 - y0)
+        offset = np.asarray([x0, y0], dtype=np.float64)
+        local_box = box - offset - 0.5
+        self._edge_request_offsets[request_id] = offset
+        task = EdgeComputationTask(
+            request_id,
+            (
+                fit_rectangle_to_edges
+                if self._edge_box_operation == "rectangle"
+                else segment_box_to_edge_polygon
+            ),
+            roi_image,
+            local_box,
+            dict(self._edge_refinement_settings()),
+        )
+        task.signals.finished.connect(self._on_edge_box_preview_ready)
+        self._edge_tasks.add(task)
+        self.pixel_edge_widget.set_pending(False)
+        self.pixel_edge_widget.set_result_status(
+            self.tr("Analyzing nearby boundaries…")
+        )
+        self._edge_thread_pool.start(task)
+        return True
+
+    def _on_edge_box_preview_ready(self, request_id, result, error):
+        offset = self._edge_request_offsets.pop(
+            request_id, np.asarray([0.0, 0.0])
+        )
+        self._edge_tasks = {
+            task for task in self._edge_tasks if task.request_id != request_id
+        }
+        if request_id != self._edge_request_id:
+            return
+        if self._edge_pending_box is None:
+            return
+        if error is not None or result is None:
+            logger.warning("Pixel edge preview worker failed: %s", error)
+            self._edge_pending_candidate = None
+            self.canvas.clear_edge_preview_shapes()
+            self.pixel_edge_widget.set_pending(False)
+            self.pixel_edge_widget.set_result_status(
+                self.tr(
+                    "Edge calculation failed; original data was not changed"
+                )
+            )
+            return
+        if not result.succeeded:
+            self._edge_pending_candidate = None
+            self._edge_pending_candidates = []
+            self.canvas.clear_edge_preview_shapes()
+            self.pixel_edge_widget.set_pending(False)
+            self.pixel_edge_widget.cancel_button.setEnabled(True)
+            self.pixel_edge_widget.set_result_status(
+                self.tr("No reliable boundary found: ") + result.reason,
+                result.threshold_used,
+                fit_error=result.fit_error,
+            )
+            self.status(
+                self.tr("Pixel edge preview failed; adjust sensitivity: ")
+                + result.reason
+            )
+            return False
+        use_all = bool(
+            self._edge_box_operation == "segment"
+            and self._edge_refinement_settings().get(
+                "annotate_all_in_box", False
+            )
+        )
+        result_regions = (
+            getattr(result, "regions", None) if use_all else None
+        ) or [result.points]
+        self._edge_pending_candidates = [
+            np.asarray(points, dtype=np.float64) + offset + 0.5
+            for points in result_regions
+        ]
+        self._edge_pending_candidate = self._edge_pending_candidates[0]
+        self._edge_candidates = [
+            np.asarray(points) + offset + 0.5
+            for points in getattr(result, "candidates", [])
+        ]
+        self._edge_candidate_index = 0
+        if use_all:
+            self._edge_candidates = []
+        self.pixel_edge_widget.set_candidates(0, len(self._edge_candidates))
+        previews = [
+            self._edge_preview_shape(points)
+            for points in self._edge_pending_candidates
+        ]
+        self.canvas.set_edge_preview_shapes(previews)
+        self.pixel_edge_widget.set_pending(True)
+        self.pixel_edge_widget.set_result_status(
+            result.reason or "像素边界预览已就绪，请确认",
+            result.threshold_used,
+            sum(len(points) for points in self._edge_pending_candidates),
+            result.fit_error,
+        )
+        self.status(
+            self.tr("Pixel edge preview ready: {count} points").format(
+                count=sum(
+                    len(points) for points in self._edge_pending_candidates
+                )
+            )
+        )
+        return True
+
+    def _refresh_existing_batch_preview(self, shapes):
+        """Build one atomic preview for every existing polygon in the ROI."""
+        self._edge_request_id += 1
+        request_id = self._edge_request_id
+        request = {
+            "request_id": request_id,
+            "entries": [
+                {
+                    "shape": shape,
+                    "original_points": [
+                        QtCore.QPointF(point) for point in shape.points
+                    ],
+                    "original_other_data": dict(shape.other_data),
+                }
+                for shape in shapes
+            ],
+            "backups": self._copy_shape_backups(self.canvas.shapes_backups),
+            "undo_enabled": self.actions.undo.isEnabled(),
+            "filename": self.filename,
+        }
+        self._edge_batch_request = request
+        task = EdgeComputationTask(
+            request_id,
+            refine_polygons_to_edges,
+            self.image.copy(),
+            [self._shape_points_array(shape) - 0.5 for shape in shapes],
+            dict(self._edge_refinement_settings()),
+        )
+        task.signals.finished.connect(self._on_existing_batch_preview_ready)
+        self._edge_tasks.add(task)
+        self.pixel_edge_widget.set_pending(False)
+        self.pixel_edge_widget.set_result_status(
+            f"正在批量分析框内 {len(shapes)} 个已有多边形…"
+        )
+        self._edge_thread_pool.start(task)
+        return True
+
+    def _on_existing_batch_preview_ready(self, request_id, results, error):
+        self._edge_tasks = {
+            task for task in self._edge_tasks if task.request_id != request_id
+        }
+        request = self._edge_batch_request
+        if (
+            request is None
+            or request["request_id"] != request_id
+            or request_id != self._edge_request_id
+        ):
+            return False
+        self._edge_batch_request = None
+        if request.get("filename") != self.filename or error is not None:
+            self.pixel_edge_widget.set_result_status(
+                "批量分析已取消，已有标注未改动"
+            )
+            return False
+
+        entries = request["entries"]
+        if len(results or []) != len(entries):
+            self.pixel_edge_widget.set_result_status(
+                "批量结果数量异常，已有标注未改动"
+            )
+            return False
+        preview_items = []
+        for entry, result in zip(entries, results):
+            shape = entry["shape"]
+            if (
+                shape not in self.canvas.shapes
+                or shape.points != entry["original_points"]
+                or result is None
+                or not result.succeeded
+            ):
+                continue
+            preview = shape.copy()
+            self._set_shape_edge_points(
+                preview, np.asarray(result.points) + 0.5, "batch_preview"
+            )
+            preview_items.append({**entry, "preview_shape": preview})
+
+        if not preview_items:
+            self.pixel_edge_widget.set_pending(False)
+            self.pixel_edge_widget.set_result_status(
+                "框内已有多边形均未找到可靠闭环，原标注已保留"
+            )
+            return False
+        request["items"] = preview_items
+        request["manually_edited"] = False
+        self._edge_batch_preview = request
+        for item in preview_items:
+            shape = item["shape"]
+            self.canvas.shapes[self.canvas.shapes.index(shape)] = item[
+                "preview_shape"
+            ]
+        previews = [item["preview_shape"] for item in preview_items]
+        self.canvas.h_shape = self.canvas.prev_h_shape = None
+        self.canvas.h_vertex = self.canvas.prev_h_vertex = None
+        self.canvas.h_edge = self.canvas.prev_h_edge = None
+        self.canvas.selected_shapes_copy = []
+        self.canvas.select_shapes(previews)
+        self.actions.undo.setEnabled(False)
+        for name in (
+            "delete",
+            "duplicate",
+            "edit",
+            "edit_brush_mode",
+            "union_selection",
+        ):
+            getattr(self.actions, name).setEnabled(False)
+        self.pixel_edge_widget.set_pending(True)
+        self.pixel_edge_widget.set_candidates(0, 0)
+        self.pixel_edge_widget.set_result_status(
+            f"已预览 {len(preview_items)}/{len(entries)} 个已有多边形；确认后才同步写入 JSON"
+        )
+        self.canvas.update()
+        return True
+
+    @staticmethod
+    def _copy_shape_backups(backups):
+        return [[shape.copy() for shape in snapshot] for snapshot in backups]
+
+    def cancel_pixel_edge_preview(self, switch_mode=True):
+        """Discard every transient candidate without changing annotations."""
+        self._edge_preview_timer.stop()
+        self._edge_request_id += 1
+        for task in tuple(self._edge_tasks):
+            if task.request_id > 0 and self._edge_thread_pool.tryTake(task):
+                self._edge_tasks.discard(task)
+                self._edge_request_offsets.pop(task.request_id, None)
+        self._edge_existing_request = None
+        self._edge_batch_request = None
+        existing = self._edge_existing_preview
+        self._edge_existing_preview = None
+        batch = getattr(self, "_edge_batch_preview", None)
+        self._edge_batch_preview = None
+        if existing is not None:
+            shape = existing["shape"]
+            preview = existing.get("preview_shape")
+            if preview is not None and preview in self.canvas.shapes:
+                self.canvas.shapes[self.canvas.shapes.index(preview)] = shape
+            if shape in self.canvas.shapes:
+                shape.points = [
+                    QtCore.QPointF(point)
+                    for point in existing["original_points"]
+                ]
+                shape.other_data = dict(existing["original_other_data"])
+                shape.close()
+            self.canvas.shapes_backups = self._copy_shape_backups(
+                existing["backups"]
+            )
+            self.actions.undo.setEnabled(existing["undo_enabled"])
+        if batch is not None:
+            originals = []
+            for item in batch.get("items", []):
+                shape = item["shape"]
+                preview = item["preview_shape"]
+                if preview in self.canvas.shapes:
+                    self.canvas.shapes[self.canvas.shapes.index(preview)] = (
+                        shape
+                    )
+                if shape in self.canvas.shapes:
+                    shape.points = [
+                        QtCore.QPointF(point)
+                        for point in item["original_points"]
+                    ]
+                    shape.other_data = dict(item["original_other_data"])
+                    shape.close()
+                    originals.append(shape)
+            self.canvas.shapes_backups = self._copy_shape_backups(
+                batch["backups"]
+            )
+            self.actions.undo.setEnabled(batch["undo_enabled"])
+        had_box_mode = self._edge_box_mode or getattr(
+            self, "_edge_four_corner_mode", False
+        )
+        self._edge_box_mode = False
+        self._edge_four_corner_mode = False
+        self._edge_pending_box = None
+        self._edge_pending_candidate = None
+        self._edge_pending_candidates = []
+        self._edge_candidates = []
+        self._edge_candidate_index = 0
+        if hasattr(self, "canvas"):
+            self.canvas.clear_edge_preview_shapes()
+            self.canvas._clear_cell_boundary_edit_transients()
+            self.canvas.h_shape = self.canvas.prev_h_shape = None
+            self.canvas.h_vertex = self.canvas.prev_h_vertex = None
+            self.canvas.h_edge = self.canvas.prev_h_edge = None
+            self.canvas.selected_shapes_copy = []
+            # A cancelled box may leave Canvas.line populated even though no
+            # shape owns it.  Clearing it prevents the next double-click from
+            # painting a connector from an unrelated old cursor position.
+            current = getattr(self.canvas, "current", None)
+            if had_box_mode and current is not None:
+                self.canvas.current = None
+                self.canvas.drawing_polygon.emit(False)
+                self.canvas.set_hiding(False)
+            if getattr(self.canvas, "current", None) is None and hasattr(
+                self.canvas, "line"
+            ):
+                self.canvas.line.points = []
+            if existing is not None:
+                self.canvas.select_shapes([existing["shape"]])
+            elif batch is not None and originals:
+                self.canvas.select_shapes(originals)
+        if hasattr(self, "pixel_edge_widget"):
+            self.pixel_edge_widget.set_pending(False)
+            self.pixel_edge_widget.set_candidates(0, 0)
+            self.pixel_edge_widget.set_result_status(
+                self.tr("Preview cancelled")
+            )
+        if switch_mode and had_box_mode:
+            self.toggle_draw_mode(True)
+
+    def confirm_pixel_edge_preview(self):
+        """Commit a box candidate or an editable existing-shape preview."""
+        batch = getattr(self, "_edge_batch_preview", None)
+        if batch is not None:
+            validated = []
+            for item in batch["items"]:
+                preview = item["preview_shape"]
+                if preview not in self.canvas.shapes:
+                    self.cancel_pixel_edge_preview(switch_mode=False)
+                    return False
+                result = validate_polygon_edge_fit(
+                    self.image,
+                    self._shape_points_array(preview) - 0.5,
+                    self._edge_refinement_settings(),
+                )
+                if not result.succeeded:
+                    self.pixel_edge_widget.set_result_status(
+                        "批量确认已停止：" + result.reason
+                    )
+                    return False
+                validated.append(result.points + 0.5)
+
+            self.canvas.shapes_backups = self._copy_shape_backups(
+                batch["backups"]
+            )
+            originals = []
+            for item, points in zip(batch["items"], validated):
+                shape = item["shape"]
+                preview = item["preview_shape"]
+                self._set_shape_edge_points(
+                    shape, points, "box_existing_batch_confirmed"
+                )
+                self.canvas.shapes[self.canvas.shapes.index(preview)] = shape
+                originals.append(shape)
+            self._edge_batch_preview = None
+            self._edge_pending_box = None
+            self._edge_request_id += 1
+            self.canvas.clear_edge_preview_shapes()
+            self.canvas._clear_cell_boundary_edit_transients()
+            self.canvas.select_shapes(originals)
+            self.canvas.store_shapes()
+            self.pixel_edge_widget.set_pending(False)
+            self.canvas.shape_moved.emit()
+            self.pixel_edge_widget.set_result_status(
+                f"已确认 {len(originals)} 个已有多边形"
+                + LabelingWidget._pixel_edge_save_suffix(self)
+            )
+            self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
+            self._restart_continuous_edge_box()
+            return True
+
+        existing = self._edge_existing_preview
+        if existing is not None:
+            shape = existing["shape"]
+            preview = existing.get("preview_shape", shape)
+            if preview not in self.canvas.shapes:
+                self.cancel_pixel_edge_preview(switch_mode=False)
+                return False
+            validation = validate_polygon_edge_fit(
+                self.image,
+                self._shape_points_array(preview) - 0.5,
+                self._edge_refinement_settings(),
+            )
+            if not validation.succeeded:
+                self.pixel_edge_widget.set_result_status(
+                    self.tr("Cannot confirm: ") + validation.reason,
+                    fit_error=validation.fit_error,
+                )
+                self.status(
+                    self.tr("Edge preview remains editable: ")
+                    + validation.reason
+                )
+                return False
+
+            # Throw away preview-only backup entries, retain the true original
+            # stack, and append exactly one committed state for Undo.
+            self.canvas.shapes_backups = self._copy_shape_backups(
+                existing["backups"]
+            )
+            self._set_shape_edge_points(
+                shape, validation.points + 0.5, "double_click_confirmed"
+            )
+            if preview is not shape:
+                self.canvas.shapes[self.canvas.shapes.index(preview)] = shape
+            self._edge_existing_preview = None
+            self._edge_request_id += 1
+            self._edge_candidates = []
+            self._edge_candidate_index = 0
+            self.pixel_edge_widget.set_candidates(0, 0)
+            self.canvas.h_shape = self.canvas.prev_h_shape = None
+            self.canvas.h_vertex = self.canvas.prev_h_vertex = None
+            self.canvas.h_edge = self.canvas.prev_h_edge = None
+            self.canvas.selected_shapes_copy = []
+            self.canvas.clear_edge_preview_shapes()
+            self.canvas._clear_cell_boundary_edit_transients()
+            self.canvas.select_shapes([shape])
+            self.canvas.store_shapes()
+            self.canvas.update()
+            self.pixel_edge_widget.set_pending(False)
+            self.canvas.shape_moved.emit()
+            self.pixel_edge_widget.set_result_status(
+                self.tr("Existing annotation edge refinement confirmed")
+                + LabelingWidget._pixel_edge_save_suffix(self),
+                point_count=len(validation.points),
+                fit_error=validation.fit_error,
+            )
+            self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
+            return True
+
+        if self._edge_pending_candidate is None:
+            return False
+        points_list = [
+            points.copy()
+            for points in (
+                self._edge_pending_candidates or [self._edge_pending_candidate]
+            )
+        ]
+        operation = self._edge_box_operation
+        self._edge_preview_timer.stop()
+        self._edge_request_id += 1
+        self._edge_candidates = []
+        self._edge_candidate_index = 0
+        self.pixel_edge_widget.set_candidates(0, 0)
+        self._edge_pending_box = None
+        self._edge_pending_candidate = None
+        self._edge_pending_candidates = []
+        self.canvas.clear_edge_preview_shapes()
+        self.canvas._clear_cell_boundary_edit_transients()
+        self.pixel_edge_widget.set_pending(False)
+        succeeded = self._commit_new_edge_shapes(
+            points_list,
+            (
+                "four_corner_guide_confirmed"
+                if operation == "four_corner"
+                else "box_confirmed"
+            ),
+        )
+        if succeeded:
+            self._restart_continuous_edge_box(operation)
+        return succeeded
+
+    def _commit_new_edge_shapes(self, points_list, source):
+        """Label once, then atomically add every previewed edge polygon."""
+        if not points_list:
+            return False
+        first = self._edge_preview_shape(points_list[0])
+        self._set_shape_edge_points(first, points_list[0], source)
+        self.canvas.shapes.append(first)
+        self.canvas.store_shapes()
+        self.new_shape()
+        if first not in self.canvas.shapes or not first.label:
+            return False
+
+        for points in points_list[1:]:
+            shape = self._edge_preview_shape(points)
+            self._set_shape_edge_points(shape, points, source)
+            shape.label = first.label
+            shape.flags = dict(first.flags)
+            shape.description = first.description
+            shape.difficult = first.difficult
+            shape.kie_linking = list(first.kie_linking)
+            self.canvas.shapes.append(shape)
+            self.add_label(
+                shape, update_last_label=False, refresh_filters=False
+            )
+        if len(points_list) > 1:
+            self.canvas.store_shapes()
+            self.set_dirty()
+        self.pixel_edge_widget.set_result_status(
+            f"已新建 {len(points_list)} 个像素边界标注"
+            + LabelingWidget._pixel_edge_save_suffix(self)
+        )
+        return True
+
+    def _restart_continuous_edge_box(self, operation=None):
+        if not self._edge_refinement_settings().get("continuous_box", False):
+            return
+        operation = operation or self._edge_box_operation
+        callback = (
+            self.start_pixel_edge_rectangle_fit
+            if operation == "four_corner"
+            else lambda: self._start_pixel_edge_box_operation(operation)
+        )
+        QtCore.QTimer.singleShot(0, callback)
+
+    def cycle_pixel_edge_candidate(self, step):
+        if not self._edge_candidates:
+            return
+        self._edge_candidate_index = (self._edge_candidate_index + step) % len(
+            self._edge_candidates
+        )
+        points = self._edge_candidates[self._edge_candidate_index]
+        if self._edge_existing_preview is not None:
+            preview = self._edge_existing_preview["preview_shape"]
+            preview.points = [
+                QtCore.QPointF(float(x), float(y)) for x, y in points
+            ]
+            preview.close()
+            self.canvas.h_vertex = self.canvas.prev_h_vertex = None
+            self.canvas.update()
+        else:
+            self._edge_pending_candidate = points.copy()
+            self._edge_pending_candidates = [points.copy()]
+            self.canvas.set_edge_preview_shapes(
+                [self._edge_preview_shape(points)]
+            )
+        self.pixel_edge_widget.set_candidates(
+            self._edge_candidate_index, len(self._edge_candidates)
+        )
+
+    def refine_existing_shape_to_edge(self, shape):
+        """Calculate an editable preview for one existing polygon."""
+        pending = self._edge_existing_preview
+        if pending is not None and shape is pending.get("preview_shape"):
+            shape = pending["shape"]
+        if (
+            not self.image
+            or self.image.isNull()
+            or shape is None
+            or shape.locked
+            or shape.shape_type != "polygon"
+        ):
+            return False
+        self.cancel_pixel_edge_preview(switch_mode=False)
+        self.toggle_pixel_edge_widget(True)
+        self._edge_request_id += 1
+        request_id = self._edge_request_id
+        request = {
+            "request_id": request_id,
+            "shape": shape,
+            "original_points": [
+                QtCore.QPointF(point) for point in shape.points
+            ],
+            "original_other_data": dict(shape.other_data),
+            "backups": self._copy_shape_backups(self.canvas.shapes_backups),
+            "undo_enabled": self.actions.undo.isEnabled(),
+            "filename": self.filename,
+        }
+        self._edge_existing_request = request
+        task = EdgeComputationTask(
+            request_id,
+            refine_polygon_to_edge,
+            self.image.copy(),
+            self._shape_points_array(shape) - 0.5,
+            dict(self._edge_refinement_settings()),
+        )
+        task.signals.finished.connect(self._on_existing_edge_preview_ready)
+        self._edge_tasks.add(task)
+        self.pixel_edge_widget.set_pending(False)
+        self.pixel_edge_widget.set_result_status(
+            "正在分析旧轮廓附近的像素格边界…"
+        )
+        self._edge_thread_pool.start(task)
+        return True
+
+    def _on_existing_edge_preview_ready(self, request_id, result, error):
+        self._edge_tasks = {
+            task for task in self._edge_tasks if task.request_id != request_id
+        }
+        request = self._edge_existing_request
+        if (
+            request is None
+            or request["request_id"] != request_id
+            or request_id != self._edge_request_id
+        ):
+            return False
+        self._edge_existing_request = None
+        shape = request["shape"]
+        if request.get("filename", self.filename) != self.filename:
+            return False
+        if shape not in self.canvas.shapes:
+            return False
+        if shape.points != request["original_points"]:
+            self.pixel_edge_widget.set_result_status(
+                "分析期间标注已变化，保留当前编辑；可重新双击贴合"
+            )
+            return False
+        if error is not None or result is None or not result.succeeded:
+            reason = (
+                str(error)
+                if error is not None
+                else (
+                    result.reason
+                    if result is not None
+                    else self.tr("No edge result was returned")
+                )
+            )
+            logger.warning("Existing pixel edge preview failed: %s", reason)
+            self.pixel_edge_widget.set_pending(False)
+            self.pixel_edge_widget.set_result_status(
+                "原标注已保留：" + reason,
+                fit_error=None if result is None else result.fit_error,
+            )
+            return False
+
+        preview = shape.copy()
+        preview.points = [
+            QtCore.QPointF(float(x + 0.5), float(y + 0.5))
+            for x, y in result.points
+        ]
+        preview.close()
+        preview.other_data["pixel_edge_geometry"] = "cell_boundary"
+        preview.other_data["pixel_edge_coordinates"] = "image_corner"
+        request["preview_shape"] = preview
+        self.canvas.shapes[self.canvas.shapes.index(shape)] = preview
+        self.canvas.h_shape = self.canvas.prev_h_shape = None
+        self.canvas.h_vertex = self.canvas.prev_h_vertex = None
+        self.canvas.h_edge = self.canvas.prev_h_edge = None
+        self.canvas.selected_shapes_copy = []
+        self._edge_existing_preview = request
+        self.canvas.select_shapes([preview])
+        for name in (
+            "delete",
+            "duplicate",
+            "edit",
+            "edit_brush_mode",
+            "union_selection",
+        ):
+            getattr(self.actions, name).setEnabled(False)
+        self._edge_candidates = [
+            np.asarray(points) + 0.5
+            for points in getattr(result, "candidates", [])
+        ]
+        self._edge_candidate_index = 0
+        self.pixel_edge_widget.set_candidates(0, len(self._edge_candidates))
+        request["manually_edited"] = False
+        request["initial_fit_error"] = result.fit_error
+        self._edge_existing_preview = request
+        self.actions.undo.setEnabled(False)
+        self.canvas.update()
+        self.pixel_edge_widget.set_pending(True)
+        self.pixel_edge_widget.set_result_status(
+            result.reason
+            or "可编辑预览已就绪；拖动顶点后使用应用贴合按钮或设置的快捷键确认",
+            point_count=len(result.points),
+            fit_error=result.fit_error,
+        )
+        self.status(
+            self.tr(
+                "Existing annotation preview only; JSON is unchanged until confirmation"
+            )
+        )
+        return True
+
+    @pyqtSlot(object)
+    def handle_auto_labeling_result(self, auto_labeling_result):
+        """Refine model polygons before the normal result receiver sees them."""
+        if (
+            not self._edge_refinement_settings().get(
+                "auto_label_enabled", False
+            )
+            or not self.image
+            or self.image.isNull()
+        ):
+            self.new_shapes_from_auto_labeling(auto_labeling_result)
+            return
+
+        result_image_path = getattr(auto_labeling_result, "image_path", None)
+        if result_image_path and self.filename:
+            current_filename = osp.normpath(osp.abspath(self.filename))
+            result_filename = osp.normpath(osp.abspath(result_image_path))
+            if result_filename != current_filename:
+                self.new_shapes_from_auto_labeling(auto_labeling_result)
+                return
+
+        polygon_shapes = [
+            shape
+            for shape in auto_labeling_result.shapes
+            if shape.shape_type == "polygon" and len(shape.points) >= 3
+        ]
+        if not polygon_shapes:
+            self.new_shapes_from_auto_labeling(auto_labeling_result)
+            return
+
+        auto_labeling_result = copy.deepcopy(auto_labeling_result)
+        polygon_shapes = [
+            shape
+            for shape in auto_labeling_result.shapes
+            if shape.shape_type == "polygon" and len(shape.points) >= 3
+        ]
+
+        self._model_edge_request_id -= 1
+        request_id = self._model_edge_request_id
+        self._model_edge_result_requests[request_id] = (
+            auto_labeling_result,
+            polygon_shapes,
+        )
+        task = EdgeComputationTask(
+            request_id,
+            refine_model_polygons_to_edges,
+            QtGui.QImage(self.image),
+            [
+                self._shape_points_array(shape) - 0.5
+                for shape in polygon_shapes
+            ],
+            dict(self._edge_refinement_settings()),
+        )
+        task.signals.finished.connect(
+            self._on_auto_label_edge_postprocess_ready
+        )
+        self._edge_tasks.add(task)
+        self.pixel_edge_widget.set_result_status(
+            self.tr(
+                "Model finished; fitting pixel edges before displaying result…"
+            )
+        )
+        self.status(
+            self.tr(
+                "Model output received; refining {count} polygons before display"
+            ).format(count=len(polygon_shapes))
+        )
+        self._edge_thread_pool.start(task)
+
+    def _on_auto_label_edge_postprocess_ready(
+        self, request_id, results, error
+    ):
+        """Forward a refined or safely rolled-back result to the old receiver."""
+        self._edge_tasks = {
+            task for task in self._edge_tasks if task.request_id != request_id
+        }
+        pending = self._model_edge_result_requests.pop(request_id, None)
+        if pending is None:
+            return
+        if request_id != getattr(self, "_model_edge_request_id", request_id):
+            return
+        auto_labeling_result, polygon_shapes = pending
+        path = getattr(auto_labeling_result, "image_path", None)
+        if (
+            path
+            and self.filename
+            and osp.normcase(osp.abspath(path))
+            != osp.normcase(osp.abspath(self.filename))
+        ):
+            return
+
+        refined_count = 0
+        refinement_still_enabled = self._edge_refinement_settings().get(
+            "auto_label_enabled", False
+        )
+        if not refinement_still_enabled:
+            logger.info(
+                "Pre-display model edge post-process was disabled; using original"
+            )
+        elif error is not None or results is None:
+            logger.warning(
+                "Pre-display model edge post-process failed; using original: %s",
+                error,
+            )
+        else:
+            originals = [
+                (
+                    shape,
+                    [QtCore.QPointF(point) for point in shape.points],
+                    dict(shape.other_data),
+                )
+                for shape in polygon_shapes
+            ]
+            try:
+                for shape, points in zip(polygon_shapes, results):
+                    if points is None:
+                        continue
+                    self._set_shape_edge_points(
+                        shape,
+                        np.asarray(points) + 0.5,
+                        "auto_label_pre_display",
+                    )
+                    refined_count += 1
+            except Exception as exc:
+                for shape, points, other_data in originals:
+                    shape.points = points
+                    shape.other_data = other_data
+                refined_count = 0
+                logger.warning(
+                    "Pre-display model edge result rolled back: %s", exc
+                )
+
+        if refined_count:
+            self.pixel_edge_widget.set_result_status(
+                f"已将 {refined_count} 个模型多边形贴到像素格边界，交给原接收流程"
+            )
+        else:
+            self.pixel_edge_widget.set_result_status(
+                "未找到可自动采用的像素边界，已使用原模型结果"
+            )
+        if (
+            getattr(self, "_edge_existing_preview", None) is not None
+            or getattr(self, "_edge_batch_preview", None) is not None
+        ):
+            self.cancel_pixel_edge_preview(switch_mode=False)
+        self.new_shapes_from_auto_labeling(auto_labeling_result)
+
     def open_settings_dialog(self, _checked=False, field_key=None):
         if self._settings_controller is None:
             return
@@ -5880,6 +7142,9 @@ class LabelingWidget(LabelDialog):
 
     def load_file(self, filename=None):  # noqa: C901
         """Load the specified file, or the last opened file if None."""
+
+        self.cancel_pixel_edge_preview(switch_mode=False)
+        self._model_edge_result_requests.clear()
 
         # NOTE(jack): Does we need to save the config here?
         # save_config(self._config)
@@ -6034,6 +7299,7 @@ class LabelingWidget(LabelDialog):
         else:
             self.set_clean()
         self.canvas.setEnabled(True)
+        self.pixel_edge_widget.set_image_available(True)
 
         # set zoom values
         is_initial_load = not self.zoom_values
@@ -6419,7 +7685,10 @@ class LabelingWidget(LabelDialog):
     def close_file(self, _value=False):
         if not self.may_continue():
             return
+        self.cancel_pixel_edge_preview(switch_mode=False)
+        self._model_edge_result_requests.clear()
         self.reset_state()
+        self.pixel_edge_widget.set_image_available(False)
         self.set_clean()
         self.toggle_actions(False)
         self.canvas.setEnabled(False)

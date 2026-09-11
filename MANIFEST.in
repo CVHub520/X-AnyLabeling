@@ -1,2 +1,3 @@
 recursive-include anylabeling/configs *
+include anylabeling/services/auto_labeling/osam/clip/bpe_simple_vocab_16e6.txt.gz
 global-include *.ui

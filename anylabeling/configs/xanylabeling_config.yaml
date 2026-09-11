@@ -109,6 +109,42 @@ canvas:
     enable: true
     adjust_step: 2.0
     scale_step: 0.05
+  pixel_precision:
+    enabled: true
+    disable_smoothing_scale: 5.0
+    show_pixel_grid: true
+    pixel_grid_min_scale: 5.0
+    snap_enabled: true
+    snap_step: 0.5
+    max_zoom_percent: 6400
+  edge_refinement:
+    geometry_version: 2
+    boundary_side: bright
+    adaptive_search: true
+    gap_repair: true
+    gap_bridge_max: 24  # maximum gap bridge in source-image pixels
+    gap_bridge_ratio: 0.20  # reject repairs that change more than this mask fraction
+    min_box_containment: 0.70  # prevent nearby objects outside the box from stealing the result
+    annotate_all_in_box: false
+    continuous_box: false
+    max_box_objects: 100
+    threshold_mode: auto  # local intensity layers or manual intensity split
+    threshold: 64
+    threshold_adjustment: 0  # offset applied to automatic edge sensitivity
+    polarity: auto  # deprecated compatibility key; gradient fitting ignores it
+    blur_radius: 0
+    morph_kernel: 0
+    point_spacing: 2.0
+    search_radius: 3.0
+    min_contrast: 8.0
+    min_area: 1.0
+    max_area_change: 0.6
+    subpixel_iterations: 3
+    max_fit_error: 0.5  # hard upper bound in original-image pixels
+    min_fit_fraction: 1.0  # every vertex must pass the <=0.5px validation
+    live_preview: true
+    double_click_enabled: false
+    auto_label_enabled: false
   crosshair:
     show: true
     width: 2.0
@@ -139,6 +175,8 @@ canvas:
     opacity: 80  # transparency value (0-255), 0 is fully transparent, 255 is fully opaque
 
 shortcuts:
+  confirm_pixel_edge: Ctrl+Enter
+  create_pixel_edge_box: Ctrl+Shift+E
   close: Ctrl+W
   open: Ctrl+I
   open_video: Ctrl+O
@@ -168,6 +206,8 @@ shortcuts:
   fit_width: Ctrl+Shift+F
   show_navigator: F9
   toggle_image_tags: Ctrl+Shift+T
+  toggle_pixel_grid: F7
+  toggle_pixel_snap: F8
 
   create_polygon: P
   create_brush_polygon: Ctrl+N

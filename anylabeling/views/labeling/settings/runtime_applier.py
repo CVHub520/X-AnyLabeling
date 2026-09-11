@@ -122,6 +122,8 @@ class SettingsRuntimeApplier:
             "shortcuts.toggle_auto_use_last_gid": self._widget.actions.auto_use_last_gid_mode,
             "shortcuts.toggle_visibility_shapes": self._widget.actions.visibility_shapes_mode,
             "shortcuts.toggle_compare_view": self._widget.actions.toggle_compare_view,
+            "shortcuts.toggle_pixel_grid": self._widget.actions.show_pixel_grid,
+            "shortcuts.toggle_pixel_snap": self._widget.actions.pixel_snap,
             "shortcuts.auto_label": self._widget.actions.toggle_auto_labeling_widget,
             "shortcuts.auto_run": self._widget.actions.run_all_images,
             "shortcuts.loop_thru_labels": self._widget.actions.loop_thru_labels,
@@ -186,11 +188,33 @@ class SettingsRuntimeApplier:
             )
         )
         self._shortcut_action_map = shortcut_map
+        shortcut_map["shortcuts.confirm_pixel_edge"] = (
+            self._ensure_hidden_shortcut_action(
+                "confirm_pixel_edge",
+                "确认像素边缘贴合",
+                self._widget.confirm_pixel_edge_preview,
+            )
+        )
+        shortcut_map["shortcuts.create_pixel_edge_box"] = (
+            self._ensure_hidden_shortcut_action(
+                "create_pixel_edge_box",
+                "框选像素边缘",
+                self._widget.start_pixel_edge_box_segment,
+            )
+        )
         for key, action in shortcut_map.items():
             short_key = key.split(".", 1)[1]
             value = self._widget._config.get("shortcuts", {}).get(short_key)
             self._set_action_shortcut(action, value)
         self.update_zoom_shortcut_hint()
+        self._widget.pixel_edge_widget.update_confirm_shortcut(
+            self._widget._config.get("shortcuts", {}).get("confirm_pixel_edge")
+        )
+        self._widget.pixel_edge_widget.update_box_shortcut(
+            self._widget._config.get("shortcuts", {}).get(
+                "create_pixel_edge_box"
+            )
+        )
 
     def update_zoom_shortcut_hint(self) -> None:
         zoom_in = self.shortcut_value_to_text(
@@ -222,8 +246,16 @@ class SettingsRuntimeApplier:
             "canvas.double_click",
             "canvas.double_click_edit_label",
             "canvas.num_backups",
+            "canvas.pixel_precision.enabled",
+            "canvas.pixel_precision.disable_smoothing_scale",
+            "canvas.pixel_precision.show_pixel_grid",
+            "canvas.pixel_precision.pixel_grid_min_scale",
+            "canvas.pixel_precision.snap_enabled",
+            "canvas.pixel_precision.snap_step",
+            "canvas.pixel_precision.max_zoom_percent",
         }:
             self.apply_canvas_basic()
+            self.apply_canvas_pixel_precision()
             return
         if key.startswith("canvas.wheel_rectangle_editing."):
             self.apply_canvas_wheel_edit()
@@ -231,12 +263,14 @@ class SettingsRuntimeApplier:
         if key.startswith("canvas.crosshair."):
             self.apply_canvas_crosshair(key, value)
             return
-        if key.startswith("canvas.brush."):
-            self.apply_canvas_brush()
-            return
-        if key.startswith("canvas.magic_wand."):
-            self.apply_canvas_magic_wand()
-            return
+        for prefix, callback in (
+            ("canvas.brush.", self.apply_canvas_brush),
+            ("canvas.magic_wand.", self.apply_canvas_magic_wand),
+            ("canvas.edge_refinement.", self.apply_canvas_edge_refinement),
+        ):
+            if key.startswith(prefix):
+                callback()
+                return
         if key.startswith("canvas.attributes."):
             self.apply_canvas_attributes()
             return
@@ -337,6 +371,20 @@ class SettingsRuntimeApplier:
         )
         self._widget.canvas.rect_scale_step = float(wheel_config["scale_step"])
 
+    def apply_canvas_pixel_precision(self) -> None:
+        config = self._widget._config["canvas"].get("pixel_precision")
+        if config is None:
+            return
+        self._widget.canvas.configure_pixel_precision(config)
+        maximum_zoom = max(100, int(config["max_zoom_percent"]))
+        self._widget.zoom_widget.setMaximum(maximum_zoom)
+        if hasattr(self._widget, "navigator_dialog"):
+            self._widget.navigator_dialog.set_maximum_zoom(maximum_zoom)
+        actions = getattr(self._widget, "actions", None)
+        if actions is not None:
+            actions.show_pixel_grid.setChecked(bool(config["show_pixel_grid"]))
+            actions.pixel_snap.setChecked(bool(config["snap_enabled"]))
+
     def apply_canvas_crosshair(self, key: str = "", value: Any = None) -> None:
         crosshair = self._widget._config["canvas"]["crosshair"]
         width = (
@@ -388,6 +436,17 @@ class SettingsRuntimeApplier:
         else:
             canvas._magic_wand_threshold = canvas.magic_wand_default_threshold
             canvas.update()
+
+    def apply_canvas_edge_refinement(self) -> None:
+        config = self._widget._config["canvas"].get("edge_refinement", {})
+        self._widget.canvas.configure_edge_refinement(config)
+        panel = getattr(self._widget, "pixel_edge_widget", None)
+        if panel is not None:
+            panel.apply_settings(config)
+        if hasattr(self._widget, "toggle_auto_label_edge_refine"):
+            self._widget.toggle_auto_label_edge_refine(
+                config.get("auto_label_enabled", False)
+            )
 
     def apply_canvas_attributes(self) -> None:
         attrs = self._widget._config["canvas"]["attributes"]
@@ -551,6 +610,10 @@ class SettingsRuntimeApplier:
             self._widget.file_search.setText(value_text)
 
     def apply_shortcuts(self, key: str, value: Any) -> None:
+        if key == "shortcuts.confirm_pixel_edge":
+            self._widget.pixel_edge_widget.update_confirm_shortcut(value)
+        elif key == "shortcuts.create_pixel_edge_box":
+            self._widget.pixel_edge_widget.update_box_shortcut(value)
         action = self._shortcut_action_map.get(key)
         if action is None:
             return

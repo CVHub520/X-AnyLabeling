@@ -1,0 +1,1097 @@
+{
+    "models_data": {
+        "Custom": {
+            "load_custom_model": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "...Load Custom Model"
+            },
+            "_custom_sam2_hiera_small-r20240801": {
+                "selected": true,
+                "favorite": false,
+                "display_name": "Segment Anything 2.1 (Small)",
+                "config_path": "D:/051/3. SAM weights/sam2_hiera_small.yaml"
+            },
+            "_custom_sam2_hiera_tiny-r20240801": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2.1 (Tiny)",
+                "config_path": "D:/051/3. SAM weights/sam2_hiera_tiny.yaml"
+            }
+        },
+        "CVHub": {
+            "remote_server-r20251104": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Remote-Server"
+            }
+        },
+        "Alibaba": {
+            "damo_yolo_l-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DAMO-YOLO-L"
+            },
+            "damo_yolo_m-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DAMO-YOLO-M"
+            },
+            "damo_yolo_s-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DAMO-YOLO-S"
+            },
+            "damo_yolo_t-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DAMO-YOLO-T"
+            }
+        },
+        "BRIA-AI": {
+            "rmbg_v14-r20240908": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RMBG v1.4"
+            },
+            "rmbg_v20-r20250530": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RMBG v2.0"
+            },
+            "rmbg_v20_quant-r20250530": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RMBG v2.0 Quantized"
+            }
+        },
+        "CreateAI": {
+            "clrnet_tusimple_r18-r20230901": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "CLRNet"
+            }
+        },
+        "Deci-AI": {
+            "yolo_nas_l-r20230615": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO-NAS-L"
+            },
+            "yolo_nas_m-r20230615": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO-NAS-M"
+            },
+            "yolo_nas_s-r20230615": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO-NAS-S"
+            }
+        },
+        "ETH Z\u00fcrich": {
+            "sam_hq_vit_b-r20231111": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "SAM-HQ (ViT-Base)"
+            },
+            "sam_hq_vit_h_quant-r20231111": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "SAM-HQ (ViT-Huge Quant)"
+            },
+            "sam_hq_vit_l_quant-r20231111": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "SAM-HQ (ViT-Large Quant)"
+            },
+            "sam_hq_vit_l-r20231111": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "SAM-HQ (ViT-Large)"
+            }
+        },
+        "HKU": {
+            "depth_anything_vit_b-r20240124": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Depth Anything (ViT-Base)"
+            },
+            "depth_anything_vit_l-r20240124": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Depth Anything (ViT-Large)"
+            },
+            "depth_anything_vit_s-r20240124": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Depth Anything (ViT-Small)"
+            },
+            "depth_anything_v2_vit_b-r20240721": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Depth Anything V2 (ViT-Base)"
+            },
+            "depth_anything_v2_vit_l-r20240721": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Depth Anything V2 (ViT-Large)"
+            },
+            "depth_anything_v2_vit_s-r20240721": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Depth Anything V2 (ViT-Small)"
+            }
+        },
+        "HuaWei": {
+            "gold_yolo_l-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Gold-YOLO-L"
+            },
+            "gold_yolo_m-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Gold-YOLO-M"
+            },
+            "gold_yolo_n-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Gold-YOLO-N"
+            },
+            "gold_yolo_s-r20231001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Gold-YOLO-S"
+            }
+        },
+        "IDEA-Research": {
+            "yolox_l_dwpose_ucoco-r20230820": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DWPose"
+            },
+            "grounding_dino_api-r20250415": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "GroundingDINO (API)"
+            },
+            "groundingdino_swinb_cogcoor_quant-r20231024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "GroundingDINO (SwinB-QInt8)"
+            },
+            "groundingdino_swint_ogc_quant-r20231024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "GroundingDINO (SwinT-QInt8)"
+            },
+            "groundingdino_swint_sam2_large-r20240806": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "GroundingSAM2"
+            },
+            "upn-r20241128": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Universal Proposal Network"
+            }
+        },
+        "InsightFace": {
+            "scrfd_10g_bnkps": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "SCRFD_10G_KPS"
+            }
+        },
+        "MIT": {
+            "efficientvit_sam_l0_vit_h-r20230920": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "EfficientViT-SAM-l0 (ViT-Huge)"
+            },
+            "efficientvit_sam_l1_vit_h-r20230920": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "EfficientViT-SAM-l1 (ViT-Huge)"
+            }
+        },
+        "Megvii": {
+            "yolox_s-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOX"
+            }
+        },
+        "MeiTuan": {
+            "yolov6lite_l_face-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6Lite_l-Face"
+            },
+            "yolov6lite_m_face-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6Lite_m-Face"
+            },
+            "yolov6lite_s_face-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6Lite_s-Face"
+            },
+            "yolov6l_mbla-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6l_mbla"
+            },
+            "yolov6m_mbla-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6m_mbla"
+            },
+            "yolov6s-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6s"
+            },
+            "yolov6s6-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6s6"
+            },
+            "yolov6s_mbla-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6s_mbla"
+            },
+            "yolov6x_mbla-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv6x_mbla"
+            }
+        },
+        "Meta": {
+            "segment_anything_vit_b_quant-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything (ViT-Base Quant)"
+            },
+            "segment_anything_vit_b-r20230810": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything (ViT-Base)"
+            },
+            "segment_anything_vit_h_quant-r20230810": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything (ViT-Huge Quant)"
+            },
+            "segment_anything_vit_l_quant-r20230810": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything (ViT-Large Quant)"
+            },
+            "segment_anything_vit_l-r20230810": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything (ViT-Large)"
+            },
+            "sam2_hiera_base_video-r20240901": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2 Video (Base)"
+            },
+            "sam2_hiera_large_video-r20240901": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2 Video (Large)"
+            },
+            "sam2_hiera_small_video-r20240901": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2 Video (Small)"
+            },
+            "sam2_hiera_tiny_video-r20240901": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2 Video (Tiny)"
+            },
+            "sam2_hiera_base-r20240801": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2.1 (Base)"
+            },
+            "sam2_hiera_large-r20240801": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2.1 (Large)"
+            },
+            "sam2_hiera_small-r20240801": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2.1 (Small)"
+            },
+            "sam2_hiera_tiny-r20240801": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 2.1 (Tiny)"
+            },
+            "sam3_vit_h-r20260426": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Segment Anything 3 (ViT-H)"
+            }
+        },
+        "Microsoft": {
+            "florence2_large_ft-r20241205": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Florence-2-large-ft"
+            }
+        },
+        "OPPO": {
+            "ram_swin_large_14m-r20231024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RAM (SwinL)"
+            },
+            "ram_plus_swin_large_14m-r20240728": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RAM++ (SwinL)"
+            }
+        },
+        "OpenDataLab": {
+            "doclayout_yolo-r20241024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DocLayout-YOLO"
+            }
+        },
+        "OpenGVLab": {
+            "internimage_l_22kto1k_384-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "InternImage-L"
+            },
+            "sam_med2d_vit_b-r20230901": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "SAM-Med2D-256x (ViT-Base)"
+            }
+        },
+        "OpenMMLab": {
+            "rtmdet_m_coco_person_rtmo_m-r20240112": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RTMDet-M-RTMO-M"
+            }
+        },
+        "PaddlePaddle": {
+            "ch_chinese_cht_en_japan_ppocr_v5-r20250912": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "PP-OCRv5"
+            },
+            "ch_chinese_cht_en_japan_ppocr_v6_medium-r20260619": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "PP-OCRv6 Medium"
+            },
+            "ch_chinese_cht_en_japan_ppocr_v6_small-r20260619": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "PP-OCRv6 Small"
+            },
+            "ch_chinese_cht_en_japan_ppocr_v6_tiny-r20260619": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "PP-OCRv6 Tiny"
+            },
+            "pulc_person_attribute-r20231111": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Person-Attribute Paddle-PULC"
+            },
+            "rtdetr_r50-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETR (ResNet50)"
+            },
+            "rtdetrv2l-r20240730": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-L"
+            },
+            "rtdetrv2m-r20240730": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-M"
+            },
+            "rtdetrv2m7x-r20240730": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-M*"
+            },
+            "rtdetrv2s-r20240730": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-S"
+            },
+            "rtdetrv2x-r20240730": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-X"
+            },
+            "pulc_vehicle_attribute-r20231111": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Vehicle-Attribute Paddle-PULC"
+            },
+            "ch_ppocr_v4-r20230915": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "ch_PP-OCRv4"
+            },
+            "japan_ppocr-r20240803": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "japan_PP-OCRv3"
+            }
+        },
+        "Roboflow": {
+            "rfdetr_base-r20250426": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RF-DETR Base"
+            },
+            "rfdetr_base_coco-r20250426": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RF-DETR Base COCO"
+            },
+            "rfdetr_large-r20250426": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RF-DETR Large"
+            },
+            "rfdetr_medium-r20250814": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RF-DETR Medium"
+            },
+            "rfdetr_nano-r20250814": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RF-DETR Nano"
+            },
+            "rfdetr_seg_preview-r20251104": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RF-DETR Seg-Preview"
+            },
+            "rfdetr_small-r20250814": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RF-DETR Small"
+            }
+        },
+        "THU": {
+            "yoloe_11s-r20250524": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOE-11-S"
+            },
+            "yoloe_v8l-r20250524": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOE-v8-L"
+            },
+            "yolov10b-r20240525": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv10b"
+            },
+            "yolov10l-r20240525": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv10l"
+            },
+            "yolov10m-r20240525": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv10m"
+            },
+            "yolov10n-r20240525": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv10n"
+            },
+            "yolov10s-r20240525": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv10s"
+            },
+            "yolov10x-r20240525": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv10x"
+            }
+        },
+        "USTC": {
+            "dfine_l_obj2coco-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-L"
+            },
+            "dfine_m_obj2coco-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-M"
+            },
+            "dfine_s_obj2coco-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-S"
+            },
+            "dfine_x_obj2coco-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-X"
+            },
+            "rio_detr_l_diorr-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-L (DIOR-R)"
+            },
+            "rio_detr_l_dota_1_ss-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-L (DOTA-v1.0)"
+            },
+            "rio_detr_m_diorr-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-M (DIOR-R)"
+            },
+            "rio_detr_m_dota_1_ss-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-M (DOTA-v1.0)"
+            },
+            "rio_detr_n_diorr-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-N (DIOR-R)"
+            },
+            "rio_detr_n_dota_1_ss-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-N (DOTA-v1.0)"
+            },
+            "rio_detr_s_diorr-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-S (DIOR-R)"
+            },
+            "rio_detr_s_dota_1_ss-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-S (DOTA-v1.0)"
+            },
+            "rio_detr_x_diorr-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-X (DIOR-R)"
+            },
+            "rio_detr_x_dota_1_ss-r20260808": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETRv2-OBB-X (DOTA-v1.0)"
+            }
+        },
+        "Ultralytics": {
+            "rtdetr_l-r20250517": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETR-L"
+            },
+            "rtdetr_x-r20250517": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "RT-DETR-X"
+            },
+            "yolo11s-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s"
+            },
+            "yolo11s_cls-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-Cls"
+            },
+            "yolo11s_det_botsort-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-Det-BoT-SORT"
+            },
+            "yolo11s_obb_botsort-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-Obb-BoT-SORT"
+            },
+            "yolo11s_pose-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-Pose"
+            },
+            "yolo11s_pose_botsort-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-Pose-BoT-SORT"
+            },
+            "yolo11s_sahi-r20260418": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-SAHI"
+            },
+            "yolo11s_seg-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-Seg"
+            },
+            "yolo11s_seg_botsort-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s-Seg-BoT-SORT"
+            },
+            "yolo11s_obb-r20240930": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO11s_obb (DOTA-v1.0)"
+            },
+            "yolo12l-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO12l"
+            },
+            "yolo12m-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO12m"
+            },
+            "yolo12n-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO12n"
+            },
+            "yolo12s-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO12s"
+            },
+            "yolo12x-r20250514": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO12x"
+            },
+            "yolo26s-r20260124": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s"
+            },
+            "yolo26s-trt-r20260419": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s (TensorRT)"
+            },
+            "yolo26s_det_tracktrack-r20260620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-Det-TrackTrack"
+            },
+            "yolo26s-obb-r20260128": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-OBB (DOTA-v1.0)"
+            },
+            "yolo26s_obb_tracktrack-r20260620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-OBB-TrackTrack (DOTA-v1.0)"
+            },
+            "yolo26s-pose-r20260128": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-Pose"
+            },
+            "yolo26s_pose_tracktrack-r20260620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-Pose-TrackTrack"
+            },
+            "yolo26s_sahi-r20260418": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-SAHI"
+            },
+            "yolo26s-seg-r20260128": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-Seg"
+            },
+            "yolo26s_seg_tracktrack-r20260620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLO26s-Seg-TrackTrack"
+            },
+            "yolov5l-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5l"
+            },
+            "yolov5m-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5m"
+            },
+            "yolov5n-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5n"
+            },
+            "yolov5n_obb_drone_vehicle-r20231024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5n_obb (DroneVehicle)"
+            },
+            "yolov5s-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s"
+            },
+            "yolov5s_cls-r20231220": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s-Cls"
+            },
+            "yolov5s_det_botsort-r20240816": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s-Det-BoT-SORT"
+            },
+            "yolov5s_sahi-r20241118": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s-SAHI"
+            },
+            "yolov5s_seg-r20231027": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s-Seg"
+            },
+            "yolov5x-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5x"
+            },
+            "yolov8l-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8l"
+            },
+            "yolov8l_seg-r20230620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8l-Seg Ultralytics"
+            },
+            "yolov8l_worldv2-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8l-worldv2"
+            },
+            "yolov8m-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8m"
+            },
+            "yolov8m_oiv7-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8m (OpenImageV7)"
+            },
+            "yolov8m_seg-r20230620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8m-Seg"
+            },
+            "yolov8m_seg_bytetrack-r20240816": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8m-Seg-Bytetrack"
+            },
+            "yolov8m_worldv2-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8m-worldv2"
+            },
+            "yolov8l_oiv7-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8ml (OpenImageV7)"
+            },
+            "yolov8n-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8n"
+            },
+            "yolov8n_oiv7-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8n (OpenImageV7)"
+            },
+            "yolov8n_obb_botsort-r20240816": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8n-Obb-BoT-SORT"
+            },
+            "yolov8n_pose-r20231103": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8n-Pose"
+            },
+            "yolov8n_seg-r20230620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8n-Seg"
+            },
+            "yolov8s-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s"
+            },
+            "yolov8s_oiv7-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s (OpenImageV7)"
+            },
+            "yolov8s_cls-r20231220": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-Cls"
+            },
+            "yolov8s_det_botsort-r20240816": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-Det-BoT-SORT"
+            },
+            "yolov8s_sahi-r20231008": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-SAHI"
+            },
+            "yolov8s_seg-r20230620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-Seg"
+            },
+            "yolov8s_worldv2-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-worldv2"
+            },
+            "yolov8l_worldv2_cc3m-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-worldv2-cc3m"
+            },
+            "yolov8s_obb-r20240111": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s_obb (DOTA-v1.0)"
+            },
+            "yolov8x-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8x"
+            },
+            "yolov8x_oiv7-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8x (OpenImageV7)"
+            },
+            "yolov8x_pose_p6-r20231103": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8x-Pose-P6"
+            },
+            "yolov8x_pose_p6_botsort-r20240816": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8x-Pose-P6-BoT-SORT"
+            },
+            "yolov8x_seg-r20230620": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8x-Seg"
+            },
+            "yolov8x_worldv2-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8x-worldv2"
+            },
+            "yolov8x6_oiv7-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8x6 (OpenImageV7)"
+            }
+        },
+        "XMU": {
+            "deimv2_dinov3_m_coco-r20251001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DEIMv2-DINOv3-M-COCO"
+            },
+            "deimv2_dinov3_s_coco-r20251001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DEIMv2-DINOv3-S-COCO"
+            },
+            "deimv2_hgnetv2_n_coco-r20251001": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "DEIMv2-HGNetv2-N-COCO"
+            }
+        },
+        "iMoonLab": {
+            "hyper_yolos-r20241216": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Hyper-YOLOs"
+            },
+            "hyper_yolos_seg-r20241216": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Hyper-YOLOs-Seg"
+            }
+        },
+        "Others": {
+            "dfine_seg_l_coco-r20260812": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-seg-L"
+            },
+            "dfine_seg_m_coco-r20260812": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-seg-M"
+            },
+            "dfine_seg_n_coco-r20260812": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-seg-N"
+            },
+            "dfine_seg_s_coco-r20260812": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-seg-S"
+            },
+            "dfine_seg_x_coco-r20260812": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "D-FINE-seg-X"
+            },
+            "edge_sam-r20231213": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "EdgeSAM"
+            },
+            "edge_sam_with_chinese_clip-r20240131": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "EdgeSAM-CN-CLIP ViT-B-16"
+            },
+            "geco_sam_hq_vit_h-r20250330": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "GECO (ViT-huge)"
+            },
+            "mobile_sam_vit_h-r20230810": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "MobileSAM (ViT-Huge)"
+            },
+            "open_vision-r20241010": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "Open Vision"
+            },
+            "yolov5m_ram-r20231101": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5m-RAM"
+            },
+            "yolov5m_obb_csl_dotav15-r20231024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5m_obb (DOTA-v1.5)"
+            },
+            "yolov5m_obb_csl_dotav20-r20231024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5m_obb (DOTA-v2.0)"
+            },
+            "yolov5s_mobile_sam_vit_h-r20230920": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s-MobileSAM (ViT-Huge)"
+            },
+            "yolov5s_resnet50-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s-ResNet50"
+            },
+            "yolov5s_obb_csl_dotav10-r20231024": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv5s_obb (DOTA-v1.0)"
+            },
+            "yolov7-r20230520": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv7"
+            },
+            "yolov8s_sam2_hiera_base-r20250218": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-SAM2 (Base)"
+            },
+            "yolov8s_worldv2_ram_plus-r20240529": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv8s-worldv2-RAM-plus"
+            },
+            "yolov9_gelan_c-r20240224": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv9-GELAN-c"
+            },
+            "yolov9_gelan_e-r20240224": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv9-GELAN-e"
+            },
+            "yolov9c-r20240224": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv9c"
+            },
+            "yolov9e-r20240224": {
+                "selected": false,
+                "favorite": false,
+                "display_name": "YOLOv9e"
+            }
+        }
+    }
+}

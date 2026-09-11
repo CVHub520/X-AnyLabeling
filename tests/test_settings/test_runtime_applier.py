@@ -125,6 +125,58 @@ class TestSettingsRuntimeApplier(unittest.TestCase):
         finally:
             Shape.line_width = original_line_width
 
+    def test_pixel_precision_settings_apply_without_restart(self):
+        pixel_precision = {
+            "enabled": True,
+            "disable_smoothing_scale": 5.0,
+            "show_pixel_grid": False,
+            "pixel_grid_min_scale": 5.0,
+            "snap_enabled": False,
+            "snap_step": 0.5,
+            "max_zoom_percent": 6400,
+        }
+        canvas = SimpleNamespace(
+            label_font_size=8,
+            epsilon=10.0,
+            double_click="close",
+            double_click_edit_label=True,
+            num_backups=10,
+            configure_pixel_precision=Mock(),
+            update=Mock(),
+        )
+        actions = SimpleNamespace(
+            show_pixel_grid=QtGui.QAction(),
+            pixel_snap=QtGui.QAction(),
+        )
+        widget = SimpleNamespace(
+            canvas=canvas,
+            actions=actions,
+            zoom_widget=QtWidgets.QSpinBox(),
+            navigator_dialog=SimpleNamespace(set_maximum_zoom=Mock()),
+            _config={
+                "canvas": {
+                    "label_font_size": 8,
+                    "epsilon": 10.0,
+                    "double_click": "close",
+                    "double_click_edit_label": True,
+                    "num_backups": 10,
+                    "pixel_precision": pixel_precision,
+                }
+            },
+        )
+
+        SettingsRuntimeApplier(widget).apply_change(
+            "canvas.pixel_precision.snap_step", 0.5
+        )
+
+        canvas.configure_pixel_precision.assert_called_once_with(
+            pixel_precision
+        )
+        self.assertEqual(widget.zoom_widget.maximum(), 6400)
+        widget.navigator_dialog.set_maximum_zoom.assert_called_once_with(6400)
+        self.assertFalse(actions.show_pixel_grid.isChecked())
+        self.assertFalse(actions.pixel_snap.isChecked())
+
 
 @unittest.skipUnless(PYQT_AVAILABLE, "PyQt6 is required for runtime tests")
 class TestMagicWandSettingsRuntimeApplier(unittest.TestCase):
@@ -197,6 +249,31 @@ class TestMagicWandSettingsRuntimeApplier(unittest.TestCase):
         self.assertEqual(canvas._magic_wand_threshold, 22)
         canvas._update_magic_wand_preview.assert_not_called()
         canvas.update.assert_called_once_with()
+
+
+@unittest.skipUnless(PYQT_AVAILABLE, "PyQt6 is required for runtime tests")
+class TestEdgeRefinementSettingsRuntimeApplier(unittest.TestCase):
+
+    def test_edge_refinement_switches_apply_without_restart(self):
+        config = {
+            "threshold": 140,
+            "double_click_enabled": True,
+            "auto_label_enabled": True,
+        }
+        canvas = SimpleNamespace(configure_edge_refinement=Mock())
+        panel = SimpleNamespace(apply_settings=Mock())
+        widget = SimpleNamespace(
+            canvas=canvas,
+            pixel_edge_widget=panel,
+            _config={"canvas": {"edge_refinement": config}},
+        )
+
+        SettingsRuntimeApplier(widget).apply_change(
+            "canvas.edge_refinement.threshold", 140
+        )
+
+        canvas.configure_edge_refinement.assert_called_once_with(config)
+        panel.apply_settings.assert_called_once_with(config)
 
 
 if __name__ == "__main__":

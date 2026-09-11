@@ -100,6 +100,28 @@ def _settings_translation_markers() -> None:
     )
     QCoreApplication.translate("SettingsDialog", "Adjust Step")
     QCoreApplication.translate("SettingsDialog", "Scale Step")
+    QCoreApplication.translate("SettingsDialog", "Pixel Precision")
+    QCoreApplication.translate("SettingsDialog", "Enable Pixel Precision")
+    QCoreApplication.translate("SettingsDialog", "Pixelated Display Scale")
+    QCoreApplication.translate("SettingsDialog", "Show Pixel Grid")
+    QCoreApplication.translate("SettingsDialog", "Pixel Grid Min Scale")
+    QCoreApplication.translate("SettingsDialog", "Enable Pixel Snap")
+    QCoreApplication.translate("SettingsDialog", "Pixel Snap Step")
+    QCoreApplication.translate("SettingsDialog", "Maximum Zoom Percent")
+    QCoreApplication.translate("SettingsDialog", "Pixel Edge Refinement")
+    QCoreApplication.translate("SettingsDialog", "Threshold Mode")
+    QCoreApplication.translate("SettingsDialog", "Edge Threshold")
+    QCoreApplication.translate("SettingsDialog", "Auto Threshold Adjustment")
+    QCoreApplication.translate("SettingsDialog", "Edge Blur Radius")
+    QCoreApplication.translate("SettingsDialog", "Morphology Radius")
+    QCoreApplication.translate("SettingsDialog", "Contour Point Spacing")
+    QCoreApplication.translate("SettingsDialog", "Edge Search Radius")
+    QCoreApplication.translate("SettingsDialog", "Minimum Edge Contrast")
+    QCoreApplication.translate("SettingsDialog", "Minimum Component Area")
+    QCoreApplication.translate("SettingsDialog", "Maximum Area Change")
+    QCoreApplication.translate("SettingsDialog", "Live Edge Preview")
+    QCoreApplication.translate("SettingsDialog", "Double-click Edge Refine")
+    QCoreApplication.translate("SettingsDialog", "Auto-label Edge Refine")
     QCoreApplication.translate("SettingsDialog", "Rendering")
     QCoreApplication.translate("SettingsDialog", "Labels")
     QCoreApplication.translate("SettingsDialog", "Label Font Size")
@@ -310,6 +332,8 @@ SETTINGS_SHORTCUT_KEYS_CORE = (
     "shortcuts.fit_window",
     "shortcuts.fit_width",
     "shortcuts.show_navigator",
+    "shortcuts.toggle_pixel_grid",
+    "shortcuts.toggle_pixel_snap",
     "shortcuts.create_polygon",
     "shortcuts.create_rectangle",
     "shortcuts.edit_polygon",
@@ -408,6 +432,8 @@ def set_nested_value(data: dict[str, Any], key_path: str, value: Any) -> None:
 
 def _shortcut_label(short_key: str) -> str:
     label_overrides = {
+        "confirm_pixel_edge": "确认像素边缘贴合",
+        "create_pixel_edge_box": "框选像素边缘",
         "open_image_classifier": QT_TRANSLATE_NOOP(
             SETTINGS_TRANSLATION_CONTEXT, "Open Image Classifier Dialog"
         ),
@@ -893,6 +919,372 @@ def _non_shortcut_fields() -> list[SettingField]:
             ),
         ),
         SettingField(
+            "canvas.pixel_precision.enabled",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Enable Pixel Precision"
+            ),
+            "bool",
+            "Canvas",
+            "Pixel Precision",
+            "Mode",
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Enable high-zoom pixel rendering, grid, and vertex snapping.",
+            ),
+        ),
+        SettingField(
+            "canvas.pixel_precision.disable_smoothing_scale",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Pixelated Display Scale"
+            ),
+            "float",
+            "Canvas",
+            "Pixel Precision",
+            "Rendering",
+            minimum=1.0,
+            maximum=64.0,
+            decimals=2,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Disable image interpolation at or above this scale factor.",
+            ),
+        ),
+        SettingField(
+            "canvas.pixel_precision.show_pixel_grid",
+            QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Show Pixel Grid"),
+            "bool",
+            "Canvas",
+            "Pixel Precision",
+            "Grid",
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Draw original image-pixel boundaries as a canvas overlay.",
+            ),
+        ),
+        SettingField(
+            "canvas.pixel_precision.pixel_grid_min_scale",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Pixel Grid Min Scale"
+            ),
+            "float",
+            "Canvas",
+            "Pixel Precision",
+            "Grid",
+            minimum=1.0,
+            maximum=64.0,
+            decimals=2,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Show the pixel-grid overlay at or above this scale factor.",
+            ),
+        ),
+        SettingField(
+            "canvas.pixel_precision.snap_enabled",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Enable Pixel Snap"
+            ),
+            "bool",
+            "Canvas",
+            "Pixel Precision",
+            "Snapping",
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Snap polygon and linestrip vertices to pixel-grid intersections.",
+            ),
+        ),
+        SettingField(
+            "canvas.pixel_precision.snap_step",
+            QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Pixel Snap Step"),
+            "float",
+            "Canvas",
+            "Pixel Precision",
+            "Snapping",
+            minimum=0.01,
+            maximum=16.0,
+            decimals=3,
+            single_step=0.1,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set the image-coordinate grid step used for vertex snapping.",
+            ),
+        ),
+        SettingField(
+            "canvas.pixel_precision.max_zoom_percent",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Maximum Zoom Percent"
+            ),
+            "int",
+            "Canvas",
+            "Pixel Precision",
+            "Zoom",
+            minimum=100,
+            maximum=25600,
+            description=QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT,
+                "Set the maximum zoom available in canvas and navigator controls.",
+            ),
+        ),
+        SettingField(
+            "canvas.edge_refinement.boundary_side",
+            "像素边缘侧",
+            "enum",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            options=("bright", "auto", "dark"),
+            description="bright：相对亮区与灰区之间；auto：自动选择；dark：暗区外沿。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.adaptive_search",
+            "自动扩展边缘搜索",
+            "bool",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Geometry",
+            description="必要时允许搜索至设置半径的两倍，最大100个原图像素。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.gap_repair",
+            "短缺口修复",
+            "bool",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            description="弱边缘有一个像素断点时尝试连接；修复结果只作人工预览，不会静默覆盖模型结果。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.gap_bridge_max",
+            "最大缺口连接",
+            "int",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            minimum=1,
+            maximum=100,
+            description="连接不超过该距离的缺口两端，单位为原图像素；大缺口结果需人工确认。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.gap_bridge_ratio",
+            "缺口修复面积上限",
+            "float",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            minimum=0.001,
+            maximum=0.5,
+            decimals=3,
+            single_step=0.005,
+            description="桥接导致的像素变化超过该比例时拒绝修复，防止误连两个目标。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.min_box_containment",
+            "框选边界最小包含率",
+            "float",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            minimum=0.5,
+            maximum=1.0,
+            decimals=2,
+            single_step=0.05,
+            description="候选轮廓至少有该比例面积位于选框内，避免跳到紧邻目标。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.annotate_all_in_box",
+            "标注框内所有目标",
+            "bool",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Workflow",
+            description="一次框选中预览并确认所有去重后的独立闭合目标。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.continuous_box",
+            "连续框选边缘",
+            "bool",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Workflow",
+            description="确认一次后自动进入下一次框选；关闭时每次只框选一次。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.max_box_objects",
+            "框内最大目标数",
+            "int",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Workflow",
+            minimum=1,
+            maximum=500,
+            description="限制一次框选可生成的独立多边形数，避免噪声图像产生过多标注。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.threshold_mode",
+            QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Threshold Mode"),
+            "enum",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            options=("auto", "manual"),
+            description="自动分析局部亮灰层级，或使用手动灰度分界。旧梯度阈值已迁移为自动模式。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.threshold",
+            QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Edge Threshold"),
+            "int",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            minimum=0,
+            maximum=255,
+            description="手动灰度分界，范围0至255。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.threshold_adjustment",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Auto Threshold Adjustment"
+            ),
+            "int",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            minimum=-127,
+            maximum=127,
+            description="Offset added to the automatically calculated local edge-strength threshold.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.blur_radius",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Edge Blur Radius"
+            ),
+            "int",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            minimum=0,
+            maximum=15,
+            description="Optional Gaussian blur radius before thresholding; zero preserves raw pixels.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.morph_kernel",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Morphology Radius"
+            ),
+            "int",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Segmentation",
+            minimum=0,
+            maximum=15,
+            description="Optional closing radius for tiny gaps; zero disables morphology.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.point_spacing",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Contour Point Spacing"
+            ),
+            "float",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Geometry",
+            minimum=0.25,
+            maximum=100.0,
+            decimals=2,
+            single_step=0.25,
+            description="直线段的最大点间距，单位为原图像素；所有直角转弯点始终保留。",
+        ),
+        SettingField(
+            "canvas.edge_refinement.search_radius",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Edge Search Radius"
+            ),
+            "float",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Geometry",
+            minimum=0.25,
+            maximum=50.0,
+            decimals=2,
+            single_step=0.25,
+            description="Maximum distance an existing or model vertex may move to a nearby edge.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.min_contrast",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Minimum Edge Contrast"
+            ),
+            "float",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Safety",
+            minimum=0.0,
+            maximum=255.0,
+            decimals=1,
+            description="Reject weak local gradients below this grayscale difference.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.min_area",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Minimum Component Area"
+            ),
+            "float",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Safety",
+            minimum=1.0,
+            maximum=1000000.0,
+            decimals=1,
+            description="Reject threshold components smaller than this many image pixels.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.max_area_change",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Maximum Area Change"
+            ),
+            "float",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Safety",
+            minimum=0.0,
+            maximum=0.95,
+            decimals=2,
+            single_step=0.05,
+            description="Rollback existing/model refinement when polygon area changes beyond this ratio.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.live_preview",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Live Edge Preview"
+            ),
+            "bool",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Switches",
+            description="Recalculate the transient edge candidate when panel parameters change.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.double_click_enabled",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Double-click Edge Refine"
+            ),
+            "bool",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Switches",
+            description="Double-click an existing polygon to open an editable edge preview; Ctrl+Enter confirms it and cancellation restores the original points.",
+        ),
+        SettingField(
+            "canvas.edge_refinement.auto_label_enabled",
+            QT_TRANSLATE_NOOP(
+                SETTINGS_TRANSLATION_CONTEXT, "Auto-label Edge Refine"
+            ),
+            "bool",
+            "Canvas",
+            "Pixel Edge Refinement",
+            "Switches",
+            description="Refine model polygons to <=0.5 px before forwarding them to the original display/save receiver; failures keep the model output.",
+        ),
+        SettingField(
             "canvas.crosshair.show",
             QT_TRANSLATE_NOOP(SETTINGS_TRANSLATION_CONTEXT, "Show Crosshair"),
             "bool",
@@ -1309,6 +1701,8 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "toggle_annotation_checked",
         ),
         "Shape": (
+            "confirm_pixel_edge",
+            "create_pixel_edge_box",
             "add_point_to_edge",
             "copy_polygon",
             "create_brush_polygon",
@@ -1347,6 +1741,8 @@ def _shortcut_category_map() -> dict[str, tuple[str, ...]]:
             "show_linking",
             "show_masks",
             "show_texts",
+            "toggle_pixel_grid",
+            "toggle_pixel_snap",
             "toggle_image_tags",
             "toggle_auto_use_last_gid",
             "toggle_auto_use_last_label",

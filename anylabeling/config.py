@@ -105,6 +105,18 @@ def normalize_user_config(config):
     if not isinstance(config, dict):
         return config
     normalized = copy.deepcopy(config)
+    canvas = normalized.get("canvas", {})
+    edge = (
+        canvas.get("edge_refinement", {}) if isinstance(canvas, dict) else {}
+    )
+    if edge and edge.get("geometry_version", 1) < 2:
+        # Legacy thresholds describe normalized gradients, not intensity levels.
+        edge.update(
+            geometry_version=2,
+            threshold_mode="auto",
+            threshold=128,
+            threshold_adjustment=0,
+        )
     for key, target_path in _LEGACY_KEY_MAP.items():
         if key in normalized:
             value = normalized.pop(key)

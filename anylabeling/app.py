@@ -12,11 +12,53 @@ os.environ["QT_LOGGING_RULES"] = "*.debug=false;qt.gui.icc=false"
 
 import argparse
 import codecs
+import faulthandler
 import logging
 import multiprocessing
 
 import sys
 from pathlib import Path
+
+_crash_log_handle = None
+
+
+def enable_crash_diagnostics():
+    """Persist Python/native tracebacks for windowed frozen builds."""
+    global _crash_log_handle
+    try:
+        root = Path(
+            os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")
+        )
+        log_dir = root / "X-AnyLabeling" / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / "crash.log"
+        if log_path.exists() and log_path.stat().st_size > 5 * 1024 * 1024:
+            previous = log_dir / "crash.previous.log"
+            if previous.exists():
+                previous.unlink()
+            log_path.replace(previous)
+        _crash_log_handle = log_path.open("a", encoding="utf-8")
+        faulthandler.enable(file=_crash_log_handle, all_threads=True)
+
+        previous_hook = sys.excepthook
+
+        def log_unhandled(exc_type, exc_value, traceback):
+            import traceback as traceback_module
+
+            traceback_module.print_exception(
+                exc_type,
+                exc_value,
+                traceback,
+                file=_crash_log_handle,
+            )
+            _crash_log_handle.flush()
+            previous_hook(exc_type, exc_value, traceback)
+
+        sys.excepthook = log_unhandled
+        return log_path
+    except (OSError, RuntimeError):
+        return None
+
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
@@ -85,6 +127,8 @@ def main():
 
     if sys.stderr is None:
         sys.stderr = open(os.devnull, "w")
+
+    enable_crash_diagnostics()
 
     parser = argparse.ArgumentParser()
 

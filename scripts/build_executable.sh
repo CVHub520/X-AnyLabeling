@@ -10,7 +10,7 @@ export X_ANYLABELING_ROOT="${ROOT_DIR}"
 
 usage() {
     cat <<EOF
-Usage: $(basename "$0") {win-cpu|win-gpu|linux-cpu|linux-gpu|macos}
+Usage: $(basename "$0") {win-cpu|win-gpu|win-cpu-offline|win-gpu-offline|linux-cpu|linux-gpu|macos}
 
 Build X-AnyLabeling executable artifacts with PyInstaller.
 EOF
@@ -42,6 +42,11 @@ build_with_spec() {
     echo "Building ${label} version..."
     export X_ANYLABELING_DEVICE="${device}"
     pyinstaller --noconfirm "${spec_path}"
+}
+
+build_offline_with_spec() {
+    export X_ANYLABELING_OFFLINE_PORTABLE=1
+    build_with_spec "$1" "$2" "$3"
 }
 
 package_macos_release_zip() {
@@ -107,6 +112,12 @@ case "${system}" in
         ;;
     win-gpu)
         build_with_spec "Windows GPU" "GPU" "${SPEC_DIR}/x-anylabeling-win-gpu.spec"
+        ;;
+    win-cpu-offline)
+        build_offline_with_spec "Windows CPU offline portable" "CPU" "${SPEC_DIR}/x-anylabeling-win-cpu.spec"
+        ;;
+    win-gpu-offline)
+        build_offline_with_spec "Windows GPU offline portable" "GPU" "${SPEC_DIR}/x-anylabeling-win-gpu.spec"
         ;;
     linux-cpu)
         build_with_spec "Linux CPU" "CPU" "${SPEC_DIR}/x-anylabeling-linux-cpu.spec"

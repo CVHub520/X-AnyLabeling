@@ -103,6 +103,10 @@ class TestCanvasGroups(unittest.TestCase):
         self.assertEqual(label_rect.bottom(), group_rect.top())
 
     def test_shape_label_keeps_fixed_screen_size_while_zooming(self):
+        # Keep the complete label inside the viewport at both zoom levels.
+        pixmap = QtGui.QPixmap(800, 200)
+        pixmap.fill(QtCore.Qt.GlobalColor.black)
+        self.canvas.load_pixmap(pixmap)
         shape = self.make_shape(20, 30, 30, 40, group_id=None)
         shape.label = "dense_object_label"
         shape.line_color = QtGui.QColor("#FF00FF")
@@ -117,6 +121,7 @@ class TestCanvasGroups(unittest.TestCase):
         widths = []
         for scale in (1.0, 3.0):
             self.canvas.scale = scale
+            self.canvas.adjustSize()
             self.canvas.update()
             self.app.processEvents()
             image = self.canvas.grab().toImage()

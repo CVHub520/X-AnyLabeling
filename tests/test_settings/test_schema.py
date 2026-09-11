@@ -24,14 +24,14 @@ except Exception:
 class TestSettingsSchema(unittest.TestCase):
 
     def test_field_count(self):
-        self.assertEqual(len(SETTING_FIELDS), 134)
+        self.assertEqual(len(SETTING_FIELDS), 167)
 
     def test_shortcut_and_non_shortcut_count(self):
         shortcut_fields = [
             field for field in SETTING_FIELDS if field.primary == "Shortcuts"
         ]
-        self.assertEqual(len(shortcut_fields), 79)
-        self.assertEqual(len(SETTING_FIELDS) - len(shortcut_fields), 55)
+        self.assertEqual(len(shortcut_fields), 83)
+        self.assertEqual(len(SETTING_FIELDS) - len(shortcut_fields), 84)
 
     def test_defaults_cover_all_keys(self):
         defaults = defaults_map()
@@ -57,15 +57,39 @@ class TestSettingsSchema(unittest.TestCase):
             "canvas.magic_wand.luminance_weight",
             "canvas.magic_wand.simplify_epsilon",
             "canvas.magic_wand.opacity",
+            "canvas.pixel_precision.enabled",
+            "canvas.pixel_precision.disable_smoothing_scale",
+            "canvas.pixel_precision.show_pixel_grid",
+            "canvas.pixel_precision.pixel_grid_min_scale",
+            "canvas.pixel_precision.snap_enabled",
+            "canvas.pixel_precision.snap_step",
+            "canvas.pixel_precision.max_zoom_percent",
+            "canvas.edge_refinement.threshold",
+            "canvas.edge_refinement.threshold_mode",
+            "canvas.edge_refinement.threshold_adjustment",
+            "canvas.edge_refinement.live_preview",
+            "canvas.edge_refinement.point_spacing",
+            "canvas.edge_refinement.search_radius",
+            "canvas.edge_refinement.double_click_enabled",
+            "canvas.edge_refinement.auto_label_enabled",
+            "canvas.edge_refinement.gap_repair",
+            "canvas.edge_refinement.gap_bridge_max",
+            "canvas.edge_refinement.gap_bridge_ratio",
+            "canvas.edge_refinement.min_box_containment",
+            "canvas.edge_refinement.annotate_all_in_box",
+            "canvas.edge_refinement.continuous_box",
             "model_hub",
             "logger_level",
             "shortcuts.open",
             "shortcuts.zoom_in",
             "shortcuts.add_point_to_edge",
             "shortcuts.create_magic_wand",
+            "shortcuts.create_pixel_edge_box",
             "shortcuts.quit",
             "shortcuts.open_settings",
             "shortcuts.toggle_image_tags",
+            "shortcuts.toggle_pixel_grid",
+            "shortcuts.toggle_pixel_snap",
             "shortcuts.auto_labeling_add_point",
             "shortcuts.auto_labeling_finish_object",
         }
@@ -82,7 +106,7 @@ class TestSettingsSchema(unittest.TestCase):
         )
         self.assertEqual(len(SETTINGS_GENERAL_KEYS), 9)
         self.assertEqual(len(SETTINGS_SHAPE_KEYS), 9)
-        self.assertEqual(len(SETTINGS_SHORTCUT_KEYS_CORE), 24)
+        self.assertEqual(len(SETTINGS_SHORTCUT_KEYS_CORE), 26)
         for key in SETTINGS_GENERAL_KEYS:
             self.assertIn(key, SETTINGS_KEYS)
         for key in SETTINGS_SHAPE_KEYS:
@@ -108,11 +132,11 @@ class TestSettingsSchema(unittest.TestCase):
         self.assertIn("shape.line_width", shape_keys)
         self.assertEqual(
             len(shortcut_fields),
-            79,
+            83,
         )
         for key in SETTINGS_SHORTCUT_KEYS_CORE:
             self.assertIn(key, [field.key for field in shortcut_fields])
-        self.assertEqual(len(canvas_fields), 27)
+        self.assertEqual(len(canvas_fields), 56)
         canvas_keys = {field.key for field in canvas_fields}
         self.assertIn("canvas.label_font_size", canvas_keys)
         self.assertIn("canvas.crosshair.show", canvas_keys)
@@ -126,6 +150,18 @@ class TestSettingsSchema(unittest.TestCase):
         self.assertIn("canvas.magic_wand.luminance_weight", canvas_keys)
         self.assertIn("canvas.magic_wand.simplify_epsilon", canvas_keys)
         self.assertIn("canvas.magic_wand.opacity", canvas_keys)
+        self.assertIn("canvas.pixel_precision.enabled", canvas_keys)
+        self.assertIn("canvas.pixel_precision.snap_step", canvas_keys)
+        self.assertIn("canvas.pixel_precision.max_zoom_percent", canvas_keys)
+        self.assertIn("canvas.edge_refinement.threshold", canvas_keys)
+        self.assertIn("canvas.edge_refinement.threshold_mode", canvas_keys)
+        self.assertIn(
+            "canvas.edge_refinement.threshold_adjustment", canvas_keys
+        )
+        self.assertIn("canvas.edge_refinement.point_spacing", canvas_keys)
+        self.assertIn(
+            "canvas.edge_refinement.double_click_enabled", canvas_keys
+        )
 
     def test_visible_non_shortcut_fields_have_descriptions(self):
         fields = (

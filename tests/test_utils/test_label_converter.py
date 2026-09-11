@@ -282,6 +282,72 @@ class TestLabelConverterYoloExport(unittest.TestCase):
 
         self.assertEqual(output, "0 0.0 0.0 0.99 0.0 0.99 0.98\n")
 
+    def test_seg_export_preserves_half_pixel_coordinates(self):
+        output = self._export(
+            "seg",
+            {
+                "label": "person",
+                "shape_type": "polygon",
+                "points": [
+                    [10.5, 10.5],
+                    [20.5, 10.5],
+                    [20.5, 20.5],
+                ],
+            },
+        )
+
+        values = [float(value) for value in output.split()[1:]]
+        np.testing.assert_allclose(
+            values,
+            [0.105, 0.21, 0.205, 0.21, 0.205, 0.41],
+        )
+
+
+class TestLabelConverterCocoSubpixelExport(unittest.TestCase):
+    def test_polygon_export_preserves_half_pixel_coordinates(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            classes_file = os.path.join(temp_dir, "classes.txt")
+            with open(classes_file, "w", encoding="utf-8") as f:
+                f.write("person\n")
+            image_file = os.path.join(temp_dir, "image.jpg")
+            open(image_file, "wb").close()
+            label_file = os.path.join(temp_dir, "image.json")
+            with open(label_file, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "imagePath": "image.jpg",
+                        "imageWidth": 100,
+                        "imageHeight": 50,
+                        "shapes": [
+                            {
+                                "label": "person",
+                                "shape_type": "polygon",
+                                "points": [
+                                    [10.5, 10.5],
+                                    [20.5, 10.5],
+                                    [20.5, 20.5],
+                                ],
+                            }
+                        ],
+                    },
+                    f,
+                )
+            converter = LabelConverter(classes_file=classes_file)
+
+            converter.custom_to_coco(
+                [image_file], temp_dir, temp_dir, "polygon"
+            )
+
+            with open(
+                os.path.join(temp_dir, "coco_instance_segmentation.json"),
+                encoding="utf-8",
+            ) as f:
+                exported = json.load(f)
+            self.assertEqual(
+                exported["annotations"][0]["segmentation"][0],
+                [10.5, 10.5, 20.5, 10.5, 20.5, 20.5],
+            )
+
 
 class TestLabelConverterMaskExport(unittest.TestCase):
     def setUp(self):

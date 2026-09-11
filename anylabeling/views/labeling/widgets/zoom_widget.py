@@ -4,12 +4,12 @@ from anylabeling.views.labeling.utils.theme import get_theme
 
 
 class ZoomWidget(QtWidgets.QSpinBox):
-    def __init__(self, value=100):
+    def __init__(self, value=100, maximum=6400):
         super().__init__()
         self.setButtonSymbols(
             QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
         )
-        self.setRange(1, 1000)
+        self.setRange(1, max(100, int(maximum)))
         self.setSuffix("%")
         self.setValue(value)
         self.setToolTip(self.tr("Zoom Level"))

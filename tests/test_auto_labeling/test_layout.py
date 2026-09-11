@@ -230,7 +230,9 @@ class TestAutoLabelingLayout(unittest.TestCase):
             (),
             {
                 "_config": get_config(),
+                "handle_auto_labeling_result": lambda _self, _result: None,
                 "new_shapes_from_auto_labeling": lambda _self, _result: None,
+                "_edge_refinement_settings": lambda _self: {},
             },
         )()
         root = QtWidgets.QWidget()

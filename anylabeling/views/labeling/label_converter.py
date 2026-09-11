@@ -24,6 +24,10 @@ from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.schema import create_xlabel_template
 from anylabeling.views.labeling.utils.shape import rectangle_from_diagonal
 from anylabeling.views.labeling.utils.general import is_possible_rectangle
+from anylabeling.views.labeling.utils.cell_raster import (
+    fill_cell_polygon,
+    is_cell_polygon,
+)
 
 
 class PoseGroupError(ValueError):
@@ -266,6 +270,19 @@ class LabelConverter:
             rotation_angle_degrees += 360
 
         return rotation_angle_degrees / 360 * (2 * math.pi)
+
+    @staticmethod
+    def clamp_shape_points(shape, image_width, image_height):
+        extent = (
+            0 if shape.get("pixel_edge_coordinates") == "image_corner" else 1
+        )
+        return [
+            [
+                max(0, min(float(x), image_width - extent)),
+                max(0, min(float(y), image_height - extent)),
+            ]
+            for x, y in shape["points"]
+        ]
 
     @staticmethod
     def clamp_points(points, image_width, image_height):
@@ -1257,8 +1274,8 @@ class LabelConverter:
                 shape_type = shape["shape_type"]
                 if mode == "hbb" and shape_type == "rectangle":
                     label = shape["label"]
-                    points = self.clamp_points(
-                        shape["points"], image_width, image_height
+                    points = self.clamp_shape_points(
+                        shape, image_width, image_height
                     )
                     if len(points) == 2:
                         logger.warning(
@@ -1288,8 +1305,8 @@ class LabelConverter:
                 elif mode == "seg" and shape_type == "polygon":
                     label = shape["label"]
                     points = np.array(
-                        self.clamp_points(
-                            shape["points"], image_width, image_height
+                        self.clamp_shape_points(
+                            shape, image_width, image_height
                         )
                     )
                     if len(points) < 3:
@@ -1351,8 +1368,8 @@ class LabelConverter:
                             f"group_id is None for {shape} in {input_file}."
                         )
                     label = shape["label"]
-                    points = self.clamp_points(
-                        shape["points"], image_width, image_height
+                    points = self.clamp_shape_points(
+                        shape, image_width, image_height
                     )
                     try:
                         group_id = int(shape["group_id"])
@@ -1478,9 +1495,7 @@ class LabelConverter:
         )
         for shape in shapes:
             label = shape["label"]
-            points = self.clamp_points(
-                shape["points"], image_width, image_height
-            )
+            points = self.clamp_shape_points(shape, image_width, image_height)
             difficult = shape.get("difficult", False)
             object_elem = ET.SubElement(root, "object")
             ET.SubElement(object_elem, "name").text = label
@@ -1596,8 +1611,8 @@ class LabelConverter:
             )
             for shape in data["shapes"]:
                 label = shape["label"]
-                points = self.clamp_points(
-                    shape["points"], image_width, image_height
+                points = self.clamp_shape_points(
+                    shape, image_width, image_height
                 )
 
                 group_id = shape.get("group_id", None)
@@ -1872,13 +1887,13 @@ class LabelConverter:
             shape_type = shape["shape_type"]
             if shape_type != "polygon":
                 continue
-            points = self.clamp_points(
-                shape["points"], image_width, image_height
-            )
+            points = self.clamp_shape_points(shape, image_width, image_height)
             polygon = []
             for point in points:
                 x, y = point
-                polygon.append((int(x), int(y)))
+                polygon.append((float(x), float(y)))
+            if shape.get("pixel_edge_coordinates") == "image_corner":
+                polygon = (np.asarray(polygon) - 0.5).tolist()
             polygons.append(
                 {
                     "label": shape["label"],
@@ -1917,6 +1932,11 @@ class LabelConverter:
             for item in polygons:
                 label, polygon = item["label"], item["polygon"]
                 if label in mapping_color:
+                    if is_cell_polygon(polygon):
+                        fill_cell_polygon(
+                            binary_mask, polygon, mapping_color[label]
+                        )
+                        continue
                     cv2.fillPoly(
                         binary_mask,
                         [np.array(polygon, dtype=np.int32)],
@@ -1935,6 +1955,9 @@ class LabelConverter:
                 label, polygon = item["label"], item["polygon"]
                 if label in mapping_color:
                     color = mapping_color[label]
+                    if is_cell_polygon(polygon):
+                        fill_cell_polygon(color_mask, polygon, color)
+                        continue
                     cv2.fillPoly(
                         color_mask,
                         [np.array(polygon, dtype=np.int32)],
@@ -2157,7 +2180,7 @@ class LabelConverter:
                     or shape["label"] not in self.classes
                 ):
                     continue
-                points = self.clamp_points(shape["points"], width, height)
+                points = self.clamp_shape_points(shape, width, height)
                 xmin = float(points[0][0])
                 ymin = float(points[0][1])
                 xmax = float(points[2][0])
@@ -2198,7 +2221,7 @@ class LabelConverter:
                     if shape["shape_type"] != "rectangle":
                         continue
 
-                    points = self.clamp_points(shape["points"], width, height)
+                    points = self.clamp_shape_points(shape, width, height)
                     xmin = int(points[0][0])
                     ymin = int(points[0][1])
                     xmax = int(points[2][0])
@@ -2290,8 +2313,8 @@ class LabelConverter:
                 difficult = shape.get("difficult", False)
                 points = [
                     list(map(int, p))
-                    for p in self.clamp_points(
-                        shape["points"], image_width, image_height
+                    for p in self.clamp_shape_points(
+                        shape, image_width, image_height
                     )
                 ]
                 annotations.append(
