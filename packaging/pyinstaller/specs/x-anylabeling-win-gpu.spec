@@ -26,6 +26,24 @@ ROOT_DIR = _resolve_root_dir()
 def _p(*parts):
     return os.path.join(ROOT_DIR, *parts)
 
+def _add_conda_dll_search_path():
+    conda_library_bin = os.path.join(sys.base_prefix, 'Library', 'bin')
+    if not os.path.isdir(conda_library_bin):
+        return
+
+    path_entries = [
+        path for path in os.environ.get('PATH', '').split(os.pathsep) if path
+    ]
+    normalized_path = os.path.normcase(os.path.abspath(conda_library_bin))
+    if any(
+        os.path.normcase(os.path.abspath(path)) == normalized_path
+        for path in path_entries
+    ):
+        return
+
+    os.environ['PATH'] = os.pathsep.join([conda_library_bin] + path_entries)
+    print("PyInstaller spec: added Conda DLL search path:", conda_library_bin)
+
 def _load_version():
     app_info_path = _p('anylabeling', 'app_info.py')
     with open(app_info_path, 'r', encoding='utf-8') as f:
@@ -142,6 +160,7 @@ def _strip_msvc_runtime_binaries(binaries):
         )
     return kept
 
+_add_conda_dll_search_path()
 onnxruntime_binaries = _collect_onnxruntime_dlls()
 msvc_runtime_binaries = _collect_msvc_runtime_dlls()
 matplotlib_datas = collect_data_files('matplotlib')
@@ -153,6 +172,7 @@ a = Analysis(
     datas=[
         (_p('anylabeling', 'configs', 'auto_labeling', '*.yaml'), 'anylabeling/configs/auto_labeling'),
         (_p('anylabeling', 'configs', '*.yaml'), 'anylabeling/configs'),
+        (_p('anylabeling', 'services', 'auto_training', 'ultralytics', 'worker.py'), 'anylabeling/services/auto_training/ultralytics'),
         (_p('anylabeling', 'views', 'labeling', 'widgets', 'auto_labeling', 'auto_labeling.ui'), 'anylabeling/views/labeling/widgets/auto_labeling'),
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'bert', '*'), 'anylabeling/services/auto_labeling/configs/bert'),
         (_p('anylabeling', 'services', 'auto_labeling', 'configs', 'clip', '*'), 'anylabeling/services/auto_labeling/configs/clip'),

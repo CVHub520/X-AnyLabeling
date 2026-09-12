@@ -225,6 +225,9 @@ class AutoLabelingWidget(QWidget):
         self.model_dropdown = SearchableModelDropdownPopup(model_data)
         self.model_dropdown.hide()
         self.model_dropdown.modelSelected.connect(self.on_model_selected)
+        self.model_dropdown.modelRemoveRequested.connect(
+            self.on_custom_model_remove_requested
+        )
         self.model_selection_button.setAutoDefault(False)
         self.model_selection_button.setDefault(False)
         self.model_selection_button.setStyleSheet(get_normal_button_style())
@@ -628,6 +631,66 @@ class AutoLabelingWidget(QWidget):
         self.model_dropdown.adjustSize()
         self.model_dropdown.show()
 
+    def load_custom_model_config(self, config_file):
+        # Unload current model first
+        self.model_manager.unload_model()
+        self.hide_labeling_widgets()
+        if not self.model_manager.load_custom_model(config_file):
+            self.model_selection_button.setText("No Model")
+            return False
+
+        with open(config_file, "r", encoding="utf-8") as stream:
+            config_info = yaml.safe_load(stream)
+        if not config_info["name"].startswith("_custom_"):
+            config_info["name"] = f"_custom_{config_info['name']}"
+
+        # update model_info
+        self.model_info[config_info["name"]] = {
+            "display_name": config_info["display_name"],
+            "config_path": config_file,
+        }
+        # update model_data
+        models_data = self.init_model_data()
+        models_data["Custom"]["load_custom_model"]["selected"] = False
+        models_data["Custom"][config_info["name"]] = {
+            "selected": True,
+            "favorite": False,
+            "display_name": config_info["display_name"],
+            "config_path": config_file,
+        }
+        save_json({"models_data": models_data}, _get_models_config_path())
+        self.model_dropdown.update_models_data(models_data)
+
+        self.clear_auto_labeling_action_requested.emit()
+        self.model_selection_button.setText(config_info["display_name"])
+        self.model_selection_button.setEnabled(False)
+        return True
+
+    def on_custom_model_remove_requested(self, model_name):
+        models_data = self.model_dropdown.models_data
+        custom_models = models_data.get("Custom", {})
+        if (
+            model_name == "load_custom_model"
+            or model_name not in custom_models
+        ):
+            return
+        loaded_model = self.model_manager.loaded_model_config or {}
+        was_selected = custom_models[model_name].get("selected", False)
+        was_loaded = loaded_model.get("name") == model_name
+        if not self.model_manager.remove_custom_model(model_name):
+            return
+
+        del custom_models[model_name]
+        self.model_info.pop(model_name, None)
+        self.model_dropdown.save_models_data()
+        self.model_dropdown.remove_model_item(model_name)
+
+        if was_loaded or (was_selected and not loaded_model):
+            self.clear_auto_labeling_action_requested.emit()
+            self.hide_labeling_widgets()
+            self.model_selection_button.setText(self.tr("No Model"))
+            self.model_selection_button.setEnabled(True)
+
     def on_model_selected(self, provider, model_name):
         """Handle the model selected event"""
 
@@ -678,53 +741,14 @@ class AutoLabelingWidget(QWidget):
                     return
 
         if model_name == "load_custom_model":
-            # Unload current model first
-            self.model_manager.unload_model()
-
             # Open file dialog to select "config.yaml" file for model
             file_dialog = QFileDialog(self)
             file_dialog.setFileMode(QFileDialog.FileMode.ExistingFile)
             file_dialog.setNameFilter("Config file (*.yaml)")
 
             if file_dialog.exec():
-                self.hide_labeling_widgets()
                 config_file = file_dialog.selectedFiles()[0]
-                flag = self.model_manager.load_custom_model(config_file)
-                if not flag:
-                    self.model_selection_button.setText("No Model")
-                    return
-
-                # update model_info
-                with open(config_file, "r", encoding="utf-8") as f:
-                    config_info = yaml.safe_load(f)
-
-                if not config_info["name"].startswith("_custom_"):
-                    config_info["name"] = f"_custom_{config_info['name']}"
-
-                self.model_info[config_info["name"]] = {
-                    "display_name": config_info["display_name"],
-                    "config_path": config_file,
-                }
-
-                # update model_data
-                models_data = self.init_model_data()
-                models_data["Custom"]["load_custom_model"]["selected"] = False
-                models_data["Custom"][config_info["name"]] = {
-                    "selected": True,
-                    "favorite": False,
-                    "display_name": config_info["display_name"],
-                    "config_path": config_file,
-                }
-                save_json(
-                    {"models_data": models_data}, _get_models_config_path()
-                )
-                self.model_dropdown.update_models_data(models_data)
-
-                self.clear_auto_labeling_action_requested.emit()
-                self.model_selection_button.setText(
-                    config_info["display_name"]
-                )
-                self.model_selection_button.setEnabled(False)
+                self.load_custom_model_config(config_file)
 
             return
 

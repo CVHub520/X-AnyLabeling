@@ -296,7 +296,6 @@ class SettingsRuntimeApplier:
             "device",
             "logger_level",
             "remote_server_settings.timeout",
-            "training.ultralytics.project_readonly",
             "file_search",
         }:
             self.apply_runtime_advanced(key, value)

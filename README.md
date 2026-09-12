@@ -18,6 +18,12 @@
     <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
+<p align="center">
+  <a href="https://mp.weixin.qq.com/s/Amccih1cM-B3hEfaf6koyw" target="_blank">
+    <img src="https://github.com/user-attachments/assets/0bb9e00b-060b-4ce9-91c4-3666e29e4bf2" alt="YOLO Vision 2026" width="100%" />
+  </a>
+</p>
+
 <img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling interface" width="100%" />
 
 ## 🥳 What's New
@@ -26,7 +32,7 @@
 - `2026-08-12`: Add support for [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) instance segmentation models.
 - `2026-08-08`: Add support for the [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) rotated object detection model.
 - `2026-08-08`: Add the [Magic Wand tool](https://xanylabeling.com/docs/x-anylabeling/user_guide#21-creating-shapes) for quickly creating polygons from contiguous color regions.
-- `2026-08-05`: Release X-AnyLabeling v4.0.0.
+- `2026-08-05`: Release [X-AnyLabeling v4.0.0](https://mp.weixin.qq.com/s/RUb8ge-_7br0YeIImuK6YQ).
 - For more details, please refer to the [CHANGELOG](./CHANGELOG.md)
 
 ## Introduction

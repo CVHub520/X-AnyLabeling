@@ -17,6 +17,15 @@ from PyQt6.QtCore import QObject, pyqtSignal
 from anylabeling.config import get_work_directory
 
 from .config import get_settings_config_path, get_trainer_root_dir
+from .environment import (
+    build_worker_command,
+    build_worker_environment,
+    create_worker_payload,
+    get_worker_creation_flags,
+    parse_worker_output,
+    resolve_training_python,
+    terminate_process_tree,
+)
 
 TRAINING_WORKER_EVENT_PREFIX = "__XANYLABELING_TRAIN_EVENT__="
 
@@ -60,6 +69,18 @@ class TrainingManager:
         self.callbacks = []
         self.total_epochs = 100
         self.stop_event = threading.Event()
+        self.python_executable = None
+        self.auto_install_packages = True
+        self.external_environment = False
+
+    def configure_environment(
+        self,
+        python_executable=None,
+        auto_install_packages=True,
+    ):
+        self.python_executable = python_executable
+        self.auto_install_packages = bool(auto_install_packages)
+        self.external_environment = bool(python_executable)
 
     def notify_callbacks(self, event_type: str, data: dict):
         for callback in self.callbacks:
@@ -67,6 +88,117 @@ class TrainingManager:
                 callback(event_type, data)
             except Exception:
                 pass
+
+    def _create_payload(self, train_args: Dict) -> str:
+        if not self.external_environment:
+            return create_training_payload(train_args)
+        return create_worker_payload(
+            "train",
+            args=train_args,
+            paths={
+                "data_directory": get_trainer_root_dir(),
+                "weights_directory": get_training_weights_dir(),
+            },
+            options={"auto_install_packages": self.auto_install_packages},
+        )
+
+    def _run_training(self, payload_path: str) -> None:
+        try:
+            if self.stop_event.is_set():
+                self.is_training = False
+                return
+            if not self.external_environment:
+                self.notify_callbacks(
+                    "training_started",
+                    {"total_epochs": self.total_epochs},
+                )
+            self.training_process = subprocess.Popen(
+                build_training_worker_command(
+                    payload_path,
+                    python_executable=self.python_executable,
+                    external=self.external_environment,
+                ),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                bufsize=1,
+                env=build_training_worker_env(self.auto_install_packages),
+                preexec_fn=os.setsid if os.name != "nt" else None,
+                creationflags=get_worker_creation_flags(),
+            )
+            terminal_event_seen = False
+            output_handler = (
+                parse_worker_output
+                if self.external_environment
+                else handle_training_worker_output
+            )
+            if self.training_process.stdout is None:
+                raise RuntimeError("Training process output is unavailable")
+
+            while True:
+                if self.stop_event.is_set():
+                    terminate_process_tree(self.training_process)
+                    self.is_training = False
+                    self.notify_callbacks("training_stopped", {})
+                    return
+
+                output = self.training_process.stdout.readline()
+                if self.stop_event.is_set():
+                    terminate_process_tree(self.training_process)
+                    self.is_training = False
+                    self.notify_callbacks("training_stopped", {})
+                    return
+                if output == "" and self.training_process.poll() is not None:
+                    break
+                if not output:
+                    continue
+                if output_handler(output, self.notify_callbacks):
+                    terminal_event_seen = True
+
+            return_code = self.training_process.poll()
+            self.is_training = False
+            if terminal_event_seen:
+                return
+            if return_code == 0:
+                self.notify_callbacks(
+                    "training_completed",
+                    {"results": "Training completed successfully"},
+                )
+            else:
+                self.notify_callbacks(
+                    "training_error",
+                    {
+                        "error": (
+                            f"Training process exited with code {return_code}"
+                        )
+                    },
+                )
+        except Exception as exc:
+            self.is_training = False
+            if self.stop_event.is_set():
+                self.notify_callbacks("training_stopped", {})
+            else:
+                self.notify_callbacks("training_error", {"error": str(exc)})
+        finally:
+            self.training_process = None
+            try:
+                os.remove(payload_path)
+            except OSError:
+                pass
+
+    def _save_settings_config(self, train_args: Dict) -> None:
+        save_path = os.path.join(train_args["project"], train_args["name"])
+        save_file = os.path.join(save_path, "settings.json")
+        while (
+            self.is_training
+            and not self.stop_event.is_set()
+            and not os.path.exists(save_path)
+        ):
+            time.sleep(1)
+        if os.path.exists(save_path):
+            shutil.copy2(get_settings_config_path(), save_file)
 
     def start_training(self, train_args: Dict) -> Tuple[bool, str]:
         if self.is_training:
@@ -76,126 +208,44 @@ class TrainingManager:
             self.total_epochs = train_args.get("epochs", 100)
             self.stop_event.clear()
             self.is_training = True
-            payload_path = create_training_payload(train_args)
-
-            def run_training():
-                try:
-                    self.notify_callbacks(
-                        "training_started", {"total_epochs": self.total_epochs}
-                    )
-                    creationflags = 0
-                    if os.name == "nt" and hasattr(
-                        subprocess, "CREATE_NEW_PROCESS_GROUP"
-                    ):
-                        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP
-
-                    self.training_process = subprocess.Popen(
-                        build_training_worker_command(payload_path),
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
-                        text=True,
-                        encoding="utf-8",
-                        bufsize=1,
-                        env=build_training_worker_env(),
-                        preexec_fn=os.setsid if os.name != "nt" else None,
-                        creationflags=creationflags,
-                    )
-                    terminal_event_seen = False
-
-                    while True:
-                        if self.stop_event.is_set():
-                            self.training_process.terminate()
-                            try:
-                                self.training_process.wait(timeout=5)
-                            except subprocess.TimeoutExpired:
-                                kill_training_process_tree(
-                                    self.training_process
-                                )
-                            self.is_training = False
-                            self.notify_callbacks("training_stopped", {})
-                            return
-
-                        output = self.training_process.stdout.readline()
-                        if (
-                            output == ""
-                            and self.training_process.poll() is not None
-                        ):
-                            break
-                        if not output:
-                            continue
-
-                        if handle_training_worker_output(
-                            output,
-                            self.notify_callbacks,
-                        ):
-                            terminal_event_seen = True
-
-                    return_code = self.training_process.poll()
-                    self.is_training = False
-
-                    if terminal_event_seen:
-                        return
-
-                    if return_code == 0:
-                        self.notify_callbacks(
-                            "training_completed",
-                            {"results": "Training completed successfully"},
-                        )
-                    else:
-                        self.notify_callbacks(
-                            "training_error",
-                            {
-                                "error": f"Training process exited with code {return_code}"
-                            },
-                        )
-
-                except Exception as e:
-                    self.is_training = False
-                    self.notify_callbacks("training_error", {"error": str(e)})
-                finally:
-                    try:
-                        os.remove(payload_path)
-                    except OSError:
-                        pass
-
-            def save_settings_config():
-                save_path = os.path.join(
-                    train_args["project"], train_args["name"]
-                )
-                save_file = os.path.join(save_path, "settings.json")
-
-                while (
-                    self.is_training
-                    and not self.stop_event.is_set()
-                    and not os.path.exists(save_path)
-                ):
-                    time.sleep(1)
-
-                if os.path.exists(save_path):
-                    shutil.copy2(get_settings_config_path(), save_file)
-
-            training_thread = threading.Thread(target=run_training)
+            payload_path = self._create_payload(train_args)
+            training_thread = threading.Thread(
+                target=self._run_training,
+                args=(payload_path,),
+            )
             training_thread.daemon = True
             training_thread.start()
 
-            config_thread = threading.Thread(target=save_settings_config)
+            config_thread = threading.Thread(
+                target=self._save_settings_config,
+                args=(train_args,),
+            )
             config_thread.daemon = True
             config_thread.start()
 
             return True, "Training started successfully"
 
         except Exception as e:
+            self.is_training = False
             return False, f"Failed to start training: {str(e)}"
 
     def start_training_mp(self, train_args: Dict) -> Tuple[bool, str]:
         return self.start_training(train_args)
 
-    def stop_training(self) -> bool:
+    def stop_training(self, wait: bool = False) -> bool:
         if not self.is_training:
             return False
 
         try:
             self.stop_event.set()
+            if wait:
+                terminate_process_tree(self.training_process)
+                return True
+            threading.Thread(
+                target=terminate_process_tree,
+                args=(self.training_process,),
+                daemon=True,
+            ).start()
             return True
         except Exception:
             return False
@@ -232,13 +282,19 @@ class TrainingWorkerLogStream:
         self._buffer = ""
 
 
-def build_training_worker_env():
-    env = os.environ.copy()
-    env["PYTHONIOENCODING"] = "utf-8"
-    return env
+def build_training_worker_env(auto_install_packages=True):
+    return build_worker_environment(auto_install_packages)
 
 
-def build_training_worker_command(payload_path: str):
+def build_training_worker_command(
+    payload_path: str,
+    python_executable=None,
+    external=False,
+):
+    if external:
+        return build_worker_command(
+            resolve_training_python(python_executable), payload_path
+        )
     command = [sys.executable]
     if getattr(sys, "frozen", False):
         command.extend(

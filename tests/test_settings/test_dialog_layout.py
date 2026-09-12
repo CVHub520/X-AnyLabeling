@@ -6,10 +6,15 @@ from unittest import mock
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 try:
-    from PyQt6 import QtGui, QtWidgets
+    from PyQt6 import QtCore, QtGui, QtWidgets
 
-    from anylabeling.views.labeling.settings.controller import SettingsController
-    from anylabeling.views.labeling.settings.dialog import SettingsDialog
+    from anylabeling.views.labeling.settings.controller import (
+        SettingsController,
+    )
+    from anylabeling.views.labeling.settings.dialog import (
+        ElidedLabel,
+        SettingsDialog,
+    )
     from anylabeling.views.labeling.settings.schema import load_template_config
 
     PYQT_AVAILABLE = True
@@ -17,7 +22,9 @@ except Exception:
     PYQT_AVAILABLE = False
 
 
-@unittest.skipUnless(PYQT_AVAILABLE, "PyQt6 is required for settings dialog tests")
+@unittest.skipUnless(
+    PYQT_AVAILABLE, "PyQt6 is required for settings dialog tests"
+)
 class TestSettingsDialogLayout(unittest.TestCase):
 
     def setUp(self):
@@ -71,6 +78,24 @@ class TestSettingsDialogLayout(unittest.TestCase):
         self.assertEqual(dialog.shortcuts_bottom_panel.minimumHeight(), 56)
         self.assertEqual(dialog.shortcuts_bottom_panel.maximumHeight(), 56)
         self.assertEqual(dialog.shortcuts_bottom_panel.height(), 56)
+
+    def test_elided_label_only_shows_tooltip_when_text_is_truncated(self):
+        full_text = "Python executable used for environment checks"
+        label = ElidedLabel(full_text)
+        label.resize(80, 24)
+        label.show()
+        self.app.processEvents()
+
+        self.assertNotEqual(label.text(), full_text)
+        self.assertEqual(label.toolTip(), full_text)
+
+        full_width = label.fontMetrics().horizontalAdvance(full_text) + 20
+        label.resize(full_width, 24)
+        self.app.processEvents()
+
+        self.assertEqual(label.text(), full_text)
+        self.assertEqual(label.toolTip(), "")
+        label.close()
 
     def test_canvas_uses_same_viewport_gap(self):
         dialog = self._create_dialog()
@@ -232,6 +257,22 @@ class TestSettingsDialogLayout(unittest.TestCase):
         self.assertEqual(bottom_margins.top(), 8)
         self.assertEqual(bottom_margins.bottom(), 8)
 
+    def test_last_primary_selection_keeps_all_navigation_visible(self):
+        dialog = self._create_dialog()
+        last_row = dialog._nav_items.index("Canvas")
+
+        dialog.nav_list.setCurrentRow(last_row)
+        self.app.processEvents()
+
+        self.assertEqual(dialog.nav_list.count(), len(dialog._nav_items))
+        self.assertEqual(dialog.nav_list.verticalScrollBar().maximum(), 0)
+        viewport_rect = dialog.nav_list.viewport().rect()
+        for row in range(dialog.nav_list.count()):
+            item_rect = dialog.nav_list.visualItemRect(
+                dialog.nav_list.item(row)
+            )
+            self.assertTrue(viewport_rect.contains(item_rect))
+
     def test_shortcuts_reset_handles_transient_conflict(self):
         dialog = self._create_dialog()
         dialog._render_primary("Shortcuts")
@@ -261,7 +302,9 @@ class TestSettingsDialogLayout(unittest.TestCase):
         dialog._on_shortcuts_reset_clicked()
         self.app.processEvents()
 
-        self.assertEqual(controller.get_value("shortcuts.show_masks"), "Ctrl+M")
+        self.assertEqual(
+            controller.get_value("shortcuts.show_masks"), "Ctrl+M"
+        )
         self.assertEqual(
             controller.get_value("shortcuts.toggle_compare_view"),
             "Ctrl+Alt+C",

@@ -3,8 +3,17 @@ import multiprocessing
 
 from anylabeling.config import get_work_directory
 
+_trainer_root_dir = None
+
+
+def configure_trainer_root_dir(path=None):
+    global _trainer_root_dir
+    _trainer_root_dir = path
+
 
 def get_trainer_root_dir():
+    if _trainer_root_dir:
+        return _trainer_root_dir
     return os.path.join(
         get_work_directory(), "xanylabeling_data", "trainer", "ultralytics"
     )
@@ -50,7 +59,7 @@ TASK_LABEL_MAPPINGS = {
 }
 
 # Training configuration
-MIN_LABELED_IMAGES_THRESHOLD = 20
+MIN_LABELED_IMAGES_THRESHOLD = 0
 NUM_WORKERS = multiprocessing.cpu_count()
 DEFAULT_TRAINING_CONFIG = {
     "epochs": 100,
@@ -91,7 +100,7 @@ DEFAULT_TRAINING_CONFIG = {
     "kobj": 2.0,
     "save_period": -1,
     "val": True,
-    "plots": False,
+    "plots": True,
     "save": True,
     "resume": False,
     "cache": False,
@@ -120,42 +129,4 @@ TRAINING_STATUS_TEXTS = {
 
 
 # Env Check
-def is_torch_available() -> bool:
-    try:
-        import torch
-
-        return hasattr(torch, "__version__")
-    except Exception:
-        return False
-
-
-def is_cuda_available() -> bool:
-    try:
-        import torch
-
-        return torch.cuda.is_available() if is_torch_available() else False
-    except Exception:
-        return False
-
-
-def is_mps_available() -> bool:
-    try:
-        import torch
-
-        return (
-            torch.backends.mps.is_available()
-            if is_torch_available()
-            else False
-        )
-    except Exception:
-        return False
-
-
-IS_TORCH_AVAILABLE = is_torch_available()
-IS_CUDA_AVAILABLE = is_cuda_available()
-IS_MPS_AVAILABLE = is_mps_available()
-DEVICE_OPTIONS = (
-    (["cuda"] if IS_CUDA_AVAILABLE else [])
-    + (["mps"] if IS_MPS_AVAILABLE else [])
-    + ["cpu"]
-)
+DEVICE_OPTIONS = ["cpu"]

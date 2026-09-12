@@ -1,14 +1,16 @@
 import os
 import subprocess
 import sys
-import yaml
 from typing import Dict, List, Tuple, Union
 
+from ._io import load_yaml_config
 from .utils import get_task_valid_images
 from .config import MIN_LABELED_IMAGES_THRESHOLD
 
 
-def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
+def validate_basic_config(
+    config: Dict, allow_model_name: bool = False
+) -> Tuple[Union[bool, str], str]:
     """Validate basic training configuration
 
     Args:
@@ -33,7 +35,14 @@ def validate_basic_config(config: Dict) -> Tuple[Union[bool, str], str]:
         return "directory_exists", save_dir
 
     model_path = basic.get("model", "").strip()
-    if not model_path or not os.path.exists(model_path):
+    is_bare_model_name = (
+        allow_model_name
+        and os.path.basename(model_path) == model_path
+        and model_path.lower().endswith(".pt")
+    )
+    if not model_path or (
+        not os.path.exists(model_path) and not is_bare_model_name
+    ):
         return False, "Valid model file is required"
 
     data_path = basic.get("data", "").strip()
@@ -82,17 +91,24 @@ def validate_data_file(file_path: str) -> Tuple[bool, Union[str, List[str]]]:
     Returns:
         Tuple[bool, Union[str, List[str]]]: (is_valid, error_message_or_names_list)
     """
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
+    data = load_yaml_config(file_path)
+    if not isinstance(data, dict):
+        return False, f"Failed to parse data file: {file_path}"
 
-        if "names" not in data:
-            return False, "Data file must contain 'names' field"
+    names = data.get("names")
+    if isinstance(names, dict):
+        class_names = list(names.values())
+    elif isinstance(names, list):
+        class_names = names
+    else:
+        class_names = []
+    if not class_names:
+        return (
+            False,
+            f"Data file must contain a non-empty 'names' field: {file_path}",
+        )
 
-        return True, list(data["names"].values())
-
-    except Exception as e:
-        return False, f"Failed to read file: {e}"
+    return True, class_names
 
 
 def install_packages_with_timeout(packages, timeout=30):
@@ -120,7 +136,7 @@ def validate_task_requirements(
         return False, "Please select a task type"
 
     if not image_list:
-        return False, "Please load images first"
+        return True, ""
 
     valid_images = get_task_valid_images(image_list, task_type, output_dir)
 

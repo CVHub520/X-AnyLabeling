@@ -1,5 +1,51 @@
 # X-AnyLabeling Changelog
 
+## `v4.0.6` (Sep 05, 2026)
+
+X-AnyLabeling 4.0.6 expands external training and model deployment workflows, adds more control to auto-labeling runs, and improves custom model management.
+
+### 🚀 New Features
+
+- Enhance external Ultralytics training with isolated Python workers, environment and device detection, workspace snapshots, reusable organized datasets, WSL path resolution, background execution, improved logs and previews, and deployable ONNX export configurations.
+- Add optional start and end image ranges for Auto Run, with localized controls and validation.
+- Allow custom auto-labeling models to be removed directly from the searchable model dropdown.
+
+### 🐛 Bug Fixes
+
+- Preserve label edit mode after uploading attributes. (#1445)
+- Reset an image's checked status when auto-labeling inference modifies its annotations.
+
+### 🌟 Contributors
+
+A total of 2 developers contributed to this release.
+
+Thank @atirna, @CVHub520
+
+## `v4.0.5` (Aug 28, 2026)
+
+X-AnyLabeling 4.0.5 improves nested YOLO dataset handling, refines canvas and review visuals, and hardens Windows builds.
+
+### 🚀 New Features
+
+- Preserve nested image directory structures when importing and exporting YOLO annotations, with export path validation and collision detection. (#806)
+
+### 🐛 Bug Fixes
+
+- Make annotation stroke widths precise and zoom-independent, and extend the crosshair across the visible canvas. (#1436)
+- Resolve missing Conda DLLs in PyInstaller-based Windows builds. (#1437)
+
+### 🛠️ Improvements
+
+- Remove redundant brightness, contrast, and crosshair menu actions after consolidating their controls in settings.
+- Refine selected-label styling and review status indicators, and show the current checked state in the window title. (#1439)
+- Refresh the English and Chinese README links and event banner.
+
+### 🌟 Contributors
+
+A total of 1 developer contributed to this release.
+
+Thank @CVHub520
+
 ## `v4.0.4` (Aug 24, 2026)
 
 X-AnyLabeling 4.0.4 adds configurable canvas label sizing and improves terminal output and visual documentation.

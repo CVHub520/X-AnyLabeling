@@ -98,7 +98,16 @@ def load_yaml_config(file_path: str) -> Dict[str, Any]:
         Dict: Configuration dictionary if successful, None otherwise
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
-    except Exception:
+        with open(file_path, "rb") as f:
+            content = f.read()
+    except OSError:
         return None
+
+    for encoding in ("utf-8-sig", "utf-8", "gbk"):
+        try:
+            return yaml.safe_load(content.decode(encoding))
+        except UnicodeDecodeError:
+            continue
+        except yaml.YAMLError:
+            return None
+    return None

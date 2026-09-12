@@ -1872,7 +1872,6 @@ def upload_shape_attrs_file(self, LABEL_OPACITY):
         else:
             self.hide_attributes_panel()
         self.canvas.h_shape_is_hovered = False
-        self._settings_runtime_applier.set_auto_switch_to_edit_mode(False)
 
         popup = Popup(
             self.tr(f"Uploading shape attributes file successfully!"),

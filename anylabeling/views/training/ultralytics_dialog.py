@@ -7,7 +7,7 @@ import re
 import shutil
 import subprocess
 
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtCore import Qt, QTimer, QSize, pyqtSignal
 from PyQt6.QtGui import QIcon, QPixmap
 from PyQt6.QtWidgets import (
     QDialog,
@@ -27,9 +27,9 @@ from PyQt6.QtWidgets import (
     QTextEdit,
     QApplication,
     QSizePolicy,
+    QFrame,
 )
 
-from anylabeling.config import get_config
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon
 from anylabeling.views.labeling.utils.theme import get_theme
@@ -39,12 +39,22 @@ from anylabeling.services.auto_training.ultralytics.config import *
 from anylabeling.services.auto_training.ultralytics.exporter import (
     ExportEventRedirector,
     ExportLogRedirector,
+    create_auto_labeling_config,
     get_export_manager,
+)
+from anylabeling.services.auto_training.ultralytics.environment import (
+    get_default_training_python,
+    get_environment_manager,
+    prepare_training_data_directory,
+    resolve_training_data_directory,
+    resolve_training_python,
 )
 from anylabeling.services.auto_training.ultralytics.general import (
     create_yolo_dataset,
     format_classes_display,
+    is_prepared_dataset,
     parse_string_to_digit_list,
+    resolve_prepared_dataset,
 )
 from anylabeling.services.auto_training.ultralytics.style import *
 from anylabeling.services.auto_training.ultralytics.trainer import (
@@ -60,10 +70,69 @@ from anylabeling.services.auto_training.ultralytics.validators import (
 )
 
 
+class _TrainingLogContainer(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.actions_widget = None
+
+    def set_actions_widget(self, actions_widget):
+        self.actions_widget = actions_widget
+        self._position_actions()
+
+    def _position_actions(self):
+        if self.actions_widget is None:
+            return
+        self.actions_widget.adjustSize()
+        x = self.width() - self.actions_widget.width() - 20
+        self.actions_widget.move(max(0, x), 8)
+        self.actions_widget.raise_()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self._position_actions()
+
+    def enterEvent(self, event):
+        if self.actions_widget is not None:
+            self.actions_widget.setVisible(True)
+        super().enterEvent(event)
+
+    def leaveEvent(self, event):
+        if self.actions_widget is not None:
+            self.actions_widget.setVisible(False)
+        super().leaveEvent(event)
+
+
+class _TrainingImagesScrollArea(QScrollArea):
+    resized = pyqtSignal()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.resized.emit()
+
+    def wheelEvent(self, event):
+        scroll_bar = self.horizontalScrollBar()
+        if scroll_bar.maximum() <= scroll_bar.minimum():
+            super().wheelEvent(event)
+            return
+
+        pixel_delta = event.pixelDelta()
+        distance = pixel_delta.x() or pixel_delta.y()
+        if not distance:
+            angle_delta = event.angleDelta()
+            distance = angle_delta.x() or angle_delta.y()
+        if not distance:
+            super().wheelEvent(event)
+            return
+
+        scroll_bar.setValue(scroll_bar.value() - distance)
+        event.accept()
+
+
 class UltralyticsDialog(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.setAttribute(Qt.WidgetAttribute.WA_DeleteOnClose, True)
         self.setWindowTitle(DEFAULT_WINDOW_TITLE)
         self.setWindowFlags(
             Qt.WindowType.Window
@@ -74,7 +143,7 @@ class UltralyticsDialog(QDialog):
         self.resize(*DEFAULT_WINDOW_SIZE)
         self.setMinimumSize(*DEFAULT_WINDOW_SIZE)
 
-        self.image_list = parent.image_list
+        self.image_list = list(parent.image_list)
         self.output_dir = parent.output_dir
         self.supported_shape = parent.supported_shape
         self.selected_task_type = None
@@ -115,26 +184,53 @@ class UltralyticsDialog(QDialog):
         self.export_manager.callbacks = [
             self.export_event_redirector.emit_export_event
         ]
+        self.export_dialog = None
+        self.exported_onnx_path = None
 
         self.progress_timer = QTimer()
         self.progress_timer.timeout.connect(self.update_training_progress)
         self.image_timer = QTimer()
         self.image_timer.timeout.connect(self.update_training_images)
         self.current_project_path = None
+        self._loaded_existing_model = False
+        self._application_closing = False
         self.training_status = "idle"  # idle, training, completed, error
         self.current_epochs = 0
 
-        app_config = get_config()
-        self.project_readonly = (
-            app_config.get("training", {})
-            .get("ultralytics", {})
-            .get("project_readonly", True)
+        saved_config = load_config()
+        saved_basic_config = saved_config.get("basic", {})
+        if "env" in saved_basic_config:
+            configured_python = saved_basic_config.get("env") or None
+        else:
+            configured_python = get_default_training_python()
+        self.training_python_setting = configured_python
+        self.external_environment = bool(configured_python)
+        self.training_python = resolve_training_python(configured_python)
+        self.training_data_directory = resolve_training_data_directory(None)
+        self.auto_install_packages = True
+        configure_trainer_root_dir(self.training_data_directory)
+        self.training_manager.configure_environment(
+            configured_python,
+            self.auto_install_packages,
         )
+        self.export_manager.configure_environment(
+            configured_python,
+            self.auto_install_packages,
+        )
+        self.environment_manager = get_environment_manager()
+        self.environment_manager.callbacks = [
+            self.event_redirector.emit_training_event
+        ]
+        self.environment_result = None
+        self.environment_error = None
+        self.environment_error_type = None
+        self.environment_ready = False
 
         self.init_ui()
         self.setStyleSheet(get_ultralytics_dialog_style())
         self.refresh_dataset_summary()
         self.update_labeled_images_hint()
+        self.detect_environment()
 
     def init_ui(self):
         self.data_tab = QWidget()
@@ -150,6 +246,7 @@ class UltralyticsDialog(QDialog):
         main_layout.addWidget(self.tab_widget)
 
         self.init_data_tab()
+        self.ensure_train_tab_initialized()
 
     def ensure_config_tab_initialized(self):
         if self._config_tab_initialized:
@@ -189,23 +286,73 @@ class UltralyticsDialog(QDialog):
         except Exception as e:
             logger.error(f"Failed to save training logs: {str(e)}")
 
+    def load_latest_training_log(self):
+        log_pattern = os.path.join(
+            self.current_project_path, "logs", "training_log_*.txt"
+        )
+        log_files = glob.glob(log_pattern)
+        if not log_files:
+            return False
+
+        try:
+            latest_log_file = max(log_files, key=os.path.getmtime)
+            with open(latest_log_file, "r", encoding="utf-8") as f:
+                self.log_display.setPlainText(f.read())
+            return True
+        except OSError as e:
+            logger.warning(f"Failed to load training logs: {str(e)}")
+            return False
+
     def closeEvent(self, event):
         """Handle window close event"""
-        if self.training_status == "training":
-            QMessageBox.warning(
-                self,
-                self.tr("Training in Progress"),
-                self.tr(
-                    "Cannot close window while training is in progress. Please stop training first."
-                ),
-            )
-            event.ignore()
+        if not self._prepare_to_close(event):
             return
 
-        if self.training_status in ["completed", "error", "stop"]:
+        super().closeEvent(event)
+
+    def _prepare_to_close(self, event):
+        background_task_active = (
+            self.training_manager.is_training
+            or self.export_manager.is_exporting
+        )
+        if background_task_active and not self._application_closing:
+            self.hide()
+            event.ignore()
+            return False
+
+        if self.training_status in [
+            "completed",
+            "error",
+            "stop",
+        ] and not getattr(self, "_loaded_existing_model", False):
             self.save_training_logs_to_file()
 
-        super().closeEvent(event)
+        self.clear_cache()
+        self.environment_manager.cancel()
+        return True
+
+    def prepare_for_application_close(self):
+        training_active = self.training_manager.is_training
+        export_active = self.export_manager.is_exporting
+        if training_active or export_active:
+            reply = QMessageBox.question(
+                self.parent() or self,
+                self.tr("Background Task Running"),
+                self.tr(
+                    "A training or export task is still running. Stop it and exit?"
+                ),
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if reply != QMessageBox.StandardButton.Yes:
+                return False
+            if training_active:
+                self.training_manager.stop_training(wait=True)
+                self.training_status = "stop"
+            if export_active:
+                self.export_manager.stop_export(wait=True)
+        self._application_closing = True
+        return True
 
     def go_to_specific_tab(self, index):
         """Go to specific tab by index"""
@@ -334,9 +481,13 @@ class UltralyticsDialog(QDialog):
     def refresh_dataset_summary(self):
         if not self.image_list:
             self.summary_table.clear()
+            self.summary_table.setVisible(False)
+            self.empty_dataset_hint.setVisible(True)
             self._summary_view_mode = None
             return
 
+        self.empty_dataset_hint.setVisible(False)
+        self.summary_table.setVisible(True)
         summary_view_mode = (
             "classify" if self.selected_task_type == "Classify" else "detect"
         )
@@ -403,13 +554,9 @@ class UltralyticsDialog(QDialog):
         self._valid_image_count_cache.clear()
         self._summary_view_mode = None
 
-    def closeEvent(self, event):
-        self.clear_cache()
-        super().closeEvent(event)
-
     def load_images(self):
         self.parent().open_folder_dialog()
-        self.image_list = self.parent().image_list
+        self.image_list = list(self.parent().image_list)
         self.clear_cache()
         self.refresh_dataset_summary()
         self.update_labeled_images_hint()
@@ -418,6 +565,18 @@ class UltralyticsDialog(QDialog):
         summary_widget = QWidget()
         summary_layout = QVBoxLayout(summary_widget)
         summary_layout.addWidget(QLabel(self.tr("Dataset Summary:")))
+
+        self.empty_dataset_hint = QLabel(
+            self.tr(
+                "No images loaded. Select a task and click Next to train with an existing dataset."
+            )
+        )
+        self.empty_dataset_hint.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.empty_dataset_hint.setWordWrap(True)
+        self.empty_dataset_hint.setStyleSheet(
+            f"color: {get_theme()['text_secondary']};"
+        )
+        summary_layout.addWidget(self.empty_dataset_hint, 1)
 
         self.summary_table = CustomTable()
         summary_layout.addWidget(self.summary_table)
@@ -438,7 +597,6 @@ class UltralyticsDialog(QDialog):
             get_default_project_dir(), self.selected_task_type.lower()
         )
         self.config_widgets["project"].setText(project)
-        self.config_widgets["project"].setReadOnly(self.project_readonly)
 
         self.go_to_specific_tab(1)
 
@@ -520,7 +678,37 @@ class UltralyticsDialog(QDialog):
         if file_path:
             self.config_widgets["pose_config"].setText(file_path)
 
-    def setup_cuda_checkboxes(self, device_count):
+    def browse_training_environment(self):
+        current_path = self.config_widgets["env"].text().strip()
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            self.tr("Select Python Executable"),
+            current_path,
+            self.tr("All Files (*)"),
+        )
+        if file_path:
+            self.config_widgets["env"].setText(file_path)
+            self.configure_training_environment(file_path)
+
+    def configure_training_environment(self, value):
+        configured_python = value.strip() if isinstance(value, str) else ""
+        configured_python = configured_python or None
+        if configured_python == self.training_python_setting:
+            return False
+
+        self.training_python_setting = configured_python
+        self.external_environment = bool(configured_python)
+        self.training_python = resolve_training_python(configured_python)
+        self.training_manager.configure_environment(
+            configured_python, self.auto_install_packages
+        )
+        self.export_manager.configure_environment(
+            configured_python, self.auto_install_packages
+        )
+        self.detect_environment()
+        return True
+
+    def setup_cuda_checkboxes(self, gpus, selected_indices=None):
         if not hasattr(self, "_cuda_layout") or not self._cuda_layout:
             if self.device_checkboxes.layout() is None:
                 self._cuda_layout = QHBoxLayout(self.device_checkboxes)
@@ -534,37 +722,114 @@ class UltralyticsDialog(QDialog):
                 if child.widget():
                     child.widget().setParent(None)
 
-        for i in range(device_count):
-            checkbox = CustomCheckBox(f"GPU {i}")
+        for gpu in gpus:
+            index = gpu["index"]
+            checkbox = CustomCheckBox(f"GPU {index}: {gpu['name']}")
+            checkbox.setProperty("gpu_index", index)
             checkbox.setMaximumHeight(20)
-            checkbox.setChecked(True)  # Default check all GPUs
+            is_available = bool(gpu.get("available"))
+            checkbox.setChecked(
+                is_available
+                and (selected_indices is None or index in selected_indices)
+            )
+            checkbox.setEnabled(is_available)
+            if gpu.get("error"):
+                checkbox.setToolTip(gpu["error"])
             self._cuda_layout.addWidget(checkbox)
 
     def on_device_changed(self, device_text):
-        if device_text == "cuda":
-            try:
-                import torch
+        self.device_checkboxes.setVisible(
+            device_text == "cuda"
+            and bool(self.environment_result)
+            and bool(self.environment_result.get("cuda_available"))
+        )
 
-                if os.environ.get("CUDA_VISIBLE_DEVICES") == "-1":
-                    cuda_visible_devices_backup = os.environ.get(
-                        "CUDA_VISIBLE_DEVICES"
+    def apply_environment_result(self):
+        if "device" not in self.config_widgets:
+            return
+        device_widget = self.config_widgets["device"]
+        device_widget.blockSignals(True)
+        device_widget.clear()
+        if self.environment_ready and self.environment_result:
+            result = self.environment_result
+            preferred = getattr(self, "_pending_device_selection", None)
+            preferred_is_valid = False
+            if result.get("cuda_available"):
+                device_widget.addItem("cuda")
+                selected_indices = None
+                if preferred and preferred[0] == "cuda":
+                    available_indices = {
+                        gpu["index"]
+                        for gpu in result.get("gpus", [])
+                        if gpu.get("available")
+                    }
+                    selected_indices = set(preferred[1])
+                    preferred_is_valid = bool(selected_indices) and (
+                        selected_indices <= available_indices
                     )
-                    del os.environ["CUDA_VISIBLE_DEVICES"]
-                    torch.cuda.empty_cache()
-                    device_count = torch.cuda.device_count()
-                    if cuda_visible_devices_backup != "-1":
-                        os.environ["CUDA_VISIBLE_DEVICES"] = (
-                            cuda_visible_devices_backup
-                        )
-                else:
-                    device_count = torch.cuda.device_count()
-
-                self.setup_cuda_checkboxes(device_count)
-                self.device_checkboxes.setVisible(True)
-            except ImportError:
-                self.device_checkboxes.setVisible(False)
+                self.setup_cuda_checkboxes(
+                    result.get("gpus", []),
+                    selected_indices if preferred_is_valid else None,
+                )
+            if result.get("mps_available"):
+                device_widget.addItem("mps")
+                preferred_is_valid = preferred_is_valid or bool(
+                    preferred and preferred[0] == "mps"
+                )
+            if result.get("cpu_available"):
+                device_widget.addItem("cpu")
+                preferred_is_valid = preferred_is_valid or bool(
+                    preferred and preferred[0] == "cpu"
+                )
+            if preferred and preferred_is_valid:
+                device_widget.setCurrentText(preferred[0])
+            elif preferred and result.get("cpu_available"):
+                device_widget.setCurrentText("cpu")
+            self._pending_device_selection = None
+            device_widget.setEnabled(device_widget.count() > 0)
         else:
-            self.device_checkboxes.setVisible(False)
+            device_widget.addItem(
+                self.tr("Unavailable")
+                if self.environment_error
+                else self.tr("Detecting...")
+            )
+            device_widget.setEnabled(False)
+        device_widget.blockSignals(False)
+        self.on_device_changed(device_widget.currentText())
+        if hasattr(self, "start_training_button"):
+            self.start_training_button.setEnabled(self.environment_ready)
+
+    def detect_environment(self):
+        if self.environment_ready and "device" in getattr(
+            self, "config_widgets", {}
+        ):
+            device = self.config_widgets["device"].currentText()
+            selected_indices = []
+            if device == "cuda" and self.device_checkboxes.layout():
+                for index in range(self.device_checkboxes.layout().count()):
+                    widget = (
+                        self.device_checkboxes.layout().itemAt(index).widget()
+                    )
+                    if widget and widget.isEnabled() and widget.isChecked():
+                        selected_indices.append(
+                            int(widget.property("gpu_index"))
+                        )
+                if not selected_indices:
+                    device = "cpu"
+            self._pending_device_selection = (
+                device,
+                tuple(selected_indices),
+            )
+        self.environment_result = None
+        self.environment_error = None
+        self.environment_error_type = None
+        self.environment_ready = False
+        self.apply_environment_result()
+        self.environment_manager.probe(
+            self.training_python,
+            self.auto_install_packages,
+            external_environment=self.external_environment,
+        )
 
     def init_basic_settings(self, parent_layout):
         group = QGroupBox(self.tr("Basic Settings"))
@@ -589,6 +854,20 @@ class UltralyticsDialog(QDialog):
         self.config_widgets["name"] = CustomLineEdit()
         self.config_widgets["name"].setText("exp")
         layout.addRow("Name:", self.config_widgets["name"])
+
+        env_layout = QHBoxLayout()
+        self.config_widgets["env"] = CustomLineEdit()
+        self.config_widgets["env"].setText(self.training_python_setting or "")
+        self.config_widgets["env"].editingFinished.connect(
+            lambda: self.configure_training_environment(
+                self.config_widgets["env"].text()
+            )
+        )
+        env_browse_btn = SecondaryButton("Browse")
+        env_browse_btn.clicked.connect(self.browse_training_environment)
+        env_layout.addWidget(self.config_widgets["env"])
+        env_layout.addWidget(env_browse_btn)
+        layout.addRow("Env:", env_layout)
 
         model_layout = QHBoxLayout()
         self.config_widgets["model"] = CustomLineEdit()
@@ -623,7 +902,6 @@ class UltralyticsDialog(QDialog):
 
         device_layout = QHBoxLayout()
         self.config_widgets["device"] = CustomComboBox()
-        self.config_widgets["device"].addItems(DEVICE_OPTIONS)
         self.device_checkboxes = QWidget()
         self.device_checkboxes.setVisible(False)
         self.config_widgets["device"].currentTextChanged.connect(
@@ -632,7 +910,7 @@ class UltralyticsDialog(QDialog):
         device_layout.addWidget(self.config_widgets["device"])
         device_layout.addWidget(self.device_checkboxes)
         layout.addRow("Device:", device_layout)
-        self.on_device_changed(self.config_widgets["device"].currentText())
+        self.apply_environment_result()
 
         dataset_layout = QHBoxLayout()
         self.config_widgets["dataset_ratio"] = CustomSlider(
@@ -1134,6 +1412,10 @@ class UltralyticsDialog(QDialog):
             if key not in sections_to_process and key in self.config_widgets:
                 set_widget_value(key, value)
 
+        basic_config = config.get("basic", {})
+        if "env" in basic_config:
+            self.configure_training_environment(basic_config["env"])
+
     def import_config(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -1180,6 +1462,7 @@ class UltralyticsDialog(QDialog):
             "basic": {
                 "project": get_widget_value("project"),
                 "name": get_widget_value("name"),
+                "env": get_widget_value("env").strip(),
                 "model": get_widget_value("model").strip('"'),
                 "data": get_widget_value("data").strip('"'),
                 "device": get_widget_value("device"),
@@ -1267,6 +1550,11 @@ class UltralyticsDialog(QDialog):
                 self, self.tr("Error"), f"Failed to save config: {str(e)}"
             )
 
+    def _uses_existing_dataset(self, data_path):
+        return (
+            self.selected_task_type == "Classify" and os.path.isdir(data_path)
+        ) or is_prepared_dataset(data_path)
+
     def start_training(self):
         if self.training_status == "training":
             QMessageBox.warning(
@@ -1279,7 +1567,50 @@ class UltralyticsDialog(QDialog):
             return
 
         config = self.get_current_config()
-        is_valid, error_message = validate_basic_config(config)
+        self.configure_training_environment(config["basic"].get("env"))
+        if not self.environment_ready:
+            message = self.environment_error or self.tr(
+                "Training environment detection is still in progress"
+            )
+            QMessageBox.warning(self, self.tr("Environment Error"), message)
+            return
+
+        data_path = config["basic"].get("data", "").strip()
+        existing_dataset = self._uses_existing_dataset(data_path)
+        if not (
+            self.selected_task_type == "Classify" and os.path.isdir(data_path)
+        ):
+            is_valid, result = validate_data_file(data_path)
+            if not is_valid:
+                QMessageBox.warning(self, self.tr("Validation Error"), result)
+                self.append_training_log(f"Validation Error: {result}")
+                return
+            self.names = result
+        if not self.image_list and not existing_dataset:
+            message = self.tr(
+                "When no images are loaded, the data file must reference existing train and val directories."
+            )
+            _, dataset_error = resolve_prepared_dataset(data_path)
+            if dataset_error:
+                message = f"{message}\n{dataset_error}"
+            QMessageBox.warning(self, self.tr("Validation Error"), message)
+            self.append_training_log(f"Validation Error: {message}")
+            return
+
+        try:
+            prepare_training_data_directory(self.training_data_directory)
+        except OSError as exc:
+            message = self.tr(
+                "Training data directory is not writable: {path}\n{error}"
+            ).format(path=self.training_data_directory, error=exc)
+            QMessageBox.warning(
+                self, self.tr("Training Directory Error"), message
+            )
+            return
+
+        is_valid, error_message = validate_basic_config(
+            config, allow_model_name=self.external_environment
+        )
         if is_valid == "directory_exists":
             project_dir = error_message
             potential_model_path = os.path.join(
@@ -1303,6 +1634,7 @@ class UltralyticsDialog(QDialog):
 
                 if reply == QMessageBox.StandardButton.Yes:
                     self.current_project_path = project_dir
+                    self._loaded_existing_model = True
                     self.training_status = "completed"
                     save_config(config)
                     self.go_to_specific_tab(2)
@@ -1310,10 +1642,11 @@ class UltralyticsDialog(QDialog):
                     self.start_training_button.setVisible(False)
                     self.export_button.setVisible(True)
                     self.previous_button.setVisible(True)
-                    self.update_training_images()
-                    self.append_training_log(
-                        f"Loaded existing model from: {potential_model_path}"
-                    )
+                    if not self.load_latest_training_log():
+                        self.append_training_log(
+                            f"Loaded existing model from: {potential_model_path}"
+                        )
+                    QTimer.singleShot(0, self.update_training_images)
                     return
 
             reply = QMessageBox.question(
@@ -1509,6 +1842,20 @@ class UltralyticsDialog(QDialog):
                 find_images_by_pattern(config["patterns"], config["max_count"])
             )
 
+        selected_images = set(all_images)
+        image_extensions = {".bmp", ".jpeg", ".jpg", ".png", ".webp"}
+        for file_path in sorted(
+            glob.glob(os.path.join(self.current_project_path, "*"))
+        ):
+            if (
+                os.path.isfile(file_path)
+                and os.path.splitext(file_path)[1].lower() in image_extensions
+                and file_path not in selected_images
+            ):
+                all_images.append(file_path)
+
+        self.set_training_image_slot_count(max(6, len(all_images)))
+
         for i, image_label in enumerate(self.image_labels):
             if i < len(all_images):
                 image_path = all_images[i]
@@ -1542,8 +1889,70 @@ class UltralyticsDialog(QDialog):
                 image_label.setToolTip("")
                 self.image_paths[i] = None
 
+    def create_training_image_slot(self):
+        index = len(self.image_labels)
+        image_label = QLabel()
+        image_label.setFixedHeight(150)
+        image_label.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
+        image_label.setStyleSheet(get_image_label_style())
+        image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        image_label.setText(self.tr("No image"))
+        image_label.setScaledContents(False)
+        image_label.mousePressEvent = (
+            lambda event, idx=index: self.on_image_clicked(idx)
+        )
+        self.image_labels.append(image_label)
+        self.image_paths.append(None)
+        self.images_row_layout.addWidget(image_label)
+
+    def set_training_image_slot_count(self, count):
+        while len(self.image_labels) < count:
+            self.create_training_image_slot()
+        while len(self.image_labels) > count:
+            image_label = self.image_labels.pop()
+            self.image_paths.pop()
+            self.images_row_layout.removeWidget(image_label)
+            image_label.deleteLater()
+        self.update_training_image_layout()
+
+    def update_training_image_layout(self):
+        viewport_width = self.training_images_scroll_area.viewport().width()
+        spacing = self.images_row_layout.spacing()
+        card_width = max(150, (viewport_width - spacing * 5) // 6)
+        for image_label in self.image_labels:
+            image_label.setFixedWidth(card_width)
+        content_width = card_width * len(self.image_labels) + spacing * max(
+            0, len(self.image_labels) - 1
+        )
+        self.images_widget.setMinimumWidth(content_width)
+        scroll_height = 162 if content_width > viewport_width else 150
+        self.training_images_scroll_area.setFixedHeight(scroll_height)
+
     def on_training_event(self, event_type, data):
+        if event_type == "environment_detected":
+            self.environment_result = data
+            self.environment_error = None
+            self.environment_error_type = None
+            self.environment_ready = bool(
+                data.get("cpu_available")
+                and data.get("torch_version")
+                and data.get("ultralytics_version")
+            )
+            self.apply_environment_result()
+            return
+        if event_type == "environment_error":
+            self.environment_result = data.get("environment")
+            self.environment_error = data.get("error", "Unknown error")
+            self.environment_error_type = data.get("error_type")
+            if data.get("details"):
+                self.environment_error += "\n" + data["details"]
+            self.environment_ready = False
+            self.apply_environment_result()
+            return
         if event_type == "training_started":
+            self._loaded_existing_model = False
             self.training_status = "training"
             self.total_epochs = data["total_epochs"]
             self.current_epochs = 0
@@ -1643,30 +2052,54 @@ class UltralyticsDialog(QDialog):
             if text:
                 clipboard = QApplication.clipboard()
                 clipboard.setText(text)
+                self.copy_logs_button.setIcon(new_icon("check", "svg"))
+                QTimer.singleShot(1000, self.reset_copy_logs_button)
+
+    def reset_copy_logs_button(self):
+        self.copy_logs_button.setIcon(new_icon("copy", "svg"))
 
     def init_training_logs(self, parent_layout):
         logs_group = QGroupBox(self.tr("Training Logs"))
         logs_layout = QVBoxLayout(logs_group)
 
+        self.training_log_container = _TrainingLogContainer()
+        container_layout = QVBoxLayout(self.training_log_container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
         self.log_display = QTextEdit()
         self.log_display.setReadOnly(True)
         self.log_display.setMinimumHeight(250)
         self.log_display.setStyleSheet(get_log_display_style())
-        logs_layout.addWidget(self.log_display)
+        container_layout.addWidget(self.log_display)
 
-        button_layout = QHBoxLayout()
-        button_layout.addStretch()
+        self.training_log_actions = QWidget(self.training_log_container)
+        self.training_log_actions.setObjectName("trainingLogActions")
+        action_layout = QHBoxLayout(self.training_log_actions)
+        action_layout.setContentsMargins(0, 0, 0, 0)
+        action_layout.setSpacing(6)
 
-        self.clear_logs_button = SecondaryButton(self.tr("Clear"))
-        self.clear_logs_button.clicked.connect(self.clear_training_logs)
-        button_layout.addWidget(self.clear_logs_button)
-
-        self.copy_logs_button = SecondaryButton(self.tr("Copy"))
+        self.copy_logs_button = QPushButton()
+        self.copy_logs_button.setIcon(new_icon("copy", "svg"))
+        self.copy_logs_button.setIconSize(QSize(16, 16))
+        self.copy_logs_button.setFixedSize(20, 20)
+        self.copy_logs_button.setToolTip(self.tr("Copy"))
         self.copy_logs_button.clicked.connect(self.copy_training_logs)
-        button_layout.addWidget(self.copy_logs_button)
+        action_layout.addWidget(self.copy_logs_button)
 
-        logs_layout.addLayout(button_layout)
-        parent_layout.addWidget(logs_group)
+        self.clear_logs_button = QPushButton()
+        self.clear_logs_button.setIcon(new_icon("trash", "svg"))
+        self.clear_logs_button.setIconSize(QSize(16, 16))
+        self.clear_logs_button.setFixedSize(20, 20)
+        self.clear_logs_button.setToolTip(self.tr("Clear"))
+        self.clear_logs_button.clicked.connect(self.clear_training_logs)
+        action_layout.addWidget(self.clear_logs_button)
+
+        self.training_log_actions.setStyleSheet(get_log_action_button_style())
+        self.training_log_actions.setVisible(False)
+        self.training_log_container.set_actions_widget(
+            self.training_log_actions
+        )
+        logs_layout.addWidget(self.training_log_container)
+        parent_layout.addWidget(logs_group, 1)
 
     def init_training_images(self, parent_layout):
         images_group = QGroupBox(self.tr("Training Images"))
@@ -1674,30 +2107,32 @@ class UltralyticsDialog(QDialog):
         images_layout.setContentsMargins(5, 5, 5, 5)
 
         self.image_labels = []
-        self.image_paths = [None] * 6
+        self.image_paths = []
         self.images_widget = QWidget()
-        images_row_layout = QHBoxLayout(self.images_widget)
-        images_row_layout.setSpacing(10)
-        images_row_layout.setContentsMargins(0, 0, 0, 0)
+        self.images_row_layout = QHBoxLayout(self.images_widget)
+        self.images_row_layout.setSpacing(10)
+        self.images_row_layout.setContentsMargins(0, 0, 0, 0)
 
-        for i in range(6):
-            image_label = QLabel()
-            image_label.setMinimumSize(150, 150)
-            image_label.setSizePolicy(
-                QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding
-            )
-            image_label.setStyleSheet(get_image_label_style())
-            image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            image_label.setText(self.tr("No image"))
-            image_label.setScaledContents(False)
-            image_label.mousePressEvent = (
-                lambda event, idx=i: self.on_image_clicked(idx)
-            )
-            self.image_labels.append(image_label)
-            images_row_layout.addWidget(image_label, 1)
+        self.training_images_scroll_area = _TrainingImagesScrollArea()
+        self.training_images_scroll_area.setObjectName(
+            "trainingImagesScrollArea"
+        )
+        self.training_images_scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.training_images_scroll_area.setWidgetResizable(True)
+        self.training_images_scroll_area.setVerticalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+        self.training_images_scroll_area.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAsNeeded
+        )
+        self.training_images_scroll_area.setWidget(self.images_widget)
+        self.training_images_scroll_area.resized.connect(
+            self.update_training_image_layout
+        )
+        self.set_training_image_slot_count(6)
 
-        images_layout.addWidget(self.images_widget, 1)
-        parent_layout.addWidget(images_group, 1)
+        images_layout.addWidget(self.training_images_scroll_area, 1)
+        parent_layout.addWidget(images_group)
 
     def on_image_clicked(self, index):
         if self.image_paths[index]:
@@ -1800,14 +2235,8 @@ class UltralyticsDialog(QDialog):
 
     def get_training_args(self, config):
         try:
-            if self.selected_task_type == "Classify" and os.path.isdir(
-                config["basic"]["data"]
-            ):
-                data_path = config["basic"]["data"]
-                self.append_training_log(
-                    f"Using existing dataset: {data_path}"
-                )
-            else:
+            data_path = config["basic"]["data"]
+            if not self._uses_existing_dataset(data_path):
                 temp_dir = create_yolo_dataset(
                     self.image_list,
                     self.selected_task_type,
@@ -1825,6 +2254,10 @@ class UltralyticsDialog(QDialog):
                     data_path = temp_dir
                 else:
                     data_path = os.path.join(temp_dir, "data.yaml")
+            elif self.selected_task_type != "Classify":
+                resolved_data_path, _ = resolve_prepared_dataset(data_path)
+                if resolved_data_path:
+                    data_path = resolved_data_path
 
             device_value = config["basic"]["device"]
             if device_value == "cuda" and hasattr(self, "device_checkboxes"):
@@ -1837,9 +2270,9 @@ class UltralyticsDialog(QDialog):
                             and hasattr(widget, "isChecked")
                             and widget.isChecked()
                         ):
-                            gpu_text = widget.text()
-                            gpu_id = gpu_text.split()[-1]
-                            selected_gpus.append(int(gpu_id))
+                            selected_gpus.append(
+                                int(widget.property("gpu_index"))
+                            )
                 device_value = selected_gpus if selected_gpus else "cpu"
 
             train_args = {
@@ -1887,12 +2320,32 @@ class UltralyticsDialog(QDialog):
             raise
 
     def start_training_from_train_tab(self):
+        if not self.environment_ready:
+            message = self.environment_error or self.tr(
+                "Training environment detection is still in progress"
+            )
+            QMessageBox.warning(self, self.tr("Environment Error"), message)
+            return
         config = self.get_current_config()
         project_path = config["basic"]["project"]
         name = config["basic"]["name"]
         self.current_project_path = os.path.join(project_path, name)
 
         try:
+            data_path = config["basic"]["data"]
+            if self._uses_existing_dataset(data_path):
+                self.append_training_log(f"Using custom dataset: {data_path}")
+            else:
+                self.append_training_log(
+                    self.tr("Using workspace snapshot: {count} images").format(
+                        count=len(self.image_list)
+                    )
+                )
+                self.append_training_log(
+                    self.tr(
+                        "Changes made during training will be used in the next run."
+                    )
+                )
             self.append_training_log(self.tr("Preparing training..."))
             train_args = self.get_training_args(config)
             success, message = self.training_manager.start_training(train_args)
@@ -1933,9 +2386,10 @@ class UltralyticsDialog(QDialog):
             self.start_training_from_train_tab
         )
         actions_layout.addWidget(self.start_training_button)
+        self.start_training_button.setEnabled(self.environment_ready)
 
         self.export_button = PrimaryButton(self.tr("Export"))
-        self.export_button.clicked.connect(self.start_export)
+        self.export_button.clicked.connect(self.on_export_button_clicked)
         self.export_button.setVisible(False)
         actions_layout.addWidget(self.export_button)
 
@@ -1966,7 +2420,14 @@ class UltralyticsDialog(QDialog):
     def on_export_event(self, event_type, data):
         if event_type == "export_started":
             self.append_training_log(self.tr("Export started..."))
-            self.export_button.setEnabled(False)
+            export_dialog = getattr(self, "export_dialog", None)
+            if export_dialog is not None:
+                export_dialog.set_exporting(self.external_environment)
+            if self.external_environment:
+                self.export_button.setText(self.tr("Stop Export"))
+                self.export_button.setEnabled(True)
+            else:
+                self.export_button.setEnabled(False)
         elif event_type == "export_completed":
             exported_path = data.get("exported_path", "")
             export_format = data.get("format", "onnx")
@@ -1975,19 +2436,35 @@ class UltralyticsDialog(QDialog):
                     f"Export completed successfully! File saved to: {exported_path}"
                 )
             )
-            QMessageBox.information(
-                self,
-                self.tr("Export Successful"),
-                self.tr(
-                    f"Model successfully exported to {export_format.upper()} format:\n{exported_path}"
-                ),
-            )
-            self.export_button.setEnabled(True)
+            export_dialog = getattr(self, "export_dialog", None)
+            if export_format == "onnx" and export_dialog is not None:
+                self.exported_onnx_path = exported_path
+                export_dialog.set_apply_ready()
+            else:
+                QMessageBox.information(
+                    self,
+                    self.tr("Export Successful"),
+                    self.tr(
+                        f"Model successfully exported to {export_format.upper()} format:\n{exported_path}"
+                    ),
+                )
+                if export_dialog is not None:
+                    export_dialog.accept()
+            self.reset_export_button()
         elif event_type == "export_error":
             error_msg = data.get("error", "Unknown error occurred")
             self.append_training_log(f"ERROR: {error_msg}")
             QMessageBox.warning(self, self.tr("Export Error"), error_msg)
-            self.export_button.setEnabled(True)
+            export_dialog = getattr(self, "export_dialog", None)
+            if export_dialog is not None:
+                export_dialog.reset_export()
+            self.reset_export_button()
+        elif event_type == "export_stopped":
+            self.append_training_log(self.tr("Export stopped by user"))
+            export_dialog = getattr(self, "export_dialog", None)
+            if export_dialog is not None:
+                export_dialog.reset_export()
+            self.reset_export_button()
         elif event_type == "export_log":
             log_message = data.get("message", "")
             if log_message:
@@ -2005,7 +2482,7 @@ class UltralyticsDialog(QDialog):
         weights_path = os.path.join(
             self.current_project_path, "weights", "best.pt"
         )
-        if not os.path.exists(weights_path):
+        if not self.external_environment and not os.path.exists(weights_path):
             QMessageBox.warning(
                 self,
                 self.tr("Model Not Found"),
@@ -2014,14 +2491,92 @@ class UltralyticsDialog(QDialog):
             return
 
         export_dialog = ExportFormatDialog(self)
-        if export_dialog.exec() == QDialog.DialogCode.Accepted:
-            export_format = export_dialog.get_selected_format()
-            success, message = self.export_manager.start_export(
-                self.current_project_path, export_format
+        export_dialog.export_requested.connect(self.start_selected_export)
+        export_dialog.stop_requested.connect(self.stop_export)
+        export_dialog.apply_requested.connect(self.apply_exported_model)
+        self.export_dialog = export_dialog
+        export_dialog.exec()
+        if self.export_dialog is export_dialog:
+            self.export_dialog = None
+
+    def start_selected_export(self, export_format):
+        self.exported_onnx_path = None
+        success, message = self.export_manager.start_export(
+            self.current_project_path, export_format
+        )
+        if success:
+            if self.export_dialog is not None:
+                self.export_dialog.set_exporting(self.external_environment)
+            return
+        QMessageBox.critical(self, self.tr("Export Error"), message)
+        self.append_training_log(f"Failed to start export: {message}")
+
+    def apply_exported_model(self):
+        if not self.exported_onnx_path:
+            return
+
+        config = self.get_current_config()
+        try:
+            config_path = create_auto_labeling_config(
+                self.current_project_path,
+                self.exported_onnx_path,
+                config["basic"].get("pose_config"),
             )
-            if not success:
-                QMessageBox.critical(self, self.tr("Export Error"), message)
-                self.append_training_log(f"Failed to start export: {message}")
+        except (OSError, ValueError) as error:
+            QMessageBox.warning(
+                self,
+                self.tr("Apply Error"),
+                str(error),
+            )
+            return
+
+        parent = self.parent()
+        auto_labeling_widget = getattr(parent, "auto_labeling_widget", None)
+        try:
+            loaded = auto_labeling_widget is not None and (
+                auto_labeling_widget.load_custom_model_config(config_path)
+            )
+        except Exception as error:
+            logger.error(f"Failed to apply exported model: {error}")
+            loaded = False
+        if not loaded:
+            QMessageBox.warning(
+                self,
+                self.tr("Apply Error"),
+                self.tr("Failed to load the exported model"),
+            )
+            return
+
+        self.append_training_log(f"Applied model configuration: {config_path}")
+        if self.export_dialog is not None:
+            self.export_dialog.accept()
+        self.close()
+        if not auto_labeling_widget.isVisible():
+            parent.toggle_auto_labeling_widget()
+
+    def on_export_button_clicked(self):
+        if self.export_manager.is_exporting:
+            self.stop_export()
+            return
+        self.start_export()
+
+    def reset_export_button(self):
+        self.export_button.setText(self.tr("Export"))
+        self.export_button.setEnabled(True)
+
+    def stop_export(self):
+        reply = QMessageBox.question(
+            self,
+            self.tr("Confirm Stop"),
+            self.tr("Are you sure you want to stop the export?"),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        if not self.export_manager.stop_export():
+            self.append_training_log(self.tr("No export is in progress"))
+            self.reset_export_button()
 
     def reset_train_tab(self):
         self.training_status = "idle"
@@ -2034,6 +2589,7 @@ class UltralyticsDialog(QDialog):
         if hasattr(self, "log_display"):
             self.log_display.clear()
 
+        self.set_training_image_slot_count(6)
         for i, image_label in enumerate(self.image_labels):
             image_label.clear()
             image_label.setText(self.tr("No image"))
@@ -2042,5 +2598,6 @@ class UltralyticsDialog(QDialog):
 
         self.previous_button.setVisible(True)
         self.start_training_button.setVisible(True)
+        self.reset_export_button()
         self.export_button.setVisible(False)
         self.stop_training_button.setVisible(False)

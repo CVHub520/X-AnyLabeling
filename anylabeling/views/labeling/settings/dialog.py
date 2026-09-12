@@ -59,6 +59,7 @@ class ElidedLabel(QtWidgets.QLabel):
             available_width,
         )
         super().setText(elided)
+        self.setToolTip(self._full_text if elided != self._full_text else "")
 
 
 class SettingsDialog(QtWidgets.QDialog):
@@ -492,6 +493,13 @@ class SettingsDialog(QtWidgets.QDialog):
             row_widget.setStyleSheet("background: transparent;")
             self.nav_list.setItemWidget(item, row_widget)
             self._nav_item_widgets[name] = (icon_label, text_label)
+
+        nav_height = sum(
+            self.nav_list.item(row).sizeHint().height()
+            + 2 * self.nav_list.spacing()
+            for row in range(self.nav_list.count())
+        )
+        self.nav_list.setFixedHeight(nav_height)
 
         left_layout.addWidget(brand_widget)
         left_layout.addWidget(self.nav_list)

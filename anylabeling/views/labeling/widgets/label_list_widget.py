@@ -3,6 +3,8 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPalette
 from PyQt6.QtWidgets import QStyle
 
+from ..utils.theme import get_mode, get_theme
+
 LOCKED_ROLE = Qt.ItemDataRole.UserRole.value + 1
 
 
@@ -11,6 +13,9 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
     def __init__(self, parent=None):
         self.parent = parent
         self._lock_icon = QtGui.QIcon(":/images/images/lock.svg")
+        self._selected_check_icon = QtGui.QIcon(
+            ":/images/images/checkmark-white.svg"
+        )
         self._lock_pixmaps = {}
         super(HTMLDelegate, self).__init__()
 
@@ -27,6 +32,31 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         options = QtWidgets.QStyleOptionViewItem(option)
 
         self.initStyleOption(options, index)
+        selected = bool(options.state & QStyle.StateFlag.State_Selected)
+        hovered = bool(options.state & QStyle.StateFlag.State_MouseOver)
+        item_hover = hovered and not selected
+        t = get_theme()
+        if selected:
+            options.state &= ~QStyle.StateFlag.State_Selected
+            options.state &= ~QStyle.StateFlag.State_MouseOver
+            options.state &= ~QStyle.StateFlag.State_HasFocus
+            options.palette.setColor(
+                QPalette.ColorRole.Text,
+                QtGui.QColor(t["text"]),
+            )
+        elif item_hover:
+            options.backgroundBrush = QtGui.QBrush(
+                QtGui.QColor(t["surface_hover"])
+            )
+            options.state &= ~QStyle.StateFlag.State_Selected
+            options.state &= ~QStyle.StateFlag.State_MouseOver
+            options.state &= ~QStyle.StateFlag.State_HasFocus
+            options.palette.setColor(
+                QPalette.ColorRole.Text,
+                QtGui.QColor(t["text"]),
+            )
+        painter.fillRect(options.rect, options.backgroundBrush)
+        options.backgroundBrush = QtGui.QBrush()
         doc = self._document_for_index(index, options.font)
         options.text = ""
 
@@ -38,16 +68,28 @@ class HTMLDelegate(QtWidgets.QStyledItemDelegate):
         style.drawControl(
             QStyle.ControlElement.CE_ItemViewItem, options, painter
         )
+        if selected:
+            indicator_rect = style.subElementRect(
+                QStyle.SubElement.SE_ItemViewItemCheckIndicator, options
+            )
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QtGui.QColor(t["primary"]))
+            if get_mode() == "dark":
+                painter.drawRect(indicator_rect)
+            else:
+                painter.drawRoundedRect(QtCore.QRectF(indicator_rect), 3, 3)
+            if options.checkState == Qt.CheckState.Checked:
+                self._selected_check_icon.paint(
+                    painter, indicator_rect.adjusted(2, 2, -2, -2)
+                )
 
         ctx = QtGui.QAbstractTextDocumentLayout.PaintContext()
 
-        if option.state & QStyle.StateFlag.State_Selected:
+        if selected or item_hover:
             ctx.palette.setColor(
                 QPalette.ColorRole.Text,
-                option.palette.color(
-                    QPalette.ColorGroup.Active,
-                    QPalette.ColorRole.HighlightedText,
-                ),
+                options.palette.color(QPalette.ColorRole.Text),
             )
         else:
             ctx.palette.setColor(
@@ -171,6 +213,7 @@ class LabelListWidget(QtWidgets.QListView):
 
     def __init__(self):
         super().__init__()
+        self.setMouseTracking(True)
         self._selected_items = []
         self._ignore_mouse_move_selection = False
         self._preserved_selected_items = []

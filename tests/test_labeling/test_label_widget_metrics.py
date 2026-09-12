@@ -71,6 +71,137 @@ class TestLabelWidgetMetrics(unittest.TestCase):
         _set_label_list_item_lock(item, False)
         self.assertFalse(item.is_locked())
 
+    def test_selected_object_keeps_label_background_in_each_mode(self):
+        from anylabeling.resources import resources  # noqa: F401
+        from anylabeling.views.labeling.utils.style import get_dock_style
+        from anylabeling.views.labeling.utils.theme import (
+            get_theme,
+            init_theme,
+        )
+        from anylabeling.views.labeling.widgets import (
+            LabelListWidget,
+            LabelListWidgetItem,
+        )
+
+        for mode in ("light", "dark"):
+            init_theme(mode)
+            widget = LabelListWidget()
+            widget.setStyleSheet(get_dock_style())
+            item = LabelListWidgetItem("vase")
+            item.setBackground(QtGui.QColor("#FF8A8A"))
+            widget.add_iem(item)
+            delegate = widget.itemDelegate()
+
+            def render(check_state):
+                item.setCheckState(check_state)
+                image = QtGui.QImage(
+                    200, 24, QtGui.QImage.Format.Format_ARGB32
+                )
+                image.fill(QtGui.QColor("#FFFFFF"))
+                painter = QtGui.QPainter(image)
+                option = QtWidgets.QStyleOptionViewItem()
+                option.rect = QtCore.QRect(0, 0, 200, 24)
+                option.state = (
+                    QtWidgets.QStyle.StateFlag.State_Enabled
+                    | QtWidgets.QStyle.StateFlag.State_Active
+                    | QtWidgets.QStyle.StateFlag.State_Selected
+                )
+                option.palette = widget.palette()
+                option.font = widget.font()
+                option.widget = widget
+                delegate.paint(painter, option, item.index())
+                painter.end()
+                return image
+
+            visible = render(QtCore.Qt.CheckState.Checked)
+            hidden = render(QtCore.Qt.CheckState.Unchecked)
+            primary = QtGui.QColor(get_theme()["primary"])
+
+            for image in (visible, hidden):
+                for y in (0, 12, 23):
+                    self.assertEqual(
+                        image.pixelColor(195, y), QtGui.QColor("#FF8A8A")
+                    )
+                self.assertEqual(image.pixelColor(7, 8), primary)
+                if mode == "dark":
+                    self.assertEqual(image.pixelColor(3, 5), primary)
+                else:
+                    self.assertNotEqual(image.pixelColor(3, 5), primary)
+            self.assertNotEqual(visible.pixelColor(10, 12), primary)
+            self.assertEqual(hidden.pixelColor(10, 12), primary)
+            widget.close()
+        init_theme("light")
+
+    def test_file_selection_uses_hover_colors_in_each_mode(self):
+        from anylabeling.views.labeling.utils.style import get_dock_style
+        from anylabeling.views.labeling.utils.theme import init_theme
+
+        init_theme("light")
+        style = get_dock_style()
+        self.assertIn("background-color: #e5e5e5", style)
+        self.assertIn("color: #1d1d1f", style)
+
+        init_theme("dark")
+        dark_style = get_dock_style()
+        self.assertIn("background-color: #3a3a3c", dark_style)
+        self.assertIn("color: #f5f5f7", dark_style)
+        init_theme("light")
+
+    def test_unchecked_review_status_icon_is_hollow_circle(self):
+        from anylabeling.views.labeling.label_widget import (
+            FILE_CHECKED_COLOR,
+            FILE_UNCHECKED_COLOR,
+            _create_file_status_icon,
+        )
+
+        checked = _create_file_status_icon(FILE_CHECKED_COLOR)
+        unchecked = _create_file_status_icon(
+            FILE_UNCHECKED_COLOR, filled=False
+        )
+        checked_image = checked.pixmap(12, 12).toImage()
+        unchecked_image = unchecked.pixmap(12, 12).toImage()
+
+        self.assertGreater(checked_image.pixelColor(6, 6).alpha(), 0)
+        self.assertEqual(unchecked_image.pixelColor(6, 6).alpha(), 0)
+        self.assertGreater(unchecked_image.pixelColor(6, 2).alpha(), 0)
+
+    def test_window_title_includes_annotation_checked_status(self):
+        from anylabeling.views.labeling.label_widget import LabelingWidget
+
+        widget = SimpleNamespace(
+            filename="/tmp/image.jpg",
+            dirty=False,
+            image=SimpleNamespace(
+                isNull=lambda: False,
+                width=lambda: 640,
+                height=lambda: 480,
+            ),
+            get_image_progress_info=lambda: (2, 10),
+            tr=lambda text: text,
+        )
+
+        for checked, status in ((True, "Checked"), (False, "Unchecked")):
+            widget._annotation_checked = lambda value=checked: value
+            title = LabelingWidget._window_title(widget)
+            self.assertEqual(
+                title,
+                f"X-AnyLabeling - image.jpg [{status}] [640x480] [2/10]",
+            )
+
+    def test_checked_state_sync_refreshes_window_title(self):
+        from anylabeling.views.labeling.label_widget import LabelingWidget
+
+        calls = []
+        widget = SimpleNamespace(
+            _update_annotation_checked_action=lambda: calls.append("action"),
+            _update_current_file_checked_item=lambda: calls.append("item"),
+            update_progress_title=lambda: calls.append("title"),
+        )
+
+        LabelingWidget._sync_annotation_checked_state(widget)
+
+        self.assertEqual(calls, ["action", "item", "title"])
+
     def test_right_double_click_does_not_emit_item_double_clicked(self):
         from anylabeling.views.labeling.widgets import (
             LabelListWidget,

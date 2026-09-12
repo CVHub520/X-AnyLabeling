@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
-from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal
 from PyQt6.QtGui import QIcon
 
 from anylabeling.config import get_work_directory
@@ -109,6 +109,7 @@ class ProviderSection(QFrame):
 class ModelItem(QFrame):
     clicked = pyqtSignal(str)
     favoriteToggled = pyqtSignal(str, bool)
+    removeRequested = pyqtSignal(str)
 
     def __init__(
         self,
@@ -116,6 +117,7 @@ class ModelItem(QFrame):
         model_data,
         in_favorites_section=False,
         parent=None,
+        removable=False,
     ):
         super().__init__(parent)
         self.model_name = model_name
@@ -170,6 +172,24 @@ class ModelItem(QFrame):
         self.star_icon.clicked.connect(self.toggle_favorite)
         layout.addWidget(self.star_icon, 0, Qt.AlignmentFlag.AlignVCenter)
 
+        self.trash_button = None
+        if removable:
+            self.trash_button = QPushButton()
+            self.trash_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+            self.trash_button.setFixedSize(*ICON_SIZE_SMALL)
+            self.trash_button.setIcon(new_icon("trash", "svg"))
+            self.trash_button.setToolTip(self.tr("Remove custom model"))
+            self.trash_button.setVisible(False)
+            self.trash_button.setStyleSheet(
+                "QPushButton { border: none; background: transparent; }"
+            )
+            self.trash_button.clicked.connect(
+                lambda: self.removeRequested.emit(self.model_name)
+            )
+            layout.addWidget(
+                self.trash_button, 0, Qt.AlignmentFlag.AlignVCenter
+            )
+
         t = get_theme()
         self.setStyleSheet(f"""
             ModelItem {{
@@ -183,11 +203,15 @@ class ModelItem(QFrame):
 
     def enterEvent(self, event):
         self.star_icon.setVisible(True)
+        if self.trash_button is not None:
+            self.trash_button.setVisible(True)
         super().enterEvent(event)
 
     def leaveEvent(self, event):
         if self.in_favorites_section or not self.is_favorite:
             self.star_icon.setVisible(False)
+        if self.trash_button is not None:
+            self.trash_button.setVisible(False)
         super().leaveEvent(event)
 
     def mousePressEvent(self, event):
@@ -230,6 +254,7 @@ class ModelItem(QFrame):
 
 class SearchableModelDropdownPopup(QWidget):
     modelSelected = pyqtSignal(str, str)
+    modelRemoveRequested = pyqtSignal(str)
 
     def __init__(self, models_data: dict = {}, parent=None):
         super().__init__(parent)
@@ -294,6 +319,7 @@ class SearchableModelDropdownPopup(QWidget):
         main_layout.addWidget(self.search_bar)
 
         scroll_area = QScrollArea()
+        self.scroll_area = scroll_area
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QFrame.Shape.NoFrame)
         scroll_area.setHorizontalScrollBarPolicy(
@@ -315,14 +341,13 @@ class SearchableModelDropdownPopup(QWidget):
     def setup_model_list(self):
         # Clear existing widgets
         for i in reversed(range(self.container_layout.count())):
-            item = self.container_layout.itemAt(i)
+            item = self.container_layout.takeAt(i)
             if not item:
                 continue
             widget = item.widget()
             if widget:
+                widget.hide()
                 widget.deleteLater()
-            elif item.spacerItem():
-                self.container_layout.removeItem(item)
 
         self.model_items = {}
 
@@ -339,9 +364,16 @@ class SearchableModelDropdownPopup(QWidget):
 
             for provider, model_name, model_data in favorites:
                 model_item = ModelItem(
-                    model_name, model_data, in_favorites_section=True
+                    model_name,
+                    model_data,
+                    in_favorites_section=True,
+                    removable=(
+                        provider == "Custom"
+                        and model_name != "load_custom_model"
+                    ),
                 )
                 model_item.clicked.connect(self.select_model)
+                model_item.removeRequested.connect(self.modelRemoveRequested)
                 model_item.favoriteToggled.connect(self.toggle_favorite)
                 fav_section.add_model_item(model_item)
                 self.model_items[model_name] = model_item
@@ -360,8 +392,16 @@ class SearchableModelDropdownPopup(QWidget):
             self.container_layout.addWidget(provider_section)
 
             for model_name, model_data in models.items():
-                model_item = ModelItem(model_name, model_data)
+                model_item = ModelItem(
+                    model_name,
+                    model_data,
+                    removable=(
+                        provider == "Custom"
+                        and model_name != "load_custom_model"
+                    ),
+                )
                 model_item.clicked.connect(self.select_model)
+                model_item.removeRequested.connect(self.modelRemoveRequested)
                 model_item.favoriteToggled.connect(self.toggle_favorite)
                 provider_section.add_model_item(model_item)
                 self.model_items[model_name] = model_item
@@ -402,9 +442,52 @@ class SearchableModelDropdownPopup(QWidget):
         self.container_layout.parentWidget().adjustSize()
         self.adjustSize()
 
+    def remove_model_item(self, model_name):
+        """Remove both copies of a model without rebuilding other rows."""
+        scroll_bar = self.scroll_area.verticalScrollBar()
+        scroll_position = scroll_bar.value()
+        self.model_items.pop(model_name, None)
+        for i in reversed(range(self.container_layout.count())):
+            section = self.container_layout.itemAt(i).widget()
+            if not isinstance(section, ProviderSection):
+                continue
+            for j in reversed(range(section.models_container.count())):
+                row = section.models_container.itemAt(j).widget()
+                if isinstance(row, ModelItem) and row.model_name == model_name:
+                    focused_widget = self.focusWidget()
+                    if focused_widget is not None and (
+                        focused_widget is row
+                        or row.isAncestorOf(focused_widget)
+                    ):
+                        self.search_bar.setFocus(
+                            Qt.FocusReason.OtherFocusReason
+                        )
+                    section.models_container.takeAt(j)
+                    row.hide()
+                    row.deleteLater()
+            if section.models_container.count() == 0:
+                # Each section is followed by its separator.
+                separator_item = self.container_layout.itemAt(i + 1)
+                separator = separator_item.widget() if separator_item else None
+                if (
+                    isinstance(separator, QFrame)
+                    and separator.frameShape() == QFrame.Shape.HLine
+                ):
+                    self.container_layout.takeAt(i + 1)
+                    separator.hide()
+                    separator.deleteLater()
+                self.container_layout.takeAt(i)
+                section.hide()
+                section.deleteLater()
+        self.filter_models(self.search_bar.text())
+        scroll_bar.setValue(scroll_position)
+        # Restore again after deferred deletion and layout updates settle.
+        QTimer.singleShot(0, lambda: scroll_bar.setValue(scroll_position))
+
     def update_models_data(self, models_data: dict):
         self.models_data = models_data
         self.setup_model_list()
+        self.filter_models(self.search_bar.text())
 
     def toggle_favorite(self, model_name, is_favorite):
         for provider, models in self.models_data.items():

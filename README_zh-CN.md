@@ -18,7 +18,15 @@
     <a href="https://modelscope.cn/collections/X-AnyLabeling-7b0e1798bcda43"><img src="https://img.shields.io/badge/modelscope-X--AnyLabeling-6750FF?link=https%3A%2F%2Fmodelscope.cn%2Fcollections%2FX-AnyLabeling-7b0e1798bcda43"></a>
 </p>
 
-<img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling 界面" width="100%" />
+<p align="center">
+  <a href="https://mp.weixin.qq.com/s/Amccih1cM-B3hEfaf6koyw" target="_blank">
+    <img src="https://github.com/user-attachments/assets/0bb9e00b-060b-4ce9-91c4-3666e29e4bf2" alt="YOLO Vision 2026 活动" width="100%" />
+  </a>
+</p>
+
+<a href="https://mp.weixin.qq.com/s/RUb8ge-_7br0YeIImuK6YQ" target="_blank">
+  <img src="https://github.com/user-attachments/assets/aa819dae-e38c-4b1c-a4a7-53a873d870e3" alt="X-AnyLabeling 界面" width="100%" />
+</a>
 
 ## 🥳 新功能
 

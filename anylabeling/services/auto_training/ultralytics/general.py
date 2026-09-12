@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import re
@@ -12,6 +13,118 @@ from .config import (
     TASK_LABEL_MAPPINGS,
     TASK_SHAPE_MAPPINGS,
 )
+
+
+def _link_or_copy_image(source_path: str, destination_path: str) -> None:
+    try:
+        os.symlink(source_path, destination_path)
+    except OSError:
+        shutil.copy2(source_path, destination_path)
+
+
+def _get_wsl_unc_root(data_file: str) -> str | None:
+    normalized_path = data_file.replace("\\", "/")
+    match = re.match(
+        r"^//(wsl(?:\.localhost|\$))/([^/]+)(?:/|$)",
+        normalized_path,
+        re.IGNORECASE,
+    )
+    if not match:
+        return None
+    return f"//{match.group(1)}/{match.group(2)}"
+
+
+def _map_wsl_absolute_path(path: str, wsl_root: str | None) -> str | None:
+    if not wsl_root or not path.startswith("/") or path.startswith("//"):
+        return None
+    return f"{wsl_root}{path}"
+
+
+def resolve_prepared_dataset(data_file: str) -> tuple[str | None, str]:
+    data = load_yaml_config(data_file)
+    if not isinstance(data, dict):
+        return None, f"Failed to parse dataset YAML: {data_file}"
+
+    dataset_root = data.get("path")
+    if not isinstance(dataset_root, str) or not dataset_root.strip():
+        return None, f"Dataset YAML must define 'path': {data_file}"
+    dataset_root = os.path.expanduser(os.path.expandvars(dataset_root))
+    wsl_root = _get_wsl_unc_root(data_file)
+    normalized_data = dict(data)
+    normalized = False
+    if not os.path.isabs(dataset_root):
+        dataset_root = os.path.join(
+            os.path.dirname(os.path.abspath(data_file)), dataset_root
+        )
+    if not os.path.isdir(dataset_root):
+        mapped_root = _map_wsl_absolute_path(dataset_root, wsl_root)
+        if not mapped_root or not os.path.isdir(mapped_root):
+            checked_path = (
+                f"; also checked: {mapped_root}" if mapped_root else ""
+            )
+            return (
+                None,
+                f"Dataset path does not exist: {dataset_root}{checked_path}",
+            )
+        dataset_root = mapped_root
+        normalized_data["path"] = mapped_root
+        normalized = True
+
+    for split in ("train", "val"):
+        split_path = data.get(split)
+        if not isinstance(split_path, str) or not split_path.strip():
+            return None, f"Dataset YAML must define '{split}': {data_file}"
+        split_path = os.path.expanduser(os.path.expandvars(split_path))
+        if not os.path.isabs(split_path):
+            split_path = os.path.join(dataset_root, split_path)
+        if not os.path.isdir(split_path):
+            mapped_split = _map_wsl_absolute_path(split_path, wsl_root)
+            if not mapped_split or not os.path.isdir(mapped_split):
+                checked_path = (
+                    f"; also checked: {mapped_split}" if mapped_split else ""
+                )
+                return (
+                    None,
+                    f"Dataset split '{split}' does not exist: "
+                    f"{split_path}{checked_path}",
+                )
+            split_path = mapped_split
+            normalized_data[split] = mapped_split
+            normalized = True
+
+    if not normalized:
+        return data_file, ""
+
+    test_path = normalized_data.get("test")
+    mapped_test = (
+        _map_wsl_absolute_path(test_path, wsl_root)
+        if isinstance(test_path, str)
+        else None
+    )
+    if mapped_test:
+        normalized_data["test"] = mapped_test
+
+    source_path = data_file.replace("\\", "/")
+    source_name = os.path.splitext(os.path.basename(source_path))[0]
+    source_name = re.sub(r"[^A-Za-z0-9._-]+", "_", source_name)
+    fingerprint = hashlib.sha256(source_path.encode("utf-8")).hexdigest()[:12]
+    resolved_dir = os.path.join(get_dataset_path(), "resolved")
+    resolved_path = os.path.join(
+        resolved_dir,
+        f"{source_name or 'dataset'}_{fingerprint}.yaml",
+    )
+    try:
+        os.makedirs(resolved_dir, exist_ok=True)
+    except OSError as error:
+        return None, f"Failed to prepare resolved dataset YAML: {error}"
+    if not save_yaml_config(normalized_data, resolved_path):
+        return None, f"Failed to save resolved dataset YAML: {resolved_path}"
+    return resolved_path, ""
+
+
+def is_prepared_dataset(data_file: str) -> bool:
+    resolved_path, _ = resolve_prepared_dataset(data_file)
+    return resolved_path is not None
 
 
 def create_yolo_dataset(
@@ -49,7 +162,7 @@ def create_yolo_dataset(
             dst_image_path = os.path.join(images_dir, filename)
 
             if os.name == "nt":  # Windows
-                shutil.copy2(image_file, dst_image_path)
+                _link_or_copy_image(image_file, dst_image_path)
             else:
                 os.symlink(image_file, dst_image_path)
 
@@ -83,7 +196,7 @@ def create_yolo_dataset(
                         dst_image_path = os.path.join(class_dir, filename)
 
                         if os.name == "nt":  # Windows
-                            shutil.copy2(image_file, dst_image_path)
+                            _link_or_copy_image(image_file, dst_image_path)
                         else:
                             os.symlink(image_file, dst_image_path)
                         break
@@ -96,6 +209,13 @@ def create_yolo_dataset(
         data_file_name = "classification"
     else:
         data = load_yaml_config(data_file)
+        if not isinstance(data, dict):
+            raise ValueError(f"Failed to parse dataset YAML: {data_file}")
+        names = data.get("names")
+        if not isinstance(names, (dict, list)) or not names:
+            raise ValueError(
+                f"Dataset YAML must contain a non-empty 'names' field: {data_file}"
+            )
         if task_type.lower() == "pose":
             if not pose_cfg_file:
                 return (
@@ -105,9 +225,11 @@ def create_yolo_dataset(
             converter = LabelConverter(pose_cfg_file=pose_cfg_file)
         else:
             converter = LabelConverter()
-        converter.classes = [
-            data["names"][i] for i in sorted(data["names"].keys())
-        ]
+        converter.classes = (
+            [names[index] for index in sorted(names)]
+            if isinstance(names, dict)
+            else names
+        )
         data_file_name = os.path.splitext(os.path.basename(data_file))[0]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     temp_dir = os.path.join(

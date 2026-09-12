@@ -423,6 +423,48 @@ class ModelManager(QObject):
 
         return True
 
+    def remove_custom_model(self, model_name):
+        """Forget a custom model without deleting its config or weights."""
+        if not model_name.startswith("_custom_"):
+            return False
+        if self.is_model_download_running() or (
+            self.model_execution_thread is not None
+            and self.model_execution_thread.isRunning()
+        ):
+            return False
+
+        config = get_config()
+        config["custom_models"] = [
+            model
+            for model in config.get("custom_models", [])
+            if (
+                model.get("name", "")
+                if model.get("name", "").startswith("_custom_")
+                else f"_custom_{model.get('name', '')}"
+            )
+            != model_name
+        ]
+        save_config(config)
+
+        if (
+            self.loaded_model_config is not None
+            and self.loaded_model_config.get("name") == model_name
+        ):
+            self.unload_model()
+            self.model_loaded.emit({})
+            self.new_model_status.emit(self.tr("No model selected."))
+
+        self.model_configs = [
+            model
+            for model in self.model_configs
+            if not (
+                model.get("is_custom_model", False)
+                and model.get("name") == model_name
+            )
+        ]
+        self.model_configs_changed.emit(self.model_configs)
+        return True
+
     def load_model(self, config_file):
         """Run model loading in a thread"""
         if self.is_model_download_running():

@@ -1,3 +1,4 @@
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QDialog, QHBoxLayout, QLabel, QVBoxLayout
 from .custom_widgets import CustomComboBox, PrimaryButton, SecondaryButton
 from anylabeling.services.auto_training.ultralytics.style import (
@@ -7,12 +8,17 @@ from anylabeling.views.labeling.utils.theme import get_theme
 
 
 class ExportFormatDialog(QDialog):
+    export_requested = pyqtSignal(str)
+    stop_requested = pyqtSignal()
+    apply_requested = pyqtSignal()
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle(self.tr("Export Settings"))
         self.setFixedSize(400, 220)
         self.setModal(True)
         self.selected_format = "onnx"
+        self.action_state = "export"
         self.setStyleSheet(get_ultralytics_dialog_style())
 
         layout = QVBoxLayout()
@@ -75,7 +81,7 @@ class ExportFormatDialog(QDialog):
         button_layout.addWidget(self.cancel_btn)
 
         self.ok_btn = PrimaryButton(self.tr("Export"))
-        self.ok_btn.clicked.connect(self.accept)
+        self.ok_btn.clicked.connect(self.on_primary_action)
         button_layout.addWidget(self.ok_btn)
 
         layout.addLayout(button_layout)
@@ -83,3 +89,47 @@ class ExportFormatDialog(QDialog):
 
     def get_selected_format(self):
         return self.format_combo.currentData()
+
+    def on_primary_action(self):
+        if self.action_state == "export":
+            self.export_requested.emit(self.get_selected_format())
+        elif self.action_state == "stop":
+            self.stop_requested.emit()
+        elif self.action_state == "apply":
+            self.apply_requested.emit()
+
+    def set_exporting(self, can_stop=True):
+        self.action_state = "stop" if can_stop else "exporting"
+        self.ok_btn.setText(
+            self.tr("Stop") if can_stop else self.tr("Exporting...")
+        )
+        self.ok_btn.setToolTip(
+            self.tr("Stop the current export") if can_stop else ""
+        )
+        self.ok_btn.setEnabled(can_stop)
+        self.format_combo.setEnabled(False)
+        self.cancel_btn.setEnabled(False)
+
+    def set_apply_ready(self):
+        self.action_state = "apply"
+        self.ok_btn.setText(self.tr("Apply"))
+        self.ok_btn.setToolTip(
+            self.tr(
+                "Generate the model configuration and load it in X-AnyLabeling"
+            )
+        )
+        self.ok_btn.setEnabled(True)
+        self.cancel_btn.setEnabled(True)
+
+    def reset_export(self):
+        self.action_state = "export"
+        self.ok_btn.setText(self.tr("Export"))
+        self.ok_btn.setToolTip("")
+        self.ok_btn.setEnabled(True)
+        self.format_combo.setEnabled(True)
+        self.cancel_btn.setEnabled(True)
+
+    def reject(self):
+        if self.action_state in {"stop", "exporting"}:
+            return
+        super().reject()

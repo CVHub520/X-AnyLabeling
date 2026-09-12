@@ -642,6 +642,11 @@ class RemoteServer(Model):
         progress_dialog = (
             getattr(widget, "_progress_dialog", None) if widget else None
         )
+        range_start = self.video_prompt_frame
+        range_end = None
+        if widget and getattr(widget, "_batch_processing_active", False):
+            range_start = widget._batch_start_index
+            range_end = widget._batch_end_index
 
         try:
             stream_url = f"{self.server_url}/v1/video/propagate/stream"
@@ -653,8 +658,10 @@ class RemoteServer(Model):
                 "session_id": self.video_session_id,
                 "model": self.current_model_id,
             }
-            if self.video_prompt_frame is not None:
-                request_json["start_frame"] = self.video_prompt_frame
+            if range_start is not None:
+                request_json["start_frame"] = range_start
+            if range_end is not None:
+                request_json["end_frame"] = range_end - 1
 
             response = requests.post(
                 url=stream_url,
@@ -693,8 +700,8 @@ class RemoteServer(Model):
                 if event_type == "started":
                     total_frames = event.get("total_frames", 0)
                     start_frame_index = event.get("start_frame_index", 0)
-                    start_idx = self.video_prompt_frame or start_frame_index
-                    frames_to_process = total_frames - start_idx
+                    start_idx = range_start or start_frame_index
+                    frames_to_process = (range_end or total_frames) - start_idx
                     if progress_dialog and frames_to_process > 0:
                         progress_dialog.setMaximum(frames_to_process)
                         progress_dialog.setValue(0)
@@ -709,12 +716,16 @@ class RemoteServer(Model):
 
                 elif event_type == "progress":
                     current_frame = event.get("current_frame", 0)
-                    start_idx = self.video_prompt_frame or 0
+                    start_idx = range_start or 0
+                    if range_end is not None and not (
+                        start_idx <= current_frame < range_end
+                    ):
+                        continue
                     relative_frame = current_frame - start_idx
                     if relative_frame < 0:
                         relative_frame = 0
                     display_frame = relative_frame + 1
-                    frames_to_process = total_frames - start_idx
+                    frames_to_process = (range_end or total_frames) - start_idx
 
                     if progress_dialog:
                         try:
@@ -763,6 +774,10 @@ class RemoteServer(Model):
             for frame_idx_str, frame_result in results.items():
                 try:
                     frame_idx = int(frame_idx_str)
+                    if range_end is not None and not (
+                        range_start <= frame_idx < range_end
+                    ):
+                        continue
                     if 0 <= frame_idx < len(image_list):
                         frame_file = image_list[frame_idx]
                         masks = frame_result.get("masks", [])

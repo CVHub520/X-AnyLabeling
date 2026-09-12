@@ -1,162 +1,82 @@
-# Ultralytics Training with X-AnyLabeling
+# Ultralytics Training
 
-This guide walks you through training Ultralytics models directly within the X-AnyLabeling GUI. You can prepare your dataset, configure training parameters, launch a training job, and monitor its progress—all from one convenient interface.
+X-AnyLabeling provides a graphical workflow for training, monitoring, exporting, and loading Ultralytics models using either the current workspace or an existing organized dataset.
 
 <video src="https://github.com/user-attachments/assets/c0ab2056-2743-4a2c-ba93-13f478d3481e" width="100%" controls>
 </video>
 
-## Prerequisites¶
+## Quick Start
 
-- OS: Windows/Linux/macOS
-- Python: 3.9 -- 3.12
+From the top menu bar in the main window, select `Train > Ultralytics` to open the training window; preloading images in the labeling workspace is not required.
 
+The training window is fully decoupled from the main labeling interface, allowing you to continue labeling data while training runs in the background.
 
-## Installation
+When training or export is in progress, closing the training window only hides it without stopping the task; reopen it from the same menu.
 
-1. **Create and activate a virtual environment**
+### 1. Select the task and data source
 
-Using `conda` is recommended to manage your dependencies.
-
-```bash
-conda create -n x-anylabeling-yolo python=3.12 -y
-conda activate x-anylabeling-yolo
-```
-
-2. **Install Ultralytics**
-
-For the fastest installation, we recommend using `uv`. It can also automatically detect your CUDA version to install the correct PyTorch build.
-
-```bash
-pip install --upgrade uv
-uv pip install ultralytics --torch-backend=auto
-```
-
-> **Note**: To select a specific CUDA backend (e.g., `cu121`), set `--torch-backend=cu121`. See the [`uv` PyTorch integration guide](https://docs.astral.sh/uv/guides/integration/pytorch/) for more details.
-
-> **License Notice**: [Ultralytics](https://github.com/ultralytics/ultralytics) is licensed under [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html). If you use the training feature and provide it as a network service, you must comply with AGPL-3.0's source code disclosure requirements (Section 13). X-AnyLabeling itself remains under GPL-3.0 and does not require Ultralytics for its core annotation functionality.
-
-3. **Clone the repository and install dependencies**
-
-```bash
-git clone https://github.com/CVHub520/X-AnyLabeling.git
-cd X-AnyLabeling
-```
-
-Choose the requirements file that matches your system and needs:
--   `requirements-gpu-dev.txt`: For development with GPU support.
--   `requirements-gpu.txt`: For running with GPU support.
--   `requirements-dev.txt`: For CPU-only development.
--   `requirements.txt`: For CPU-only execution.
--   `requirements-macos.txt`: For running wit MPS support.
--   `requirements-macos-dev.txt`: For MPS-only development.
-
-Install the required packages using `uv`:
-
-```bash
-# Replace [suffix] with your choice, e.g., gpu-dev
-uv pip install -r requirements-[suffix].txt
-```
-
-> [!NOTE]
-> **(macOS only)** Install PyQt dependencies from conda-forge:
-
-```bash
-conda install -c conda-forge pyqt==5.15.9 pyqtwebengine
-```
-
----
-
-To launch the GUI, run the following command from the repository root:
-
-```python
-python anylabeling/app.py
-```
-
-> For more details, please refer to [get_started.md](../../../docs/en/get_started.md)
-
-
-## Quickstart Guide
-
-Once your images are loaded and labeled in the application, you can start the training process by navigating to the main menu and selecting `Train` -> `Ultralytics`.
-
-### 1. Data Tab
-
-This tab provides a summary of your current dataset. Your first step is to configure the dataset for training.
+Open the `Data` tab and select `Classify`, `Detect`, `OBB`, `Segment`, or `Pose`.
 
 <img src=".data/tab_data.png" width="100%" />
 
--   **Task Type**: Select the type of model you want to train: [Classify](https://docs.ultralytics.com/tasks/classify/), [Detect](https://docs.ultralytics.com/tasks/detect/), [OBB](https://docs.ultralytics.com/tasks/obb/), [Segment](https://docs.ultralytics.com/tasks/segment/), or [Pose](https://docs.ultralytics.com/tasks/pose/).
--   **Dataset Summary**: Review the class distribution and ensure you have a sufficient number of labels (a count of 20+ is required). If your dataset isn't loaded, you can do so here.
+X-AnyLabeling currently supports two ways to prepare data for training:
 
-When your data is correctly configured, click **Next**.
+a. **Workspace data**
 
-### 2. Configuration Tab
+Use this mode when annotations are managed by X-AnyLabeling.
 
-Here, you'll set up the core training parameters and hyperparameters.
+Load the image directory in the main interface or click `Load Images` in the training window. The `Data` tab displays the class and annotation summary for the current workspace.
+
+When training starts, X-AnyLabeling converts the current annotations and creates a timestamped dataset snapshot. Images are linked when supported and copied as a fallback. Changes made in the labeling interface after training starts are used by the next run, not the active run.
+
+b. **Existing dataset**
+
+Use this mode when the data is already organized for Ultralytics. Select the task and click `Next` without loading images into the workspace.
+
+For detection, segmentation, obb, and pose, select a dataset YAML whose `path`, `train`, and `val` entries resolve to existing directories and whose `names` entry defines the classes. X-AnyLabeling uses this dataset directly without copying images or regenerating the YAML.
+
+For classification, select a directory organized by class under `train`, with optional `val` and `test` directories.
+
+> See the [Ultralytics dataset documentation](https://docs.ultralytics.com/datasets/) for task-specific formats.
+
+### 2. Configure training
+
+The `Config` tab contains the output, environment, model, data, device, and training parameters.
 
 <img src=".data/tab_config.png" width="100%" />
 
-#### Basic Settings
--   **Project** and **Name**: These fields define the output directory for your training run, which will be saved to `<Project>/<Name>`. The project path is set automatically based on the task type.
--   **Model**: Path to a pretrained model checkpoint (`.pt` file) to use as a starting point.
--   **Data**: Path to your dataset's configuration file (`.yaml`) for det/seg/obb/pose tasks, or dataset directory for classification tasks. For classification one, you can leave this blank, as the tool will automatically generate one based on `flag` filed for you. For details on the format, see the [official Ultralytics documentation](https://docs.ultralytics.com/datasets/).
--   **Device**: Automatically detects available hardware (`CPU`, `CUDA`, `MPS`). Select your desired training device.
--   **Dataset Ratio**: A slider to set the train/validation split for your dataset.
--   **Only Checked Files**: In **Advanced Settings** > **Checkpoint and Validation**, enable this option to train only with files that have been marked as checked in X-AnyLabeling.
+- `Project` and `Name` define the experiment directory as `<Project>/<Name>`.
+- `Env` is the Python executable used for environment detection, training, and export. Source installations default to the interpreter that launched X-AnyLabeling; packaged applications leave it empty. Select the executable from an environment that contains a compatible PyTorch and Ultralytics installation. If no such environment exists, create one by following the [official Ultralytics installation guide](https://docs.ultralytics.com/quickstart/), then select its Python executable here.
+- `Model` accepts a local `.pt` checkpoint. With an external environment, it also accepts a bare Ultralytics model name such as `yolo11n.pt`, which Ultralytics downloads when required.
+- `Data` selects the data source. A complete dataset YAML or classification directory activates existing-dataset mode. With workspace data, X-AnyLabeling generates the train and validation dataset from the loaded annotations.
+- `Device` is populated from the selected environment and supports CPU, CUDA, or MPS when available.
+- `Dataset Ratio` controls the workspace train/validation split. It is not applied to an existing dataset.
+- `Pose Config` is required for pose tasks and defines the keypoint structure.
 
-> [!NOTE]
-> For `Pose` estimation tasks, an additional field will appear to specify a keypoint configuration YAML file. See the [example file](https://github.com/CVHub520/X-AnyLabeling/blob/main/assets/yolov8_pose.yaml) for the required format.
+Common hyperparameters are available under `Train Settings`. Additional optimization, augmentation, loss, and checkpoint options are under `Advanced Settings`. `Plots` is enabled by default so training visualizations are generated. `Only Checked Files` limits workspace training to annotations marked as checked.
 
-X-AnyLabeling supports two data-preparation modes for classification tasks.
+See the [Ultralytics train settings](https://docs.ultralytics.com/modes/train/#train-settings) for parameter definitions.
 
-- **Flags-based Classification**: Use X-AnyLabeling's image-level flags. See the [image classifier guide](../../../docs/en/image_classifier.md) and the [image-level classification example](../../classification/image-level/README.md).
+Configurations can be saved to or imported from JSON. Click `Next` after validation succeeds.
 
-- **Pre-organized Dataset**: If you already have a local structured classification dataset, set the **Data** field to dataset directory on `Configuration Tab`. The expected structure is:
+### 3. Run and monitor training
 
-```
-dataset/
-├── train/
-│   ├── class1/
-│   │   ├── image1.jpg
-│   │   └── image2.jpg
-│   └── class2/
-│       ├── image3.jpg
-│       └── image4.jpg
-├── val/ (optional)
-│   ├── class1/
-│   └── class2/
-└── test/ (optional)
-    ├── class1/
-    └── class2/
-```
-
-> [!NOTE]
-> When using the last mode, the tool will directly use your organized dataset without additional processing.
-
-#### Train Settings
-This section contains common hyperparameters like epochs, batch size, and image size. For more advanced options, expand the **Advanced Settings** dropdown.
-
-For detailed explanations of each parameter, please refer to the [Ultralytics documentation on training](https://docs.ultralytics.com/modes/train/).
-
-> [!TIP]
-> You can save your current settings as a JSON file or import a previous configuration. When you're finished, click **Next** to proceed to the training screen.
-
-### 3. Train Tab
-
-This is the main dashboard for monitoring your training job.
+Click `Start Training` in the `Train` tab. The log states whether the run uses a workspace snapshot or an existing dataset before preparation begins.
 
 <img src=".data/tab_train.png" width="100%" />
 
-The interface is split into four parts:
--   **Training Status**: Shows the current state (`Training`, `Completed`, `Error`) and a real-time progress bar.
--   **Training Logs**: A live feed of the console output from the training process.
--   **Training Images**: Displays key visualizations, such as training batches and validation metrics (e.g., PR curves). Click an image to view it larger.
--   **Actions**:
-    -   `Open Directory`: Opens the output folder for the current training run.
-    -   `Previous`: Returns to the configuration tab.
-    -   `Start Training`: Begins the training process. This button will change to `Stop Training` while a job is running.
-    -   `Export`: After a successful run, this button appears, allowing you to export the best model checkpoint to formats like ONNX.
+The tab provides progress, training logs, and images generated in the experiment directory. Move the pointer over the log area to reveal copy and clear actions. Training images keep the primary six visualizations first; additional files can be viewed with the horizontal scrollbar or mouse wheel.
 
-## Next Steps
+If `<Project>/<Name>` already contains `weights/best.pt`, X-AnyLabeling can load the existing experiment instead of retraining. The latest saved training log and available result images are restored.
 
-After your model is trained and exported, you can load it as a [custom model](https://xanylabeling.com/docs/x-anylabeling/custom_model) in X-AnyLabeling to perform inference and continue improving your dataset.
+Use `Stop Training` to end the active process. Exiting X-AnyLabeling while training or export is active asks for confirmation before stopping the background task.
+
+### 4. Export and apply a model
+
+After training completes, click `Export` and select an output format. The same action becomes `Stop` while an external export is running and returns to `Export` when the task finishes or is stopped.
+
+ONNX exports provide an `Apply` action after export completes. Applying the model creates `<Project>/<Name>/<Name>.yaml`, references `weights/best.onnx`, registers the configuration as a custom model, and loads it in the main auto-labeling panel.
+
+## License
+
+Ultralytics is distributed under the AGPL-3.0 license. Review the [Ultralytics license](https://github.com/ultralytics/ultralytics/blob/main/LICENSE) before distributing or providing a training-based service. X-AnyLabeling remains licensed under GPL-3.0.

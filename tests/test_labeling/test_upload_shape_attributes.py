@@ -270,7 +270,7 @@ class TestUploadShapeAttributes(unittest.TestCase):
             widget.save_attributes.assert_called_once_with([shape])
             widget.hide_attributes_panel.assert_not_called()
 
-    def test_repeated_upload_keeps_auto_switch_signal_state_consistent(self):
+    def test_upload_preserves_auto_switch_signal_state(self):
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".json", encoding="utf-8"
         ) as file:
@@ -322,15 +322,24 @@ class TestUploadShapeAttributes(unittest.TestCase):
                             for call in calls
                         )
                     )
-                    self.assertFalse(widget._auto_switch_signal_connected)
+                    self.assertEqual(
+                        widget._auto_switch_signal_connected,
+                        initially_enabled,
+                    )
                     self.assertEqual(
                         widget._config["auto_switch_to_edit_mode"],
                         initially_enabled,
                     )
                     canvas.mode_changed.emit()
-                    set_edit_mode.assert_not_called()
+                    self.assertEqual(
+                        set_edit_mode.call_count,
+                        1 if initially_enabled else 0,
+                    )
 
                     applier.set_auto_switch_to_edit_mode(True)
                     canvas.mode_changed.emit()
 
-                    set_edit_mode.assert_called_once_with()
+                    self.assertEqual(
+                        set_edit_mode.call_count,
+                        2 if initially_enabled else 1,
+                    )

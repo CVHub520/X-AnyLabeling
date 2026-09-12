@@ -114,7 +114,7 @@ class ImageTagsTest(unittest.TestCase):
 
 class ImageTagsLabelingWidgetTest(unittest.TestCase):
     def make_widget(self, tags_marker=True):
-        other_data = {"description": "keep"}
+        other_data = {"description": "keep", "checked": True}
         if tags_marker:
             other_data["tags"] = ["person"]
         return SimpleNamespace(
@@ -128,6 +128,7 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
             image_tags_widget=mock.Mock(),
             _auto_show_image_tags=mock.Mock(),
             set_dirty=mock.Mock(),
+            _sync_annotation_checked_state=mock.Mock(),
             shape_text_edit=mock.Mock(),
             shape_text_label=mock.Mock(),
             tr=lambda text: text,
@@ -143,6 +144,34 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
         widget.image_tags_widget.set_tags.assert_called_once_with(["person"])
         widget._auto_show_image_tags.assert_called_once_with()
         widget.set_dirty.assert_not_called()
+        self.assertTrue(widget.other_data["checked"])
+        widget._sync_annotation_checked_state.assert_not_called()
+
+    def test_auto_shapes_reset_checked_before_saving(self):
+        for replace in (False, True):
+            with self.subTest(replace=replace):
+                widget = self.make_widget()
+                widget.set_dirty.side_effect = lambda: self.assertFalse(
+                    widget.other_data["checked"]
+                )
+                result = AutoLabelingResult([object()], replace=replace)
+
+                LabelingWidget.new_shapes_from_auto_labeling(widget, result)
+
+                self.assertFalse(widget.other_data["checked"])
+                widget._sync_annotation_checked_state.assert_called_once_with()
+                widget.set_dirty.assert_called_once_with()
+
+    def test_auto_replacement_removing_shapes_resets_checked(self):
+        widget = self.make_widget()
+        widget.canvas.shapes = [SimpleNamespace(locked=False)]
+
+        LabelingWidget.new_shapes_from_auto_labeling(
+            widget, AutoLabelingResult([], replace=True)
+        )
+
+        self.assertFalse(widget.other_data["checked"])
+        widget._sync_annotation_checked_state.assert_called_once_with()
 
     def test_toggle_image_tags_visibility_tracks_explicit_state(self):
         widget = SimpleNamespace(
@@ -173,6 +202,7 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
                 "imageWidth": 8,
                 "description": "keep",
                 "tags": ["old"],
+                "checked": True,
             }
             with open(label_path, "w", encoding="utf-8") as stream:
                 json.dump(data, stream)
@@ -193,6 +223,7 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
             self.assertEqual(saved["tags"], ["street", "Car"])
             self.assertEqual(saved["flags"], {"reviewed": True})
             self.assertEqual(saved["description"], "keep")
+            self.assertFalse(saved["checked"])
 
     def test_batch_result_with_none_tags_preserves_tags(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -209,6 +240,7 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
                 "imageWidth": 8,
                 "description": "",
                 "tags": ["keep"],
+                "checked": True,
             }
             with open(label_path, "w", encoding="utf-8") as stream:
                 json.dump(data, stream)
@@ -223,6 +255,7 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
             with open(label_path, encoding="utf-8") as stream:
                 saved = json.load(stream)
             self.assertEqual(saved["tags"], ["keep"])
+            self.assertTrue(saved["checked"])
 
     def test_empty_auto_tags_create_field_and_mark_dirty(self):
         widget = self.make_widget(tags_marker=False)
@@ -233,6 +266,8 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
         self.assertEqual(widget.other_data["tags"], [])
         self.assertEqual(widget.other_data["description"], "keep")
         widget.set_dirty.assert_called_once_with()
+        self.assertFalse(widget.other_data["checked"])
+        widget._sync_annotation_checked_state.assert_called_once_with()
 
     def test_none_auto_tags_preserve_existing_field(self):
         widget = self.make_widget()
@@ -243,6 +278,8 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
         self.assertEqual(widget.other_data["tags"], ["person"])
         widget.image_tags_widget.set_tags.assert_not_called()
         widget.set_dirty.assert_called_once_with()
+        self.assertTrue(widget.other_data["checked"])
+        widget._sync_annotation_checked_state.assert_not_called()
 
     def test_stale_auto_tags_are_ignored(self):
         widget = self.make_widget()
@@ -258,6 +295,8 @@ class ImageTagsLabelingWidgetTest(unittest.TestCase):
         self.assertEqual(widget.other_data["tags"], ["person"])
         widget.image_tags_widget.set_tags.assert_not_called()
         widget.set_dirty.assert_not_called()
+        self.assertTrue(widget.other_data["checked"])
+        widget._sync_annotation_checked_state.assert_not_called()
 
     def test_image_tag_colors_use_shape_manual_and_stable_priorities(self):
         shape = SimpleNamespace(

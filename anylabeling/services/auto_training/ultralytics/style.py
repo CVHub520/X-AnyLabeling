@@ -29,6 +29,10 @@ def get_ultralytics_dialog_style():
             height: 8px;
             margin: 0;
         }}
+        QScrollArea#trainingImagesScrollArea QScrollBar:horizontal {{
+            height: 12px;
+            margin: 4px 0 0 0;
+        }}
         QScrollBar::handle:horizontal {{
             background-color: {t["scrollbar"]};
             border-radius: 4px;
@@ -160,6 +164,28 @@ def get_log_display_style():
             font-size: 11px;
             border: 1px solid {t["border"]};
             padding: 8px;
+        }}
+    """
+
+
+def get_log_action_button_style():
+    t = get_theme()
+    return f"""
+        QWidget#trainingLogActions {{
+            background-color: transparent;
+        }}
+        QPushButton {{
+            border: none;
+            background-color: transparent;
+            border-radius: 4px;
+            padding: 0;
+            margin: 0;
+        }}
+        QPushButton:hover {{
+            background-color: {t["surface_hover"]};
+        }}
+        QPushButton:pressed {{
+            background-color: {t["surface_pressed"]};
         }}
     """
 

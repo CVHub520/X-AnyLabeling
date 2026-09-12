@@ -134,13 +134,17 @@ def _find_next_label_loop_shape(shapes, start_index, canvas_shapes):
     return len(shapes), None
 
 
-def _create_file_status_icon(color):
+def _create_file_status_icon(color, filled=True):
     pixmap = QtGui.QPixmap(12, 12)
     pixmap.fill(Qt.GlobalColor.transparent)
     painter = QtGui.QPainter(pixmap)
     painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-    painter.setBrush(QtGui.QColor(color))
-    painter.setPen(Qt.PenStyle.NoPen)
+    if filled:
+        painter.setBrush(QtGui.QColor(color))
+        painter.setPen(Qt.PenStyle.NoPen)
+    else:
+        painter.setBrush(Qt.BrushStyle.NoBrush)
+        painter.setPen(QtGui.QPen(QtGui.QColor(color), 1.5))
     painter.drawEllipse(2, 2, 8, 8)
     painter.end()
     return QtGui.QIcon(pixmap)
@@ -202,6 +206,7 @@ class LabelingWidget(LabelDialog):
         )
         self._settings_controller = None
         self._settings_dialog = None
+        self.training_dialog = None
         self._settings_runtime_applier = SettingsRuntimeApplier(self)
         self._auto_switch_signal_connected = False
 
@@ -352,7 +357,9 @@ class LabelingWidget(LabelDialog):
         self.file_list_widget.setIconSize(QtCore.QSize(12, 12))
         self.file_status_icons = {
             True: _create_file_status_icon(FILE_CHECKED_COLOR),
-            False: _create_file_status_icon(FILE_UNCHECKED_COLOR),
+            False: _create_file_status_icon(
+                FILE_UNCHECKED_COLOR, filled=False
+            ),
         }
         self.file_list_widget.itemSelectionChanged.connect(
             self.file_selection_changed
@@ -2972,11 +2979,17 @@ class LabelingWidget(LabelDialog):
             current_index, total_count = self.get_image_progress_info()
             basename = osp.basename(str(self.filename))
             dirty_marker = "*" if self.dirty else ""
+            checked_status = (
+                self.tr("Checked")
+                if self._annotation_checked()
+                else self.tr("Unchecked")
+            )
             image_size = ""
             if hasattr(self, "image") and not self.image.isNull():
                 image_size = f" [{self.image.width()}x{self.image.height()}]"
             title = (
-                f"{title} - {basename}{dirty_marker}{image_size} "
+                f"{title} - {basename}{dirty_marker} [{checked_status}]"
+                f"{image_size} "
                 f"[{current_index}/{total_count}]"
             )
         return title
@@ -3315,17 +3328,25 @@ class LabelingWidget(LabelDialog):
 
     # Trainer
     def start_training(self, mode):
-        if mode == "ultralytics":
-            dialog = UltralyticsDialog(self)
-        else:
+        if mode != "ultralytics":
             return
 
         try:
-            _ = dialog.exec()
+            if self.training_dialog is None:
+                self.training_dialog = UltralyticsDialog(self)
+                self.training_dialog.destroyed.connect(
+                    self.on_training_dialog_destroyed
+                )
+            self.training_dialog.showNormal()
+            self.training_dialog.raise_()
+            self.training_dialog.activateWindow()
         except Exception as e:
             self.error_message(
                 "Start Error", f"Failed to start training dialog: {str(e)}"
             )
+
+    def on_training_dialog_destroyed(self, _dialog=None):
+        self.training_dialog = None
 
     # Tools
     def overview(self):
@@ -3976,6 +3997,7 @@ class LabelingWidget(LabelDialog):
     def _sync_annotation_checked_state(self):
         self._update_annotation_checked_action()
         self._update_current_file_checked_item()
+        self.update_progress_title()
 
     def set_annotation_checked(self, checked):
         if self.filename is None or self.image.isNull():
@@ -6147,6 +6169,11 @@ class LabelingWidget(LabelDialog):
     def closeEvent(self, event):
         if not self.may_continue():
             event.ignore()
+        if event.isAccepted() and self.training_dialog is not None:
+            if not self.training_dialog.prepare_for_application_close():
+                event.ignore()
+                return
+            self.training_dialog.close()
         if event.isAccepted() and hasattr(self, "video_classifier_window"):
             if self.video_classifier_window is not None:
                 self.video_classifier_window.close()
@@ -6852,12 +6879,16 @@ class LabelingWidget(LabelDialog):
             and auto_labeling_result.replace is False
             and not auto_labeling_result.description
         )
+        annotations_changed = bool(auto_labeling_result.shapes)
 
         # Clear existing shapes
         if auto_labeling_result.replace:
             locked_shapes = [
                 shape for shape in self.canvas.shapes if shape.locked
             ]
+            annotations_changed |= len(locked_shapes) != len(
+                self.canvas.shapes
+            )
             self.label_list.clear()
             self.load_shapes(
                 locked_shapes + auto_labeling_result.shapes, replace=True
@@ -6873,6 +6904,9 @@ class LabelingWidget(LabelDialog):
         # Set image description
         if auto_labeling_result.description:
             description = auto_labeling_result.description
+            annotations_changed |= description != self.other_data.get(
+                "description", ""
+            )
             self.shape_text_label.setText(self.tr("Image Description"))
             with QtCore.QSignalBlocker(self.shape_text_edit):
                 self.shape_text_edit.setPlainText(description)
@@ -6892,6 +6926,10 @@ class LabelingWidget(LabelDialog):
                 self.other_data[IMAGE_TAGS_FIELD] = tags
             self.image_tags_widget.set_tags(tags)
             self._auto_show_image_tags()
+
+        if annotations_changed or tags_changed:
+            self.other_data[CHECKED_FIELD] = False
+            self._sync_annotation_checked_state()
 
         if tags_changed or not tags_only_result:
             self.set_dirty()

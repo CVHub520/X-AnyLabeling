@@ -103,6 +103,12 @@ def main():
     train_worker_parser.add_argument(
         "--payload", required=True, help=argparse.SUPPRESS
     )
+    training_worker_parser = subparsers.add_parser(
+        "training-worker", help=argparse.SUPPRESS
+    )
+    training_worker_parser.add_argument(
+        "--payload", required=True, help=argparse.SUPPRESS
+    )
 
     convert_parser = subparsers.add_parser(
         "convert", help="run conversion tasks"
@@ -271,6 +277,10 @@ def main():
             "anylabeling.services.auto_training.ultralytics.trainer",
             fromlist=["run_training_worker_command"],
         ).run_training_worker_command(args),
+        "training-worker": lambda args: __import__(
+            "anylabeling.services.auto_training.ultralytics.worker",
+            fromlist=["main"],
+        ).main(args.payload),
     }
 
     if args.command and args.command in special:

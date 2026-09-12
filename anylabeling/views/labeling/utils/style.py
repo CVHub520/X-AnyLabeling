@@ -520,8 +520,8 @@ def get_dock_style() -> str:
             padding: 2px 0;
         }}
         QListWidget::item:selected {{
-            background-color: {t["selection"]};
-            color: {t["selection_text"]};
+            background-color: {t["surface_hover"]};
+            color: {t["text"]};
         }}
         QListWidget::item:hover:!selected {{
             background-color: {t["surface_hover"]};
