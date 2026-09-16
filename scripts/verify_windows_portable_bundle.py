@@ -26,14 +26,19 @@ COMMON_REQUIRED = (
     "bpe_simple_vocab_16e6.txt.gz",
 )
 
-CUDA12_REQUIRED = (
-    "onnxruntime/capi/onnxruntime_providers_cuda.dll",
+CUDA12_REQUIRED = ("onnxruntime/capi/onnxruntime_providers_cuda.dll",)
+
+BUNDLED_CUDA12_RUNTIME_REQUIRED = (
     "cublas64_12.dll",
     "cublasLt64_12.dll",
     "cudart64_12.dll",
     "cudnn64_9.dll",
     "cufft64_11.dll",
 )
+
+EXTERNAL_CUDA12_RUNTIME_DLLS = {
+    path.lower() for path in BUNDLED_CUDA12_RUNTIME_REQUIRED
+}
 
 PE_SUFFIXES = {".dll", ".exe", ".pyd"}
 
@@ -110,7 +115,10 @@ def _is_windows_component(name: str, system32: Path) -> bool:
 
 
 def verify_bundle(
-    bundle: Path, cuda12: bool, onefile_runtime: bool = False
+    bundle: Path,
+    cuda12: bool,
+    onefile_runtime: bool = False,
+    bundled_cuda_runtime: bool = False,
 ) -> None:
     bundle = bundle.resolve()
     internal = bundle if onefile_runtime else bundle / "_internal"
@@ -119,6 +127,8 @@ def verify_bundle(
         raise RuntimeError(f"Not a PyInstaller {bundle_type} bundle: {bundle}")
 
     required = COMMON_REQUIRED + (CUDA12_REQUIRED if cuda12 else ())
+    if bundled_cuda_runtime:
+        required += BUNDLED_CUDA12_RUNTIME_REQUIRED
     missing = [
         relative
         for relative in required
@@ -187,6 +197,11 @@ def verify_bundle(
             for name in imports
             if name not in bundled_names
             and not _is_windows_component(name, system32)
+            and not (
+                cuda12
+                and not bundled_cuda_runtime
+                and name in EXTERNAL_CUDA12_RUNTIME_DLLS
+            )
         )
         if missing_imports:
             unresolved[path.relative_to(bundle)] = missing_imports
@@ -268,13 +283,23 @@ def main() -> int:
     parser.add_argument("bundle", type=Path)
     parser.add_argument("--cuda12", action="store_true")
     parser.add_argument(
+        "--bundled-cuda-runtime",
+        action="store_true",
+        help="Also require a fully bundled CUDA 12/cuDNN runtime",
+    )
+    parser.add_argument(
         "--onefile-runtime",
         action="store_true",
         help="Treat bundle as a running onefile executable's _MEI directory",
     )
     args = parser.parse_args()
     try:
-        verify_bundle(args.bundle, args.cuda12, args.onefile_runtime)
+        verify_bundle(
+            args.bundle,
+            args.cuda12,
+            args.onefile_runtime,
+            args.bundled_cuda_runtime,
+        )
     except RuntimeError as error:
         print(f"FAIL: {error}", file=sys.stderr)
         return 1

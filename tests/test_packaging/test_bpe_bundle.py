@@ -57,7 +57,7 @@ def test_qt_bootstrap_runs_before_application_imports():
     assert "_SAFE_LOAD_FLAGS" in hook
 
 
-def test_gpu_spec_explicitly_bundles_cuda12_runtime():
+def test_gpu_spec_matches_official_cuda_release_dependency_boundary():
     content = (
         ROOT
         / "packaging"
@@ -66,7 +66,8 @@ def test_gpu_spec_explicitly_bundles_cuda12_runtime():
         / "x-anylabeling-win-gpu.spec"
     ).read_text(encoding="utf-8")
 
-    assert "_collect_cuda12_runtime_dlls" in content
+    assert "_collect_onnxruntime_dlls" in content
+    assert "_collect_cuda12_runtime_dlls" not in content
     for dll_name in (
         "cublas64_12.dll",
         "cublasLt64_12.dll",
@@ -74,4 +75,4 @@ def test_gpu_spec_explicitly_bundles_cuda12_runtime():
         "cudnn64_9.dll",
         "cufft64_11.dll",
     ):
-        assert dll_name in content
+        assert dll_name not in content

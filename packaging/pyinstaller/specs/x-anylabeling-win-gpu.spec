@@ -80,15 +80,6 @@ MSVC_RUNTIME_DLLS = {
     "vcomp140.dll",
 }
 
-CUDA12_RUNTIME_DLLS = {
-    "cublas64_12.dll",
-    "cublasLt64_12.dll",
-    "cudart64_12.dll",
-    "cudnn64_9.dll",
-    "cufft64_11.dll",
-}
-
-
 def _entry_dll_names(entry):
     names = []
     if isinstance(entry, (tuple, list)):
@@ -125,54 +116,6 @@ def _collect_onnxruntime_dlls():
     return [(dll, "onnxruntime/capi") for dll in ort_dlls] + [
         (dll, ".") for dll in root_copy_dlls
     ]
-
-
-def _collect_cuda12_runtime_dlls():
-    candidate_dirs = []
-    explicit_bin = os.environ.get("X_ANYLABELING_CUDA_BIN")
-    if explicit_bin:
-        candidate_dirs.append(explicit_bin)
-
-    cuda_path = os.environ.get("CUDA_PATH")
-    if cuda_path:
-        candidate_dirs.append(os.path.join(cuda_path, "bin"))
-
-    program_files = os.environ.get("ProgramFiles")
-    if program_files:
-        cuda_root = os.path.join(
-            program_files, "NVIDIA GPU Computing Toolkit", "CUDA"
-        )
-        if os.path.isdir(cuda_root):
-            for version in sorted(os.listdir(cuda_root), reverse=True):
-                if version.lower().startswith("v12"):
-                    candidate_dirs.append(
-                        os.path.join(cuda_root, version, "bin")
-                    )
-
-    candidate_dirs.append(os.path.join(sys.prefix, "Library", "bin"))
-
-    binaries = []
-    missing = []
-    for dll_name in sorted(CUDA12_RUNTIME_DLLS):
-        for directory in candidate_dirs:
-            dll_path = os.path.join(directory, dll_name)
-            if os.path.isfile(dll_path):
-                binaries.append((dll_path, "."))
-                break
-        else:
-            missing.append(dll_name)
-
-    if missing:
-        raise RuntimeError(
-            "CUDA12 bundle is missing required runtime DLL sources: "
-            + ", ".join(missing)
-            + ". Set X_ANYLABELING_CUDA_BIN to the CUDA bin directory."
-        )
-    print(
-        "PyInstaller spec: explicitly bundled CUDA12 runtime DLLs:",
-        ", ".join(sorted(CUDA12_RUNTIME_DLLS)),
-    )
-    return binaries
 
 
 def _collect_msvc_runtime_dlls():
@@ -263,7 +206,6 @@ def _strip_external_icu_binaries(binaries):
 
 _add_conda_dll_search_path()
 onnxruntime_binaries = _collect_onnxruntime_dlls()
-cuda12_runtime_binaries = _collect_cuda12_runtime_dlls()
 msvc_runtime_binaries = _collect_msvc_runtime_dlls()
 matplotlib_datas = collect_data_files("matplotlib")
 # ml_dtypes is a delvewheel-repaired Windows wheel. Its extension module
@@ -279,11 +221,13 @@ ml_dtypes_datas, ml_dtypes_binaries = collect_delvewheel_libs_directory(
 a = Analysis(
     [_p("anylabeling", "app.py")],
     pathex=[_p("anylabeling")],
-    binaries=(
-        onnxruntime_binaries
-        + cuda12_runtime_binaries
-        + ml_dtypes_binaries
-    ),
+    # Match the official Windows CUDA release layout: bundle ONNX Runtime's
+    # CUDA provider, but do not copy the entire local CUDA Toolkit into the
+    # EXE. The latter more than doubles the artifact and makes onefile startup
+    # much slower. CUDA 12/cuDNN remain host GPU runtime prerequisites, as in
+    # the upstream release; all Python, Qt, ORT, and model-support files stay
+    # portable inside the application.
+    binaries=onnxruntime_binaries + ml_dtypes_binaries,
     datas=[
         (
             _p("anylabeling", "resources", "images", "icon.png"),
@@ -432,20 +376,6 @@ if OFFLINE_PORTABLE:
         name=artifact_name,
     )
 else:
-    # Onefile normally zlib-compresses every DLL. This package contains more
-    # than 2 GiB of Qt, ONNX Runtime, Torch, and CUDA binaries, so decompression
-    # dominates cold start and can make Windows report the app as hung. Store
-    # native/runtime payloads verbatim: the EXE is larger, but it extracts much
-    # faster and no functionality or offline dependency is removed.
-    fast_onefile_cdict = {
-        "BINARY": 0,
-        "EXTENSION": 0,
-        "DATA": 0,
-        "EXECUTABLE": 0,
-        "PYSOURCE": 1,
-        "PYMODULE": 1,
-        "PYZ": 0,
-    }
     exe = EXE(
         pyz,
         a.scripts,
@@ -459,7 +389,6 @@ else:
         runtime_tmpdir=None,
         console=False,
         icon=_p("anylabeling", "resources", "images", "icon.ico"),
-        cdict=fast_onefile_cdict,
     )
     app = BUNDLE(
         exe,
