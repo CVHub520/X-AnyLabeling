@@ -68,6 +68,7 @@ def test_gpu_spec_matches_official_cuda_release_dependency_boundary():
 
     assert "_collect_onnxruntime_dlls" in content
     assert "_collect_cuda12_runtime_dlls" not in content
+    assert "_strip_host_cuda_runtime_binaries" in content
     for dll_name in (
         "cublas64_12.dll",
         "cublasLt64_12.dll",
@@ -75,4 +76,4 @@ def test_gpu_spec_matches_official_cuda_release_dependency_boundary():
         "cudnn64_9.dll",
         "cufft64_11.dll",
     ):
-        assert dll_name not in content
+        assert dll_name.lower() in content.lower()

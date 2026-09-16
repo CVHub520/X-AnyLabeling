@@ -80,6 +80,18 @@ MSVC_RUNTIME_DLLS = {
     "vcomp140.dll",
 }
 
+# The official Windows GPU artifact ships the ONNX Runtime CUDA provider but
+# treats CUDA/cuDNN as host GPU-runtime prerequisites. PyInstaller can
+# otherwise rediscover a developer machine's Toolkit through PATH and silently
+# add ~800 MiB of unrelated host DLLs to the portable EXE.
+HOST_CUDA_RUNTIME_DLLS = {
+    "cublas64_12.dll",
+    "cublaslt64_12.dll",
+    "cudart64_12.dll",
+    "cudnn64_9.dll",
+    "cufft64_11.dll",
+}
+
 def _entry_dll_names(entry):
     names = []
     if isinstance(entry, (tuple, list)):
@@ -185,6 +197,25 @@ def _strip_optional_tensorrt_provider(binaries):
         for entry in binaries
         if "onnxruntime_providers_tensorrt.dll" not in _entry_dll_names(entry)
     ]
+
+
+def _strip_host_cuda_runtime_binaries(binaries):
+    kept = []
+    removed = []
+    for entry in binaries:
+        names = _entry_dll_names(entry)
+        if any(name in HOST_CUDA_RUNTIME_DLLS for name in names):
+            removed.extend(
+                name for name in names if name in HOST_CUDA_RUNTIME_DLLS
+            )
+            continue
+        kept.append(entry)
+    if removed:
+        print(
+            "PyInstaller spec: excluded host CUDA Toolkit DLLs:",
+            ", ".join(sorted(set(removed))),
+        )
+    return kept
 
 
 def _strip_external_icu_binaries(binaries):
@@ -327,6 +358,7 @@ a = Analysis(
 )
 a.binaries = _strip_msvc_runtime_binaries(a.binaries)
 a.binaries = _strip_optional_tensorrt_provider(a.binaries)
+a.binaries = _strip_host_cuda_runtime_binaries(a.binaries)
 a.binaries = _strip_external_icu_binaries(a.binaries)
 if msvc_runtime_binaries:
     a.binaries += _to_binary_toc_entries(msvc_runtime_binaries)
