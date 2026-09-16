@@ -368,6 +368,19 @@ if OFFLINE_PORTABLE:
         name=artifact_name,
     )
 else:
+    # Avoid spending most of cold start zlib-decompressing the large offline
+    # Qt/ONNX/Torch runtime. Keeping native files uncompressed makes the
+    # onefile EXE larger but materially reduces extraction time without
+    # dropping any feature or dependency.
+    fast_onefile_cdict = {
+        "BINARY": 0,
+        "EXTENSION": 0,
+        "DATA": 0,
+        "EXECUTABLE": 0,
+        "PYSOURCE": 1,
+        "PYMODULE": 1,
+        "PYZ": 0,
+    }
     exe = EXE(
         pyz,
         a.scripts,
@@ -381,6 +394,7 @@ else:
         runtime_tmpdir=None,
         console=False,
         icon=_p("anylabeling", "resources", "images", "icon.ico"),
+        cdict=fast_onefile_cdict,
     )
     app = BUNDLE(
         exe,

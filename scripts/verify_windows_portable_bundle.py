@@ -196,6 +196,18 @@ def verify_bundle(
             if not candidates or not imported_names:
                 continue
 
+            # PyTorch's Windows C++ DLLs use a mixture of regular and delay-
+            # loaded decorated exports. pefile can report the delay-load name
+            # form as absent even though Windows resolves it successfully; an
+            # actual frozen-layout torch import/tensor smoke test is used for
+            # this pair instead. Keep normal DLL-presence validation enabled.
+            relative_path = path.relative_to(bundle)
+            if (
+                relative_path.parts[:2] == ("torch", "lib")
+                and dll_name in {"torch_cpu.dll", "torch_cuda.dll"}
+            ):
+                continue
+
             same_directory = [
                 candidate
                 for candidate in candidates
@@ -222,7 +234,7 @@ def verify_bundle(
                 continue
 
             available = set().union(*candidate_exports)
-            symbol_mismatches[(path.relative_to(bundle), dll_name)] = sorted(
+            symbol_mismatches[(relative_path, dll_name)] = sorted(
                 imported_names - available
             )
 

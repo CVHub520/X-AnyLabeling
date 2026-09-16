@@ -432,6 +432,20 @@ if OFFLINE_PORTABLE:
         name=artifact_name,
     )
 else:
+    # Onefile normally zlib-compresses every DLL. This package contains more
+    # than 2 GiB of Qt, ONNX Runtime, Torch, and CUDA binaries, so decompression
+    # dominates cold start and can make Windows report the app as hung. Store
+    # native/runtime payloads verbatim: the EXE is larger, but it extracts much
+    # faster and no functionality or offline dependency is removed.
+    fast_onefile_cdict = {
+        "BINARY": 0,
+        "EXTENSION": 0,
+        "DATA": 0,
+        "EXECUTABLE": 0,
+        "PYSOURCE": 1,
+        "PYMODULE": 1,
+        "PYZ": 0,
+    }
     exe = EXE(
         pyz,
         a.scripts,
@@ -445,6 +459,7 @@ else:
         runtime_tmpdir=None,
         console=False,
         icon=_p("anylabeling", "resources", "images", "icon.ico"),
+        cdict=fast_onefile_cdict,
     )
     app = BUNDLE(
         exe,
