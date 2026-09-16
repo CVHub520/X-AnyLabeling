@@ -1,9 +1,13 @@
+import cv2
 import numpy as np
 from shapely.geometry import Polygon
 
+from anylabeling.views.labeling.utils.cell_raster import fill_cell_polygon
 from anylabeling.views.labeling.utils.pixel_cell_edges import (
+    _bridge_open_pixel_boundary,
     _repair_radii,
     _trace_cells,
+    fit_guided_quadrilateral_to_edges,
     fit_rectangle_to_edges,
     refine_polygon_to_edge,
     segment_box_to_edge_polygon,
@@ -247,4 +251,90 @@ def test_rectangle_four_sides_snap_independently_to_cell_edges():
         result.points,
         [[24.5, 19.5], [139.5, 19.5], [139.5, 79.5], [24.5, 79.5]],
     )
+    assert_grid(result.points)
+
+
+def test_open_pixel_chain_bridges_its_two_endpoints_on_grid():
+    image = np.zeros((60, 60), np.uint8)
+    image[10:50, 10:50] = 220
+    image[10, 25:31] = 20
+    result = _bridge_open_pixel_boundary(
+        image,
+        [[8, 8], [52, 52]],
+        {
+            "gap_repair": True,
+            "gap_bridge_max": 12,
+            "search_radius": 4,
+            "point_spacing": 100,
+            "min_contrast": 50,
+            "adaptive_search": False,
+        },
+    )
+    assert result.succeeded, result.reason
+    assert result.review_required
+    assert "6px" in result.reason
+    assert abs(Polygon(result.points).area - 1600) < 1e-6
+    assert_grid(result.points)
+
+
+def test_large_open_pixel_chain_is_kept_as_editable_closed_preview():
+    image = np.zeros((90, 140), np.uint8)
+    image[15:75, 15:125] = 220
+    # Suppress most of the upper outer boundary while keeping the remaining
+    # observed chain. The repair is intentionally uncertain and must be
+    # returned as a closed, orthogonal review preview instead of disappearing.
+    image[15, 25:115] = 20
+    result = _bridge_open_pixel_boundary(
+        image,
+        [[10, 10], [130, 80]],
+        {
+            "gap_repair": True,
+            "gap_bridge_max": 256,
+            "search_radius": 4,
+            "point_spacing": 100,
+            "min_contrast": 50,
+            "adaptive_search": False,
+        },
+    )
+    assert result.succeeded, result.reason
+    assert result.review_required
+    assert "90px" in result.reason
+    assert_grid(result.points)
+
+
+def test_four_corner_guide_corrects_angle_and_retains_a_weak_side():
+    image = np.zeros((100, 160), np.uint8)
+    image[20:80, 25:160] = 200  # right side deliberately has no image edge
+    result = fit_guided_quadrilateral_to_edges(
+        image,
+        [[20, 15], [150, 17], [153, 85], [18, 83]],
+        {"search_radius": 8, "min_contrast": 8, "point_spacing": 100},
+    )
+    assert result.succeeded, result.reason
+    assert result.fit_fraction == 0.75
+    np.testing.assert_allclose(result.points.min(axis=0), [24.5, 19.5])
+    # The absent right image edge remains on the user's slanted guide rather
+    # than making the entire operation fail.
+    np.testing.assert_allclose(result.points.max(axis=0), [152.5, 79.5])
+    assert "保留人工引导" in result.reason
+    assert_grid(result.points)
+
+
+def test_four_corner_guide_fits_photographic_perspective():
+    image = np.zeros((110, 170), np.uint8)
+    actual = np.asarray([[35, 20], [140, 33], [122, 91], [24, 72]], np.int32)
+    cv2.fillConvexPoly(image, actual, 220)
+    result = fit_guided_quadrilateral_to_edges(
+        image,
+        [[29, 15], [147, 27], [130, 98], [18, 79]],
+        {"search_radius": 8, "min_contrast": 8, "point_spacing": 4},
+    )
+    assert result.succeeded, result.reason
+    assert result.fit_fraction == 1.0
+    output = np.zeros_like(image)
+    fill_cell_polygon(output, result.points, 1)
+    target = image > 0
+    intersection = np.count_nonzero((output > 0) & target)
+    union = np.count_nonzero((output > 0) | target)
+    assert intersection / union > 0.98
     assert_grid(result.points)

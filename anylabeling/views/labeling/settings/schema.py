@@ -1045,12 +1045,12 @@ def _non_shortcut_fields() -> list[SettingField]:
         ),
         SettingField(
             "canvas.edge_refinement.gap_repair",
-            "短缺口修复",
+            "缺口修复",
             "bool",
             "Canvas",
             "Pixel Edge Refinement",
             "Segmentation",
-            description="弱边缘有一个像素断点时尝试连接；修复结果只作人工预览，不会静默覆盖模型结果。",
+            description="连接未闭合像素边界的两个断点；大缺口结果标记为待人工检查。",
         ),
         SettingField(
             "canvas.edge_refinement.gap_bridge_max",
@@ -1060,7 +1060,7 @@ def _non_shortcut_fields() -> list[SettingField]:
             "Pixel Edge Refinement",
             "Segmentation",
             minimum=1,
-            maximum=100,
+            maximum=4096,
             description="连接不超过该距离的缺口两端，单位为原图像素；大缺口结果需人工确认。",
         ),
         SettingField(

@@ -16,6 +16,7 @@ from anylabeling.views.mainwindow import MainWindow
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.utils.cell_raster import fill_cell_polygon
 from anylabeling.views.labeling.utils.pixel_cell_edges import (
+    CellEdgeResult,
     segment_box_to_edge_polygon,
 )
 
@@ -134,6 +135,60 @@ def test_cell_mask_roundtrip_does_not_grow_by_one_pixel():
     mask = np.zeros_like(image)
     fill_cell_polygon(mask, result.points, 220)
     np.testing.assert_array_equal(mask, image)
+
+
+def test_new_box_preview_is_editable_but_not_serialized(
+    window, tmp_path, monkeypatch
+):
+    view, app = window
+    original_shapes = list(view.canvas.shapes)
+    view._edge_request_id = 17
+    view._edge_request_offsets[17] = np.asarray([0.0, 0.0])
+    view._edge_pending_box = np.asarray([[8.0, 8.0], [32.0, 32.0]])
+    result = CellEdgeResult(
+        points=np.asarray(
+            [[9.5, 9.5], [29.5, 9.5], [29.5, 29.5], [9.5, 29.5]]
+        ),
+        reason="preview",
+        candidates=[],
+        regions=[],
+    )
+
+    assert view._on_edge_box_preview_ready(17, result, None)
+    preview = view._edge_new_preview_shapes[0]
+    assert preview in view.canvas.shapes
+    assert view.canvas.selected_shapes == [preview]
+    assert view.label_list.find_item_by_shape(preview) is None
+
+    view.canvas.prev_h_shape = preview
+    view.canvas.prev_h_edge = 1
+    view.canvas.prev_move_point = QtCore.QPointF(20.0, 10.0)
+    view.canvas.add_point_to_edge()
+    view.canvas.bounded_move_vertex(QtCore.QPointF(20.0, 14.0))
+
+    assert QtCore.QPointF(19.0, 14.0) in preview.points
+    assert QtCore.QPointF(21.0, 14.0) in preview.points
+    output = tmp_path / "must-not-save.json"
+    assert not view.save_labels(str(output))
+    assert not output.exists()
+
+    monkeypatch.setattr(
+        view.label_dialog,
+        "pop_up",
+        lambda *args, **kwargs: ("object", {}, None, "", False, []),
+    )
+    view._config["auto_save"] = True
+    assert view.confirm_pixel_edge_preview()
+    app.processEvents()
+    saved = json.loads(
+        (tmp_path / "image.json").read_text(encoding="utf-8")
+    )
+    assert len(saved["shapes"]) == len(original_shapes) + 1
+    created = saved["shapes"][-1]
+    assert created["pixel_edge_geometry"] == "cell_boundary"
+    assert created["pixel_edge_coordinates"] == "image_corner"
+    assert [19.0, 14.0] in created["points"]
+    assert not view._edge_new_preview_shapes
 
 
 def test_model_toggle_has_exactly_one_receiver(window):

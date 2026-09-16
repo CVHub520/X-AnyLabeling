@@ -6,7 +6,10 @@ import os
 import re
 import sys
 
-from PyInstaller.utils.hooks import collect_data_files
+from PyInstaller.utils.hooks import (
+    collect_data_files,
+    collect_delvewheel_libs_directory,
+)
 
 sys.setrecursionlimit(5000)  # required on Windows
 
@@ -206,12 +209,22 @@ _add_conda_dll_search_path()
 onnxruntime_binaries = _collect_onnxruntime_dlls()
 msvc_runtime_binaries = _collect_msvc_runtime_dlls()
 matplotlib_datas = collect_data_files("matplotlib")
+# Keep the delvewheel companion DLL next to the directory that ml_dtypes
+# registers with os.add_dll_directory(). A same-named copy in pandas.libs is
+# not reachable through that package-specific search path in a frozen app.
+ml_dtypes_datas, ml_dtypes_binaries = collect_delvewheel_libs_directory(
+    "ml_dtypes"
+)
 
 a = Analysis(
     [_p("anylabeling", "app.py")],
     pathex=[_p("anylabeling")],
-    binaries=onnxruntime_binaries,
+    binaries=onnxruntime_binaries + ml_dtypes_binaries,
     datas=[
+        (
+            _p("anylabeling", "resources", "images", "icon.png"),
+            "anylabeling/resources/images",
+        ),
         (
             _p("anylabeling", "configs", "auto_labeling", "*.yaml"),
             "anylabeling/configs/auto_labeling",
@@ -284,7 +297,8 @@ a = Analysis(
             "anylabeling/services/auto_labeling/osam/clip",
         ),
     ]
-    + matplotlib_datas,
+    + matplotlib_datas
+    + ml_dtypes_datas,
     hiddenimports=[
         "matplotlib",
         "matplotlib.backends.backend_agg",
@@ -298,7 +312,10 @@ a = Analysis(
             "packaging", "pyinstaller", "runtime_hooks", "ort_dll_bootstrap.py"
         ),
     ],
-    excludes=[],
+    # Pandas advertises optional PyArrow support, but X-AnyLabeling does not
+    # use it. Do not freeze an unrelated Arrow DLL set into the portable app;
+    # newer PyArrow wheels may otherwise introduce incompatible C++ symbols.
+    excludes=["pyarrow"],
 )
 a.binaries = _strip_msvc_runtime_binaries(a.binaries)
 a.binaries = _strip_optional_tensorrt_provider(a.binaries)
@@ -339,7 +356,7 @@ if OFFLINE_PORTABLE:
         strip=False,
         upx=False,
         console=False,
-        icon=_p("anylabeling", "resources", "images", "icon.icns"),
+        icon=_p("anylabeling", "resources", "images", "icon.ico"),
     )
     bundle = COLLECT(
         exe,
@@ -363,12 +380,12 @@ else:
         upx=False,
         runtime_tmpdir=None,
         console=False,
-        icon=_p("anylabeling", "resources", "images", "icon.icns"),
+        icon=_p("anylabeling", "resources", "images", "icon.ico"),
     )
     app = BUNDLE(
         exe,
         name="X-AnyLabeling.app",
-        icon=_p("anylabeling", "resources", "images", "icon.icns"),
+        icon=_p("anylabeling", "resources", "images", "icon.ico"),
         bundle_identifier=None,
         info_plist={"NSHighResolutionCapable": "True"},
     )

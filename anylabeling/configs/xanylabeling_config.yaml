@@ -122,7 +122,7 @@ canvas:
     boundary_side: bright
     adaptive_search: true
     gap_repair: true
-    gap_bridge_max: 24  # maximum gap bridge in source-image pixels
+    gap_bridge_max: 256  # maximum endpoint bridge in source-image pixels
     gap_bridge_ratio: 0.20  # reject repairs that change more than this mask fraction
     min_box_containment: 0.70  # prevent nearby objects outside the box from stealing the result
     annotate_all_in_box: false

@@ -127,6 +127,19 @@ def verify_bundle(
     if missing:
         raise RuntimeError("Missing required files: " + ", ".join(missing))
 
+    # ml_dtypes wheels use delvewheel to place their hash-suffixed C++
+    # runtime in a sibling directory that the package registers explicitly.
+    # Merely finding another copy under pandas.libs is insufficient: it is not
+    # on the package's DLL search path and model loading then fails while
+    # importing _ml_dtypes_ext.
+    ml_dtypes_runtime = list(
+        (internal / "ml_dtypes.libs").glob("msvcp140-*.dll")
+    )
+    if not ml_dtypes_runtime:
+        raise RuntimeError(
+            "Missing ml_dtypes delvewheel runtime under ml_dtypes.libs"
+        )
+
     if list(bundle.rglob("onnxruntime_providers_tensorrt.dll")):
         raise RuntimeError(
             "TensorRT provider is present without the separately licensed "

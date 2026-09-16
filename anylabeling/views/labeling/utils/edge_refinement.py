@@ -885,6 +885,7 @@ def _legacy_refine_model_polygons_to_edges(
 # Public pixel-edge operations use discrete cell boundaries. Keep the previous
 # continuous fitter available internally for regression comparisons only.
 from .pixel_cell_edges import (  # noqa: E402,F401
+    fit_guided_quadrilateral_to_edges,
     fit_rectangle_to_edges,
     refine_model_polygons_to_edges,
     refine_polygons_to_edges,

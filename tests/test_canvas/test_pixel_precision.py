@@ -309,6 +309,91 @@ class TestCanvasPixelPrecision(unittest.TestCase):
         self.assertEqual(self.canvas.line.points, [])
         self.assertFalse(self.canvas.is_move_editing)
 
+    def test_cell_boundary_corner_drag_is_local_and_stays_orthogonal(self):
+        shape = Shape(label="edge", shape_type="polygon")
+        shape.points = [
+            QtCore.QPointF(10.0, 10.0),
+            QtCore.QPointF(30.0, 10.0),
+            QtCore.QPointF(30.0, 30.0),
+            QtCore.QPointF(10.0, 30.0),
+        ]
+        shape.other_data["pixel_edge_geometry"] = "cell_boundary"
+        shape.close()
+        self.canvas.h_shape = shape
+        self.canvas.h_vertex = 1
+
+        self.canvas.bounded_move_vertex(QtCore.QPointF(32.2, 7.8))
+
+        self.assertIn(QtCore.QPointF(32.0, 8.0), shape.points)
+        self.assertIn(QtCore.QPointF(10.0, 10.0), shape.points)
+        self.assertIn(QtCore.QPointF(30.0, 30.0), shape.points)
+        self.assertTrue(
+            all(
+                first.x() == second.x() or first.y() == second.y()
+                for first, second in zip(
+                    shape.points, shape.points[1:] + shape.points[:1]
+                )
+            )
+        )
+
+    def test_cell_boundary_edge_drag_creates_only_a_local_segment(self):
+        shape = Shape(label="edge", shape_type="polygon")
+        shape.points = [
+            QtCore.QPointF(10.0, 10.0),
+            QtCore.QPointF(30.0, 10.0),
+            QtCore.QPointF(30.0, 30.0),
+            QtCore.QPointF(10.0, 30.0),
+        ]
+        shape.other_data["pixel_edge_geometry"] = "cell_boundary"
+        shape.close()
+        self.canvas.prev_h_shape = shape
+        self.canvas.prev_h_edge = 1
+        self.canvas.prev_move_point = QtCore.QPointF(20.0, 10.0)
+
+        self.canvas.add_point_to_edge()
+        self.canvas.bounded_move_vertex(QtCore.QPointF(20.0, 14.0))
+        first_drag_count = len(shape.points)
+        self.canvas.bounded_move_vertex(QtCore.QPointF(20.0, 15.0))
+
+        self.assertEqual(len(shape.points), first_drag_count)
+        self.assertIn(QtCore.QPointF(19.0, 15.0), shape.points)
+        self.assertIn(QtCore.QPointF(21.0, 15.0), shape.points)
+        self.assertIn(QtCore.QPointF(10.0, 10.0), shape.points)
+        self.assertIn(QtCore.QPointF(30.0, 10.0), shape.points)
+        self.assertTrue(
+            all(
+                first.x() == second.x() or first.y() == second.y()
+                for first, second in zip(
+                    shape.points, shape.points[1:] + shape.points[:1]
+                )
+            )
+        )
+
+    def test_pixel_edge_preview_cannot_be_dragged_as_whole_shape(self):
+        shape = Shape(label="preview", shape_type="polygon")
+        shape.points = [
+            QtCore.QPointF(10.0, 10.0),
+            QtCore.QPointF(30.0, 10.0),
+            QtCore.QPointF(30.0, 30.0),
+            QtCore.QPointF(10.0, 30.0),
+        ]
+        shape.other_data.update(
+            {
+                "pixel_edge_geometry": "cell_boundary",
+                "pixel_edge_source": "box_preview",
+            }
+        )
+        shape.close()
+        before = [QtCore.QPointF(point) for point in shape.points]
+        self.canvas.prev_point = QtCore.QPointF(20.0, 20.0)
+
+        moved = self.canvas.bounded_move_shapes(
+            [shape], QtCore.QPointF(25.0, 25.0)
+        )
+
+        self.assertFalse(moved)
+        self.assertEqual(shape.points, before)
+
     def test_escape_cancels_pending_cell_boundary_connector(self):
         shape = Shape(label="edge", shape_type="polygon")
         shape.points = [

@@ -68,6 +68,7 @@ from .utils.file_search import (
     matches_label_attribute,
 )
 from .utils.edge_refinement import (
+    fit_guided_quadrilateral_to_edges,
     fit_rectangle_to_edges,
     refine_model_polygons_to_edges,
     refine_polygons_to_edges,
@@ -222,6 +223,7 @@ class LabelingWidget(LabelDialog):
         self._edge_box_mode = False
         self._edge_pending_box = None
         self._edge_pending_candidate = None
+        self._edge_new_preview_shapes = []
         self._edge_existing_request = None
         self._edge_existing_preview = None
         self._edge_batch_request = None
@@ -4946,6 +4948,11 @@ class LabelingWidget(LabelDialog):
 
     # React to canvas signals.
     def shape_selection_changed(self, selected_shapes):
+        new_previews = set(
+            getattr(self, "_edge_new_preview_shapes", []) or []
+        )
+        if new_previews and not new_previews.intersection(selected_shapes):
+            self.cancel_pixel_edge_preview(switch_mode=False)
         pending = getattr(self, "_edge_existing_preview", None)
         if (
             pending is not None
@@ -5284,6 +5291,7 @@ class LabelingWidget(LabelDialog):
         if (
             self._edge_existing_preview is not None
             or self._edge_batch_preview is not None
+            or getattr(self, "_edge_new_preview_shapes", None)
         ):
             self.status(
                 self.tr(
@@ -6095,22 +6103,6 @@ class LabelingWidget(LabelDialog):
     def toggle_auto_label_edge_refine(self, checked):
         checked = bool(checked)
         self._edge_refinement_settings()["auto_label_enabled"] = checked
-        signal = (
-            self.auto_labeling_widget.model_manager.new_auto_labeling_result
-        )
-        for receiver in (
-            self.handle_auto_labeling_result,
-            self.new_shapes_from_auto_labeling,
-        ):
-            try:
-                signal.disconnect(receiver)
-            except (TypeError, RuntimeError):
-                pass
-        signal.connect(
-            self.handle_auto_labeling_result
-            if checked
-            else self.new_shapes_from_auto_labeling
-        )
         self.status(
             self.tr(
                 "Auto-label edge post-process ON"
@@ -6169,7 +6161,7 @@ class LabelingWidget(LabelDialog):
             self._edge_request_offsets[request_id] = np.asarray([0.0, 0.0])
             task = EdgeComputationTask(
                 request_id,
-                refine_polygon_to_edge,
+                fit_guided_quadrilateral_to_edges,
                 self.image.copy(),
                 box - 0.5,
                 dict(self._edge_refinement_settings()),
@@ -6291,10 +6283,28 @@ class LabelingWidget(LabelDialog):
             self._edge_preview_shape(points)
             for points in self._edge_pending_candidates
         ]
-        self.canvas.set_edge_preview_shapes(previews)
+        for preview, points in zip(previews, self._edge_pending_candidates):
+            self._set_shape_edge_points(preview, points, "box_preview")
+        self._edge_new_preview_shapes = previews
+        self.canvas.clear_edge_preview_shapes()
+        self.canvas.shapes.extend(previews)
+        self.canvas.h_shape = self.canvas.prev_h_shape = None
+        self.canvas.h_vertex = self.canvas.prev_h_vertex = None
+        self.canvas.h_edge = self.canvas.prev_h_edge = None
+        self.canvas.selected_shapes_copy = []
+        self.canvas.select_shapes(previews)
+        for name in (
+            "delete",
+            "duplicate",
+            "edit",
+            "edit_brush_mode",
+            "union_selection",
+        ):
+            getattr(self.actions, name).setEnabled(False)
+        self.actions.undo.setEnabled(False)
         self.pixel_edge_widget.set_pending(True)
         self.pixel_edge_widget.set_result_status(
-            result.reason or "像素边界预览已就绪，请确认",
+            result.reason or "像素边界预览已就绪，可局部拖动后确认",
             result.threshold_used,
             sum(len(points) for points in self._edge_pending_candidates),
             result.fit_error,
@@ -6440,6 +6450,10 @@ class LabelingWidget(LabelDialog):
         self._edge_existing_preview = None
         batch = getattr(self, "_edge_batch_preview", None)
         self._edge_batch_preview = None
+        new_previews = list(
+            getattr(self, "_edge_new_preview_shapes", []) or []
+        )
+        self._edge_new_preview_shapes = []
         if existing is not None:
             shape = existing["shape"]
             preview = existing.get("preview_shape")
@@ -6477,6 +6491,12 @@ class LabelingWidget(LabelDialog):
                 batch["backups"]
             )
             self.actions.undo.setEnabled(batch["undo_enabled"])
+        if new_previews:
+            self.canvas.shapes = [
+                shape
+                for shape in self.canvas.shapes
+                if shape not in new_previews
+            ]
         had_box_mode = self._edge_box_mode or getattr(
             self, "_edge_four_corner_mode", False
         )
@@ -6510,6 +6530,9 @@ class LabelingWidget(LabelDialog):
                 self.canvas.select_shapes([existing["shape"]])
             elif batch is not None and originals:
                 self.canvas.select_shapes(originals)
+            elif new_previews:
+                self.canvas.select_shapes([])
+                self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
         if hasattr(self, "pixel_edge_widget"):
             self.pixel_edge_widget.set_pending(False)
             self.pixel_edge_widget.set_candidates(0, 0)
@@ -6628,14 +6651,37 @@ class LabelingWidget(LabelDialog):
             self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
             return True
 
-        if self._edge_pending_candidate is None:
+        new_previews = list(
+            getattr(self, "_edge_new_preview_shapes", []) or []
+        )
+        if self._edge_pending_candidate is None and not new_previews:
             return False
-        points_list = [
-            points.copy()
-            for points in (
-                self._edge_pending_candidates or [self._edge_pending_candidate]
-            )
-        ]
+        if new_previews:
+            points_list = []
+            for preview in new_previews:
+                if preview not in self.canvas.shapes:
+                    self.cancel_pixel_edge_preview(switch_mode=False)
+                    return False
+                validation = validate_polygon_edge_fit(
+                    self.image,
+                    self._shape_points_array(preview) - 0.5,
+                    self._edge_refinement_settings(),
+                )
+                if not validation.succeeded:
+                    self.pixel_edge_widget.set_result_status(
+                        self.tr("Cannot confirm: ") + validation.reason,
+                        fit_error=validation.fit_error,
+                    )
+                    return False
+                points_list.append(validation.points + 0.5)
+        else:
+            points_list = [
+                points.copy()
+                for points in (
+                    self._edge_pending_candidates
+                    or [self._edge_pending_candidate]
+                )
+            ]
         operation = self._edge_box_operation
         self._edge_preview_timer.stop()
         self._edge_request_id += 1
@@ -6645,6 +6691,14 @@ class LabelingWidget(LabelDialog):
         self._edge_pending_box = None
         self._edge_pending_candidate = None
         self._edge_pending_candidates = []
+        self._edge_new_preview_shapes = []
+        if new_previews:
+            self.canvas.shapes = [
+                shape
+                for shape in self.canvas.shapes
+                if shape not in new_previews
+            ]
+            self.canvas.select_shapes([])
         self.canvas.clear_edge_preview_shapes()
         self.canvas._clear_cell_boundary_edit_transients()
         self.pixel_edge_widget.set_pending(False)
@@ -6656,6 +6710,7 @@ class LabelingWidget(LabelDialog):
                 else "box_confirmed"
             ),
         )
+        self.actions.undo.setEnabled(self.canvas.is_shape_restorable)
         if succeeded:
             self._restart_continuous_edge_box(operation)
         return succeeded
@@ -6722,9 +6777,19 @@ class LabelingWidget(LabelDialog):
         else:
             self._edge_pending_candidate = points.copy()
             self._edge_pending_candidates = [points.copy()]
-            self.canvas.set_edge_preview_shapes(
-                [self._edge_preview_shape(points)]
+            previews = list(
+                getattr(self, "_edge_new_preview_shapes", []) or []
             )
+            if previews and previews[0] in self.canvas.shapes:
+                preview = previews[0]
+                self._set_shape_edge_points(preview, points, "box_preview")
+                self.canvas.h_vertex = self.canvas.prev_h_vertex = None
+                self.canvas.h_edge = self.canvas.prev_h_edge = None
+                self.canvas.update()
+            else:
+                self.canvas.set_edge_preview_shapes(
+                    [self._edge_preview_shape(points)]
+                )
         self.pixel_edge_widget.set_candidates(
             self._edge_candidate_index, len(self._edge_candidates)
         )
@@ -6815,13 +6880,9 @@ class LabelingWidget(LabelDialog):
             return False
 
         preview = shape.copy()
-        preview.points = [
-            QtCore.QPointF(float(x + 0.5), float(y + 0.5))
-            for x, y in result.points
-        ]
-        preview.close()
-        preview.other_data["pixel_edge_geometry"] = "cell_boundary"
-        preview.other_data["pixel_edge_coordinates"] = "image_corner"
+        self._set_shape_edge_points(
+            preview, np.asarray(result.points) + 0.5, "existing_preview"
+        )
         request["preview_shape"] = preview
         self.canvas.shapes[self.canvas.shapes.index(shape)] = preview
         self.canvas.h_shape = self.canvas.prev_h_shape = None
@@ -6941,8 +7002,6 @@ class LabelingWidget(LabelDialog):
         }
         pending = self._model_edge_result_requests.pop(request_id, None)
         if pending is None:
-            return
-        if request_id != getattr(self, "_model_edge_request_id", request_id):
             return
         auto_labeling_result, polygon_shapes = pending
         path = getattr(auto_labeling_result, "image_path", None)

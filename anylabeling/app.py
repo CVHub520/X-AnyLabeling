@@ -439,7 +439,17 @@ def main():
 
     app.setApplicationName(__appname__)
     app.setApplicationVersion(__version__)
-    app.setWindowIcon(new_icon("icon"))
+    # Prefer the standalone PNG so source runs and frozen Windows builds use
+    # the same updated brand asset. Fall back to the compiled Qt resource for
+    # older packages that do not carry the standalone file.
+    app_icon_path = (
+        Path(__file__).resolve().parent / "resources" / "images" / "icon.png"
+    )
+    app.setWindowIcon(
+        QtGui.QIcon(str(app_icon_path))
+        if app_icon_path.is_file()
+        else new_icon("icon")
+    )
     if loaded_language:
         app.installTranslator(translator)
     else:

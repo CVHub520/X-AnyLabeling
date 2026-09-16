@@ -191,20 +191,20 @@ class PixelEdgeWidget(QtWidgets.QWidget):
         self.blur_radius.setRange(0, 15)
         self.blur_radius.setValue(int(self._settings.get("blur_radius", 0)))
         row.addWidget(self.blur_radius)
-        self.gap_repair = QtWidgets.QCheckBox("短缺口修复", content)
+        self.gap_repair = QtWidgets.QCheckBox("缺口修复", content)
         self.gap_repair.setChecked(
             bool(self._settings.get("gap_repair", True))
         )
         self.gap_repair.setToolTip(
-            "在严格面积变化限制内连接小缺口两端；只有完整闭环评分更好时才作为待确认预览"
+            "连接未闭合边界的两个断点；大缺口只生成待人工调整的闭合预览"
         )
         row.addWidget(self.gap_repair)
 
         row.addWidget(QtWidgets.QLabel("最大缺口(px)", content))
         self.gap_bridge_max = QtWidgets.QSpinBox(content)
-        self.gap_bridge_max.setRange(1, 100)
+        self.gap_bridge_max.setRange(1, 4096)
         self.gap_bridge_max.setValue(
-            int(self._settings.get("gap_bridge_max", 24))
+            int(self._settings.get("gap_bridge_max", 256))
         )
         self.gap_bridge_max.setToolTip(
             "大缺口也只生成待确认预览；单位为原图像素"

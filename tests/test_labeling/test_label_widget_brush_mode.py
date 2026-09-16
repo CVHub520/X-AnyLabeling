@@ -235,6 +235,7 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
         panel = SimpleNamespace(set_result_status=Mock())
         widget = SimpleNamespace(
             _edge_tasks=set(),
+            _model_edge_request_id=-99,
             _model_edge_result_requests={7: (result, [shape])},
             filename="image.png",
             pixel_edge_widget=panel,
@@ -244,6 +245,22 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
             new_shapes_from_auto_labeling=Mock(),
         )
         return widget, result, shape, candidate
+
+    def test_model_edge_disabled_uses_original_receiver_immediately(self):
+        shape = Shape(label="model", shape_type="polygon")
+        result = AutoLabelingResult(
+            [shape], replace=False, image_path="image.png"
+        )
+        receiver = Mock()
+        widget = SimpleNamespace(
+            image=SimpleNamespace(isNull=lambda: False),
+            _edge_refinement_settings=lambda: {"auto_label_enabled": False},
+            new_shapes_from_auto_labeling=receiver,
+        )
+
+        LabelingWidget.handle_auto_labeling_result(widget, result)
+
+        receiver.assert_called_once_with(result)
 
     def test_model_edge_postprocess_happens_before_original_receiver(self):
         widget, result, shape, candidate = (
@@ -296,6 +313,7 @@ class TestLabelWidgetBrushMode(unittest.TestCase):
             shapes_backups=[[shape.copy()]],
             update=Mock(),
             clear_edge_preview_shapes=Mock(),
+            _clear_cell_boundary_edit_transients=Mock(),
             select_shapes=Mock(),
             store_shapes=Mock(),
             shape_moved=SimpleNamespace(emit=Mock()),

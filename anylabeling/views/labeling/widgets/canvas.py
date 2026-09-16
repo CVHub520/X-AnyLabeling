@@ -190,6 +190,7 @@ class Canvas(
         self.prev_h_rotation_shape = None
         self.moving_shape = False
         self._pending_edge_point = None
+        self._cell_boundary_drag = None
         self.rotating_shape = False
         self._rotation_drag_shape = None
         self._rotation_drag_prev_angle = None
@@ -566,7 +567,7 @@ class Canvas(
 
     @staticmethod
     def _normalize_cell_boundary_shape(shape):
-        """Remove edit-created duplicate/straight-through vertices safely."""
+        """Remove duplicate vertices created during local boundary editing."""
         if shape.other_data.get("pixel_edge_geometry") != "cell_boundary":
             return False
         points = [QtCore.QPointF(point) for point in shape.points]
@@ -590,6 +591,7 @@ class Canvas(
         """Leave pixel-edge editing in a fully idle state after a drag."""
         self.is_move_editing = False
         self._pending_edge_point = None
+        self._cell_boundary_drag = None
         self.current = None
         self.line.points = []
         self.h_vertex = self.prev_h_vertex = None
@@ -2702,7 +2704,14 @@ class Canvas(
                 self.h_cuboid_face = None
                 self.override_cursor(CURSOR_POINT)
                 self.setToolTip(
-                    self.tr("Click to create point of shape '%s'")
+                    (
+                        self.tr(
+                            "Click & drag to adjust a local edge of shape '%s'"
+                        )
+                        if shape.other_data.get("pixel_edge_geometry")
+                        == "cell_boundary"
+                        else self.tr("Click to create point of shape '%s'")
+                    )
                     % shape.label
                 )
                 self.setStatusTip(self.toolTip())
@@ -2863,6 +2872,7 @@ class Canvas(
         if self.is_loading:
             return
         self._pending_edge_point = None
+        self._cell_boundary_drag = None
         pos = self.transform_pos(ev.position())
         self._pixel_cursor_pos = QtCore.QPointF(pos)
 
@@ -3964,26 +3974,7 @@ class Canvas(
             pos = self._clamp_to_pixel_boundary_extent(
                 QtCore.QPointF(round(pos.x()), round(pos.y()))
             )
-            old = QtCore.QPointF(shape[index])
-            for direction in (-1, 1):
-                neighbor = (index + direction) % len(shape.points)
-                vertical = abs(shape[neighbor].x() - old.x()) < 1e-7
-                for _ in range(len(shape.points) - 1):
-                    p = QtCore.QPointF(shape[neighbor])
-                    if vertical and abs(p.x() - old.x()) > 1e-7:
-                        break
-                    if not vertical and abs(p.y() - old.y()) > 1e-7:
-                        break
-                    if vertical:
-                        p.setX(pos.x())
-                    else:
-                        p.setY(pos.y())
-                    shape[neighbor] = p
-                    neighbor = (neighbor + direction) % len(shape.points)
-                    if neighbor == index:
-                        break
-            shape[index] = pos
-            shape.close()
+            self._move_cell_boundary_vertex_locally(shape, index, pos)
             return
         if shape.shape_type == "cuboid":
             self.move_cuboid_control(shape, index, pos)
@@ -4012,6 +4003,7 @@ class Canvas(
             #     return
             # Move 4 pixal one by one
             shape.move_vertex_by(index, pos - point)
+
             lindex = (index + 1) % 4
             rindex = (index + 3) % 4
             shape[lindex] = p2
@@ -4035,10 +4027,120 @@ class Canvas(
         else:
             shape.move_vertex_by(index, pos - point)
 
+    @staticmethod
+    def _cell_edge_axis(first, second):
+        """Return the axis of an orthogonal pixel-cell edge."""
+        if abs(first.y() - second.y()) < 1e-7:
+            return "horizontal"
+        if abs(first.x() - second.x()) < 1e-7:
+            return "vertical"
+        return None
+
+    @staticmethod
+    def _local_edge_interval(before, center, after):
+        """Choose a short, bounded interval around an edge click."""
+        low, high = sorted((float(before), float(after)))
+        if high - low <= 1.0:
+            return low, high
+        start = max(low, min(float(center) - 1.0, high - 2.0))
+        end = min(high, start + 2.0)
+        return start, end
+
+    def _move_cell_boundary_vertex_locally(self, shape, index, pos):
+        """Move only the local pixel-cell corner/edge under the cursor.
+
+        Rebuilding from the drag-start geometry prevents every mouse-move event
+        from inserting more elbows. The two remote ends of the neighbouring
+        edges stay fixed, so a manual correction cannot pull an entire contour
+        side along with it.
+        """
+        state = self._cell_boundary_drag
+        if state is None or state["shape"] is not shape:
+            if len(shape.points) < 3 or index is None:
+                return
+            state = {
+                "shape": shape,
+                "index": int(index),
+                "points": [QtCore.QPointF(point) for point in shape.points],
+            }
+            self._cell_boundary_drag = state
+
+        points = [QtCore.QPointF(point) for point in state["points"]]
+        original_index = state["index"] % len(points)
+        previous = points[(original_index - 1) % len(points)]
+        original = points[original_index]
+        following = points[(original_index + 1) % len(points)]
+        incoming = self._cell_edge_axis(previous, original)
+        outgoing = self._cell_edge_axis(original, following)
+
+        replacement = None
+        selected_offset = 0
+        if incoming and outgoing and incoming != outgoing:
+            if incoming == "horizontal":
+                replacement = [
+                    QtCore.QPointF(pos.x(), original.y()),
+                    QtCore.QPointF(pos),
+                    QtCore.QPointF(original.x(), pos.y()),
+                ]
+            else:
+                replacement = [
+                    QtCore.QPointF(original.x(), pos.y()),
+                    QtCore.QPointF(pos),
+                    QtCore.QPointF(pos.x(), original.y()),
+                ]
+            selected_offset = 1
+        elif incoming == outgoing == "horizontal":
+            start, end = self._local_edge_interval(
+                previous.x(), pos.x(), following.x()
+            )
+            replacement = [
+                QtCore.QPointF(start, original.y()),
+                QtCore.QPointF(start, pos.y()),
+                QtCore.QPointF(end, pos.y()),
+                QtCore.QPointF(end, original.y()),
+            ]
+            selected_offset = 1
+        elif incoming == outgoing == "vertical":
+            start, end = self._local_edge_interval(
+                previous.y(), pos.y(), following.y()
+            )
+            replacement = [
+                QtCore.QPointF(original.x(), start),
+                QtCore.QPointF(pos.x(), start),
+                QtCore.QPointF(pos.x(), end),
+                QtCore.QPointF(original.x(), end),
+            ]
+            selected_offset = 1
+
+        if replacement is None:
+            points[original_index] = QtCore.QPointF(pos)
+            shape.points = points
+            self.h_vertex = original_index
+        else:
+            shape.points = (
+                points[:original_index]
+                + replacement
+                + points[original_index + 1 :]
+            )
+            self.h_vertex = original_index + selected_offset
+        shape.close()
+
     def bounded_move_shapes(self, shapes, pos):
         """Move shapes. Adjust position to be bounded by pixmap border"""
         shapes = [shape for shape in shapes if not shape.locked]
         if not shapes:
+            return False
+        # Pixel-edge candidates are precision-edit previews. Clicking inside
+        # one (away from a vertex or edge) must never translate the whole
+        # contour. A click on an edge is handled earlier by add_point_to_edge,
+        # which creates a local control segment; a vertex drag is handled by
+        # bounded_move_vertex.
+        preview_sources = {"box_preview", "batch_preview", "existing_preview"}
+        if any(
+            shape.other_data.get("pixel_edge_geometry") == "cell_boundary"
+            and shape.other_data.get("pixel_edge_source") in preview_sources
+            for shape in shapes
+        ):
             return False
         shape_types = []
         for shape in shapes:
