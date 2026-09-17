@@ -205,6 +205,9 @@ def get_pointcloud_style():
             padding-right: 22px;
         }}
         QMainWindow#pointcloudWorkspace QToolButton#pointcloudIconButton[panelHeader="true"] {{
+            background-color: transparent;
+            border-color: transparent;
+            color: {theme["text"]};
             padding: 3px;
             border-radius: 4px;
         }}

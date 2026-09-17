@@ -1,5 +1,9 @@
 # 3D Point Cloud Annotation
 
+<p align="center">
+  <img src="../../assets/resources/pointcloud/pointcloud.png" alt="3D Point Cloud Workspace">
+</p>
+
 ## Overview
 
 The X-AnyLabeling point cloud workspace supports per-point semantic and instance annotation. Semantic labels identify classes such as vehicles and roads; instance labels distinguish individual objects within a class. You can edit and review frames, use camera images for reference, and save labels that map directly to the original points.

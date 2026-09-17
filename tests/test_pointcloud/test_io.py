@@ -1,6 +1,7 @@
 import json
 import os
 import struct
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -332,17 +333,79 @@ def test_save_rejects_original_alias_and_count_mismatch(tmp_path):
     assert not (tmp_path / "bad.label").exists()
 
 
-def test_source_changed_during_read_is_rejected(tmp_path, monkeypatch):
+@pytest.mark.parametrize(
+    "encoding",
+    ["bin", "ascii", "binary_little_endian", "binary_big_endian"],
+)
+def test_load_with_different_path_and_handle_ctime(
+    tmp_path, monkeypatch, encoding
+):
+    source = (
+        bin_file(tmp_path / "scan.bin")
+        if encoding == "bin"
+        else ply_file(tmp_path / "scan.ply", encoding)
+    )
+    labels = [0x0007000A, 0x0007001E]
+    source.with_suffix(".label").write_bytes(struct.pack("<II", *labels))
+    original_fstat = io.os.fstat
+
+    def handle_stat(fd):
+        stat = original_fstat(fd)
+        return SimpleNamespace(
+            st_dev=stat.st_dev,
+            st_ino=stat.st_ino,
+            st_size=stat.st_size,
+            st_mtime_ns=stat.st_mtime_ns,
+            st_ctime_ns=stat.st_ctime_ns + 1_000_000_000,
+        )
+
+    monkeypatch.setattr(io.os, "fstat", handle_stat)
+    frame = io.load_frame(source)
+    np.testing.assert_allclose(frame.points, [[1, 2, 3, 0.5], [4, 5, 6, 0.8]])
+    np.testing.assert_array_equal(frame.labels, labels)
+
+
+@pytest.mark.parametrize("changed_suffix", [".bin", ".label"])
+def test_source_changed_during_read_is_rejected(
+    tmp_path, monkeypatch, changed_suffix
+):
     source = bin_file(tmp_path / "scan.bin")
+    source.with_suffix(".label").write_bytes(struct.pack("<II", 10, 30))
     original_read = io.np.fromfile
 
     def changed_read(*args, **kwargs):
         result = original_read(*args, **kwargs)
-        with source.open("ab") as stream:
-            stream.write(b"changed")
+        if args[0].name.endswith(changed_suffix):
+            with source.with_suffix(changed_suffix).open("ab") as stream:
+                stream.write(b"changed")
         return result
 
     monkeypatch.setattr(io.np, "fromfile", changed_read)
+    with pytest.raises(ValueError, match="changed during loading"):
+        io.load_frame(source)
+
+
+@pytest.mark.skipif(os.name == "nt", reason="Open files cannot be replaced.")
+@pytest.mark.parametrize("changed_suffix", [".bin", ".label"])
+def test_file_replaced_during_read_is_rejected(
+    tmp_path, monkeypatch, changed_suffix
+):
+    source = bin_file(tmp_path / "scan.bin")
+    source.with_suffix(".label").write_bytes(struct.pack("<II", 10, 30))
+    target = source.with_suffix(changed_suffix)
+    replacement = tmp_path / "replacement"
+    replacement.write_bytes(target.read_bytes())
+    stat = target.stat()
+    os.utime(replacement, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+    original_read = io.np.fromfile
+
+    def replaced_read(*args, **kwargs):
+        result = original_read(*args, **kwargs)
+        if args[0].name.endswith(changed_suffix):
+            replacement.replace(target)
+        return result
+
+    monkeypatch.setattr(io.np, "fromfile", replaced_read)
     with pytest.raises(ValueError, match="changed during loading"):
         io.load_frame(source)
 

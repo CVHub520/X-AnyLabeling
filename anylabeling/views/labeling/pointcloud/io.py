@@ -103,10 +103,10 @@ def _signature(stat):
     )
 
 
-def _check_unchanged(stream, path, before):
+def _check_unchanged(stream, path, before, path_before):
     if (
         _signature(os.fstat(stream.fileno())) != before
-        or _signature(path.stat()) != before
+        or _signature(path.stat()) != path_before
     ):
         raise ValueError(
             f"{path}: file changed during loading; retry loading."
@@ -324,6 +324,7 @@ def load_frame(path, label_path=None):
     has_intensity = True
     rgb = None
     try:
+        path_before = _signature(path.stat())
         with path.open("rb") as stream:
             before = _signature(os.fstat(stream.fileno()))
             if path.suffix.lower() == ".bin":
@@ -342,7 +343,7 @@ def load_frame(path, label_path=None):
                     warnings.append(
                         "PLY has no intensity; intensity coloring is unavailable."
                     )
-            _check_unchanged(stream, path, before)
+            _check_unchanged(stream, path, before, path_before)
         invalid = ~np.isfinite(points[:, :3]).all(axis=1)
         if invalid.any():
             indices = np.flatnonzero(invalid)
@@ -365,6 +366,7 @@ def load_frame(path, label_path=None):
         labels = np.zeros(len(points), dtype=np.uint32)
         label_exists = _path_present(label_path)
         if label_exists:
+            path_before = _signature(label_path.stat())
             with label_path.open("rb") as stream:
                 before = _signature(os.fstat(stream.fileno()))
                 if before[2] != len(points) * 4:
@@ -373,7 +375,7 @@ def load_frame(path, label_path=None):
                         f"({len(points) * 4} bytes), found {before[2]} bytes."
                     )
                 labels = np.fromfile(stream, dtype="<u4")
-                _check_unchanged(stream, label_path, before)
+                _check_unchanged(stream, label_path, before, path_before)
         special = np.count_nonzero(
             (labels & 0xFFFF == 0) & (labels >> 16 != 0)
         )

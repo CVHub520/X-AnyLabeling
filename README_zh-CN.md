@@ -19,8 +19,8 @@
 </p>
 
 <p align="center">
-  <a href="https://mp.weixin.qq.com/s/Amccih1cM-B3hEfaf6koyw" target="_blank">
-    <img src="https://github.com/user-attachments/assets/0bb9e00b-060b-4ce9-91c4-3666e29e4bf2" alt="YOLO Vision 2026 活动" width="100%" />
+  <a href="https://xanylabeling.com/zh-Hans/docs/x-anylabeling/point_cloud" target="_blank">
+    <img src="assets/resources/pointcloud/pointcloud.png" alt="X-AnyLabeling 点云标注" width="100%" />
   </a>
 </p>
 

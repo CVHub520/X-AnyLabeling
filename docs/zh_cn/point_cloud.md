@@ -1,5 +1,9 @@
 # 3D 点云标注
 
+<p align="center">
+  <img src="../../assets/resources/pointcloud/pointcloud.png" alt="3D 点云标注工作区">
+</p>
+
 ## 功能概览
 
 X-AnyLabeling 点云工作区支持逐点语义标注和实例标注：语义类别区分车辆、道路等类型，实例区分同一类别中的不同对象。支持逐帧编辑、复核和相机图像辅助，输出与原始点一一对应的标签文件。
