@@ -1228,3 +1228,4 @@ font_family: null  # null 表示使用系统默认字体，也可填写字体名
 - 视频分类器：[链接](./video_classifier.md)
 - Ultralytics 训练平台：[链接](../../examples/training/ultralytics/README.md)
 - 文档解析与智能文字识别：[链接](./paddle_ocr.md)
+- 3D 点云标注：[链接](./point_cloud.md)

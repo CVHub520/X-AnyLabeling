@@ -207,6 +207,7 @@ class LabelingWidget(LabelDialog):
         self._settings_controller = None
         self._settings_dialog = None
         self.training_dialog = None
+        self.pointcloud_window = None
         self._settings_runtime_applier = SettingsRuntimeApplier(self)
         self._auto_switch_signal_connected = False
 
@@ -1123,6 +1124,12 @@ class LabelingWidget(LabelDialog):
             icon="husky",
             tip=self.tr("Open VQA dialog"),
         )
+        open_pointcloud = action(
+            self.tr("Point Cloud"),
+            self.open_pointcloud,
+            icon="cartesian",
+            tip=self.tr("Open point cloud workspace"),
+        )
         open_image_classifier = action(
             self.tr("Classifier"),
             self.open_image_classifier,
@@ -1908,6 +1915,7 @@ class LabelingWidget(LabelDialog):
             open_prev_unchecked_image=open_prev_unchecked_image,
             open_chatbot=open_chatbot,
             open_vqa=open_vqa,
+            open_pointcloud=open_pointcloud,
             open_image_classifier=open_image_classifier,
             open_classifier=open_image_classifier,
             open_video_classifier=open_video_classifier,
@@ -2272,6 +2280,7 @@ class LabelingWidget(LabelDialog):
             None,
             open_chatbot,
             open_vqa,
+            open_pointcloud,
             open_image_classifier,
             open_video_classifier,
             open_paddleocr,
@@ -3406,6 +3415,32 @@ class LabelingWidget(LabelDialog):
             self.vqa_window.activateWindow()
         else:
             self.vqa_window.show()
+
+    def open_pointcloud(self):
+        if self.pointcloud_window is None:
+            try:
+                from .widgets.pointcloud_dialog import PointCloudDialog
+
+                window = PointCloudDialog(self)
+            except (ImportError, OSError, RuntimeError) as error:
+                logger.error(f"Failed to open point cloud workspace: {error}")
+                self.error_message(
+                    self.tr("Point cloud unavailable"),
+                    self.tr("Unable to open the point cloud workspace: %s")
+                    % html.escape(str(error)),
+                )
+                return
+            window.destroyed.connect(self.on_pointcloud_window_destroyed)
+            self.pointcloud_window = window
+        if self.pointcloud_window.isMinimized():
+            self.pointcloud_window.showNormal()
+        else:
+            self.pointcloud_window.show()
+        self.pointcloud_window.raise_()
+        self.pointcloud_window.activateWindow()
+
+    def on_pointcloud_window_destroyed(self, _window=None):
+        self.pointcloud_window = None
 
     def open_paddleocr(self):
         if not hasattr(self, "ppocr_window") or self.ppocr_window is None:
@@ -6169,6 +6204,11 @@ class LabelingWidget(LabelDialog):
     def closeEvent(self, event):
         if not self.may_continue():
             event.ignore()
+            return
+        if self.pointcloud_window is not None:
+            if not self.pointcloud_window.can_close():
+                event.ignore()
+                return
         if event.isAccepted() and self.training_dialog is not None:
             if not self.training_dialog.prepare_for_application_close():
                 event.ignore()
@@ -6183,6 +6223,8 @@ class LabelingWidget(LabelDialog):
                 ):
                     event.ignore()
                     return
+        if self.pointcloud_window is not None:
+            self.pointcloud_window.close_after_approval()
         self.settings.setValue(
             "filename", self.filename if self.filename else ""
         )
@@ -6648,7 +6690,7 @@ class LabelingWidget(LabelDialog):
             return True
         if answer == mb.StandardButton.Save:
             self.save_file()
-            return True
+            return not self.dirty
         # answer == mb.Cancel
         return False
 

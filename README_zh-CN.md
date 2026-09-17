@@ -30,6 +30,7 @@
 
 ## 🥳 新功能
 
+- `2026-09-18`：新增 [3D 点云标注](./docs/zh_cn/point_cloud.md)功能，支持逐点语义与实例标注、相机图像参考及标定投影。
 - `2026-08-19`：新增[图片标签](https://xanylabeling.com/zh-Hans/docs/x-anylabeling/user_guide#37-%E5%9B%BE%E7%89%87%E6%A0%87%E7%AD%BE)功能，支持标签新增、编辑、排序及批量删除。
 - `2026-08-12`：新增支持 [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) 实例分割模型。
 - `2026-08-08`：新增支持 [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) 旋转目标检测模型。
@@ -45,8 +46,8 @@
 
 <img src="https://github.com/user-attachments/assets/2925bc88-e22b-4e81-873c-45fd85164f6b" width="100%" />
 
-* 统一支持文本、图像、视频及多模态数据的标注与处理。
-* 覆盖图像分类、目标检测、实例分割、姿态估计、旋转目标检测、多目标跟踪、光学字符识别、车道线标注、图像描述、视觉问答和文档解析等任务。
+* 统一支持文本、图像、视频、点云及多模态数据的标注与处理。
+* 覆盖图像分类、目标检测、实例分割、姿态估计、旋转目标检测、多目标跟踪、光学字符识别、车道线标注、图像描述、视觉问答、文档解析和 3D 点云标注等任务。
 * 提供多边形、矩形、长方体、旋转框、四边形、圆形、线段、折线、点和掩码等标注工具，并支持文本检测、文本识别和 KIE 等任务专用工具。
 * 集成多种先进的深度学习模型，支持 AI 辅助标注、自动标注和数据集批量预测。
 * 支持本地与远程推理，可接入 `ONNX Runtime`、`TensorRT`、`OpenCV DNN`、`vLLM`、`SGLang` 等推理引擎与服务框架。
@@ -93,6 +94,7 @@
 8. [图像分类器](./docs/zh_cn/image_classifier.md)
 9. [视频分类器](./docs/zh_cn/video_classifier.md)
 10. [文档解析与智能文字识别](./docs/zh_cn/paddle_ocr.md)
+11. [3D 点云标注](./docs/zh_cn/point_cloud.md)
 
 ## 示例
 

@@ -1151,3 +1151,4 @@ For details on integrating and using your own custom AI models within X-AnyLabel
 - Video Classifier: [Link](./video_classifier.md)
 - Ultralytics Training Platforms: [Link](../../examples/training/ultralytics/README.md)
 - Document Parsing and Intelligent Text Recognition: [Link](./paddle_ocr.md)
+- 3D Point Cloud Annotation: [Link](./point_cloud.md)

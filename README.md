@@ -28,6 +28,7 @@
 
 ## 🥳 What's New
 
+- `2026-09-18`: Add [3D point cloud annotation](./docs/en/point_cloud.md), with per-point semantic and instance labeling, camera image reference, and calibrated point overlays.
 - `2026-08-19`: Add support for [image tagging](https://xanylabeling.com/docs/x-anylabeling/user_guide#37-image-tags), with tag creation, editing, reordering, and batch deletion.
 - `2026-08-12`: Add support for [D-FINE-seg](https://github.com/ArgoHA/D-FINE-seg) instance segmentation models.
 - `2026-08-08`: Add support for the [RT-DETRv2-OBB](https://xanylabeling.com/examples/detection/obb) rotated object detection model.
@@ -43,8 +44,8 @@
 
 <img src="https://github.com/user-attachments/assets/2925bc88-e22b-4e81-873c-45fd85164f6b" width="100%" />
 
-* Unified support for annotating and processing text, image, video, and multimodal data.
-* Covers tasks such as image classification, object detection, instance segmentation, pose estimation, oriented object detection, multi-object tracking, optical character recognition, lane annotation, image captioning, visual question answering, and document parsing.
+* Unified support for annotating and processing text, image, video, point cloud, and multimodal data.
+* Covers tasks such as image classification, object detection, instance segmentation, pose estimation, oriented object detection, multi-object tracking, optical character recognition, lane annotation, image captioning, visual question answering, document parsing, and 3D point clouds.
 * Provides polygons, rectangles, cuboids, rotated boxes, quadrilaterals, circles, lines, polylines, points, masks, and task-specific tools for text detection, text recognition, and KIE.
 * Integrates a wide range of state-of-the-art deep learning models for AI-assisted annotation, automated labeling, and batch dataset prediction.
 * Supports both local and remote inference through engines and serving frameworks such as `ONNX Runtime`, `TensorRT`, `OpenCV DNN`, `vLLM`, and `SGLang`.
@@ -90,6 +91,7 @@
 7. [Image Classifier](./docs/en/image_classifier.md)
 8. [Video Classifier](./docs/en/video_classifier.md)
 9. [Document Parsing and Intelligent Text Recognition](./docs/en/paddle_ocr.md)
+10. [3D Point Cloud Annotation](./docs/en/point_cloud.md)
 
 ## Examples
 
