@@ -157,10 +157,7 @@ class RFDETR(Model):
         prob = sigmoid(out_logits)
         prob_reshaped = prob.reshape(out_logits.shape[0], -1)
 
-        num_select = max(
-            1,
-            min(int(self.num_select), prob_reshaped.shape[1]),
-        )
+        num_select = max(0, min(self.num_select, prob_reshaped.shape[1]))
         kth = max(0, num_select - 1)
         topk_indexes = np.argpartition(-prob_reshaped, kth, axis=1)[
             :, :num_select
@@ -190,12 +187,16 @@ class RFDETR(Model):
                 out_masks, topk_boxes[:, :, None, None], axis=1
             )
             masks = masks[0]
-            resized_masks = np.stack(
-                [
-                    np.array(Image.fromarray(mask).resize((img_w, img_h)))
-                    for mask in masks
-                ],
-                axis=0,
+            resized_masks = (
+                np.stack(
+                    [
+                        np.array(Image.fromarray(mask).resize((img_w, img_h)))
+                        for mask in masks
+                    ],
+                    axis=0,
+                )
+                if len(masks)
+                else np.empty((0, img_h, img_w))
             )
             masks = (resized_masks > 0).astype(np.uint8) * 255
         else:
