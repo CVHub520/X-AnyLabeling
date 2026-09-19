@@ -67,6 +67,8 @@ from .utils.file_search import (
     matches_label_attribute,
 )
 from .utils.qt import new_icon_path
+from .utils.theme import get_theme
+from .pointcloud.icons import get_icon
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -2365,13 +2367,52 @@ class LabelingWidget(LabelDialog):
         #     lambda: self.inform_next_files(self.filename)
         # )
         self.auto_labeling_widget.hide()  # Hide by default
-        central_layout.addWidget(self.label_instruction)
+        instruction_layout = QHBoxLayout()
+        instruction_layout.setContentsMargins(0, 0, 0, 0)
+        instruction_layout.addWidget(self.label_instruction, 1)
+        theme = get_theme()
+        self.sidebar_toggle_button = QtWidgets.QToolButton()
+        self.sidebar_toggle_button.setIcon(
+            get_icon("panel-right", theme["text"], theme["primary"])
+        )
+        self.sidebar_toggle_button.setIconSize(QtCore.QSize(18, 18))
+        self.sidebar_toggle_button.setFixedSize(26, 26)
+        self.sidebar_toggle_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.sidebar_toggle_button.setToolTip(self.tr("Toggle right panel"))
+        self.sidebar_toggle_button.setAccessibleName(
+            self.sidebar_toggle_button.toolTip()
+        )
+        self.sidebar_toggle_button.setStyleSheet(f"""
+            QToolButton {{
+                background-color: transparent;
+                border: 1px solid transparent;
+                color: {theme["text"]};
+                padding: 3px;
+                border-radius: 4px;
+            }}
+            QToolButton:hover:enabled {{
+                background-color: {theme["surface_hover"]};
+                border-color: {theme["border"]};
+            }}
+            QToolButton:pressed:enabled {{
+                background-color: {theme["surface_pressed"]};
+                border-color: {theme["border"]};
+            }}
+        """)
+        self.sidebar_toggle_button.clicked.connect(self.toggle_right_sidebar)
+        instruction_layout.addWidget(self.sidebar_toggle_button)
+        central_layout.addLayout(instruction_layout)
         central_layout.addSpacing(5)
         central_layout.addWidget(self.auto_labeling_widget)
         central_layout.addWidget(scroll_area)
         central_layout.addWidget(self.compare_view_slider)
         central_layout.addWidget(self.image_tags_widget)
-        layout.addLayout(central_layout)
+        central_widget = QWidget()
+        central_widget.setLayout(central_layout)
+        self.sidebar_splitter = QtWidgets.QSplitter(Qt.Orientation.Horizontal)
+        self.sidebar_splitter.setChildrenCollapsible(False)
+        self.sidebar_splitter.addWidget(central_widget)
+        layout.addWidget(self.sidebar_splitter)
 
         # Save central area for resize
         self._central_widget = scroll_area
@@ -2379,7 +2420,8 @@ class LabelingWidget(LabelDialog):
         # Stretch central area (image view)
         layout.setStretch(1, 1)
 
-        right_sidebar_layout = QVBoxLayout()
+        self.right_sidebar = QWidget()
+        right_sidebar_layout = QVBoxLayout(self.right_sidebar)
         right_sidebar_layout.setContentsMargins(0, 0, 0, 0)
         right_sidebar_layout.setSpacing(4)
 
@@ -2550,7 +2592,17 @@ class LabelingWidget(LabelDialog):
 
         self.shape_text_edit.textChanged.connect(self.shape_text_changed)
 
-        layout.addLayout(right_sidebar_layout)
+        self.right_sidebar.ensurePolished()
+        sidebar_width = self.right_sidebar.sizeHint().width()
+        self.right_sidebar.setMinimumWidth(sidebar_width)
+        self.right_sidebar.setMaximumWidth(sidebar_width * 2)
+        self._right_sidebar_width = sidebar_width
+        self.sidebar_splitter.addWidget(self.right_sidebar)
+        self.sidebar_splitter.setStretchFactor(0, 1)
+        self.sidebar_splitter.setStretchFactor(1, 0)
+        self.sidebar_splitter.setSizes(
+            [central_widget.sizeHint().width(), sidebar_width]
+        )
         self.setLayout(layout)
 
         if output_file is not None and self._config["auto_save"]:
@@ -2616,6 +2668,31 @@ class LabelingWidget(LabelDialog):
         self.set_text_editing(False)
 
         QtCore.QTimer.singleShot(100, self.restore_navigator_state)
+
+    def toggle_right_sidebar(self):
+        show = self.right_sidebar.isHidden()
+        if not show:
+            self._right_sidebar_width = self.right_sidebar.width()
+        self.right_sidebar.setVisible(show)
+        if show:
+            available_width = (
+                self.sidebar_splitter.width()
+                - self.sidebar_splitter.handleWidth()
+            )
+            self.sidebar_splitter.setSizes(
+                [
+                    max(1, available_width - self._right_sidebar_width),
+                    self._right_sidebar_width,
+                ]
+            )
+        theme = get_theme()
+        self.sidebar_toggle_button.setIcon(
+            get_icon(
+                "panel-right" if show else "panel-left",
+                theme["text"],
+                theme["primary"],
+            )
+        )
 
     def restore_navigator_state(self) -> None:
         try:

@@ -2,6 +2,8 @@
     <qresource prefix="/images">
         <file>images/alibaba.png</file>
         <file>images/anthropic.png</file>
+        <file>images/panel-left.svg</file>
+        <file>images/panel-right.svg</file>
         <file>images/arrow-left.svg</file>
         <file>images/arrow-right.svg</file>
         <file>images/auto-run.png</file>

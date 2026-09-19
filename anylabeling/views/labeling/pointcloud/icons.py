@@ -181,12 +181,6 @@ def _draw_point_size(painter, accent):
         painter.drawEllipse(QtCore.QPointF(x, 12), radius, radius)
 
 
-def _draw_panel(painter, accent, side):
-    painter.drawRoundedRect(QtCore.QRectF(3, 4, 18, 16), 3, 3)
-    x = 9 if side == "left" else 15
-    painter.drawLine(QtCore.QPointF(x, 4), QtCore.QPointF(x, 20))
-
-
 def _draw_keyboard(painter, accent):
     painter.drawRoundedRect(QtCore.QRectF(2, 4, 20, 16), 2, 2)
     for y in (8, 12):
@@ -196,6 +190,19 @@ def _draw_keyboard(painter, accent):
 
 
 def get_icon(name, color, accent):
+    if name in ("panel-left", "panel-right"):
+        source = QtCore.QFile(f":/images/images/{name}.svg")
+        if not source.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
+            return None
+        data = bytes(source.readAll())
+        source.close()
+        data = data.replace(b"#000000", color.encode())
+        pixmap = QtGui.QPixmap(72, 72)
+        pixmap.fill(QtCore.Qt.GlobalColor.transparent)
+        painter = QtGui.QPainter(pixmap)
+        QtSvg.QSvgRenderer(QtCore.QByteArray(data)).render(painter)
+        painter.end()
+        return QtGui.QIcon(center_pixmap(pixmap))
     if name == "upload":
         source = QtCore.QFile(":/images/images/download.svg")
         if not source.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
@@ -241,8 +248,6 @@ def get_icon(name, color, accent):
         "instance-remove": lambda p, a: _draw_instance(p, a, "remove"),
         "instance-split": lambda p, a: _draw_instance(p, a, "split"),
         "point-size": _draw_point_size,
-        "panel-left": lambda p, a: _draw_panel(p, a, "left"),
-        "panel-right": lambda p, a: _draw_panel(p, a, "right"),
         "render-semantic": _draw_render_semantic,
         "render-intensity": _draw_render_intensity,
         "render-rgb": _draw_render_rgb,
