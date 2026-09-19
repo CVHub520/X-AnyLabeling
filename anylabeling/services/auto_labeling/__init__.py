@@ -182,6 +182,7 @@ _AUTO_LABELING_API_TOKEN_MODELS = [
 # --- set_auto_labeling_reset_tracker ---
 _AUTO_LABELING_RESET_TRACKER_MODELS = [
     "remote_server",
+    "yoloe",
     "yolov5_det_track",
     "yolov8_det_track",
     "yolov8_obb_track",
