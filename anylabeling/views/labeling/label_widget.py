@@ -6915,8 +6915,10 @@ class LabelingWidget(LabelDialog):
                 return
 
         result_tags = getattr(auto_labeling_result, "tags", None)
+        result_flags = getattr(auto_labeling_result, "flags", None)
         tags_only_result = (
             result_tags is not None
+            and result_flags is None
             and not auto_labeling_result.shapes
             and auto_labeling_result.replace is False
             and not auto_labeling_result.description
@@ -6954,6 +6956,22 @@ class LabelingWidget(LabelDialog):
                 self.shape_text_edit.setPlainText(description)
             self.other_data["description"] = description
             self.shape_text_edit.setDisabled(False)
+
+        if result_flags is not None:
+            flags = {
+                self.flag_widget.item(i).text(): (
+                    self.flag_widget.item(i).checkState()
+                    == Qt.CheckState.Checked
+                )
+                for i in range(self.flag_widget.count())
+            }
+            annotations_changed |= any(
+                key not in flags or flags[key] != value
+                for key, value in result_flags.items()
+            )
+            flags.update(result_flags)
+            with QtCore.QSignalBlocker(self.flag_widget):
+                self.load_flags(flags)
 
         tags_changed = False
         if result_tags is not None:

@@ -115,8 +115,15 @@ class InternImage_CLS(Model):
         blob = self.preprocess(image)
         predictions = self.net.get_ort_inference(blob, extract=False)
         label = self.postprocess(predictions)
+        classes = (
+            self.classes.values()
+            if isinstance(self.classes, dict)
+            else self.classes
+        )
         result = AutoLabelingResult(
-            shapes=[], replace=False, description=label
+            shapes=[],
+            replace=False,
+            flags={str(name): str(name) == label for name in classes},
         )
         return result
 

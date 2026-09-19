@@ -62,17 +62,19 @@ def get_panel_button_style(theme: Dict[str, str] = None) -> str:
     theme = theme or get_theme()
     return f"""
         QPushButton {{
-            border: none;
+            border: 1px solid transparent;
             background: transparent;
             padding: 0px;
             margin: 0px;
-            border-radius: 6px;
+            border-radius: 4px;
         }}
-        QPushButton:hover {{
-            background-color: {theme["surface"]};
-        }}
-        QPushButton:pressed {{
+        QPushButton:hover:enabled {{
             background-color: {theme["surface_hover"]};
+            border-color: {theme["border"]};
+        }}
+        QPushButton:pressed:enabled {{
+            background-color: {theme["surface_pressed"]};
+            border-color: {theme["border"]};
         }}
     """
 
@@ -137,12 +139,12 @@ def get_main_splitter_style() -> str:
 def get_overlay_text_style() -> str:
     return """
         QLabel {
-            background-color: rgba(0, 0, 0, 255);
+            background-color: transparent;
             color: rgb(255, 255, 255);
             font-family: Arial;
             font-size: 12px;
             font-weight: bold;
             padding: 4px;
-            border-radius: 4px;
+            border: none;
         }
     """

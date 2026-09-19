@@ -7,10 +7,7 @@ The X-AnyLabeling Image Classifier is a dedicated annotation window for multi-cl
 
 # Getting Started
 
-To launch the Image Classifier window, first ensure that an image directory is loaded in the main window. Then click the Image Classifier icon (ragdoll avatar) in the left toolbar of the main window, or use the following keyboard shortcuts:
-
-- Windows/Linux: `Ctrl` + `3`
-- macOS: `⌘` + `3`
+To open the Image Classifier window, first load an image directory in the main window, then click the Image Classifier icon in the left toolbar, or use the shortcut  `Ctrl+3` (Windows/Linux) / `⌘+3` (macOS).
 
 > [!NOTE]
 > The main window will be automatically hidden when opening the Image Classifier window. If the taskbar icon disappears after minimizing, use `Alt` + `Tab` (Windows) or `⌘` + `Tab` (macOS) to switch back to the window. The main window will reappear after closing the classifier window.
@@ -43,9 +40,9 @@ The Image Classifier features a dual-panel design with the image preview area on
 > [!NOTE]
 > - MultiClass mode: Suitable for mutually exclusive classification tasks, such as animal species recognition (one image can only be one species)
 > - MultiLabel mode: Suitable for multi-attribute annotation tasks, such as image tagging (one image can have multiple attributes)
-> - Note that when switching from MultiLabel to MultiClass mode, the system will only keep the first selected label for each image
+> - After switching from MultiLabel to MultiClass, review existing multilabel annotations image by image and select the category to keep. Switching modes does not automatically clean up annotations across all images.
 
-The export function organizes classified images into the following structure:
+Classification edits follow the main window's autosave setting. If autosave is disabled, close the classifier and return to the main window to save the current changes before exporting. Export reads saved annotation files and copies classified images into category-specific folders, leaving the original images unchanged:
 
 ```bash
 classified/
@@ -64,7 +61,15 @@ classified/
 
 The right center panel contains the title and the following 5 annotation components.
 
-### AI Assistant
+Use the category search box for case-insensitive keyword matching. Separate multiple keywords with spaces; category names must contain all keywords. Searching only filters the displayed categories and preserves selections. Clear the search to restore the full list. The search and action row stays fixed while the category list scrolls.
+
+### AI Assistance
+
+#### Image Classification Models
+
+Run single-image or batch pre-annotation with image classification model in the main window, then open the Image Classifier to review and correct the predictions. See the [image classification example](../../examples/classification/image-level/README.md#model-assisted-classification) for supported models and the workflow.
+
+#### Vision Language Models
 
 Before using AI assistance, configure a model as described in the [Chatbot guide](./chatbot.md).
 
@@ -163,6 +168,7 @@ Users can manually click the left/right arrows to switch between previous/next i
 | D | Next image |
 | Ctrl+A or ⌘+A | Previous unlabeled image |
 | Ctrl+D or ⌘+D | Next unlabeled image |
+| 0–9 | Select or deselect categories numbered 0–9 in the original category list |
 
 # Data Format
 
@@ -170,7 +176,7 @@ The Image Classifier's annotation information is stored in the `flags` field of 
 
 ```json
 {
-  "version": 4.0.0,
+  "version": "4.0.0",
   "flags": {
     "husky": true,
     "psyduck": false,

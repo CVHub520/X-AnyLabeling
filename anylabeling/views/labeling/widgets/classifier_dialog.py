@@ -5,8 +5,10 @@ from PyQt6.QtCore import Qt, QTimer, QSize
 from PyQt6.QtWidgets import (
     QDialog,
     QFrame,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QListWidgetItem,
     QMessageBox,
     QProgressDialog,
@@ -29,7 +31,10 @@ from PyQt6.QtGui import (
 from anylabeling.views.labeling.classifier import *
 from anylabeling.views.labeling.logger import logger
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
-from anylabeling.views.labeling.utils.style import get_progress_dialog_style
+from anylabeling.views.labeling.utils.style import (
+    get_dock_style,
+    get_progress_dialog_style,
+)
 from anylabeling.views.labeling.utils.theme import get_theme
 from anylabeling.views.labeling.widgets.popup import Popup
 from anylabeling.views.labeling.vqa.dialogs import (
@@ -135,9 +140,8 @@ class ClassifierDialog(QDialog):
         container_layout = QVBoxLayout(self.image_container)
         container_layout.setContentsMargins(8, 8, 8, 8)
 
-        self.image_label = QLabel()
+        self.image_label = ClassificationImagePreview()
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setStyleSheet(get_image_label_style())
         self.image_label.setFixedSize(PANEL_SIZE - 16, PANEL_SIZE - 16)
         self.image_label.setScaledContents(False)
         container_layout.addWidget(self.image_label, 1)
@@ -152,10 +156,13 @@ class ClassifierDialog(QDialog):
         right_layout.setSpacing(10)
 
         action_widget = QWidget()
-        action_widget.setFixedHeight(DEFAULT_COMPONENT_HEIGHT + 12)
-        action_layout = QHBoxLayout(action_widget)
-        action_layout.setContentsMargins(10, 4, 10, 4)
-        action_layout.setSpacing(8)
+        action_layout = QGridLayout(action_widget)
+        action_layout.setContentsMargins(10, 4, 0, 0)
+        action_layout.setHorizontalSpacing(8)
+        action_layout.setVerticalSpacing(14)
+        for column in range(4):
+            action_layout.setColumnStretch(column, 1)
+            action_layout.setColumnMinimumWidth(column, PANEL_BUTTON_SIZE * 5)
 
         self.export_button = QPushButton(self.tr("Export"))
         self.export_button.setStyleSheet(
@@ -193,16 +200,17 @@ class ClassifierDialog(QDialog):
         )
         self.auto_run_button.clicked.connect(self.auto_run_batch)
 
-        action_layout.addWidget(self.export_button, 1)
-        action_layout.addWidget(self.multiclass_button, 1)
-        action_layout.addWidget(self.multilabel_button, 1)
-        action_layout.addWidget(self.auto_run_button, 1)
+        action_layout.addWidget(self.export_button, 0, 0)
+        action_layout.addWidget(self.multiclass_button, 0, 1)
+        action_layout.addWidget(self.multilabel_button, 0, 2)
+        action_layout.addWidget(self.auto_run_button, 0, 3)
 
         right_layout.addWidget(action_widget)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameStyle(QFrame.Shape.NoFrame)
+        self.scroll_area.verticalScrollBar().setStyleSheet(get_dock_style())
 
         self.scroll_widget = QWidget()
         self.scroll_layout = QVBoxLayout(self.scroll_widget)
@@ -212,15 +220,22 @@ class ClassifierDialog(QDialog):
         title_widget = QWidget()
         title_layout = QHBoxLayout(title_widget)
         title_layout.setContentsMargins(0, 0, 0, 0)
-        title_layout.setSpacing(4)
+        title_layout.setSpacing(0)
 
         title_label = QLabel(self.tr("Category"))
         title_label.setStyleSheet(get_filename_label_style())
         title_label.setToolTip(
             self.tr("Use number keys (0-9) to quickly select categories")
         )
-        title_layout.addWidget(title_label)
-        title_layout.addStretch()
+        action_layout.addWidget(title_label, 1, 0)
+        self.category_search = QLineEdit()
+        self.category_search.setPlaceholderText(
+            self.tr("Search categories...")
+        )
+        self.category_search.setClearButtonEnabled(True)
+        self.category_search.setStyleSheet(get_dock_style())
+        self.category_search.textChanged.connect(self.filter_categories)
+        action_layout.addWidget(self.category_search, 1, 1, 1, 2)
 
         self.ai_button = QPushButton()
         self.ai_button.setIcon(_new_panel_icon("wand"))
@@ -230,6 +245,7 @@ class ClassifierDialog(QDialog):
         self.ai_button.setToolTip(self.tr("AI Assistant"))
         self.ai_button.clicked.connect(self.ai_classify_current)
         title_layout.addWidget(self.ai_button)
+        title_layout.addStretch()
 
         self.new_button = QPushButton()
         self.new_button.setIcon(_new_panel_icon("new"))
@@ -239,6 +255,7 @@ class ClassifierDialog(QDialog):
         self.new_button.setToolTip(self.tr("Add Label"))
         self.new_button.clicked.connect(self.add_new_label)
         title_layout.addWidget(self.new_button)
+        title_layout.addStretch()
 
         self.delete_button = QPushButton()
         self.delete_button.setIcon(_new_panel_icon("minus"))
@@ -248,6 +265,7 @@ class ClassifierDialog(QDialog):
         self.delete_button.setToolTip(self.tr("Delete Label"))
         self.delete_button.clicked.connect(self.delete_label)
         title_layout.addWidget(self.delete_button)
+        title_layout.addStretch()
 
         self.edit_button = QPushButton()
         self.edit_button.setIcon(_new_panel_icon("edit"))
@@ -257,6 +275,7 @@ class ClassifierDialog(QDialog):
         self.edit_button.setToolTip(self.tr("Edit Label"))
         self.edit_button.clicked.connect(self.edit_label)
         title_layout.addWidget(self.edit_button)
+        title_layout.addStretch()
 
         self.view_button = QPushButton()
         self.view_button.setIcon(_new_panel_icon("view"))
@@ -267,7 +286,7 @@ class ClassifierDialog(QDialog):
         self.view_button.clicked.connect(self.view_statistics)
         title_layout.addWidget(self.view_button)
 
-        self.scroll_layout.addWidget(title_widget)
+        action_layout.addWidget(title_widget, 1, 3)
 
         self.checkbox_group = None
         self.scroll_layout.addStretch()
@@ -378,13 +397,10 @@ class ClassifierDialog(QDialog):
         # Reset flags from current data
         self.labels = []
         if self.parent().filename:
-            label_path = get_label_file_path(
-                self.parent().filename,
-                getattr(self.parent(), "output_dir", None),
-            )
-            flags = load_flags_from_json(label_path)
-            if flags:
-                self.labels = list(flags.keys())
+            flag_widget = self.parent().flag_widget
+            self.labels = [
+                flag_widget.item(i).text() for i in range(flag_widget.count())
+            ]
 
         if self.labels:
             self.parent().image_flags = self.labels[:]
@@ -423,6 +439,19 @@ class ClassifierDialog(QDialog):
 
         if stretch_item:
             self.scroll_layout.addStretch()
+
+        self.filter_categories(self.category_search.text())
+
+    def filter_categories(self, text):
+        if not self.checkbox_group:
+            return
+
+        terms = text.casefold().split()
+        for label, checkbox in self.checkbox_group.checkboxes.items():
+            checkbox.setVisible(
+                all(term in label.casefold() for term in terms)
+            )
+        self.scroll_area.verticalScrollBar().setValue(0)
 
     def reconnect_save_signals(self):
         if self.checkbox_group:

@@ -1,4 +1,5 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRectF
+from PyQt6.QtGui import QColor, QLinearGradient, QPainter, QPainterPath, QPen
 from PyQt6.QtWidgets import (
     QCheckBox,
     QLabel,
@@ -8,6 +9,47 @@ from PyQt6.QtWidgets import (
 )
 
 from anylabeling.views.labeling.classifier.style import get_overlay_text_style
+from anylabeling.views.labeling.utils.theme import get_theme
+
+
+class ClassificationImagePreview(QLabel):
+    def image_rect(self):
+        image_area = QRectF(self.rect()).adjusted(10.5, 10.5, -10.5, -10.5)
+        pixmap = self.pixmap()
+        if pixmap.isNull():
+            return image_area
+        image_size = pixmap.deviceIndependentSize()
+        image_size.scale(image_area.size(), Qt.AspectRatioMode.KeepAspectRatio)
+        image_rect = QRectF(image_area.topLeft(), image_size)
+        image_rect.moveCenter(image_area.center())
+        return image_rect
+
+    def paintEvent(self, event):
+        theme = get_theme()
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform)
+        frame = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
+        background = QLinearGradient(frame.topLeft(), frame.bottomRight())
+        top_color = QColor(theme["background_secondary"])
+        top_color.setAlpha(220)
+        bottom_color = QColor(theme["surface"])
+        bottom_color.setAlpha(180)
+        background.setColorAt(0, top_color)
+        background.setColorAt(1, bottom_color)
+        painter.setBrush(background)
+        painter.setPen(QPen(QColor(theme["border"]), 1))
+        painter.drawRoundedRect(frame, 24, 24)
+
+        pixmap = self.pixmap()
+        if pixmap.isNull():
+            return
+
+        image_rect = self.image_rect()
+        clip = QPainterPath()
+        clip.addRoundedRect(image_rect, 18, 18)
+        painter.setClipPath(clip)
+        painter.drawPixmap(image_rect, pixmap, QRectF(pixmap.rect()))
 
 
 class ClassificationOverlay(QLabel):
@@ -26,8 +68,30 @@ class ClassificationOverlay(QLabel):
 
     def position_overlay(self, parent_widget):
         if self.isVisible():
-            parent_rect = parent_widget.rect()
-            self.move(parent_rect.width() - self.width() - 10, 10)
+            image_rect = parent_widget.image_rect()
+            self.move(
+                round(image_rect.right() - self.width()),
+                round(image_rect.top()),
+            )
+            self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        image_rect = (
+            self.parentWidget().image_rect().translated(-self.x(), -self.y())
+        )
+        image_clip = QPainterPath()
+        image_clip.addRoundedRect(image_rect, 18, 18)
+        background = QPainterPath()
+        background.addRect(QRectF(self.rect()))
+        painter.fillPath(background.intersected(image_clip), QColor(0, 0, 0))
+        painter.setPen(QColor(255, 255, 255))
+        painter.drawText(
+            self.rect().adjusted(4, 4, -4, -4),
+            Qt.AlignmentFlag.AlignCenter,
+            self.text(),
+        )
 
 
 class ClassificationCheckBoxGroup(QWidget):

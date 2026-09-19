@@ -359,6 +359,7 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
             new_shapes = []
             new_description = ""
             new_tags = None
+            new_flags = None
             replace = True
         else:
             new_shapes = [
@@ -366,6 +367,7 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
             ]
             new_description = auto_labeling_result.description
             new_tags = getattr(auto_labeling_result, "tags", None)
+            new_flags = getattr(auto_labeling_result, "flags", None)
             replace = auto_labeling_result.replace
 
         if osp.exists(label_file):
@@ -421,6 +423,15 @@ def save_auto_labeling_result(self, image_file, auto_labeling_result):
                 data[IMAGE_TAGS_FIELD] = normalize_image_tags(
                     new_tags, f"auto labeling result for {image_file}"
                 )
+
+        if new_flags is not None:
+            flags = data.setdefault("flags", {})
+            if any(
+                key not in flags or flags[key] != value
+                for key, value in new_flags.items()
+            ):
+                data["checked"] = False
+            flags.update(new_flags)
 
         with io_open(label_file, "w") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)

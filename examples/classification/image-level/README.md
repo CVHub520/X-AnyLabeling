@@ -14,6 +14,19 @@ Image classification assigns labels to an entire image. X-AnyLabeling supports m
 
 ## Usage
 
+### Model-assisted Classification
+
+The following models support automatic multiclass classification:
+
+| Model | Model Implementation |
+| --- | --- |
+| YOLOv5-Cls | [yolov5_cls.py](../../../anylabeling/services/auto_labeling/yolov5_cls.py) |
+| YOLOv8-Cls | [yolov8_cls.py](../../../anylabeling/services/auto_labeling/yolov8_cls.py) |
+| YOLO11-Cls | [yolo11_cls.py](../../../anylabeling/services/auto_labeling/yolo11_cls.py) |
+| InternImage | [internimage_cls.py](../../../anylabeling/services/auto_labeling/internimage_cls.py) |
+
+Load a classification model in the main window and run automatic labeling on a single image or a batch. Predictions are saved in the image-level `flags` field. After automatic labeling, open the [Image Classifier](../../../docs/en/image_classifier.md) (`Ctrl+3` on Windows/Linux or `⌘+3` on macOS) to review and correct the predictions. Save the corrected annotations before exporting images by category.
+
 ### GUI Import
 
 **Step 0: Preparation**

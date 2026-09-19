@@ -62,6 +62,8 @@ class YOLOv5_CLS(YOLO):
         predictions = self.net.get_ort_inference(blob)
         label = self.postprocess(predictions)
         result = AutoLabelingResult(
-            shapes=[], replace=False, description=label
+            shapes=[],
+            replace=False,
+            flags={str(name): str(name) == label for name in self.classes},
         )
         return result

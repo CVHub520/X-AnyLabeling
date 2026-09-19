@@ -18,6 +18,7 @@ class AutoLabelingResult:
         description="",
         image_path=None,
         tags=None,
+        flags=None,
     ):
         """Initialize AutoLabelingResult
 
@@ -30,6 +31,8 @@ class AutoLabelingResult:
             image_path (str, optional): Source image path used for
             prediction. Defaults to None.
             tags (List[str], optional): Image-level tags. Defaults to None.
+            flags (Dict[str, bool], optional): Image-level classification
+                flags to update. Defaults to None.
         """
 
         self.shapes = shapes
@@ -37,6 +40,7 @@ class AutoLabelingResult:
         self.description = description
         self.image_path = image_path
         self.tags = tags
+        self.flags = flags
 
 
 class AutoLabelingMode:
