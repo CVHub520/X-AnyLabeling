@@ -32,6 +32,399 @@ from anylabeling.services.auto_labeling import (
     _ON_NEXT_FILES_CHANGED_MODELS,
 )
 
+_AUTO_SEGMENTATION_MODELS = {
+    "yolov5_sam",
+    "yolov8_sam2",
+    "grounding_sam",
+    "grounding_sam2",
+    "open_vision",
+    "segment_anything",
+    "segment_anything_2",
+    "segment_anything_3",
+    "segment_anything_2_video",
+    "efficientvit_sam",
+    "sam_med2d",
+    "edge_sam",
+    "sam_hq",
+}
+_TIMEOUT_MODELS = {"florence2", "geco"}
+
+
+def _get_model_class(model_type):  # noqa: C901
+    if model_type == "yolov5":
+        from .yolov5 import YOLOv5
+
+        return YOLOv5
+    elif model_type == "yolov6":
+        from .yolov6 import YOLOv6
+
+        return YOLOv6
+    elif model_type == "yolov7":
+        from .yolov7 import YOLOv7
+
+        return YOLOv7
+    elif model_type == "yolov5_sahi":
+        from .yolov5_sahi import YOLOv5_SAHI
+
+        return YOLOv5_SAHI
+    elif model_type == "yolov8_sahi":
+        from .yolov8_sahi import YOLOv8_SAHI
+
+        return YOLOv8_SAHI
+    elif model_type == "yolo26_sahi":
+        from .yolo26_sahi import YOLO26_SAHI
+
+        return YOLO26_SAHI
+    elif model_type == "yolo11_sahi":
+        from .yolo11_sahi import YOLO11_SAHI
+
+        return YOLO11_SAHI
+    elif model_type == "yolov8":
+        from .yolov8 import YOLOv8
+
+        return YOLOv8
+    elif model_type == "yolov9":
+        from .yolov9 import YOLOv9
+
+        return YOLOv9
+    elif model_type == "yolov10":
+        from .yolov10 import YOLOv10
+
+        return YOLOv10
+    elif model_type == "yolo11":
+        from .yolo11 import YOLO11
+
+        return YOLO11
+    elif model_type == "yolow":
+        from .yolow import YOLOW
+
+        return YOLOW
+    elif model_type == "yolov5_seg":
+        from .yolov5_seg import YOLOv5_Seg
+
+        return YOLOv5_Seg
+    elif model_type == "yolov5_ram":
+        from .yolov5_ram import YOLOv5_RAM
+
+        return YOLOv5_RAM
+    elif model_type == "yolow_ram":
+        from .yolow_ram import YOLOW_RAM
+
+        return YOLOW_RAM
+    elif model_type == "yolov8_seg":
+        from .yolov8_seg import YOLOv8_Seg
+
+        return YOLOv8_Seg
+    elif model_type == "yolo11_seg":
+        from .yolo11_seg import YOLO11_Seg
+
+        return YOLO11_Seg
+    elif model_type == "yolov8_obb":
+        from .yolov8_obb import YOLOv8_OBB
+
+        return YOLOv8_OBB
+    elif model_type == "yolo11_obb":
+        from .yolo11_obb import YOLO11_OBB
+
+        return YOLO11_OBB
+    elif model_type == "yolov8_pose":
+        from .yolov8_pose import YOLOv8_Pose
+
+        return YOLOv8_Pose
+    elif model_type == "yolo11_pose":
+        from .yolo11_pose import YOLO11_Pose
+
+        return YOLO11_Pose
+    elif model_type == "yolox":
+        from .yolox import YOLOX
+
+        return YOLOX
+    elif model_type == "yolo_nas":
+        from .yolo_nas import YOLO_NAS
+
+        return YOLO_NAS
+    elif model_type == "damo_yolo":
+        from .damo_yolo import DAMO_YOLO
+
+        return DAMO_YOLO
+    elif model_type == "gold_yolo":
+        from .gold_yolo import Gold_YOLO
+
+        return Gold_YOLO
+    elif model_type == "grounding_dino":
+        from .grounding_dino import Grounding_DINO
+
+        return Grounding_DINO
+    elif model_type == "grounding_dino_api":
+        from .grounding_dino_api import Grounding_DINO_API
+
+        return Grounding_DINO_API
+    elif model_type == "ram":
+        from .ram import RAM
+
+        return RAM
+    elif model_type == "internimage_cls":
+        from .internimage_cls import InternImage_CLS
+
+        return InternImage_CLS
+    elif model_type == "pulc_attribute":
+        from .pulc_attribute import PULC_Attribute
+
+        return PULC_Attribute
+    elif model_type == "yolov5_sam":
+        from .yolov5_sam import YOLOv5SegmentAnything
+
+        return YOLOv5SegmentAnything
+    elif model_type == "yolov8_sam2":
+        from .yolov8_sam2 import YOLOv8SegmentAnything2
+
+        return YOLOv8SegmentAnything2
+    elif model_type == "grounding_sam":
+        from .grounding_sam import GroundingSAM
+
+        return GroundingSAM
+    elif model_type == "grounding_sam2":
+        from .grounding_sam2 import GroundingSAM2
+
+        return GroundingSAM2
+    elif model_type == "open_vision":
+        from .open_vision import OpenVision
+
+        return OpenVision
+    elif model_type == "doclayout_yolo":
+        from .doclayout_yolo import DocLayoutYOLO
+
+        return DocLayoutYOLO
+    elif model_type == "yolov5_obb":
+        from .yolov5_obb import YOLOv5OBB
+
+        return YOLOv5OBB
+    elif model_type == "segment_anything":
+        from .segment_anything import SegmentAnything
+
+        return SegmentAnything
+    elif model_type == "segment_anything_2":
+        from .segment_anything_2 import SegmentAnything2
+
+        return SegmentAnything2
+    elif model_type == "segment_anything_3":
+        from .segment_anything_3 import SegmentAnything3
+
+        return SegmentAnything3
+    elif model_type == "segment_anything_2_video":
+        from .segment_anything_2_video import SegmentAnything2Video
+
+        return SegmentAnything2Video
+    elif model_type == "efficientvit_sam":
+        from .efficientvit_sam import EfficientViT_SAM
+
+        return EfficientViT_SAM
+    elif model_type == "sam_med2d":
+        from .sam_med2d import SAM_Med2D
+
+        return SAM_Med2D
+    elif model_type == "edge_sam":
+        from .edge_sam import EdgeSAM
+
+        return EdgeSAM
+    elif model_type == "sam_hq":
+        from .sam_hq import SAM_HQ
+
+        return SAM_HQ
+    elif model_type == "yolov5_resnet":
+        from .yolov5_resnet import YOLOv5_ResNet
+
+        return YOLOv5_ResNet
+    elif model_type == "rtdetr":
+        from .rtdetr import RTDETR
+
+        return RTDETR
+    elif model_type == "rtdetrv2":
+        from .rtdetrv2 import RTDETRv2
+
+        return RTDETRv2
+    elif model_type == "rio_detr":
+        from .rio_detr import RiODETR
+
+        return RiODETR
+    elif model_type == "deimv2":
+        from .deimv2 import DEIMv2
+
+        return DEIMv2
+    elif model_type == "yolov6_face":
+        from .yolov6_face import YOLOv6Face
+
+        return YOLOv6Face
+    elif model_type == "scrfd":
+        from .scrfd import SCRFD
+
+        return SCRFD
+    elif model_type == "yolox_dwpose":
+        from .yolox_dwpose import YOLOX_DWPose
+
+        return YOLOX_DWPose
+    elif model_type == "rtmdet_pose":
+        from .rtmdet_pose import RTMDet_Pose
+
+        return RTMDet_Pose
+    elif model_type == "clrnet":
+        from .clrnet import CLRNet
+
+        return CLRNet
+    elif model_type == "ppocr_v4":
+        from .ppocr_v4 import PPOCRv4
+
+        return PPOCRv4
+    elif model_type == "ppocr_v5":
+        from .ppocr_v5 import PPOCRv5
+
+        return PPOCRv5
+    elif model_type == "ppocr_v6":
+        from .ppocr_v6 import PPOCRv6
+
+        return PPOCRv6
+    elif model_type == "yolov5_cls":
+        from .yolov5_cls import YOLOv5_CLS
+
+        return YOLOv5_CLS
+    elif model_type == "yolov5_car_plate":
+        from .yolov5_car_plate import YOLOv5CarPlateDetRec
+
+        return YOLOv5CarPlateDetRec
+    elif model_type == "yolov8_cls":
+        from .yolov8_cls import YOLOv8_CLS
+
+        return YOLOv8_CLS
+    elif model_type == "yolo11_cls":
+        from .yolo11_cls import YOLO11_CLS
+
+        return YOLO11_CLS
+    elif model_type == "yolov5_det_track":
+        from .yolov5_det_track import YOLOv5_Det_Tracker
+
+        return YOLOv5_Det_Tracker
+    elif model_type == "yolov8_det_track":
+        from .yolov8_det_track import YOLOv8_Det_Tracker
+
+        return YOLOv8_Det_Tracker
+    elif model_type == "yolo11_det_track":
+        from .yolo11_det_track import YOLO11_Det_Tracker
+
+        return YOLO11_Det_Tracker
+    elif model_type == "yolov8_seg_track":
+        from .yolov8_seg_track import YOLOv8_Seg_Tracker
+
+        return YOLOv8_Seg_Tracker
+    elif model_type == "yolo11_seg_track":
+        from .yolo11_seg_track import YOLO11_Seg_Tracker
+
+        return YOLO11_Seg_Tracker
+    elif model_type == "yolov8_obb_track":
+        from .yolov8_obb_track import YOLOv8_Obb_Tracker
+
+        return YOLOv8_Obb_Tracker
+    elif model_type == "yolo11_obb_track":
+        from .yolo11_obb_track import YOLO11_Obb_Tracker
+
+        return YOLO11_Obb_Tracker
+    elif model_type == "yolov8_pose_track":
+        from .yolov8_pose_track import YOLOv8_Pose_Tracker
+
+        return YOLOv8_Pose_Tracker
+    elif model_type == "yolo11_pose_track":
+        from .yolo11_pose_track import YOLO11_Pose_Tracker
+
+        return YOLO11_Pose_Tracker
+    elif model_type == "yolo26_det_track":
+        from .yolo26_det_track import YOLO26_Det_Tracker
+
+        return YOLO26_Det_Tracker
+    elif model_type == "yolo26_seg_track":
+        from .yolo26_seg_track import YOLO26_Seg_Tracker
+
+        return YOLO26_Seg_Tracker
+    elif model_type == "yolo26_obb_track":
+        from .yolo26_obb_track import YOLO26_Obb_Tracker
+
+        return YOLO26_Obb_Tracker
+    elif model_type == "yolo26_pose_track":
+        from .yolo26_pose_track import YOLO26_Pose_Tracker
+
+        return YOLO26_Pose_Tracker
+    elif model_type == "rmbg":
+        from .rmbg import RMBG
+
+        return RMBG
+    elif model_type == "depth_anything":
+        from .depth_anything import DepthAnything
+
+        return DepthAnything
+    elif model_type == "depth_anything_v2":
+        from .depth_anything_v2 import DepthAnythingV2
+
+        return DepthAnythingV2
+    elif model_type == "upn":
+        from .upn import UPN
+
+        return UPN
+    elif model_type == "remote_server":
+        from .remote_server import RemoteServer
+
+        return RemoteServer
+    elif model_type == "florence2":
+        from .florence2 import Florence2
+
+        return Florence2
+    elif model_type == "geco":
+        from .geco import GeCo
+
+        return GeCo
+    elif model_type == "rfdetr":
+        from .rfdetr import RFDETR
+
+        return RFDETR
+    elif model_type == "rfdetr_seg":
+        from .rfdetr_seg import RFDETR_Seg
+
+        return RFDETR_Seg
+    elif model_type == "dfine":
+        from .dfine import DFINE
+
+        return DFINE
+    elif model_type == "dfine_seg":
+        from .dfine_seg import DFINESeg
+
+        return DFINESeg
+    elif model_type == "yolo12":
+        from .yolo12 import YOLO12
+
+        return YOLO12
+    elif model_type == "yolo26":
+        from .yolo26 import YOLO26
+
+        return YOLO26
+    elif model_type == "yolo26_seg":
+        from .yolo26_seg import YOLO26_Seg
+
+        return YOLO26_Seg
+    elif model_type == "yolo26_obb":
+        from .yolo26_obb import YOLO26_OBB
+
+        return YOLO26_OBB
+    elif model_type == "yolo26_pose":
+        from .yolo26_pose import YOLO26_Pose
+
+        return YOLO26_Pose
+    elif model_type == "yoloe":
+        from .yoloe import YOLOE
+
+        return YOLOE
+    elif model_type == "u_rtdetr":
+        from .u_rtdetr import U_RTDETR
+
+        return U_RTDETR
+    raise ValueError(f"Unknown model type: {model_type}")
+
 
 class ModelManager(QObject):
     """Model manager"""
@@ -461,1912 +854,52 @@ class ModelManager(QObject):
                 downloaded, total
             )
         )
-        if model_config["type"] == "yolov5":
-            from .yolov5 import YOLOv5
+        model_type = model_config["type"]
 
-            try:
-                model_config["model"] = YOLOv5(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov6":
-            from .yolov6 import YOLOv6
-
-            try:
-                model_config["model"] = YOLOv6(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov7":
-            from .yolov7 import YOLOv7
-
-            try:
-                model_config["model"] = YOLOv7(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov5_sahi":
-            from .yolov5_sahi import YOLOv5_SAHI
-
-            try:
-                model_config["model"] = YOLOv5_SAHI(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_sahi":
-            from .yolov8_sahi import YOLOv8_SAHI
-
-            try:
-                model_config["model"] = YOLOv8_SAHI(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_sahi":
-            from .yolo26_sahi import YOLO26_SAHI
-
-            try:
-                model_config["model"] = YOLO26_SAHI(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_sahi":
-            from .yolo11_sahi import YOLO11_SAHI
-
-            try:
-                model_config["model"] = YOLO11_SAHI(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8":
-            from .yolov8 import YOLOv8
-
-            try:
-                model_config["model"] = YOLOv8(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov9":
-            from .yolov9 import YOLOv9
-
-            try:
-                model_config["model"] = YOLOv9(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov10":
-            from .yolov10 import YOLOv10
-
-            try:
-                model_config["model"] = YOLOv10(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11":
-            from .yolo11 import YOLO11
-
-            try:
-                model_config["model"] = YOLO11(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolow":
-            from .yolow import YOLOW
-
-            try:
-                model_config["model"] = YOLOW(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov5_seg":
-            from .yolov5_seg import YOLOv5_Seg
-
-            try:
-                model_config["model"] = YOLOv5_Seg(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov5_ram":
-            from .yolov5_ram import YOLOv5_RAM
-
-            try:
-                model_config["model"] = YOLOv5_RAM(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolow_ram":
-            from .yolow_ram import YOLOW_RAM
-
-            try:
-                model_config["model"] = YOLOW_RAM(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_seg":
-            from .yolov8_seg import YOLOv8_Seg
-
-            try:
-                model_config["model"] = YOLOv8_Seg(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_seg":
-            from .yolo11_seg import YOLO11_Seg
-
-            try:
-                model_config["model"] = YOLO11_Seg(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_obb":
-            from .yolov8_obb import YOLOv8_OBB
-
-            try:
-                model_config["model"] = YOLOv8_OBB(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_obb":
-            from .yolo11_obb import YOLO11_OBB
-
-            try:
-                model_config["model"] = YOLO11_OBB(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_pose":
-            from .yolov8_pose import YOLOv8_Pose
-
-            try:
-                model_config["model"] = YOLOv8_Pose(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_pose":
-            from .yolo11_pose import YOLO11_Pose
-
-            try:
-                model_config["model"] = YOLO11_Pose(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolox":
-            from .yolox import YOLOX
-
-            try:
-                model_config["model"] = YOLOX(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo_nas":
-            from .yolo_nas import YOLO_NAS
-
-            try:
-                model_config["model"] = YOLO_NAS(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "damo_yolo":
-            from .damo_yolo import DAMO_YOLO
-
-            try:
-                model_config["model"] = DAMO_YOLO(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "gold_yolo":
-            from .gold_yolo import Gold_YOLO
-
-            try:
-                model_config["model"] = Gold_YOLO(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "grounding_dino":
-            from .grounding_dino import Grounding_DINO
-
-            try:
-                model_config["model"] = Grounding_DINO(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "grounding_dino_api":
-            from .grounding_dino_api import Grounding_DINO_API
-
-            try:
-                model_config["model"] = Grounding_DINO_API(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "ram":
-            from .ram import RAM
-
-            try:
-                model_config["model"] = RAM(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "internimage_cls":
-            from .internimage_cls import InternImage_CLS
-
-            try:
-                model_config["model"] = InternImage_CLS(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "pulc_attribute":
-            from .pulc_attribute import PULC_Attribute
-
-            try:
-                model_config["model"] = PULC_Attribute(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov5_sam":
-            from .yolov5_sam import YOLOv5SegmentAnything
-
-            try:
-                model_config["model"] = YOLOv5SegmentAnything(
-                    model_config, on_message=self.new_model_status.emit
-                )
+        def _construct():
+            if model_type in _TIMEOUT_MODELS or model_type == "remote_server":
+                logger.info(f"⌛ Loading model: {model_type}")
+            model_config["model"] = model_cls(
+                model_config, on_message=self.new_model_status.emit
+            )
+            if model_type in _AUTO_SEGMENTATION_MODELS:
                 self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "yolov8_sam2":
-            from .yolov8_sam2 import YOLOv8SegmentAnything2
-
-            try:
-                model_config["model"] = YOLOv8SegmentAnything2(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "grounding_sam":
-            from .grounding_sam import GroundingSAM
-
-            try:
-                model_config["model"] = GroundingSAM(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "grounding_sam2":
-            from .grounding_sam2 import GroundingSAM2
-
-            try:
-                model_config["model"] = GroundingSAM2(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "open_vision":
-            from .open_vision import OpenVision
-
-            try:
-                model_config["model"] = OpenVision(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "doclayout_yolo":
-            from .doclayout_yolo import DocLayoutYOLO
-
-            try:
-                model_config["model"] = DocLayoutYOLO(
-                    model_config, on_message=self.new_model_status.emit
-                )
+            else:
                 self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-        elif model_config["type"] == "yolov5_obb":
-            from .yolov5_obb import YOLOv5OBB
+            logger.info(f"✅ Model loaded successfully: {model_type}")
 
-            try:
-                model_config["model"] = YOLOv5OBB(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "segment_anything":
-            from .segment_anything import SegmentAnything
-
-            try:
-                model_config["model"] = SegmentAnything(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "segment_anything_2":
-            from .segment_anything_2 import SegmentAnything2
-
-            try:
-                model_config["model"] = SegmentAnything2(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "segment_anything_3":
-            from .segment_anything_3 import SegmentAnything3
-
-            try:
-                model_config["model"] = SegmentAnything3(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} "
-                    f"with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-        elif model_config["type"] == "segment_anything_2_video":
-            try:
-                from .segment_anything_2_video import SegmentAnything2Video
-
-                model_config["model"] = SegmentAnything2Video(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "efficientvit_sam":
-            from .efficientvit_sam import EfficientViT_SAM
-
-            try:
-                model_config["model"] = EfficientViT_SAM(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "sam_med2d":
-            from .sam_med2d import SAM_Med2D
-
-            try:
-                model_config["model"] = SAM_Med2D(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "edge_sam":
-            from .edge_sam import EdgeSAM
-
-            try:
-                model_config["model"] = EdgeSAM(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "sam_hq":
-            from .sam_hq import SAM_HQ
-
-            try:
-                model_config["model"] = SAM_HQ(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_selected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                return
-            # Request next files for prediction
-            self.request_next_files_requested.emit()
-        elif model_config["type"] == "yolov5_resnet":
-            from .yolov5_resnet import YOLOv5_ResNet
-
-            try:
-                model_config["model"] = YOLOv5_ResNet(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "rtdetr":
-            from .rtdetr import RTDETR
-
-            try:
-                model_config["model"] = RTDETR(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "rtdetrv2":
-            from .rtdetrv2 import RTDETRv2
-
-            try:
-                model_config["model"] = RTDETRv2(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "rio_detr":
-            from .rio_detr import RiODETR
-
-            try:
-                model_config["model"] = RiODETR(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "deimv2":
-            from .deimv2 import DEIMv2
-
-            try:
-                model_config["model"] = DEIMv2(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov6_face":
-            from .yolov6_face import YOLOv6Face
-
-            try:
-                model_config["model"] = YOLOv6Face(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "scrfd":
-            from .scrfd import SCRFD
-
-            try:
-                model_config["model"] = SCRFD(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolox_dwpose":
-            from .yolox_dwpose import YOLOX_DWPose
-
-            try:
-                model_config["model"] = YOLOX_DWPose(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "rtmdet_pose":
-            from .rtmdet_pose import RTMDet_Pose
-
-            try:
-                model_config["model"] = RTMDet_Pose(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "clrnet":
-            from .clrnet import CLRNet
-
-            try:
-                model_config["model"] = CLRNet(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "ppocr_v4":
-            from .ppocr_v4 import PPOCRv4
-
-            try:
-                model_config["model"] = PPOCRv4(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "ppocr_v5":
-            from .ppocr_v5 import PPOCRv5
-
-            try:
-                model_config["model"] = PPOCRv5(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "ppocr_v6":
-            from .ppocr_v6 import PPOCRv6
-
-            try:
-                model_config["model"] = PPOCRv6(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov5_cls":
-            from .yolov5_cls import YOLOv5_CLS
-
-            try:
-                model_config["model"] = YOLOv5_CLS(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov5_car_plate":
-            from .yolov5_car_plate import YOLOv5CarPlateDetRec
-
-            try:
-                model_config["model"] = YOLOv5CarPlateDetRec(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_cls":
-            from .yolov8_cls import YOLOv8_CLS
-
-            try:
-                model_config["model"] = YOLOv8_CLS(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_cls":
-            from .yolo11_cls import YOLO11_CLS
-
-            try:
-                model_config["model"] = YOLO11_CLS(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov5_det_track":
-            from .yolov5_det_track import YOLOv5_Det_Tracker
-
-            try:
-                model_config["model"] = YOLOv5_Det_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_det_track":
-            from .yolov8_det_track import YOLOv8_Det_Tracker
-
-            try:
-                model_config["model"] = YOLOv8_Det_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_det_track":
-            from .yolo11_det_track import YOLO11_Det_Tracker
-
-            try:
-                model_config["model"] = YOLO11_Det_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_seg_track":
-            from .yolov8_seg_track import YOLOv8_Seg_Tracker
-
-            try:
-                model_config["model"] = YOLOv8_Seg_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_seg_track":
-            from .yolo11_seg_track import YOLO11_Seg_Tracker
-
-            try:
-                model_config["model"] = YOLO11_Seg_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_obb_track":
-            from .yolov8_obb_track import YOLOv8_Obb_Tracker
-
-            try:
-                model_config["model"] = YOLOv8_Obb_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_obb_track":
-            from .yolo11_obb_track import YOLO11_Obb_Tracker
-
-            try:
-                model_config["model"] = YOLO11_Obb_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolov8_pose_track":
-            from .yolov8_pose_track import YOLOv8_Pose_Tracker
-
-            try:
-                model_config["model"] = YOLOv8_Pose_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo11_pose_track":
-            from .yolo11_pose_track import YOLO11_Pose_Tracker
-
-            try:
-                model_config["model"] = YOLO11_Pose_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_det_track":
-            from .yolo26_det_track import YOLO26_Det_Tracker
-
-            try:
-                model_config["model"] = YOLO26_Det_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_seg_track":
-            from .yolo26_seg_track import YOLO26_Seg_Tracker
-
-            try:
-                model_config["model"] = YOLO26_Seg_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_obb_track":
-            from .yolo26_obb_track import YOLO26_Obb_Tracker
-
-            try:
-                model_config["model"] = YOLO26_Obb_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_pose_track":
-            from .yolo26_pose_track import YOLO26_Pose_Tracker
-
-            try:
-                model_config["model"] = YOLO26_Pose_Tracker(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "rmbg":
-            from .rmbg import RMBG
-
-            try:
-                model_config["model"] = RMBG(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "depth_anything":
-            from .depth_anything import DepthAnything
-
-            try:
-                model_config["model"] = DepthAnything(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "depth_anything_v2":
-            from .depth_anything_v2 import DepthAnythingV2
-
-            try:
-                model_config["model"] = DepthAnythingV2(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "upn":
-            from .upn import UPN
-
-            try:
-                model_config["model"] = UPN(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "remote_server":
-            from .remote_server import RemoteServer
-
-            try:
-                logger.info(f"⌛ Loading model: {model_config['type']}")
-                model_config["model"] = RemoteServer(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "florence2":
-            from .florence2 import Florence2
-
-            def _load_florence2():
-                logger.info(f"⌛ Loading model: {model_config['type']}")
-                model_config["model"] = Florence2(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-
-            try:
+        try:
+            model_cls = _get_model_class(model_type)
+            if model_type in _TIMEOUT_MODELS:
                 with TimeoutContext(
                     timeout=300,
                     timeout_message="""Model loading timeout! Please check your network connection.
                                     Alternatively, you can try to load the model from local directory.""",
                 ) as ctx:
-                    _ = ctx.run(_load_florence2)
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model `{model_config['type']}` with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "geco":
-            from .geco import GeCo
+                    _ = ctx.run(_construct)
+            else:
+                _construct()
+        except Exception as e:  # noqa
+            template = "Error in loading model: {error_message}"
+            translated_template = self.tr(template)
+            error_text = translated_template.format(error_message=str(e))
+            self.new_model_status.emit(error_text)
+            error_model_type = (
+                f" `{model_type}`"
+                if model_type in _TIMEOUT_MODELS
+                else f": {model_type}"
+            )
+            logger.error(
+                f"❌ Error in loading model{error_model_type} with error: {str(e)}"
+            )
+            return
 
-            def _load_geco():
-                logger.info(f"⌛ Loading model: {model_config['type']}")
-                model_config["model"] = GeCo(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-
-            try:
-                with TimeoutContext(
-                    timeout=300,
-                    timeout_message="""Model loading timeout! Please check your network connection.
-                                    Alternatively, you can try to load the model from local directory.""",
-                ) as ctx:
-                    _ = ctx.run(_load_geco)
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model `{model_config['type']}` with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "rfdetr":
-            from .rfdetr import RFDETR
-
-            try:
-                model_config["model"] = RFDETR(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "rfdetr_seg":
-            from .rfdetr_seg import RFDETR_Seg
-
-            try:
-                model_config["model"] = RFDETR_Seg(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "dfine":
-            from .dfine import DFINE
-
-            try:
-                model_config["model"] = DFINE(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "dfine_seg":
-            from .dfine_seg import DFINESeg
-
-            try:
-                model_config["model"] = DFINESeg(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo12":
-            from .yolo12 import YOLO12
-
-            try:
-                model_config["model"] = YOLO12(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26":
-            from .yolo26 import YOLO26
-
-            try:
-                model_config["model"] = YOLO26(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_seg":
-            from .yolo26_seg import YOLO26_Seg
-
-            try:
-                model_config["model"] = YOLO26_Seg(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_obb":
-            from .yolo26_obb import YOLO26_OBB
-
-            try:
-                model_config["model"] = YOLO26_OBB(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yolo26_pose":
-            from .yolo26_pose import YOLO26_Pose
-
-            try:
-                model_config["model"] = YOLO26_Pose(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "yoloe":
-            from .yoloe import YOLOE
-
-            try:
-                model_config["model"] = YOLOE(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        elif model_config["type"] == "u_rtdetr":
-            from .u_rtdetr import U_RTDETR
-
-            try:
-                model_config["model"] = U_RTDETR(
-                    model_config, on_message=self.new_model_status.emit
-                )
-                self.auto_segmentation_model_unselected.emit()
-                logger.info(
-                    f"✅ Model loaded successfully: {model_config['type']}"
-                )
-            except Exception as e:  # noqa
-                template = "Error in loading model: {error_message}"
-                translated_template = self.tr(template)
-                error_text = translated_template.format(error_message=str(e))
-                self.new_model_status.emit(error_text)
-                logger.error(
-                    f"❌ Error in loading model: {model_config['type']} with error: {str(e)}"
-                )
-                return
-        else:
-            raise Exception(f"Unknown model type: {model_config['type']}")
+        if (
+            model_type in _AUTO_SEGMENTATION_MODELS
+            and model_type != "segment_anything_3"
+        ):
+            # Request next files for prediction
+            self.request_next_files_requested.emit()
 
         with self.loaded_model_config_lock:
             self.loaded_model_config = model_config
