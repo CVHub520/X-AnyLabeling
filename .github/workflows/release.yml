@@ -77,10 +77,15 @@ jobs:
             libegl1 \
             libgl1 \
             libpulse0 \
+            libx11-xcb1 \
             libxkbcommon-x11-0 \
             libxcb-cursor0 \
             libxcb-icccm4 \
             libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-shape0 \
+            libxcb-sync1 \
+            libxcb-xfixes0 \
             libxcb-xinerama0 \
             libgl1-mesa-dri \
             xauth \
