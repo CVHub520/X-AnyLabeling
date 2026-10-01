@@ -1,5 +1,37 @@
 # X-AnyLabeling Changelog
 
+## `v4.1.0` (Oct 01, 2026)
+
+X-AnyLabeling 4.1.0 introduces a dedicated 3D point cloud annotation workspace, expands classification workflows, and improves everyday annotation and model management.
+
+### 🚀 New Features
+
+- Add 3D point cloud semantic and instance segmentation with brush and polygon selection, class and instance management, automatic saving, and calibrated camera projection. (#162)
+- Add 3D object detection annotation with editable cuboids, top/side/front views, multi-camera support, and dataset import and export workflows.
+- Integrate classification model predictions as image flags and add searchable categories to the image classifier. (#1457)
+- Add a collapsible sidebar with bounded resizing. (#1357)
+- Add a localized, searchable keyboard shortcuts dialog.
+- Allow downloaded model files to be deleted from the model dropdown with localized confirmation dialogs.
+
+### 🐛 Bug Fixes
+
+- Prevent crashes when switching drawing modes with unfinished shapes.
+- Fix point cloud file loading crashes on Windows.
+- Fix RF-DETR top-k selection boundaries and preserve empty selections. (#1450)
+- Remove the broken standalone converter entry point that raised a TypeError.
+
+### 🛠️ Improvements
+
+- Unify auto-labeling model loading while preserving static lazy imports. (#1454)
+- Streamline the AI panel layout and remove its redundant close button.
+- Expand English and Chinese point cloud guides, sample datasets, and classification documentation.
+
+### 🌟 Contributors
+
+A total of 3 developers contributed to this release.
+
+Thank @Anai-Guo, @CVHub520, @MNakahara-ishidatec
+
 ## `v4.0.6` (Sep 05, 2026)
 
 X-AnyLabeling 4.0.6 expands external training and model deployment workflows, adds more control to auto-labeling runs, and improves custom model management.
