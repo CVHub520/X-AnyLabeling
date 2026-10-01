@@ -1,4 +1,7 @@
 import os
+from argparse import Namespace
+from typing import Any, Optional
+
 import numpy as np
 from PIL import Image
 
@@ -8,7 +11,9 @@ from PyQt6.QtCore import QCoreApplication
 from anylabeling.views.labeling.shape import Shape
 from anylabeling.views.labeling.logger import logger
 from .model import Model
+from .trackers import BOTSORT, BYTETracker, TRACKTRACK
 from .types import AutoLabelingResult
+from .utils import xyxy2xywh
 
 try:
     import torch
@@ -115,6 +120,7 @@ class YOLOE(Model):
         # Cache text prompt state to avoid unnecessary model rebuilds
         self._current_text_prompt = None
         self._prompt_free_initialized = False
+        self._active_tracker_context = None
 
         # Model configuration
         input_width = self.config.get("input_width", 640)
@@ -126,6 +132,7 @@ class YOLOE(Model):
         self.iou_thres = self.config.get("iou_threshold", 0.70)
         self.conf_thres = self.config.get("conf_threshold", 0.25)
         self.replace = True
+        self.tracker = self._build_tracker(self.config.get("tracker"))
 
         self.text_prompt = None
 
@@ -140,6 +147,18 @@ class YOLOE(Model):
             self.texts = list(classes.values())
         else:
             self.texts = self.load_tag_list()
+
+    def get_required_widgets(self) -> list[str]:
+        """Return YOLOE widgets enabled by the active configuration.
+
+        Returns:
+            list[str]: Base YOLOE widgets, with the tracker reset control
+                appended only when a tracker was initialized.
+        """
+        widgets = list(self.Meta.widgets)
+        if self.tracker is not None:
+            widgets.append("button_reset_tracker")
+        return widgets
 
     @staticmethod
     def build_model(model_path):
@@ -183,8 +202,103 @@ class YOLOE(Model):
         """Toggle preservation of existing annotations"""
         self.replace = not state
 
-    def postprocess(self, results):
-        """Post-process model predictions into shapes"""
+    @staticmethod
+    def _build_tracker(tracker_config: Optional[dict]) -> Optional[Any]:
+        """Build a tracker from an X-AnyLabeling tracker configuration.
+
+        Args:
+            tracker_config (Optional[dict]): Tracker settings using the same
+                schema as the built-in YOLO tracking models.
+
+        Returns:
+            Optional[Any]: An initialized tracker, or ``None`` when tracking
+                is disabled or the tracker type is unsupported.
+        """
+        if not tracker_config:
+            return None
+
+        tracker_args = Namespace(**tracker_config)
+        tracker_type = tracker_args.tracker_type
+        if tracker_type == "bytetrack":
+            return BYTETracker(tracker_args, frame_rate=30)
+        if tracker_type == "botsort":
+            return BOTSORT(tracker_args, frame_rate=30)
+        if tracker_type == "tracktrack":
+            return TRACKTRACK(tracker_args, frame_rate=30)
+
+        logger.error(
+            "Only 'bytetrack', 'botsort' and 'tracktrack' are supported "
+            f"for YOLOE tracking, but got '{tracker_type}'!"
+        )
+        return None
+
+    def _update_tracker(
+        self,
+        bboxes: np.ndarray,
+        scores: np.ndarray,
+        class_ids: np.ndarray,
+        image: Image.Image,
+    ) -> np.ndarray:
+        """Associate open-vocabulary detections across consecutive frames.
+
+        Args:
+            bboxes (np.ndarray): Detection boxes in ``xyxy`` format.
+            scores (np.ndarray): Detection confidence scores.
+            class_ids (np.ndarray): Numeric class identifiers produced by
+                YOLOE for the active vocabulary.
+            image (Image.Image): Current video frame.
+
+        Returns:
+            np.ndarray: Tracker results with columns ``xyxy``, ``track_id``,
+                ``score``, ``class_id`` and ``detection_index``.
+        """
+        if self.tracker is None:
+            return np.empty((0, 8), dtype=np.float32)
+
+        rgb_frame = np.asarray(image.convert("RGB"))
+        bgr_frame = np.ascontiguousarray(rgb_frame[:, :, ::-1])
+        return self.tracker.update(
+            scores.flatten(),
+            xyxy2xywh(bboxes),
+            class_ids.flatten(),
+            bgr_frame,
+        )
+
+    def set_auto_labeling_reset_tracker(self) -> None:
+        """Reset all YOLOE track identities and temporal state."""
+        if self.tracker is not None:
+            self.tracker.reset()
+
+    def _activate_tracker_context(
+        self, mode: str, class_names: Optional[list[str]] = None
+    ) -> None:
+        """Reset identities before the detector vocabulary changes.
+
+        Args:
+            mode (str): Active ``text``, ``visual``, or ``prompt_free`` mode.
+            class_names (Optional[list[str]]): Ordered text-prompt vocabulary.
+        """
+        context = (mode, tuple(class_names or ()))
+        if (
+            self._active_tracker_context is not None
+            and self._active_tracker_context != context
+        ):
+            self.set_auto_labeling_reset_tracker()
+        self._active_tracker_context = context
+
+    def postprocess(
+        self, results: Any, image: Optional[Image.Image] = None
+    ) -> list[Shape]:
+        """Convert YOLOE predictions to shapes with stable track IDs.
+
+        Args:
+            results (Any): Ultralytics YOLOE prediction results.
+            image (Optional[Image.Image]): Current frame used by the tracker.
+
+        Returns:
+            list[Shape]: Rectangle or polygon annotations. Tracked shapes use
+                ``group_id`` as their persistent object identity.
+        """
         if results is None:
             return []
 
@@ -199,11 +313,29 @@ class YOLOE(Model):
         bboxes = detections.xyxy
         labels = detections["class_name"]
         scores = detections.confidence
+        class_ids = detections.class_id
+        track_ids = np.full(len(bboxes), None, dtype=object)
+
+        if self.tracker is not None and image is not None:
+            tracks = self._update_tracker(bboxes, scores, class_ids, image)
+            if len(tracks) > 0:
+                detection_indices = tracks[:, 7].astype(int)
+                valid = (detection_indices >= 0) & (
+                    detection_indices < len(bboxes)
+                )
+                tracks = tracks[valid]
+                detection_indices = detection_indices[valid]
+                for index, track in zip(detection_indices, tracks):
+                    bboxes[index] = track[:4]
+                    track_ids[index] = int(track[4])
+                    scores[index] = track[5]
         shapes = []
 
         # Generate rectangle shapes
         if self.output_mode == "rectangle":
-            for xyxy, label, score in zip(bboxes, labels, scores):
+            for xyxy, label, score, track_id in zip(
+                bboxes, labels, scores, track_ids
+            ):
                 shape = Shape(flags={})
                 xmin, ymin, xmax, ymax = xyxy
                 shape.add_point(QtCore.QPointF(float(xmin), float(ymin)))
@@ -214,13 +346,22 @@ class YOLOE(Model):
                 shape.closed = True
                 shape.score = float(score)
                 shape.label = str(label)
+                shape.group_id = (
+                    int(track_id) if track_id is not None else None
+                )
                 shape.selected = False
                 shapes.append(shape)
 
         # Generate polygon shapes from masks
-        if self.output_mode == "polygon" or self.with_mask:
-            for mask, label, score in zip(masks, labels, scores):
+        if (
+            self.output_mode == "polygon" or self.with_mask
+        ) and masks is not None:
+            for mask, label, score, track_id in zip(
+                masks, labels, scores, track_ids
+            ):
                 polygons = mask_to_polygons(mask)
+                if not polygons:
+                    continue
                 points = polygons[0].tolist()
                 points.append(points[0])
 
@@ -229,7 +370,11 @@ class YOLOE(Model):
                     shape.add_point(QtCore.QPointF(point[0], point[1]))
                 shape.shape_type = "polygon"
                 shape.closed = True
-                shape.label = label
+                shape.label = str(label)
+                shape.score = float(score)
+                shape.group_id = (
+                    int(track_id) if track_id is not None else None
+                )
                 shape.selected = False
                 shapes.append(shape)
 
@@ -274,6 +419,27 @@ class YOLOE(Model):
         self._prompt_free_model.model.model[-1].conf = self.conf_thres
         return self._prompt_free_model
 
+    @staticmethod
+    def _parse_text_prompt(text_prompt: str) -> list[str]:
+        """Normalize a dot- or comma-separated open-vocabulary prompt.
+
+        Args:
+            text_prompt (str): User-entered class names.
+
+        Returns:
+            list[str]: Non-empty class names in prompt order.
+
+        Raises:
+            ValueError: If no usable class name remains after normalization.
+        """
+        normalized = text_prompt.strip().replace(",", ".")
+        texts = [
+            item.strip() for item in normalized.split(".") if item.strip()
+        ]
+        if not texts:
+            raise ValueError("text_prompt must contain at least one class")
+        return texts
+
     def predict_shapes(self, image, image_path=None, text_prompt=None):
         """Predict shapes from image using different prompting modes"""
 
@@ -291,6 +457,7 @@ class YOLOE(Model):
 
         # Visual prompting mode
         if self.marks:
+            self._activate_tracker_context("visual")
             bboxes = []
             logger.debug(f"marks: {self.marks}")
             for mark in self.marks:
@@ -313,19 +480,9 @@ class YOLOE(Model):
 
         # Text prompting mode
         elif text_prompt:
-            text_prompt = text_prompt.strip()
-            text_prompt = text_prompt.replace(",", ".")
-            while text_prompt.endswith("."):
-                text_prompt = text_prompt[:-1]
-            texts = [text.strip() for text in text_prompt.split(".")]
-
-            # Reset text model if prompt changed
-            if self.text_prompt is None:
-                self.text_prompt = texts
-            else:
-                if self.text_prompt != texts:
-                    self._text_model = None
-                    self.text_prompt = texts
+            texts = self._parse_text_prompt(text_prompt)
+            self._activate_tracker_context("text", texts)
+            self.text_prompt = texts
             logger.debug(f"Input texts: {texts}")
 
             model = self._get_text_model(texts)
@@ -340,6 +497,7 @@ class YOLOE(Model):
 
         # Prompt-free mode
         else:
+            self._activate_tracker_context("prompt_free")
             model = self._get_prompt_free_model()
             results = model.predict(
                 source=image,
@@ -350,7 +508,7 @@ class YOLOE(Model):
                 **kwargs,
             )
 
-        shapes = self.postprocess(results)
+        shapes = self.postprocess(results, image=image)
         result = AutoLabelingResult(shapes, replace=self.replace)
         return result
 
