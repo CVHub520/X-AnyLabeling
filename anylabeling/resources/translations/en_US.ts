@@ -8115,6 +8115,310 @@ Changes will not be saved until you click Save.</translation>
       <source>Set the minimum log level shown in the application.</source>
       <translation type="unfinished" />
     </message>
+    <message>
+      <source>Auto Run</source>
+      <translation>Auto Run</translation>
+    </message>
+    <message>
+      <source>Auto Label</source>
+      <translation>Auto Label</translation>
+    </message>
+    <message>
+      <source>Add Point</source>
+      <translation>Add Point</translation>
+    </message>
+    <message>
+      <source>Clear</source>
+      <translation>Clear</translation>
+    </message>
+    <message>
+      <source>Finish Object</source>
+      <translation>Finish Object</translation>
+    </message>
+    <message>
+      <source>Remove Point</source>
+      <translation>Remove Point</translation>
+    </message>
+    <message>
+      <source>Run</source>
+      <translation>Run</translation>
+    </message>
+    <message>
+      <source>Open Settings Dialog</source>
+      <translation>Open Settings Dialog</translation>
+    </message>
+    <message>
+      <source>Open Chatbot Dialog</source>
+      <translation>Open Chatbot Dialog</translation>
+    </message>
+    <message>
+      <source>Open VQA Dialog</source>
+      <translation>Open VQA Dialog</translation>
+    </message>
+    <message>
+      <source>Open Image Classifier Dialog</source>
+      <translation>Open Image Classifier Dialog</translation>
+    </message>
+    <message>
+      <source>Open Video Classifier</source>
+      <translation>Open Video Classifier</translation>
+    </message>
+    <message>
+      <source>Open PaddleOCR Dialog</source>
+      <translation>Open PaddleOCR Dialog</translation>
+    </message>
+    <message>
+      <source>Open Overview Dialog</source>
+      <translation>Open Overview Dialog</translation>
+    </message>
+    <message>
+      <source>Show Navigator Dialog</source>
+      <translation>Show Navigator Dialog</translation>
+    </message>
+    <message>
+      <source>Open Digit Shortcut Manager Dialog</source>
+      <translation>Open Digit Shortcut Manager Dialog</translation>
+    </message>
+    <message>
+      <source>Open Group ID Manager</source>
+      <translation>Open Group ID Manager</translation>
+    </message>
+    <message>
+      <source>Open Label Manager Dialog</source>
+      <translation>Open Label Manager Dialog</translation>
+    </message>
+    <message>
+      <source>Open Shape Manager Dialog</source>
+      <translation>Open Shape Manager Dialog</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>Close</translation>
+    </message>
+    <message>
+      <source>Delete File</source>
+      <translation>Delete File</translation>
+    </message>
+    <message>
+      <source>Delete Image File</source>
+      <translation>Delete Image File</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>Open</translation>
+    </message>
+    <message>
+      <source>Open Dir</source>
+      <translation>Open Dir</translation>
+    </message>
+    <message>
+      <source>Open Video</source>
+      <translation>Open Video</translation>
+    </message>
+    <message>
+      <source>Quit</source>
+      <translation>Quit</translation>
+    </message>
+    <message>
+      <source>Save As</source>
+      <translation>Save As</translation>
+    </message>
+    <message>
+      <source>Save To</source>
+      <translation>Save To</translation>
+    </message>
+    <message>
+      <source>Switch Next Image</source>
+      <translation>Switch Next Image</translation>
+    </message>
+    <message>
+      <source>Switch Next Unchecked Image</source>
+      <translation>Switch Next Unchecked Image</translation>
+    </message>
+    <message>
+      <source>Switch Prev Image</source>
+      <translation>Switch Prev Image</translation>
+    </message>
+    <message>
+      <source>Switch Prev Unchecked Image</source>
+      <translation>Switch Prev Unchecked Image</translation>
+    </message>
+    <message>
+      <source>Add Point To Edge</source>
+      <translation>Add Point To Edge</translation>
+    </message>
+    <message>
+      <source>Copy Polygon</source>
+      <translation>Copy Polygon</translation>
+    </message>
+    <message>
+      <source>Create Brush Polygon</source>
+      <translation>Create Brush Polygon</translation>
+    </message>
+    <message>
+      <source>Create Magic Wand</source>
+      <translation>Create Magic Wand</translation>
+    </message>
+    <message>
+      <source>Create Circle</source>
+      <translation>Create Circle</translation>
+    </message>
+    <message>
+      <source>Create Cuboid</source>
+      <translation>Create Cuboid</translation>
+    </message>
+    <message>
+      <source>Create Line</source>
+      <translation>Create Line</translation>
+    </message>
+    <message>
+      <source>Create Linestrip</source>
+      <translation>Create Linestrip</translation>
+    </message>
+    <message>
+      <source>Create Point</source>
+      <translation>Create Point</translation>
+    </message>
+    <message>
+      <source>Create Polygon</source>
+      <translation>Create Polygon</translation>
+    </message>
+    <message>
+      <source>Create Quadrilateral</source>
+      <translation>Create Quadrilateral</translation>
+    </message>
+    <message>
+      <source>Create Rectangle</source>
+      <translation>Create Rectangle</translation>
+    </message>
+    <message>
+      <source>Create Rotation</source>
+      <translation>Create Rotation</translation>
+    </message>
+    <message>
+      <source>Delete Polygon</source>
+      <translation>Delete Polygon</translation>
+    </message>
+    <message>
+      <source>Duplicate Polygon</source>
+      <translation>Duplicate Polygon</translation>
+    </message>
+    <message>
+      <source>Edit Brush Mode</source>
+      <translation>Edit Brush Mode</translation>
+    </message>
+    <message>
+      <source>Edit Label</source>
+      <translation>Edit Label</translation>
+    </message>
+    <message>
+      <source>Edit Polygon</source>
+      <translation>Edit Polygon</translation>
+    </message>
+    <message>
+      <source>Group Selected Shapes</source>
+      <translation>Group Selected Shapes</translation>
+    </message>
+    <message>
+      <source>Ungroup Selected Shapes</source>
+      <translation>Ungroup Selected Shapes</translation>
+    </message>
+    <message>
+      <source>Loop Thru Labels</source>
+      <translation>Loop Thru Labels</translation>
+    </message>
+    <message>
+      <source>Loop Select Labels</source>
+      <translation>Loop Select Labels</translation>
+    </message>
+    <message>
+      <source>Hide Selected Polygons</source>
+      <translation>Hide Selected Polygons</translation>
+    </message>
+    <message>
+      <source>Paste Polygon</source>
+      <translation>Paste Polygon</translation>
+    </message>
+    <message>
+      <source>Remove Selected Point</source>
+      <translation>Remove Selected Point</translation>
+    </message>
+    <message>
+      <source>Show Hidden Polygons</source>
+      <translation>Show Hidden Polygons</translation>
+    </message>
+    <message>
+      <source>Undo</source>
+      <translation>Undo</translation>
+    </message>
+    <message>
+      <source>Undo Last Point</source>
+      <translation>Undo Last Point</translation>
+    </message>
+    <message>
+      <source>Union Selected Shapes</source>
+      <translation>Union Selected Shapes</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>Fit Width</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>Fit Window</translation>
+    </message>
+    <message>
+      <source>Show Attributes</source>
+      <translation>Show Attributes</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>Show Labels</translation>
+    </message>
+    <message>
+      <source>Show Linking</source>
+      <translation>Show Linking</translation>
+    </message>
+    <message>
+      <source>Show Masks</source>
+      <translation>Show Masks</translation>
+    </message>
+    <message>
+      <source>Show Texts</source>
+      <translation>Show Texts</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Gid</source>
+      <translation>Toggle Auto Use Last Gid</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Label</source>
+      <translation>Toggle Auto Use Last Label</translation>
+    </message>
+    <message>
+      <source>Toggle Compare View</source>
+      <translation>Toggle Compare View</translation>
+    </message>
+    <message>
+      <source>Toggle Keep Prev Mode</source>
+      <translation>Toggle Keep Prev Mode</translation>
+    </message>
+    <message>
+      <source>Toggle Visibility Shapes</source>
+      <translation>Toggle Visibility Shapes</translation>
+    </message>
+    <message>
+      <source>Zoom In</source>
+      <translation>Zoom In</translation>
+    </message>
+    <message>
+      <source>Zoom Out</source>
+      <translation>Zoom Out</translation>
+    </message>
+    <message>
+      <source>Zoom To Original</source>
+      <translation>Zoom To Original</translation>
+    </message>
   </context>
   <context>
     <name>SettingsRuntimeApplier</name>

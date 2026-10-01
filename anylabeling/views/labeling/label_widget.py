@@ -60,6 +60,7 @@ from .logger import logger
 from .schema import IMAGE_TAGS_FIELD
 from .settings import SettingsController, SettingsDialog
 from .settings.runtime_applier import SettingsRuntimeApplier
+from .settings.schema import SETTINGS_SHORTCUT_SECTIONS, fields_for_page
 from .shape import Shape
 from .utils.file_search import (
     parse_search_pattern,
@@ -69,6 +70,7 @@ from .utils.file_search import (
 from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
+from .pointcloud.controls import ShortcutsDialog
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -2370,6 +2372,7 @@ class LabelingWidget(LabelDialog):
         self.auto_labeling_widget.hide()  # Hide by default
         instruction_layout = QHBoxLayout()
         instruction_layout.setContentsMargins(0, 0, 0, 0)
+        instruction_layout.setSpacing(2)
         instruction_layout.addWidget(self.label_instruction, 1)
         theme = get_theme()
         self.sidebar_toggle_button = QtWidgets.QToolButton()
@@ -2401,6 +2404,26 @@ class LabelingWidget(LabelDialog):
             }}
         """)
         self.sidebar_toggle_button.clicked.connect(self.toggle_right_sidebar)
+        self.shortcuts_button = QtWidgets.QToolButton()
+        self.shortcuts_button.setIcon(
+            get_icon("command", theme["text"], theme["primary"])
+        )
+        self.shortcuts_button.setIconSize(QtCore.QSize(18, 18))
+        self.shortcuts_button.setFixedSize(26, 26)
+        self.shortcuts_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.shortcuts_button.setToolTip(
+            QtCore.QCoreApplication.translate(
+                "ShortcutsDialog", "Keyboard shortcuts"
+            )
+        )
+        self.shortcuts_button.setAccessibleName(
+            self.shortcuts_button.toolTip()
+        )
+        self.shortcuts_button.setStyleSheet(
+            self.sidebar_toggle_button.styleSheet()
+        )
+        self.shortcuts_button.clicked.connect(self.show_shortcuts)
+        instruction_layout.addWidget(self.shortcuts_button)
         instruction_layout.addWidget(self.sidebar_toggle_button)
         central_layout.addLayout(instruction_layout)
         central_layout.addSpacing(5)
@@ -2669,6 +2692,50 @@ class LabelingWidget(LabelDialog):
         self.set_text_editing(False)
 
         QtCore.QTimer.singleShot(100, self.restore_navigator_state)
+
+    def show_shortcuts(self):
+        shortcuts = self._config["shortcuts"]
+        groups = []
+        for section in SETTINGS_SHORTCUT_SECTIONS:
+            entries = []
+            for field in fields_for_page("Shortcuts", section):
+                value = shortcuts.get(field.key.removeprefix("shortcuts."))
+                values = value if isinstance(value, (list, tuple)) else [value]
+                keys = [
+                    QtGui.QKeySequence(key).toString(
+                        QtGui.QKeySequence.SequenceFormat.NativeText
+                    )
+                    for key in values
+                    if key
+                ]
+                if keys:
+                    entries.append(
+                        (
+                            QtCore.QCoreApplication.translate(
+                                "SettingsDialog", field.label
+                            ),
+                            keys,
+                        )
+                    )
+            if section == "Shape":
+                entries.extend(
+                    (
+                        getattr(
+                            self.actions, f"digit_shortcut_{digit}"
+                        ).text(),
+                        [str(digit)],
+                    )
+                    for digit in range(10)
+                )
+            groups.append(
+                (
+                    QtCore.QCoreApplication.translate(
+                        "SettingsDialog", section
+                    ),
+                    entries,
+                )
+            )
+        ShortcutsDialog(groups, self).exec()
 
     def toggle_right_sidebar(self):
         show = self.right_sidebar.isHidden()

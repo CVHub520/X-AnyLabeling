@@ -8142,6 +8142,310 @@ Changes will not be saved until you click Save.</source>
       <source>Set the minimum log level shown in the application.</source>
       <translation>애플리케이션에 표시할 최소 로그 레벨을 설정합니다.</translation>
     </message>
+    <message>
+      <source>Auto Run</source>
+      <translation>자동 실행</translation>
+    </message>
+    <message>
+      <source>Auto Label</source>
+      <translation>자동 라벨링</translation>
+    </message>
+    <message>
+      <source>Add Point</source>
+      <translation>점 추가</translation>
+    </message>
+    <message>
+      <source>Clear</source>
+      <translation>지우기</translation>
+    </message>
+    <message>
+      <source>Finish Object</source>
+      <translation>객체 완료</translation>
+    </message>
+    <message>
+      <source>Remove Point</source>
+      <translation>점 제거</translation>
+    </message>
+    <message>
+      <source>Run</source>
+      <translation>실행</translation>
+    </message>
+    <message>
+      <source>Open Settings Dialog</source>
+      <translation>설정 열기</translation>
+    </message>
+    <message>
+      <source>Open Chatbot Dialog</source>
+      <translation>챗봇 열기</translation>
+    </message>
+    <message>
+      <source>Open VQA Dialog</source>
+      <translation>시각적 질의응답 열기</translation>
+    </message>
+    <message>
+      <source>Open Image Classifier Dialog</source>
+      <translation>이미지 분류기 열기</translation>
+    </message>
+    <message>
+      <source>Open Video Classifier</source>
+      <translation>비디오 분류기 열기</translation>
+    </message>
+    <message>
+      <source>Open PaddleOCR Dialog</source>
+      <translation>PaddleOCR 열기</translation>
+    </message>
+    <message>
+      <source>Open Overview Dialog</source>
+      <translation>개요 열기</translation>
+    </message>
+    <message>
+      <source>Show Navigator Dialog</source>
+      <translation>내비게이터 표시</translation>
+    </message>
+    <message>
+      <source>Open Digit Shortcut Manager Dialog</source>
+      <translation>숫자 단축키 관리자 열기</translation>
+    </message>
+    <message>
+      <source>Open Group ID Manager</source>
+      <translation>그룹 ID 관리자 열기</translation>
+    </message>
+    <message>
+      <source>Open Label Manager Dialog</source>
+      <translation>라벨 관리자 열기</translation>
+    </message>
+    <message>
+      <source>Open Shape Manager Dialog</source>
+      <translation>객체 관리자 열기</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>닫기</translation>
+    </message>
+    <message>
+      <source>Delete File</source>
+      <translation>파일 삭제</translation>
+    </message>
+    <message>
+      <source>Delete Image File</source>
+      <translation>이미지 삭제</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>파일 열기</translation>
+    </message>
+    <message>
+      <source>Open Dir</source>
+      <translation>디렉터리 열기</translation>
+    </message>
+    <message>
+      <source>Open Video</source>
+      <translation>비디오 열기</translation>
+    </message>
+    <message>
+      <source>Quit</source>
+      <translation>종료</translation>
+    </message>
+    <message>
+      <source>Save As</source>
+      <translation>다른 이름으로 저장</translation>
+    </message>
+    <message>
+      <source>Save To</source>
+      <translation>저장 폴더 설정</translation>
+    </message>
+    <message>
+      <source>Switch Next Image</source>
+      <translation>다음 이미지</translation>
+    </message>
+    <message>
+      <source>Switch Next Unchecked Image</source>
+      <translation>다음 미확인 이미지</translation>
+    </message>
+    <message>
+      <source>Switch Prev Image</source>
+      <translation>이전 이미지</translation>
+    </message>
+    <message>
+      <source>Switch Prev Unchecked Image</source>
+      <translation>이전 미확인 이미지</translation>
+    </message>
+    <message>
+      <source>Add Point To Edge</source>
+      <translation>변에 점 추가</translation>
+    </message>
+    <message>
+      <source>Copy Polygon</source>
+      <translation>객체 복사</translation>
+    </message>
+    <message>
+      <source>Create Brush Polygon</source>
+      <translation>브러시로 다각형 그리기</translation>
+    </message>
+    <message>
+      <source>Create Magic Wand</source>
+      <translation>마술봉 선택</translation>
+    </message>
+    <message>
+      <source>Create Circle</source>
+      <translation>원 만들기</translation>
+    </message>
+    <message>
+      <source>Create Cuboid</source>
+      <translation>직육면체 생성</translation>
+    </message>
+    <message>
+      <source>Create Line</source>
+      <translation>선 만들기</translation>
+    </message>
+    <message>
+      <source>Create Linestrip</source>
+      <translation>연결선 만들기</translation>
+    </message>
+    <message>
+      <source>Create Point</source>
+      <translation>점 만들기</translation>
+    </message>
+    <message>
+      <source>Create Polygon</source>
+      <translation>다각형 만들기</translation>
+    </message>
+    <message>
+      <source>Create Quadrilateral</source>
+      <translation>사각형 만들기</translation>
+    </message>
+    <message>
+      <source>Create Rectangle</source>
+      <translation>사각형 만들기</translation>
+    </message>
+    <message>
+      <source>Create Rotation</source>
+      <translation>회전 도형 만들기</translation>
+    </message>
+    <message>
+      <source>Delete Polygon</source>
+      <translation>객체 삭제</translation>
+    </message>
+    <message>
+      <source>Duplicate Polygon</source>
+      <translation>객체 복제</translation>
+    </message>
+    <message>
+      <source>Edit Brush Mode</source>
+      <translation>브러시 편집 모드</translation>
+    </message>
+    <message>
+      <source>Edit Label</source>
+      <translation>라벨 편집</translation>
+    </message>
+    <message>
+      <source>Edit Polygon</source>
+      <translation>객체 편집</translation>
+    </message>
+    <message>
+      <source>Group Selected Shapes</source>
+      <translation>선택한 도형 그룹화</translation>
+    </message>
+    <message>
+      <source>Ungroup Selected Shapes</source>
+      <translation>선택한 도형 그룹 해제</translation>
+    </message>
+    <message>
+      <source>Loop Thru Labels</source>
+      <translation>라벨 순환</translation>
+    </message>
+    <message>
+      <source>Loop Select Labels</source>
+      <translation>레이블 순환 선택</translation>
+    </message>
+    <message>
+      <source>Hide Selected Polygons</source>
+      <translation>선택한 다각형 숨기기</translation>
+    </message>
+    <message>
+      <source>Paste Polygon</source>
+      <translation>객체 붙여넣기</translation>
+    </message>
+    <message>
+      <source>Remove Selected Point</source>
+      <translation>선택한 포인트 제거</translation>
+    </message>
+    <message>
+      <source>Show Hidden Polygons</source>
+      <translation>숨겨진 다각형 표시</translation>
+    </message>
+    <message>
+      <source>Undo</source>
+      <translation>실행 취소</translation>
+    </message>
+    <message>
+      <source>Undo Last Point</source>
+      <translation>마지막 점 실행 취소</translation>
+    </message>
+    <message>
+      <source>Union Selected Shapes</source>
+      <translation>선택한 객체 합치기</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>너비 맞추기</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>창에 맞춤</translation>
+    </message>
+    <message>
+      <source>Show Attributes</source>
+      <translation>속성 표시</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>레이블만 표시</translation>
+    </message>
+    <message>
+      <source>Show Linking</source>
+      <translation>연결 표시</translation>
+    </message>
+    <message>
+      <source>Show Masks</source>
+      <translation>마스크 표시</translation>
+    </message>
+    <message>
+      <source>Show Texts</source>
+      <translation>텍스트 표시</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Gid</source>
+      <translation>이전 그룹 ID 자동 사용 전환</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Label</source>
+      <translation>이전 라벨 자동 사용 전환</translation>
+    </message>
+    <message>
+      <source>Toggle Compare View</source>
+      <translation>비교 보기 전환</translation>
+    </message>
+    <message>
+      <source>Toggle Keep Prev Mode</source>
+      <translation>이전 라벨 유지 전환</translation>
+    </message>
+    <message>
+      <source>Toggle Visibility Shapes</source>
+      <translation>객체 표시 전환</translation>
+    </message>
+    <message>
+      <source>Zoom In</source>
+      <translation>확대</translation>
+    </message>
+    <message>
+      <source>Zoom Out</source>
+      <translation>축소</translation>
+    </message>
+    <message>
+      <source>Zoom To Original</source>
+      <translation>원래 크기</translation>
+    </message>
   </context>
   <context>
     <name>SettingsRuntimeApplier</name>

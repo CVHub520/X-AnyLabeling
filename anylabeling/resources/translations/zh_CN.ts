@@ -8140,6 +8140,310 @@ Changes will not be saved until you click Save.</source>
       <source>Set the minimum log level shown in the application.</source>
       <translation>设置应用程序显示的最低日志级别。</translation>
     </message>
+    <message>
+      <source>Auto Run</source>
+      <translation>自动运行</translation>
+    </message>
+    <message>
+      <source>Auto Label</source>
+      <translation>自动标注</translation>
+    </message>
+    <message>
+      <source>Add Point</source>
+      <translation>添加点</translation>
+    </message>
+    <message>
+      <source>Clear</source>
+      <translation>清除</translation>
+    </message>
+    <message>
+      <source>Finish Object</source>
+      <translation>完成对象</translation>
+    </message>
+    <message>
+      <source>Remove Point</source>
+      <translation>移除点</translation>
+    </message>
+    <message>
+      <source>Run</source>
+      <translation>运行</translation>
+    </message>
+    <message>
+      <source>Open Settings Dialog</source>
+      <translation>打开设置</translation>
+    </message>
+    <message>
+      <source>Open Chatbot Dialog</source>
+      <translation>打开聊天助手</translation>
+    </message>
+    <message>
+      <source>Open VQA Dialog</source>
+      <translation>打开视觉问答</translation>
+    </message>
+    <message>
+      <source>Open Image Classifier Dialog</source>
+      <translation>打开图像分类器</translation>
+    </message>
+    <message>
+      <source>Open Video Classifier</source>
+      <translation>打开视频分类器</translation>
+    </message>
+    <message>
+      <source>Open PaddleOCR Dialog</source>
+      <translation>打开 PaddleOCR</translation>
+    </message>
+    <message>
+      <source>Open Overview Dialog</source>
+      <translation>打开概览</translation>
+    </message>
+    <message>
+      <source>Show Navigator Dialog</source>
+      <translation>显示导航器</translation>
+    </message>
+    <message>
+      <source>Open Digit Shortcut Manager Dialog</source>
+      <translation>打开数字快捷键管理器</translation>
+    </message>
+    <message>
+      <source>Open Group ID Manager</source>
+      <translation>打开组 ID 管理器</translation>
+    </message>
+    <message>
+      <source>Open Label Manager Dialog</source>
+      <translation>打开标签管理器</translation>
+    </message>
+    <message>
+      <source>Open Shape Manager Dialog</source>
+      <translation>打开对象管理器</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>关闭</translation>
+    </message>
+    <message>
+      <source>Delete File</source>
+      <translation>删除文件</translation>
+    </message>
+    <message>
+      <source>Delete Image File</source>
+      <translation>删除图像文件</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>打开文件</translation>
+    </message>
+    <message>
+      <source>Open Dir</source>
+      <translation>打开文件夹</translation>
+    </message>
+    <message>
+      <source>Open Video</source>
+      <translation>打开视频</translation>
+    </message>
+    <message>
+      <source>Quit</source>
+      <translation>退出</translation>
+    </message>
+    <message>
+      <source>Save As</source>
+      <translation>另存为</translation>
+    </message>
+    <message>
+      <source>Save To</source>
+      <translation>设置保存目录</translation>
+    </message>
+    <message>
+      <source>Switch Next Image</source>
+      <translation>下一张图像</translation>
+    </message>
+    <message>
+      <source>Switch Next Unchecked Image</source>
+      <translation>下一张未检查图像</translation>
+    </message>
+    <message>
+      <source>Switch Prev Image</source>
+      <translation>上一张图像</translation>
+    </message>
+    <message>
+      <source>Switch Prev Unchecked Image</source>
+      <translation>上一张未检查图像</translation>
+    </message>
+    <message>
+      <source>Add Point To Edge</source>
+      <translation>在线段上添加点</translation>
+    </message>
+    <message>
+      <source>Copy Polygon</source>
+      <translation>复制对象</translation>
+    </message>
+    <message>
+      <source>Create Brush Polygon</source>
+      <translation>画笔绘制多边形</translation>
+    </message>
+    <message>
+      <source>Create Magic Wand</source>
+      <translation>魔棒选择</translation>
+    </message>
+    <message>
+      <source>Create Circle</source>
+      <translation>创建圆形</translation>
+    </message>
+    <message>
+      <source>Create Cuboid</source>
+      <translation>创建长方体</translation>
+    </message>
+    <message>
+      <source>Create Line</source>
+      <translation>创建线条</translation>
+    </message>
+    <message>
+      <source>Create Linestrip</source>
+      <translation>创建折线</translation>
+    </message>
+    <message>
+      <source>Create Point</source>
+      <translation>创建点</translation>
+    </message>
+    <message>
+      <source>Create Polygon</source>
+      <translation>创建多边形</translation>
+    </message>
+    <message>
+      <source>Create Quadrilateral</source>
+      <translation>创建四边形</translation>
+    </message>
+    <message>
+      <source>Create Rectangle</source>
+      <translation>创建矩形</translation>
+    </message>
+    <message>
+      <source>Create Rotation</source>
+      <translation>创建旋转框</translation>
+    </message>
+    <message>
+      <source>Delete Polygon</source>
+      <translation>删除对象</translation>
+    </message>
+    <message>
+      <source>Duplicate Polygon</source>
+      <translation>创建对象副本</translation>
+    </message>
+    <message>
+      <source>Edit Brush Mode</source>
+      <translation>画笔编辑模式</translation>
+    </message>
+    <message>
+      <source>Edit Label</source>
+      <translation>编辑标签</translation>
+    </message>
+    <message>
+      <source>Edit Polygon</source>
+      <translation>编辑对象</translation>
+    </message>
+    <message>
+      <source>Group Selected Shapes</source>
+      <translation>将选定的对象分组</translation>
+    </message>
+    <message>
+      <source>Ungroup Selected Shapes</source>
+      <translation>取消选定对象的分组</translation>
+    </message>
+    <message>
+      <source>Loop Thru Labels</source>
+      <translation>循环切换标签</translation>
+    </message>
+    <message>
+      <source>Loop Select Labels</source>
+      <translation>循环选择标签</translation>
+    </message>
+    <message>
+      <source>Hide Selected Polygons</source>
+      <translation>隐藏选中对象</translation>
+    </message>
+    <message>
+      <source>Paste Polygon</source>
+      <translation>粘贴对象</translation>
+    </message>
+    <message>
+      <source>Remove Selected Point</source>
+      <translation>删除所选点</translation>
+    </message>
+    <message>
+      <source>Show Hidden Polygons</source>
+      <translation>显示隐藏对象</translation>
+    </message>
+    <message>
+      <source>Undo</source>
+      <translation>撤销</translation>
+    </message>
+    <message>
+      <source>Undo Last Point</source>
+      <translation>撤销上一个点</translation>
+    </message>
+    <message>
+      <source>Union Selected Shapes</source>
+      <translation>合并选中对象</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>适应宽度</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>适应窗口</translation>
+    </message>
+    <message>
+      <source>Show Attributes</source>
+      <translation>显示属性</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>显示标签</translation>
+    </message>
+    <message>
+      <source>Show Linking</source>
+      <translation>显示关联</translation>
+    </message>
+    <message>
+      <source>Show Masks</source>
+      <translation>显示掩码</translation>
+    </message>
+    <message>
+      <source>Show Texts</source>
+      <translation>显示文本</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Gid</source>
+      <translation>切换自动沿用上一个组 ID</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Label</source>
+      <translation>切换自动沿用上一个标签</translation>
+    </message>
+    <message>
+      <source>Toggle Compare View</source>
+      <translation>切换对比视图</translation>
+    </message>
+    <message>
+      <source>Toggle Keep Prev Mode</source>
+      <translation>切换保留上一张标注</translation>
+    </message>
+    <message>
+      <source>Toggle Visibility Shapes</source>
+      <translation>切换对象可见性</translation>
+    </message>
+    <message>
+      <source>Zoom In</source>
+      <translation>放大</translation>
+    </message>
+    <message>
+      <source>Zoom Out</source>
+      <translation>缩小</translation>
+    </message>
+    <message>
+      <source>Zoom To Original</source>
+      <translation>原始大小</translation>
+    </message>
   </context>
   <context>
     <name>SettingsRuntimeApplier</name>

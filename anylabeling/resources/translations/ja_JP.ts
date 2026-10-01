@@ -8140,6 +8140,310 @@ Changes will not be saved until you click Save.</source>
       <source>Set the minimum log level shown in the application.</source>
       <translation>アプリケーションに表示する最小ログレベルを設定します。</translation>
     </message>
+    <message>
+      <source>Auto Run</source>
+      <translation>自動実行</translation>
+    </message>
+    <message>
+      <source>Auto Label</source>
+      <translation>自動アノテーション</translation>
+    </message>
+    <message>
+      <source>Add Point</source>
+      <translation>点を追加</translation>
+    </message>
+    <message>
+      <source>Clear</source>
+      <translation>クリア</translation>
+    </message>
+    <message>
+      <source>Finish Object</source>
+      <translation>オブジェクトを完了</translation>
+    </message>
+    <message>
+      <source>Remove Point</source>
+      <translation>点を削除</translation>
+    </message>
+    <message>
+      <source>Run</source>
+      <translation>実行</translation>
+    </message>
+    <message>
+      <source>Open Settings Dialog</source>
+      <translation>設定を開く</translation>
+    </message>
+    <message>
+      <source>Open Chatbot Dialog</source>
+      <translation>チャットボットを開く</translation>
+    </message>
+    <message>
+      <source>Open VQA Dialog</source>
+      <translation>視覚的質問応答を開く</translation>
+    </message>
+    <message>
+      <source>Open Image Classifier Dialog</source>
+      <translation>画像分類を開く</translation>
+    </message>
+    <message>
+      <source>Open Video Classifier</source>
+      <translation>動画分類を開く</translation>
+    </message>
+    <message>
+      <source>Open PaddleOCR Dialog</source>
+      <translation>PaddleOCR を開く</translation>
+    </message>
+    <message>
+      <source>Open Overview Dialog</source>
+      <translation>概要を開く</translation>
+    </message>
+    <message>
+      <source>Show Navigator Dialog</source>
+      <translation>ナビゲーターを表示</translation>
+    </message>
+    <message>
+      <source>Open Digit Shortcut Manager Dialog</source>
+      <translation>数字ショートカット管理を開く</translation>
+    </message>
+    <message>
+      <source>Open Group ID Manager</source>
+      <translation>グループ ID 管理を開く</translation>
+    </message>
+    <message>
+      <source>Open Label Manager Dialog</source>
+      <translation>ラベル管理を開く</translation>
+    </message>
+    <message>
+      <source>Open Shape Manager Dialog</source>
+      <translation>オブジェクト管理を開く</translation>
+    </message>
+    <message>
+      <source>Close</source>
+      <translation>閉じる</translation>
+    </message>
+    <message>
+      <source>Delete File</source>
+      <translation>ファイルを削除</translation>
+    </message>
+    <message>
+      <source>Delete Image File</source>
+      <translation>画像ファイルを削除</translation>
+    </message>
+    <message>
+      <source>Open</source>
+      <translation>ファイルを開く</translation>
+    </message>
+    <message>
+      <source>Open Dir</source>
+      <translation>フォルダを開く</translation>
+    </message>
+    <message>
+      <source>Open Video</source>
+      <translation>ビデオを開く</translation>
+    </message>
+    <message>
+      <source>Quit</source>
+      <translation>終了</translation>
+    </message>
+    <message>
+      <source>Save As</source>
+      <translation>名前を付けて保存</translation>
+    </message>
+    <message>
+      <source>Save To</source>
+      <translation>保存先フォルダーを設定</translation>
+    </message>
+    <message>
+      <source>Switch Next Image</source>
+      <translation>次の画像</translation>
+    </message>
+    <message>
+      <source>Switch Next Unchecked Image</source>
+      <translation>次の未確認画像</translation>
+    </message>
+    <message>
+      <source>Switch Prev Image</source>
+      <translation>前の画像</translation>
+    </message>
+    <message>
+      <source>Switch Prev Unchecked Image</source>
+      <translation>前の未確認画像</translation>
+    </message>
+    <message>
+      <source>Add Point To Edge</source>
+      <translation>エッジにポイントを追加</translation>
+    </message>
+    <message>
+      <source>Copy Polygon</source>
+      <translation>オブジェクトをコピー</translation>
+    </message>
+    <message>
+      <source>Create Brush Polygon</source>
+      <translation>ブラシでポリゴンを描画</translation>
+    </message>
+    <message>
+      <source>Create Magic Wand</source>
+      <translation>マジックワンド選択</translation>
+    </message>
+    <message>
+      <source>Create Circle</source>
+      <translation>円を作成</translation>
+    </message>
+    <message>
+      <source>Create Cuboid</source>
+      <translation>直方体を作成</translation>
+    </message>
+    <message>
+      <source>Create Line</source>
+      <translation>ラインを作成</translation>
+    </message>
+    <message>
+      <source>Create Linestrip</source>
+      <translation>折れ線を作成</translation>
+    </message>
+    <message>
+      <source>Create Point</source>
+      <translation>ポイントを作成</translation>
+    </message>
+    <message>
+      <source>Create Polygon</source>
+      <translation>ポリゴンを作成</translation>
+    </message>
+    <message>
+      <source>Create Quadrilateral</source>
+      <translation>四辺形を作成</translation>
+    </message>
+    <message>
+      <source>Create Rectangle</source>
+      <translation>矩形を作成</translation>
+    </message>
+    <message>
+      <source>Create Rotation</source>
+      <translation>回転ボックスを作成</translation>
+    </message>
+    <message>
+      <source>Delete Polygon</source>
+      <translation>オブジェクトを削除</translation>
+    </message>
+    <message>
+      <source>Duplicate Polygon</source>
+      <translation>オブジェクトを複製</translation>
+    </message>
+    <message>
+      <source>Edit Brush Mode</source>
+      <translation>ブラシ編集モード</translation>
+    </message>
+    <message>
+      <source>Edit Label</source>
+      <translation>ラベルを編集</translation>
+    </message>
+    <message>
+      <source>Edit Polygon</source>
+      <translation>オブジェクトを編集</translation>
+    </message>
+    <message>
+      <source>Group Selected Shapes</source>
+      <translation>選択した図形をグループ化</translation>
+    </message>
+    <message>
+      <source>Ungroup Selected Shapes</source>
+      <translation>選択した図形のグループを解除</translation>
+    </message>
+    <message>
+      <source>Loop Thru Labels</source>
+      <translation>ラベルを順に切り替え</translation>
+    </message>
+    <message>
+      <source>Loop Select Labels</source>
+      <translation>ラベルをループ選択</translation>
+    </message>
+    <message>
+      <source>Hide Selected Polygons</source>
+      <translation>選択したポリゴンを非表示</translation>
+    </message>
+    <message>
+      <source>Paste Polygon</source>
+      <translation>オブジェクトを貼り付け</translation>
+    </message>
+    <message>
+      <source>Remove Selected Point</source>
+      <translation>選択したポイントを削除</translation>
+    </message>
+    <message>
+      <source>Show Hidden Polygons</source>
+      <translation>非表示のポリゴンを表示</translation>
+    </message>
+    <message>
+      <source>Undo</source>
+      <translation>元に戻す</translation>
+    </message>
+    <message>
+      <source>Undo Last Point</source>
+      <translation>最後の点を取り消す</translation>
+    </message>
+    <message>
+      <source>Union Selected Shapes</source>
+      <translation>選択したオブジェクトを結合</translation>
+    </message>
+    <message>
+      <source>Fit Width</source>
+      <translation>幅に合わせる</translation>
+    </message>
+    <message>
+      <source>Fit Window</source>
+      <translation>ウィンドウに合わせる</translation>
+    </message>
+    <message>
+      <source>Show Attributes</source>
+      <translation>属性を表示</translation>
+    </message>
+    <message>
+      <source>Show Labels</source>
+      <translation>ラベルを表示</translation>
+    </message>
+    <message>
+      <source>Show Linking</source>
+      <translation>リンクを表示</translation>
+    </message>
+    <message>
+      <source>Show Masks</source>
+      <translation>マスクを表示</translation>
+    </message>
+    <message>
+      <source>Show Texts</source>
+      <translation>テキストを表示</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Gid</source>
+      <translation>前のグループ ID の自動使用を切り替え</translation>
+    </message>
+    <message>
+      <source>Toggle Auto Use Last Label</source>
+      <translation>前のラベルの自動使用を切り替え</translation>
+    </message>
+    <message>
+      <source>Toggle Compare View</source>
+      <translation>比較表示を切り替え</translation>
+    </message>
+    <message>
+      <source>Toggle Keep Prev Mode</source>
+      <translation>前のアノテーションの保持を切り替え</translation>
+    </message>
+    <message>
+      <source>Toggle Visibility Shapes</source>
+      <translation>オブジェクトの表示を切り替え</translation>
+    </message>
+    <message>
+      <source>Zoom In</source>
+      <translation>ズームイン</translation>
+    </message>
+    <message>
+      <source>Zoom Out</source>
+      <translation>ズームアウト</translation>
+    </message>
+    <message>
+      <source>Zoom To Original</source>
+      <translation>元のサイズ</translation>
+    </message>
   </context>
   <context>
     <name>SettingsRuntimeApplier</name>
