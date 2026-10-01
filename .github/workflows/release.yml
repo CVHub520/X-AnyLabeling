@@ -96,7 +96,16 @@ jobs:
         env:
           QT_QPA_PLATFORM: xcb
           LIBGL_ALWAYS_SOFTWARE: "1"
-        run: xvfb-run -a -s "-screen 0 1920x1080x24" pytest --capture=sys tests/test_pointcloud
+        run: |
+          python - <<'PY'
+          import ctypes
+          from pathlib import Path
+          from PyQt6.QtCore import QLibraryInfo
+
+          plugins = Path(QLibraryInfo.path(QLibraryInfo.LibraryPath.PluginsPath))
+          ctypes.CDLL(str(plugins / "platforms" / "libqxcb.so"))
+          PY
+          xvfb-run -a -s "-screen 0 1920x1080x24" pytest --capture=sys tests/test_pointcloud
 
   build:
     name: Build ${{ matrix.name }}
