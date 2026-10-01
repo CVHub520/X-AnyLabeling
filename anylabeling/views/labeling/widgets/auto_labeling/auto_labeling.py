@@ -437,6 +437,7 @@ class AutoLabelingWidget(QWidget):
         self.hide_labeling_widgets()
 
         # Handle close button
+        self.button_close.hide()
         self.button_close.clicked.connect(self.unload_and_hide)
 
         self.auto_labeling_mode_changed.connect(self.update_button_colors)
