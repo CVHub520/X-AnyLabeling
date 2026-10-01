@@ -2,6 +2,8 @@ import os
 import copy
 import re
 import time
+from pathlib import Path
+from urllib.parse import urlparse
 import importlib.resources as pkg_resources
 from threading import Lock, Event
 
@@ -11,7 +13,7 @@ import anylabeling.configs as auto_labeling_configs
 from anylabeling.services.auto_labeling.worker import GenericWorker
 from anylabeling.services.auto_labeling.model import load_model_config
 from anylabeling.views.labeling.logger import logger
-from anylabeling.config import get_config, save_config
+from anylabeling.config import get_config, get_work_directory, save_config
 from anylabeling.services.auto_labeling.types import (
     AutoLabelingResult,
     DownloadCancelledError,
@@ -713,6 +715,62 @@ class ModelManager(QObject):
         self.load_model(model_config["config_file"])
 
         return True
+
+    def get_downloaded_model_files(self, model_name):
+        model_config = next(
+            (
+                config
+                for config in self.model_configs
+                if config["name"] == model_name
+            ),
+            None,
+        )
+        if model_config is None or os.path.basename(model_name) != model_name:
+            return []
+        files = set()
+        for data_dir in ("xanylabeling_data", "anylabeling_data"):
+            root = Path(get_work_directory(), data_dir, "models").resolve()
+            directory = root / model_name
+            if directory.resolve().parent != root or directory.is_symlink():
+                continue
+            for key, value in model_config.items():
+                if not (
+                    key.endswith("_path")
+                    and isinstance(value, str)
+                    and value.startswith(("http://", "https://"))
+                ):
+                    continue
+                filename = os.path.basename(urlparse(value).path)
+                path = directory / filename
+                if (
+                    path.is_file()
+                    and not path.is_symlink()
+                    and path.resolve().parent == directory.resolve()
+                ):
+                    files.add(str(path))
+        return sorted(files)
+
+    def delete_downloaded_model_files(self, model_name):
+        if self.is_model_download_running() or (
+            self.model_execution_thread is not None
+            and self.model_execution_thread.isRunning()
+        ):
+            raise RuntimeError(
+                self.tr("Wait for model loading or inference to finish.")
+            )
+        files = self.get_downloaded_model_files(model_name)
+        if not files:
+            return
+        if (
+            self.loaded_model_config is not None
+            and self.loaded_model_config.get("name") == model_name
+        ):
+            self.unload_model()
+            self.auto_segmentation_model_unselected.emit()
+            self.model_loaded.emit({})
+            self.new_model_status.emit(self.tr("No model selected."))
+        for path in files:
+            os.remove(path)
 
     def remove_custom_model(self, model_name):
         """Forget a custom model without deleting its config or weights."""

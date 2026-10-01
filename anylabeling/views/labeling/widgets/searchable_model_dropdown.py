@@ -18,6 +18,7 @@ from anylabeling.views.labeling.chatbot.config import *
 from anylabeling.views.labeling.chatbot.utils import load_json, save_json
 from anylabeling.views.labeling.utils.qt import new_icon, new_icon_path
 from anylabeling.views.labeling.utils.theme import get_theme
+from anylabeling.views.labeling.pointcloud.icons import center_pixmap
 
 
 def _get_models_config_path():
@@ -110,6 +111,7 @@ class ModelItem(QFrame):
     clicked = pyqtSignal(str)
     favoriteToggled = pyqtSignal(str, bool)
     removeRequested = pyqtSignal(str)
+    downloadDeleteRequested = pyqtSignal(str)
 
     def __init__(
         self,
@@ -118,6 +120,7 @@ class ModelItem(QFrame):
         in_favorites_section=False,
         parent=None,
         removable=False,
+        downloaded=False,
     ):
         super().__init__(parent)
         self.model_name = model_name
@@ -173,18 +176,29 @@ class ModelItem(QFrame):
         layout.addWidget(self.star_icon, 0, Qt.AlignmentFlag.AlignVCenter)
 
         self.trash_button = None
-        if removable:
+        if removable or downloaded:
             self.trash_button = QPushButton()
             self.trash_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
             self.trash_button.setFixedSize(*ICON_SIZE_SMALL)
-            self.trash_button.setIcon(new_icon("trash", "svg"))
-            self.trash_button.setToolTip(self.tr("Remove custom model"))
+            self.trash_button.setIcon(
+                QIcon(center_pixmap(new_icon("trash", "svg").pixmap(32, 32)))
+            )
+            self.trash_button.setToolTip(
+                self.tr("Delete downloaded model files")
+                if downloaded
+                else self.tr("Remove custom model")
+            )
+            self.trash_button.setAccessibleName(self.trash_button.toolTip())
             self.trash_button.setVisible(False)
             self.trash_button.setStyleSheet(
                 "QPushButton { border: none; background: transparent; }"
             )
             self.trash_button.clicked.connect(
-                lambda: self.removeRequested.emit(self.model_name)
+                lambda: (
+                    self.downloadDeleteRequested
+                    if downloaded
+                    else self.removeRequested
+                ).emit(self.model_name)
             )
             layout.addWidget(
                 self.trash_button, 0, Qt.AlignmentFlag.AlignVCenter
@@ -200,6 +214,8 @@ class ModelItem(QFrame):
                 background-color: {t["surface_hover"]};
             }}
         """)
+        if self.is_selected:
+            self.update_selection(True)
 
     def enterEvent(self, event):
         self.star_icon.setVisible(True)
@@ -255,6 +271,7 @@ class ModelItem(QFrame):
 class SearchableModelDropdownPopup(QWidget):
     modelSelected = pyqtSignal(str, str)
     modelRemoveRequested = pyqtSignal(str)
+    modelDownloadDeleteRequested = pyqtSignal(str)
 
     def __init__(self, models_data: dict = {}, parent=None):
         super().__init__(parent)
@@ -335,6 +352,7 @@ class SearchableModelDropdownPopup(QWidget):
         main_layout.addWidget(scroll_area)
 
         self.model_items = {}
+        self.downloaded_models = set()
         self.models_data = models_data
         self.setup_model_list()
 
@@ -367,6 +385,7 @@ class SearchableModelDropdownPopup(QWidget):
                     model_name,
                     model_data,
                     in_favorites_section=True,
+                    downloaded=model_name in self.downloaded_models,
                     removable=(
                         provider == "Custom"
                         and model_name != "load_custom_model"
@@ -374,6 +393,9 @@ class SearchableModelDropdownPopup(QWidget):
                 )
                 model_item.clicked.connect(self.select_model)
                 model_item.removeRequested.connect(self.modelRemoveRequested)
+                model_item.downloadDeleteRequested.connect(
+                    self.modelDownloadDeleteRequested
+                )
                 model_item.favoriteToggled.connect(self.toggle_favorite)
                 fav_section.add_model_item(model_item)
                 self.model_items[model_name] = model_item
@@ -395,6 +417,7 @@ class SearchableModelDropdownPopup(QWidget):
                 model_item = ModelItem(
                     model_name,
                     model_data,
+                    downloaded=model_name in self.downloaded_models,
                     removable=(
                         provider == "Custom"
                         and model_name != "load_custom_model"
@@ -402,6 +425,9 @@ class SearchableModelDropdownPopup(QWidget):
                 )
                 model_item.clicked.connect(self.select_model)
                 model_item.removeRequested.connect(self.modelRemoveRequested)
+                model_item.downloadDeleteRequested.connect(
+                    self.modelDownloadDeleteRequested
+                )
                 model_item.favoriteToggled.connect(self.toggle_favorite)
                 provider_section.add_model_item(model_item)
                 self.model_items[model_name] = model_item
