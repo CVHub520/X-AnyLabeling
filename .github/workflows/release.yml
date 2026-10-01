@@ -79,6 +79,8 @@ jobs:
             libpulse0 \
             libxkbcommon-x11-0 \
             libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-keysyms1 \
             libxcb-xinerama0 \
             libgl1-mesa-dri \
             xauth \
@@ -94,7 +96,7 @@ jobs:
         env:
           QT_QPA_PLATFORM: xcb
           LIBGL_ALWAYS_SOFTWARE: "1"
-        run: xvfb-run -a -s "-screen 0 1920x1080x24" pytest tests/test_pointcloud
+        run: xvfb-run -a -s "-screen 0 1920x1080x24" pytest --capture=sys tests/test_pointcloud
 
   build:
     name: Build ${{ matrix.name }}
