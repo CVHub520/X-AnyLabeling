@@ -70,7 +70,6 @@ from .utils.file_search import (
 from .utils.qt import new_icon_path
 from .utils.theme import get_theme
 from .pointcloud.icons import get_icon
-from .pointcloud.controls import ShortcutsDialog
 from .widgets import (
     AboutDialog,
     AutoLabelingWidget,
@@ -2693,6 +2692,8 @@ class LabelingWidget(LabelDialog):
         QtCore.QTimer.singleShot(100, self.restore_navigator_state)
 
     def show_shortcuts(self):
+        from .pointcloud.controls import ShortcutsDialog
+
         shortcuts = self._config["shortcuts"]
         groups = []
         for section in SETTINGS_SHORTCUT_SECTIONS:

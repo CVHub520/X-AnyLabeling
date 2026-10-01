@@ -19,12 +19,14 @@ X-AnyLabeling 4.1.0 introduces a dedicated 3D point cloud annotation workspace, 
 - Fix point cloud file loading crashes on Windows.
 - Fix RF-DETR top-k selection boundaries and preserve empty selections. (#1450)
 - Remove the broken standalone converter entry point that raised a TypeError.
+- Preserve lazy loading of point cloud modules when adding the keyboard shortcuts dialog.
 
 ### 🛠️ Improvements
 
 - Unify auto-labeling model loading while preserving static lazy imports. (#1454)
 - Streamline the AI panel layout and remove its redundant close button.
 - Expand English and Chinese point cloud guides, sample datasets, and classification documentation.
+- Run release tests with a virtual display and software OpenGL rendering for point cloud coverage.
 
 ### 🌟 Contributors
 

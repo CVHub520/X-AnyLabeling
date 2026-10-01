@@ -1267,7 +1267,7 @@ def test_side_view_expand_button_hover_and_layout_restore(
     window.resize(1200, 900)
     window.show()
     window.activateWindow()
-    app.processEvents()
+    assert QtTest.QTest.qWaitForWindowActive(window)
     workspace.setSizes([500, 220])
     workspace.orthographic.setSizes([220, 300, 250])
     app.processEvents()

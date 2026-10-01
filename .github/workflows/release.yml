@@ -79,13 +79,22 @@ jobs:
             libpulse0 \
             libxkbcommon-x11-0 \
             libxcb-cursor0 \
-            libxcb-xinerama0
+            libxcb-xinerama0 \
+            libgl1-mesa-dri \
+            xauth \
+            xvfb
 
       - name: Install dependencies
         run: uv pip install --system -e ".[cpu,dev]"
 
       - name: Run tests
-        run: pytest --ignore=tests/test_widgets/test_toolbar_layout.py
+        run: pytest --ignore=tests/test_widgets/test_toolbar_layout.py --ignore=tests/test_pointcloud
+
+      - name: Run point cloud tests
+        env:
+          QT_QPA_PLATFORM: xcb
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: xvfb-run -a -s "-screen 0 1920x1080x24" pytest tests/test_pointcloud
 
   build:
     name: Build ${{ matrix.name }}

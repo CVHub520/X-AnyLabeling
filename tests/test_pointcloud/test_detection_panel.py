@@ -129,6 +129,8 @@ def test_switching_tasks_restores_segmentation_filters_and_tools(panel):
 def test_switching_tasks_cancels_creation_and_disables_detection_shortcuts(
     panel, app
 ):
+    panel.window.activateWindow()
+    assert QtTest.QTest.qWaitForWindowActive(panel.window)
     panel.start_creation()
     assert panel.views[0].creating
     panel.window.sidebar_tabs.setCurrentIndex(1)
