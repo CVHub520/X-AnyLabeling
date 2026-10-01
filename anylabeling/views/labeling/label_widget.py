@@ -2426,7 +2426,6 @@ class LabelingWidget(LabelDialog):
         instruction_layout.addWidget(self.shortcuts_button)
         instruction_layout.addWidget(self.sidebar_toggle_button)
         central_layout.addLayout(instruction_layout)
-        central_layout.addSpacing(5)
         central_layout.addWidget(self.auto_labeling_widget)
         central_layout.addWidget(scroll_area)
         central_layout.addWidget(self.compare_view_slider)
